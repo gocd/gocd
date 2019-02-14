@@ -170,7 +170,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
                 throw new UserEnabledException();
             }
             sessionFactory.getCurrentSession().delete(user);
-            accessTokenDao.revokeTokensForUsers(Collections.singletonList(username), "Revoked because user was deleted by " + byWhom, byWhom);
+            accessTokenDao.revokeTokensBecauseOfUserDelete(Collections.singletonList(username), byWhom);
             return Boolean.TRUE;
         });
     }
@@ -182,7 +182,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
             Query query = sessionFactory.getCurrentSession().createQuery(queryString);
             query.setParameterList("userNames", userNames);
             query.executeUpdate();
-            accessTokenDao.revokeTokensForUsers(userNames, "Revoked because user was deleted by " + byWhom, byWhom);
+            accessTokenDao.revokeTokensBecauseOfUserDelete(userNames, byWhom);
             return Boolean.TRUE;
         });
     }

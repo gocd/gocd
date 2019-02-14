@@ -416,7 +416,7 @@ public class UserSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteUsers() {
+    public void shouldDeleteUsersAlongWithTokensAssociatedWithThem() {
         User john = new User("john");
         john.disable();
         User joan = new User("joan");
@@ -427,8 +427,8 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(john);
         userDao.saveOrUpdate(joan);
 
-        AccessToken tokenForJohn = accessTokenService.create("my token", john.getName(), "blah");
-        AccessToken tokenForJoan = accessTokenService.create("my token", joan.getName(), "blah");
+        accessTokenService.create("my token", john.getName(), "blah");
+        accessTokenService.create("my token", joan.getName(), "blah");
 
         assertThat(accessTokenService.findAllTokensForUser(john.getName()), hasSize(1));
         assertThat(accessTokenService.findAllTokensForUser(joan.getName()), hasSize(1));
@@ -436,16 +436,8 @@ public class UserSqlMapDaoIntegrationTest {
         boolean result = userDao.deleteUsers(userNames, "currentUser");
         assertThat(result, is(true));
 
-        List<AccessToken> allTokensForJohn = accessTokenService.findAllTokensForUser(john.getName());
-        List<AccessToken> allTokensForJoan = accessTokenService.findAllTokensForUser(joan.getName());
-
-        assertThat(allTokensForJohn, hasSize(1));
-        assertThat(allTokensForJohn.get(0).isRevoked(), is(true));
-        assertThat(allTokensForJohn.get(0).getRevokedBy(), is("currentUser"));
-
-        assertThat(allTokensForJoan, hasSize(1));
-        assertThat(allTokensForJoan.get(0).isRevoked(), is(true));
-        assertThat(allTokensForJoan.get(0).getRevokedBy(), is("currentUser"));
+        assertThat(accessTokenService.findAllTokensForUser(john.getName()), hasSize(0));
+        assertThat(accessTokenService.findAllTokensForUser(joan.getName()), hasSize(0));
 
         Users users = userDao.allUsers();
         assertThat(users, is(empty()));

@@ -26,8 +26,9 @@
             <generator class="identity"/>
         </id>
         <property name="value"/>
+        <property name="deletedBecauseUserDeleted" />
         <property name="description"/>
-        <property name="isRevoked"/>
+        <property name="revoked"/>
         <property name="revokedAt"/>
         <property name="createdAt"/>
         <property name="lastUsed"/>

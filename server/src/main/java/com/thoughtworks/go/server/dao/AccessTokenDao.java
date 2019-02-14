@@ -26,9 +26,11 @@ public interface AccessTokenDao {
 
     AccessToken load(long id);
 
+    List<AccessToken> findAllTokens();
+
     List<AccessToken> findAllTokensForUser(String username);
 
     AccessToken findAccessTokenBySaltId(String saltId);
 
-    void revokeTokensForUsers(Collection<String> usernames, String cause, String byWhom);
+    void revokeTokensBecauseOfUserDelete(Collection<String> usernames, String byWhom);
 }

@@ -34,7 +34,7 @@ public class AccessTokenRepresenter {
                 .add("description", token.getDescription())
                 .add("auth_config_id", token.getAuthConfigId())
                 .addChild("_meta", metaWriter -> {
-                    metaWriter.add("is_revoked", token.isRevoked())
+                    metaWriter.add("revoked", token.isRevoked())
                             .add("revoked_at", token.getRevokedAt())
                             .add("created_at", token.getCreatedAt())
                             .add("last_used_at", token.getLastUsed());

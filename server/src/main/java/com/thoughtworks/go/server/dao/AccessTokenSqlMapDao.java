@@ -60,11 +60,20 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
     @Override
     public List<AccessToken> findAllTokensForUser(String username) {
         return (List<AccessToken>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-            Query query = sessionFactory.getCurrentSession().createQuery("FROM AccessToken where username = :username");
+            Query query = sessionFactory.getCurrentSession().createQuery("FROM AccessToken WHERE deletedBecauseUserDeleted = :deletedBecauseUserDeleted AND username = :username");
             query.setString("username", username);
+            query.setBoolean("deletedBecauseUserDeleted", false);
             query.setCacheable(true);
             return query.list();
         });
+    }
+
+    @Override
+    public List<AccessToken> findAllTokens() {
+        return transactionTemplate.execute(status -> sessionFactory.getCurrentSession()
+                .createQuery("FROM AccessToken")
+                .setCacheable(true)
+                .list());
     }
 
     @Override
@@ -77,14 +86,14 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
     }
 
     @Override
-    public void revokeTokensForUsers(Collection<String> usernames, String cause, String byWhom) {
+    public void revokeTokensBecauseOfUserDelete(Collection<String> usernames, String byWhom) {
         transactionTemplate.execute(status -> {
             Session currentSession = sessionFactory.getCurrentSession();
             usernames
                     .stream()
                     .flatMap(username -> findAllTokensForUser(username).stream())
                     .forEach(accessToken -> {
-                        accessToken.revoke(byWhom, cause, clock.currentTimestamp());
+                        accessToken.revokeBecauseOfUserDelete(byWhom, clock.currentTimestamp());
                         currentSession.saveOrUpdate(accessToken);
                     });
             return Boolean.TRUE;
@@ -94,4 +103,5 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
     public AccessToken load(final long id) {
         return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(AccessToken.class, id));
     }
+
 }

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.util.Clock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,6 +26,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessToken;
@@ -40,6 +43,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AccessTokenSqlMapDaoIntegrationTest {
     @Autowired
     private AccessTokenSqlMapDao accessTokenSqlMapDao;
+
+    @Autowired
+    private Clock clock;
 
     @Autowired
     private DatabaseAccessHelper dbHelper;
@@ -105,5 +111,48 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         String saltId = "access-token-for-apis";
         AccessToken savedAccessToken = accessTokenSqlMapDao.findAccessTokenBySaltId(saltId);
         assertThat(savedAccessToken).isNull();
+    }
+
+    @Test
+    public void shouldNotListDeletedTokens() {
+        String user1 = "Bob";
+        String user2 = "John";
+
+        AccessToken token1 = randomAccessTokenForUser(user1);
+        AccessToken token2 = randomAccessTokenForUser(user1);
+        AccessToken token3 = randomAccessTokenForUser(user2);
+
+        accessTokenSqlMapDao.saveOrUpdate(token1);
+        accessTokenSqlMapDao.saveOrUpdate(token2);
+        accessTokenSqlMapDao.saveOrUpdate(token3);
+
+        List<AccessToken> user1AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user1);
+        List<AccessToken> user2AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user2);
+
+        assertThat(user1AccessTokens).hasSize(2).containsExactlyInAnyOrder(token1, token2);
+        assertThat(user2AccessTokens).hasSize(1).containsExactlyInAnyOrder(token3);
+
+        accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(Arrays.asList("bob", "john"), "admin");
+
+        assertThat(accessTokenSqlMapDao.findAllTokensForUser("bob")).isEmpty();
+        assertThat(accessTokenSqlMapDao.findAllTokensForUser("john")).isEmpty();
+    }
+
+    @Test
+    public void shouldListAllTokens() {
+        String user1 = "will-be-deleted";
+        String user2 = "will-be-revoked";
+
+        AccessToken token1 = randomAccessTokenForUser(user1);
+        AccessToken token2 = randomAccessTokenForUser(user2);
+
+        accessTokenSqlMapDao.saveOrUpdate(token1);
+        accessTokenSqlMapDao.saveOrUpdate(token2);
+
+        accessTokenSqlMapDao.saveOrUpdate(token1.revoke("admin", "user is making too many requests", clock.currentTimestamp()));
+        accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(Collections.singletonList(user2), "admin");
+
+        assertThat(accessTokenSqlMapDao.findAllTokens())
+                .hasSize(2).containsExactlyInAnyOrder(accessTokenSqlMapDao.load(token1.getId()), accessTokenSqlMapDao.load(token2.getId()));
     }
 }

@@ -60,7 +60,7 @@ public class AccessToken extends PersistentObject implements Validatable {
     //this is the hashed token value
     private String value;
     private String description;
-    private boolean isRevoked;
+    private boolean revoked;
     private Timestamp revokedAt;
     private Timestamp createdAt;
     private Timestamp lastUsed;
@@ -70,6 +70,7 @@ public class AccessToken extends PersistentObject implements Validatable {
     private String authConfigId;
     private String revokeCause;
     private String revokedBy;
+    private boolean deletedBecauseUserDeleted;
 
     @EqualsAndHashCode.Exclude
     private transient ConfigErrors errors = new ConfigErrors();
@@ -108,11 +109,16 @@ public class AccessToken extends PersistentObject implements Validatable {
         }
     }
 
-    public void revoke(String revokedBy, String revokeCause, Timestamp revokedAt) {
-        setRevoked(true)
+    public AccessToken revoke(String revokedBy, String revokeCause, Timestamp revokedAt) {
+        return setRevoked(true)
                 .setRevokedBy(revokedBy)
                 .setRevokeCause(revokeCause)
                 .setRevokedAt(revokedAt);
+    }
+
+    public AccessToken revokeBecauseOfUserDelete(String deletedBy, Timestamp revokedAt) {
+        return revoke(deletedBy, "Revoked because user was deleted by " + deletedBy, revokedAt)
+                .setDeletedBecauseUserDeleted(true);
     }
 
     @Override

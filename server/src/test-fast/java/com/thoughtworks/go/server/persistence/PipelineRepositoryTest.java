@@ -33,21 +33,18 @@ import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.dao.DataAccessException;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 
 import java.math.BigInteger;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.*;
 
@@ -192,11 +189,7 @@ public class PipelineRepositoryTest {
         pipelineRepository.setHibernateTemplate(new HibernateTemplate() {
             @Override
             public <T> T execute(HibernateCallback<T> action) throws DataAccessException {
-                try {
-                    return action.doInHibernate(session);
-                } catch (SQLException e) {
-                    throw new RuntimeException();
-                }
+                return action.doInHibernate(session);
             }
         });
         when(session.createSQLQuery(nullable(String.class))).thenReturn(sqlQuery);

@@ -29,8 +29,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -104,7 +104,7 @@ public class AgentDaoTest {
         agentDao.associateCookie(agentIdentifier, "cookie");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
         hibernateTemplate.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid'").uniqueResult();
                 agent.update("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                 session.update(agent);
@@ -125,7 +125,7 @@ public class AgentDaoTest {
         agentDao.associateCookie(agentIdentifier, "cookie");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
         hibernateTemplate.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid'").uniqueResult();
                 agent.update("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                 session.update(agent);
@@ -149,7 +149,7 @@ public class AgentDaoTest {
 
     private Agent getAgentByUuid(AgentIdentifier agentIdentifier) {
         return (Agent) hibernateTemplate.execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 return session.createSQLQuery("SELECT * from agents where uuid = '" + agentIdentifier.getUuid() + "'").addEntity(Agent.class).uniqueResult();
             }
         });

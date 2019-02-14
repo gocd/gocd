@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.persistence;
 import com.thoughtworks.go.domain.ArtifactPropertiesGenerator;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.orm.hibernate4.support.HibernateDaoSupport;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

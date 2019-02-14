@@ -251,17 +251,18 @@ dependencies {
   compile group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
   compile group: 'com.h2database', name: 'h2', version: project.versions.h2db
   compile group: 'net.sf', name: 'dbdeploy', version: '2.11.1'
+
+  compile(group: 'org.hibernate', name: 'hibernate-core', version: project.versions.hibernate)
   compile(group: 'org.hibernate', name: 'hibernate-ehcache', version: project.versions.hibernate) {
+    // superseeded by `net.sf.ehcache:ehcache`
     exclude(module: 'ehcache-core')
-    exclude(module: 'commons-collections')
   }
+  compile group: 'net.sf.ehcache', name: 'ehcache', version: project.versions.ehcache
 
   compile group: 'commons-fileupload', name: 'commons-fileupload', version: project.versions.commonsFileUpload
 
-  compile group: 'javassist', name: 'javassist', version: project.versions.javaAssist
   compile group: 'org.mybatis', name: 'mybatis', version: project.versions.mybatis
   compile group: 'org.mybatis', name: 'mybatis-spring', version: project.versions.mybatisSpring
-  compile group: 'net.sf.ehcache', name: 'ehcache', version: project.versions.ehcache
   compile(group: 'opensymphony', name: 'oscache', version: '2.4.1') {
     exclude(module: 'jms')
     exclude(module: 'servlet-api')
@@ -833,7 +834,7 @@ task verifyWar(type: VerifyJarTask) {
         "activeio-core-3.1.2.jar",
         "activemq-core-5.5.0.jar",
         "activemq-protobuf-1.1.jar",
-        "antlr-2.7.6.jar",
+        "antlr-2.7.7.jar",
         "aopalliance-1.0.jar",
         "AppleJavaExtensions-1.4.jar",
         "asm-3.3.1.jar",
@@ -865,38 +866,42 @@ task verifyWar(type: VerifyJarTask) {
         "dbdeploy-2.11.1.jar",
         "dom4j-1.6.1.jar",
         "domain-${project.version}.jar",
-        "ehcache-${project.versions.ehcache}.jar",
+        "ehcache-2.10.6.jar",
         "geronimo-j2ee-management_1.1_spec-1.0.1.jar",
         "geronimo-jms_1.1_spec-1.1.1.jar",
         "go-plugin-access-${project.version}.jar",
         "go-plugin-activator-${project.version}.jar",
         "go-plugin-api-${project.version}.jar",
-        "go-plugin-config-repo-${project.version}.jar",
         "go-plugin-api-internal-${project.version}.jar",
+        "go-plugin-config-repo-${project.version}.jar",
         "go-plugin-domain-${project.version}.jar",
         "go-plugin-infra-${project.version}.jar",
         "gson-${project.versions.gson}.jar",
         "guava-${project.versions.guava}.jar",
         "h2-${project.versions.h2db}.jar",
-        "hibernate-commons-annotations-3.2.0.Final.jar",
+        "hibernate-commons-annotations-4.0.5.Final.jar",
         "hibernate-core-${project.versions.hibernate}.jar",
         "hibernate-ehcache-${project.versions.hibernate}.jar",
-        "hibernate-jpa-2.0-api-1.0.1.Final.jar",
+        "hibernate-jpa-2.1-api-1.0.0.Final.jar",
         "httpclient-${project.versions.apacheHttpComponents}.jar",
         "httpcore-4.4.10.jar",
         "httpmime-${project.versions.apacheHttpComponents}.jar",
         "jackson-annotations-2.9.0.jar",
         "jackson-core-2.9.4.jar",
         "jackson-databind-2.9.4.jar",
+        "jandex-1.1.0.Final.jar",
         "jasypt-1.7.jar",
         "JavaEWAH-1.1.6.jar",
-        "javassist-${project.versions.javaAssist}.jar",
+        "javassist-3.18.1-GA.jar",
         "javasysmon-0.3.6.jar",
         "javasysmon-wrapper-${project.version}.jar",
         "javax.annotation-api-${project.versions.javaxAnnotation}.jar",
         "javax.inject-1.jar",
         "javax.servlet-api-3.1.0.jar",
         "jaxen-1.1.6.jar",
+        "jboss-logging-3.1.3.GA.jar",
+        "jboss-logging-annotations-1.2.0.Beta1.jar",
+        "jboss-transaction-api_1.2_spec-1.0.0.Final.jar",
         "jcl-over-slf4j-${project.versions.slf4j}.jar",
         "jdom2-${project.versions.jdom}.jar",
         "joda-time-${project.versions.jodaTime}.jar",
@@ -904,7 +909,6 @@ task verifyWar(type: VerifyJarTask) {
         "jruby-complete-${project.versions.jruby}.jar",
         "jruby-rack-${versions.rack}.jar",
         "json-utils-${project.versions.jolt}.jar",
-        "jta-1.1.jar",
         "kahadb-5.5.0.jar",
         "mailapi-${project.versions.mail}.jar",
         "mybatis-${project.versions.mybatis}.jar",
@@ -961,33 +965,6 @@ task licenseReportAggregate {
   outputs.dir(licenseReportAggregateOutputDir)
 
   LinkedHashSet<Map<String, Object>> missingLicenseData = [
-    [
-      moduleName    : 'antlr:antlr',
-      moduleVersion : '2.7.6',
-      moduleUrls    : [
-        "https://www.antlr.org"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'BSD-3-Clause',
-          moduleLicenseUrl: "https://spdx.org/licenses/BSD-3-Clause.html"
-        ]
-      ]
-    ],
-    [
-      moduleName    : 'net.sf.ehcache:ehcache',
-      moduleVersion : '2.10.5',
-      moduleUrls    : [
-        "http://ehcache.org",
-        'http://www.terracotta.org'
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'Apache License, Version 2.0',
-          moduleLicenseUrl: "http://www.apache.org/licenses/LICENSE-2.0"
-        ]
-      ]
-    ],
     [
       moduleName    : 'asm:asm',
       moduleVersion : '1.5.3',
@@ -1076,19 +1053,6 @@ task licenseReportAggregate {
         [
           moduleLicense   : 'MIT',
           moduleLicenseUrl: "https://spdx.org/licenses/MIT.html"
-        ]
-      ]
-    ],
-    [
-      moduleName    : 'org.hibernate.javax.persistence:hibernate-jpa-2.0-api',
-      moduleVersion : '1.0.1.Final',
-      moduleUrls    : [
-        "http://hibernate.org"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'Eclipse Distribution License - v1.0',
-          moduleLicenseUrl: "http://www.eclipse.org/org/documents/edl-v10.php"
         ]
       ]
     ],

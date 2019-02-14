@@ -100,9 +100,8 @@
     <!-- ========================= HIBERNATE ========================= -->
 
     <bean id="hibernateProperties" class="com.thoughtworks.go.server.database.HibernateProperties" />
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
-        <property name="dataSource" ref="goDataSource"/>
-        <property name="useTransactionAwareDataSource" value="true"/>
+    <bean id="sessionFactory" class="com.thoughtworks.go.server.database.LocalSessionFactoryBean">
+        <property name="dataSource" ref="goDataSource" />
         <property name="mappingDirectoryLocations">
             <list>
                 <value>classpath:/hibernate-mappings</value>
@@ -116,7 +115,7 @@
         </property>
     </bean>
 
-    <bean id="goTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <bean id="goTransactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/>
     </bean>
 

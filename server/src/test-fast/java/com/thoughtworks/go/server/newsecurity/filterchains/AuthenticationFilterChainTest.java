@@ -24,12 +24,16 @@ import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.server.newsecurity.filters.*;
 import com.thoughtworks.go.server.newsecurity.handlers.BasicAuthenticationWithChallengeFailureResponseHandler;
-import com.thoughtworks.go.server.newsecurity.models.*;
+import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
+import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
+import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
+import com.thoughtworks.go.server.newsecurity.models.X509Credential;
 import com.thoughtworks.go.server.newsecurity.providers.AnonymousAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.GoAuthority;
+import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -121,7 +125,7 @@ public class AuthenticationFilterChainTest {
                     .build();
 
             final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(clock);
-            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null,null);
+            final AuthenticationFilterChain authenticationFilterChain = new AuthenticationFilterChain(x509AuthenticationFilter, null, null, null, null, null, null, null);
 
             authenticationFilterChain.doFilter(request, response, filterChain);
 
@@ -144,7 +148,7 @@ public class AuthenticationFilterChainTest {
             request.getSession(false).setAttribute(SECURITY_CONFIG_LAST_CHANGE, clock.currentTimeMillis());
 
             final InvalidateAuthenticationOnSecurityConfigChangeFilter invalidateAuthenticationOnSecurityConfigChangeFilter = new InvalidateAuthenticationOnSecurityConfigChangeFilter(
-                    mock(GoConfigService.class), clock, mock(PluginRoleService.class));
+                    mock(GoConfigService.class), clock, mock(AuthorizationExtensionCacheService.class), mock(PluginRoleService.class));
 
             clock.addSeconds(1000);
             invalidateAuthenticationOnSecurityConfigChangeFilter.onPluginRoleChange();

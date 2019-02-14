@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -55,8 +56,12 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
     private GoConfigService goConfigService;
     @Mock
     private PluginRoleService pluginRoleService;
+    @Mock
+    private AuthorizationExtensionCacheService cacheService;
+
     @Captor
     private ArgumentCaptor<ConfigChangedListener> configChangedListenerArgumentCaptor;
+
     private InvalidateAuthenticationOnSecurityConfigChangeFilter filter;
     private TestingClock clock;
     private MockHttpServletResponse response;
@@ -64,6 +69,7 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
     private FilterChain filterChain;
     private SystemEnvironment systemEnvironment;
     private BasicCruiseConfig cruiseConfig;
+
 
     @BeforeEach
     void setUp() {
@@ -77,10 +83,11 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
         cruiseConfig = new BasicCruiseConfig();
         GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
 
-        filter = new InvalidateAuthenticationOnSecurityConfigChangeFilter(goConfigService, clock, pluginRoleService);
+        filter = new InvalidateAuthenticationOnSecurityConfigChangeFilter(goConfigService, clock, cacheService, pluginRoleService);
         filter.initialize();
         filter.onPluginRoleChange();
         filter.onConfigChange(new Cloner().deepClone(cruiseConfig));
+        reset(cacheService);
     }
 
     @Test
@@ -120,6 +127,7 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
         assertThat(SessionUtils.getAuthenticationToken(request).isAuthenticated(clock, systemEnvironment)).isTrue();
         assertThat(request.getSession(false)).isSameAs(originalSession);
         assertThat(request.getSession(false).getAttribute(SECURITY_CONFIG_LAST_CHANGE)).isEqualTo(timeBeforeConfigChange);
+        verifyZeroInteractions(cacheService);
     }
 
     @Test
@@ -144,6 +152,7 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
 
         assertThat(SessionUtils.getAuthenticationToken(request).isAuthenticated(clock, systemEnvironment)).isFalse();
         assertThat(request.getSession(false)).isSameAs(originalSession);
+        verify(cacheService, times(1)).invalidateCache();
     }
 
     @Test
@@ -168,6 +177,7 @@ class InvalidateAuthenticationOnSecurityConfigChangeFilterTest {
         assertThat(SessionUtils.getAuthenticationToken(request).isAuthenticated(clock, systemEnvironment)).isFalse();
         assertThat(request.getSession(false)).isSameAs(originalSession);
         assertThat(request.getSession(false).getAttribute(SECURITY_CONFIG_LAST_CHANGE)).isEqualTo(clock.currentTimeMillis());
+        verify(cacheService, times(1)).invalidateCache();
     }
 
     @Test

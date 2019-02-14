@@ -23,6 +23,7 @@ import com.thoughtworks.go.listener.PluginRoleChangeListener;
 import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import com.thoughtworks.go.util.Clock;
@@ -47,15 +48,18 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
     private SecurityConfig securityConfig;
     private GoConfigService goConfigService;
     private Clock clock;
+    private AuthorizationExtensionCacheService authorizationExtensionCacheService;
     private PluginRoleService pluginRoleService;
     private volatile long lastChangedTime;
 
     @Autowired
     public InvalidateAuthenticationOnSecurityConfigChangeFilter(GoConfigService goConfigService,
                                                                 Clock clock,
+                                                                AuthorizationExtensionCacheService authorizationExtensionCacheService,
                                                                 PluginRoleService pluginRoleService) {
         this.goConfigService = goConfigService;
         this.clock = clock;
+        this.authorizationExtensionCacheService = authorizationExtensionCacheService;
         this.pluginRoleService = pluginRoleService;
     }
 
@@ -66,6 +70,7 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
             @Override
             public void onEntityConfigChange(Object entity) {
                 updateLastChangedTime();
+                authorizationExtensionCacheService.invalidateCache();
             }
         });
     }
@@ -106,6 +111,7 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
         SecurityConfig newSecurityConfig = securityConfig(newCruiseConfig);
         if (!Objects.equals(this.securityConfig, newSecurityConfig)) {
             updateLastChangedTime();
+            authorizationExtensionCacheService.invalidateCache();
         }
         this.securityConfig = newSecurityConfig;
     }
@@ -117,5 +123,6 @@ public class InvalidateAuthenticationOnSecurityConfigChangeFilter extends OncePe
     @Override
     public void onPluginRoleChange() {
         updateLastChangedTime();
+        authorizationExtensionCacheService.invalidateCache();
     }
 }

@@ -19,12 +19,10 @@ package com.thoughtworks.go.server.service;
 import com.google.common.base.Ticker;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.listener.SecurityConfigChangeListener;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.Collections;
@@ -36,7 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class AuthorizationExtensionCacheServiceTest {
+class AuthorizationExtensionCacheServiceTest {
     private final String pluginId = "pluginId";
     private final String username = "username";
     private final SecurityAuthConfig authConfig = new SecurityAuthConfig("ldap", "cd.go.ldap");
@@ -44,20 +42,13 @@ public class AuthorizationExtensionCacheServiceTest {
 
     @Mock
     private AuthorizationExtension authorizationExtension;
-    @Mock
-    private GoConfigService goConfigService;
 
     AuthorizationExtensionCacheService service;
 
     @BeforeEach
     void setUp() {
         initMocks(this);
-        service = new AuthorizationExtensionCacheService(goConfigService, authorizationExtension, ticker);
-    }
-
-    @Test
-    void shouldRegisterSecurityConfigChangeListenerWithGoConfigService() {
-        verify(goConfigService, times(1)).register(any(SecurityConfigChangeListener.class));
+        service = new AuthorizationExtensionCacheService(authorizationExtension, ticker);
     }
 
     @Test
@@ -151,10 +142,6 @@ public class AuthorizationExtensionCacheServiceTest {
 
     @Test
     void shouldInvalidateGetUserRolesCacheWhenSecurityConfigIsChanged() {
-        ArgumentCaptor<SecurityConfigChangeListener> captor = ArgumentCaptor.forClass(SecurityConfigChangeListener.class);
-        verify(goConfigService, times(1)).register(captor.capture());
-        SecurityConfigChangeListener listener = captor.getValue();
-
         List<PluginRoleConfig> pluginRoleConfigs = Collections.emptyList();
         AuthenticationResponse response = new AuthenticationResponse(null, Collections.emptyList());
         when(authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs)).thenReturn(response);
@@ -162,7 +149,7 @@ public class AuthorizationExtensionCacheServiceTest {
         AuthenticationResponse actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
         assertThat(actualResponse).isEqualTo(response);
 
-        listener.onEntityConfigChange(new Object());
+        service.invalidateCache();
 
         actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
         assertThat(actualResponse).isEqualTo(response);
@@ -172,22 +159,17 @@ public class AuthorizationExtensionCacheServiceTest {
 
     @Test
     void shouldInvalidateIsValidUserCacheWhenSecurityConfigIsChanged() {
-        ArgumentCaptor<SecurityConfigChangeListener> captor = ArgumentCaptor.forClass(SecurityConfigChangeListener.class);
-        verify(goConfigService, times(1)).register(captor.capture());
-        SecurityConfigChangeListener listener = captor.getValue();
-
         when(authorizationExtension.isValidUser(pluginId, username, authConfig)).thenReturn(false);
         boolean validUser = service.isValidUser(pluginId, username, authConfig);
         assertThat(validUser).isFalse();
 
-        listener.onEntityConfigChange(new Object());
+        service.invalidateCache();
 
         validUser = service.isValidUser(pluginId, username, authConfig);
         assertThat(validUser).isFalse();
 
         verify(authorizationExtension, times(2)).isValidUser(pluginId, username, authConfig);
     }
-
 
     class FakeTicker extends Ticker {
         private final AtomicLong nanos = new AtomicLong();

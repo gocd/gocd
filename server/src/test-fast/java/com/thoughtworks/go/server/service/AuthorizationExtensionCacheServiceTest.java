@@ -20,7 +20,6 @@ import com.google.common.base.Ticker;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
-import com.thoughtworks.go.plugin.domain.authorization.AuthenticationResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -105,7 +104,7 @@ class AuthorizationExtensionCacheServiceTest {
     @Test
     void shouldLoadFromCacheOnSubsequentCallsToGetUserRoles() {
         List<PluginRoleConfig> pluginRoleConfigs = Collections.emptyList();
-        AuthenticationResponse response = new AuthenticationResponse(null, Collections.emptyList());
+        List<String> response = Collections.emptyList();
         when(authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs)).thenReturn(Collections.emptyList());
 
         List<String> actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);

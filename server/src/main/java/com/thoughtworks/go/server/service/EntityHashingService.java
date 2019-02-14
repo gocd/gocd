@@ -173,6 +173,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
             return cachedMD5;
         }
         String md5 = CachedDigestUtils.md5Hex(fingerprintSupplier.get());
+        goCache.put(ETAG_CACHE_KEY, cacheKey, md5);
 
         return md5;
     }

@@ -76,12 +76,13 @@ public class EntityHashingServiceTest {
 
     @Test
     public void shouldUseObjectHashCodeForPluginSettings() {
-        PluginSettings pluginSettings = new PluginSettings();
-        String expectedMd5 = CachedDigestUtils.md5Hex(String.valueOf(pluginSettings.hashCode()));
+        PluginSettings pluginSettings = new PluginSettings("com.foo.plugin");
+        String expectedMd5 = "8f54eed0331c2bd93ca4cf8f470f4406";
 
         String actualMd5 = entityHashingService.md5ForEntity(pluginSettings);
 
         assertThat(actualMd5, is(expectedMd5));
+        verify(goCache).put("GO_ETAG_CACHE", "com.thoughtworks.go.server.domain.PluginSettings.com.foo.plugin", expectedMd5);
     }
 
     @Test

@@ -41,7 +41,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.joda.time.DateTime;
-import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateCallback;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -261,7 +261,7 @@ public class ScheduleTestUtil {
 
     private List<Modification> modForRev(final RevisionsForMaterial revision) {
         return (List<Modification>) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 Query q = session.createQuery("from Modification where revision in (:in) order by id desc");
                 q.setParameterList("in", revision.revs);
                 List list = q.list();
@@ -287,7 +287,7 @@ public class ScheduleTestUtil {
 
     private Modification modForRev(final String revision) {
         return (Modification) materialRepository.getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 Query q = session.createQuery("from Modification where revision = ?");
                 q.setParameter(0, revision);
                 List list = q.list();

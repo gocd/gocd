@@ -34,8 +34,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.orm.hibernate4.HibernateCallback;
+import org.springframework.orm.hibernate4.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 
 import static java.lang.String.format;
@@ -75,7 +75,7 @@ public class MaterialRepositoryWithH2IntegrationTest {
     public void materialFingerprintShouldUseTheHashAlgoritmInMigration47() throws Exception {
         final HgMaterial material = new HgMaterial("url", null);
         byte[] fingerprint = (byte[]) repo.getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+            public Object doInHibernate(Session session) throws HibernateException {
                 String pattern = format("'type=%s%surl=%s'", material.getType(), AbstractMaterial.FINGERPRINT_DELIMITER, material.getUrl());
                 SQLQuery query = session.createSQLQuery(format("CALL HASH('SHA256', STRINGTOUTF8(%s), 1)", pattern));
                 return query.uniqueResult();

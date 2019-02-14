@@ -73,4 +73,6 @@ public interface AuthorizationMessageConverter {
     String isValidUserRequestBody(String username, SecurityAuthConfig authConfig);
 
     String getUserRolesRequestBody(String username, SecurityAuthConfig authConfig, List<PluginRoleConfig> roleConfigs);
+
+    List<String> getUserRolesFromResponseBody(String responseBody);
 }

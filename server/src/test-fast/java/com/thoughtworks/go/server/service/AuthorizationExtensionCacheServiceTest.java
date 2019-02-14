@@ -52,7 +52,7 @@ class AuthorizationExtensionCacheServiceTest {
     }
 
     @Test
-    void shouldAskAuthorizationExtensionWhetherIsUserIsValid() throws Exception {
+    void shouldAskAuthorizationExtensionWhetherIsUserIsValid() {
         when(authorizationExtension.isValidUser(pluginId, username, authConfig)).thenReturn(false);
         boolean validUser = service.isValidUser(pluginId, username, authConfig);
 
@@ -61,7 +61,7 @@ class AuthorizationExtensionCacheServiceTest {
     }
 
     @Test
-    void shouldLoadFromCacheOnSubsequentCallsToCheckIsUserIsValid() throws Exception {
+    void shouldLoadFromCacheOnSubsequentCallsToCheckIsUserIsValid() {
         when(authorizationExtension.isValidUser(pluginId, username, authConfig)).thenReturn(false);
         boolean validUser = service.isValidUser(pluginId, username, authConfig);
         assertThat(validUser).isFalse();
@@ -92,24 +92,23 @@ class AuthorizationExtensionCacheServiceTest {
     }
 
     @Test
-    void shouldAskAuthorizationExtensionToGetUserRoles() throws Exception {
+    void shouldAskAuthorizationExtensionToGetUserRoles() {
         List<PluginRoleConfig> pluginRoleConfigs = Collections.emptyList();
-        AuthenticationResponse response = new AuthenticationResponse(null, Collections.emptyList());
-        when(authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs)).thenReturn(response);
+        when(authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs)).thenReturn(Collections.emptyList());
 
-        AuthenticationResponse actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
-        assertThat(actualResponse).isEqualTo(response);
+        List<String> actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
+        assertThat(actualResponse).isEqualTo(Collections.emptyList());
 
         verify(authorizationExtension, times(1)).getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
     }
 
     @Test
-    void shouldLoadFromCacheOnSubsequentCallsToGetUserRoles() throws Exception {
+    void shouldLoadFromCacheOnSubsequentCallsToGetUserRoles() {
         List<PluginRoleConfig> pluginRoleConfigs = Collections.emptyList();
         AuthenticationResponse response = new AuthenticationResponse(null, Collections.emptyList());
-        when(authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs)).thenReturn(response);
+        when(authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs)).thenReturn(Collections.emptyList());
 
-        AuthenticationResponse actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
+        List<String> actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
         assertThat(actualResponse).isEqualTo(response);
 
         actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
@@ -121,21 +120,20 @@ class AuthorizationExtensionCacheServiceTest {
     @Test
     void shouldAskExtensionAgainToGetUserRolesWhenCacheExpires() {
         List<PluginRoleConfig> pluginRoleConfigs = Collections.emptyList();
-        AuthenticationResponse response = new AuthenticationResponse(null, Collections.emptyList());
-        when(authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs)).thenReturn(response);
+        when(authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs)).thenReturn(Collections.emptyList());
 
-        AuthenticationResponse actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
-        assertThat(actualResponse).isEqualTo(response);
+        List<String> actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
+        assertThat(actualResponse).isEqualTo(Collections.emptyList());
 
         actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
-        assertThat(actualResponse).isEqualTo(response);
+        assertThat(actualResponse).isEqualTo(Collections.emptyList());
 
         verify(authorizationExtension, times(1)).getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
 
         ticker.advance(31, TimeUnit.MINUTES);
 
         actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
-        assertThat(actualResponse).isEqualTo(response);
+        assertThat(actualResponse).isEqualTo(Collections.emptyList());
 
         verify(authorizationExtension, times(2)).getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
     }
@@ -143,16 +141,15 @@ class AuthorizationExtensionCacheServiceTest {
     @Test
     void shouldInvalidateGetUserRolesCacheWhenSecurityConfigIsChanged() {
         List<PluginRoleConfig> pluginRoleConfigs = Collections.emptyList();
-        AuthenticationResponse response = new AuthenticationResponse(null, Collections.emptyList());
-        when(authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs)).thenReturn(response);
+        when(authorizationExtension.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs)).thenReturn(Collections.emptyList());
 
-        AuthenticationResponse actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
-        assertThat(actualResponse).isEqualTo(response);
+        List<String> actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
+        assertThat(actualResponse).isEqualTo(Collections.emptyList());
 
         service.invalidateCache();
 
         actualResponse = service.getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
-        assertThat(actualResponse).isEqualTo(response);
+        assertThat(actualResponse).isEqualTo(Collections.emptyList());
 
         verify(authorizationExtension, times(2)).getUserRoles(pluginId, username, authConfig, pluginRoleConfigs);
     }

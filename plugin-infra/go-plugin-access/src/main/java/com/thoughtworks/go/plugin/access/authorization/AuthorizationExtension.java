@@ -210,20 +210,20 @@ public class AuthorizationExtension extends AbstractExtension {
         });
     }
 
-    public AuthenticationResponse getUserRoles(String pluginId, String username, SecurityAuthConfig authConfig, List<PluginRoleConfig> roleConfigs) {
+    public List<String> getUserRoles(String pluginId, String username, SecurityAuthConfig authConfig, List<PluginRoleConfig> roleConfigs) {
         if (authConfig == null) {
             throw new MissingAuthConfigsException(format("Request '%s' requires an AuthConfig. Make sure Authconfig is configured for the plugin '%s'.", REQUEST_GET_USER_ROLES, pluginId));
         }
 
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_USER_ROLES, new DefaultPluginInteractionCallback<AuthenticationResponse>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_USER_ROLES, new DefaultPluginInteractionCallback<List<String>>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return getMessageConverter(resolvedExtensionVersion).getUserRolesRequestBody(username, authConfig, roleConfigs);
             }
 
             @Override
-            public AuthenticationResponse onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
-                return getMessageConverter(resolvedExtensionVersion).getAuthenticatedUserFromResponseBody(responseBody);
+            public List<String> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                return getMessageConverter(resolvedExtensionVersion).getUserRolesFromResponseBody(responseBody);
             }
         });
     }

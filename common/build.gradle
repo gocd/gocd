@@ -16,8 +16,6 @@
 
 description = 'GoCD Common Module'
 
-apply plugin: 'groovy'
-
 dependencies {
   compile project(':config:config-api')
   compile project(':commandline')
@@ -27,7 +25,6 @@ dependencies {
   compile project(':javasysmon-wrapper')
   compile group: 'dom4j', name: 'dom4j', version: '1.6.1'
   compile(group: 'org.apache.httpcomponents', name: 'httpmime', version: project.versions.apacheHttpComponents)
-  testCompile localGroovy()
   testCompile project(path: ':config:config-api', configuration: 'testOutput')
   testCompile project(path: ':domain', configuration: 'testOutput')
   testCompile group: 'net.javacrumbs.json-unit', name: 'json-unit-fluent', version: project.versions.jsonUnit

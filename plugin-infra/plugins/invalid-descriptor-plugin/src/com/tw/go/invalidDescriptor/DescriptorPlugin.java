@@ -45,14 +45,14 @@ public class DescriptorPlugin implements GoPlugin {
     @Load
     public void onLoad(PluginContext context) {
         logger.info("Boo");
-        System.out.println("Plugin loaded");
+//        System.out.println("Plugin loaded");
         ++loadCalled;
     }
 
     @UnLoad
     public void onUnload(PluginContext context) {
         ++unloadCalled;
-        System.out.println("Plugin unloaded");
+//        System.out.println("Plugin unloaded");
     }
 
     @Override

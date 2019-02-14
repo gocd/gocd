@@ -94,7 +94,6 @@ public class ScriptRunnerTest {
         ExecScript script = new ExecScript("ERROR_STRING");
 
         command.runScript(script, output, environmentVariableContext, null);
-        System.out.println("\n\n\nOutput: " + output.asList().toString());
         assertThat(script.getExitCode(), is(0));
         assertThat(output.toString(), output.contains("the_secret_password"), is(false));
     }
@@ -114,7 +113,6 @@ public class ScriptRunnerTest {
         ExecScript script = new ExecScript("ERROR_STRING");
 
         command.runScript(script, output, environmentVariableContext, null);
-        System.out.println("\n\n\nOutput: " + output.asList().toString());
         assertThat(script.getExitCode(), is(0));
         assertThat(output.toString(), output.contains("the_secret_password"), is(false));
     }

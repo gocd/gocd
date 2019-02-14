@@ -27,10 +27,7 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfigura
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsProperty;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PluginSettings implements Validatable {
     private String pluginId;
@@ -155,5 +152,10 @@ public class PluginSettings implements Validatable {
                 hasErrors = true;
             }
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pluginId, settingsMap);
     }
 }

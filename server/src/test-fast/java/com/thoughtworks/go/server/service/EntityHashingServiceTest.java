@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.Before;
@@ -71,6 +72,16 @@ public class EntityHashingServiceTest {
         entityHashingService.initialize();
 
         verify(goConfigService).register(entityHashingService);
+    }
+
+    @Test
+    public void shouldUseObjectHashCodeForPluginSettings() {
+        PluginSettings pluginSettings = new PluginSettings();
+        String expectedMd5 = CachedDigestUtils.md5Hex(String.valueOf(pluginSettings.hashCode()));
+
+        String actualMd5 = entityHashingService.md5ForEntity(pluginSettings);
+
+        assertThat(actualMd5, is(expectedMd5));
     }
 
     @Test

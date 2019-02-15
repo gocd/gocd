@@ -26,8 +26,7 @@ import static org.junit.Assert.assertThat;
 
 public class GoConfigDaoBasicTest extends GoConfigDaoTestBase {
 
-    public  GoConfigDaoBasicTest()
-    {
+    public GoConfigDaoBasicTest() {
         configHelper = new GoConfigFileHelper();
         goConfigDao = configHelper.getGoConfigDao();
         cachedGoConfig = configHelper.getCachedGoConfig();
@@ -36,13 +35,5 @@ public class GoConfigDaoBasicTest extends GoConfigDaoTestBase {
     @Before
     public void setup() throws Exception {
         configHelper.initializeConfigFile();
-    }
-
-   @Test
-    public void shouldUpgradeOldXmlWhenRequestedTo() throws Exception {
-        cachedGoConfig.save(ConfigFileFixture.VERSION_5, true);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.getAllPipelineConfigs().size(), is(1));
-        assertThat(cruiseConfig.getAllPipelineConfigs().get(0).name(), is(new CaseInsensitiveString("framework")));
     }
 }

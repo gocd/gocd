@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -106,22 +107,24 @@ public class GoFileConfigDataSourceTest {
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         ServerHealthService serverHealthService = new ServerHealthService();
         cachedGoPartials = new CachedGoPartials(serverHealthService);
-        dataSource = new GoFileConfigDataSource(new GoConfigMigration(new GoConfigMigration.UpgradeFailedHandler() {
-            public void handle(Exception e) {
-                throw new RuntimeException(e);
-            }
+        dataSource = new GoFileConfigDataSource(new GoConfigMigration(e -> {
+            throw new RuntimeException(e);
         }, configRepository, new TimeProvider(), configCache, registry),
                 configRepository, systemEnvironment, timeProvider, configCache, registry, mock(ServerHealthService.class),
                 cachedGoPartials, fullConfigSaveMergeFlow, fullConfigSaveNormalFlow);
 
-        dataSource.upgradeIfNecessary();
+        ConfigElementImplementationRegistry configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
+        new ConfigElementImplementationRegistrar(registry).initialize();
+        GoConfigMigration goConfigMigration = new GoConfigMigration(configRepository, new TimeProvider(), configCache, configElementImplementationRegistry);
+        GoConfigMigrator goConfigMigrator = new GoConfigMigrator(goConfigMigration, new SystemEnvironment(), configCache, configElementImplementationRegistry, null, configRepository, serverHealthService);
+        goConfigMigrator.migrate();
+
         CachedGoConfig cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), null, null, mock(MaintenanceModeService.class));
         cachedGoConfig.loadConfigIfNull();
         goConfigDao = new GoConfigDao(cachedGoConfig);
         configHelper.load();
         configHelper.usingCruiseConfigDao(goConfigDao);
         GoConfigWatchList configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
-        ConfigElementImplementationRegistry configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
         GoConfigPluginService configPluginService = new GoConfigPluginService(mock(ConfigRepoExtension.class), new ConfigCache(), configElementImplementationRegistry, cachedGoConfig);
         repoConfig = new ConfigRepoConfig(new GitMaterialConfig("url"), "plugin");
         configHelper.addConfigRepo(repoConfig);

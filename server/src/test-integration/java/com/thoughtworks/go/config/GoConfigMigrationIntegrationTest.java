@@ -23,7 +23,9 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.domain.Task;
@@ -2552,7 +2554,11 @@ public class GoConfigMigrationIntegrationTest {
         FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, registry, sysEnv, new TimeProvider(), configRepository, cachedGoPartials);
         GoFileConfigDataSource configDataSource = new GoFileConfigDataSource(migration, configRepository, sysEnv, new TimeProvider(), configCache,
                 registry, serverHealthService, cachedGoPartials, null, normalFlow);
-        configDataSource.upgradeIfNecessary();
+        ConfigElementImplementationRegistry configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
+        new ConfigElementImplementationRegistrar(configElementImplementationRegistry).initialize();
+        GoConfigMigration goConfigMigration = new GoConfigMigration(configRepository, new TimeProvider(), configCache, configElementImplementationRegistry);
+        GoConfigMigrator goConfigMigrator = new GoConfigMigrator(goConfigMigration, new SystemEnvironment(), configCache, configElementImplementationRegistry, normalFlow, configRepository, serverHealthService);
+        goConfigMigrator.migrate();
         return configDataSource.forceLoad(configFile);
     }
 

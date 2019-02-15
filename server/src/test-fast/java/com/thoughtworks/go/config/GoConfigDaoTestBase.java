@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -343,62 +343,6 @@ public abstract class GoConfigDaoTestBase {
         }
         cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.numberOfPipelines(), is(oldsize));
-    }
-
-    @Test
-    public void shouldOverwriteConfigContentAfterSave() throws Exception {
-        useConfigString(WITH_3_AGENT_CONFIG);
-        cachedGoConfig.save(CONFIG_WITH_ANT_BUILDER, false);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true).tasks().size(), is(1));
-    }
-
-    @Test
-    public void shouldNotChangeCurrentConfigIfInvalid() throws Exception {
-        useConfigString(WITH_3_AGENT_CONFIG);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-
-        try {
-            cachedGoConfig.save("This is invalid Cruise", false);
-            fail();
-        } catch (Exception ignored) {
-
-        }
-        assertCurrentConfigIs(cruiseConfig);
-    }
-
-    @Test
-    public void shouldNotAllowTypeForArtifactsBecausePolymorphismIsUsedInstead() throws Exception {
-        try {
-            cachedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
-            fail();
-        } catch (Exception e) {
-            assertThat(e.toString(), TestUtils.contains("Value 'NUnit' is not facet-valid with respect to enumeration '[build, test, external]'. It must be a value from the enumeration."));
-        }
-    }
-
-    @Test
-    public void shouldNotAllowOldXml() throws Exception {
-        try {
-            cachedGoConfig.save(ConfigFileFixture.VERSION_5, false);
-            fail();
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Value '5' of attribute 'schemaVersion' of element 'cruise' is not valid"));
-        }
-    }
-
-    @Test
-    public void shouldLogAnyErrorMessageIncludingTheValidationError() throws Exception {
-        try (LogFixture logger = logFixtureFor(GoFileConfigDataSource.class, Level.DEBUG)) {
-            try {
-                cachedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
-                fail();
-            } catch (Exception e) {
-                assertThat(logger.getLog(),
-                        containsString(
-                                "Value 'NUnit' is not facet-valid with respect to enumeration '[build, test, external]'. It must be a value from the enumeration."));
-            }
-        }
     }
 
     @Test

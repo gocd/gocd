@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.parts.XmlPartialConfigProvider;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -125,6 +126,10 @@ public class CachedGoConfigIntegrationTest {
     private ArtifactStoreService artifactStoreService;
     @Autowired
     private GoConfigMigration goConfigMigration;
+    @Autowired
+    private ConfigElementImplementationRegistry registry;
+    @Autowired
+    private ConfigCache configCache;
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -135,6 +140,7 @@ public class CachedGoConfigIntegrationTest {
     public ExpectedException thrown = ExpectedException.none();
     @Rule
     public final ResetCipher resetCipher = new ResetCipher();
+    private MagicalGoConfigXmlLoader magicalGoConfigXmlLoader;
 
     @Before
     public void setUp() throws Exception {
@@ -148,6 +154,7 @@ public class CachedGoConfigIntegrationTest {
         configRepo = configWatchList.getCurrentConfigRepos().get(0);
         cachedGoPartials.clear();
         configHelper.addAgent("hostname1", "uuid1");
+        magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
     }
 
     @After
@@ -691,7 +698,8 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldLoadConfigForReadAndEditWhenNewXMLIsWritten() throws Exception {
         String pipelineName = "mingle";
-        cachedGoConfig.save(configXmlWithPipeline(pipelineName), false);
+        CruiseConfig configToBeWritten = magicalGoConfigXmlLoader.deserializeConfig(configXmlWithPipeline(pipelineName));
+        cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(configToBeWritten, cachedGoConfig.currentConfig().getMd5()));
 
         PipelineConfig reloadedPipelineConfig = cachedGoConfig.currentConfig().pipelineConfigByName(new CaseInsensitiveString(pipelineName));
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) byFolder(reloadedPipelineConfig.materialConfigs(), "folder");

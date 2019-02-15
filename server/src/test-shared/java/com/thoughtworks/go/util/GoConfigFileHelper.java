@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,19 @@
 
 package com.thoughtworks.go.util;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistrar;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
+import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -32,6 +37,7 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -119,7 +125,9 @@ public class GoConfigFileHelper {
             FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, configElementImplementationRegistry, systemEnvironment, new TimeProvider(), configRepository, cachedGoPartials);
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     configCache, configElementImplementationRegistry, serverHealthService, cachedGoPartials, null, normalFlow);
-            dataSource.upgradeIfNecessary();
+            GoConfigMigration goConfigMigration = new GoConfigMigration(configRepository, new TimeProvider(), configCache, configElementImplementationRegistry);
+            GoConfigMigrator goConfigMigrator = new GoConfigMigrator(goConfigMigration, new SystemEnvironment(), configCache, configElementImplementationRegistry, normalFlow, configRepository, serverHealthService);
+            goConfigMigrator.migrate();
             CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, null, maintenanceModeService);
             cachedConfigService.loadConfigIfNull();
             return new GoConfigDao(cachedConfigService);
@@ -138,11 +146,17 @@ public class GoConfigFileHelper {
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
             configRepository.initialize();
-            FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(new ConfigCache(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), systemEnvironment, new TimeProvider(), configRepository, new CachedGoPartials(serverHealthService));
+            ConfigCache configCache = new ConfigCache();
+            FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(), systemEnvironment, new TimeProvider(), configRepository, new CachedGoPartials(serverHealthService));
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
-                    new ConfigCache(), com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(),
+                    configCache, com.thoughtworks.go.util.ConfigElementImplementationRegistryMother.withNoPlugins(),
                     serverHealthService, new CachedGoPartials(serverHealthService), null, normalFlow);
-            dataSource.upgradeIfNecessary();
+            ConfigElementImplementationRegistry configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
+            new ConfigElementImplementationRegistrar(configElementImplementationRegistry).initialize();
+            GoConfigMigration goConfigMigration = new GoConfigMigration(configRepository, new TimeProvider(), configCache, configElementImplementationRegistry);
+            GoConfigMigrator goConfigMigrator = new GoConfigMigrator(goConfigMigration, new SystemEnvironment(), configCache, configElementImplementationRegistry, normalFlow, configRepository, serverHealthService);
+            goConfigMigrator.migrate();
+
             CachedGoPartials cachedGoPartials = new CachedGoPartials(serverHealthService);
             CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, null, maintenanceModeService);
             cachedConfigService.loadConfigIfNull();
@@ -162,6 +176,18 @@ public class GoConfigFileHelper {
             throw bomb("Error reading config file", e);
         }
         new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, this.configFile.getAbsolutePath());
+    }
+
+
+    public void saveFullConfig(String configFileContent, boolean shouldMigrate) throws Exception {
+        if (shouldMigrate) {
+            configFileContent = ConfigMigrator.migrate(configFileContent);
+        }
+        ConfigElementImplementationRegistry registry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
+        new ConfigElementImplementationRegistrar(registry).initialize();
+        MagicalGoConfigXmlLoader magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(new ConfigCache(), registry);
+        CruiseConfig configToBeWritten = magicalGoConfigXmlLoader.deserializeConfig(configFileContent);
+        cachedGoConfig.writeFullConfigWithLock(new FullConfigUpdateCommand(configToBeWritten, cachedGoConfig.loadForEditing().getMd5()));
     }
 
     public GoConfigFileHelper(String xml) {
@@ -232,7 +258,7 @@ public class GoConfigFileHelper {
         sysEnv.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, originalConfigDir);
         FileUtils.deleteQuietly(configFile);
         try {
-            cachedGoConfig.save(originalXml, true);
+            saveFullConfig(originalXml, true);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -718,7 +744,7 @@ public class GoConfigFileHelper {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             getXml(cruiseConfig, buffer);
-            cachedGoConfig.save(new String(buffer.toByteArray()), false);
+            saveFullConfig(new String(buffer.toByteArray()), false);
         } catch (Exception e) {
             throw bomb(e);
         }

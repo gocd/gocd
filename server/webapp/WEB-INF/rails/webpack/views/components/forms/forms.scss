@@ -89,7 +89,7 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
     margin-left: -15px;
   }
 
-  .form-label{
+  .form-label {
     display:     inline-block;
     margin-left: 5px;
   }
@@ -220,3 +220,20 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
     margin-bottom: 0;
   }
 }
+
+.input-small {
+  width: 250px;
+}
+
+.input-medium {
+  width: 300px;
+}
+
+.input-match-parent {
+  width: 100%;
+}
+
+.textarea-fixed {
+  resize: none;
+}
+

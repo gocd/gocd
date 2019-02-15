@@ -49,6 +49,7 @@ xdescribe("Site Header", () => {
     });
     expect($root.find(`.${styles.userLink}`)).toHaveText("Jon Doe");
     expect(findMenuItem("/go/preferences/notifications")).toHaveText("Preferences");
+    expect(findMenuItem("/go/access_tokens")).toHaveText("Personal Access Tokens");
     expect(findMenuItem("/go/auth/logout")).toHaveText("Sign out");
     expect(findMenuItem("https://gocd.org/help")).toHaveText("Need Help?");
   });
@@ -65,6 +66,7 @@ xdescribe("Site Header", () => {
     });
     expect($root.find(`.${styles.userLink}`)).not.toBeInDOM();
     expect(findMenuItem("/go/preferences/notifications")).not.toBeInDOM();
+    expect(findMenuItem("/go/access_tokens")).not.toBeInDOM();
     expect(findMenuItem("/go/auth/logout")).not.toBeInDOM();
     expect(findMenuItem("https://gocd.org/help")).toHaveText("Need Help?");
   });

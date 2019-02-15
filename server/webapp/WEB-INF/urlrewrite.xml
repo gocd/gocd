@@ -184,6 +184,12 @@
   </rule>
 
   <rule>
+    <name>Access Tokens SPA</name>
+    <from>^/access_tokens(/?)$</from>
+    <to last="true">/spark/access_tokens</to>
+  </rule>
+
+  <rule>
     <name>Kitchen Sink SPA</name>
     <from>^/kitchen-sink(/?)$</from>
     <to last="true">/spark/kitchen-sink</to>

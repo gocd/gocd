@@ -26,7 +26,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
 import {
-  CheckboxField,
+  CheckboxField, CopyField,
   PasswordField, QuickAddField,
   SearchField, SearchFieldWithButton,
   Switch,
@@ -251,6 +251,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
         </Form>
 
         <QuickAddField property={formValue} buttonDisableReason={"Add text to enable quick add"}/>
+        <CopyField property={formValue} buttonDisableReason={"Add text to enable quick add"}/>
 
         <SearchFieldWithButton property={formValue} buttonDisableReason={"Add text to enable search"}/>
 

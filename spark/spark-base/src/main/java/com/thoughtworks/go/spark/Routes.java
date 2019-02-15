@@ -448,4 +448,8 @@ public class Routes {
             return find().replaceAll(":id", String.valueOf(id));
         }
     }
+
+    public class AccessTokens {
+        public static final String SPA_BASE = "/access_tokens";
+    }
 }

@@ -15,7 +15,7 @@
  */
 
 import {AccessTokenTestData} from "models/access_tokens/spec/access_token_test_data";
-import {AccessTokens} from "models/access_tokens/types";
+import {AccessToken, AccessTokens} from "models/access_tokens/types";
 
 const TimeFormatter = require("helpers/time_formatter");
 
@@ -28,7 +28,6 @@ describe("AccessTokenTypesSpec", () => {
     const validAccessTokenJSON   = AccessTokenTestData.validAccessToken();
     const revokedAccessTokenJSON = AccessTokenTestData.revokedAccessToken();
 
-    expect(accessTokens[0].name()).toEqual(validAccessTokenJSON.name);
     expect(accessTokens[0].description()).toEqual(validAccessTokenJSON.description);
     expect(accessTokens[0].authConfigId()).toEqual(validAccessTokenJSON.auth_config_id);
     expect(accessTokens[0].meta().revoked()).toEqual(false);
@@ -38,7 +37,6 @@ describe("AccessTokenTypesSpec", () => {
     expect(accessTokens[0].meta().lastUsedAt())
       .toEqual(TimeFormatter.format(validAccessTokenJSON._meta.last_used_at));
 
-    expect(accessTokens[1].name()).toEqual(revokedAccessTokenJSON.name);
     expect(accessTokens[1].description()).toEqual(revokedAccessTokenJSON.description);
     expect(accessTokens[1].authConfigId()).toEqual(revokedAccessTokenJSON.auth_config_id);
     expect(accessTokens[1].meta().revoked()).toEqual(true);
@@ -48,6 +46,14 @@ describe("AccessTokenTypesSpec", () => {
       .toEqual(TimeFormatter.format(revokedAccessTokenJSON._meta.created_at));
     expect(accessTokens[1].meta().lastUsedAt())
       .toEqual(TimeFormatter.format(revokedAccessTokenJSON._meta.last_used_at));
+  });
+
+  it("should deserialize token if provided", () => {
+    const newAccessTokenWithTokenText = AccessTokenTestData.newAccessTokenWithTokenText();
+    const accessToken                 = AccessToken.fromJSON(newAccessTokenWithTokenText);
+
+    expect(accessToken.description()).toEqual(newAccessTokenWithTokenText.description);
+    expect(accessToken.token()).toEqual(newAccessTokenWithTokenText.token as string);
   });
 
 });

@@ -47,7 +47,6 @@ describe("AccessTokenCRUD", () => {
 
     const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
-      expect(responseJSON.body.object.name()).toEqual(accessToken.name());
       expect(responseJSON.body.object.description()).toEqual(accessToken.description());
       expect(responseJSON.body.etag).toEqual("some-etag");
       done();
@@ -59,7 +58,6 @@ describe("AccessTokenCRUD", () => {
     expect(request.url).toEqual(ALL_ACCESS_TOKENS_API);
     expect(request.method).toEqual("POST");
     const requestData = toAccessTokenJSON(request.data());
-    expect(requestData.name).toEqual(accessToken.name());
     expect(requestData.description).toEqual(accessToken.description());
     expect(request.requestHeaders).toEqual({
                                              "Accept": "application/vnd.go.cd.v1+json",

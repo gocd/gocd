@@ -40,6 +40,21 @@ export class AccessTokenTestData {
     } as AccessTokenJSON;
   }
 
+  static newAccessTokenWithTokenText() {
+    return {
+      name: "ValidToken",
+      description: "This is dummy description",
+      auth_config_id: "auth_config_id0",
+      token: "05724e1de425eeeaf750b7cb2ee98636abdf",
+      _meta: {
+        revoked: false,
+        revoked_at: null,
+        created_at: "2019-02-05T06:41:58Z",
+        last_used_at: "2019-02-05T07:41:58Z"
+      }
+    } as AccessTokenJSON;
+  }
+
   static revokedAccessToken() {
     return {
       name: "RevokedToken",

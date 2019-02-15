@@ -26,7 +26,7 @@ interface MetaJSON {
 }
 
 export interface AccessTokenJSON {
-  name: string;
+  token?: string;
   description: string;
   auth_config_id: string;
   _meta: MetaJSON;
@@ -58,7 +58,7 @@ class Meta {
   createdAt: Stream<Date>;
   lastUsedAt: Stream<Date | null>;
 
-  constructor(revoked: boolean, revokedAt: Date | null, createdAt: Date, lastUsedAt: Date | null) {
+  private constructor(revoked: boolean, revokedAt: Date | null, createdAt: Date, lastUsedAt: Date | null) {
     this.revoked    = stream(revoked);
     this.revokedAt  = stream(revokedAt);
     this.createdAt  = stream(createdAt);
@@ -82,19 +82,23 @@ class Meta {
 }
 
 export class AccessToken {
-  name: Stream<string>;
   description: Stream<string>;
   authConfigId: Stream<string>;
+  token: Stream<string> = stream();
   meta: Stream<Meta>;
 
-  constructor(name: string, description: string, authConfigId: string, meta: Meta) {
-    this.name         = stream(name);
+  private constructor(description: string, token?: string, authConfigId?: string, meta?: Meta) {
     this.description  = stream(description);
+    this.token        = stream(token);
     this.authConfigId = stream(authConfigId);
     this.meta         = stream(meta);
   }
 
   static fromJSON(data: AccessTokenJSON): AccessToken {
-    return new AccessToken(data.name, data.description, data.auth_config_id, Meta.fromJSON(data._meta));
+    return new AccessToken(data.description, data.token, data.auth_config_id, Meta.fromJSON(data._meta));
+  }
+
+  static new(): AccessToken {
+    return new AccessToken("", undefined, undefined, undefined);
   }
 }

@@ -102,7 +102,6 @@ public class GoConfigServiceTest {
         goCache = mock(GoCache.class);
         instanceFactory = mock(InstanceFactory.class);
         userDao = mock(UserDao.class);
-        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(false);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(configRepo, new TimeProvider(), new ConfigCache(),
@@ -755,7 +754,18 @@ public class GoConfigServiceTest {
         GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
         assertThat(validity.isValid(), Matchers.is(true));
         assertThat(validity.errorMessage(), Matchers.is(""));
-        verify(goConfigDao).updateConfig(argThat(cruiseConfigIsUpdatedWith(renamedGroupName, "new_name", "${COUNT}-#{foo}")));
+
+        ArgumentCaptor<FullConfigUpdateCommand> commandArgCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
+        verify(goConfigDao).updateFullConfig(commandArgCaptor.capture());
+
+        FullConfigUpdateCommand command = commandArgCaptor.getValue();
+        CruiseConfig updatedConfig = command.configForEdit();
+        PipelineConfigs group = updatedConfig.findGroup(renamedGroupName);
+        PipelineConfig pipeline = group.findBy(new CaseInsensitiveString("new_name"));
+        assertThat(pipeline.name(), is(new CaseInsensitiveString("new_name")));
+        assertThat(pipeline.getLabelTemplate(), is("${COUNT}-#{foo}"));
+        assertThat(pipeline.materialConfigs().first(), is(instanceOf(SvnMaterialConfig.class)));
+        assertThat(pipeline.materialConfigs().first().getUriForDisplay(), is("file:///tmp/foo"));
     }
 
     @Test
@@ -768,7 +778,6 @@ public class GoConfigServiceTest {
         expectLoad(cruiseConfig);
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group_name", "pipeline1", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
-        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(true);
         when(goConfigDao.md5OfConfigFile()).thenReturn("md5");
         when(goConfigDao.updateFullConfig(commandArgumentCaptor.capture())).thenReturn(null);
 
@@ -795,7 +804,6 @@ public class GoConfigServiceTest {
         new GoConfigMother().addPipelineWithGroup(cruiseConfig, groupName, "pipeline_name", "stage_name", "job_name");
         expectLoadForEditing(cruiseConfig);
         when(goConfigDao.md5OfConfigFile()).thenReturn(md5);
-        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(true);
         when(goConfigDao.updateFullConfig(commandArgumentCaptor.capture())).thenReturn(null);
 
         GoConfigService.XmlPartialSaver partialSaver = goConfigService.groupSaver(groupName);
@@ -1151,33 +1159,6 @@ public class GoConfigServiceTest {
         AllConfigErrors list = new AllConfigErrors();
         list.add(configErrors);
         return new GoConfigInvalidException(new BasicCruiseConfig(), list.asString());
-    }
-
-    private ArgumentMatcher<UpdateConfigCommand> cruiseConfigIsUpdatedWith(final String groupName, final String newPipelineName, final String labelTemplate) {
-        return new ArgumentMatcher<UpdateConfigCommand>() {
-            @Override
-            public boolean matches(UpdateConfigCommand item) {
-                UpdateConfigCommand configCommand = (UpdateConfigCommand) item;
-                CruiseConfig updatedConfig = null;
-                try {
-                    updatedConfig = configCommand.update(new BasicCruiseConfig());
-                } catch (Exception e) {
-                    Assert.fail(String.format("Updating config through exception : %s", e));
-                }
-                PipelineConfigs group = updatedConfig.findGroup(groupName);
-                PipelineConfig pipeline = group.findBy(new CaseInsensitiveString(newPipelineName));
-                assertThat(pipeline.name(), is(new CaseInsensitiveString(newPipelineName)));
-                assertThat(pipeline.getLabelTemplate(), is(labelTemplate));
-                assertThat(pipeline.materialConfigs().first(), is(instanceOf(SvnMaterialConfig.class)));
-                assertThat(pipeline.materialConfigs().first().getUriForDisplay(), is("file:///tmp/foo"));
-
-                return true;
-            }
-
-            public String toString() {
-                return "There was a mismatch!";
-            }
-        };
     }
 
     private String groupXml(final String groupName) {

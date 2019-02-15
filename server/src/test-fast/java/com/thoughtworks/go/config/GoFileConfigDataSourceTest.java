@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,7 +95,6 @@ public class GoFileConfigDataSourceTest {
     @Before
     public void setup() throws Exception {
         systemEnvironment = new SystemEnvironment();
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "false");
         configHelper = new GoConfigFileHelper();
         configHelper.onSetUp();
         configRepository = new ConfigRepository(systemEnvironment);
@@ -131,7 +130,6 @@ public class GoFileConfigDataSourceTest {
 
     @After
     public void teardown() throws Exception {
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "false");
         cachedGoPartials.clear();
         configHelper.onTearDown();
         systemEnvironment.reset(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE);
@@ -738,8 +736,6 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldUpdateAndReloadConfigUsingFullSaveNormalFlowWithLastKnownPartials_onLoad() throws Exception {
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "y");
-
         GoConfigFileReader goConfigFileReader = mock(GoConfigFileReader.class);
         MagicalGoConfigXmlLoader loader = mock(MagicalGoConfigXmlLoader.class);
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
@@ -770,8 +766,6 @@ public class GoFileConfigDataSourceTest {
 
     @Test
     public void shouldReloadConfigUsingFullSaveNormalFlowWithLastValidPartialsIfUpdatingWithLastKnownPartialsFails_onLoad() throws Exception {
-        systemEnvironment.setProperty(SystemEnvironment.OPTIMIZE_FULL_CONFIG_SAVE.propertyName(), "y");
-
         GoConfigFileReader goConfigFileReader = mock(GoConfigFileReader.class);
         MagicalGoConfigXmlLoader loader = mock(MagicalGoConfigXmlLoader.class);
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);

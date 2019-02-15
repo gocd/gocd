@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,6 @@ public class CachedGoConfigTest {
         initMocks(this);
         configHolder = new GoConfigHolder(new BasicCruiseConfig(), new BasicCruiseConfig());
         cachedGoConfig = new CachedGoConfig(serverHealthService, dataSource, mock(CachedGoPartials.class), goConfigMigrator, systemEnvironment, maintenanceModeService);
-        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(true);
         when(dataSource.load()).thenReturn(configHolder);
     }
 
@@ -217,14 +216,5 @@ public class CachedGoConfigTest {
         assertThat(cachedGoConfig.loadConfigHolder(), is(goConfigHolder));
         assertThat(cachedGoConfig.loadMergedForEditing(), is(mergedConfigForEdit));
         verify(serverHealthService).update(any(ServerHealthState.class));
-    }
-
-    @Test
-    public void shouldFallbackToOldConfigUpgradeIfNewFlowIsDisabled() throws Exception {
-        when(systemEnvironment.optimizeFullConfigSave()).thenReturn(false);
-
-        cachedGoConfig.upgradeConfig();
-
-        verify(dataSource).upgradeIfNecessary();
     }
 }

@@ -1109,25 +1109,10 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             LOGGER.debug("[Config Save] Updating config");
             final CruiseConfig deserializedConfig = configXmlLoader.deserializeConfig(xmlString);
 
-            ConfigSaveState configSaveState = systemEnvironment.optimizeFullConfigSave() ? saveConfigNewFlow(deserializedConfig, md5)
-                    : saveConfigOldFlow(deserializedConfig, md5);
+            ConfigSaveState configSaveState = saveConfigNewFlow(deserializedConfig, md5);
 
             LOGGER.debug("[Config Save] Finished saving XML");
             return configSaveState;
-        }
-
-        private ConfigSaveState saveConfigOldFlow(final CruiseConfig deserializedConfig, final String md5) {
-            LOGGER.debug("[Config Save] Updating config using the old flow");
-            return goConfigDao.updateConfig(new NoOverwriteUpdateConfigCommand() {
-                public CruiseConfig update(CruiseConfig cruiseConfig) {
-                    deserializedConfig.setPartials(cruiseConfig.getPartials());
-                    return deserializedConfig;
-                }
-
-                public String unmodifiedMd5() {
-                    return md5;
-                }
-            });
         }
 
         private ConfigSaveState saveConfigNewFlow(CruiseConfig cruiseConfig, String md5) {

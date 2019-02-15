@@ -149,12 +149,8 @@ public class CachedGoConfig {
     }
 
     public synchronized void upgradeConfig() throws Exception {
-        if (systemEnvironment.optimizeFullConfigSave()) {
-            GoConfigHolder goConfigHolder = goConfigMigrator.migrate();
-            saveValidConfigToCacheAndNotifyConfigChangeListeners(goConfigHolder);
-        } else {
-            dataSource.upgradeIfNecessary();
-        }
+        GoConfigHolder goConfigHolder = goConfigMigrator.migrate();
+        saveValidConfigToCacheAndNotifyConfigChangeListeners(goConfigHolder);
     }
 
     public synchronized ConfigSaveState writeWithLock(UpdateConfigCommand updateConfigCommand) {

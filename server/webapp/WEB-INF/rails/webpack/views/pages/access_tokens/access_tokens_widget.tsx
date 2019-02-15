@@ -16,14 +16,25 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {AccessTokens} from "models/access_tokens/access_tokens";
+import {Stream} from "mithril/stream";
+import {AccessTokens} from "models/access_tokens/types";
+import {Table} from "views/components/table";
+import * as styles from "./index.scss";
 
 interface Attrs {
-  dummy?: AccessTokens;
+  accessTokens: Stream<AccessTokens>;
 }
 
 export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return <div> This is widget</div>;
+    const data = vnode.attrs.accessTokens().map((accessToken, index) => {
+      const lastUsedAt = accessToken.meta().lastUsedAt() ? accessToken.meta().lastUsedAt()!.toString() : "Never";
+      return [index + 1,
+        <span className={styles.description}>{accessToken.description()}</span>,
+        accessToken.meta().createdAt().toString(),
+        lastUsedAt
+      ];
+    });
+    return <Table headers={["#", "Description", "Created at", " Last used on"]} data={data}/>;
   }
 }

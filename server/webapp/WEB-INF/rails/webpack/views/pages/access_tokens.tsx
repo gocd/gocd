@@ -15,25 +15,63 @@
 */
 
 import * as m from "mithril";
-import {AccessTokens} from "models/access_tokens/access_tokens";
+import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
+import {AccessTokenCRUD} from "models/access_tokens/access_token_crud";
+import {AccessToken, AccessTokens} from "models/access_tokens/types";
+import * as Buttons from "views/components/buttons";
+import {FlashMessage, MessageType} from "views/components/flash_message";
+import {HeaderPanel} from "views/components/header_panel";
 import {AccessTokensWidget} from "views/pages/access_tokens/access_tokens_widget";
-import {Page} from "views/pages/page";
+import {GenerateTokenModal} from "views/pages/access_tokens/modals";
+import {Page, PageState} from "views/pages/page";
+import {AddOperation, SaveOperation} from "views/pages/page_operations";
 
-interface State {
-  dummy?: AccessTokens;
+interface State extends AddOperation<AccessToken>, SaveOperation {
+  accessTokens: Stream<AccessTokens>;
 }
 
 export class AccessTokensPage extends Page<null, State> {
-  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    return <AccessTokensWidget/>;
+  oninit(vnode: m.Vnode<null, State>) {
+    vnode.state.accessTokens = stream();
+    super.oninit(vnode);
+
+    vnode.state.onAdd = (e: MouseEvent) => {
+      e.stopPropagation();
+      new GenerateTokenModal(vnode.state.accessTokens, vnode.state.onSuccessfulSave, vnode.state.onError).render();
+    };
+
+    vnode.state.onSuccessfulSave = (msg: m.Children) => {
+      this.flashMessage.setMessage(MessageType.success, msg);
+    };
+
+    vnode.state.onError = (msg: m.Children) => {
+      this.flashMessage.setMessage(MessageType.alert, msg);
+    };
   }
 
   pageName(): string {
-    return "SPA Name goes here!";
+    return "Personal Access Tokens";
+  }
+
+  headerPanel(vnode: m.Vnode<null, State>): any {
+    return <HeaderPanel title={this.pageName()} buttons={
+      <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Generate Token</Buttons.Primary>
+    }/>;
+  }
+
+  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+    const flashMessage = this.flashMessage ?
+      <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
+
+    return [flashMessage, <AccessTokensWidget accessTokens={vnode.state.accessTokens}/>];
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    // to be implemented
-    return Promise.resolve();
+    return AccessTokenCRUD.all().then((result) =>
+                                        result.do((successResponse) => {
+                                          vnode.state.accessTokens(successResponse.body);
+                                          this.pageState = PageState.OK;
+                                        }, this.setErrorState));
   }
 }

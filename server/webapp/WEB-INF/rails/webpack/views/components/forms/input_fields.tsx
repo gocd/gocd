@@ -15,6 +15,7 @@
  */
 
 import {bind} from "classnames/bind";
+import * as clipboard from "clipboard-polyfill";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -59,6 +60,29 @@ interface ReadonlyAttr {
 
 interface SmallSizeAttr {
   small?: boolean;
+}
+
+export enum Size {
+  SMALL, MEDIUM, MATCH_PARENT
+}
+
+class SizeTransformer {
+  static transform(size?: Size) {
+    switch (size) {
+      case Size.SMALL:
+        return styles.inputSmall;
+      case Size.MEDIUM:
+        return styles.inputMedium;
+      case Size.MATCH_PARENT:
+        return styles.inputMatchParent;
+      default:
+        return styles.inputSmall;
+    }
+  }
+}
+
+interface SizeAttr {
+  size?: Size;
 }
 
 interface BindingsAttr<T> {
@@ -293,13 +317,33 @@ export class TextField extends FormField<string, RequiredFieldAttr & Placeholder
   }
 }
 
-export class TextAreaField extends TextField {
-  renderInputField(vnode: m.Vnode<BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr>) {
+interface ResizableAttrs {
+  resizable?: boolean;
+}
+
+interface InitialTextAreaSizeAttrs {
+  rows?: number;
+  size?: Size;
+}
+
+type TextAreaFieldAttrs =
+  BaseAttrs<string>
+  & RequiredFieldAttr
+  & PlaceholderAttr
+  & ResizableAttrs
+  & InitialTextAreaSizeAttrs;
+
+export class TextAreaField extends FormField<string, TextAreaFieldAttrs> {
+  renderInputField(vnode: m.Vnode<TextAreaFieldAttrs>) {
 
     return (
       <textarea
-        className={classnames(styles.formControl, styles.textArea)}
+        className={classnames(styles.formControl,
+                              styles.textArea,
+                              SizeTransformer.transform(vnode.attrs.size),
+                              {[styles.textareaFixed]: !(vnode.attrs.resizable)})}
         {...this.defaultAttributes(vnode.attrs)}
+        rows={vnode.attrs.rows}
         oninput={(e) => {
           vnode.attrs.property((e.target as HTMLTextAreaElement).value);
           if (vnode.attrs.onchange) {
@@ -307,6 +351,15 @@ export class TextAreaField extends TextField {
           }
         }}>{vnode.attrs.property()}</textarea>
     );
+  }
+
+  protected defaultAttributes(attrs: BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr) {
+    const defaultAttributes = super.defaultAttributes(attrs);
+    if (!_.isEmpty(attrs.placeholder)) {
+      defaultAttributes.placeholder = attrs.placeholder as string;
+    }
+
+    return _.assign(defaultAttributes, textInputFieldDefaultAttrs);
   }
 
 }
@@ -492,20 +545,26 @@ interface ButtonDisableReason {
   buttonDisableReason: string;
 }
 
-type QuickAddFieldAttrs =
+interface ButtonName {
+  name?: string;
+}
+
+type TextFieldWithButtonAttrs =
   PlaceholderAttr
   & OnClickHandler
   & BindingsAttr<string>
   & ReadonlyAttr
   & DataTestIdAttr
-  & ButtonDisableReason;
+  & ButtonDisableReason
+  & ButtonName
+  & SizeAttr;
 
-export class QuickAddField extends MithrilViewComponent<QuickAddFieldAttrs> {
+abstract class TextFieldWithButton extends MithrilViewComponent<TextFieldWithButtonAttrs> {
   protected readonly id: string         = `input-${uuid()}`;
   protected readonly helpTextId: string = `${this.id}-help-text`;
   protected readonly errorId: string    = `${this.id}-error-text`;
 
-  view(vnode: m.Vnode<QuickAddFieldAttrs>) {
+  view(vnode: m.Vnode<TextFieldWithButtonAttrs>) {
 
     const defaultAttrs: DefaultAttrs = {};
 
@@ -521,7 +580,7 @@ export class QuickAddField extends MithrilViewComponent<QuickAddFieldAttrs> {
     );
   }
 
-  protected defaultAttributes(attrs: QuickAddFieldAttrs): DefaultAttrs {
+  protected defaultAttributes(attrs: TextFieldWithButtonAttrs): DefaultAttrs {
     const result = defaultAttributes(attrs, this.id, this.helpTextId, this.errorId);
     if (!_.isEmpty(attrs.placeholder)) {
       result.placeholder = attrs.placeholder as string;
@@ -532,22 +591,23 @@ export class QuickAddField extends MithrilViewComponent<QuickAddFieldAttrs> {
     return _.assign(result, textInputFieldDefaultAttrs);
   }
 
-  protected renderButton(vnode: m.Vnode<QuickAddFieldAttrs>): m.Children {
+  protected renderButton(vnode: m.Vnode<TextFieldWithButtonAttrs>): m.Children {
     const btnAttrs = this.btnAttrs(vnode);
-    return <button onclick={vnode.attrs.onclick}
+    return <button onclick={this.onButtonClick(vnode)}
                    className={classnames(styles.quickAddButton)} {...btnAttrs}>
-      Add
+      {this.name()}
     </button>;
   }
 
-  protected renderInputField(vnode: m.Vnode<QuickAddFieldAttrs>): m.Children {
+  protected renderInputField(vnode: m.Vnode<TextFieldWithButtonAttrs>): m.Children {
+    const inputSizeClass = SizeTransformer.transform(vnode.attrs.size);
     return <input type="text"
-                  className={classnames(styles.formControl)}
+                  className={classnames(styles.formControl, inputSizeClass)}
                   {...this.defaultAttributes(vnode.attrs)}
                   {...bindingAttributes(vnode.attrs, "oninput", "value")}/>;
   }
 
-  protected btnAttrs(vnode: m.Vnode<QuickAddFieldAttrs>): DefaultAttrs {
+  protected btnAttrs(vnode: m.Vnode<TextFieldWithButtonAttrs>): DefaultAttrs {
     const btnAttrs: DefaultAttrs = {};
 
     if (_.isEmpty(vnode.attrs.property())) {
@@ -556,19 +616,43 @@ export class QuickAddField extends MithrilViewComponent<QuickAddFieldAttrs> {
     }
     return btnAttrs;
   }
+
+  protected onButtonClick(vnode: m.Vnode<TextFieldWithButtonAttrs>) {
+    return vnode.attrs.onclick;
+  }
+
+  protected abstract name(): m.Child;
+}
+
+export class QuickAddField extends TextFieldWithButton {
+  protected name(): m.Child {
+    return "Add";
+  }
+}
+
+export class CopyField extends TextFieldWithButton {
+  protected renderInputField(vnode: m.Vnode<TextFieldWithButtonAttrs>): m.Children {
+    vnode.attrs.readonly = true;
+    return super.renderInputField(vnode);
+  }
+
+  protected name(): m.Child {
+    return "Copy";
+  }
+
+  protected onButtonClick(vnode: m.Vnode<TextFieldWithButtonAttrs>) {
+    return () => {
+      clipboard.writeText(vnode.attrs.property());
+    };
+  }
 }
 
 export class SearchFieldWithButton extends QuickAddField {
-  protected renderButton(vnode: m.Vnode<QuickAddFieldAttrs>) {
-    const btnAttrs = this.btnAttrs(vnode);
-
-    return <button onclick={vnode.attrs.onclick}
-                   className={classnames(styles.searchButton)} {...btnAttrs} >
-      Search
-    </button>;
+  protected name(): m.Child {
+    return "Search";
   }
 
-  protected renderInputField(vnode: m.Vnode<QuickAddFieldAttrs>) {
+  protected renderInputField(vnode: m.Vnode<TextFieldWithButtonAttrs>) {
     return <span className={classnames(styles.searchBoxWrapper)}>
       <input type="search"
              className={classnames(styles.formControl, styles.searchBoxInput)}
@@ -576,5 +660,4 @@ export class SearchFieldWithButton extends QuickAddField {
              {...bindingAttributes(vnode.attrs, "oninput", "value")}/>
     </span>;
   }
-
 }

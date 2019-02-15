@@ -21,3 +21,7 @@ export const formGroupTextFieldWithButton: string;
 export const quickAddButton: string;
 export const searchButton: string;
 export const formCompact: string;
+export const inputSmall: string;
+export const inputMedium: string;
+export const inputMatchParent: string;
+export const textareaFixed: string;

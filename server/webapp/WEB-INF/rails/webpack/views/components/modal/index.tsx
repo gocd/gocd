@@ -32,6 +32,7 @@ export enum Size {small, medium, large, extraLargeHackForEaProfiles}
 export abstract class Modal extends MithrilViewComponent<any> {
   public id: string;
   private readonly size: Size;
+  protected closeModalOnOverlayClick: boolean = true;
 
   protected constructor(size = Size.medium) {
     super();
@@ -44,7 +45,7 @@ export abstract class Modal extends MithrilViewComponent<any> {
   abstract body(): m.Children;
 
   buttons(): m.ChildArray {
-    return [<Buttons.Primary data-test-id='button-ok' onclick={this.close.bind(this)}>OK</Buttons.Primary>];
+    return [<Buttons.Primary data-test-id="button-ok" onclick={this.close.bind(this)}>OK</Buttons.Primary>];
   }
 
   render() {
@@ -87,5 +88,9 @@ export abstract class Modal extends MithrilViewComponent<any> {
         }
       </footer>
     </div>;
+  }
+
+  shouldCloseModalOnOverlayClick(): boolean {
+    return this.closeModalOnOverlayClick;
   }
 }

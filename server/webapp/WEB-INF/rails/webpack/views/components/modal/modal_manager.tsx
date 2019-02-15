@@ -75,7 +75,7 @@ export namespace ModalManager {
 
   function overlayBackgroundClicked(event: Event, modal: Modal) {
     const overlayBg = document.getElementsByClassName(styles.overlayBg).item(0);
-    if (event.target === overlayBg) {
+    if (modal.shouldCloseModalOnOverlayClick() && event.target === overlayBg) {
       modal.close();
     }
   }

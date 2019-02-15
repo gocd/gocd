@@ -43,8 +43,13 @@ const formatInDate = (time) => {
   return moment(time, defaultFormat).format(DATE_FORMAT);
 };
 
+const toDate = (time) => {
+  return moment(time, defaultFormat)._d;
+};
+
 module.exports = {
   format,
+  toDate,
   formatInDate,
   formatInServerTime
 };

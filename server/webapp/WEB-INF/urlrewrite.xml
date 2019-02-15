@@ -185,8 +185,8 @@
 
   <rule>
     <name>Access Tokens SPA</name>
-    <from>^/admin/access_tokens(/?)$</from>
-    <to last="true">/spark/admin/access_tokens</to>
+    <from>^/access_tokens(/?)$</from>
+    <to last="true">/spark/access_tokens</to>
   </rule>
 
   <rule>

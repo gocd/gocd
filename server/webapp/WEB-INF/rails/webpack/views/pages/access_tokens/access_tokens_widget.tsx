@@ -31,7 +31,15 @@ interface Attrs {
 
 export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const data = vnode.attrs.accessTokens().sortByCreateDate().map((accessToken, index) => {
+    const accessTokens = vnode.attrs.accessTokens();
+    if (accessTokens.length === 0) {
+      return (<ul>
+        <li>Click on "Generate Token" to create new personal access token.</li>
+        <li>Tokens you have generated that can be used to access the GoCD API.</li>
+      </ul>);
+    }
+
+    const data = accessTokens.sortByCreateDate().map((accessToken, index) => {
       const lastUsedAt = accessToken().meta().lastUsedAt() ? accessToken().meta().lastUsedAt()!.toString() : "Never";
       return [index + 1,
         <span className={styles.description}>{accessToken().description()}</span>,

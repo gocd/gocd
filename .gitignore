@@ -214,6 +214,9 @@ api/api-users-v3/out/
 api/api-users-v3/target/
 api/api-agents-v4/out/
 api/api-agents-v4/target/
+api/api-agents-v5/out/
+api/api-agents-v5/target/
+api/api-agents-v5/logs/
 api/api-user-search-v1/logs/
 api/api-user-search-v1/out/
 api/api-user-search-v1/target/

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+$revoked_text_color: #e94c35;
 .description {
   display:       inline-block;
   max-width:     250px;
@@ -21,4 +22,9 @@
   overflow:      hidden;
   white-space:   nowrap;
   text-overflow: ellipsis;
+}
+
+.revoked {
+  color:       $revoked_text_color;
+  font-weight: 600;
 }

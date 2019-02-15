@@ -17,24 +17,35 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {AccessTokens} from "models/access_tokens/types";
+import {AccessToken, AccessTokens} from "models/access_tokens/types";
+import * as Buttons from "views/components/buttons";
 import {Table} from "views/components/table";
 import * as styles from "./index.scss";
 
 interface Attrs {
   accessTokens: Stream<AccessTokens>;
+  onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void;
 }
 
 export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const data = vnode.attrs.accessTokens().map((accessToken, index) => {
-      const lastUsedAt = accessToken.meta().lastUsedAt() ? accessToken.meta().lastUsedAt()!.toString() : "Never";
+      const lastUsedAt = accessToken().meta().lastUsedAt() ? accessToken().meta().lastUsedAt()!.toString() : "Never";
       return [index + 1,
-        <span className={styles.description}>{accessToken.description()}</span>,
-        accessToken.meta().createdAt().toString(),
-        lastUsedAt
+        <span className={styles.description}>{accessToken().description()}</span>,
+        accessToken().meta().createdAt().toString(),
+        lastUsedAt,
+        this.getRevokeButton(vnode, accessToken)
       ];
     });
-    return <Table headers={["#", "Description", "Created at", " Last used on"]} data={data}/>;
+    return <Table headers={["#", "Description", "Created at", " Last used on", ""]} data={data}/>;
+  }
+
+  private getRevokeButton(vnode: m.Vnode<Attrs>, accessToken: Stream<AccessToken>) {
+    if (accessToken().meta().revoked()) {
+      return <span className={styles.revoked}>Revoked</span>;
+    }
+    return <Buttons.Secondary data-test-id="button-revoke"
+                              onclick={vnode.attrs.onRevoke.bind(this, accessToken)}>Revoke</Buttons.Secondary>;
   }
 }

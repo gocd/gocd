@@ -23,12 +23,13 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {AccessTokensWidget} from "views/pages/access_tokens/access_tokens_widget";
-import {GenerateTokenModal} from "views/pages/access_tokens/modals";
+import {GenerateTokenModal, RevokeTokenModal} from "views/pages/access_tokens/modals";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation, SaveOperation} from "views/pages/page_operations";
 
 interface State extends AddOperation<AccessToken>, SaveOperation {
   accessTokens: Stream<AccessTokens>;
+  onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void;
 }
 
 export class AccessTokensPage extends Page<null, State> {
@@ -39,6 +40,14 @@ export class AccessTokensPage extends Page<null, State> {
     vnode.state.onAdd = (e: MouseEvent) => {
       e.stopPropagation();
       new GenerateTokenModal(vnode.state.accessTokens, vnode.state.onSuccessfulSave, vnode.state.onError).render();
+    };
+
+    vnode.state.onRevoke = (accessToken: Stream<AccessToken>, e: MouseEvent) => {
+      e.stopPropagation();
+      new RevokeTokenModal(vnode.state.accessTokens,
+                           accessToken,
+                           vnode.state.onSuccessfulSave,
+                           vnode.state.onError).render();
     };
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
@@ -64,7 +73,8 @@ export class AccessTokensPage extends Page<null, State> {
     const flashMessage = this.flashMessage ?
       <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
 
-    return [flashMessage, <AccessTokensWidget accessTokens={vnode.state.accessTokens}/>];
+    return [flashMessage, <AccessTokensWidget accessTokens={vnode.state.accessTokens}
+                                              onRevoke={vnode.state.onRevoke}/>];
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {

@@ -14,33 +14,79 @@
  * limitations under the License.
  */
 
-import {ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
-import _ = require("lodash");
+import {ApiResult, ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
+import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
 import {AccessTokenCRUD} from "models/access_tokens/access_token_crud";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
-import {ButtonGroup} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {CopyField, Size, TextAreaField} from "views/components/forms/input_fields";
 import {Modal} from "views/components/modal";
 
-export class GenerateTokenModal extends Modal {
-  private accessToken: AccessToken;
-  private readonly accessTokens: Stream<AccessTokens>;
-  private readonly onSuccessfulSave: (msg: m.Children) => void;
+abstract class BaseModal extends Modal {
+  protected accessToken: Stream<AccessToken>;
+
+  protected constructor(accessTokens: Stream<AccessTokens>,
+                        accessToken: Stream<AccessToken>,
+                        onSuccessfulSave: (msg: m.Children) => void,
+                        onError: (msg: m.Children) => void) {
+    super();
+    this.accessTokens     = accessTokens;
+    this.onSuccessfulSave = onSuccessfulSave;
+    this.onFailedSave     = onError;
+    this.accessToken      = accessToken;
+  }
+
+  protected readonly accessTokens: Stream<AccessTokens>;
+  protected readonly onSuccessfulSave: (msg: m.Children) => void;
   private readonly onFailedSave: (msg: m.Children) => void;
 
+  protected performOperation(e: MouseEvent) {
+    this.operationPromise().then(this.onOperationResult.bind(this)).finally(() => m.redraw());
+  }
+
+  protected abstract operationPromise(): Promise<any>;
+
+  protected abstract afterSuccess(): void;
+
+  private onOperationResult(result: ApiResult<ObjectWithEtag<AccessToken>>) {
+    result.do(this.onSuccess.bind(this), (e) => {
+      this.onError(e, result.getStatusCode());
+    });
+  }
+
+  private onError(errorResponse: ErrorResponse, statusCode: number) {
+    if (422 === statusCode && errorResponse.body) {
+      const json = JSON.parse(errorResponse.body);
+      if (json) {
+        this.accessToken(AccessToken.fromJSON(json));
+        this.accessToken().token("");
+      }
+    } else {
+      this.onFailedSave(errorResponse.message);
+      this.close();
+    }
+  }
+
+  private onSuccess(successResponse: SuccessResponse<ObjectWithEtag<AccessToken>>) {
+    this.accessToken(successResponse.body.object);
+    this.afterSuccess();
+  }
+}
+
+export class GenerateTokenModal extends BaseModal {
   constructor(accessTokens: Stream<AccessTokens>,
               onSuccessfulSave: (msg: m.Children) => void,
               onError: (msg: m.Children) => void) {
-    super();
+    super(accessTokens, stream(AccessToken.new()), onSuccessfulSave, onError);
     this.closeModalOnOverlayClick = false;
-    this.accessTokens             = accessTokens;
-    this.onSuccessfulSave         = onSuccessfulSave;
-    this.onFailedSave             = onError;
-    this.accessToken              = AccessToken.new();
+  }
+
+  title(): string {
+    return "Generate Token";
   }
 
   body(): m.Children {
@@ -48,15 +94,16 @@ export class GenerateTokenModal extends Modal {
       return (<div>
         <FlashMessage type={MessageType.info}
                       message="Make sure to copy your new personal access token now. You won’t be able to see it again!"/>
-        <CopyField size={Size.MATCH_PARENT} property={this.accessToken.token} buttonDisableReason=""/>
+        <CopyField size={Size.MATCH_PARENT} property={this.accessToken().token} buttonDisableReason=""/>
       </div>);
     } else {
       return <TextAreaField label={"Description"}
                             required={true}
-                            property={this.accessToken.description}
+                            property={this.accessToken().description}
                             resizable={false}
                             rows={3}
                             size={Size.MATCH_PARENT}
+                            errorText={this.accessToken().errors().errorsForDisplay("description")}
                             helpText="What’s this token for?"/>;
 
     }
@@ -67,36 +114,63 @@ export class GenerateTokenModal extends Modal {
       return [<Buttons.Cancel data-test-id="button-close" onclick={() => this.close()}>Close</Buttons.Cancel>];
     } else {
       return [
-        <ButtonGroup>
-          <Buttons.Cancel data-test-id="button-cancel" onclick={() => this.close()}>Cancel</Buttons.Cancel>
-          <Buttons.Primary data-test-id="button-save" onclick={this.performSave.bind(this)}>Generate</Buttons.Primary>
-        </ButtonGroup>
-      ];
+        <Buttons.Primary data-test-id="button-save"
+                         onclick={this.performOperation.bind(this)}>Generate</Buttons.Primary>,
+        <Buttons.Cancel data-test-id="button-cancel" onclick={() => this.close()}>Cancel</Buttons.Cancel>];
     }
   }
 
-  title(): string {
-    return "Generate Token";
+  protected operationPromise(): Promise<any> {
+    return AccessTokenCRUD.create(this.accessToken());
+  }
+
+  protected afterSuccess() {
+    this.accessTokens().push(this.accessToken);
+    this.onSuccessfulSave("Access token was successfully created.");
   }
 
   private hasToken() {
-    const token = this.accessToken.token();
+    const token = this.accessToken().token();
     return !_.isEmpty(token);
   }
+}
 
-  private performSave(e: MouseEvent) {
-    AccessTokenCRUD.create(this.accessToken)
-                   .then((result) => result.do(this.onSuccess.bind(this), this.onError.bind(this)))
-                   .finally(() => m.redraw());
+export class RevokeTokenModal extends BaseModal {
+  private cause: Stream<string> = stream();
+
+  constructor(accessTokens: Stream<AccessTokens>,
+              accessToken: Stream<AccessToken>,
+              onSuccessfulSave: (msg: m.Children) => void,
+              onError: (msg: m.Children) => void) {
+    super(accessTokens, accessToken, onSuccessfulSave, onError);
+    this.closeModalOnOverlayClick = false;
   }
 
-  private onError(errorResponse: ErrorResponse) {
-    return this.onFailedSave(errorResponse.message);
+  body(): m.Children {
+    return (
+      <TextAreaField helpText={"Why do you want to revoke this token?"}
+                     label="Are you sure you want to revoke this token?"
+                     rows={3}
+                     size={Size.MATCH_PARENT}
+                     property={this.cause}/>
+    );
   }
 
-  private onSuccess(successResponse: SuccessResponse<ObjectWithEtag<AccessToken>>) {
-    this.accessToken = successResponse.body.object;
-    this.accessTokens().push(this.accessToken);
-    return this.onSuccessfulSave("Access token was successfully created.");
+  title(): string {
+    return "Revoke Token";
+  }
+
+  buttons(): m.ChildArray {
+    return [<Buttons.Primary data-test-id="button-revoke-token"
+                             onclick={this.performOperation.bind(this)}>Revoke token</Buttons.Primary>,
+      <Buttons.Cancel data-test-id="button-cancel" onclick={() => this.close()}>Cancel</Buttons.Cancel>];
+  }
+
+  protected operationPromise(): Promise<any> {
+    return AccessTokenCRUD.revoke(this.accessToken(), this.cause()).finally(() => this.close());
+  }
+
+  protected afterSuccess() {
+    this.onSuccessfulSave("Access token was successfully revoked.");
   }
 }

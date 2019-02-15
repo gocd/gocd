@@ -169,7 +169,7 @@ export default class {
     }
   }
 
-  static rolesPath(type?: 'gocd' | 'plugin') {
+  static rolesPath(type?: "gocd" | "plugin") {
     if (type) {
       return `/go/api/admin/security/roles?type=${type}`;
     } else {
@@ -201,11 +201,14 @@ export default class {
     return "/go/api/admin/security/system_admins";
   }
 
-  static apiAccessTokensPath() {
+  static apiAccessTokensPath(id?: number) {
+    if (id) {
+      return `/go/api/access_tokens/${id}`;
+    }
     return "/go/api/access_tokens";
   }
 
-  static apiAccessTokenRevokePath(username: string, tokenName: string) {
-    return `${this.apiAccessTokensPath()}/${username}/${tokenName}`;
+  static apiAccessTokenRevokePath(id: number) {
+    return `${this.apiAccessTokensPath(id)}/revoke`;
   }
 }

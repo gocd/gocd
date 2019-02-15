@@ -36,6 +36,11 @@ export class AccessTokenCRUD {
                                   {payload: accessToken}).then(this.extractObjectWithEtag);
   }
 
+  static revoke(accessToken: AccessToken, cause: string) {
+    return ApiRequestBuilder.POST(SparkRoutes.apiAccessTokenRevokePath(accessToken.id()), this.API_VERSION_HEADER,
+                                  {payload: {cause}}).then(this.extractObjectWithEtag);
+  }
+
   private static extractObjectWithEtag(result: ApiResult<string>) {
     return result.map((body) => {
       const accessTokenJSON = JSON.parse(body);

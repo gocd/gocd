@@ -17,15 +17,15 @@
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {AccessTokenCRUD} from "models/access_tokens/access_token_crud";
 import {AccessTokenTestData} from "models/access_tokens/spec/access_token_test_data";
-import {AccessToken, AccessTokenJSON, AccessTokens} from "../types";
+import {AccessToken, AccessTokens} from "../types";
 
 describe("AccessTokenCRUD", () => {
   beforeEach(() => jasmine.Ajax.install());
   afterEach(() => jasmine.Ajax.uninstall());
-  const ALL_ACCESS_TOKENS_API = "/go/api/access_tokens";
+  const BASE_PATH = "/go/api/access_tokens";
 
   it("should get all access tokens", (done) => {
-    jasmine.Ajax.stubRequest(ALL_ACCESS_TOKENS_API).andReturn(accessTokensResponse());
+    jasmine.Ajax.stubRequest(BASE_PATH).andReturn(accessTokensResponse());
 
     const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
@@ -36,14 +36,14 @@ describe("AccessTokenCRUD", () => {
     AccessTokenCRUD.all().then(onResponse);
 
     const request = jasmine.Ajax.requests.mostRecent();
-    expect(request.url).toEqual(ALL_ACCESS_TOKENS_API);
+    expect(request.url).toEqual(BASE_PATH);
     expect(request.method).toEqual("GET");
     expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v1+json"});
   });
 
   it("should create access token", (done) => {
     const accessToken = AccessToken.fromJSON(AccessTokenTestData.validAccessToken());
-    jasmine.Ajax.stubRequest(ALL_ACCESS_TOKENS_API).andReturn(accessTokenResponse());
+    jasmine.Ajax.stubRequest(BASE_PATH).andReturn(accessTokenResponse());
 
     const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
@@ -55,10 +55,34 @@ describe("AccessTokenCRUD", () => {
     AccessTokenCRUD.create(accessToken).then(onResponse);
 
     const request = jasmine.Ajax.requests.mostRecent();
-    expect(request.url).toEqual(ALL_ACCESS_TOKENS_API);
+    expect(request.url).toEqual(BASE_PATH);
     expect(request.method).toEqual("POST");
     const requestData = toAccessTokenJSON(request.data());
     expect(requestData.description).toEqual(accessToken.description());
+    expect(request.requestHeaders).toEqual({
+                                             "Accept": "application/vnd.go.cd.v1+json",
+                                             "Content-Type": "application/json; charset=utf-8"
+                                           });
+  });
+
+  it("should revoke access token", (done) => {
+    const accessToken = AccessToken.fromJSON(AccessTokenTestData.validAccessToken());
+    jasmine.Ajax.stubRequest(`${BASE_PATH}/${accessToken.id()}/revoke`).andReturn(accessTokenResponse());
+
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const responseJSON = response.unwrap() as SuccessResponse<any>;
+      expect(responseJSON.body.object.description()).toEqual(accessToken.description());
+      expect(responseJSON.body.etag).toEqual("some-etag");
+      done();
+    });
+
+    AccessTokenCRUD.revoke(accessToken, "Some cause to revoke the token").then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(`${BASE_PATH}/${accessToken.id()}/revoke`);
+    expect(request.method).toEqual("POST");
+    const data = toAccessTokenJSON(request.data());
+    expect(data.cause).toEqual("Some cause to revoke the token");
     expect(request.requestHeaders).toEqual({
                                              "Accept": "application/vnd.go.cd.v1+json",
                                              "Content-Type": "application/json; charset=utf-8"
@@ -90,5 +114,5 @@ function accessTokenResponse() {
 }
 
 function toAccessTokenJSON(object: any) {
-  return JSON.parse(JSON.stringify(object)) as AccessTokenJSON;
+  return JSON.parse(JSON.stringify(object));
 }

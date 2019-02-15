@@ -28,23 +28,25 @@ describe("AccessTokenTypesSpec", () => {
     const validAccessTokenJSON   = AccessTokenTestData.validAccessToken();
     const revokedAccessTokenJSON = AccessTokenTestData.revokedAccessToken();
 
-    expect(accessTokens[0].description()).toEqual(validAccessTokenJSON.description);
-    expect(accessTokens[0].authConfigId()).toEqual(validAccessTokenJSON.auth_config_id);
-    expect(accessTokens[0].meta().revoked()).toEqual(false);
-    expect(accessTokens[0].meta().revokedAt()).toEqual(null);
-    expect(accessTokens[0].meta().createdAt())
+    expect(accessTokens[0]().id()).toEqual(validAccessTokenJSON.id);
+    expect(accessTokens[0]().description()).toEqual(validAccessTokenJSON.description);
+    expect(accessTokens[0]().authConfigId()).toEqual(validAccessTokenJSON.auth_config_id);
+    expect(accessTokens[0]().meta().revoked()).toEqual(false);
+    expect(accessTokens[0]().meta().revokedAt()).toEqual(null);
+    expect(accessTokens[0]().meta().createdAt())
       .toEqual(TimeFormatter.format(validAccessTokenJSON._meta.created_at));
-    expect(accessTokens[0].meta().lastUsedAt())
+    expect(accessTokens[0]().meta().lastUsedAt())
       .toEqual(TimeFormatter.format(validAccessTokenJSON._meta.last_used_at));
 
-    expect(accessTokens[1].description()).toEqual(revokedAccessTokenJSON.description);
-    expect(accessTokens[1].authConfigId()).toEqual(revokedAccessTokenJSON.auth_config_id);
-    expect(accessTokens[1].meta().revoked()).toEqual(true);
-    expect(accessTokens[1].meta().revokedAt())
+    expect(accessTokens[1]().id()).toEqual(revokedAccessTokenJSON.id);
+    expect(accessTokens[1]().description()).toEqual(revokedAccessTokenJSON.description);
+    expect(accessTokens[1]().authConfigId()).toEqual(revokedAccessTokenJSON.auth_config_id);
+    expect(accessTokens[1]().meta().revoked()).toEqual(true);
+    expect(accessTokens[1]().meta().revokedAt())
       .toEqual(TimeFormatter.format(revokedAccessTokenJSON._meta.revoked_at));
-    expect(accessTokens[1].meta().createdAt())
+    expect(accessTokens[1]().meta().createdAt())
       .toEqual(TimeFormatter.format(revokedAccessTokenJSON._meta.created_at));
-    expect(accessTokens[1].meta().lastUsedAt())
+    expect(accessTokens[1]().meta().lastUsedAt())
       .toEqual(TimeFormatter.format(revokedAccessTokenJSON._meta.last_used_at));
   });
 

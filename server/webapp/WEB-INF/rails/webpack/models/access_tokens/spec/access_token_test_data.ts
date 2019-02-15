@@ -28,6 +28,7 @@ export class AccessTokenTestData {
 
   static validAccessToken() {
     return {
+      id: 1,
       name: "ValidToken",
       description: "This is dummy description",
       auth_config_id: "auth_config_id0",
@@ -42,6 +43,7 @@ export class AccessTokenTestData {
 
   static newAccessTokenWithTokenText() {
     return {
+      id: 2,
       name: "ValidToken",
       description: "This is dummy description",
       auth_config_id: "auth_config_id0",
@@ -57,6 +59,7 @@ export class AccessTokenTestData {
 
   static revokedAccessToken() {
     return {
+      id: 3,
       name: "RevokedToken",
       description: "This is token is revoked",
       auth_config_id: "auth_config_id0",

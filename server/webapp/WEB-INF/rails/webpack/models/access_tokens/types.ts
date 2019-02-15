@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+import * as _ from "lodash";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {Errors} from "models/mixins/errors";
@@ -55,6 +56,12 @@ export class AccessTokens extends Array<Stream<AccessToken>> {
     return new AccessTokens(...json._embedded.access_tokens.map((accessTokenJSON) => stream(AccessToken.fromJSON(
       accessTokenJSON))));
   }
+
+  sortByCreateDate() {
+    return new AccessTokens(...(_.orderBy(this, (accessToken) => {
+      return accessToken().meta().createdAt().getTime();
+    }, "desc")));
+  }
 }
 
 class Meta {
@@ -81,7 +88,7 @@ class Meta {
 
   private static parseDate(dateString: string | null) {
     if (dateString) {
-      return TimeFormatter.format(dateString);
+      return TimeFormatter.toDate(dateString);
     }
     return null;
   }

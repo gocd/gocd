@@ -22,6 +22,8 @@ import * as Buttons from "views/components/buttons";
 import {Table} from "views/components/table";
 import * as styles from "./index.scss";
 
+const TimeFormatter = require("helpers/time_formatter");
+
 interface Attrs {
   accessTokens: Stream<AccessTokens>;
   onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void;
@@ -29,11 +31,11 @@ interface Attrs {
 
 export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const data = vnode.attrs.accessTokens().map((accessToken, index) => {
+    const data = vnode.attrs.accessTokens().sortByCreateDate().map((accessToken, index) => {
       const lastUsedAt = accessToken().meta().lastUsedAt() ? accessToken().meta().lastUsedAt()!.toString() : "Never";
       return [index + 1,
         <span className={styles.description}>{accessToken().description()}</span>,
-        accessToken().meta().createdAt().toString(),
+        TimeFormatter.format(accessToken().meta().createdAt()),
         lastUsedAt,
         this.getRevokeButton(vnode, accessToken)
       ];

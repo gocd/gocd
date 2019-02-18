@@ -82,7 +82,7 @@ public class AccessToken extends PersistentObject implements Validatable {
         String hashedToken = digestToken(originalToken, saltValue);
         String finalTokenValue = String.format("%s%s", saltId, originalToken);
 
-        return (AccessTokenWithDisplayValue) new AccessTokenWithDisplayValue()
+        AccessTokenWithDisplayValue accessTokenWithDisplayValue = (AccessTokenWithDisplayValue) new AccessTokenWithDisplayValue()
                 .setDisplayValue(finalTokenValue)
                 .setDescription(description)
                 .setAuthConfigId(authConfigId)
@@ -91,6 +91,11 @@ public class AccessToken extends PersistentObject implements Validatable {
                 .setSaltValue(saltValue)
                 .setValue(hashedToken)
                 .setUsername(username);
+        accessTokenWithDisplayValue.validate(null);
+        if (!accessTokenWithDisplayValue.errors().isEmpty()) {
+            accessTokenWithDisplayValue.setDisplayValue(null);
+        }
+        return accessTokenWithDisplayValue;
     }
 
     private static String generateSecureRandomString(int byteLength) {

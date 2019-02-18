@@ -108,6 +108,14 @@ public class BackupService implements BackupStatusProvider {
         performBackupWithoutAuthentication(Username.CRUISE_TIMER, result, BackupInitiator.TIMER);
     }
 
+    public ServerBackup getServerBackup(String id) {
+        return null;
+    }
+
+    public ServerBackup scheduleBackup(Username username, HttpLocalizedOperationResult result) {
+        return null;
+    }
+
     public ServerBackup startBackup(Username username, HttpLocalizedOperationResult result) {
         if (!goConfigService.isUserAdmin(username)) {
             result.forbidden("Unauthorized to initiate Go backup as you are not a Go administrator", HealthStateType.forbidden());

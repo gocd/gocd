@@ -27,6 +27,11 @@ public class Routes {
     public static class Backups {
         public static final String BASE = "/api/backups";
         public static final String DOC = apiDocsUrl("#backups");
+        public static final String ID_PATH = "/:id";
+
+        public static String serverBackup(String id) {
+            return BASE + ID_PATH.replaceAll(":id", id);
+        }
     }
 
     public static class MaintenanceMode {

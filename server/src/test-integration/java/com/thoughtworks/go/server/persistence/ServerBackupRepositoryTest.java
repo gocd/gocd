@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.persistence;
 import java.util.Date;
 
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.domain.BackupStatus;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import org.junit.After;
 import org.junit.Before;

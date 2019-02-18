@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.domain;
 
-import java.util.Date;
-
 import com.thoughtworks.go.domain.PersistentObject;
+
+import java.util.Date;
 
 /**
  * @understands A single backup of the server
@@ -27,6 +27,8 @@ public class ServerBackup extends PersistentObject{
     private Date time;
     private String path;
     private String username;
+    private BackupStatus status;
+    private String message;
 
     private ServerBackup() {
     }
@@ -35,6 +37,16 @@ public class ServerBackup extends PersistentObject{
         this.path = path;
         this.time = time;
         this.username = username;
+        this.status = BackupStatus.IN_PROGRESS;
+    }
+
+    public ServerBackup(String path, Date time, String username, BackupStatus status, String message, long id) {
+        this.path = path;
+        this.time = time;
+        this.username = username;
+        this.message = message;
+        this.status = status;
+        this.id = id;
     }
 
     public String getPath() {
@@ -70,6 +82,12 @@ public class ServerBackup extends PersistentObject{
         if (time != null ? !time.equals(that.time) : that.time != null) {
             return false;
         }
+        if (status != null ? !status.equals(that.status) : that.status != null) {
+            return false;
+        }
+        if (message != null ? !message.equals(that.message) : that.message != null) {
+            return false;
+        }
         if (username != null ? !username.equals(that.username) : that.username != null) {
             return false;
         }
@@ -82,6 +100,16 @@ public class ServerBackup extends PersistentObject{
         int result = time != null ? time.hashCode() : 0;
         result = 31 * result + (path != null ? path.hashCode() : 0);
         result = 31 * result + (username != null ? username.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (message != null ? message.hashCode() : 0);
         return result;
+    }
+
+    public BackupStatus getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }

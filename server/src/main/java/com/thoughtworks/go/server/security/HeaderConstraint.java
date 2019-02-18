@@ -18,12 +18,14 @@ package com.thoughtworks.go.server.security;
 import com.thoughtworks.go.util.SystemEnvironment;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Arrays;
+import java.util.List;
 
 public class HeaderConstraint {
+    private static final List<String> HEADERS = Arrays.asList("Confirm", "X-GoCD-Confirm");
     private SystemEnvironment systemEnvironment;
 
     public HeaderConstraint(SystemEnvironment systemEnvironment) {
-
         this.systemEnvironment = systemEnvironment;
     }
 
@@ -32,11 +34,14 @@ public class HeaderConstraint {
             return true;
         }
 
-        String requestHeader = request.getHeader("Confirm");
+        return HEADERS.stream().anyMatch(header -> isValid(request, header));
+    }
+
+    private boolean isValid(HttpServletRequest request, String header) {
+        String requestHeader = request.getHeader(header);
         if(requestHeader == null || !requestHeader.equalsIgnoreCase("true")) {
             return false;
         }
-
         return true;
     }
 }

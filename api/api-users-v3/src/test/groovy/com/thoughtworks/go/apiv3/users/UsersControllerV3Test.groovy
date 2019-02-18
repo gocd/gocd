@@ -303,7 +303,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
           result.setMessage("The user '" + username + "' was deleted successfully.")
-        }).when(userService).deleteUser(eq(username), any(HttpLocalizedOperationResult.class))
+        }).when(userService).deleteUser(eq(username), eq(currentUsernameString()), any(HttpLocalizedOperationResult.class))
 
         delete(controller.controllerPath(username))
 
@@ -320,7 +320,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
           result.badRequest("User '" + username + "' is not disabled.")
-        }).when(userService).deleteUser(eq(username), any(HttpLocalizedOperationResult.class))
+        }).when(userService).deleteUser(eq(username), eq(currentUsernameString()), any(HttpLocalizedOperationResult.class))
 
         delete(controller.controllerPath(username))
 
@@ -365,7 +365,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
         doAnswer({ InvocationOnMock invocation ->
           BulkUpdateUsersOperationResult result = (BulkUpdateUsersOperationResult) invocation.arguments.last()
           result.setMessage(LocalizedMessage.resourcesDeleteSuccessful("Users", usersToDelete))
-        }).when(userService).deleteUsers(eq(usersToDelete), any(BulkUpdateUsersOperationResult.class))
+        }).when(userService).deleteUsers(eq(usersToDelete), eq(currentUsernameString()), any(BulkUpdateUsersOperationResult.class))
 
         deleteWithApiHeader(controller.controllerPath(), requestBody)
 
@@ -385,7 +385,7 @@ class UsersControllerV3Test implements SecurityServiceTrait, ControllerTrait<Use
           result.unprocessableEntity("Deletion failed because some users were either enabled or do not exist.")
           result.addNonExistentUserName(usersToDelete[0])
           result.addNonExistentUserName(usersToDelete[1])
-        }).when(userService).deleteUsers(eq(usersToDelete), any(BulkUpdateUsersOperationResult.class))
+        }).when(userService).deleteUsers(eq(usersToDelete), eq(currentUsernameString()), any(BulkUpdateUsersOperationResult.class))
 
         deleteWithApiHeader(controller.controllerPath(), requestBody)
 

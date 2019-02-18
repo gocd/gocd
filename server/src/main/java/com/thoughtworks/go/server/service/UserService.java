@@ -253,9 +253,9 @@ public class UserService {
         return userDao.load(id);
     }
 
-    public void deleteUser(String username, HttpLocalizedOperationResult result) {
+    public void deleteUser(String username, String byWhom, HttpLocalizedOperationResult result) {
         try {
-            userDao.deleteUser(username);
+            userDao.deleteUser(username, byWhom);
             result.setMessage(LocalizedMessage.resourceDeleteSuccessful("user", username));
         } catch (UserNotFoundException e) {
             result.notFound(resourceNotFound("User", username), general(GLOBAL));
@@ -264,11 +264,11 @@ public class UserService {
         }
     }
 
-    public void deleteUsers(List<String> userNames, BulkUpdateUsersOperationResult result) {
+    public void deleteUsers(List<String> userNames, String byWhom, BulkUpdateUsersOperationResult result) {
         synchronized (enableUserMutex) {
             boolean isValid = performUserDeletionValidation(userNames, result);
             if (isValid) {
-                userDao.deleteUsers(userNames);
+                userDao.deleteUsers(userNames, byWhom);
                 result.setMessage(LocalizedMessage.resourcesDeleteSuccessful("Users", userNames));
             }
         }

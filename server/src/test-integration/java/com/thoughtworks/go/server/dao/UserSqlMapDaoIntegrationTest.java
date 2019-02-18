@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
+import com.thoughtworks.go.server.service.AccessTokenService;
 import org.hamcrest.Matchers;
 import org.hibernate.SessionFactory;
 import org.junit.After;
@@ -54,6 +55,8 @@ public class UserSqlMapDaoIntegrationTest {
     private DatabaseAccessHelper dbHelper;
     @Autowired
     private SessionFactory sessionFactory;
+    @Autowired
+    private AccessTokenService accessTokenService;
 
     @Before
     public void setup() throws Exception {
@@ -357,7 +360,7 @@ public class UserSqlMapDaoIntegrationTest {
         User user = new User(userName);
         user.disable();
         userDao.saveOrUpdate(user);
-        boolean result = userDao.deleteUser(userName);
+        boolean result = userDao.deleteUser(userName, "currentUser");
         assertThat(result, is(true));
     }
 
@@ -369,7 +372,7 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(user);
         assertThat(getAllNotificationFilter(), hasSize(1));
 
-        boolean result = userDao.deleteUser(user.getName());
+        boolean result = userDao.deleteUser(user.getName(), "currentUser");
 
         assertThat(result, is(true));
         assertThat(getAllNotificationFilter(), is(empty()));
@@ -383,7 +386,7 @@ public class UserSqlMapDaoIntegrationTest {
     @Test(expected = UserNotFoundException.class)
     public void shouldThrowExceptionWhenUserIsNotFound() {
         String userName = "invaliduser";
-        userDao.deleteUser(userName);
+        userDao.deleteUser(userName, "currentUser");
     }
 
     @Test(expected = UserEnabledException.class)
@@ -391,14 +394,14 @@ public class UserSqlMapDaoIntegrationTest {
         String userName = "enabledUser";
         User user = new User(userName);
         userDao.saveOrUpdate(user);
-        userDao.deleteUser(userName);
+        userDao.deleteUser(userName, "currentUser");
     }
 
     @Test
     public void shouldAddNewUserWhenDeleteQueryForTheUserHasCachedANullUser() {
         String userName = "invalidForNowUser";
         try {
-            userDao.deleteUser(userName);
+            userDao.deleteUser(userName, "currentUser");
             fail("should have failed");
         } catch (Exception e) {
             assertThat(e instanceof UserNotFoundException, is(true));
@@ -409,11 +412,11 @@ public class UserSqlMapDaoIntegrationTest {
         User retrievedUser = userDao.findUser(userName);
         assertThat(retrievedUser instanceof NullUser, is(false));
         assertThat(retrievedUser, is(addingTheUserNow));
-        assertThat(userDao.deleteUser(userName), is(true));
+        assertThat(userDao.deleteUser(userName, "currentUser"), is(true));
     }
 
     @Test
-    public void shouldDeleteUsers() {
+    public void shouldDeleteUsersAlongWithTokensAssociatedWithThem() {
         User john = new User("john");
         john.disable();
         User joan = new User("joan");
@@ -424,8 +427,17 @@ public class UserSqlMapDaoIntegrationTest {
         userDao.saveOrUpdate(john);
         userDao.saveOrUpdate(joan);
 
-        boolean result = userDao.deleteUsers(userNames);
+        accessTokenService.create("my token", john.getName(), "blah");
+        accessTokenService.create("my token", joan.getName(), "blah");
+
+        assertThat(accessTokenService.findAllTokensForUser(john.getName()), hasSize(1));
+        assertThat(accessTokenService.findAllTokensForUser(joan.getName()), hasSize(1));
+
+        boolean result = userDao.deleteUsers(userNames, "currentUser");
         assertThat(result, is(true));
+
+        assertThat(accessTokenService.findAllTokensForUser(john.getName()), hasSize(0));
+        assertThat(accessTokenService.findAllTokensForUser(joan.getName()), hasSize(0));
 
         Users users = userDao.allUsers();
         assertThat(users, is(empty()));

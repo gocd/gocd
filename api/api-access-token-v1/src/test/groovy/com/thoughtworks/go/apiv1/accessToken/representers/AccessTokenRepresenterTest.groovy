@@ -51,7 +51,7 @@ class AccessTokenRepresenterTest {
       "description"   : token.description,
       "auth_config_id": token.authConfigId,
       "_meta"         : [
-        "is_revoked"  : token.revoked,
+        "revoked"  : token.revoked,
         "revoked_at"  : null,
         "created_at"  : jsonDate(token.createdAt),
         "last_used_at": null
@@ -87,7 +87,7 @@ class AccessTokenRepresenterTest {
       "description"   : token.description,
       "auth_config_id": token.authConfigId,
       "_meta"         : [
-        "is_revoked"  : token.revoked,
+        "revoked"  : token.revoked,
         "revoked_at"  : null,
         "created_at"  : jsonDate(token.createdAt),
         "last_used_at": null

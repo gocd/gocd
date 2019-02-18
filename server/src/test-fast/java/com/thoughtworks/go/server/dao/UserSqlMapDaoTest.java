@@ -25,7 +25,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.hibernate.SessionFactory;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
@@ -53,12 +52,14 @@ public class UserSqlMapDaoTest {
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private StubGoCache goCache;
     private UserSqlMapDao dao;
+    @Mock
+    private AccessTokenDao accessTokenDao;
 
     @Before
     public void setUp() {
         initMocks(this);
         goCache = new StubGoCache(new TestTransactionSynchronizationManager());
-        dao = new UserSqlMapDao(sessionFactory, transactionTemplate, goCache, transactionSynchronizationManager);
+        dao = new UserSqlMapDao(sessionFactory, transactionTemplate, goCache, accessTokenDao, transactionSynchronizationManager);
     }
 
     @Test
@@ -109,7 +110,7 @@ public class UserSqlMapDaoTest {
     @Test
     public void shouldDoADoubleCheckOfCacheBeforeLoadingFromTheDB() throws Exception {
         GoCache cache = mock(GoCache.class);
-        UserSqlMapDao userSqlMapDaoSpy = spy(new UserSqlMapDao(sessionFactory, transactionTemplate, cache, transactionSynchronizationManager));
+        UserSqlMapDao userSqlMapDaoSpy = spy(new UserSqlMapDao(sessionFactory, transactionTemplate, cache, accessTokenDao, transactionSynchronizationManager));
 
         doReturn(mockHibernateTemplate).when(userSqlMapDaoSpy).hibernateTemplate();
         doReturn(10L).when(mockHibernateTemplate).execute(any(HibernateCallback.class));

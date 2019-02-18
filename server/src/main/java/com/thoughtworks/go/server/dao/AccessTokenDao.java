@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AccessToken;
 
+import java.util.Collection;
 import java.util.List;
 
 public interface AccessTokenDao {
@@ -25,9 +26,11 @@ public interface AccessTokenDao {
 
     AccessToken load(long id);
 
-    void deleteAll();
+    List<AccessToken> findAllTokens();
 
     List<AccessToken> findAllTokensForUser(String username);
 
     AccessToken findAccessTokenBySaltId(String saltId);
+
+    void revokeTokensBecauseOfUserDelete(Collection<String> usernames, String byWhom);
 }

@@ -157,14 +157,14 @@ describe ApiV2::UsersController do
       @user_service = double('user service')
       allow(controller).to receive(:user_service).and_return(@user_service)
       allow(@user_service).to receive(:findUserByName).with(@john.name).and_return(@john)
-      allow(@user_service).to receive(:deleteUser).with(@john.name, anything()).and_return(@john)
+      allow(@user_service).to receive(:deleteUser).with(@john.name, anything(), anything()).and_return(@john)
     end
 
     describe "for_admins" do
       it 'should allow deleting users' do
         login_as_admin
 
-        expect(@user_service).to receive(:deleteUser).with(@john.name, an_instance_of(HttpLocalizedOperationResult)) do |username, result|
+        expect(@user_service).to receive(:deleteUser).with(@john.name, @user.getUsername().toString(), an_instance_of(HttpLocalizedOperationResult)) do |username, deleted_by, result|
           result.setMessage("The user 'jdoe' was deleted successfully.")
         end
 
@@ -244,7 +244,7 @@ describe ApiV2::UsersController do
 
         @user_service = double('user_service')
         allow(controller).to receive(:user_service).and_return(@user_service)
-        expect(@user_service).to receive(:deleteUsers).with([@john.name, @joanne.name], an_instance_of(HttpLocalizedOperationResult)) do |users, result|
+        expect(@user_service).to receive(:deleteUsers).with([@john.name, @joanne.name], @user.getUsername().toString(), an_instance_of(HttpLocalizedOperationResult)) do |users, deleted_by, result|
           result.setMessage("The users '[\"jdoe\", \"jrowling\"]' was deleted successfully.")
         end
 
@@ -266,7 +266,7 @@ describe ApiV2::UsersController do
         enabled_users.add('john')
 
         bulkDeletionFailureResult = BulkUpdateUsersOperationResult.new(non_existent_users, enabled_users)
-        expect(@user_service).to receive(:deleteUsers).with([@john.name, @joanne.name], an_instance_of(HttpLocalizedOperationResult)) do |users, result|
+        expect(@user_service).to receive(:deleteUsers).with([@john.name, @joanne.name], @user.getUsername().toString(), an_instance_of(HttpLocalizedOperationResult)) do |users, deleted_by, result|
           result.unprocessableEntity("Deletion failed because some users were either enabled or do not exist.")
           bulkDeletionFailureResult
         end
@@ -282,7 +282,7 @@ describe ApiV2::UsersController do
         @user_service = double('user_service')
         allow(controller).to receive(:user_service).and_return(@user_service)
 
-        expect(@user_service).to receive(:deleteUsers).with([], an_instance_of(HttpLocalizedOperationResult)) do |users, result|
+        expect(@user_service).to receive(:deleteUsers).with([], @user.getUsername().toString(), an_instance_of(HttpLocalizedOperationResult)) do |users, deleted_by, result|
           result.badRequest("No users selected.")
           BulkUpdateUsersOperationResult.new()
         end

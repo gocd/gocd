@@ -18,7 +18,10 @@ package com.thoughtworks.go.build
 
 enum NonSpdxLicense {
 
-  EDL_1_0("EDL-1.0", "Eclipse Distribution License - v1.0", "Eclipse Distribution License v1.0", "Eclipse Distribution License (New BSD License)"),
+  EDL_1_0("EDL-1.0",
+    "Eclipse Distribution License - v1.0",
+    "Eclipse Distribution License v1.0",
+    "Eclipse Distribution License (New BSD License)"),
 
   public final Set<String> names
   public final String id
@@ -32,6 +35,8 @@ enum NonSpdxLicense {
     if (license == null || license.allWhitespace) {
       return null
     }
+
+    license = license.trim()
 
     for (NonSpdxLicense eachLicense : values()) {
       if (license == eachLicense.id || eachLicense.names.contains(license.toLowerCase())) {

@@ -29,17 +29,20 @@ import static com.thoughtworks.go.build.SpdxLicense.*
 class LicenseReport {
 
   private static Set<String> LICENSE_EXCEPTIONS = [
+    'GPLv2 with the Classpath Exception',
+    '(OFL-1.1 AND MIT)',
     'Apple License',
     'Bouncy Castle Licence',
+    'BSD License',
     'BSD',
+    'Dual license consisting of the CDDL v1.1 and GPL v2',
+    'CDDL+GPL License',
     'Custom: https://raw.github.com/bjoerge/deferred.js/master/dist/dfrrd.js',
-    'dom4j BSD license',
+    'GNU Library General Public License v2.1 or later',
     'Public Domain',
     'Similar to Apache License but with the acknowledgment clause removed',
     'The H2 License, Version 1.0',
     'The OpenSymphony Software License 1.1',
-    '(OFL-1.1 AND MIT)',
-    "GPLv2 with the Classpath Exception"
   ]
 
   private static Set<String> ALLOWED_LICENSES = LICENSE_EXCEPTIONS + [
@@ -52,6 +55,7 @@ class LicenseReport {
     EDL_1_0,
     EPL_1_0,
     LGPL_2_1,
+    LGPL_2_1_,
     LGPL_3_0,
     LGPL_3_0_ONLY,
     MIT,
@@ -201,7 +205,11 @@ class LicenseReport {
 
   private checkIfLicensesAreAllowed(List<Map<String, String>> moduleLicenses, String moduleName, String moduleVersion) {
     Set<String> licenseNames = moduleLicenses.collect { it.moduleLicense }
-    Set<String> normalizedLicenseNames = licenseNames.collect { normalizeLicense(it, moduleName) }
+    Set<String> normalizedLicenseNames = licenseNames.collect { normalizeLicense(it, moduleName) }.collect {
+      if (it) {
+        it.trim()
+      }
+    }
 
     def intersect = ALLOWED_LICENSES.intersect(normalizedLicenseNames)
     if (intersect.isEmpty()) {

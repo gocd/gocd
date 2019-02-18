@@ -143,7 +143,7 @@ task verifyJar(type: VerifyJarTask) {
       "commons-text-1.6.jar",
       "config-api-${project.version}.jar",
       "db-${project.version}.jar",
-      "dom4j-1.6.1.jar",
+      "dom4j-${project.versions.dom4j}.jar",
       "domain-${project.version}.jar",
       "go-plugin-access-${project.version}.jar",
       "go-plugin-activator.jar",

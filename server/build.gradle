@@ -841,7 +841,9 @@ task verifyWar(type: VerifyJarTask) {
         "aspectjrt-1.5.4.jar",
         "aspectjweaver-1.5.4.jar",
         "base-${project.version}.jar",
+        "byte-buddy-1.9.5.jar",
         "cglib-2.2.2.jar",
+        "classmate-1.3.4.jar",
         "cloning-${project.versions.cloning}.jar",
         "commandline-${project.version}.jar",
         "common-${project.version}.jar",
@@ -864,9 +866,10 @@ task verifyWar(type: VerifyJarTask) {
         "database-${project.version}.jar",
         "db-${project.version}.jar",
         "dbdeploy-2.11.1.jar",
-        "dom4j-1.6.1.jar",
+        "dom4j-${project.versions.dom4j}.jar",
         "domain-${project.version}.jar",
         "ehcache-2.10.6.jar",
+        "FastInfoset-1.2.15.jar",
         "geronimo-j2ee-management_1.1_spec-1.0.1.jar",
         "geronimo-jms_1.1_spec-1.1.1.jar",
         "go-plugin-access-${project.version}.jar",
@@ -879,29 +882,33 @@ task verifyWar(type: VerifyJarTask) {
         "gson-${project.versions.gson}.jar",
         "guava-${project.versions.guava}.jar",
         "h2-${project.versions.h2db}.jar",
-        "hibernate-commons-annotations-4.0.5.Final.jar",
+        "hibernate-commons-annotations-5.1.0.Final.jar",
         "hibernate-core-${project.versions.hibernate}.jar",
         "hibernate-ehcache-${project.versions.hibernate}.jar",
-        "hibernate-jpa-2.1-api-1.0.0.Final.jar",
         "httpclient-${project.versions.apacheHttpComponents}.jar",
+        "istack-commons-runtime-3.0.7.jar",
+
         "httpcore-4.4.10.jar",
         "httpmime-${project.versions.apacheHttpComponents}.jar",
         "jackson-annotations-2.9.0.jar",
         "jackson-core-2.9.4.jar",
         "jackson-databind-2.9.4.jar",
-        "jandex-1.1.0.Final.jar",
+        "jandex-2.0.5.Final.jar",
         "jasypt-1.7.jar",
         "JavaEWAH-1.1.6.jar",
-        "javassist-3.18.1-GA.jar",
+        "javassist-3.24.0-GA.jar",
         "javasysmon-0.3.6.jar",
         "javasysmon-wrapper-${project.version}.jar",
+        "javax.activation-api-1.2.0.jar",
         "javax.annotation-api-${project.versions.javaxAnnotation}.jar",
         "javax.inject-1.jar",
+        "javax.persistence-api-2.2.jar",
         "javax.servlet-api-3.1.0.jar",
+        "jaxb-api-2.3.1.jar",
+        "jaxb-runtime-2.3.1.jar",
         "jaxen-1.1.6.jar",
-        "jboss-logging-3.1.3.GA.jar",
-        "jboss-logging-annotations-1.2.0.Beta1.jar",
-        "jboss-transaction-api_1.2_spec-1.0.0.Final.jar",
+        "jboss-logging-3.3.2.Final.jar",
+        "jboss-transaction-api_1.2_spec-1.1.1.Final.jar",
         "jcl-over-slf4j-${project.versions.slf4j}.jar",
         "jdom2-${project.versions.jdom}.jar",
         "joda-time-${project.versions.jodaTime}.jar",
@@ -939,7 +946,9 @@ task verifyWar(type: VerifyJarTask) {
         "spring-tx-${project.versions.spring}.jar",
         "spring-web-${project.versions.spring}.jar",
         "spring-webmvc-${project.versions.spring}.jar",
+        "stax-ex-1.8.jar",
         "token-bucket-${project.versions.tokenBucket}.jar",
+        "txw2-2.3.1.jar",
         "urlrewritefilter-3.2.0.jar",
         "util-${project.version}.jar",
         "velocity-1.7.jar",
@@ -988,19 +997,6 @@ task licenseReportAggregate {
         [
           moduleLicense   : 'LGPL-3.0-only',
           moduleLicenseUrl: "https://spdx.org/licenses/LGPL-3.0-only.html"
-        ]
-      ]
-    ],
-    [
-      moduleName    : 'dom4j:dom4j',
-      moduleVersion : '1.6.1',
-      moduleUrls    : [
-        "https://dom4j.github.io/"
-      ],
-      moduleLicenses: [
-        [
-          moduleLicense   : 'dom4j BSD license',
-          moduleLicenseUrl: "https://github.com/dom4j/dom4j/blob/dom4j_1_6_1/LICENSE.txt"
         ]
       ]
     ],

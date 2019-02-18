@@ -20,6 +20,7 @@ import org.apache.commons.io.FileUtils;
 import org.dom4j.Attribute;
 import org.dom4j.Document;
 import org.dom4j.Element;
+import org.dom4j.Node;
 import org.dom4j.io.SAXReader;
 
 import java.io.File;
@@ -39,10 +40,12 @@ public class JUnitReportGenerator {
             Element copy = suite.createCopy();
             setAttr(i, copy, "name");
             setAttr(i, copy, "hostname");
-            List<Element> elements = copy.selectNodes(".//testcase");
-            for (Element element : elements) {
-                setAttr(i, element, "classname");
-                setAttr(i, element, "name");
+            List<Node> elements = copy.selectNodes(".//testcase");
+            for (Node element : elements) {
+                if (element instanceof Element) {
+                    setAttr(i, (Element) element, "classname");
+                    setAttr(i, (Element) element, "name");
+                }
             }
             rootElement.add(copy);
         }

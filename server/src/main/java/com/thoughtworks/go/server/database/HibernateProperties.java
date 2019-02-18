@@ -17,7 +17,7 @@
 package com.thoughtworks.go.server.database;
 
 import com.thoughtworks.go.database.Database;
-import org.hibernate.cache.ehcache.EhCacheRegionFactory;
+import org.hibernate.cache.ehcache.internal.SingletonEhcacheRegionFactory;
 import org.hibernate.cfg.Environment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -30,7 +30,7 @@ public class HibernateProperties extends Properties {
     @Autowired
     public HibernateProperties(Database database) {
         super.put(Environment.DIALECT, database.dialectForHibernate());
-        super.put(Environment.CACHE_REGION_FACTORY, EhCacheRegionFactory.class.getName());
+        super.put(Environment.CACHE_REGION_FACTORY, SingletonEhcacheRegionFactory.class.getName());
         super.put(Environment.USE_QUERY_CACHE, "true");
         super.put(Environment.SHOW_SQL, "false");
     }

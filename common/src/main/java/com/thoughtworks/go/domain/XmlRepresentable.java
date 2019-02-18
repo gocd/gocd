@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
-import java.io.IOException;
-
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 
 /**
  * @understands interface to get xml representation of an object

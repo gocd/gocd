@@ -27,9 +27,9 @@ import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.query.NativeQuery;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.dao.DataAccessException;
@@ -58,12 +58,12 @@ public class PipelineRepositoryTest {
     private TransactionSynchronizationManager transactionSynchronizationManager;
     private TransactionTemplate transactionTemplate;
     private Session session;
-    private SQLQuery sqlQuery;
+    private NativeQuery sqlQuery;
 
     @Before
     public void setup() {
         session = mock(Session.class);
-        sqlQuery = mock(SQLQuery.class);
+        sqlQuery = mock(NativeQuery.class);
         sessionFactory = mock(SessionFactory.class);
         hibernateTemplate = mock(HibernateTemplate.class);
         goCache = mock(GoCache.class);

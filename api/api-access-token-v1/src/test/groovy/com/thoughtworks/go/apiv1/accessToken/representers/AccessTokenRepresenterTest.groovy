@@ -42,9 +42,6 @@ class AccessTokenRepresenterTest {
 
     def expectedJSON = [
       "_links"        : [
-        "self": [
-          "href": "http://test.host/go/api/current_user/access_tokens/42"
-        ],
         "doc" : [
           "href": apiDocsUrl('#access-token')
         ],
@@ -52,7 +49,6 @@ class AccessTokenRepresenterTest {
           "href": "http://test.host/go/api/current_user/access_tokens/:id"
         ]
       ],
-      "id"            : 42,
       "description"   : token.description,
       "username"      : token.username,
       "auth_config_id": token.authConfigId,
@@ -61,8 +57,7 @@ class AccessTokenRepresenterTest {
       "revoke_cause"  : "just because",
       "revoked_by"    : "bob",
       "created_at"    : jsonDate(token.createdAt),
-      "last_used_at"  : null,
-      "token"         : token.displayValue
+      "last_used_at"  : null
     ]
 
     assertThatJson(json).isEqualTo(expectedJSON)
@@ -121,8 +116,41 @@ class AccessTokenRepresenterTest {
     token.id = id
     if (persisted) {
       token.displayValue = null
+    } else {
+      token.id = -1;
     }
     return token
+  }
+
+  @Test
+  void 'renders access token with msg without id or token value'() {
+    AccessToken.AccessTokenWithDisplayValue token = randomAccessToken(42, false)
+
+    def json = toObjectString({
+      AccessTokenRepresenter.toJSON(it, new Routes.CurrentUserAccessToken(), token)
+    })
+
+    def expectedJSON = [
+      "_links"        : [
+        "doc" : [
+          "href": apiDocsUrl('#access-token')
+        ],
+        "find": [
+          "href": "http://test.host/go/api/current_user/access_tokens/:id"
+        ]
+      ],
+      "description"   : token.description,
+      "username"      : token.username,
+      "auth_config_id": token.authConfigId,
+      "revoked"       : false,
+      "revoked_by"    : null,
+      "revoke_cause"  : null,
+      "revoked_at"    : null,
+      "created_at"    : jsonDate(token.createdAt),
+      "last_used_at"  : null,
+    ]
+
+    assertThatJson(json).isEqualTo(expectedJSON);
   }
 
 }

@@ -269,6 +269,22 @@ public class GitCommandTest {
     }
 
     @Test
+    public void shouldRetrieveLatestModificationWhenColoringIsSetToAlways() throws Exception {
+        gitRepo.setColoring();
+        Modification mod = git.latestModification().get(0);
+        assertThat(mod.getUserName(), is("Chris Turner <cturner@thoughtworks.com>"));
+        assertThat(mod.getComment(), is("Added 'run-till-file-exists' ant target"));
+        assertThat(mod.getModifiedTime(), is(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800")));
+        assertThat(mod.getRevision(), is("5def073a425dfe239aabd4bf8039ffe3b0e8856b"));
+
+        List<ModifiedFile> files = mod.getModifiedFiles();
+        assertThat(files.size(), is(1));
+        assertThat(files.get(0).getFileName(), is("build.xml"));
+        assertThat(files.get(0).getAction(), Matchers.is(ModifiedAction.modified));
+        gitRepo.unsetColoring();
+    }
+
+    @Test
     public void retrieveLatestModificationShouldNotResultInWorkingCopyCheckOut() throws Exception{
         git.latestModification();
         assertWorkingCopyNotCheckedOut();
@@ -303,7 +319,20 @@ public class GitCommandTest {
         Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
 
         assertThat(command.modificationsSince(REVISION_4).get(0), is(modification));
+    }
 
+    @Test
+    public void shouldReturnTheRebasedCommitForModificationsSinceTheRevisionBeforeRebaseWithColoringIsSetToAlways() throws IOException {
+        gitRepo.setColoring();
+        GitTestRepo remoteRepo = new GitTestRepo(temporaryFolder);
+        executeOnGitRepo("git", "remote", "rm", "origin");
+        executeOnGitRepo("git", "remote", "add", "origin", remoteRepo.projectRepositoryUrl());
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, new HashMap<>(), null);
+
+        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
+
+        assertThat(command.modificationsSince(REVISION_4).get(0), is(modification));
+        gitRepo.unsetColoring();
     }
 
     @Test(expected = CommandLineException.class)

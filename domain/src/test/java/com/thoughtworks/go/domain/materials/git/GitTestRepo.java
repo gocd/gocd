@@ -80,6 +80,20 @@ public class GitTestRepo extends TestRepo {
         tmpFolders.add(gitRepo);
     }
 
+    public void setColoring() {
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(gitRepo).withArgs("config", "--global", "color.diff", "always").runOrBomb(true, "git_config");
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(gitRepo).withArgs("config", "--global", "color.status", "always").runOrBomb(true, "git_config");
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(gitRepo).withArgs("config", "--global", "color.interactive", "always").runOrBomb(true, "git_config");
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(gitRepo).withArgs("config", "--global", "color.branch", "always").runOrBomb(true, "git_config");
+    }
+
+    public void unsetColoring() {
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(gitRepo).withArgs("config", "--global", "color.diff", "auto").runOrBomb(true, "git_config");
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(gitRepo).withArgs("config", "--global", "color.status", "auto").runOrBomb(true, "git_config");
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(gitRepo).withArgs("config", "--global", "color.interactive", "auto").runOrBomb(true, "git_config");
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(gitRepo).withArgs("config", "--global", "color.branch", "auto").runOrBomb(true, "git_config");
+    }
+
     public String projectRepositoryUrl() {
         return FileUtil.toFileURI(gitRepo);
     }

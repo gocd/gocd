@@ -201,14 +201,14 @@ export default class {
     return "/go/api/admin/security/system_admins";
   }
 
-  static apiAccessTokensPath(id?: number) {
+  static apiCurrentAccessTokensPath(id?: number) {
     if (id) {
-      return `/go/api/access_tokens/${id}`;
+      return `/go/api/current_user/access_tokens/${id}`;
     }
-    return "/go/api/access_tokens";
+    return "/go/api/current_user/access_tokens";
   }
 
-  static apiAccessTokenRevokePath(id: number) {
-    return `${this.apiAccessTokensPath(id)}/revoke`;
+  static apiCurrentAccessTokenRevokePath(id: number) {
+    return `${this.apiCurrentAccessTokensPath(id)}/revoke`;
   }
 }

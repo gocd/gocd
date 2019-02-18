@@ -21,20 +21,18 @@ import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 const TimeFormatter = require("helpers/time_formatter");
 
-interface MetaJSON {
-  revoked: boolean;
-  is_revoked?: boolean;
-  revoked_at: string | null;
-  created_at: string;
-  last_used_at: string | null;
-}
-
 export interface AccessTokenJSON {
   id: number;
   token?: string;
   description: string;
+  username: string;
   auth_config_id: string;
-  _meta: MetaJSON;
+  revoked: boolean;
+  revoke_cause: string;
+  revoked_by: string;
+  revoked_at: string | null;
+  created_at: string;
+  last_used_at: string | null;
   errors?: { [key: string]: string[] };
 }
 
@@ -59,61 +57,46 @@ export class AccessTokens extends Array<Stream<AccessToken>> {
 
   sortByCreateDate() {
     return new AccessTokens(...(_.orderBy(this, (accessToken) => {
-      return accessToken().meta().createdAt().getTime();
+      return accessToken().createdAt().getTime();
     }, "desc")));
-  }
-}
-
-class Meta {
-  revoked: Stream<boolean>;
-  revokedAt: Stream<Date | null>;
-  createdAt: Stream<Date>;
-  lastUsedAt: Stream<Date | null>;
-
-  private constructor(revoked: boolean, revokedAt: Date | null, createdAt: Date, lastUsedAt: Date | null) {
-    this.revoked    = stream(revoked);
-    this.revokedAt  = stream(revokedAt);
-    this.createdAt  = stream(createdAt);
-    this.lastUsedAt = stream(lastUsedAt);
-
-  }
-
-  static fromJSON(json: MetaJSON): Meta {
-    const isRevoked = json.revoked || json.is_revoked || false;
-    return new Meta(isRevoked,
-                    Meta.parseDate(json.revoked_at),
-                    Meta.parseDate(json.created_at),
-                    Meta.parseDate(json.last_used_at));
-  }
-
-  private static parseDate(dateString: string | null) {
-    if (dateString) {
-      return TimeFormatter.toDate(dateString);
-    }
-    return null;
   }
 }
 
 export class AccessToken extends ValidatableMixin {
   id: Stream<number>;
   description: Stream<string>;
+  username: Stream<string>;
+  revoked: Stream<boolean>;
+  revokedBy: Stream<string>;
+  revokedAt: Stream<Date | null>;
+  createdAt: Stream<Date>;
+  lastUsedAt: Stream<Date | null>;
   authConfigId: Stream<string>;
   token: Stream<string> = stream();
-  meta: Stream<Meta>;
 
   private constructor(id: number,
                       description: string,
-                      token?: string,
-                      authConfigId?: string,
-                      meta?: Meta,
+                      username: string,
+                      revoked: boolean,
+                      revokedBy: string,
+                      revokedAt: Date | null,
+                      createdAt: Date,
+                      lastUsedAt: Date | null,
+                      authConfigId: string,
+                      token: string  = "",
                       errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
     this.id           = stream(id);
     this.description  = stream(description);
-    this.token        = stream(token);
+    this.username     = stream(username);
+    this.revoked      = stream(revoked);
+    this.revokedBy    = stream(revokedBy);
+    this.revokedAt    = stream(revokedAt);
+    this.createdAt    = stream(createdAt);
+    this.lastUsedAt   = stream(lastUsedAt);
     this.authConfigId = stream(authConfigId);
-    this.meta         = stream(meta);
+    this.token        = stream(token);
     this.errors(errors);
     this.validatePresenceOf("description");
   }
@@ -121,13 +104,25 @@ export class AccessToken extends ValidatableMixin {
   static fromJSON(data: AccessTokenJSON): AccessToken {
     return new AccessToken(data.id,
                            data.description,
-                           data.token,
+                           data.username,
+                           data.revoked,
+                           data.revoked_by,
+                           AccessToken.parseDate(data.revoked_at),
+                           AccessToken.parseDate(data.created_at),
+                           AccessToken.parseDate(data.last_used_at),
                            data.auth_config_id,
-                           Meta.fromJSON(data._meta),
+                           data.token,
                            new Errors(data.errors));
   }
 
   static new(): AccessToken {
-    return new AccessToken(-1, "", undefined, undefined, undefined);
+    return new AccessToken(-1, "", "", false, "", null, new Date(), null, "");
+  }
+
+  private static parseDate(dateString: string | null) {
+    if (dateString) {
+      return TimeFormatter.toDate(dateString);
+    }
+    return null;
   }
 }

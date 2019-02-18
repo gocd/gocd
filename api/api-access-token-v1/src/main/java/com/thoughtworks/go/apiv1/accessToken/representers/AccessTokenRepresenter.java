@@ -25,10 +25,8 @@ import java.util.Collections;
 
 public class AccessTokenRepresenter {
     public static void toJSON(OutputWriter outputWriter, Routes.FindUrlBuilder<Long> urlBuilder, AccessToken token) {
-        final boolean hasToBeOutput = token instanceof AccessToken.AccessTokenWithDisplayValue && token.persisted();
-
         outputWriter.addLinks(linksWriter -> {
-            if (hasToBeOutput) {
+            if (token.persisted()) {
                 linksWriter.addLink("self", urlBuilder.find(token.getId()));
             }
             linksWriter
@@ -36,6 +34,9 @@ public class AccessTokenRepresenter {
                     .addLink("find", urlBuilder.find());
         });
 
+        if (token.persisted()) {
+            outputWriter.add("id", token.getId());
+        }
 
         outputWriter
                 .add("description", token.getDescription())
@@ -54,8 +55,7 @@ public class AccessTokenRepresenter {
             outputWriter.add("deletedBecauseUserDeleted", token.isDeletedBecauseUserDeleted());
         }
 
-        if (hasToBeOutput) {
-            outputWriter.add("id", token.getId());
+        if (token instanceof AccessToken.AccessTokenWithDisplayValue && token.persisted()) {
             outputWriter.addIfNotNull("token", ((AccessToken.AccessTokenWithDisplayValue) token).getDisplayValue());
         }
 

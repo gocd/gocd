@@ -22,7 +22,7 @@ export class AccessTokenCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
   static all() {
-    return ApiRequestBuilder.GET(SparkRoutes.apiAccessTokensPath(), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.apiCurrentAccessTokensPath(), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => {
                                 return AccessTokens.fromJSON(JSON.parse(body) as AccessTokensJSON);
@@ -32,12 +32,12 @@ export class AccessTokenCRUD {
   }
 
   static create(accessToken: AccessToken) {
-    return ApiRequestBuilder.POST(SparkRoutes.apiAccessTokensPath(), this.API_VERSION_HEADER,
+    return ApiRequestBuilder.POST(SparkRoutes.apiCurrentAccessTokensPath(), this.API_VERSION_HEADER,
                                   {payload: accessToken}).then(this.extractObjectWithEtag);
   }
 
   static revoke(accessToken: AccessToken, cause: string) {
-    return ApiRequestBuilder.POST(SparkRoutes.apiAccessTokenRevokePath(accessToken.id()), this.API_VERSION_HEADER,
+    return ApiRequestBuilder.POST(SparkRoutes.apiCurrentAccessTokenRevokePath(accessToken.id()), this.API_VERSION_HEADER,
                                   {payload: {cause}}).then(this.extractObjectWithEtag);
   }
 

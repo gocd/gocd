@@ -22,7 +22,6 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
-import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter;
 import com.thoughtworks.go.config.exceptions.ConflictException;
@@ -35,7 +34,6 @@ import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
@@ -92,10 +90,7 @@ abstract class AbstractUserAccessTokenControllerV1 extends ApiController impleme
     void addExceptionHandlers() {
         exception(RecordNotFoundException.class, this::notFound);
         exception(NotAuthorizedException.class, this::renderForbiddenResponse);
-        exception(ConflictException.class, (ex, req, res) -> {
-            res.status(HttpStatus.CONFLICT.value());
-            res.body(MessageJson.create(ex.getMessage()));
-        });
+        exception(ConflictException.class, this::renderConflictReponse);
     }
 
     void verifyRequestIsNotUsingAccessToken(Request request, Response response) {

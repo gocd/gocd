@@ -21,6 +21,9 @@ import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.util.MessageJson;
+import com.thoughtworks.go.config.exceptions.ConflictException;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.RequestContext;
@@ -72,14 +75,19 @@ public interface ControllerMethods {
         return NOTHING;
     }
 
-    default void notFound(Exception ex, Request req, Response res) {
+    default void notFound(RecordNotFoundException ex, Request req, Response res) {
         res.status(HttpStatus.NOT_FOUND.value());
         res.body(MessageJson.create(notFoundMessage()));
     }
 
-    default void renderForbiddenResponse(Exception ex, Request req, Response res) {
+    default void renderForbiddenResponse(NotAuthorizedException ex, Request req, Response res) {
         res.status(HttpStatus.UNAUTHORIZED.value());
         res.body(MessageJson.create(forbiddenMessage()));
+    }
+
+    default void renderConflictReponse(ConflictException ex, Request req, Response res) {
+        res.status(HttpStatus.CONFLICT.value());
+        res.body(MessageJson.create(ex.getMessage()));
     }
 
     default void setEtagHeader(Response res, String value) {

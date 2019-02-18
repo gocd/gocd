@@ -22,6 +22,7 @@ import com.google.common.cache.CacheBuilder;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.server.cache.CacheKeyGenerator;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,6 +38,7 @@ public class AuthorizationExtensionCacheService {
     private final Cache<String, Boolean> isValidUserCache;
     private final Cache<String, List<String>> getUserRolesCache;
     private final AuthorizationExtension authorizationExtension;
+    private final CacheKeyGenerator cacheKeyGenerator;
 
     public AuthorizationExtensionCacheService(AuthorizationExtension authorizationExtension, Ticker ticker) {
         this.authorizationExtension = authorizationExtension;
@@ -44,6 +46,7 @@ public class AuthorizationExtensionCacheService {
                 .ticker(ticker).expireAfterWrite(CACHE_EXPIRY_IN_MINUTES, TimeUnit.MINUTES).build();
         getUserRolesCache = CacheBuilder.newBuilder()
                 .ticker(ticker).expireAfterWrite(CACHE_EXPIRY_IN_MINUTES, TimeUnit.MINUTES).build();
+        this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
     }
 
     @Autowired
@@ -52,7 +55,7 @@ public class AuthorizationExtensionCacheService {
     }
 
     public boolean isValidUser(String pluginId, String username, SecurityAuthConfig authConfig) {
-        String cacheKey = cacheKeyFor(pluginId, username, authConfig);
+        String cacheKey = cacheKeyGenerator.generate("AuthorizationExtension_isValidUser", pluginId, username, authConfig.getId());
         Boolean fromCache = isValidUserCache.getIfPresent(cacheKey);
 
         if (fromCache == null) {
@@ -64,7 +67,9 @@ public class AuthorizationExtensionCacheService {
     }
 
     public List<String> getUserRoles(String pluginId, String username, SecurityAuthConfig authConfig, List<PluginRoleConfig> pluginRoleConfigs) {
-        String cacheKey = cacheKeyFor(pluginId, username, authConfig, pluginRoleConfigs);
+        String roleConfigNames = pluginRoleConfigs.stream().map(role -> role.getName().toString()).sorted().collect(Collectors.joining("&&"));
+        String cacheKey = cacheKeyGenerator.generate("AuthorizationExtension_GetUserRoles", pluginId, username, authConfig.getId(), roleConfigNames);
+
         List<String> rolesFromCache = getUserRolesCache.getIfPresent(cacheKey);
 
         if (rolesFromCache == null) {
@@ -73,15 +78,6 @@ public class AuthorizationExtensionCacheService {
         }
 
         return rolesFromCache;
-    }
-
-    private String cacheKeyFor(String pluginId, String username, SecurityAuthConfig authConfig, List<PluginRoleConfig> pluginRoleConfigs) {
-        String roleConfigNames = pluginRoleConfigs.stream().map(role -> role.getName().toString()).sorted().collect(Collectors.joining("&&"));
-        return String.format("%s##%s", cacheKeyFor(pluginId, username, authConfig), roleConfigNames);
-    }
-
-    private String cacheKeyFor(String pluginId, String username, SecurityAuthConfig authConfig) {
-        return String.format("%s##%s##%s", pluginId, username, authConfig.getId());
     }
 
     public void invalidateCache() {

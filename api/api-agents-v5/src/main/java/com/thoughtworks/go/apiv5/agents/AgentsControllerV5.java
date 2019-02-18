@@ -98,13 +98,13 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
 
     public String index(Request request, Response response) throws IOException {
         return writerForTopLevelObject(request, response,
-                outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentService.agentEnvironmentMap(), securityService, currentUsername()));
+                outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentService.agentEnvironmentConfigsMap(), securityService, currentUsername()));
     }
 
     public String show(Request request, Response response) throws IOException {
         final AgentInstance agentInstance = fetchEntityFromConfig(request.params("uuid"));
 
-        return writerForTopLevelObject(request, response, outputWriter -> AgentRepresenter.toJSON(outputWriter, agentInstance, environmentConfigService.environmentsFor(request.params("uuid")), securityService, currentUsername()));
+        return writerForTopLevelObject(request, response, outputWriter -> AgentRepresenter.toJSON(outputWriter, agentInstance, environmentConfigService.environmentConfigsFor(request.params("uuid")), securityService, currentUsername()));
     }
 
     public String update(Request request, Response response) throws IOException {
@@ -177,7 +177,7 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
 
     @Override
     public Consumer<OutputWriter> jsonWriter(AgentInstance agentInstance) {
-        return outputWriter -> AgentRepresenter.toJSON(outputWriter, agentInstance, environmentConfigService.environmentsFor(agentInstance.getUuid()), securityService, currentUsername());
+        return outputWriter -> AgentRepresenter.toJSON(outputWriter, agentInstance, environmentConfigService.environmentConfigsFor(agentInstance.getUuid()), securityService, currentUsername());
     }
 
     private void checkSecurityOr403(Request request, Response response) {

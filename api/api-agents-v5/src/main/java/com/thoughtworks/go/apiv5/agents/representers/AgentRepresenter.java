@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv5.agents.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -27,7 +28,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AgentRepresenter {
-    public static void toJSON(OutputWriter outputWriter, AgentInstance agentInstance, Collection<String> environments, SecurityService securityService, Username username) {
+    public static void toJSON(OutputWriter outputWriter, AgentInstance agentInstance, Collection<EnvironmentConfig> environments, SecurityService securityService, Username username) {
         outputWriter
                 .addLinks(linksWriter -> linksWriter
                         .addLink("self", Routes.AgentsAPI.uuid(agentInstance.getUuid()))
@@ -40,7 +41,7 @@ public class AgentRepresenter {
                 .add("operating_system", agentInstance.getOperatingSystem())
                 .add("agent_config_state", agentInstance.getAgentConfigStatus().toString())
                 .add("agent_state", agentInstance.getRuntimeStatus().agentState().toString())
-                .addChildList("environments", sortedEnvironments(environments))
+                .addChildList("environments", envWriter -> EnvironmentsRepresenter.toJSON(envWriter, environments))
                 .add("build_state", agentInstance.getRuntimeStatus().buildState().toString());
 
         if (agentInstance.freeDiskSpace() == null || agentInstance.freeDiskSpace().isNullDiskspace()) {
@@ -78,10 +79,6 @@ public class AgentRepresenter {
 
     private static boolean hasViewOrOperatePermissionOnPipeline(AgentInstance agentInstance, SecurityService securityService, Username username) {
         return securityService.hasViewOrOperatePermissionForPipeline(username, agentInstance.getBuildingInfo().getPipelineName());
-    }
-
-    private static List<String> sortedEnvironments(Collection<String> environments) {
-        return environments.stream().sorted().collect(Collectors.toList());
     }
 
     private static List<String> sortedResources(AgentInstance agentInstance) {

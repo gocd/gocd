@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.apiv5.agents.representers
 
+
+import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.SecurityService
@@ -32,6 +34,7 @@ import java.util.stream.Stream
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.*
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.ArgumentMatchers.anyString
@@ -51,9 +54,12 @@ class AgentRepresenterTest {
   @Test
   void 'renders an agent with hal representation'() {
     AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"))
-
+    def envFromConfigRepo = environment("dev")
+    envFromConfigRepo.setOrigins(new RepoConfigOrigin())
     def json = toObjectString({
-      AgentRepresenter.toJSON(it, agentInstance, Stream.of("uat", "load_test").collect(), securityService, null)
+      def environments = Stream.of(environment("uat"), environment("load_test"), envFromConfigRepo)
+        .collect()
+      AgentRepresenter.toJSON(it, agentInstance, environments, securityService, null)
     })
 
     def expectedJSON = [
@@ -77,7 +83,20 @@ class AgentRepresenterTest {
       "agent_config_state": "Enabled",
       "agent_state"       : "Idle",
       "resources"         : ["firefox", "linux"],
-      "environments"      : ["load_test", "uat"],
+      "environments"      : [
+        [
+          name                       : "dev",
+          associated_from_config_repo: true
+        ],
+        [
+          name                       : "load_test",
+          associated_from_config_repo: false
+        ],
+        [
+          name                       : "uat",
+          associated_from_config_repo: false
+        ]
+      ],
       "build_state"       : "Idle"
     ]
 
@@ -91,7 +110,8 @@ class AgentRepresenterTest {
     updateElasticPluginId(agentInstance, "cd.go.docker")
 
     Map<String, Object> map = toObjectWithoutLinks({
-      AgentRepresenter.toJSON(it, agentInstance, Stream.of("uat", "load_test").collect(), securityService, null)
+      def environments = Stream.of(environment("uat"), environment("load_test")).collect()
+      AgentRepresenter.toJSON(it, agentInstance, environments, securityService, null)
     }) as Map<String, Object>
 
     assertThat(map)

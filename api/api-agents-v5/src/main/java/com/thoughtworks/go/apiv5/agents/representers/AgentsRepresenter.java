@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv5.agents.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -27,7 +28,7 @@ import java.util.Map;
 
 public class AgentsRepresenter {
 
-    public static void toJSON(OutputWriter writer, Map<AgentInstance, Collection<String>> agentInstanceCollectionMap, SecurityService securityService, Username username) {
+    public static void toJSON(OutputWriter writer, Map<AgentInstance, Collection<EnvironmentConfig>> agentInstanceCollectionMap, SecurityService securityService, Username username) {
         writer.addLinks(
                 outputLinkWriter -> outputLinkWriter
                         .addLink("self", Routes.AgentsAPI.BASE)

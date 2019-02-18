@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv5.agents
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
+import com.thoughtworks.go.config.EnvironmentConfig
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.NullAgentInstance
 import com.thoughtworks.go.server.domain.Username
@@ -43,6 +44,7 @@ import java.util.stream.Stream
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.helper.AgentInstanceMother.idle
 import static com.thoughtworks.go.helper.AgentInstanceMother.idleWith
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
 import static java.util.Arrays.asList
 import static java.util.Collections.singleton
 import static java.util.stream.Collectors.toSet
@@ -85,9 +87,9 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
 
     @Test
     void "should return a list of agents"() {
-      when(agentService.agentEnvironmentMap()).thenReturn(new HashMap<AgentInstance, Collection<String>>() {
+      when(agentService.agentEnvironmentConfigsMap()).thenReturn(new HashMap<AgentInstance, Collection<EnvironmentConfig>>() {
         {
-          put(idle(), asList("env1", "env2"))
+          put(idle(), asList(environment("env1"), environment("env2")))
         }
       })
 
@@ -129,8 +131,8 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
               "agent_state"       : "Idle",
               "resources"         : [],
               "environments"      : [
-                "env1",
-                "env2"
+                [name: "env1", associated_from_config_repo: false],
+                [name: "env2", associated_from_config_repo: false]
               ],
               "build_state"       : "Idle"
             ]
@@ -158,7 +160,8 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
     @Test
     void 'should return agent json'() {
       when(agentService.findAgent("uuid2")).thenReturn(idle())
-      when(environmentConfigService.environmentsFor("uuid2")).thenReturn(Stream.of("env1", "env2").collect(toSet()))
+      def environments = Stream.of(environment("env1"), environment("env2")).collect(toSet())
+      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(environments)
 
       getWithApiHeader(controller.controllerPath("/uuid2"))
 
@@ -187,8 +190,8 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
         "agent_state"       : "Idle",
         "resources"         : [],
         "environments"      : [
-          "env1",
-          "env2"
+          [name: "env1", associated_from_config_repo: false],
+          [name: "env2", associated_from_config_repo: false]
         ],
         "build_state"       : "Idle"
       ])
@@ -227,7 +230,7 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
       loginAsAdmin()
       AgentInstance updatedAgentInstance = idleWith("uuid2", "agent02.example.com", "10.0.0.1", "/var/lib/bar", 10, "", asList("psql", "java"))
 
-      when(environmentConfigService.environmentsFor("uuid2")).thenReturn(singleton("env1"))
+      when(environmentConfigService.environmentConfigsFor("uuid2")).thenReturn(singleton(environment("env1")))
       when(agentService.updateAgentAttributes(
         eq(currentUsername()),
         any() as HttpOperationResult,
@@ -269,7 +272,7 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
         "agent_config_state": "Enabled",
         "agent_state"       : "Idle",
         "resources"         : ["java", "psql"],
-        "environments"      : ["env1"],
+        "environments"      : [[name: "env1", associated_from_config_repo: false]],
         "build_state"       : "Idle"
       ])
     }

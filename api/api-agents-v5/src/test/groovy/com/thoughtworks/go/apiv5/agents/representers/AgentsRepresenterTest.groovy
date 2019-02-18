@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv5.agents.representers
 
+import com.thoughtworks.go.config.EnvironmentConfig
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.SecurityService
@@ -27,6 +28,7 @@ import org.mockito.Mock
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment
 import static java.util.Arrays.asList
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.mockito.ArgumentMatchers.any
@@ -45,11 +47,11 @@ class AgentsRepresenterTest {
 
   @Test
   void 'should represent agents'() {
-    Map<AgentInstance, Collection<String>> agentEnvironmentMap = new LinkedHashMap<AgentInstance, Collection<String>>() {
+    Map<AgentInstance, Collection<EnvironmentConfig>> agentEnvironmentMap = new LinkedHashMap<AgentInstance, Collection<EnvironmentConfig>>() {
       {
-        put(idle(), asList("uat", "load_test"))
-        put(missing(), asList("unit"))
-        put(building("up42/1/up_42_stage/1/up42_job"), asList("integration", "functional_test"))
+        put(idle(), asList(environment("uat"), environment("load_test")))
+        put(missing(), asList(environment("unit")))
+        put(building("up42/1/up_42_stage/1/up42_job"), asList(environment("integration"), environment("functional_test")))
       }
     }
 
@@ -92,8 +94,8 @@ class AgentsRepresenterTest {
             "agent_state"       : "Idle",
             "resources"         : [],
             "environments"      : [
-              "load_test",
-              "uat"
+              [name: "load_test", associated_from_config_repo: false],
+              [name: "uat", associated_from_config_repo: false]
             ],
             "build_state"       : "Idle"
           ],
@@ -119,7 +121,7 @@ class AgentsRepresenterTest {
             "agent_state"       : "Missing",
             "resources"         : [],
             "environments"      : [
-              "unit"
+              [name: "unit", associated_from_config_repo: false]
             ],
             "build_state"       : "Unknown"
           ],
@@ -147,8 +149,8 @@ class AgentsRepresenterTest {
               "java"
             ],
             "environments"      : [
-              "functional_test",
-              "integration"
+              [name: "functional_test", associated_from_config_repo: false],
+              [name: "integration", associated_from_config_repo: false]
             ],
             "build_state"       : "Building",
             "build_details"     : [

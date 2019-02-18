@@ -196,6 +196,16 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return environmentNames;
     }
 
+    public Set<EnvironmentConfig> environmentConfigsForAgent(String agentUuid) {
+        Set<EnvironmentConfig> environmentConfigs = new HashSet<>();
+        for (EnvironmentConfig config : this) {
+            if (config.hasAgent(agentUuid)) {
+                environmentConfigs.add(config);
+            }
+        }
+        return environmentConfigs;
+    }
+
     public boolean hasEnvironmentNamed(CaseInsensitiveString environmentName) {
         return find(environmentName) != null;
     }

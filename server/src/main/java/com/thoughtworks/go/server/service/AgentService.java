@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
@@ -110,6 +111,14 @@ public class AgentService {
         Map<AgentInstance, Collection<String>> allAgents = new LinkedHashMap<>();
         for (AgentInstance agentInstance : agentInstances.allAgents()) {
             allAgents.put(agentInstance, environmentConfigService.environmentsFor(agentInstance.getUuid()));
+        }
+        return allAgents;
+    }
+
+    public Map<AgentInstance, Collection<EnvironmentConfig>> agentEnvironmentConfigsMap() {
+        Map<AgentInstance, Collection<EnvironmentConfig>> allAgents = new LinkedHashMap<>();
+        for (AgentInstance agentInstance : agentInstances.allAgents()) {
+            allAgents.put(agentInstance, environmentConfigService.environmentConfigsFor(agentInstance.getUuid()));
         }
         return allAgents;
     }

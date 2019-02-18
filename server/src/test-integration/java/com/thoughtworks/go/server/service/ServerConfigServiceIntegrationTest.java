@@ -175,7 +175,7 @@ public class ServerConfigServiceIntegrationTest {
     @Test
     public void updateServerConfig_ShouldFailWhenAllowAutoLoginIsTurnedOffWithNoAdminsRemaining() throws IOException {
         configHelper.enableSecurity();
-        userService.deleteUsers(userService.allUsers().stream().map(User::getName).collect(Collectors.toList()), new BulkUpdateUsersOperationResult());
+        userService.deleteUsers(userService.allUsers().stream().map(User::getName).collect(Collectors.toList()), "admin", new BulkUpdateUsersOperationResult());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         serverConfigService.updateServerConfig(new MailHost(new GoCipher()), "artifacts", null, null, "42",

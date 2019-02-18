@@ -342,3 +342,5 @@ util/out/
 util/target/
 plugin-infra/go-plugin-infra/felix-cache/
 **/*.log
+/api/*/config/
+

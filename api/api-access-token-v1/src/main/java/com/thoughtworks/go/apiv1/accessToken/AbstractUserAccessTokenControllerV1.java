@@ -30,6 +30,7 @@ import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
@@ -80,6 +81,9 @@ abstract class AbstractUserAccessTokenControllerV1 extends ApiController impleme
     void addExceptionHandlers() {
         exception(RecordNotFoundException.class, this::notFound);
         exception(NotAuthorizedException.class, this::renderForbiddenResponse);
-        exception(ConflictException.class, this::renderForbiddenResponse);
+        exception(ConflictException.class, (ex, req, res) -> {
+            res.body(this.messageJson(ex));
+            res.status(HttpStatus.CONFLICT.value());
+        });
     }
 }

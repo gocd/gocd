@@ -312,7 +312,7 @@ dependencies {
     exclude(module: 'jzlib')
   }
   compileOnly project(':app-server')
-  compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.6'
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.4'
   compileOnly group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   compileOnly group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle

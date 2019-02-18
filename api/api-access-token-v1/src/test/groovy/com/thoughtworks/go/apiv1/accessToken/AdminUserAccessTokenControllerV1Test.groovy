@@ -21,16 +21,12 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter
-import com.thoughtworks.go.config.SecurityAuthConfig
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.domain.AccessToken
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension
 import com.thoughtworks.go.server.service.AccessTokenService
-import com.thoughtworks.go.server.service.SecurityAuthConfigService
+import com.thoughtworks.go.spark.AdminUserOnlyIfSecurityEnabled
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.NormalUserOnlyIfSecurityEnabled
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -41,17 +37,13 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenterTest.randomAccessToken
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.verify
 import static org.mockito.Mockito.when
+import static org.mockito.Mockito.verify
 import static org.mockito.MockitoAnnotations.initMocks
 
-class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControllerV1>, SecurityServiceTrait {
+class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserAccessTokenControllerV1>, SecurityServiceTrait {
   @Mock
   AccessTokenService accessTokenService
-  @Mock
-  SecurityAuthConfigService authConfigService
-  @Mock
-  AuthorizationExtension extension
 
   @BeforeEach
   void setUp() {
@@ -59,8 +51,8 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
   }
 
   @Override
-  AccessTokenControllerV1 createControllerInstance() {
-    return new AccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), accessTokenService, authConfigService, extension)
+  AdminUserAccessTokenControllerV1 createControllerInstance() {
+    return new AdminUserAccessTokenControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), accessTokenService)
   }
 
   @Nested
@@ -68,7 +60,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
     def token = randomAccessToken()
 
     @Nested
-    class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
+    class Security implements SecurityTestTrait, AdminUserOnlyIfSecurityEnabled {
       @BeforeEach
       void setUp() {
         when(accessTokenService.find(token.id, currentUsernameString())).thenReturn(token)
@@ -102,7 +94,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token) }))
+          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, controller.urlContext(), token) }))
       }
 
       @Test
@@ -117,97 +109,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
           .hasContentType(controller.mimeType)
       }
     }
-  }
 
-  @Nested
-  class Create {
-    def authConfigId = 'authConfigId'
-
-    @Nested
-    class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
-      @Override
-      String getControllerMethodUnderTest() {
-        return "createAccessToken"
-      }
-
-      @Override
-      void makeHttpCall() {
-        postWithApiHeader(controller.controllerPath(), [:])
-      }
-    }
-
-    @Nested
-    class AsAuthenticatedUser {
-      def token = randomAccessToken()
-
-      @BeforeEach
-      void setUp() {
-        enableSecurity()
-        loginAsUser()
-
-        when(accessTokenService.create(token.description, currentUsernameString(), authConfigId)).thenReturn(token)
-        when(extension.supportsPluginAPICallsRequiredForAccessToken(any())).thenReturn(true)
-      }
-
-      @Test
-      void 'should create a new access token'() {
-        def requestBody = [
-          description: token.description
-        ]
-
-        postWithApiHeader(controller.controllerPath(), requestBody)
-
-        assertThatResponse()
-          .isOk()
-          .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token) }))
-      }
-
-      @Test
-      void 'should disallow access token creation when the plugin does not support access token related API calls'() {
-        def authConfig = new SecurityAuthConfig("ldap", "plugin-id", ConfigurationPropertyMother.create("url", false, "some-url"));
-        when(authConfigService.findProfile(any())).thenReturn(authConfig)
-        when(extension.supportsPluginAPICallsRequiredForAccessToken(authConfig)).thenReturn(false)
-
-        postWithApiHeader(controller.controllerPath(), [:])
-
-        assertThatResponse()
-          .isUnprocessableEntity()
-          .hasJsonMessage("Can not create Access Token. Please upgrade 'plugin-id' plugin to use Access Token Feature.")
-      }
-
-      @Test
-      void 'should create a new access token without providing token description'() {
-        token.description = null
-        when(accessTokenService.create(eq(token.description), eq(currentUsernameString()), eq(authConfigId))).thenReturn(token)
-
-        def requestBody = [
-          description: null
-        ]
-
-        postWithApiHeader(controller.controllerPath(), requestBody)
-
-        assertThatResponse()
-          .isOk()
-          .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token) }))
-      }
-
-      @Test
-      void 'should show errors occurred while creating a new access token'() {
-        when(accessTokenService.create(token.description, currentUsernameString(), authConfigId)).thenThrow(new UnprocessableEntityException("Boom!"))
-
-        def requestBody = [
-          description: token.description
-        ]
-
-        postWithApiHeader(controller.controllerPath(), requestBody)
-
-        assertThatResponse()
-          .isUnprocessableEntity()
-          .hasJsonMessage("Your request could not be processed. Boom!")
-      }
-    }
   }
 
   @Nested
@@ -215,7 +117,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
     AccessToken.AccessTokenWithDisplayValue token = randomAccessToken()
 
     @Nested
-    class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
+    class Security implements SecurityTestTrait, AdminUserOnlyIfSecurityEnabled {
       @BeforeEach
       void setUp() {
         when(accessTokenService.findAllTokensForUser(currentUsernameString())).thenReturn([token])
@@ -239,7 +141,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         enableSecurity()
         loginAsAdmin()
 
-        when(accessTokenService.findAllTokensForUser(currentUsernameString())).thenReturn([token])
+        when(accessTokenService.findAllTokensForAllUsers()).thenReturn([token])
       }
 
       @Test
@@ -249,7 +151,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, [token]) }))
+          .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, controller.urlContext(), [token]) }))
       }
     }
   }
@@ -259,7 +161,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
     def token = randomAccessToken()
 
     @Nested
-    class NormalSecurity implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
+    class NormalSecurity implements SecurityTestTrait, AdminUserOnlyIfSecurityEnabled {
       @Override
       String getControllerMethodUnderTest() {
         return "revokeAccessToken"
@@ -291,7 +193,7 @@ class AccessTokenControllerV1Test implements ControllerTrait<AccessTokenControll
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, token) }))
+          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, controller.urlContext(), token) }))
       }
 
       @Test

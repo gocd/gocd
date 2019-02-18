@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.exceptions.ConflictException;
-import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.dao.AccessTokenDao;
@@ -55,21 +54,18 @@ public class AccessTokenService {
     }
 
     public AccessToken find(long id, String username) {
-        AccessToken token = accessTokenDao.load(id);
+        AccessToken token;
+        if (securityService.isUserAdmin(new Username(username))) {
+            token = accessTokenDao.loadForAdminUser(id);
+        } else {
+            token = accessTokenDao.loadNotDeletedTokenForUser(id, username);
+        }
 
         if (token == null) {
-            throw new RecordNotFoundException("Cannot locate access token with id " + id);
+            throw new RecordNotFoundException("Cannot locate access token with id " + id + ".");
         }
 
-        if (token.getUsername().equalsIgnoreCase(username)) {
-            return token;
-        }
-
-        if (securityService.isUserAdmin(new Username(username))) {
-            return token;
-        }
-
-        throw new NotAuthorizedException("You performed an unauthorized operation!");
+        return token;
     }
 
     public AccessToken findByAccessToken(String actualToken) {
@@ -113,5 +109,9 @@ public class AccessTokenService {
 
     public List<AccessToken> findAllTokensForUser(String username) {
         return accessTokenDao.findAllTokensForUser(username);
+    }
+
+    public List<AccessToken> findAllTokensForAllUsers() {
+        return accessTokenDao.findAllTokens();
     }
 }

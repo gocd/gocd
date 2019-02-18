@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.dao;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.Clock;
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.hibernate.criterion.Restrictions;
@@ -59,13 +58,14 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
 
     @Override
     public List<AccessToken> findAllTokensForUser(String username) {
-        return (List<AccessToken>) transactionTemplate.execute((TransactionCallback) transactionStatus -> {
-            Query query = sessionFactory.getCurrentSession().createQuery("FROM AccessToken WHERE deletedBecauseUserDeleted = :deletedBecauseUserDeleted AND username = :username");
-            query.setString("username", username);
-            query.setBoolean("deletedBecauseUserDeleted", false);
-            query.setCacheable(true);
-            return query.list();
-        });
+        return (List<AccessToken>) transactionTemplate.execute((TransactionCallback) transactionStatus ->
+                sessionFactory
+                        .getCurrentSession()
+                        .createCriteria(AccessToken.class)
+                        .add(Restrictions.eq("username", username))
+                        .add(Restrictions.eq("deletedBecauseUserDeleted", false))
+                        .setCacheable(true)
+                        .list());
     }
 
     @Override
@@ -82,6 +82,7 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
                 sessionFactory.getCurrentSession()
                         .createCriteria(AccessToken.class)
                         .add(Restrictions.eq("saltId", saltId))
+                        .add(Restrictions.eq("deletedBecauseUserDeleted", false))
                         .setCacheable(true).uniqueResult());
     }
 
@@ -100,8 +101,21 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
         });
     }
 
-    public AccessToken load(final long id) {
+    public AccessToken loadForAdminUser(final long id) {
         return (AccessToken) transactionTemplate.execute((TransactionCallback) transactionStatus -> sessionFactory.getCurrentSession().get(AccessToken.class, id));
     }
 
+    @Override
+    public AccessToken loadNotDeletedTokenForUser(long id, String username) {
+        return (AccessToken) transactionTemplate.execute(transactionCallback ->
+                sessionFactory
+                        .getCurrentSession()
+                        .createCriteria(AccessToken.class)
+                        .add(Restrictions.eq("username", username))
+                        .add(Restrictions.eq("id", id))
+                        .add(Restrictions.eq("deletedBecauseUserDeleted", false))
+                        .setCacheable(true)
+                        .uniqueResult());
+
+    }
 }

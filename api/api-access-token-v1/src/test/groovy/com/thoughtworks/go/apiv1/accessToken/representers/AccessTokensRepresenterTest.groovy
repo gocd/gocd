@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv1.accessToken.representers
 
 import com.thoughtworks.go.domain.AccessToken
+import com.thoughtworks.go.spark.Routes
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
@@ -32,13 +33,13 @@ class AccessTokensRepresenterTest {
     AccessToken.AccessTokenWithDisplayValue token2 = randomAccessToken(42, true)
 
     def json = toObjectString({
-      AccessTokensRepresenter.toJSON(it, [token1, token2])
+      AccessTokensRepresenter.toJSON(it, new Routes.CurrentUserAccessToken(), [token1, token2])
     })
 
     def expectedJSON = [
       "_links"   : [
         "self": [
-          "href": "http://test.host/go/api/access_tokens"
+          "href": "http://test.host/go/api/current_user/access_tokens"
         ],
         "doc" : [
           "href": apiDocsUrl('#access-token')
@@ -49,46 +50,48 @@ class AccessTokensRepresenterTest {
           [
             "_links"        : [
               "self": [
-                "href": "http://test.host/go/api/access_tokens/41"
+                "href": "http://test.host/go/api/current_user/access_tokens/41"
               ],
               "doc" : [
                 "href": apiDocsUrl('#access-token')
               ],
               "find": [
-                "href": "http://test.host/go/api/access_tokens/:id"
+                "href": "http://test.host/go/api/current_user/access_tokens/:id"
               ]
             ],
-            "id"          : token1.id,
+            "id"            : token1.id,
             "description"   : token1.description,
+            "username"      : token1.username,
             "auth_config_id": token1.authConfigId,
-            "_meta"         : [
-              "revoked"  : token1.revoked,
-              "revoked_at"  : null,
-              "created_at"  : jsonDate(token1.createdAt),
-              "last_used_at": null
-            ]
+            "revoked"       : token1.revoked,
+            "revoked_at"    : null,
+            "revoke_cause"  : null,
+            "revoked_by"    : null,
+            "created_at"    : jsonDate(token1.createdAt),
+            "last_used_at"  : null
           ],
           [
             "_links"        : [
               "self": [
-                "href": "http://test.host/go/api/access_tokens/42"
+                "href": "http://test.host/go/api/current_user/access_tokens/42"
               ],
               "doc" : [
                 "href": apiDocsUrl('#access-token')
               ],
               "find": [
-                "href": "http://test.host/go/api/access_tokens/:id"
+                "href": "http://test.host/go/api/current_user/access_tokens/:id"
               ]
             ],
-            "id"          : token2.id,
+            "id"            : token2.id,
             "description"   : token2.description,
+            "username"      : token2.username,
             "auth_config_id": token2.authConfigId,
-            "_meta"         : [
-              "revoked"  : token2.revoked,
-              "revoked_at"  : null,
-              "created_at"  : jsonDate(token2.createdAt),
-              "last_used_at": null
-            ]
+            "revoked"       : token2.revoked,
+            "revoked_at"    : null,
+            "revoke_cause"  : null,
+            "revoked_by"    : null,
+            "created_at"    : jsonDate(token2.createdAt),
+            "last_used_at"  : null
           ]
         ]
       ]

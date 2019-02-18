@@ -17,9 +17,12 @@
 package com.thoughtworks.go.apiv1.accessToken.representers
 
 import com.thoughtworks.go.domain.AccessToken
+import com.thoughtworks.go.spark.Routes
 import com.thoughtworks.go.spark.util.SecureRandom
 import com.thoughtworks.go.util.TestingClock
 import org.junit.jupiter.api.Test
+
+import java.sql.Timestamp
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
@@ -30,32 +33,35 @@ class AccessTokenRepresenterTest {
   @Test
   void 'renders the access token hal representation with token value'() {
     AccessToken.AccessTokenWithDisplayValue token = randomAccessToken(42, false)
+    def revokedAt = new Timestamp(new Date().getTime())
+    token.revoke("bob", "just because", revokedAt)
 
     def json = toObjectString({
-      AccessTokenRepresenter.toJSON(it, token)
+      AccessTokenRepresenter.toJSON(it, new Routes.CurrentUserAccessToken(), token)
     })
 
     def expectedJSON = [
       "_links"        : [
         "self": [
-          "href": "http://test.host/go/api/access_tokens/42"
+          "href": "http://test.host/go/api/current_user/access_tokens/42"
         ],
         "doc" : [
           "href": apiDocsUrl('#access-token')
         ],
         "find": [
-          "href": "http://test.host/go/api/access_tokens/:id"
+          "href": "http://test.host/go/api/current_user/access_tokens/:id"
         ]
       ],
       "id"            : 42,
       "description"   : token.description,
+      "username"      : token.username,
       "auth_config_id": token.authConfigId,
-      "_meta"         : [
-        "revoked"  : token.revoked,
-        "revoked_at"  : null,
-        "created_at"  : jsonDate(token.createdAt),
-        "last_used_at": null
-      ],
+      "revoked"       : token.revoked,
+      "revoked_at"    : jsonDate(revokedAt),
+      "revoke_cause"  : "just because",
+      "revoked_by"    : "bob",
+      "created_at"    : jsonDate(token.createdAt),
+      "last_used_at"  : null,
       "token"         : token.displayValue
     ]
 
@@ -64,34 +70,34 @@ class AccessTokenRepresenterTest {
 
   @Test
   void 'renders the access token metadata hal representation without token value'() {
-    AccessToken.AccessTokenWithDisplayValue token = randomAccessToken(42)
-    token.displayValue = null
+    AccessToken.AccessTokenWithDisplayValue token = randomAccessToken(42, true)
 
     def json = toObjectString({
-      AccessTokenRepresenter.toJSON(it, token)
+      AccessTokenRepresenter.toJSON(it, new Routes.CurrentUserAccessToken(), token)
     })
 
     def expectedJSON = [
       "_links"        : [
         "self": [
-          "href": "http://test.host/go/api/access_tokens/42"
+          "href": "http://test.host/go/api/current_user/access_tokens/42"
         ],
         "doc" : [
           "href": apiDocsUrl('#access-token')
         ],
         "find": [
-          "href": "http://test.host/go/api/access_tokens/:id"
+          "href": "http://test.host/go/api/current_user/access_tokens/:id"
         ]
       ],
       "id"            : 42,
       "description"   : token.description,
+      "username"      : token.username,
       "auth_config_id": token.authConfigId,
-      "_meta"         : [
-        "revoked"  : token.revoked,
-        "revoked_at"  : null,
-        "created_at"  : jsonDate(token.createdAt),
-        "last_used_at": null
-      ]
+      "revoked"       : false,
+      "revoked_by"    : null,
+      "revoke_cause"  : null,
+      "revoked_at"    : null,
+      "created_at"    : jsonDate(token.createdAt),
+      "last_used_at"  : null,
     ]
 
     assertThatJson(json).isEqualTo(expectedJSON)
@@ -104,7 +110,7 @@ class AccessTokenRepresenterTest {
     token.validate(null)
 
     def json = toObjectString({
-      AccessTokenRepresenter.toJSON(it, token)
+      AccessTokenRepresenter.toJSON(it, new Routes.CurrentUserAccessToken(), token)
     })
 
     assertThatJson(json).node("errors").isEqualTo([description: ['must not be blank']])

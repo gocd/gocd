@@ -23,13 +23,13 @@ import com.thoughtworks.go.spark.Routes;
 import java.util.List;
 
 public class AccessTokensRepresenter {
-    public static void toJSON(OutputWriter outputWriter, List<AccessToken> allTokens) {
+    public static void toJSON(OutputWriter outputWriter, Routes.FindUrlBuilder<Long> urlBuilder, List<AccessToken> allTokens) {
         outputWriter.addLinks(outputLinkWriter -> outputLinkWriter
-                .addLink("self", Routes.AccessToken.BASE)
-                .addAbsoluteLink("doc", Routes.AccessToken.DOC))
+                .addLink("self", Routes.CurrentUserAccessToken.BASE)
+                .addAbsoluteLink("doc", urlBuilder.doc()))
                 .addChild("_embedded", embeddedWriter ->
                         embeddedWriter.addChildList("access_tokens", AccessTokenWriter -> {
-                            allTokens.forEach(token -> AccessTokenWriter.addChild(artifactStoreWriter -> AccessTokenRepresenter.toJSON(artifactStoreWriter, token)));
+                            allTokens.forEach(token -> AccessTokenWriter.addChild(artifactStoreWriter -> AccessTokenRepresenter.toJSON(artifactStoreWriter, urlBuilder, token)));
                         })
                 );
     }

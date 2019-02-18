@@ -178,6 +178,6 @@ public class AccessTokenServiceIntegrationTest {
 
         assertThatCode(() -> accessTokenService.revokeAccessToken(id, "bOb", null))
                 .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Cannot locate access token with id 42");
+                .hasMessage("Cannot locate access token with id 42.");
     }
 }

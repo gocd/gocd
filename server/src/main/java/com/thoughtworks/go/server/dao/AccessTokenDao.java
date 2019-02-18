@@ -24,7 +24,9 @@ import java.util.List;
 public interface AccessTokenDao {
     void saveOrUpdate(AccessToken accessToken);
 
-    AccessToken load(long id);
+    AccessToken loadForAdminUser(long id);
+
+    AccessToken loadNotDeletedTokenForUser(long id, String username);
 
     List<AccessToken> findAllTokens();
 

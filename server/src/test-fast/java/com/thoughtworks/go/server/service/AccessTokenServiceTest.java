@@ -17,21 +17,17 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.dao.AccessTokenDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.TestingClock;
-import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
-
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 
 import static com.thoughtworks.go.helper.AccessTokenMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,45 +70,46 @@ class AccessTokenServiceTest {
     @Test
     void shouldMakeACallToSQLDaoForFetchingAccessToken() {
         long tokenId = 42;
-        when(accessTokenDao.load(42)).thenReturn(randomAccessTokenForUser(username));
+        when(securityService.isUserAdmin(new Username(username))).thenReturn(true);
+        when(accessTokenDao.loadForAdminUser(42)).thenReturn(randomAccessTokenForUser(username));
 
         accessTokenService.find(tokenId, username);
-        verify(accessTokenDao, times(1)).load(42);
+        verify(accessTokenDao, times(1)).loadForAdminUser(42);
         verifyNoMoreInteractions(accessTokenDao);
     }
 
     @Test
     void shouldVerifyAccessTokenBelongsToUser() {
         long tokenId = 42;
-        when(accessTokenDao.load(42)).thenReturn(randomAccessTokenForUser(username));
+        when(securityService.isUserAdmin(new Username(username))).thenReturn(true);
+        when(accessTokenDao.loadForAdminUser(42)).thenReturn(randomAccessTokenForUser(username));
 
         accessTokenService.find(tokenId, username);
-        verify(accessTokenDao, times(1)).load(42);
+        verify(accessTokenDao, times(1)).loadForAdminUser(42);
         verifyNoMoreInteractions(accessTokenDao);
     }
 
     @Test
     void shouldVerifyAccessTokenBelongsToAdminUser() {
         long tokenId = 42;
-        when(accessTokenDao.load(42)).thenReturn(randomAccessTokenForUser(username));
+        when(accessTokenDao.loadForAdminUser(42)).thenReturn(randomAccessTokenForUser(username));
         when(securityService.isUserAdmin(new Username("root"))).thenReturn(true);
 
         accessTokenService.find(tokenId, "root");
-        verify(accessTokenDao, times(1)).load(42);
+        verify(accessTokenDao, times(1)).loadForAdminUser(42);
         verifyNoMoreInteractions(accessTokenDao);
     }
 
     @Test
     void shouldBailIfUserDoesNotOwnToken() {
         long tokenId = 42;
-        when(accessTokenDao.load(42)).thenReturn(randomAccessTokenForUser(username));
+        when(accessTokenDao.loadForAdminUser(anyLong())).thenReturn(null);
         when(securityService.isUserAdmin(new Username("hacker"))).thenReturn(false);
 
         assertThatCode(() -> accessTokenService.find(tokenId, "hacker"))
-                .isInstanceOf(NotAuthorizedException.class)
-                .hasMessageContaining("You performed an unauthorized operation!");
-        verify(accessTokenDao, times(1)).load(42);
-        verifyNoMoreInteractions(accessTokenDao);
+                .isInstanceOf(RecordNotFoundException.class)
+                .hasMessageContaining("Cannot locate access token with id 42.");
+        verify(accessTokenDao, never()).loadForAdminUser(anyLong());
     }
 
     @Test

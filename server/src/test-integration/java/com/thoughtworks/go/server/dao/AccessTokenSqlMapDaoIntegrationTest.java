@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.util.Clock;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -66,13 +67,13 @@ public class AccessTokenSqlMapDaoIntegrationTest {
 
         accessTokenSqlMapDao.saveOrUpdate(accessToken);
 
-        AccessToken savedAccessToken = accessTokenSqlMapDao.load(accessToken.getId());
+        AccessToken savedAccessToken = accessTokenSqlMapDao.loadForAdminUser(accessToken.getId());
         assertThat(savedAccessToken).isEqualTo(accessToken);
     }
 
     @Test
     public void shouldReturnNullWhenNoAccessTokenFound() {
-        AccessToken savedAccessToken = accessTokenSqlMapDao.load(-1);
+        AccessToken savedAccessToken = accessTokenSqlMapDao.loadForAdminUser(-1);
         assertThat(savedAccessToken).isNull();
     }
 
@@ -153,6 +154,31 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(Collections.singletonList(user2), "admin");
 
         assertThat(accessTokenSqlMapDao.findAllTokens())
-                .hasSize(2).containsExactlyInAnyOrder(accessTokenSqlMapDao.load(token1.getId()), accessTokenSqlMapDao.load(token2.getId()));
+                .hasSize(2).containsExactlyInAnyOrder(accessTokenSqlMapDao.loadForAdminUser(token1.getId()), accessTokenSqlMapDao.loadForAdminUser(token2.getId()));
+    }
+
+    @Test
+    public void adminsShouldBeAbleToLoadTokensRevokedByAnyone() {
+        String user = RandomStringUtils.random(32);
+
+        AccessToken token = randomAccessTokenForUser(user);
+
+        accessTokenSqlMapDao.saveOrUpdate(token);
+        accessTokenSqlMapDao.saveOrUpdate(token.revoke("admin", "user is making too many requests", clock.currentTimestamp()));
+
+        assertThat(accessTokenSqlMapDao.loadForAdminUser(token.getId())).isEqualTo(token);
+    }
+
+    @Test
+    public void adminsShouldBeAbleToLoadTokensRevokedBecauseOfUserDeletionButUsersCannot() {
+        String user = RandomStringUtils.random(32);
+
+        AccessToken token = randomAccessTokenForUser(user);
+
+        accessTokenSqlMapDao.saveOrUpdate(token);
+        accessTokenSqlMapDao.saveOrUpdate(token.revokeBecauseOfUserDelete("admin", clock.currentTimestamp()));
+
+        assertThat(accessTokenSqlMapDao.loadForAdminUser(token.getId())).isEqualTo(token);
+        assertThat(accessTokenSqlMapDao.loadNotDeletedTokenForUser(token.getId(), user)).isNull();
     }
 }

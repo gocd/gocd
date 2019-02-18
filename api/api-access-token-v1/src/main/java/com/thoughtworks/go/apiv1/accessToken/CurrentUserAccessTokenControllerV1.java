@@ -16,55 +16,42 @@
 
 package com.thoughtworks.go.apiv1.accessToken;
 
-import com.thoughtworks.go.api.ApiController;
-import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
-import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter;
-import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter;
 import com.thoughtworks.go.config.SecurityAuthConfig;
-import com.thoughtworks.go.config.exceptions.ConflictException;
-import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.spark.Routes;
-import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
 
-import java.io.IOException;
 import java.util.List;
 
 import static spark.Spark.*;
 
 @Component
-public class AccessTokenControllerV1 extends ApiController implements SparkSpringController {
+public class CurrentUserAccessTokenControllerV1 extends AbstractUserAccessTokenControllerV1 {
 
-    private final ApiAuthenticationHelper apiAuthenticationHelper;
-    private AccessTokenService accessTokenService;
     private SecurityAuthConfigService authConfigService;
     private AuthorizationExtension extension;
 
     @Autowired
-    public AccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AccessTokenService AccessTokenService, SecurityAuthConfigService authConfigService, AuthorizationExtension extension) {
-        super(ApiVersion.v1);
-        this.apiAuthenticationHelper = apiAuthenticationHelper;
-        this.accessTokenService = AccessTokenService;
+    public CurrentUserAccessTokenControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, AccessTokenService AccessTokenService, SecurityAuthConfigService authConfigService, AuthorizationExtension extension) {
+        super(apiAuthenticationHelper, AccessTokenService);
         this.authConfigService = authConfigService;
         this.extension = extension;
     }
 
     @Override
     public String controllerBasePath() {
-        return Routes.AccessToken.BASE;
+        return Routes.CurrentUserAccessToken.BASE;
     }
 
     @Override
@@ -81,12 +68,10 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
 
             get("", mimeType, this::getAllAccessTokens);
             post("", mimeType, this::createAccessToken);
-            post(Routes.AccessToken.REVOKE, mimeType, this::revokeAccessToken);
-            get(Routes.AccessToken.ID, mimeType, this::getAccessToken);
+            post(Routes.CurrentUserAccessToken.REVOKE, mimeType, this::revokeAccessToken);
+            get(Routes.CurrentUserAccessToken.ID, mimeType, this::getAccessToken);
 
-            exception(RecordNotFoundException.class, this::notFound);
-            exception(NotAuthorizedException.class, this::renderForbiddenResponse);
-            exception(ConflictException.class, this::renderForbiddenResponse);
+            addExceptionHandlers();
         });
     }
 
@@ -110,33 +95,18 @@ public class AccessTokenControllerV1 extends ApiController implements SparkSprin
         return renderAccessToken(request, response, created);
     }
 
-    public String getAccessToken(Request request, Response response) throws Exception {
-        final AccessToken token = accessTokenService.find(Long.parseLong(request.params(":id")), currentUsernameString());
-
-        return renderAccessToken(request, response, token);
-    }
-
-    public String getAllAccessTokens(Request request, Response response) throws Exception {
-        List<AccessToken> allTokens = accessTokenService.findAllTokensForUser(currentUsernameString());
-        return writerForTopLevelObject(request, response, outputWriter -> AccessTokensRepresenter.toJSON(outputWriter, allTokens));
-    }
-
-    public String revokeAccessToken(Request request, Response response) throws Exception {
-        long id = Long.parseLong(request.params(":id"));
-        final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        String revokeCause = reader.optString("cause").orElse(null);
-
-        AccessToken revokeAccessToken = accessTokenService.revokeAccessToken(id, currentUsernameString(), revokeCause);
-
-        return renderAccessToken(request, response, revokeAccessToken);
-    }
-
-    private String renderAccessToken(Request request, Response response, AccessToken token) throws IOException {
-        return writerForTopLevelObject(request, response, outputWriter -> AccessTokenRepresenter.toJSON(outputWriter, token));
-    }
-
     private String currentUserAuthConfigId(Request request) {
         return SessionUtils.getAuthenticationToken(request.raw()).getAuthConfigId();
+    }
+
+    @Override
+    protected List<AccessToken> allTokens() {
+        return accessTokenService.findAllTokensForUser(currentUsernameString());
+    }
+
+    @Override
+    Routes.FindUrlBuilder<Long> urlContext() {
+        return new Routes.CurrentUserAccessToken();
     }
 
 }

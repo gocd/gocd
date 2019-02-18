@@ -24,21 +24,28 @@ import com.thoughtworks.go.spark.Routes;
 import java.util.Collections;
 
 public class AccessTokenRepresenter {
-    public static void toJSON(OutputWriter outputWriter, AccessToken token) {
+    public static void toJSON(OutputWriter outputWriter, Routes.FindUrlBuilder<Long> urlBuilder, AccessToken token) {
         outputWriter.addLinks(linksWriter -> linksWriter
-                .addLink("self", Routes.AccessToken.find(token.getId()))
-                .addAbsoluteLink("doc", Routes.AccessToken.DOC)
-                .addLink("find", Routes.AccessToken.find()));
+                .addLink("self", urlBuilder.find(token.getId()))
+                .addAbsoluteLink("doc", urlBuilder.doc())
+                .addLink("find", urlBuilder.find()));
 
         outputWriter.add("id", token.getId())
                 .add("description", token.getDescription())
-                .add("auth_config_id", token.getAuthConfigId())
-                .addChild("_meta", metaWriter -> {
-                    metaWriter.add("revoked", token.isRevoked())
-                            .add("revoked_at", token.getRevokedAt())
-                            .add("created_at", token.getCreatedAt())
-                            .add("last_used_at", token.getLastUsed());
-                });
+                .add("username", token.getUsername())
+
+                .add("revoked", token.isRevoked())
+                .add("revoke_cause", token.getRevokeCause())
+                .add("revoked_by", token.getRevokedBy())
+                .add("revoked_at", token.getRevokedAt())
+
+                .add("created_at", token.getCreatedAt())
+                .add("last_used_at", token.getLastUsed())
+                .add("auth_config_id", token.getAuthConfigId());
+
+        if (urlBuilder instanceof Routes.AdminUserAccessToken) {
+            outputWriter.add("deletedBecauseUserDeleted", token.isDeletedBecauseUserDeleted());
+        }
 
         if (token instanceof AccessToken.AccessTokenWithDisplayValue) {
             outputWriter.addIfNotNull("token", ((AccessToken.AccessTokenWithDisplayValue) token).getDisplayValue());

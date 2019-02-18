@@ -48,20 +48,20 @@
 
   <rule>
     <name>Access Token Index and Create API</name>
-    <from>^/api/access_tokens(/?)$</from>
-    <to last="true">/spark/api/access_tokens</to>
+    <from>^/api/(current_user|admin)/access_tokens(/?)$</from>
+    <to last="true">/spark/api/$1/access_tokens</to>
   </rule>
 
   <rule>
     <name>Spark Access Token Show API</name>
-    <from>^/api/access_tokens/(.*)$</from>
-    <to last="true">/spark/api/access_tokens/${escape:$1}</to>
+    <from>^/api/(current_user|admin)/access_tokens/(.*)$</from>
+    <to last="true">/spark/api/$1/access_tokens/${escape:$2}</to>
   </rule>
 
   <rule>
     <name>Spark Access Token Revoke API</name>
-    <from>^/api/access_tokens/([^/]+)/([^/]+)/revoke</from>
-    <to last="true">/spark/api/access_tokens/${escape:$1}/${escape:$2}/revoke</to>
+    <from>^/api/(current_user|admin)/access_tokens/([^/]+)/([^/]+)/revoke</from>
+    <to last="true">/spark/api/$1/access_tokens/${escape:$2}/${escape:$3}/revoke</to>
   </rule>
 
   <rule>

@@ -434,18 +434,55 @@ public class Routes {
         public static final String SPA_BASE = "/admin/artifact_stores";
     }
 
-    public static class AccessToken {
-        public static final String BASE = "/api/access_tokens";
+    public interface FindUrlBuilder<Identifier> {
+        String find();
+
+        String find(Identifier id);
+
+        String doc();
+    }
+
+    public static class CurrentUserAccessToken implements FindUrlBuilder<Long> {
+        public static final String BASE = "/api/current_user/access_tokens";
         public static final String ID = "/:id";
         public static final String REVOKE = ID + "/revoke";
-        public static final String DOC = apiDocsUrl("#access-token");
+        private static final String DOC = apiDocsUrl("#access-token");
 
-        public static String find() {
+        @Override
+        public String find() {
             return BASE + ID;
         }
 
-        public static String find(long id) {
+        @Override
+        public String find(Long id) {
             return find().replaceAll(":id", String.valueOf(id));
+        }
+
+        @Override
+        public String doc() {
+            return DOC;
+        }
+    }
+
+    public static class AdminUserAccessToken implements FindUrlBuilder<Long> {
+        public static final String BASE = "/api/admin/access_tokens";
+        public static final String ID = "/:id";
+        public static final String REVOKE = ID + "/revoke";
+        private static final String DOC = apiDocsUrl("#access-token");
+
+        @Override
+        public String find() {
+            return BASE + ID;
+        }
+
+        @Override
+        public String find(Long id) {
+            return find().replaceAll(":id", String.valueOf(id));
+        }
+
+        @Override
+        public String doc() {
+            return DOC;
         }
     }
 

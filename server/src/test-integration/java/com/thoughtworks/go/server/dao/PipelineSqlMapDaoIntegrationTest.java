@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.ScmMaterial;
@@ -1526,9 +1527,9 @@ public class PipelineSqlMapDaoIntegrationTest {
     public void shouldThrowExceptionWhenBuildCauseIsAskedForANonExistentPipeline() {
         try {
             pipelineDao.findBuildCauseOfPipelineByNameAndCounter("foo", 1);
-            fail("should have thrown PipelineNotFoundException");
+            fail("should have thrown RecordNotFoundException");
         } catch (Exception e) {
-            assertThat(e instanceof PipelineNotFoundException, is(true));
+            assertThat(e instanceof RecordNotFoundException, is(true));
             assertThat(e.getMessage(), is("Pipeline foo with counter 1 was not found"));
         }
     }
@@ -1545,9 +1546,9 @@ public class PipelineSqlMapDaoIntegrationTest {
         assertThat(buildCause, is(notNullValue()));
         try {
             pipelineDao.findBuildCauseOfPipelineByNameAndCounter(pipelineName, 10);
-            fail("should have thrown PipelineNotFoundException");
+            fail("should have thrown RecordNotFoundException");
         } catch (Exception e) {
-            assertThat(e instanceof PipelineNotFoundException, is(true));
+            assertThat(e instanceof RecordNotFoundException, is(true));
             assertThat(e.getMessage(), is("Pipeline P1 with counter 10 was not found"));
         }
     }

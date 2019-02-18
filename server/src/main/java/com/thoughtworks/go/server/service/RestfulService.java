@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.JobNotFoundException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.JobConfigIdentifier;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.PipelineIdentifier;
@@ -67,7 +67,7 @@ public class RestfulService {
         }
         if (jobId == null) {
             //fix for #5739
-            throw new JobNotFoundException(pipelineName, stageName, buildName);
+            throw new RecordNotFoundException(String.format("Job '%s' not found in pipeline '%s' stage '%s'", buildName, pipelineName, stageName));
         }
         return jobId;
     }

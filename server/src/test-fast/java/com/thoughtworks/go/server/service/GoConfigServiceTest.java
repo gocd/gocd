@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,8 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -50,7 +51,6 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.assertj.core.api.Assertions;
 import org.hamcrest.Matchers;
 import org.jdom2.input.JDOMParseException;
 import org.junit.Assert;
@@ -68,12 +68,8 @@ import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
 import static junit.framework.TestCase.assertTrue;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -435,7 +431,7 @@ public class GoConfigServiceTest {
         try {
             goConfigService.translateToActualCase(new JobConfigIdentifier(PIPELINE, STAGE, missingJobName));
             fail("Should not be able to find job with missing agent");
-        } catch (JobNotFoundException expected) {
+        } catch (RecordNotFoundException expected) {
             assertThat(expected.getMessage(), is(format("Job '%s' not found in pipeline '%s' stage '%s'", missingJobName, PIPELINE, STAGE)));
         }
     }
@@ -453,7 +449,7 @@ public class GoConfigServiceTest {
             goConfigService.translateToActualCase(new JobConfigIdentifier(PIPELINE, STAGE, "invalid-job"));
             fail("should throw exception if job does not exist");
         } catch (Exception e) {
-            assertThat(e, instanceOf(JobNotFoundException.class));
+            assertThat(e, instanceOf(RecordNotFoundException.class));
             assertThat(e.getMessage(), containsString("invalid-job"));
         }
     }
@@ -471,13 +467,13 @@ public class GoConfigServiceTest {
     }
 
     @Test
-    public void shouldThrowPipelineNotFoundExceptionWhenStageDoesNotExist() throws Exception {
+    public void shouldThrowRecordNotFoundExceptionWhenStageDoesNotExist() throws Exception {
         expectLoad(unchangedConfig());
         try {
             goConfigService.translateToActualCase(new JobConfigIdentifier("invalid-pipeline", STAGE, JOB));
             fail("should throw exception if pipeline does not exist");
         } catch (Exception e) {
-            assertThat(e, instanceOf(PipelineNotFoundException.class));
+            assertThat(e, instanceOf(RecordNotFoundException.class));
             assertThat(e.getMessage(), containsString("invalid-pipeline"));
         }
     }
@@ -716,7 +712,7 @@ public class GoConfigServiceTest {
             goConfigService.isUserAdminOfGroup(adminName, groupName);
             fail("Should fail since group does not exist");
         } catch (Exception e) {
-            assertThat(e, is(instanceOf(PipelineGroupNotFoundException.class)));
+            assertThat(e, is(instanceOf(RecordNotFoundException.class)));
         }
     }
 
@@ -731,7 +727,7 @@ public class GoConfigServiceTest {
             goConfigService.isUserAdminOfGroup(new CaseInsensitiveString("foo"), groupName);
             fail("Should fail since group does not exist");
         } catch (Exception e) {
-            assertThat(e, is(instanceOf(PipelineGroupNotFoundException.class)));
+            assertThat(e, is(instanceOf(RecordNotFoundException.class)));
         }
     }
 
@@ -1043,7 +1039,7 @@ public class GoConfigServiceTest {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);
-        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("non_existing_pipeline"))).thenThrow(new PipelineNotFoundException("Not found."));
+        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("non_existing_pipeline"))).thenThrow(new RecordNotFoundException("Not found."));
 
         assertFalse(goConfigService.canEditPipeline("non_existing_pipeline", null));
     }

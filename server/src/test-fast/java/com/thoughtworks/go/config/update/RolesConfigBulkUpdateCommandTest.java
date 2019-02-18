@@ -16,11 +16,13 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.NoSuchRoleException;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.RoleConfig;
+import com.thoughtworks.go.config.RoleUser;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
@@ -36,7 +38,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
-import static org.mockito.ArgumentMatchers.refEq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -94,7 +95,7 @@ public class RolesConfigBulkUpdateCommandTest {
         assertThat(result.httpCode(), is(403));
     }
 
-    @Test(expected = NoSuchRoleException.class)
+    @Test(expected = RecordNotFoundException.class)
     public void shouldNotContinueIfExistingRoleIsDeleted() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);

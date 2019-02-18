@@ -1,11 +1,11 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
 import com.thoughtworks.go.domain.StageIdentifier;
@@ -165,7 +166,7 @@ public class PipelineLockServiceTest {
 
         when(pipelineStateDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(false);
-        when(cruiseConfig.isPipelineLockable("mingle")).thenThrow(new PipelineNotFoundException("mingle not there"));
+        when(cruiseConfig.isPipelineLockable("mingle")).thenThrow(new RecordNotFoundException("mingle not there"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("twist"))).thenReturn(true);
         when(cruiseConfig.isPipelineLockable("twist")).thenReturn(false);
 
@@ -304,7 +305,7 @@ public class PipelineLockServiceTest {
 
         when(pipelineStateDao.lockedPipelines()).thenReturn(asList("pipeline1"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline1"))).thenReturn(false);
-        when(cruiseConfig.isPipelineLockable("pipeline1")).thenThrow(new PipelineNotFoundException("pipeline1 not found"));
+        when(cruiseConfig.isPipelineLockable("pipeline1")).thenThrow(new RecordNotFoundException("pipeline1 not found"));
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {

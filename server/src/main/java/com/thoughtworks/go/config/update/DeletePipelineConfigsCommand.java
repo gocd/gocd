@@ -18,7 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.config.exceptions.PipelineGroupNotEmptyException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -37,13 +37,15 @@ public class DeletePipelineConfigsCommand extends PipelineConfigsCommand {
         preprocessedPipelineConfigs = group;
         try {
             preprocessedConfig.deletePipelineGroup(group.getGroup());
-        } catch (PipelineGroupNotEmptyException e) {
+        } catch (UnprocessableEntityException e) {
             result.unprocessableEntity(e.getMessage());
         }
     }
 
     @Override
-    public boolean isValid(CruiseConfig preprocessedConfig) { return true; }
+    public boolean isValid(CruiseConfig preprocessedConfig) {
+        return true;
+    }
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {

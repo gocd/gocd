@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 package com.thoughtworks.go.server.service.plugins.validators.authorization;
 
 import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -31,9 +31,7 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class RoleConfigurationValidatorTest {
@@ -94,7 +92,7 @@ public class RoleConfigurationValidatorTest {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("view"));
         PluginRoleConfig roleConfig = new PluginRoleConfig("admin", "auth_id", property);
 
-        when(extension.validateRoleConfiguration("pluginId", Collections.singletonMap("username", "view"))).thenThrow(new PluginNotFoundException("not found"));
+        when(extension.validateRoleConfiguration("pluginId", Collections.singletonMap("username", "view"))).thenThrow(new RecordNotFoundException("not found"));
 
         validator.validate(roleConfig, "pluginId");
 

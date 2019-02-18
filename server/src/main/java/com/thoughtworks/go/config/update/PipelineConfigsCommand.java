@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,13 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang3.StringUtils;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
+import static com.thoughtworks.go.i18n.LocalizedMessage.*;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
@@ -75,7 +73,7 @@ public abstract class PipelineConfigsCommand implements EntityConfigUpdateComman
         PipelineConfigs existingPipelineConfigs = cruiseConfig.findGroup(group);
         if (existingPipelineConfigs == null) {
             result.notFound(resourceNotFound("Group", group), notFound());
-            throw new PipelineGroupNotFoundException();
+            throw new RecordNotFoundException("Pipeline group with name " + group + " not found!");
         }
         return existingPipelineConfigs;
     }

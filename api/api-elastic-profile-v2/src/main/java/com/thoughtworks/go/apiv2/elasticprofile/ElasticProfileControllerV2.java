@@ -27,7 +27,7 @@ import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfilesRepr
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -85,7 +85,7 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
             put(Routes.ElasticProfileAPI.ID, mimeType, this::update);
             delete(Routes.ElasticProfileAPI.ID, mimeType, this::destroy);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 

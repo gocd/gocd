@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,9 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.admin.security.representers.RoleRepresenter;
 import com.thoughtworks.go.apiv1.admin.security.representers.RolesRepresenter;
-import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RolesConfig;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.RoleConfigService;
@@ -36,7 +35,6 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -79,12 +77,7 @@ public class RolesControllerV1 extends ApiController implements SparkSpringContr
             put(Routes.Roles.NAME_PATH, mimeType, this::update);
             delete(Routes.Roles.NAME_PATH, mimeType, this::destroy);
 
-            exception(InvalidPluginTypeException.class, (ex, req, res) -> {
-                res.body(this.messageJson(ex));
-                res.status(HttpStatus.BAD_REQUEST.value());
-            });
-
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 
@@ -93,7 +86,7 @@ public class RolesControllerV1 extends ApiController implements SparkSpringContr
         return Routes.Roles.BASE;
     }
 
-    public String index(Request req, Response res) throws InvalidPluginTypeException, IOException {
+    public String index(Request req, Response res) throws IOException {
         String pluginType = req.queryParams("type");
         RolesConfig roles = roleConfigService.getRoles().ofType(pluginType);
         String etag = entityHashingService.md5ForEntity(roles);

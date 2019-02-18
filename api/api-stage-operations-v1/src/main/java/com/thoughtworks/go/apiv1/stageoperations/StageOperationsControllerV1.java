@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.stageoperations.representers.StageRepresenter;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.NullStage;
@@ -92,7 +93,7 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
             post(Routes.Stage.TRIGGER_SELECTED_JOBS_PATH, mimeType, this::rerunSelectedJobs);
             get(Routes.Stage.INSTANCE_BY_COUNTER, mimeType, this::instanceByCounter);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 

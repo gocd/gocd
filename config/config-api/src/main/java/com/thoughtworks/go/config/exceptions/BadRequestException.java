@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access;
+package com.thoughtworks.go.config.exceptions;
 
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import org.springframework.http.HttpStatus;
 
-public class PluginNotFoundException extends RecordNotFoundException {
-
-    public PluginNotFoundException(String message) {
-        super(message);
+public class BadRequestException extends HttpException {
+    public BadRequestException(String message) {
+        super(HttpStatus.BAD_REQUEST, message);
     }
 }

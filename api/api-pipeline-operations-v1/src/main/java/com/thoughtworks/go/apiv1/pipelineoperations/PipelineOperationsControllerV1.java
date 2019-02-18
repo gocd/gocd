@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerOptions;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerWithOptionsViewRepresenter;
 import com.thoughtworks.go.apiv6.shared.exceptions.InvalidGoCipherTextRuntimeException;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.domain.PipelineScheduleOptions;
 import com.thoughtworks.go.server.service.*;
@@ -92,7 +92,7 @@ public class PipelineOperationsControllerV1 extends ApiController implements Spa
             get(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, this::triggerOptions);
             post(Routes.Pipeline.SCHEDULE_PATH, mimeType, this::schedule);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
             exception(InvalidGoCipherTextRuntimeException.class, (InvalidGoCipherTextRuntimeException exception, Request request, Response response) -> {
                 response.status(HttpStatus.INTERNAL_SERVER_ERROR.value());
                 response.body(MessageJson.create(HaltApiMessages.errorWhileEncryptingMessage()));

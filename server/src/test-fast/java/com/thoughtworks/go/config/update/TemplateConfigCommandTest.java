@@ -85,7 +85,7 @@ public class TemplateConfigCommandTest {
     public void shouldThrowAnExceptionIfTemplateConfigCannotBeFound() {
         PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("non-existent-template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result, externalArtifactsService);
-        thrown.expectMessage("The template with name 'non-existent-template' is not found.");
+        thrown.expectMessage("Template named non-existent-template was not found!");
         command.isValid(cruiseConfig);
         assertThat(result.toString(), containsString("RESOURCE_NOT_FOUND"));
     }

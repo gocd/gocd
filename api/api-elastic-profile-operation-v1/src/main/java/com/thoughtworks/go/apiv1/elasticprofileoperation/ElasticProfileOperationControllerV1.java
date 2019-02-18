@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.elasticprofileoperation.representers.ElasticProfileUsageRepresenter;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.server.service.ElasticProfileService;
@@ -62,7 +63,8 @@ public class ElasticProfileOperationControllerV1 extends ApiController implement
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
 
             get(Routes.ElasticProfileAPI.ID + Routes.ElasticProfileAPI.USAGES, mimeType, this::usages);
-            exception(RecordNotFoundException.class, this::notFound);
+
+            exception(HttpException.class, this::httpException);
         });
     }
 

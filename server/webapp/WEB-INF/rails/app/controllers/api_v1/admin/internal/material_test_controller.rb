@@ -20,7 +20,7 @@ module ApiV1
       class MaterialTestController < ::ApiV1::BaseController
         include_package 'com.thoughtworks.go.server.service'
         include_package 'com.thoughtworks.go.config.preprocessor'
-        java_import com.thoughtworks.go.config.PipelineNotFoundException
+        java_import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 
         before_action :check_admin_user_or_group_admin_user_and_403
 
@@ -57,7 +57,7 @@ module ApiV1
           pipeline_config.material_configs << material_config
 
           ConfigParamPreprocessor.new.process(pipeline_config)
-        rescue PipelineNotFoundException
+        rescue RecordNotFoundException
           raise ApiV1::UnprocessableEntity, "The specified pipeline `#{params[:pipeline_name]}` was not found!"
         end
 

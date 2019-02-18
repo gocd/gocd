@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
@@ -24,7 +25,6 @@ import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.fixture.SchedulerFixture;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.server.GoUnauthorizedException;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
@@ -307,7 +307,7 @@ public class ScheduleServiceStageTriggerTest {
             transactionTemplate.executeWithExceptionHandling(new TransactionCallback() {
                 @Override public Object doInTransaction(TransactionStatus status) throws Exception {
                     scheduleService.cancelAndTriggerRelevantStages(stage.getId(), null, null);
-                    throw new GoUnauthorizedException();
+                    throw new NotAuthorizedException("blah");
                 }
             });
         } catch (Exception e) {

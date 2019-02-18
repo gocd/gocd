@@ -72,7 +72,7 @@ public class DeletePipelineConfigsCommandTest {
         command.update(cruiseConfig);
 
         assertThat(result.httpCode(), is(HttpStatus.SC_UNPROCESSABLE_ENTITY));
-        assertThat(result.message(), is("Failed to delete group [group] not empty"));
+        assertThat(result.message(), is("Failed to delete group group because it was not empty."));
     }
 
     @Test

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -53,7 +53,7 @@ public class ElasticAgentProfileUpdateCommandTest {
     public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
         cruiseConfig.getElasticConfig().getProfiles().clear();
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, new ElasticProfile("foo", "docker"), null, null, new HttpLocalizedOperationResult(), null, null);
-        thrown.expect(PluginProfileNotFoundException.class);
+        thrown.expect(RecordNotFoundException.class);
         command.update(cruiseConfig);
     }
 
@@ -85,6 +85,6 @@ public class ElasticAgentProfileUpdateCommandTest {
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, null, currentUser, result, entityHashingService, "bad-md5");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.toString(), containsString("Someone has modified the configuration for"));;
+        assertThat(result.toString(), containsString("Someone has modified the configuration for"));
     }
 }

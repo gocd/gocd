@@ -18,10 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
-import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
-import com.thoughtworks.go.config.exceptions.NoSuchAgentException;
-import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
@@ -146,11 +143,11 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         }
     }
 
-    private boolean agentIsAssociatedInConfigRepo(String environment, String agentUuid) throws NoSuchEnvironmentException {
+    private boolean agentIsAssociatedInConfigRepo(String environment, String agentUuid) {
         return environmentConfigService.getEnvironmentConfig(environment).containsAgentRemotely(agentUuid);
     }
 
-    private void validatePresenceOfAgentUuidsInConfig() throws NoSuchAgentException {
+    private void validatePresenceOfAgentUuidsInConfig() {
         List<String> unknownUUIDs = new ArrayList<>();
 
         for (String uuid : uuids) {
@@ -160,16 +157,16 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         }
         if (!unknownUUIDs.isEmpty()) {
             result.badRequest(resourceNotFound("Agent(s)", unknownUUIDs.toString()));
-            throw new NoSuchAgentException(unknownUUIDs);
+            throw new RecordNotFoundException(String.format("Agents [%s] could not be found", StringUtils.join(unknownUUIDs, ", ")));
         }
     }
 
-    private void validatePresenceOfEnvironments(Set<CaseInsensitiveString> allEnvironmentNames, List<String> environmentsToOperate) throws NoSuchEnvironmentException {
+    private void validatePresenceOfEnvironments(Set<CaseInsensitiveString> allEnvironmentNames, List<String> environmentsToOperate) {
         for (String environment : environmentsToOperate) {
             CaseInsensitiveString environmentName = new CaseInsensitiveString(environment);
             if (!allEnvironmentNames.contains(environmentName)) {
                 result.badRequest(resourceNotFound("Environment", environmentName));
-                throw new NoSuchEnvironmentException(environmentName);
+                throw new RecordNotFoundException("Environment named " + environmentName + " was not found!");
             }
         }
     }

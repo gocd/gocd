@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,8 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupRepresenter;
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupsRepresenter;
-import com.thoughtworks.go.config.InvalidPluginTypeException;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -84,7 +84,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
             put(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, this::update);
             delete(Routes.PipelineGroupsAdmin.NAME_PATH, mimeType, this::destroy);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
 
     }
@@ -94,7 +94,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
         return Routes.PipelineGroupsAdmin.BASE;
     }
 
-    public String index(Request req, Response res) throws InvalidPluginTypeException, IOException {
+    public String index(Request req, Response res) throws IOException {
         PipelineGroups pipelineGroups = new PipelineGroups(streamAllPipelineGroups().toArray(PipelineConfigs[]::new));
         String etag = entityHashingService.md5ForEntity(pipelineGroups);
 
@@ -165,7 +165,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
 
     @Override
     public PipelineConfigs doFetchEntityFromConfig(String name) {
-        return findPipelineGroup(name).orElseThrow(RecordNotFoundException::new);
+        return findPipelineGroup(name).orElseThrow(() -> new RecordNotFoundException("Pipeline group with name " + name + " was not found!"));
     }
 
     private Optional<PipelineConfigs> findPipelineGroup(String name) {

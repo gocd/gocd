@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,13 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityConfig;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.SecurityAuthConfigCreateCommand;
 import com.thoughtworks.go.config.update.SecurityAuthConfigDeleteCommand;
 import com.thoughtworks.go.config.update.SecurityAuthConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
@@ -115,7 +115,7 @@ public class SecurityAuthConfigServiceTest {
     public void verifyConnection_shouldFailInAbsenceOfPlugin() throws Exception {
         SecurityAuthConfig ldap = new SecurityAuthConfig("ldap", "cd.go.ldap");
 
-        when(extension.verifyConnection("cd.go.ldap", ldap.getConfigurationAsMap(true))).thenThrow(new PluginNotFoundException(""));
+        when(extension.verifyConnection("cd.go.ldap", ldap.getConfigurationAsMap(true))).thenThrow(new RecordNotFoundException(""));
 
         VerifyConnectionResponse response = securityAuthConfigService.verifyConnection(ldap);
 
@@ -148,7 +148,7 @@ public class SecurityAuthConfigServiceTest {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("some-id", "non-existent-plugin", create("key", false, "value"));
 
         Username username = new Username("username");
-        when(extension.validateAuthConfig(securityAuthConfig.getPluginId(), securityAuthConfig.getConfigurationAsMap(true))).thenThrow(new PluginNotFoundException("some error"));
+        when(extension.validateAuthConfig(securityAuthConfig.getPluginId(), securityAuthConfig.getConfigurationAsMap(true))).thenThrow(new RecordNotFoundException("some error"));
 
         securityAuthConfigService.create(username, securityAuthConfig, new HttpLocalizedOperationResult());
 
@@ -181,7 +181,7 @@ public class SecurityAuthConfigServiceTest {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("some-id", "non-existent-plugin", create("key", false, "value"));
 
         Username username = new Username("username");
-        when(extension.validateAuthConfig(securityAuthConfig.getPluginId(), securityAuthConfig.getConfigurationAsMap(true))).thenThrow(new PluginNotFoundException("plugin not found"));
+        when(extension.validateAuthConfig(securityAuthConfig.getPluginId(), securityAuthConfig.getConfigurationAsMap(true))).thenThrow(new RecordNotFoundException("plugin not found"));
 
         securityAuthConfigService.update(username, "md5", securityAuthConfig, new HttpLocalizedOperationResult());
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfileRepre
 import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfilesRepresenter;
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -80,7 +81,7 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
             put(Routes.ElasticProfileAPI.ID, mimeType, this::update);
             delete(Routes.ElasticProfileAPI.ID, mimeType, this::destroy);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 

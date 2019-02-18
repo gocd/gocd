@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,12 @@
 
 package com.thoughtworks.go.config.exceptions;
 
-public class RecordNotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
 
-    public RecordNotFoundException() {
-    }
+public class RecordNotFoundException extends HttpException {
 
     public RecordNotFoundException(String message) {
-        super(message);
+        super(HttpStatus.NOT_FOUND, message);
     }
 
-    public RecordNotFoundException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public RecordNotFoundException(Throwable cause) {
-        super(cause);
-    }
-
-    public RecordNotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-    }
 }

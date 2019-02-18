@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 
 package com.thoughtworks.go.domain;
 
-import java.util.*;
-
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.PipelineGroupNotEmptyException;
-import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -29,6 +27,8 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.Pair;
+
+import java.util.*;
 
 @ConfigCollection(value = BasicPipelineConfigs.class)
 public class PipelineGroups extends BaseCollection<PipelineConfigs> implements Validatable {
@@ -75,7 +75,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
 
     public void deletePipeline(PipelineConfig pipelineConfig) {
         for (PipelineConfigs group : this) {
-            if(group.hasPipeline(pipelineConfig.name())){
+            if (group.hasPipeline(pipelineConfig.name())) {
                 group.remove(pipelineConfig);
                 return;
             }
@@ -95,14 +95,14 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
                 return pipelines;
             }
         }
-        throw new PipelineGroupNotFoundException("Failed to find the group [" + groupName + "]");
+        throw new RecordNotFoundException("Pipeline group with name " + groupName + " was not found!");
     }
 
     public boolean hasGroup(String groupName) {
         try {
             findGroup(groupName);
             return true;
-        } catch (PipelineGroupNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             return false;
         }
     }
@@ -147,7 +147,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
             for (PipelineConfig pipeline : group) {
                 for (PipelineConfig visitedPipeline : visited) {
                     if (visitedPipeline.name().equals(pipeline.name())) {
-                        if(!duplicates.containsKey(pipeline.name())){
+                        if (!duplicates.containsKey(pipeline.name())) {
                             duplicates.put(pipeline.name(), new HashSet<>());
                         }
                         duplicates.get(pipeline.name()).add(pipeline.getOriginDisplayName());
@@ -253,10 +253,9 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
 
     public PipelineGroups getLocal() {
         PipelineGroups locals = new PipelineGroups();
-        for(PipelineConfigs pipelineConfigs : this)
-        {
+        for (PipelineConfigs pipelineConfigs : this) {
             PipelineConfigs local = pipelineConfigs.getLocal();
-            if(local != null)
+            if (local != null)
                 locals.add(local);
         }
         return locals;
@@ -267,8 +266,9 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
         while (iterator.hasNext()) {
             PipelineConfigs currentGroup = iterator.next();
             if (currentGroup.isNamed(groupName)) {
-                if (!currentGroup.isEmpty())
-                    throw new PipelineGroupNotEmptyException("Failed to delete group [" + groupName + "] not empty");
+                if (!currentGroup.isEmpty()) {
+                    throw new UnprocessableEntityException("Failed to delete group " + groupName + " because it was not empty.");
+                }
                 iterator.remove();
                 break;
             }

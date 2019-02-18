@@ -41,8 +41,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import static spark.Spark.exception;
-
 abstract class AbstractUserAccessTokenControllerV1 extends ApiController implements SparkSpringController {
     protected final ApiAuthenticationHelper apiAuthenticationHelper;
     protected AccessTokenService accessTokenService;
@@ -86,12 +84,6 @@ abstract class AbstractUserAccessTokenControllerV1 extends ApiController impleme
     protected abstract List<AccessToken> allTokens(AccessTokenFilter filter);
 
     abstract Routes.FindUrlBuilder<Long> urlContext();
-
-    void addExceptionHandlers() {
-        exception(RecordNotFoundException.class, this::notFound);
-        exception(NotAuthorizedException.class, this::renderForbiddenResponse);
-        exception(ConflictException.class, this::renderConflictReponse);
-    }
 
     void verifyRequestIsNotUsingAccessToken(Request request, Response response) {
         AuthenticationToken<?> authenticationToken = SessionUtils.getAuthenticationToken(request.raw());

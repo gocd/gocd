@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -83,8 +83,8 @@ public class EnvironmentsConfigTest {
         try {
             configs.named(new CaseInsensitiveString("not-exist"));
             fail("Should throw exception if the environment does not exist");
-        } catch (NoSuchEnvironmentException e) {
-            assertThat(e.getMessage(), Matchers.is("Environment [not-exist] does not exist."));
+        } catch (RecordNotFoundException e) {
+            assertThat(e.getMessage(), Matchers.is("Environment named not-exist was not found!"));
         }
     }
 

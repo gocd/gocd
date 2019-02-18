@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,12 +17,14 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.InvalidAgentException;
-import com.thoughtworks.go.server.GoUnauthorizedException;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
@@ -177,7 +179,7 @@ public class ScheduleService {
                 serverHealthService.update(stageSchedulingSuccessfulState(pipelineName.toString(), CaseInsensitiveString.str(pipelineConfig.get(0).name())));
                 return pipelineInstance;
             }
-        } catch (PipelineNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             LOGGER.error("Could not find pipeline {}", pipelineName, e);
             pipelineScheduleQueue.clearPipeline(pipelineName);
         } catch (CannotScheduleException e) {
@@ -348,7 +350,7 @@ public class ScheduleService {
             if (result.canContinue()) {
                 String message = String.format("Job rerun request for job(s) [%s] could not be completed because of unexpected failure. Cause: %s", StringUtils.join(jobNames.toArray(), ", "),
                         e.getMessage());
-                result.internalServerError(message, healthStateForStage); 
+                result.internalServerError(message, healthStateForStage);
                 LOGGER.error(message, e);
             }
             return null;
@@ -775,11 +777,11 @@ public class ScheduleService {
         }
 
         public void noOperatePermission(String pipelineName, String stageName) {
-            throw new GoUnauthorizedException(noOperatePermissionMessage(pipelineName, stageName));
+            throw new NotAuthorizedException(noOperatePermissionMessage(pipelineName, stageName));
         }
 
         public void nullPipeline(String pipelineName, Integer pipelineCounter, String stageName) {
-            throw new PipelineInstanceNotFoundException(pipelineName, pipelineCounter);
+            throw new RecordNotFoundException(String.format("Pipeline instance [%s/%s] not found", pipelineName, pipelineCounter));
         }
 
         public void previousStageNotRun(String pipelineName, String stageName) {

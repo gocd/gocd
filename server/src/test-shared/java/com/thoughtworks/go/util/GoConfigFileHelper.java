@@ -17,7 +17,6 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
@@ -630,7 +629,7 @@ public class GoConfigFileHelper {
         return passwordFile;
     }
 
-    public void enableSecurity() throws IOException {
+    public void enableSecurity() {
         addSecurityAuthConfig(new SecurityAuthConfig(UUID.randomUUID().toString(), "plugin_id"));
     }
 
@@ -957,7 +956,7 @@ public class GoConfigFileHelper {
         addEnvironments(environmentNames.toArray(new String[environmentNames.size()]));
     }
 
-    public void addEnvironmentVariablesToEnvironment(String environmentName, String variableName, String variableValue) throws NoSuchEnvironmentException {
+    public void addEnvironmentVariablesToEnvironment(String environmentName, String variableName, String variableValue) {
         CruiseConfig config = loadForEdit();
         EnvironmentConfig env = config.getEnvironments().named(new CaseInsensitiveString(environmentName));
         env.addEnvironmentVariable(variableName, variableValue);

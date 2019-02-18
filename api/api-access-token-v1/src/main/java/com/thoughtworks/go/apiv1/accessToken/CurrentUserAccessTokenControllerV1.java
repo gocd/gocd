@@ -21,6 +21,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -75,7 +76,7 @@ public class CurrentUserAccessTokenControllerV1 extends AbstractUserAccessTokenC
             post(Routes.CurrentUserAccessToken.REVOKE, mimeType, this::revokeAccessToken);
             get(Routes.CurrentUserAccessToken.ID, mimeType, this::getAccessToken);
 
-            addExceptionHandlers();
+            exception(HttpException.class, this::httpException);
         });
     }
 

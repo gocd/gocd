@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -341,7 +342,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 });
             });
 
-        } catch (PipelineNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             removeJobIfNotPresentInCruiseConfig(goConfigService.getCurrentConfig(), job);
             throw e;
         }

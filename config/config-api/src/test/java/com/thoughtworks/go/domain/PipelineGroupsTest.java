@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.PipelineGroupNotEmptyException;
-import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -40,11 +40,7 @@ import java.util.regex.Pattern;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertThat;
 
@@ -175,7 +171,7 @@ public class PipelineGroupsTest {
         assertThat(pipelineGroups.findGroup("defaultGroup"), is(defaultGroup));
     }
 
-    @Test(expected = PipelineGroupNotFoundException.class)
+    @Test(expected = RecordNotFoundException.class)
     public void shouldThrowGroupNotFoundExceptionWhenSearchingForANonExistingGroup() {
         PipelineConfig pipeline = createPipelineConfig("pipeline1", "stage1");
         PipelineConfigs defaultGroup = createGroup("defaultGroup", pipeline);
@@ -321,7 +317,7 @@ public class PipelineGroupsTest {
         assertThat(groups.size(), is(0));
     }
 
-    @Test(expected = PipelineGroupNotEmptyException.class)
+    @Test(expected = UnprocessableEntityException.class)
     public void shouldThrowExceptionWhenDeletingGroupWhenNotEmpty() {
         PipelineConfig p1Config = createPipelineConfig("pipeline1", "stage1");
 

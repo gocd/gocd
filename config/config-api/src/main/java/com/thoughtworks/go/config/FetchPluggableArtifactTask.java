@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -162,7 +163,7 @@ public class FetchPluggableArtifactTask extends AbstractFetchTask {
             try {
                 dependencyMaterial = cruiseConfig.pipelineConfigByName(preprocessedTask.getTargetPipelineName());
                 isUpstreamAPipeline = true;
-            } catch (PipelineNotFoundException e) {
+            } catch (RecordNotFoundException e) {
                 // ignore
             }
         }

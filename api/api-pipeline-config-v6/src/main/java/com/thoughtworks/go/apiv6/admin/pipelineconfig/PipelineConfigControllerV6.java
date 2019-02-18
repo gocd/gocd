@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.PipelineConfigRepresenter;
 import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -114,7 +115,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
             put(Routes.PipelineConfig.NAME, mimeType, this::update);
             delete(Routes.PipelineConfig.NAME, mimeType, this::destroy);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 

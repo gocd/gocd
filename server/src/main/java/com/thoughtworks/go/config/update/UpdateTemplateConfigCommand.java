@@ -40,7 +40,8 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
                                        SecurityService securityService,
                                        LocalizedOperationResult result,
                                        String md5,
-                                       EntityHashingService entityHashingService, ExternalArtifactsService externalArtifactsService) {
+                                       EntityHashingService entityHashingService,
+                                       ExternalArtifactsService externalArtifactsService) {
         super(templateConfig, result, currentUser, externalArtifactsService);
         this.securityService = securityService;
         this.md5 = md5;

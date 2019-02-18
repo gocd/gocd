@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.ValidationException;
@@ -27,7 +28,6 @@ import com.thoughtworks.go.presentation.UserSearchModel;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
-import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.security.OnlyKnownUsersAllowedException;
 import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -257,7 +257,7 @@ public class UserService {
         try {
             userDao.deleteUser(username, byWhom);
             result.setMessage(LocalizedMessage.resourceDeleteSuccessful("user", username));
-        } catch (UserNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             result.notFound(resourceNotFound("User", username), general(GLOBAL));
         } catch (UserEnabledException e) {
             result.badRequest("User '" + username + "' is not disabled.");

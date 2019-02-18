@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,11 @@
 
 package com.thoughtworks.go.config.exceptions;
 
-public class UnprocessableEntityException extends RuntimeException {
+import org.springframework.http.HttpStatus;
 
-  public UnprocessableEntityException() {
-  }
+public class UnprocessableEntityException extends HttpException {
 
-  public UnprocessableEntityException(String message) {
-    super(message);
-  }
-
-  public UnprocessableEntityException(String message, Throwable cause) {
-    super(message, cause);
-  }
-
-  public UnprocessableEntityException(Throwable cause) {
-    super(cause);
-  }
-
-  public UnprocessableEntityException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-    super(message, cause, enableSuppression, writableStackTrace);
-  }
+    public UnprocessableEntityException(String message) {
+        super(HttpStatus.UNPROCESSABLE_ENTITY, message);
+    }
 }

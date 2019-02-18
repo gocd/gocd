@@ -20,7 +20,7 @@ import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.AddEnvironmentCommand;
 import com.thoughtworks.go.config.update.DeleteEnvironmentCommand;
 import com.thoughtworks.go.config.update.PatchEnvironmentCommand;
@@ -137,7 +137,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return configs;
     }
 
-    public List<CaseInsensitiveString> pipelinesFor(final CaseInsensitiveString environmentName) throws NoSuchEnvironmentException {
+    public List<CaseInsensitiveString> pipelinesFor(final CaseInsensitiveString environmentName) {
         return environments.named(environmentName).getPipelineNames();
     }
 
@@ -163,11 +163,11 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         goConfigService.modifyEnvironments(agents, selections);
     }
 
-    public EnvironmentConfig named(String environmentName) throws NoSuchEnvironmentException {
+    public EnvironmentConfig named(String environmentName) {
         return environments.named(new CaseInsensitiveString(environmentName));
     }
 
-    public EnvironmentConfig getEnvironmentConfig(String environmentName) throws NoSuchEnvironmentException {
+    public EnvironmentConfig getEnvironmentConfig(String environmentName) {
         return environments.named(new CaseInsensitiveString(environmentName));
     }
 
@@ -198,7 +198,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
             CruiseConfig config = goConfigService.getMergedConfigForEditing();
             EnvironmentConfig env = environments.named(new CaseInsensitiveString(environmentName));
             edit = new ConfigElementForEdit<>(cloner.deepClone(env), config.getMd5());
-        } catch (NoSuchEnvironmentException e) {
+        } catch (RecordNotFoundException e) {
             result.badRequest(resourceNotFound("Environment", environmentName));
         }
         return edit;

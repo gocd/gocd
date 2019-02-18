@@ -18,7 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.exceptions.NoSuchRoleException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -53,7 +53,7 @@ public class RolesConfigBulkUpdateCommand implements EntityConfigUpdateCommand<R
             RoleConfig existingRole = rolesInConfig.findByNameAndType(new CaseInsensitiveString(operation.getRoleName()), RoleConfig.class);
             if (existingRole == null) {
                 result.unprocessableEntity(resourceNotFound("Role", operation.getRoleName()));
-                throw new NoSuchRoleException(operation.getRoleName());
+                throw new RecordNotFoundException(String.format("Role named %s was not found!", operation.getRoleName()));
             }
             existingRole.addUsersWithName(operation.getUsersToAdd());
             existingRole.removeUsersWithName(operation.getUsersToRemove());

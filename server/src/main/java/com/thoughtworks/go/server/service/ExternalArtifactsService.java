@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -46,7 +46,7 @@ public class ExternalArtifactsService {
                 ValidationResult validationResult = artifactExtension.validatePluggableArtifactConfig(pluginId, preprocessedPluggableArtifactConfig.getConfiguration().getConfigurationAsMap(true));
                 mapErrorsToConfiguration(validationResult, preprocessedPluggableArtifactConfig.getConfiguration(), preprocessedPluggableArtifactConfig);
 
-            } catch (PluginNotFoundException e) {
+            } catch (RecordNotFoundException e) {
                 preprocessedPluggableArtifactConfig.addError("pluginId", String.format("Plugin with id `%s` is not found.", pluginId));
             }
         } else {
@@ -74,7 +74,7 @@ public class ExternalArtifactsService {
                     ValidationResult validationResult = artifactExtension.validateFetchArtifactConfig(artifactStore.getPluginId(), preprocessedFetchPluggableArtifactTask.getConfiguration().getConfigurationAsMap(true));
                     mapErrorsToConfiguration(validationResult, preprocessedFetchPluggableArtifactTask.getConfiguration(), preprocessedFetchPluggableArtifactTask);
 
-                } catch (PluginNotFoundException e) {
+                } catch (RecordNotFoundException e) {
                     preprocessedFetchPluggableArtifactTask.addError("pluginId", String.format("Plugin with id `%s` is not found.", artifactStore.getPluginId()));
                 }
             } else {

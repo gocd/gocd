@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -166,10 +165,10 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return false;
     }
 
-    public EnvironmentConfig named(final CaseInsensitiveString envName) throws NoSuchEnvironmentException {
+    public EnvironmentConfig named(final CaseInsensitiveString envName) {
         EnvironmentConfig environmentConfig = find(envName);
         if (environmentConfig != null) return environmentConfig;
-        throw new NoSuchEnvironmentException(envName);
+        throw new RecordNotFoundException("Environment named " + envName + " was not found!");
     }
 
     public EnvironmentConfig find(CaseInsensitiveString envName) {

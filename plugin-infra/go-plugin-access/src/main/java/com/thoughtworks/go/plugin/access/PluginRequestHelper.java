@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.plugin.access;
 
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.plugin.api.request.DefaultGoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
@@ -37,7 +38,7 @@ public class PluginRequestHelper {
 
     public <T> T submitRequest(String pluginId, String requestName, PluginInteractionCallback<T> pluginInteractionCallback) {
         if (!pluginManager.isPluginOfType(extensionName, pluginId)) {
-            throw new PluginNotFoundException(format("Did not find '%s' plugin with id '%s'. Looks like plugin is missing", extensionName, pluginId));
+            throw new RecordNotFoundException(format("Did not find '%s' plugin with id '%s'. Looks like plugin is missing", extensionName, pluginId));
         }
         try {
             String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, extensionName, goSupportedVersions);

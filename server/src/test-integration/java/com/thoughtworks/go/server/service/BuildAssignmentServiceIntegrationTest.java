@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
@@ -427,7 +428,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         ScheduledPipelineLoader scheduledPipelineLoader = mock(ScheduledPipelineLoader.class);
         when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(pipeline.getFirstStage().getJobInstances().first().getId())).thenThrow(
-                new PipelineNotFoundException("thrown by mockPipelineService"));
+                new RecordNotFoundException("thrown by mockPipelineService"));
 
         GoConfigService mockGoConfigService = mock(GoConfigService.class);
         CruiseConfig config = configHelper.currentConfig();
@@ -443,8 +444,8 @@ public class BuildAssignmentServiceIntegrationTest {
 
         try {
             buildAssignmentService.assignWorkToAgent(agent(agentConfig));
-            fail("should have thrown PipelineNotFoundException");
-        } catch (PipelineNotFoundException e) {
+            fail("should have thrown RecordNotFoundException");
+        } catch (RecordNotFoundException e) {
             // ok
         }
 

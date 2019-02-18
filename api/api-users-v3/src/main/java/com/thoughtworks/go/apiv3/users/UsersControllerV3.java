@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -107,10 +107,11 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
     }
 
     public String show(Request req, Response res) throws Exception {
-        User user = userService.findUserByName(req.params("login_name"));
+        String loginName = req.params("login_name");
+        User user = userService.findUserByName(loginName);
 
         if (user.equals(new NullUser())) {
-            throw new RecordNotFoundException();
+            throw new RecordNotFoundException("User with login name " + loginName + " was not found!");
         }
 
         UserToRepresent toRepresent = getUserToRepresent(user, roleConfigService.getRolesForUser(Collections.singletonList(user.getUsername())));

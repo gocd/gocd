@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -165,7 +165,7 @@ public abstract class AbstractAuthenticationHelper {
     // https://github.com/gocd/gocd/issues/4477
     private boolean hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(CaseInsensitiveString pipelineName, Username username) {
         if (!goConfigService.hasPipelineNamed(pipelineName)) {
-            throw new RecordNotFoundException();
+            throw new RecordNotFoundException("Pipeline with name " + pipelineName + " was not found!");
         }
 
         if (securityService.isUserAdmin(username)) {

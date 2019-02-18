@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,17 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.PluginRoleConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
-import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class SecurityAuthConfigDeleteCommandTest {
@@ -62,7 +62,7 @@ public class SecurityAuthConfigDeleteCommandTest {
         assertThat(cruiseConfig.server().security().securityAuthConfigs(), is(empty()));
         SecurityAuthConfigDeleteCommand command = new SecurityAuthConfigDeleteCommand(null, authConfig, null, null, new HttpLocalizedOperationResult());
 
-        thrown.expect(PluginProfileNotFoundException.class);
+        thrown.expect(RecordNotFoundException.class);
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.server().security().securityAuthConfigs(), is(empty()));

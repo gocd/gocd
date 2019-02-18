@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.StageNotFoundException;
+import com.thoughtworks.go.config.exceptions.StageNotFoundException;
+import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.server.GoUnauthorizedException;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.PipelineService;
@@ -86,7 +86,7 @@ public class StageController {
             scheduleService.rerunStage(pipelineName, pipelineCounterValue.get(), stageName);
             return ResponseCodeView.create(HttpServletResponse.SC_OK, "");
 
-        } catch (GoUnauthorizedException e) {
+        } catch (NotAuthorizedException e) {
             return ResponseCodeView.create(HttpServletResponse.SC_FORBIDDEN, "");
         } catch (RecordNotFoundException e) {
             LOGGER.error("Error while rerunning {}/{}/{}", pipelineName, pipelineCounter, stageName, e);
@@ -108,7 +108,7 @@ public class StageController {
             HttpLocalizedOperationResult cancelResult = new HttpLocalizedOperationResult();
             scheduleService.cancelAndTriggerRelevantStages(stageId, SessionUtils.currentUsername(), cancelResult);
             return handleResult(cancelResult, response);
-        } catch (GoUnauthorizedException e) {
+        } catch (NotAuthorizedException e) {
             return ResponseCodeView.create(HttpServletResponse.SC_FORBIDDEN, e.getMessage());
         } catch (Exception e) {
             return ResponseCodeView.create(HttpServletResponse.SC_NOT_ACCEPTABLE, e.getMessage());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ import com.thoughtworks.go.apiv4.admin.templateconfig.representers.TemplateConfi
 import com.thoughtworks.go.apiv4.admin.templateconfig.representers.TemplatesConfigRepresenter;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplateToPipelines;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -111,7 +111,7 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
             put(Routes.PipelineTemplateConfig.NAME, mimeType, this::update);
             delete(Routes.PipelineTemplateConfig.NAME, mimeType, this::destroy);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 

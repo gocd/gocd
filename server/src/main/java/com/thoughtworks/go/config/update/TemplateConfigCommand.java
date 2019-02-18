@@ -18,7 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.exceptions.NoSuchTemplateException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -73,7 +73,7 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
             PipelineTemplateConfig pipelineTemplateConfig = cruiseConfig.findTemplate(templateConfig.name());
             if (pipelineTemplateConfig == null) {
                 result.notFound(resourceNotFound("Template", templateConfig.name()), notFound());
-                throw new NoSuchTemplateException(templateConfig.name());
+                throw new RecordNotFoundException("Template named " + templateConfig.name() + " was not found!");
             }
             return pipelineTemplateConfig;
         }

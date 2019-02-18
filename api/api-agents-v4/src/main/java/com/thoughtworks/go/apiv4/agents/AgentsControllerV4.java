@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,7 @@ import com.thoughtworks.go.apiv4.agents.representers.AgentBulkUpdateRequestRepre
 import com.thoughtworks.go.apiv4.agents.representers.AgentRepresenter;
 import com.thoughtworks.go.apiv4.agents.representers.AgentUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv4.agents.representers.AgentsRepresenter;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
@@ -92,7 +93,7 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
             delete(Routes.AgentsAPI.UUID, mimeType, this::deleteAgent);
             delete("", mimeType, this::bulkDeleteAgents);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.server.dao;
 
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
-import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.apache.commons.lang3.StringUtils;
@@ -164,7 +164,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         return (Boolean) transactionTemplate.execute((TransactionCallback) status -> {
             User user = findUser(username);
             if (user instanceof NullUser) {
-                throw new UserNotFoundException();
+                throw new RecordNotFoundException("User with login name " + username + " was not found!");
             }
             if (user.isEnabled()) {
                 throw new UserEnabledException();

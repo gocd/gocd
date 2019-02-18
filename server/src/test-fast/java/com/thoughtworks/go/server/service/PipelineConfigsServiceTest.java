@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.exceptions.PipelineGroupNotFoundException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.update.CreatePipelineConfigsCommand;
 import com.thoughtworks.go.config.update.DeletePipelineConfigsCommand;
@@ -41,10 +41,9 @@ import org.mockito.ArgumentCaptor;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class PipelineConfigsServiceTest {
@@ -91,7 +90,7 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldThrowExceptionWhenTheGroupIsNotFound_onGetXml() {
         String groupName = "non-existent-group_name";
-        when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenThrow(new PipelineGroupNotFoundException());
+        when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenThrow(new RecordNotFoundException("blah"));
 
         service.getXml(groupName, validUser, result);
 
@@ -170,7 +169,7 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldReturnUnsuccessfulResultWhenTheGroupIsNotFound_onUpdateXml() throws Exception {
         String groupName = "non-existent-group_name";
-        when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenThrow(new PipelineGroupNotFoundException());
+        when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenThrow(new RecordNotFoundException("blah"));
         when(goConfigService.configFileMd5()).thenReturn("md5");
 
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, "", "md5", validUser, result);

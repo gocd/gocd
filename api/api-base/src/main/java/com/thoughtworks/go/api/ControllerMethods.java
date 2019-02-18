@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,14 +21,11 @@ import com.thoughtworks.go.api.base.JsonOutputWriter;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.util.MessageJson;
-import com.thoughtworks.go.config.exceptions.ConflictException;
-import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.spark.RequestContext;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.springframework.http.HttpStatus;
 import spark.Request;
 import spark.Response;
 
@@ -36,9 +33,6 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.util.Objects;
 import java.util.function.Consumer;
-
-import static com.thoughtworks.go.api.util.HaltApiMessages.forbiddenMessage;
-import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage;
 
 public interface ControllerMethods {
 
@@ -75,18 +69,8 @@ public interface ControllerMethods {
         return NOTHING;
     }
 
-    default void notFound(RecordNotFoundException ex, Request req, Response res) {
-        res.status(HttpStatus.NOT_FOUND.value());
-        res.body(MessageJson.create(notFoundMessage()));
-    }
-
-    default void renderForbiddenResponse(NotAuthorizedException ex, Request req, Response res) {
-        res.status(HttpStatus.UNAUTHORIZED.value());
-        res.body(MessageJson.create(forbiddenMessage()));
-    }
-
-    default void renderConflictReponse(ConflictException ex, Request req, Response res) {
-        res.status(HttpStatus.CONFLICT.value());
+    default void httpException(HttpException ex, Request req, Response res) {
+        res.status(ex.getStatus().value());
         res.body(MessageJson.create(ex.getMessage()));
     }
 

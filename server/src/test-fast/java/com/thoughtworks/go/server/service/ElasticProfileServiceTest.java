@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
 import com.thoughtworks.go.domain.ElasticProfileUsage;
-import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -122,7 +121,7 @@ class ElasticProfileServiceTest {
         ElasticProfile elasticProfile = new ElasticProfile("some-id", "non-existent-plugin", create("key", false, "value"));
 
         Username username = new Username("username");
-        when(elasticAgentExtension.validate(elasticProfile.getPluginId(), elasticProfile.getConfigurationAsMap(true))).thenThrow(new PluginNotFoundException("some error"));
+        when(elasticAgentExtension.validate(elasticProfile.getPluginId(), elasticProfile.getConfigurationAsMap(true))).thenThrow(new RecordNotFoundException("some error"));
 
         elasticProfileService.create(username, elasticProfile, new HttpLocalizedOperationResult());
 
@@ -155,7 +154,7 @@ class ElasticProfileServiceTest {
         ElasticProfile elasticProfile = new ElasticProfile("some-id", "non-existent-plugin", create("key", false, "value"));
 
         Username username = new Username("username");
-        when(elasticAgentExtension.validate(elasticProfile.getPluginId(), elasticProfile.getConfigurationAsMap(true))).thenThrow(new PluginNotFoundException("some error"));
+        when(elasticAgentExtension.validate(elasticProfile.getPluginId(), elasticProfile.getConfigurationAsMap(true))).thenThrow(new RecordNotFoundException("some error"));
 
         elasticProfileService.update(username, "md5", elasticProfile, new HttpLocalizedOperationResult());
 

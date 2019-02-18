@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.config.ConfigRepoPlugin;
 import com.thoughtworks.go.config.GoConfigPluginService;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -71,7 +72,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
 
             get(Export.PIPELINES_PATH, mimeType, this::exportPipeline);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 

@@ -29,7 +29,7 @@ import com.thoughtworks.go.apiv2.environments.representers.EnvironmentsRepresent
 import com.thoughtworks.go.apiv2.environments.representers.PatchEnvironmentRequestRepresenter;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
@@ -92,7 +92,8 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
             put(Routes.Environments.NAME, mimeType, this::update);
             patch(Routes.Environments.NAME, mimeType, this::partialUpdate);
             delete(Routes.Environments.NAME, mimeType, this::remove);
-            exception(RecordNotFoundException.class, this::notFound);
+
+            exception(HttpException.class, this::httpException);
         });
     }
 
@@ -195,8 +196,8 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
     public EnvironmentConfig doFetchEntityFromConfig(String name) {
         try {
             return environmentConfigService.getEnvironmentConfig(name);
-        } catch (NoSuchEnvironmentException e) {
-            throw new RecordNotFoundException(e);
+        } catch (RecordNotFoundException e) {
+            throw new RecordNotFoundException("Environment with name " + name + " was not found!");
         }
     }
 

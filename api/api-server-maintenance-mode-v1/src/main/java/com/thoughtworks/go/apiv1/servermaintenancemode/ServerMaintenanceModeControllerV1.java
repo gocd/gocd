@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.servermaintenancemode.representers.MaintenanceModeInfoRepresenter;
-import com.thoughtworks.go.config.InvalidPluginTypeException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -95,7 +94,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
 
             get(Routes.MaintenanceMode.INFO, mimeType, this::getMaintenanceModeInfo);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 
@@ -127,7 +126,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
         return NOTHING;
     }
 
-    public String getMaintenanceModeInfo(Request req, Response res) throws InvalidPluginTypeException, IOException {
+    public String getMaintenanceModeInfo(Request req, Response res) throws IOException {
         ServerMaintenanceMode serverMaintenanceMode = maintenanceModeService.get();
 
         if (serverMaintenanceMode.isMaintenanceMode()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
-import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import org.hamcrest.Matchers;
@@ -384,7 +384,7 @@ public class UserSqlMapDaoIntegrationTest {
                 .list();
     }
 
-    @Test(expected = UserNotFoundException.class)
+    @Test(expected = RecordNotFoundException.class)
     public void shouldThrowExceptionWhenUserIsNotFound() {
         String userName = "invaliduser";
         userDao.deleteUser(userName, "currentUser");
@@ -405,7 +405,7 @@ public class UserSqlMapDaoIntegrationTest {
             userDao.deleteUser(userName, "currentUser");
             fail("should have failed");
         } catch (Exception e) {
-            assertThat(e instanceof UserNotFoundException, is(true));
+            assertThat(e instanceof RecordNotFoundException, is(true));
         }
         User addingTheUserNow = new User(userName);
         addingTheUserNow.disable();

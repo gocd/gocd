@@ -1009,6 +1009,8 @@ task newApi {
                       // change the line below to enable appropriate security
                       before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
                       // to be implemented
+                      
+                      exception(HttpException.class, this::httpException);
                   });
               }
 

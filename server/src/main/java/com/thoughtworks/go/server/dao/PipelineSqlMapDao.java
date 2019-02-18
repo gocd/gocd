@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.dao;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.PipelineNotFoundException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.*;
@@ -230,7 +230,7 @@ public class PipelineSqlMapDao extends SqlMapClientDaoSupport implements Initial
                 if (buildCause == null) {
                     Pipeline pipeline = findPipelineByNameAndCounter(name, counter);
                     if (pipeline == null) {
-                        throw new PipelineNotFoundException(String.format("Pipeline %s with counter %d was not found", name, counter));
+                        throw new RecordNotFoundException(String.format("Pipeline %s with counter %d was not found", name, counter));
                     }
                     loadMaterialRevisions(pipeline);
                     buildCause = pipeline.getBuildCause();

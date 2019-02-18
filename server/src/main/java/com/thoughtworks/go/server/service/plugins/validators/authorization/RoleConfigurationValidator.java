@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@
 package com.thoughtworks.go.server.service.plugins.validators.authorization;
 
 import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -45,7 +45,7 @@ public class RoleConfigurationValidator {
                     property.addError(error.getKey(), error.getMessage());
                 }
             }
-        } catch (PluginNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             role.addError("pluginRole", String.format("Unable to validate `pluginRole` configuration, missing plugin: %s", pluginId));
         }
     }

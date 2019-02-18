@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.PipelineNotFoundException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -35,7 +35,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
@@ -80,7 +79,7 @@ public class PipelineHistoryController {
             model.put("pipelineName", pipelineConfig.name());
             model.put("isEditableViaUI", goConfigService.isPipelineEditable(pipelineName));
             return new ModelAndView("pipeline/pipeline_history", model);
-        } catch (PipelineNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             model.put("errorMessage", e.getMessage());
             return new ModelAndView("exceptions_page", model);
         }

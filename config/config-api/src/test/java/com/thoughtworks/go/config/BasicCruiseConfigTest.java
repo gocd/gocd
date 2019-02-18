@@ -17,7 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.exceptions.PipelineGroupNotEmptyException;
+import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.preprocessor.ConfigParamPreprocessor;
@@ -411,7 +411,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         assertThat(config.getGroups().isEmpty(), is(true));
     }
 
-    @Test(expected = PipelineGroupNotEmptyException.class)
+    @Test(expected = UnprocessableEntityException.class)
     public void shouldNotDeletePipelineGroupIfNotEmpty() {
         PipelineConfigs group = createGroup("group", createPipelineConfig("pipeline", "stage"));
         CruiseConfig config = createCruiseConfig();

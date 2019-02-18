@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
@@ -186,7 +187,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         ROLE_FILTER_MAP.put("plugin", PluginRoleConfig.class);
     }
 
-    public RolesConfig ofType(String pluginType) throws InvalidPluginTypeException {
+    public RolesConfig ofType(String pluginType) {
         if (isBlank(pluginType)) {
             return this;
         }
@@ -194,7 +195,7 @@ public class RolesConfig extends BaseCollection<Role> implements Validatable {
         Class<? extends Role> roleClass = ROLE_FILTER_MAP.get(pluginType);
 
         if (roleClass == null) {
-            throw new InvalidPluginTypeException("Bad role type `" + pluginType + "`. Valid values are " + StringUtils.join(ROLE_FILTER_MAP.keySet(), ", "));
+            throw new BadRequestException("Bad role type `" + pluginType + "`. Valid values are " + StringUtils.join(ROLE_FILTER_MAP.keySet(), ", "));
         }
 
         return this.stream().filter(role -> role.getClass().isAssignableFrom(roleClass)).collect(Collectors.toCollection(RolesConfig::new));

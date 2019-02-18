@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,14 +17,12 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.RoleNotFoundException;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
@@ -39,7 +37,7 @@ public class RoleConfigDeleteCommand extends RoleConfigCommand {
     public void update(CruiseConfig preprocessedConfig) {
         preprocessedRole = findExistingRole(preprocessedConfig);
         if (preprocessedRole == null) {
-            throw new RoleNotFoundException();
+            throw new RecordNotFoundException("Role with name " + role.getName() + " does not exist!");
         }
 
         removeFromServerRole(preprocessedConfig, preprocessedRole);

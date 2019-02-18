@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,12 +23,12 @@ import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.configrepooperations.representers.PreflightResultRepresenter;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.plugin.access.PluginNotFoundException;
 import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException;
 import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -125,7 +125,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
                 gcs.validateCruiseConfig(config);
                 result.update(Collections.emptyList(), true);
             }
-        } catch (PluginNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             throw HaltApiResponses.haltBecauseNotFound(e.getMessage());
         } catch (InvalidPartialConfigException e) {
             result.update(Collections.singletonList(e.getErrors()), false);

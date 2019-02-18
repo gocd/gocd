@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoConfigRepresenterV1;
 import com.thoughtworks.go.apiv1.configrepos.representers.ConfigReposConfigRepresenterV1;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
@@ -80,7 +81,7 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
             put(ConfigRepos.UPDATE_PATH, mimeType, this::updateRepo);
             delete(ConfigRepos.DELETE_PATH, mimeType, this::deleteRepo);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 

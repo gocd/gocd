@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PluggableArtifactConfig;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
@@ -61,7 +61,7 @@ public class DeleteArtifactStoreConfigCommandTest {
         ArtifactStore artifactStore = new ArtifactStore("foo", "cd.go.docker");
         assertThat(cruiseConfig.getArtifactStores()).isEmpty();
 
-        thrown.expect(PluginProfileNotFoundException.class);
+        thrown.expect(RecordNotFoundException.class);
 
         new DeleteArtifactStoreConfigCommand(null, artifactStore, null, null, new HttpLocalizedOperationResult()).update(cruiseConfig);
 

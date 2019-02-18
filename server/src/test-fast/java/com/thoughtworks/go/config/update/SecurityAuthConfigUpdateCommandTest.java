@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,7 +53,7 @@ public class SecurityAuthConfigUpdateCommandTest {
     public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
         cruiseConfig.server().security().securityAuthConfigs().clear();
         SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(null, new SecurityAuthConfig("foo", "ldap"), null, null, new HttpLocalizedOperationResult(), null, null);
-        thrown.expect(PluginProfileNotFoundException.class);
+        thrown.expect(RecordNotFoundException.class);
         command.update(cruiseConfig);
     }
 

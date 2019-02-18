@@ -18,7 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.*;
@@ -411,7 +411,7 @@ public class EnvironmentConfigServiceTest {
     }
 
     @Test
-    public void getAllRemotePipelinesForUserInEnvironment_shouldReturnOnlyRemotelyAssignedPipelinesWhichUserHasPermsToView() throws NoSuchEnvironmentException {
+    public void getAllRemotePipelinesForUserInEnvironment_shouldReturnOnlyRemotelyAssignedPipelinesWhichUserHasPermsToView() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         Username user = new Username(new CaseInsensitiveString("user"));
 
@@ -433,7 +433,7 @@ public class EnvironmentConfigServiceTest {
     }
 
     @Test
-    public void shouldReturnEnvironmentConfigForEdit() throws NoSuchEnvironmentException {
+    public void shouldReturnEnvironmentConfigForEdit() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         CruiseConfig config = new BasicCruiseConfig();
         BasicEnvironmentConfig env = new BasicEnvironmentConfig(new CaseInsensitiveString("foo"));
@@ -491,7 +491,7 @@ public class EnvironmentConfigServiceTest {
         assertThat(environmentConfigService.getEnvironmentConfig(environmentName), is(expectedEnvironmentConfig));
     }
 
-    @Test(expected = NoSuchEnvironmentException.class)
+    @Test(expected = RecordNotFoundException.class)
     public void shouldThrowExceptionWhenEnvironmentIsAbsent() throws Exception {
         String environmentName = "foo-environment";
         String pipelineName = "up42";

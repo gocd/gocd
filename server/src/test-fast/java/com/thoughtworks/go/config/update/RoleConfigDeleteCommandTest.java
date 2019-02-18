@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,24 +17,21 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.RoleNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -106,7 +103,7 @@ public class RoleConfigDeleteCommandTest {
         assertThat(cruiseConfig.server().security().getRoles(), is(empty()));
         RoleConfigCommand command = new RoleConfigDeleteCommand(null, role, extension, null, new HttpLocalizedOperationResult());
 
-        thrown.expect(RoleNotFoundException.class);
+        thrown.expect(RecordNotFoundException.class);
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.server().security().getRoles(), is(empty()));

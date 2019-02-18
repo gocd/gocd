@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,7 +45,7 @@ public interface CrudController<Entity> extends ControllerMethods {
     default Entity fetchEntityFromConfig(String name) {
         Entity entity = doFetchEntityFromConfig(name);
         if (entity == null) {
-            throw new RecordNotFoundException();
+            throw new RecordNotFoundException("Entity with name " + name + " was not found!");
         }
         return entity;
     }

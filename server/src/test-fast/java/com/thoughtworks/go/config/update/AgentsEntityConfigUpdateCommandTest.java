@@ -19,9 +19,12 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
-import com.thoughtworks.go.config.exceptions.NoSuchAgentException;
-import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.ResourceConfig;
+import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -70,7 +73,7 @@ public class AgentsEntityConfigUpdateCommandTest {
     public void setUp() throws Exception {
         result = new HttpLocalizedOperationResult();
         currentUser = new Username(new CaseInsensitiveString("user"));
-        cruiseConfig = new GoConfigMother().defaultCruiseConfig();
+        cruiseConfig = GoConfigMother.defaultCruiseConfig();
         goConfigService = mock(GoConfigService.class);
         environmentConfigService = mock(EnvironmentConfigService.class);
         agentInstances = mock(AgentInstances.class);
@@ -123,8 +126,8 @@ public class AgentsEntityConfigUpdateCommandTest {
         environmentsToAdd.add("Dev");
         AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
 
-        exception.expect(NoSuchEnvironmentException.class);
-        exception.expectMessage("Environment [Dev] does not exist.");
+        exception.expect(RecordNotFoundException.class);
+        exception.expectMessage("Environment named Dev was not found!");
 
         command.update(cruiseConfig);
     }
@@ -137,7 +140,7 @@ public class AgentsEntityConfigUpdateCommandTest {
         when(agentInstances.findAgent("uuid-1")).thenReturn(agentInstance);
         AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
 
-        exception.expect(NoSuchAgentException.class);
+        exception.expect(RecordNotFoundException.class);
         exception.expectMessage("Agents [uuid-1] could not be found");
 
         command.update(cruiseConfig);

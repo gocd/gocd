@@ -122,7 +122,7 @@ public class UpdateTemplateConfigCommandTest {
     public void shouldThrowAnExceptionIfTemplateConfigNotFound() throws Exception {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
 
-        thrown.expectMessage("The template with name 'template' is not found.");
+        thrown.expectMessage("Template named template was not found!");
         command.update(cruiseConfig);
     }
 
@@ -178,7 +178,7 @@ public class UpdateTemplateConfigCommandTest {
     public void shouldNotContinueWithConfigSaveIfObjectIsNotFound() {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
 
-        thrown.expectMessage("The template with name 'template' is not found.");
+        thrown.expectMessage("Template named template was not found!");
         command.canContinue(cruiseConfig);
     }
 

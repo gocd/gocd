@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.remote.PartialConfig
-import com.thoughtworks.go.plugin.access.PluginNotFoundException
 import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException
 import com.thoughtworks.go.server.service.ConfigRepoService
 import com.thoughtworks.go.server.service.GoConfigService
@@ -102,7 +102,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
       @Test
       void "returns NOT FOUND when plugin does not exist"() {
         def plugin = mock(ConfigRepoPlugin.class)
-        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenThrow(new PluginNotFoundException("Not found"))
+        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenThrow(new RecordNotFoundException("Not found"))
         when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
         postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
 

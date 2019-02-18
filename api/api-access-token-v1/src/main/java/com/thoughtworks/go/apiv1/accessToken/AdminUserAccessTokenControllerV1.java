@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv1.accessToken;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
@@ -60,7 +61,7 @@ public class AdminUserAccessTokenControllerV1 extends AbstractUserAccessTokenCon
             post(Routes.AdminUserAccessToken.REVOKE, mimeType, this::revokeAccessToken);
             get(Routes.AdminUserAccessToken.ID, mimeType, this::getAccessToken);
 
-            addExceptionHandlers();
+            exception(HttpException.class, this::httpException);
         });
     }
 

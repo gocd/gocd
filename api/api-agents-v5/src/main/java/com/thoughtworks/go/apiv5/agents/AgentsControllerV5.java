@@ -32,7 +32,7 @@ import com.thoughtworks.go.apiv5.agents.representers.AgentBulkUpdateRequestRepre
 import com.thoughtworks.go.apiv5.agents.representers.AgentRepresenter;
 import com.thoughtworks.go.apiv5.agents.representers.AgentUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv5.agents.representers.AgentsRepresenter;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
@@ -92,7 +92,7 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
             delete(Routes.AgentsAPI.UUID, mimeType, this::deleteAgent);
             delete("", mimeType, this::bulkDeleteAgents);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 

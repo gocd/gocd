@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,8 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.buildcause.representers.BuildCauseRepresenter;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.service.PipelineHistoryService;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
@@ -67,7 +68,7 @@ public class BuildCauseController extends ApiController implements SparkSpringCo
 
             get("", mimeType, this::index);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 
@@ -78,7 +79,7 @@ public class BuildCauseController extends ApiController implements SparkSpringCo
         try {
             result = Integer.parseInt(req.params(":pipeline_counter"));
         } catch (NumberFormatException nfe) {
-            throw new RecordNotFoundException();
+            throw new BadRequestException("Parameter `pipeline_counter` must be an integer.");
         }
 
         String pipelineName = req.params("pipeline_name");

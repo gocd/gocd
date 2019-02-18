@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,10 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.PluginProfileNotFoundException;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang3.StringUtils;
 
@@ -90,7 +90,7 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
             T t = getPluginProfiles(cruiseConfig).find(profile.getId());
             if (t == null) {
                 result.notFound(resourceNotFound(getTagName(), profile.getId()), notFound());
-                throw new PluginProfileNotFoundException(getObjectDescriptor() + " `" + profile.getId() + "` does not exist.");
+                throw new RecordNotFoundException(getObjectDescriptor() + " `" + profile.getId() + "` does not exist.");
             }
             return t;
         }

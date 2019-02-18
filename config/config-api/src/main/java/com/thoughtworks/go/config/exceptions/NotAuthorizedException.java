@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.config.exceptions;
 
-public class NotAuthorizedException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class NotAuthorizedException extends HttpException {
     public NotAuthorizedException(String message) {
-        super(message);
+        super(HttpStatus.UNAUTHORIZED, message);
     }
 }

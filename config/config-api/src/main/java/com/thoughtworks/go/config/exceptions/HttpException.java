@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,12 +14,19 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.config.exceptions;
 
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import org.springframework.http.HttpStatus;
 
-public class PipelineInstanceNotFoundException extends RecordNotFoundException {
-    public PipelineInstanceNotFoundException(String pipelineName, Integer counter) {
-        super(String.format("Pipeline instance [%s/%s] not found", pipelineName, counter));
+public abstract class HttpException extends RuntimeException {
+    private final HttpStatus status;
+
+    HttpException(HttpStatus status, String message) {
+        super(message);
+        this.status = status;
+    }
+
+    public HttpStatus getStatus() {
+        return status;
     }
 }

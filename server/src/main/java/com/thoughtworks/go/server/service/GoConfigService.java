@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -72,7 +72,6 @@ import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
-import static java.util.stream.Collectors.toMap;
 
 @Service
 public class GoConfigService implements Initializer, CruiseConfigProvider {
@@ -176,7 +175,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         PipelineConfig pipelineConfig;
         try {
             pipelineConfig = pipelineConfigNamed(new CaseInsensitiveString(pipelineName));
-        } catch (PipelineNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             return false;
         }
         return pipelineConfig != null && pipelineConfig.isLocal() && isUserAdminOfGroup(username.getUsername(), findGroupNameByPipeline(pipelineConfig.name()));
@@ -568,7 +567,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         String translatedStageName = CaseInsensitiveString.str(stageConfig.name());
         JobConfig plan = stageConfig.jobConfigByInstanceName(identifier.getJobName(), true);
         if (plan == null) {
-            throw new JobNotFoundException(identifier.getPipelineName(), identifier.getStageName(), identifier.getJobName());
+            throw new RecordNotFoundException(format("Job '%s' not found in pipeline '%s' stage '%s'", identifier.getJobName(), identifier.getPipelineName(), identifier.getStageName()));
         }
         String translatedJobName = plan.translatedName(identifier.getJobName());
         return new JobConfigIdentifier(translatedPipelineName, translatedStageName, translatedJobName);
@@ -1003,7 +1002,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         PipelineConfig pipelineConfig;
         try {
             pipelineConfig = pipelineConfigNamed(pipelineName);
-        } catch (PipelineNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             return false;
         }
         return isOriginLocal(pipelineConfig.getOrigin());

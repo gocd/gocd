@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.Username;
@@ -38,12 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -117,7 +111,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldPointOutDuplicatePipelinesInAnEnvironmentOnEnvironmentUpdate() throws NoSuchEnvironmentException {
+    public void shouldPointOutDuplicatePipelinesInAnEnvironmentOnEnvironmentUpdate() {
         String pipelineName = "pipeline-1";
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig(pipelineName, "dev", "job"), "pipeline-1-grp");
         Username user = new Username(new CaseInsensitiveString("any"));
@@ -206,7 +200,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTheCorrectLocalizedMessageForUpdateWhenDuplicateEnvironmentExists_ForNewUpdateEnvironmentMethod() throws NoSuchEnvironmentException {
+    public void shouldReturnTheCorrectLocalizedMessageForUpdateWhenDuplicateEnvironmentExists_ForNewUpdateEnvironmentMethod() {
         configHelper.addEnvironments("foo-env");
         configHelper.addEnvironments("bar-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -219,7 +213,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTheCorrectLocalizedMessageForUpdateWhenStaleEtagIsProvided() throws NoSuchEnvironmentException {
+    public void shouldReturnTheCorrectLocalizedMessageForUpdateWhenStaleEtagIsProvided() {
         configHelper.addEnvironments("foo-env");
         configHelper.addEnvironments("bar-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -229,7 +223,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnBadRequestForUpdateWhenUsingInvalidEnvName_ForNewUpdateEnvironmentMethod_ForNewUpdateEnvironmentMethod() throws NoSuchEnvironmentException {
+    public void shouldReturnBadRequestForUpdateWhenUsingInvalidEnvName_ForNewUpdateEnvironmentMethod_ForNewUpdateEnvironmentMethod() {
         configHelper.addEnvironments("foo-env");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = entityHashingService.md5ForEntity(service.getEnvironmentConfig("foo-env"));
@@ -251,7 +245,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToDelete() throws IOException, NoSuchEnvironmentException {
+    public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToDelete() {
         configHelper.addEnvironments("foo");
         configHelper.enableSecurity();
         configHelper.addAdmins("super_hero");
@@ -288,7 +282,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToPatch() throws IOException, NoSuchEnvironmentException {
+    public void shouldReturnTheCorrectLocalizedMessageWhenUserDoesNotHavePermissionToPatch() {
         configHelper.addEnvironments("foo");
         configHelper.enableSecurity();
         configHelper.addAdmins("super_hero");
@@ -298,7 +292,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnAClonedInstanceOfEnvironmentConfig() throws NoSuchEnvironmentException {
+    public void shouldReturnAClonedInstanceOfEnvironmentConfig() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.addEnvironments("foo-env");
         assertThat(service.named("foo-env"), sameInstance(service.named("foo-env")));
@@ -307,7 +301,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldPopulateResultWithErrorIfEnvNotFound() throws NoSuchEnvironmentException {
+    public void shouldPopulateResultWithErrorIfEnvNotFound() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         ConfigElementForEdit<EnvironmentConfig> edit = service.getMergedEnvironmentforDisplay("foo-env", result);
         assertThat(result.message(), is("Environment 'foo-env' not found."));

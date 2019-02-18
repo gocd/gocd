@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
@@ -163,7 +164,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     public PipelineConfig getPipelineConfigByName(CaseInsensitiveString pipelineName) {
         try {
             return cruiseConfig.pipelineConfigByName(pipelineName);
-        } catch (PipelineNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             return null;
         }
     }

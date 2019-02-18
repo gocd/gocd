@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -26,7 +27,6 @@ import com.thoughtworks.go.presentation.UserSourceType;
 import com.thoughtworks.go.server.dao.UserDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
-import com.thoughtworks.go.server.exceptions.UserNotFoundException;
 import com.thoughtworks.go.server.service.result.BulkUpdateUsersOperationResult;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TestTransactionSynchronizationManager;
@@ -458,7 +458,7 @@ public class UserServiceTest {
     public void shouldFailWithErrorWhenDeletingAUserFails() {
         String username = "username";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(userDao.deleteUser(username, "currentUser")).thenThrow(new UserNotFoundException());
+        when(userDao.deleteUser(username, "currentUser")).thenThrow(new RecordNotFoundException("blah!"));
         userService.deleteUser(username, "currentUser", result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.hasMessage(), is(true));

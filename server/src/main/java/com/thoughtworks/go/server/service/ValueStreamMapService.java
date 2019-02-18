@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -93,7 +94,7 @@ public class ValueStreamMapService {
         try {
             pipelineName = pipelineNameWithSameCaseAsConfig(pipelineName, cruiseConfig);
             buildCauseForPipeline = pipelineService.buildCauseFor(pipelineName.toString(), counter);
-        } catch (PipelineNotFoundException e) {
+        } catch (RecordNotFoundException e) {
             result.notFound("Pipeline '" + pipelineName + "' with counter '" + counter + "' not found.", HealthStateType.general(HealthStateScope.forPipeline(pipelineName.toString())));
             return null;
         }

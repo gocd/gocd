@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerOptions
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerWithOptionsViewRepresenter
 import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.config.EnvironmentVariablesConfig
-import com.thoughtworks.go.config.PipelineNotFoundException
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.domain.JobResult
 import com.thoughtworks.go.domain.JobState
 import com.thoughtworks.go.domain.MaterialRevisions
@@ -346,7 +346,7 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
 
       @Test
       void 'should render 404 if bad pipeline is provided'() {
-        when(goConfigService.variablesFor("pipeline-that-is-not-present")).thenThrow(new PipelineNotFoundException())
+        when(goConfigService.variablesFor("pipeline-that-is-not-present")).thenThrow(new RecordNotFoundException("blah"))
 
         getWithApiHeader(Routes.Pipeline.triggerOptions('pipeline-that-is-not-present'))
 

@@ -46,6 +46,7 @@ public class AccessTokenService {
 
     public AccessToken.AccessTokenWithDisplayValue create(String description, String username, String authConfigId) {
         AccessToken.AccessTokenWithDisplayValue tokenToCreate = AccessToken.create(description, username, authConfigId, timeProvider);
+        tokenToCreate.validate(null);
         if (tokenToCreate.errors().isEmpty()) {
             accessTokenDao.saveOrUpdate(tokenToCreate);
         }

@@ -17,6 +17,8 @@
 import {MaintenanceModeInfo, MaintenanceModeInfoJSON} from "models/maintenance_mode/types";
 
 export class TestData {
+  static UPDATED_ON = "2018-12-10T04:19:31Z";
+
   static info(hasRunningSystems: boolean = true) {
     return MaintenanceModeInfo.fromJSON(this.infoJSON(hasRunningSystems) as MaintenanceModeInfoJSON);
   }
@@ -30,7 +32,7 @@ export class TestData {
       is_maintenance_mode: true,
       metadata: {
         updated_by: "Admin",
-        updated_on: "2018-12-10T04:19:31Z"
+        updated_on: this.UPDATED_ON
       },
       attributes: {
         has_running_systems: true,
@@ -47,7 +49,7 @@ export class TestData {
       is_maintenance_mode: hasRunningSystems,
       metadata: {
         updated_by: "Admin",
-        updated_on: "2018-12-10T04:19:31Z"
+        updated_on: this.UPDATED_ON
       },
       attributes: {
         has_running_systems: true,

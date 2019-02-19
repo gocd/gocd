@@ -24,6 +24,8 @@ describe("Maintenance Mode Widget", () => {
   const toggleMaintenanceMode = jasmine.createSpy("onToggle");
   const onCancelStage         = jasmine.createSpy("onCancelStage");
 
+  const TimeFormatter = require("helpers/time_formatter");
+
   beforeEach(() => {
     // @ts-ignore
     [$root, root] = window.createDomElementForTest();
@@ -48,7 +50,8 @@ describe("Maintenance Mode Widget", () => {
   });
 
   it("should provide the maintenance mode updated information", () => {
-    const expectedUpdatedByInfo = `${TestData.info().metdata.updatedBy} changed the maintenance mode state on ${TestData.info().metdata.updatedOn}.`;
+    const updatedOn             = TimeFormatter.format(TestData.UPDATED_ON);
+    const expectedUpdatedByInfo = `${TestData.info().metdata.updatedBy} changed the maintenance mode state on ${updatedOn}.`;
     expect(find("maintenance-mode-updated-by-info")).toContainText(expectedUpdatedByInfo);
   });
 

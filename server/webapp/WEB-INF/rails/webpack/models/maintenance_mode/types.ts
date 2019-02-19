@@ -206,11 +206,11 @@ export class RunningSystem {
 
 export class MaintenanceModeMetadata {
   updatedBy: string;
-  updatedOn: Date;
+  updatedOn: string;
 
   constructor(updatedBy: string, updatedOn: string) {
     this.updatedBy = updatedBy;
-    this.updatedOn = TimeFormatter.formatInDate(updatedOn);
+    this.updatedOn = TimeFormatter.format(updatedOn);
   }
 
   static fromJSON(json: MaintenanceModeMetadataJSON) {

@@ -71,7 +71,7 @@
                     fixed-delay="10000"/>
     <task:scheduled ref="accessTokenService" method="onTimer"
                     initial-delay="10000"
-                    fixed-delay="60000"/>
+                    fixed-delay="${gocd.accesstoken.lastused.update.interval}"/>
   </task:scheduled-tasks>
 
   <bean name="/remoteBuildRepository" class="org.springframework.remoting.httpinvoker.HttpInvokerServiceExporter"

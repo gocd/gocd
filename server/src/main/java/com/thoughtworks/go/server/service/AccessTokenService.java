@@ -25,17 +25,26 @@ import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.exceptions.RevokedAccessTokenException;
 import com.thoughtworks.go.util.Clock;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Service
 public class AccessTokenService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenService.class);
     private final Clock timeProvider;
 
     private final AccessTokenDao accessTokenDao;
     private final SecurityService securityService;
+    private final ConcurrentMap<Long, Timestamp> accessTokenIdToLastUsedTimestampCache = new ConcurrentHashMap<>();
 
     @Autowired
     public AccessTokenService(AccessTokenDao accessTokenDao, Clock clock, SecurityService securityService) {
@@ -113,5 +122,39 @@ public class AccessTokenService {
 
     public List<AccessToken> findAllTokensForAllUsers() {
         return accessTokenDao.findAllTokens();
+    }
+
+    public void updateLastUsedCacheWith(AccessToken accessToken) {
+        if (!securityService.isSecurityEnabled()) {
+            throw new UnsupportedOperationException("Security is disable. Updating cache is not allowed.");
+        }
+
+        synchronized (accessTokenIdToLastUsedTimestampCache) {
+            accessTokenIdToLastUsedTimestampCache.put(accessToken.getId(), timeProvider.currentTimestamp());
+        }
+    }
+
+    public void onTimer() {
+        if (!securityService.isSecurityEnabled()) {
+            LOGGER.debug("Security is disable. Not updating `LastUsedTime` in DB.");
+            return;
+        }
+
+        Map<Long, Timestamp> dataInCache = cloneAndClearCache();
+
+        if (dataInCache.isEmpty()) {
+            LOGGER.debug("Access token cache for `LastUsedTime` is empty.");
+            return;
+        }
+
+        accessTokenDao.updateLastUsedTime(dataInCache);
+    }
+
+    private Map<Long, Timestamp> cloneAndClearCache() {
+        synchronized (accessTokenIdToLastUsedTimestampCache) {
+            Map<Long, Timestamp> dataInCache = new HashMap<>(accessTokenIdToLastUsedTimestampCache);
+            accessTokenIdToLastUsedTimestampCache.clear();
+            return dataInCache;
+        }
     }
 }

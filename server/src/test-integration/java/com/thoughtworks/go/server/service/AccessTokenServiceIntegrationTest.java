@@ -67,7 +67,7 @@ public class AccessTokenServiceIntegrationTest {
     }
 
     @Test
-    public void shouldCreateAnAccessToken() throws Exception {
+    public void shouldCreateAnAccessToken() {
         String tokenDescription = "This is my first token";
 
         AccessToken.AccessTokenWithDisplayValue createdToken = accessTokenService.create(tokenDescription, "bob", authConfigId);
@@ -89,7 +89,7 @@ public class AccessTokenServiceIntegrationTest {
     }
 
     @Test
-    public void shouldGetAccessTokenProvidedTokenValue() throws Exception {
+    public void shouldGetAccessTokenProvidedTokenValue() {
         String tokenDescription = "This is my first Token";
 
         AccessToken.AccessTokenWithDisplayValue createdToken = accessTokenService.create(tokenDescription, "bob", authConfigId);
@@ -114,7 +114,7 @@ public class AccessTokenServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFailToGetAccessTokenWhenProvidedTokenHashEqualityFails() throws Exception {
+    public void shouldFailToGetAccessTokenWhenProvidedTokenHashEqualityFails() {
         long id = 42;
         String tokenDescription = "This is my first Token";
 
@@ -128,7 +128,7 @@ public class AccessTokenServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotGetAccessTokenProvidedTokenValueWhenTokenIsRevoked() throws Exception {
+    public void shouldNotGetAccessTokenProvidedTokenValueWhenTokenIsRevoked() {
         long id = 42;
         String tokenDescription = "This is my first Token";
 
@@ -141,7 +141,7 @@ public class AccessTokenServiceIntegrationTest {
     }
 
     @Test
-    public void shouldRevokeAnAccessToken() throws Exception {
+    public void shouldRevokeAnAccessToken() {
         String tokenDescription = "This is my first Token";
         AccessToken createdToken = accessTokenService.create(tokenDescription, "BOB", authConfigId);
 
@@ -156,7 +156,7 @@ public class AccessTokenServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFailToRevokeAnAlreadyRevokedAccessToken() throws Exception {
+    public void shouldFailToRevokeAnAlreadyRevokedAccessToken() {
         String tokenDescription = "This is my first Token";
         AccessToken createdToken = accessTokenService.create(tokenDescription, "BOB", authConfigId);
 
@@ -179,5 +179,19 @@ public class AccessTokenServiceIntegrationTest {
         assertThatCode(() -> accessTokenService.revokeAccessToken(id, "bOb", null))
                 .isInstanceOf(RecordNotFoundException.class)
                 .hasMessage("Cannot locate access token with id 42.");
+    }
+
+    @Test
+    public void shouldUpdateLastUsedTimeToDB() {
+        AccessToken createdToken = accessTokenService.create("This is my first Token", "BOB", authConfigId);
+        final AccessToken fetchedFromDB = accessTokenService.find(createdToken.getId(), createdToken.getUsername());
+        assertThat(fetchedFromDB.getLastUsed()).isNull();
+
+        accessTokenService.updateLastUsedCacheWith(createdToken);
+        accessTokenService.onTimer();
+
+        final AccessToken accessToken = accessTokenService.find(createdToken.getId(), createdToken.getUsername());
+
+        assertThat(accessToken.getLastUsed()).isNotNull();
     }
 }

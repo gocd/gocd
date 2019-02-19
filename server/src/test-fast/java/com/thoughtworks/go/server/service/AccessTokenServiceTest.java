@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.dao.AccessTokenDao;
@@ -26,8 +25,13 @@ import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.TestingClock;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+
+import java.sql.Timestamp;
+import java.util.Map;
 
 import static com.thoughtworks.go.helper.AccessTokenMother.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -118,6 +122,83 @@ class AccessTokenServiceTest {
 
         verify(accessTokenDao, times(1)).findAllTokensForUser(username);
         verifyNoMoreInteractions(accessTokenDao);
+    }
+
+    @Nested
+    class OnTimer {
+
+        private AccessToken accessToken;
+
+        @BeforeEach
+        void setUp() {
+            accessToken = mock(AccessToken.class);
+            when(accessToken.getId()).thenReturn(100L);
+
+        }
+
+        @Test
+        void doNothingWhenSecurityIsDisabled() {
+            when(securityService.isSecurityEnabled()).thenReturn(false);
+
+            accessTokenService.onTimer();
+
+            verifyZeroInteractions(accessTokenDao);
+        }
+
+        @Test
+        void doNothingIfAccessTokenIdToLastUsedTimestampCacheIsEmpty() {
+            when(securityService.isSecurityEnabled()).thenReturn(true);
+
+            accessTokenService.onTimer();
+
+            verifyZeroInteractions(accessTokenDao);
+        }
+
+        @Test
+        void shouldUpdateDBForAccessTokenIdToLastUsedTimestampCacheWhenThereIsData() {
+            when(securityService.isSecurityEnabled()).thenReturn(true);
+            accessTokenService.updateLastUsedCacheWith(accessToken);
+
+            accessTokenService.onTimer();
+
+            final ArgumentCaptor<Map<Long, Timestamp>> argumentCaptor = ArgumentCaptor.forClass(Map.class);
+            verify(accessTokenDao).updateLastUsedTime(argumentCaptor.capture());
+
+            final Map<Long, Timestamp> argument = argumentCaptor.getValue();
+            assertThat(argument)
+                    .hasSize(1)
+                    .containsEntry(100L, clock.currentTimestamp());
+        }
+    }
+
+    @Nested
+    class UpdateLastUsedCacheWith {
+        @Test
+        void shouldErrorOutWhenSecurityIsDisabled() {
+            when(securityService.isSecurityEnabled()).thenReturn(false);
+
+            assertThatCode(() -> accessTokenService.updateLastUsedCacheWith(mock(AccessToken.class)))
+                    .isInstanceOf(UnsupportedOperationException.class)
+                    .hasMessage("Security is disable. Updating cache is not allowed.");
+        }
+
+        @Test
+        void shouldUpdateCacheForAAccessToken() {
+            final AccessToken accessToken = mock(AccessToken.class);
+            when(accessToken.getId()).thenReturn(100L);
+            when(securityService.isSecurityEnabled()).thenReturn(true);
+
+            accessTokenService.updateLastUsedCacheWith(accessToken);
+            accessTokenService.onTimer();
+
+            final ArgumentCaptor<Map<Long, Timestamp>> argumentCaptor = ArgumentCaptor.forClass(Map.class);
+            verify(accessTokenDao).updateLastUsedTime(argumentCaptor.capture());
+
+            final Map<Long, Timestamp> argument = argumentCaptor.getValue();
+            assertThat(argument)
+                    .hasSize(1)
+                    .containsEntry(100L, clock.currentTimestamp());
+        }
     }
 
 }

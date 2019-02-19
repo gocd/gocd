@@ -18,8 +18,10 @@ package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AccessToken;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface AccessTokenDao {
     void saveOrUpdate(AccessToken accessToken);
@@ -35,4 +37,6 @@ public interface AccessTokenDao {
     AccessToken findAccessTokenBySaltId(String saltId);
 
     void revokeTokensBecauseOfUserDelete(Collection<String> usernames, String byWhom);
+
+    void updateLastUsedTime(Map<Long, Timestamp> accessTokenIdToLastUsedTimestamp);
 }

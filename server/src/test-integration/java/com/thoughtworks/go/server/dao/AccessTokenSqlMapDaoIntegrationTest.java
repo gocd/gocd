@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.dao;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.util.Clock;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.joda.time.DateTime;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,8 +28,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessToken;
@@ -180,5 +183,33 @@ public class AccessTokenSqlMapDaoIntegrationTest {
 
         assertThat(accessTokenSqlMapDao.loadForAdminUser(token.getId())).isEqualTo(token);
         assertThat(accessTokenSqlMapDao.loadNotDeletedTokenForUser(token.getId(), user)).isNull();
+    }
+
+    @Test
+    public void shouldUpdateLastUsedTimeForGivenTokens() {
+        AccessToken token1 = randomAccessTokenForUser("bob");
+        accessTokenSqlMapDao.saveOrUpdate(token1);
+        AccessToken token2 = randomAccessTokenForUser("bob");
+        accessTokenSqlMapDao.saveOrUpdate(token2);
+        assertThat(token1.getLastUsed()).isNull();
+        assertThat(token2.getLastUsed()).isNull();
+
+        final DateTime now = DateTime.now();
+        final Timestamp lastUsedTimeForToken1 = new Timestamp(now.getMillis());
+        now.plusHours(2);
+        final Timestamp lastUsedTimeForToken2 = new Timestamp(now.getMillis());
+
+        final HashMap<Long, Timestamp> accessTokenIdToLastUsedTimestamp = new HashMap<>();
+        accessTokenIdToLastUsedTimestamp.put(token1.getId(), lastUsedTimeForToken1);
+        accessTokenIdToLastUsedTimestamp.put(token2.getId(), lastUsedTimeForToken2);
+
+        accessTokenSqlMapDao.updateLastUsedTime(accessTokenIdToLastUsedTimestamp);
+
+        final List<AccessToken> allTokensForUser = accessTokenSqlMapDao.findAllTokensForUser("bob");
+        assertThat(allTokensForUser).hasSize(2);
+        assertThat(allTokensForUser.get(0).getLastUsed())
+                .isEqualTo(lastUsedTimeForToken1);
+        assertThat(allTokensForUser.get(1).getLastUsed())
+                .isEqualTo(lastUsedTimeForToken2);
     }
 }

@@ -96,6 +96,11 @@ public class AccessTokenAuthenticationFilterTest {
             when(securityService.isSecurityEnabled()).thenReturn(false);
         }
 
+        @AfterEach
+        void tearDown() {
+            verify(accessTokenService, never()).updateLastUsedCacheWith(any());
+        }
+
         @Test
         void shouldAllowAccessWhenCredentialsAreNotProvided() throws ServletException, IOException {
             request = HttpRequestBuilder.GET("/").build();
@@ -145,6 +150,7 @@ public class AccessTokenAuthenticationFilterTest {
             filter.doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(request, response);
+            verifyZeroInteractions(accessTokenService);
             assertThat(request.getSession(false)).isSameAs(originalSession);
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
             assertThat(response.getStatus()).isEqualTo(200);
@@ -163,6 +169,7 @@ public class AccessTokenAuthenticationFilterTest {
             filter.doFilter(request, response, filterChain);
 
             verifyZeroInteractions(filterChain);
+            verify(accessTokenService, never()).updateLastUsedCacheWith(any());
             assertThat(request.getSession(false)).isSameAs(originalSession);
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
             assertThat(response.getStatus()).isEqualTo(401);
@@ -183,6 +190,7 @@ public class AccessTokenAuthenticationFilterTest {
             filter.doFilter(request, response, filterChain);
 
             verify(filterChain).doFilter(request, response);
+            verify(accessTokenService).updateLastUsedCacheWith(accessToken);
             assertThat(request.getSession(false)).isNotSameAs(originalSession);
             assertThat(SessionUtils.getAuthenticationToken(request)).isEqualTo(authenticationToken);
             assertThat(response.getStatus()).isEqualTo(200);
@@ -203,6 +211,7 @@ public class AccessTokenAuthenticationFilterTest {
             assertThat(request.getSession(false)).isSameAs(originalSession);
 
             verify(authenticationProvider, never()).authenticate(any(), anyString());
+            verifyZeroInteractions(accessTokenService);
             assertThat(response.getStatus()).isEqualTo(200);
         }
     }

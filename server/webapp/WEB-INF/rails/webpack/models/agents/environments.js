@@ -21,10 +21,22 @@ const mrequest         = require('helpers/mrequest');
 const TriStateCheckbox = require('models/agents/tri_state_checkbox');
 const Routes           = require('gen/js-routes');
 
-const getSortedEnvironments = (environments, selectedAgents) => {
-  const selectedAgentsEnvironments = _.map(selectedAgents, (agent) => agent.environments());
+const shouldBeDisabled = (environmentName, selectedAgents) => {
+  if (!selectedAgents) {
+    return false;
+  }
+  return selectedAgents
+    .flatMap((agent) => agent.environments()) //all environments of selected agents
+    .filter((env) => env.name() === environmentName) //which have the right name
+    .map((env) => env.associatedFromConfigRepo()) //are they associated from configRepo
+    .reduce(((accumulator, currentValue) => currentValue || accumulator), false); //for at least one of the selected agents
+};
 
-  return _.map(environments.sort(), (environment) => new TriStateCheckbox(environment, selectedAgentsEnvironments));
+const getSortedEnvironments = (environments, selectedAgents) => {
+  const selectedAgentsEnvironmentNames = _.map(selectedAgents, (agent) => agent.environmentNames());
+
+  return _.map(environments.sort(), (environment) => new TriStateCheckbox(environment,
+    selectedAgentsEnvironmentNames, shouldBeDisabled(environment, selectedAgents)));
 };
 
 const Environments = {};

@@ -110,4 +110,14 @@ describe('TriStateCheckbox (Resource/Environment) Model', () => {
     expect(resource.isChecked()).toBe(true);
     expect(resource.isIndeterminate()).toBe(false);
   });
+
+  it("should be disabled if the disabled property is set", () => {
+    const resource = new TriStateCheckbox('Linux', [['Linux']], true);
+    expect(resource.disabled()).toBe(true);
+  });
+
+  it("should not be disabled if the disabled property is not set", () => {
+    const resource = new TriStateCheckbox('Linux', [['Linux']]);
+    expect(resource.disabled()).toBe(false);
+  });
 });

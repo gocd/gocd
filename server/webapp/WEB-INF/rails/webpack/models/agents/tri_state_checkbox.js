@@ -20,11 +20,12 @@ const isPresentOnAll = (setOfValues, value) => _.every(setOfValues, (values) => 
 
 const isPresentOnAny = (setOfValues, value) => _.some(setOfValues, (values) => _.includes(values, value));
 
-const TriStateCheckbox = function (value, setOfValues) {
+const TriStateCheckbox = function (value, setOfValues, disabled = false) {
   const isChecked       = isPresentOnAll(setOfValues, value);
   const isIndeterminate = !isChecked && isPresentOnAny(setOfValues, value);
 
-  this.name         = Stream(value);
+  this.name           = Stream(value);
+  this.disabled       = Stream(disabled);
   const checked       = Stream(isChecked);
   const indeterminate = Stream(isIndeterminate);
   const self          = this;

@@ -87,12 +87,6 @@
       var throttledFixElement   = _.throttle(fixElement, 100);
       var throttledUnFixElement = _.throttle(unFixElement, 100);
 
-      window.setInterval(function () {
-        maybeCallUsingRequestAnimationFrame(function () {
-          throttledFixElement(elem, opts);
-        });
-      }, 100);
-
       $(window).on('scroll.pinOnScroll', function () {
         maybeCallUsingRequestAnimationFrame(function () {
           throttledFixElement(elem, opts);
@@ -104,7 +98,7 @@
           throttledUnFixElement(elem, opts);
           throttledFixElement(elem, opts);
         });
-      })
+      });
 
       $(window).on('resetPinOnScroll', function (e, eParams) {
             if (eParams.calcRequiredScroll) {

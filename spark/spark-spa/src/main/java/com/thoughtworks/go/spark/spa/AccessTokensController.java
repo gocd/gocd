@@ -42,13 +42,13 @@ public class AccessTokensController implements SparkController {
   @Override
   public void setupRoutes() {
      path(controllerBasePath(), () -> {
-        before("", authenticationHelper::checkAdminUserAnd403);
+        before("", authenticationHelper::checkUserAnd403);
         get("", this::index, engine);
     });
   }
   public ModelAndView index(Request request, Response response) {
       Map<Object, Object> object = new HashMap<Object, Object>() {{
-          put("viewTitle", "AccessTokens");
+          put("viewTitle", "Access Tokens");
       }};
       return new ModelAndView(object, null);
   }

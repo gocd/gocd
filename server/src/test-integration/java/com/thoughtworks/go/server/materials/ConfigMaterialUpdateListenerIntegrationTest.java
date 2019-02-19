@@ -30,6 +30,7 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.*;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -46,11 +47,9 @@ import java.io.File;
 
 import static junit.framework.Assert.fail;
 import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -171,8 +170,9 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
     }
 
     private void assertInProgressState() throws InterruptedException {
+        HealthStateScope healthStateScope = HealthStateScope.forPartialConfigRepo(material.config().getFingerprint());
         int i = 0;
-        while (goRepoConfigDataSource.getRevisionAtLastAttempt(materialConfig) == null) {
+        while (serverHealthService.filterByScope(healthStateScope).isEmpty() && goRepoConfigDataSource.getRevisionAtLastAttempt(material.config()) == null) {
             if (!materialUpdateService.isInProgress(material))
                 Assert.fail("should be still in progress");
 

@@ -204,7 +204,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
 
     public String getRevisionAtLastAttempt(MaterialConfig material) {
         PartialConfigParseResult result = getLastParseResult(material);
-        if (result == null)
+        if (result == null || result.getLatestParsedModification() == null)
             return null;
 
         return result.getLatestParsedModification().getRevision();

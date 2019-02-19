@@ -30,6 +30,7 @@ const TriStateCheckboxWidget = {
                checked={args.triStateCheckbox.isChecked()}
                indeterminate={args.triStateCheckbox.isIndeterminate()}
                value={args.triStateCheckbox.name()}
+               disabled={args.triStateCheckbox.disabled()}
                onchange={args.triStateCheckbox.click}>
         </input>
         <label for={`checkbox-${args.index.toString()}`} title={args.triStateCheckbox.name()}>

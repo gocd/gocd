@@ -26,10 +26,9 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.PipelineConfigRepresenter;
 import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -72,6 +71,11 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
     @Override
     public String etagFor(PipelineConfig pipelineConfig) {
         return entityHashingService.md5ForEntity(pipelineConfig);
+    }
+
+    @Override
+    public EntityType getEntityType() {
+        return EntityType.Pipeline;
     }
 
     @Override
@@ -194,7 +198,7 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
         if (pipelineConfigService.getPipelineConfig(pipelineConfig.name().toString()) == null) {
             return;
         }
-        pipelineConfig.addError("name", LocalizedMessage.resourceAlreadyExists("pipeline", pipelineConfig.name().toString()));
+        pipelineConfig.addError("name",  EntityType.Pipeline.alreadyExists(pipelineConfig.name()));
         throw haltBecauseEntityAlreadyExists(jsonWriter(pipelineConfig), "pipeline", pipelineConfig.getName());
     }
 }

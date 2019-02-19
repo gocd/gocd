@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.AddEnvironmentCommand;
@@ -42,7 +43,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 
 /**
  * @understands grouping of agents and pipelines within an environment
@@ -199,7 +199,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
             EnvironmentConfig env = environments.named(new CaseInsensitiveString(environmentName));
             edit = new ConfigElementForEdit<>(cloner.deepClone(env), config.getMd5());
         } catch (RecordNotFoundException e) {
-            result.badRequest(resourceNotFound("Environment", environmentName));
+            result.badRequest(EntityType.Environment.notFoundMessage(environmentName));
         }
         return edit;
     }
@@ -268,7 +268,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         DeleteEnvironmentCommand deleteEnvironmentCommand = new DeleteEnvironmentCommand(goConfigService, environmentConfig, username, actionFailed, result);
         update(deleteEnvironmentCommand, environmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("environment", environmentName));
+            result.setMessage(EntityType.Environment.deleteSuccessful(environmentName));
         }
     }
 

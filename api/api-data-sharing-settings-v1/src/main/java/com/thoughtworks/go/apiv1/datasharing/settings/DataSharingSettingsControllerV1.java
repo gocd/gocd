@@ -24,6 +24,7 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.datasharing.settings.representers.DataSharingSettingsRepresenter;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.datasharing.DataSharingNotification;
@@ -114,8 +115,13 @@ public class DataSharingSettingsControllerV1 extends ApiController implements Sp
     }
 
     @Override
+    public EntityType getEntityType() {
+        throw new UnsupportedOperationException("Not implemented. Unlike other entities, data sharing has a single representation in the config.");
+    }
+
+    @Override
     public DataSharingSettings doFetchEntityFromConfig(String name) {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("Not implemented. Unlike other entities, data sharing has a single representation in the config.");
     }
 
     @Override

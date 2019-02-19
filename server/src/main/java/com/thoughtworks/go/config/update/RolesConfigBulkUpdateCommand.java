@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -28,7 +29,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class RolesConfigBulkUpdateCommand implements EntityConfigUpdateCommand<RolesConfig> {
@@ -52,8 +52,8 @@ public class RolesConfigBulkUpdateCommand implements EntityConfigUpdateCommand<R
         for (GoCDRolesBulkUpdateRequest.Operation operation : goCDRolesBulkUpdateRequest.getOperations()) {
             RoleConfig existingRole = rolesInConfig.findByNameAndType(new CaseInsensitiveString(operation.getRoleName()), RoleConfig.class);
             if (existingRole == null) {
-                result.unprocessableEntity(resourceNotFound("Role", operation.getRoleName()));
-                throw new RecordNotFoundException(String.format("Role named %s was not found!", operation.getRoleName()));
+                result.unprocessableEntity(EntityType.Role.notFoundMessage(operation.getRoleName()));
+                throw new RecordNotFoundException(EntityType.Role, operation.getRoleName());
             }
             existingRole.addUsersWithName(operation.getUsersToAdd());
             existingRole.removeUsersWithName(operation.getUsersToRemove());

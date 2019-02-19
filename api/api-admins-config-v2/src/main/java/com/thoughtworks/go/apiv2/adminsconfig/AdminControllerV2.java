@@ -28,6 +28,7 @@ import com.thoughtworks.go.apiv2.adminsconfig.representers.AdminsConfigRepresent
 import com.thoughtworks.go.apiv2.adminsconfig.representers.BulkUpdateFailureResultRepresenter;
 import com.thoughtworks.go.apiv2.adminsconfig.representers.BulkUpdateRequestRepresenter;
 import com.thoughtworks.go.config.AdminsConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.service.AdminsConfigService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.BulkUpdateAdminsResult;
@@ -122,8 +123,13 @@ public class AdminControllerV2 extends ApiController implements SparkSpringContr
     }
 
     @Override
+    public EntityType getEntityType() {
+        throw new UnsupportedOperationException("Not implemented. Unlike other entities, AdminsConfig has a single representation in the config.");
+    }
+
+    @Override
     public AdminsConfig doFetchEntityFromConfig(String name) {
-        throw new RuntimeException("Not implemented. Unlike other entities, AdminsConfig has a single representation in the config.");
+        throw new UnsupportedOperationException("Not implemented. Unlike other entities, AdminsConfig has a single representation in the config.");
     }
 
     @Override

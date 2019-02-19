@@ -28,6 +28,7 @@ import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoreR
 import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoresRepresenter;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.ArtifactStores;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.ArtifactStoreService;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -64,6 +65,11 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
     @Override
     public String etagFor(ArtifactStore entityFromServer) {
         return entityHashingService.md5ForEntity(entityFromServer);
+    }
+
+    @Override
+    public EntityType getEntityType() {
+        return EntityType.ArtifactStore;
     }
 
     @Override

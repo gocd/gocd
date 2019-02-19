@@ -17,7 +17,11 @@
 package com.thoughtworks.go.server.service;
 
 import ch.qos.logback.classic.Level;
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineState;
@@ -166,7 +170,7 @@ public class PipelineLockServiceTest {
 
         when(pipelineStateDao.lockedPipelines()).thenReturn(asList("mingle", "twist"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("mingle"))).thenReturn(false);
-        when(cruiseConfig.isPipelineLockable("mingle")).thenThrow(new RecordNotFoundException("mingle not there"));
+        when(cruiseConfig.isPipelineLockable("mingle")).thenThrow(new RecordNotFoundException(EntityType.Pipeline, "mingle"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("twist"))).thenReturn(true);
         when(cruiseConfig.isPipelineLockable("twist")).thenReturn(false);
 
@@ -305,7 +309,7 @@ public class PipelineLockServiceTest {
 
         when(pipelineStateDao.lockedPipelines()).thenReturn(asList("pipeline1"));
         when(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("pipeline1"))).thenReturn(false);
-        when(cruiseConfig.isPipelineLockable("pipeline1")).thenThrow(new RecordNotFoundException("pipeline1 not found"));
+        when(cruiseConfig.isPipelineLockable("pipeline1")).thenThrow(new RecordNotFoundException(EntityType.Pipeline, "pipeline1"));
         doAnswer(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocation) throws Throwable {

@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
@@ -36,11 +37,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
-import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbiddenForPipeline;
+import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 
 @Service
 public class PipelinePauseService {
@@ -150,7 +149,7 @@ public class PipelinePauseService {
         if (cruiseConfig.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
             return false;
         }
-        result.notFound(resourceNotFound("pipeline", pipelineName), general(forPipeline(pipelineName)));
+        result.notFound(EntityType.Pipeline.notFoundMessage(pipelineName), general(forPipeline(pipelineName)));
         return true;
     }
 

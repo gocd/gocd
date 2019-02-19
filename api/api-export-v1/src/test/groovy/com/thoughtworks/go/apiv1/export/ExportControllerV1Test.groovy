@@ -18,11 +18,11 @@ package com.thoughtworks.go.apiv1.export
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.ConfigRepoPlugin
 import com.thoughtworks.go.config.GoConfigPluginService
 import com.thoughtworks.go.config.PipelineConfig
+import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.helper.PipelineConfigMother
 import com.thoughtworks.go.spark.ControllerTrait
@@ -196,7 +196,7 @@ class ExportControllerV1Test implements SecurityServiceTrait, ControllerTrait<Ex
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(EntityType.Pipeline.notFoundMessage("pipeline1"))
           .hasContentType(controller.mimeType)
       }
     }

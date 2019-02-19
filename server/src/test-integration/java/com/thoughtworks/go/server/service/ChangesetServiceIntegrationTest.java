@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.*;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -273,7 +274,7 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         changesetService.revisionsBetween("foo", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, true, false);
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("You do not have view permissions for pipeline 'foo'."));
+        assertThat(result.message(), is(EntityType.Pipeline.forbiddenToView("foo", "some_loser")));
         assertThat(result.httpCode(), is(403));
     }
 
@@ -282,7 +283,7 @@ public class ChangesetServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         changesetService.revisionsBetween("Pipeline_Not_Found", 1, 3, new Username(new CaseInsensitiveString("some_loser")), result, true, false);
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("pipeline 'Pipeline_Not_Found' not found."));
+        assertThat(result.message(), is(EntityType.Pipeline.notFoundMessage("Pipeline_Not_Found")));
         assertThat(result.httpCode(), is(404));
     }
 

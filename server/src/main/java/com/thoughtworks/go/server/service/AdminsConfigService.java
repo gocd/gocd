@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
-import static org.apache.commons.lang.StringUtils.join;
 
 @Component
 public class AdminsConfigService {

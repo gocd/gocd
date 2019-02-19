@@ -20,8 +20,8 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentsConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -62,7 +62,7 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand {
 
         boolean freshRequest =  hashingService.md5ForEntity(config).equals(md5);
         if (!freshRequest) {
-            result.stale(LocalizedMessage.staleResourceConfig("Environment", oldEnvironmentConfigName));
+            result.stale(EntityType.Environment.staleConfig(oldEnvironmentConfigName));
         }
         return freshRequest;
     }

@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -45,7 +46,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -119,7 +119,7 @@ public class DeletePackageConfigCommandTest {
         assertThat(command.canContinue(cruiseConfig), is(false));
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(forbiddenToEdit(), forbidden());
+        expectedResult.forbidden(EntityType.PackageDefinition.forbiddenToDelete(packageDefinition.getId(), currentUser.getUsername()), forbidden());
         assertThat(result, is(expectedResult));
     }
 

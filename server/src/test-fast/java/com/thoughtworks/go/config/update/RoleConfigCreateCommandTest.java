@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.config.RoleConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -42,11 +43,11 @@ public class RoleConfigCreateCommandTest {
     public void currentUserShouldBeAnAdminToAddRole() throws Exception {
         GoConfigService goConfigService = mock(GoConfigService.class);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Username viewUser = mock(Username.class);
+        Username viewUser = new Username("view");
 
         when(goConfigService.isUserAdmin(viewUser)).thenReturn(false);
 
-        RoleConfigCreateCommand command = new RoleConfigCreateCommand(goConfigService, null, viewUser, result);
+        RoleConfigCreateCommand command = new RoleConfigCreateCommand(goConfigService, new RoleConfig("some-role"), viewUser, result);
 
         assertFalse(command.canContinue(null));
         assertFalse(result.isSuccessful());

@@ -19,6 +19,8 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PluginRoleConfig;
+import com.thoughtworks.go.config.RoleConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -66,11 +68,11 @@ public class RoleConfigUpdateCommandTest {
     @Test
     public void currentUserShouldBeAnAdminToAddRole() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Username viewUser = mock(Username.class);
+        Username viewUser = new Username("view");
 
         when(goConfigService.isUserAdmin(viewUser)).thenReturn(false);
 
-        RoleConfigUpdateCommand command = new RoleConfigUpdateCommand(goConfigService, null, null, viewUser, result, mock(EntityHashingService.class), "md5");
+        RoleConfigUpdateCommand command = new RoleConfigUpdateCommand(goConfigService, new RoleConfig("some-role"), null, viewUser, result, mock(EntityHashingService.class), "md5");
 
         assertFalse(command.canContinue(null));
         assertFalse(result.isSuccessful());
@@ -90,7 +92,7 @@ public class RoleConfigUpdateCommandTest {
         RoleConfigCommand command = new RoleConfigUpdateCommand(goConfigService, updatedRole, null, currentUser, result, entityHashingService, "bad-md5");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo("Someone has modified the configuration for role config 'foo'. Please update your copy of the config with the changes."));
+        assertThat(result.message(), is(EntityType.Role.staleConfig(updatedRole.getName())));
     }
 
     @Test

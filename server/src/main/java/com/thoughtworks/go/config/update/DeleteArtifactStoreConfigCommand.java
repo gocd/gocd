@@ -62,8 +62,8 @@ public class DeleteArtifactStoreConfigCommand extends ArtifactStoreConfigCommand
         }
 
         if (!usedByPipelines.isEmpty()) {
-            result.unprocessableEntity(cannotDeleteResourceBecauseOfDependentPipelines(getObjectDescriptor().toLowerCase(), profile.getId(), pipelineNames));
-            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().toLowerCase(), profile.getId(), StringUtils.join(pipelineNames, ", ")));
+            result.unprocessableEntity(cannotDeleteResourceBecauseOfDependentPipelines(getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), pipelineNames));
+            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), StringUtils.join(pipelineNames, ", ")));
         }
         return true;
     }

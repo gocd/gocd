@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -38,8 +39,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -91,7 +92,7 @@ public class PluginProfileCommandTest {
         cruiseConfig.server().security().securityAuthConfigs().add(securityAuthConfig);
 
         PluginProfileCommand command = new StubSecurityAuthConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
-        thrown.expectMessage("some foo object id cannot be null.");
+        thrown.expectMessage(EntityType.ElasticProfile.idCannotBeBlank());
         command.isValid(cruiseConfig);
     }
 
@@ -135,8 +136,8 @@ public class PluginProfileCommandTest {
         }
 
         @Override
-        protected String getObjectDescriptor() {
-            return "some foo object";
+        protected EntityType getObjectDescriptor() {
+            return EntityType.ElasticProfile;
         }
 
         protected final boolean isAuthorized() {

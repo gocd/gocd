@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
@@ -57,17 +58,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditGroup;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -151,7 +145,7 @@ public class GoConfigServiceIntegrationTest {
         ConfigForEdit configForEdit = goConfigService.loadForEdit("non-existent-pipeline", new Username(new CaseInsensitiveString("loser")), result);
         assertThat(configForEdit, is(nullValue()));
         assertThat(result.httpCode(), is(404));
-        assertThat(result.message(), is("pipeline 'non-existent-pipeline' not found."));
+        assertThat(result.message(), is(EntityType.Pipeline.notFoundMessage("non-existent-pipeline")));
     }
 
     private void setupSecurity() throws IOException {
@@ -169,7 +163,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(goConfigService.loadForEdit("my-invalid-pipeline", new Username(new CaseInsensitiveString("root")), result), is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(404));
-        assertThat(result.message(), is("pipeline 'my-invalid-pipeline' not found."));
+        assertThat(result.message(), is(EntityType.Pipeline.notFoundMessage("my-invalid-pipeline")));
     }
 
     @Test
@@ -298,7 +292,7 @@ public class GoConfigServiceIntegrationTest {
         ConfigForEdit<PipelineConfigs> configForEdit = goConfigService.loadGroupForEditing("group_one", new Username(new CaseInsensitiveString("loser")), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Unauthorized to edit 'group_one' group."));
+        assertThat(result.message(), is(EntityType.PipelineGroup.forbiddenToEdit("group_one", "loser")));
         assertThat(configForEdit, is(nullValue()));
     }
 
@@ -310,7 +304,7 @@ public class GoConfigServiceIntegrationTest {
         ConfigForEdit<PipelineConfigs> configForEdit = goConfigService.loadGroupForEditing("group_foo", new Username(new CaseInsensitiveString("loser")), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Pipeline group 'group_foo' not found."));
+        assertThat(result.message(), is(EntityType.PipelineGroup.notFoundMessage("group_foo")));
         assertThat(configForEdit, is(nullValue()));
     }
 
@@ -498,7 +492,7 @@ public class GoConfigServiceIntegrationTest {
         final CruiseConfig[] configObtainedInCheckPermissions = new CruiseConfig[1];
         ConfigUpdateResponse response = goConfigService.updateConfigFromUI(new AddStageToPipelineCommand("secondStage") {
             public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
-                result.forbidden(forbiddenToEditGroup("groupName"), null);
+                result.forbidden(EntityType.PipelineGroup.forbiddenToEdit("groupName", Username.ANONYMOUS.getUsername()), null);
                 configObtainedInCheckPermissions[0] = cruiseConfig;
             }
         }, md5, Username.ANONYMOUS, result);
@@ -514,7 +508,7 @@ public class GoConfigServiceIntegrationTest {
         assertThat(response.getNode(), is(pipelineConfig));
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), is("Unauthorized to edit 'groupName' group."));
+        assertThat(result.message(), is(EntityType.PipelineGroup.forbiddenToEdit("groupName", "anonymous")));
     }
 
     @Test

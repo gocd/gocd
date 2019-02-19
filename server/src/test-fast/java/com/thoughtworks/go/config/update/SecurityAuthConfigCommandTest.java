@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -32,12 +33,9 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentMatchers;
 
-import java.util.Map;
-
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyMapOf;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -70,7 +68,7 @@ public class SecurityAuthConfigCommandTest {
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo("Unauthorized to edit."));
+        assertThat(result.message(), is(EntityType.SecurityAuthConfig.forbiddenToEdit(securityAuthConfig.getId(), currentUser.getUsername())));
     }
 
     @Test
@@ -97,7 +95,7 @@ public class SecurityAuthConfigCommandTest {
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo("Unauthorized to edit."));
+        assertThat(result.message(), is(EntityType.SecurityAuthConfig.forbiddenToEdit(securityAuthConfig.getId(), currentUser.getUsername())));
     }
 
     @Test
@@ -107,7 +105,7 @@ public class SecurityAuthConfigCommandTest {
         cruiseConfig.server().security().securityAuthConfigs().add(securityAuthConfig);
 
         SecurityAuthConfigCommand command = new SecurityAuthConfigCommandTest.StubCommand(goConfigService, securityAuthConfig, extension, currentUser, result);
-        thrown.expectMessage("Security auth config id cannot be null.");
+        thrown.expectMessage(EntityType.SecurityAuthConfig.idCannotBeBlank());
         command.isValid(cruiseConfig);
     }
 

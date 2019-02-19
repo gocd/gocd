@@ -28,6 +28,7 @@ import com.thoughtworks.go.apiv2.rolesconfig.representers.RoleRepresenter;
 import com.thoughtworks.go.apiv2.rolesconfig.representers.RolesRepresenter;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.RolesConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.update.GoCDRolesBulkUpdateRequest;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -167,6 +168,11 @@ public class RolesControllerV2 extends ApiController implements SparkSpringContr
     @Override
     public String etagFor(Role entityFromServer) {
         return entityHashingService.md5ForEntity(entityFromServer);
+    }
+
+    @Override
+    public EntityType getEntityType() {
+        return EntityType.Role;
     }
 
     public boolean isRenameAttempt(Role fromServer, Role fromRequest) {

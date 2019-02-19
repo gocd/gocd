@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
@@ -70,7 +71,7 @@ public class ArtifactStoreConfigCommandTest {
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), is("Unauthorized to edit."));
+        assertThat(result.message(), is(EntityType.ArtifactStore.forbiddenToEdit(artifactStore.getId(), currentUser.getUsername())));
     }
 
     @Test
@@ -95,7 +96,7 @@ public class ArtifactStoreConfigCommandTest {
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), is("Unauthorized to edit."));
+        assertThat(result.message(), is(EntityType.ArtifactStore.forbiddenToEdit(artifactStore.getId(), currentUser.getUsername())));
     }
 
     @Test
@@ -105,7 +106,7 @@ public class ArtifactStoreConfigCommandTest {
         cruiseConfig.getArtifactStores().add(artifactStore);
 
         StubCommand command = new StubCommand(goConfigService, artifactStore, extension, currentUser, result);
-        thrown.expectMessage("Artifact store id cannot be null.");
+        thrown.expectMessage(EntityType.ArtifactStore.idCannotBeBlank());
         command.isValid(cruiseConfig);
     }
 

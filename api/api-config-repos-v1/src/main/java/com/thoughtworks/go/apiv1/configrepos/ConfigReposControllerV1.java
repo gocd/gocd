@@ -25,8 +25,8 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoConfigRepresenterV1;
 import com.thoughtworks.go.apiv1.configrepos.representers.ConfigReposConfigRepresenterV1;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.server.service.ConfigRepoService;
@@ -148,6 +148,11 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
     @Override
     public String etagFor(ConfigRepoConfig repo) {
         return entityHashingService.md5ForEntity(repo);
+    }
+
+    @Override
+    public EntityType getEntityType() {
+        return EntityType.ConfigRepo;
     }
 
     @Override

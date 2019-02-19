@@ -16,12 +16,31 @@
 
 package com.thoughtworks.go.config.exceptions;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import org.springframework.http.HttpStatus;
+
+import java.util.List;
 
 public class RecordNotFoundException extends HttpException {
 
     public RecordNotFoundException(String message) {
         super(HttpStatus.NOT_FOUND, message);
+    }
+
+    public RecordNotFoundException(EntityType type, String id) {
+        this(type.notFoundMessage(id));
+    }
+
+    public RecordNotFoundException(EntityType type, CaseInsensitiveString id) {
+        this(type.notFoundMessage(id));
+    }
+
+    public RecordNotFoundException(EntityType type, long id) {
+        this(type.notFoundMessage(id));
+    }
+
+    public RecordNotFoundException(EntityType type, List<?> ids) {
+        this(type.notFoundMessage(ids));
     }
 
 }

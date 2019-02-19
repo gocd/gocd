@@ -32,8 +32,8 @@ import com.thoughtworks.go.apiv4.agents.representers.AgentBulkUpdateRequestRepre
 import com.thoughtworks.go.apiv4.agents.representers.AgentRepresenter;
 import com.thoughtworks.go.apiv4.agents.representers.AgentUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv4.agents.representers.AgentsRepresenter;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.server.service.AgentService;
@@ -162,6 +162,11 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
     @Override
     public String etagFor(AgentInstance entityFromServer) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public EntityType getEntityType() {
+        return EntityType.Agent;
     }
 
     @Override

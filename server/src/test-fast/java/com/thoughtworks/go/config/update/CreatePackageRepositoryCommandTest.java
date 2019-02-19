@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -29,7 +30,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -113,7 +113,7 @@ public class CreatePackageRepositoryCommandTest {
         CreatePackageRepositoryCommand command = new CreatePackageRepositoryCommand(goConfigService, packageRepositoryService, packageRepository, currentUser, result);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(forbiddenToEdit(), forbidden());
+        expectedResult.forbidden(EntityType.PackageRepository.forbiddenToEdit(packageRepository.getId(), currentUser.getUsername()), forbidden());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));

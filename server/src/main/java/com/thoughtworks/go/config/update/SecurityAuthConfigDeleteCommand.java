@@ -55,8 +55,8 @@ public class SecurityAuthConfigDeleteCommand extends SecurityAuthConfigCommand {
         }
 
         if (!usedByRolesConfig.isEmpty()) {
-            result.unprocessableEntity("Cannot delete the " + getObjectDescriptor().toLowerCase() + " '" + profile.getId() + "' as it is used by role(s): '" + usedByRolesConfig + "'");
-            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by role(s): %s.", getObjectDescriptor().toLowerCase(), profile.getId(), StringUtils.join(usedByRolesConfig, ", ")));
+            result.unprocessableEntity("Cannot delete the " + getObjectDescriptor().getEntityNameLowerCase() + " '" + profile.getId() + "' as it is used by role(s): '" + usedByRolesConfig + "'");
+            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by role(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), StringUtils.join(usedByRolesConfig, ", ")));
         }
         return true;
     }

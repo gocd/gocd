@@ -27,6 +27,8 @@ import com.thoughtworks.go.apiv3.users.representers.BulkDeletionFailureResultRep
 import com.thoughtworks.go.apiv3.users.representers.UserRepresenter;
 import com.thoughtworks.go.apiv3.users.representers.UsersRepresenter;
 import com.thoughtworks.go.config.RolesConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
@@ -96,6 +98,8 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
             patch(Routes.Users.USER_NAME, this.mimeType, this::patchUser);
             delete(Routes.Users.USER_NAME, this.mimeType, this::deleteUser);
             patch(Routes.Users.USER_STATE, this.mimeType, this::bulkUpdateUsersState);
+
+            exception(HttpException.class, this::httpException);
         });
     }
 
@@ -111,7 +115,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         User user = userService.findUserByName(loginName);
 
         if (user.equals(new NullUser())) {
-            throw new RecordNotFoundException("User with login name " + loginName + " was not found!");
+            throw new RecordNotFoundException(EntityType.User, loginName);
         }
 
         UserToRepresent toRepresent = getUserToRepresent(user, roleConfigService.getRolesForUser(Collections.singletonList(user.getUsername())));
@@ -137,7 +141,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
 
         User existingUser = userService.findUserByName(username);
         if (existingUser.equals(new NullUser())) {
-            throw haltBecauseNotFound();
+            throw new RecordNotFoundException(EntityType.User, username);
         }
 
         if (isRenameAttempted(req, userFromRequest)) {

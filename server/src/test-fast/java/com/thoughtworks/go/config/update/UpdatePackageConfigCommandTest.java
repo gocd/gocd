@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
@@ -32,7 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.*;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -98,7 +98,7 @@ public class UpdatePackageConfigCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         when(entityHashingService.md5ForEntity(oldPackageDefinition)).thenReturn("md5");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(forbiddenToEdit(), forbidden());
+        expectedResult.forbidden(EntityType.PackageDefinition.forbiddenToEdit(newPackageDefinition.getId(), currentUser.getUsername()), forbidden());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -112,7 +112,7 @@ public class UpdatePackageConfigCommandTest {
         when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         when(entityHashingService.md5ForEntity(oldPackageDefinition)).thenReturn("md5");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.stale(staleResourceConfig("package", oldPackageDefinition.getId()));
+        expectedResult.stale(EntityType.PackageDefinition.staleConfig(oldPackageDefinition.getId()));
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -239,7 +239,7 @@ public class UpdatePackageConfigCommandTest {
         newPackageDefinition.setRepository(new PackageRepository("id", "name", null, null));
         UpdatePackageConfigCommand command = new UpdatePackageConfigCommand(goConfigService, "old-package-id", newPackageDefinition, currentUser, "md5", this.entityHashingService, result, packageDefinitionService);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(resourceNotFound("Package Repository", "id"));
+        expectedResult.unprocessableEntity(EntityType.PackageRepository.notFoundMessage("id"));
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));

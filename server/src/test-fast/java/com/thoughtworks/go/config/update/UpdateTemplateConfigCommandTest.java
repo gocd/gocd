@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.domain.Username;
@@ -122,7 +123,7 @@ public class UpdateTemplateConfigCommandTest {
     public void shouldThrowAnExceptionIfTemplateConfigNotFound() throws Exception {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
 
-        thrown.expectMessage("Template named template was not found!");
+        thrown.expectMessage(EntityType.Template.notFoundMessage(pipelineTemplateConfig.name()));
         command.update(cruiseConfig);
     }
 
@@ -149,7 +150,7 @@ public class UpdateTemplateConfigCommandTest {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo("Unauthorized to edit."));
+        assertThat(result.message(), equalTo(EntityType.Template.forbiddenToEdit(pipelineTemplateConfig.name(), currentUser.getUsername())));
     }
 
     @Test
@@ -178,7 +179,7 @@ public class UpdateTemplateConfigCommandTest {
     public void shouldNotContinueWithConfigSaveIfObjectIsNotFound() {
         UpdateTemplateConfigCommand command = new UpdateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, "md5", entityHashingService, externalArtifactsService);
 
-        thrown.expectMessage("Template named template was not found!");
+        thrown.expectMessage(EntityType.Template.notFoundMessage(pipelineTemplateConfig.name()));
         command.canContinue(cruiseConfig);
     }
 

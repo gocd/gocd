@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.config.Admin;
@@ -281,7 +282,7 @@ public class UserServiceIntegrationTest {
         userService.create(Arrays.asList(foo), result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Failed to add user. The user 'fooUser' already exists."));
+        assertThat(result.message(), is(EntityType.User.alreadyExists("fooUser")));
     }
 
     @Test

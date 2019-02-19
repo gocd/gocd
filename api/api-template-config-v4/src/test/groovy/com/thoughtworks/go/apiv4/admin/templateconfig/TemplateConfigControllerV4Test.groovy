@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv4.admin.templateconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv4.admin.templateconfig.representers.TemplateConfigRepresenter
 import com.thoughtworks.go.apiv4.admin.templateconfig.representers.TemplatesConfigRepresenter
 import com.thoughtworks.go.config.*
@@ -163,7 +162,7 @@ class TemplateConfigControllerV4Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("non-existent-template"))
           .hasContentType(controller.mimeType)
 
       }
@@ -206,7 +205,7 @@ class TemplateConfigControllerV4Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("foo"))
           .hasContentType(controller.mimeType)
       }
 

@@ -199,7 +199,7 @@ class RolesControllerV2Test implements SecurityServiceTrait, ControllerTrait<Rol
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage('non-existent-security-auth-config'))
           .hasContentType(controller.mimeType)
       }
 
@@ -512,7 +512,7 @@ class RolesControllerV2Test implements SecurityServiceTrait, ControllerTrait<Rol
         deleteWithApiHeader(controller.controllerPath('/blackbird'))
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage('blackbird'))
           .hasContentType(controller.mimeType)
       }
 

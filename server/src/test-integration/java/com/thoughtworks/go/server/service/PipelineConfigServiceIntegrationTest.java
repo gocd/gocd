@@ -18,6 +18,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -31,7 +32,6 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.security.GoCipher;
@@ -652,10 +652,11 @@ public class PipelineConfigServiceIntegrationTest {
         int pipelineCountBefore = goConfigService.getAllPipelineConfigs().size();
         assertTrue(goConfigService.hasPipelineNamed(pipelineConfig.name()));
 
-        pipelineConfigService.deletePipelineConfig(new Username(new CaseInsensitiveString("unauthorized-user")), pipelineConfig, result);
+        CaseInsensitiveString userName = new CaseInsensitiveString("unauthorized-user");
+        pipelineConfigService.deletePipelineConfig(new Username(userName), pipelineConfig, result);
 
         assertFalse(result.isSuccessful());
-        assertThat(result.message(), is(LocalizedMessage.forbiddenToDelete("Pipeline", pipelineConfig.name())));
+        assertThat(result.message(), is(EntityType.Pipeline.forbiddenToDelete(pipelineConfig.name(), userName)));
         assertThat(result.httpCode(), is(403));
         int pipelineCountAfter = goConfigService.getAllPipelineConfigs().size();
         assertThat(pipelineCountAfter, is(pipelineCountBefore));

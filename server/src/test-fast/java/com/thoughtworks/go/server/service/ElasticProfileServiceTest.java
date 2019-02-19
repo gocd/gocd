@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
@@ -226,7 +227,7 @@ class ElasticProfileServiceTest {
         void shouldErrorOutWhenElasticProfileWithIdDoesNotExist() {
             final RecordNotFoundException recordNotFoundException = assertThrows(RecordNotFoundException.class, () -> elasticProfileService.getUsageInformation("unknown-profile-id"));
 
-            assertThat(recordNotFoundException.getMessage()).isEqualTo("Elastic profile with id 'unknown-profile-id' does not exist.");
+            assertThat(recordNotFoundException.getMessage()).isEqualTo(EntityType.ElasticProfile.notFoundMessage("unknown-profile-id"));
         }
     }
 }

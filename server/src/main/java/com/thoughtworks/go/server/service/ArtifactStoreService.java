@@ -18,10 +18,10 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.ArtifactStores;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.update.CreateArtifactStoreConfigCommand;
 import com.thoughtworks.go.config.update.DeleteArtifactStoreConfigCommand;
 import com.thoughtworks.go.config.update.UpdateArtifactStoreConfigCommand;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -61,7 +61,7 @@ public class ArtifactStoreService extends PluginProfilesService<ArtifactStore> {
     public void delete(Username currentUser, ArtifactStore newArtifactStore, LocalizedOperationResult result) {
         update(currentUser, newArtifactStore, result, new DeleteArtifactStoreConfigCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result));
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("artifactStore", newArtifactStore.getId()));
+            result.setMessage(EntityType.ArtifactStore.deleteSuccessful(newArtifactStore.getId()));
         }
     }
 

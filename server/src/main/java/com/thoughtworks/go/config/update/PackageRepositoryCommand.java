@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.server.domain.Username;
@@ -27,7 +28,6 @@ import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 import static com.thoughtworks.go.config.ErrorCollector.getAllErrors;
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public abstract class PackageRepositoryCommand implements EntityConfigUpdateCommand<PackageRepository> {
@@ -74,7 +74,7 @@ public abstract class PackageRepositoryCommand implements EntityConfigUpdateComm
 
     private boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
-            result.forbidden(forbiddenToEdit(), forbidden());
+            result.forbidden(EntityType.PackageRepository.forbiddenToEdit(repository.getId(), username.getUsername()), forbidden());
             return false;
         }
         return true;

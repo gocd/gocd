@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
@@ -24,7 +25,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 public class RoleConfigDeleteCommand extends RoleConfigCommand {
@@ -37,7 +37,7 @@ public class RoleConfigDeleteCommand extends RoleConfigCommand {
     public void update(CruiseConfig preprocessedConfig) {
         preprocessedRole = findExistingRole(preprocessedConfig);
         if (preprocessedRole == null) {
-            throw new RecordNotFoundException("Role with name " + role.getName() + " does not exist!");
+            throw new RecordNotFoundException(EntityType.Role, role.getName());
         }
 
         removeFromServerRole(preprocessedConfig, preprocessedRole);
@@ -50,7 +50,7 @@ public class RoleConfigDeleteCommand extends RoleConfigCommand {
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!roleExists(cruiseConfig)) {
-            result.notFound(resourceNotFound("role", role.getName()), notFound());
+            result.notFound(EntityType.Role.notFoundMessage(role.getName()), notFound());
             return false;
         }
         return super.canContinue(cruiseConfig);

@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.materials.Material;
@@ -27,7 +28,6 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.domain.Username;
@@ -42,7 +42,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 
@@ -74,12 +73,12 @@ public class ChangesetService {
     public List<MaterialRevision> revisionsBetween(String pipelineName, Integer fromCounter, Integer toCounter, Username username, HttpLocalizedOperationResult result, boolean skipCheckForMingle,
                                                    boolean showBisect) {
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
-            result.forbidden(LocalizedMessage.forbiddenToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.forbidden(EntityType.Pipeline.forbiddenToView(pipelineName, username.getUsername()), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return new ArrayList<>();
         }
 
         if (!goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            result.notFound(resourceNotFound("pipeline", pipelineName), general(forPipeline(pipelineName)));
+            result.notFound(EntityType.Pipeline.notFoundMessage(pipelineName), general(forPipeline(pipelineName)));
             return new ArrayList<>();
         }
 

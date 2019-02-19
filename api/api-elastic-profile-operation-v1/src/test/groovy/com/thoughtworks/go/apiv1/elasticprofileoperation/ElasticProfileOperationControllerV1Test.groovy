@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.elasticprofileoperation
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.domain.ElasticProfileUsage
 import com.thoughtworks.go.server.service.ElasticProfileService
@@ -104,14 +105,14 @@ class ElasticProfileOperationControllerV1Test implements SecurityServiceTrait, C
 
       @Test
       void 'should return 404 when profile with id does not exist'() {
-        when(elasticProfileService.getUsageInformation("docker")).thenThrow(new RecordNotFoundException("docker"))
+        when(elasticProfileService.getUsageInformation("docker")).thenThrow(new RecordNotFoundException(EntityType.ElasticProfile, "docker"))
 
         getWithApiHeader(controller.controllerPath("/docker/usages"))
 
         assertThatResponse()
           .isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage("Either the resource you requested was not found, or you are not authorized to perform this action.")
+          .hasJsonMessage(EntityType.ElasticProfile.notFoundMessage("docker"))
       }
     }
   }

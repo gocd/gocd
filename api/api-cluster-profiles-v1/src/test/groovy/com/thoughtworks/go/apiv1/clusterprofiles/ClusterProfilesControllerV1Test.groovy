@@ -399,7 +399,7 @@ class ClusterProfilesControllerV1Test implements SecurityServiceTrait, Controlle
         assertThatResponse()
           .isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage(notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("docker"))
       }
 
       @Test

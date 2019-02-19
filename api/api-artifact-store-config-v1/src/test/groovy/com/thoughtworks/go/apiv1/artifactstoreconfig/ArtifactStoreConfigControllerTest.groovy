@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.artifactstoreconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoreRepresenter
 import com.thoughtworks.go.apiv1.artifactstoreconfig.representers.ArtifactStoresRepresenter
 import com.thoughtworks.go.config.ArtifactStore
@@ -164,7 +163,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("non-existent-store"))
           .hasContentType(controller.mimeType)
       }
 
@@ -321,7 +320,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
 
         assertThatResponse().isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("test"))
       }
 
       @Test
@@ -410,7 +409,7 @@ class ArtifactStoreConfigControllerTest implements ControllerTrait<ArtifactStore
         deleteWithApiHeader(controller.controllerPath('/test'))
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("test"))
           .hasContentType(controller.mimeType)
       }
 

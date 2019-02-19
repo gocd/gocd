@@ -19,12 +19,14 @@ package com.thoughtworks.go.apiv1.configrepos;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoWithResultListRepresenter;
 import com.thoughtworks.go.apiv1.configrepos.representers.ConfigRepoWithResultRepresenter;
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.HttpException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
@@ -84,6 +86,7 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
             get(ConfigRepos.REPO_PATH, mimeType, this::showRepo);
             get(ConfigRepos.STATUS_PATH, mimeType, this::inProgress);
             post(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::triggerUpdate);
+            exception(HttpException.class, this::httpException);
         });
     }
 
@@ -137,10 +140,11 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
     }
 
     private ConfigRepoWithResult repoWithResultFromRequest(Request req) {
-        ConfigRepoConfig repo = service.getConfigRepo(req.params(":id"));
+        String repoId = req.params(":id");
+        ConfigRepoConfig repo = service.getConfigRepo(repoId);
 
         if (null == repo) {
-            throw HaltApiResponses.haltBecauseNotFound();
+            throw new RecordNotFoundException(EntityType.ConfigRepo, repoId);
         }
 
         PartialConfigParseResult result = dataSource.getLastParseResult(repo.getMaterialConfig());
@@ -149,10 +153,11 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
     }
 
     private ConfigRepoConfig repoFromRequest(Request req) {
-        ConfigRepoConfig repo = service.getConfigRepo(req.params(":id"));
+        String repoId = req.params(":id");
+        ConfigRepoConfig repo = service.getConfigRepo(repoId);
 
         if (null == repo) {
-            throw HaltApiResponses.haltBecauseNotFound();
+            throw new RecordNotFoundException(EntityType.ConfigRepo, repoId);
         }
 
         return repo;

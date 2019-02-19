@@ -18,13 +18,13 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.update.CreateConfigRepoCommand;
 import com.thoughtworks.go.config.update.DeleteConfigRepoCommand;
 import com.thoughtworks.go.config.update.UpdateConfigRepoCommand;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
@@ -92,7 +92,7 @@ public class ConfigRepoService {
 
         update(username, repoId, result, command);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("config repo", repoId));
+            result.setMessage(EntityType.ConfigRepo.deleteSuccessful(repoId));
         }
     }
 

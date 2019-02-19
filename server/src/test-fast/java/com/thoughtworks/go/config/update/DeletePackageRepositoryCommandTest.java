@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
@@ -32,7 +33,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -91,7 +91,7 @@ public class DeletePackageRepositoryCommandTest {
     @Test
     public void shouldNotContinueIfTheUserIsNotAdmin() throws Exception {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(forbiddenToEdit(), forbidden());
+        expectedResult.forbidden(EntityType.PackageRepository.forbiddenToDelete(packageRepository.getId(), currentUser.getUsername()), forbidden());
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, packageRepository, currentUser, result);
 

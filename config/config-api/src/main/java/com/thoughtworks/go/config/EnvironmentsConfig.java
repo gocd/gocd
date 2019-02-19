@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -168,7 +169,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     public EnvironmentConfig named(final CaseInsensitiveString envName) {
         EnvironmentConfig environmentConfig = find(envName);
         if (environmentConfig != null) return environmentConfig;
-        throw new RecordNotFoundException("Environment named " + envName + " was not found!");
+        throw new RecordNotFoundException(EntityType.Environment, envName);
     }
 
     public EnvironmentConfig find(CaseInsensitiveString envName) {

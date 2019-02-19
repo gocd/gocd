@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
@@ -39,10 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.is;
@@ -418,7 +416,7 @@ public class AgentConfigServiceIntegrationTest {
 
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(400));
-        assertThat(result.message(), is("Agent(s) '[invalid-uuid]' not found."));
+        assertThat(result.message(), is(EntityType.Agent.notFoundMessage(Collections.singletonList("invalid-uuid"))));
     }
 
     @Test
@@ -476,7 +474,7 @@ public class AgentConfigServiceIntegrationTest {
 
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(400));
-        assertThat(result.message(), is("Agent(s) '[invalid-uuid]' not found."));
+        assertThat(result.message(), is(EntityType.Agent.notFoundMessage(Collections.singletonList("invalid-uuid"))));
     }
 
     @Test
@@ -655,7 +653,7 @@ public class AgentConfigServiceIntegrationTest {
 
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(400));
-        assertThat(result.message(), containsString("Environment 'Non-Existing-Environment' not found."));
+        assertThat(result.message(), is(EntityType.Environment.notFoundMessage("Non-Existing-Environment")));
     }
 
     @Test
@@ -684,7 +682,7 @@ public class AgentConfigServiceIntegrationTest {
 
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(400));
-        assertThat(result.message(), containsString("Environment 'NonExistingEnvironment' not found."));
+        assertThat(result.message(), is(EntityType.Environment.notFoundMessage("NonExistingEnvironment")));
     }
 
     @Test

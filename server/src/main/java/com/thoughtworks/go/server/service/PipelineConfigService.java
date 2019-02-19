@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
@@ -26,7 +27,6 @@ import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.config.update.DeletePipelineConfigCommand;
 import com.thoughtworks.go.config.update.UpdatePipelineConfigCommand;
 import com.thoughtworks.go.domain.Task;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.presentation.CanDeleteResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -172,7 +172,7 @@ public class PipelineConfigService {
         DeletePipelineConfigCommand deletePipelineConfigCommand = new DeletePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result);
         update(currentUser, pipelineConfig, result, deletePipelineConfigCommand);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("pipeline", pipelineConfig.name()));
+            result.setMessage(EntityType.Pipeline.deleteSuccessful(pipelineConfig.name()));
         }
     }
 

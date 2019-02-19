@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -336,7 +337,7 @@ public class PatchEnvironmentCommandTest {
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.forbidden("Failed to access environment 'Dev'. User 'user' does not have permission to access environment.", HealthStateType.forbidden());
+        expectResult.forbidden(EntityType.Environment.forbiddenToEdit(environmentConfig.name(), currentUser.getUsername()), HealthStateType.forbidden());
         assertThat(result, is(expectResult));
     }
 }

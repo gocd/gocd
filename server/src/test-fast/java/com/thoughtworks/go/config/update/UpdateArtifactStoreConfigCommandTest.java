@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
@@ -93,6 +94,6 @@ public class UpdateArtifactStoreConfigCommandTest {
         UpdateArtifactStoreConfigCommand command = new UpdateArtifactStoreConfigCommand(goConfigService, newArtifactStore, null, currentUser, result, entityHashingService, "bad-md5");
 
         assertThat(command.canContinue(cruiseConfig)).isFalse();
-        assertThat(result.message()).isEqualTo("Someone has modified the configuration for Artifact store 'docker'. Please update your copy of the config with the changes.");
+        assertThat(result.message()).isEqualTo(EntityType.ArtifactStore.staleConfig(newArtifactStore.getId()));
     }
 }

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -28,14 +29,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentMatchers;
 
-import java.util.Map;
-
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -68,7 +64,7 @@ public class RoleConfigCommandTest {
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo("Unauthorized to edit."));
+        assertThat(result.message(), equalTo(EntityType.Role.forbiddenToEdit(role.getName(), currentUser.getUsername())));
     }
 
     @Test
@@ -95,7 +91,7 @@ public class RoleConfigCommandTest {
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo("Unauthorized to edit."));
+        assertThat(result.message(), equalTo(EntityType.Role.forbiddenToEdit(role.getName(), currentUser.getUsername())));
     }
 
     @Test

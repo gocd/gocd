@@ -47,7 +47,7 @@ public class CreatePipelineConfigCommandTest {
     public void setUp() {
         externalArtifactsService = mock(ExternalArtifactsService.class);
         goConfigService = mock(GoConfigService.class);
-        username = mock(Username.class);
+        username = new Username("view");
         localizedOperationResult = mock(LocalizedOperationResult.class);
         pipelineConfig = PipelineConfigMother.pipelineConfig("p1");
     }

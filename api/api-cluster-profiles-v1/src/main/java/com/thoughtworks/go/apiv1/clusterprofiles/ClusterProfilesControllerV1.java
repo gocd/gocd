@@ -27,6 +27,7 @@ import com.thoughtworks.go.apiv1.clusterprofiles.representers.ClusterProfileRepr
 import com.thoughtworks.go.apiv1.clusterprofiles.representers.ClusterProfilesRepresenter;
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -142,6 +143,11 @@ public class ClusterProfilesControllerV1 extends ApiController implements SparkS
     @Override
     public String etagFor(ClusterProfile entityFromServer) {
         return entityHashingService.md5ForEntity(entityFromServer);
+    }
+
+    @Override
+    public EntityType getEntityType() {
+        return EntityType.ClusterProfile;
     }
 
     @Override

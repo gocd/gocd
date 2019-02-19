@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
@@ -27,7 +28,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import java.util.Map;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public abstract class ElasticAgentProfileCommand extends PluginProfileCommand<ElasticProfile, ElasticProfiles> {
@@ -50,13 +50,13 @@ public abstract class ElasticAgentProfileCommand extends PluginProfileCommand<El
     }
 
     @Override
-    protected String getObjectDescriptor() {
-        return "Elastic agent profile";
+    protected EntityType getObjectDescriptor() {
+        return EntityType.ElasticProfile;
     }
 
     protected final boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
-            result.forbidden(forbiddenToEdit(), forbidden());
+            result.forbidden(EntityType.ElasticProfile.forbiddenToEdit(profile.getId(), currentUser.getUsername()), forbidden());
             return false;
         }
         return true;

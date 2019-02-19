@@ -18,6 +18,7 @@ package com.thoughtworks.go.api;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.util.MessageJson;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import spark.Request;
@@ -45,10 +46,12 @@ public interface CrudController<Entity> extends ControllerMethods {
     default Entity fetchEntityFromConfig(String name) {
         Entity entity = doFetchEntityFromConfig(name);
         if (entity == null) {
-            throw new RecordNotFoundException("Entity with name " + name + " was not found!");
+            throw new RecordNotFoundException(getEntityType(), name);
         }
         return entity;
     }
+
+    EntityType getEntityType();
 
     Entity doFetchEntityFromConfig(String name);
 

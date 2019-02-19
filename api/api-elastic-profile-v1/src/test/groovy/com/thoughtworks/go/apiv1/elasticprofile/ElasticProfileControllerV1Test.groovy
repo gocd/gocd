@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.elasticprofile
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfileRepresenter
 import com.thoughtworks.go.apiv1.elasticprofile.representers.ElasticProfilesRepresenter
 import com.thoughtworks.go.config.elastic.ElasticProfile
@@ -155,7 +154,7 @@ class ElasticProfileControllerV1Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("docker"))
           .hasContentType(controller.mimeType)
       }
 
@@ -399,7 +398,7 @@ class ElasticProfileControllerV1Test implements SecurityServiceTrait, Controller
         assertThatResponse()
           .isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage(notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("docker"))
       }
 
       @Test
@@ -515,7 +514,7 @@ class ElasticProfileControllerV1Test implements SecurityServiceTrait, Controller
         assertThatResponse()
           .isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage(notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("docker"))
       }
 
       @Test

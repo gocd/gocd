@@ -18,7 +18,10 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
-import com.thoughtworks.go.config.exceptions.*;
+import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
@@ -156,8 +159,8 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
             }
         }
         if (!unknownUUIDs.isEmpty()) {
-            result.badRequest(resourceNotFound("Agent(s)", unknownUUIDs.toString()));
-            throw new RecordNotFoundException(String.format("Agents [%s] could not be found", StringUtils.join(unknownUUIDs, ", ")));
+            result.badRequest(EntityType.Agent.notFoundMessage(unknownUUIDs));
+            throw new RecordNotFoundException(EntityType.Agent, unknownUUIDs);
         }
     }
 
@@ -165,8 +168,8 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         for (String environment : environmentsToOperate) {
             CaseInsensitiveString environmentName = new CaseInsensitiveString(environment);
             if (!allEnvironmentNames.contains(environmentName)) {
-                result.badRequest(resourceNotFound("Environment", environmentName));
-                throw new RecordNotFoundException("Environment named " + environmentName + " was not found!");
+                result.badRequest(EntityType.Environment.notFoundMessage(environmentName));
+                throw new RecordNotFoundException(EntityType.Environment, environmentName);
             }
         }
     }

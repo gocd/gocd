@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
@@ -133,7 +134,7 @@ public class PipelineConfigsService {
         DeletePipelineConfigsCommand deletePipelineConfigsCommand = new DeletePipelineConfigsCommand(pipelineConfigs, result, currentUser, securityService);
         update(currentUser, pipelineConfigs, result, deletePipelineConfigsCommand);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("Pipeline group", pipelineConfigs.getGroup()));
+            result.setMessage(EntityType.PipelineGroup.deleteSuccessful(pipelineConfigs.getGroup()));
         }
     }
 
@@ -145,11 +146,11 @@ public class PipelineConfigsService {
     private boolean userHasPermissions(Username username, String groupName, HttpLocalizedOperationResult result) {
         try {
             if (!securityService.isUserAdminOfGroup(username.getUsername(), groupName)) {
-                result.forbidden(forbiddenToEditGroup(groupName), forbiddenForGroup(groupName));
+                result.forbidden(EntityType.PipelineGroup.forbiddenToEdit(groupName, username.getUsername()), forbiddenForGroup(groupName));
                 return false;
             }
         } catch (Exception e) {
-            result.notFound(LocalizedMessage.resourceNotFound("Pipeline group", groupName), HealthStateType.general(HealthStateScope.forGroup(groupName)));
+            result.notFound(EntityType.PipelineGroup.notFoundMessage(groupName), HealthStateType.general(HealthStateScope.forGroup(groupName)));
             return false;
         }
         return true;

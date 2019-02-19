@@ -41,6 +41,7 @@ import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
@@ -127,7 +128,7 @@ public class AgentsEntityConfigUpdateCommandTest {
         AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
 
         exception.expect(RecordNotFoundException.class);
-        exception.expectMessage("Environment named Dev was not found!");
+        exception.expectMessage(EntityType.Environment.notFoundMessage("Dev"));
 
         command.update(cruiseConfig);
     }
@@ -141,7 +142,7 @@ public class AgentsEntityConfigUpdateCommandTest {
         AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
 
         exception.expect(RecordNotFoundException.class);
-        exception.expectMessage("Agents [uuid-1] could not be found");
+        exception.expectMessage(EntityType.Agent.notFoundMessage(Collections.singletonList("uuid-1")));
 
         command.update(cruiseConfig);
     }

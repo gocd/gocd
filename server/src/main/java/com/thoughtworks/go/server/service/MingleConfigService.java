@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.MingleConfig;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -42,7 +42,7 @@ public class MingleConfigService {
 
     public MingleConfig mingleConfigForPipelineNamed(String pipelineName, Username user, HttpLocalizedOperationResult result) {
         if (!securityService.hasViewPermissionForPipeline(user, pipelineName)) {
-            result.forbidden(LocalizedMessage.forbiddenToViewPipeline(pipelineName), HealthStateType.forbiddenForPipeline(pipelineName));
+            result.forbidden(EntityType.Pipeline.forbiddenToView(pipelineName, user.getUsername()), HealthStateType.forbiddenForPipeline(pipelineName));
             return null;
         }
         PipelineConfig pipelineConfig = goConfigService.pipelineConfigNamed(new CaseInsensitiveString(pipelineName));

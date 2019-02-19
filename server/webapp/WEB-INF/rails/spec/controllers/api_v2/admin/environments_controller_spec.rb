@@ -517,11 +517,11 @@ describe ApiV2::Admin::EnvironmentsController do
 
       it 'should render the error occurred while creating an environment' do
         expect(@environment_config_service).to receive(:createEnvironment).with(@environment_config, an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |env, user, result|
-          result.conflict(com.thoughtworks.go.i18n.LocalizedMessage::resourceAlreadyExists('environment', env.name));
+          result.conflict(com.thoughtworks.go.config.exceptions.EntityType::Environment.alreadyExists(env.name));
         end
 
         post_with_api_header :create, params:{:environment => {name: @environment_name, pipelines: [], agents: [], environment_variables: []}}
-        expect(response).to have_api_message_response(409, "Failed to add environment. The environment 'foo-environment' already exists.")
+        expect(response).to have_api_message_response(409, "Environment with name 'foo-environment' already exists!")
       end
     end
 

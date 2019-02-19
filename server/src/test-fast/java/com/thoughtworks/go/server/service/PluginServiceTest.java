@@ -18,12 +18,12 @@ package com.thoughtworks.go.server.service;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.EncryptedConfigurationValue;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.common.settings.GoPluginExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsConfiguration;
@@ -68,7 +68,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 
 public class PluginServiceTest {
     private PluginService pluginService;
-    @Mock
     private Username currentUser;
     @Mock
     private HttpLocalizedOperationResult result;
@@ -97,6 +96,7 @@ public class PluginServiceTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+        currentUser = new Username("bob");
 
         when(authorizationExtension.extensionName()).thenReturn(AUTHORIZATION_EXTENSION);
         when(elasticAgentExtension.extensionName()).thenReturn(ELASTIC_AGENT_EXTENSION);
@@ -335,7 +335,7 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(authorizationExtension, times(0)).notifyPluginSettingsChange(eq(authorizationPluginId), anyMap());
-        verify(result, times(1)).forbidden(eq(LocalizedMessage.forbiddenToEdit()), eq(HealthStateType.forbidden()));
+        verify(result, times(1)).forbidden(eq(EntityType.PluginSettings.forbiddenToEdit(pluginSettings.getPluginId(), currentUser.getUsername())), eq(HealthStateType.forbidden()));
         verifyNoMoreInteractions(result);
     }
 
@@ -395,7 +395,7 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(authorizationExtension, times(0)).notifyPluginSettingsChange(eq(authorizationPluginId), anyMap());
-        verify(result, times(1)).forbidden(eq(LocalizedMessage.forbiddenToEdit()), eq(HealthStateType.forbidden()));
+        verify(result, times(1)).forbidden(eq(EntityType.PluginSettings.forbiddenToEdit(authorizationPluginId, currentUser.getUsername())), eq(HealthStateType.forbidden()));
         verifyNoMoreInteractions(result);
 
     }
@@ -409,7 +409,7 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
-        verify(result, times(1)).notFound(eq("Plugin Settings 'cd.go.elastic-agent.docker' not found."), eq(HealthStateType.notFound()));
+        verify(result, times(1)).notFound(eq(EntityType.PluginSettings.notFoundMessage(elasticAgentPluginId)), eq(HealthStateType.notFound()));
         verifyNoMoreInteractions(result);
     }
 
@@ -423,7 +423,7 @@ public class PluginServiceTest {
 
         verify(pluginDao, times(0)).saveOrUpdate(any());
         verify(elasticAgentExtension, times(0)).notifyPluginSettingsChange(eq(elasticAgentPluginId), anyMap());
-        verify(result, times(1)).stale("Someone has modified the configuration for Plugin Settings 'cd.go.elastic-agent.docker'. Please update your copy of the config with the changes.");
+        verify(result, times(1)).stale(EntityType.PluginSettings.staleConfig(elasticAgentPluginId));
         verifyNoMoreInteractions(result);
     }
 

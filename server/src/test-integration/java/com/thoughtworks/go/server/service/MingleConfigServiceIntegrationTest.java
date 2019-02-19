@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -88,10 +89,11 @@ public class MingleConfigServiceIntegrationTest {
     @Test
     public void shouldNotAllowUnauthorizedUserToGetMingleConfig() {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        MingleConfig mingleConfig = mingleConfigService.mingleConfigForPipelineNamed("foo", new Username(new CaseInsensitiveString("some_loser")), result);
+        Username username = new Username(new CaseInsensitiveString("some_loser"));
+        MingleConfig mingleConfig = mingleConfigService.mingleConfigForPipelineNamed("foo", username, result);
         assertThat(mingleConfig, is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("You do not have view permissions for pipeline 'foo'."));
+        assertThat(result.message(), is(EntityType.Pipeline.forbiddenToView("foo", username.getUsername())));
         assertThat(result.httpCode(), is(403));
     }
 

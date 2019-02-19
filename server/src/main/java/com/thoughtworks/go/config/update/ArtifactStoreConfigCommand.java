@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.ArtifactStore;
 import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
@@ -27,7 +28,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import java.util.Map;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 abstract class ArtifactStoreConfigCommand extends PluginProfileCommand<ArtifactStore, ArtifactStores> {
@@ -49,15 +49,15 @@ abstract class ArtifactStoreConfigCommand extends PluginProfileCommand<ArtifactS
     }
 
     @Override
-    protected String getObjectDescriptor() {
-        return "Artifact store";
+    protected EntityType getObjectDescriptor() {
+        return EntityType.ArtifactStore;
     }
 
     protected final boolean isAuthorized() {
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;
         }
-        result.forbidden(forbiddenToEdit(), forbidden());
+        result.forbidden(EntityType.ArtifactStore.forbiddenToEdit(profile.getId(), currentUser.getUsername()), forbidden());
         return false;
     }
 

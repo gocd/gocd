@@ -25,6 +25,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.adminsconfig.representers.AdminsConfigRepresenter;
 import com.thoughtworks.go.config.AdminsConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.service.AdminsConfigService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -102,8 +103,13 @@ public class AdminControllerV1 extends ApiController implements SparkSpringContr
     }
 
     @Override
+    public EntityType getEntityType() {
+        throw new UnsupportedOperationException("Not implemented. Unlike other entities, AdminsConfig has a single representation in the config.");
+    }
+
+    @Override
     public AdminsConfig doFetchEntityFromConfig(String name) {
-        throw new RuntimeException("Not implemented. Unlike other entities, AdminsConfig has a single representation in the config.");
+        throw new UnsupportedOperationException("Not implemented. Unlike other entities, AdminsConfig has a single representation in the config.");
     }
 
     @Override

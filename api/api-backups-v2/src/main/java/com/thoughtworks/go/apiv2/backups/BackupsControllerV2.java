@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv2.backups.representers.BackupRepresenter;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.ServerBackup;
@@ -88,7 +89,7 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
         String backupId = request.params("id");
         ServerBackup backup = backupService.getServerBackup(backupId);
         if (null == backup) {
-            throw new RecordNotFoundException("");
+            throw new RecordNotFoundException(EntityType.Backup, backupId);
         }
         return writerForTopLevelObject(request, response, outputWriter -> BackupRepresenter.toJSON(outputWriter, backup));
     }

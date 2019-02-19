@@ -22,7 +22,9 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.apiv1.configrepooperations.representers.PreflightResultRepresenter;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -92,6 +94,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
             before(PREFLIGHT_PATH, mimeType, this::setMultipartUpload);
 
             post(PREFLIGHT_PATH, mimeType, this::preflight);
+            exception(HttpException.class, this::httpException);
         });
     }
 
@@ -126,7 +129,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
                 result.update(Collections.emptyList(), true);
             }
         } catch (RecordNotFoundException e) {
-            throw HaltApiResponses.haltBecauseNotFound(e.getMessage());
+            throw e;
         } catch (InvalidPartialConfigException e) {
             result.update(Collections.singletonList(e.getErrors()), false);
         } catch (GoConfigInvalidException e) {
@@ -190,7 +193,7 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
         ConfigRepoConfig repo = service.getConfigRepo(repoId);
 
         if (null == repo) {
-            throw HaltApiResponses.haltBecauseNotFound("Could not find a config-repo with id `%s`", repoId);
+            throw new RecordNotFoundException(EntityType.ConfigRepo, repoId);
         }
 
         return repo;

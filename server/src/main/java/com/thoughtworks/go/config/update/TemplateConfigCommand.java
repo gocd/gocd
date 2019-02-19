@@ -25,7 +25,7 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import java.util.List;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
+import static com.thoughtworks.go.config.exceptions.EntityType.Template;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 
@@ -72,8 +72,8 @@ public abstract class TemplateConfigCommand implements EntityConfigUpdateCommand
         } else {
             PipelineTemplateConfig pipelineTemplateConfig = cruiseConfig.findTemplate(templateConfig.name());
             if (pipelineTemplateConfig == null) {
-                result.notFound(resourceNotFound("Template", templateConfig.name()), notFound());
-                throw new RecordNotFoundException("Template named " + templateConfig.name() + " was not found!");
+                result.notFound(Template.notFoundMessage(templateConfig.name()), notFound());
+                throw new RecordNotFoundException(Template, templateConfig.name());
             }
             return pipelineTemplateConfig;
         }

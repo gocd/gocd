@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -88,7 +89,7 @@ class AddClusterProfileCommandTest {
 
     @Test
     void shouldSpecifyClusterProfileObjectDescriptor() {
-        assertThat(command.getObjectDescriptor()).isEqualTo("Cluster Profile");
+        assertThat(command.getObjectDescriptor()).isEqualTo(EntityType.ClusterProfile);
     }
 
     @Test

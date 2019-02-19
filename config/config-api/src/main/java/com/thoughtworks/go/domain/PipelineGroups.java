@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
@@ -95,7 +96,7 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
                 return pipelines;
             }
         }
-        throw new RecordNotFoundException("Pipeline group with name " + groupName + " was not found!");
+        throw new RecordNotFoundException(EntityType.PipelineGroup, groupName);
     }
 
     public boolean hasGroup(String groupName) {

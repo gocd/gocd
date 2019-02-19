@@ -37,7 +37,6 @@ import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
-import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage
 import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
@@ -116,7 +115,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
       }
     }
   }
@@ -180,7 +179,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
       }
     }
   }
@@ -296,7 +295,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
       }
     }
   }
@@ -402,7 +401,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
       }
     }
   }
@@ -521,7 +520,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         when(environmentConfigService.getEnvironments()).thenReturn(listOfEnvironmentConfigs)
 
         getWithApiHeader(controller.controllerBasePath())
-        
+
         def environmentsConfigSortedByName = new LinkedHashSet([devEnv, prodEnv, qaEnv])
         assertThatResponse()
           .hasBodyWithJsonObject(environmentsConfigSortedByName, EnvironmentsRepresenter)

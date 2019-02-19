@@ -18,6 +18,8 @@ package com.thoughtworks.go.config.exceptions;
 
 import org.springframework.http.HttpStatus;
 
+import java.util.Objects;
+
 public abstract class HttpException extends RuntimeException {
     private final HttpStatus status;
 
@@ -28,5 +30,18 @@ public abstract class HttpException extends RuntimeException {
 
     public HttpStatus getStatus() {
         return status;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        HttpException that = (HttpException) o;
+        return status == that.status;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(status);
     }
 }

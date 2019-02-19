@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
@@ -24,7 +27,6 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import static com.thoughtworks.go.config.update.PipelineConfigErrorCopier.copyErrors;
-import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
 
 public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
     private final EntityHashingService entityHashingService;
@@ -80,7 +82,7 @@ public class UpdatePipelineConfigCommand extends PipelineConfigCommand {
         boolean freshRequest = entityHashingService.md5ForEntity(cruiseConfig.getPipelineConfigByName(pipelineConfig.name())).equals(md5);
 
         if (!freshRequest) {
-            result.stale(staleResourceConfig("pipeline", pipelineConfig.name().toString()));
+            result.stale(EntityType.Pipeline.staleConfig(pipelineConfig.name()));
         }
 
         return freshRequest;

@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv5.agents
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.config.EnvironmentConfig
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.NullAgentInstance
@@ -257,7 +256,7 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
 
       assertThatResponse()
         .isNotFound()
-        .hasJsonMessage(HaltApiMessages.notFoundMessage())
+        .hasJsonMessage(controller.entityType.notFoundMessage("uuid2"))
         .hasContentType(controller.mimeType)
     }
   }

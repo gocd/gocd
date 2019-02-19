@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.dao;
 
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.NullUser;
 import com.thoughtworks.go.domain.User;
@@ -164,7 +165,7 @@ public class UserSqlMapDao extends HibernateDaoSupport implements UserDao {
         return (Boolean) transactionTemplate.execute((TransactionCallback) status -> {
             User user = findUser(username);
             if (user instanceof NullUser) {
-                throw new RecordNotFoundException("User with login name " + username + " was not found!");
+                throw new RecordNotFoundException(EntityType.User, username);
             }
             if (user.isEnabled()) {
                 throw new UserEnabledException();

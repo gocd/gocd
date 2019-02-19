@@ -17,10 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
-import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.config.exceptions.StageNotFoundException;
+import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -1039,7 +1036,7 @@ public class GoConfigServiceTest {
         CruiseConfig cruiseConfig = mock(CruiseConfig.class);
 
         when(goConfigDao.load()).thenReturn(cruiseConfig);
-        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("non_existing_pipeline"))).thenThrow(new RecordNotFoundException("Not found."));
+        when(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("non_existing_pipeline"))).thenThrow(new RecordNotFoundException(EntityType.Pipeline, "non_existing_pipeline"));
 
         assertFalse(goConfigService.canEditPipeline("non_existing_pipeline", null));
     }

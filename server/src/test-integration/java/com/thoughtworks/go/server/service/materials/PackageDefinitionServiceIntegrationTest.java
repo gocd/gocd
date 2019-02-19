@@ -17,11 +17,11 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -36,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
@@ -114,7 +113,7 @@ public class PackageDefinitionServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         String repositoryId = "Id";
-        expectedResult.unprocessableEntity(resourceNotFound("Package Repository", repositoryId));
+        expectedResult.unprocessableEntity(EntityType.PackageRepository.notFoundMessage( repositoryId));
 
         assertNull(service.find(packageUuid));
         service.createPackage(packageDefinition, repositoryId, user, result);
@@ -140,7 +139,7 @@ public class PackageDefinitionServiceIntegrationTest {
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.setMessage(LocalizedMessage.resourceDeleteSuccessful("package definition", packageDefinition.getId()));
+        expectedResult.setMessage(EntityType.PackageDefinition.deleteSuccessful(packageDefinition.getId()));
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId).getPackages().find(packageUuid), is(packageDefinition));
         service.deletePackage(packageDefinition, user, result);

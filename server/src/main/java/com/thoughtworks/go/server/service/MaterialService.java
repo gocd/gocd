@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -27,7 +28,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.server.domain.Username;
@@ -97,7 +97,7 @@ public class MaterialService {
                                                  Username username,
                                                  LocalizedOperationResult result) {
         if (!securityService.hasViewPermissionForPipeline(username, pipelineName)) {
-            result.forbidden(LocalizedMessage.forbiddenToViewPipeline(pipelineName), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
+            result.forbidden(EntityType.Pipeline.forbiddenToView(pipelineName, username.getUsername()), HealthStateType.general(HealthStateScope.forPipeline(pipelineName)));
             return new ArrayList<>();
         }
         try {

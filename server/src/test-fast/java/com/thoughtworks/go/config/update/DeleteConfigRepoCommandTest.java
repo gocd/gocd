@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -74,7 +75,7 @@ public class DeleteConfigRepoCommandTest {
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), equalTo("Unauthorized to edit."));
+        assertThat(result.message(), equalTo(EntityType.ConfigRepo.forbiddenToDelete(repoId, currentUser.getUsername())));
     }
 
     @Test

@@ -20,7 +20,7 @@ import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -48,7 +48,7 @@ public class AddEnvironmentCommand extends EnvironmentCommand  {
     private boolean doesEnvironmentAlreadyExist() {
         CaseInsensitiveString environmentName = environmentConfig.name();
         if (goConfigService.hasEnvironmentNamed(environmentName)) {
-            result.conflict(LocalizedMessage.resourceAlreadyExists("environment", environmentName));
+            result.conflict(EntityType.Environment.alreadyExists(environmentName));
             return true;
         }
         return false;

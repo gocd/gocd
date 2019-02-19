@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
@@ -43,7 +43,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.*;
+import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 
@@ -131,7 +131,7 @@ public class TemplateConfigService {
         DeleteTemplateConfigCommand command = new DeleteTemplateConfigCommand(templateConfig, result, securityService, currentUser, externalArtifactsService);
         update(currentUser, result, command, templateConfig);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("template", templateConfig.name().toString()));
+            result.setMessage(EntityType.Template.deleteSuccessful(templateConfig.name().toString()));
         }
     }
 
@@ -140,7 +140,7 @@ public class TemplateConfigService {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
-                result.unprocessableEntity(entityConfigValidationFailed("template", templateConfig.name(), e.getMessage()));
+                result.unprocessableEntity(EntityType.Template.entityConfigValidationFailed(templateConfig.name(), e.getMessage()));
             } else {
                 if (!result.hasMessage()) {
                     LOGGER.error(e.getMessage(), e);
@@ -189,7 +189,7 @@ public class TemplateConfigService {
     private boolean doesTemplateExist(String templateName, CruiseConfig cruiseConfig, HttpLocalizedOperationResult result) {
         TemplatesConfig templates = cruiseConfig.getTemplates();
         if (!templates.hasTemplateNamed(new CaseInsensitiveString(templateName))) {
-            result.notFound(resourceNotFound("Template", templateName), general(GLOBAL));
+            result.notFound(EntityType.Template.notFoundMessage(templateName), general(GLOBAL));
             return false;
         }
         return true;

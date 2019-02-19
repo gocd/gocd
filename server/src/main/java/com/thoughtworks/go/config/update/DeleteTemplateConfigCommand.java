@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplatesConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
@@ -29,7 +30,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import java.util.List;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
@@ -70,7 +70,7 @@ public class DeleteTemplateConfigCommand extends TemplateConfigCommand {
 
     private boolean isUserAuthorized() {
         if (!securityService.isAuthorizedToEditTemplate(templateConfig.name(), currentUser)) {
-            result.forbidden(forbiddenToEdit(), forbidden());
+            result.forbidden(EntityType.Template.forbiddenToDelete(templateConfig.name(), currentUser.getUsername()), forbidden());
             return false;
         }
         return true;

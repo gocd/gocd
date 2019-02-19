@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -428,7 +429,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
         ScheduledPipelineLoader scheduledPipelineLoader = mock(ScheduledPipelineLoader.class);
         when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(pipeline.getFirstStage().getJobInstances().first().getId())).thenThrow(
-                new RecordNotFoundException("thrown by mockPipelineService"));
+                new RecordNotFoundException(EntityType.Pipeline, fixture.pipelineName));
 
         GoConfigService mockGoConfigService = mock(GoConfigService.class);
         CruiseConfig config = configHelper.currentConfig();

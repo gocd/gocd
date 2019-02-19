@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.server.domain.Username;
@@ -26,7 +27,6 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PluggableScmService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM> {
@@ -77,7 +77,7 @@ public abstract class SCMConfigCommand implements EntityConfigUpdateCommand<SCM>
 
     private boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(currentUser) || goConfigService.isGroupAdministrator(currentUser.getUsername()))) {
-            result.forbidden(forbiddenToEdit(), forbidden());
+            result.forbidden(EntityType.SCM.forbiddenToEdit(globalScmConfig.getId(), currentUser.getUsername()), forbidden());
             return false;
         }
         return true;

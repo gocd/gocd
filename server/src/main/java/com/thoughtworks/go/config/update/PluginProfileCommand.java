@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
@@ -48,7 +49,7 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
 
     public abstract ValidationResult validateUsingExtension(final String pluginId, final Map<String, String> configuration);
 
-    protected abstract String getObjectDescriptor();
+    protected abstract EntityType getObjectDescriptor();
 
     @Override
     public void clearErrors() {
@@ -84,13 +85,13 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
             if (profile != null) {
                 profile.addError("id", getObjectDescriptor() + " cannot have a blank id.");
             }
-            result.unprocessableEntity("The " + getObjectDescriptor().toLowerCase() + " config is invalid. Attribute 'id' cannot be null.");
-            throw new IllegalArgumentException(getObjectDescriptor() + " id cannot be null.");
+            result.unprocessableEntity("The " + getObjectDescriptor().getEntityNameLowerCase() + " config is invalid. Attribute 'id' cannot be null.");
+            throw new IllegalArgumentException(getObjectDescriptor().idCannotBeBlank());
         } else {
             T t = getPluginProfiles(cruiseConfig).find(profile.getId());
             if (t == null) {
                 result.notFound(resourceNotFound(getTagName(), profile.getId()), notFound());
-                throw new RecordNotFoundException(getObjectDescriptor() + " `" + profile.getId() + "` does not exist.");
+                throw new RecordNotFoundException(getObjectDescriptor(), profile.getId());
             }
             return t;
         }

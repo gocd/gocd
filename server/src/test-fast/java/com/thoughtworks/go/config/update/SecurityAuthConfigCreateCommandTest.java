@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -72,7 +73,7 @@ public class SecurityAuthConfigCreateCommandTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
 
         thrown.expect(RecordNotFoundException.class);
-        thrown.expectMessage("Security auth config `foo` does not exist.");
+        thrown.expectMessage(EntityType.SecurityAuthConfig.notFoundMessage(newProfile.getId()));
         command.isValid(cruiseConfig);
         command.update(cruiseConfig);
         assertThat(newProfile.first().errors().size(), is(1));

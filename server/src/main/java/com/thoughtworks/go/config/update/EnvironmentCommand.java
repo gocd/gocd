@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
@@ -64,7 +65,7 @@ public abstract class EnvironmentCommand implements EntityConfigUpdateCommand<En
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!goConfigService.isAdministrator(username.getUsername())) {
-            result.forbidden(LocalizedMessage.forbiddenToEditResource("environment", environmentConfig.name(), username.getDisplayName()), HealthStateType.forbidden());
+            result.forbidden(EntityType.Environment.forbiddenToEdit(environmentConfig.name(), username.getUsername()), HealthStateType.forbidden());
             return false;
         }
         return true;

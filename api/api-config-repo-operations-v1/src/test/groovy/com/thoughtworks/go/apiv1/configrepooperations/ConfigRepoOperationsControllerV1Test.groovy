@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.configrepooperations
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.remote.PartialConfig
@@ -118,7 +119,7 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
 
         assertThatResponse().
           isNotFound().
-          hasJsonMessage("Could not find a config-repo with id `$REPO_ID`")
+          hasJsonMessage(EntityType.ConfigRepo.notFoundMessage(REPO_ID))
       }
 
       @Test

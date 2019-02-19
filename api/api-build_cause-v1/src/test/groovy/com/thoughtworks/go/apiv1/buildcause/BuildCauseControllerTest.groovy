@@ -120,8 +120,8 @@ class BuildCauseControllerTest implements ControllerTrait<BuildCauseController>,
         getWithApiHeader(controller.controllerPath('/foo/a'))
 
         assertThatResponse()
-          .isNotFound()
-          .hasJsonMessage("Either the resource you requested was not found, or you are not authorized to perform this action.")
+          .isBadRequest()
+          .hasJsonMessage("Parameter `pipeline_counter` must be an integer.")
       }
 
     }

@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
@@ -35,7 +36,7 @@ import java.util.Arrays;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class TemplateConfigCommandTest {
@@ -85,9 +86,9 @@ public class TemplateConfigCommandTest {
     public void shouldThrowAnExceptionIfTemplateConfigCannotBeFound() {
         PipelineTemplateConfig templateConfig = new PipelineTemplateConfig(new CaseInsensitiveString("non-existent-template"), StageConfigMother.oneBuildPlanWithResourcesAndMaterials("stage", "job"));
         TemplateConfigCommand command = new CreateTemplateConfigCommand(templateConfig, currentUser, securityService, result, externalArtifactsService);
-        thrown.expectMessage("Template named non-existent-template was not found!");
+        thrown.expectMessage(EntityType.Template.notFoundMessage(templateConfig.name()));
         command.isValid(cruiseConfig);
-        assertThat(result.toString(), containsString("RESOURCE_NOT_FOUND"));
+        assertThat(result.toString(), containsString(EntityType.Template.notFoundMessage(templateConfig.name())));
     }
 
     @Test

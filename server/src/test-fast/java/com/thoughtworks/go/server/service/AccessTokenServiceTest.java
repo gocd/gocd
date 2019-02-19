@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.dao.AccessTokenDao;
@@ -112,7 +113,7 @@ class AccessTokenServiceTest {
 
         assertThatCode(() -> accessTokenService.find(tokenId, "hacker"))
                 .isInstanceOf(RecordNotFoundException.class)
-                .hasMessageContaining("Cannot locate access token with id 42.");
+                .hasMessageContaining(EntityType.AccessToken.notFoundMessage(tokenId));
         verify(accessTokenDao, never()).loadForAdminUser(anyLong());
     }
 

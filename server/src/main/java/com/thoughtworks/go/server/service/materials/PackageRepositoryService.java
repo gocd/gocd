@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.*;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -28,7 +29,6 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.RepositoryMetadataStore;
@@ -185,7 +185,7 @@ public class PackageRepositoryService {
             @Override
             public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
                 if (!securityService.canViewAdminPage(username)) {
-                    result.forbidden(LocalizedMessage.forbiddenToEdit(), null);
+                    result.forbidden(EntityType.PackageRepository.forbiddenToEdit(packageRepository.getId(), username.getUsername()), null);
                 }
             }
 
@@ -263,7 +263,7 @@ public class PackageRepositoryService {
         DeletePackageRepositoryCommand command = new DeletePackageRepositoryCommand(goConfigService, repository, username, result);
         update(username, result, command, repository);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("package repository", repository.getId()));
+            result.setMessage(EntityType.PackageRepository.deleteSuccessful(repository.getId()));
         }
     }
 

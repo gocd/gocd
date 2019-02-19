@@ -20,12 +20,12 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.validation.RolesConfigUpdateValidator;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
@@ -77,7 +77,7 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;
         }
-        result.forbidden(forbiddenToEdit(), forbidden());
+        result.forbidden(EntityType.Role.forbiddenToEdit(role.getName(), currentUser.getUsername()), forbidden());
         return false;
     }
 

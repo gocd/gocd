@@ -50,6 +50,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
+import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.util.stream.Collectors.toMap;
@@ -642,7 +643,7 @@ public class BasicCruiseConfig implements CruiseConfig {
         }
         PipelineConfig pipelineConfig = getPipelineConfigByName(name);
         if (pipelineConfig == null) {
-            throw new RecordNotFoundException("Pipeline with name " + name + " was not found!");
+            throw new RecordNotFoundException(Pipeline, name);
         }
         pipelineNameToConfigMap.putIfAbsent(pipelineConfig.name(), pipelineConfig);
 

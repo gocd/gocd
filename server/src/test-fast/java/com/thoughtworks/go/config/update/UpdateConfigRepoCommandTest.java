@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -30,8 +31,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -88,7 +87,7 @@ public class UpdateConfigRepoCommandTest {
         when(securityService.isUserAdmin(currentUser)).thenReturn(false);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn(md5);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(forbiddenToEdit(), forbidden());
+        expectedResult.forbidden(EntityType.ConfigRepo.forbiddenToEdit(newConfigRepoId, currentUser.getUsername()), forbidden());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -100,7 +99,7 @@ public class UpdateConfigRepoCommandTest {
         when(securityService.isUserAdmin(currentUser)).thenReturn(true);
         when(entityHashingService.md5ForEntity(oldConfigRepo)).thenReturn("some-hash");
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.stale(staleResourceConfig("Config repo", oldConfigRepoId));
+        expectedResult.stale(EntityType.ConfigRepo.staleConfig(oldConfigRepoId));
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));

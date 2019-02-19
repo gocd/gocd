@@ -17,11 +17,11 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.Users;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.exception.ValidationException;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.UserModel;
 import com.thoughtworks.go.presentation.UserSearchModel;
@@ -43,8 +43,6 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.*;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceAlreadyExists;
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.GLOBAL;
 import static com.thoughtworks.go.serverhealth.HealthStateType.general;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -256,9 +254,9 @@ public class UserService {
     public void deleteUser(String username, String byWhom, HttpLocalizedOperationResult result) {
         try {
             userDao.deleteUser(username, byWhom);
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("user", username));
+            result.setMessage(EntityType.User.deleteSuccessful(username));
         } catch (RecordNotFoundException e) {
-            result.notFound(resourceNotFound("User", username), general(GLOBAL));
+            result.notFound(EntityType.User.notFoundMessage(username), general(GLOBAL));
         } catch (UserEnabledException e) {
             result.badRequest("User '" + username + "' is not disabled.");
         }
@@ -269,7 +267,7 @@ public class UserService {
             boolean isValid = performUserDeletionValidation(userNames, result);
             if (isValid) {
                 userDao.deleteUsers(userNames, byWhom);
-                result.setMessage(LocalizedMessage.resourcesDeleteSuccessful("Users", userNames));
+                result.setMessage(EntityType.User.deleteSuccessful(userNames));
             }
         }
     }
@@ -520,7 +518,7 @@ public class UserService {
                 User user = userSearchModel.getUser();
 
                 if (userExists(user)) {
-                    result.conflict(resourceAlreadyExists("user", user.getName()));
+                    result.conflict(EntityType.User.alreadyExists(user.getName()));
                     return;
                 }
 

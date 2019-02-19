@@ -197,7 +197,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     private boolean doesPipelineExist(String pipelineName, LocalizedOperationResult result) {
         if (!getCurrentConfig().hasPipelineNamed(new CaseInsensitiveString(pipelineName))) {
-            result.notFound(resourceNotFound("pipeline", pipelineName), general(forPipeline(pipelineName)));
+            result.notFound(EntityType.Pipeline.notFoundMessage(pipelineName), general(forPipeline(pipelineName)));
             return false;
         }
         return true;
@@ -929,7 +929,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     private boolean isValidGroup(String groupName, CruiseConfig cruiseConfig, HttpLocalizedOperationResult result) {
         if (!cruiseConfig.hasPipelineGroup(groupName)) {
-            result.notFound(LocalizedMessage.resourceNotFound("Pipeline group", groupName), HealthStateType.general(HealthStateScope.forGroup(groupName)));
+            result.notFound(EntityType.PipelineGroup.notFoundMessage(groupName), HealthStateType.general(HealthStateScope.forGroup(groupName)));
             return false;
         }
         return true;
@@ -937,7 +937,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     private boolean isAdminOfGroup(String toGroupName, Username username, HttpLocalizedOperationResult result) {
         if (!isUserAdminOfGroup(username.getUsername(), toGroupName)) {
-            result.forbidden(forbiddenToEditGroup(toGroupName), forbidden());
+            result.forbidden(EntityType.PipelineGroup.forbiddenToEdit(toGroupName, username.getUsername()), forbidden());
             return false;
         }
         return true;

@@ -18,13 +18,13 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileDeleteCommand;
 import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
 import com.thoughtworks.go.domain.ElasticProfileUsage;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
@@ -60,7 +60,7 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
     public void delete(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
         update(currentUser, elasticProfile, result, new ElasticAgentProfileDeleteCommand(goConfigService, elasticProfile, elasticAgentExtension, currentUser, result));
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("elastic agent profile", elasticProfile.getId()));
+            result.setMessage(EntityType.ElasticProfile.deleteSuccessful(elasticProfile.getId()));
         }
     }
 
@@ -71,7 +71,7 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
 
     public Collection<ElasticProfileUsage> getUsageInformation(String profileId) {
         if (findProfile(profileId) == null) {
-            throw new RecordNotFoundException(String.format("Elastic profile with id '%s' does not exist.", profileId));
+            throw new RecordNotFoundException(EntityType.ElasticProfile, profileId);
         }
 
         final List<PipelineConfig> allPipelineConfigs = goConfigService.getAllPipelineConfigs();

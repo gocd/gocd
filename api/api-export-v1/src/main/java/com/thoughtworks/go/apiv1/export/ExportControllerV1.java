@@ -23,6 +23,7 @@ import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.config.ConfigRepoPlugin;
 import com.thoughtworks.go.config.GoConfigPluginService;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
@@ -114,7 +115,7 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
         PipelineConfig pipeline = configService.editablePipelineConfigNamed(pipelineName);
 
         if (null == pipeline) {
-            throw new RecordNotFoundException(format("Cannot locate pipeline config with name: %s", pipelineName));
+            throw new RecordNotFoundException(EntityType.Pipeline, pipelineName);
         }
 
         return pipeline;

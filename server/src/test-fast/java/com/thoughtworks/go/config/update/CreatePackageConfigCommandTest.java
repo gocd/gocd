@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
@@ -33,8 +34,6 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
@@ -95,7 +94,7 @@ public class CreatePackageConfigCommandTest {
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(forbiddenToEdit(), forbidden());
+        expectedResult.forbidden(EntityType.PackageDefinition.forbiddenToEdit(packageDefinition.getId(), currentUser.getUsername()), forbidden());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));
@@ -179,7 +178,7 @@ public class CreatePackageConfigCommandTest {
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         CreatePackageConfigCommand command = new CreatePackageConfigCommand(goConfigService, packageDefinition, repoId, currentUser, result, packageDefinitionService);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(resourceNotFound("Package Repository", repoId));
+        expectedResult.unprocessableEntity(EntityType.PackageRepository.notFoundMessage(repoId));
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));

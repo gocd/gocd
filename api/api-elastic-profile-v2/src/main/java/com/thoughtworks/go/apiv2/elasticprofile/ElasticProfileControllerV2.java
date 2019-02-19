@@ -27,6 +27,7 @@ import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfilesRepr
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.ElasticProfileService;
@@ -154,6 +155,11 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
     @Override
     public String etagFor(ElasticProfile entityFromServer) {
         return entityHashingService.md5ForEntity(entityFromServer);
+    }
+
+    @Override
+    public EntityType getEntityType() {
+        return EntityType.ElasticProfile;
     }
 
     @Override

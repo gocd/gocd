@@ -18,12 +18,12 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.SecurityAuthConfigCreateCommand;
 import com.thoughtworks.go.config.update.SecurityAuthConfigDeleteCommand;
 import com.thoughtworks.go.config.update.SecurityAuthConfigUpdateCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
@@ -69,7 +69,7 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
     public void delete(Username currentUser, SecurityAuthConfig newSecurityAuthConfig, LocalizedOperationResult result) {
         update(currentUser, newSecurityAuthConfig, result, new SecurityAuthConfigDeleteCommand(goConfigService, newSecurityAuthConfig, authorizationExtension, currentUser, result));
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("security auth config", newSecurityAuthConfig.getId()));
+            result.setMessage(EntityType.SecurityAuthConfig.deleteSuccessful(newSecurityAuthConfig.getId()));
         }
     }
 

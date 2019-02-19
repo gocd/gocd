@@ -19,10 +19,10 @@ package com.thoughtworks.go.server.service.materials.commands;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
@@ -49,7 +49,7 @@ public abstract class PackageMaterialSaveCommand implements UpdateConfigFromUI {
     public void checkPermission(CruiseConfig cruiseConfig, LocalizedOperationResult result) {
         String groupName = cruiseConfig.getGroups().findGroupNameByPipeline(new CaseInsensitiveString(pipeline));
         if (!securityService.isUserAdminOfGroup(username.getUsername(), groupName)) {
-            result.forbidden(LocalizedMessage.forbiddenToEdit(), null);
+            result.forbidden(EntityType.PipelineGroup.forbiddenToEdit(groupName, username.getUsername()), null);
         }
     }
 

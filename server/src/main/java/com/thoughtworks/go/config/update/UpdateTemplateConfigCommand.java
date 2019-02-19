@@ -19,14 +19,13 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplatesConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 
@@ -72,7 +71,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
 
     private boolean isUserAuthorized() {
         if (!securityService.isAuthorizedToEditTemplate(templateConfig.name(), currentUser)) {
-            result.forbidden(forbiddenToEdit(), forbidden());
+            result.forbidden(EntityType.Template.forbiddenToEdit(templateConfig.name(), currentUser.getUsername()), forbidden());
             return false;
         }
         return true;
@@ -82,7 +81,7 @@ public class UpdateTemplateConfigCommand extends TemplateConfigCommand {
         PipelineTemplateConfig pipelineTemplateConfig = findAddedTemplate(cruiseConfig);
         boolean freshRequest = entityHashingService.md5ForEntity(pipelineTemplateConfig).equals(md5);
         if (!freshRequest) {
-            result.stale(staleResourceConfig("Template", templateConfig.name()));
+            result.stale(EntityType.Template.staleConfig(templateConfig.name()));
         }
         return freshRequest;
     }

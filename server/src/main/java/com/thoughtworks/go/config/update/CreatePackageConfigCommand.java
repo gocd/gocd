@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -25,8 +26,6 @@ import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageDefinitionService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 
 public class CreatePackageConfigCommand extends PackageConfigCommand implements EntityConfigUpdateCommand<PackageDefinition> {
     private final PackageDefinition packageDefinition;
@@ -62,7 +61,7 @@ public class CreatePackageConfigCommand extends PackageConfigCommand implements 
             return false;
         }
         if (cruiseConfig.getPackageRepositories().find(repositoryId) == null) {
-            result.unprocessableEntity(resourceNotFound("Package Repository", repositoryId));
+            result.unprocessableEntity(EntityType.PackageRepository.notFoundMessage(repositoryId));
             return false;
         }
         return true;

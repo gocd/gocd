@@ -22,6 +22,7 @@ import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerOptions
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerWithOptionsViewRepresenter
 import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.config.EnvironmentVariablesConfig
+import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.domain.JobResult
 import com.thoughtworks.go.domain.JobState
@@ -56,7 +57,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
-import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.doAnswer
@@ -346,14 +346,14 @@ class PipelineOperationsControllerV1Test implements SecurityServiceTrait, Contro
 
       @Test
       void 'should render 404 if bad pipeline is provided'() {
-        when(goConfigService.variablesFor("pipeline-that-is-not-present")).thenThrow(new RecordNotFoundException("blah"))
+        when(goConfigService.variablesFor("pipeline-that-is-not-present")).thenThrow(new RecordNotFoundException(EntityType.Pipeline, "pipeline-that-is-not-present"))
 
         getWithApiHeader(Routes.Pipeline.triggerOptions('pipeline-that-is-not-present'))
 
         assertThatResponse()
           .isNotFound()
           .hasContentType(controller.mimeType)
-          .hasJsonMessage(notFoundMessage())
+          .hasJsonMessage(EntityType.Pipeline.notFoundMessage('pipeline-that-is-not-present'))
       }
     }
   }

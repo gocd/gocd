@@ -19,16 +19,15 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceAlreadyExists;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -106,11 +105,10 @@ public class AddEnvironmentCommandTest {
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
-        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden("Failed to access environment 'Dev'. User 'user' does not have permission to access environment.", HealthStateType.forbidden());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result, is(expectedResult));
+        assertThat(result.httpCode(), is(403));
+        assertThat(result.message(), is(EntityType.Environment.forbiddenToEdit(environmentConfig.name(), currentUser.getUsername())));
     }
 
     @Test
@@ -119,7 +117,7 @@ public class AddEnvironmentCommandTest {
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
         when(goConfigService.hasEnvironmentNamed(environmentName)).thenReturn(true);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.conflict(resourceAlreadyExists("environment", environmentName));
+        expectedResult.conflict(EntityType.Environment.alreadyExists(environmentName));
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result, is(expectedResult));

@@ -29,8 +29,8 @@ import com.thoughtworks.go.apiv4.admin.templateconfig.representers.TemplateConfi
 import com.thoughtworks.go.apiv4.admin.templateconfig.representers.TemplatesConfigRepresenter;
 import com.thoughtworks.go.config.PipelineTemplateConfig;
 import com.thoughtworks.go.config.TemplateToPipelines;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -69,6 +69,11 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
     @Override
     public String etagFor(PipelineTemplateConfig pipelineTemplateConfig) {
         return entityHashingService.md5ForEntity(pipelineTemplateConfig);
+    }
+
+    @Override
+    public EntityType getEntityType() {
+        return EntityType.Template;
     }
 
     @Override
@@ -188,7 +193,7 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
         if (templateConfigService.loadForView(templateConfig.name().toString(), result) == null) {
             return;
         }
-        templateConfig.addError("name", LocalizedMessage.resourceAlreadyExists("template", templateConfig.name().toString()));
+        templateConfig.addError("name", EntityType.Template.alreadyExists(templateConfig.name()));
         throw haltBecauseEntityAlreadyExists(jsonWriter(templateConfig), "template", templateConfig.name());
     }
 }

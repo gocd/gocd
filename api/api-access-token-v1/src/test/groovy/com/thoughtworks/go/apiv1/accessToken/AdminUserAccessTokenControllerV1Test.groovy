@@ -19,9 +19,9 @@ package com.thoughtworks.go.apiv1.accessToken
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.mocks.MockHttpServletResponseAssert
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter
+import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.domain.AccessToken
@@ -157,13 +157,13 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
 
       @Test
       void 'should render not found when the specified access token does not exists'() {
-        when(accessTokenService.find(eq(token.id), any(String.class))).thenThrow(new RecordNotFoundException("blah!"))
+        when(accessTokenService.find(eq(token.id), any(String.class))).thenThrow(new RecordNotFoundException(EntityType.AccessToken, token.id))
 
         getWithApiHeader(controller.controllerPath(token.id))
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(EntityType.AccessToken.notFoundMessage(token.id))
           .hasContentType(controller.mimeType)
       }
     }

@@ -20,17 +20,17 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import org.apache.commons.lang3.StringUtils;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
 
@@ -102,7 +102,7 @@ abstract class ConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepo
 
     private boolean isUserAuthorized() {
         if (!securityService.isUserAdmin(username)) {
-            result.forbidden(forbiddenToEdit(), forbidden());
+            result.forbidden(EntityType.ConfigRepo.forbiddenToEdit(configRepo.getId(), username.getUsername()), forbidden());
             return false;
         }
         return true;

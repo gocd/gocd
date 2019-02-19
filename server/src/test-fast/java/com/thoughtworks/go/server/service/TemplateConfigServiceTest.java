@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.CreateTemplateConfigCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -33,11 +34,9 @@ import org.junit.Test;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
-import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class TemplateConfigServiceTest {
@@ -404,7 +403,7 @@ public class TemplateConfigServiceTest {
         service.createTemplateConfig(user, pipelineTemplateConfig, result);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity(entityConfigValidationFailed("template", templateName, errorMessage));
+        expectedResult.unprocessableEntity(EntityType.Template.entityConfigValidationFailed(templateName, errorMessage));
 
         assertThat(result.toString(), is(expectedResult.toString()));
     }

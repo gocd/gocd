@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -90,13 +91,13 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldThrowExceptionWhenTheGroupIsNotFound_onGetXml() {
         String groupName = "non-existent-group_name";
-        when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenThrow(new RecordNotFoundException("blah"));
+        when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenThrow(new RecordNotFoundException(EntityType.PipelineGroup, groupName));
 
         service.getXml(groupName, validUser, result);
 
         assertThat(result.httpCode(), is(404));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Pipeline group 'non-existent-group_name' not found."));
+        assertThat(result.message(), is(EntityType.PipelineGroup.notFoundMessage(groupName)));
         verify(securityService, times(1)).isUserAdminOfGroup(validUser.getUsername(), groupName);
         verify(goConfigService, never()).getConfigForEditing();
 
@@ -113,7 +114,7 @@ public class PipelineConfigsServiceTest {
         assertThat(actual, is(nullValue()));
         assertThat(result.httpCode(), is(403));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Unauthorized to edit 'some-secret-group' group."));
+        assertThat(result.message(), is(EntityType.PipelineGroup.forbiddenToEdit(groupName, invalidUser.getUsername())));
         verify(goConfigService, never()).getConfigForEditing();
         verify(securityService, times(1)).isUserAdminOfGroup(invalidUser.getUsername(), groupName);
     }
@@ -169,7 +170,7 @@ public class PipelineConfigsServiceTest {
     @Test
     public void shouldReturnUnsuccessfulResultWhenTheGroupIsNotFound_onUpdateXml() throws Exception {
         String groupName = "non-existent-group_name";
-        when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenThrow(new RecordNotFoundException("blah"));
+        when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenThrow(new RecordNotFoundException(EntityType.PipelineGroup, groupName));
         when(goConfigService.configFileMd5()).thenReturn("md5");
 
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, "", "md5", validUser, result);
@@ -179,7 +180,7 @@ public class PipelineConfigsServiceTest {
         assertThat(configs, is(nullValue()));
         assertThat(result.httpCode(), is(404));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Pipeline group 'non-existent-group_name' not found."));
+        assertThat(result.message(), is(EntityType.PipelineGroup.notFoundMessage(groupName)));
         assertThat(validity.isValid(), is(true));
         verify(securityService, times(1)).isUserAdminOfGroup(validUser.getUsername(), groupName);
     }
@@ -198,7 +199,7 @@ public class PipelineConfigsServiceTest {
         assertThat(configElement, is(nullValue()));
         assertThat(result.httpCode(), is(403));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Unauthorized to edit 'some-secret-group' group."));
+        assertThat(result.message(), is(EntityType.PipelineGroup.forbiddenToEdit(groupName, invalidUser.getUsername())));
         assertThat(validity.isValid(), is(true));
         verify(securityService, times(1)).isUserAdminOfGroup(invalidUser.getUsername(), groupName);
     }

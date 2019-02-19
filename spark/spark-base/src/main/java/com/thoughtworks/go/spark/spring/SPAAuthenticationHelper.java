@@ -39,7 +39,6 @@ public class SPAAuthenticationHelper extends AbstractAuthenticationHelper {
         return halt(403, HtmlErrorPage.errorPage(403, "Forbidden"));
     }
 
-    @Override
     public HaltException renderNotFoundResponse() {
         return halt(404, HtmlErrorPage.errorPage(404, "Not Found"));
     }

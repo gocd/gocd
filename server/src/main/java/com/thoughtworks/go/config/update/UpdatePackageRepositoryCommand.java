@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.server.domain.Username;
@@ -24,8 +25,6 @@ import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.materials.PackageRepositoryService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-
-import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
 
 public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
     private final GoConfigService goConfigService;
@@ -71,7 +70,7 @@ public class UpdatePackageRepositoryCommand extends PackageRepositoryCommand {
         PackageRepository oldRepo = goConfigService.getPackageRepository(newRepo.getRepoId());
         boolean freshRequest = entityHashingService.md5ForEntity(oldRepo).equals(md5);
         if (!freshRequest) {
-            result.stale(staleResourceConfig("Package Repository", newRepo.getRepoId()));
+            result.stale(EntityType.PackageRepository.staleConfig(newRepo.getRepoId()));
         }
         return freshRequest;
     }

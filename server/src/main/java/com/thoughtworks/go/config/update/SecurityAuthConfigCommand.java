@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.config.SecurityAuthConfigs;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
@@ -27,7 +28,6 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 import java.util.Map;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public abstract class SecurityAuthConfigCommand extends PluginProfileCommand<SecurityAuthConfig, SecurityAuthConfigs> {
@@ -49,15 +49,15 @@ public abstract class SecurityAuthConfigCommand extends PluginProfileCommand<Sec
     }
 
     @Override
-    protected String getObjectDescriptor() {
-        return "Security auth config";
+    protected EntityType getObjectDescriptor() {
+        return EntityType.SecurityAuthConfig;
     }
 
     protected final boolean isAuthorized() {
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;
         }
-        result.forbidden(forbiddenToEdit(), forbidden());
+        result.forbidden(EntityType.SecurityAuthConfig.forbiddenToEdit(profile.getId(), currentUser.getUsername()), forbidden());
         return false;
     }
 

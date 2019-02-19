@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
@@ -34,9 +35,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -105,7 +105,7 @@ public class UpdateSCMConfigCommandTest {
         UpdateSCMConfigCommand command = new UpdateSCMConfigCommand(updatedScm, pluggableScmService, goConfigService, currentUser, result, "md5", entityHashingService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo("Unauthorized to edit."));
+        assertThat(result.message(), is(EntityType.SCM.forbiddenToEdit(scm.getId(), currentUser.getUsername())));
     }
 
     @Test

@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -27,7 +28,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
@@ -71,6 +71,6 @@ public class DeleteEnvironmentCommandTest {
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertFalse(result.isSuccessful());
         assertThat(result.httpCode(), is(403));
-        assertThat(result.message(), containsString("Failed to access environment 'Dev'. User 'user' does not have permission to access environment."));
+        assertThat(result.message(), is(EntityType.Environment.forbiddenToEdit(environmentConfig.name(), currentUser.getUsername())));
     }
 }

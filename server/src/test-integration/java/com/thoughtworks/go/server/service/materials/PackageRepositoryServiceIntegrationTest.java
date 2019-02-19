@@ -17,10 +17,10 @@
 package com.thoughtworks.go.server.service.materials;
 
 import com.thoughtworks.go.config.UpdateConfigCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.presentation.TriStateSelection;
@@ -37,11 +37,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -94,7 +94,7 @@ public class PackageRepositoryServiceIntegrationTest {
         service.deleteRepository(username, npmRepo, result);
 
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.setMessage(LocalizedMessage.resourceDeleteSuccessful("package repository", npmRepo.getId()));
+        expectedResult.setMessage(EntityType.PackageRepository.deleteSuccessful(npmRepo.getId()));
 
         assertThat(result, is(expectedResult));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(0));
@@ -109,7 +109,7 @@ public class PackageRepositoryServiceIntegrationTest {
         npmRepo.setId(repoId);
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(npmRepo));
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(forbiddenToEdit(), forbidden());
+        expectedResult.forbidden(EntityType.PackageRepository.forbiddenToDelete("npm", "UnauthorizedUser"), forbidden());
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
@@ -129,7 +129,7 @@ public class PackageRepositoryServiceIntegrationTest {
         npmRepo.setId(repoId);
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories(npmRepo));
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(forbiddenToEdit(), forbidden());
+        expectedResult.forbidden(EntityType.PackageRepository.forbiddenToEdit("npm", "UnauthorizedUser"), forbidden());
 
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().size(), is(1));
         assertThat(goConfigService.getConfigForEditing().getPackageRepositories().find(repoId), is(npmRepo));
@@ -145,7 +145,7 @@ public class PackageRepositoryServiceIntegrationTest {
     @Test
     public void shouldReturnTheExactLocalizeMessageIfItFailsToUpdatePackageRepository() throws Exception {
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(forbiddenToEdit(), forbidden());
+        expectedResult.forbidden(EntityType.PackageRepository.forbiddenToEdit("npm.org", "UnauthorizedUser"), forbidden());
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String oldRepoId = "npmOrg";

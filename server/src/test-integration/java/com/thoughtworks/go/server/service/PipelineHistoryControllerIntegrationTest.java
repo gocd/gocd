@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.ClearSingleton;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.newsecurity.SessionUtilsHelper;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
@@ -162,7 +163,7 @@ public class PipelineHistoryControllerIntegrationTest {
     public void shouldDisplayExceptionPageWhenPipelineIsNotFound() throws Exception {
         ModelAndView list = controller.list("Un-available");
         assertThat(list.getViewName(), is("exceptions_page"));
-        assertThat(list.getModel().get("errorMessage"), is("Pipeline 'Un-available' not found."));
+        assertThat(list.getModel().get("errorMessage"), is(EntityType.Pipeline.notFoundMessage("Un-available")));
     }
 
     @Test

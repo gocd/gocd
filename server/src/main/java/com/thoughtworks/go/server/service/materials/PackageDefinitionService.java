@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service.materials;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.CreatePackageConfigCommand;
 import com.thoughtworks.go.config.update.DeletePackageConfigCommand;
@@ -29,7 +30,6 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageConfiguration;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
@@ -178,7 +178,7 @@ public class PackageDefinitionService {
         DeletePackageConfigCommand command = new DeletePackageConfigCommand(goConfigService, packageDefinition, username, result);
         update(username, packageDefinition, result, command);
         if (result.isSuccessful()) {
-            result.setMessage(LocalizedMessage.resourceDeleteSuccessful("package definition", packageDefinition.getId()));
+            result.setMessage(EntityType.PackageDefinition.deleteSuccessful(packageDefinition.getId()));
         }
     }
 

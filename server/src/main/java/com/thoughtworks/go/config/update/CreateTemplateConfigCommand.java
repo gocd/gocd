@@ -17,12 +17,12 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 
@@ -51,7 +51,7 @@ public class CreateTemplateConfigCommand extends TemplateConfigCommand {
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
         if (!(securityService.isUserAdmin(currentUser) || securityService.isUserGroupAdmin(currentUser))) {
-            result.forbidden(forbiddenToEdit(), forbidden());
+            result.forbidden(EntityType.Template.forbiddenToEdit(templateConfig.name(), currentUser.getUsername()), forbidden());
             return false;
         }
         return true;

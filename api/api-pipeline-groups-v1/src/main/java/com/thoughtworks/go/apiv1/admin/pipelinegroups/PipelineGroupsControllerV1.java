@@ -27,10 +27,10 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupRepresenter;
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupsRepresenter;
 import com.thoughtworks.go.config.PipelineConfigs;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.PipelineGroups;
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.PipelineConfigsService;
@@ -112,7 +112,7 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
         Optional<PipelineConfigs> pipelineConfigsFromServer = findPipelineGroup(groupName);
 
         if (pipelineConfigsFromServer.isPresent()) {
-            pipelineConfigsFromReq.addError("name", LocalizedMessage.resourceAlreadyExists("pipeline group", groupName));
+            pipelineConfigsFromReq.addError("name", EntityType.PipelineGroup.alreadyExists(groupName));
             throw haltBecauseEntityAlreadyExists(jsonWriter(pipelineConfigsFromReq), "pipeline group", groupName);
         }
 
@@ -164,8 +164,13 @@ public class PipelineGroupsControllerV1 extends ApiController implements SparkSp
     }
 
     @Override
+    public EntityType getEntityType() {
+        return EntityType.PipelineGroup;
+    }
+
+    @Override
     public PipelineConfigs doFetchEntityFromConfig(String name) {
-        return findPipelineGroup(name).orElseThrow(() -> new RecordNotFoundException("Pipeline group with name " + name + " was not found!"));
+        return findPipelineGroup(name).orElseThrow(() -> new RecordNotFoundException(EntityType.PipelineGroup, name));
     }
 
     private Optional<PipelineConfigs> findPipelineGroup(String name) {

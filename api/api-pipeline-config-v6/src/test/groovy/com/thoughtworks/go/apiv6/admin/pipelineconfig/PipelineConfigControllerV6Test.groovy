@@ -18,9 +18,9 @@ package com.thoughtworks.go.apiv6.admin.pipelineconfig
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.PipelineConfigRepresenter
 import com.thoughtworks.go.config.PipelineConfig
+import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.materials.PackageMaterialConfig
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig
@@ -144,7 +144,7 @@ class PipelineConfigControllerV6Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("pipeline1"))
           .hasContentType(controller.mimeType)
       }
 
@@ -569,7 +569,7 @@ class PipelineConfigControllerV6Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage("Either the resource you requested was not found, or you are not authorized to perform this action.")
+          .hasJsonMessage(EntityType.Pipeline.notFoundMessage("non-existent-pipeline"))
       }
 
       @Test

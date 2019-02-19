@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.GsonBuilder;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.NullPlugin;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.i18n.LocalizedMessage;
@@ -86,7 +87,7 @@ public class PluginService {
     public void createPluginSettings(PluginSettings newPluginSettings, Username currentUser, LocalizedOperationResult result) {
         final String keyToLockOn = keyToLockOn(newPluginSettings.getPluginId());
         synchronized (keyToLockOn) {
-            if (hasPermission(currentUser, result)) {
+            if (hasPermission(currentUser, newPluginSettings.getPluginId(), result)) {
                 final Plugin plugin = pluginDao.findPlugin(newPluginSettings.getPluginId());
                 if (plugin instanceof NullPlugin) {
                     updatePluginSettingsAndNotifyPluginSettingsChangeListeners(result, newPluginSettings);
@@ -103,14 +104,14 @@ public class PluginService {
 
         final String keyToLockOn = keyToLockOn(pluginId);
         synchronized (keyToLockOn) {
-            if (hasPermission(currentUser, result)) {
+            if (hasPermission(currentUser, newPluginSettings.getPluginId(), result)) {
                 final PluginSettings pluginSettingsFromDB = getPluginSettings(pluginId);
                 if (pluginSettingsFromDB == null) {
-                    result.notFound(LocalizedMessage.resourceNotFound("Plugin Settings", pluginId), HealthStateType.notFound());
+                    result.notFound(EntityType.PluginSettings.notFoundMessage(pluginId), HealthStateType.notFound());
                     return;
                 }
                 if (!entityHashingService.md5ForEntity(pluginSettingsFromDB).equals(md5)) {
-                    result.stale(LocalizedMessage.staleResourceConfig("Plugin Settings", pluginId));
+                    result.stale(EntityType.PluginSettings.staleConfig(pluginId));
                     return;
                 }
 
@@ -212,12 +213,12 @@ public class PluginService {
         return null;
     }
 
-    private boolean hasPermission(Username currentUser, LocalizedOperationResult result) {
+    private boolean hasPermission(Username currentUser, String pluginId, LocalizedOperationResult result) {
         if (securityService.isUserAdmin(currentUser)) {
             return true;
         }
 
-        result.forbidden(LocalizedMessage.forbiddenToEdit(), HealthStateType.forbidden());
+        result.forbidden(EntityType.PluginSettings.forbiddenToEdit(pluginId, currentUser.getUsername()), HealthStateType.forbidden());
         return false;
     }
 }

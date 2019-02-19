@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.exceptions.ConflictException;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.dao.AccessTokenSqlMapDao;
@@ -178,8 +179,7 @@ public class AccessTokenServiceIntegrationTest {
         long id = 42;
 
         assertThatCode(() -> accessTokenService.revokeAccessToken(id, "bOb", null))
-                .isInstanceOf(RecordNotFoundException.class)
-                .hasMessage("Cannot locate access token with id 42.");
+                .isEqualTo(new RecordNotFoundException(EntityType.AccessToken, 42));
     }
 
     @Test

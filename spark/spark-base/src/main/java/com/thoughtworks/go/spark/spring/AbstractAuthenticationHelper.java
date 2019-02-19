@@ -32,6 +32,8 @@ import spark.HaltException;
 import spark.Request;
 import spark.Response;
 
+import static com.thoughtworks.go.config.exceptions.EntityType.Pipeline;
+
 public abstract class AbstractAuthenticationHelper {
     protected static final Logger LOG = LoggerFactory.getLogger(AbstractAuthenticationHelper.class);
     protected final SecurityService securityService;
@@ -165,7 +167,7 @@ public abstract class AbstractAuthenticationHelper {
     // https://github.com/gocd/gocd/issues/4477
     private boolean hasViewPermissionWorkaroundForNonExistantPipelineBug_4477(CaseInsensitiveString pipelineName, Username username) {
         if (!goConfigService.hasPipelineNamed(pipelineName)) {
-            throw new RecordNotFoundException("Pipeline with name " + pipelineName + " was not found!");
+            throw new RecordNotFoundException(Pipeline, pipelineName);
         }
 
         if (securityService.isUserAdmin(username)) {

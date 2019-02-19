@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.server.service.result;
 
-import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 
 public class HttpLocalizedOperationResultTest {
@@ -37,14 +36,14 @@ public class HttpLocalizedOperationResultTest {
     @Test
     public void shouldNotReturnSuccessfulIfUnauthorized() {
         LocalizedOperationResult result = new HttpLocalizedOperationResult();
-        result.forbidden(LocalizedMessage.forbiddenToViewPipeline("whateva"), HealthStateType.general(HealthStateScope.GLOBAL));
+        result.forbidden("blah", HealthStateType.general(HealthStateScope.GLOBAL));
         assertThat(result.isSuccessful(), is(false));
     }
 
     @Test
     public void shouldNotReturnSuccessfulIfNotFound() {
         LocalizedOperationResult result = new HttpLocalizedOperationResult();
-        result.notFound(LocalizedMessage.forbiddenToViewPipeline("whateva"), HealthStateType.general(HealthStateScope.GLOBAL));
+        result.notFound("blah", HealthStateType.general(HealthStateScope.GLOBAL));
         assertThat(result.isSuccessful(), is(false));
     }
 
@@ -59,9 +58,8 @@ public class HttpLocalizedOperationResultTest {
 
     @Test
     public void shouldReturn403WhenUserDoesNotHavePermissionToAccessResource() {
-        String message = LocalizedMessage.forbiddenToViewPipeline("whateva");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        result.forbidden(message, HealthStateType.general(HealthStateScope.GLOBAL));
+        result.forbidden("blah", HealthStateType.general(HealthStateScope.GLOBAL));
 
         assertThat(result.httpCode(), is(403));
     }

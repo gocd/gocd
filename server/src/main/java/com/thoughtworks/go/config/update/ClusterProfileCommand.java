@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -48,8 +49,8 @@ public abstract class ClusterProfileCommand extends PluginProfileCommand<Cluster
     }
 
     @Override
-    protected String getObjectDescriptor() {
-        return "Cluster Profile";
+    protected EntityType getObjectDescriptor() {
+        return EntityType.ClusterProfile;
     }
 
     public abstract void update(CruiseConfig preprocessedConfig) throws Exception;

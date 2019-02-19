@@ -53,7 +53,7 @@ public class RoleConfigDeleteCommandTest {
     @Test
     public void currentUserShouldBeAnAdminToAddRole() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        Username viewUser = mock(Username.class);
+        Username viewUser = new Username("view");
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         PluginRoleConfig role = new PluginRoleConfig("foo", "ldap");
 

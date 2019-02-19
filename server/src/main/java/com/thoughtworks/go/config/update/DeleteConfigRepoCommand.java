@@ -18,13 +18,13 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class DeleteConfigRepoCommand implements EntityConfigUpdateCommand<ConfigRepoConfig> {
@@ -73,7 +73,7 @@ public class DeleteConfigRepoCommand implements EntityConfigUpdateCommand<Config
 
     public boolean isUserAuthorized() {
         if (!securityService.isUserAdmin(username)) {
-            result.forbidden(forbiddenToEdit(), forbidden());
+            result.forbidden(EntityType.ConfigRepo.forbiddenToDelete(repoId, username.getUsername()), forbidden());
             return false;
         }
         return true;

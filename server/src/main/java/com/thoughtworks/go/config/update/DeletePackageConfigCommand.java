@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -33,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
-import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
 public class DeletePackageConfigCommand implements EntityConfigUpdateCommand<PackageDefinition> {
@@ -95,7 +95,7 @@ public class DeletePackageConfigCommand implements EntityConfigUpdateCommand<Pac
 
     private boolean isAuthorized() {
         if (!(goConfigService.isUserAdmin(username) || goConfigService.isGroupAdministrator(username.getUsername()))) {
-            result.forbidden(forbiddenToEdit(), forbidden());
+            result.forbidden(EntityType.PackageDefinition.forbiddenToDelete(packageDefinition.getId(), username.getUsername()), forbidden());
             return false;
         }
         return true;

@@ -18,8 +18,8 @@ package com.thoughtworks.go.apiv2.backups
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv2.backups.representers.BackupRepresenter
+import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.server.domain.BackupStatus
 import com.thoughtworks.go.server.domain.ServerBackup
 import com.thoughtworks.go.server.service.BackupService
@@ -125,7 +125,7 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(EntityType.Backup.notFoundMessage(BACKUP_ID))
           .hasContentType(controller.mimeType)
       }
 

@@ -17,12 +17,11 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
-
-import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
 
 public class UpdatePipelineConfigsAuthCommand extends PipelineConfigsCommand {
     private final Authorization authorization;
@@ -71,7 +70,7 @@ public class UpdatePipelineConfigsAuthCommand extends PipelineConfigsCommand {
         PipelineConfigs existingPipelineConfigs = findPipelineConfigs(cruiseConfig, group);
         boolean freshRequest = entityHashingService.md5ForEntity(existingPipelineConfigs).equals(md5);
         if (!freshRequest) {
-            result.stale(staleResourceConfig("Group", group));
+            result.stale(EntityType.PipelineGroup.staleConfig(group));
         }
         return freshRequest;
     }

@@ -17,9 +17,10 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.Users;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.presentation.UserModel;
 import com.thoughtworks.go.presentation.UserSearchModel;
@@ -42,11 +43,8 @@ import java.util.List;
 import java.util.Set;
 
 import static com.thoughtworks.go.helper.SecurityConfigMother.securityConfigWithRole;
-import static org.hamcrest.Matchers.anyOf;
-import static org.hamcrest.Matchers.hasItems;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -458,7 +456,7 @@ public class UserServiceTest {
     public void shouldFailWithErrorWhenDeletingAUserFails() {
         String username = "username";
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        when(userDao.deleteUser(username, "currentUser")).thenThrow(new RecordNotFoundException("blah!"));
+        when(userDao.deleteUser(username, "currentUser")).thenThrow(new RecordNotFoundException(EntityType.User, username));
         userService.deleteUser(username, "currentUser", result);
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.hasMessage(), is(true));
@@ -480,7 +478,7 @@ public class UserServiceTest {
 
         verify(userDao).deleteUsers(usernames, "currentUser");
         assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is("Users 'john, joan' were deleted successfully."));
+        assertThat(result.message(), is(EntityType.User.deleteSuccessful(Arrays.asList("john", "joan"))));
     }
 
     @Test

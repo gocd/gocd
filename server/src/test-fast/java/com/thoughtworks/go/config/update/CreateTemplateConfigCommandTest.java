@@ -17,8 +17,9 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.ExternalArtifactsService;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -29,8 +30,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mock;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -100,7 +101,7 @@ public class CreateTemplateConfigCommandTest {
         CreateTemplateConfigCommand command = new CreateTemplateConfigCommand(pipelineTemplateConfig, currentUser, securityService, result, externalArtifactsService);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
-        assertThat(result.message(), equalTo("Unauthorized to edit."));
+        assertThat(result.message(), equalTo(EntityType.Template.forbiddenToEdit(pipelineTemplateConfig.name(), currentUser.getUsername())));
     }
 
     @Test

@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.admin.pipelinegroups
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.api.util.HaltApiMessages
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupRepresenter
 import com.thoughtworks.go.apiv1.admin.pipelinegroups.representers.PipelineGroupsRepresenter
 import com.thoughtworks.go.config.Authorization
@@ -270,7 +269,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("group"))
           .hasContentType(controller.mimeType)
       }
 
@@ -422,7 +421,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage(HaltApiMessages.notFoundMessage())
+          .hasJsonMessage(controller.entityType.notFoundMessage("group"))
           .hasContentType(controller.mimeType)
       }
 
@@ -500,7 +499,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
 
         assertThatResponse()
           .isNotFound()
-          .hasJsonMessage("Either the resource you requested was not found, or you are not authorized to perform this action.")
+          .hasJsonMessage(controller.entityType.notFoundMessage("non-existent-group"))
       }
 
       @Test

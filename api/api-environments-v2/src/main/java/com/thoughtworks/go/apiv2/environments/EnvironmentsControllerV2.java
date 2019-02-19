@@ -29,8 +29,8 @@ import com.thoughtworks.go.apiv2.environments.representers.EnvironmentsRepresent
 import com.thoughtworks.go.apiv2.environments.representers.PatchEnvironmentRequestRepresenter;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -193,12 +193,13 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
     }
 
     @Override
+    public EntityType getEntityType() {
+        return EntityType.Environment;
+    }
+
+    @Override
     public EnvironmentConfig doFetchEntityFromConfig(String name) {
-        try {
-            return environmentConfigService.getEnvironmentConfig(name);
-        } catch (RecordNotFoundException e) {
-            throw new RecordNotFoundException("Environment with name " + name + " was not found!");
-        }
+        return environmentConfigService.getEnvironmentConfig(name);
     }
 
     @Override

@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
@@ -123,7 +124,7 @@ public class UpdateEnvironmentCommandTest {
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.forbidden("Failed to access environment 'Test'. User 'user' does not have permission to access environment.", HealthStateType.forbidden());
+        expectResult.forbidden(EntityType.Environment.forbiddenToEdit(newEnvironmentName, currentUser.getUsername()), HealthStateType.forbidden());
 
         assertThat(result, is(expectResult));
     }
@@ -135,7 +136,7 @@ public class UpdateEnvironmentCommandTest {
         when(entityHashingService.md5ForEntity(oldEnvironmentConfig)).thenReturn("foo");
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.stale("Someone has modified the configuration for Environment 'Dev'. Please update your copy of the config with the changes.");
+        expectResult.stale(EntityType.Environment.staleConfig(oldEnvironmentName));
 
         assertThat(result, is(expectResult));
     }

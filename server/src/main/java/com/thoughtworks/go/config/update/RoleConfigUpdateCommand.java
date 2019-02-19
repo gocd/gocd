@@ -18,14 +18,13 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.Role;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
-import static com.thoughtworks.go.i18n.LocalizedMessage.staleResourceConfig;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 public class RoleConfigUpdateCommand extends RoleConfigCommand {
@@ -52,14 +51,14 @@ public class RoleConfigUpdateCommand extends RoleConfigCommand {
         Role existingRole = findExistingRole(cruiseConfig);
 
         if (existingRole == null) {
-            result.notFound(resourceNotFound("role", role.getName()), notFound());
+            result.notFound(EntityType.Role.notFoundMessage(role.getName()), notFound());
             return false;
         }
 
         boolean freshRequest = hashingService.md5ForEntity(existingRole).equals(md5);
 
         if (!freshRequest) {
-            result.stale(staleResourceConfig("role config", existingRole.getName()));
+            result.stale(EntityType.Role.staleConfig(existingRole.getName()));
         }
         return freshRequest;
     }

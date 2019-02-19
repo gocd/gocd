@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.SecurityService;
@@ -54,7 +55,7 @@ public abstract class PipelineConfigsCommand implements EntityConfigUpdateComman
 
     protected boolean isUserAdminOfGroup(String groupName) {
         if (!securityService.isUserAdminOfGroup(currentUser, groupName)) {
-            result.forbidden(forbiddenToEditGroup(groupName), forbidden());
+            result.forbidden(EntityType.PipelineGroup.forbiddenToEdit(groupName, currentUser.getUsername()), forbidden());
             return false;
         }
         return true;
@@ -72,8 +73,8 @@ public abstract class PipelineConfigsCommand implements EntityConfigUpdateComman
         validateGroupName(group);
         PipelineConfigs existingPipelineConfigs = cruiseConfig.findGroup(group);
         if (existingPipelineConfigs == null) {
-            result.notFound(resourceNotFound("Group", group), notFound());
-            throw new RecordNotFoundException("Pipeline group with name " + group + " not found!");
+            result.notFound(EntityType.PipelineGroup.notFoundMessage(group), notFound());
+            throw new RecordNotFoundException(EntityType.PipelineGroup, group);
         }
         return existingPipelineConfigs;
     }

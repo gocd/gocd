@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.exceptions.ConflictException;
+import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.dao.AccessTokenDao;
@@ -71,7 +72,7 @@ public class AccessTokenService {
         }
 
         if (token == null) {
-            throw new RecordNotFoundException("Cannot locate access token with id " + id + ".");
+            throw new RecordNotFoundException(EntityType.AccessToken, id);
         }
 
         return token;

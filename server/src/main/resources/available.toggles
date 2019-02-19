@@ -35,6 +35,11 @@
         "key": "use_old_environments_api",
         "description": "Switch to using rails environments API.",
         "value": false
+      },
+      {
+        "key": "enable_access_tokens_spa",
+        "description": "Show personal access tokens SPA. Default: false",
+        "value": false
       }
   ]
 }

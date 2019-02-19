@@ -51,7 +51,8 @@
       data-show-analytics-dashboard="${showAnalyticsDashboard}"
       data-user-display-name="${currentUser.displayName}"
       data-user-anonymous="${currentUser.anonymous}"
-      data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}">
+      data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}"
+      data-enable-personal-access-token-spa="$enable_access_tokens_spa">
 <div class="page-wrap">
   <header id="app-menu">
   </header>

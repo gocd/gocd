@@ -18,8 +18,7 @@ import * as m from "mithril";
 import {Attrs, SiteHeader} from "views/pages/partials/site_header";
 import * as styles from "../site_header.scss";
 
-//currently disabled because background Ajax requests aren't getting mocked
-xdescribe("Site Header", () => {
+describe("SiteHeader", () => {
 
   let $root: any, root: any;
   beforeEach(() => {
@@ -39,14 +38,15 @@ xdescribe("Site Header", () => {
 
   it("should display the user menu when a user is logged in", () => {
     mount({
-      isAnonymous: false,
-      userDisplayName: "Jon Doe",
-      canViewTemplates: false,
-      isGroupAdmin: false,
-      isUserAdmin: false,
-      canViewAdminPage: false,
-      showAnalyticsDashboard: false
-    });
+            isAnonymous: false,
+            userDisplayName: "Jon Doe",
+            canViewTemplates: false,
+            isGroupAdmin: false,
+            isUserAdmin: false,
+            canViewAdminPage: false,
+            showAnalyticsDashboard: false,
+            enablePersonalAccessTokenSPA: true
+          });
     expect($root.find(`.${styles.userLink}`)).toHaveText("Jon Doe");
     expect(findMenuItem("/go/preferences/notifications")).toHaveText("Preferences");
     expect(findMenuItem("/go/access_tokens")).toHaveText("Personal Access Tokens");
@@ -56,19 +56,53 @@ xdescribe("Site Header", () => {
 
   it("should not display the user menu when logged in as anonymous", () => {
     mount({
-      isAnonymous: true,
-      userDisplayName: "",
-      canViewTemplates: false,
-      isGroupAdmin: false,
-      isUserAdmin: false,
-      canViewAdminPage: false,
-      showAnalyticsDashboard: false
-    });
+            isAnonymous: true,
+            userDisplayName: "",
+            canViewTemplates: false,
+            isGroupAdmin: false,
+            isUserAdmin: false,
+            canViewAdminPage: false,
+            showAnalyticsDashboard: false,
+            enablePersonalAccessTokenSPA: true
+          });
     expect($root.find(`.${styles.userLink}`)).not.toBeInDOM();
     expect(findMenuItem("/go/preferences/notifications")).not.toBeInDOM();
     expect(findMenuItem("/go/access_tokens")).not.toBeInDOM();
     expect(findMenuItem("/go/auth/logout")).not.toBeInDOM();
     expect(findMenuItem("https://gocd.org/help")).toHaveText("Need Help?");
+  });
+
+  describe("AccessTokenMenu", () => {
+
+    it("should display the menu item when toggle is on", () => {
+      mount({
+              isAnonymous: false,
+              userDisplayName: "Jon Doe",
+              canViewTemplates: false,
+              isGroupAdmin: false,
+              isUserAdmin: false,
+              canViewAdminPage: false,
+              showAnalyticsDashboard: false,
+              enablePersonalAccessTokenSPA: true
+            } as Attrs);
+      expect(findMenuItem("/go/access_tokens")).toBeInDOM();
+      expect(findMenuItem("/go/access_tokens")).toHaveText("Personal Access Tokens");
+    });
+
+    it("should not display the menu item when toggle is off", () => {
+      mount({
+              isAnonymous: false,
+              userDisplayName: "Jon Doe",
+              canViewTemplates: false,
+              isGroupAdmin: false,
+              isUserAdmin: false,
+              canViewAdminPage: false,
+              showAnalyticsDashboard: false,
+              enablePersonalAccessTokenSPA: false
+            } as Attrs);
+
+      expect(findMenuItem("/go/access_tokens")).not.toBeInDOM();
+    });
   });
 
   function mount(attrs: Attrs) {

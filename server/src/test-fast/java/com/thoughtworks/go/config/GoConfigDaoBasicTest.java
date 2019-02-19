@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,8 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.Before;
-import org.junit.Test;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class GoConfigDaoBasicTest extends GoConfigDaoTestBase {
 

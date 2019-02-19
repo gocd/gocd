@@ -28,24 +28,18 @@ import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TestUtils;
 import org.apache.commons.io.FileUtils;
-import ch.qos.logback.classic.Level;
 import org.junit.Test;
 
 import java.io.File;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
-import static com.thoughtworks.go.helper.ConfigFileFixture.*;
+import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS;
+import static com.thoughtworks.go.helper.ConfigFileFixture.WITH_3_AGENT_CONFIG;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -373,7 +367,8 @@ public abstract class GoConfigDaoTestBase {
     @Test
     public void shouldNotConfigMultipleTrackingTools() throws Exception {
         try {
-            useConfigString(INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS);
+            FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS);
+            goConfigDao.forceReload();
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Invalid content was found starting with element 'trackingtool'. One of '{timer, environmentvariables, dependencies, materials}"));
         }
@@ -424,12 +419,6 @@ public abstract class GoConfigDaoTestBase {
         goConfigDao.updateConfig(saveCommand, currentUser);
 
         verify(cachedConfigService).writeEntityWithLock(saveCommand, currentUser);
-    }
-
-    private void assertCurrentConfigIs(CruiseConfig cruiseConfig) throws Exception {
-        CruiseConfig currentConfig = goConfigDao.load();
-        assertThat(currentConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).size(),
-                is(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).size()));
     }
 
 

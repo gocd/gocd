@@ -219,6 +219,7 @@ rootProject.ext.versions = [
   tokenBucket         : '1.7',
   velocityToolsView   : '1.4',
   xmlUnitMatchers     : '2.6.2',
+  xmlunitassertj      : '2.6.2',
   seleniumDrivers     : [
     chromedriver  : '2.41',
     geckodriver   : '0.21.0',

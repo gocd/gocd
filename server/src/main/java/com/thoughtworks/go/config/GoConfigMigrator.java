@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,6 +46,7 @@ public class GoConfigMigrator {
     private GoConfigFileReader goConfigFileReader;
     private ConfigRepository configRepository;
     private ServerHealthService serverHealthService;
+    private UpgradeFailedHandler upgradeFailedHandler;
     private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigMigrator.class.getName());
 
     @Autowired
@@ -54,12 +55,25 @@ public class GoConfigMigrator {
                             ConfigRepository configRepository, ServerHealthService serverHealthService) {
 
         this(goConfigMigration, systemEnvironment, fullConfigSaveNormalFlow,
-                new MagicalGoConfigXmlLoader(configCache, registry), new GoConfigFileReader(systemEnvironment), configRepository, serverHealthService);
+                new MagicalGoConfigXmlLoader(configCache, registry), new GoConfigFileReader(systemEnvironment), configRepository, serverHealthService, new UpgradeFailedHandler() {
+                    @Override
+                    public void handle(Exception e) {
+                        e.printStackTrace();
+                        System.err.println(
+                                "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
+                                        + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
+                        LOGGER.error(MarkerFactory.getMarker("FATAL"),
+                                "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
+                                        + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
+                        // Send exit signal in a separate thread otherwise it will deadlock jetty
+                        new Thread(() -> System.exit(1)).start();
+                    }
+                });
     }
 
     public GoConfigMigrator(GoConfigMigration goConfigMigration, SystemEnvironment systemEnvironment,
                             FullConfigSaveNormalFlow fullConfigSaveNormalFlow, MagicalGoConfigXmlLoader loader,
-                            GoConfigFileReader goConfigFileReader, ConfigRepository configRepository, ServerHealthService serverHealthService) {
+                            GoConfigFileReader goConfigFileReader, ConfigRepository configRepository, ServerHealthService serverHealthService, UpgradeFailedHandler upgradeFailedHandler) {
         this.goConfigMigration = goConfigMigration;
         this.systemEnvironment = systemEnvironment;
         this.fullConfigSaveNormalFlow = fullConfigSaveNormalFlow;
@@ -67,21 +81,14 @@ public class GoConfigMigrator {
         this.goConfigFileReader = goConfigFileReader;
         this.configRepository = configRepository;
         this.serverHealthService = serverHealthService;
+        this.upgradeFailedHandler = upgradeFailedHandler;
     }
 
     public GoConfigHolder migrate() {
         try {
             return upgrade();
         } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println(
-                    "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
-                            + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
-            LOGGER.error(MarkerFactory.getMarker("FATAL"),
-                    "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
-                            + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
-            // Send exit signal in a separate thread otherwise it will deadlock jetty
-            new Thread(() -> System.exit(1)).start();
+            upgradeFailedHandler.handle(e);
         }
         return null;
     }
@@ -134,5 +141,9 @@ public class GoConfigMigrator {
 
     public File fileLocation() {
         return new File(systemEnvironment.getCruiseConfigFile());
+    }
+
+    public static interface UpgradeFailedHandler {
+        void handle(Exception e);
     }
 }

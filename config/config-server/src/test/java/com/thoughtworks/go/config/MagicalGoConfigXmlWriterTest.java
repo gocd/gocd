@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -325,44 +325,6 @@ public class MagicalGoConfigXmlWriterTest {
                 + "</job>";
         JobConfig jobConfig = xmlLoader.fromXmlPartial(partial, JobConfig.class);
         assertThat(xmlWriter.toXmlPartial(jobConfig), is(partial));
-    }
-
-    @Test
-    public void shouldNotWriteMoreThanOneOnCancelTaskWhenDefined() throws Exception {
-        String xml = "<cruise schemaVersion='76'>\n"
-                + "<server artifactsdir='artifactsDir' >"
-                + "</server>"
-                + "<pipelines>\n"
-                + "<pipeline name='pipeline1' template='abc'>\n"
-                + "    <materials>\n"
-                + "      <svn url ='svnurl' username='foo' password='password'/>"
-                + "    </materials>\n"
-                + "</pipeline>\n"
-                + "</pipelines>\n"
-                + "<templates>\n"
-                + "  <pipeline name='abc'>\n"
-                + "    <stage name='stage1'>"
-                + "      <jobs>"
-                + "        <job name='job1'>"
-                + "         <tasks>"
-                + "             <exec command=\"rake\">\n"
-                + "                 <arg>all_test</arg>\n"
-                + "                 <oncancel>\n"
-                + "                     <ant target='kill' />\n"
-                + "                     <ant target='kill' />\n"
-                + "                 </oncancel>\n"
-                + "             </exec>"
-                + "         </tasks>"
-                + "        </job>"
-                + "      </jobs>"
-                + "    </stage>"
-                + "  </pipeline>\n"
-                + "</templates>\n"
-                + "</cruise>";
-
-        thrown.expectMessage("Invalid content was found starting with element 'ant'. No child element is expected at this point.");
-        CruiseConfig cruiseConfig = ConfigMigrator.loadWithMigration(xml).config;
-        xmlWriter.write(cruiseConfig, output, false);
     }
 
     @Test

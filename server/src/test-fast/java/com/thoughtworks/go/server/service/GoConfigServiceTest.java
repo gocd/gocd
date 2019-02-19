@@ -50,11 +50,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.hamcrest.Matchers;
 import org.jdom2.input.JDOMParseException;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -104,7 +102,7 @@ public class GoConfigServiceTest {
         userDao = mock(UserDao.class);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
-        goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(configRepo, new TimeProvider(), new ConfigCache(),
+        goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(new TimeProvider(),
                 registry), goCache, configRepo, registry,
                 instanceFactory, mock(CachedGoPartials.class), systemEnvironment);
     }

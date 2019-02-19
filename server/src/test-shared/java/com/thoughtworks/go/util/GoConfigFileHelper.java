@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.util;
 
-import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -28,7 +27,6 @@ import com.thoughtworks.go.config.registry.NoPluginsInstalled;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
-import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -37,7 +35,6 @@ import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.helper.*;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -115,6 +112,7 @@ public class GoConfigFileHelper {
     public static GoConfigDao createTestingDao() {
         SystemEnvironment systemEnvironment = new SystemEnvironment();
         try {
+
             MaintenanceModeService maintenanceModeService = new MaintenanceModeService(new TimeProvider());
             ServerHealthService serverHealthService = new ServerHealthService();
             ConfigRepository configRepository = new ConfigRepository(systemEnvironment);
@@ -125,8 +123,9 @@ public class GoConfigFileHelper {
             FullConfigSaveNormalFlow normalFlow = new FullConfigSaveNormalFlow(configCache, configElementImplementationRegistry, systemEnvironment, new TimeProvider(), configRepository, cachedGoPartials);
             GoFileConfigDataSource dataSource = new GoFileConfigDataSource(new DoNotUpgrade(), configRepository, systemEnvironment, new TimeProvider(),
                     configCache, configElementImplementationRegistry, serverHealthService, cachedGoPartials, null, normalFlow);
-            GoConfigMigration goConfigMigration = new GoConfigMigration(configRepository, new TimeProvider(), configCache, configElementImplementationRegistry);
+            GoConfigMigration goConfigMigration = new GoConfigMigration(new TimeProvider(), configElementImplementationRegistry);
             GoConfigMigrator goConfigMigrator = new GoConfigMigrator(goConfigMigration, new SystemEnvironment(), configCache, configElementImplementationRegistry, normalFlow, configRepository, serverHealthService);
+            FileUtils.writeStringToFile(dataSource.fileLocation(), ConfigFileFixture.configWithSecurity(""), UTF_8);
             goConfigMigrator.migrate();
             CachedGoConfig cachedConfigService = new CachedGoConfig(serverHealthService, dataSource, cachedGoPartials, null, null, maintenanceModeService);
             cachedConfigService.loadConfigIfNull();
@@ -153,7 +152,7 @@ public class GoConfigFileHelper {
                     serverHealthService, new CachedGoPartials(serverHealthService), null, normalFlow);
             ConfigElementImplementationRegistry configElementImplementationRegistry = new ConfigElementImplementationRegistry(new NoPluginsInstalled());
             new ConfigElementImplementationRegistrar(configElementImplementationRegistry).initialize();
-            GoConfigMigration goConfigMigration = new GoConfigMigration(configRepository, new TimeProvider(), configCache, configElementImplementationRegistry);
+            GoConfigMigration goConfigMigration = new GoConfigMigration(new TimeProvider(), configElementImplementationRegistry);
             GoConfigMigrator goConfigMigrator = new GoConfigMigrator(goConfigMigration, new SystemEnvironment(), configCache, configElementImplementationRegistry, normalFlow, configRepository, serverHealthService);
             goConfigMigrator.migrate();
 
@@ -169,10 +168,10 @@ public class GoConfigFileHelper {
     public GoConfigFileHelper(File configFile) {
         assignFileDao(createTestingDao());
         this.configFile = configFile.getAbsoluteFile();
-        ConfigMigrator.migrate(this.configFile);
         try {
+            saveFullConfig(FileUtils.readFileToString(this.configFile, UTF_8), true);
             this.originalXml = FileUtils.readFileToString(this.configFile, "UTF-8");
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw bomb("Error reading config file", e);
         }
         new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, this.configFile.getAbsolutePath());

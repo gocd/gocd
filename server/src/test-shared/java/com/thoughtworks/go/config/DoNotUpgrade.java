@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,14 +19,13 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.TimeProvider;
 
-import java.io.File;
-
 public class DoNotUpgrade extends GoConfigMigration {
     public DoNotUpgrade() {
-        super(null, new TimeProvider(), null, ConfigElementImplementationRegistryMother.withNoPlugins());
+        super(new TimeProvider(), ConfigElementImplementationRegistryMother.withNoPlugins());
     }
 
-    public GoConfigMigrationResult upgradeIfNecessary(File configFile, final String currentGoServerVersion) {
-        return GoConfigMigrationResult.success();
+    @Override
+    public String upgradeIfNecessary(String content) {
+        return content;
     }
 }

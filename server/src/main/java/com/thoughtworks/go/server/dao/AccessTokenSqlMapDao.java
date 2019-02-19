@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.dao;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.Clock;
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
 import org.hibernate.criterion.Restrictions;
@@ -29,8 +30,10 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
+import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessTokenDao {
@@ -118,4 +121,20 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
                         .uniqueResult());
 
     }
+
+    public void updateLastUsedTime(Map<Long, Timestamp> accessTokenIdToLastUsedTimestamp) {
+        transactionTemplate.execute(transactionCallback -> {
+            final Session currentSession = sessionFactory.getCurrentSession();
+
+            accessTokenIdToLastUsedTimestamp.keySet().forEach(tokenId -> {
+                final Query query = currentSession.createQuery("UPDATE AccessToken SET lastUsed = :lastUsed WHERE id = :id");
+                query.setLong("id", tokenId);
+                query.setTimestamp("lastUsed", accessTokenIdToLastUsedTimestamp.get(tokenId));
+                query.executeUpdate();
+            });
+
+            return Boolean.TRUE;
+        });
+    }
+
 }

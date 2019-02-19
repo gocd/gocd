@@ -68,7 +68,7 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws IOException, ServletException {
+                                    FilterChain filterChain) throws IOException {
         try {
             if (isPreviouslyAuthenticated(request)) {
                 LOGGER.debug("Request is already authenticated.");
@@ -93,7 +93,7 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
         }
     }
 
-    private AccessTokenCredential extractAuthTokenCredential(String authorizationHeader) throws Exception {
+    private AccessTokenCredential extractAuthTokenCredential(String authorizationHeader) {
         final Pattern BEARER_AUTH_EXTRACTOR_PATTERN = Pattern.compile("bearer (.*)", Pattern.CASE_INSENSITIVE);
 
         if (isBlank(authorizationHeader)) {
@@ -123,6 +123,7 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
             LOGGER.debug("Bearer auth credentials are not provided in request.");
             filterChain.doFilter(request, response);
         } else {
+            accessTokenService.updateLastUsedCacheWith(accessTokenCredential.getAccessToken());
             LOGGER.debug("authenticating user {} using bearer token", accessTokenCredential.getAccessToken().getUsername());
             try {
                 SecurityAuthConfig authConfig = securityAuthConfigService.findProfile(accessTokenCredential.getAccessToken().getAuthConfigId());

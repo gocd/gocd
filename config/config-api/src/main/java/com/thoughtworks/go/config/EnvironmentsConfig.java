@@ -24,6 +24,8 @@ import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
 import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 
 import java.util.*;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @understands the current persistent information related to multiple logical groupings of machines
@@ -33,7 +35,8 @@ import java.util.*;
 public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implements Validatable {
     private final ConfigErrors configErrors = new ConfigErrors();
 
-    public EnvironmentsConfig() { }
+    public EnvironmentsConfig() {
+    }
 
     public void validate(ValidationContext validationContext) {
         List<CaseInsensitiveString> allPipelineNames = validationContext.getCruiseConfig().getAllPipelineNames();
@@ -107,7 +110,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         return super.add(environment);
     }
 
-    public void addPipelinesToEnvironment(String environmentName, String ... pipelineNames) {
+    public void addPipelinesToEnvironment(String environmentName, String... pipelineNames) {
         EnvironmentConfig environment = getOrCreateEnvironment(environmentName);
         for (String pipelineName : pipelineNames) {
             environment.addPipeline(new CaseInsensitiveString(pipelineName));
@@ -171,7 +174,7 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
 
     public EnvironmentConfig find(CaseInsensitiveString envName) {
         for (EnvironmentConfig environmentConfig : this) {
-            if(environmentConfig.name().equals(envName)) {
+            if (environmentConfig.name().equals(envName)) {
                 return environmentConfig;
             }
         }
@@ -187,23 +190,15 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     }
 
     public TreeSet<String> environmentsForAgent(String agentUuid) {
-        TreeSet<String> environmentNames = new TreeSet<>(new AlphaAsciiComparator());
-        for (EnvironmentConfig config : this) {
-            if (config.hasAgent(agentUuid)) {
-                environmentNames.add(CaseInsensitiveString.str(config.name()));
-            }
-        }
-        return environmentNames;
+        return environmentConfigsForAgent(agentUuid).stream()
+                .map(environmentConfig -> CaseInsensitiveString.str(environmentConfig.name()))
+                .collect(Collectors.toCollection(() -> new TreeSet<>(new AlphaAsciiComparator())));
     }
 
     public Set<EnvironmentConfig> environmentConfigsForAgent(String agentUuid) {
-        Set<EnvironmentConfig> environmentConfigs = new HashSet<>();
-        for (EnvironmentConfig config : this) {
-            if (config.hasAgent(agentUuid)) {
-                environmentConfigs.add(config);
-            }
-        }
-        return environmentConfigs;
+        return this.stream()
+                .filter(environmentConfig -> environmentConfig.hasAgent(agentUuid))
+                .collect(Collectors.toSet());
     }
 
     public boolean hasEnvironmentNamed(CaseInsensitiveString environmentName) {
@@ -219,10 +214,9 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
 
     public EnvironmentsConfig getLocal() {
         EnvironmentsConfig locals = new EnvironmentsConfig();
-        for(EnvironmentConfig environmentConfig : this)
-        {
+        for (EnvironmentConfig environmentConfig : this) {
             EnvironmentConfig local = environmentConfig.getLocal();
-            if(local != null)
+            if (local != null)
                 locals.add(local);
         }
         return locals;

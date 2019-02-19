@@ -677,17 +677,17 @@ public class GitCommandTest {
     }
 
     private void setColoring() throws IOException {
-        executeOnGitRepo("git", "config", "--local", "color.diff", "always");
-        executeOnGitRepo("git", "config", "--local", "color.status", "always");
-        executeOnGitRepo("git", "config", "--local", "color.interactive", "always");
-        executeOnGitRepo("git", "config", "--local", "color.branch", "always");
+        executeOnGitRepo("git", "config", "color.diff", "always");
+        executeOnGitRepo("git", "config", "color.status", "always");
+        executeOnGitRepo("git", "config", "color.interactive", "always");
+        executeOnGitRepo("git", "config", "color.branch", "always");
     }
 
     private void unsetColoring() throws IOException {
-        executeOnGitRepo("git", "config", "--local", "color.diff", "auto");
-        executeOnGitRepo("git", "config", "--local", "color.status", "auto");
-        executeOnGitRepo("git", "config", "--local", "color.interactive", "auto");
-        executeOnGitRepo("git", "config", "--local", "color.branch", "auto");
+        executeOnGitRepo("git", "config", "color.diff", "auto");
+        executeOnGitRepo("git", "config", "color.status", "auto");
+        executeOnGitRepo("git", "config", "color.interactive", "auto");
+        executeOnGitRepo("git", "config", "color.branch", "auto");
     }
 
     private void assertWorkingCopyNotCheckedOut() {

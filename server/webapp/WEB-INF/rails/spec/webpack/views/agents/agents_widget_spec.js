@@ -529,9 +529,9 @@ describe("Agents Widget", () => {
       "resources":          [
         "Firefox"
       ],
-      "environments":       [
-        "Dev",
-        "Test"
+      "environments": [
+        {"name": "Dev", "associated_from_config_repo": false},
+        {"name": "Test", "associated_from_config_repo": false}
       ],
       "build_details":      {
         "_links":   {
@@ -574,8 +574,8 @@ describe("Agents Widget", () => {
       "resources":          [
         "Chrome"
       ],
-      "environments":       [
-        "Test"
+      "environments": [
+        {"name": "Test", "associated_from_config_repo": false}
       ]
     }
   ];

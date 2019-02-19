@@ -273,8 +273,8 @@ describe("Agent Row Widget", () => {
       "resources":          [
         "firefox"
       ],
-      "environments":       [
-        "Dev"
+      "environments": [
+        {"name": "Dev", "associated_from_config_repo": false}
       ]
     },
     {
@@ -325,8 +325,9 @@ describe("Agent Row Widget", () => {
       "resources":          [
         "linux", "java"
       ],
-      "environments":       [
-        "staging", "perf"
+      "environments": [
+        {"name": "staging", "associated_from_config_repo": false},
+        {"name": "perf", "associated_from_config_repo": false}
       ],
       "build_details":      {
         "_links":        {

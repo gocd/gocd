@@ -34,7 +34,11 @@ describe('Agent Model', () => {
     expect(agent.agentState()).toBe('Building');
     expect(agent.buildState()).toBe('Unknown');
     expect(agent.resources()).toEqual(['linux', 'java']);
-    expect(agent.environments()).toEqual(['staging', 'perf']);
+    expect(agent.environments().length).toBe(2);
+    expect(agent.environments()[0].name()).toEqual('staging');
+    expect(agent.environments()[1].name()).toEqual('perf');
+    expect(agent.environments()[0].associatedFromConfigRepo()).toBe(true);
+    expect(agent.environments()[1].associatedFromConfigRepo()).toBe(false);
     expect(agent.buildDetails().pipelineUrl()).toEqual("http://localhost:8153/go/tab/pipeline/history/up42");
     expect(agent.buildDetails().stageUrl()).toEqual("http://localhost:8153/go/pipelines/up42/2/up42_stage/1");
     expect(agent.buildDetails().jobUrl()).toEqual("http://localhost:8153/go/tab/build/detail/up42/2/up42_stage/1/up42_job");
@@ -266,8 +270,9 @@ describe('Agent Model', () => {
       "resources":          [
         "linux", "java"
       ],
-      "environments":       [
-        "staging", "perf"
+      "environments": [
+        {"name": "staging", "associated_from_config_repo": true},
+        {"name": "perf", "associated_from_config_repo": false}
       ],
       "build_details":      {
         "_links":   {
@@ -332,7 +337,9 @@ describe('Agent Model', () => {
       "agent_state":        "Missing",
       "build_state":        "Unknown",
       "resources":          ["zzzz"],
-      "environments":       ['prod']
+      "environments": [
+        {"name": "prod", "associated_from_config_repo": false}
+      ]
     },
     {
       "_links":             {
@@ -356,7 +363,9 @@ describe('Agent Model', () => {
       "agent_state":        "LostContact",
       "build_state":        "Unknown",
       "resources":          [],
-      "environments":       ['ci']
+      "environments": [
+        {"name": "ci", "associated_from_config_repo": false}
+      ]
     },
     {
       "_links":             {

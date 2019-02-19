@@ -111,7 +111,7 @@ const AgentRowWidget = {
 
     const agent           = args.agent;
     const resources       = joinOrNoneSpecified(agent.resources());
-    const environments    = joinOrNoneSpecified(agent.environments());
+    const environmentNames    = joinOrNoneSpecified(agent.environmentNames());
     let agentStatus       = agent.status();
     const isBuildingAgent = !agent.buildDetails().isEmpty();
     const isElasticAgent  = agent.isElasticAgent();
@@ -196,7 +196,7 @@ const AgentRowWidget = {
         </td>
         <td key="environments">
           <label class="hide-for-large">Environments</label>
-          <span class="content">{environments}</span>
+          <span class="content">{environmentNames}</span>
         </td>
         {analyticsIcon}
       </tr>

@@ -215,7 +215,7 @@ const Agents = function (data) {
 
 };
 
-Agents.API_VERSION = 'v4';
+Agents.API_VERSION = 'v5';
 
 CrudMixins.Index({
   type:     Agents,
@@ -276,7 +276,7 @@ Agents.Agent = function (data) {
   };
 
   this.matches = (filterText) => {
-    const keys = ['hostname', 'operatingSystem', 'ipAddress', 'status', 'environments', 'resources', 'elasticAgentId', 'elasticPluginId'];
+    const keys = ['hostname', 'operatingSystem', 'ipAddress', 'status', 'environmentNames', 'resources', 'elasticAgentId', 'elasticPluginId'];
     filterText = filterText.toLowerCase();
     return _.some(keys, (field) => {
       const agentInfo = self[field]() ? self[field]().toString().toLowerCase() : '';
@@ -286,11 +286,15 @@ Agents.Agent = function (data) {
 
   this.isElasticAgent = () => !_.isNil(self.elasticAgentId());
 
+  this.environmentNames = () => {
+    return this.environments().map((env) => env.name());
+  };
+
   this.toJSON = function () {
     return {
       hostname:           this.hostname(),
       resources:          this.resources(),
-      environments:       this.environments(),
+      environments:       this.environmentNames(),
       agent_config_state: this.agentConfigState() //eslint-disable-line camelcase
     };
   };
@@ -324,6 +328,27 @@ Agents.Agent.BuildDetails.fromJSON = (data) => {
   }
 };
 
+Agents.Agent.Environment = function (data) {
+  this.isEmpty = Stream(_.isNil(data));
+  if (this.isEmpty()) {
+    return;
+  }
+  this.name                     = Stream(data.name);
+  this.associatedFromConfigRepo = Stream(data.associatedFromConfigRepo);
+};
+
+Agents.Agent.Environment.fromJSON = (data) => {
+  if (!data) {
+    return new Agents.Agent.Environment();
+  } else {
+    return new Agents.Agent.Environment({
+      name:                     data.name,
+      associatedFromConfigRepo: data.associated_from_config_repo,
+    });
+  }
+};
+
+
 Agents.Agent.fromJSON = (data) => new Agents.Agent({
   uuid:             data.uuid,
   hostname:         data.hostname,
@@ -335,7 +360,7 @@ Agents.Agent.fromJSON = (data) => new Agents.Agent({
   agentState:       data.agent_state,
   buildState:       data.build_state,
   resources:        data.resources,
-  environments:     data.environments,
+  environments:     data.environments.map((env) => Agents.Agent.Environment.fromJSON(env)),
   buildDetails:     Agents.Agent.BuildDetails.fromJSON(data.build_details),
   elasticAgentId:   data.elastic_agent_id,
   elasticPluginId:  data.elastic_plugin_id

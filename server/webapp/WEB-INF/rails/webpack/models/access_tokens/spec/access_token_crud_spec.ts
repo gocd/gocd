@@ -22,7 +22,7 @@ import {AccessToken, AccessTokens} from "../types";
 describe("AccessTokenCRUD", () => {
   beforeEach(() => jasmine.Ajax.install());
   afterEach(() => jasmine.Ajax.uninstall());
-  const BASE_PATH = "/go/api/access_tokens";
+  const BASE_PATH = "/go/api/current_user/access_tokens";
 
   it("should get all access tokens", (done) => {
     jasmine.Ajax.stubRequest(BASE_PATH).andReturn(accessTokensResponse());

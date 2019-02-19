@@ -40,10 +40,10 @@ export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
     }
 
     const data = accessTokens.sortByCreateDate().map((accessToken, index) => {
-      const lastUsedAt = accessToken().meta().lastUsedAt() ? accessToken().meta().lastUsedAt()!.toString() : "Never";
+      const lastUsedAt = accessToken().lastUsedAt() ? accessToken().lastUsedAt()!.toString() : "Never";
       return [index + 1,
         <span className={styles.description}>{accessToken().description()}</span>,
-        TimeFormatter.format(accessToken().meta().createdAt()),
+        TimeFormatter.format(accessToken().createdAt()),
         lastUsedAt,
         this.getRevokeButton(vnode, accessToken)
       ];
@@ -52,7 +52,7 @@ export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
   }
 
   private getRevokeButton(vnode: m.Vnode<Attrs>, accessToken: Stream<AccessToken>) {
-    if (accessToken().meta().revoked()) {
+    if (accessToken().revoked()) {
       return <span className={styles.revoked}>Revoked</span>;
     }
     return <Buttons.Secondary data-test-id="button-revoke"

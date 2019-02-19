@@ -61,12 +61,9 @@ abstract class BaseModal extends Modal {
   private onError(errorResponse: ErrorResponse, statusCode: number) {
     if (422 === statusCode && errorResponse.body) {
       const json = JSON.parse(errorResponse.body);
-      if (json && json.hasOwnProperty("_meta")) {
+      if (json) {
         this.accessToken(AccessToken.fromJSON(json));
         this.accessToken().token("");
-      } else {
-        this.onFailedSave(json.message);
-        this.close();
       }
     } else {
       this.onFailedSave(errorResponse.message);

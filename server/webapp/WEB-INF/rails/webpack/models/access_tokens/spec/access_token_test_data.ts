@@ -32,12 +32,14 @@ export class AccessTokenTestData {
       name: "ValidToken",
       description: "This is dummy description",
       auth_config_id: "auth_config_id0",
-      _meta: {
-        revoked: false,
-        revoked_at: null,
-        created_at: "2019-02-05T06:41:58Z",
-        last_used_at: "2019-02-05T07:41:58Z"
-      }
+      username: "admin",
+      revoke_cause: "",
+      revoked_by: "",
+      revoked: false,
+      revoked_at: null,
+      created_at: "2019-02-05T06:41:58Z",
+      last_used_at: "2019-02-05T07:41:58Z"
+
     } as AccessTokenJSON;
   }
 
@@ -47,13 +49,14 @@ export class AccessTokenTestData {
       name: "ValidToken",
       description: "This is dummy description",
       auth_config_id: "auth_config_id0",
+      username: "admin",
+      revoke_cause: "",
+      revoked_by: "",
       token: "05724e1de425eeeaf750b7cb2ee98636abdf",
-      _meta: {
-        revoked: false,
-        revoked_at: null,
-        created_at: "2019-02-05T06:41:58Z",
-        last_used_at: "2019-02-05T07:41:58Z"
-      }
+      revoked: false,
+      revoked_at: null,
+      created_at: "2019-02-05T06:41:58Z",
+      last_used_at: "2019-02-05T07:41:58Z"
     } as AccessTokenJSON;
   }
 
@@ -63,12 +66,13 @@ export class AccessTokenTestData {
       name: "RevokedToken",
       description: "This is token is revoked",
       auth_config_id: "auth_config_id0",
-      _meta: {
-        revoked: true,
-        revoked_at: "2019-02-05T06:41:58Z",
-        created_at: "2019-02-04T06:41:58Z",
-        last_used_at: "2019-02-04T07:41:58Z"
-      }
+      revoked: true,
+      revoked_at: "2019-02-05T06:41:58Z",
+      created_at: "2019-02-04T06:41:58Z",
+      last_used_at: "2019-02-04T07:41:58Z",
+      username: "admin",
+      revoke_cause: "revoked as not in use",
+      revoked_by: "admin"
     } as AccessTokenJSON;
   }
 }

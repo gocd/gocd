@@ -493,6 +493,10 @@ module ApplicationHelper
     maintenance_mode_service.isMaintenanceMode
   end
 
+  def enable_access_tokens_spa?
+    Toggles.isToggleOn(Toggles.ENABLE_ACCESS_TOKENS_SPA)
+  end
+
   def edit_path_for_pipeline(pipeline_name)
     pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general')
   end

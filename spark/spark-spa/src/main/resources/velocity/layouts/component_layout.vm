@@ -48,6 +48,7 @@
       data-user-anonymous="${currentUser.anonymous}"
       data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}"
       data-meta="${meta}"
+      data-enable-personal-access-token-spa="$enable_access_tokens_spa"
       >
 
     #if(${devMode})

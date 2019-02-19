@@ -63,7 +63,8 @@
       data-show-analytics-dashboard="$showAnalyticsDashboard"
       data-user-display-name="$principal"
       data-user-anonymous="$isAnonymousUser"
-      data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}">
+      data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}"
+      data-enable-personal-access-token-spa="$enable_access_tokens_spa">
 <div class="page-wrap">
   <div id="body_bg">
     <div id="body_bg_highlight">

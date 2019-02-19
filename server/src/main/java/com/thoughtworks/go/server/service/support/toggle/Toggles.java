@@ -23,6 +23,7 @@ public class Toggles {
     public static String USE_OLD_ARTIFACT_STORES_SPA = "use_old_artifact_stores_spa";
     public static String USE_OLD_ROLES_SPA = "use_old_roles_spa";
     public static String USE_OLD_ENVIRONMENTS_API = "use_old_environments_api";
+    public static String ENABLE_ACCESS_TOKENS_SPA = "enable_access_tokens_spa";
 
 
     private static FeatureToggleService service;

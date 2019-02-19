@@ -40,6 +40,12 @@ public class ApiAuthenticationHelper extends AbstractAuthenticationHelper {
         return HaltApiResponses.haltBecauseForbidden();
     }
 
+    @Override
+    protected HaltException renderNotFoundResponse() {
+        LOG.info("User {} attempted to access a non-existent resource!", currentUserLoginName());
+        return HaltApiResponses.haltBecauseNotFound();
+    }
+
     public void ensureSecurityEnabled(Request request, Response response) {
         if (!securityService.isSecurityEnabled()) {
             throw HaltApiResponses.haltBecauseSecurityIsNotEnabled();

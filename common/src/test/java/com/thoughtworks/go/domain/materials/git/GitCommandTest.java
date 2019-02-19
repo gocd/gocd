@@ -270,7 +270,7 @@ public class GitCommandTest {
 
     @Test
     public void shouldRetrieveLatestModificationWhenColoringIsSetToAlways() throws Exception {
-        gitRepo.setColoring();
+        setColoring();
         Modification mod = git.latestModification().get(0);
         assertThat(mod.getUserName(), is("Chris Turner <cturner@thoughtworks.com>"));
         assertThat(mod.getComment(), is("Added 'run-till-file-exists' ant target"));
@@ -281,7 +281,7 @@ public class GitCommandTest {
         assertThat(files.size(), is(1));
         assertThat(files.get(0).getFileName(), is("build.xml"));
         assertThat(files.get(0).getAction(), Matchers.is(ModifiedAction.modified));
-        gitRepo.unsetColoring();
+        unsetColoring();
     }
 
     @Test
@@ -323,16 +323,16 @@ public class GitCommandTest {
 
     @Test
     public void shouldReturnTheRebasedCommitForModificationsSinceTheRevisionBeforeRebaseWithColoringIsSetToAlways() throws IOException {
-        gitRepo.setColoring();
         GitTestRepo remoteRepo = new GitTestRepo(temporaryFolder);
         executeOnGitRepo("git", "remote", "rm", "origin");
         executeOnGitRepo("git", "remote", "add", "origin", remoteRepo.projectRepositoryUrl());
         GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, new HashMap<>(), null);
 
         Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
+        setColoring();
 
         assertThat(command.modificationsSince(REVISION_4).get(0), is(modification));
-        gitRepo.unsetColoring();
+        unsetColoring();
     }
 
     @Test(expected = CommandLineException.class)
@@ -674,6 +674,20 @@ public class GitCommandTest {
         assertThat(dir.exists(), is(true));
         commandLine.setWorkingDir(dir);
         commandLine.runOrBomb(true, null);
+    }
+
+    private void setColoring() throws IOException {
+        executeOnGitRepo("git", "config", "--local", "color.diff", "always");
+        executeOnGitRepo("git", "config", "--local", "color.status", "always");
+        executeOnGitRepo("git", "config", "--local", "color.interactive", "always");
+        executeOnGitRepo("git", "config", "--local", "color.branch", "always");
+    }
+
+    private void unsetColoring() throws IOException {
+        executeOnGitRepo("git", "config", "--local", "color.diff", "auto");
+        executeOnGitRepo("git", "config", "--local", "color.status", "auto");
+        executeOnGitRepo("git", "config", "--local", "color.interactive", "auto");
+        executeOnGitRepo("git", "config", "--local", "color.branch", "auto");
     }
 
     private void assertWorkingCopyNotCheckedOut() {

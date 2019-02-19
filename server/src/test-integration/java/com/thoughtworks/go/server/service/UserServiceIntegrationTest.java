@@ -65,7 +65,7 @@ import static org.junit.Assert.fail;
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:testPropertyConfigurer.xml",
-        "classpath:WEB-INF/spring-all-servlet.xml"
+        "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class UserServiceIntegrationTest {
     @Autowired

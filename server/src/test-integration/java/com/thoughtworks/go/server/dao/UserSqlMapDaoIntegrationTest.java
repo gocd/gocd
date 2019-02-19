@@ -46,7 +46,8 @@ import static org.junit.matchers.JUnitMatchers.hasItems;
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:testPropertyConfigurer.xml"
+        "classpath:testPropertyConfigurer.xml",
+        "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class UserSqlMapDaoIntegrationTest {
     @Autowired

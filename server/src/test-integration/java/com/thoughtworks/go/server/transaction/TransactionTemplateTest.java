@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.server.transaction;
 
-import java.io.IOException;
-
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,6 +26,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.io.IOException;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -37,7 +37,8 @@ import static org.junit.Assert.fail;
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:testPropertyConfigurer.xml"
+        "classpath:testPropertyConfigurer.xml",
+        "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class TransactionTemplateTest {
     @Autowired private TransactionTemplate goTransactionTemplate;

@@ -47,7 +47,7 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:testPropertyConfigurer.xml",
-        "classpath:WEB-INF/spring-all-servlet.xml"
+        "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class StageControllerIntegrationTest {
     @Autowired private PipelineService pipelineService;

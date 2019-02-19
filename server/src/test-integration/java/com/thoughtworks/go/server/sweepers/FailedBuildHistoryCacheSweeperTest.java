@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.sweepers;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.TreeSet;
-
 import com.thoughtworks.go.domain.PipelineIdentifier;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
 import com.thoughtworks.go.domain.Stage;
@@ -35,6 +30,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.TreeSet;
+
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
@@ -43,7 +43,8 @@ import static org.junit.Assert.assertThat;
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:testPropertyConfigurer.xml"
+        "classpath:testPropertyConfigurer.xml",
+        "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class FailedBuildHistoryCacheSweeperTest {
     @Autowired private GoCache goCache;

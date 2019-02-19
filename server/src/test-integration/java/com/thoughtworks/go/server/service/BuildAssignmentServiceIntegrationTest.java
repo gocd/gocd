@@ -91,7 +91,8 @@ import static org.mockito.Mockito.*;
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:testPropertyConfigurer.xml"
+        "classpath:testPropertyConfigurer.xml",
+        "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class BuildAssignmentServiceIntegrationTest {
     @Autowired private BuildAssignmentService buildAssignmentService;

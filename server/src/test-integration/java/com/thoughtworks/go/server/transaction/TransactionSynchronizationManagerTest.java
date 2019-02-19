@@ -16,11 +16,6 @@
 
 package com.thoughtworks.go.server.transaction;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
-import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,16 +25,18 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:testPropertyConfigurer.xml"
+        "classpath:testPropertyConfigurer.xml",
+        "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class TransactionSynchronizationManagerTest {
     @Autowired public TransactionTemplate transactionTemplate;

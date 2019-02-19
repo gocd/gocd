@@ -41,7 +41,8 @@ import static org.junit.Assert.assertThat;
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
-        "classpath:testPropertyConfigurer.xml"
+        "classpath:testPropertyConfigurer.xml",
+        "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class ConfigDbStateRepositoryIntegrationTest {
     @Autowired private GoConfigDao goConfigDao;

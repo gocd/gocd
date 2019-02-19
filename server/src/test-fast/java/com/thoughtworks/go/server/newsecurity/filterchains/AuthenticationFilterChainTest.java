@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.newsecurity.filterchains;
 
+import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
@@ -28,15 +29,13 @@ import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
 import com.thoughtworks.go.server.newsecurity.models.X509Credential;
+import com.thoughtworks.go.server.newsecurity.providers.AccessTokenBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.AnonymousAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.providers.PasswordBasedPluginAuthenticationProvider;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.AuthorityGranter;
 import com.thoughtworks.go.server.security.GoAuthority;
-import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.PluginRoleService;
-import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.Rule;
@@ -55,6 +54,7 @@ import javax.servlet.http.HttpSession;
 import java.io.File;
 import java.io.IOException;
 
+import static com.thoughtworks.go.helper.AccessTokenMother.randomAccessTokenForUser;
 import static com.thoughtworks.go.server.newsecurity.filterchains.DenyGoCDAccessForArtifactsFilterChainTest.wrap;
 import static com.thoughtworks.go.server.newsecurity.filters.InvalidateAuthenticationOnSecurityConfigChangeFilter.SECURITY_CONFIG_LAST_CHANGE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -242,6 +242,33 @@ public class AuthenticationFilterChainTest {
             assertThat(request.getSession(false)).isNotSameAs(originalSession);
         }
 
+        @ParameterizedTest
+        @ValueSource(strings = {"/cctray.xml", "/api/foo", "/api/blah"})
+        void shouldAuthenticateUsingAccessTokenAuthenticationFilter(String url) throws IOException, ServletException {
+            final AccessTokenService accessTokenService = mock(AccessTokenService.class);
+            final SecurityAuthConfigService securityAuthConfigService = mock(SecurityAuthConfigService.class);
+            final AccessTokenBasedPluginAuthenticationProvider provider = mock(AccessTokenBasedPluginAuthenticationProvider.class);
+            final AccessToken accessToken = randomAccessTokenForUser("bob");
+            request = HttpRequestBuilder.GET(url)
+                    .withBearerAuth("some-access-token")
+                    .build();
+
+            HttpSession originalSession = request.getSession();
+            when(accessTokenService.findByAccessToken("some-access-token")).thenReturn(accessToken);
+            final AuthenticationToken authenticationToken = mock(AuthenticationToken.class);
+            when(provider.authenticateUser(any(), any())).thenReturn(authenticationToken);
+            final AccessTokenAuthenticationFilter accessTokenAuthenticationFilter = new AccessTokenAuthenticationFilter(securityService, accessTokenService, securityAuthConfigService, provider);
+
+            new AuthenticationFilterChain(null,
+                    new NoOpFilter(), new NoOpFilter(), new NoOpFilter(),
+                    new NoOpFilter(), new NoOpFilter(), accessTokenAuthenticationFilter,
+                    assumeAnonymousUserFilter).doFilter(request, response, filterChain);
+
+            verify(filterChain).doFilter(wrap(request), wrap(response));
+            MockHttpServletResponseAssert.assertThat(response).isOk();
+            assertThat(SessionUtils.getAuthenticationToken(request)).isSameAs(authenticationToken);
+            assertThat(request.getSession(false)).isNotSameAs(originalSession);
+        }
     }
 
     @Nested

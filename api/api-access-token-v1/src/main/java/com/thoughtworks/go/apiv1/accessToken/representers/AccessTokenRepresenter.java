@@ -48,11 +48,10 @@ public class AccessTokenRepresenter {
                 .add("revoked_at", token.getRevokedAt())
 
                 .add("created_at", token.getCreatedAt())
-                .add("last_used_at", token.getLastUsed())
-                .add("auth_config_id", token.getAuthConfigId());
+                .add("last_used_at", token.getLastUsed());
 
         if (urlBuilder instanceof Routes.AdminUserAccessToken) {
-            outputWriter.add("deletedBecauseUserDeleted", token.isDeletedBecauseUserDeleted());
+            outputWriter.add("revoked_because_user_deleted", token.isDeletedBecauseUserDeleted());
         }
 
         if (token instanceof AccessToken.AccessTokenWithDisplayValue && token.persisted()) {

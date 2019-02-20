@@ -42,7 +42,7 @@ class AccessTokensRepresenterTest {
           "href": "http://test.host/go/api/current_user/access_tokens"
         ],
         "doc" : [
-          "href": apiDocsUrl('#access-token')
+          "href": apiDocsUrl('#access-tokens')
         ],
       ],
       "_embedded": [
@@ -53,7 +53,7 @@ class AccessTokensRepresenterTest {
                 "href": "http://test.host/go/api/current_user/access_tokens/41"
               ],
               "doc" : [
-                "href": apiDocsUrl('#access-token')
+                "href": apiDocsUrl('#access-tokens')
               ],
               "find": [
                 "href": "http://test.host/go/api/current_user/access_tokens/:id"
@@ -62,7 +62,6 @@ class AccessTokensRepresenterTest {
             "id"            : token1.id,
             "description"   : token1.description,
             "username"      : token1.username,
-            "auth_config_id": token1.authConfigId,
             "revoked"       : token1.revoked,
             "revoked_at"    : null,
             "revoke_cause"  : null,
@@ -76,7 +75,7 @@ class AccessTokensRepresenterTest {
                 "href": "http://test.host/go/api/current_user/access_tokens/42"
               ],
               "doc" : [
-                "href": apiDocsUrl('#access-token')
+                "href": apiDocsUrl('#access-tokens')
               ],
               "find": [
                 "href": "http://test.host/go/api/current_user/access_tokens/:id"
@@ -85,7 +84,6 @@ class AccessTokensRepresenterTest {
             "id"            : token2.id,
             "description"   : token2.description,
             "username"      : token2.username,
-            "auth_config_id": token2.authConfigId,
             "revoked"       : token2.revoked,
             "revoked_at"    : null,
             "revoke_cause"  : null,

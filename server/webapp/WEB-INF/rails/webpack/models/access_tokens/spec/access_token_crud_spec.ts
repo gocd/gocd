@@ -82,7 +82,7 @@ describe("AccessTokenCRUD", () => {
     expect(request.url).toEqual(`${BASE_PATH}/${accessToken.id()}/revoke`);
     expect(request.method).toEqual("POST");
     const data = toAccessTokenJSON(request.data());
-    expect(data.cause).toEqual("Some cause to revoke the token");
+    expect(data.revoke_cause).toEqual("Some cause to revoke the token");
     expect(request.requestHeaders).toEqual({
                                              "Accept": "application/vnd.go.cd.v1+json",
                                              "Content-Type": "application/json; charset=utf-8"

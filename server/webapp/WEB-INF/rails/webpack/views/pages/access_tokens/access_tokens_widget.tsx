@@ -35,27 +35,45 @@ export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
     if (accessTokens.length === 0) {
       return (<ul>
         <li>Click on "Generate Token" to create new personal access token.</li>
-        <li>Tokens you have generated that can be used to access the GoCD API.</li>
+        <li>A Generated token can be used to access the GoCD API.</li>
       </ul>);
     }
 
-    const data = accessTokens.sortByCreateDate().map((accessToken, index) => {
-      const lastUsedAt = accessToken().lastUsedAt() ? accessToken().lastUsedAt()!.toString() : "Never";
-      return [index + 1,
+    const data = accessTokens.sortByCreateDate().map((accessToken) => {
+      return [
         <span className={styles.description}>{accessToken().description()}</span>,
-        TimeFormatter.format(accessToken().createdAt()),
-        lastUsedAt,
+        AccessTokensWidget.formatTimeInformation(accessToken().createdAt()),
+        AccessTokensWidget.getLastUsedInformation(accessToken()),
         this.getRevokeButton(vnode, accessToken)
       ];
     });
-    return <Table headers={["#", "Description", "Created at", " Last used on", ""]} data={data}/>;
+    return <Table headers={["Description", "Created at", " Last used", "Revoke"]} data={data}/>;
+  }
+
+  private static getLastUsedInformation(accessToken: AccessToken) {
+    const lastUsedAt = accessToken.lastUsedAt();
+    if (!lastUsedAt) {
+      return "Never";
+    }
+
+    return AccessTokensWidget.formatTimeInformation(lastUsedAt);
+  }
+
+  private static formatTimeInformation(date: Date) {
+    const dateStr = TimeFormatter.format(date);
+
+    if (date.toDateString() === new Date().toDateString()) {
+      return `Today ${dateStr.substr(dateStr.indexOf("at"))}`;
+    }
+
+    return dateStr;
   }
 
   private getRevokeButton(vnode: m.Vnode<Attrs>, accessToken: Stream<AccessToken>) {
     if (accessToken().revoked()) {
       return <span className={styles.revoked}>Revoked</span>;
     }
-    return <Buttons.Secondary data-test-id="button-revoke"
-                              onclick={vnode.attrs.onRevoke.bind(this, accessToken)}>Revoke</Buttons.Secondary>;
+    return <Buttons.Default data-test-id="button-revoke"
+                            onclick={vnode.attrs.onRevoke.bind(this, accessToken)}>Revoke</Buttons.Default>;
   }
 }

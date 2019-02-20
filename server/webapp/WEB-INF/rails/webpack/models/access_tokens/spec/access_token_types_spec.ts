@@ -30,7 +30,7 @@ describe("AccessTokenTypesSpec", () => {
 
     expect(accessTokens[0]().id()).toEqual(validAccessTokenJSON.id);
     expect(accessTokens[0]().description()).toEqual(validAccessTokenJSON.description);
-    expect(accessTokens[0]().authConfigId()).toEqual(validAccessTokenJSON.auth_config_id);
+    expect(accessTokens[0]().revokedBecauseUserDeleted()).toEqual(false);
     expect(accessTokens[0]().revoked()).toEqual(false);
     expect(accessTokens[0]().revokedAt()).toEqual(null);
     expect(accessTokens[0]().createdAt())
@@ -40,7 +40,7 @@ describe("AccessTokenTypesSpec", () => {
 
     expect(accessTokens[1]().id()).toEqual(revokedAccessTokenJSON.id);
     expect(accessTokens[1]().description()).toEqual(revokedAccessTokenJSON.description);
-    expect(accessTokens[1]().authConfigId()).toEqual(revokedAccessTokenJSON.auth_config_id);
+    expect(accessTokens[1]().revokedBecauseUserDeleted()).toEqual(true);
     expect(accessTokens[1]().revoked()).toEqual(true);
     expect(accessTokens[1]().revokedAt())
       .toEqual(TimeFormatter.toDate(revokedAccessTokenJSON.revoked_at));

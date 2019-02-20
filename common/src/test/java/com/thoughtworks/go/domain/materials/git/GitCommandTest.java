@@ -100,6 +100,7 @@ public class GitCommandTest {
     }
 
     @After public void teardown() throws Exception {
+        unsetColoring();
         TestRepo.internalTearDown();
     }
 
@@ -269,6 +270,21 @@ public class GitCommandTest {
     }
 
     @Test
+    public void shouldRetrieveLatestModificationWhenColoringIsSetToAlways() throws Exception {
+        setColoring();
+        Modification mod = git.latestModification().get(0);
+        assertThat(mod.getUserName(), is("Chris Turner <cturner@thoughtworks.com>"));
+        assertThat(mod.getComment(), is("Added 'run-till-file-exists' ant target"));
+        assertThat(mod.getModifiedTime(), is(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800")));
+        assertThat(mod.getRevision(), is("5def073a425dfe239aabd4bf8039ffe3b0e8856b"));
+
+        List<ModifiedFile> files = mod.getModifiedFiles();
+        assertThat(files.size(), is(1));
+        assertThat(files.get(0).getFileName(), is("build.xml"));
+        assertThat(files.get(0).getAction(), Matchers.is(ModifiedAction.modified));
+    }
+
+    @Test
     public void retrieveLatestModificationShouldNotResultInWorkingCopyCheckOut() throws Exception{
         git.latestModification();
         assertWorkingCopyNotCheckedOut();
@@ -303,7 +319,19 @@ public class GitCommandTest {
         Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
 
         assertThat(command.modificationsSince(REVISION_4).get(0), is(modification));
+    }
 
+    @Test
+    public void shouldReturnTheRebasedCommitForModificationsSinceTheRevisionBeforeRebaseWithColoringIsSetToAlways() throws IOException {
+        GitTestRepo remoteRepo = new GitTestRepo(temporaryFolder);
+        executeOnGitRepo("git", "remote", "rm", "origin");
+        executeOnGitRepo("git", "remote", "add", "origin", remoteRepo.projectRepositoryUrl());
+        GitCommand command = new GitCommand(remoteRepo.createMaterial().getFingerprint(), gitLocalRepoDir, "master", false, new HashMap<>(), null);
+
+        Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
+        setColoring();
+
+        assertThat(command.modificationsSince(REVISION_4).get(0), is(modification));
     }
 
     @Test(expected = CommandLineException.class)
@@ -645,6 +673,20 @@ public class GitCommandTest {
         assertThat(dir.exists(), is(true));
         commandLine.setWorkingDir(dir);
         commandLine.runOrBomb(true, null);
+    }
+
+    private void setColoring() throws IOException {
+        executeOnGitRepo("git", "config", "color.diff", "always");
+        executeOnGitRepo("git", "config", "color.status", "always");
+        executeOnGitRepo("git", "config", "color.interactive", "always");
+        executeOnGitRepo("git", "config", "color.branch", "always");
+    }
+
+    private void unsetColoring() throws IOException {
+        executeOnGitRepo("git", "config", "color.diff", "auto");
+        executeOnGitRepo("git", "config", "color.status", "auto");
+        executeOnGitRepo("git", "config", "color.interactive", "auto");
+        executeOnGitRepo("git", "config", "color.branch", "auto");
     }
 
     private void assertWorkingCopyNotCheckedOut() {

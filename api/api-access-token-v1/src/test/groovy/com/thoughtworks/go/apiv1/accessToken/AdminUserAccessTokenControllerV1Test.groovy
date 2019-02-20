@@ -186,7 +186,7 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
         when(accessTokenService.find(token.id, currentUsernameString())).thenReturn(token)
         when(accessTokenService.revokeAccessToken(token.id, currentUsernameString(), "blah")).thenReturn(token)
 
-        postWithApiHeader(controller.controllerPath(token.id, 'revoke'), [cause: 'blah'])
+        postWithApiHeader(controller.controllerPath(token.id, 'revoke'), [revoke_cause: 'blah'])
 
         verify(accessTokenService).revokeAccessToken(token.id, currentUsernameString(), "blah")
 

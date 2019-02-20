@@ -56,7 +56,7 @@ abstract class AbstractUserAccessTokenControllerV1 extends ApiController impleme
     public String revokeAccessToken(Request request, Response response) throws Exception {
         long id = Long.parseLong(request.params(":id"));
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        String revokeCause = reader.optString("cause").orElse(null);
+        String revokeCause = reader.optString("revoke_cause").orElse(null);
 
         AccessToken revokeAccessToken = accessTokenService.revokeAccessToken(id, currentUsernameString(), revokeCause);
 

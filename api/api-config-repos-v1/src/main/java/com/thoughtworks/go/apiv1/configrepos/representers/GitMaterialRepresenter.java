@@ -25,7 +25,7 @@ class GitMaterialRepresenter {
     static void toJSON(OutputWriter json, GitMaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
-        json.add("url", material.getUrl());
+        json.add("url", material.getUriForDisplay());
         json.addWithDefaultIfBlank("branch", material.getBranch(), "master");
     }
 

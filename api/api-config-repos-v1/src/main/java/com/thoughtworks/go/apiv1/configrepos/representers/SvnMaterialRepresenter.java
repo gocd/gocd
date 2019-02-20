@@ -28,7 +28,7 @@ class SvnMaterialRepresenter {
     static void toJSON(OutputWriter json, SvnMaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
-        json.add("url", material.getUrl());
+        json.add("url", material.getUriForDisplay());
         json.add("check_externals", material.isCheckExternals());
         json.add("username", material.getUserName());
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());

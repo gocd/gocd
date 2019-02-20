@@ -18,27 +18,20 @@ package com.thoughtworks.go.apiv1.configrepos.representers
 
 import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.config.materials.AbstractMaterialConfig
-import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig
 import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class SvnMaterialRepresenterTest {
-  private static final String REPO_URL = "https://dontusesvn.com/chewbacca"
+  private static final String REPO_URL = "svn+ssh://username:password@10.106.191.164/home/svn/shproject"
   private static final String USER = "user"
   private static final String PASSWORD = "it's secret!"
 
@@ -52,7 +45,7 @@ class SvnMaterialRepresenterTest {
 
     assertThatJson(json).isEqualTo([
       name           : null,
-      url            : REPO_URL,
+      url            : REPO_URL.replace('password', '******'),
       check_externals: true,
       auto_update    : true,
       username       : null
@@ -68,7 +61,7 @@ class SvnMaterialRepresenterTest {
 
     assertThatJson(json).isEqualTo([
       name              : null,
-      url               : REPO_URL,
+      url            : REPO_URL.replace('password', '******'),
       check_externals   : false,
       auto_update       : true,
       username          : USER,

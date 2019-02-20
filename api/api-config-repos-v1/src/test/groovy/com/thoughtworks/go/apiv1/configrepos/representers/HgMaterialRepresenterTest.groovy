@@ -27,7 +27,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 class HgMaterialRepresenterTest {
-  private static final String REPO_URL = "https://bitnugget.com/chewbacca"
+  private static final String REPO_URL = "http://username:password@mydomain.com/myproject"
 
   @Test
   void toJSON() {
@@ -36,7 +36,7 @@ class HgMaterialRepresenterTest {
 
     assertThatJson(json).isEqualTo([
       name       : null,
-      url        : REPO_URL,
+      url        : REPO_URL.replace('password', '******'),
       auto_update: true
     ])
   }

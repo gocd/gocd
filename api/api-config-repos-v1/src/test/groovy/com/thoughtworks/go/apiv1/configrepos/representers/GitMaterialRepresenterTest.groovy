@@ -27,7 +27,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 
 class GitMaterialRepresenterTest {
-  private static final String REPO_URL = "https://guthib.com/chewbacca"
+  private static final String REPO_URL = "https://user:password@guthib.com/chewbacca"
   private static final String BRANCH = "wookie"
 
   @Test
@@ -37,7 +37,7 @@ class GitMaterialRepresenterTest {
 
     assertThatJson(json).isEqualTo([
       name       : null,
-      url        : REPO_URL,
+      url        : REPO_URL.replace('password', '******'),
       branch     : BRANCH,
       auto_update: true
     ])

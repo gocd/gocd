@@ -20,7 +20,6 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 class P4MaterialRepresenter {
     private static final PasswordDeserializer PASSWORD_DESERIALIZER = new PasswordDeserializer();

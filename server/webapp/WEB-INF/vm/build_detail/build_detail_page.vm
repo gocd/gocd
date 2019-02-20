@@ -64,7 +64,7 @@
                 <div class="clear"></div>
               </div>
 
-              <div class="job_details_content" data-pipeline="${presenter.pipelineName}" data-pipeline-label="${presenter.pipelineLabel}" data-stage="${presenter.stageName}" data-stage-counter="${presenter.stageCounter}" data-job="${presenter.id}" data-build="${presenter.buildName}" data-result="$presenter.result" data-websocket="#if($websocketEnabled)enabled#{else}disabled#end">
+              <div class="job_details_content" data-pipeline="${presenter.pipelineName}" data-pipeline-counter="${presenter.pipelineCounter}" data-pipeline-label="${presenter.pipelineLabel}" data-stage="${presenter.stageName}" data-stage-counter="${presenter.stageCounter}" data-job="${presenter.id}" data-build="${presenter.buildName}" data-result="$presenter.result" data-websocket="#if($websocketEnabled)enabled#{else}disabled#end">
                 <div class="sub_tabs_container">
                   <ul>
                     <li class="current_tab" id="build_console">

@@ -37,7 +37,7 @@
       var protocol = l.protocol.replace("http", "ws"), host = l.host, path = [
         "console-websocket",
         details.data("pipeline"),
-        details.data("pipeline-label"),
+        details.data("pipeline-counter"),
         details.data("stage"),
         details.data("stage-counter"),
         details.data("build")

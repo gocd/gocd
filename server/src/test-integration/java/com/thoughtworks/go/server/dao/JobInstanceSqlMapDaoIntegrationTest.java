@@ -77,7 +77,7 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
-public class JobInstanceSqlMapDaoTest {
+public class JobInstanceSqlMapDaoIntegrationTest {
     @Autowired
     private JobInstanceSqlMapDao jobInstanceDao;
     @Autowired

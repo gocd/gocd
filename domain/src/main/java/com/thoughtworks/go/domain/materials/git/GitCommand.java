@@ -93,12 +93,12 @@ public class GitCommand extends SCMCommand {
     }
 
     public List<Modification> latestModification() {
-        return gitLog("-1", "--date=iso", "--pretty=medium", "--no-color", remoteBranch());
+        return gitLog("-1", "--date=iso", "--pretty=medium", "--decorate=no", "--no-color", remoteBranch());
 
     }
 
     public List<Modification> modificationsSince(Revision revision) {
-        return gitLog("--date=iso", "--pretty=medium", "--no-color", String.format("%s..%s", revision.getRevision(), remoteBranch()));
+        return gitLog("--date=iso", "--pretty=medium", "--decorate=no", "--no-color", String.format("%s..%s", revision.getRevision(), remoteBranch()));
     }
 
     private List<Modification> gitLog(String... args) {

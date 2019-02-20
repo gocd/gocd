@@ -681,6 +681,7 @@ public class GitCommandTest {
         executeOnGitRepo("git", "config", "color.status", "always");
         executeOnGitRepo("git", "config", "color.interactive", "always");
         executeOnGitRepo("git", "config", "color.branch", "always");
+        executeOnGitRepo("git", "config", "log.decorate", "true");
     }
 
     private void unsetColoring() throws IOException {
@@ -688,6 +689,7 @@ public class GitCommandTest {
         executeOnGitRepo("git", "config", "color.status", "auto");
         executeOnGitRepo("git", "config", "color.interactive", "auto");
         executeOnGitRepo("git", "config", "color.branch", "auto");
+        executeOnGitRepo("git", "config", "log.decorate", "false");
     }
 
     private void assertWorkingCopyNotCheckedOut() {

@@ -52,10 +52,15 @@ export interface UserJSON {
   email_me?: boolean;
   checkin_aliases?: string[];
   roles?: UserRoleJSON[];
+  is_individual_admin: boolean;
+}
+
+export enum UpdateOperationStatus {
+  IN_PROGRESS, SUCCESS, ERROR
 }
 
 export class User {
-  checked: Stream<boolean> = stream(false);
+  checked: Stream<boolean>                                    = stream(false);
   loginName: Stream<string>;
   isAdmin: Stream<boolean>;
   displayName: Stream<string>;
@@ -64,16 +69,20 @@ export class User {
   enabled: Stream<boolean>;
   checkinAliases: Stream<string[]>;
   roles: Stream<UserRoleJSON[]>;
+  updateOperationStatus: Stream<UpdateOperationStatus | null> = stream();
+  updateOperationErrorMessage: Stream<string | null>          = stream();
+  isIndividualAdmin: Stream<boolean>                          = stream();
 
   constructor(json: UserJSON) {
-    this.loginName      = stream(json.login_name);
-    this.displayName    = stream(json.display_name);
-    this.enabled        = stream(json.enabled);
-    this.email          = stream(json.email);
-    this.emailMe        = stream(json.email_me);
-    this.isAdmin        = stream(json.is_admin);
-    this.checkinAliases = stream(json.checkin_aliases);
-    this.roles          = stream(json.roles);
+    this.loginName         = stream(json.login_name);
+    this.displayName       = stream(json.display_name);
+    this.enabled           = stream(json.enabled);
+    this.email             = stream(json.email);
+    this.emailMe           = stream(json.email_me);
+    this.isAdmin           = stream(json.is_admin);
+    this.checkinAliases    = stream(json.checkin_aliases);
+    this.roles             = stream(json.roles);
+    this.isIndividualAdmin = stream(json.is_individual_admin);
   }
 
   static fromJSON(json: UserJSON) {
@@ -88,6 +97,7 @@ export class User {
                       email: existingUser.email(),
                       email_me: existingUser.emailMe(),
                       is_admin: existingUser.isAdmin(),
+                      is_individual_admin: existingUser.isIndividualAdmin(),
                       checkin_aliases: existingUser.checkinAliases()
                     });
   }
@@ -107,6 +117,45 @@ export class User {
 
   pluginRoles() {
     return _(this.roles()).filter((role) => "gocd" !== role.type).map((role) => role.name).value();
+  }
+
+  markUpdateInprogress() {
+    this.updateOperationStatus(UpdateOperationStatus.IN_PROGRESS);
+  }
+
+  markUpdateSuccessful() {
+    this.updateOperationStatus(UpdateOperationStatus.SUCCESS);
+  }
+
+  markUpdateUnsuccessful() {
+    this.updateOperationStatus(UpdateOperationStatus.ERROR);
+  }
+
+  clearUpdateStatus() {
+    this.updateOperationStatus(null);
+  }
+
+  updateFromJSON(json: UserJSON) {
+    this.isAdmin(json.is_admin);
+    this.isIndividualAdmin(json.is_individual_admin);
+    if (json.display_name) {
+      this.displayName(json.display_name);
+    }
+    if (json.enabled !== undefined) {
+      this.enabled(json.enabled);
+    }
+    if (json.email) {
+      this.email(json.email);
+    }
+    if (json.email_me) {
+      this.emailMe(json.email_me);
+    }
+    if (json.checkin_aliases) {
+      this.checkinAliases(json.checkin_aliases);
+    }
+    if (json.roles) {
+      this.roles(json.roles);
+    }
   }
 }
 

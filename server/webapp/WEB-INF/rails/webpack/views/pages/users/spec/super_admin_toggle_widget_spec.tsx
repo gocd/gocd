@@ -19,7 +19,7 @@ import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 
-import {User, Users} from "models/users/users";
+import {User} from "models/users/users";
 import "views/components/table/spec/table_matchers";
 import {SuperAdminPrivilegeSwitch} from "views/pages/users/super_admin_toggle_widget";
 
@@ -30,8 +30,8 @@ describe("Super Admin Toggle", () => {
 
   let user: User,
       noAdminsConfigured: Stream<boolean>,
-      onRemoveAdmin: (users: Users, e: MouseEvent) => void,
-      onMakeAdmin: (users: Users, e: MouseEvent) => void;
+      onRemoveAdmin: (user: User, e: MouseEvent) => void,
+      onMakeAdmin: (user: User, e: MouseEvent) => void;
 
   beforeEach(() => {
     user               = bob();
@@ -115,6 +115,23 @@ describe("Super Admin Toggle", () => {
     expect(onMakeAdmin).toHaveBeenCalled();
   });
 
+  it("should render tooltip if user is admin because of the role", () => {
+    user.isIndividualAdmin(false);
+    m.redraw();
+
+    const expectedTooltipContent = "'bob' user has the system administrator privileges because the user is assigned the group administrative role. To remove this user from system administrators, assigned role needs to be removed.";
+
+    expect(find("tooltip-wrapper")).toBeInDOM();
+    expect(find("tooltip-content")).toContainText(expectedTooltipContent);
+  });
+
+  it("should disable switch if user is admin because of the role", () => {
+    user.isIndividualAdmin(false);
+    m.redraw();
+
+    expect(find("switch-checkbox").prop("disabled")).toBe(true);
+  });
+
   function mount() {
     m.mount(root, {
       view() {
@@ -145,6 +162,7 @@ describe("Super Admin Toggle", () => {
                            display_name: "Bob",
                            login_name: "bob",
                            is_admin: true,
+                           is_individual_admin: true,
                            email_me: true,
                            checkin_aliases: ["bob@gmail.com"],
                            enabled: true

@@ -54,7 +54,9 @@ export class SwitchBtn extends MithrilComponent<Attrs, State> {
     const classNames = classnames({[styles.switchSmall]: isSmall}, styles.switchBtn);
     const switchId   = `switch-${uuid4()}`;
     const label      = vnode.attrs.label ? (
-      <label className={styles.switchLabel} data-test-id="switch-label">{vnode.attrs.label}</label>) : null;
+      <label
+        className={classnames({[styles.disabled]: vnode.attrs.field() && vnode.attrs.disabled}, styles.switchLabel)}
+        data-test-id="switch-label">{vnode.attrs.label}</label>) : null;
 
     return (
       <div className={classNames} data-test-id="switch-wrapper">
@@ -67,7 +69,8 @@ export class SwitchBtn extends MithrilComponent<Attrs, State> {
                data-test-id="switch-checkbox"/>
         <label for={switchId} className={classnames({
                                                       [styles.inProgress]: vnode.attrs.field() && vnode.attrs.inProgress,
-                                                      [styles.isSuccess]: vnode.attrs.field() && !vnode.attrs.inProgress
+                                                      [styles.isSuccess]: vnode.attrs.field() && !vnode.attrs.inProgress,
+                                                      [styles.disabled]: vnode.attrs.disabled
                                                     }, styles.switchPaddle)} data-test-id="switch-paddle"/>
       </div>);
   }

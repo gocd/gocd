@@ -179,7 +179,7 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
 }
 
 .search-box-wrapper {
-  @include icon-before($type: $fa-var-search, $size: 14px, $top: 5px , $color: $icon-color) {
+  @include icon-before($type: $fa-var-search, $size: 14px, $top: 5px, $color: $icon-color) {
     position: absolute;
     left:     10px;
   }

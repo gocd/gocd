@@ -105,3 +105,9 @@ input:checked ~ .switch-paddle:after {
     transform:         translateX($switch-small-translate-x);
   }
 }
+
+
+.disabled{
+  opacity: 0.5;
+  cursor: not-allowed;
+}

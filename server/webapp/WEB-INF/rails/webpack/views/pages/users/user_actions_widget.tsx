@@ -50,14 +50,6 @@ export interface HasRoleSelection {
   rolesSelection: Stream<Map<GoCDRole, TriStateCheckbox>>;
 }
 
-interface MakeAdminOperation<T> {
-  onMakeAdmin: (obj: T, e: MouseEvent) => void;
-}
-
-interface RemoveAdminOperation<T> {
-  onRemoveAdmin: (obj: T, e: MouseEvent) => void;
-}
-
 export interface RolesViewAttrs extends HasRoleSelection {
   initializeRolesDropdownAttrs: () => void;
   onRolesUpdate: (rolesSelection: Map<GoCDRole, TriStateCheckbox>, users: Users) => void;
@@ -74,9 +66,7 @@ export interface FiltersViewAttrs {
   roles: Stream<Roles>;
 }
 
-export interface State extends RolesViewAttrs, FiltersViewAttrs, EnableOperation<Users>, DisableOperation<Users>, DeleteOperation<Users>, MakeAdminOperation<Users>, RemoveAdminOperation<Users> {
-  noAdminsConfigured: Stream<boolean>;
-}
+export type State = RolesViewAttrs & FiltersViewAttrs & EnableOperation<Users> & DisableOperation<Users> & DeleteOperation<Users>;
 
 class FiltersView extends Dropdown<FiltersViewAttrs> {
   doRenderDropdownContent(vnode: m.Vnode<DropdownAttrs & FiltersViewAttrs>) {

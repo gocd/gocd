@@ -21,16 +21,18 @@ import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
-import {State as UserActionsState} from "views/pages/users/user_actions_widget";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {State, UsersWidget} from "views/pages/users/users_widget";
 
 describe("UsersWidget", () => {
-  let $root: any, root: any;
+  const helper      = new TestHelper();
 
-  let attrs: UserActionsState;
+  let attrs: State;
 
   beforeEach(() => {
     attrs         = {
-      users: stream(new Users()),
+      users: stream(new Users(bob(), alice())),
+      user: bob(),
       roles: stream(new Roles()),
       userFilters: stream(new UserFilters()),
       initializeRolesDropdownAttrs: _.noop,
@@ -47,29 +49,17 @@ describe("UsersWidget", () => {
       onRemoveAdmin: _.noop,
       noAdminsConfigured: stream(false)
     };
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
   });
 
   beforeEach(mount);
 
-  afterEach(unmount);
   // @ts-ignore
   afterEach(window.destroyDomElementForTest);
 
+  afterEach((done) => helper.unmount(done));
+
   function mount() {
-    m.mount(root, {
-      view() {
-        return (<UsersWidget {...attrs}/>);
-      }
-    });
-
-    m.redraw();
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
+    helper.mount(<UsersWidget {...attrs}/>);
   }
 
   function bob() {
@@ -78,6 +68,7 @@ describe("UsersWidget", () => {
                            display_name: "Bob",
                            login_name: "bob",
                            is_admin: true,
+                           is_individual_admin: true,
                            email_me: true,
                            checkin_aliases: ["bob@gmail.com"],
                            enabled: true
@@ -90,6 +81,7 @@ describe("UsersWidget", () => {
                            display_name: "Alice",
                            login_name: "alice",
                            is_admin: false,
+                           is_individual_admin: false,
                            email_me: true,
                            checkin_aliases: ["alice@gmail.com", "alice@acme.com"],
                            enabled: false
@@ -97,44 +89,54 @@ describe("UsersWidget", () => {
   }
 
   it("should render a list of user attributes", () => {
-    const allUsers = new Users(bob(), alice());
-    const vnode    = {
-      attrs: {
-        noAdminsConfigured: stream(false),
-        onRemoveAdmin: _.noop,
-        onMakeAdmin: _.noop
-      }
-    } as m.Vnode<UserActionsState>;
+    expect(helper.findByDataTestId("users-table")).toBeInDOM();
+    expect(helper.findByDataTestId("users-header")[0].children[1]).toContainText("Username");
+    expect(helper.findByDataTestId("users-header")[0].children[2]).toContainText("Display name");
+    expect(helper.findByDataTestId("users-header")[0].children[4]).toContainText("System Admin");
+    expect(helper.findByDataTestId("users-header")[0].children[5]).toContainText("Email");
+    expect(helper.findByDataTestId("users-header")[0].children[6]).toContainText("Enabled");
 
-    const userData = UsersTableWidget.userData(allUsers, vnode);
-    m.redraw();
+    expect(helper.findByDataTestId("user-row")).toHaveLength(2);
 
-    const bobUserData   = userData[0];
-    const aliceUserData = userData[1];
-    const headers       = UsersTableWidget.headers(allUsers);
+    expect(helper.findByDataTestId("user-username")[0]).toContainText("bob");
+    expect(helper.findByDataTestId("user-display-name")[0]).toContainText("Bob");
+    expect(helper.findByDataTestId("user-email")[0]).toContainText("bob@example.com");
+    expect(helper.findByDataTestId("user-enabled")[0]).toContainText("Yes");
 
-    expect($root.find("table")).toBeInDOM();
+    expect(helper.findByDataTestId("user-username")[1]).toContainText("alice");
+    expect(helper.findByDataTestId("user-display-name")[1]).toContainText("Alice");
+    expect(helper.findByDataTestId("user-email")[1]).toContainText("alice@example.com");
+    expect(helper.findByDataTestId("user-enabled")[1]).toContainText("No");
+  });
 
-    expect(headers[1]).toEqual("Username");
-    expect(headers[2]).toEqual("Display name");
-    expect(headers[4]).toEqual("System Admin");
-    expect(headers[5]).toEqual("Email");
-    expect(headers[6]).toEqual("Enabled");
+  it("should render in progress icon if update operation is in progress", () => {
+    attrs.users()[0].markUpdateInprogress();
+    helper.remount();
 
-    expect(UsersTableWidget.userData(allUsers, vnode)).toHaveLength(2);
-    expect(bobUserData[1].text).toEqual("bob");
-    expect(bobUserData[2].text).toEqual("Bob");
-    expect(bobUserData[5].text).toEqual("bob@example.com");
-    expect(bobUserData[6].text).toEqual("Yes");
-    expect(bobUserData[1].attrs.className).not.toContain("disabled");
+    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "Spinner-icon")).toBeInDOM();
+  });
 
-    expect(aliceUserData[1].text).toEqual("alice");
-    expect(aliceUserData[2].text).toEqual("Alice");
-    expect(aliceUserData[5].text).toEqual("alice@example.com");
-    expect(aliceUserData[6].text).toEqual("No");
-    expect(aliceUserData[1].attrs.className).toContain("disabled");
+  it("should render success icon is update operation is successful", () => {
+    attrs.users()[0].markUpdateSuccessful();
+    helper.remount();
+
+    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-successful")).toBeInDOM();
+  });
+
+  it("should render error icon if update operation is unsuccessful", () => {
+    attrs.users()[0].markUpdateUnsuccessful();
+    helper.remount();
+
+    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-unsuccessful")).toBeInDOM();
+  });
+
+  it("should display error message", () => {
+    const errorMessage = "There was some error while updating the record.";
+    attrs.users()[0].updateOperationErrorMessage(errorMessage);
+    helper.remount();
+
+    expect(helper.findByDataTestId("user-update-error-message")).toBeInDOM();
+    expect(helper.findByDataTestId("user-update-error-message")).toContainText(errorMessage);
   });
 
 });
-
-import {UsersTableWidget, UsersWidget} from "views/pages/users/users_widget";

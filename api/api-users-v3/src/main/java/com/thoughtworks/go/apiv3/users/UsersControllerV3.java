@@ -208,7 +208,7 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
     }
 
     private UserToRepresent getUserToRepresent(User user, HashMap<Username, RolesConfig> userToRolesMap) {
-        return UserToRepresent.from(user, securityService.isUserAdmin(user.getUsername()), userToRolesMap.get(user.getUsername()));
+        return UserToRepresent.from(user, securityService.isUserAdmin(user.getUsername()), securityService.isUserIndividualAdmin(user.getUsername().getUsername()), userToRolesMap.get(user.getUsername()));
     }
 
     public Consumer<OutputWriter> jsonWriter(User user, HashMap<Username, RolesConfig> userToRolesMap) {

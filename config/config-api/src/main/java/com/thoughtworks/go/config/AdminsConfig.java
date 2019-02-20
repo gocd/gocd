@@ -51,6 +51,17 @@ public class AdminsConfig extends BaseCollection<Admin> implements Validatable {
         return false;
     }
 
+    public boolean isUserIndividualAdmin(final CaseInsensitiveString username) {
+        for (Admin admin : this) {
+            if (admin instanceof AdminUser) {
+                if (admin.getName().equals(username)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean hasUser(final CaseInsensitiveString username, UserRoleMatcher userRoleMatcher) {
         for (Admin admin : this) {
             if (admin instanceof AdminUser) {

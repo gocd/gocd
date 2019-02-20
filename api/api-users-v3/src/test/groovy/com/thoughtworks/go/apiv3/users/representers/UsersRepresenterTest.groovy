@@ -34,7 +34,7 @@ class UsersRepresenterTest {
     def gocdRole = new RoleConfig()
     gocdRole.setName(new CaseInsensitiveString("gocdRole"))
 
-    def users = Arrays.asList(UserToRepresent.from(UsersMother.withName("Bob"), true, new RolesConfig(gocdRole)))
+    def users = Arrays.asList(UserToRepresent.from(UsersMother.withName("Bob"), true, true, new RolesConfig(gocdRole)))
     def json = toObject({ UsersRepresenter.toJSON(it, users) })
 
     def expectedJson = [
@@ -45,19 +45,20 @@ class UsersRepresenterTest {
       _embedded: [
         users: [
           [
-            login_name     : "Bob",
-            display_name   : "Bob",
-            enabled        : true,
-            email_me       : true,
-            is_admin       : true,
-            email          : "Bob@no-reply.com",
-            roles          : [
+            login_name         : "Bob",
+            display_name       : "Bob",
+            enabled            : true,
+            email_me           : true,
+            is_admin           : true,
+            is_individual_admin: true,
+            email              : "Bob@no-reply.com",
+            roles              : [
               [
                 name: 'gocdRole',
                 type: 'gocd',
               ]
             ],
-            checkin_aliases: ['Bob', 'awesome']
+            checkin_aliases    : ['Bob', 'awesome']
           ]
         ]
       ]

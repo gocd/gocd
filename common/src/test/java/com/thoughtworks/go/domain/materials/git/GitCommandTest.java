@@ -100,6 +100,7 @@ public class GitCommandTest {
     }
 
     @After public void teardown() throws Exception {
+        unsetColoring();
         TestRepo.internalTearDown();
     }
 
@@ -281,7 +282,6 @@ public class GitCommandTest {
         assertThat(files.size(), is(1));
         assertThat(files.get(0).getFileName(), is("build.xml"));
         assertThat(files.get(0).getAction(), Matchers.is(ModifiedAction.modified));
-        unsetColoring();
     }
 
     @Test
@@ -332,7 +332,6 @@ public class GitCommandTest {
         setColoring();
 
         assertThat(command.modificationsSince(REVISION_4).get(0), is(modification));
-        unsetColoring();
     }
 
     @Test(expected = CommandLineException.class)
@@ -681,7 +680,6 @@ public class GitCommandTest {
         executeOnGitRepo("git", "config", "color.status", "always");
         executeOnGitRepo("git", "config", "color.interactive", "always");
         executeOnGitRepo("git", "config", "color.branch", "always");
-        executeOnGitRepo("git", "config", "log.decorate", "true");
     }
 
     private void unsetColoring() throws IOException {
@@ -689,7 +687,6 @@ public class GitCommandTest {
         executeOnGitRepo("git", "config", "color.status", "auto");
         executeOnGitRepo("git", "config", "color.interactive", "auto");
         executeOnGitRepo("git", "config", "color.branch", "auto");
-        executeOnGitRepo("git", "config", "log.decorate", "false");
     }
 
     private void assertWorkingCopyNotCheckedOut() {

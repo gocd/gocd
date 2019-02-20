@@ -304,6 +304,21 @@ describe("Dashboard Widget", () => {
     expect(title.href.indexOf(`/go/admin/pipeline_group/${pipelineGroupJSON.name}/edit`)).not.toEqual(-1);
   });
 
+  it("should show pipeline add icon when grouped by pipeline group for admin users", () => {
+    const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
+
+    const title = helper.find('.dashboard-group_add_pipeline>a').get(0);
+    expect(title.href.indexOf(`/go/admin/pipeline/new?group=${pipelineGroupJSON.name}`)).not.toEqual(-1);
+
+  });
+
+  it("should not show pipeline add icon when grouped by environments for admin users", () => {
+    const pipelineGroupJSON = dashboardJson._embedded.environments[0];
+
+    const title = helper.find('.dashboard-group_add_pipeline>a').get(0);
+    expect(title.href.indexOf(`/go/admin/pipeline/new?group=${pipelineGroupJSON.name}`)).toEqual(-1);
+  });
+
   it("should show disabled pipeline group settings icon showing tooltip for non admin users", () => {
     unmount();
     mount(false);
@@ -372,6 +387,21 @@ describe("Dashboard Widget", () => {
             },
             "name":           "first",
             "pipelines":      ["up42", "up43"],
+            "can_administer": canAdminister
+          }
+        ],
+        "environments": [
+          {
+            "_links":         {
+              "self": {
+                "href": "http://localhost:8153/go/api/admin/environments/e1"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/current/#environment-config"
+              }
+            },
+            "name":           "e1",
+            "pipelines":      ["up42"],
             "can_administer": canAdminister
           }
         ],

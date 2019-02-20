@@ -44,6 +44,9 @@ describe("DashboardGroups", () => {
       expect(pipelineGroups.groups[0].tooltipForEdit()).toBe("");
       expect(pipelineGroups.groups[0].titleForEdit()).toBe("Edit Pipeline Group 'first'");
       expect(pipelineGroups.groups[0].ariaLabelForEdit()).toBe("Edit Pipeline Group 'first'");
+      expect(pipelineGroups.groups[0].tooltipForNewPipeline()).toBe("");
+      expect(pipelineGroups.groups[0].titleForNewPipeline()).toBe("Create a new pipeline within this group");
+      expect(pipelineGroups.groups[0].ariaLabelForNewPipeline()).toBe("Create a new pipeline within this group");
     });
 
     it('should set values for an environment when a user can administer it', () => {
@@ -52,6 +55,9 @@ describe("DashboardGroups", () => {
       expect(environments.groups[0].tooltipForEdit()).toBe("");
       expect(environments.groups[0].titleForEdit()).toBe("Edit Environment 'first'");
       expect(environments.groups[0].ariaLabelForEdit()).toBe("Edit Environment 'first'");
+      expect(environments.groups[0].tooltipForNewPipeline()).toBe("");
+      expect(environments.groups[0].titleForNewPipeline()).toBe("");
+      expect(environments.groups[0].ariaLabelForNewPipeline()).toBe("");
     });
 
     it('should set values for a pipeline group when a user cannot administer it', () => {
@@ -64,6 +70,9 @@ describe("DashboardGroups", () => {
       expect(pipelineGroups.groups[0].tooltipForEdit()).toBe("You don't have permission to edit this pipeline group");
       expect(pipelineGroups.groups[0].titleForEdit()).toBe("");
       expect(pipelineGroups.groups[0].ariaLabelForEdit()).toBe("You don't have permission to edit this pipeline group");
+      expect(pipelineGroups.groups[0].tooltipForNewPipeline()).toBe("You don't have permission to create new pipeline within this pipeline group");
+      expect(pipelineGroups.groups[0].titleForNewPipeline()).toBe("");
+      expect(pipelineGroups.groups[0].ariaLabelForNewPipeline()).toBe("You don't have permission to create new pipeline within this pipeline group");
     });
 
     it('should set values for an environment when a user cannot administer it', () => {
@@ -76,6 +85,9 @@ describe("DashboardGroups", () => {
       expect(environments.groups[0].tooltipForEdit()).toBe("You don't have permission to edit this environment");
       expect(environments.groups[0].titleForEdit()).toBe("");
       expect(environments.groups[0].ariaLabelForEdit()).toBe("You don't have permission to edit this environment");
+      expect(environments.groups[0].tooltipForNewPipeline()).toBe("");
+      expect(environments.groups[0].titleForNewPipeline()).toBe("");
+      expect(environments.groups[0].ariaLabelForNewPipeline()).toBe("");
     });
 
   });

@@ -53,6 +53,24 @@ class PipelineGroup extends Group {
     return "";
   }
 
+  tooltipForNewPipeline() {
+    if (!this.canAdminister) {
+      return "You don't have permission to create new pipeline within this pipeline group";
+    }
+    return "";
+  }
+
+  ariaLabelForNewPipeline() {
+    return this.tooltipForNewPipeline() || 'Create a new pipeline within this group';
+  }
+
+  titleForNewPipeline() {
+    if (this.canAdminister) {
+      return 'Create a new pipeline within this group';
+    }
+    return "";
+  }
+
   select(filter) {
     const pipelines = _.filter(this.pipelines, filter);
     if (pipelines.length === 0) {
@@ -67,7 +85,8 @@ class PipelineGroup extends Group {
     }
     return {
       show: `${Routes.pipelineGroupsPath()}#group-${this.name}`,
-      edit: Routes.pipelineGroupEditPath(this.name)
+      edit: Routes.pipelineGroupEditPath(this.name),
+      newPipeline: `${Routes.pipelineNewPath()}?group=${this.name}`
     };
   }
 }
@@ -92,6 +111,18 @@ class Environment extends Group {
     if (this.canAdminister) {
       return `Edit ${this.label()}`;
     }
+    return "";
+  }
+
+  tooltipForNewPipeline() {
+    return "";
+  }
+
+  ariaLabelForNewPipeline() {
+    return "";
+  }
+
+  titleForNewPipeline() {
     return "";
   }
 

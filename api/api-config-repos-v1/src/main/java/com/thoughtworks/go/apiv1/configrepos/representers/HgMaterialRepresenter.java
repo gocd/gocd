@@ -26,7 +26,7 @@ class HgMaterialRepresenter {
     static void toJSON(OutputWriter json, HgMaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
-        json.add("url", material.getUrl());
+        json.add("url", material.getUriForDisplay());
     }
 
     public static MaterialConfig fromJSON(JsonReader json) {

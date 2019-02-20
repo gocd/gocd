@@ -42,7 +42,7 @@ class AccessTokensRepresenterTest {
           "href": "http://test.host/go/api/current_user/access_tokens"
         ],
         "doc" : [
-          "href": apiDocsUrl('#access-token')
+          "href": apiDocsUrl('#access-tokens')
         ],
       ],
       "_embedded": [
@@ -53,7 +53,7 @@ class AccessTokensRepresenterTest {
                 "href": "http://test.host/go/api/current_user/access_tokens/41"
               ],
               "doc" : [
-                "href": apiDocsUrl('#access-token')
+                "href": apiDocsUrl('#access-tokens')
               ],
               "find": [
                 "href": "http://test.host/go/api/current_user/access_tokens/:id"
@@ -76,7 +76,7 @@ class AccessTokensRepresenterTest {
                 "href": "http://test.host/go/api/current_user/access_tokens/42"
               ],
               "doc" : [
-                "href": apiDocsUrl('#access-token')
+                "href": apiDocsUrl('#access-tokens')
               ],
               "find": [
                 "href": "http://test.host/go/api/current_user/access_tokens/:id"

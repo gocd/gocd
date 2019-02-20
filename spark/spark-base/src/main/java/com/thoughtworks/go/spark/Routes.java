@@ -446,7 +446,7 @@ public class Routes {
         public static final String BASE = "/api/current_user/access_tokens";
         public static final String ID = "/:id";
         public static final String REVOKE = ID + "/revoke";
-        private static final String DOC = apiDocsUrl("#access-token");
+        private static final String DOC = apiDocsUrl("#access-tokens");
 
         @Override
         public String find() {
@@ -468,7 +468,7 @@ public class Routes {
         public static final String BASE = "/api/admin/access_tokens";
         public static final String ID = "/:id";
         public static final String REVOKE = ID + "/revoke";
-        private static final String DOC = apiDocsUrl("#access-token");
+        private static final String DOC = apiDocsUrl("#access-tokens");
 
         @Override
         public String find() {

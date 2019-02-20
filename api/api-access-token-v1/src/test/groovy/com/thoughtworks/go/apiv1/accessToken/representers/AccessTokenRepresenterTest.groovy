@@ -43,7 +43,7 @@ class AccessTokenRepresenterTest {
     def expectedJSON = [
       "_links"        : [
         "doc" : [
-          "href": apiDocsUrl('#access-token')
+          "href": apiDocsUrl('#access-tokens')
         ],
         "find": [
           "href": "http://test.host/go/api/current_user/access_tokens/:id"
@@ -77,7 +77,7 @@ class AccessTokenRepresenterTest {
           "href": "http://test.host/go/api/current_user/access_tokens/42"
         ],
         "doc" : [
-          "href": apiDocsUrl('#access-token')
+          "href": apiDocsUrl('#access-tokens')
         ],
         "find": [
           "href": "http://test.host/go/api/current_user/access_tokens/:id"
@@ -133,7 +133,7 @@ class AccessTokenRepresenterTest {
     def expectedJSON = [
       "_links"        : [
         "doc" : [
-          "href": apiDocsUrl('#access-token')
+          "href": apiDocsUrl('#access-tokens')
         ],
         "find": [
           "href": "http://test.host/go/api/current_user/access_tokens/:id"

@@ -26,13 +26,13 @@ export interface AccessTokenJSON {
   token?: string;
   description: string;
   username: string;
-  auth_config_id: string;
   revoked: boolean;
   revoke_cause: string;
   revoked_by: string;
   revoked_at: string | null;
   created_at: string;
   last_used_at: string | null;
+  revoked_because_user_deleted?: boolean;
   errors?: { [key: string]: string[] };
 }
 
@@ -71,7 +71,7 @@ export class AccessToken extends ValidatableMixin {
   revokedAt: Stream<Date | null>;
   createdAt: Stream<Date>;
   lastUsedAt: Stream<Date | null>;
-  authConfigId: Stream<string>;
+  revokedBecauseUserDeleted: Stream<boolean>;
   token: Stream<string> = stream();
 
   private constructor(id: number,
@@ -82,21 +82,21 @@ export class AccessToken extends ValidatableMixin {
                       revokedAt: Date | null,
                       createdAt: Date,
                       lastUsedAt: Date | null,
-                      authConfigId: string,
+                      revokedBecauseUserDeleted: boolean,
                       token: string  = "",
                       errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
-    this.id           = stream(id);
-    this.description  = stream(description);
-    this.username     = stream(username);
-    this.revoked      = stream(revoked);
-    this.revokedBy    = stream(revokedBy);
-    this.revokedAt    = stream(revokedAt);
-    this.createdAt    = stream(createdAt);
-    this.lastUsedAt   = stream(lastUsedAt);
-    this.authConfigId = stream(authConfigId);
-    this.token        = stream(token);
+    this.id                        = stream(id);
+    this.description               = stream(description);
+    this.username                  = stream(username);
+    this.revoked                   = stream(revoked);
+    this.revokedBy                 = stream(revokedBy);
+    this.revokedAt                 = stream(revokedAt);
+    this.createdAt                 = stream(createdAt);
+    this.lastUsedAt                = stream(lastUsedAt);
+    this.revokedBecauseUserDeleted = stream(revokedBecauseUserDeleted || false);
+    this.token                     = stream(token);
     this.errors(errors);
     this.validatePresenceOf("description");
   }
@@ -110,13 +110,13 @@ export class AccessToken extends ValidatableMixin {
                            AccessToken.parseDate(data.revoked_at),
                            AccessToken.parseDate(data.created_at),
                            AccessToken.parseDate(data.last_used_at),
-                           data.auth_config_id,
+                           data.revoked_because_user_deleted,
                            data.token,
                            new Errors(data.errors));
   }
 
   static new(): AccessToken {
-    return new AccessToken(-1, "", "", false, "", null, new Date(), null, "");
+    return new AccessToken(-1, "", "", false, "", null, new Date(), null, false);
   }
 
   private static parseDate(dateString: string | null) {

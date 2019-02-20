@@ -38,8 +38,7 @@ export class AccessTokenTestData {
       revoked: false,
       revoked_at: null,
       created_at: "2019-02-05T06:41:58Z",
-      last_used_at: "2019-02-05T07:41:58Z"
-
+      last_used_at: "2019-02-05T07:41:58Z",
     } as AccessTokenJSON;
   }
 
@@ -72,7 +71,8 @@ export class AccessTokenTestData {
       last_used_at: "2019-02-04T07:41:58Z",
       username: "admin",
       revoke_cause: "revoked as not in use",
-      revoked_by: "admin"
+      revoked_by: "admin",
+      revoked_because_user_deleted: true
     } as AccessTokenJSON;
   }
 }

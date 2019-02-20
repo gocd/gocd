@@ -41,7 +41,7 @@ class AccessTokenRepresenterTest {
     })
 
     def expectedJSON = [
-      "_links"        : [
+      "_links"      : [
         "doc" : [
           "href": apiDocsUrl('#access-tokens')
         ],
@@ -49,15 +49,14 @@ class AccessTokenRepresenterTest {
           "href": "http://test.host/go/api/current_user/access_tokens/:id"
         ]
       ],
-      "description"   : token.description,
-      "username"      : token.username,
-      "auth_config_id": token.authConfigId,
-      "revoked"       : token.revoked,
-      "revoked_at"    : jsonDate(revokedAt),
-      "revoke_cause"  : "just because",
-      "revoked_by"    : "bob",
-      "created_at"    : jsonDate(token.createdAt),
-      "last_used_at"  : null
+      "description" : token.description,
+      "username"    : token.username,
+      "revoked"     : token.revoked,
+      "revoked_at"  : jsonDate(revokedAt),
+      "revoke_cause": "just because",
+      "revoked_by"  : "bob",
+      "created_at"  : jsonDate(token.createdAt),
+      "last_used_at": null
     ]
 
     assertThatJson(json).isEqualTo(expectedJSON)
@@ -72,7 +71,7 @@ class AccessTokenRepresenterTest {
     })
 
     def expectedJSON = [
-      "_links"        : [
+      "_links"      : [
         "self": [
           "href": "http://test.host/go/api/current_user/access_tokens/42"
         ],
@@ -83,16 +82,15 @@ class AccessTokenRepresenterTest {
           "href": "http://test.host/go/api/current_user/access_tokens/:id"
         ]
       ],
-      "id"            : 42,
-      "description"   : token.description,
-      "username"      : token.username,
-      "auth_config_id": token.authConfigId,
-      "revoked"       : false,
-      "revoked_by"    : null,
-      "revoke_cause"  : null,
-      "revoked_at"    : null,
-      "created_at"    : jsonDate(token.createdAt),
-      "last_used_at"  : null,
+      "id"          : 42,
+      "description" : token.description,
+      "username"    : token.username,
+      "revoked"     : false,
+      "revoked_by"  : null,
+      "revoke_cause": null,
+      "revoked_at"  : null,
+      "created_at"  : jsonDate(token.createdAt),
+      "last_used_at": null,
     ]
 
     assertThatJson(json).isEqualTo(expectedJSON)
@@ -141,7 +139,6 @@ class AccessTokenRepresenterTest {
       ],
       "description"   : token.description,
       "username"      : token.username,
-      "auth_config_id": token.authConfigId,
       "revoked"       : false,
       "revoked_by"    : null,
       "revoke_cause"  : null,

@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {ApiResult} from "helpers/api_request_builder";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
@@ -23,7 +24,7 @@ import {RolesCRUD} from "models/roles/roles_crud";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {computeBulkUpdateRolesJSON, computeRolesSelection} from "models/users/role_selection";
 import {UserFilters} from "models/users/user_filters";
-import {BulkUserOperationJSON, BulkUserUpdateJSON, Users} from "models/users/users";
+import {BulkUserOperationJSON, BulkUserUpdateJSON, User, Users} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -32,9 +33,12 @@ import {Page, PageState} from "views/pages/page";
 import {AddOperation} from "views/pages/page_operations";
 import {UserSearchModal} from "views/pages/users/add_user_modal";
 import {State as UserActionsState} from "views/pages/users/user_actions_widget";
+import {State as UsersWidgetState} from "views/pages/users/users_widget";
 import {UsersWidget} from "views/pages/users/users_widget";
 
-interface State extends UserActionsState, AddOperation<Users> {
+const CLEAR_USER_UPDATE_STATUS = 10;
+
+interface State extends UserActionsState, AddOperation<Users>, UsersWidgetState {
   initialUsers: Stream<Users>;
 }
 
@@ -95,28 +99,30 @@ export class UsersPage extends Page<null, State> {
       this.bulkUserDelete(vnode, json);
     };
 
-    vnode.state.onMakeAdmin = (usersToMakeAdmin, e) => {
+    vnode.state.onMakeAdmin = (user) => {
+      user.markUpdateInprogress();
+
       const json = {
         operations: {
           users: {
-            add: usersToMakeAdmin.userNamesOfSelectedUsers()
+            add: [user.loginName()]
           }
         }
       };
-
-      this.bulkUpdateSystemAdmins(vnode, json);
+      this.updateSystemAdminPrivilegeForUser(vnode, json, user);
     };
 
-    vnode.state.onRemoveAdmin = (usersToRemoveAdmin, e) => {
+    vnode.state.onRemoveAdmin = (user, e) => {
+      user.markUpdateInprogress();
       const json = {
         operations: {
           users: {
-            remove: usersToRemoveAdmin.userNamesOfSelectedUsers()
+            remove: [user.loginName()]
           }
         }
       };
 
-      this.bulkUpdateSystemAdmins(vnode, json);
+      this.updateSystemAdminPrivilegeForUser(vnode, json, user);
     };
 
     vnode.state.onRolesAdd = (roleName: string, users: Users) => {
@@ -197,18 +203,34 @@ export class UsersPage extends Page<null, State> {
                      }
       );
 
-      adminsResult.do((successResponse) => {
-        const roles = (JSON.parse(successResponse.body).roles as string[]);
-        const users = (JSON.parse(successResponse.body).users as string[]);
+      this.resolveAllAdminsPromise(vnode, adminsResult);
 
-        const noAdminsConfigured = ((roles.length === 0) && (users.length === 0));
-        vnode.state.noAdminsConfigured(noAdminsConfigured);
-        this.pageState = PageState.OK;
-      }, (errorResponse) => {
-        this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-        this.pageState = PageState.FAILED;
-      });
     });
+  }
+
+  private resolveAllAdminsPromise(vnode: m.Vnode<null, State>, adminsResult: ApiResult<any>) {
+    adminsResult.do((successResponse) => {
+      const roles = (JSON.parse(successResponse.body).roles as string[]);
+      const users = (JSON.parse(successResponse.body).users as string[]);
+
+      const noAdminsConfigured = ((roles.length === 0) && (users.length === 0));
+      vnode.state.noAdminsConfigured(noAdminsConfigured);
+      this.pageState = PageState.OK;
+    }, (errorResponse) => {
+      this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+      this.pageState = PageState.FAILED;
+    });
+  }
+
+  private resolveGetUserPromise(userResult: ApiResult<any>, user: User): void {
+    userResult.do((successResponse) => {
+                    user.updateFromJSON(successResponse.body);
+                    this.pageState = PageState.OK;
+                  }, (errorResponse) => {
+                    this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                    this.pageState = PageState.FAILED;
+                  }
+    );
   }
 
   private bulkUserStateChange(vnode: m.Vnode<null, State>, json: BulkUserUpdateJSON): void {
@@ -240,18 +262,41 @@ export class UsersPage extends Page<null, State> {
              });
   }
 
-  private bulkUpdateSystemAdmins(vnode: m.Vnode<null, State>, json: BulkUpdateSystemAdminJSON): void {
+  private updateSystemAdminPrivilegeForUser(vnode: m.Vnode<null, State>,
+                                            json: BulkUpdateSystemAdminJSON,
+                                            user: User): void {
     AdminsCRUD.bulkUpdate(json)
               .then((apiResult) => {
                 apiResult.do((successResponse) => {
+                  user.markUpdateSuccessful();
+
+                  setTimeout(() => {
+                    user.clearUpdateStatus();
+                    user.updateOperationErrorMessage(null);
+                  }, CLEAR_USER_UPDATE_STATUS * 1000);
+
+                  Promise.all([AdminsCRUD.all(), UsersCRUD.get(user.loginName())]).then((args) => {
+                    this.resolveAllAdminsPromise(vnode, args[0]);
+                    this.resolveGetUserPromise(args[1], user);
+                  });
+
                   this.pageState = PageState.OK;
-                  this.flashMessage.setMessage(MessageType.success,
-                                               `Users were updated successfully!`);
-                  this.fetchData(vnode);
                 }, (errorResponse) => {
+                  user.markUpdateUnsuccessful();
+
+                  setTimeout(() => {
+                    user.clearUpdateStatus();
+                    user.updateOperationErrorMessage(null);
+                  }, CLEAR_USER_UPDATE_STATUS * 1000);
+
+                  user.updateOperationErrorMessage(errorResponse.message);
+
+                  Promise.all([AdminsCRUD.all(), UsersCRUD.get(user.loginName())]).then((args) => {
+                    this.resolveAllAdminsPromise(vnode, args[0]);
+                    this.resolveGetUserPromise(args[1], user);
+                  });
+
                   // vnode.state.onError(errorResponse.message);
-                  this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-                  this.fetchData(vnode);
                 });
               });
   }

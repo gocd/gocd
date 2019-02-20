@@ -44,10 +44,7 @@ describe("User Actions Widget", () => {
       onDelete: _.noop,
       onRolesUpdate: _.noop,
       roleNameToAdd: stream(),
-      onRolesAdd: _.noop,
-      onMakeAdmin: _.noop,
-      onRemoveAdmin: _.noop,
-      noAdminsConfigured: stream(false)
+      onRolesAdd: _.noop
     };
     // @ts-ignore
     [$root, root] = window.createDomElementForTest();
@@ -85,6 +82,7 @@ describe("User Actions Widget", () => {
                            display_name: "Bob",
                            login_name: "bob",
                            is_admin: true,
+                           is_individual_admin: true,
                            email_me: true,
                            checkin_aliases: ["bob@gmail.com"],
                            enabled: true
@@ -97,6 +95,7 @@ describe("User Actions Widget", () => {
                            display_name: "Alice",
                            login_name: "alice",
                            is_admin: false,
+                           is_individual_admin: false,
                            email_me: true,
                            checkin_aliases: ["alice@gmail.com", "alice@acme.com"],
                            enabled: false
@@ -108,6 +107,7 @@ describe("User Actions Widget", () => {
                            display_name: "Jon Doe",
                            login_name: "jdoe",
                            is_admin: true,
+                           is_individual_admin: false,
                            email_me: true,
                            enabled: false,
                            checkin_aliases: []

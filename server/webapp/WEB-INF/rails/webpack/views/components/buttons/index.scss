@@ -66,7 +66,7 @@
 }
 
 .btn-dropdown {
-  @include icon-after($type: $fa-var-angle-down) {
+  @include icon-after($type: $fa-var-angle-down, $color: $icon-color) {
     margin-right: -5px;
   }
 }
@@ -85,7 +85,7 @@
 }
 
 .icon-filter {
-  @include icon-before($type: $fa-var-filter);
+  @include icon-before($type: $fa-var-filter, $color: $icon-color);
 
   &:before {
     margin: 5px 10px 5px -5px;
@@ -120,7 +120,8 @@
 
   > .btn-dropdown-container {
     border-left: 1px solid $line-color;
-    position: relative;
+    position:    relative;
+
     .btn-dropdown {
       border-radius: 0 $global-border-radius $global-border-radius 0;
     }

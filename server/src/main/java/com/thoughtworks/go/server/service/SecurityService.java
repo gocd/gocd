@@ -132,6 +132,10 @@ public class SecurityService {
         return goConfigService.isUserAdmin(username);
     }
 
+    public boolean isUserIndividualAdmin(CaseInsensitiveString username){
+        return goConfigService.security().adminsConfig().isUserIndividualAdmin(username);
+    }
+
     public boolean isSecurityEnabled() {
         return goConfigService.isSecurityEnabled();
     }

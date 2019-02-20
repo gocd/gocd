@@ -23,6 +23,7 @@ export function usersJSON(): UsersJSON {
         {
           login_name: "root",
           is_admin: true,
+          is_individual_admin: true,
           display_name: "root",
           enabled: false,
           email: undefined,
@@ -36,6 +37,7 @@ export function usersJSON(): UsersJSON {
         {
           login_name: "jez",
           is_admin: true,
+          is_individual_admin: false,
           display_name: "jez",
           enabled: true,
           email: undefined,
@@ -49,6 +51,7 @@ export function usersJSON(): UsersJSON {
         {
           login_name: "jigsaw",
           is_admin: true,
+          is_individual_admin: true,
           display_name: "jigsaw",
           enabled: false,
           email: undefined,
@@ -59,6 +62,7 @@ export function usersJSON(): UsersJSON {
         {
           login_name: "admin",
           is_admin: true,
+          is_individual_admin: true,
           display_name: "admin",
           enabled: true,
           email: "admin@example.com",
@@ -75,6 +79,7 @@ export function usersJSON(): UsersJSON {
         {
           login_name: "cruise_admin",
           is_admin: true,
+          is_individual_admin: false,
           display_name: "cruise_admin",
           enabled: true,
           email: undefined,
@@ -85,6 +90,7 @@ export function usersJSON(): UsersJSON {
         {
           login_name: "operate",
           is_admin: false,
+          is_individual_admin: false,
           display_name: "operate",
           enabled: true,
           email: undefined,
@@ -95,6 +101,7 @@ export function usersJSON(): UsersJSON {
         {
           login_name: "view",
           is_admin: false,
+          is_individual_admin: false,
           display_name: "view",
           enabled: true,
           email: undefined,

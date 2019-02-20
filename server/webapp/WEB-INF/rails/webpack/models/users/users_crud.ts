@@ -39,6 +39,15 @@ export class UsersCRUD {
                             });
   }
 
+  static get(username: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.apiUserPath(username), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => {
+                              return result.map((body) => {
+                                return (JSON.parse(body) as UserJSON);
+                              });
+                            });
+  }
+
   static bulkUserStateUpdate(bulkStateChangeJson: BulkUserUpdateJSON) {
     return ApiRequestBuilder.PATCH(SparkRoutes.apiBulkUserStateUpdatePath(), this.API_VERSION_HEADER, {payload: bulkStateChangeJson});
   }

@@ -33,6 +33,7 @@ public class UserRepresenter {
                 .add("email", user.getEmail())
                 .add("email_me", user.isEmailMe())
                 .add("is_admin", user.isAdmin())
+                .add("is_individual_admin", user.isIndividualAdmin())
                 .addChildList("roles", listWriter -> user.getRoles().forEach(role -> listWriter.addChild(propertyWriter -> RoleRepresenter.toJSON(propertyWriter, role))))
                 .addChildList("checkin_aliases", user.getMatchers());
     }

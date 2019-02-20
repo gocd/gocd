@@ -69,10 +69,10 @@ $spinner-wrapper-height: 100px;
 
 .filter-dropdown-content {
   @include dropdownContent();
-  z-index:    map_get($zindex, 'users-management-filter');
-  top:     36px;
-  right:   0;
-  width:   570px;
+  z-index: map_get($zindex, 'users-management-filter');
+  top:   36px;
+  right: 0;
+  width: 570px;
 }
 
 .roles-dropdown-content {
@@ -160,7 +160,126 @@ $spinner-wrapper-height: 100px;
 }
 
 .is-admin-text {
-  margin-left: 8px;
+  margin:      0 10px 0 8px;
   font-size:   13px;
   font-weight: 600;
+
+}
+
+.flex-table {
+  background:    $white;
+  border-radius: $global-border-radius $global-border-radius 0 0;
+}
+
+.fl-tbl-header {
+  background:    $secondary-bg;
+  border-radius: $global-border-radius $global-border-radius 0 0;
+}
+
+.fl-head {
+  padding:        10px;
+  text-transform: uppercase;
+  text-align:     left;
+  font-weight:    600;
+}
+
+.fl-row {
+  border-bottom: 1px solid $border-color;
+
+  &.selected {
+    background: $selected-table-row;
+  }
+
+}
+
+.fl-tbl-header, .fl-row {
+  display:     flex;
+  align-items: center;
+  width:       100%;
+  flex-grow:   1;
+  box-sizing:  border-box;
+}
+
+.fl-head, .fl-cell {
+  display:         flex;
+  flex-wrap:       Wrap;
+  justify-content: flex-start;
+  padding:         10px;
+
+  &:nth-child(1) {
+    width:           3%;
+    justify-content: center;
+
+  }
+
+  &:nth-child(2) {
+    width:      20%;
+    word-break: break-all;
+  }
+
+  &:nth-child(3) {
+    width:      20%;
+    word-break: break-all;
+  }
+
+  &:nth-child(4) {
+    width: 21%;
+  }
+
+  &:nth-child(5) {
+    width: 12%;
+  }
+
+  &:nth-child(6) {
+    width:      18%;
+    word-break: break-all;
+  }
+
+  &:nth-child(7) {
+    width: 6%;
+  }
+}
+
+
+.fl-error {
+  color:      $go-danger;
+  padding:    10px;
+  border-top: 1px solid $go-danger;
+
+  p {
+    margin: 0;
+  }
+}
+
+.form-check {
+  height: 16px;
+  width:  16px;
+}
+
+.system-admin-cell {
+  display: flex;
+}
+
+.icon-check {
+  @include icon-before($type: $fa-var-check, $color: $go-green);
+}
+
+.icon-error {
+  @include icon-before($type: $fa-var-exclamation-circle, $color: $go-danger);
+}
+
+.alert-error {
+  width:            100%;
+  font-weight:      600;
+  font-size:        12px;
+  padding:          7px 40px 7px 25px;
+  border:           1px solid transparent;
+  position:         relative;
+  background-color: $alert;
+  color:            darken($alert, 50%);
+  border-color:     darken($alert, 10%);
+
+  p {
+    margin: 0;
+  }
 }

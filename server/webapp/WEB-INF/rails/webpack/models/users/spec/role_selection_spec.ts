@@ -22,7 +22,7 @@ import {RolesTestData} from "views/pages/roles/spec/test_data";
 describe("computeRolesSelection for user role dropdown", () => {
 
   it("should return roles selection map with state set correctly", () => {
-    const roles = allRoles();
+    const roles          = allRoles();
     const rolesSelection = computeRolesSelection(roles, allUsers());
 
     expect(rolesSelection.size).toEqual(3);
@@ -77,18 +77,21 @@ function allUsers() {
                            login_name: "bob",
                            display_name: "",
                            is_admin: true,
+                           is_individual_admin: true,
                            roles: [{name: "gocd-admins", type: "gocd"}],
                          });
   const joe   = new User({
                            login_name: "joe",
                            display_name: "",
                            is_admin: true,
+                           is_individual_admin: false,
                            roles: [{name: "nobody", type: "gocd"}]
                          });
   const alice = new User({
                            login_name: "alice",
                            display_name: "",
                            is_admin: true,
+                           is_individual_admin: true,
                            roles: [{name: "gocd-admins", type: "gocd"}]
                          });
   const users = new Users(bob, alice, joe);

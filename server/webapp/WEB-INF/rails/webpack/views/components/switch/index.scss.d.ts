@@ -7,3 +7,4 @@ export const switchInput: string;
 export const isSuccess: string;
 export const inProgress: string;
 export const switchSmall: string;
+export const disabled: string;

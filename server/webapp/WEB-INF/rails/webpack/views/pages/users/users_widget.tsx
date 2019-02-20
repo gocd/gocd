@@ -16,19 +16,23 @@
 
 import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import * as _ from "lodash";
 import * as m from "mithril";
-import {User, Users} from "models/users/users";
-import {Table} from "views/components/table";
-import {SuperAdminPrivilegeSwitch} from "views/pages/users/super_admin_toggle_widget";
+import {UpdateOperationStatus, User, Users} from "models/users/users";
+import * as Icons from "views/components/icons";
+import {SuperAdminPrivilegeSwitch, SuperAdminPrivilegeSwitchAttrs} from "views/pages/users/super_admin_toggle_widget";
 import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import * as styles from "./index.scss";
 
 const classnames = bind(styles);
 
-export class UsersTableWidget extends MithrilViewComponent<UserActionsState> {
+export type State = UserActionsState & SuperAdminPrivilegeSwitchAttrs;
+
+export class UsersTableWidget extends MithrilViewComponent<State> {
   static headers(users: Users) {
     return [
       <input type="checkbox"
+             className={styles.formCheck}
              checked={users.areAllUsersSelected()}
              onclick={users.toggleSelection.bind(users)}/>,
       "Username",
@@ -46,27 +50,66 @@ export class UsersTableWidget extends MithrilViewComponent<UserActionsState> {
     ];
   }
 
-  static userData(users: Users, vnode: m.Vnode<UserActionsState>): any[][] {
-    return users.map((user: User) => {
-      const className = (user.enabled() ? "" : styles.disabled);
-      return [
-        <input type="checkbox" checked={user.checked()} onclick={m.withAttr("checked", user.checked)}/>,
-        <span className={className}>{user.loginName()}</span>,
-        <span className={className}>{user.displayName()}</span>,
-        <span className={className}>{this.roles(user)}</span>,
-        <SuperAdminPrivilegeSwitch user={user}
-                                   noAdminsConfigured={vnode.attrs.noAdminsConfigured}
-                                   onRemoveAdmin={vnode.attrs.onRemoveAdmin}
-                                   onMakeAdmin={vnode.attrs.onMakeAdmin}/>,
-        <span className={className}>{user.email()}</span>,
-        <span className={className}>{user.enabled() ? "Yes" : "No"}</span>
-      ];
-    });
+  view(vnode: m.Vnode<State>) {
+    return (<div className={styles.flexTable} data-test-id="users-table">
+      <div className={styles.flTblHeader} data-test-id="users-header">
+        {
+          _.map(UsersTableWidget.headers(vnode.attrs.users() as Users), (header) => {
+            return <div className={styles.flHead}>{header}</div>;
+          })
+        }
+      </div>
+      <div className="table-body">
+        {
+          vnode.attrs.users().map((user: User) => {
+            const className   = (user.enabled() ? "" : styles.disabled);
+            const selectedRow = (user.checked() ? styles.selected : "");
+
+            return [<div className={classnames(styles.flRow, selectedRow, className)} data-test-id="user-row">
+              <div className={styles.flCell}>
+                <input type="checkbox" className={styles.formCheck}
+                       checked={user.checked()}
+                       onclick={m.withAttr("checked", user.checked)}/>
+              </div>
+              <div className={styles.flCell} data-test-id="user-username">
+                <span>{user.loginName()}</span>
+              </div>
+              <div className={styles.flCell} data-test-id="user-display-name">
+                <span>{user.displayName()}</span>
+              </div>
+              <div className={styles.flCell} data-test-id="user-roles">
+                <span>{UsersTableWidget.roles(user)}</span>
+              </div>
+              <div className={classnames(styles.flCell, styles.systemAdminCell)} data-test-id="user-super-admin-switch">
+                <SuperAdminPrivilegeSwitch user={user}
+                                           noAdminsConfigured={vnode.attrs.noAdminsConfigured}
+                                           onRemoveAdmin={vnode.attrs.onRemoveAdmin}
+                                           onMakeAdmin={vnode.attrs.onMakeAdmin}/>
+                {this.toggleOperationStatusIcon(user)}
+              </div>
+              <div className={styles.flCell} data-test-id="user-email">
+                <span>{user.email()}</span>
+              </div>
+              <div className={styles.flCell} data-test-id="user-enabled">
+                <span>{user.enabled() ? "Yes" : "No"}</span>
+              </div>
+            </div>,
+              this.updateOperationErrorMessage(user)
+            ];
+          })
+        }
+      </div>
+    </div>);
   }
 
-  view(vnode: m.Vnode<UserActionsState>) {
-    return <Table headers={UsersTableWidget.headers(vnode.attrs.users() as Users)}
-                  data={UsersTableWidget.userData(vnode.attrs.users(), vnode)}/>;
+  updateOperationErrorMessage(user: User) {
+    if (user.updateOperationErrorMessage()) {
+      return <div className={classnames(styles.flRow)}>
+        <div className={styles.alertError} data-test-id="user-update-error-message">
+          <p>{user.updateOperationErrorMessage()}</p>
+        </div>
+      </div>;
+    }
   }
 
   private static roles(user: User) {
@@ -81,10 +124,27 @@ export class UsersTableWidget extends MithrilViewComponent<UserActionsState> {
       </span>
     );
   }
+
+  private toggleOperationStatusIcon(user: User) {
+    let icon;
+
+    switch (user.updateOperationStatus()) {
+      case UpdateOperationStatus.IN_PROGRESS:
+        icon = <Icons.Spinner iconOnly={true} title={"Update in progress"}/>;
+        break;
+      case UpdateOperationStatus.SUCCESS:
+        icon = <span class={styles.iconCheck} data-test-id="update-successful"/>;
+        break;
+      case UpdateOperationStatus.ERROR:
+        icon = <span className={styles.iconError} data-test-id="update-unsuccessful"/>;
+        break;
+    }
+    return icon;
+  }
 }
 
-export class UsersWidget extends MithrilViewComponent<UserActionsState> {
-  view(vnode: m.Vnode<UserActionsState>) {
+export class UsersWidget extends MithrilViewComponent<State> {
+  view(vnode: m.Vnode<State>) {
     return [
       <UsersActionsWidget {...vnode.attrs} />,
       <UsersTableWidget {...vnode.attrs}/>

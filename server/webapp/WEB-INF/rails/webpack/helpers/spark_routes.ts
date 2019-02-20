@@ -189,6 +189,10 @@ export default class {
     return "/go/api/users";
   }
 
+  static apiUserPath(username: string) {
+    return `/go/api/users/${username}`;
+  }
+
   static apiBulkUserStateUpdatePath() {
     return "/go/api/users/operations/state";
   }

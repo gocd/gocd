@@ -116,4 +116,16 @@ public class AdminsConfigTest {
         assertTrue(adminsConfig.hasErrors());
         assertThat(adminsConfig.errors().on("roles"), is("Role \"admin_role\" does not exist."));
     }
+
+    @Test
+    public void shouldReturnFalseForIsUserIndividualAdminIfAUserBelongsToAnAdminRole() {
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminRole(new CaseInsensitiveString("Role1")));
+        assertThat(adminsConfig.isUserIndividualAdmin(new CaseInsensitiveString("user1")), is(false));
+    }
+
+    @Test
+    public void shouldReturnTrueForIsUserIndividualAdminIfAUserIsAdmin() {
+        AdminsConfig adminsConfig = new AdminsConfig(new AdminUser(new CaseInsensitiveString("USER1")));
+        assertThat(adminsConfig.isUserIndividualAdmin(new CaseInsensitiveString("user1")), is(true));
+    }
 }

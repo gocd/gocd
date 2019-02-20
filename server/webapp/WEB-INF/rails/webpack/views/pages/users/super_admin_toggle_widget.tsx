@@ -17,66 +17,70 @@
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {User, Users} from "models/users/users";
+import * as stream from "mithril/stream";
+import {User} from "models/users/users";
 import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
 import * as styles from "./index.scss";
 
-interface SuperAdminPrivilegeSwitchAttrs {
+interface MakeAdminOperation<T> {
+  onMakeAdmin: (obj: T, e: MouseEvent) => void;
+}
+
+interface RemoveAdminOperation<T> {
+  onRemoveAdmin: (obj: T, e: MouseEvent) => void;
+}
+
+export interface SuperAdminPrivilegeSwitchAttrs extends MakeAdminOperation<User>, RemoveAdminOperation<User> {
   user: User;
-  onRemoveAdmin: (users: Users, e: MouseEvent) => void;
-  onMakeAdmin: (users: Users, e: MouseEvent) => void;
   noAdminsConfigured: Stream<boolean>;
 }
 
-interface State {
-  userToOperate: User;
+export interface State {
+  isAdmin: Stream<boolean>;
   onToggleClick: (e: MouseEvent) => any;
   populateUserToOperate: (user: User) => void;
 }
 
 export class SuperAdminPrivilegeSwitch extends MithrilComponent<SuperAdminPrivilegeSwitchAttrs, State> {
   oninit(vnode: m.Vnode<SuperAdminPrivilegeSwitchAttrs, State>) {
+    vnode.state.isAdmin       = stream((vnode.attrs.user.isAdmin() && !vnode.attrs.noAdminsConfigured()) || false);
     vnode.state.onToggleClick = (e: MouseEvent) => {
-      (vnode.state.userToOperate.isAdmin())
-        ? vnode.attrs.onRemoveAdmin(new Users(vnode.state.userToOperate), e)
-        : vnode.attrs.onMakeAdmin(new Users(vnode.state.userToOperate), e);
+      (vnode.state.isAdmin())
+        ? vnode.attrs.onRemoveAdmin(vnode.attrs.user, e)
+        : vnode.attrs.onMakeAdmin(vnode.attrs.user, e);
     };
 
-    vnode.state.populateUserToOperate = (user: User) => {
-      vnode.state.userToOperate = User.clone(user);
+  }
 
-      //if no super admins are configured.. the admin is normal user and can be elevated to system admin.
-      if (vnode.attrs.noAdminsConfigured()) {
-        vnode.state.userToOperate.isAdmin(false);
-      }
-
-      vnode.state.userToOperate.checked(true);
-    };
+  onbeforeupdate(vnode: m.Vnode<SuperAdminPrivilegeSwitchAttrs, State>,
+                 old: m.VnodeDOM<SuperAdminPrivilegeSwitchAttrs, State>): boolean | void {
+    vnode.state.isAdmin((vnode.attrs.user.isAdmin() && !vnode.attrs.noAdminsConfigured()));
   }
 
   view(vnode: m.Vnode<SuperAdminPrivilegeSwitchAttrs, State>) {
-    vnode.state.populateUserToOperate(vnode.attrs.user);
 
     let optionalTooltip;
-    let isAdminText = vnode.state.userToOperate.isAdmin() ? "YES" : "NO";
+    let isAdminText = vnode.attrs.user.isAdmin() ? "YES" : "NO";
+    const loginName = vnode.attrs.user.loginName;
 
     if (vnode.attrs.noAdminsConfigured()) {
-      const loginName = vnode.attrs.user.loginName;
       optionalTooltip = (<Tooltip.Info size={TooltipSize.small}
                                        content={`Explicitly making '${loginName}' user a system administrator will result into other users not having system administrator privileges.`}/>);
       isAdminText     = "Not Specified";
+    } else if (vnode.attrs.user.isAdmin() && !vnode.attrs.user.isIndividualAdmin()) {
+      optionalTooltip = (<Tooltip.Info size={TooltipSize.small}
+                                       content={`'${loginName}' user has the system administrator privileges because the user is assigned the group administrative role. To remove this user from system administrators, assigned role needs to be removed.`}/>);
     }
 
-    return (
-      <div class={styles.adminSwitchWrapper} data-test-id="admin-switch-wrapper">
-        <SwitchBtn field={vnode.state.userToOperate.isAdmin}
-                   small={true}
-                   onclick={vnode.state.onToggleClick.bind(vnode.state)}/>
-        <span class={styles.isAdminText} data-test-id="is-admin-text">{isAdminText}</span>
-        {optionalTooltip}
-      </div>
-    );
+    return <div class={styles.adminSwitchWrapper} data-test-id="admin-switch-wrapper">
+      <SwitchBtn field={vnode.state.isAdmin}
+                 small={true}
+                 disabled={vnode.attrs.user.isAdmin() && !vnode.attrs.user.isIndividualAdmin()}
+                 onclick={vnode.state.onToggleClick.bind(vnode.state)}/>
+      <span class={styles.isAdminText} data-test-id="is-admin-text">{isAdminText}</span>
+      {optionalTooltip}
+    </div>;
   }
 }

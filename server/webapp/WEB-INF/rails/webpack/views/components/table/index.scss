@@ -17,6 +17,7 @@
 
 $table-border-color: $line-color;
 $table-header-bg: $secondary-bg;
+$table_background_color: #fff;
 
 .table {
   $table-border-top-color: #dee2e6;
@@ -24,6 +25,7 @@ $table-header-bg: $secondary-bg;
   border-collapse: collapse;
   display:         table;
   width:           100%;
+  background:      $table_background_color;
 
   thead {
     font-size:      13px;
@@ -33,15 +35,18 @@ $table-header-bg: $secondary-bg;
     vertical-align: middle;
 
   }
+
   th {
     padding:     10px;
     border-top:  1px solid $table-border-top-color;
     text-align:  left;
     font-weight: 600;
   }
+
   tr {
     display: table-row;
   }
+
   td {
     padding:    10px;
     border-top: 1px solid $table-border-top-color;

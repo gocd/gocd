@@ -154,6 +154,10 @@ code {
   margin-left: 5px;
 }
 
+.header-title {
+  margin-right: 50px;
+}
+
 .header-title-text {
   font-size: 12px;
   overflow: hidden;
@@ -175,4 +179,14 @@ code {
 
 .error-message {
   margin-bottom: 25px;
+}
+
+.section-header {
+  display:       flex;
+  flex-wrap:     wrap;
+  margin-bottom: 0;
+}
+
+.section-header-title {
+  font-weight: 600;
 }

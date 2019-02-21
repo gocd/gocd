@@ -56,6 +56,7 @@ class AgentRepresenterTest {
     AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"))
     def envFromConfigRepo = environment("dev")
     envFromConfigRepo.setOrigins(new RepoConfigOrigin())
+    envFromConfigRepo.addAgent("some-uuid")
     def json = toObjectString({
       def environments = Stream.of(environment("uat"), environment("load_test"), envFromConfigRepo)
         .collect()

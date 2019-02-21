@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class EnvironmentsRepresenter {
-    public static void toJSON(OutputListWriter writer, Collection<EnvironmentConfig> environments) {
+    public static void toJSON(OutputListWriter writer, Collection<EnvironmentConfig> environments, String agentUuid) {
         List<EnvironmentConfig> sortedEnvironmentConfigs = environments.stream()
                 .sorted(new EnvironmentConfigComparator())
                 .collect(Collectors.toList());
@@ -35,7 +35,7 @@ public class EnvironmentsRepresenter {
         for (EnvironmentConfig environment : sortedEnvironmentConfigs) {
             writer.addChild((childWriter) -> {
                 childWriter.add("name", environment.name());
-                childWriter.add("associated_from_config_repo", !environment.isLocal());
+                childWriter.add("associated_from_config_repo", environment.containsAgentRemotely(agentUuid));
             });
         }
     }

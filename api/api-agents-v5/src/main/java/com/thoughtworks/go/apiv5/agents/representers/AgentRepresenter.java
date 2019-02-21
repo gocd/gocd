@@ -41,7 +41,7 @@ public class AgentRepresenter {
                 .add("operating_system", agentInstance.getOperatingSystem())
                 .add("agent_config_state", agentInstance.getAgentConfigStatus().toString())
                 .add("agent_state", agentInstance.getRuntimeStatus().agentState().toString())
-                .addChildList("environments", envWriter -> EnvironmentsRepresenter.toJSON(envWriter, environments))
+                .addChildList("environments", envWriter -> EnvironmentsRepresenter.toJSON(envWriter, environments, agentInstance.getUuid()))
                 .add("build_state", agentInstance.getRuntimeStatus().buildState().toString());
 
         if (agentInstance.freeDiskSpace() == null || agentInstance.freeDiskSpace().isNullDiskspace()) {

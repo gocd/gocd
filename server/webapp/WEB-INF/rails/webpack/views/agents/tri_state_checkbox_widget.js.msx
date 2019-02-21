@@ -14,12 +14,18 @@
  * limitations under the License.
  */
 
-const m   = require('mithril');
+import * as Tooltip from "views/components/tooltip";
+
+const m = require('mithril');
 const _ = require('lodash');
 
 const TriStateCheckboxWidget = {
-  view (vnode) {
+  view(vnode) {
     const args = vnode.attrs;
+    let tooltip;
+    if (args.triStateCheckbox.tooltip()) {
+      tooltip = <Tooltip.Info content={args.triStateCheckbox.tooltip()}/>;
+    }
 
     return (
       <li>
@@ -36,7 +42,7 @@ const TriStateCheckboxWidget = {
         <label for={`checkbox-${args.index.toString()}`} title={args.triStateCheckbox.name()}>
           {_.truncate(args.triStateCheckbox.name(), {'length': 25})}
         </label>
-
+        {tooltip}
       </li>
     );
   }

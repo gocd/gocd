@@ -120,4 +120,9 @@ describe('TriStateCheckbox (Resource/Environment) Model', () => {
     const resource = new TriStateCheckbox('Linux', [['Linux']]);
     expect(resource.disabled()).toBe(false);
   });
+
+  it('should set tooltip property', () => {
+    const resource = new TriStateCheckbox('Linux', [['Linux']], false, "towering gila monster");
+    expect(resource.tooltip()).toBe("towering gila monster");
+  });
 });

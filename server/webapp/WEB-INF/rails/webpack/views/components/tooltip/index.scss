@@ -20,7 +20,7 @@ $tooltip-medium-width: 500px;
 $tooltip-large-width: 700px;
 
 .tooltip-wrapper {
-  position: relative;
+  position: static;
   display:  inline-block;
   &:hover {
     .tooltip-content {

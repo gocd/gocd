@@ -87,6 +87,7 @@ describe('Agent Environments Model', () => {
         expect(environments[2].isChecked()).toBe(true);
         expect(environments[2].isIndeterminate()).toBe(false);
         expect(environments[2].disabled()).toBe(true);
+        expect(environments[2].tooltip()).toBe("Cannot edit Environment associated from Config Repo");
       });
 
       Environments.all(checkedAgents).then(successCallback);

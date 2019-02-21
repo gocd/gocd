@@ -35,8 +35,11 @@ const shouldBeDisabled = (environmentName, selectedAgents) => {
 const getSortedEnvironments = (environments, selectedAgents) => {
   const selectedAgentsEnvironmentNames = _.map(selectedAgents, (agent) => agent.environmentNames());
 
-  return _.map(environments.sort(), (environment) => new TriStateCheckbox(environment,
-    selectedAgentsEnvironmentNames, shouldBeDisabled(environment, selectedAgents)));
+  return _.map(environments.sort(), (environment) => {
+    const disabled = shouldBeDisabled(environment, selectedAgents);
+    const tooltip = disabled ? "Cannot edit Environment associated from Config Repo" : "";
+    return new TriStateCheckbox(environment, selectedAgentsEnvironmentNames, disabled, tooltip);
+  });
 };
 
 const Environments = {};

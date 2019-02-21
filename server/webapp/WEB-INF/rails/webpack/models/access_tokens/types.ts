@@ -110,7 +110,7 @@ export class AccessToken extends ValidatableMixin {
                            AccessToken.parseDate(data.revoked_at),
                            AccessToken.parseDate(data.created_at),
                            AccessToken.parseDate(data.last_used_at),
-                           data.revoked_because_user_deleted,
+                           data.revoked_because_user_deleted || false,
                            data.token,
                            new Errors(data.errors));
   }

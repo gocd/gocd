@@ -13,39 +13,81 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "../../global/common";
 
-$tab_header_border_color: #ccc;
-$tab_header_background_color: #ddd;
-.is-active {
-  font-weight: 600;
+$tab-header-bg: $secondary-bg;
+$accordion-header-bg-active: $go-primary;
+$accordion-header-text-color: $go-primary;
+
+.tabs {
+  margin:        0;
+  padding:       0 20px;
+  float:         left;
+  list-style:    none;
+  border:        1px solid $border-color;
+  width:         100%;
+  background:    $tab-header-bg;
+  border-radius: $global-border-radius $global-border-radius 0 0;
+  box-sizing:    border-box;
+
+  li {
+    float:  left;
+    margin: 0;
+  }
+}
+
+.tab-head {
+  display:         block;
+  padding:         12px 20px 10px 20px;
+  font-size:       13px;
+  border-bottom:   none;
+  overflow:        hidden;
+  position:        relative;
+  text-transform:  uppercase;
+  text-decoration: none;
+  color:           $text-color;
+  font-weight:     600;
+}
+
+.active {
+  border-bottom: 2px solid $go-primary;
+  color:         $accordion-header-bg-active;
+}
+
+.tab_container {
+  border:     1px solid $border-color;
+  border-top: none;
+  clear:      both;
+  box-sizing: border-box;
+}
+
+.tab_content {
+  padding:    20px;
+  box-sizing: border-box;
+  background: $white;
+}
+
+.tab-accordion_heading {
+  display: none;
+}
+
+@media screen and (max-width: 767px) {
+  .tabs {
+    display: none;
+  }
+  .tab-accordion_heading {
+    border-top:  1px solid $border-color;
+    margin:      0;
+    padding:     10px 20px;
+    display:     block;
+    cursor:      pointer;
+    font-weight: normal;
+    color:       $accordion-header-text-color;
+    font-size:   1em;
+    background:  $white;
+  }
 }
 
 .hide {
   display: none;
-}
-
-.tabs {
-  border:        1px solid $tab_header_border_color;
-  border-radius: 3px;
-  overflow:      hidden;
-  margin:        10px 0;
-}
-
-.tab-header-container {
-  list-style:    none;
-  display:       flex;
-  margin:        0;
-  padding:       10px;
-  background:    $tab_header_background_color;
-  border-bottom: 1px solid $tab_header_border_color;
-
-  .tab-header {
-    margin-right:   10px;
-    text-transform: uppercase;
-    cursor:         pointer;
-  }
-}
-
-.tab-content {
-  padding: 10px;
 }

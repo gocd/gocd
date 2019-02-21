@@ -30,43 +30,52 @@ interface Attrs {
 
 interface State {
   selectedTabIndex: Stream<number>;
-  setSelectedTabIndex: (index: number, e: MouseEvent) => void;
   isSelected: (index: number) => boolean;
 }
 
 export class Tabs extends MithrilComponent<Attrs, State> {
   oninit(vnode: m.Vnode<Attrs, State>): any {
     vnode.state.selectedTabIndex = stream(0);
-
-    vnode.state.setSelectedTabIndex = (index: number, e: MouseEvent) => {
-      vnode.state.selectedTabIndex(index);
-    };
-
-    vnode.state.isSelected = (index: number) => {
+    vnode.state.isSelected       = (index: number) => {
       return vnode.state.selectedTabIndex() === index;
     };
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
-    return <div className={styles.tabs}>
-      <ul className={styles.tabHeaderContainer}>
+    const tabs = (
+      <ul className={styles.tabs}>
         {vnode.attrs.tabs.map((tab: any, index: number) => {
-          return <li className={classnames(styles.tabHeader, {[styles.isActive]: vnode.state.isSelected(index)})}
-                     onclick={vnode.state.setSelectedTabIndex.bind(vnode.state, index)}
-                     data-test-id={`tab-header-${index}`}>
-            {tab}
+          const classesToApply = classnames(styles.tabHead, {[styles.active]: vnode.state.isSelected(index)});
+
+          return <li onclick={() => vnode.state.selectedTabIndex(index)}>
+            <a className={classesToApply}
+               href={`#tab${index}`}
+               data-test-id={`tab-header-${index}`}
+            >{tab}</a>
           </li>;
         })}
-      </ul>
-      <div>
+      </ul>);
+
+    const tabContents = (
+      <div className={styles.tabContainer}>
         {vnode.attrs.contents.map((content: any, index: number) => {
-          return <div
-            className={classnames(styles.tabContent, {[styles.hide]: !vnode.state.isSelected(index)})}
-            data-test-id={`tab-content-${index}`}>
-            {content}
-          </div>;
+          return [
+            <h3 className={classnames(styles.tabAccordionHeading,
+                                      {[styles.active]: vnode.state.isSelected(index)})}
+                onclick={() => vnode.state.selectedTabIndex(index)}>
+              {vnode.attrs.tabs[index]}
+            </h3>,
+            <div data-test-id={`tab-content-${index}`}
+                 className={classnames(styles.tabContent, {[styles.hide]: !vnode.state.isSelected(index)})}
+                 id={`tab${index}`}>
+              {content}
+            </div>
+          ];
         })}
-      </div>
+      </div>);
+    return <div>
+      {tabs}
+      {tabContents}
     </div>;
   }
 }

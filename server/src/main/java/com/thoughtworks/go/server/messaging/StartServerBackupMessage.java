@@ -14,8 +14,17 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.domain;
+package com.thoughtworks.go.server.messaging;
 
-public enum BackupStatus {
-    COMPLETED, IN_PROGRESS, ERROR, ABORTED
+public class StartServerBackupMessage implements GoMessage {
+
+    private long id;
+
+    public StartServerBackupMessage(long id) {
+        this.id = id;
+    }
+
+    public long getId() {
+        return id;
+    }
 }

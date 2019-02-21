@@ -31,14 +31,14 @@ public class PostBackupScript {
 
     private final String postBackupScript;
     private final BackupService.BackupInitiator initiatedBy;
-    private final Username username;
     private final ServerBackup backup;
     private final String backupBaseDir;
     private final Date backupTime;
+    private final String username;
 
     public PostBackupScript(String postBackupScript,
                             BackupService.BackupInitiator initiatedBy,
-                            Username username,
+                            String username,
                             ServerBackup backup,
                             String backupBaseDir,
                             Date backupTime) {
@@ -78,7 +78,7 @@ public class PostBackupScript {
                 envBuilder.put("GOCD_BACKUP_INITIATED_VIA", "TIMER");
                 break;
             case USER:
-                envBuilder.put("GOCD_BACKUP_INITIATED_BY_USER", username.getUsername().toString());
+                envBuilder.put("GOCD_BACKUP_INITIATED_BY_USER", username);
                 break;
         }
 

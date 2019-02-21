@@ -29,7 +29,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 class BackupRepresenterTest {
   @Test
   void 'should serialize'() {
-    def backup = new ServerBackup("/foo/bar", new Date(42), "bob")
+    def backup = new ServerBackup("/foo/bar", new Date(42), "bob", "")
 
     def actualJson = toObjectString({ BackupRepresenter.toJSON(it, backup) })
 

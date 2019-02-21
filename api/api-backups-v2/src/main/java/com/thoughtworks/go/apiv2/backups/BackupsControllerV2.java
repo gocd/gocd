@@ -22,12 +22,10 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv2.backups.representers.BackupRepresenter;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.server.domain.ServerBackup;
-import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.BackupService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.spark.RequestContext;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -35,14 +33,13 @@ import spark.Response;
 
 import java.io.IOException;
 
-import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseConfirmHeaderMissing;
+import static com.thoughtworks.go.spark.Routes.Backups.ID_PATH;
 import static spark.Spark.*;
 
 @Component
 public class BackupsControllerV2 extends ApiController implements SparkSpringController {
 
-    private static final HeaderConstraint HEADER_CONSTRAINT = new HeaderConstraint(new SystemEnvironment());
-    private static final String RETRY_INTERVAL_IN_SECONDS = "30";
+    private static final String RETRY_INTERVAL_IN_SECONDS = "5";
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private BackupService backupService;
@@ -65,27 +62,25 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", this::verifyConfirmHeader);
+            before("", mimeType, this::verifyContentType);
 
             before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
             before("/*", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 
             post("", mimeType, this::create);
-            get(Routes.Backups.ID_PATH, mimeType, this::show);
+            get(ID_PATH, mimeType, this::show);
             exception(RecordNotFoundException.class, this::notFound);
         });
     }
 
-    public String create(Request request, Response response) throws IOException {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ServerBackup backup = backupService.scheduleBackup(currentUsername(), result);
-        if (result.isSuccessful()) {
-            response.status(202);
-            response.header("Location", Routes.Backups.serverBackup(String.valueOf(backup.getId())));
-            response.header("Retry-After", RETRY_INTERVAL_IN_SECONDS);
-            return NOTHING;
-        }
-        return renderHTTPOperationResult(result, request, response);
+    public String create(Request request, Response response) {
+        ServerBackup backup = backupService.scheduleBackup(currentUsername());
+        RequestContext requestContext = RequestContext.requestContext(request);
+        String backupPath = requestContext.pathWithContext(Routes.Backups.serverBackup(String.valueOf(backup.getId())));
+        response.status(202);
+        response.header("Location", backupPath);
+        response.header("Retry-After", RETRY_INTERVAL_IN_SECONDS);
+        return NOTHING;
     }
 
     public String show(Request request, Response response) throws IOException {
@@ -95,11 +90,5 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
             throw new RecordNotFoundException();
         }
         return writerForTopLevelObject(request, response, outputWriter -> BackupRepresenter.toJSON(outputWriter, backup));
-    }
-
-    private void verifyConfirmHeader(Request request, Response response) {
-        if (!HEADER_CONSTRAINT.isSatisfied(request.raw())) {
-            throw haltBecauseConfirmHeaderMissing();
-        }
     }
 }

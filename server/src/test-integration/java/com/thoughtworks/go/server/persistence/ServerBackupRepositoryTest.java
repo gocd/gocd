@@ -32,6 +32,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -57,28 +58,70 @@ public class ServerBackupRepositoryTest {
     }
 
     @Test
-    public void shouldReturnTheLastBackupTime() {
+    public void shouldReturnTheLastSuccessfulBackupTime() {
         Date time = new Date();
-        repository.save(new ServerBackup("file_path", time, "user"));
-        Date latest = new Date(time.getTime() + 10000);
-        repository.save(new ServerBackup("file_path", latest, "user"));
+        Date completedBackupTime = new Date(time.getTime() + 10000);
 
-        ServerBackup serverBackup = repository.lastBackup();
+        ServerBackup completedBackup = new ServerBackup("file_path", completedBackupTime, "user", "", BackupStatus.COMPLETED);
+        repository.save(completedBackup);
 
-        assertEquals(new ServerBackup("file_path", latest, "user"), serverBackup);
+        Date inProgressBackupTime = new Date(time.getTime() + 20000);
+        ServerBackup inProgressBackup = new ServerBackup("file_path", inProgressBackupTime, "user", "in progress backup", BackupStatus.IN_PROGRESS);
+        repository.save(inProgressBackup);
+
+        ServerBackup actualBackup = repository.lastSuccessfulBackup();
+
+        assertEquals(completedBackup, actualBackup);
     }
 
     @Test
     public void shouldReturnTheUserNameWhichTriggeredTheLastBackup() {
         Date time = new Date();
-        repository.save(new ServerBackup("file_path", time, "loser"));
-        repository.save(new ServerBackup("file_path", time, "new_loser"));
+        repository.save(new ServerBackup("file_path", time, "loser", "", BackupStatus.COMPLETED));
+        repository.save(new ServerBackup("file_path", time, "new_loser", ""));
 
-        assertEquals(new ServerBackup("file_path", time, "new_loser"), repository.lastBackup());
+        assertEquals(new ServerBackup("file_path", time, "loser", "", BackupStatus.COMPLETED), repository.lastSuccessfulBackup());
+    }
+
+    @Test
+    public void shouldReturnNullWhenIdIsNull() {
+        assertNull(repository.getBackup(null));
+    }
+
+    @Test
+    public void shouldReturnServerBackById() {
+        ServerBackup serverBackup = repository.save(new ServerBackup("file_path", new Date(), "loser", ""));
+
+        assertEquals(serverBackup, repository.getBackup(serverBackup.getId()));
+    }
+
+    @Test
+    public void shouldUpdateServerBackup() {
+        ServerBackup serverBackup = new ServerBackup("file_path", new Date(), "loser", "");
+        repository.save(serverBackup);
+        serverBackup.setMessage("new message");
+        repository.update(serverBackup);
+
+        assertEquals("new message", repository.getBackup(serverBackup.getId()).getMessage());
+    }
+
+    @Test
+    public void shouldMarkIncompleteServerBackupsAsAborted() {
+        ServerBackup inProgressBackup = new ServerBackup("file_path1", new Date(), "loser", "", BackupStatus.IN_PROGRESS);
+        ServerBackup completedBackup = new ServerBackup("file_path3", new Date(), "loser", "", BackupStatus.COMPLETED);
+        repository.save(inProgressBackup);
+        repository.save(completedBackup);
+
+        repository.markInProgressBackupsAsAborted("Backup was aborted.");
+
+        ServerBackup abortedBackup = repository.getBackup(inProgressBackup.getId());
+        assertEquals(BackupStatus.ABORTED, abortedBackup.getStatus());
+        assertEquals("Backup was aborted.", abortedBackup.getMessage());
+        assertEquals(completedBackup, repository.getBackup(completedBackup.getId()));
     }
 
     @Test
     public void shouldReturnNullWhenThereAreNoEntries() {
-        assertThat(repository.lastBackup(), is(nullValue()));
+        assertThat(repository.lastSuccessfulBackup(), is(nullValue()));
     }
 }

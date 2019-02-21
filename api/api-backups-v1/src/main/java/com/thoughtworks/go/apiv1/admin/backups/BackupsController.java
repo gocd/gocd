@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.http.HttpStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -63,8 +64,8 @@ public class BackupsController extends ApiController implements SparkSpringContr
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", this::verifyConfirmHeader);
-            before("/*", this::verifyConfirmHeader);
+            before("", mimeType, this::verifyConfirmHeader);
+            before("/*", mimeType, this::verifyConfirmHeader);
 
             before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
@@ -74,12 +75,12 @@ public class BackupsController extends ApiController implements SparkSpringContr
     }
 
     public String create(Request request, Response response) throws IOException {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ServerBackup backup = backupService.startBackup(currentUsername(), result);
-        if (result.isSuccessful()) {
+        ServerBackup backup = backupService.startBackup(currentUsername());
+        if (backup.isSuccessful()) {
             return writerForTopLevelObject(request, response, outputWriter -> BackupRepresenter.toJSON(outputWriter, backup));
         }
-        return renderHTTPOperationResult(result, request, response);
+        response.status(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+        return writerForTopLevelObject(request, response, writer -> writer.add("message", backup.getMessage()));
     }
 
     private void verifyConfirmHeader(Request request, Response response) {

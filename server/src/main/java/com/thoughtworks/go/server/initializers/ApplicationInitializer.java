@@ -86,6 +86,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
     @Autowired private PipelineLabelCorrector pipelineLabelCorrector;
     @Autowired private DataSharingSettingsService dataSharingSettingsService;
     @Autowired private DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
+    @Autowired private BackupService backupService;
     @Value("${cruise.daemons.enabled}")
     private boolean daemonsEnabled;
 
@@ -148,6 +149,7 @@ public class ApplicationInitializer implements ApplicationListener<ContextRefres
             scmMaterialSource.initialize();
             dataSharingSettingsService.initialize();
             dataSharingUsageStatisticsReportingService.initialize();
+            backupService.initialize();
         } catch (Throwable throwable) {
             throw new RuntimeException(throwable);
         }

@@ -27,10 +27,12 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.security.AESCipherProvider;
 import com.thoughtworks.go.security.DESCipherProvider;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
+import com.thoughtworks.go.server.messaging.ServerBackupQueue;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.service.backup.BackupUpdateListener;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -48,7 +50,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
@@ -56,7 +57,6 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.sql.DataSource;
 import java.io.*;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
@@ -65,9 +65,7 @@ import java.util.zip.ZipInputStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.codec.binary.Hex.encodeHexString;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -96,6 +94,7 @@ public class BackupServiceIntegrationTest {
     @Autowired ConfigRepository configRepository;
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
     @Autowired Database databaseStrategy;
+    @Autowired ServerBackupQueue backupQueue;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -104,6 +103,7 @@ public class BackupServiceIntegrationTest {
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private byte[] originalCipher;
     private Username admin;
+
 
     @Before
     public void setUp() throws Exception {
@@ -132,18 +132,8 @@ public class BackupServiceIntegrationTest {
     }
 
     @Test
-    public void shouldFailIfUserIsNotAnAdmin() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        backupService.startBackup(new Username(new CaseInsensitiveString("loser")), result);
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Unauthorized to initiate Go backup as you are not a Go administrator"));
-    }
-
-    @Test
     public void shouldPerformConfigBackupForAllConfigFiles() throws Exception {
         try {
-            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
             createConfigFile("foo", "foo_foo");
             createConfigFile("bar", "bar_bar");
             createConfigFile("baz", "hazar_bar");
@@ -151,9 +141,9 @@ public class BackupServiceIntegrationTest {
             createConfigFile("some_dir/cruise-config.xml", "some-other-cruise-config");
             createConfigFile("some_dir/cipher", "some-cipher");
 
-            backupService.startBackup(admin, result);
-            assertThat(result.isSuccessful(), is(true));
-            assertThat(result.message(), is("Backup was generated successfully."));
+            ServerBackup backup = backupService.startBackup(admin);
+            assertThat(backup.isSuccessful(), is(true));
+            assertThat(backup.getMessage(), is("Backup was generated successfully."));
 
             File configZip = backedUpFile("config-dir.zip");
             assertThat(fileContents(configZip, "foo"), is("foo_foo"));
@@ -179,11 +169,9 @@ public class BackupServiceIntegrationTest {
     public void shouldBackupConfigRepository() throws IOException {
         configHelper.addPipeline("too-unique-to-be-present", "stage-name");
 
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
-        backupService.startBackup(admin, result);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is("Backup was generated successfully."));
+        ServerBackup backup = backupService.startBackup(admin);
+        assertThat(backup.isSuccessful(), is(true));
+        assertThat(backup.getMessage(), is("Backup was generated successfully."));
 
         File repoZip = backedUpFile("config-repo.zip");
         File repoDir = temporaryFolder.newFolder("expanded-config-repo-backup");
@@ -202,11 +190,11 @@ public class BackupServiceIntegrationTest {
 
     @Test
     public void shouldCaptureVersionForEveryBackup() throws IOException {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, configRepository, databaseStrategy);
-        backupService.startBackup(admin, result);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is("Backup was generated successfully."));
+        BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, configRepository, databaseStrategy, null);
+        ServerBackup backup = backupService.startBackup(admin);
+        assertThat(backup.isSuccessful(), is(true));
+        assertThat(backup.getMessage(), is("Backup was generated successfully."));
+
         File version = backedUpFile("version.txt");
         assertThat(FileUtils.readFileToString(version, UTF_8), is(CurrentGoCDVersion.getInstance().formatted()));
     }
@@ -227,8 +215,8 @@ public class BackupServiceIntegrationTest {
         when(timeProvider.currentDateTime()).thenReturn(now);
 
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
-                databaseStrategy);
-        service.startBackup(admin, new HttpLocalizedOperationResult());
+                databaseStrategy, null);
+        service.startBackup(admin);
 
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         String body = String.format("Backup of the Go server at '%s' was successfully completed. The backup is stored at location: %s. This backup was triggered by 'admin'.", ipAddress, backupDir(now).getAbsolutePath());
@@ -253,8 +241,8 @@ public class BackupServiceIntegrationTest {
         when(timeProvider.currentDateTime()).thenReturn(now);
 
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
-                databaseStrategy);
-        service.startBackup(admin, new HttpLocalizedOperationResult());
+                databaseStrategy, null);
+        service.startBackup(admin);
 
         verifyNoMoreInteractions(goMailSender);
     }
@@ -275,19 +263,17 @@ public class BackupServiceIntegrationTest {
         TimeProvider timeProvider = mock(TimeProvider.class);
         when(timeProvider.currentDateTime()).thenReturn(now);
 
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
         Database databaseStrategyMock = mock(Database.class);
         doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
-                databaseStrategyMock);
-        service.startBackup(admin, result);
+                databaseStrategyMock, null);
+        ServerBackup backup = service.startBackup(admin);
 
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
         String body = String.format("Backup of the Go server at '%s' has failed. The reason is: %s", ipAddress, "Oh no!");
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Failed to perform backup. Reason: Oh no!"));
+        assertThat(backup.isSuccessful(), is(false));
+        assertThat(backup.getMessage(), is("Failed to perform backup. Reason: Oh no!"));
         verify(goMailSender).send(new SendEmailMessage("Server Backup Failed", body, "mail@admin.com"));
         verifyNoMoreInteractions(goMailSender);
 
@@ -310,16 +296,14 @@ public class BackupServiceIntegrationTest {
         TimeProvider timeProvider = mock(TimeProvider.class);
         when(timeProvider.currentDateTime()).thenReturn(now);
 
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
         Database databaseStrategyMock = mock(Database.class);
         doThrow(new RuntimeException("Oh no!")).when(databaseStrategyMock).backup(any(File.class));
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
-                databaseStrategyMock);
-        service.startBackup(admin, result);
+                databaseStrategyMock, null);
+        ServerBackup backup = service.startBackup(admin);
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.message(), is("Failed to perform backup. Reason: Oh no!"));
+        assertThat(backup.isSuccessful(), is(false));
+        assertThat(backup.getMessage(), is("Failed to perform backup. Reason: Oh no!"));
         verifyNoMoreInteractions(goMailSender);
 
         assertThat(FileUtils.listFiles(backupsDirectory, TrueFileFilter.TRUE, TrueFileFilter.TRUE).isEmpty(), is(true));
@@ -331,72 +315,93 @@ public class BackupServiceIntegrationTest {
 
         final Semaphore waitForBackupToStart = new Semaphore(1);
         final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);
-        final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult() {
-            @Override public void setMessage(String message) {
-                waitForBackupToStart.release();
-                super.setMessage(message);
-                try {
-                    waitForAssertionToCompleteWhileBackupIsOn.acquire();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+        final BackupUpdateListener backupUpdateListener = new BackupUpdateListener() {
+            private boolean backupStarted = false;
+            @Override
+            public void updateStep(String message) {
+                if (!backupStarted) {
+                    backupStarted = true;
+                    waitForBackupToStart.release();
+                    try {
+                        waitForAssertionToCompleteWhileBackupIsOn.acquire();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
+            }
 
+            @Override
+            public void error(String message) {
+            }
+
+            @Override
+            public void completed() {
             }
         };
+
         waitForAssertionToCompleteWhileBackupIsOn.acquire();
         waitForBackupToStart.acquire();
-        Thread backupThd = new Thread(new Runnable() {
-            public void run() {
-                backupService.startBackup(admin, result);
-            }
-        });
+        Thread backupThd = new Thread(() -> backupService.startBackup(admin, backupUpdateListener));
 
         backupThd.start();
         waitForBackupToStart.acquire();
         String backupStartedTimeString = backupService.backupRunningSinceISO8601();
         DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTime();
-        DateTime dateTime = dateTimeFormatter.parseDateTime(backupStartedTimeString);
-        assertThat(ReflectionUtil.getField(backupService, "backupRunningSince"), is(dateTime));
-        waitForAssertionToCompleteWhileBackupIsOn.release();
-        backupThd.join();
-    }
+        DateTime backupTime = dateTimeFormatter.parseDateTime(backupStartedTimeString);
 
-     @Test
-    public void shouldReturnBackupStartedBy() throws InterruptedException {
-        assertThat(backupService.backupStartedBy(), is(nullValue()));
-
-        final Semaphore waitForBackupToStart = new Semaphore(1);
-        final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);
-        final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult() {
-            @Override public void setMessage(String message) {
-                waitForBackupToStart.release();
-                super.setMessage(message);
-                try {
-                    waitForAssertionToCompleteWhileBackupIsOn.acquire();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
-            }
-        };
-        waitForAssertionToCompleteWhileBackupIsOn.acquire();
-        waitForBackupToStart.acquire();
-        Thread backupThd = new Thread(new Runnable() {
-            public void run() {
-                backupService.startBackup(admin, result);
-            }
-        });
-
-        backupThd.start();
-        waitForBackupToStart.acquire();
-        String backupStartedBy = backupService.backupStartedBy();
-        assertThat(ReflectionUtil.getField(backupService, "backupStartedBy"), is(backupStartedBy));
+        ServerBackup runningBackup = (ServerBackup) ReflectionUtil.getField(backupService, "runningBackup");
+        assertThat(new DateTime(runningBackup.getTime()), is(backupTime));
         waitForAssertionToCompleteWhileBackupIsOn.release();
         backupThd.join();
     }
 
     @Test
-    public void shouldExecutePostBackupScriptAndReturnResultOnSuccess() {
+    public void shouldReturnBackupStartedBy() throws InterruptedException {
+        assertThat(backupService.backupStartedBy(), is(nullValue()));
+
+        final Semaphore waitForBackupToStart = new Semaphore(1);
+        final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);
+        final BackupUpdateListener backupUpdateListener = new BackupUpdateListener() {
+            private boolean backupStarted = false;
+            @Override
+            public void updateStep(String message) {
+                if (!backupStarted) {
+                    backupStarted = true;
+                    waitForBackupToStart.release();
+                    try {
+                        waitForAssertionToCompleteWhileBackupIsOn.acquire();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+
+            @Override
+            public void error(String message) {
+            }
+
+            @Override
+            public void completed() {
+            }
+        };
+
+        waitForAssertionToCompleteWhileBackupIsOn.acquire();
+        waitForBackupToStart.acquire();
+        Thread backupThd = new Thread(() -> backupService.startBackup(admin, backupUpdateListener));
+
+        backupThd.start();
+        waitForBackupToStart.acquire();
+        String backupStartedBy = backupService.backupStartedBy();
+        ServerBackup runningBackup = (ServerBackup) ReflectionUtil.getField(backupService, "runningBackup");
+
+        assertThat(runningBackup.getUsername(), is(backupStartedBy));
+        waitForAssertionToCompleteWhileBackupIsOn.release();
+        backupThd.join();
+    }
+
+    @Test
+    public void shouldExecutePostBackupScriptAndReturnResultOnSuccess() throws InterruptedException {
+        final Semaphore waitForBackupToComplete = new Semaphore(1);
         GoConfigService configService = mock(GoConfigService.class);
         ServerConfig serverConfig = new ServerConfig();
         serverConfig.setBackupConfig(new BackupConfig(null, "jcmd", false, false));
@@ -405,18 +410,21 @@ public class BackupServiceIntegrationTest {
         when(configService.getMailSender()).thenReturn(goMailSender);
         when(configService.adminEmail()).thenReturn("mail@admin.com");
         when(configService.isUserAdmin(admin)).thenReturn(true);
-
         TimeProvider timeProvider = mock(TimeProvider.class);
         DateTime now = new DateTime();
         when(timeProvider.currentDateTime()).thenReturn(now);
 
-        BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
-                databaseStrategy);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        service.startBackup(admin, result);
+        final MessageCollectingBackupUpdateListener backupUpdateListener = new MessageCollectingBackupUpdateListener(waitForBackupToComplete);
 
-        assertThat(result.httpCode(), is(200));
-        assertThat(result.message(), is("Backup was generated successfully. Post backup script executed successfully."));
+        waitForBackupToComplete.acquire();
+        backupService = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
+                databaseStrategy, backupQueue);
+        Thread backupThd = new Thread(() -> backupService.startBackup(admin, backupUpdateListener));
+
+        backupThd.start();
+        waitForBackupToComplete.acquire();
+        assertThat(backupUpdateListener.getMessages().contains("Post backup script executed successfully."), is(true));
+        backupThd.join();
     }
 
     @Test
@@ -435,12 +443,11 @@ public class BackupServiceIntegrationTest {
         when(timeProvider.currentDateTime()).thenReturn(now);
 
         BackupService service = new BackupService(artifactsDirHolder, configService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
-                databaseStrategy);
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        service.startBackup(admin, result);
+                databaseStrategy, null);
+        ServerBackup backup = service.startBackup(admin);
 
-        assertThat(result.httpCode(), is(500));
-        assertThat(result.message(), is("Backup was generated successfully. Post backup script exited with an error, check the server log for details."));
+        assertThat(backup.hasFailed(), is(true));
+        assertThat(backup.getMessage(), is("Post backup script exited with an error, check the server log for details."));
     }
 
     private void deleteConfigFileIfExists(String ...fileNames) {
@@ -483,30 +490,23 @@ public class BackupServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturnIfBackupIsInProgress() throws SQLException, InterruptedException {
+    public void shouldReturnIfBackupIsInProgress() throws InterruptedException {
         final Semaphore waitForBackupToBegin = new Semaphore(1);
         final Semaphore waitForAssertion_whichHasToHappen_whileBackupIsRunning = new Semaphore(1);
 
         Database databaseStrategyMock = mock(Database.class);
-        doAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                waitForBackupToBegin.release();
-                waitForAssertion_whichHasToHappen_whileBackupIsRunning.acquire();
-                return null;
-            }
+        doAnswer((Answer<Object>) invocationOnMock -> {
+            waitForBackupToBegin.release();
+            waitForAssertion_whichHasToHappen_whileBackupIsRunning.acquire();
+            return null;
         }).when(databaseStrategyMock).backup(any(File.class));
 
 
         final BackupService backupService = new BackupService(artifactsDirHolder, goConfigService, new TimeProvider(), backupInfoRepository, systemEnvironment,
-                configRepository, databaseStrategyMock);
+                configRepository, databaseStrategyMock, null);
 
         waitForBackupToBegin.acquire();
-        Thread thd = new Thread(new Runnable() {
-            public void run() {
-                backupService.startBackup(admin, new HttpLocalizedOperationResult());
-            }
-        });
+        Thread thd = new Thread(() -> backupService.startBackup(admin));
         thd.start();
 
         waitForAssertion_whichHasToHappen_whileBackupIsRunning.acquire();
@@ -531,5 +531,39 @@ public class BackupServiceIntegrationTest {
 
     private void cleanupBackups() throws IOException {
         FileUtils.deleteQuietly(artifactsDirHolder.getArtifactsDir());
+    }
+
+    class MessageCollectingBackupUpdateListener implements BackupUpdateListener{
+
+        private final List<String> messages;
+
+        private boolean postExecutedScriptExecuted;
+        private final Semaphore backupComplete;
+        MessageCollectingBackupUpdateListener(Semaphore backupComplete) {
+            this.backupComplete = backupComplete;
+            this.messages = new ArrayList<>();
+        }
+
+        @Override
+        public void updateStep(String message) {
+            messages.add(message);
+        }
+
+        public List<String> getMessages() {
+            return messages;
+        }
+
+        @Override
+        public void error(String message) {
+        }
+
+        public boolean isPostExecutedScriptExecuted() {
+            return postExecutedScriptExecuted;
+        }
+
+        @Override
+        public void completed() {
+            backupComplete.release();
+        }
     }
 }

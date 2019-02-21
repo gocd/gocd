@@ -33,11 +33,16 @@ public class ServerBackup extends PersistentObject{
     private ServerBackup() {
     }
 
-    public ServerBackup(String path, Date time, String username) {
+    public ServerBackup(String path, Date time, String username, String message) {
+        this(path, time, username, message, BackupStatus.IN_PROGRESS);
+    }
+
+    public ServerBackup(String path, Date time, String username, String message, BackupStatus status) {
         this.path = path;
         this.time = time;
         this.username = username;
-        this.status = BackupStatus.IN_PROGRESS;
+        this.message = message;
+        this.status = status;
     }
 
     public ServerBackup(String path, Date time, String username, BackupStatus status, String message, long id) {
@@ -111,5 +116,26 @@ public class ServerBackup extends PersistentObject{
 
     public String getMessage() {
         return message;
+    }
+
+    public boolean isSuccessful() {
+        return BackupStatus.COMPLETED.equals(status);
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void markCompleted() {
+        this.status = BackupStatus.COMPLETED;
+    }
+
+    public void markError(String message) {
+        this.status = BackupStatus.ERROR;
+        this.message = message;
+    }
+
+    public Boolean hasFailed() {
+        return BackupStatus.ERROR.equals(status);
     }
 }

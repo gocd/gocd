@@ -161,6 +161,10 @@ public class ApplicationInitializerTest {
     public void shouldInitializeCcTrayAndDashboardActivityListenersAfterGoConfigServiceAndPipelineSqlMapDaoAreInitialized() throws Exception {
         verifyOrder(goConfigService, pipelineSqlMapDao, ccTrayActivityListener, dashboardActivityListener);
     }
+    @Test
+    public void shouldInitializeBackupService() {
+        verify(backupService).initialize();
+    }
 
     @Test
     public void shouldRunConfigCipherUpdaterBeforeInitializationOfOtherConfigRelatedServicesAndDatastores() throws Exception {

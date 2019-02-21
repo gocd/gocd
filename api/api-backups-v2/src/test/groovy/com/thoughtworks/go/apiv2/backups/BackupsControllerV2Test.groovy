@@ -23,17 +23,14 @@ import com.thoughtworks.go.apiv2.backups.representers.BackupRepresenter
 import com.thoughtworks.go.server.domain.BackupStatus
 import com.thoughtworks.go.server.domain.ServerBackup
 import com.thoughtworks.go.server.service.BackupService
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.confirmHeaderMissing
-import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
 
@@ -66,21 +63,17 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
         loginAsAdmin()
         def backup = new ServerBackup("/foo/bar", new Date(), currentUserLoginName().toString(), BackupStatus.IN_PROGRESS, "", BACKUP_ID)
 
-        doAnswer({ InvocationOnMock invocationOnMock ->
-          HttpLocalizedOperationResult result = invocationOnMock.arguments.last() as HttpLocalizedOperationResult
-          result.setMessage("success!")
-          return backup
-        }).when(backupService).scheduleBackup(eq(currentUsername()), any() as HttpLocalizedOperationResult)
+        doReturn(backup).when(backupService).scheduleBackup(eq(currentUsername()))
 
-        postWithApiHeader(controller.controllerBasePath(), [confirm: 'true'], null)
+        postWithApiHeader(controller.controllerBasePath(), ['X-GoCD-Confirm': 'true'], null)
 
-        verify(backupService).scheduleBackup(eq(currentUsername()), any() as HttpLocalizedOperationResult)
+        verify(backupService).scheduleBackup(eq(currentUsername()))
 
         assertThatResponse()
           .isAccepted()
           .hasContentType(controller.mimeType)
-          .hasHeader("Location", "/api/backups/12")
-          .hasHeader("Retry-After", "30")
+          .hasHeader("Location", "/go/api/backups/12")
+          .hasHeader("Retry-After", "5")
       }
     }
 
@@ -91,17 +84,6 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
         enableSecurity()
         loginAsAdmin()
         postWithApiHeader(controller.controllerBasePath(), null)
-        assertThatResponse()
-          .isBadRequest()
-          .hasContentType(controller.mimeType)
-          .hasJsonMessage(confirmHeaderMissing())
-      }
-
-      @Test
-      void 'bails if confirm header is set to non true value'() {
-        enableSecurity()
-        loginAsAdmin()
-        postWithApiHeader(controller.controllerBasePath(), ['X-GoCD-Confirm': 'foo'], null)
         assertThatResponse()
           .isBadRequest()
           .hasContentType(controller.mimeType)

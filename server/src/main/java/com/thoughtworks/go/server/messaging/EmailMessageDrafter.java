@@ -97,9 +97,9 @@ public class EmailMessageDrafter {
                         targetFolder), adminMail);
     }
 
-    public static SendEmailMessage backupSuccessfullyCompletedMessage(String backupDir, String adminEmail, Username username) {
+    public static SendEmailMessage backupSuccessfullyCompletedMessage(String backupDir, String adminEmail, String username) {
         String ipAddress = SystemUtil.getFirstLocalNonLoopbackIpAddress();
-        String body = String.format("Backup of the Go server at '%s' was successfully completed. The backup is stored at location: %s. This backup was triggered by '%s'.", ipAddress, backupDir, username.getUsername().toString());
+        String body = String.format("Backup of the Go server at '%s' was successfully completed. The backup is stored at location: %s. This backup was triggered by '%s'.", ipAddress, backupDir, username);
         return new SendEmailMessage("Server Backup Completed Successfully", body, adminEmail);
     }
 

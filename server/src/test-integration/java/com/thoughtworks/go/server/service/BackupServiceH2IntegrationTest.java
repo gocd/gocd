@@ -31,7 +31,6 @@ import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -129,19 +128,17 @@ public class BackupServiceH2IntegrationTest {
         when(timeProvider.currentDateTime()).thenReturn(now);
         assertThat(backupsDirectory.exists(), is(false));
 
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-
         BackupService service = new BackupService(artifactsDirHolder, goConfigService, timeProvider, backupInfoRepository, systemEnvironment, configRepository,
-                databaseStrategy);
-        service.startBackup(admin, result);
+                databaseStrategy, null);
+        ServerBackup serverBackup = service.startBackup(admin);
 
-        assertThat(result.isSuccessful(), is(true));
+        assertThat(serverBackup.isSuccessful(), is(true));
         assertThat(backupsDirectory.exists(), is(true));
         assertThat(backupsDirectory.isDirectory(), is(true));
         File backup = new File(backupsDirectory, BackupService.BACKUP + now.toString("YYYYMMdd-HHmmss"));
         assertThat(backup.exists(), is(true));
         assertThat(new File(backup, "db.zip").exists(), is(true));
-        assertEquals(new ServerBackup(backup.getAbsolutePath(), now.toDate(), admin.getUsername().toString()), backupInfoRepository.lastBackup());
+        assertEquals(serverBackup, backupInfoRepository.lastSuccessfulBackup());
     }
 
     @Test
@@ -149,10 +146,9 @@ public class BackupServiceH2IntegrationTest {
     public void shouldPerformDbBackupProperly() throws SQLException, IOException {
         Pipeline expectedPipeline = saveAPipeline();
 
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        backupService.startBackup(admin, result);
-        assertThat(result.isSuccessful(), is(true));
-        assertThat(result.message(), is("Backup was generated successfully."));
+        ServerBackup serverBackup = backupService.startBackup(admin);
+        assertThat(serverBackup.isSuccessful(), is(true));
+        assertThat(serverBackup.getMessage(), is("Backup was generated successfully."));
 
         String location = temporaryFolder.newFolder().getAbsolutePath();
 

@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.domain;
+package com.thoughtworks.go.server.service.backup;
 
-public enum BackupStatus {
-    COMPLETED, IN_PROGRESS, ERROR, ABORTED
+public interface BackupUpdateListener {
+    void updateStep(String message);
+
+    void error(String message);
+
+    void completed();
 }

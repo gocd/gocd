@@ -14,8 +14,19 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.domain;
+package com.thoughtworks.go.server.messaging;
 
-public enum BackupStatus {
-    COMPLETED, IN_PROGRESS, ERROR, ABORTED
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * @understands messages for initiating server backup
+ */
+@Component
+public class ServerBackupQueue extends GoMessageQueue<StartServerBackupMessage> {
+
+    @Autowired
+    public ServerBackupQueue(MessagingService messaging) {
+        super(messaging, "start-server-backup");
+    }
 }

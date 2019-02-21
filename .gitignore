@@ -103,6 +103,9 @@ api/api-artifact-store-config-v1/target/
 api/api-backups-v1/logs/
 api/api-backups-v1/out/
 api/api-backups-v1/target/
+api/api-backups-v2/out/
+api/api-backups-v2/target/
+api/api-backups-v2/logs/
 api/api-base/config/
 api/api-base/logs/
 api/api-base/out/
@@ -342,7 +345,4 @@ util/out/
 util/target/
 plugin-infra/go-plugin-infra/felix-cache/
 **/*.log
-api/api-backups-v2/out/
-api/api-backups-v2/target/
-api/api-backups-v2/logs/
 

@@ -388,9 +388,16 @@
   </rule>
 
   <rule>
-    <name>Backup API</name>
-    <from>^/api/backups(/?)$</from>
+    <name>Backup Index API for create</name>
+    <from>^/api/backups$</from>
     <to last="true">/spark/api/backups</to>
+  </rule>
+
+  <rule>
+    <name>Backup API</name>
+    <condition type="header" name="Accept">application\/vnd\.go\.cd\.v2\+json</condition>
+    <from>^/api/backups/(.*)(/?)$</from>
+    <to last="true">/spark/api/backups/$1</to>
   </rule>
 
   <rule>

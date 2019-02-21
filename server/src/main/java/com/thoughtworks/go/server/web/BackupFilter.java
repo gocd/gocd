@@ -23,6 +23,8 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 import org.springframework.web.context.support.SpringBeanAutowiringSupport;
 import org.springframework.web.util.HtmlUtils;
 
@@ -47,6 +49,11 @@ public class BackupFilter implements Filter {
 
     // For the Test
     private final static Logger LOGGER = LoggerFactory.getLogger(BackupFilter.class);
+
+    private static final OrRequestMatcher REQUESTS_ALLOWED_WHILE_BACKUP_RUNNING_MATCHER = new OrRequestMatcher(
+            new RegexRequestMatcher("/api/backups/\\d+", "GET", true),
+            new RegexRequestMatcher("/api/v1/health", "GET", true)
+    );
 
     // For the Test
     protected BackupFilter(BackupService backupService) {
@@ -73,7 +80,7 @@ public class BackupFilter implements Filter {
             generateResponseForIsBackupFinishedAPI(response);
             return;
         }
-        if (backupService.isBackingUp() && !isWhitelisted(url)) {
+        if (backupService.isBackingUp() && !isWhitelisted((HttpServletRequest) request)) {
             String json = "Server is under maintenance mode, please try later.";
             String htmlResponse = generateHTMLResponse();
             new ServerUnavailabilityResponse((HttpServletRequest) request, (HttpServletResponse) response, json, htmlResponse).render();
@@ -82,8 +89,8 @@ public class BackupFilter implements Filter {
         }
     }
 
-    private boolean isWhitelisted(String url) {
-        return url.equals("/go/api/v1/health");
+    private boolean isWhitelisted(HttpServletRequest request) {
+        return REQUESTS_ALLOWED_WHILE_BACKUP_RUNNING_MATCHER.matches(request);
     }
 
     private String generateHTMLResponse() throws IOException {

@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.BackupConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
+import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -121,13 +122,12 @@ public class BackupScheduler extends EntityConfigChangedListener<BackupConfig> i
     }
 
     private void performBackup() {
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        backupService.backupViaTimer(result);
+        ServerBackup backup = backupService.backupViaTimer();
 
-        if (result.isSuccessful()) {
+        if (backup.isSuccessful()) {
             clearServerHealthError();
         } else {
-            setServerHealthError("Unable to perform scheduled backup.", result.message());
+            setServerHealthError("Unable to perform scheduled backup.", backup.getMessage());
         }
     }
 

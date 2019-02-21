@@ -17,7 +17,7 @@
 ALTER TABLE serverBackups ADD COLUMN status VARCHAR(255);
 ALTER TABLE serverBackups ADD COLUMN message TEXT;
 UPDATE serverBackups set status='COMPLETED' WHERE status IS NULL;
-ALTER TABLE serverBackups ALTER COLUMN serverBackups SET NOT NULL;
+ALTER TABLE serverBackups ALTER COLUMN status SET NOT NULL;
 
 --//@UNDO
 ALTER TABLE agents DROP COLUMN status;

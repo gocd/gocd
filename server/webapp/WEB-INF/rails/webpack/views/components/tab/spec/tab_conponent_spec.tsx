@@ -33,14 +33,14 @@ describe("TabComponent", () => {
 
     expect(findByDataTestId("tab-header-0")).toBeInDOM();
     expect(findByDataTestId("tab-header-0")).toHaveText("One");
-    expect(findByDataTestId("tab-header-0")).toHaveClass(styles.isActive);
+    expect(findByDataTestId("tab-header-0")).toHaveClass(styles.active);
     expect(findByDataTestId("tab-content-0")).toBeInDOM();
     expect(findByDataTestId("tab-content-0")).toBeVisible();
     expect(findByDataTestId("tab-content-0")).toHaveText("Content for one");
 
     expect(findByDataTestId("tab-header-1")).toBeInDOM();
     expect(findByDataTestId("tab-header-1")).toHaveText("Two");
-    expect(findByDataTestId("tab-header-1")).not.toHaveClass(styles.isActive);
+    expect(findByDataTestId("tab-header-1")).not.toHaveClass(styles.active);
     expect(findByDataTestId("tab-content-1")).toBeInDOM();
     expect(findByDataTestId("tab-content-1")).toBeHidden();
     expect(findByDataTestId("tab-content-1")).toHaveText("Content for two");
@@ -49,17 +49,17 @@ describe("TabComponent", () => {
   it("should change tab on click of tab name", () => {
     mount();
 
-    expect(findByDataTestId("tab-header-0")).toHaveClass(styles.isActive);
+    expect(findByDataTestId("tab-header-0")).toHaveClass(styles.active);
     expect(findByDataTestId("tab-content-0")).toBeVisible();
-    expect(findByDataTestId("tab-header-1")).not.toHaveClass(styles.isActive);
+    expect(findByDataTestId("tab-header-1")).not.toHaveClass(styles.active);
     expect(findByDataTestId("tab-content-1")).toBeHidden();
 
     simulateEvent.simulate(findByDataTestId("tab-header-1").get(0), "click");
     m.redraw();
 
-    expect(findByDataTestId("tab-header-0")).not.toHaveClass(styles.isActive);
+    expect(findByDataTestId("tab-header-0")).not.toHaveClass(styles.active);
     expect(findByDataTestId("tab-content-0")).toBeHidden();
-    expect(findByDataTestId("tab-header-1")).toHaveClass(styles.isActive);
+    expect(findByDataTestId("tab-header-1")).toHaveClass(styles.active);
     expect(findByDataTestId("tab-content-1")).toBeVisible();
   });
 

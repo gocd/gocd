@@ -262,6 +262,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
           ["WindowsPR", <label>test</label>, "jasmine", <a href="#!">Go to report</a>]
         ]}/>
 
+        <br/>
         <Tabs tabs={["One", "Two"]} contents={["Content for one", "Content for two"]}/>
       </div>
     );

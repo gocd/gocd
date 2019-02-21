@@ -60,19 +60,41 @@ export class AccessTokens extends Array<Stream<AccessToken>> {
       return accessToken().createdAt().getTime();
     }, "desc")));
   }
+
+  activeTokens() {
+    return new AccessTokens(..._.filter(this, (accessToken) => !accessToken().revoked()));
+  }
+
+  revokedTokens() {
+    return new RevokedTokens(_.filter(this, (accessToken) => accessToken().revoked()));
+  }
+}
+
+class RevokedTokens extends AccessTokens {
+  constructor(access_tokens: Array<Stream<AccessToken>>) {
+    super(..._.filter(access_tokens, (accessToken) => accessToken().revoked()));
+    Object.setPrototypeOf(this, Object.create(RevokedTokens.prototype));
+  }
+
+  sortByRevokeTime() {
+    return new AccessTokens(...(_.orderBy(this, (accessToken) => {
+      return accessToken().revokedAt()!.getTime();
+    }, "desc")));
+  }
 }
 
 export class AccessToken extends ValidatableMixin {
   id: Stream<number>;
   description: Stream<string>;
   username: Stream<string>;
-  revoked: Stream<boolean>;
-  revokedBy: Stream<string>;
-  revokedAt: Stream<Date | null>;
   createdAt: Stream<Date>;
   lastUsedAt: Stream<Date | null>;
-  revokedBecauseUserDeleted: Stream<boolean>;
   token: Stream<string> = stream();
+  revoked: Stream<boolean>;
+  revokedAt: Stream<Date | null>;
+  revokedBy: Stream<string>;
+  revokeCause: Stream<string>;
+  revokedBecauseUserDeleted: Stream<boolean>;
 
   private constructor(id: number,
                       description: string,
@@ -82,7 +104,8 @@ export class AccessToken extends ValidatableMixin {
                       revokedAt: Date | null,
                       createdAt: Date,
                       lastUsedAt: Date | null,
-                      revokedBecauseUserDeleted: boolean,
+                      revokeCause?: string,
+                      revokedBecauseUserDeleted?: boolean,
                       token: string  = "",
                       errors: Errors = new Errors()) {
     super();
@@ -90,13 +113,14 @@ export class AccessToken extends ValidatableMixin {
     this.id                        = stream(id);
     this.description               = stream(description);
     this.username                  = stream(username);
-    this.revoked                   = stream(revoked);
-    this.revokedBy                 = stream(revokedBy);
-    this.revokedAt                 = stream(revokedAt);
     this.createdAt                 = stream(createdAt);
     this.lastUsedAt                = stream(lastUsedAt);
-    this.revokedBecauseUserDeleted = stream(revokedBecauseUserDeleted || false);
     this.token                     = stream(token);
+    this.revoked                   = stream(revoked);
+    this.revokedAt                 = stream(revokedAt);
+    this.revokedBy                 = stream(revokedBy);
+    this.revokeCause               = stream(revokeCause);
+    this.revokedBecauseUserDeleted = stream(revokedBecauseUserDeleted || false);
     this.errors(errors);
     this.validatePresenceOf("description");
   }
@@ -110,13 +134,14 @@ export class AccessToken extends ValidatableMixin {
                            AccessToken.parseDate(data.revoked_at),
                            AccessToken.parseDate(data.created_at),
                            AccessToken.parseDate(data.last_used_at),
+                           data.revoke_cause,
                            data.revoked_because_user_deleted || false,
                            data.token,
                            new Errors(data.errors));
   }
 
   static new(): AccessToken {
-    return new AccessToken(-1, "", "", false, "", null, new Date(), null, false);
+    return new AccessToken(-1, "", "", false, "", null, new Date(), null, undefined, false);
   }
 
   private static parseDate(dateString: string | null) {

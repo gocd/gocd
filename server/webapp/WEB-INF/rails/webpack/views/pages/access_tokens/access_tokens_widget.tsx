@@ -19,6 +19,8 @@ import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
+import {Ellipsize} from "views/components/ellipsize";
+import {Tabs} from "views/components/tab";
 import {Table} from "views/components/table";
 import * as styles from "./index.scss";
 
@@ -39,15 +41,15 @@ export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
       </ul>);
     }
 
-    const data = accessTokens.sortByCreateDate().map((accessToken) => {
-      return [
-        <span className={styles.description}>{accessToken().description()}</span>,
-        AccessTokensWidget.formatTimeInformation(accessToken().createdAt()),
-        AccessTokensWidget.getLastUsedInformation(accessToken()),
-        this.getRevokeButton(vnode, accessToken)
-      ];
-    });
-    return <Table headers={["Description", "Created at", " Last used", "Revoke"]} data={data}/>;
+    return <Tabs
+      tabs={["Active Tokens", "Revoked Tokens"]}
+      contents={[
+        <Table headers={["Description", "Created at", " Last used", "Revoke"]}
+               data={this.getActiveTokensData(accessTokens, vnode)}/>,
+        <Table headers={["Description", "Created at", " Last used", "Revoked At", "Revoked Message"]}
+               data={this.getRevokedTokensData(accessTokens)}/>]}
+    />;
+
   }
 
   private static getLastUsedInformation(accessToken: AccessToken) {
@@ -67,6 +69,31 @@ export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
     }
 
     return dateStr;
+  }
+
+  private getActiveTokensData(accessTokens: AccessTokens, vnode: m.Vnode<Attrs>) {
+    return accessTokens.activeTokens().sortByCreateDate().map((accessToken) => {
+      return [
+        <Ellipsize text={accessToken().description()}/>,
+        AccessTokensWidget.formatTimeInformation(accessToken().createdAt()),
+        AccessTokensWidget.getLastUsedInformation(accessToken()),
+        this.getRevokeButton(vnode, accessToken)
+      ];
+    });
+  }
+
+  private getRevokedTokensData(accessTokens: AccessTokens) {
+    return accessTokens.revokedTokens().sortByRevokeTime().map((accessToken) => {
+      const revokedAt = accessToken().revokedAt();
+
+      return [
+        <Ellipsize text={accessToken().description()}/>,
+        AccessTokensWidget.formatTimeInformation(accessToken().createdAt()),
+        AccessTokensWidget.getLastUsedInformation(accessToken()),
+        revokedAt ? AccessTokensWidget.formatTimeInformation(revokedAt) : null,
+        <Ellipsize text={accessToken().revokeCause()}/>
+      ];
+    });
   }
 
   private getRevokeButton(vnode: m.Vnode<Attrs>, accessToken: Stream<AccessToken>) {

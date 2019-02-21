@@ -39,6 +39,7 @@ import * as Icons from "views/components/icons/index";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
+import {Tabs} from "views/components/tab";
 import {Table} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
@@ -260,6 +261,8 @@ export class KitchenSink extends MithrilViewComponent<null> {
           ["LinuxPR", "build", "clean", <Buttons.Primary>Abort</Buttons.Primary>],
           ["WindowsPR", <label>test</label>, "jasmine", <a href="#!">Go to report</a>]
         ]}/>
+
+        <Tabs tabs={["One", "Two"]} contents={["Content for one", "Content for two"]}/>
       </div>
     );
   }

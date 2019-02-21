@@ -353,7 +353,10 @@ describe ApiV1::Admin::PluginSettingsController do
 
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(true)
         expect(@plugin_service).to receive(:isPluginLoaded).with('plugin.id.1').and_return(true)
-        expect(@entity_hashing_service).to receive(:md5ForEntity).with(an_instance_of(PluginSettings)).exactly(3).times.and_return('md5')
+
+        expect(@entity_hashing_service).to receive(:md5ForEntity).twice.ordered.with(@plugin_settings).and_return('md5')
+        expect(@entity_hashing_service).to receive(:md5ForEntity).once.ordered.with(an_instance_of(PluginSettings)).and_return('newmd5')
+
         expect(@plugin_service).to receive(:getPluginSettings).with('plugin.id.1').and_return(@plugin_settings)
         expect(@plugin_service).to receive(:updatePluginSettings).with(an_instance_of(PluginSettings), anything, anything, "md5")
 

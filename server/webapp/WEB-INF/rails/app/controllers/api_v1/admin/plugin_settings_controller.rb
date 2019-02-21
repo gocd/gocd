@@ -37,9 +37,9 @@ module ApiV1
       def update
         result = HttpLocalizedOperationResult.new
         object = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: PluginSettings.new, plugin_info: load_plugin_info(params[:plugin_setting][:plugin_id])}).from_hash(params[:plugin_setting])
-        @plugin_settings = object[:plugin_settings]
-        plugin_service.updatePluginSettings(@plugin_settings, current_user, result, etag_for(@plugin_settings))
-        handle_create_or_update_response(result, @plugin_settings)
+        new_plugin_settings = object[:plugin_settings]
+        plugin_service.updatePluginSettings(new_plugin_settings, current_user, result, etag_for(@plugin_settings))
+        handle_create_or_update_response(result, new_plugin_settings)
       end
 
       protected

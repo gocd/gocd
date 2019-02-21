@@ -28,7 +28,6 @@ import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.listener.ConfigChangedListener;
-import com.thoughtworks.go.listener.DataSharingSettingsChangeListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
@@ -41,6 +40,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 @Component
 public class EntityHashingService implements ConfigChangedListener, Initializer {
@@ -87,67 +87,67 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
 
     public String md5ForEntity(PipelineTemplateConfig config) {
         String cacheKey = cacheKey(config, config.name());
-        return getFromCache(config, cacheKey);
+        return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
     public String md5ForEntity(EnvironmentConfig config) {
         String cacheKey = cacheKey(config, config.name());
-        return getFromCache(config, cacheKey);
+        return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
     public String md5ForEntity(PackageRepository config) {
         String cacheKey = cacheKey(config, config.getId());
-        return getFromCache(config, cacheKey);
+        return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
     public String md5ForEntity(SCM config) {
         String cacheKey = cacheKey(config, config.getName());
-        return getFromCache(config, cacheKey);
+        return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
     public String md5ForEntity(PipelineConfig config) {
         String cacheKey = cacheKey(config, config.name());
-        return getFromCache(config, cacheKey);
+        return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
     public String md5ForEntity(ConfigRepoConfig config) {
         String cacheKey = cacheKey(config, config.getId());
-        return getFromCache(config, cacheKey);
+        return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
     public String md5ForEntity(ElasticProfile config) {
         String cacheKey = cacheKey(config, config.getId());
-        return getFromCache(config, cacheKey);
+        return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
     public String md5ForEntity(SecurityAuthConfig config) {
         String cacheKey = cacheKey(config, config.getId());
-        return getFromCache(config, cacheKey);
+        return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
     public String md5ForEntity(Role config) {
         String cacheKey = cacheKey(config, config.getName());
-        return getFromCache(config, cacheKey);
+        return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
     public String md5ForEntity(AdminsConfig config) {
         String cacheKey = cacheKey(config, "cacheKey");
-        return getFromCache(config, cacheKey);
+        return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
     public String md5ForEntity(PackageDefinition config) {
         String cacheKey = cacheKey(config, config.getId());
-        return getFromCache(config, cacheKey);
+        return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
     public String md5ForEntity(PluginSettings pluginSettings) {
         String cacheKey = cacheKey(pluginSettings, pluginSettings.getPluginId());
-        return getFromCache(cacheKey, pluginSettings);
+        return getFromCache(cacheKey, () -> String.valueOf(pluginSettings.hashCode()));
     }
 
     public String md5ForEntity(ArtifactStore artifactStore) {
         String cacheKey = cacheKey(artifactStore, artifactStore.getId());
-        return getFromCache(cacheKey, artifactStore);
+        return getDbEntityMd5FromCache(cacheKey, artifactStore);
     }
 
     private String cacheKey(Object domainObject, CaseInsensitiveString name) {
@@ -158,26 +158,21 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getClass(domainObject) + "." + name;
     }
 
-    private String getFromCache(String cacheKey, Object dbObject) {
-        String cachedMD5 = getFromCache(cacheKey);
-
-        if (cachedMD5 != null) {
-            return cachedMD5;
-        }
-        String md5 = CachedDigestUtils.md5Hex(new GsonBuilder().create().toJson(dbObject));
-        goCache.put(ETAG_CACHE_KEY, cacheKey, md5);
-
-        return md5;
+    private String getDbEntityMd5FromCache(String cacheKey, Object dbObject) {
+        return getFromCache(cacheKey, () -> new GsonBuilder().create().toJson(dbObject));
     }
 
-    private String getFromCache(Object domainObject, String cacheKey) {
+    private String getDomainEntityMd5FromCache(Object domainObject, String cacheKey) {
+        return getFromCache(cacheKey, () -> getDomainObjectXmlPartial(domainObject));
+    }
+
+    private String getFromCache(String cacheKey, Supplier<String> fingerprintSupplier) {
         String cachedMD5 = getFromCache(cacheKey);
 
         if (cachedMD5 != null) {
             return cachedMD5;
         }
-
-        String md5 = computeMd5For(domainObject);
+        String md5 = CachedDigestUtils.md5Hex(fingerprintSupplier.get());
         goCache.put(ETAG_CACHE_KEY, cacheKey, md5);
 
         return md5;
@@ -199,9 +194,8 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return entity.getClass().getName();
     }
 
-    private String computeMd5For(Object domainObject) {
-        String xml = new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(domainObject);
-        return CachedDigestUtils.md5Hex(xml);
+    private String getDomainObjectXmlPartial(Object domainObject) {
+        return new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(domainObject);
     }
 
     public String md5ForEntity(RolesConfig roles) {
@@ -214,12 +208,12 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
 
     public String md5ForEntity(UsageStatisticsReporting usageStatisticsReporting) {
         String cacheKey = cacheKey(usageStatisticsReporting, usageStatisticsReporting.getServerId());
-        return getFromCache(cacheKey, usageStatisticsReporting);
+        return getDbEntityMd5FromCache(cacheKey, usageStatisticsReporting);
     }
 
     public String md5ForEntity(DataSharingSettings dataSharingSettings) {
         String cacheKey = cacheKey(dataSharingSettings, "data_sharing_settings");
-        return getFromCache(cacheKey, dataSharingSettings);
+        return getDbEntityMd5FromCache(cacheKey, dataSharingSettings);
     }
 
     public String md5ForEntity(PipelineGroups pipelineGroups) {
@@ -232,7 +226,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
 
     public String md5ForEntity(PipelineConfigs pipelineConfigs) {
         String cacheKey = cacheKey(pipelineConfigs, pipelineConfigs.getGroup());
-        return getFromCache(pipelineConfigs, cacheKey);
+        return getDomainEntityMd5FromCache(pipelineConfigs, cacheKey);
     }
 
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {

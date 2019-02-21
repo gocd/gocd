@@ -122,9 +122,9 @@ describe("ConfigReposWidget", () => {
       configRepos([createConfigRepo()]);
       m.redraw();
       const materialPanel = find("config-repo-good-modification-panel");
-      const icon          = materialPanel.children().get(0);
-      const title         = materialPanel.children().get(1);
-      const keyValuePair  = materialPanel.children().get(2).children[0].children;
+      const icon          = materialPanel.find(`.${styles.goodModificationIcon}`);
+      const title         = materialPanel.find(`.${styles.sectionHeaderTitle}`);
+      const keyValuePair  = materialPanel.find(`.${styles.configRepoProperties} li`);
 
       expect(title).toHaveText("Last known good commit currently being used");
       expect(icon).toHaveClass(styles.goodModificationIcon);
@@ -145,9 +145,9 @@ describe("ConfigReposWidget", () => {
       configRepos([createConfigRepo()]);
       m.redraw();
       const materialPanel = find("config-repo-latest-modification-panel");
-      const icon          = materialPanel.children().get(0);
-      const title         = materialPanel.children().get(1);
-      const keyValuePair  = materialPanel.children().get(2).children[0].children;
+      const icon          = materialPanel.find(`.${styles.errorLastModificationIcon}`);
+      const title         = materialPanel.find(`.${styles.sectionHeaderTitle}`);
+      const keyValuePair  = materialPanel.find(`.${styles.configRepoProperties} li`);
 
       expect(title).toHaveText("Latest commit in the repository");
       expect(icon).toHaveClass(styles.errorLastModificationIcon);

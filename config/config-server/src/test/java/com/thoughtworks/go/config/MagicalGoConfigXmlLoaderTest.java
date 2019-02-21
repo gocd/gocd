@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
+import com.thoughtworks.go.Deny;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.*;
@@ -4368,6 +4369,47 @@ public class MagicalGoConfigXmlLoaderTest {
         assertConfigProperty(dockerhubStore, "RegistryURL", "https://index.docker.io/v1/", false);
         assertConfigProperty(dockerhubStore, "Username", "docker-user", false);
         assertConfigProperty(dockerhubStore, "Password", "SECRET", true);
+    }
+
+    @Test
+    public void shouldLoadSecretConfigs() {
+        String content = config(
+                "<secretConfigs>" +
+                        "<secretConfig id=\"my_secret\" pluginId=\"gocd_file_based_plugin\">\n" +
+                        "    <description>All secrets for env1</description>" +
+                        "    <configuration>" +
+                        "       <property>\n" +
+                        "           <key>PasswordFilePath</key>\n" +
+                        "           <value>/godata/config/password.properties</value>\n" +
+                        "       </property>\n" +
+                        "    </configuration>" +
+                        "    <rules>\n" +
+                        "        <allow action=\"refer\" type=\"environment\">env_*</allow>\n" +
+                        "        <deny action=\"refer\" type=\"pipeline_group\">my_group</deny>\n" +
+                        "        <allow action=\"refer\" type=\"pipeline_group\">other_group</allow>  \n" +
+                        "    </rules>\n" +
+                        "</secretConfig>" +
+                        "</secretConfigs>", 116);
+
+        CruiseConfig config = ConfigMigrator.load(content);
+        SecretConfigs secretConfigs = config.getSecretConfigs();
+        assertThat(secretConfigs.size(), is(1));
+
+        SecretConfig secretConfig = secretConfigs.first();
+        assertThat(secretConfig.getId(), is("my_secret"));
+        assertThat(secretConfig.getPluginId(), is("gocd_file_based_plugin"));
+        assertThat(secretConfig.getDescription(), is("All secrets for env1"));
+
+        Configuration configuration = secretConfig.getConfiguration();
+        assertThat(configuration.size(), is(1));
+        assertThat(configuration.getProperty("PasswordFilePath").getValue(), is("/godata/config/password.properties"));
+
+        Rules rules = secretConfig.getRules();
+        assertThat(rules.size(), is(3));
+        assertThat(rules, contains(new Allow("refer", "environment", "env_*"),
+                new Deny("refer", "pipeline_group", "my_group"),
+                new Allow("refer", "pipeline_group", "other_group")));
+
     }
 
     private void assertConfigProperty(Configuration configuration, String name, String plainTextValue, boolean shouldBeEncrypted) {

@@ -75,6 +75,9 @@ public class BasicCruiseConfig implements CruiseConfig {
     @ConfigSubtag
     @SkipParameterResolution
     private ArtifactStores artifactStores = new ArtifactStores();
+    @ConfigSubtag
+    @SkipParameterResolution
+    private SecretConfigs secretConfigs = new SecretConfigs();
     @ConfigSubtag(label = "groups")
     private PipelineGroups groups = new PipelineGroups();
     @ConfigSubtag(label = "templates")
@@ -881,6 +884,16 @@ public class BasicCruiseConfig implements CruiseConfig {
     @Override
     public void deletePipelineGroup(String groupName) {
         groups.deleteGroup(groupName);
+    }
+
+    @Override
+    public void setSecretConfigs(SecretConfigs secretConfigs) {
+        this.secretConfigs = secretConfigs;
+    }
+
+    @Override
+    public SecretConfigs getSecretConfigs() {
+        return secretConfigs;
     }
 
     @Override

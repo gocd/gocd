@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2018 ThoughtWorks, Inc.
+  ~ Copyright 2019 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -59,12 +59,6 @@
             <xsd:field xpath="@id"/>
           </xsd:unique>
         </xsd:element>
-        <xsd:element minOccurs="0" maxOccurs="1" name="secretConfigs" type="secretConfigsType">
-          <xsd:unique name="uniqueSecretConfigId">
-            <xsd:selector xpath="secretConfig"/>
-            <xsd:field xpath="@id"/>
-          </xsd:unique>
-        </xsd:element>
         <xsd:element minOccurs="0" maxOccurs="unbounded" name="pipelines" type="pipelinesType"/>
         <xsd:element minOccurs="0" maxOccurs="1" name="templates" type="templatesType">
           <xsd:unique name="uniquePipelineTemplateName">
@@ -89,7 +83,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="116"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="115"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -145,38 +139,6 @@
     </xsd:sequence>
     <xsd:attribute type="repoIdType" name="id"/>
     <xsd:attribute type="nameType" name="name" use="required"/>
-  </xsd:complexType>
-
-  <xsd:complexType name="secretConfigsType">
-    <xsd:sequence>
-      <xsd:element name="secretConfig" minOccurs="0" maxOccurs="unbounded" type="secretConfigType"/>
-    </xsd:sequence>
-  </xsd:complexType>
-
-  <xsd:complexType name="secretConfigType">
-    <xsd:all>
-      <xsd:element name="description" minOccurs="0" maxOccurs="1" type="xsd:string"/>
-      <xsd:element name="configuration" minOccurs="0" maxOccurs="1" type="configurationType"/>
-      <xsd:element name="rules" minOccurs="0" maxOccurs="1" type="rulesType"/>
-    </xsd:all>
-    <xsd:attribute name="id" type="nameType" use="required"/>
-    <xsd:attribute name="pluginId" type="nameType" use="required"/>
-  </xsd:complexType>
-
-  <xsd:complexType name="rulesType">
-    <xsd:choice maxOccurs="unbounded">
-      <xsd:element name="allow" type="directiveType"/>
-      <xsd:element name="deny" type="directiveType"/>
-    </xsd:choice>
-  </xsd:complexType>
-
-  <xsd:complexType name="directiveType">
-    <xsd:simpleContent>
-      <xsd:extension base="xsd:string">
-        <xsd:attribute name="action" type="nameType" use="required"/>
-        <xsd:attribute name="type" type="nameType" use="required"/>
-      </xsd:extension>
-    </xsd:simpleContent>
   </xsd:complexType>
 
   <xsd:complexType name="configReposType">
@@ -1104,4 +1066,3 @@
     <xsd:attribute name="secure" type="xsd:boolean"/>
   </xsd:complexType>
 </xsd:schema>
-

@@ -2430,6 +2430,36 @@ public class GoConfigMigrationIntegrationTest {
                 "  </config-repos>");
     }
 
+    @Test
+    public void shouldOnlyUpdateSchemaVersionForMigration116() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configContent =  "<pipelines>"
+                + "      <pipeline name=\"p1\">"
+                + "         <materials> "
+                + "           <hg url=\"blah\"/>"
+                + "         </materials>  "
+                + "         <stage name=\"s1\">"
+                + "             <jobs>"
+                + "             <job name=\"j1\">"
+                + "                 <tasks>"
+                + "                    <exec command=\"ls\"/>"
+                + "                 </tasks>"
+                + "             </job>"
+                + "             </jobs>"
+                + "         </stage>"
+                + "      </pipeline>"
+                + "    </pipelines>";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"115\">\n"
+                + configContent
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 115, 116);
+
+        assertThat(migratedContent, containsString("<cruise schemaVersion=\"116\""));
+        assertThat(migratedContent, containsString(configContent));
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
     }

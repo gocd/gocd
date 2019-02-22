@@ -85,7 +85,7 @@ public class CurrentUserAccessTokenControllerV1 extends AbstractUserAccessTokenC
 
         final JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
 
-        String tokenDescription = reader.optString("description").orElse(null);
+        String tokenDescription = reader.getString("description");
 
         AccessToken created = accessTokenService.create(tokenDescription, currentUsernameString(), currentUserAuthConfigId(request));
 

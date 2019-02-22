@@ -177,7 +177,7 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
       }
 
       @Test
-      void 'should create a new access token without providing token description'() {
+      void 'should not create a new access token without providing token description'() {
         token.description = null
         when(accessTokenService.create(eq(token.description), eq(currentUsernameString()), eq(authConfigId))).thenReturn(token)
 
@@ -188,9 +188,9 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
         postWithApiHeader(controller.controllerPath(), requestBody)
 
         assertThatResponse()
-          .isOk()
+          .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
-          .hasBody(toObjectString({ AccessTokenRepresenter.toJSON(it, controller.urlContext(), token) }))
+          .hasJsonMessage("Json `{}` does not contain property 'description'")
       }
 
       @Test

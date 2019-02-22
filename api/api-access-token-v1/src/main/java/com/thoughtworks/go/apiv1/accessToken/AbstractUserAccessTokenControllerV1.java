@@ -21,6 +21,7 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenter;
 import com.thoughtworks.go.apiv1.accessToken.representers.AccessTokensRepresenter;
@@ -28,6 +29,8 @@ import com.thoughtworks.go.config.exceptions.ConflictException;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -86,5 +89,12 @@ abstract class AbstractUserAccessTokenControllerV1 extends ApiController impleme
             res.status(HttpStatus.CONFLICT.value());
             res.body(MessageJson.create(ex.getMessage()));
         });
+    }
+
+    void verifyRequestIsNotUsingAccessToken(Request request, Response response) {
+        AuthenticationToken<?> authenticationToken = SessionUtils.getAuthenticationToken(request.raw());
+        if (authenticationToken.isAccessTokenCredentials()) {
+            throw HaltApiResponses.haltBecauseForbidden("Unsupported operation: Accessing this API using access token is forbidden.");
+        }
     }
 }

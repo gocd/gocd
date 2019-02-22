@@ -63,6 +63,9 @@ public class CurrentUserAccessTokenControllerV1 extends AbstractUserAccessTokenC
             before("", mimeType, this.apiAuthenticationHelper::ensureSecurityEnabled);
             before("/*", mimeType, this.apiAuthenticationHelper::ensureSecurityEnabled);
 
+            before("", mimeType, this::verifyRequestIsNotUsingAccessToken);
+            before("/*", mimeType, this::verifyRequestIsNotUsingAccessToken);
+
             before("", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
             before("/*", mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 

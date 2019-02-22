@@ -49,6 +49,9 @@ public class AdminUserAccessTokenControllerV1 extends AbstractUserAccessTokenCon
             before("", mimeType, this.apiAuthenticationHelper::ensureSecurityEnabled);
             before("/*", mimeType, this.apiAuthenticationHelper::ensureSecurityEnabled);
 
+            before("", mimeType, this::verifyRequestIsNotUsingAccessToken);
+            before("/*", mimeType, this::verifyRequestIsNotUsingAccessToken);
+
             before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
             before("/*", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
 

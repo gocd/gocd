@@ -41,6 +41,10 @@ public abstract class HaltApiResponses {
         return halt(HttpStatus.FORBIDDEN.value(), MessageJson.create(forbiddenMessage()));
     }
 
+    public static HaltException haltBecauseForbidden(String message) {
+        return halt(HttpStatus.FORBIDDEN.value(), MessageJson.create(message));
+    }
+
     public static HaltException haltBecauseEntityAlreadyExists(Consumer<OutputWriter> jsonInRequestBody, String entityType, Object existingName) {
         return halt(HttpStatus.UNPROCESSABLE_ENTITY.value(), MessageJson.create(entityAlreadyExistsMessage(entityType, existingName), jsonInRequestBody));
     }

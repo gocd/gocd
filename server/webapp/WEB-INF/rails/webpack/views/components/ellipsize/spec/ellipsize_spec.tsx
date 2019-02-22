@@ -15,6 +15,8 @@
  */
 
 import * as m from "mithril";
+import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import * as simulateEvent from "simulate-event";
 import {Ellipsize} from "views/components/ellipsize/index";
 import * as styles from "../index.scss";
@@ -95,6 +97,24 @@ describe("EllipsizeComponent", () => {
 
       expect(findByDataTestId("ellipsized-content")).toHaveText("This ...");
     });
+  });
+
+  it("should render empty span if the text value is null", () => {
+    const textValue = stream(null) as Stream<any>;
+    mount(textValue());
+
+    expect(findByClass(styles.wrapper)).toBeInDOM();
+    expect(findByClass(styles.ellipsisActionButton)).not.toBeInDOM();
+    expect(findByClass(styles.wrapper)).toBeEmpty();
+  });
+
+  it("should render empty span if the text value is undefined", () => {
+    const textValue = stream(undefined) as Stream<any>;
+    mount(textValue());
+
+    expect(findByClass(styles.wrapper)).toBeInDOM();
+    expect(findByClass(styles.ellipsisActionButton)).not.toBeInDOM();
+    expect(findByClass(styles.wrapper)).toBeEmpty();
   });
 
   function mount(text: string, size = 20, fixed = false) {

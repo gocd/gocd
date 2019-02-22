@@ -47,6 +47,10 @@ export class Ellipsize extends MithrilComponent<Attrs, State> {
   }
 
   view(vnode: m.Vnode<Attrs, State>): m.Children | void | null {
+    if (!vnode.attrs.text) {
+      return <span className={styles.wrapper}>{vnode.attrs.text}</span>;
+    }
+
     const charactersToShow = Math.min((vnode.attrs.size || Ellipsize.DEFAULT_SIZE), vnode.attrs.text.length);
 
     if (vnode.attrs.fixed) {
@@ -68,9 +72,6 @@ export class Ellipsize extends MithrilComponent<Attrs, State> {
   }
 
   private static ellipsisNotRequired(vnode: m.Vnode<Attrs, State>) {
-    if (!vnode.attrs.text) {
-      return false;
-    }
     return vnode.attrs.text.length < Math.min(vnode.attrs.size || Ellipsize.DEFAULT_SIZE);
   }
 

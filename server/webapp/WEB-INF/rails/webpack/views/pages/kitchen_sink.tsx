@@ -22,6 +22,7 @@ import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {ButtonGroup, ButtonIcon} from "views/components/buttons";
 import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
+import {Ellipsize} from "views/components/ellipsize";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
@@ -54,6 +55,7 @@ const encryptedPasswordValue = stream(new EncryptedValue({cipherText: "AES:junk:
 const triStateCheckbox = stream(new TriStateCheckbox());
 
 const switchStream: Stream<boolean> = stream(false);
+const reallyLongText                = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
 
 export class KitchenSink extends MithrilViewComponent<null> {
   view(vnode: m.Vnode<null>) {
@@ -263,7 +265,15 @@ export class KitchenSink extends MithrilViewComponent<null> {
         ]}/>
 
         <br/>
-        <Tabs tabs={["One", "Two"]} contents={["Content for one", "Content for two"]}/>
+        <Tabs tabs={["One", "Two"]} contents={[
+          <div>
+            <h3>Expandable ellipses example</h3>
+            <Ellipsize text={reallyLongText} size={20}/>
+            <hr/>
+            <h3>Fixed ellipses example</h3>
+            <Ellipsize text={reallyLongText} fixed={true}/>
+          </div>,
+          "Content for two"]}/>
       </div>
     );
   }

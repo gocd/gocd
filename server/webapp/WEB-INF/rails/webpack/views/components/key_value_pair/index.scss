@@ -112,9 +112,9 @@ $title-element-width: 360px;
 }
 
 .title {
-  font-weight:  600;
-  font-size:    13px;
-  margin-right: 50px;
+  font-weight: 600;
+  font-size:   13px;
+  margin:      0 50px 0 0;
 
   @media (min-width: $screen-md) {
     font-size: 12px;
@@ -122,11 +122,11 @@ $title-element-width: 360px;
   }
   @media (min-width: $screen-lg) {
     font-size: 15px;
-    width:        $title-element-width;
+    width:     $title-element-width;
   }
 }
 
 .title-inline {
-  display: inline;
+  display:     inline;
   margin-left: 5px;
 }

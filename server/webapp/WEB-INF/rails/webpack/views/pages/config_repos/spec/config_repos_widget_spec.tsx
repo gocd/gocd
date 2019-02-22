@@ -188,27 +188,23 @@ describe("ConfigReposWidget", () => {
   it("should render config repo's plugin-id, material url, commit-message, username and revision in header", () => {
     const repo1 = createConfigRepo({
                                      id: "Repo1",
-                                     repoId: "https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427"
+                                     repoId: "90d9f82c-bbfd-4f70-ab09-fd72dee42427"
                                    });
     const repo2 = createConfigRepo({
                                      id: "Repo2",
-                                     repoId: "https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654"
+                                     repoId: "0b4243ff-7431-48e1-a60e-a79b7b80b654"
                                    });
     configRepos([repo1, repo2]);
     m.redraw();
 
-    const title = $root.find(`.${styles.headerTitleText}`);
-    expect(title).toHaveLength(6);
-
-    expect(title.get(0)).toContainText("Repo1");
-    expect(title.get(1)).toContainText("https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427");
-    expect(title.get(2))
+    expect($root.find(`.${styles.headerTitleText}`)[0]).toContainText("Repo1");
+    expect($root.find(`.${styles.headerTitleUrl}`)[0]).toContainText("https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427");
+    expect($root.find(`.${styles.comment}`)[0])
       .toContainText("Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d...");
-    expect(title.get(2)).toContainText("Mahesh <mahesh@gmail.com> | 5432");
+    expect($root.find(`.${styles.committerInfo}`)[0]).toContainText("Mahesh <mahesh@gmail.com> | 5432");
 
-    expect(title.get(3)).toContainText("Repo2");
-    expect(title.get(4)).toContainText("https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654");
-
+    expect($root.find(`.${styles.headerTitleText}`)[1]).toContainText("Repo2");
+    expect($root.find(`.${styles.headerTitleUrl}`)[1]).toContainText("https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654");
   });
 
   it("should render config repo's trimmed commit-message, username and revision if they are too long to fit in header",
@@ -224,11 +220,10 @@ describe("ConfigReposWidget", () => {
        configRepos([repo1]);
        m.redraw();
 
-       const title = $root.find(`.${styles.headerTitleText}`);
-       expect(title.get(0)).toContainText("Repo1");
-       expect(title.get(1)).toContainText("https://example.com/");
-       expect(title.get(2)).toContainText("A very very long commit message which will be trimmed after 82 characters and thi...");
-       expect(title.get(2)).toContainText("A_Long_username_with_a_long_long_long... | df31759540dc28f75a20f443a19b1148df317...");
+       expect($root.find(`.${styles.headerTitleText}`)).toContainText("Repo1");
+       expect($root.find(`.${styles.headerTitleUrl}`)).toContainText("https://example.com/");
+       expect($root.find(`.${styles.comment}`)).toContainText("A very very long commit message which will be trimmed after 82 characters and thi...");
+       expect($root.find(`.${styles.committerInfo}`)).toContainText("A_Long_username_with_a_long_long_long... | df31759540dc28f75a20f443a19b1148df317...");
      });
 
   it("should render a warning message when plugin is missing", () => {

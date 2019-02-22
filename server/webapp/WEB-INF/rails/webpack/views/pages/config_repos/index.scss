@@ -22,22 +22,6 @@
   display: block;
 }
 
-.good-last-parse-icon {
-  @include header-icon($type: $fa-var-check, $color: $success-txt);
-}
-
-.last-parse-error-icon {
-  @include header-icon($type: $fa-var-exclamation, $color: $warning-txt);
-}
-
-.never-parsed {
-  @include header-icon($type: $fa-var-exclamation, $color: $go-danger);
-}
-
-.missing-plugin-icon {
-  @include header-icon($type: $fa-var-question, $color: $icon-light-color);
-}
-
 @mixin key-pair-icon($type, $color) {
   @include icon-after($type: $type, $color: $color, $size: 15px, $margin: 0) {
     display: inline;
@@ -46,29 +30,12 @@
 
 .good-modification-icon {
   @include key-pair-icon($type: $fa-var-check, $color: $success-txt);
+  margin-right: 10px;
 }
 
 .error-last-modification-icon {
   @include key-pair-icon($type: $fa-var-remove, $color: $failed);
-}
-
-.last-revision {
-  margin: 0 0 10px;
-  display: inline-block;
-  border: 1px solid $line-color;
-  background: $secondary-bg;
-  padding: 5px 10px;
-  border-radius: $global-border-radius;
-}
-
-.lastRevisionValue {
-  font-weight: 600;
-}
-
-.status-icon {
-  margin:     0 20px 0 0;
-  width:      25px;
-  text-align: center;
+  margin-right: 10px;
 }
 
 code {
@@ -82,14 +49,14 @@ code {
 }
 
 .test-connection-result {
-  margin-top: -10px;
+  margin-top:  -10px;
   margin-left: 15px;
-  min-height: 10px;
+  min-height:  10px;
 }
 
 .test-connection-button-wrapper {
   margin-left: 15px;
-  width: 100%;
+  width:       100%;
 }
 
 .plugin-file-pattern-config-wrapper {
@@ -98,7 +65,7 @@ code {
 
 @mixin test-connection-button-icon($type, $colors: $icon-light-color, $size: 5px) {
   @include icon-before($type: $type, $color: $colors, $size: 15px, $margin: 0) {
-    display: inline-block;
+    display:      inline-block;
     margin-right: $size;
     @content
   }
@@ -110,8 +77,7 @@ code {
 }
 
 .test-connection-failure {
-  @include test-connection-button-icon($type:
-                                         $fa-var-exclamation);
+  @include test-connection-button-icon($type: $fa-var-exclamation);
 }
 
 .test-connection-in-progress {
@@ -150,17 +116,38 @@ code {
   border-bottom: 1px solid $border-color;
 }
 
-.key-value-title {
-  margin-left: 5px;
-}
-
 .header-title {
   margin-right: 50px;
 }
 
 .header-title-text {
-  font-size: 12px;
-  overflow: hidden;
+  font-size:  15px;
+  max-width:  360px;
+  margin:     0;
+  word-break: break-all;
+}
+
+.header-title-url {
+  font-size:  13px;
+  display:    block;
+  word-break: break-all;
+}
+
+.commit-info {
+  font-size:  13px;
+  word-break: break-all;
+  max-width:  600px;
+}
+
+.committer {
+  font-size:   13px;
+  font-weight: 600;
+}
+
+.comment,
+.committer-info {
+  display:    block;
+  word-break: break-all;
 }
 
 .parse-error-text {
@@ -168,12 +155,12 @@ code {
 }
 
 .wrapper-for-search-box {
-  display: inline-block;
+  display:      inline-block;
   margin-right: 10px;
 }
 
 .config-repo-properties {
-  margin-top: 5px;
+  margin-top:  5px;
   margin-left: -4px;
 }
 
@@ -182,9 +169,8 @@ code {
 }
 
 .section-header {
-  display:       flex;
-  flex-wrap:     wrap;
-  margin-bottom: 0;
+  display:   flex;
+  flex-wrap: wrap;
 }
 
 .section-header-title {

@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 @import "../../global/common";
 
 $icon-color: #647984;
 $border-color: #ccc;
 
 .search-box-wrapper {
-  @include icon-before($type: $fa-var-search);
+  @include icon-before($type: $fa-var-search, $size: 14px, $top: 5px, $color: $icon-color) ;
 
   display:  inline-block;
   position: relative;
@@ -46,7 +45,8 @@ $border-color: #ccc;
   background:         $white-opaque;
 
   &::placeholder {
-    font-size: 13px;
-    color:     $border-color;
+    color:     $icon-color;
+    font-size: 12px;
+    opacity:   0.8;
   }
 }

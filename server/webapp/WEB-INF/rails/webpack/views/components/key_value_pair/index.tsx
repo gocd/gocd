@@ -96,7 +96,7 @@ export class KeyValueTitle extends MithrilViewComponent<KeyValueTitleAttrs> {
     const inlineClass = vnode.attrs.inline ? styles.titleInline : '';
     return [
       vnode.attrs.image,
-      <div data-test-id={vnode.attrs.titleTestId} className={classnames(styles.title, inlineClass)}>{vnode.attrs.title}</div>
+      <h4 data-test-id={vnode.attrs.titleTestId} className={classnames(styles.title, inlineClass)}>{vnode.attrs.title}</h4>
     ];
   }
 }

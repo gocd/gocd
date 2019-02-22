@@ -16,7 +16,7 @@
 @import "../../global/common";
 
 $page-item-padding: 30px;
-$header-padding: 0 50px 0 30px;
+$header-padding: 10px 50px 10px 30px;
 $collapsible-header-height: 50px;
 
 .collapse {
@@ -26,10 +26,12 @@ $collapsible-header-height: 50px;
   border-radius: $global-border-radius;
   margin-bottom: 10px;
   transition:    $transition;
+
   &.expanded {
     transition: $transition;
     box-shadow: 0 0 10px $box-shadow-color;
   }
+
   &.error {
     border-top: 1px solid $failed;
   }
@@ -42,6 +44,7 @@ $collapsible-header-height: 50px;
   flex-wrap:      wrap;
   flex-direction: column;
   padding:        $header-padding;
+  box-sizing:     border-box;
   cursor:         pointer;
   min-height:     $collapsible-header-height;
   @media (min-width: $screen-md) {
@@ -51,6 +54,7 @@ $collapsible-header-height: 50px;
     flex-direction: row;
     align-items:    center;
   }
+
   &:before {
     position:   absolute;
     right:      16px;
@@ -61,6 +65,7 @@ $collapsible-header-height: 50px;
     transform:  translateY(-50%);
     margin:     0;
   }
+
   &.expanded {
     &:before {
       transform:  rotate(90deg) translateY(-50%);
@@ -86,9 +91,9 @@ $collapsible-header-height: 50px;
 }
 
 .actions {
-  float:   right;
-  display: flex;
-  margin:  20px 0;
+  float:       right;
+  display:     flex;
+  margin:      20px 0;
   align-items: center;
   @media (min-width: $screen-xl) {
     width:  auto;

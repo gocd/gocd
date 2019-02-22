@@ -106,6 +106,7 @@ export class ConfigRepo implements ValidatableMixin {
     }
     ValidatableMixin.call(this);
     this.validatePresenceOf("id");
+    this.validateIdFormat("id");
     this.validatePresenceOf("pluginId");
     this.validateAssociated("material");
   }

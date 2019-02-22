@@ -22,6 +22,7 @@ import com.thoughtworks.go.http.mocks.HttpRequestBuilder
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse
 import com.thoughtworks.go.server.domain.Username
+import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
@@ -129,13 +130,17 @@ trait ControllerTrait<T extends SparkController> {
         httpRequestBuilder.withJsonBody((Object) requestBody)
       }
     }
-
-    if (!currentUsername().isAnonymous()) {
-      final AuthenticationToken<?> newToken = new AuthenticationToken<>(SessionUtils.getCurrentUser(), new UsernamePassword(currentUsernameString(), "password"), "plugin1", System.currentTimeMillis(), "authConfigId")
+    AuthenticationToken<?> newToken
+    if (currentUsername().isAnonymous()) {
+      newToken = new AuthenticationToken<>(SessionUtils.getCurrentUser(), AnonymousCredential.INSTANCE, null, 0, null)
+      httpRequestBuilder.withSessionAttr(SessionUtils.CURRENT_USER_ID, -1L)
+    } else {
+      newToken = new AuthenticationToken<>(SessionUtils.getCurrentUser(), new UsernamePassword(currentUsernameString(), "password"), "plugin1", System.currentTimeMillis(), "authConfigId")
 
       httpRequestBuilder.withSessionAttr(SessionUtils.CURRENT_USER_ID, currentUserLoginId())
-      httpRequestBuilder.withSessionAttr(SessionUtils.AUTHENTICATION_TOKEN, newToken)
+
     }
+    httpRequestBuilder.withSessionAttr(SessionUtils.AUTHENTICATION_TOKEN, newToken)
 
     request = httpRequestBuilder.build()
     request.setParts(parts)
@@ -199,7 +204,7 @@ trait ControllerTrait<T extends SparkController> {
 
   Long currentUserLoginId() {
     if (currentUsername().isAnonymous()) {
-      return null
+      return -1L
     }
 
     currentUsername().hashCode()

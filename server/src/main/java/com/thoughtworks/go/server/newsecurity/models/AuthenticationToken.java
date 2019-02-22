@@ -73,6 +73,10 @@ public class AuthenticationToken<T extends Credentials> {
         return credentials instanceof UsernamePassword;
     }
 
+    public boolean isAccessTokenCredentials() {
+        return credentials instanceof AccessTokenCredential;
+    }
+
     private boolean isExpired(Clock clock, SystemEnvironment systemEnvironment) {
         return systemEnvironment.isReAuthenticationEnabled() &&
                 (clock.currentTimeMillis() - authenticatedAt) > systemEnvironment.getReAuthenticationTimeInterval();

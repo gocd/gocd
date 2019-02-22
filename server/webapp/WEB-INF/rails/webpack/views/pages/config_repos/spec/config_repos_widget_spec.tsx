@@ -261,13 +261,29 @@ describe("ConfigReposWidget", () => {
     expect(find("repo-update-in-progress-icon")).toHaveClass(styles.configRepoUpdateInProgress);
   });
 
-  it("should render red top border to indicate error in config repo parsing", () => {
+  it("should render red top border and expand the widget to indicate error in config repo parsing", () => {
     const repo = createConfigRepo();
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     m.redraw();
-    expect(find("config-repo-details-panel")).toBeInDOM();
-    expect(find("config-repo-details-panel")).toHaveClass(collapsiblePanelStyles.error);
+    const detailsPanel = find("config-repo-details-panel");
+    expect(detailsPanel).toBeInDOM();
+    expect(detailsPanel).toHaveClass(collapsiblePanelStyles.error);
+    expect(detailsPanel).toHaveAttr("data-test-element-state", "expanded");
+  });
+
+  it("should not render top border and keep the widget collapsed when there is no error", () => {
+    const repo = createConfigRepo({});
+    if (repo.lastParse()) {
+      repo.lastParse()!.error(null);
+    }
+    configRepos([repo]);
+    pluginInfos([configRepoPluginInfo()]);
+    m.redraw();
+    const detailsPanel = find("config-repo-details-panel");
+    expect(detailsPanel).toBeInDOM();
+    expect(detailsPanel).not.toHaveClass(collapsiblePanelStyles.error);
+    expect(detailsPanel).toHaveAttr("data-test-element-state", "collapsed");
   });
 
   it("should callback the delete function when delete button is clicked", () => {

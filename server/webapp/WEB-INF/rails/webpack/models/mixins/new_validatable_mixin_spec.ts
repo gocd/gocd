@@ -238,7 +238,7 @@ describe("Validatable", () => {
         material.validate();
         expect(material.errors().hasErrors()).toBe(true);
         expect(material.errors().errors("id"))
-          .toEqual(["Invalid id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."]);
+          .toEqual(["Invalid id. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."]);
       });
 
     });

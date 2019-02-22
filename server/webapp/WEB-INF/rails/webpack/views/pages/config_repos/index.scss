@@ -22,22 +22,6 @@
   display: block;
 }
 
-.good-last-parse-icon {
-  @include header-icon($type: $fa-var-check, $color: $success-txt);
-}
-
-.last-parse-error-icon {
-  @include header-icon($type: $fa-var-exclamation, $color: $warning-txt);
-}
-
-.never-parsed {
-  @include header-icon($type: $fa-var-exclamation, $color: $go-danger);
-}
-
-.missing-plugin-icon {
-  @include header-icon($type: $fa-var-question, $color: $icon-light-color);
-}
-
 @mixin key-pair-icon($type, $color) {
   @include icon-after($type: $type, $color: $color, $size: 15px, $margin: 0) {
     display: inline;
@@ -52,25 +36,6 @@
 .error-last-modification-icon {
   @include key-pair-icon($type: $fa-var-remove, $color: $failed);
   margin-right: 10px;
-}
-
-.last-revision {
-  margin:        0 0 10px;
-  display:       inline-block;
-  border:        1px solid $line-color;
-  background:    $secondary-bg;
-  padding:       5px 10px;
-  border-radius: $global-border-radius;
-}
-
-.lastRevisionValue {
-  font-weight: 600;
-}
-
-.status-icon {
-  margin:     0 20px 0 0;
-  width:      25px;
-  text-align: center;
 }
 
 code {
@@ -149,10 +114,6 @@ code {
 
 .material-config-wrapper {
   border-bottom: 1px solid $border-color;
-}
-
-.key-value-title {
-  margin-left: 5px;
 }
 
 .header-title {

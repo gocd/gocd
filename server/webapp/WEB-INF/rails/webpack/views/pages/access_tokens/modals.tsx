@@ -103,7 +103,7 @@ export class GenerateTokenModal extends BaseModal {
                             required={true}
                             property={this.accessToken().description}
                             resizable={false}
-                            rows={3}
+                            rows={5}
                             size={Size.MATCH_PARENT}
                             errorText={this.accessToken().errors().errorsForDisplay("description")}
                             helpText="What’s this token for?"/>;
@@ -152,7 +152,7 @@ export class RevokeTokenModal extends BaseModal {
     return (
       <TextAreaField helpText={"Why do you want to revoke this token?"}
                      label="Are you sure you want to revoke this token?"
-                     rows={3}
+                     rows={5}
                      size={Size.MATCH_PARENT}
                      property={this.cause}/>
     );

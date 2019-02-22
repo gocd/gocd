@@ -113,7 +113,8 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
 }
 
 .text-area {
-  height: auto;
+  height:      auto;
+  line-height: 20px;
 }
 
 .form-control:disabled, .form-control[readonly] {

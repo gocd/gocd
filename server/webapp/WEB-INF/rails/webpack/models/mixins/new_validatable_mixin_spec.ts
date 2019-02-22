@@ -231,12 +231,16 @@ describe("Validatable", () => {
       }
 
       applyMixins(Material, ValidatableMixin);
-      const material = new Material("shaky salamander");
 
-      material.validate();
+      const badStrings = ["shaky salamander", ".hello", _.repeat("a", 256)];
+      badStrings.forEach((badString) => {
+        const material = new Material(badString);
+        material.validate();
+        expect(material.errors().hasErrors()).toBe(true);
+        expect(material.errors().errors("id"))
+          .toEqual(["Invalid id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."]);
+      });
 
-      expect(material.errors().hasErrors()).toBe(true);
-      expect(material.errors().errors("id")).toEqual(["Invalid id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."]);
     });
 
     it("should validate Id format using provided message", () => {

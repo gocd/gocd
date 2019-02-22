@@ -205,7 +205,7 @@ export class ValidatableMixin {
     if (!options.message) {
       options.message = defaultMessage;
     }
-    this.validateFormatOf(attr, /^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$/, options);
+    this.validateFormatOf(attr, /(^[-a-zA-Z0-9_])([-a-zA-Z0-9_.]{0,254})$/, options);
   }
 
   validateMaxLength(attr: string, maxAllowedLength: number, options?: ValidatorOptions) {

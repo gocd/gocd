@@ -70,8 +70,8 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
     return [
       this.pluginIcon(vnode),
       <div class={styles.headerTitle}>
-        <div className={styles.headerTitleText}><b>{vnode.attrs.repo.id()}</b></div>
-        <div className={styles.headerTitleText}>{materialUrl}</div>
+        <h4 className={styles.headerTitleText}>{vnode.attrs.repo.id()}</h4>
+        <span className={styles.headerTitleUrl}>{materialUrl}</span>
       </div>,
       <div>{this.latestCommitDetails(vnode.attrs.repo.lastParse())}</div>
     ];
@@ -90,9 +90,12 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
                                                   {length: HeaderWidget.MAX_USERNAME_AND_REVISION_LENGTH});
 
       parseStatus = (
-        <div class={styles.headerTitleText}>
+        <div class={styles.commitInfo}>
+          <span className={styles.comment}>
           {comment}
-          <div><b>{username}</b> | {revision}</div>
+          </span>
+          <div class={styles.committerInfo}>
+            <span className={styles.committer}>{username}</span> | {revision}</div>
         </div>
       );
     }
@@ -118,10 +121,10 @@ interface SectionHeaderAttrs {
 
 class SectionHeader extends MithrilViewComponent<SectionHeaderAttrs> {
   view(vnode: m.Vnode<SectionHeaderAttrs>) {
-    return <div className={styles.sectionHeader} data-test-id={vnode.attrs.titleTestId}>
-      {vnode.attrs.image}&nbsp;
+    return <h3 className={styles.sectionHeader} data-test-id={vnode.attrs.titleTestId}>
+      {vnode.attrs.image}
       <span class={styles.sectionHeaderTitle}>{vnode.attrs.title}</span>
-    </div>;
+    </h3>;
   }
 }
 

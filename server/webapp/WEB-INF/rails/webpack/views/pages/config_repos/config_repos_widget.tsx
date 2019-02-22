@@ -50,7 +50,6 @@ export interface Attrs<T> extends Operations<T>, RequiresPluginInfos {
 
 interface ShowObjectAttrs<T> extends Operations<T>, RequiresPluginInfos {
   obj: T;
-  index: number;
 }
 
 interface HeaderWidgetAttrs extends RequiresPluginInfos {
@@ -198,7 +197,7 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
       <CollapsiblePanel error={!!configRepoHasErrors}
                         header={<HeaderWidget repo={vnode.attrs.obj} pluginInfos={vnode.attrs.pluginInfos}/>}
                         dataTestId={"config-repo-details-panel"}
-                        actions={actionButtons} expanded={vnode.attrs.index === 0}>
+                        actions={actionButtons} expanded={!!configRepoHasErrors}>
         {maybeWarning}
         {this.latestModificationDetails(parseInfo)}
         {this.lastGoodModificationDetails(parseInfo)}
@@ -303,12 +302,11 @@ export class ConfigReposWidget extends MithrilViewComponent<Attrs<ConfigRepo>> {
 
     return (
       <div>
-        {configRepos.map((configRepo, index) => {
+        {configRepos.map((configRepo) => {
           return (
             <ConfigRepoWidget key={configRepo.id()}
                               obj={configRepo}
                               pluginInfos={vnode.attrs.pluginInfos}
-                              index={index}
                               onEdit={(configRepo, e) => vnode.attrs.onEdit(configRepo, e)}
                               onRefresh={(configRepo, e) => vnode.attrs.onRefresh(configRepo, e)}
                               onDelete={(configRepo, e) => vnode.attrs.onDelete(configRepo, e)}

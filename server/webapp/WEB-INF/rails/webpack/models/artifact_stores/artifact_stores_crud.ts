@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ import {
   ArtifactStoreJSON,
   ArtifactStores,
   ArtifactStoresJSON
-} from "models/artifact_stores/artifact_stores_new";
+} from "models/artifact_stores/artifact_stores";
 
 export class ArtifactStoresCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;

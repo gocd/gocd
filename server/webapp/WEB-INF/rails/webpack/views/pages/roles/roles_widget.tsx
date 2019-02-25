@@ -17,7 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
-import {AuthConfigs} from "models/auth_configs/auth_configs_new";
+import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {GoCDRole, PluginAttributes, PluginRole, Roles} from "models/roles/roles";
 import {Configuration} from "models/shared/configuration";
 import {Extension} from "models/shared/plugin_infos_new/extensions";

@@ -19,7 +19,7 @@ import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
-import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs_new";
+import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
 import {GoCDAttributes, GoCDRole, PluginAttributes, PluginRole} from "models/roles/roles";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";

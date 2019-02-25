@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import stream = require("mithril/stream");
-import {AuthConfig} from "models/auth_configs/auth_configs_new";
+import {AuthConfig} from "models/auth_configs/auth_configs";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {AuthorizationSettings} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";

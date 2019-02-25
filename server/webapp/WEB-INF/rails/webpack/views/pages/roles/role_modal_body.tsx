@@ -19,7 +19,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs_new";
+import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
 import {GoCDRole, PluginRole, RoleType} from "models/roles/roles";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";

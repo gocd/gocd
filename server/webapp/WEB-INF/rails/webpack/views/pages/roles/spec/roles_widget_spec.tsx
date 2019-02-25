@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import * as m from "mithril";
-import {AuthConfigs} from "models/auth_configs/auth_configs_new";
+import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {TestData} from "models/auth_configs/spec/test_data";
 import {GoCDRole, PluginRole, Role, Roles} from "models/roles/roles";
 import {Extension} from "models/shared/plugin_infos_new/extensions";

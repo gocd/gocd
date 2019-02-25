@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
-import {AuthConfig, AuthConfigJSON} from "models/auth_configs/auth_configs_new";
+import {AuthConfig, AuthConfigJSON} from "models/auth_configs/auth_configs";
 import {Configurations} from "models/shared/configuration";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {ButtonGroup} from "views/components/buttons";

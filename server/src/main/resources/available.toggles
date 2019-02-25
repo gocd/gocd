@@ -12,11 +12,6 @@
          "value": false
       },
       {
-        "key": "use_old_auth_config_spa",
-        "description": "Switch to old authorization configuration spa. Default is new spa.",
-        "value": false
-      },
-      {
         "key": "use_old_artifact_stores_spa",
         "description": "Switch to old artifact stores spa. Default is component based spa.",
         "value": false

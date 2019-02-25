@@ -90,7 +90,7 @@ public class AnalyticsController implements SparkController {
             put("viewTitle", "Analytics");
             put("pipelines", GSON.toJson(pipelines));
         }};
-        return new ModelAndView(locals, "analytics/index.vm");
+        return new ModelAndView(locals, "analytics/index.ftlh");
     }
 
     public String showAnalytics(Request request, Response response) {

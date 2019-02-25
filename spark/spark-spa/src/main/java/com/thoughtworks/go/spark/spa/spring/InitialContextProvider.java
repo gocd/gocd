@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinde
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.velocity.VelocityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -58,7 +57,7 @@ public class InitialContextProvider {
         this.maintenanceModeService = maintenanceModeService;
     }
 
-    public VelocityContext getVelocityContext(Map<String, Object> modelMap, Class<? extends SparkController> controller, String viewName) {
+    public Map<String, Object> getContext(Map<String, Object> modelMap, Class<? extends SparkController> controller, String viewName) {
         HashMap<String, Object> context = new HashMap<>(modelMap);
         context.put("railsAssetsService", railsAssetsService);
         context.put("webpackAssetsService", webpackAssetsService);
@@ -76,7 +75,7 @@ public class InitialContextProvider {
         context.put("spaTimeout", SystemEnvironment.goSpaTimeout());
         context.put("showAnalyticsDashboard", showAnalyticsDashboard());
         context.put("devMode", !new SystemEnvironment().useCompressedJs());
-        return new VelocityContext(context);
+        return context;
     }
 
     private String humanizedControllerName(Class<? extends SparkController> controller) {

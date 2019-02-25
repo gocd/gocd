@@ -72,7 +72,7 @@ public class NewDashboardController implements SparkController {
             put("viewTitle", "Dashboard");
             put("shouldShowAnalyticsIcon", showAnalyticsIcon());
         }};
-        return new ModelAndView(object, "new_dashboard/index.vm");
+        return new ModelAndView(object, "new_dashboard/index.ftlh");
     }
 
     private boolean showAnalyticsIcon() {

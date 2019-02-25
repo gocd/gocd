@@ -21,6 +21,8 @@ dependencies {
   compile project(':spark:spark-base')
   compile group: 'oro', name: 'oro', version: project.versions.oro
 
+  compile group: 'org.freemarker', name: 'freemarker', version: project.versions.freemarker
+
   testCompile project(path: ':spark:spark-base', configuration: 'testOutput')
   testCompile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   testCompile group: 'org.jsoup', name: 'jsoup', version: project.versions.jsoup

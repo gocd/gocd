@@ -28,7 +28,6 @@ import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinde
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
-import org.apache.velocity.VelocityContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -73,8 +72,8 @@ class InitialContextProviderTest {
         when(securityService.isUserAdmin(any(Username.class))).thenReturn(true);
         CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo(analyticsPluginInfo());
         when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(combinedPluginInfo));
-        VelocityContext velocityContext = initialContextProvider.getVelocityContext(modelMap, dummySparkController.getClass(), "viewName");
-        assertThat(velocityContext.internalGet("showAnalyticsDashboard")).isEqualTo(true);
+        Map<String, Object> contect = initialContextProvider.getContext(modelMap, dummySparkController.getClass(), "viewName");
+        assertThat(contect.get("showAnalyticsDashboard")).isEqualTo(true);
     }
 
     @Test
@@ -83,8 +82,8 @@ class InitialContextProviderTest {
         when(securityService.isUserAdmin(any(Username.class))).thenReturn(false);
         CombinedPluginInfo combinedPluginInfo = new CombinedPluginInfo(analyticsPluginInfo());
         when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(combinedPluginInfo));
-        VelocityContext velocityContext = initialContextProvider.getVelocityContext(modelMap, dummySparkController.getClass(), "viewName");
-        assertThat(velocityContext.internalGet("showAnalyticsDashboard")).isEqualTo(false);
+        Map<String, Object> contect = initialContextProvider.getContext(modelMap, dummySparkController.getClass(), "viewName");
+        assertThat(contect.get("showAnalyticsDashboard")).isEqualTo(false);
     }
 
     @Test
@@ -92,8 +91,8 @@ class InitialContextProviderTest {
         Map<String, Object> modelMap = new HashMap<>();
         when(securityService.isUserAdmin(any(Username.class))).thenReturn(true);
         when(pluginInfoFinder.allPluginInfos(PluginConstants.ANALYTICS_EXTENSION)).thenReturn(Collections.singletonList(new CombinedPluginInfo()));
-        VelocityContext velocityContext = initialContextProvider.getVelocityContext(modelMap, dummySparkController.getClass(), "viewName");
-        assertThat(velocityContext.internalGet("showAnalyticsDashboard")).isEqualTo(false);
+        Map<String, Object> contect = initialContextProvider.getContext(modelMap, dummySparkController.getClass(), "viewName");
+        assertThat(contect.get("showAnalyticsDashboard")).isEqualTo(false);
     }
 
     private AnalyticsPluginInfo analyticsPluginInfo() {

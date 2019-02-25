@@ -16,8 +16,8 @@
 
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {ArtifactStore, ArtifactStoreJSON} from "models/artifact_stores/artifact_stores";
+import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {Configurations} from "models/shared/configuration";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";

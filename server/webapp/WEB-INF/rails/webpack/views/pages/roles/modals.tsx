@@ -19,13 +19,13 @@ import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {AuthConfigs} from "models/auth_configs/auth_configs";
-import {RolesCRUD} from "models/roles/roles_crud";
 import {
   GoCDAttributes,
   GoCDRole, PluginAttributes,
   PluginRole,
   Role, RoleType
 } from "models/roles/roles";
+import {RolesCRUD} from "models/roles/roles_crud";
 import {Configurations} from "models/shared/configuration";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";

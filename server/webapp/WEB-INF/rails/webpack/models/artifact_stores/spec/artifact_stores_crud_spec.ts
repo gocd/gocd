@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {ArtifactStore, ArtifactStoreJSON} from "models/artifact_stores/artifact_stores";
+import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {ArtifactStoreTestData} from "models/artifact_stores/spec/test_data";
 
 describe("ArtifactStoreCRUD", () => {

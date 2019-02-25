@@ -16,8 +16,8 @@
 
 import * as m from "mithril";
 import * as stream from "mithril/stream";
-import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs";
+import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";

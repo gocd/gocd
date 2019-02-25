@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {RolesCRUD} from "models/roles/roles_crud";
 import {Role, RoleJSON, RolesJSON} from "models/roles/roles";
+import {RolesCRUD} from "models/roles/roles_crud";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 
 describe("RoleCRUD", () => {

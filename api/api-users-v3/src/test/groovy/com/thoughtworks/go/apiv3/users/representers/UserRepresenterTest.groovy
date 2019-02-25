@@ -42,23 +42,22 @@ class UserRepresenterTest {
     def pluginRole = new PluginRoleConfig("pluginRole", "auth-config-1")
 
     def json = toObject({
-      UserRepresenter.toJSON(it, UserToRepresent.from(user, false, false, new RolesConfig(gocdRole, pluginRole)))
+      UserRepresenter.toJSON(it, UserToRepresent.from(user, false, new RolesConfig(gocdRole, pluginRole)))
     })
 
     def expectedJson = [
-      _links             : [
+      _links         : [
         self: [href: 'http://test.host/go/api/users/Bob'],
         find: [href: 'http://test.host/go/api/users/:login_name'],
         doc : [href: apiDocsUrl('#users')]
       ],
-      login_name         : "Bob",
-      display_name       : "Bob",
-      enabled            : true,
-      email_me           : true,
-      is_admin           : false,
-      is_individual_admin: false,
-      email              : "Bob@no-reply.com",
-      roles              : [
+      login_name     : "Bob",
+      display_name   : "Bob",
+      enabled        : true,
+      email_me       : true,
+      is_admin       : false,
+      email          : "Bob@no-reply.com",
+      roles          : [
         [
           name: 'gocdRole',
           type: 'gocd'
@@ -71,7 +70,7 @@ class UserRepresenterTest {
           ]
         ]
       ],
-      checkin_aliases    : ['Bob', 'awesome']
+      checkin_aliases: ['Bob', 'awesome']
     ]
 
     assertThatJson(json).isEqualTo(expectedJson)

@@ -84,7 +84,8 @@ export class UsersTableWidget extends MithrilViewComponent<State> {
                 <SuperAdminPrivilegeSwitch user={user}
                                            noAdminsConfigured={vnode.attrs.noAdminsConfigured}
                                            onRemoveAdmin={vnode.attrs.onRemoveAdmin}
-                                           onMakeAdmin={vnode.attrs.onMakeAdmin}/>
+                                           onMakeAdmin={vnode.attrs.onMakeAdmin}
+                                           systemAdminUsers={vnode.attrs.systemAdminUsers}/>
                 {this.toggleOperationStatusIcon(user)}
               </div>
               <div className={styles.flCell} data-test-id="user-email">

@@ -77,21 +77,18 @@ function allUsers() {
                            login_name: "bob",
                            display_name: "",
                            is_admin: true,
-                           is_individual_admin: true,
                            roles: [{name: "gocd-admins", type: "gocd"}],
                          });
   const joe   = new User({
                            login_name: "joe",
                            display_name: "",
                            is_admin: true,
-                           is_individual_admin: false,
                            roles: [{name: "nobody", type: "gocd"}]
                          });
   const alice = new User({
                            login_name: "alice",
                            display_name: "",
                            is_admin: true,
-                           is_individual_admin: true,
                            roles: [{name: "gocd-admins", type: "gocd"}]
                          });
   const users = new Users(bob, alice, joe);

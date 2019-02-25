@@ -74,7 +74,6 @@ describe("User Model", () => {
     const json = {
       login_name: "Administrator",
       is_admin: false,
-      is_individual_admin: false,
       enabled: false,
       display_name: "Testing update",
       email: "bob+1@example.com",
@@ -98,7 +97,6 @@ describe("User Model", () => {
     return {
       login_name: "Administrator",
       is_admin: true,
-      is_individual_admin: false,
       display_name: "Bob the builder",
       enabled: true,
       email: "Bob@example.com",

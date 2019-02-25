@@ -52,7 +52,6 @@ export interface UserJSON {
   email_me?: boolean;
   checkin_aliases?: string[];
   roles?: UserRoleJSON[];
-  is_individual_admin: boolean;
 }
 
 export enum UpdateOperationStatus {
@@ -71,18 +70,16 @@ export class User {
   roles: Stream<UserRoleJSON[]>;
   updateOperationStatus: Stream<UpdateOperationStatus | null> = stream();
   updateOperationErrorMessage: Stream<string | null>          = stream();
-  isIndividualAdmin: Stream<boolean>                          = stream();
 
   constructor(json: UserJSON) {
-    this.loginName         = stream(json.login_name);
-    this.displayName       = stream(json.display_name);
-    this.enabled           = stream(json.enabled);
-    this.email             = stream(json.email);
-    this.emailMe           = stream(json.email_me);
-    this.isAdmin           = stream(json.is_admin);
-    this.checkinAliases    = stream(json.checkin_aliases);
-    this.roles             = stream(json.roles);
-    this.isIndividualAdmin = stream(json.is_individual_admin);
+    this.loginName      = stream(json.login_name);
+    this.displayName    = stream(json.display_name);
+    this.enabled        = stream(json.enabled);
+    this.email          = stream(json.email);
+    this.emailMe        = stream(json.email_me);
+    this.isAdmin        = stream(json.is_admin);
+    this.checkinAliases = stream(json.checkin_aliases);
+    this.roles          = stream(json.roles);
   }
 
   static fromJSON(json: UserJSON) {
@@ -97,7 +94,6 @@ export class User {
                       email: existingUser.email(),
                       email_me: existingUser.emailMe(),
                       is_admin: existingUser.isAdmin(),
-                      is_individual_admin: existingUser.isIndividualAdmin(),
                       checkin_aliases: existingUser.checkinAliases()
                     });
   }
@@ -135,9 +131,12 @@ export class User {
     this.updateOperationStatus(null);
   }
 
+  isIndividualAdmin(systemAdminUsers: string[]) {
+    return systemAdminUsers.includes(this.loginName());
+  }
+
   updateFromJSON(json: UserJSON) {
     this.isAdmin(json.is_admin);
-    this.isIndividualAdmin(json.is_individual_admin);
     if (json.display_name) {
       this.displayName(json.display_name);
     }

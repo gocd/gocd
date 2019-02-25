@@ -224,7 +224,9 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
       .then((result) => {
         result.do(
           (successResponse) => {
-            this.elasticProfile(successResponse.body.object);
+            const elasticProfile = successResponse.body.object;
+            elasticProfile.id("");
+            this.elasticProfile(elasticProfile);
           },
           (errorResponse) => this.onError(errorResponse.message)
         );

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,6 +55,6 @@ public class ArtifactStoresController implements SparkController {
         Map<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Artifact Stores");
         }};
-        return new ModelAndView(object, "artifact_stores/index.vm");
+        return new ModelAndView(object, null);
     }
 }

@@ -12,11 +12,6 @@
          "value": false
       },
       {
-        "key": "use_old_artifact_stores_spa",
-        "description": "Switch to old artifact stores spa. Default is component based spa.",
-        "value": false
-      },
-      {
         "key": "users_page_using_rails",
         "description": "Switch users page to use spark.",
         "value": true

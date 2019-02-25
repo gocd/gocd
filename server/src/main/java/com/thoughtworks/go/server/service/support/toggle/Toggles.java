@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,6 @@ public class Toggles {
     public static String PIPELINE_COMMENT_FEATURE_TOGGLE_KEY = "pipeline_comment_feature_toggle_key";
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
     public static String USERS_PAGE_USING_RAILS = "users_page_using_rails";
-    public static String USE_OLD_ARTIFACT_STORES_SPA = "use_old_artifact_stores_spa";
     public static String USE_OLD_ENVIRONMENTS_API = "use_old_environments_api";
     public static String ENABLE_ACCESS_TOKENS_SPA = "enable_access_tokens_spa";
 

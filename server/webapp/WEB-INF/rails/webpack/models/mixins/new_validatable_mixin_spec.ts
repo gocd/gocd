@@ -213,6 +213,61 @@ describe("Validatable", () => {
     });
   });
 
+  describe("validateIdFormat", () => {
+
+    it("should validate Id format", () => {
+      //tslint:disable-next-line
+      interface Material extends ValidatableMixin {
+      }
+
+      class Material implements ValidatableMixin {
+        id: Stream<string>;
+
+        constructor(id: string) {
+          ValidatableMixin.call(this);
+          this.id = stream(id);
+          this.validateIdFormat("id");
+        }
+      }
+
+      applyMixins(Material, ValidatableMixin);
+
+      const badStrings = ["shaky salamander", ".hello", _.repeat("a", 256)];
+      badStrings.forEach((badString) => {
+        const material = new Material(badString);
+        material.validate();
+        expect(material.errors().hasErrors()).toBe(true);
+        expect(material.errors().errors("id"))
+          .toEqual(["Invalid id. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."]);
+      });
+
+    });
+
+    it("should validate Id format using provided message", () => {
+      //tslint:disable-next-line
+      interface Material extends ValidatableMixin {
+      }
+
+      class Material implements ValidatableMixin {
+        id: Stream<string>;
+
+        constructor(id: string) {
+          ValidatableMixin.call(this);
+          this.id = stream(id);
+          this.validateIdFormat("id", {message: "Id is invalid"});
+        }
+      }
+
+      applyMixins(Material, ValidatableMixin);
+      const material = new Material("shaky salamander");
+
+      material.validate();
+
+      expect(material.errors().hasErrors()).toBe(true);
+      expect(material.errors().errors("id")).toEqual(["Id is invalid"]);
+    });
+  });
+
   describe("validateWith", () => {
     class CustomUrlValidator extends Validator {
       constructor(options?: ValidatorOptions) {
@@ -500,7 +555,7 @@ describe("Validatable", () => {
 
       constructor(key: string) {
         ValidatableMixin.call(this);
-        this.key    = stream(key);
+        this.key = stream(key);
         this.validateMaxLength("key", 10);
       }
     }
@@ -508,7 +563,7 @@ describe("Validatable", () => {
     applyMixins(Variable, ValidatableMixin);
 
     it("should validate max length of a given field", () => {
-      const var1      = new Variable("strGreaterThanTenChars");
+      const var1 = new Variable("strGreaterThanTenChars");
 
       var1.validate();
 
@@ -517,7 +572,7 @@ describe("Validatable", () => {
     });
 
     it("should skip validation if attribute is empty", () => {
-      const var1      = new Variable("");
+      const var1 = new Variable("");
 
       var1.validate();
 
@@ -525,7 +580,7 @@ describe("Validatable", () => {
     });
 
     it("should not give validation errors if field has valid length", () => {
-      const var1      = new Variable("foobarbaz");
+      const var1 = new Variable("foobarbaz");
 
       var1.validate();
 

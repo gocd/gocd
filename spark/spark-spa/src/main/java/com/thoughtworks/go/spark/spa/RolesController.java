@@ -55,6 +55,6 @@ public class RolesController implements SparkController {
         Map<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Server Roles");
         }};
-        return new ModelAndView(object, "roles/index.vm");
+        return new ModelAndView(object, null);
     }
 }

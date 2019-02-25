@@ -18,7 +18,7 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
-import {UpdateOperationStatus, User, Users} from "models/users/users";
+import {User, Users} from "models/users/users";
 import * as Icons from "views/components/icons";
 import {SuperAdminPrivilegeSwitch, SuperAdminPrivilegeSwitchAttrs} from "views/pages/users/super_admin_toggle_widget";
 import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
@@ -26,7 +26,20 @@ import * as styles from "./index.scss";
 
 const classnames = bind(styles);
 
-export type State = UserActionsState & SuperAdminPrivilegeSwitchAttrs;
+export enum UpdateOperationStatus {
+  IN_PROGRESS, SUCCESS, ERROR
+}
+
+interface UserViewModel {
+  updateOperationStatus: UpdateOperationStatus;
+  updateOperationErrorMessage?: string | null;
+}
+
+export interface State extends UserActionsState, SuperAdminPrivilegeSwitchAttrs {
+  userViewStates: {
+    [key: string]: UserViewModel;
+  };
+}
 
 export class UsersTableWidget extends MithrilViewComponent<State> {
   static headers(users: Users) {
@@ -86,7 +99,7 @@ export class UsersTableWidget extends MithrilViewComponent<State> {
                                            onRemoveAdmin={vnode.attrs.onRemoveAdmin}
                                            onMakeAdmin={vnode.attrs.onMakeAdmin}
                                            systemAdminUsers={vnode.attrs.systemAdminUsers}/>
-                {this.toggleOperationStatusIcon(user)}
+                {this.toggleOperationStatusIcon(vnode, user)}
               </div>
               <div className={styles.flCell} data-test-id="user-email">
                 <span>{user.email()}</span>
@@ -95,7 +108,7 @@ export class UsersTableWidget extends MithrilViewComponent<State> {
                 <span>{user.enabled() ? "Yes" : "No"}</span>
               </div>
             </div>,
-              this.updateOperationErrorMessage(user)
+              this.updateOperationErrorMessage(vnode, user)
             ];
           })
         }
@@ -103,11 +116,12 @@ export class UsersTableWidget extends MithrilViewComponent<State> {
     </div>);
   }
 
-  updateOperationErrorMessage(user: User) {
-    if (user.updateOperationErrorMessage()) {
+  updateOperationErrorMessage(vnode: m.Vnode<State>, user: User) {
+    const userViewState = vnode.attrs.userViewStates[user.loginName()];
+    if (userViewState && userViewState.updateOperationErrorMessage) {
       return <div className={classnames(styles.flRow)}>
         <div className={styles.alertError} data-test-id="user-update-error-message">
-          <p>{user.updateOperationErrorMessage()}</p>
+          <p>{userViewState.updateOperationErrorMessage}</p>
         </div>
       </div>;
     }
@@ -126,19 +140,21 @@ export class UsersTableWidget extends MithrilViewComponent<State> {
     );
   }
 
-  private toggleOperationStatusIcon(user: User) {
+  private toggleOperationStatusIcon(vnode: m.Vnode<State>, user: User) {
     let icon;
-
-    switch (user.updateOperationStatus()) {
-      case UpdateOperationStatus.IN_PROGRESS:
-        icon = <Icons.Spinner iconOnly={true} title={"Update in progress"}/>;
-        break;
-      case UpdateOperationStatus.SUCCESS:
-        icon = <span class={styles.iconCheck} data-test-id="update-successful"/>;
-        break;
-      case UpdateOperationStatus.ERROR:
-        icon = <span className={styles.iconError} data-test-id="update-unsuccessful"/>;
-        break;
+    const userViewState = vnode.attrs.userViewStates[user.loginName()];
+    if (userViewState) {
+      switch (userViewState.updateOperationStatus) {
+        case UpdateOperationStatus.IN_PROGRESS:
+          icon = <Icons.Spinner iconOnly={true} title={"Update in progress"}/>;
+          break;
+        case UpdateOperationStatus.SUCCESS:
+          icon = <span class={styles.iconCheck} data-test-id="update-successful"/>;
+          break;
+        case UpdateOperationStatus.ERROR:
+          icon = <span className={styles.iconError} data-test-id="update-unsuccessful"/>;
+          break;
+      }
     }
     return icon;
   }

@@ -82,27 +82,39 @@ TaskEditor = {
         }
 
         function prunedStageListForEdit(list, pipelineName) {
+            var defaultStages = [];
             for (var i = 0; i < list.length; i++) {
                 if (list[i].pipeline == pipelineName) {
                     return list[i].stages;
                 }
+                if (list[i].pipeline == "") {
+                    defaultStages = list[i].stages;
+                }
             }
-            return [];
+            return defaultStages;
         }
 
         function prunedJobListForEdit(list, pipelineName, stageName) {
+            var defaultJobs = [];
             for (var i = 0; i < list.length; i++) {
                 var pipelineEntry = list[i];
                 if (pipelineEntry.pipeline == pipelineName) {
-                    for (var j = 0; j < pipelineEntry.stages.length; j++) {
-                        var stageEntry = pipelineEntry.stages[j];
-                        if (stageEntry.stage == stageName) {
-                            return stageEntry.jobs;
-                        }
-                    }
+                    return filterJobsByPipelineAndStageName(pipelineEntry, stageName)
+                }
+                if (pipelineEntry.pipeline == "") {
+                    defaultJobs = filterJobsByPipelineAndStageName(pipelineEntry, stageName)
                 }
             }
-            return [];
+            return defaultJobs;
+        }
+
+        function filterJobsByPipelineAndStageName(pipelineEntry, stageName) {
+            for (var j = 0; j < pipelineEntry.stages.length; j++) {
+                var stageEntry = pipelineEntry.stages[j];
+                if (stageEntry.stage == stageName) {
+                    return stageEntry.jobs;
+                }
+            }
         }
 
         function bindJobs(job_box, stages_jobs) {

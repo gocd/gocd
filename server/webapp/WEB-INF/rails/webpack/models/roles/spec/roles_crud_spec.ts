@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import {RolesCRUD} from "models/roles/roles_crud";
-import {Role, RoleJSON, RolesJSON} from "models/roles/roles_new";
+import {Role, RoleJSON, RolesJSON} from "models/roles/roles";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 
 describe("RoleCRUD", () => {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import {AuthConfig, AuthConfigs} from "models/auth_configs/auth_configs_new";
-import {GoCDAttributes, GoCDRole, PluginAttributes, PluginRole} from "models/roles/roles_new";
+import {GoCDAttributes, GoCDRole, PluginAttributes, PluginRole} from "models/roles/roles";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {AuthorizationSettings, Extension} from "models/shared/plugin_infos_new/extensions";

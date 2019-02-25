@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {GoCDRole, Roles, UserRoleUpdateJSON} from "models/roles/roles_new";
+import {GoCDRole, Roles, UserRoleUpdateJSON} from "models/roles/roles";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {Users} from "models/users/users";
 

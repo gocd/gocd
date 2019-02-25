@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {GoCDRole, Roles} from "models/roles/roles_new";
+import {GoCDRole, Roles} from "models/roles/roles";
 import {computeBulkUpdateRolesJSON, computeRolesSelection} from "models/users/role_selection";
 import {User, Users} from "models/users/users";
 import {RolesTestData} from "views/pages/roles/spec/test_data";

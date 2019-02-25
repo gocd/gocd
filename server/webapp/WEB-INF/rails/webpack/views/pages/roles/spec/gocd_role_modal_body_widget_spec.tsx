@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import * as m from "mithril";
-import {GoCDRole, Role} from "models/roles/roles_new";
+import {GoCDRole, Role} from "models/roles/roles";
 import * as simulateEvent from "simulate-event";
 import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {GoCDRoleModalBodyWidget} from "views/pages/roles/role_modal_body_widget";

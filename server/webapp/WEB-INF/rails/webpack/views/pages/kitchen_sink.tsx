@@ -41,7 +41,7 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
 import {Tabs} from "views/components/tab";
-import {Comparator, Table, TableHeader} from "views/components/table";
+import {Table, TableSortHandler} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
 
@@ -259,11 +259,7 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <SearchFieldWithButton property={formValue} buttonDisableReason={"Add text to enable search"}/>
 
         <h3>Table</h3>
-        <Table headers={[
-          <TableHeader name={"Pipeline"}/>,
-          <TableHeader name={"Stage"}/>,
-          <TableHeader name={"Job"}/>,
-          <TableHeader name={"Action"}/>]}
+        <Table headers={["Pipeline", "Stage", "Job", "Action"]}
                data={[
                  ["WindowsPR", <label>test</label>, "jasmine", <a href="#!">Go to report</a>],
                  ["LinuxPR", "build", "clean", "Foo"]
@@ -271,10 +267,8 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
         <br/>
         <h3>Sortable Table</h3>
-        <Table data={pipelineData()} headers={[
-          <TableHeader name={"Pipeline"} comparator={new PipelineComparator()} width="10%"/>,
-          <TableHeader name={"Stage"} comparator={new StageComparator()}/>,
-          <TableHeader name={"Job"}/>]}/>
+        <Table data={pipelineData()} headers={["Pipeline", "Stage", "Job"]}
+               sortHandler={tableSortHandler}/>
 
         <br/>
         <Tabs tabs={["One", "Two"]} contents={[
@@ -305,29 +299,30 @@ const pipelineData = stream(
     ["LinuxPR", "build", "clean"]
   ]);
 
-abstract class IndexBasedTextComparator extends Comparator<string[]> {
-  private readonly index: number;
+class DummyTableSortHandler extends TableSortHandler {
+  private sortOrders = new Map();
 
   constructor() {
-    super(pipelineData);
-    this.index = this.getColumnIndex();
+    super();
+    this.getSortableColumns().forEach((c) => this.sortOrders.set(c, -1));
   }
 
-  compare(element1: string[], element2: string[]): number {
-    return element1[this.index] < element2[this.index] ? -1 : element1[this.index] > element2[this.index] ? 1 : 0;
+  onColumnClick(columnIndex: number): void {
+    this.sortOrders.set(columnIndex, this.sortOrders.get(columnIndex) * -1);
+    pipelineData()
+      .sort((element1, element2) => DummyTableSortHandler.compare(element1,
+                                                                  element2,
+                                                                  columnIndex) * this.sortOrders.get(
+        columnIndex));
   }
 
-  protected abstract getColumnIndex(): number;
+  getSortableColumns(): number[] {
+    return [0, 1];
+  }
+
+  private static compare(element1: any, element2: any, index: number) {
+    return element1[index] < element2[index] ? -1 : element1[index] > element2[index] ? 1 : 0;
+  }
 }
 
-class PipelineComparator extends IndexBasedTextComparator {
-  protected getColumnIndex(): number {
-    return 0;
-  }
-}
-
-class StageComparator extends IndexBasedTextComparator {
-  protected getColumnIndex(): number {
-    return 1;
-  }
-}
+const tableSortHandler = new DummyTableSortHandler();

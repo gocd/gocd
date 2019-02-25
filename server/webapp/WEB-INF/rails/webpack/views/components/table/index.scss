@@ -18,6 +18,7 @@
 $table-border-color: $line-color;
 $table-header-bg: $secondary-bg;
 $table_background_color: #fff;
+$icon_disable_color: #ccc;
 
 .table {
   $table-border-top-color: #dee2e6;
@@ -54,11 +55,19 @@ $table_background_color: #fff;
   }
 }
 
+.sortable-column {
+  cursor: pointer;
+}
+
 .sort-button {
   @include icon-before($fa-var-sort);
   margin-left: 2px;
   cursor:      pointer;
   color:       $icon-color;
+}
+
+.in-active {
+  color: $icon_disable_color;
 }
 
 

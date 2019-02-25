@@ -55,6 +55,6 @@ public class AuthConfigsController implements SparkController {
         Map<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Authorization Configurations");
         }};
-        return new ModelAndView(object, "auth_configs/index.vm");
+        return new ModelAndView(object, null);
     }
 }

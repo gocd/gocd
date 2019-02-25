@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
-import {ArtifactStore, ArtifactStoreJSON} from "models/artifact_stores/artifact_stores_new";
+import {ArtifactStore, ArtifactStoreJSON} from "models/artifact_stores/artifact_stores";
 import {ArtifactStoreTestData} from "models/artifact_stores/spec/test_data";
 
 describe("ArtifactStoreCRUD", () => {

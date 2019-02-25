@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 
 import * as m from "mithril";
-import {ArtifactStore} from "models/artifact_stores/artifact_stores_new";
+import {ArtifactStore} from "models/artifact_stores/artifact_stores";
 import {Configurations} from "models/shared/configuration";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {ArtifactPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";

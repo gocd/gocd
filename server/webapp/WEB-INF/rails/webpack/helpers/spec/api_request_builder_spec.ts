@@ -56,6 +56,19 @@ describe("Api Request Builder", () => {
       });
     });
 
+    it("should create ApiResult from a successful POST request with 202 response", (done) => {
+      mockSuccessfulCreateRequestWithAcceptedResponse();
+      ApiRequestBuilder.POST("/foo", ApiVersion.v1).then((result) => {
+        // @ts-ignore
+        expect(result.getRedirectUrl()).toEqual("/go/admin/foo");
+        expect(result.getRetryAfterIntervalInMillis()).toEqual(10000);
+        expect(result.getStatusCode()).toEqual(202);
+        done();
+      }, () => {
+        done.fail("should have passed");
+      });
+    });
+
     it("should create ApiResult for request failing validation", (done) => {
       mockValidationFailedRequest();
       ApiRequestBuilder.PUT("/foo", ApiVersion.v1).then((result) => {
@@ -186,6 +199,18 @@ describe("Api Request Builder", () => {
                                responseHeaders: {
                                  "Content-Type": contentType,
                                  "Etag": "etag-value"
+                               }
+                             });
+  }
+
+  function mockSuccessfulCreateRequestWithAcceptedResponse() {
+    return jasmine.Ajax.stubRequest("/foo", undefined, "POST")
+                  .andReturn({
+                               status: 202,
+                               responseHeaders: {
+                                 "Content-Type": contentType,
+                                 "Location": "/go/admin/foo",
+                                 "Retry-after": "10"
                                }
                              });
   }

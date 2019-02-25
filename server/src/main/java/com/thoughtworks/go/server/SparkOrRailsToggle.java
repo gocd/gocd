@@ -26,6 +26,10 @@ public class SparkOrRailsToggle {
         basedOnToggle(Toggles.USERS_PAGE_USING_RAILS, request);
     }
 
+    public void backupPageUsingRails(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.BACKUP_PAGE_USING_RAILS, request);
+    }
+
     public void environmentsUsingRails(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.USE_OLD_ENVIRONMENTS_API, request);
     }

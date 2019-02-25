@@ -39,15 +39,21 @@ export class ApiResult<T> {
   private readonly errorResponse?: ErrorResponse;
   private readonly statusCode?: number;
   private readonly etag: string | null;
+  private readonly redirectUrl: string | null;
+  private readonly retryAfter: number | null;
 
   private constructor(successResponse?: SuccessResponse<T>,
                       errorResponse?: ErrorResponse,
                       statusCode?: number,
-                      etag?: string | null) {
+                      etag?: string | null,
+                      redirectUrl?: string | null,
+                      retryAfter?: number | null) {
     this.successResponse = successResponse;
     this.errorResponse   = errorResponse;
     this.statusCode      = statusCode;
     this.etag            = etag ? etag : null;
+    this.redirectUrl     = redirectUrl ? redirectUrl : null;
+    this.retryAfter     = retryAfter ? retryAfter : null;
   }
 
   static from(xhr: XMLHttpRequest) {
@@ -56,6 +62,10 @@ export class ApiResult<T> {
 
   static success(body: string, statusCode: number, etag: string | null) {
     return new ApiResult<string>({body}, undefined, statusCode, etag);
+  }
+
+  static accepted(body: string, statusCode: number, location: string | null, retryAfter: string | null) {
+    return new ApiResult<string>({body}, undefined, statusCode, null, location, Number(retryAfter));
   }
 
   static error(body: string, message: string, statusCode?: number) {
@@ -71,6 +81,14 @@ export class ApiResult<T> {
 
   getEtag(): string | null {
     return this.etag;
+  }
+
+  getRedirectUrl(): string {
+    return this.redirectUrl || '';
+  }
+
+  getRetryAfterIntervalInMillis(): number {
+    return this.retryAfter ? this.retryAfter * 1000 : 0;
   }
 
   map<U>(func: (x: T) => U): ApiResult<U> {
@@ -113,6 +131,8 @@ export class ApiResult<T> {
       case 200:
       case 201:
         return ApiResult.success(xhr.responseText, xhr.status, xhr.getResponseHeader("etag"));
+      case 202:
+        return ApiResult.accepted(xhr.responseText, xhr.status, xhr.getResponseHeader("Location"), xhr.getResponseHeader("retry-after"));
       case 422:
         return ApiResult.error(xhr.responseText, this.parseMessage(xhr), xhr.status);
       case 503:

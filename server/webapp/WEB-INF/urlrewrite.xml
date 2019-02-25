@@ -115,6 +115,13 @@
   </rule>
 
   <rule>
+    <name>backup UI</name>
+    <from>^/admin/backup(/?)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="backupPageUsingRails"/>
+    <to last="true">/%{attribute:sparkOrRails}/admin/backup</to>
+  </rule>
+
+  <rule>
     <name>Current Version detail</name>
     <from>^/api/version$</from>
     <to last="true">/spark/api/version</to>

@@ -21,15 +21,18 @@ import {Modal, Size} from "views/components/modal";
 export class ToggleConfirmModal extends Modal {
   private readonly message: m.Children;
   private readonly modalTitle: string;
+  private readonly confirmAction: string;
   private onsave: () => any;
 
   constructor(message: m.Children,
               onsave: () => any,
-              title = "Are you sure?") {
+              title = "Are you sure?",
+              confirmAction = "Save") {
     super(Size.small);
     this.message    = message;
     this.modalTitle = title;
     this.onsave     = onsave;
+    this.confirmAction = confirmAction;
   }
 
   body(): m.Children {
@@ -42,7 +45,7 @@ export class ToggleConfirmModal extends Modal {
 
   buttons(): m.ChildArray {
     return [
-      <Buttons.Primary data-test-id="button-save" onclick={this.onsave.bind(this)}>Save</Buttons.Primary>,
+      <Buttons.Primary data-test-id="button-save" onclick={this.onsave.bind(this)}>{this.confirmAction}</Buttons.Primary>,
       <Buttons.Cancel data-test-id="button-cancel" onclick={this.close.bind(this)}>Cancel</Buttons.Cancel>
     ];
   }

@@ -38,10 +38,10 @@ describe("Dashboard Pipeline Widget", () => {
     [$root, root]        = window.createDomElementForTest();
     pipelineInstances    = [{
       "_links":       {
-        "self":            {
+        "self": {
           "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
         },
-        "doc":             {
+        "doc":  {
           "href": "https://api.go.cd/current/#get-pipeline-instance"
         }
       },
@@ -357,7 +357,7 @@ describe("Dashboard Pipeline Widget", () => {
 
         expect($root.find('.pipeline_pause-message')).toBeInDOM();
         expect($root.find('.pipeline_pause-message')).toContainText(`on ${TimeFormatter.format(pauseInfo.paused_at)}`);
-        expect($root.find('.pipeline_pause-message div').get(1).title).toEqual(TimeFormatter.formatInServerTime(pauseInfo.paused_at));
+        expect($root.find('.pipeline_pause-message div').get(0).title).toEqual(TimeFormatter.formatInServerTime(pauseInfo.paused_at));
         expect($root.find('.pipeline_message')).toContainText(responseMessage);
         expect($root.find('.pipeline_message')).toHaveClass("success");
       });
@@ -436,6 +436,47 @@ describe("Dashboard Pipeline Widget", () => {
         expect(pauseButton).toHaveAttr('data-tooltip-id');
         const tooltipId = $(pauseButton).attr('data-tooltip-id');
         expect($(`#${tooltipId}`)).toHaveText("You do not have permission to pause the pipeline.");
+      });
+
+      it('should not show the paused time if it is null', () => {
+        pauseInfo = {
+          "paused":       false,
+          "paused_by":    "admin",
+          "pause_reason": "under construction",
+          "paused_at":    null
+        };
+
+        dashboard        = {};
+        dashboard.reload = jasmine.createSpy();
+
+        mount(true, pauseInfo, dashboard);
+
+        const responseMessage = `Pipeline '${pipeline.name}' paused successfully.`;
+        jasmine.Ajax.stubRequest(`/go/api/pipelines/${pipeline.name}/pause`, undefined, 'POST').andReturn({
+          responseText:    JSON.stringify({"message": responseMessage}),
+          responseHeaders: {
+            'Content-Type': 'application/vnd.go.cd.v1+json'
+          },
+          status:          200
+        });
+
+        expect(doCancelPolling).not.toHaveBeenCalled();
+        expect(doRefreshImmediately).not.toHaveBeenCalled();
+
+        simulateEvent.simulate($root.find('.pause').get(0), 'click');
+        $('.reveal input').val("test");
+
+        doRefreshImmediately.and.callFake(() => pipeline.isPaused = true);
+        simulateEvent.simulate($('.reveal .primary').get(0), 'click');
+
+        expect(doCancelPolling).toHaveBeenCalled();
+        expect(doRefreshImmediately).toHaveBeenCalled();
+
+        expect($root.find('.pipeline_pause-message')).toBeInDOM();
+        expect($root.find('.pipeline_pause-message').text()).toBe('Paused by admin (under construction)');
+        expect($root.find('.pipeline_pause-message div')).not.toBeInDOM();
+        expect($root.find('.pipeline_message')).toContainText(responseMessage);
+        expect($root.find('.pipeline_message')).toHaveClass("success");
       });
     });
 
@@ -862,10 +903,10 @@ describe("Dashboard Pipeline Widget", () => {
   function mount(canAdminister = true, pauseInfo = {}, lockInfo = {}, canPause = true, canOperate = true, fromConfigRepo = false, pluginsSupportingAnalytics = {}, shouldShowAnalyticsIcon = false) {
     pipelinesJson = [{
       "_links":                 {
-        "self":                 {
+        "self": {
           "href": "http://localhost:8153/go/api/pipelines/up42/history"
         },
-        "doc":                  {
+        "doc":  {
           "href": "https://api.go.cd/current/#pipelines"
         }
       },
@@ -919,7 +960,8 @@ describe("Dashboard Pipeline Widget", () => {
       view() {
         return m(PipelineWidget, {
           pipeline,
-          invalidateEtag: () => {},
+          invalidateEtag:    () => {
+          },
           pluginsSupportingAnalytics,
           shouldShowAnalyticsIcon,
           doCancelPolling,

@@ -193,9 +193,17 @@ const PipelineOperationsWidget = {
 
     let pipelinePauseMessage;
     if (pipeline.isPaused) {
-      const pausedAtLocalTime  = TimeFormatter.format(pipeline.pausedAt);
-      const pausedAtServerTime = TimeFormatter.formatInServerTime(pipeline.pausedAt);
-      pipelinePauseMessage = (<div className="pipeline_pause-message"><div>{pausedMessage}</div><div title={pausedAtServerTime}>on {pausedAtLocalTime}</div></div>);
+      let pausedTimeMsg;
+      if (pipeline.pausedAt) {
+        const pausedAtLocalTime  = TimeFormatter.format(pipeline.pausedAt);
+        const pausedAtServerTime = TimeFormatter.formatInServerTime(pipeline.pausedAt);
+        pausedTimeMsg            = <div title={pausedAtServerTime}>on {pausedAtLocalTime}</div>;
+      }
+      pipelinePauseMessage = (<div
+        className="pipeline_pause-message">
+        {pausedMessage}
+        {pausedTimeMsg}
+      </div>);
     }
 
     return (

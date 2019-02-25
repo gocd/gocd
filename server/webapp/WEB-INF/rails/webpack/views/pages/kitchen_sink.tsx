@@ -41,7 +41,7 @@ import {KeyValuePair} from "views/components/key_value_pair";
 import {Size} from "views/components/modal";
 import {SampleModal} from "views/components/modal/sample";
 import {Tabs} from "views/components/tab";
-import {Table} from "views/components/table";
+import {Comparator, Table, TableHeader} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
 
@@ -259,10 +259,22 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <SearchFieldWithButton property={formValue} buttonDisableReason={"Add text to enable search"}/>
 
         <h3>Table</h3>
-        <Table headers={["Pipeline", "Stage", "Job", "Action"]} data={[
-          ["LinuxPR", "build", "clean", <Buttons.Primary>Abort</Buttons.Primary>],
-          ["WindowsPR", <label>test</label>, "jasmine", <a href="#!">Go to report</a>]
-        ]}/>
+        <Table headers={[
+          <TableHeader name={"Pipeline"}/>,
+          <TableHeader name={"Stage"}/>,
+          <TableHeader name={"Job"}/>,
+          <TableHeader name={"Action"}/>]}
+               data={[
+                 ["WindowsPR", <label>test</label>, "jasmine", <a href="#!">Go to report</a>],
+                 ["LinuxPR", "build", "clean", "Foo"]
+               ]}/>
+
+        <br/>
+        <h3>Sortable Table</h3>
+        <Table data={pipelineData()} headers={[
+          <TableHeader name={"Pipeline"} comparator={new PipelineComparator()} width="10%"/>,
+          <TableHeader name={"Stage"} comparator={new StageComparator()}/>,
+          <TableHeader name={"Job"}/>]}/>
 
         <br/>
         <Tabs tabs={["One", "Two"]} contents={[
@@ -280,5 +292,42 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
   private createModal(size: Size) {
     new SampleModal(size).render();
+  }
+}
+
+const pipelineData = stream(
+  [
+    ["WindowsPR", "test", "jasmine"],
+    ["WindowsPR", "build", "installer"],
+    ["WindowsPR", "upload", "upload"],
+    ["LinuxPR", "build", "clean"],
+    ["LinuxPR", "test", "clean"],
+    ["LinuxPR", "build", "clean"]
+  ]);
+
+abstract class IndexBasedTextComparator extends Comparator<string[]> {
+  private readonly index: number;
+
+  constructor() {
+    super(pipelineData);
+    this.index = this.getColumnIndex();
+  }
+
+  compare(element1: string[], element2: string[]): number {
+    return element1[this.index] < element2[this.index] ? -1 : element1[this.index] > element2[this.index] ? 1 : 0;
+  }
+
+  protected abstract getColumnIndex(): number;
+}
+
+class PipelineComparator extends IndexBasedTextComparator {
+  protected getColumnIndex(): number {
+    return 0;
+  }
+}
+
+class StageComparator extends IndexBasedTextComparator {
+  protected getColumnIndex(): number {
+    return 1;
   }
 }

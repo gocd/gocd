@@ -54,4 +54,11 @@ $table_background_color: #fff;
   }
 }
 
+.sort-button {
+  @include icon-before($fa-var-sort);
+  margin-left: 2px;
+  cursor:      pointer;
+  color:       $icon-color;
+}
+
 

@@ -16,7 +16,7 @@
 
 import * as m from "mithril";
 import * as stream from "mithril/stream";
-import {AuthConfigs} from "models/auth_configs/auth_configs_new";
+import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {TestData} from "models/auth_configs/spec/test_data";
 import {Role, RoleType} from "models/roles/roles";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";

@@ -18,7 +18,7 @@ import {ErrorResponse} from "helpers/api_request_builder";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
-import {AuthConfigs} from "models/auth_configs/auth_configs_new";
+import {AuthConfigs} from "models/auth_configs/auth_configs";
 import {RolesCRUD} from "models/roles/roles_crud";
 import {GoCDAttributes, GoCDRole, PluginRole, Roles} from "models/roles/roles";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";

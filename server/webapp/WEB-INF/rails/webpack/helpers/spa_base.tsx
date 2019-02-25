@@ -39,9 +39,7 @@ class MainPage extends MithrilViewComponent<Attrs> {
             {vnode.children}
           </main>
         </div>
-        <footer class={styles.sitefooter}>
-          <SiteFooter {...vnode.attrs.footerData} />
-        </footer>
+        <SiteFooter {...vnode.attrs.footerData} />
       </div>
     );
 

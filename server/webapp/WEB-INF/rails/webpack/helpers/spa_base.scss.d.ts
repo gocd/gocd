@@ -8,6 +8,6 @@ export const h5: string;
 export const h6: string;
 export const listUnstyled: string;
 export const mainContainer: string;
-export const sitefooter: string;
 export const page: string;
 export const pagewrap: string;
+export const sitefooter: string;

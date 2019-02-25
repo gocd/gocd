@@ -49,7 +49,7 @@ class ArtifactStoresControllerTest implements ControllerTrait<ArtifactStoresCont
     @Test
     void 'should return Model and View'() {
       loginAsAdmin()
-      def expectedBody = new StubTemplateEngine().render(new ModelAndView([viewTitle: "Artifact Stores"], "artifact_stores/index.vm"))
+      def expectedBody = new StubTemplateEngine().render(new ModelAndView([viewTitle: "Artifact Stores"], null))
 
       get(controller.controllerBasePath())
 

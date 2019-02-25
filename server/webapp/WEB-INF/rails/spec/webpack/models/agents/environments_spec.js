@@ -17,7 +17,7 @@
 describe('Agent Environments Model', () => {
 
   const Environments = require('models/agents/environments');
-  const Agents = require('models/agents/agents');
+  const Agents       = require('models/agents/agents');
 
   require('jasmine-ajax');
 
@@ -44,8 +44,8 @@ describe('Agent Environments Model', () => {
     const checkedAgents = [{
       environments() {
         return [
-          new Agents.Agent.Environment({name: 'Test', associatedFromConfigRepo: true}),
-          new Agents.Agent.Environment({name: 'QA', associatedFromConfigRepo: false})
+          new Agents.Agent.Environment({name: 'Test', origin: {type: "config-repo"}}),
+          new Agents.Agent.Environment({name: 'QA', origin: {type: "gocd"}})
         ];
       },
       environmentNames() {
@@ -54,9 +54,9 @@ describe('Agent Environments Model', () => {
     }, {
       environments() {
         return [
-          new Agents.Agent.Environment({name: 'Test', associatedFromConfigRepo: false}),
-          new Agents.Agent.Environment({name: 'Dev', associatedFromConfigRepo: false}),
-          new Agents.Agent.Environment({name: 'QA', associatedFromConfigRepo: false})
+          new Agents.Agent.Environment({name: 'Test', origin: {type: "gocd"}}),
+          new Agents.Agent.Environment({name: 'Dev', origin: {type: "gocd"}}),
+          new Agents.Agent.Environment({name: 'QA', origin: {type: "gocd"}})
         ];
       },
       environmentNames() {

@@ -131,8 +131,34 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
               "agent_state"       : "Idle",
               "resources"         : [],
               "environments"      : [
-                [name: "env1", associated_from_config_repo: false],
-                [name: "env2", associated_from_config_repo: false]
+                [
+                  name  : "env1",
+                  origin: [
+                    type    : "gocd",
+                    "_links": [
+                      "self": [
+                        "href": "http://test.host/go/admin/config_xml"
+                      ],
+                      "doc" : [
+                        "href": apiDocsUrl("#get-configuration")
+                      ]
+                    ]
+                  ]
+                ],
+                [
+                  name  : "env2",
+                  origin: [
+                    type    : "gocd",
+                    "_links": [
+                      "self": [
+                        "href": "http://test.host/go/admin/config_xml"
+                      ],
+                      "doc" : [
+                        "href": apiDocsUrl("#get-configuration")
+                      ]
+                    ]
+                  ]
+                ]
               ],
               "build_state"       : "Idle"
             ]
@@ -190,8 +216,34 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
         "agent_state"       : "Idle",
         "resources"         : [],
         "environments"      : [
-          [name: "env1", associated_from_config_repo: false],
-          [name: "env2", associated_from_config_repo: false]
+          [
+            name  : "env1",
+            origin: [
+              type    : "gocd",
+              "_links": [
+                "self": [
+                  "href": "http://test.host/go/admin/config_xml"
+                ],
+                "doc" : [
+                  "href": apiDocsUrl("#get-configuration")
+                ]
+              ]
+            ]
+          ],
+          [
+            name  : "env2",
+            origin: [
+              type    : "gocd",
+              "_links": [
+                "self": [
+                  "href": "http://test.host/go/admin/config_xml"
+                ],
+                "doc" : [
+                  "href": apiDocsUrl("#get-configuration")
+                ]
+              ]
+            ]
+          ]
         ],
         "build_state"       : "Idle"
       ])
@@ -272,7 +324,22 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
         "agent_config_state": "Enabled",
         "agent_state"       : "Idle",
         "resources"         : ["java", "psql"],
-        "environments"      : [[name: "env1", associated_from_config_repo: false]],
+        "environments"      : [
+          [
+            name  : "env1",
+            origin: [
+              type    : "gocd",
+              "_links": [
+                "self": [
+                  "href": "http://test.host/go/admin/config_xml"
+                ],
+                "doc" : [
+                  "href": apiDocsUrl("#get-configuration")
+                ]
+              ]
+            ]
+          ]
+        ],
         "build_state"       : "Idle"
       ])
     }

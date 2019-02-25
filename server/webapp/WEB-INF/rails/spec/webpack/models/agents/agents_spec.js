@@ -197,9 +197,9 @@ describe('Agent Model', () => {
     });
 
     it("should sort based on agent's free space", () => {
-      const agents       = Agents.fromJSON(agentData);
-      const sortedAgents = agents.sortBy('freeSpace', 'asc');
-      const freeSpaceOfAgents = agents.collectAgentProperty('freeSpace');
+      const agents                  = Agents.fromJSON(agentData);
+      const sortedAgents            = agents.sortBy('freeSpace', 'asc');
+      const freeSpaceOfAgents       = agents.collectAgentProperty('freeSpace');
       const expectedFreeSpacesOrder = _.sortBy(freeSpaceOfAgents, (space) => parseInt(space));
 
       const freeSpacesOfSortedAgents = sortedAgents.collectAgentProperty('freeSpace');
@@ -270,9 +270,38 @@ describe('Agent Model', () => {
       "resources":          [
         "linux", "java"
       ],
-      "environments": [
-        {"name": "staging", "associated_from_config_repo": true},
-        {"name": "perf", "associated_from_config_repo": false}
+      "environments":       [
+        {
+          "name":   "staging",
+          "origin": {
+            "type":   "config-repo",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/api/admin/config_repos/Shields_up._I_recommend_we_transfer_power_to_phasers_and_arm_the_photon_torpedoes"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#config-repos"
+              },
+              "find": {
+                "href": "http://localhost:8153/go/api/admin/config_repos/:id"
+              }
+            }
+          }
+        },
+        {
+          "name":   "perf",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
       ],
       "build_details":      {
         "_links":   {
@@ -337,8 +366,21 @@ describe('Agent Model', () => {
       "agent_state":        "Missing",
       "build_state":        "Unknown",
       "resources":          ["zzzz"],
-      "environments": [
-        {"name": "prod", "associated_from_config_repo": false}
+      "environments":       [
+        {
+          "name":   "prod",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
       ]
     },
     {
@@ -363,8 +405,21 @@ describe('Agent Model', () => {
       "agent_state":        "LostContact",
       "build_state":        "Unknown",
       "resources":          [],
-      "environments": [
-        {"name": "ci", "associated_from_config_repo": false}
+      "environments":       [
+        {
+          "name":   "ci",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
       ]
     },
     {

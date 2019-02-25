@@ -94,8 +94,34 @@ class AgentsRepresenterTest {
             "agent_state"       : "Idle",
             "resources"         : [],
             "environments"      : [
-              [name: "load_test", associated_from_config_repo: false],
-              [name: "uat", associated_from_config_repo: false]
+              [
+                name  : "load_test",
+                origin: [
+                  type    : "gocd",
+                  "_links": [
+                    "self": [
+                      "href": "http://test.host/go/admin/config_xml"
+                    ],
+                    "doc" : [
+                      "href": apiDocsUrl("#get-configuration")
+                    ]
+                  ]
+                ]
+              ],
+              [
+                name  : "uat",
+                origin: [
+                  type    : "gocd",
+                  "_links": [
+                    "self": [
+                      "href": "http://test.host/go/admin/config_xml"
+                    ],
+                    "doc" : [
+                      "href": apiDocsUrl("#get-configuration")
+                    ]
+                  ]
+                ]
+              ]
             ],
             "build_state"       : "Idle"
           ],
@@ -121,7 +147,20 @@ class AgentsRepresenterTest {
             "agent_state"       : "Missing",
             "resources"         : [],
             "environments"      : [
-              [name: "unit", associated_from_config_repo: false]
+              [
+                name  : "unit",
+                origin: [
+                  type    : "gocd",
+                  "_links": [
+                    "self": [
+                      "href": "http://test.host/go/admin/config_xml"
+                    ],
+                    "doc" : [
+                      "href": apiDocsUrl("#get-configuration")
+                    ]
+                  ]
+                ]
+              ]
             ],
             "build_state"       : "Unknown"
           ],
@@ -149,8 +188,34 @@ class AgentsRepresenterTest {
               "java"
             ],
             "environments"      : [
-              [name: "functional_test", associated_from_config_repo: false],
-              [name: "integration", associated_from_config_repo: false]
+              [
+                name  : "functional_test",
+                origin: [
+                  type    : "gocd",
+                  "_links": [
+                    "self": [
+                      "href": "http://test.host/go/admin/config_xml"
+                    ],
+                    "doc" : [
+                      "href": apiDocsUrl("#get-configuration")
+                    ]
+                  ]
+                ]
+              ],
+              [
+                name  : "integration",
+                origin: [
+                  type    : "gocd",
+                  "_links": [
+                    "self": [
+                      "href": "http://test.host/go/admin/config_xml"
+                    ],
+                    "doc" : [
+                      "href": apiDocsUrl("#get-configuration")
+                    ]
+                  ]
+                ]
+              ]
             ],
             "build_state"       : "Building",
             "build_details"     : [

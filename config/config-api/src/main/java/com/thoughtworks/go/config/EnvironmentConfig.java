@@ -16,12 +16,14 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -108,4 +110,5 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
 
     boolean validateTree(ConfigSaveValidationContext validationContext, CruiseConfig preprocessedConfig);
 
+    Optional<ConfigOrigin> originForAgent(String agentUuid);
 }

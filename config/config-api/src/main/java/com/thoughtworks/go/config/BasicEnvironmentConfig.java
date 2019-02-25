@@ -84,6 +84,14 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
         return isValid;
     }
 
+    @Override
+    public Optional<ConfigOrigin> originForAgent(String agentUuid) {
+        if (this.hasAgent(agentUuid)) {
+            return Optional.of(this.getOrigin());
+        }
+        return Optional.empty();
+    }
+
     private String displayNameFor(ConfigOrigin origin) {
         return origin != null ? origin.displayName() : "cruise-config.xml";
     }

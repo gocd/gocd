@@ -530,8 +530,34 @@ describe("Agents Widget", () => {
         "Firefox"
       ],
       "environments": [
-        {"name": "Dev", "associated_from_config_repo": false},
-        {"name": "Test", "associated_from_config_repo": false}
+        {
+          "name": "Dev",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        },
+        {
+          "name": "Test",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
       ],
       "build_details":      {
         "_links":   {
@@ -575,7 +601,20 @@ describe("Agents Widget", () => {
         "Chrome"
       ],
       "environments": [
-        {"name": "Test", "associated_from_config_repo": false}
+        {
+          "name": "Test",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
       ]
     }
   ];

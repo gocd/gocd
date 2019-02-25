@@ -77,17 +77,17 @@ const Agents = function (data) {
   this.sortBy = function (attrName, order) {
     let sortedAgents;
 
-    switch(attrName) {
-    case 'agentState':
-      sortedAgents = this.sortByAgents(statusComparator);
-      break;
-    case 'freeSpace':
-      sortedAgents = this.sortByAgents(freeSpaceComparator);
-      break;
-    default:
-      sortedAgents = this.sortByAgents(sortByAttrName(attrName));
+    switch (attrName) {
+      case 'agentState':
+        sortedAgents = this.sortByAgents(statusComparator);
+        break;
+      case 'freeSpace':
+        sortedAgents = this.sortByAgents(freeSpaceComparator);
+        break;
+      default:
+        sortedAgents = this.sortByAgents(sortByAttrName(attrName));
     }
-    
+
     if (order === 'desc') {
       sortedAgents = _.reverse(sortedAgents);
     }
@@ -333,8 +333,12 @@ Agents.Agent.Environment = function (data) {
   if (this.isEmpty()) {
     return;
   }
-  this.name                     = Stream(data.name);
-  this.associatedFromConfigRepo = Stream(data.associatedFromConfigRepo);
+  this.name       = Stream(data.name);
+  this.originType = Stream(data.origin.type);
+
+  this.associatedFromConfigRepo = () => {
+    return this.originType() === "config-repo";
+  };
 };
 
 Agents.Agent.Environment.fromJSON = (data) => {
@@ -342,8 +346,8 @@ Agents.Agent.Environment.fromJSON = (data) => {
     return new Agents.Agent.Environment();
   } else {
     return new Agents.Agent.Environment({
-      name:                     data.name,
-      associatedFromConfigRepo: data.associated_from_config_repo,
+      name:   data.name,
+      origin: data.origin
     });
   }
 };

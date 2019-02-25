@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.apiv5.agents.representers
 
-
+import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.server.domain.Username
@@ -55,7 +55,7 @@ class AgentRepresenterTest {
   void 'renders an agent with hal representation'() {
     AgentInstance agentInstance = idleWith("some-uuid", "agent01.example.com", "127.0.0.1", "/var/lib/go-server", 10l, "Linux", Arrays.asList("linux", "firefox"))
     def envFromConfigRepo = environment("dev")
-    envFromConfigRepo.setOrigins(new RepoConfigOrigin())
+    envFromConfigRepo.setOrigins(new RepoConfigOrigin(new ConfigRepoConfig(null, "yaml", "foo"), "revision"))
     envFromConfigRepo.addAgent("some-uuid")
     def json = toObjectString({
       def environments = Stream.of(environment("uat"), environment("load_test"), envFromConfigRepo)
@@ -86,16 +86,49 @@ class AgentRepresenterTest {
       "resources"         : ["firefox", "linux"],
       "environments"      : [
         [
-          name                       : "dev",
-          associated_from_config_repo: true
+          name  : "dev",
+          origin: [
+            type    : "config-repo",
+            "_links": [
+              "self": [
+                "href": "http://test.host/go/api/admin/config_repos/foo"
+              ],
+              "doc" : [
+                "href": apiDocsUrl("#config-repos")
+              ],
+              "find": [
+                "href": "http://test.host/go/api/admin/config_repos/:id"
+              ]
+            ]
+          ]
         ],
         [
-          name                       : "load_test",
-          associated_from_config_repo: false
+          name  : "load_test",
+          origin: [
+            type    : "gocd",
+            "_links": [
+              "self": [
+                "href": "http://test.host/go/admin/config_xml"
+              ],
+              "doc" : [
+                "href": apiDocsUrl("#get-configuration")
+              ]
+            ]
+          ]
         ],
         [
-          name                       : "uat",
-          associated_from_config_repo: false
+          name  : "uat",
+          origin: [
+            type    : "gocd",
+            "_links": [
+              "self": [
+                "href": "http://test.host/go/admin/config_xml"
+              ],
+              "doc" : [
+                "href": apiDocsUrl("#get-configuration")
+              ]
+            ]
+          ]
         ]
       ],
       "build_state"       : "Idle"

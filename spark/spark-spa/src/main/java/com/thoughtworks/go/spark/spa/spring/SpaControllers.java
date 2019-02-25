@@ -48,7 +48,7 @@ public class SpaControllers implements SparkSpringController {
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
 
 
-        sparkControllers.add(new AccessTokensController(authenticationHelper, featureToggleService, templateEngineFactory.create(AccessTokensController.class, () -> COMPONENT_LAYOUT_PATH)));
+        sparkControllers.add(new AccessTokensController(authenticationHelper, templateEngineFactory.create(AccessTokensController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new ArtifactStoresController(authenticationHelper, templateEngineFactory.create(ArtifactStoresController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new AuthConfigsController(authenticationHelper, templateEngineFactory.create(AuthConfigsController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new UsersController(authenticationHelper, templateEngineFactory.create(UsersController.class, () -> COMPONENT_LAYOUT_PATH)));

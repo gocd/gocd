@@ -37,15 +37,14 @@ $(() => {
       return JSON.parse(body.getAttribute(attribute) as string);
     }
 
-    const showAnalyticsDashboard       = extractBoolean(body, "data-show-analytics-dashboard");
-    const canViewAdminPage             = extractBoolean(body, "data-can-user-view-admin");
-    const isUserAdmin                  = extractBoolean(body, "data-is-user-admin");
-    const isGroupAdmin                 = extractBoolean(body, "data-is-user-group-admin");
-    const canViewTemplates             = extractBoolean(body, "data-can-user-view-templates");
-    const isAnonymous                  = extractBoolean(body, "data-user-anonymous");
-    const isServerInMaintenanceMode    = extractBoolean(body, "data-is-server-in-maintenance-mode");
-    const userDisplayName              = body.getAttribute("data-user-display-name") || "";
-    const enablePersonalAccessTokenSPA = extractBoolean(body, "data-enable-personal-access-token-spa");
+    const showAnalyticsDashboard    = extractBoolean(body, "data-show-analytics-dashboard");
+    const canViewAdminPage          = extractBoolean(body, "data-can-user-view-admin");
+    const isUserAdmin               = extractBoolean(body, "data-is-user-admin");
+    const isGroupAdmin              = extractBoolean(body, "data-is-user-group-admin");
+    const canViewTemplates          = extractBoolean(body, "data-can-user-view-templates");
+    const isAnonymous               = extractBoolean(body, "data-user-anonymous");
+    const isServerInMaintenanceMode = extractBoolean(body, "data-is-server-in-maintenance-mode");
+    const userDisplayName           = body.getAttribute("data-user-display-name") || "";
 
     const footerData = {
       isServerInMaintenanceMode,
@@ -59,8 +58,7 @@ $(() => {
       isGroupAdmin,
       canViewTemplates,
       userDisplayName,
-      isAnonymous,
-      enablePersonalAccessTokenSPA
+      isAnonymous
     } as Attrs;
 
     const menuMountPoint = document.querySelector("#app-menu");

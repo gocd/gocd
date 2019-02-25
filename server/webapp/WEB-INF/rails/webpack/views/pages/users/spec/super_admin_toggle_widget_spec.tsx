@@ -31,13 +31,15 @@ describe("Super Admin Toggle", () => {
   let user: User,
       noAdminsConfigured: Stream<boolean>,
       onRemoveAdmin: (user: User, e: MouseEvent) => void,
-      onMakeAdmin: (user: User, e: MouseEvent) => void;
+      onMakeAdmin: (user: User, e: MouseEvent) => void,
+      systemAdminUsers: Stream<string[]>;
 
   beforeEach(() => {
     user               = bob();
     onMakeAdmin        = jasmine.createSpy("onMakeAdmin");
     onRemoveAdmin      = jasmine.createSpy("onRemoveAdmin");
     noAdminsConfigured = stream(false);
+    systemAdminUsers   = stream([bob().loginName()]);
 
     // @ts-ignore
     [$root, root] = window.createDomElementForTest();
@@ -116,7 +118,8 @@ describe("Super Admin Toggle", () => {
   });
 
   it("should render tooltip if user is admin because of the role", () => {
-    user.isIndividualAdmin(false);
+    systemAdminUsers([]);
+
     m.redraw();
 
     const expectedTooltipContent = "'bob' user has the system administrator privileges because the user is assigned the group administrative role. To remove this user from system administrators, assigned role needs to be removed.";
@@ -126,7 +129,8 @@ describe("Super Admin Toggle", () => {
   });
 
   it("should disable switch if user is admin because of the role", () => {
-    user.isIndividualAdmin(false);
+    systemAdminUsers([]);
+
     m.redraw();
 
     expect(find("switch-checkbox").prop("disabled")).toBe(true);
@@ -139,7 +143,8 @@ describe("Super Admin Toggle", () => {
           <SuperAdminPrivilegeSwitch user={user}
                                      noAdminsConfigured={noAdminsConfigured}
                                      onRemoveAdmin={onRemoveAdmin}
-                                     onMakeAdmin={onMakeAdmin}/>
+                                     onMakeAdmin={onMakeAdmin}
+                                     systemAdminUsers={systemAdminUsers}/>
         );
       }
     });
@@ -162,7 +167,6 @@ describe("Super Admin Toggle", () => {
                            display_name: "Bob",
                            login_name: "bob",
                            is_admin: true,
-                           is_individual_admin: true,
                            email_me: true,
                            checkin_aliases: ["bob@gmail.com"],
                            enabled: true

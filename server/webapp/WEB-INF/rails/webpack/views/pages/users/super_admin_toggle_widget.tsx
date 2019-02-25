@@ -35,6 +35,7 @@ interface RemoveAdminOperation<T> {
 export interface SuperAdminPrivilegeSwitchAttrs extends MakeAdminOperation<User>, RemoveAdminOperation<User> {
   user: User;
   noAdminsConfigured: Stream<boolean>;
+  systemAdminUsers: Stream<string[]>;
 }
 
 export interface State {
@@ -69,7 +70,7 @@ export class SuperAdminPrivilegeSwitch extends MithrilComponent<SuperAdminPrivil
       optionalTooltip = (<Tooltip.Info size={TooltipSize.small}
                                        content={`Explicitly making '${loginName}' user a system administrator will result into other users not having system administrator privileges.`}/>);
       isAdminText     = "Not Specified";
-    } else if (vnode.attrs.user.isAdmin() && !vnode.attrs.user.isIndividualAdmin()) {
+    } else if (vnode.attrs.user.isAdmin() && !vnode.attrs.user.isIndividualAdmin(vnode.attrs.systemAdminUsers())) {
       optionalTooltip = (<Tooltip.Info size={TooltipSize.small}
                                        content={`'${loginName}' user has the system administrator privileges because the user is assigned the group administrative role. To remove this user from system administrators, assigned role needs to be removed.`}/>);
     }
@@ -77,7 +78,7 @@ export class SuperAdminPrivilegeSwitch extends MithrilComponent<SuperAdminPrivil
     return <div class={styles.adminSwitchWrapper} data-test-id="admin-switch-wrapper">
       <SwitchBtn field={vnode.state.isAdmin}
                  small={true}
-                 disabled={vnode.attrs.user.isAdmin() && !vnode.attrs.user.isIndividualAdmin()}
+                 disabled={vnode.attrs.user.isAdmin() && !vnode.attrs.user.isIndividualAdmin(vnode.attrs.systemAdminUsers())}
                  onclick={vnode.state.onToggleClick.bind(vnode.state)}/>
       <span class={styles.isAdminText} data-test-id="is-admin-text">{isAdminText}</span>
       {optionalTooltip}

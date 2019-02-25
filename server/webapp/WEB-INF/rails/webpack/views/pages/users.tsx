@@ -40,6 +40,8 @@ const CLEAR_USER_UPDATE_STATUS = 10;
 
 interface State extends UserActionsState, AddOperation<Users>, UsersWidgetState {
   initialUsers: Stream<Users>;
+  systemAdminRoles: Stream<string[]>;
+  systemAdminUsers: Stream<string[]>;
 }
 
 export class UsersPage extends Page<null, State> {
@@ -48,6 +50,9 @@ export class UsersPage extends Page<null, State> {
     vnode.state.noAdminsConfigured = stream(false);
 
     vnode.state.initialUsers   = stream(new Users());
+    vnode.state.systemAdminRoles = stream();
+    vnode.state.systemAdminUsers = stream();
+
     vnode.state.userFilters    = stream(new UserFilters());
     vnode.state.roles          = stream(new Roles());
     vnode.state.rolesSelection = stream(new Map<GoCDRole, TriStateCheckbox>());
@@ -210,10 +215,10 @@ export class UsersPage extends Page<null, State> {
 
   private resolveAllAdminsPromise(vnode: m.Vnode<null, State>, adminsResult: ApiResult<any>) {
     adminsResult.do((successResponse) => {
-      const roles = (JSON.parse(successResponse.body).roles as string[]);
-      const users = (JSON.parse(successResponse.body).users as string[]);
+      vnode.state.systemAdminRoles(JSON.parse(successResponse.body).roles as string[]);
+      vnode.state.systemAdminUsers(JSON.parse(successResponse.body).users as string[]);
 
-      const noAdminsConfigured = ((roles.length === 0) && (users.length === 0));
+      const noAdminsConfigured = ((vnode.state.systemAdminRoles().length === 0) && (vnode.state.systemAdminUsers().length === 0));
       vnode.state.noAdminsConfigured(noAdminsConfigured);
       this.pageState = PageState.OK;
     }, (errorResponse) => {

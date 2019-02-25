@@ -41,14 +41,12 @@ describe("UserSearchModal", () => {
                          display_name: "Bob",
                          login_name: "bob",
                          is_admin: true,
-                         is_individual_admin: true,
                          email: "bob@example.com"
                        },
                        {
                          display_name: "Alice",
                          login_name: "alice",
                          is_admin: true,
-                         is_individual_admin: false,
                          email: "alice@example.com"
                        }
                      ]);

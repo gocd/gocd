@@ -35,25 +35,19 @@ import com.thoughtworks.go.domain.User;
 public class UserToRepresent extends User {
     private final boolean isAdmin;
     private final RolesConfig rolesConfig;
-    private final boolean isIndividualAdmin;
 
-    private UserToRepresent(User user, boolean isAdmin, boolean isIndividualAdmin, RolesConfig rolesConfig) {
+    private UserToRepresent(User user, boolean isAdmin, RolesConfig rolesConfig) {
         super(user);
         this.isAdmin = isAdmin;
-        this.isIndividualAdmin = isIndividualAdmin;
         this.rolesConfig = (rolesConfig == null) ? new RolesConfig() : rolesConfig;
     }
 
-    public static UserToRepresent from(User user, boolean isAdmin, boolean isIndividualAdmin, RolesConfig rolesConfig) {
-        return new UserToRepresent(user, isAdmin, isIndividualAdmin, rolesConfig);
+    public static UserToRepresent from(User user, boolean isAdmin, RolesConfig rolesConfig) {
+        return new UserToRepresent(user, isAdmin, rolesConfig);
     }
 
     public boolean isAdmin() {
         return this.isAdmin;
-    }
-
-    public boolean isIndividualAdmin() {
-        return this.isIndividualAdmin;
     }
 
     public RolesConfig getRoles() {

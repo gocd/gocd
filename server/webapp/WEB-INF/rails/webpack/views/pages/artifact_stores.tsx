@@ -16,8 +16,8 @@
 
 import * as m from "mithril";
 import stream = require("mithril/stream");
-import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {ArtifactStore, ArtifactStores} from "models/artifact_stores/artifact_stores";
+import {ArtifactStoresCRUD} from "models/artifact_stores/artifact_stores_crud";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {PluginInfoCRUD} from "models/shared/plugin_infos_new/plugin_info_crud";

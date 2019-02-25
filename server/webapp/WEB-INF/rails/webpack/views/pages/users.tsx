@@ -15,11 +15,11 @@
  */
 
 import * as m from "mithril";
-import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {AdminsCRUD, BulkUpdateSystemAdminJSON} from "models/admins/admin_crud";
-import {RolesCRUD} from "models/roles/roles_crud";
 import {BulkUserRoleUpdateJSON, GoCDAttributes, GoCDRole, Roles} from "models/roles/roles";
+import {RolesCRUD} from "models/roles/roles_crud";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {computeBulkUpdateRolesJSON, computeRolesSelection} from "models/users/role_selection";
 import {UserFilters} from "models/users/user_filters";
@@ -141,14 +141,16 @@ export class UsersPage extends Page<null, State> {
       vnode.state.showRoles(false);
     };
 
-    vnode.state.users = () => vnode.state.userFilters().performFilteringOn(vnode.state.initialUsers()).sortedByUsername();
+    vnode.state.users = () => vnode.state.userFilters()
+                                   .performFilteringOn(vnode.state.initialUsers())
+                                   .sortedByUsername();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     let bannerToDisplay;
     if (vnode.state.noAdminsConfigured()) {
       bannerToDisplay = (<FlashMessage type={MessageType.warning}
-                                       message='There are currently no administrators defined in the configuration. This makes everyone an administrator. We recommend that you explicitly make user a system administrator.'/>);
+                                       message="There are currently no administrators defined in the configuration. This makes everyone an administrator. We recommend that you explicitly make user a system administrator."/>);
     }
 
     return (
@@ -240,18 +242,18 @@ export class UsersPage extends Page<null, State> {
 
   private bulkUpdateSystemAdmins(vnode: m.Vnode<null, State>, json: BulkUpdateSystemAdminJSON): void {
     AdminsCRUD.bulkUpdate(json)
-             .then((apiResult) => {
-               apiResult.do((successResponse) => {
-                 this.pageState = PageState.OK;
-                 this.flashMessage.setMessage(MessageType.success,
-                                              `Users were updated successfully!`);
-                 this.fetchData(vnode);
-               }, (errorResponse) => {
-                 // vnode.state.onError(errorResponse.message);
-                 this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-                 this.fetchData(vnode);
-               });
-             });
+              .then((apiResult) => {
+                apiResult.do((successResponse) => {
+                  this.pageState = PageState.OK;
+                  this.flashMessage.setMessage(MessageType.success,
+                                               `Users were updated successfully!`);
+                  this.fetchData(vnode);
+                }, (errorResponse) => {
+                  // vnode.state.onError(errorResponse.message);
+                  this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                  this.fetchData(vnode);
+                });
+              });
   }
 
   private bulkUpdateExistingRolesOnUsers(vnode: m.Vnode<null, State>, bulkUpdateJSON: BulkUserRoleUpdateJSON) {

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
 import {AuthConfig, AuthConfigJSON} from "models/auth_configs/auth_configs";
+import {AuthConfigsCRUD} from "models/auth_configs/auth_configs_crud";
 import {TestData} from "models/auth_configs/spec/test_data";
 
 describe("AuthorizationConfigurationCRUD", () => {

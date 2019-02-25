@@ -23,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.HaltException;
 
+import java.io.IOException;
+
 import static spark.Spark.halt;
 
 @Component
@@ -37,11 +39,6 @@ public class SPAAuthenticationHelper extends AbstractAuthenticationHelper {
     @Override
     protected HaltException renderForbiddenResponse() {
         return halt(403, HtmlErrorPage.errorPage(403, "Forbidden"));
-    }
-
-    @Override
-    public HaltException renderNotFoundResponse() {
-        return halt(404, HtmlErrorPage.errorPage(404, "Not Found"));
     }
 
 }

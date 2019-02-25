@@ -32,27 +32,21 @@ export interface Attrs {
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
   showAnalyticsDashboard: boolean;
-  enablePersonalAccessTokenSPA: boolean;
 }
 
 export class SiteHeader extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    const showAnalyticsDashboard       = vnode.attrs.showAnalyticsDashboard;
-    const canViewAdminPage             = vnode.attrs.canViewAdminPage;
-    const isUserAdmin                  = vnode.attrs.isUserAdmin;
-    const isGroupAdmin                 = vnode.attrs.isGroupAdmin;
-    const canViewTemplates             = vnode.attrs.canViewTemplates;
-    const userDisplayName              = vnode.attrs.userDisplayName;
-    const isAnonymous                  = vnode.attrs.isAnonymous;
-    const enablePersonalAccessTokenSPA = vnode.attrs.enablePersonalAccessTokenSPA;
+    const showAnalyticsDashboard = vnode.attrs.showAnalyticsDashboard;
+    const canViewAdminPage       = vnode.attrs.canViewAdminPage;
+    const isUserAdmin            = vnode.attrs.isUserAdmin;
+    const isGroupAdmin           = vnode.attrs.isGroupAdmin;
+    const canViewTemplates       = vnode.attrs.canViewTemplates;
+    const userDisplayName        = vnode.attrs.userDisplayName;
+    const isAnonymous            = vnode.attrs.isAnonymous;
 
     let userMenu: m.Children = null;
 
     if (!isAnonymous) {
-      let personalAccessTokenItem;
-      if (enablePersonalAccessTokenSPA) {
-        personalAccessTokenItem = <SiteSubNavItem href="/go/access_tokens" text="Personal Access Tokens"/>;
-      }
       userMenu = (
         <div data-test-id="user-menu" class={classnames(styles.user, styles.isDropDown)}>
           <a data-test-id="username" href="#" class={styles.userLink}>
@@ -63,7 +57,7 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
 
           <ul class={styles.userSubnav}>
             <SiteSubNavItem href="/go/preferences/notifications" text="Preferences"/>
-            {personalAccessTokenItem}
+            <SiteSubNavItem href="/go/access_tokens" text="Personal Access Tokens"/>
             <SiteSubNavItem href="/go/auth/logout" text="Sign out"/>
           </ul>
         </div>

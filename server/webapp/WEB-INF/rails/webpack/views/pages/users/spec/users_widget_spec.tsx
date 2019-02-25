@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
-import {GoCDRole, Roles} from "models/roles/roles_new";
+import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";

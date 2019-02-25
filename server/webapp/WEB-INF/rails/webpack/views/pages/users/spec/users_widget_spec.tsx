@@ -22,7 +22,7 @@ import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
 import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
-import {State, UsersWidget} from "views/pages/users/users_widget";
+import {State, UpdateOperationStatus, UsersWidget} from "views/pages/users/users_widget";
 
 describe("UsersWidget", () => {
   const helper      = new TestHelper();
@@ -48,7 +48,8 @@ describe("UsersWidget", () => {
       onMakeAdmin: _.noop,
       onRemoveAdmin: _.noop,
       noAdminsConfigured: stream(false),
-      systemAdminUsers: stream([bob().loginName()])
+      systemAdminUsers: stream([bob().loginName()]),
+      userViewStates: {}
     };
   });
 
@@ -109,21 +110,33 @@ describe("UsersWidget", () => {
   });
 
   it("should render in progress icon if update operation is in progress", () => {
-    attrs.users()[0].markUpdateInprogress();
+    const user = attrs.users()[0];
+    attrs.userViewStates[user.loginName()] = {
+      updateOperationStatus: UpdateOperationStatus.IN_PROGRESS
+    };
+
     helper.remount();
 
     expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "Spinner-icon")).toBeInDOM();
   });
 
   it("should render success icon is update operation is successful", () => {
-    attrs.users()[0].markUpdateSuccessful();
+    const user = attrs.users()[0];
+    attrs.userViewStates[user.loginName()] = {
+      updateOperationStatus: UpdateOperationStatus.SUCCESS
+    };
+
     helper.remount();
 
     expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-successful")).toBeInDOM();
   });
 
   it("should render error icon if update operation is unsuccessful", () => {
-    attrs.users()[0].markUpdateUnsuccessful();
+    const user = attrs.users()[0];
+    attrs.userViewStates[user.loginName()] = {
+      updateOperationStatus: UpdateOperationStatus.ERROR
+    };
+
     helper.remount();
 
     expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-unsuccessful")).toBeInDOM();
@@ -131,7 +144,12 @@ describe("UsersWidget", () => {
 
   it("should display error message", () => {
     const errorMessage = "There was some error while updating the record.";
-    attrs.users()[0].updateOperationErrorMessage(errorMessage);
+    const user = attrs.users()[0];
+    attrs.userViewStates[user.loginName()] = {
+      updateOperationStatus: UpdateOperationStatus.ERROR,
+      updateOperationErrorMessage: errorMessage
+    };
+
     helper.remount();
 
     expect(helper.findByDataTestId("user-update-error-message")).toBeInDOM();

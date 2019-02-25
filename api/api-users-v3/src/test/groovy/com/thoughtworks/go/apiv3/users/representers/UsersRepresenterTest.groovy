@@ -45,19 +45,19 @@ class UsersRepresenterTest {
       _embedded: [
         users: [
           [
-            login_name         : "Bob",
-            display_name       : "Bob",
-            enabled            : true,
-            email_me           : true,
-            is_admin           : true,
-            email              : "Bob@no-reply.com",
-            roles              : [
+            login_name     : "Bob",
+            display_name   : "Bob",
+            enabled        : true,
+            email_me       : true,
+            is_admin       : true,
+            email          : "Bob@no-reply.com",
+            roles          : [
               [
                 name: 'gocdRole',
                 type: 'gocd',
               ]
             ],
-            checkin_aliases    : ['Bob', 'awesome']
+            checkin_aliases: ['Bob', 'awesome']
           ]
         ]
       ]

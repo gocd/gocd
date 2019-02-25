@@ -56,7 +56,7 @@ describe("Users Model", () => {
   });
 
   it("should return all users sorted by usernames", () => {
-    const users = Users.fromJSON(usersJSON());
+    const users       = Users.fromJSON(usersJSON());
     const sortedUsers = users.sortedByUsername();
     expect(sortedUsers[0].loginName()).toBe("admin");
     expect(sortedUsers[1].loginName()).toBe("cruise_admin");
@@ -65,6 +65,17 @@ describe("Users Model", () => {
     expect(sortedUsers[4].loginName()).toBe("operate");
     expect(sortedUsers[5].loginName()).toBe("root");
     expect(sortedUsers[6].loginName()).toBe("view");
+  });
+
+  it("should remove user by username", () => {
+    const users = Users.fromJSON(usersJSON());
+
+    users.removeUser("cruise_admin");
+
+    expect(users.length).toBe(6);
+
+    const deletedUser = users.find((user) => user.loginName() === "cruise_admin");
+    expect(deletedUser).toBe(undefined);
   });
 
   describe("Users Selection", () => {

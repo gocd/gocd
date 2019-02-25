@@ -33,7 +33,7 @@ import {Page, PageState} from "views/pages/page";
 import {AddOperation} from "views/pages/page_operations";
 import {UserSearchModal} from "views/pages/users/add_user_modal";
 import {State as UserActionsState} from "views/pages/users/user_actions_widget";
-import {State as UsersWidgetState} from "views/pages/users/users_widget";
+import {State as UsersWidgetState, UpdateOperationStatus} from "views/pages/users/users_widget";
 import {UsersWidget} from "views/pages/users/users_widget";
 
 const CLEAR_USER_UPDATE_STATUS = 10;
@@ -49,13 +49,14 @@ export class UsersPage extends Page<null, State> {
     super.oninit(vnode);
     vnode.state.noAdminsConfigured = stream(false);
 
-    vnode.state.initialUsers   = stream(new Users());
+    vnode.state.initialUsers     = stream(new Users());
     vnode.state.systemAdminRoles = stream();
     vnode.state.systemAdminUsers = stream();
 
     vnode.state.userFilters    = stream(new UserFilters());
     vnode.state.roles          = stream(new Roles());
     vnode.state.rolesSelection = stream(new Map<GoCDRole, TriStateCheckbox>());
+    vnode.state.userViewStates = {};
 
     vnode.state.showFilters   = stream(false);
     vnode.state.showRoles     = stream(false);
@@ -105,7 +106,9 @@ export class UsersPage extends Page<null, State> {
     };
 
     vnode.state.onMakeAdmin = (user) => {
-      user.markUpdateInprogress();
+      vnode.state.userViewStates[user.loginName()] = {
+        updateOperationStatus: UpdateOperationStatus.IN_PROGRESS
+      };
 
       const json = {
         operations: {
@@ -118,7 +121,9 @@ export class UsersPage extends Page<null, State> {
     };
 
     vnode.state.onRemoveAdmin = (user, e) => {
-      user.markUpdateInprogress();
+      vnode.state.userViewStates[user.loginName()] = {
+        updateOperationStatus: UpdateOperationStatus.IN_PROGRESS
+      };
       const json = {
         operations: {
           users: {
@@ -227,9 +232,10 @@ export class UsersPage extends Page<null, State> {
     });
   }
 
-  private resolveGetUserPromise(userResult: ApiResult<any>, user: User): void {
+  private resolveGetUserPromise(vnode: m.Vnode<null, State>, userResult: ApiResult<any>, user: User): void {
     userResult.do((successResponse) => {
-                    user.updateFromJSON(successResponse.body);
+                    vnode.state.initialUsers().removeUser(user.loginName());
+                    vnode.state.initialUsers().push(User.fromJSON(successResponse.body));
                     this.pageState = PageState.OK;
                   }, (errorResponse) => {
                     this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
@@ -273,32 +279,33 @@ export class UsersPage extends Page<null, State> {
     AdminsCRUD.bulkUpdate(json)
               .then((apiResult) => {
                 apiResult.do((successResponse) => {
-                  user.markUpdateSuccessful();
+                  vnode.state.userViewStates[user.loginName()] = {
+                    updateOperationStatus: UpdateOperationStatus.SUCCESS
+                  };
 
                   setTimeout(() => {
-                    user.clearUpdateStatus();
-                    user.updateOperationErrorMessage(null);
+                    delete vnode.state.userViewStates[user.loginName()];
                   }, CLEAR_USER_UPDATE_STATUS * 1000);
 
                   Promise.all([AdminsCRUD.all(), UsersCRUD.get(user.loginName())]).then((args) => {
                     this.resolveAllAdminsPromise(vnode, args[0]);
-                    this.resolveGetUserPromise(args[1], user);
+                    this.resolveGetUserPromise(vnode, args[1], user);
                   });
 
                   this.pageState = PageState.OK;
                 }, (errorResponse) => {
-                  user.markUpdateUnsuccessful();
+                  vnode.state.userViewStates[user.loginName()] = {
+                    updateOperationStatus: UpdateOperationStatus.ERROR,
+                    updateOperationErrorMessage: errorResponse.message
+                  };
 
                   setTimeout(() => {
-                    user.clearUpdateStatus();
-                    user.updateOperationErrorMessage(null);
+                    delete vnode.state.userViewStates[user.loginName()];
                   }, CLEAR_USER_UPDATE_STATUS * 1000);
-
-                  user.updateOperationErrorMessage(errorResponse.message);
 
                   Promise.all([AdminsCRUD.all(), UsersCRUD.get(user.loginName())]).then((args) => {
                     this.resolveAllAdminsPromise(vnode, args[0]);
-                    this.resolveGetUserPromise(args[1], user);
+                    this.resolveGetUserPromise(vnode, args[1], user);
                   });
 
                   // vnode.state.onError(errorResponse.message);

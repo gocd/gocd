@@ -54,12 +54,8 @@ export interface UserJSON {
   roles?: UserRoleJSON[];
 }
 
-export enum UpdateOperationStatus {
-  IN_PROGRESS, SUCCESS, ERROR
-}
-
 export class User {
-  checked: Stream<boolean>                                    = stream(false);
+  checked: Stream<boolean> = stream(false);
   loginName: Stream<string>;
   isAdmin: Stream<boolean>;
   displayName: Stream<string>;
@@ -68,8 +64,6 @@ export class User {
   enabled: Stream<boolean>;
   checkinAliases: Stream<string[]>;
   roles: Stream<UserRoleJSON[]>;
-  updateOperationStatus: Stream<UpdateOperationStatus | null> = stream();
-  updateOperationErrorMessage: Stream<string | null>          = stream();
 
   constructor(json: UserJSON) {
     this.loginName      = stream(json.login_name);
@@ -115,46 +109,8 @@ export class User {
     return _(this.roles()).filter((role) => "gocd" !== role.type).map((role) => role.name).value();
   }
 
-  markUpdateInprogress() {
-    this.updateOperationStatus(UpdateOperationStatus.IN_PROGRESS);
-  }
-
-  markUpdateSuccessful() {
-    this.updateOperationStatus(UpdateOperationStatus.SUCCESS);
-  }
-
-  markUpdateUnsuccessful() {
-    this.updateOperationStatus(UpdateOperationStatus.ERROR);
-  }
-
-  clearUpdateStatus() {
-    this.updateOperationStatus(null);
-  }
-
   isIndividualAdmin(systemAdminUsers: string[]) {
     return systemAdminUsers.includes(this.loginName());
-  }
-
-  updateFromJSON(json: UserJSON) {
-    this.isAdmin(json.is_admin);
-    if (json.display_name) {
-      this.displayName(json.display_name);
-    }
-    if (json.enabled !== undefined) {
-      this.enabled(json.enabled);
-    }
-    if (json.email) {
-      this.email(json.email);
-    }
-    if (json.email_me) {
-      this.emailMe(json.email_me);
-    }
-    if (json.checkin_aliases) {
-      this.checkinAliases(json.checkin_aliases);
-    }
-    if (json.roles) {
-      this.roles(json.roles);
-    }
   }
 }
 
@@ -204,6 +160,13 @@ export class Users extends Array<User> {
     return new Users(...(_.orderBy(this, (user) => {
       return user.loginName();
     })));
+  }
+
+  removeUser(username: string) {
+    const index = this.findIndex((user) => {
+      return user.loginName() === username;
+    });
+    this.splice(index, 1);
   }
 
   private enabledUsers() {

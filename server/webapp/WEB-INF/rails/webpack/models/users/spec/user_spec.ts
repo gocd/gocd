@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {UpdateOperationStatus, User, UserJSON} from "models/users/users";
+import {User, UserJSON} from "models/users/users";
 
 describe("User Model", () => {
   it("should tell if search text is matching with any user information", () => {
@@ -35,62 +35,6 @@ describe("User Model", () => {
   it("should return all plugin roles", () => {
     const user = User.fromJSON(userJSON());
     expect(user.pluginRoles()).toEqual(["plugin role"]);
-  });
-
-  it("should mark update operation status as in_progress", () => {
-    const user = User.fromJSON(userJSON());
-
-    user.markUpdateInprogress();
-
-    expect(user.updateOperationStatus()).toEqual(UpdateOperationStatus.IN_PROGRESS);
-  });
-
-  it("should mark update operation status as success", () => {
-    const user = User.fromJSON(userJSON());
-
-    user.markUpdateSuccessful();
-
-    expect(user.updateOperationStatus()).toEqual(UpdateOperationStatus.SUCCESS);
-  });
-
-  it("should mark update operation status as error", () => {
-    const user = User.fromJSON(userJSON());
-
-    user.markUpdateUnsuccessful();
-
-    expect(user.updateOperationStatus()).toEqual(UpdateOperationStatus.ERROR);
-  });
-
-  it("should clear update status", () => {
-    const user = User.fromJSON(userJSON());
-
-    user.clearUpdateStatus();
-
-    expect(user.updateOperationStatus()).toEqual(null);
-  });
-
-  it("should update user from json", () => {
-    const user = User.fromJSON(userJSON());
-    const json = {
-      login_name: "Administrator",
-      is_admin: false,
-      enabled: false,
-      display_name: "Testing update",
-      email: "bob+1@example.com",
-      email_me: true,
-      roles: [],
-      checkin_aliases: []
-    };
-
-    user.updateFromJSON(json as UserJSON);
-
-    expect(user.isAdmin()).toEqual(false);
-    expect(user.enabled()).toEqual(false);
-    expect(user.displayName()).toEqual("Testing update");
-    expect(user.email()).toEqual("bob+1@example.com");
-    expect(user.emailMe()).toEqual(true);
-    expect(user.checkinAliases()).toEqual([]);
-    expect(user.roles()).toEqual([]);
   });
 
   function userJSON(): UserJSON {

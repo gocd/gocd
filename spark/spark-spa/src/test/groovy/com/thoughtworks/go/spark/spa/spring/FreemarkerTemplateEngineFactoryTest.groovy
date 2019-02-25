@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.spark.spa.spring
 
-
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple
 import com.thoughtworks.go.server.service.*
@@ -24,7 +23,7 @@ import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinde
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
 import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.spa.RolesController
-import org.apache.commons.lang.StringEscapeUtils
+import freemarker.template.utility.StringUtil
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.DefaultResourceLoader
@@ -34,25 +33,25 @@ import static org.assertj.core.api.Assertions.assertThat
 import static org.mockito.Mockito.mock
 import static org.mockito.MockitoAnnotations.initMocks
 
-class VelocityTemplateEngineFactoryTest {
+class FreemarkerTemplateEngineFactoryTest {
 
   InitialContextProvider initialContextProvider
-  private VelocityTemplateEngineFactory engine
+  private FreemarkerTemplateEngineFactory engine
 
   @BeforeEach
   void setUp() {
     initMocks(this)
     Toggles.initializeWith(mock(FeatureToggleService.class))
     initialContextProvider = new InitialContextProvider(mock(RailsAssetsService.class), mock(WebpackAssetsService), mock(SecurityService), mock(VersionInfoService), mock(DefaultPluginInfoFinder), mock(MaintenanceModeService))
-    engine = new VelocityTemplateEngineFactory(initialContextProvider, new DefaultResourceLoader(getClass().getClassLoader()), "classpath:velocity")
+    engine = new FreemarkerTemplateEngineFactory(initialContextProvider, new DefaultResourceLoader(getClass().getClassLoader()), "classpath:velocity")
     engine.afterPropertiesSet()
     SessionUtils.setCurrentUser(new GoUserPrinciple("bob", "Bob"))
   }
 
   @Test
   void 'it should render a basic template'() {
-    def output = engine.create(RolesController.class, { return "layouts/test-layout.vm" })
-      .render(new ModelAndView(Collections.emptyMap(), "templates/test-template.vm"))
+    def output = engine.create(RolesController.class, { return "layouts/test-layout.ftlh" })
+      .render(new ModelAndView(Collections.emptyMap(), "templates/test-template.ftlh"))
     assertThat(output)
       .contains("begin parent layout")
       .contains("this is the actual template content")
@@ -62,11 +61,12 @@ class VelocityTemplateEngineFactoryTest {
   @Test
   void 'it should escape html entities by default'() {
     def userInput = "<script>alert('i can has hax')</script>"
-    def output = engine.create(RolesController.class, { return "layouts/test-layout.vm" })
-      .render(new ModelAndView(Collections.singletonMap("user-input", userInput), "templates/escape-html-entities.vm"))
+    def output = engine.create(RolesController.class, { return "layouts/test-layout.ftlh" })
+      .render(new ModelAndView(Collections.singletonMap("userInput", userInput), "templates/escape-html-entities.ftlh"))
+
     assertThat(output)
       .contains("begin parent layout")
-      .contains(StringEscapeUtils.escapeHtml(userInput))
+      .contains(StringUtil.XHTMLEnc(userInput))
       .contains("end parent layout")
   }
 }

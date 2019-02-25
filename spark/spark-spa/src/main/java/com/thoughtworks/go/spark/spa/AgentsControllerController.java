@@ -63,7 +63,7 @@ public class AgentsControllerController implements SparkController {
             put("isUserAnAdmin", securityService.isUserAdmin(currentUsername()));
             put("shouldShowAnalyticsIcon", showAnalyticsIcon());
         }};
-        return new ModelAndView(object, "agents/index.vm");
+        return new ModelAndView(object, "agents/index.ftlh");
     }
 
     private boolean showAnalyticsIcon() {

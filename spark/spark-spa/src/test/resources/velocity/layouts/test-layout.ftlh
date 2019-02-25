@@ -1,3 +1,3 @@
 begin parent layout
-#parse("${viewName}")
+<#include "../${viewName}" />
 end parent layout

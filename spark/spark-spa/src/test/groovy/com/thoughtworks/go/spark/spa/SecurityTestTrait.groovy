@@ -38,7 +38,7 @@ trait SecurityTestTrait {
       Request req = invocation.arguments.first()
       Response res = invocation.arguments.last()
       res.status(99999)
-      return new ModelAndView([message: reachedControllerMessage], "foo/bar.vm")
+      return new ModelAndView([message: reachedControllerMessage], null)
     }).when(controller)."${controllerMethodUnderTest}"(any() as Request, any() as Response)
   }
 
@@ -52,7 +52,7 @@ trait SecurityTestTrait {
     ((MockHttpServletResponseAssert) assertThatResponse())
       .hasStatus(99999)
       .hasContentType("text/html")
-      .hasBody("rendered - foo/bar.vm with locals {\"message\":\"${reachedControllerMessage}\"}")
+      .hasBody("rendered template with locals {\"message\":\"${reachedControllerMessage}\"}")
   }
 
   def assertRequestForbidden() {

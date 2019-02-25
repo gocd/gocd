@@ -35,13 +35,13 @@ import java.util.List;
 
 @Component
 public class SpaControllers implements SparkSpringController {
-    private static final String DEFAULT_LAYOUT_PATH = "layouts/single_page_app.vm";
-    private static final String COMPONENT_LAYOUT_PATH = "layouts/component_layout.vm";
+    private static final String DEFAULT_LAYOUT_PATH = "layouts/single_page_app.ftlh";
+    private static final String COMPONENT_LAYOUT_PATH = "layouts/component_layout.ftlh";
 
     private final List<SparkController> sparkControllers = new ArrayList<>();
 
     @Autowired
-    public SpaControllers(SPAAuthenticationHelper authenticationHelper, VelocityTemplateEngineFactory templateEngineFactory,
+    public SpaControllers(SPAAuthenticationHelper authenticationHelper, FreemarkerTemplateEngineFactory templateEngineFactory,
                           SecurityService securityService, PipelineConfigService pipelineConfigService,
                           SystemEnvironment systemEnvironment, AnalyticsExtension analyticsExtension,
                           FeatureToggleService featureToggleService,

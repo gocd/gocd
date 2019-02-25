@@ -1,18 +1,18 @@
-#*
- * Copyright 2018 ThoughtWorks, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *#
+<#--
+ Copyright 2019 ThoughtWorks, Inc.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ -->
 <!DOCTYPE html>
 <html class="no-js">
 <head>
@@ -26,33 +26,29 @@
   <title>${viewTitle} - Go</title>
 
   <link rel="shortcut icon" href="/go/${railsAssetsService.getAssetPath('cruise.ico')}"/>
-    #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/${controllerName}")})
+  <#list webpackAssetsService.getCSSAssetPathsFor("single_page_apps/${controllerName}") as css>
       <link href="${css}" media="screen" rel="stylesheet"/>
-    #end
+  </#list>
 
-    #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor(
-        "single_page_apps/polyfill", "single_page_apps/${controllerName}")})
+  <#list webpackAssetsService.getJSAssetPathsFor("single_page_apps/polyfill", "single_page_apps/${controllerName}") as js>
       <script src="${js}"></script>
-    #end
+  </#list>
 
 </head>
 
 <body id="${controllerName}-page" class="component-layout-body"
       data-controller-name="${controllerName}"
-      data-is-user-admin="${securityService.isUserAdmin(${currentUser})}"
-      data-can-user-view-admin="${securityService.canViewAdminPage(${currentUser})}"
-      data-is-user-group-admin="${securityService.isUserGroupAdmin(${currentUser})}"
-      data-can-user-view-templates="${securityService.isAuthorizedToViewTemplates(${currentUser})}"
-      data-view-name="${viewName}"
-      data-show-analytics-dashboard="${showAnalyticsDashboard}"
+      data-is-user-admin="${securityService.isUserAdmin(currentUser)?c}"
+      data-can-user-view-admin="${securityService.canViewAdminPage(currentUser)?c}"
+      data-is-user-group-admin="${securityService.isUserGroupAdmin(currentUser)?c}"
+      data-can-user-view-templates="${securityService.isAuthorizedToViewTemplates(currentUser)?c}"
+      data-show-analytics-dashboard="${showAnalyticsDashboard?c}"
       data-user-display-name="${currentUser.displayName}"
-      data-username="${currentUser.username}"
-      data-user-anonymous="${currentUser.anonymous}"
-      data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}"
-      data-meta="${meta}"
-      data-enable-admin-access-tokens-spa="${enableAdminAccessTokensSPA}">
-
-    #if(${devMode})
+      data-user-anonymous="${currentUser.anonymous?c}"
+      data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()?c}"
+      data-enable-admin-access-tokens-spa="${enableAdminAccessTokensSPA?c}"
+      data-meta="${meta}">
+    <#if devMode>
     <script>
       var oldManifestValue = null;
 
@@ -81,6 +77,6 @@
         }, 1000);
       }
     </script>
-    #end
+    </#if>
 </body>
 </html>

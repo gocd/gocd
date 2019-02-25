@@ -67,7 +67,7 @@ class AnalyticsControllerTest implements ControllerTrait<AnalyticsController>, S
           new ModelAndView([
             viewTitle: "Analytics",
             pipelines: GSON.toJson(["pipe1", "pipe2", "pipe3", "pipe4"])
-          ], "analytics/index.vm")
+          ], "analytics/index.ftlh")
         )
 
         assertThatResponse()

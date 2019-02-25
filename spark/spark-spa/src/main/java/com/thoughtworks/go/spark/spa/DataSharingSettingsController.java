@@ -55,6 +55,6 @@ public class DataSharingSettingsController implements SparkController {
             put("viewTitle", "Data Sharing");
         }};
 
-        return new ModelAndView(object, "data_sharing_settings/index.vm");
+        return new ModelAndView(object, "data_sharing_settings/index.ftlh");
     }
 }

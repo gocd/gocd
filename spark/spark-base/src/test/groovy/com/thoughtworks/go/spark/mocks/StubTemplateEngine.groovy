@@ -30,6 +30,6 @@ class StubTemplateEngine extends TemplateEngine {
 
   @Override
   String render(ModelAndView modelAndView) {
-    return "rendered - ${modelAndView.viewName} with locals ${asJson(modelAndView.model)}"
+    return "rendered template with locals ${asJson(modelAndView.model)}"
   }
 }

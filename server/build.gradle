@@ -866,6 +866,7 @@ task verifyWar(type: VerifyJarTask) {
         "dom4j-1.6.1.jar",
         "domain-${project.version}.jar",
         "ehcache-${project.versions.ehcache}.jar",
+        "freemarker-${project.versions.freemarker}.jar",
         "geronimo-j2ee-management_1.1_spec-1.0.1.jar",
         "geronimo-jms_1.1_spec-1.1.1.jar",
         "go-plugin-access-${project.version}.jar",

@@ -16,67 +16,39 @@
 
 import * as m from "mithril";
 import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import * as simulateEvent from "simulate-event";
-import {Comparator, Table, TableHeader} from "../index";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {Table, TableSortHandler} from "../index";
 import * as styles from "../index.scss";
 
 describe("TableComponent", () => {
-  let $root: any, root: Element;
-
-  beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
-
-  });
-
-  afterEach(unmount);
-
+  const helper  = new TestHelper();
   const headers = ["Col1", "Col2", <lable>Col3</lable>];
   const data    = [[1, 2, "something"], [true, "two", null]];
 
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  afterEach(helper.unmount.bind(helper));
 
   it("should render table component", () => {
     mount(headers, data);
-    expect(findByDataTestId("table")).toBeVisible();
-    expect(findByDataTestId("table-header-row").length).toEqual(1);
-    expect(findByDataTestId("table-row").length).toEqual(2);
+    expect(helper.find(`[data-test-id='${"table"}']`)).toBeVisible();
+    expect(helper.find(`[data-test-id='${"table-header-row"}']`).length).toEqual(1);
+    expect(helper.find(`[data-test-id='${"table-row"}']`).length).toEqual(2);
   });
 
   it("should render headers and data", () => {
     mount(headers, data);
-    expect(findByDataTestId("table-header-row")).toContainText("Col1");
-    expect(findByDataTestId("table-header-row")).toContainText("Col2");
-    expect(findByDataTestId("table-header-row")).toContainText("Col3");
+    expect(helper.find(`[data-test-id='${"table-header-row"}']`)).toContainText("Col1");
+    expect(helper.find(`[data-test-id='${"table-header-row"}']`)).toContainText("Col2");
+    expect(helper.find(`[data-test-id='${"table-header-row"}']`)).toContainText("Col3");
 
-    expect(findByDataTestId("table-row").get(0)).toContainText("1");
-    expect(findByDataTestId("table-row").get(0)).toContainText("2");
-    expect(findByDataTestId("table-row").get(0)).toContainText("");
+    expect(helper.find(`[data-test-id='${"table-row"}']`).get(0)).toContainText("1");
+    expect(helper.find(`[data-test-id='${"table-row"}']`).get(0)).toContainText("2");
+    expect(helper.find(`[data-test-id='${"table-row"}']`).get(0)).toContainText("");
 
-    expect(findByDataTestId("table-row").get(1)).toContainText("true");
-    expect(findByDataTestId("table-row").get(1)).toContainText("two");
-    expect(findByDataTestId("table-row").get(1)).toContainText("");
-  });
-
-  describe("ColumnWidth", () => {
-    it("should not apply column width if not specified", () => {
-      mount([<TableHeader name={"Name"}/>, <TableHeader name={"Release Date"}/>], [[]]);
-
-      expect(findByTag("th")).not.toHaveAttr("width");
-    });
-
-    it("should apply column width in pixel", () => {
-      mount([<TableHeader name={"Name"} width="100px"/>, <TableHeader name={"Release Date"}/>], [[]]);
-
-      expect(findByTag("th")).toHaveAttr("width", "100px");
-    });
-
-    it("should apply column width in percentage", () => {
-      mount([<TableHeader name={"Name"} width="20%"/>, <TableHeader name={"Release Date"}/>], [[]]);
-
-      expect(findByTag("th")).toHaveAttr("width", "20%");
-    });
+    expect(helper.find(`[data-test-id='${"table-row"}']`).get(1)).toContainText("true");
+    expect(helper.find(`[data-test-id='${"table-row"}']`).get(1)).toContainText("two");
+    expect(helper.find(`[data-test-id='${"table-row"}']`).get(1)).toContainText("");
   });
 
   describe("Sort", () => {
@@ -86,68 +58,62 @@ describe("TableComponent", () => {
 
     it("should have sort button for first column", () => {
       const testData = getTestData();
-      mount(headersWithSortCapability(testData), testData());
+      mount(["Col-1", "Col-2", "Col-3"], testData(), new TestTableSortHandler(testData, [0]));
 
-      expect(findByClass(styles.sortButton)).toHaveLength(1);
-      expect(findByClass(styles.sortButton).parent()).toHaveText("Col-1");
+      expect(helper.find(`.${styles.sortButton}`)).toHaveLength(1);
+      expect(helper.find(`.${styles.sortButton}`).parent()).toHaveText("Col-1");
     });
 
-    it("should sort data based on comparator", () => {
+    it("should call handler to sort data", () => {
       const testData = getTestData();
-      mount(headersWithSortCapability(testData), testData());
+      mount(["Col-1", "Col-2", "Col-3"], testData(), new TestTableSortHandler(testData, [0]));
 
-      expect(findByDataTestId("table-row")).toHaveText(initialOrderOfData);
+      expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(initialOrderOfData);
 
-      simulateEvent.simulate(findByClass(styles.sortButton).get(0), "click");
+      simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
       m.redraw();
 
-      expect(findByDataTestId("table-row")).toHaveText(ascendingOrder);
+      expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(ascendingOrder);
     });
 
     it("should reverse the sorted data if user click's twice on the sort button", () => {
       const testData = getTestData();
-      mount(headersWithSortCapability(testData), testData());
+      mount(["Col-1", "Col-2", "Col-3"], testData(), new TestTableSortHandler(testData, [0]));
 
-      expect(findByDataTestId("table-row")).toHaveText(initialOrderOfData);
+      expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(initialOrderOfData);
 
-      simulateEvent.simulate(findByClass(styles.sortButton).get(0), "click");
+      simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
       m.redraw();
 
-      expect(findByDataTestId("table-row")).toHaveText(ascendingOrder);
+      expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(ascendingOrder);
 
-      simulateEvent.simulate(findByClass(styles.sortButton).get(0), "click");
+      simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
       m.redraw();
 
-      expect(findByDataTestId("table-row")).toHaveText(descendingOrder);
+      expect(helper.find(`[data-test-id='${"table-row"}']`)).toHaveText(descendingOrder);
+    });
+
+    it("should highlight current sorted column", () => {
+      const testData = getTestData();
+      mount(["Col-1", "Col-2", "Col-3"], testData(), new TestTableSortHandler(testData, [0, 1]));
+      expect(helper.find(`.${styles.sortButton}`)).toHaveClass(styles.inActive);
+
+      simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(0), "click");
+      m.redraw();
+
+      expect(helper.find(`.${styles.sortButton}`).eq(0)).not.toHaveClass(styles.inActive);
+      expect(helper.find(`.${styles.sortButton}`).eq(1)).toHaveClass(styles.inActive);
+
+      simulateEvent.simulate(helper.find(`.${styles.sortableColumn}`).get(1), "click");
+      m.redraw();
+
+      expect(helper.find(`.${styles.sortButton}`).eq(0)).toHaveClass(styles.inActive);
+      expect(helper.find(`.${styles.sortButton}`).eq(1)).not.toHaveClass(styles.inActive);
     });
   });
 
-  function mount(headers: any, data: any) {
-    m.mount(root, {
-      view() {
-        return (<Table headers={headers} data={data}/>);
-      }
-    });
-
-    // @ts-ignore
-    m.redraw(true);
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function findByDataTestId(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
-  }
-
-  function findByClass(className: string) {
-    return $root.find(`.${className}`);
-  }
-
-  function findByTag(tag: string) {
-    return $root.find(tag);
+  function mount(headers: any, data: any, sortHandler?: TableSortHandler) {
+    helper.mount(() => <Table headers={headers} data={data} sortHandler={sortHandler}/>);
   }
 });
 
@@ -160,19 +126,32 @@ function getTestData() {
     ]);
 }
 
-class TestComparator extends Comparator<string[]> {
-  constructor(testData: any) {
-    super(testData);
+class TestTableSortHandler extends TableSortHandler {
+  private data: Stream<any[]>;
+  private readonly columns: number[];
+  private sortOrders = new Map();
+
+  constructor(data: Stream<any[]>, columns: number[]) {
+    super();
+    this.data    = data;
+    this.columns = columns;
+    columns.forEach((c) => this.sortOrders.set(c, -1));
   }
 
-  compare(element1: string[], element2: string[]): number {
-    return element1[0] < element2[0] ? -1 : element1[0] > element2[0] ? 1 : 0;
+  onColumnClick(columnIndex: number): void {
+    this.sortOrders.set(columnIndex, this.sortOrders.get(columnIndex) * -1);
+    this.data()
+        .sort((element1, element2) => TestTableSortHandler.compare(element1,
+                                                                   element2,
+                                                                   columnIndex) * this.sortOrders.get(
+          columnIndex));
   }
-}
 
-function headersWithSortCapability(testData: any) {
-  return [
-    <TableHeader name={"Col-1"} comparator={new TestComparator(testData)} width="10%"/>,
-    <TableHeader name={"Col-2"}/>,
-    <TableHeader name={"Col-3"}/>];
+  getSortableColumns(): number[] {
+    return this.columns;
+  }
+
+  private static compare(element1: any, element2: any, index: number) {
+    return element1[index] < element2[index] ? -1 : element1[index] > element2[index] ? 1 : 0;
+  }
 }

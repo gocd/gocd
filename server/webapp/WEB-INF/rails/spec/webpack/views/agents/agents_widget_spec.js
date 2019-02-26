@@ -238,6 +238,8 @@ describe("Agents Widget", () => {
   });
 
   it('should show message after deleting the agents', () => {
+    route(true);
+
     jasmine.Ajax.withMock(() => {
       clickAllAgents();
       allowBulkUpdate('DELETE');

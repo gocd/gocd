@@ -25,7 +25,7 @@ import java.util.List;
 public class AccessTokensRepresenter {
     public static void toJSON(OutputWriter outputWriter, Routes.FindUrlBuilder<Long> urlBuilder, List<AccessToken> allTokens) {
         outputWriter.addLinks(outputLinkWriter -> outputLinkWriter
-                .addLink("self", Routes.CurrentUserAccessToken.BASE)
+                .addLink("self", urlBuilder.base())
                 .addAbsoluteLink("doc", urlBuilder.doc()))
                 .addChild("_embedded", embeddedWriter ->
                         embeddedWriter.addChildList("access_tokens", AccessTokenWriter -> {

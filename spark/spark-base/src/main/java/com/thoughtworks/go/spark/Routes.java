@@ -440,6 +440,8 @@ public class Routes {
         String find(Identifier id);
 
         String doc();
+
+        String base();
     }
 
     public static class CurrentUserAccessToken implements FindUrlBuilder<Long> {
@@ -462,6 +464,11 @@ public class Routes {
         public String doc() {
             return DOC;
         }
+
+        @Override
+        public String base() {
+            return BASE;
+        }
     }
 
     public static class AdminUserAccessToken implements FindUrlBuilder<Long> {
@@ -483,6 +490,11 @@ public class Routes {
         @Override
         public String doc() {
             return DOC;
+        }
+
+        @Override
+        public String base() {
+            return BASE;
         }
     }
 

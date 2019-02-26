@@ -158,8 +158,45 @@
       flushToDOM();
     }
 
+    function isTaskLine(line) {
+      return line.startsWith('!!');
+    }
+
+    function getOnlyCommand(line) {
+      return line.match(/\ (.*?)\n/)[1];
+    }
+
+    function appendNewLineIfDoesNotExists(line) {
+      return line.endsWith('\n') ? line : line + '\n';
+    }
+
+    function doesContainGoMarker(lineToProcess) {
+      return lineToProcess.indexOf('[go]') !== -1;
+    }
+
+    function inlineMultilineExecutableTask(logLines) {
+      var logLinesToRemove         = [];
+      var currentExecutableTaskIndex = -1;
+      for (var i = 0; i < logLines.length; i++) {
+        var lineToProcess = logLines[i];
+        if (isTaskLine(lineToProcess) && doesContainGoMarker(lineToProcess)) {
+          currentExecutableTaskIndex = i;
+        }
+
+        if (isTaskLine(lineToProcess) && !doesContainGoMarker(lineToProcess)) {
+          logLines[currentExecutableTaskIndex] = appendNewLineIfDoesNotExists(logLines[currentExecutableTaskIndex]).replace("\n", "\\n") + getOnlyCommand(lineToProcess);
+          logLinesToRemove.push(lineToProcess);
+        }
+      }
+
+      for (var i = 0; i < logLinesToRemove.length; i++) {
+        var index = logLines.indexOf(logLinesToRemove[i]);
+        logLines.splice(index, 1);
+      }
+    }
 
     self.transform = function buildOrDeferLogLines(logLines) {
+      inlineMultilineExecutableTask(logLines);
       invokeOrDefer(buildDomFromLogs, [logLines]);
     };
 

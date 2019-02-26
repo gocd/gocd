@@ -86,6 +86,23 @@
 
         assertFalse(fixture.find(".console-log-loading").is(':visible'));
       });
+
+      it("should inline multiline executable task", function() {
+        var lines = [
+          "!!|12:33:01.817 [go] Task: /bin/bash -c \"echo -e 'this is \n",
+          "!!|12:33:01.817 theBestUse \n",
+          "!!|12:33:01.817 ofOurplugin\n",
+          "!!|12:33:01.817 '>testFile.txt\"\n"
+        ];
+
+        var expectedLines = [
+          "!!|12:33:01.817 [go] Task: /bin/bash -c \"echo -e 'this is \\ntheBestUse \\nofOurplugin\\n'>testFile.txt\""
+        ];
+
+        transformer.transform(lines);
+
+        assertEquals(lines[0], expectedLines[0]);
+      })
   });
 
 })(jQuery);

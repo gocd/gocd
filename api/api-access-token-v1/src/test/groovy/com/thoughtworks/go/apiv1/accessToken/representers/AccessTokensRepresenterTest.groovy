@@ -48,7 +48,7 @@ class AccessTokensRepresenterTest {
       "_embedded": [
         "access_tokens": [
           [
-            "_links"        : [
+            "_links"      : [
               "self": [
                 "href": "http://test.host/go/api/current_user/access_tokens/41"
               ],
@@ -59,18 +59,18 @@ class AccessTokensRepresenterTest {
                 "href": "http://test.host/go/api/current_user/access_tokens/:id"
               ]
             ],
-            "id"            : token1.id,
-            "description"   : token1.description,
-            "username"      : token1.username,
-            "revoked"       : token1.revoked,
-            "revoked_at"    : null,
-            "revoke_cause"  : null,
-            "revoked_by"    : null,
-            "created_at"    : jsonDate(token1.createdAt),
-            "last_used_at"  : null
+            "id"          : token1.id,
+            "description" : token1.description,
+            "username"    : token1.username,
+            "revoked"     : token1.revoked,
+            "revoked_at"  : null,
+            "revoke_cause": null,
+            "revoked_by"  : null,
+            "created_at"  : jsonDate(token1.createdAt),
+            "last_used_at": null
           ],
           [
-            "_links"        : [
+            "_links"      : [
               "self": [
                 "href": "http://test.host/go/api/current_user/access_tokens/42"
               ],
@@ -81,15 +81,63 @@ class AccessTokensRepresenterTest {
                 "href": "http://test.host/go/api/current_user/access_tokens/:id"
               ]
             ],
-            "id"            : token2.id,
-            "description"   : token2.description,
-            "username"      : token2.username,
-            "revoked"       : token2.revoked,
-            "revoked_at"    : null,
-            "revoke_cause"  : null,
-            "revoked_by"    : null,
-            "created_at"    : jsonDate(token2.createdAt),
-            "last_used_at"  : null
+            "id"          : token2.id,
+            "description" : token2.description,
+            "username"    : token2.username,
+            "revoked"     : token2.revoked,
+            "revoked_at"  : null,
+            "revoke_cause": null,
+            "revoked_by"  : null,
+            "created_at"  : jsonDate(token2.createdAt),
+            "last_used_at": null
+          ]
+        ]
+      ]
+    ]
+
+    assertThatJson(json).isEqualTo(expectedJSON)
+  }
+
+  @Test
+  void 'renders the access token for admin users without token value'() {
+    AccessToken.AccessTokenWithDisplayValue token1 = randomAccessToken(41, true)
+    def json = toObjectString({
+      AccessTokensRepresenter.toJSON(it, new Routes.AdminUserAccessToken(), [token1])
+    })
+
+    def expectedJSON = [
+      "_links"   : [
+        "self": [
+          "href": "http://test.host/go/api/admin/access_tokens"
+        ],
+        "doc" : [
+          "href": apiDocsUrl('#access-tokens')
+        ],
+      ],
+      "_embedded": [
+        "access_tokens": [
+          [
+            "_links"                      : [
+              "self": [
+                "href": "http://test.host/go/api/admin/access_tokens/41"
+              ],
+              "doc" : [
+                "href": apiDocsUrl('#access-tokens')
+              ],
+              "find": [
+                "href": "http://test.host/go/api/admin/access_tokens/:id"
+              ]
+            ],
+            "id"                          : token1.id,
+            "description"                 : token1.description,
+            "username"                    : token1.username,
+            "revoked"                     : token1.revoked,
+            "revoked_at"                  : null,
+            "revoke_cause"                : null,
+            "revoked_by"                  : null,
+            "created_at"                  : jsonDate(token1.createdAt),
+            "revoked_because_user_deleted": false,
+            "last_used_at"                : null
           ]
         ]
       ]

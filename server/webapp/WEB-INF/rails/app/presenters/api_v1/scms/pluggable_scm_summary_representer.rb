@@ -26,7 +26,7 @@ module ApiV1
       end
 
       link :doc do
-        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#scms')
+        'https://api.gocd.org/#scms'
       end
 
       link :find do |opts|

@@ -23,7 +23,7 @@ module ApiV1
       end
 
       link :doc do |opts|
-        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#authorization-configuration')
+        'https://api.gocd.org/#authorization-configuration'
       end
 
       link :find do |opts|

@@ -37,7 +37,7 @@ module ApiV4
       end
 
       link :doc do |opts|
-        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#plugin-info')
+        'https://api.gocd.org/#plugin-info'
       end
 
       link :find do |opts|

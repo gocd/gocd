@@ -225,4 +225,12 @@ export default class {
       return `/go/api/current_user/access_tokens`;
     }
   }
+
+  static apiAdminAccessTokensPath() {
+    return "/go/api/admin/access_tokens";
+  }
+
+  static apiAdminAccessTokenRevokePath(id: number) {
+    return `${this.apiAdminAccessTokensPath()}/${id}/revoke`;
+  }
 }

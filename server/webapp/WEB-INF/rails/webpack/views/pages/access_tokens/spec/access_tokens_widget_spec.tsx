@@ -20,7 +20,7 @@ import {Stream} from "mithril/stream";
 import {AccessTokenTestData} from "models/access_tokens/spec/access_token_test_data";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as simulateEvent from "simulate-event";
-import {AccessTokensWidget} from "views/pages/access_tokens/access_tokens_widget";
+import {AccessTokensWidget} from "views/pages/access_tokens/commons/access_tokens_widget";
 import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 
 describe("AccessTokensWidgetForCurrentUserSpec", () => {

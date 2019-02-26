@@ -14,89 +14,27 @@
 * limitations under the License.
 */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {Stream} from "mithril/stream";
-import {AccessToken, AccessTokens} from "models/access_tokens/types";
-import * as Buttons from "views/components/buttons";
 import {Ellipsize} from "views/components/ellipsize";
 import {Tabs} from "views/components/tab";
 import {Table} from "views/components/table";
-import * as styles from "./index.scss";
+import {AccessTokensWidget, Attrs} from "views/pages/access_tokens/commons/access_tokens_widget";
 
-const TimeFormatter = require("helpers/time_formatter");
+export class AccessTokensWidgetForCurrentUser extends AccessTokensWidget {
 
-interface Attrs {
-  accessTokens: Stream<AccessTokens>;
-  onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void;
-}
-
-export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
-
-  public static formatTimeInformation(date: Date) {
-    const dateStr = TimeFormatter.format(date);
-
-    if (date.toDateString() === new Date().toDateString()) {
-      return `Today ${dateStr.substr(dateStr.indexOf("at"))}`;
-    }
-
-    return dateStr;
-  }
-
-  public static getLastUsedInformation(accessToken: AccessToken) {
-    const lastUsedAt = accessToken.lastUsedAt();
-    if (!lastUsedAt) {
-      return "Never";
-    }
-
-    return AccessTokensWidget.formatTimeInformation(lastUsedAt);
-  }
-
-  view(vnode: m.Vnode<Attrs>) {
-    const accessTokens = vnode.attrs.accessTokens();
-    if (accessTokens.length === 0) {
-      return (<ul data-test-id="access-token-info">
-        <li>Click on "Generate Token" to create new personal access token.</li>
-        <li>A Generated token can be used to access the GoCD API.</li>
-      </ul>);
-    }
-
+  protected getTabs(vnode: m.Vnode<Attrs>): m.Child {
     return <Tabs
       tabs={["Active Tokens", "Revoked Tokens"]}
       contents={[
-        this.getActiveTokensView(accessTokens, vnode),
-        this.getRevokedTokensView(accessTokens)
-      ]}/>;
-
+        <Table headers={["Description", "Created at", " Last used", "Revoke"]}
+               data={this.getActiveTokensData(vnode)}/>,
+        <Table headers={["Description", "Created at", " Last used", "Revoked At", "Revoked Message"]}
+               data={this.getRevokedTokensData(vnode)}/>]}
+    />;
   }
 
-  private getActiveTokensView(accessTokens: AccessTokens, vnode: m.Vnode<Attrs>) {
-    const activeTokensData = this.getActiveTokensData(accessTokens, vnode);
-
-    if (activeTokensData.length === 0) {
-      return <p>
-        You don't have any active tokens.
-        Click on 'Generate Token' button to create a new token.
-      </p>;
-    }
-
-    return <Table headers={["Description", "Created At", "Last Used", "Revoke"]}
-                  data={activeTokensData}/>;
-  }
-
-  private getRevokedTokensView(accessTokens: AccessTokens) {
-    const revokedTokensData = this.getRevokedTokensData(accessTokens);
-
-    if (revokedTokensData.length === 0) {
-      return <p>You don't have any revoked tokens.</p>;
-    }
-
-    return <Table data={revokedTokensData}
-                  headers={["Description", "Created At", "Last Used", "Revoked At", "Revoked Message"]}/>;
-  }
-
-  private getActiveTokensData(accessTokens: AccessTokens, vnode: m.Vnode<Attrs>) {
-    return accessTokens.activeTokens().sortByCreateDate().map((accessToken) => {
+  private getActiveTokensData(vnode: m.Vnode<Attrs>): m.Child[][] {
+    return vnode.attrs.accessTokens().activeTokens().sortByCreateDate().map((accessToken) => {
       return [
         <Ellipsize text={accessToken().description()}/>,
         AccessTokensWidget.formatTimeInformation(accessToken().createdAt()),
@@ -106,8 +44,8 @@ export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
     });
   }
 
-  private getRevokedTokensData(accessTokens: AccessTokens) {
-    return accessTokens.revokedTokens().sortByRevokeTime().map((accessToken) => {
+  private getRevokedTokensData(vnode: m.Vnode<Attrs>): m.Child[][] {
+    return vnode.attrs.accessTokens().revokedTokens().sortByRevokeTime().map((accessToken) => {
       const revokedAt = accessToken().revokedAt();
 
       return [
@@ -120,11 +58,46 @@ export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
     });
   }
 
-  private getRevokeButton(vnode: m.Vnode<Attrs>, accessToken: Stream<AccessToken>) {
-    if (accessToken().revoked()) {
-      return <span className={styles.revoked}>Revoked</span>;
-    }
-    return <Buttons.Default data-test-id="button-revoke"
-                            onclick={vnode.attrs.onRevoke.bind(this, accessToken)}>Revoke</Buttons.Default>;
+}
+
+export class AccessTokensWidgetForAdmin extends AccessTokensWidget {
+
+  protected getTabs(vnode: m.Vnode<Attrs>): m.Child {
+    return <Tabs
+      tabs={["Active Tokens", "Revoked Tokens"]}
+      contents={[
+        <Table headers={["Created By", "Description", "Created at", " Last used", "Revoke"]}
+               data={this.getActiveTokensData(vnode)}/>,
+        <Table
+          headers={["Created By", "Description", "Created at", " Last used", "Revoked At", "Revoked Message"]}
+          data={this.getRevokedTokensData(vnode)}/>]}
+    />;
+  }
+
+  private getActiveTokensData(vnode: m.Vnode<Attrs>): m.Child[][] {
+    return vnode.attrs.accessTokens().activeTokens().sortByCreateDate().map((accessToken) => {
+      return [
+        accessToken().username,
+        <Ellipsize text={accessToken().description()}/>,
+        AccessTokensWidgetForAdmin.formatTimeInformation(accessToken().createdAt()),
+        AccessTokensWidgetForAdmin.getLastUsedInformation(accessToken()),
+        this.getRevokeButton(vnode, accessToken)
+      ];
+    });
+  }
+
+  private getRevokedTokensData(vnode: m.Vnode<Attrs>): m.Child[][] {
+    return vnode.attrs.accessTokens().revokedTokens().sortByRevokeTime().map((accessToken) => {
+      const revokedAt = accessToken().revokedAt();
+
+      return [
+        accessToken().username,
+        <Ellipsize text={accessToken().description()}/>,
+        AccessTokensWidgetForAdmin.formatTimeInformation(accessToken().createdAt()),
+        AccessTokensWidgetForAdmin.getLastUsedInformation(accessToken()),
+        revokedAt ? AccessTokensWidgetForAdmin.formatTimeInformation(revokedAt) : null,
+        <Ellipsize text={accessToken().revokeCause()}/>
+      ];
+    });
   }
 }

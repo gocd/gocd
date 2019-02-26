@@ -1,6 +1,6 @@
 #!/bin/bash
 #*************************GO-LICENSE-START********************************
-# Copyright 2014 ThoughtWorks, Inc.
+# Copyright 2019 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,13 +31,7 @@ SERVICE_NAME=${0##*/}
 # Strips initV leading chars if the script is located in rcX.d (automatically executed on runlevel change)
 INIT_DIR=${0%/*}; echo ${INIT_DIR##*/} | grep -e '^rc[0-9]\.d$' >/dev/null && SERVICE_NAME=$(echo "${SERVICE_NAME}" | sed 's/^[SK][0-9][0-9]//');
 
-PID_FILE="/var/run/go-agent/${SERVICE_NAME}.pid"
 CUR_USER=$(whoami)
-
-# LSB implimentation is not standard across distros, so we have to roll our own...
-killproc() {
-    pkill -u go -f /usr/share/${SERVICE_NAME}/agent-bootstrapper.jar
-}
 
 start_daemon() {
     eval "$@"
@@ -96,7 +90,7 @@ stop_go_agent() {
     check_proc
 
     if [ $? -eq 0 ]; then
-        killproc -p $PID_FILE /usr/share/${SERVICE_NAME}/agent.sh >/dev/null
+        /usr/share/${SERVICE_NAME}/stop-agent.sh ${SERVICE_NAME} service_mode
 
         # Make sure it's dead before we return
         until [ $? -ne 0 ]; do

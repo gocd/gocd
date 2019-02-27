@@ -25,7 +25,7 @@ module ApiV1
       end
 
       link :doc do
-        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#dashboard')
+        CurrentGoCDVersion.api_docs_url('#dashboard')
       end
 
       collection :pipeline_groups, embedded: true, exec_context: :decorator, decorator: PipelineGroupRepresenter

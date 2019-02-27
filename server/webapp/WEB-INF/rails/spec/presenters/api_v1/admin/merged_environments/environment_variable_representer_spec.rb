@@ -50,7 +50,7 @@ describe ApiV1::Admin::MergedEnvironments::EnvironmentVariableRepresenter do
               href: 'http://test.host/admin/config_xml'
             },
             doc: {
-              href: com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#get-configuration')
+              href: CurrentGoCDVersion.api_docs_url('#get-configuration')
             }
           },
           name: 'cruise-config.xml'
@@ -72,7 +72,7 @@ describe ApiV1::Admin::MergedEnvironments::EnvironmentVariableRepresenter do
               href: 'http://test.host/admin/config_xml'
             },
             doc: {
-              href: com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#get-configuration')
+              href: CurrentGoCDVersion.api_docs_url('#get-configuration')
             }
           },
           name: 'cruise-config.xml'

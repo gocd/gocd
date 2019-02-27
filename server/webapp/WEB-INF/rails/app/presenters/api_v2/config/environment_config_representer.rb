@@ -28,7 +28,7 @@ module ApiV2
       end
 
       link :doc do |opts|
-        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#environment-config')
+        CurrentGoCDVersion.api_docs_url('#environment-config')
       end
 
       link :find do |opts|

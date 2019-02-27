@@ -25,7 +25,7 @@ module ApiV1
       end
 
       link :doc do |opts|
-        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#authorization-configuration')
+        CurrentGoCDVersion.api_docs_url('#authorization-configuration')
       end
 
       link :find do |opts|

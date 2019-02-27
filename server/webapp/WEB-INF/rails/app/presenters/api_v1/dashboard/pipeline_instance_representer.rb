@@ -25,7 +25,7 @@ module ApiV1
       end
 
       link :doc do
-        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#get-pipeline-instance')
+        CurrentGoCDVersion.api_docs_url('#get-pipeline-instance')
       end
 
       link :history_url do |opts|

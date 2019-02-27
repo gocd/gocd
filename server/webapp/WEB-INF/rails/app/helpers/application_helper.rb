@@ -285,7 +285,7 @@ module ApplicationHelper
   end
 
   def docs_url(suffix)
-    com.thoughtworks.go.CurrentGoCDVersion.docsUrl(suffix)
+    CurrentGoCDVersion.docs_url(suffix)
   end
 
   def full_version

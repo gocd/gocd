@@ -19,7 +19,7 @@ module ApiV1
     alias_method :pipeline, :represented
 
     link :doc do |opts|
-      com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#pipelines')
+      CurrentGoCDVersion.api_docs_url('#pipelines')
     end
 
     property :pipeline_name, as: :name

@@ -24,7 +24,7 @@ module ApiV1
       end
 
       link :doc do
-        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#package-repositories')
+        CurrentGoCDVersion.api_docs_url('#package-repositories')
       end
 
       collection :package_repositories, embedded: true, exec_context: :decorator, decorator: PackageRepositoryRepresenter

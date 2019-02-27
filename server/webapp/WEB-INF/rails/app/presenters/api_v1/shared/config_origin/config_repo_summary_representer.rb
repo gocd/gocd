@@ -25,7 +25,7 @@ module ApiV1
         end
 
         link :doc do |opts|
-          com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#config-repos')
+          CurrentGoCDVersion.api_docs_url('#config-repos')
         end
 
         link :find do |opts|

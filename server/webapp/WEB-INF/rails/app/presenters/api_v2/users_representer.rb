@@ -26,7 +26,7 @@ module ApiV2
     end
 
     link :doc do
-      com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#users')
+      CurrentGoCDVersion.api_docs_url('#users')
     end
 
     collection :users, embedded: true, exec_context: :decorator, decorator: UserRepresenter

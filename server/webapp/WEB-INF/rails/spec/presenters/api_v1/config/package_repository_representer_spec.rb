@@ -26,7 +26,7 @@ describe ApiV1::Config::PackageRepositoryRepresenter do
       expect(actual_json).to have_links(:self, :find, :doc)
       expect(actual_json).to have_link(:find).with_url('http://test.host/api/admin/repositories/:repo_id')
       expect(actual_json).to have_link(:self).with_url('http://test.host/api/admin/repositories/npm.org')
-      expect(actual_json).to have_link(:doc).with_url(com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl '#package-repositories')
+      expect(actual_json).to have_link(:doc).with_url(CurrentGoCDVersion.api_docs_url '#package-repositories')
 
       actual_json.delete(:_links)
       expect(actual_json).to eq(get_package_repository_json)
@@ -81,7 +81,7 @@ describe ApiV1::Config::PackageRepositoryRepresenter do
                 href: "http://test.host/api/admin/packages/prettyjson"
               },
               doc: {
-                href: com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl("#packages")
+                href: CurrentGoCDVersion.api_docs_url("#packages")
               },
               find: {
                 href: "http://test.host/api/admin/packages/:package_id"

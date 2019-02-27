@@ -27,7 +27,7 @@ describe ApiV1::Admin::MergedEnvironments::PipelineConfigSummaryRepresenter do
 
     expect(actual_json).to have_link(:self).with_url('http://test.host/go/api/admin/pipelines/pipeline1')
     expect(actual_json).to have_link(:find).with_url('http://test.host/go/api/admin/pipelines/:pipeline_name')
-    expect(actual_json).to have_link(:doc).with_url(com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl '#pipeline-config')
+    expect(actual_json).to have_link(:doc).with_url(CurrentGoCDVersion.api_docs_url '#pipeline-config')
 
     actual_json.delete(:_links)
     expect(actual_json).to eq(get_pipeline_config_summary)
@@ -50,7 +50,7 @@ describe ApiV1::Admin::MergedEnvironments::PipelineConfigSummaryRepresenter do
               href: 'http://test.host/admin/config_xml'
             },
             doc: {
-              href: com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#get-configuration')
+              href: CurrentGoCDVersion.api_docs_url('#get-configuration')
             }
           },
           name: 'cruise-config.xml'

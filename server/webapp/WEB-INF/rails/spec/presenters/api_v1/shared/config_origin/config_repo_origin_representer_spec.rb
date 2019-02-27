@@ -34,7 +34,7 @@ describe ApiV1::Shared::ConfigOrigin::ConfigRepoOriginRepresenter do
             href: 'http://test.host/go/api/admin/config_repos/repo1'
           },
           doc: {
-            href: com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#config-repos')
+            href: CurrentGoCDVersion.api_docs_url('#config-repos')
           },
           find: {
             href: 'http://test.host/go/api/admin/config_repos/:id'

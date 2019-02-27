@@ -28,7 +28,7 @@ module ApiV1
     end
 
     link :doc do |opts|
-      com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#get-stage-instance')
+      CurrentGoCDVersion.api_docs_url('#get-stage-instance')
     end
 
     property :getName, as: :name

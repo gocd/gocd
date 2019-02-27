@@ -178,8 +178,12 @@ public class AgentService {
         return null;
     }
 
-    public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove, List<String> environmentsToAdd, List<String> environmentsToRemove, TriState enable) {
-        agentConfigService.bulkUpdateAgentAttributes(agentInstances, username, result, uuids, resourcesToAdd, resourcesToRemove, environmentsToAdd, environmentsToRemove, enable);
+    public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids,
+                                          List<String> resourcesToAdd, List<String> resourcesToRemove,
+                                          List<String> environmentsToAdd, List<String> environmentsToRemove,
+                                          TriState enable) {
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, username, result, uuids, environmentConfigService,
+                resourcesToAdd, resourcesToRemove, environmentsToAdd, environmentsToRemove, enable);
     }
 
     public void enableAgents(Username username, OperationResult operationResult, List<String> uuids) {

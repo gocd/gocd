@@ -362,6 +362,8 @@ describe("Agents Widget", () => {
   });
 
   it('should toggle the resources list on click of the resources button', () => {
+    route(true);
+
     jasmine.Ajax.withMock(() => {
       clickAllAgents();
       stubResourcesList();

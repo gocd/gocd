@@ -30,7 +30,8 @@ function createRepeater() {
                                    result.do(
                                      (successResponse) => serverHealthMessages(successResponse.body),
                                      (errorResponse) => {
-                                       // ignore
+                                       // tslint:disable-next-line:no-console
+                                       console.log("There was an error fetching server health messages!");
                                      }
                                    );
                                  });

@@ -25,6 +25,8 @@ import {Attrs as SiteFooterAttrs, SiteFooter} from "views/pages/partials/site_fo
 import {Attrs as SiteHeaderAttrs, SiteHeader} from "views/pages/partials/site_header";
 
 interface Attrs {
+  showHeader: boolean;
+  showFooter: boolean;
   headerData: SiteHeaderAttrs;
   footerData: SiteFooterAttrs;
 }
@@ -34,15 +36,26 @@ class MainPage extends MithrilViewComponent<Attrs> {
     return (
       <div class={styles.page}>
         <div class={styles.pagewrap}>
-          <SiteHeader {...vnode.attrs.headerData}/>
+          {this.showHeader(vnode)}
           <main className={styles.mainContainer}>
             {vnode.children}
           </main>
         </div>
-        <SiteFooter {...vnode.attrs.footerData} />
+        {this.showFooter(vnode)}
       </div>
     );
+  }
 
+  private showFooter(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.showFooter) {
+      return <SiteFooter {...vnode.attrs.footerData} />;
+    }
+  }
+
+  private showHeader(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.showHeader) {
+      return <SiteHeader {...vnode.attrs.headerData}/>;
+    }
   }
 }
 
@@ -52,18 +65,32 @@ export default abstract class Page {
   constructor(pageToMount: any) {
     this.pageToMount = pageToMount;
     this.render();
-
   }
 
   extractBoolean(body: Element, attribute: string): boolean {
     return JSON.parse(body.getAttribute(attribute) as string);
   }
 
+  protected showHeader() {
+    return true;
+  }
+
+  protected showFooter() {
+    return true;
+  }
+
+  protected enableUsageDataAndVersionUpdating() {
+    return true;
+  }
+
   private render() {
     const page = this;
     window.addEventListener("DOMContentLoaded", () => {
-      UsageDataReporter.report();
-      VersionUpdater.update();
+
+      if (page.enableUsageDataAndVersionUpdating()) {
+        UsageDataReporter.report();
+        VersionUpdater.update();
+      }
 
       const body: Element = document.querySelector("body") as Element;
 
@@ -96,7 +123,10 @@ export default abstract class Page {
       m.mount(body, {
         view() {
           return (
-            <MainPage headerData={headerData} footerData={footerData}>
+            <MainPage headerData={headerData}
+                      footerData={footerData}
+                      showHeader={page.showHeader()}
+                      showFooter={page.showFooter()}>
               {m(page.pageToMount as any)}
             </MainPage>
           );

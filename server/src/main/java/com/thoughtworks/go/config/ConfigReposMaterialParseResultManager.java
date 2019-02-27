@@ -16,13 +16,10 @@
 
 package com.thoughtworks.go.config;
 
-/*  @description
- * Keeps track all config repo parsing states
- */
-
-
 import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -33,73 +30,82 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Tracks all config-repo parsing states
+ */
 public class ConfigReposMaterialParseResultManager {
     private Map<String, PartialConfigParseResult> fingerprintOfPartialToParseResultMap = new ConcurrentHashMap<>();
     private ServerHealthService serverHealthService;
     private ConfigRepoService configRepoService;
 
-    public ConfigReposMaterialParseResultManager(ServerHealthService serverHealthService, ConfigRepoService configRepoService) {
+    ConfigReposMaterialParseResultManager(ServerHealthService serverHealthService, ConfigRepoService configRepoService) {
         this.serverHealthService = serverHealthService;
         this.configRepoService = configRepoService;
     }
 
     public PartialConfigParseResult get(String fingerprint) {
         PartialConfigParseResult result = fingerprintOfPartialToParseResultMap.get(fingerprint);
+        // config repository was never parsed, check if there are any material clone or update related errors
         if (result == null) {
-            // config repository was never parsed, check if there are any material clone or update related errors
-            result = getMaterialResult(fingerprint);
+            result = checkForMaterialErrors(fingerprint);
         }
 
-        if (result !=null) {
-            //config repository was parsed, but does not have merge or clone related errors.
-
+        //config repository was parsed, but does not have merge or clone related errors.
+        if (result != null && result.isSuccessful()) {
             HealthStateScope healthStateScope = HealthStateScope.forPartialConfigRepo(fingerprint);
             List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(healthStateScope);
-            // It should be noted that the server health state and the result can be thought of as the following:
-            // serverHealthState is the current state
-            // result.isSuccessfully() is the state at the last parse
-
-            // here we're checking that the current state is bad, but the previous state was good
-            if (!serverHealthStates.isEmpty() && result.isSuccessful()) {
-                result.setException(represent(serverHealthStates.get(0)));
+            if (!serverHealthStates.isEmpty()) {
+                result.setException(asError(serverHealthStates.get(0)));
 
                 //clear out the good modification, in case good modification is same as of latest parsed modification
                 if (result.getLatestParsedModification().equals(result.getGoodModification())) {
                     result.setGoodModification(null);
                     result.setPartialConfig(null);
                 }
-            // here we're checking that the current state is good, but the previous state was bad
-            } else if (serverHealthStates.isEmpty() && !result.isSuccessful()) {
-                // The issues that caused the previous state to be bad are gone.
-                // An example would be that previously a upstream pipeline didn't exist, but now does
-                // Clearing latest parsed modification to allow for another parse attempt
-                result.setLatestParsedModification(null);
             }
         }
 
         return result;
     }
 
-    private PartialConfigParseResult getMaterialResult(String fingerprint) {
-        HealthStateScope healthStateScope = HealthStateScope.forMaterialConfig(configRepoService.findByFingerprint(fingerprint).getMaterialConfig());
+    /**
+     * After a successful update of the server config, we should reparse any failed config-repos in case
+     * any upstream dependency issues have been resolved.
+     *
+     * @return a listener that clears the last parse states and errors related to config-repos so as to allow reparsing
+     */
+    ConfigChangedListener onConfigUpdateDoReparse() {
+        return newCruiseConfig -> {
+            for (Map.Entry<String, PartialConfigParseResult> entry : fingerprintOfPartialToParseResultMap.entrySet()) {
+                String fingerprint = entry.getKey();
+                PartialConfigParseResult result = entry.getValue();
+
+                HealthStateScope scope = HealthStateScope.forPartialConfigRepo(fingerprint);
+                List<ServerHealthState> serverHealthErrors = serverHealthService.filterByScope(scope);
+
+                if (!serverHealthErrors.isEmpty() || !result.isSuccessful()) {
+                    result.setLatestParsedModification(null); // clear modification to allow a reparse to happen
+                    serverHealthService.removeByScope(scope); // clear errors until next reparse
+                }
+            }
+        };
+    }
+
+    private PartialConfigParseResult checkForMaterialErrors(String fingerprint) {
+        MaterialConfig naterial = configRepoService.findByFingerprint(fingerprint).getMaterialConfig();
+        HealthStateScope healthStateScope = HealthStateScope.forMaterialConfig(naterial);
         List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(healthStateScope);
-        if (!serverHealthStates.isEmpty()) {
-            return PartialConfigParseResult.parseFailed(null, represent(serverHealthStates.get(0)));
-        }
-        return null;
+
+        return serverHealthStates.isEmpty() ?
+                null :
+                PartialConfigParseResult.parseFailed(null, asError(serverHealthStates.get(0)));
     }
 
-    private Exception represent(ServerHealthState serverHealthState) {
-        String message = new StringBuilder()
-                .append(serverHealthState.getMessage().toUpperCase())
-                .append("\n")
-                .append(serverHealthState.getDescription())
-                .toString();
-
-        return new Exception(message);
+    private Exception asError(ServerHealthState serverHealthState) {
+        return new Exception(serverHealthState.getMessage().toUpperCase() + "\n" + serverHealthState.getDescription());
     }
 
-    public Set<String> allFingerprints() {
+    Set<String> allFingerprints() {
         return fingerprintOfPartialToParseResultMap.keySet();
     }
 
@@ -107,7 +113,7 @@ public class ConfigReposMaterialParseResultManager {
         fingerprintOfPartialToParseResultMap.remove(fingerprint);
     }
 
-    public PartialConfigParseResult parseFailed(String fingerprint, Modification modification, Exception exception) {
+    PartialConfigParseResult parseFailed(String fingerprint, Modification modification, Exception exception) {
         PartialConfigParseResult existingResult = get(fingerprint);
         if (existingResult == null) { //if no result exists in the map, create a new one
             return fingerprintOfPartialToParseResultMap.put(fingerprint, PartialConfigParseResult.parseFailed(modification, exception));
@@ -119,7 +125,7 @@ public class ConfigReposMaterialParseResultManager {
         }
     }
 
-    public PartialConfigParseResult parseSuccess(String fingerprint, Modification modification, PartialConfig newPart) {
+    PartialConfigParseResult parseSuccess(String fingerprint, Modification modification, PartialConfig newPart) {
         //if no result exists in the map, create a new one
         //if already a result exists in the map, override the result, as the latest modification is successful. regardless of the result being successful or failed
         return fingerprintOfPartialToParseResultMap.put(fingerprint, PartialConfigParseResult.parseSuccess(modification, newPart));

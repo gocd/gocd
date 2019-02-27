@@ -74,6 +74,7 @@ public class GoRepoConfigDataSource implements ChangedRepoConfigWatchListListene
                 onConfigRepoConfigChange(entity);
             }
         });
+        this.goConfigService.register(configReposMaterialParseResultManager.onConfigUpdateDoReparse());
     }
 
     public boolean hasListener(PartialConfigUpdateCompletedListener listener) {

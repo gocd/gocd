@@ -22,13 +22,14 @@ import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
-import {AccessTokensWidget} from "views/pages/access_tokens/commons/access_tokens_widget";
+import {AccessTokensWidgetForCurrentUser} from "views/pages/access_tokens/access_tokens_widget";
 import {GenerateTokenModal, RevokeAccessTokenForCurrentUser} from "views/pages/access_tokens/modals";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation, SaveOperation} from "views/pages/page_operations";
 
 interface State extends AddOperation<AccessToken>, SaveOperation {
   accessTokens: Stream<AccessTokens>;
+  searchText: Stream<string>;
   onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void;
   meta: MetaJSON;
 }
@@ -37,6 +38,7 @@ export class AccessTokensPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.accessTokens = stream();
     vnode.state.meta         = JSON.parse(document.body.getAttribute("data-meta") || "{}") as MetaJSON;
+    vnode.state.searchText   = stream();
     super.oninit(vnode);
 
     vnode.state.onAdd = (e: MouseEvent) => {
@@ -79,8 +81,9 @@ export class AccessTokensPage extends Page<null, State> {
     if (vnode.state.meta.supportsAccessToken) {
       const flashMessage = this.flashMessage ?
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
-      return [flashMessage, <AccessTokensWidget accessTokens={vnode.state.accessTokens}
-                                                              onRevoke={vnode.state.onRevoke}/>];
+      return [flashMessage, <AccessTokensWidgetForCurrentUser accessTokens={vnode.state.accessTokens}
+                                                              onRevoke={vnode.state.onRevoke}
+                                                              searchText={vnode.state.searchText}/>];
     }
     return <FlashMessage type={MessageType.info}>
       Creation of access token is not supported by the plugin <strong>{vnode.state.meta.pluginId}</strong>.

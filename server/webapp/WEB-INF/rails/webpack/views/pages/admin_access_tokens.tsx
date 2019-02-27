@@ -26,13 +26,14 @@ import {AccessTokensWidgetForAdmin} from "./access_tokens/access_tokens_widget";
 
 interface State {
   accessTokens: Stream<AccessTokens>;
+  searchText: Stream<string>;
   onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void;
 }
 
 export class AdminAccessTokensPage extends Page<null, State> {
-
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.accessTokens = stream();
+    vnode.state.searchText = stream();
     super.oninit(vnode);
 
     vnode.state.onRevoke = (accessToken: Stream<AccessToken>, e: MouseEvent) => {
@@ -52,7 +53,8 @@ export class AdminAccessTokensPage extends Page<null, State> {
     const flashMessage = this.flashMessage ?
       <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
     return [flashMessage,
-      <AccessTokensWidgetForAdmin accessTokens={vnode.state.accessTokens} onRevoke={vnode.state.onRevoke}/>];
+      <AccessTokensWidgetForAdmin accessTokens={vnode.state.accessTokens} onRevoke={vnode.state.onRevoke}
+                                  searchText={vnode.state.searchText}/>];
   }
 
   pageName(): string {

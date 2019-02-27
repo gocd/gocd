@@ -20,7 +20,11 @@ import {Stream} from "mithril/stream";
 import {AccessTokenTestData} from "models/access_tokens/spec/access_token_test_data";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as simulateEvent from "simulate-event";
-import {AccessTokensWidget} from "views/pages/access_tokens/commons/access_tokens_widget";
+import {
+  AccessTokensWidgetForCurrentUser,
+  formatTimeInformation,
+  getLastUsedInformation
+} from "views/pages/access_tokens/access_tokens_widget";
 import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 
 describe("AccessTokensWidgetForCurrentUserSpec", () => {
@@ -69,9 +73,9 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
     expect(activeTokenTableRows.length).toEqual(1);
     expect(activeTokenTableRows).toContainText(validToken.description());
     expect(activeTokenTableRows)
-      .toContainText(AccessTokensWidget.formatTimeInformation(validToken.createdAt()));
+      .toContainText(formatTimeInformation(validToken.createdAt()));
     expect(activeTokenTableRows)
-      .toContainText(AccessTokensWidget.getLastUsedInformation(validToken));
+      .toContainText(getLastUsedInformation(validToken));
 
     const revokedTokensTab = helper.findByDataTestId("tab-header-1");
     expect(revokedTokensTab).toHaveText("Revoked Tokens");
@@ -105,15 +109,15 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
     const revokedTokensTableRows = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
     expect(revokedTokensTableRows.length).toEqual(1);
     expect(revokedTokensTableRows).toContainText(revokedToken.description());
-    expect(revokedTokensTableRows).toContainText(AccessTokensWidget.formatTimeInformation(revokedToken.createdAt()));
-    expect(revokedTokensTableRows).toContainText(AccessTokensWidget.getLastUsedInformation(revokedToken));
+    expect(revokedTokensTableRows).toContainText(formatTimeInformation(revokedToken.createdAt()));
+    expect(revokedTokensTableRows).toContainText(getLastUsedInformation(revokedToken));
     const revokedAt = revokedToken.revokedAt() as Date;
-    expect(revokedTokensTableRows).toContainText(AccessTokensWidget.formatTimeInformation(revokedAt));
+    expect(revokedTokensTableRows).toContainText(formatTimeInformation(revokedAt));
     expect(revokedTokensTableRows).toContainText(revokedToken.revokeCause());
   });
 
   function mount(accessTokens: Stream<AccessTokens>) {
-    helper.mount(() => <AccessTokensWidget accessTokens={accessTokens} onRevoke={onRevoke}/>);
+    helper.mount(() => <AccessTokensWidgetForCurrentUser accessTokens={accessTokens} onRevoke={onRevoke} searchText={stream("")}/>);
   }
 
   afterEach(helper.unmount.bind(helper));

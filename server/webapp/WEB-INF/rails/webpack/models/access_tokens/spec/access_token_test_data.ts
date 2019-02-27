@@ -29,7 +29,6 @@ export class AccessTokenTestData {
   static validAccessToken() {
     return {
       id: 1,
-      name: "ValidToken",
       description: "This is dummy description",
       auth_config_id: "auth_config_id0",
       username: "admin",
@@ -45,7 +44,6 @@ export class AccessTokenTestData {
   static newAccessTokenWithTokenText() {
     return {
       id: 2,
-      name: "ValidToken",
       description: "This is dummy description",
       auth_config_id: "auth_config_id0",
       username: "admin",
@@ -62,12 +60,11 @@ export class AccessTokenTestData {
   static revokedAccessToken() {
     return {
       id: 3,
-      name: "RevokedToken",
       description: "This is token is revoked",
       auth_config_id: "auth_config_id0",
       revoked: true,
       revoked_at: "2019-02-05T06:41:58Z",
-      created_at: "2019-02-04T06:41:58Z",
+      created_at: "2019-02-06T06:41:58Z",
       last_used_at: "2019-02-04T07:41:58Z",
       username: "admin",
       revoke_cause: "revoked as not in use",

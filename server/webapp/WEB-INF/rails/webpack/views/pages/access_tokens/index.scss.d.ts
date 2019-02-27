@@ -2,3 +2,4 @@
 // Please do not change this file!
 export const description: string;
 export const revoked: string;
+export const accessTokenSearchBox: string;

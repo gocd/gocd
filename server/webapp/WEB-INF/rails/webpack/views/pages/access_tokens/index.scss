@@ -28,3 +28,9 @@ $revoked_text_color: #e94c35;
   color:       $revoked_text_color;
   font-weight: 600;
 }
+
+.access-token-search-box{
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 10px;
+}

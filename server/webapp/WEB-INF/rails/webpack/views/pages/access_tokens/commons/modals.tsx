@@ -19,9 +19,9 @@ import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
+import * as Buttons from "views/components/buttons";
 import {Size, TextAreaField} from "views/components/forms/input_fields";
 import {Modal} from "views/components/modal";
-import * as Buttons from "views/components/buttons";
 
 export abstract class BaseModal extends Modal {
   protected accessToken: Stream<AccessToken>;

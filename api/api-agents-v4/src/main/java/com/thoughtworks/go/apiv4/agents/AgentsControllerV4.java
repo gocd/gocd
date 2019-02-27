@@ -80,8 +80,8 @@ public class AgentsControllerV4 extends ApiController implements SparkSpringCont
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", this::setContentType);
-            before("/*", this::setContentType);
+            before("", mimeType, this::setContentType);
+            before("/*", mimeType, this::setContentType);
             before("", mimeType, this::checkSecurityOr403);
             before("/*", mimeType, this::checkSecurityOr403);
 

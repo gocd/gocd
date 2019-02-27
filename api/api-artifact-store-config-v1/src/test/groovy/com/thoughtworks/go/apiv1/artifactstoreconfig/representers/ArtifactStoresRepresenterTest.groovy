@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.ArtifactStores
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -30,7 +29,7 @@ class ArtifactStoresRepresenterTest {
   private final LinkedHashMap<Object, Object> expectedJson = [
     _links   : [
       self: [href: 'http://test.host/go/api/admin/artifact_stores'],
-      doc : [href: apiDocsUrl('#artifact-store')],
+      doc : [href: 'https://api.gocd.org/current/#artifact-stores'],
       find: [href: 'http://test.host/go/api/admin/artifact_stores/:id'],
     ],
     _embedded: [
@@ -38,7 +37,7 @@ class ArtifactStoresRepresenterTest {
         [
           _links      : [
             self: [href: 'http://test.host/go/api/admin/artifact_stores/docker'],
-            doc : [href: apiDocsUrl('#artifact-store')],
+            doc : [href: 'https://api.gocd.org/current/#artifact-store'],
             find: [href: 'http://test.host/go/api/admin/artifact_stores/:id'],
           ],
           id          : 'docker',

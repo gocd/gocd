@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test
 
 import java.sql.Timestamp
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -43,7 +42,7 @@ class AccessTokenRepresenterTest {
     def expectedJSON = [
       "_links"      : [
         "doc" : [
-          "href": apiDocsUrl('#access-tokens')
+          "href": 'https://api.gocd.org/#access-tokens'
         ],
         "find": [
           "href": "http://test.host/go/api/current_user/access_tokens/:id"
@@ -76,7 +75,7 @@ class AccessTokenRepresenterTest {
           "href": "http://test.host/go/api/current_user/access_tokens/42"
         ],
         "doc" : [
-          "href": apiDocsUrl('#access-tokens')
+          "href": 'https://api.gocd.org/#access-tokens'
         ],
         "find": [
           "href": "http://test.host/go/api/current_user/access_tokens/:id"
@@ -131,7 +130,7 @@ class AccessTokenRepresenterTest {
     def expectedJSON = [
       "_links"        : [
         "doc" : [
-          "href": apiDocsUrl('#access-tokens')
+          "href": 'https://api.gocd.org/#access-tokens'
         ],
         "find": [
           "href": "http://test.host/go/api/current_user/access_tokens/:id"

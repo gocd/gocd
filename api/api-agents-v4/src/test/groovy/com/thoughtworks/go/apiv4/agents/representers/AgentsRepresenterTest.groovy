@@ -24,7 +24,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
 import static java.util.Arrays.asList
@@ -65,7 +64,7 @@ class AgentsRepresenterTest {
           "href": "http://test.host/go/api/agents"
         ],
         "doc" : [
-          "href": apiDocsUrl("#agents")
+          "href": "https://api.gocd.org/current/#agents"
         ]
       ],
       "_embedded": [
@@ -76,7 +75,7 @@ class AgentsRepresenterTest {
                 "href": "http://test.host/go/api/agents/uuid2"
               ],
               "doc" : [
-                "href": apiDocsUrl("#agents")
+                "href": "https://api.gocd.org/current/#agents"
               ],
               "find": [
                 "href": "http://test.host/go/api/agents/:uuid"
@@ -103,7 +102,7 @@ class AgentsRepresenterTest {
                 "href": "http://test.host/go/api/agents/1234"
               ],
               "doc" : [
-                "href": apiDocsUrl("#agents")
+                "href": "https://api.gocd.org/current/#agents"
               ],
               "find": [
                 "href": "http://test.host/go/api/agents/:uuid"
@@ -129,7 +128,7 @@ class AgentsRepresenterTest {
                 "href": "http://test.host/go/api/agents/uuid3"
               ],
               "doc" : [
-                "href": apiDocsUrl("#agents")
+                "href": "https://api.gocd.org/current/#agents"
               ],
               "find": [
                 "href": "http://test.host/go/api/agents/:uuid"

@@ -39,8 +39,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 
-import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
-
 public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerRequestExecutor {
 
     private final GoAgentServerHttpClient goAgentServerHttpClient;
@@ -94,9 +92,7 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
             List<String> reasons = Arrays.asList(
                     "This agent has been deleted from the configuration",
                     "This agent is pending approval",
-                    "There is possibly a reverse proxy (or load balancer) that is terminating SSL. Hint: use port 8154 of the GoCD server. See "
-                            + docsUrl("/installation/configure-reverse-proxy.html#agents-and-reverse-proxies") +
-                            " for details."
+                    "There is possibly a reverse proxy (or load balancer) that is terminating SSL. Hint: use port 8154 of the GoCD server. See https://docs.gocd.org/current/installation/configure-reverse-proxy.html#agents-and-reverse-proxies for details."
             );
 
             String delimiter = "\n   - ";

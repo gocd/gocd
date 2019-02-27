@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.PipelineEditabilityInfo
 import com.thoughtworks.go.config.TemplateToPipelines
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -45,7 +44,7 @@ class TemplateSummaryRepresenterTest {
         href: 'http://test.host/go/api/admin/templates/template-name'
       ],
       doc: [
-        href: apiDocsUrl('#template-config')
+        href: 'https://api.gocd.org/#template-config'
       ],
       find: [
         href: 'http://test.host/go/api/admin/templates/:template_name'
@@ -62,7 +61,7 @@ class TemplateSummaryRepresenterTest {
               href: 'http://test.host/go/api/admin/pipelines/pipeline2'
             ],
             doc: [
-              href: apiDocsUrl('#pipeline-config')
+              href: 'https://api.gocd.org/#pipeline-config'
             ],
             find: [
               href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'
@@ -78,7 +77,7 @@ class TemplateSummaryRepresenterTest {
               href: 'http://test.host/go/api/admin/pipelines/pipeline1'
             ],
             doc: [
-              href: apiDocsUrl('#pipeline-config')
+              href: 'https://api.gocd.org/#pipeline-config'
             ],
             find: [
               href: 'http://test.host/go/api/admin/pipelines/:pipeline_name'

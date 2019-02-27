@@ -27,7 +27,6 @@ import org.mockito.Mock
 
 import java.sql.Timestamp
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -80,7 +79,7 @@ class MaintenanceModeInfoRepresenterTest {
     def expectedJson = [
       _links         : [
         self: [href: 'http://test.host/go/api/admin/maintenance_mode/info'],
-        doc : [href: apiDocsUrl('#maintenance-mode-info')]
+        doc : [href: 'https://api.gocd.org/current/#maintenance-mode-info']
       ],
       "is_maintenance_mode": true,
       "metadata"     : [
@@ -178,7 +177,7 @@ class MaintenanceModeInfoRepresenterTest {
     def expectedJson = [
       _links         : [
         self: [href: 'http://test.host/go/api/admin/maintenance_mode/info'],
-        doc : [href: apiDocsUrl('#maintenance-mode-info')]
+        doc : [href: 'https://api.gocd.org/current/#maintenance-mode-info']
       ],
       "is_maintenance_mode": false,
       "metadata"     : [

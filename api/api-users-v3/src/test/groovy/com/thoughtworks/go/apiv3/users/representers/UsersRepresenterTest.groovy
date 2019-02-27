@@ -23,7 +23,6 @@ import com.thoughtworks.go.config.RolesConfig
 import com.thoughtworks.go.helper.UsersMother
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -40,7 +39,7 @@ class UsersRepresenterTest {
     def expectedJson = [
       _links   : [
         self: [href: 'http://test.host/go/api/users'],
-        doc : [href: apiDocsUrl('#users')]
+        doc : [href: 'https://api.gocd.org/#users']
       ],
       _embedded: [
         users: [

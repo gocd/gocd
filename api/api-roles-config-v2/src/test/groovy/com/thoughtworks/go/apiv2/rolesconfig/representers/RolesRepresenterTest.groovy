@@ -22,7 +22,6 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty
 import com.thoughtworks.go.domain.config.ConfigurationValue
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -30,7 +29,7 @@ class RolesRepresenterTest {
 
   private final LinkedHashMap<String, Object> pluginRole = [
     _links    : [
-      doc : [href: apiDocsUrl('#roles')],
+      doc : [href: 'https://api.gocd.org/#roles'],
       self: [href: 'http://test.host/go/api/admin/security/roles/blackbird'],
       find: [href: 'http://test.host/go/api/admin/security/roles/:role_name']
     ],
@@ -53,7 +52,7 @@ class RolesRepresenterTest {
 
   private final LinkedHashMap<String, Object> goCDRole = [
     _links    : [
-      doc : [href: apiDocsUrl('#roles')],
+      doc : [href: 'https://api.gocd.org/#roles'],
       self: [href: 'http://test.host/go/api/admin/security/roles/admins'],
       find: [href: 'http://test.host/go/api/admin/security/roles/:role_name']
     ],
@@ -66,7 +65,7 @@ class RolesRepresenterTest {
 
   private final LinkedHashMap<Object, Object> rolesList = [
     _links   : [
-      doc : [href: apiDocsUrl('#roles')],
+      doc : [href: 'https://api.gocd.org/#roles'],
       self: [href: 'http://test.host/go/api/admin/security/roles'],
       find: [href: 'http://test.host/go/api/admin/security/roles/:role_name']
     ],

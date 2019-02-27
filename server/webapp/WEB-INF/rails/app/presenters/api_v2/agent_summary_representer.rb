@@ -23,7 +23,7 @@ module ApiV2
     end
 
     link :doc do |opts|
-      com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#agents')
+      'https://api.gocd.org/#agents'
     end
 
     link :find do |opts|

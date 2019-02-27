@@ -29,7 +29,6 @@ import org.mockito.Mock
 
 import java.util.stream.Stream
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.*
 import static com.thoughtworks.go.helper.AgentInstanceMother.*
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -62,7 +61,7 @@ class AgentRepresenterTest {
           "href": "http://test.host/go/api/agents/some-uuid"
         ],
         "doc" : [
-          "href": apiDocsUrl("#agents")
+          "href": "https://api.gocd.org/current/#agents"
         ],
         "find": [
           "href": "http://test.host/go/api/agents/:uuid"

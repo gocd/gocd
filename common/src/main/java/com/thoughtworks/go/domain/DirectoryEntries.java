@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.server.presentation.html.HtmlElement;
 import com.thoughtworks.go.server.presentation.html.HtmlRenderable;
 import com.thoughtworks.go.server.presentation.models.HtmlRenderer;
@@ -33,9 +32,7 @@ public class DirectoryEntries extends ArrayList<DirectoryEntry> implements HtmlR
 
     public void render(HtmlRenderer renderer) {
         if (isArtifactsDeleted || isEmpty()) {
-            HtmlElement element = p().content("Artifacts for this job instance are unavailable as they may have been <a href='" +
-                    CurrentGoCDVersion.docsUrl("configuration/delete_artifacts.html") +
-                    "' target='blank'>purged by Go</a> or deleted externally. "
+            HtmlElement element = p().content("Artifacts for this job instance are unavailable as they may have been <a href='https://docs.gocd.org/current/configuration/delete_artifacts.html' target='blank'>purged by Go</a> or deleted externally. "
                     + "Re-run the stage or job to generate them again.");
             element.render(renderer);
         }

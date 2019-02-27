@@ -20,7 +20,6 @@ import com.thoughtworks.go.domain.AccessToken
 import com.thoughtworks.go.spark.Routes
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonOutputWriter.jsonDate
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenterTest.randomAccessToken
@@ -42,7 +41,7 @@ class AccessTokensRepresenterTest {
           "href": "http://test.host/go/api/current_user/access_tokens"
         ],
         "doc" : [
-          "href": apiDocsUrl('#access-tokens')
+          "href": 'https://api.gocd.org/#access-tokens'
         ],
       ],
       "_embedded": [
@@ -53,7 +52,7 @@ class AccessTokensRepresenterTest {
                 "href": "http://test.host/go/api/current_user/access_tokens/41"
               ],
               "doc" : [
-                "href": apiDocsUrl('#access-tokens')
+                "href": 'https://api.gocd.org/#access-tokens'
               ],
               "find": [
                 "href": "http://test.host/go/api/current_user/access_tokens/:id"
@@ -75,7 +74,7 @@ class AccessTokensRepresenterTest {
                 "href": "http://test.host/go/api/current_user/access_tokens/42"
               ],
               "doc" : [
-                "href": apiDocsUrl('#access-tokens')
+                "href": 'https://api.gocd.org/#access-tokens'
               ],
               "find": [
                 "href": "http://test.host/go/api/current_user/access_tokens/:id"
@@ -111,7 +110,7 @@ class AccessTokensRepresenterTest {
           "href": "http://test.host/go/api/admin/access_tokens"
         ],
         "doc" : [
-          "href": apiDocsUrl('#access-tokens')
+          "href": 'https://api.gocd.org/#access-tokens'
         ],
       ],
       "_embedded": [
@@ -122,7 +121,7 @@ class AccessTokensRepresenterTest {
                 "href": "http://test.host/go/api/admin/access_tokens/41"
               ],
               "doc" : [
-                "href": apiDocsUrl('#access-tokens')
+                "href": 'https://api.gocd.org/#access-tokens'
               ],
               "find": [
                 "href": "http://test.host/go/api/admin/access_tokens/:id"

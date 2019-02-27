@@ -24,7 +24,7 @@ module ApiV1
     end
 
     link :doc do
-      com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#version-info')
+      'https://api.gocd.org/#versionInfo'
     end
 
     link :self do |opts|

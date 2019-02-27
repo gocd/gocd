@@ -31,7 +31,6 @@ import com.thoughtworks.go.util.Clock
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.helpers.PipelineModelMother.pipeline_model
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -101,7 +100,7 @@ class DashboardGroupRepresenterTest {
   class Environments {
     private LinkedHashMap<String, LinkedHashMap<String, String>> expectedLinks = [
       doc : [
-        href: apiDocsUrl('#environment-config')
+        href: 'https://api.gocd.org/current/#environment-config'
       ],
       self: [
         href: 'http://test.host/go/api/admin/environments/env1'

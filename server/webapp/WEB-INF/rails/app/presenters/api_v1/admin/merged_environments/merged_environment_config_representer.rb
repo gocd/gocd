@@ -25,7 +25,7 @@ module ApiV1
         end
 
         link :doc do |opts|
-          com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#merged-environment-config')
+          'https://api.gocd.org/#merged-environment-config'
         end
 
         link :find do |opts|

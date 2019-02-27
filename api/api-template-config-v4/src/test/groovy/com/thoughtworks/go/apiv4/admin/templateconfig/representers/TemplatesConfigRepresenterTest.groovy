@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.PipelineEditabilityInfo
 import com.thoughtworks.go.config.TemplateToPipelines
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -43,7 +42,7 @@ class TemplatesConfigRepresenterTest {
           href: 'http://test.host/go/api/admin/templates'
         ],
         doc: [
-          href: apiDocsUrl('#template-config')
+          href: 'https://api.gocd.org/#template-config'
         ]
       ],
       _embedded: [

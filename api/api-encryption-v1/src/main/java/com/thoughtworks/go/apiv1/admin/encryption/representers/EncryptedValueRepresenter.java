@@ -19,13 +19,11 @@ package com.thoughtworks.go.apiv1.admin.encryption.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.spark.Routes;
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
-
 
 public interface EncryptedValueRepresenter {
     static void toJSON(OutputWriter writer, String encryptedValue) {
         writer.addLinks(outputLinkWriter ->
-            outputLinkWriter.addAbsoluteLink("doc", apiDocsUrl("#encryption")).
+            outputLinkWriter.addAbsoluteLink("doc", "https://api.gocd.org/#encryption").
                 addLink("self", Routes.Encrypt.BASE))
             .add("encrypted_value", encryptedValue);
     }

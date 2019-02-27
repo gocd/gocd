@@ -30,7 +30,7 @@ module ApiV1
       end
 
       link :doc do |opts|
-        com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl('#package-repositories')
+        'https://api.gocd.org/#package-repositories'
       end
 
       link :find do |opts|

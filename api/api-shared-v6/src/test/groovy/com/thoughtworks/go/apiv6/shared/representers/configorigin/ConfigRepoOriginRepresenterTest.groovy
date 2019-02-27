@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -43,7 +42,7 @@ class ConfigRepoOriginRepresenterTest {
         href: 'http://test.host/go/api/admin/config_repos/repo1'
       ],
       doc: [
-        href: apiDocsUrl('#config-repos')
+        href: 'https://api.gocd.org/#config-repos'
       ],
       find: [
         href: 'http://test.host/go/api/admin/config_repos/:id'

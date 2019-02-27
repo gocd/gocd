@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.admin.encryption.representers
 
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -30,7 +29,7 @@ class EncryptedValueRepresenterTest {
 
     LinkedHashMap<String, Object> expected = [
       _links         : [
-        doc : [href: apiDocsUrl('#encryption')],
+        doc : [href: 'https://api.gocd.org/#encryption'],
         self: [href: 'http://test.host/go/api/admin/encrypt']]
       ,
       encrypted_value: 'foo'

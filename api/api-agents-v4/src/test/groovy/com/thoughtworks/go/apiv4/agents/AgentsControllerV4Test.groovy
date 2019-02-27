@@ -40,7 +40,6 @@ import org.mockito.invocation.InvocationOnMock
 
 import java.util.stream.Stream
 
-import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.helper.AgentInstanceMother.idle
 import static com.thoughtworks.go.helper.AgentInstanceMother.idleWith
 import static java.util.Arrays.asList
@@ -102,7 +101,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
             "href": "http://test.host/go/api/agents"
           ],
           "doc" : [
-            "href": apiDocsUrl("#agents")
+            "href": "https://api.gocd.org/current/#agents"
           ]
         ],
         "_embedded": [
@@ -113,7 +112,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
                   "href": "http://test.host/go/api/agents/uuid2"
                 ],
                 "doc" : [
-                  "href": apiDocsUrl("#agents")
+                  "href": "https://api.gocd.org/current/#agents"
                 ],
                 "find": [
                   "href": "http://test.host/go/api/agents/:uuid"
@@ -171,7 +170,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
             "href": "http://test.host/go/api/agents/uuid2"
           ],
           "doc" : [
-            "href": apiDocsUrl("#agents")
+            "href": "https://api.gocd.org/current/#agents"
           ],
           "find": [
             "href": "http://test.host/go/api/agents/:uuid"
@@ -254,7 +253,7 @@ class AgentsControllerV4Test implements SecurityServiceTrait, ControllerTrait<Ag
             "href": "http://test.host/go/api/agents/uuid2"
           ],
           "doc" : [
-            "href": apiDocsUrl("#agents")
+            "href": "https://api.gocd.org/current/#agents"
           ],
           "find": [
             "href": "http://test.host/go/api/agents/:uuid"

@@ -165,6 +165,8 @@ export interface InputHTMLAttributes extends HTMLAttributes {
   accept?: string;
   alt?: string;
   autocomplete?: string;
+  autocapitalize?: string;
+  autocorrect?: string;
   autofocus?: boolean;
   capture?: boolean; // https://www.w3.org/tr/html-media-capture/#the-capture-attribute
   checked?: boolean;

@@ -40,7 +40,7 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
     this.fetchData(vnode).then(this._onSuccess.bind(this), this._onFailure.bind(this));
   }
 
-  view(vnode: m.Vnode<Attrs, State>) {
+  view(vnode: m.Vnode<Attrs, State>): m.Children {
     switch (this.pageState) {
       case PageState.FAILED:
         return <PageLoadError message={`There was a problem fetching ${this.pageName()}`}/>;

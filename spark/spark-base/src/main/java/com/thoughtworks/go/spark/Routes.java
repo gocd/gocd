@@ -528,4 +528,12 @@ public class Routes {
     public class CCTray {
         public static final String BASE = "/cctray.xml";
     }
+
+    public class LoginPage {
+        public static final String SPA_BASE = "/auth/login";
+    }
+
+    public class LogoutPage {
+        public static final String SPA_BASE = "/auth/logout";
+    }
 }

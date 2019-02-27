@@ -32,6 +32,7 @@ const classnames = bind(styles);
 
 interface RequiredFieldAttr {
   required?: boolean;
+  hideRequiredAsterix?: boolean;
 }
 
 interface LabelAttr extends RequiredFieldAttr {
@@ -137,7 +138,7 @@ class RequiredLabel extends MithrilViewComponent<RequiredFieldAttr> {
   }
 
   view(vnode: m.Vnode<RequiredFieldAttr>) {
-    if (RequiredLabel.isRequiredField(vnode.attrs)) {
+    if (RequiredLabel.isRequiredField(vnode.attrs) && !vnode.attrs.hideRequiredAsterix) {
       return (<span className={styles.formLabelRequired}>*</span>);
     }
   }
@@ -408,6 +409,18 @@ export class PasswordField extends FormField<EncryptedValue, RequiredFieldAttr &
   }
 }
 
+export class SimplePasswordField extends TextField {
+  renderInputField(vnode: m.Vnode<BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr>): any {
+    return (
+      <input type="password"
+             className={classnames(styles.formControl)}
+             {...this.defaultAttributes(vnode.attrs)}
+             {...this.bindingAttributes(vnode.attrs, "oninput", "value")}
+      />
+    );
+  }
+}
+
 export class SearchField extends FormField<string, PlaceholderAttr> {
   view(vnode: m.Vnode<BindingsAttr<string> & PlaceholderAttr>): any {
     return (
@@ -637,7 +650,7 @@ export class CopyField extends TextFieldWithButton {
   }
 
   protected defaultAttributes(attrs: TextFieldWithButtonAttrs): DefaultAttrs {
-    const defaultAttrs    = super.defaultAttributes(attrs);
+    const defaultAttrs = super.defaultAttributes(attrs);
     delete defaultAttrs.disabled;
     return defaultAttrs;
   }

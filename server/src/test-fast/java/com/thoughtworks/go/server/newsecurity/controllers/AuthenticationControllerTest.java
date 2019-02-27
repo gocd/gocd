@@ -175,17 +175,6 @@ class AuthenticationControllerTest {
     }
 
     @Nested
-    class PerformLogout {
-        @Test
-        void shouldInvalidateSessionAndCreateANewOne() {
-            final RedirectView redirectView = controller.logout(request);
-            assertThat(originalSession).isNotSameAs(request.getSession(false));
-            assertThat(Collections.list(request.getSession().getAttributeNames())).isEmpty();
-            assertThat(redirectView.getUrl()).isEqualTo("/auth/login");
-        }
-    }
-
-    @Nested
     class RenderLoginPage {
         @Nested
         class SecurityDisabled {

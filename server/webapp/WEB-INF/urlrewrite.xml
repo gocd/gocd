@@ -26,6 +26,19 @@
 <urlrewrite>
 
   <rule>
+    <name>Login page</name>
+    <from>^/auth/login(/?)$</from>
+    <run class="com.thoughtworks.go.server.SparkOrSpringToggle" method="authPageUsingSpring"/>
+    <to last="true">/%{attribute:sparkOrSpring}/auth/login</to>
+  </rule>
+
+  <rule>
+    <name>Logout page</name>
+    <from>^/auth/logout(/?)$</from>
+    <to last="true">/spark/auth/logout</to>
+  </rule>
+
+  <rule>
     <name>CCTray feed</name>
     <from>/cctray.xml</from>
     <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="ccTrayUsingRails"/>

@@ -48,6 +48,10 @@ public class Image {
         return dataAsBytes;
     }
 
+    public String toDataURI() {
+        return "data:" + contentType + ";base64," + data;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -107,7 +107,7 @@ public class AuthenticationController {
         }
     }
 
-    @RequestMapping(value = "/auth/login", method = RequestMethod.GET)
+    @RequestMapping(value = "/spring/auth/login", method = RequestMethod.GET)
     public Object renderLoginPage(HttpServletRequest request, HttpServletResponse response) {
         if (securityIsDisabledOrAlreadyLoggedIn(request)) {
             return new RedirectView("/pipelines", true);
@@ -121,12 +121,6 @@ public class AuthenticationController {
         model.put(GoVelocityView.CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
 
         return new ModelAndView("auth/login", model);
-    }
-
-    @RequestMapping(value = "/auth/logout", method = RequestMethod.GET)
-    public RedirectView logout(HttpServletRequest request) {
-        SessionUtils.recreateSessionWithoutCopyingOverSessionState(request);
-        return new RedirectView("/auth/login", true);
     }
 
     @RequestMapping(value = "/plugin/{pluginId}/login", method = RequestMethod.GET)

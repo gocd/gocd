@@ -17,11 +17,8 @@
 package com.thoughtworks.go.spark.spa.spring;
 
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
-import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService;
-import com.thoughtworks.go.server.service.PipelineConfigService;
-import com.thoughtworks.go.server.service.SecurityAuthConfigService;
-import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spa.*;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -44,7 +41,7 @@ public class SpaControllers implements SparkSpringController {
     public SpaControllers(SPAAuthenticationHelper authenticationHelper, FreemarkerTemplateEngineFactory templateEngineFactory,
                           SecurityService securityService, PipelineConfigService pipelineConfigService,
                           SystemEnvironment systemEnvironment, AnalyticsExtension analyticsExtension,
-                          FeatureToggleService featureToggleService,
+                          GoConfigService goConfigService,
                           AuthorizationExtensionCacheService authorizationExtensionCacheService,
                           SecurityAuthConfigService securityAuthConfigService) {
 
@@ -52,6 +49,8 @@ public class SpaControllers implements SparkSpringController {
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
 
 
+		sparkControllers.add(new LogoutPageController(templateEngineFactory.create(LogoutPageController.class, () -> COMPONENT_LAYOUT_PATH), new LoginLogoutHelper(goConfigService, AuthorizationMetadataStore.instance())));
+        sparkControllers.add(new LoginPageController(templateEngineFactory.create(LoginPageController.class, () -> COMPONENT_LAYOUT_PATH), new LoginLogoutHelper(goConfigService, AuthorizationMetadataStore.instance())));
         sparkControllers.add(new AccessTokensController(authenticationHelper, authorizationExtensionCacheService, securityAuthConfigService, templateEngineFactory.create(AccessTokensController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new AdminAccessTokensController(authenticationHelper, templateEngineFactory.create(AdminAccessTokensController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new ArtifactStoresController(authenticationHelper, templateEngineFactory.create(ArtifactStoresController.class, () -> COMPONENT_LAYOUT_PATH)));

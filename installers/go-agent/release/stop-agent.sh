@@ -34,4 +34,5 @@ else
   PID_FILE="$AGENT_WORK_DIR/go-agent.pid"
 fi
 
-cat $PID_FILE | xargs kill
+kill "$(cat "$PID_FILE")"
+

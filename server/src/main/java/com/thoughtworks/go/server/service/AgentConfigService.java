@@ -229,8 +229,14 @@ public class AgentConfigService {
         }
     }
 
-    public void bulkUpdateAgentAttributes(AgentInstances agentInstances, final Username username, final LocalizedOperationResult result, final List<String> uuids, final List<String> resourcesToAdd, final List<String> resourcesToRemove, final List<String> environmentsToAdd, final List<String> environmentsToRemove, final TriState enable) {
-        EntityConfigUpdateCommand<Agents> agentsEntityConfigUpdateCommand = new AgentsEntityConfigUpdateCommand(agentInstances, username, result, uuids, environmentsToAdd, environmentsToRemove, enable, resourcesToAdd, resourcesToRemove, goConfigService);
+    public void bulkUpdateAgentAttributes(AgentInstances agentInstances, final Username username, final LocalizedOperationResult result,
+                                          final List<String> uuids, EnvironmentConfigService environmentConfigService,
+                                          final List<String> resourcesToAdd, final List<String> resourcesToRemove,
+                                          final List<String> environmentsToAdd, final List<String> environmentsToRemove,
+                                          final TriState enable) {
+        EntityConfigUpdateCommand<Agents> agentsEntityConfigUpdateCommand = new AgentsEntityConfigUpdateCommand(agentInstances,
+                username, result, uuids, environmentConfigService, environmentsToAdd, environmentsToRemove, enable,
+                resourcesToAdd, resourcesToRemove, goConfigService);
         try {
             goConfigService.updateConfig(agentsEntityConfigUpdateCommand, username);
             if(result.isSuccessful()){

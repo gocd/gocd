@@ -16,19 +16,18 @@
 
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ResourceConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.config.exceptions.NoSuchAgentException;
 import com.thoughtworks.go.config.exceptions.NoSuchEnvironmentException;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.TriState;
@@ -41,8 +40,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
+import static java.util.Collections.emptyList;
 import static junit.framework.TestCase.assertFalse;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -56,6 +57,7 @@ public class AgentsEntityConfigUpdateCommandTest {
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
     private GoConfigService goConfigService;
+    private EnvironmentConfigService environmentConfigService;
     private AgentInstances agentInstances;
     private List<String> uuids;
     private List<String> environmentsToAdd;
@@ -70,6 +72,7 @@ public class AgentsEntityConfigUpdateCommandTest {
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         goConfigService = mock(GoConfigService.class);
+        environmentConfigService = mock(EnvironmentConfigService.class);
         agentInstances = mock(AgentInstances.class);
 
         uuids = new ArrayList<>();
@@ -87,8 +90,7 @@ public class AgentsEntityConfigUpdateCommandTest {
 
     @Test
     public void shouldReturnTrueIfAnyOperationPerformedOnAgent() throws Exception {
-        AgentsEntityConfigUpdateCommand command = new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentsToAdd,
-                environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
 
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
         assertTrue(command.canContinue(cruiseConfig));
@@ -97,8 +99,7 @@ public class AgentsEntityConfigUpdateCommandTest {
     @Test
     public void shouldReturnFalseIfNoOperationPerformedOnAgents() throws Exception {
         triState = TriState.UNSET;
-        AgentsEntityConfigUpdateCommand command = new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentsToAdd,
-                environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
 
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
         assertFalse(command.canContinue(cruiseConfig));
@@ -109,8 +110,7 @@ public class AgentsEntityConfigUpdateCommandTest {
 
     @Test
     public void shouldReturnFalseIfUserUnauthorizedToUpdateTheAgents() throws Exception {
-        AgentsEntityConfigUpdateCommand command = new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentsToAdd,
-                environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertFalse(command.canContinue(cruiseConfig));
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
@@ -121,8 +121,7 @@ public class AgentsEntityConfigUpdateCommandTest {
     @Test
     public void shouldThrowExceptionIfInvalidEnvironmentIsUpdatedOnAgent() throws Exception {
         environmentsToAdd.add("Dev");
-        AgentsEntityConfigUpdateCommand command = new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentsToAdd,
-                environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
 
         exception.expect(NoSuchEnvironmentException.class);
         exception.expectMessage("Environment [Dev] does not exist.");
@@ -136,8 +135,7 @@ public class AgentsEntityConfigUpdateCommandTest {
         AgentInstance agentInstance = mock(AgentInstance.class);
         when(agentInstance.isNullAgent()).thenReturn(true);
         when(agentInstances.findAgent("uuid-1")).thenReturn(agentInstance);
-        AgentsEntityConfigUpdateCommand command = new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentsToAdd,
-                environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
 
         exception.expect(NoSuchAgentException.class);
         exception.expectMessage("Agents [uuid-1] could not be found");
@@ -153,8 +151,7 @@ public class AgentsEntityConfigUpdateCommandTest {
         when(agentInstance.isNullAgent()).thenReturn(false);
         when(agentInstance.isElastic()).thenReturn(true);
         when(agentInstances.findAgent("uuid-1")).thenReturn(agentInstance);
-        AgentsEntityConfigUpdateCommand command = new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentsToAdd,
-                environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
 
         exception.expect(ElasticAgentsResourceUpdateException.class);
         exception.expectMessage("Can not update resources on Elastic Agents [uuid-1]");
@@ -173,8 +170,7 @@ public class AgentsEntityConfigUpdateCommandTest {
         uuids.add(agentConfig.getUuid());
 
         when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
-        AgentsEntityConfigUpdateCommand command = new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentsToAdd,
-                environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
 
         exception.expect(InvalidPendingAgentOperationException.class);
         exception.expectMessage(String.format("Invalid operation performed on pending agents: [%s]", agentConfig.getUuid()));
@@ -197,8 +193,7 @@ public class AgentsEntityConfigUpdateCommandTest {
         when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
 
         uuids.add(agentConfig.getUuid());
-        AgentsEntityConfigUpdateCommand command = new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentsToAdd,
-                environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
         command.update(cruiseConfig);
 
         assertThat(agentConfig.getResourceConfigs().resourceNames(), is(Arrays.asList("firefox")));
@@ -226,14 +221,43 @@ public class AgentsEntityConfigUpdateCommandTest {
         assertThat(cruiseConfig.getEnvironments().find(new CaseInsensitiveString("prod")).getAgents().getUuids(), is(emptyList));
 
         when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
+        when(environmentConfigService.getEnvironmentConfig("dev"))
+                .thenReturn(new BasicEnvironmentConfig(str("dev")));
+        when(environmentConfigService.getEnvironmentConfig("prod"))
+                .thenReturn(new BasicEnvironmentConfig(str("prod")));
 
-        AgentsEntityConfigUpdateCommand command = new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentsToAdd,
-                environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
         command.update(cruiseConfig);
 
         assertThat(cruiseConfig.getEnvironments().find(new CaseInsensitiveString("dev")).getAgents().getUuids(), is(emptyList));
         assertThat(cruiseConfig.getEnvironments().find(new CaseInsensitiveString("prod")).getAgents().getUuids(), is(uuids));
+    }
 
+    @Test
+    public void shouldDoNothingWhenTryingToAddAgentToEnvironmentAlreadyAssociatedInConfigRepo() throws Exception {
+        environmentsToAdd.add("prod");
+        BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(str("prod"));
+        environmentConfig.setOrigins(new RepoConfigOrigin());
+
+        AgentInstance agentInstance = AgentInstanceMother.disabled();
+        AgentConfig agentConfig = agentInstance.agentConfig();
+
+        cruiseConfig.addEnvironment("prod");
+        cruiseConfig.agents().add(agentConfig);
+
+        uuids.add(agentConfig.getUuid());
+        environmentConfig.addAgent(agentConfig.getUuid());
+
+        assertThat(cruiseConfig.getEnvironments().find(new CaseInsensitiveString("prod")).getAgents().getUuids(), is(emptyList()));
+
+        when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
+        when(environmentConfigService.getEnvironmentConfig("prod"))
+                .thenReturn(environmentConfig);
+
+        AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
+        command.update(cruiseConfig);
+
+        assertThat(cruiseConfig.getEnvironments().find(new CaseInsensitiveString("prod")).getAgents().getUuids(), is(emptyList()));
     }
 
     @Test
@@ -252,10 +276,14 @@ public class AgentsEntityConfigUpdateCommandTest {
 
         when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
 
-        AgentsEntityConfigUpdateCommand command = new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentsToAdd,
-                environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsEntityConfigUpdateCommand command = newAgentsEntityConfigUpdateCommand();
         command.update(cruiseConfig);
 
         assertThat(agentConfig.isEnabled(), is(true));
+    }
+
+    private AgentsEntityConfigUpdateCommand newAgentsEntityConfigUpdateCommand() {
+        return new AgentsEntityConfigUpdateCommand(agentInstances, currentUser, result, uuids, environmentConfigService,
+                environmentsToAdd, environmentsToRemove, triState, resourcesToAdd, resourcesToRemove, goConfigService);
     }
 }

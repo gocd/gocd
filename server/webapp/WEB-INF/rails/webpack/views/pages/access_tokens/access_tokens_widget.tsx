@@ -32,27 +32,18 @@ interface Attrs {
 }
 
 export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    const accessTokens = vnode.attrs.accessTokens();
-    if (accessTokens.length === 0) {
-      return (<ul>
-        <li>Click on "Generate Token" to create new personal access token.</li>
-        <li>A Generated token can be used to access the GoCD API.</li>
-      </ul>);
+
+  public static formatTimeInformation(date: Date) {
+    const dateStr = TimeFormatter.format(date);
+
+    if (date.toDateString() === new Date().toDateString()) {
+      return `Today ${dateStr.substr(dateStr.indexOf("at"))}`;
     }
 
-    return <Tabs
-      tabs={["Active Tokens", "Revoked Tokens"]}
-      contents={[
-        <Table headers={["Description", "Created at", " Last used", "Revoke"]}
-               data={this.getActiveTokensData(accessTokens, vnode)}/>,
-        <Table headers={["Description", "Created at", " Last used", "Revoked At", "Revoked Message"]}
-               data={this.getRevokedTokensData(accessTokens)}/>]}
-    />;
-
+    return dateStr;
   }
 
-  private static getLastUsedInformation(accessToken: AccessToken) {
+  public static getLastUsedInformation(accessToken: AccessToken) {
     const lastUsedAt = accessToken.lastUsedAt();
     if (!lastUsedAt) {
       return "Never";
@@ -61,14 +52,47 @@ export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
     return AccessTokensWidget.formatTimeInformation(lastUsedAt);
   }
 
-  private static formatTimeInformation(date: Date) {
-    const dateStr = TimeFormatter.format(date);
-
-    if (date.toDateString() === new Date().toDateString()) {
-      return `Today ${dateStr.substr(dateStr.indexOf("at"))}`;
+  view(vnode: m.Vnode<Attrs>) {
+    const accessTokens = vnode.attrs.accessTokens();
+    if (accessTokens.length === 0) {
+      return (<ul data-test-id="access_token_info">
+        <li>Click on "Generate Token" to create new personal access token.</li>
+        <li>A Generated token can be used to access the GoCD API.</li>
+      </ul>);
     }
 
-    return dateStr;
+    return <Tabs
+      tabs={["Active Tokens", "Revoked Tokens"]}
+      contents={[
+        this.getActiveTokensView(accessTokens, vnode),
+        this.getRevokedTokensView(accessTokens)
+      ]}/>;
+
+  }
+
+  private getActiveTokensView(accessTokens: AccessTokens, vnode: m.Vnode<Attrs>) {
+    const activeTokensData = this.getActiveTokensData(accessTokens, vnode);
+
+    if (activeTokensData.length === 0) {
+      return <p>
+        You don't have any active tokens.
+        Click on 'Generate Token' button to create a new token.
+      </p>;
+    }
+
+    return <Table headers={["Description", "Created At", "Last Used", "Revoke"]}
+                  data={activeTokensData}/>;
+  }
+
+  private getRevokedTokensView(accessTokens: AccessTokens) {
+    const revokedTokensData = this.getRevokedTokensData(accessTokens);
+
+    if (revokedTokensData.length === 0) {
+      return <p>You don't have any revoked tokens.</p>;
+    }
+
+    return <Table data={revokedTokensData}
+                  headers={["Description", "Created At", "Last Used", "Revoked At", "Revoked Message"]}/>;
   }
 
   private getActiveTokensData(accessTokens: AccessTokens, vnode: m.Vnode<Attrs>) {

@@ -636,6 +636,12 @@ export class CopyField extends TextFieldWithButton {
     return super.renderInputField(vnode);
   }
 
+  protected defaultAttributes(attrs: TextFieldWithButtonAttrs): DefaultAttrs {
+    const defaultAttrs    = super.defaultAttributes(attrs);
+    delete defaultAttrs.disabled;
+    return defaultAttrs;
+  }
+
   protected name(): m.Child {
     return "Copy";
   }

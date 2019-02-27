@@ -88,14 +88,14 @@ export class GenerateTokenModal extends BaseModal {
   }
 
   title(): string {
-    return "Generate Token";
+    return "Create Access Token";
   }
 
   body(): m.Children {
     if (this.hasToken()) {
       return (<div>
         <FlashMessage type={MessageType.info}
-                      message="Make sure to copy your new personal access token now. You won’t be able to see it again!"/>
+                      message="Make sure to copy your new personal access token now. You won't be able to see it again!"/>
         <CopyField size={Size.MATCH_PARENT} property={this.accessToken().token} buttonDisableReason=""/>
       </div>);
     } else {
@@ -106,7 +106,7 @@ export class GenerateTokenModal extends BaseModal {
                             rows={5}
                             size={Size.MATCH_PARENT}
                             errorText={this.accessToken().errors().errorsForDisplay("description")}
-                            helpText="What’s this token for?"/>;
+                            helpText="What's this token for?"/>;
 
     }
   }

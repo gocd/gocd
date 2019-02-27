@@ -33,6 +33,7 @@ import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension
 import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
+import com.thoughtworks.go.server.service.AccessTokenFilter
 import com.thoughtworks.go.server.service.AccessTokenService
 import com.thoughtworks.go.server.service.SecurityAuthConfigService
 import com.thoughtworks.go.spark.ControllerTrait
@@ -54,8 +55,7 @@ import java.util.stream.Stream
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv1.accessToken.representers.AccessTokenRepresenterTest.randomAccessToken
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.eq
+import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -203,7 +203,7 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
         loginAsUser()
 
         when(accessTokenService.create(token.description, currentUsernameString(), authConfigId)).thenReturn(token)
-        when(extension.supportsPluginAPICallsRequiredForAccessToken(any())).thenReturn(true)
+        when(extension.supportsPluginAPICallsRequiredForAccessToken(any() as SecurityAuthConfig)).thenReturn(true)
       }
 
       @Test
@@ -222,8 +222,8 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
 
       @Test
       void 'should disallow access token creation when the plugin does not support access token related API calls'() {
-        def authConfig = new SecurityAuthConfig("ldap", "plugin-id", ConfigurationPropertyMother.create("url", false, "some-url"));
-        when(authConfigService.findProfile(any())).thenReturn(authConfig)
+        def authConfig = new SecurityAuthConfig("ldap", "plugin-id", ConfigurationPropertyMother.create("url", false, "some-url"))
+        when(authConfigService.findProfile(anyString())).thenReturn(authConfig)
         when(extension.supportsPluginAPICallsRequiredForAccessToken(authConfig)).thenReturn(false)
 
         postWithApiHeader(controller.controllerPath(), [:])
@@ -275,7 +275,7 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
     class Security implements SecurityTestTrait, NormalUserOnlyIfSecurityEnabled {
       @BeforeEach
       void setUp() {
-        when(accessTokenService.findAllTokensForUser(currentUsernameString())).thenReturn([token])
+        when(accessTokenService.findAllTokensForUser(currentUsernameString(), AccessTokenFilter.all)).thenReturn([token])
       }
 
       @Override
@@ -296,17 +296,62 @@ class CurrentUserAccessTokenControllerV1Test implements ControllerTrait<CurrentU
         enableSecurity()
         loginAsUser()
 
-        when(accessTokenService.findAllTokensForUser(currentUsernameString())).thenReturn([token])
       }
 
       @Test
-      void 'should render all the access tokens'() {
+      void 'should render active access tokens by default'() {
+        when(accessTokenService.findAllTokensForUser(currentUsernameString(), AccessTokenFilter.active)).thenReturn([token])
+
         getWithApiHeader(controller.controllerPath())
 
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
           .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, controller.urlContext(), [token]) }))
+      }
+
+      @Test
+      void 'should render all the access tokens when filter is `all`'() {
+        when(accessTokenService.findAllTokensForUser(currentUsernameString(), AccessTokenFilter.all)).thenReturn([token])
+        getWithApiHeader(controller.controllerPath([filter: 'all']))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, controller.urlContext(), [token]) }))
+      }
+
+
+      @Test
+      void 'should render active the access tokens when filter is `active`'() {
+        when(accessTokenService.findAllTokensForUser(currentUsernameString(), AccessTokenFilter.active)).thenReturn([token])
+        getWithApiHeader(controller.controllerPath([filter: 'active']))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, controller.urlContext(), [token]) }))
+      }
+
+      @Test
+      void 'should render revoked the access tokens when filter is `revoked`'() {
+        when(accessTokenService.findAllTokensForUser(currentUsernameString(), AccessTokenFilter.revoked)).thenReturn([token])
+        getWithApiHeader(controller.controllerPath([filter: 'revoked']))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, controller.urlContext(), [token]) }))
+      }
+
+      @Test
+      void 'should render 400 if bad filter is provided'() {
+        getWithApiHeader(controller.controllerPath([filter: 'bad-value']))
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Value `bad-value` is not allowed for query parameter named `filter`. Valid values are active, all, revoked.")
       }
     }
   }

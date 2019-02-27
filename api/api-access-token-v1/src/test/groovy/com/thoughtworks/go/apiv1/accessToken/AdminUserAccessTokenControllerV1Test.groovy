@@ -30,6 +30,7 @@ import com.thoughtworks.go.http.mocks.MockHttpServletResponse
 import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils
+import com.thoughtworks.go.server.service.AccessTokenFilter
 import com.thoughtworks.go.server.service.AccessTokenService
 import com.thoughtworks.go.spark.AdminUserOnlyIfSecurityEnabled
 import com.thoughtworks.go.spark.ControllerTrait
@@ -177,7 +178,7 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
     class Security implements SecurityTestTrait, AdminUserOnlyIfSecurityEnabled {
       @BeforeEach
       void setUp() {
-        when(accessTokenService.findAllTokensForUser(currentUsernameString())).thenReturn([token])
+        when(accessTokenService.findAllTokensForUser(currentUsernameString(), filter)).thenReturn([token])
       }
 
       @Override
@@ -198,17 +199,65 @@ class AdminUserAccessTokenControllerV1Test implements ControllerTrait<AdminUserA
         enableSecurity()
         loginAsAdmin()
 
-        when(accessTokenService.findAllTokensForAllUsers()).thenReturn([token])
       }
 
       @Test
-      void 'should render all the access tokens'() {
+      void 'should render active access tokens by default'() {
+        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn([token])
+
         getWithApiHeader(controller.controllerPath())
 
         assertThatResponse()
           .isOk()
           .hasContentType(controller.mimeType)
           .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, controller.urlContext(), [token]) }))
+      }
+
+
+      @Test
+      void 'should render all the access tokens when filter is `all`'() {
+        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.all)).thenReturn([token])
+
+        getWithApiHeader(controller.controllerPath([filter: 'all']))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, controller.urlContext(), [token]) }))
+      }
+
+      @Test
+      void 'should render active the access tokens when filter is `active`'() {
+        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.active)).thenReturn([token])
+
+        getWithApiHeader(controller.controllerPath([filter: 'active']))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, controller.urlContext(), [token]) }))
+      }
+
+      @Test
+      void 'should render revoked the access tokens when filter is `revoked`'() {
+        when(accessTokenService.findAllTokensForAllUsers(AccessTokenFilter.revoked)).thenReturn([token])
+
+        getWithApiHeader(controller.controllerPath([filter: 'revoked']))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBody(toObjectString({ AccessTokensRepresenter.toJSON(it, controller.urlContext(), [token]) }))
+      }
+
+      @Test
+      void 'should render 400 if bad filter is provided'() {
+        getWithApiHeader(controller.controllerPath([filter: 'bad-value']))
+
+        assertThatResponse()
+          .isBadRequest()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage("Value `bad-value` is not allowed for query parameter named `filter`. Valid values are active, all, revoked.")
       }
     }
   }

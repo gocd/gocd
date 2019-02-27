@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.exceptions.UserEnabledException;
 import com.thoughtworks.go.server.exceptions.UserNotFoundException;
+import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import org.hamcrest.Matchers;
 import org.hibernate.SessionFactory;
@@ -37,7 +38,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItems;
@@ -431,14 +431,14 @@ public class UserSqlMapDaoIntegrationTest {
         accessTokenService.create("my token", john.getName(), "blah");
         accessTokenService.create("my token", joan.getName(), "blah");
 
-        assertThat(accessTokenService.findAllTokensForUser(john.getName()), hasSize(1));
-        assertThat(accessTokenService.findAllTokensForUser(joan.getName()), hasSize(1));
+        assertThat(accessTokenService.findAllTokensForUser(john.getName(), AccessTokenFilter.all), hasSize(1));
+        assertThat(accessTokenService.findAllTokensForUser(joan.getName(), AccessTokenFilter.all), hasSize(1));
 
         boolean result = userDao.deleteUsers(userNames, "currentUser");
         assertThat(result, is(true));
 
-        assertThat(accessTokenService.findAllTokensForUser(john.getName()), hasSize(0));
-        assertThat(accessTokenService.findAllTokensForUser(joan.getName()), hasSize(0));
+        assertThat(accessTokenService.findAllTokensForUser(john.getName(), AccessTokenFilter.all), hasSize(0));
+        assertThat(accessTokenService.findAllTokensForUser(joan.getName(), AccessTokenFilter.all), hasSize(0));
 
         Users users = userDao.allUsers();
         assertThat(users, is(empty()));

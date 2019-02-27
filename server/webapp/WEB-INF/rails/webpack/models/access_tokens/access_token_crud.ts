@@ -21,14 +21,13 @@ import {AccessToken, AccessTokens, AccessTokensJSON} from "models/access_tokens/
 export class AccessTokenCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
-  static all() {
-    return ApiRequestBuilder.GET(SparkRoutes.apiCurrentAccessTokensPath(), this.API_VERSION_HEADER)
+  static all(filter: "all" | "revoked" | "active" = "all") {
+    return ApiRequestBuilder.GET(SparkRoutes.apiCurrentAccessTokensPath(filter), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => {
                                 return AccessTokens.fromJSON(JSON.parse(body) as AccessTokensJSON);
                               });
                             });
-
   }
 
   static create(accessToken: AccessToken) {

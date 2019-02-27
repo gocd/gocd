@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.server.service.AccessTokenFilter;
 
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -30,9 +31,9 @@ public interface AccessTokenDao {
 
     AccessToken loadNotDeletedTokenForUser(long id, String username);
 
-    List<AccessToken> findAllTokens();
+    List<AccessToken> findAllTokens(AccessTokenFilter filter);
 
-    List<AccessToken> findAllTokensForUser(String username);
+    List<AccessToken> findAllTokensForUser(String username, AccessTokenFilter filter);
 
     AccessToken findAccessTokenBySaltId(String saltId);
 

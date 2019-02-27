@@ -17,8 +17,10 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.Clock;
+import org.hibernate.Criteria;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.hibernate.classic.Session;
@@ -60,23 +62,35 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
     }
 
     @Override
-    public List<AccessToken> findAllTokensForUser(String username) {
+    public List<AccessToken> findAllTokensForUser(String username, AccessTokenFilter filter) {
         return (List<AccessToken>) transactionTemplate.execute((TransactionCallback) transactionStatus ->
-                sessionFactory
-                        .getCurrentSession()
-                        .createCriteria(AccessToken.class)
-                        .add(Restrictions.eq("username", username))
-                        .add(Restrictions.eq("deletedBecauseUserDeleted", false))
-                        .setCacheable(true)
-                        .list());
+        {
+            Criteria criteria = sessionFactory
+                    .getCurrentSession()
+                    .createCriteria(AccessToken.class)
+                    .add(Restrictions.eq("username", username))
+                    .add(Restrictions.eq("deletedBecauseUserDeleted", false));
+
+            filter.applyTo(criteria);
+
+            return criteria
+                    .setCacheable(true)
+                    .list();
+        });
     }
 
     @Override
-    public List<AccessToken> findAllTokens() {
-        return transactionTemplate.execute(status -> sessionFactory.getCurrentSession()
-                .createQuery("FROM AccessToken")
-                .setCacheable(true)
-                .list());
+    public List<AccessToken> findAllTokens(AccessTokenFilter filter) {
+        return transactionTemplate.execute(status -> {
+            Criteria criteria = sessionFactory.getCurrentSession()
+                    .createCriteria(AccessToken.class);
+
+            filter.applyTo(criteria);
+
+            return criteria
+                    .setCacheable(true)
+                    .list();
+        });
     }
 
     @Override
@@ -95,7 +109,7 @@ public class AccessTokenSqlMapDao extends HibernateDaoSupport implements AccessT
             Session currentSession = sessionFactory.getCurrentSession();
             usernames
                     .stream()
-                    .flatMap(username -> findAllTokensForUser(username).stream())
+                    .flatMap(username -> findAllTokensForUser(username, AccessTokenFilter.all).stream())
                     .forEach(accessToken -> {
                         accessToken.revokeBecauseOfUserDelete(byWhom, clock.currentTimestamp());
                         currentSession.saveOrUpdate(accessToken);

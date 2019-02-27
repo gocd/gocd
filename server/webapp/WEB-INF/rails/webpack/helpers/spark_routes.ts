@@ -201,14 +201,19 @@ export default class {
     return "/go/api/admin/security/system_admins";
   }
 
-  static apiCurrentAccessTokensPath(id?: number) {
-    if (id) {
-      return `/go/api/current_user/access_tokens/${id}`;
-    }
-    return "/go/api/current_user/access_tokens";
+  static apiCurrentAccessTokenPath(id: number) {
+    return `/go/api/current_user/access_tokens/${id}`;
   }
 
   static apiCurrentAccessTokenRevokePath(id: number) {
-    return `${this.apiCurrentAccessTokensPath(id)}/revoke`;
+    return `${this.apiCurrentAccessTokenPath(id)}/revoke`;
+  }
+
+  static apiCurrentAccessTokensPath(filter?: "all" | "revoked" | "active") {
+    if (filter) {
+      return `/go/api/current_user/access_tokens?${m.buildQueryString({filter})}`;
+    } else {
+      return `/go/api/current_user/access_tokens`;
+    }
   }
 }

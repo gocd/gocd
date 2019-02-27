@@ -31,6 +31,7 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -39,6 +40,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import static spark.Spark.exception;
@@ -54,7 +56,12 @@ abstract class AbstractUserAccessTokenControllerV1 extends ApiController impleme
     }
 
     public String getAllAccessTokens(Request request, Response response) throws Exception {
-        List<AccessToken> allTokens = allTokens();
+        String filterValue = request.queryParams("filter");
+        AccessTokenFilter filter = AccessTokenFilter.fromString(filterValue);
+        if (filter == null) {
+            throw HaltApiResponses.haltBecauseQueryParamIsUnknown("filter", filterValue, Arrays.stream(AccessTokenFilter.values()).map(Object::toString).toArray(String[]::new));
+        }
+        List<AccessToken> allTokens = allTokens(filter);
         return writerForTopLevelObject(request, response, outputWriter -> AccessTokensRepresenter.toJSON(outputWriter, urlContext(), allTokens));
     }
 
@@ -78,7 +85,7 @@ abstract class AbstractUserAccessTokenControllerV1 extends ApiController impleme
         return writerForTopLevelObject(request, response, outputWriter -> AccessTokenRepresenter.toJSON(outputWriter, urlContext(), token));
     }
 
-    protected abstract List<AccessToken> allTokens();
+    protected abstract List<AccessToken> allTokens(AccessTokenFilter filter);
 
     abstract Routes.FindUrlBuilder<Long> urlContext();
 

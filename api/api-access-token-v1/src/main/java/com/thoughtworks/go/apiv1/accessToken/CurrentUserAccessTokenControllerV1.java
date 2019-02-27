@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.AccessToken;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.spark.Routes;
@@ -103,8 +104,8 @@ public class CurrentUserAccessTokenControllerV1 extends AbstractUserAccessTokenC
     }
 
     @Override
-    protected List<AccessToken> allTokens() {
-        return accessTokenService.findAllTokensForUser(currentUsernameString());
+    protected List<AccessToken> allTokens(AccessTokenFilter filter) {
+        return accessTokenService.findAllTokensForUser(currentUsernameString(), filter);
     }
 
     @Override

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.util.Clock;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.joda.time.DateTime;
@@ -94,8 +95,8 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         accessTokenSqlMapDao.saveOrUpdate(token2);
         accessTokenSqlMapDao.saveOrUpdate(token3);
 
-        List<AccessToken> user1AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user1);
-        List<AccessToken> user2AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user2);
+        List<AccessToken> user1AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user1, AccessTokenFilter.all);
+        List<AccessToken> user2AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user2, AccessTokenFilter.all);
 
         assertThat(user1AccessTokens).hasSize(2).containsExactlyInAnyOrder(token1, token2);
         assertThat(user2AccessTokens).hasSize(1).containsExactlyInAnyOrder(token3);
@@ -131,16 +132,16 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         accessTokenSqlMapDao.saveOrUpdate(token2);
         accessTokenSqlMapDao.saveOrUpdate(token3);
 
-        List<AccessToken> user1AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user1);
-        List<AccessToken> user2AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user2);
+        List<AccessToken> user1AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user1, AccessTokenFilter.all);
+        List<AccessToken> user2AccessTokens = accessTokenSqlMapDao.findAllTokensForUser(user2, AccessTokenFilter.all);
 
         assertThat(user1AccessTokens).hasSize(2).containsExactlyInAnyOrder(token1, token2);
         assertThat(user2AccessTokens).hasSize(1).containsExactlyInAnyOrder(token3);
 
         accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(Arrays.asList("bob", "john"), "admin");
 
-        assertThat(accessTokenSqlMapDao.findAllTokensForUser("bob")).isEmpty();
-        assertThat(accessTokenSqlMapDao.findAllTokensForUser("john")).isEmpty();
+        assertThat(accessTokenSqlMapDao.findAllTokensForUser("bob", AccessTokenFilter.all)).isEmpty();
+        assertThat(accessTokenSqlMapDao.findAllTokensForUser("john", AccessTokenFilter.all)).isEmpty();
     }
 
     @Test
@@ -157,8 +158,46 @@ public class AccessTokenSqlMapDaoIntegrationTest {
         accessTokenSqlMapDao.saveOrUpdate(token1.revoke("admin", "user is making too many requests", clock.currentTimestamp()));
         accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(Collections.singletonList(user2), "admin");
 
-        assertThat(accessTokenSqlMapDao.findAllTokens())
-                .hasSize(2).containsExactlyInAnyOrder(accessTokenSqlMapDao.loadForAdminUser(token1.getId()), accessTokenSqlMapDao.loadForAdminUser(token2.getId()));
+        assertThat(accessTokenSqlMapDao.findAllTokens(AccessTokenFilter.all))
+                .hasSize(2)
+                .containsExactlyInAnyOrder(accessTokenSqlMapDao.loadForAdminUser(token1.getId()), accessTokenSqlMapDao.loadForAdminUser(token2.getId()));
+    }
+
+    @Test
+    public void shouldListAllTokensThatAreRevoked() {
+        String user1 = "will-be-deleted";
+        String user2 = "will-be-revoked";
+
+        AccessToken token1 = randomAccessTokenForUser(user1);
+        AccessToken token2 = randomAccessTokenForUser(user2);
+
+        accessTokenSqlMapDao.saveOrUpdate(token1);
+        accessTokenSqlMapDao.saveOrUpdate(token2);
+
+        accessTokenSqlMapDao.saveOrUpdate(token1.revoke("admin", "user is making too many requests", clock.currentTimestamp()));
+        accessTokenSqlMapDao.revokeTokensBecauseOfUserDelete(Collections.singletonList(user2), "admin");
+
+        assertThat(accessTokenSqlMapDao.findAllTokens(AccessTokenFilter.revoked))
+                .hasSize(2)
+                .containsExactlyInAnyOrder(accessTokenSqlMapDao.loadForAdminUser(token1.getId()), accessTokenSqlMapDao.loadForAdminUser(token2.getId()));
+    }
+
+    @Test
+    public void shouldListAllTokensThatAreActive() {
+        String user1 = "bob";
+        String user2 = "will-be-revoked";
+
+        AccessToken token1 = randomAccessTokenForUser(user1);
+        AccessToken token2 = randomAccessTokenForUser(user2);
+
+        accessTokenSqlMapDao.saveOrUpdate(token1);
+        accessTokenSqlMapDao.saveOrUpdate(token2);
+
+        accessTokenSqlMapDao.saveOrUpdate(token2.revoke("admin", "user is making too many requests", clock.currentTimestamp()));
+
+        assertThat(accessTokenSqlMapDao.findAllTokens(AccessTokenFilter.active))
+                .hasSize(1)
+                .containsExactlyInAnyOrder(accessTokenSqlMapDao.loadForAdminUser(token1.getId()));
     }
 
     @Test
@@ -206,7 +245,7 @@ public class AccessTokenSqlMapDaoIntegrationTest {
 
         accessTokenSqlMapDao.updateLastUsedTime(accessTokenIdToLastUsedTimestamp);
 
-        final List<AccessToken> allTokensForUser = accessTokenSqlMapDao.findAllTokensForUser("bob");
+        final List<AccessToken> allTokensForUser = accessTokenSqlMapDao.findAllTokensForUser("bob", AccessTokenFilter.all);
         assertThat(allTokensForUser).hasSize(2);
         assertThat(allTokensForUser.get(0).getLastUsed())
                 .isEqualTo(lastUsedTimeForToken1);

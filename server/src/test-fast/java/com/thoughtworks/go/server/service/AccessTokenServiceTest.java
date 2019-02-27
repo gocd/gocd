@@ -118,9 +118,9 @@ class AccessTokenServiceTest {
 
     @Test
     void shouldMakeACallToSQLDaoForFetchingAllAccessTokensBelongingToAUser() {
-        accessTokenService.findAllTokensForUser(username);
+        accessTokenService.findAllTokensForUser(username, AccessTokenFilter.all);
 
-        verify(accessTokenDao, times(1)).findAllTokensForUser(username);
+        verify(accessTokenDao, times(1)).findAllTokensForUser(username, AccessTokenFilter.all);
         verifyNoMoreInteractions(accessTokenDao);
     }
 

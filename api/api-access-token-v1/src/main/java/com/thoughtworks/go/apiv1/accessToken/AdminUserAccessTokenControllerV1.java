@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.accessToken;
 
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.server.service.AccessTokenFilter;
 import com.thoughtworks.go.server.service.AccessTokenService;
 import com.thoughtworks.go.spark.Routes;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,8 +65,8 @@ public class AdminUserAccessTokenControllerV1 extends AbstractUserAccessTokenCon
     }
 
     @Override
-    protected List<AccessToken> allTokens() {
-        return accessTokenService.findAllTokensForAllUsers();
+    protected List<AccessToken> allTokens(AccessTokenFilter filter) {
+        return accessTokenService.findAllTokensForAllUsers(filter);
     }
 
     @Override

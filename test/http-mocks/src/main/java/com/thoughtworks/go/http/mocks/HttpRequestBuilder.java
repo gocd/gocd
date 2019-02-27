@@ -36,7 +36,7 @@ public class HttpRequestBuilder {
     private static final Gson GSON = new Gson();
     private static final String CONTEXT_PATH = "/go";
 
-    private HttpRequestBuilder() {
+    public HttpRequestBuilder() {
         this.request = new MockHttpServletRequest();
     }
 

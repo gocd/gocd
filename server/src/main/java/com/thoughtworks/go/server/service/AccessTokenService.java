@@ -116,12 +116,12 @@ public class AccessTokenService {
         return fetchedAccessToken;
     }
 
-    public List<AccessToken> findAllTokensForUser(String username) {
-        return accessTokenDao.findAllTokensForUser(username);
+    public List<AccessToken> findAllTokensForUser(String username, AccessTokenFilter filter) {
+        return accessTokenDao.findAllTokensForUser(username, filter);
     }
 
-    public List<AccessToken> findAllTokensForAllUsers() {
-        return accessTokenDao.findAllTokens();
+    public List<AccessToken> findAllTokensForAllUsers(AccessTokenFilter filter) {
+        return accessTokenDao.findAllTokens(filter);
     }
 
     public void updateLastUsedCacheWith(AccessToken accessToken) {

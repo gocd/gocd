@@ -17,7 +17,10 @@
 package com.thoughtworks.go.spark.spa.spring;
 
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService;
 import com.thoughtworks.go.server.service.PipelineConfigService;
+import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.spark.SparkController;
@@ -42,13 +45,15 @@ public class SpaControllers implements SparkSpringController {
     public SpaControllers(SPAAuthenticationHelper authenticationHelper, VelocityTemplateEngineFactory templateEngineFactory,
                           SecurityService securityService, PipelineConfigService pipelineConfigService,
                           SystemEnvironment systemEnvironment, AnalyticsExtension analyticsExtension,
-                          FeatureToggleService featureToggleService) {
+                          FeatureToggleService featureToggleService,
+                          AuthorizationExtensionCacheService authorizationExtensionCacheService,
+                          SecurityAuthConfigService securityAuthConfigService) {
 
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
 
 
-        sparkControllers.add(new AccessTokensController(authenticationHelper, templateEngineFactory.create(AccessTokensController.class, () -> COMPONENT_LAYOUT_PATH)));
+        sparkControllers.add(new AccessTokensController(authenticationHelper, authorizationExtensionCacheService,securityAuthConfigService, templateEngineFactory.create(AccessTokensController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new ArtifactStoresController(authenticationHelper, templateEngineFactory.create(ArtifactStoresController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new AuthConfigsController(authenticationHelper, templateEngineFactory.create(AuthConfigsController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new UsersController(authenticationHelper, templateEngineFactory.create(UsersController.class, () -> COMPONENT_LAYOUT_PATH)));

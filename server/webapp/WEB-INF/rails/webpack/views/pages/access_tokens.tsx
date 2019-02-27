@@ -30,11 +30,13 @@ import {AddOperation, SaveOperation} from "views/pages/page_operations";
 interface State extends AddOperation<AccessToken>, SaveOperation {
   accessTokens: Stream<AccessTokens>;
   onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void;
+  meta: MetaJSON;
 }
 
 export class AccessTokensPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.accessTokens = stream();
+    vnode.state.meta         = JSON.parse(document.body.getAttribute("data-meta") || "{}") as MetaJSON;
     super.oninit(vnode);
 
     vnode.state.onAdd = (e: MouseEvent) => {
@@ -65,16 +67,24 @@ export class AccessTokensPage extends Page<null, State> {
 
   headerPanel(vnode: m.Vnode<null, State>): any {
     return <HeaderPanel title={this.pageName()} buttons={
-      <Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Generate Token</Buttons.Primary>
+      <Buttons.Primary disabled={!vnode.state.meta.supportsAccessToken}
+                       onclick={vnode.state.onAdd.bind(vnode.state)}
+                       data-test-id="generate-token-button">
+        Generate Token
+      </Buttons.Primary>
     }/>;
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    const flashMessage = this.flashMessage ?
-      <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
-
-    return [flashMessage, <AccessTokensWidget accessTokens={vnode.state.accessTokens}
-                                              onRevoke={vnode.state.onRevoke}/>];
+    if (vnode.state.meta.supportsAccessToken) {
+      const flashMessage = this.flashMessage ?
+        <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
+      return [flashMessage, <AccessTokensWidget accessTokens={vnode.state.accessTokens}
+                                                onRevoke={vnode.state.onRevoke}/>];
+    }
+    return <FlashMessage type={MessageType.info}>
+      Creation of access token is not supported by the plugin <strong>{vnode.state.meta.pluginId}</strong>.
+    </FlashMessage>;
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
@@ -84,4 +94,9 @@ export class AccessTokensPage extends Page<null, State> {
                                           this.pageState = PageState.OK;
                                         }, this.setErrorState));
   }
+}
+
+interface MetaJSON {
+  pluginId: string;
+  supportsAccessToken: boolean;
 }

@@ -52,9 +52,9 @@ class VelocityTemplateEngine extends TemplateEngine {
         if (model instanceof Map) {
             VelocityContext context = initialContextProvider.getVelocityContext((Map) model, controller, modelAndView.getViewName());
             StringWriter writer = new StringWriter();
-            template.merge(context, writer);
             Object meta = context.get("meta");
             context.put("meta", GSON.toJson(meta));
+            template.merge(context, writer);
             return writer.toString();
         } else {
             throw new IllegalArgumentException("modelAndView must be of type java.util.Map");

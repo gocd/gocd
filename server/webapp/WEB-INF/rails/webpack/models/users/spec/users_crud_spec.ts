@@ -15,10 +15,10 @@
  */
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
-import {Users} from "models/users/users";
+import {User, Users} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
 
-describe("Users CRUD", () => {
+describe("UsersCRUD", () => {
   beforeEach(() => jasmine.Ajax.install());
   afterEach(() => jasmine.Ajax.uninstall());
 
@@ -56,9 +56,9 @@ describe("Users CRUD", () => {
                                                                                               userJSON)
                                                                                           });
 
-      const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
-        const responseJSON = response.unwrap() as SuccessResponse<any>;
-        expect(responseJSON.body).toEqual(userJSON);
+      const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<User>) => {
+        const responseJSON = response.unwrap() as SuccessResponse<User>;
+        expect(responseJSON.body.loginName()).toEqual(userJSON.login_name);
         done();
       });
 
@@ -83,15 +83,16 @@ describe("Users CRUD", () => {
         }
       };
 
-      jasmine.Ajax.stubRequest(BULK_UPDATE_USERS_API, JSON.stringify(bulkUpdateUserJSON), "PATCH").andReturn({
-                                                                                                               status: 200,
-                                                                                                               responseHeaders: {
-                                                                                                                 "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
-                                                                                                                 "ETag": "some-etag"
-                                                                                                               },
-                                                                                                               responseText: JSON.stringify(
-                                                                                                                 bulkUpdateUserJSON)
-                                                                                                             });
+      jasmine.Ajax.stubRequest(BULK_UPDATE_USERS_API, JSON.stringify(bulkUpdateUserJSON), "PATCH")
+             .andReturn({
+                          status: 200,
+                          responseHeaders: {
+                            "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
+                            "ETag": "some-etag"
+                          },
+                          responseText: JSON.stringify(
+                            bulkUpdateUserJSON)
+                        });
 
       const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
         done();
@@ -115,17 +116,18 @@ describe("Users CRUD", () => {
         users: ["bob", "alice"]
       };
 
-      jasmine.Ajax.stubRequest(BULK_DELETE_USERS_API, JSON.stringify(bulkDeleteUserJSON), "DELETE").andReturn({
-                                                                                                                status: 200,
-                                                                                                                responseHeaders: {
-                                                                                                                  "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
-                                                                                                                  "ETag": "some-etag"
-                                                                                                                },
-                                                                                                                responseText: JSON.stringify(
-                                                                                                                  bulkDeleteUserJSON)
-                                                                                                              });
+      jasmine.Ajax.stubRequest(BULK_DELETE_USERS_API, JSON.stringify(bulkDeleteUserJSON), "DELETE")
+             .andReturn({
+                          status: 200,
+                          responseHeaders: {
+                            "Content-Type": "application/vnd.go.cd.v3+json; charset=utf-8",
+                            "ETag": "some-etag"
+                          },
+                          responseText: JSON.stringify(
+                            bulkDeleteUserJSON)
+                        });
 
-      const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<User>) => {
         done();
       });
 
@@ -154,9 +156,9 @@ describe("Users CRUD", () => {
                                                            userJSON)
                                                        });
 
-      const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
-        const responseJSON = response.unwrap() as SuccessResponse<any>;
-        expect(responseJSON.body).toEqual(userJSON);
+      const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<User>) => {
+        const responseJSON = response.unwrap() as SuccessResponse<User>;
+        expect(responseJSON.body.loginName()).toEqual(userJSON.login_name);
         done();
       });
 

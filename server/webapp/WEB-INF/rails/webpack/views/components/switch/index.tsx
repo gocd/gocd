@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {MithrilComponent} from "jsx/mithril-component";
+import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 
@@ -33,27 +33,12 @@ export interface Attrs {
   field: (newValue?: any) => any | Stream<boolean>;
 }
 
-export interface State {
-  onclick: (e: MouseEvent) => void;
-}
-
-export class SwitchBtn extends MithrilComponent<Attrs, State> {
-  oninit(vnode: m.Vnode<Attrs, State>) {
-    vnode.state.onclick = (e: MouseEvent) => {
-      if (vnode.attrs.onclick) {
-        vnode.attrs.onclick(e);
-      }
-
-      const target = e.target as HTMLInputElement;
-      vnode.attrs.field(target.checked);
-    };
-  }
-
-  view(vnode: m.Vnode<Attrs, State>) {
+export class SwitchBtn extends MithrilViewComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>) {
     const isSmall    = vnode.attrs.small;
     const classNames = classnames({[styles.switchSmall]: isSmall}, styles.switchBtn);
     const switchId   = `switch-${uuid4()}`;
-    let label = null;
+    let label        = null;
     if (vnode.attrs.label) {
       label = <label className={classnames({[styles.disabled]: vnode.attrs.disabled}, styles.switchLabel)}
                      data-test-id="switch-label">
@@ -67,7 +52,14 @@ export class SwitchBtn extends MithrilComponent<Attrs, State> {
         <input id={switchId} type="checkbox"
                {...vnode.attrs}
                checked={vnode.attrs.field()}
-               onclick={vnode.state.onclick.bind(this)}
+               onclick={(e: MouseEvent) => {
+                 if (vnode.attrs.onclick) {
+                   vnode.attrs.onclick(e);
+                 }
+
+                 const target = e.target as HTMLInputElement;
+                 vnode.attrs.field(target.checked);
+               }}
                className={styles.switchInput}
                data-test-id="switch-checkbox"/>
         <label for={switchId} className={classnames({

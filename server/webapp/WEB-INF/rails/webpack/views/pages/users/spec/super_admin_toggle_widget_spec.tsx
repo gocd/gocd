@@ -15,31 +15,26 @@
  */
 
 import * as m from "mithril";
-
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
-
 import {User} from "models/users/users";
 import "views/components/table/spec/table_matchers";
 import {SuperAdminPrivilegeSwitch} from "views/pages/users/super_admin_toggle_widget";
+import {UserViewHelper} from "views/pages/users/user_view_helper";
 
 describe("Super Admin Toggle", () => {
   const simulateEvent = require("simulate-event");
 
   let $root: any, root: any;
-
-  let user: User,
-      noAdminsConfigured: Stream<boolean>,
-      onRemoveAdmin: (user: User, e: MouseEvent) => void,
-      onMakeAdmin: (user: User, e: MouseEvent) => void,
-      systemAdminUsers: Stream<string[]>;
+  let userViewHelper: Stream<UserViewHelper>,
+      user: User,
+      onToggleAdmin: (e: MouseEvent, user: User) => void;
 
   beforeEach(() => {
-    user               = bob();
-    onMakeAdmin        = jasmine.createSpy("onMakeAdmin");
-    onRemoveAdmin      = jasmine.createSpy("onRemoveAdmin");
-    noAdminsConfigured = stream(false);
-    systemAdminUsers   = stream([bob().loginName()]);
+    userViewHelper = stream(new UserViewHelper());
+    userViewHelper().systemAdmins().users(["bob"]);
+    user          = bob();
+    onToggleAdmin = jasmine.createSpy("onRemoveAdmin");
 
     // @ts-ignore
     [$root, root] = window.createDomElementForTest();
@@ -56,7 +51,7 @@ describe("Super Admin Toggle", () => {
     expect(find("is-admin-text")).toContainText("YES");
   });
 
-  it("should render NO when the user is an admin", () => {
+  it("should render NO when the user is not an admin", () => {
     user.isAdmin(false);
     m.redraw();
 
@@ -64,7 +59,7 @@ describe("Super Admin Toggle", () => {
   });
 
   it("should render Not Specified when system administrators are not configured", () => {
-    noAdminsConfigured(true);
+    userViewHelper().systemAdmins().users([]);
     m.redraw();
 
     expect(find("is-admin-text")).toContainText("Not Specified");
@@ -82,14 +77,14 @@ describe("Super Admin Toggle", () => {
   });
 
   it("should render disabled toggle system administrators are not configured", () => {
-    noAdminsConfigured(true);
+    userViewHelper().systemAdmins().users([]);
     m.redraw();
 
     expect(find("switch-checkbox").get(0).checked).toBe(false);
   });
 
   it("should render make current user admin tooltip when system administrators are not configured", () => {
-    noAdminsConfigured(true);
+    userViewHelper().systemAdmins().users([]);
     m.redraw();
 
     const expectedTooltipContent = "Explicitly making 'bob' user a system administrator will result into other users not having system administrator privileges.";
@@ -102,23 +97,18 @@ describe("Super Admin Toggle", () => {
     expect(find("tooltip-wrapper")).not.toBeInDOM();
   });
 
-  it("should make a request to revoke admin on toggling admin user privilege", () => {
-    expect(onRemoveAdmin).not.toHaveBeenCalled();
-    simulateEvent.simulate(find("switch-paddle").get(0), "click");
-    expect(onRemoveAdmin).toHaveBeenCalled();
-  });
-
   it("should make a request to make admin on toggling non admin user privilege", () => {
     user.isAdmin(false);
     m.redraw();
 
-    expect(onMakeAdmin).not.toHaveBeenCalled();
+    expect(onToggleAdmin).not.toHaveBeenCalled();
     simulateEvent.simulate(find("switch-paddle").get(0), "click");
-    expect(onMakeAdmin).toHaveBeenCalled();
+    expect(onToggleAdmin).toHaveBeenCalled();
   });
 
   it("should render tooltip if user is admin because of the role", () => {
-    systemAdminUsers([]);
+    userViewHelper().systemAdmins().users([]);
+    userViewHelper().systemAdmins().roles(["admin"]);
 
     m.redraw();
 
@@ -129,8 +119,7 @@ describe("Super Admin Toggle", () => {
   });
 
   it("should disable switch if user is admin because of the role", () => {
-    systemAdminUsers([]);
-
+    userViewHelper().systemAdmins().users([]);
     m.redraw();
 
     expect(find("switch-checkbox").prop("disabled")).toBe(true);
@@ -141,10 +130,9 @@ describe("Super Admin Toggle", () => {
       view() {
         return (
           <SuperAdminPrivilegeSwitch user={user}
-                                     noAdminsConfigured={noAdminsConfigured}
-                                     onRemoveAdmin={onRemoveAdmin}
-                                     onMakeAdmin={onMakeAdmin}
-                                     systemAdminUsers={systemAdminUsers}/>
+                                     onToggleAdmin={onToggleAdmin}
+                                     userViewHelper={userViewHelper}
+          />
         );
       }
     });

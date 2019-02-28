@@ -1,0 +1,46 @@
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import * as _ from "lodash";
+import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
+
+export interface SystemAdminsJSON {
+  roles: string[];
+  users: string[];
+}
+
+export class SystemAdmins {
+  readonly users: Stream<string[]>;
+  readonly roles: Stream<string[]>;
+
+  constructor(users: string[], roles: string[]) {
+    this.users = stream(users);
+    this.roles = stream(roles);
+  }
+
+  static fromJSON(json: SystemAdminsJSON) {
+    return new SystemAdmins(json.users, json.roles);
+  }
+
+  noAdminsConfigured(): boolean {
+    return _.isEmpty(this.users()) && _.isEmpty(this.roles());
+  }
+
+  isIndividualAdmin(username: string) {
+    return _.findIndex(this.users(), (eachUser) => eachUser.toLowerCase() === username.toLowerCase()) !== -1;
+  }
+}

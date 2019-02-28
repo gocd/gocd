@@ -21,16 +21,33 @@ import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
-import {State, UpdateOperationStatus, UsersWidget} from "views/pages/users/users_widget";
+import {UserViewHelper} from "views/pages/users/user_view_helper";
+import {Attrs, UsersWidget} from "views/pages/users/users_widget";
 
 describe("UsersWidget", () => {
-  const helper      = new TestHelper();
-
-  let attrs: State;
+  let $root: any, root: any;
 
   beforeEach(() => {
-    attrs         = {
+    // @ts-ignore
+    [$root, root] = window.createDomElementForTest();
+  });
+
+  afterEach(unmount);
+  // @ts-ignore
+  afterEach(window.destroyDomElementForTest);
+
+  function unmount() {
+    m.mount(root, null);
+    m.redraw();
+  }
+
+  let attrs: Attrs;
+
+  beforeEach(() => {
+    // @ts-ignore
+    [$root, root] = window.createDomElementForTest();
+
+    attrs = {
       users: stream(new Users(bob(), alice())),
       user: bob(),
       roles: stream(new Roles()),
@@ -45,24 +62,21 @@ describe("UsersWidget", () => {
       onRolesUpdate: _.noop,
       roleNameToAdd: stream(),
       onRolesAdd: _.noop,
-      onMakeAdmin: _.noop,
-      onRemoveAdmin: _.noop,
-      noAdminsConfigured: stream(false),
-      systemAdminUsers: stream([bob().loginName()]),
-      userViewStates: {}
+      onToggleAdmin: _.noop,
+      userViewHelper: stream(new UserViewHelper())
     };
+
+    attrs.userViewHelper().systemAdmins().users([bob().loginName()]);
+
+    m.mount(root, {
+      view() {
+        return (<UsersWidget {...attrs}/>);
+      }
+    });
+
+    m.redraw();
+
   });
-
-  beforeEach(mount);
-
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
-
-  afterEach((done) => helper.unmount(done));
-
-  function mount() {
-    helper.mount(<UsersWidget {...attrs}/>);
-  }
 
   function bob() {
     return User.fromJSON({
@@ -89,71 +103,62 @@ describe("UsersWidget", () => {
   }
 
   it("should render a list of user attributes", () => {
-    expect(helper.findByDataTestId("users-table")).toBeInDOM();
-    expect(helper.findByDataTestId("users-header")[0].children[1]).toContainText("Username");
-    expect(helper.findByDataTestId("users-header")[0].children[2]).toContainText("Display name");
-    expect(helper.findByDataTestId("users-header")[0].children[4]).toContainText("System Admin");
-    expect(helper.findByDataTestId("users-header")[0].children[5]).toContainText("Email");
-    expect(helper.findByDataTestId("users-header")[0].children[6]).toContainText("Enabled");
+    expect(find("users-table")).toBeInDOM();
+    expect(find("users-header")[0].children[1]).toContainText("Username");
+    expect(find("users-header")[0].children[2]).toContainText("Display name");
+    expect(find("users-header")[0].children[4]).toContainText("System Admin");
+    expect(find("users-header")[0].children[5]).toContainText("Email");
+    expect(find("users-header")[0].children[6]).toContainText("Enabled");
 
-    expect(helper.findByDataTestId("user-row")).toHaveLength(2);
+    expect(find("user-row")).toHaveLength(2);
 
-    expect(helper.findByDataTestId("user-username")[0]).toContainText("bob");
-    expect(helper.findByDataTestId("user-display-name")[0]).toContainText("Bob");
-    expect(helper.findByDataTestId("user-email")[0]).toContainText("bob@example.com");
-    expect(helper.findByDataTestId("user-enabled")[0]).toContainText("Yes");
+    expect(find("user-username")[0]).toContainText("bob");
+    expect(find("user-display-name")[0]).toContainText("Bob");
+    expect(find("user-email")[0]).toContainText("bob@example.com");
+    expect(find("user-enabled")[0]).toContainText("Yes");
 
-    expect(helper.findByDataTestId("user-username")[1]).toContainText("alice");
-    expect(helper.findByDataTestId("user-display-name")[1]).toContainText("Alice");
-    expect(helper.findByDataTestId("user-email")[1]).toContainText("alice@example.com");
-    expect(helper.findByDataTestId("user-enabled")[1]).toContainText("No");
+    expect(find("user-username")[1]).toContainText("alice");
+    expect(find("user-display-name")[1]).toContainText("Alice");
+    expect(find("user-email")[1]).toContainText("alice@example.com");
+    expect(find("user-enabled")[1]).toContainText("No");
   });
 
   it("should render in progress icon if update operation is in progress", () => {
     const user = attrs.users()[0];
-    attrs.userViewStates[user.loginName()] = {
-      updateOperationStatus: UpdateOperationStatus.IN_PROGRESS
-    };
+    attrs.userViewHelper().userUpdateInProgress(user);
 
-    helper.remount();
+    m.redraw();
 
-    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "Spinner-icon")).toBeInDOM();
+    expect(findIn(find("user-super-admin-switch")[0], "Spinner-icon")).toBeInDOM();
   });
 
   it("should render success icon is update operation is successful", () => {
     const user = attrs.users()[0];
-    attrs.userViewStates[user.loginName()] = {
-      updateOperationStatus: UpdateOperationStatus.SUCCESS
-    };
+    attrs.userViewHelper().userUpdateSuccessful(user);
 
-    helper.remount();
+    m.redraw();
 
-    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-successful")).toBeInDOM();
+    expect(find("user-super-admin-switch"));
+    expect(findIn(find("user-super-admin-switch")[0], "update-successful")).toBeInDOM();
   });
 
-  it("should render error icon if update operation is unsuccessful", () => {
+  it("should render error icon with message if update operation is unsuccessful", () => {
     const user = attrs.users()[0];
-    attrs.userViewStates[user.loginName()] = {
-      updateOperationStatus: UpdateOperationStatus.ERROR
-    };
+    attrs.userViewHelper().userUpdateFailure(user, "boom!");
 
-    helper.remount();
+    m.redraw();
 
-    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-unsuccessful")).toBeInDOM();
+    expect(findIn(find("user-super-admin-switch")[0], "update-unsuccessful")).toBeInDOM();
+    expect(find("user-update-error-message")).toContainText("boom!");
+
   });
 
-  it("should display error message", () => {
-    const errorMessage = "There was some error while updating the record.";
-    const user = attrs.users()[0];
-    attrs.userViewStates[user.loginName()] = {
-      updateOperationStatus: UpdateOperationStatus.ERROR,
-      updateOperationErrorMessage: errorMessage
-    };
+  function find(id: string) {
+    return $root.find(`[data-test-id='${id}']`);
+  }
 
-    helper.remount();
-
-    expect(helper.findByDataTestId("user-update-error-message")).toBeInDOM();
-    expect(helper.findByDataTestId("user-update-error-message")).toContainText(errorMessage);
-  });
+  function findIn(elem: any, id: string) {
+    return $(elem).find(`[data-test-id='${id}']`);
+  }
 
 });

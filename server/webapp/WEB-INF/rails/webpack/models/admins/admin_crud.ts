@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
+import {SystemAdmins, SystemAdminsJSON} from "models/admins/types";
 
 export interface BulkUpdateSystemAdminJSON {
   operations: {
@@ -30,11 +31,20 @@ export class AdminsCRUD {
   static API_VERSION_HEADER = ApiVersion.v2;
 
   static all() {
-    return ApiRequestBuilder.GET(SparkRoutes.apisystemAdminsPath(), this.API_VERSION_HEADER);
+    return ApiRequestBuilder.GET(SparkRoutes.apisystemAdminsPath(), this.API_VERSION_HEADER)
+                            .then(this.extractBody());
   }
 
   static bulkUpdate(bulkUpdateSystemAdminJson: BulkUpdateSystemAdminJSON) {
-    return ApiRequestBuilder.PATCH(SparkRoutes.apisystemAdminsPath(), this.API_VERSION_HEADER, {payload: bulkUpdateSystemAdminJson});
+    return ApiRequestBuilder.PATCH(SparkRoutes.apisystemAdminsPath(),
+                                   this.API_VERSION_HEADER,
+                                   {payload: bulkUpdateSystemAdminJson})
+                            .then(this.extractBody());
+  }
 
+  private static extractBody() {
+    return (result: ApiResult<string>) => result.map((body) => {
+      return SystemAdmins.fromJSON(JSON.parse(body) as SystemAdminsJSON);
+    });
   }
 }

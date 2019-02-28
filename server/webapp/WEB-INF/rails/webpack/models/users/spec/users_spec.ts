@@ -69,13 +69,14 @@ describe("Users Model", () => {
 
   it("should remove user by username", () => {
     const users = Users.fromJSON(usersJSON());
+    const user  = Users.fromJSON(usersJSON())[2];
+    user.displayName("Testing replace");
 
-    users.removeUser("cruise_admin");
-
-    expect(users.length).toBe(6);
-
-    const deletedUser = users.find((user) => user.loginName() === "cruise_admin");
-    expect(deletedUser).toBe(undefined);
+    const originalUser = users[2];
+    users.replace(user);
+    // not the same object
+    expect(originalUser).not.toEqual(users[2]);
+    expect(user).toEqual(users[2]);
   });
 
   describe("Users Selection", () => {

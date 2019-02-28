@@ -37,8 +37,8 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
   it("should be able to render info when no access tokens have been created", () => {
     mount(stream(new AccessTokens()));
 
-    expect(findByDataTestId("access_token_info")).toBeInDOM();
-    expect(findByDataTestId("access_token_info").text())
+    expect(findByDataTestId("access-token-info")).toBeInDOM();
+    expect(findByDataTestId("access-token-info").text())
       .toContain(
         "Click on \"Generate Token\" to create new personal access token.A Generated token can be used to access the GoCD API.");
 
@@ -49,7 +49,7 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
   it("should render two tabs", () => {
     mount(stream(allAccessTokens));
 
-    expect(findByDataTestId("access_token_info")).not.toBeInDOM();
+    expect(findByDataTestId("access-token-info")).not.toBeInDOM();
     expect(findByDataTestId("tab-header-0")).toBeInDOM();
     expect(findByDataTestId("tab-header-0")).toHaveText("Active Tokens");
     expect(findByDataTestId("tab-header-1")).toBeInDOM();
@@ -107,9 +107,10 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
     const revokedTokensTableRows = findIn(findByDataTestId("tab-content-1"), "table-row");
     expect(revokedTokensTableRows.length).toEqual(1);
     expect(revokedTokensTableRows).toContainText(revokedToken.description());
-    expect(revokedTokensTableRows).toContainText("04 Feb, 2019 at 12:11:58 Local Time");
-    expect(revokedTokensTableRows).toContainText("04 Feb, 2019 at 13:11:58 Local Time");
-    expect(revokedTokensTableRows).toContainText("05 Feb, 2019 at 12:11:58 Local Time");
+    expect(revokedTokensTableRows).toContainText(AccessTokensWidget.formatTimeInformation(revokedToken.createdAt()));
+    expect(revokedTokensTableRows).toContainText(AccessTokensWidget.getLastUsedInformation(revokedToken));
+    const revokedAt = revokedToken.revokedAt() as Date;
+    expect(revokedTokensTableRows).toContainText(AccessTokensWidget.formatTimeInformation(revokedAt));
     expect(revokedTokensTableRows).toContainText(revokedToken.revokeCause());
   });
 

@@ -16,6 +16,7 @@
 @import "../../global/common";
 
 $spinner-wrapper-height: 100px;
+$selected-table-row: #e2f7fa;
 
 .hidden {
   display: none;
@@ -239,7 +240,6 @@ $spinner-wrapper-height: 100px;
     width: 6%;
   }
 }
-
 
 .fl-error {
   color:      $go-danger;

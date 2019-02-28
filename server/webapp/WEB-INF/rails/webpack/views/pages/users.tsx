@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import {ApiResult} from "helpers/api_request_builder";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
@@ -33,30 +32,23 @@ import {Page, PageState} from "views/pages/page";
 import {AddOperation} from "views/pages/page_operations";
 import {UserSearchModal} from "views/pages/users/add_user_modal";
 import {State as UserActionsState} from "views/pages/users/user_actions_widget";
-import {State as UsersWidgetState, UpdateOperationStatus} from "views/pages/users/users_widget";
+import {UserViewHelper} from "views/pages/users/user_view_helper";
+import {Attrs as UsersWidgetState} from "views/pages/users/users_widget";
 import {UsersWidget} from "views/pages/users/users_widget";
-
-const CLEAR_USER_UPDATE_STATUS = 10;
 
 interface State extends UserActionsState, AddOperation<Users>, UsersWidgetState {
   initialUsers: Stream<Users>;
-  systemAdminRoles: Stream<string[]>;
-  systemAdminUsers: Stream<string[]>;
 }
 
 export class UsersPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
-    vnode.state.noAdminsConfigured = stream(false);
 
-    vnode.state.initialUsers     = stream(new Users());
-    vnode.state.systemAdminRoles = stream();
-    vnode.state.systemAdminUsers = stream();
-
+    vnode.state.initialUsers   = stream(new Users());
+    vnode.state.userViewHelper = stream(new UserViewHelper());
     vnode.state.userFilters    = stream(new UserFilters());
     vnode.state.roles          = stream(new Roles());
     vnode.state.rolesSelection = stream(new Map<GoCDRole, TriStateCheckbox>());
-    vnode.state.userViewStates = {};
 
     vnode.state.showFilters   = stream(false);
     vnode.state.showRoles     = stream(false);
@@ -105,33 +97,15 @@ export class UsersPage extends Page<null, State> {
       this.bulkUserDelete(vnode, json);
     };
 
-    vnode.state.onMakeAdmin = (user) => {
-      vnode.state.userViewStates[user.loginName()] = {
-        updateOperationStatus: UpdateOperationStatus.IN_PROGRESS
-      };
-
+    vnode.state.onToggleAdmin = (e: MouseEvent, user: User) => {
+      vnode.state.userViewHelper().userUpdateInProgress(user);
       const json = {
         operations: {
           users: {
-            add: [user.loginName()]
+            [user.isAdmin() ? "remove" : "add"]: [user.loginName()]
           }
         }
       };
-      this.updateSystemAdminPrivilegeForUser(vnode, json, user);
-    };
-
-    vnode.state.onRemoveAdmin = (user, e) => {
-      vnode.state.userViewStates[user.loginName()] = {
-        updateOperationStatus: UpdateOperationStatus.IN_PROGRESS
-      };
-      const json = {
-        operations: {
-          users: {
-            remove: [user.loginName()]
-          }
-        }
-      };
-
       this.updateSystemAdminPrivilegeForUser(vnode, json, user);
     };
 
@@ -141,7 +115,7 @@ export class UsersPage extends Page<null, State> {
 
       RolesCRUD.create(role)
                .then((apiResult) => {
-                 apiResult.do((_successResponse) => {
+                 apiResult.do((successResponse) => {
                    vnode.state.roleNameToAdd("");
                    vnode.state.roles().push(role);
                    vnode.state.rolesSelection().set(role, new TriStateCheckbox(TristateState.on));
@@ -164,7 +138,7 @@ export class UsersPage extends Page<null, State> {
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
     let bannerToDisplay;
-    if (vnode.state.noAdminsConfigured()) {
+    if (vnode.state.userViewHelper().noAdminsConfigured()) {
       bannerToDisplay = (<FlashMessage type={MessageType.warning}
                                        message="There are currently no administrators defined in the configuration. This makes everyone an administrator. We recommend that you explicitly make user a system administrator."/>);
     }
@@ -213,49 +187,30 @@ export class UsersPage extends Page<null, State> {
                      }
       );
 
-      this.resolveAllAdminsPromise(vnode, adminsResult);
-
+      adminsResult.do((successResponse) => {
+                        vnode.state.userViewHelper().systemAdmins(successResponse.body);
+                        this.pageState = PageState.OK;
+                      },
+                      (errorResponse) => {
+                        this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                        this.pageState = PageState.FAILED;
+                      });
     });
-  }
-
-  private resolveAllAdminsPromise(vnode: m.Vnode<null, State>, adminsResult: ApiResult<any>) {
-    adminsResult.do((successResponse) => {
-      vnode.state.systemAdminRoles(JSON.parse(successResponse.body).roles as string[]);
-      vnode.state.systemAdminUsers(JSON.parse(successResponse.body).users as string[]);
-
-      const noAdminsConfigured = ((vnode.state.systemAdminRoles().length === 0) && (vnode.state.systemAdminUsers().length === 0));
-      vnode.state.noAdminsConfigured(noAdminsConfigured);
-      this.pageState = PageState.OK;
-    }, (errorResponse) => {
-      this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-      this.pageState = PageState.FAILED;
-    });
-  }
-
-  private resolveGetUserPromise(vnode: m.Vnode<null, State>, userResult: ApiResult<any>, user: User): void {
-    userResult.do((successResponse) => {
-                    vnode.state.initialUsers().removeUser(user.loginName());
-                    vnode.state.initialUsers().push(User.fromJSON(successResponse.body));
-                    this.pageState = PageState.OK;
-                  }, (errorResponse) => {
-                    this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-                    this.pageState = PageState.FAILED;
-                  }
-    );
   }
 
   private bulkUserStateChange(vnode: m.Vnode<null, State>, json: BulkUserUpdateJSON): void {
     UsersCRUD.bulkUserStateUpdate(json)
              .then((apiResult) => {
                apiResult.do((successResponse) => {
-                 this.pageState = PageState.OK;
-                 this.flashMessage.setMessage(MessageType.success,
-                                              `Users were ${json.operations.enable ? "enabled" : "disabled"} successfully!`);
-                 this.fetchData(vnode);
-               }, (errorResponse) => {
-                 this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-                 this.fetchData(vnode);
-               });
+                              this.pageState = PageState.OK;
+                              this.flashMessage.setMessage(MessageType.success,
+                                                           `Users were ${json.operations.enable ? "enabled" : "disabled"} successfully!`);
+                              this.fetchData(vnode);
+                            },
+                            (errorResponse) => {
+                              this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                              this.fetchData(vnode);
+                            });
              });
   }
 
@@ -263,13 +218,14 @@ export class UsersPage extends Page<null, State> {
     UsersCRUD.bulkUserDelete(json)
              .then((apiResult) => {
                apiResult.do((successResponse) => {
-                 this.pageState = PageState.OK;
-                 this.flashMessage.setMessage(MessageType.success, "Users were deleted successfully!");
-                 this.fetchData(vnode);
-               }, (errorResponse) => {
-                 this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-                 this.fetchData(vnode);
-               });
+                              this.pageState = PageState.OK;
+                              this.flashMessage.setMessage(MessageType.success, "Users were deleted successfully!");
+                              this.fetchData(vnode);
+                            },
+                            (errorResponse) => {
+                              this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                              this.fetchData(vnode);
+                            });
              });
   }
 
@@ -278,38 +234,26 @@ export class UsersPage extends Page<null, State> {
                                             user: User): void {
     AdminsCRUD.bulkUpdate(json)
               .then((apiResult) => {
-                apiResult.do((successResponse) => {
-                  vnode.state.userViewStates[user.loginName()] = {
-                    updateOperationStatus: UpdateOperationStatus.SUCCESS
-                  };
+                apiResult.do((bulkUpdateSuccess) => {
+                               vnode.state.userViewHelper().systemAdmins(bulkUpdateSuccess.body);
 
-                  setTimeout(() => {
-                    delete vnode.state.userViewStates[user.loginName()];
-                  }, CLEAR_USER_UPDATE_STATUS * 1000);
-
-                  Promise.all([AdminsCRUD.all(), UsersCRUD.get(user.loginName())]).then((args) => {
-                    this.resolveAllAdminsPromise(vnode, args[0]);
-                    this.resolveGetUserPromise(vnode, args[1], user);
-                  });
-
-                  this.pageState = PageState.OK;
-                }, (errorResponse) => {
-                  vnode.state.userViewStates[user.loginName()] = {
-                    updateOperationStatus: UpdateOperationStatus.ERROR,
-                    updateOperationErrorMessage: errorResponse.message
-                  };
-
-                  setTimeout(() => {
-                    delete vnode.state.userViewStates[user.loginName()];
-                  }, CLEAR_USER_UPDATE_STATUS * 1000);
-
-                  Promise.all([AdminsCRUD.all(), UsersCRUD.get(user.loginName())]).then((args) => {
-                    this.resolveAllAdminsPromise(vnode, args[0]);
-                    this.resolveGetUserPromise(vnode, args[1], user);
-                  });
-
-                  // vnode.state.onError(errorResponse.message);
-                });
+                               UsersCRUD.get(user.loginName())
+                                        .then((apiResult) => apiResult.do((getUserResponse) => {
+                                                                            vnode.state.initialUsers().replace(getUserResponse.body);
+                                                                            vnode.state.userViewHelper().userUpdateSuccessful(user);
+                                                                          },
+                                                                          (errorResponse) => {
+                                                                            vnode.state.userViewHelper()
+                                                                                 .userUpdateFailure(user, errorResponse.message);
+                                                                            this.flashMessage.setMessage(MessageType.alert,
+                                                                                                         errorResponse.message);
+                                                                            this.pageState = PageState.FAILED;
+                                                                          })
+                                        );
+                             },
+                             (errorResponse) => {
+                               vnode.state.userViewHelper().userUpdateFailure(user, errorResponse.message);
+                             });
               });
   }
 
@@ -317,13 +261,15 @@ export class UsersPage extends Page<null, State> {
     RolesCRUD.bulkUserRoleUpdate(bulkUpdateJSON)
              .then((apiResult) => {
                apiResult.do((successResponse) => {
-                 this.pageState = PageState.OK;
-                 this.flashMessage.setMessage(MessageType.success, "Roles are updated successfully!");
-                 this.fetchData(vnode);
-               }, (errorResponse) => {
-                 this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-                 this.fetchData(vnode);
-               });
+                              this.pageState = PageState.OK;
+                              this.flashMessage.setMessage(MessageType.success, "Roles are updated successfully!");
+                              this.fetchData(vnode);
+                            },
+                            (errorResponse) => {
+                              this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                              this.fetchData(vnode);
+                            });
              });
   }
+
 }

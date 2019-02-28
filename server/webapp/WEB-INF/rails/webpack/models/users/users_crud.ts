@@ -16,7 +16,7 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
-import {BulkUserOperationJSON, BulkUserUpdateJSON, UserJSON, Users, UsersJSON} from "models/users/users";
+import {BulkUserOperationJSON, BulkUserUpdateJSON, User, UserJSON, Users, UsersJSON} from "models/users/users";
 
 export class UsersCRUD {
   static API_VERSION_HEADER = ApiVersion.v3;
@@ -34,7 +34,7 @@ export class UsersCRUD {
     return ApiRequestBuilder.POST(SparkRoutes.apiUsersPath(), this.API_VERSION_HEADER, {payload: user})
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => {
-                                return (JSON.parse(body) as UserJSON);
+                                return User.fromJSON(JSON.parse(body) as UserJSON);
                               });
                             });
   }
@@ -43,7 +43,7 @@ export class UsersCRUD {
     return ApiRequestBuilder.GET(SparkRoutes.apiUserPath(username), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => {
-                                return (JSON.parse(body) as UserJSON);
+                                return User.fromJSON(JSON.parse(body) as UserJSON);
                               });
                             });
   }

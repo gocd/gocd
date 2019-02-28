@@ -162,12 +162,13 @@ export class Users extends Array<User> {
     })));
   }
 
-  removeUser(username: string) {
-    const index = this.findIndex((user) => {
-      return user.loginName() === username;
+  replace(user: User) {
+    const index = this.findIndex((eachUser) => {
+      return eachUser.loginName() === user.loginName();
     });
-    if (index > -1) {
-      this.splice(index, 1);
+
+    if (index >= 0) {
+      this.splice(index, 1, user);
     }
   }
 

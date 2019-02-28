@@ -27,7 +27,8 @@ export enum MessageType {
   info,
   success,
   warning,
-  alert
+  alert,
+  inProgress
 }
 
 export interface Attrs {
@@ -128,10 +129,16 @@ export class FlashMessageModelWithTimeout extends FlashMessageModel {
     this.clearTimeout();
   }
 
-  setMessage(type: MessageType, message: m.Children) {
+  setMessage(type: MessageType, message: m.Children, timeoutCallback?: () => void) {
     this.clear();
     super.setMessage(type, message);
-    this.timeoutID = window.setTimeout(this.clear.bind(this), this.interval);
+    this.timeoutID = window.setTimeout(() => {
+      this.clear();
+      if (timeoutCallback) {
+        timeoutCallback();
+      }
+      m.redraw();
+    }, this.interval);
   }
 
   private clearTimeout() {

@@ -16,73 +16,60 @@
 
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {User} from "models/users/users";
 import {SwitchBtn} from "views/components/switch";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
+import {UserViewHelper} from "views/pages/users/user_view_helper";
 import * as styles from "./index.scss";
 
-interface MakeAdminOperation<T> {
-  onMakeAdmin: (obj: T, e: MouseEvent) => void;
+interface ToggleAdminOperation<T> {
+  onToggleAdmin: (e: MouseEvent, obj: T) => void;
 }
 
-interface RemoveAdminOperation<T> {
-  onRemoveAdmin: (obj: T, e: MouseEvent) => void;
+export interface RequiresUserViewHelper {
+  userViewHelper: Stream<UserViewHelper>;
 }
 
-export interface SuperAdminPrivilegeSwitchAttrs extends MakeAdminOperation<User>, RemoveAdminOperation<User> {
+export interface SuperAdminPrivilegeSwitchAttrs extends ToggleAdminOperation<User>, RequiresUserViewHelper {
   user: User;
-  noAdminsConfigured: Stream<boolean>;
-  systemAdminUsers: Stream<string[]>;
 }
 
-export interface State {
-  isAdmin: Stream<boolean>;
-  onToggleClick: (e: MouseEvent) => any;
-  populateUserToOperate: (user: User) => void;
-}
-
-export class SuperAdminPrivilegeSwitch extends MithrilComponent<SuperAdminPrivilegeSwitchAttrs, State> {
-  oninit(vnode: m.Vnode<SuperAdminPrivilegeSwitchAttrs, State>) {
-    vnode.state.isAdmin       = stream((vnode.attrs.user.isAdmin() && !vnode.attrs.noAdminsConfigured()) || false);
-    vnode.state.onToggleClick = (e: MouseEvent) => {
-      (vnode.state.isAdmin())
-        ? vnode.attrs.onRemoveAdmin(vnode.attrs.user, e)
-        : vnode.attrs.onMakeAdmin(vnode.attrs.user, e);
-    };
-
-  }
-
-  onbeforeupdate(vnode: m.Vnode<SuperAdminPrivilegeSwitchAttrs, State>,
-                 old: m.VnodeDOM<SuperAdminPrivilegeSwitchAttrs, State>): boolean | void {
-    vnode.state.isAdmin((vnode.attrs.user.isAdmin() && !vnode.attrs.noAdminsConfigured()));
-  }
-
-  view(vnode: m.Vnode<SuperAdminPrivilegeSwitchAttrs, State>) {
-
+export class SuperAdminPrivilegeSwitch extends MithrilComponent<SuperAdminPrivilegeSwitchAttrs> {
+  view(vnode: m.Vnode<SuperAdminPrivilegeSwitchAttrs>): m.Children {
     let optionalTooltip;
-    let isAdminText = vnode.attrs.user.isAdmin() ? "YES" : "NO";
-    const loginName = vnode.attrs.user.loginName;
-    const isUserGroupedAdmin = vnode.attrs.user.isAdmin() && !vnode.attrs.user.isIndividualAdmin(vnode.attrs.systemAdminUsers());
+    let isAdminText          = vnode.attrs.user.isAdmin() ? "YES" : "NO";
+    const loginName          = vnode.attrs.user.loginName;
+    const isUserGroupedAdmin = vnode.attrs.user.isAdmin() && !vnode.attrs.userViewHelper()
+                                                                   .isIndividualAdmin(vnode.attrs.user);
 
-    if (vnode.attrs.noAdminsConfigured()) {
-      optionalTooltip = (<Tooltip.Info size={TooltipSize.small}
-                                       content={`Explicitly making '${loginName}' user a system administrator will result into other users not having system administrator privileges.`}/>);
+    if (vnode.attrs.userViewHelper().noAdminsConfigured()) {
+      optionalTooltip = (
+        <Tooltip.Info size={TooltipSize.small}
+                      content={`Explicitly making '${loginName}' user a system administrator will result into other users not having system administrator privileges.`}/>
+      );
       isAdminText     = "Not Specified";
     } else if (isUserGroupedAdmin) {
-      optionalTooltip = (<Tooltip.Info size={TooltipSize.small}
-                                       content={`'${loginName}' user has the system administrator privileges because the user is assigned the group administrative role. To remove this user from system administrators, assigned role needs to be removed.`}/>);
+      optionalTooltip = (
+        <Tooltip.Info size={TooltipSize.small}
+                      content={`'${loginName}' user has the system administrator privileges because the user is assigned the group administrative role. To remove this user from system administrators, assigned role needs to be removed.`}/>
+      );
     }
 
     return <div class={styles.adminSwitchWrapper} data-test-id="admin-switch-wrapper">
-      <SwitchBtn field={vnode.state.isAdmin}
+      <SwitchBtn field={stream((vnode.attrs.user.isAdmin() && !vnode.attrs.userViewHelper().noAdminsConfigured()))}
                  small={true}
-                 disabled={isUserGroupedAdmin || !vnode.attrs.user.enabled()}
-                 onclick={vnode.state.onToggleClick.bind(vnode.state)}/>
+                 disabled={isUserGroupedAdmin || !vnode.attrs.user.enabled() || vnode.attrs.userViewHelper()
+                                                                                     .isInProgress(vnode.attrs.user)}
+                 onclick={this.toggle.bind(this, vnode)}/>
       <span class={styles.isAdminText} data-test-id="is-admin-text">{isAdminText}</span>
       {optionalTooltip}
     </div>;
+  }
+
+  private toggle(vnode: m.Vnode<SuperAdminPrivilegeSwitchAttrs>, e: MouseEvent) {
+    vnode.attrs.onToggleAdmin(e, vnode.attrs.user);
   }
 }

@@ -60,7 +60,7 @@ class ConfigReposMaterialParseResultManagerTest {
     }
 
     @Test
-    void shouldClearLastModificationAndHealthErrorsOnConfigChanged() {
+    void markForReparseShouldClearLastModificationAndHealthErrors() {
         String fingerprint = "repo1";
         HealthStateScope scope = HealthStateScope.forPartialConfigRepo(fingerprint);
         ServerHealthState error = ServerHealthState.error("boom", "bang!", HealthStateType.general(scope));
@@ -78,7 +78,7 @@ class ConfigReposMaterialParseResultManagerTest {
         assertNotNull(result.getLatestParsedModification());
         assertEquals(modification, result.getLatestParsedModification());
 
-        manager.onConfigUpdateDoReparse().onConfigChange(null);
+        manager.markFailedResultsForReparse();
         assertNull(result.getLatestParsedModification());
         verify(serverHealthService, times(1)).removeByScope(scope);
     }

@@ -16,11 +16,15 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.listener.ConfigChangedListener;
+import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.ConfigRepoService;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
@@ -69,26 +73,88 @@ public class ConfigReposMaterialParseResultManager {
     }
 
     /**
-     * After a successful update of the server config, we should reparse any failed config-repos in case
-     * any upstream dependency issues have been resolved.
+     * Registers the various ConfigChangedListener instances to mark config-repos for reparse on config updates.
      *
-     * @return a listener that clears the last parse states and errors related to config-repos so as to allow reparsing
+     * @param configService the {@link GoConfigService} to register events
      */
-    ConfigChangedListener onConfigUpdateDoReparse() {
-        return newCruiseConfig -> {
-            for (Map.Entry<String, PartialConfigParseResult> entry : fingerprintOfPartialToParseResultMap.entrySet()) {
-                String fingerprint = entry.getKey();
-                PartialConfigParseResult result = entry.getValue();
+    void attachConfigUpdateListeners(GoConfigService configService) {
+        configService.register(reparseOnConfigUpdate());
+        configService.register(reparseOnPipelineConfigUpdate());
+        configService.register(reparseOnEnvConfigUpdate());
+        configService.register(reparseOnTemplateConfigUpdate());
+        configService.register(reparseOnScmConfigUpdate());
+        configService.register(reparseOnConfigRepoConfigUpdate());
+    }
 
-                HealthStateScope scope = HealthStateScope.forPartialConfigRepo(fingerprint);
-                List<ServerHealthState> serverHealthErrors = serverHealthService.filterByScope(scope);
+    ConfigChangedListener reparseOnConfigUpdate() {
+        return newCruiseConfig -> markFailedResultsForReparse();
+    }
 
-                if (!serverHealthErrors.isEmpty() || !result.isSuccessful()) {
-                    result.setLatestParsedModification(null); // clear modification to allow a reparse to happen
-                    serverHealthService.removeByScope(scope); // clear errors until next reparse
-                }
+    EntityConfigChangedListener<PipelineConfig> reparseOnPipelineConfigUpdate() {
+        return new EntityConfigChangedListener<PipelineConfig>() {
+            @Override
+            public void onEntityConfigChange(PipelineConfig entity) {
+                markFailedResultsForReparse();
             }
         };
+    }
+
+    EntityConfigChangedListener<EnvironmentConfig> reparseOnEnvConfigUpdate() {
+        return new EntityConfigChangedListener<EnvironmentConfig>() {
+            @Override
+            public void onEntityConfigChange(EnvironmentConfig entity) {
+                markFailedResultsForReparse();
+            }
+        };
+    }
+
+    EntityConfigChangedListener<PipelineTemplateConfig> reparseOnTemplateConfigUpdate() {
+        return new EntityConfigChangedListener<PipelineTemplateConfig>() {
+            @Override
+            public void onEntityConfigChange(PipelineTemplateConfig entity) {
+                markFailedResultsForReparse();
+            }
+        };
+    }
+
+    EntityConfigChangedListener<ScmMaterialConfig> reparseOnScmConfigUpdate() {
+        return new EntityConfigChangedListener<ScmMaterialConfig>() {
+            @Override
+            public void onEntityConfigChange(ScmMaterialConfig entity) {
+                markFailedResultsForReparse();
+            }
+        };
+    }
+
+    EntityConfigChangedListener<ConfigRepoConfig> reparseOnConfigRepoConfigUpdate() {
+        return new EntityConfigChangedListener<ConfigRepoConfig>() {
+            @Override
+            public void onEntityConfigChange(ConfigRepoConfig entity) {
+                markFailedResultsForReparse();
+            }
+        };
+    }
+
+    /**
+     * After a successful update of the server config, we should reparse any failed config-repos in case
+     * any upstream dependency issues have been resolved.
+     * <p>
+     * This clears the last parse states and errors related to config-repos so as to allow reparsing. Should be
+     * used by ConfigChangedListener and EntityConfigChangedListener instances to hook into config update events.
+     */
+    void markFailedResultsForReparse() {
+        for (Map.Entry<String, PartialConfigParseResult> entry : fingerprintOfPartialToParseResultMap.entrySet()) {
+            String fingerprint = entry.getKey();
+            PartialConfigParseResult result = entry.getValue();
+
+            HealthStateScope scope = HealthStateScope.forPartialConfigRepo(fingerprint);
+            List<ServerHealthState> serverHealthErrors = serverHealthService.filterByScope(scope);
+
+            if (!serverHealthErrors.isEmpty() || !result.isSuccessful()) {
+                result.setLatestParsedModification(null); // clear modification to allow a reparse to happen
+                serverHealthService.removeByScope(scope); // clear errors until next reparse
+            }
+        }
     }
 
     private PartialConfigParseResult checkForMaterialErrors(String fingerprint) {

@@ -53,10 +53,13 @@ export class SwitchBtn extends MithrilComponent<Attrs, State> {
     const isSmall    = vnode.attrs.small;
     const classNames = classnames({[styles.switchSmall]: isSmall}, styles.switchBtn);
     const switchId   = `switch-${uuid4()}`;
-    const label      = vnode.attrs.label ? (
-      <label
-        className={classnames({[styles.disabled]: vnode.attrs.field() && vnode.attrs.disabled}, styles.switchLabel)}
-        data-test-id="switch-label">{vnode.attrs.label}</label>) : null;
+    let label = null;
+    if (vnode.attrs.label) {
+      label = <label className={classnames({[styles.disabled]: vnode.attrs.disabled}, styles.switchLabel)}
+                     data-test-id="switch-label">
+        {vnode.attrs.label}
+      </label>;
+    }
 
     return (
       <div className={classNames} data-test-id="switch-wrapper">

@@ -166,7 +166,9 @@ export class Users extends Array<User> {
     const index = this.findIndex((user) => {
       return user.loginName() === username;
     });
-    this.splice(index, 1);
+    if (index > -1) {
+      this.splice(index, 1);
+    }
   }
 
   private enabledUsers() {

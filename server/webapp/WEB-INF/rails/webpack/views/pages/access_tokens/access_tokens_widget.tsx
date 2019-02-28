@@ -55,7 +55,7 @@ export class AccessTokensWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const accessTokens = vnode.attrs.accessTokens();
     if (accessTokens.length === 0) {
-      return (<ul data-test-id="access_token_info">
+      return (<ul data-test-id="access-token-info">
         <li>Click on "Generate Token" to create new personal access token.</li>
         <li>A Generated token can be used to access the GoCD API.</li>
       </ul>);

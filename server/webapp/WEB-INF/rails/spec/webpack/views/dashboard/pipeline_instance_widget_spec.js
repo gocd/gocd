@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import SparkRoutes from "helpers/spark_routes";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 
 describe("Dashboard Pipeline Instance Widget", () => {
 
@@ -26,11 +27,8 @@ describe("Dashboard Pipeline Instance Widget", () => {
   const Dashboard              = require('models/dashboard/dashboard');
   const DashboardVM            = require("views/dashboard/models/dashboard_view_model");
 
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
+
+  const helper = new TestHelper();
 
   const pipelineInstanceJson = {
     "_links":       {
@@ -100,42 +98,34 @@ describe("Dashboard Pipeline Instance Widget", () => {
     const dashboard          = new Dashboard();
     dashboard.initialize(dashboardJsonForPipelines([pipelineName]));
 
-    m.mount(root, {
-      view() {
-        return m(PipelineInstanceWidget, {
-          instance,
-          buildCause:   dashboardViewModel.buildCause,
-          dropdown:     dashboardViewModel.dropdown,
-          trackingTool: {link: "http://example.com/${ID}", regex: "#(\\d+)"},
-          pipelineName
-        });
-      }
-    });
-    m.redraw(true);
+    helper.mount(() => m(PipelineInstanceWidget, {
+      instance,
+      buildCause:   dashboardViewModel.buildCause,
+      dropdown:     dashboardViewModel.dropdown,
+      trackingTool: {link: "http://example.com/${ID}", regex: "#(\\d+)"},
+      pipelineName
+    }));
   });
 
-  afterEach(() => {
-    m.mount(root, null);
-    m.redraw();
-  });
+  afterEach(helper.unmount.bind(helper));
 
   it("should render instance label", () => {
-    expect($root.find('.pipeline_instance-label')).toContainText('Instance: 1');
+    expect(helper.find('.pipeline_instance-label')).toContainText('Instance: 1');
   });
 
   it("should render triggered by information", () => {
-    expect($root.find('.pipeline_instance-details div:nth-child(1)').text()).toEqual(`${pipelineInstanceJson.triggered_by}`);
+    expect(helper.find('.pipeline_instance-details div:nth-child(1)').text()).toEqual(`${pipelineInstanceJson.triggered_by}`);
     const expectedTime = `on ${TimeFormatter.format(pipelineInstanceJson.scheduled_at)}`;
-    expect($root.find('.pipeline_instance-details div:nth-child(2)').text()).toEqual(expectedTime);
+    expect(helper.find('.pipeline_instance-details div:nth-child(2)').text()).toEqual(expectedTime);
   });
 
   it("should show server triggered by information on hover", () => {
     const expectedTime = TimeFormatter.formatInServerTime(pipelineInstanceJson.scheduled_at);
-    expect($root.find('.pipeline_instance-details div:nth-child(2)').get(0).title).toEqual(expectedTime);
+    expect(helper.find('.pipeline_instance-details div:nth-child(2)').get(0).title).toEqual(expectedTime);
   });
 
   it("should render compare link", () => {
-    const links       = $root.find('.info a');
+    const links       = helper.find('.info a');
     const compareLink = links.get(0);
 
     expect(compareLink).toContainText('Compare');
@@ -145,14 +135,14 @@ describe("Dashboard Pipeline Instance Widget", () => {
   });
 
   it("should render changes link", () => {
-    const links       = $root.find('.info a');
+    const links       = helper.find('.info a');
     const changesLink = links.get(1);
 
     expect(changesLink).toContainText('Changes');
   });
 
   it("should show changes once changes link is clicked", () => {
-    expect($root.find('.material_changes')).not.toBeInDOM();
+    expect(helper.find('.material_changes')).not.toBeInDOM();
 
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath(pipelineName, instance.counter), undefined, 'GET').andReturn({
@@ -160,15 +150,15 @@ describe("Dashboard Pipeline Instance Widget", () => {
         responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
         status:          200
       });
-      $root.find('.info a').get(1).click();
+      helper.find('.info a').get(1).click();
     });
 
-    expect($root.find('.material_changes')).toBeInDOM();
-    expect($root.find('.comment')).toHaveHtml('<p>Initial commit <a target="story_tracker" href="http://example.com/1234">#1234</a></p>');
+    expect(helper.find('.material_changes')).toBeInDOM();
+    expect(helper.find('.comment')).toHaveHtml('<p>Initial commit <a target="story_tracker" href="http://example.com/1234">#1234</a></p>');
   });
 
   it("should render vsm link", () => {
-    const links   = $root.find('.info a');
+    const links   = helper.find('.info a');
     const vsmLink = links.get(2);
 
     expect(vsmLink).toContainText('VSM');
@@ -178,8 +168,8 @@ describe("Dashboard Pipeline Instance Widget", () => {
   });
 
   it("should render stages instance", () => {
-    expect($root.find('.pipeline_stages')).toBeInDOM();
-    expect($root.find('.pipeline_stage')).toBeInDOM();
+    expect(helper.find('.pipeline_stages')).toBeInDOM();
+    expect(helper.find('.pipeline_stage')).toBeInDOM();
   });
 
   const dashboardJsonForPipelines = (pipelines) => {

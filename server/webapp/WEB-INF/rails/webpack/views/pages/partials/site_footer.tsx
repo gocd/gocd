@@ -21,10 +21,6 @@ import {Link} from "views/components/link";
 import * as styles from "./site_footer.scss";
 
 export interface Attrs {
-  // copyrightYear: string;
-  // goVersion: string;
-  // fullVersion: string;
-  // formattedVersion: string;
   isServerInMaintenanceMode: boolean;
   isSupportedBrowser: boolean;
 }

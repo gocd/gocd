@@ -44,7 +44,7 @@ describe("ArtifactModalBodyWidget", () => {
   });
 
   function mount(artifactStore: ArtifactStore, disableId = false) {
-    helper.mount(<ArtifactStoreModalBody pluginInfos={pluginInfos}
+    helper.mount(() => <ArtifactStoreModalBody pluginInfos={pluginInfos}
                                          artifactStore={artifactStore}
                                          pluginIdProxy={pluginIdProxy}
                                          disableId={disableId}/>);

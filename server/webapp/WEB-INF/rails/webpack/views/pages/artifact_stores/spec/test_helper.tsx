@@ -14,53 +14,116 @@
  * limitations under the License.
  */
 
+import * as $ from "jquery";
 import * as m from "mithril";
+import * as simulateEvent from "simulate-event";
+import {Page} from "views/pages/page";
+
+let mounted = false;
 
 export class TestHelper {
-  private root: any;
-  private $root: any;
-  private component: any;
+  root?: HTMLElement;
 
-  mount(component: any) {
-    this.component = component;
-    // @ts-ignore
-    const all      = window.createDomElementForTest();
-    this.$root     = all[0];
-    this.root      = all[1];
-    m.mount(this.root, {
+  mount(callback: () => m.Children) {
+    this.initialize();
+
+    m.mount(this.root!, {
       view() {
-        return <div>{component}</div>;
+        return callback();
       }
     });
-    m.redraw();
+    this.redraw();
   }
 
-  unmount(done?: any) {
-    m.mount(this.root, null);
-    m.redraw();
-    //@ts-ignore
-    window.destroyDomElementForTest();
-    this.root  = null;
-    this.$root = null;
-    if (done && typeof done === "function") {
+  mountPage(callback: () => Page<any, any>) {
+    this.initialize();
+
+    m.mount(this.root!, callback());
+    this.redraw();
+  }
+
+  route(defaultRoute: string, callback: () => m.RouteDefs) {
+    this.initialize();
+
+    m.route(this.root!, defaultRoute, callback());
+    this.redraw();
+  }
+
+  unmount(done?: () => void) {
+    if (!mounted) {
+      throw new Error("Did you forget to mount?");
+    }
+
+    mounted = false;
+
+    m.mount(this.root!, null);
+    this.redraw();
+
+    this.root!.remove();
+    this.root = undefined;
+
+    if (done) {
       done();
     }
   }
 
   findByDataTestId(id: string) {
-    return this.$root.find(`[data-test-id='${id}']`);
+    return $(this.root!).find(`[data-test-id='${id}']`);
   }
 
   find(selector: string) {
-    return this.$root.find(selector);
+    return $(this.root!).find(selector);
   }
 
   findIn(elem: any, id: string) {
-    return $(elem).find(`[data-test-id='${id}']`);
+    return $(elem).find(this.dataTestIdSelector(id));
   }
 
-  remount() {
-    this.unmount();
-    this.mount(this.component);
+  click(selector: string) {
+    const element = this.root!.querySelector(selector);
+    if (!element) {
+      throw new Error(`Unable to find element with selector ${selector}`);
+    }
+    simulateEvent.simulate(element, "click");
+    this.redraw();
+  }
+
+  clickButtonOnActiveModal(buttonSelector: string) {
+    const element = document.querySelector(".new-modal-container")!.querySelector(buttonSelector);
+    if (!element) {
+      throw new Error(`Unable to find button with selector ${buttonSelector}`);
+    }
+    simulateEvent.simulate(element, "click");
+    this.redraw();
+  }
+
+  redraw() {
+    m.redraw();
+  }
+
+  dump() {
+    // tslint:disable-next-line:no-console
+    console.log(this.root!.innerHTML);
+  }
+
+  clickByDataTestId(id: string) {
+    this.click(this.dataTestIdSelector(id));
+  }
+
+  findByClass(className: string) {
+    return this.find(`.${className}`);
+  }
+
+  private initialize() {
+    if (mounted) {
+      throw new Error("Did you forget to unmount from a previous test?");
+    }
+    mounted   = true;
+    this.root = document.createElement("root");
+    document.body.appendChild(this.root);
+  }
+
+  private dataTestIdSelector(id: string) {
+    return `[data-test-id='${id}']`;
   }
 }

@@ -16,19 +16,17 @@
 
 import {UsageData} from "models/shared/data_sharing/usage_data";
 import {DataSharingSettings} from "models/shared/data_sharing/data_sharing_settings";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 
 describe("Data Sharing Settings Widget", () => {
   const $             = require("jquery");
   const m             = require("mithril");
   const simulateEvent = require('simulate-event');
+  const helper        = new TestHelper();
 
   const DataSharingSettingsWidget = require("views/data_sharing_settings/data_sharing_settings_widget");
 
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
+  afterEach(helper.unmount.bind(helper));
 
   const metricsSettingsJSON = {
     "_embedded": {
@@ -50,22 +48,11 @@ describe("Data Sharing Settings Widget", () => {
   beforeEach(() => {
     usageData = UsageData.fromJSON(usageDataJSON);
     settings  = DataSharingSettings.fromJSON(metricsSettingsJSON, {getResponseHeader: () => 'ETag'});
-    m.mount(root, {
-      view() {
-        return m(DataSharingSettingsWidget, {settings, usageData});
-      }
-    });
-
-    m.redraw(true);
-  });
-
-  afterEach(() => {
-    m.mount(root, null);
-    m.redraw();
+    helper.mount(() => m(DataSharingSettingsWidget, {settings, usageData}));
   });
 
   it("should show metrics collection title", () => {
-    expect($root.find('.page-header')).toContainText('Help improve GoCD by sharing technical data');
+    expect(helper.find('.page-header')).toContainText('Help improve GoCD by sharing technical data');
   });
 
   it('should render the consent description', () => {
@@ -74,7 +61,7 @@ describe("Data Sharing Settings Widget", () => {
       'Choose your settings below. You can change these settings at any time.'
     ];
 
-    const consentDescription = $root.find('.consent-description p');
+    const consentDescription = helper.find('.consent-description p');
 
     expect(consentDescription).toHaveLength(description.length);
     expect($(consentDescription.get(0))).toContainText(description[0]);
@@ -82,7 +69,7 @@ describe("Data Sharing Settings Widget", () => {
   });
 
   it('should not show the last updated by when settings hasn\'t been changed by any admin', () => {
-    expect($root.find('.updated-by')).not.toBeInDOM();
+    expect(helper.find('.updated-by')).not.toBeInDOM();
   });
 
   it('should not show the last updated by time and username', () => {
@@ -91,42 +78,42 @@ describe("Data Sharing Settings Widget", () => {
 
     const updatedByMessage = `${settings.updatedBy()} changed the data sharing permission on ${settings.updatedOn()}.`;
 
-    expect($root.find('.updated-by')).toBeInDOM();
-    expect($root.find('.updated-by')).toContainText(updatedByMessage);
+    expect(helper.find('.updated-by')).toBeInDOM();
+    expect(helper.find('.updated-by')).toContainText(updatedByMessage);
   });
 
   it('should show the consent toggle button', () => {
-    expect($root.find('.consent-toggle p')).toContainText('Allow GoCD to collect the following data:');
-    expect($root.find('.switch')).toBeInDOM();
+    expect(helper.find('.consent-toggle p')).toContainText('Allow GoCD to collect the following data:');
+    expect(helper.find('.switch')).toBeInDOM();
   });
 
   it('should show the consent toggle value same as of metrics settings consent value', () => {
-    expect($root.find('.switch')).toBeInDOM();
+    expect(helper.find('.switch')).toBeInDOM();
 
     expect(settings.allowed()).toBe(true);
-    expect($root.find('.switch input')).toBeChecked();
+    expect(helper.find('.switch input')).toBeChecked();
 
-    simulateEvent.simulate($root.find('.switch input').get(0), 'click');
+    simulateEvent.simulate(helper.find('.switch input').get(0), 'click');
     m.redraw();
 
     expect(settings.allowed()).toBe(false);
-    expect($root.find('.switch input')).not.toBeChecked();
+    expect(helper.find('.switch input')).not.toBeChecked();
   });
 
   it('should show human readable consent text', () => {
     expect(settings.allowed()).toBe(true);
-    expect($root.find('.human-readable-consent')).toContainText('Yes');
+    expect(helper.find('.human-readable-consent')).toContainText('Yes');
 
     settings.toggleConsent();
     m.redraw();
 
     expect(settings.allowed()).toBe(false);
-    expect($root.find('.human-readable-consent')).toContainText('No');
+    expect(helper.find('.human-readable-consent')).toContainText('No');
   });
 
   it('should show the consent for collected metrics list', () => {
-    expect($root.find('.consent-for-wrapper .consent-for')).toHaveLength(8);
-    const consentFor = $root.find('.consent-for-wrapper .consent-for');
+    expect(helper.find('.consent-for-wrapper .consent-for')).toHaveLength(8);
+    const consentFor = helper.find('.consent-for-wrapper .consent-for');
 
     const pipelineConsentKey         = 'Number of pipelines (pipeline_count)';
     const pipelineConsentDescription = 'This allows the calculation of the average number of pipelines a GoCD instance has. Knowing the average number of pipelines helps us optimize the GoCD experience.';
@@ -180,8 +167,8 @@ describe("Data Sharing Settings Widget", () => {
   it('should show what data will be sent when GoCD data sharing is allowed', () => {
     expect(settings.allowed()).toBe(true);
 
-    expect($root.find('.data-share-message')).toContainText('Data that will be sent:');
-    expect($root.find('.shared-data')).toContainText(usageData.represent());
+    expect(helper.find('.data-share-message')).toContainText('Data that will be sent:');
+    expect(helper.find('.shared-data')).toContainText(usageData.represent());
   });
 
   it('should show what data would have been sent when GoCD data sharing is not allowed', () => {
@@ -191,17 +178,17 @@ describe("Data Sharing Settings Widget", () => {
 
     expect(settings.allowed()).toBe(false);
 
-    expect($root.find('.data-share-message')).toContainText('Data that would have been sent, if allowed:');
-    expect($root.find('.shared-data')).toContainText(usageData.represent());
+    expect(helper.find('.data-share-message')).toContainText('Data that would have been sent, if allowed:');
+    expect(helper.find('.shared-data')).toContainText(usageData.represent());
   });
 
   describe('Buttons', () => {
     it('should render save button', () => {
-      expect($root.find('.update-consent')).toBeInDOM();
+      expect(helper.find('.update-consent')).toBeInDOM();
     });
 
     it('should render reset button', () => {
-      expect($root.find('.reset-consent')).toBeInDOM();
+      expect(helper.find('.reset-consent')).toBeInDOM();
     });
 
     it('should reset the settings consent value on clicking reset button', () => {
@@ -209,7 +196,7 @@ describe("Data Sharing Settings Widget", () => {
       settings.toggleConsent();
       expect(settings.allowed()).toBe(false);
 
-      simulateEvent.simulate($root.find('.reset-consent').get(0), 'click');
+      simulateEvent.simulate(helper.find('.reset-consent').get(0), 'click');
       m.redraw();
 
       expect(settings.allowed()).toBe(true);
@@ -220,7 +207,7 @@ describe("Data Sharing Settings Widget", () => {
       settings.toggleConsent();
       expect(settings.allowed()).toBe(false);
 
-      simulateEvent.simulate($root.find('.reset-consent').get(0), 'click');
+      simulateEvent.simulate(helper.find('.reset-consent').get(0), 'click');
       m.redraw();
 
       expect(settings.allowed()).toBe(true);
@@ -243,7 +230,7 @@ describe("Data Sharing Settings Widget", () => {
         settings.toggleConsent();
         expect(settings.allowed()).toBe(false);
 
-        simulateEvent.simulate($root.find('.update-consent').get(0), 'click');
+        simulateEvent.simulate(helper.find('.update-consent').get(0), 'click');
         m.redraw();
 
         expect(settings.allowed()).toBe(false);
@@ -256,7 +243,7 @@ describe("Data Sharing Settings Widget", () => {
     afterEach(jasmine.clock().uninstall);
 
     it('should not render flash message container if no flash message present', () => {
-      expect($root.find('.callout')).not.toBeInDOM();
+      expect(helper.find('.callout')).not.toBeInDOM();
     });
 
     it('should show the success flash message when updating consent value is successful', () => {
@@ -274,14 +261,14 @@ describe("Data Sharing Settings Widget", () => {
           }
         });
 
-        expect($root.find('.callout')).not.toBeInDOM();
+        expect(helper.find('.callout')).not.toBeInDOM();
 
-        simulateEvent.simulate($root.find('.update-consent').get(0), 'click');
+        simulateEvent.simulate(helper.find('.update-consent').get(0), 'click');
         m.redraw();
 
-        expect($root.find('.callout')).toBeInDOM();
-        expect($root.find('.callout')).toHaveClass('success');
-        expect($root.find('.callout')).toContainText('Data Sharing Settings updated Successfully!');
+        expect(helper.find('.callout')).toBeInDOM();
+        expect(helper.find('.callout')).toHaveClass('success');
+        expect(helper.find('.callout')).toContainText('Data Sharing Settings updated Successfully!');
       });
     });
 
@@ -300,14 +287,14 @@ describe("Data Sharing Settings Widget", () => {
           }
         });
 
-        expect($root.find('.callout')).not.toBeInDOM();
+        expect(helper.find('.callout')).not.toBeInDOM();
 
-        simulateEvent.simulate($root.find('.update-consent').get(0), 'click');
+        simulateEvent.simulate(helper.find('.update-consent').get(0), 'click');
         m.redraw();
 
-        expect($root.find('.callout')).toBeInDOM();
-        expect($root.find('.callout')).toHaveClass('alert');
-        expect($root.find('.callout')).toContainText(response.message);
+        expect(helper.find('.callout')).toBeInDOM();
+        expect(helper.find('.callout')).toHaveClass('alert');
+        expect(helper.find('.callout')).toContainText(response.message);
       });
     });
 
@@ -325,18 +312,18 @@ describe("Data Sharing Settings Widget", () => {
           }
         });
 
-        expect($root.find('.callout')).not.toBeInDOM();
+        expect(helper.find('.callout')).not.toBeInDOM();
 
-        simulateEvent.simulate($root.find('.update-consent').get(0), 'click');
+        simulateEvent.simulate(helper.find('.update-consent').get(0), 'click');
         m.redraw();
 
-        expect($root.find('.callout')).toBeInDOM();
-        expect($root.find('.callout')).toHaveClass('alert');
-        expect($root.find('.callout')).toContainText(response.message);
+        expect(helper.find('.callout')).toBeInDOM();
+        expect(helper.find('.callout')).toHaveClass('alert');
+        expect(helper.find('.callout')).toContainText(response.message);
 
         jasmine.clock().tick(5001);
 
-        expect($root.find('.callout')).not.toBeInDOM();
+        expect(helper.find('.callout')).not.toBeInDOM();
       });
     });
   });

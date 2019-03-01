@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Agent Row Widget", () => {
   const $      = require("jquery");
   const m      = require('mithril');
@@ -31,16 +33,13 @@ describe("Agent Row Widget", () => {
   let shouldShowAnalyticsIcon = true;
   let elasticAgentPluginInfo;
   let allAgents;
-
-  let $root, root;
+  const helper                = new TestHelper();
 
   beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
     shouldShowAnalyticsIcon = true;
-    elasticAgentPluginInfo = getElasticAgentPluginInfo();
+    elasticAgentPluginInfo  = getElasticAgentPluginInfo();
   });
 
-  afterEach(window.destroyDomElementForTest);
   beforeEach(() => {
     jasmine.Ajax.install();
     allAgents = Agents.fromJSON(json());
@@ -49,7 +48,7 @@ describe("Agent Row Widget", () => {
   afterEach(() => {
     jasmine.Ajax.uninstall();
     Modal.destroyAll();
-    unmount();
+    helper.unmount();
   });
 
   it('should contain the agent information', () => {
@@ -57,7 +56,7 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().firstAgent(), model, true);
 
-    const row         = $root.find('tr:first');
+    const row         = helper.find('tr:first');
     const checkbox    = $(row).find('input');
     const information = $(row).find('td');
     expect(information[1]).toExist();
@@ -78,7 +77,7 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().firstAgent(), model, false);
 
-    const row         = $root.find('tr')[0];
+    const row         = helper.find('tr')[0];
     const information = $(row).find('td');
     expect($(information[2]).find('.content')).toHaveText('in-john.local');
     expect($(information[2]).find('.content')).not.toContainElement('a');
@@ -89,7 +88,7 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().firstAgent(), model, true);
 
-    const row         = $root.find('tr')[0];
+    const row         = helper.find('tr')[0];
     const information = $(row).find('td');
     const hostname    = $(information[2]).find('.content');
 
@@ -102,7 +101,7 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().lastAgent(), model, true, true);
 
-    const row         = $root.find('tr')[0];
+    const row         = helper.find('tr')[0];
     const information = $(row).find('td');
     const hostname    = $(information[2]).find('.content');
 
@@ -115,7 +114,7 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().lastAgent(), model, true, null);
 
-    const row         = $root.find('tr')[0];
+    const row         = helper.find('tr')[0];
     const information = $(row).find('td');
     const hostname    = $(information[2]).find('.content');
 
@@ -129,7 +128,7 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().lastAgent(), model, true);
 
-    const row         = $root.find('tr')[0];
+    const row         = helper.find('tr')[0];
     const information = $(row).find('td');
     const hostname    = $(information[2]).find('.content');
 
@@ -142,7 +141,7 @@ describe("Agent Row Widget", () => {
     const model = Stream(true);
     mount(agents().firstAgent(), model, true);
 
-    const checkbox = $root.find('input')[0];
+    const checkbox = helper.find('input')[0];
     expect(checkbox.checked).toBe(model());
   });
 
@@ -155,7 +154,7 @@ describe("Agent Row Widget", () => {
   it('should show none specified if agent has no resource', () => {
     agents(allAgents.toJSON()[1]);
     mount(agents(), model, true);
-    const row         = $root.find('tr')[0];
+    const row         = helper.find('tr')[0];
     const information = $(row).find('td');
     expect($(information[8]).find('.content')).toHaveText('none specified');
   });
@@ -163,7 +162,7 @@ describe("Agent Row Widget", () => {
   it('should show none specified if agent has no environment', () => {
     agents(allAgents.toJSON()[1]);
     mount(agents(), model, true);
-    const row         = $root.find('tr')[0];
+    const row         = helper.find('tr')[0];
     const information = $(row).find('td');
     expect($(information[9]).find('.content')).toHaveText('none specified');
   });
@@ -171,7 +170,7 @@ describe("Agent Row Widget", () => {
   it('should set the class based on the status of the agent', () => {
     agents(allAgents);
     mount(agents().firstAgent(), model, true);
-    const row = $root.find('tr')[0];
+    const row = helper.find('tr')[0];
     expect(row.classList).toContain(agents().firstAgent().status().toLowerCase());
   });
 
@@ -179,7 +178,7 @@ describe("Agent Row Widget", () => {
     agents(allAgents);
     const model = Stream(false);
     mount(agents().firstAgent(), model, true);
-    const row      = $root.find('tr')[0];
+    const row      = helper.find('tr')[0];
     const checkbox = $(row).find('input');
     expect(model()).toBe(false);
     $(checkbox).click();
@@ -190,7 +189,7 @@ describe("Agent Row Widget", () => {
   it('should have links to pipeline, stage and job as a part of build details dropdown', () => {
     agents(allAgents.toJSON()[2]);
     mount(agents(), model, true);
-    const buildDetailsLinks = $root.find('.build-details a').map((_i, el) => $(el).attr('href'));
+    const buildDetailsLinks = helper.find('.build-details a').map((_i, el) => $(el).attr('href'));
     const buildDetails      = agents().buildDetails();
     expect(buildDetailsLinks).toEqual([buildDetails.pipelineUrl(), buildDetails.stageUrl(), buildDetails.jobUrl()]);
   });
@@ -198,14 +197,14 @@ describe("Agent Row Widget", () => {
   it('should not render analytics plugin icon if no analytics plugin supports agent metric', () => {
     agents(allAgents);
     mount(agents().firstAgent(), model, true, false);
-    expect($root.find('.agent-analytics')).not.toBeInDOM();
+    expect(helper.find('.agent-analytics')).not.toBeInDOM();
   });
 
   it('should render analytics plugin icon if any analytics plugin supports agent metric', () => {
     agents(allAgents);
     elasticAgentPluginInfo.extensions.push(getAnalyticsExtension());
     mount(agents().firstAgent(), model, true, true);
-    expect($root.find('.agent-analytics')).toBeInDOM();
+    expect(helper.find('.agent-analytics')).toBeInDOM();
   });
 
   it('should render analytics for given agent on clicking analytics icon', () => {
@@ -214,7 +213,7 @@ describe("Agent Row Widget", () => {
     elasticAgentPluginInfo.extensions.push(getAnalyticsExtension());
 
     mount(agents(), model, true, false);
-    expect($root.find('.agent-analytics')).toBeInDOM();
+    expect(helper.find('.agent-analytics')).toBeInDOM();
 
     $('.agent-analytics').click();
     m.redraw();
@@ -231,33 +230,22 @@ describe("Agent Row Widget", () => {
     shouldShowAnalyticsIcon = false;
 
     mount(agents().firstAgent(), model, true);
-    expect($root.find('.agent-analytics')).not.toBeInDOM();
+    expect(helper.find('.agent-analytics')).not.toBeInDOM();
   });
 
   const mount = (agent, model, isUserAdmin, supportsAgentStatusReportPage = false) => {
     elasticAgentPluginInfo.extensions[0]['capabilities']['supports_agent_status_report'] = supportsAgentStatusReportPage;
 
     const pluginInfos = PluginInfos.fromJSON([elasticAgentPluginInfo]);
-    m.mount(root, {
-      view() {
-        return m(AgentsRowWidget, {
-          agent,
-          'checkBoxModel': model,
-          'dropdown':      agentsVM.dropdown,
-          isUserAdmin,
-          shouldShowAnalyticsIcon,
-          'pluginInfos':   () => pluginInfos
-        });
-      }
-    });
-    m.redraw();
+    helper.mount(() => m(AgentsRowWidget, {
+      agent,
+      'checkBoxModel': model,
+      'dropdown':      agentsVM.dropdown,
+      isUserAdmin,
+      shouldShowAnalyticsIcon,
+      'pluginInfos':   () => pluginInfos
+    }));
   };
-
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
-  };
-
   const model = Stream();
 
   const json = () => [
@@ -401,83 +389,83 @@ describe("Agent Row Widget", () => {
   ];
 
   const getElasticAgentPluginInfo = () => ({
-          "id": "cd.go.contrib.elasticagent.kubernetes",
-          "status": {
-              "state": "active"
-          },
-          "about": {
-              "name": "Docker Elastic Agent Plugin",
-              "version": "0.6.1",
-              "target_go_version": "16.12.0",
-              "description": "Docker Based Elastic Agent Plugins for GoCD",
-              "target_operating_systems": [],
-              "vendor": {
-                  "name": "GoCD Contributors",
-                  "url": "https://github.com/gocd-contrib/docker-elastic-agents"
+    "id":         "cd.go.contrib.elasticagent.kubernetes",
+    "status":     {
+      "state": "active"
+    },
+    "about":      {
+      "name":                     "Docker Elastic Agent Plugin",
+      "version":                  "0.6.1",
+      "target_go_version":        "16.12.0",
+      "description":              "Docker Based Elastic Agent Plugins for GoCD",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "GoCD Contributors",
+        "url":  "https://github.com/gocd-contrib/docker-elastic-agents"
+      }
+    },
+    "extensions": [
+      {
+        "type":             "elastic-agent",
+        "plugin_settings":  {
+          "configurations": [
+            {
+              "key":      "instance_type",
+              "metadata": {
+                "secure":   false,
+                "required": true
               }
-          },
-          "extensions": [
-              {
-                  "type": "elastic-agent",
-                  "plugin_settings": {
-                      "configurations": [
-                          {
-                              "key": "instance_type",
-                              "metadata": {
-                                  "secure": false,
-                                  "required": true
-                              }
-                          }
-                      ],
-                      "view": {
-                          "template": "elastic agent plugin settings view"
-                      }
-                  },
-                  "profile_settings": {
-                      "configurations": [],
-                      "view": {
-                          "template": 'some cool template!'
-                      }
-                  },
-                  "capabilities": {
-                      "supports_status_report": true,
-                      "supports_agent_status_report": true
-                  }
-              }
-          ]
+            }
+          ],
+          "view":           {
+            "template": "elastic agent plugin settings view"
+          }
+        },
+        "profile_settings": {
+          "configurations": [],
+          "view":           {
+            "template": 'some cool template!'
+          }
+        },
+        "capabilities":     {
+          "supports_status_report":       true,
+          "supports_agent_status_report": true
+        }
+      }
+    ]
   });
 
   const getAnalyticsExtension = () => ({
-      "type":             "analytics",
-      "plugin_settings":  {
-          "configurations": [
-              {
-                  "key":      "instance_type",
-                  "metadata": {
-                      "secure":   false,
-                      "required": true
-                  }
-              }
-          ],
-          "view":           {
-              "template": "analytics plugin settings view"
+    "type":             "analytics",
+    "plugin_settings":  {
+      "configurations": [
+        {
+          "key":      "instance_type",
+          "metadata": {
+            "secure":   false,
+            "required": true
           }
-      },
-      "profile_settings": {
-          "configurations": [],
-          "view":           {
-              "template": 'some cool template!'
-          }
-      },
-      "capabilities":     {
-          "supported_analytics": [
-              {
-                  "type":  "agent",
-                  "id":    "agent_utilization",
-                  "title": "Agent Utilization"
-              }
-          ]
+        }
+      ],
+      "view":           {
+        "template": "analytics plugin settings view"
       }
+    },
+    "profile_settings": {
+      "configurations": [],
+      "view":           {
+        "template": 'some cool template!'
+      }
+    },
+    "capabilities":     {
+      "supported_analytics": [
+        {
+          "type":  "agent",
+          "id":    "agent_utilization",
+          "title": "Agent Utilization"
+        }
+      ]
+    }
 
   });
 });

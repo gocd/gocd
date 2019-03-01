@@ -13,42 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Form Helper", () => {
   const $      = require("jquery");
   const m      = require('mithril');
   const Stream = require('mithril/stream');
-  require('jasmine-jquery');
-  const f = require('helpers/form_helper');
+  const f      = require('helpers/form_helper');
 
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
-  };
+  const helper = new TestHelper();
 
-  afterEach(() => {
-    unmount();
+  afterEach((done) => {
+    helper.unmount(done);
   });
 
   it("buttonWithTooltip should add a tooltip to the button", () => {
     const model = Stream(true);
-    m.mount(root, {
-      view() {
-        return m(f.buttonWithTooltip, {
-          model,
-          'tooltipText': "show me on hover",
-        }, "Fancy button with tooltip");
-      }
-    });
-    m.redraw();
-    const buttonWithTooltip = $root.find('button');
+    helper.mount(() =>
+      m(f.buttonWithTooltip, {
+        model,
+        'tooltipText': "show me on hover",
+      }, "Fancy button with tooltip")
+    );
+    const buttonWithTooltip = helper.find('button');
     expect(buttonWithTooltip).toExist();
     const tooltipId = $(buttonWithTooltip).attr("data-tooltip-id");
-    const tooltip   = $root.find(`#${tooltipId}`);
+    const tooltip   = helper.find(`#${tooltipId}`);
     expect(tooltip).toExist();
     expect(tooltip).toHaveText("show me on hover");
     expect(tooltip).not.toBeVisible();
@@ -60,19 +50,14 @@ describe("Form Helper", () => {
 
   it("linkWithTooltip should add a tooltip to the link", () => {
     const model = Stream(true);
-    m.mount(root, {
-      view() {
-        return m(f.linkWithTooltip, {
-          model,
-          'tooltipText': "show me on hover",
-        }, "Fancy link with tooltip");
-      }
-    });
-    m.redraw();
-    const linkWithTooltip = $root.find('a');
+    helper.mount(() => m(f.linkWithTooltip, {
+      model,
+      'tooltipText': "show me on hover",
+    }, "Fancy link with tooltip"));
+    const linkWithTooltip = helper.find('a');
     expect(linkWithTooltip).toExist();
     const tooltipId = $(linkWithTooltip).attr("data-tooltip-id");
-    const tooltip   = $root.find(`#${tooltipId}`);
+    const tooltip   = helper.find(`#${tooltipId}`);
     expect(tooltip).toExist();
     expect(tooltip).toHaveText("show me on hover");
     expect(tooltip).not.toBeVisible();

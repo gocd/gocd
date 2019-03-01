@@ -22,16 +22,17 @@ import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 
 describe("User Actions Widget", () => {
-  let $root: any, root: any;
   let attrs: UserActionsState;
   let users: Stream<Users>;
+  const helper = new TestHelper();
 
   beforeEach(() => {
-    users         = stream(new Users());
-    attrs         = {
+    users = stream(new Users());
+    attrs = {
       users,
       roles: stream(new Roles()),
       userFilters: stream(new UserFilters()),
@@ -46,34 +47,13 @@ describe("User Actions Widget", () => {
       roleNameToAdd: stream(),
       onRolesAdd: _.noop
     };
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
   });
 
   beforeEach(mount);
-
-  afterEach(unmount);
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  afterEach(helper.unmount.bind(helper));
 
   function mount() {
-    m.mount(root, {
-      view() {
-        return (
-          <UsersActionsWidget {...attrs}/>);
-      }
-    });
-
-    m.redraw();
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
+    helper.mount(() => <UsersActionsWidget {...attrs}/>);
   }
 
   function bob() {
@@ -115,9 +95,9 @@ describe("User Actions Widget", () => {
     users(new Users(bob(), alice(), john()));
     m.redraw();
 
-    expect(find("users-total")).toHaveText("3");
-    expect(find("users-enabled")).toHaveText("1");
-    expect(find("users-disabled")).toHaveText("2");
+    expect(helper.findByDataTestId("users-total")).toHaveText("3");
+    expect(helper.findByDataTestId("users-enabled")).toHaveText("1");
+    expect(helper.findByDataTestId("users-disabled")).toHaveText("2");
   });
 
 });

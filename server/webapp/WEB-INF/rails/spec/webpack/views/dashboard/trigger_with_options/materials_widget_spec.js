@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {TestHelper} from "../../../../../webpack/views/pages/artifact_stores/spec/test_helper";
+
 describe("Dashboard Trigger With Options Material Widget", () => {
   const _      = require("lodash");
   const m      = require("mithril");
@@ -24,14 +26,8 @@ describe("Dashboard Trigger With Options Material Widget", () => {
 
   const MaterialForTriggerWidget = require("views/dashboard/trigger_with_options/materials_widget");
 
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(() => {
-    window.destroyDomElementForTest();
-  });
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   let vm, info;
   beforeEach(() => {
@@ -48,30 +44,20 @@ describe("Dashboard Trigger With Options Material Widget", () => {
       material.isRevisionSelected    = jasmine.createSpy('isRevisionSelected');
     });
 
-    m.mount(root, {
-      view() {
-        return m(MaterialForTriggerWidget, {
-          materials: info.materials,
-          vm:        Stream(vm)
-        });
-      }
-    });
-    m.redraw();
-  });
-
-  afterEach(() => {
-    m.mount(root, null);
-    m.redraw();
+    helper.mount(() => m(MaterialForTriggerWidget, {
+      materials: info.materials,
+      vm:        Stream(vm)
+    }));
   });
 
   it("should show latest if material revision is not present", () => {
-    const headings = $root.find('.v-tab_tab-head li');
+    const headings = helper.find('.v-tab_tab-head li');
 
     expect(headings.get(1)).toContainText("latest");
   });
 
   it("it should render material select tabs", () => {
-    const headings = $root.find('.v-tab_tab-head li');
+    const headings = helper.find('.v-tab_tab-head li');
 
     expect(headings).toHaveLength(json.materials.length);
 
@@ -83,7 +69,7 @@ describe("Dashboard Trigger With Options Material Widget", () => {
   });
 
   it("it should render the first material info content", () => {
-    const contents = $root.find('.v-tab_container .v-tab_content');
+    const contents = helper.find('.v-tab_container .v-tab_content');
 
     expect(contents).toHaveLength(1);
 
@@ -91,18 +77,18 @@ describe("Dashboard Trigger With Options Material Widget", () => {
   });
 
   it("should show first material by default", () => {
-    expect($root.find('.v-tab_tab-head li').get(0)).toHaveClass('active');
-    expect($root.find('#material1').get(0)).not.toHaveClass('hidden');
+    expect(helper.find('.v-tab_tab-head li').get(0)).toHaveClass('active');
+    expect(helper.find('#material1').get(0)).not.toHaveClass('hidden');
   });
 
   it("should show appropriate material content material heading selection", () => {
-    expect($root.find('.v-tab_tab-head li').get(0)).toHaveClass('active');
-    expect($root.find('#material1').get(0)).not.toHaveClass('hidden');
+    expect(helper.find('.v-tab_tab-head li').get(0)).toHaveClass('active');
+    expect(helper.find('#material1').get(0)).not.toHaveClass('hidden');
 
-    $root.find('.v-tab_tab-head li').get(1).click();
+    helper.find('.v-tab_tab-head li').get(1).click();
 
-    expect($root.find('.v-tab_tab-head li').get(1)).toHaveClass('active');
-    expect($root.find('#material1').get(1)).not.toHaveClass('hidden');
+    expect(helper.find('.v-tab_tab-head li').get(1)).toHaveClass('active');
+    expect(helper.find('#material1').get(1)).not.toHaveClass('hidden');
   });
 
   const json = {

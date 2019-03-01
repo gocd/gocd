@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 const m             = require('mithril');
 const Stream        = require('mithril/stream');
-const simulateEvent = require('simulate-event');
 const Dropdown      = require('views/shared/dropdown');
 
 describe('Dropdown widget', () => {
+
+  const helper = new TestHelper();
 
   const model = {
     selectedAnimal: Stream("cat"),
@@ -38,58 +41,39 @@ describe('Dropdown widget', () => {
     ]
   };
 
-
-  const mount = () => {
-    m.mount(root,
-      {
-        view() {
-          return <div>
-            <span class="other-node">Some text</span>
-            <Dropdown model={model}
-                      label="Select an item:"
-                      attrName="selectedAnimal"
-                      items={model.animals}/>;
-          </div>;
-        }
-      }
-    );
-    m.redraw();
-  };
-
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
-  };
-
-  let $root, root;
-
   beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-    mount();
+    helper.mount(() => {
+      return <div>
+        <span className="other-node">Some text</span>
+        <Dropdown model={model}
+                  label="Select an item:"
+                  attrName="selectedAnimal"
+                  items={model.animals}/>;
+      </div>;
+    });
   });
 
   afterEach(() => {
-    unmount();
-    window.destroyDomElementForTest();
+    helper.unmount();
   });
 
   it('should open dropdown on click', () => {
-    expect($root.find('.c-dropdown')).not.toHaveClass('open');
-    simulateEvent.simulate($root.find('.c-dropdown_head').get(0), 'click');
-    expect($root.find('.c-dropdown')).toHaveClass('open');
+    expect(helper.find('.c-dropdown')).not.toHaveClass('open');
+    helper.click('.c-dropdown_head');
+    expect(helper.find('.c-dropdown')).toHaveClass('open');
   });
 
   it('should close dropdown when an item is selected', () => {
-    simulateEvent.simulate($root.find('.c-dropdown_head').get(0), 'click');
-    expect($root.find('.c-dropdown')).toHaveClass('open');
-    simulateEvent.simulate($root.find('.c-dropdown_item').get(0), 'click');
-    expect($root.find('.c-dropdown')).not.toHaveClass('open');
+    helper.click('.c-dropdown_head');
+    expect(helper.find('.c-dropdown')).toHaveClass('open');
+    helper.click('.c-dropdown_item');
+    expect(helper.find('.c-dropdown')).not.toHaveClass('open');
   });
 
   it('should open drowndown when down-arrow is clicked', () => {
-    expect($root.find('.c-dropdown')).not.toHaveClass('open');
-    simulateEvent.simulate($root.find('.c-down-arrow').get(0), 'click');
-    expect($root.find('.c-dropdown')).toHaveClass('open');
+    expect(helper.find('.c-dropdown')).not.toHaveClass('open');
+    helper.click('.c-down-arrow');
+    expect(helper.find('.c-dropdown')).toHaveClass('open');
   });
 
 });

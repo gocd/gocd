@@ -17,31 +17,25 @@
 import * as m from "mithril";
 import SiteMenu, {Attrs} from "views/components/site_menu/index";
 import * as styles from "views/components/site_menu/index.scss";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 
 describe("Site Menu", () => {
 
-  let $root: any, root: any;
-  beforeEach(() => {
-    //@ts-ignore
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(unmount);
-  //@ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   it("should display the menus for an admin", () => {
     mount({
-      canViewTemplates: true,
-      isGroupAdmin: true,
-      isUserAdmin: true,
-      canViewAdminPage: true,
-      showAnalytics: true
-    } as Attrs);
-    const dashboard = $root.find("a").get(0);
-    const agents    = $root.find("a").get(1);
-    const analytics = $root.find("a").get(2);
-    const admin     = $root.find("a").get(3);
+            canViewTemplates: true,
+            isGroupAdmin: true,
+            isUserAdmin: true,
+            canViewAdminPage: true,
+            showAnalytics: true
+          } as Attrs);
+    const dashboard = helper.find("a").get(0);
+    const agents    = helper.find("a").get(1);
+    const analytics = helper.find("a").get(2);
+    const admin     = helper.find("a").get(3);
     expect(dashboard).toHaveText("Dashboard");
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
@@ -65,22 +59,22 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/package_repositories/new")).toHaveText("Package Repositories");
     expect(findMenuItem("/go/admin/security/auth_configs")).toHaveText("Authorization Configuration");
     expect(findMenuItem("/go/admin/security/roles")).toHaveText("Role configuration");
-    expect($root.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect($root.find(`a.${styles.siteSubNavLink}`)).toHaveLength(16);
+    expect(helper.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
+    expect(helper.find(`a.${styles.siteSubNavLink}`)).toHaveLength(16);
   });
 
   it("should display the menus for users who can view templates", () => {
     mount({
-      canViewTemplates: true,
-      isGroupAdmin: false,
-      isUserAdmin: false,
-      canViewAdminPage: true,
-      showAnalytics: true
-    } as Attrs);
-    const dashboard = $root.find("a").get(0);
-    const agents    = $root.find("a").get(1);
-    const analytics = $root.find("a").get(2);
-    const admin     = $root.find("a").get(3);
+            canViewTemplates: true,
+            isGroupAdmin: false,
+            isUserAdmin: false,
+            canViewAdminPage: true,
+            showAnalytics: true
+          } as Attrs);
+    const dashboard = helper.find("a").get(0);
+    const agents    = helper.find("a").get(1);
+    const analytics = helper.find("a").get(2);
+    const admin     = helper.find("a").get(3);
     expect(dashboard).toHaveText("Dashboard");
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
@@ -100,22 +94,22 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/package_repositories/new")).not.toBeInDOM();
     expect(findMenuItem("/go/admin/security/auth_configs")).not.toBeInDOM();
     expect(findMenuItem("/go/admin/security/roles")).not.toBeInDOM();
-    expect($root.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect($root.find(`a.${styles.siteSubNavLink}`)).toHaveLength(1);
+    expect(helper.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
+    expect(helper.find(`a.${styles.siteSubNavLink}`)).toHaveLength(1);
   });
 
   it("should display the menus for Group Admins", () => {
     mount({
-      canViewTemplates: true,
-      isGroupAdmin: true,
-      isUserAdmin: false,
-      canViewAdminPage: true,
-      showAnalytics: true
-    } as Attrs);
-    const dashboard = $root.find("a").get(0);
-    const agents    = $root.find("a").get(1);
-    const analytics = $root.find("a").get(2);
-    const admin     = $root.find("a").get(3);
+            canViewTemplates: true,
+            isGroupAdmin: true,
+            isUserAdmin: false,
+            canViewAdminPage: true,
+            showAnalytics: true
+          } as Attrs);
+    const dashboard = helper.find("a").get(0);
+    const agents    = helper.find("a").get(1);
+    const analytics = helper.find("a").get(2);
+    const admin     = helper.find("a").get(3);
     expect(dashboard).toHaveText("Dashboard");
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
@@ -135,21 +129,21 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/package_repositories/new")).toHaveText("Package Repositories");
     expect(findMenuItem("/go/admin/security/auth_configs")).not.toBeInDOM();
     expect(findMenuItem("/go/admin/security/roles")).not.toBeInDOM();
-    expect($root.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect($root.find(`a.${styles.siteSubNavLink}`)).toHaveLength(6);
+    expect(helper.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
+    expect(helper.find(`a.${styles.siteSubNavLink}`)).toHaveLength(6);
   });
 
   it("should not show analytics when the attribute is passed as false", () => {
     mount({
-      canViewTemplates: true,
-      isGroupAdmin: true,
-      isUserAdmin: false,
-      canViewAdminPage: true,
-      showAnalytics: false
-    } as Attrs);
-    const dashboard = $root.find("a").get(0);
-    const agents    = $root.find("a").get(1);
-    const admin     = $root.find("a").get(2);
+            canViewTemplates: true,
+            isGroupAdmin: true,
+            isUserAdmin: false,
+            canViewAdminPage: true,
+            showAnalytics: false
+          } as Attrs);
+    const dashboard = helper.find("a").get(0);
+    const agents    = helper.find("a").get(1);
+    const admin     = helper.find("a").get(2);
     expect(dashboard).toHaveText("Dashboard");
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
@@ -166,9 +160,9 @@ describe("Site Menu", () => {
             canViewAdminPage: false,
             showAnalytics: false
           } as Attrs);
-    const dashboard = $root.find("a").get(0);
-    const agents    = $root.find("a").get(1);
-    const admin     = $root.find("a").get(2);
+    const dashboard = helper.find("a").get(0);
+    const agents    = helper.find("a").get(1);
+    const admin     = helper.find("a").get(2);
     expect(dashboard).toHaveText("Dashboard");
     expect(dashboard).toHaveAttr("href", "/go/pipelines");
     expect(agents).toHaveText("Agents");
@@ -177,21 +171,11 @@ describe("Site Menu", () => {
   });
 
   function mount(menuAttrs: Attrs) {
-    m.mount(root, {
-      view() {
-        return <SiteMenu {...menuAttrs}/>;
-      }
-    });
-    m.redraw();
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
+    helper.mount(() => <SiteMenu {...menuAttrs}/>);
   }
 
   function findMenuItem(href: string) {
-    return $root.find(`a[href='${href}']`);
+    return helper.find(`a[href='${href}']`);
   }
 
 });

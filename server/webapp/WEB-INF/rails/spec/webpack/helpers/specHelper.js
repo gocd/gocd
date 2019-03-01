@@ -18,42 +18,13 @@ import {ModalManager} from "views/components/modal/modal_manager";
 require('jasmine-jquery');
 require('jasmine-ajax');
 
-const $     = require('jquery');
 const Modal = require('views/shared/new_modal');
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000;
 
-let container;
-
 document.addEventListener('DOMContentLoaded', () => {
   ModalManager.onPageLoad();
 });
-
-if (window.location.search.indexOf('showDom=false') >= 0) {
-  $('.component-modal-container').hide();
-} else {
-  $('.component-modal-container').show();
-}
-
-window.createDomElementForTest = function () {
-  container = $('<div>');
-
-  if (window.location.search.indexOf('showDom=false') >= 0) {
-    container.hide();
-  } else {
-    container.show();
-  }
-
-  const mithrilMountPoint = $('<div>').attr({class: 'mithril-mount-point'});
-  container.append(mithrilMountPoint);
-  $('body').append(container);
-
-  return [mithrilMountPoint, mithrilMountPoint.get(0)];
-};
-
-window.destroyDomElementForTest = function () {
-  container.remove();
-};
 
 function blowUpAjaxFunction() {
   fail("Ajax calls need to be stubbed!"); //eslint-disable-line no-undef
@@ -80,18 +51,6 @@ afterEach(() => {
   expect(jasmine.Ajax.requests.count()).toBe(0);
 });
 
-beforeEach(() => {
-  if ($('#mithril-component-container').length === 0) {
-    const container = $('<div>').attr({id: 'mithril-component-container'}).hide();
-    container.append($('<div>').attr({id: 'mithril-mount-point'}));
-    $('body').append(container);
-  }
-});
-
 afterEach(() => {
-  //expect(SCMs().length).toBe(0);
-  //expect(_(SCMs.scmIdToEtag).isEqual({})).toBe(true);
-
-  expect($('#mithril-mount-point').html()).toEqual('');
   expect(Modal.count()).toBe(0);
 });

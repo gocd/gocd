@@ -14,85 +14,74 @@
  * limitations under the License.
  */
 
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Dashboard Material Search Results Widget", () => {
-  const m             = require("mithril");
-  const TimeFormatter = require('helpers/time_formatter');
-
+  const m                           = require("mithril");
+  const Material                    = require('models/dashboard/material');
+  const TimeFormatter               = require('helpers/time_formatter');
   const MaterialSearchResultsWidget = require("views/dashboard/trigger_with_options/material_search_results_widget");
-
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(() => {
-    window.destroyDomElementForTest();
-  });
+  const helper                      = new TestHelper();
 
   let material;
 
   beforeEach(() => {
-    material = {
-      performSearch:      jasmine.createSpy('performSearch'),
-      searchText:         jasmine.createSpy('searchText'),
-      searchInProgress:   jasmine.createSpy('searchInProgress'),
-      searchResults:      jasmine.createSpy('searchResults'),
-      selectRevision:     jasmine.createSpy('selectRevision'),
-      isRevisionSelected: jasmine.createSpy('isRevisionSelected')
-    };
+    material = new Material({});
     mount();
   });
 
   afterEach(unmount);
 
   it("should render results matching count message when search text is absent", () => {
-    material.searchText.and.returnValue('');
-    material.searchResults.and.returnValue(json);
-    m.redraw();
+    material.searchText('');
+    material.searchResults(json);
+    helper.redraw();
     const expectedMessage = 'Last 4 commits listed in chronological order';
-    expect($root.find('.commits .helper')).toContainText(expectedMessage);
+    expect(helper.find('.commits .helper')).toContainText(expectedMessage);
   });
 
   it("should render all matched material search revisions and no message", () => {
-    material.searchText.and.returnValue('some search text');
-    material.searchResults.and.returnValue(json);
-    m.redraw();
-    expect($root.find('.commit_info li')).toHaveLength(4);
-    expect($root.find('.commits .helper')).toContainText('');
+    material.searchText('some search text');
+    material.searchResults(json);
+    helper.redraw();
+    expect(helper.find('.commit_info li')).toHaveLength(4);
+    expect(helper.find('.commits .helper')).toContainText('');
   });
 
   it("should render commit information", () => {
-    material.searchResults.and.returnValue(json);
-    m.redraw();
+    material.searchResults(json);
+    helper.redraw();
 
-    expect($root.find('.commit_info .rev').get(0)).toContainText(json[0].revision);
-    expect($root.find('.commit_info .committer').get(0)).toContainText(json[0].user);
-    expect($root.find('.commit_info .time').get(0)).toContainText(TimeFormatter.format(json[0].date));
-    expect($root.find('.commit_info .commit_message').get(0)).toContainText(json[0].comment);
+    expect(helper.find('.commit_info .rev').get(0)).toContainText(json[0].revision);
+    expect(helper.find('.commit_info .committer').get(0)).toContainText(json[0].user);
+    expect(helper.find('.commit_info .time').get(0)).toContainText(TimeFormatter.format(json[0].date));
+    expect(helper.find('.commit_info .commit_message').get(0)).toContainText(json[0].comment);
   });
 
   it("should render no revisions found message", () => {
-    material.searchText.and.returnValue('foo');
-    material.searchResults.and.returnValue([]);
-    m.redraw();
+    material.searchText('foo');
+    material.searchResults([]);
+    helper.redraw();
     const expectedMessage = `No revisions found matching 'foo'`;
-    expect($root.find('.commits .helper')).toContainText(expectedMessage);
+    expect(helper.find('.commits .helper')).toContainText(expectedMessage);
   });
 
   it("should not render view when search is in progress", () => {
-    material.searchInProgress.and.returnValue(true);
-    m.redraw();
-    expect($root.find('.commits')).not.toBeInDOM();
+    material.searchInProgress(true);
+    helper.redraw();
+    expect(helper.find('.commits')).not.toBeInDOM();
   });
 
   it("should select searched revision onclick", () => {
-    material.searchText.and.returnValue('implemented');
-    material.searchResults.and.returnValue(json);
-    m.redraw();
+    material.searchText('implemented');
+    material.searchResults(json);
 
-    $root.find('.commit_info li').get(1).click();
+    helper.redraw();
 
-    expect(material.selectRevision).toHaveBeenCalledWith(json[1].revision);
+    helper.click('.commit_info li:nth-child(2)');
+
+    expect(material.selection()).toEqual(json[1].revision);
+    expect(material.searchText()).toEqual(json[1].revision);
   });
 
   const json = [
@@ -123,18 +112,12 @@ describe("Dashboard Material Search Results Widget", () => {
   ];
 
   function mount() {
-    m.mount(root, {
-      view() {
-        return m(MaterialSearchResultsWidget, {
-          material
-        });
-      }
-    });
-    m.redraw(true);
+    helper.mount(() => m(MaterialSearchResultsWidget, {
+      material
+    }));
   }
 
   function unmount() {
-    m.mount(root, null);
-    m.redraw();
+    helper.unmount();
   }
 });

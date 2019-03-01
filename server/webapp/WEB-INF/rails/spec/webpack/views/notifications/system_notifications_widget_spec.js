@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("SystemNotificationsWidget", () => {
   const m             = require("mithril");
   const Stream        = require("mithril/stream");
   const simulateEvent = require('simulate-event');
+  const helper        = new TestHelper();
 
   require('jasmine-jquery');
   require('jasmine-ajax');
@@ -25,39 +28,22 @@ describe("SystemNotificationsWidget", () => {
   const SystemNotificationsWidget = require('views/notifications/system_notifications_widget');
   const SystemNotifications       = require('models/notifications/system_notifications').SystemNotifications;
 
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
+  afterEach(helper.unmount.bind(helper));
 
   const systemNotifications = Stream(new SystemNotifications());
 
   beforeEach(() => {
-    m.mount(root, {
-      view() {
-        return m(SystemNotificationsWidget, {
-          systemNotifications
-        });
-      }
-    });
-    m.redraw(true);
-  });
-  beforeEach(() => {
+    helper.mount(() => m(SystemNotificationsWidget, {
+      systemNotifications
+    }));
     localStorage.clear();
     localStorage.setItem('system_notifications', JSON.stringify([]));
   });
 
-
-  afterEach(() => {
-    m.mount(root, null);
-    m.redraw();
-  });
-
   it("should not display notification bell when there are no notifications to display", () => {
     systemNotifications(SystemNotifications.fromJSON([]));
-    m.redraw(true);
-    expect($root.find('.notifications').get(0)).not.toBeInDOM();
+    helper.redraw(true);
+    expect(helper.find('.notifications').get(0)).not.toBeInDOM();
   });
 
   it("should display notification bell and the notifications", () => {
@@ -81,13 +67,13 @@ describe("SystemNotificationsWidget", () => {
     ];
 
     systemNotifications(SystemNotifications.fromJSON(notifications));
-    m.redraw(true);
-    expect($root.find('.notifications').get(0)).toBeInDOM();
-    expect($root.find('.notifications .bell').get(0)).toBeInDOM();
-    expect($root.find('.notifications .hover-container').get(0)).toBeInDOM();
-    expect($root.find('.notifications .hover-container .notification-hover').get(0)).toBeInDOM();
-    expect($root.find('.notifications .hover-container .notification-hover p').get(0)).toBeInDOM();
-    const allNotifications = $root.find('.notifications .hover-container .notification-hover p');
+    helper.redraw(true);
+    expect(helper.find('.notifications').get(0)).toBeInDOM();
+    expect(helper.find('.notifications .bell').get(0)).toBeInDOM();
+    expect(helper.find('.notifications .hover-container').get(0)).toBeInDOM();
+    expect(helper.find('.notifications .hover-container .notification-hover').get(0)).toBeInDOM();
+    expect(helper.find('.notifications .hover-container .notification-hover p').get(0)).toBeInDOM();
+    const allNotifications = helper.find('.notifications .hover-container .notification-hover p');
     expect(allNotifications.length).toBe(2);
     expect(allNotifications.eq(0)).toContainText("message 1. read more");
     expect(allNotifications.eq(0).find('a')).toContainText("read more");
@@ -119,24 +105,24 @@ describe("SystemNotificationsWidget", () => {
     ];
 
     systemNotifications(SystemNotifications.fromJSON(notifications));
-    m.redraw(true);
-    let allNotifications = $root.find('.notifications .hover-container .notification-hover p');
+    helper.redraw(true);
+    let allNotifications = helper.find('.notifications .hover-container .notification-hover p');
     expect(allNotifications.length).toBe(2);
     simulateEvent.simulate(allNotifications.eq(0).find('span.close').get(0), 'click');
-    m.redraw(true);
+    helper.redraw(true);
 
-    allNotifications = $root.find('.notifications .hover-container .notification-hover p');
+    allNotifications = helper.find('.notifications .hover-container .notification-hover p');
     expect(allNotifications.length).toBe(1);
     expect(allNotifications.eq(0)).toContainText("message 2. read more");
 
-    expect(systemNotifications().find((m) => {
-      return m.id === "id1";
+    expect(systemNotifications().find(() => {
+      return helper.id === "id1";
     })).toBeUndefined();
-    const remainingNofication = systemNotifications().find((m) => {
+    const remainingNotification = systemNotifications().find((m) => {
       return m.id === "id2";
     });
-    expect(remainingNofication).not.toBeUndefined();
-    expect(remainingNofication.message).toBe("message 2.");
-    expect(remainingNofication.read).toBe(false);
+    expect(remainingNotification).not.toBeUndefined();
+    expect(remainingNotification.message).toBe("message 2.");
+    expect(remainingNotification.read).toBe(false);
   });
 });

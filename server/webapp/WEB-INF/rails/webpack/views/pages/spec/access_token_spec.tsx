@@ -17,18 +17,17 @@
 import * as m from "mithril";
 import {AccessTokens} from "models/access_tokens/types";
 import {AccessTokensPage} from "views/pages/access_tokens";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {PageState} from "views/pages/page";
 
 describe("AccessTokenPage", () => {
-  let $root: any, root: any;
+  const helper = new TestHelper();
   beforeEach(() => {
     jasmine.Ajax.install();
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
   });
 
   afterEach(() => {
-    unmount();
+    helper.unmount();
     jasmine.Ajax.uninstall();
   });
 
@@ -36,9 +35,9 @@ describe("AccessTokenPage", () => {
     document.body.setAttribute("data-meta", JSON.stringify({pluginId: "cd.go.ldap", supportsAccessToken: false}));
     mount();
 
-    expect(findByDataTestId("generate-token-button")).toBeDisabled();
-    expect(findByDataTestId("flash-message-info")).toBeInDOM();
-    expect(findByDataTestId("flash-message-info"))
+    expect(helper.findByDataTestId("generate-token-button")).toBeDisabled();
+    expect(helper.findByDataTestId("flash-message-info")).toBeInDOM();
+    expect(helper.findByDataTestId("flash-message-info"))
       .toHaveText("Creation of access token is not supported by the plugin cd.go.ldap.");
   });
 
@@ -46,23 +45,14 @@ describe("AccessTokenPage", () => {
     document.body.setAttribute("data-meta", JSON.stringify({pluginId: "cd.go.ldap", supportsAccessToken: true}));
     mount();
 
-    expect(findByDataTestId("flash-message-info")).not.toBeInDOM();
-    expect(findByDataTestId("generate-token-button")).not.toBeDisabled();
+    expect(helper.findByDataTestId("flash-message-info")).not.toBeInDOM();
+    expect(helper.findByDataTestId("generate-token-button")).not.toBeDisabled();
   });
 
   function mount() {
-    m.mount(root, new StubbedPage());
-    m.redraw();
+    helper.mountPage(() => new StubbedPage());
   }
 
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function findByDataTestId(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
-  }
 });
 
 class StubbedPage extends AccessTokensPage {

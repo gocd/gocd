@@ -15,6 +15,7 @@
  */
 
 import SparkRoutes from "helpers/spark_routes";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 
 describe("Dashboard Widget", () => {
   const m               = require("mithril");
@@ -30,8 +31,10 @@ describe("Dashboard Widget", () => {
   const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
   const Personalization = require('models/dashboard/personalization');
 
-  let $root, root, dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
+  let dashboard, dashboardJson, buildCauseJson, doCancelPolling, doRefreshImmediately;
   const originalDebounce = _.debounce;
+
+  const helper = new TestHelper();
 
   beforeEach(() => {
     doCancelPolling      = jasmine.createSpy();
@@ -46,13 +49,10 @@ describe("Dashboard Widget", () => {
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(SparkRoutes.pipelineSelectionPath(), undefined, 'GET');
     });
-
-    [$root, root] = window.createDomElementForTest();
   });
 
   afterEach(() => {
     _.debounce = originalDebounce;
-    window.destroyDomElementForTest();
   });
 
   beforeEach(mount);
@@ -60,38 +60,38 @@ describe("Dashboard Widget", () => {
   afterEach(unmount);
 
   it("should render dashboard pipeline search field", () => {
-    expect(find('search-box')).toBeInDOM();
+    expect(helper.findByDataTestId('search-box')).toBeInDOM();
   });
 
   it("should show spinner before dashboard is loaded", () => {
     unmount();
     const pageSpinner = Stream(true);
     mount(true, pageSpinner);
-    expect($root.find(".page-spinner")).toBeInDOM();
+    expect(helper.find(".page-spinner")).toBeInDOM();
 
     pageSpinner(false);
     unmount();
     mount(true, pageSpinner);
-    expect($root.find(".page-spinner")).not.toBeInDOM();
+    expect(helper.find(".page-spinner")).not.toBeInDOM();
   });
 
   it('should render an info message', () => {
-    expect($root.find('.dashboard-message')).not.toBeInDOM();
+    expect(helper.find('.dashboard-message')).not.toBeInDOM();
     dashboard.message({content: 'some message', type: 'info'});
     m.redraw();
-    expect($root.find('.callout.info .dashboard-message')).toContainText('some message');
+    expect(helper.find('.callout.info .dashboard-message')).toContainText('some message');
   });
 
   it('should render an alert message', () => {
-    expect($root.find('.dashboard-message')).not.toBeInDOM();
+    expect(helper.find('.dashboard-message')).not.toBeInDOM();
     dashboard.message({content: 'some error message', type: 'alert'});
     m.redraw();
-    expect($root.find('.callout.alert .dashboard-message')).toContainText('some error message');
+    expect(helper.find('.callout.alert .dashboard-message')).toContainText('some error message');
   });
 
   it("should search for a pipeline", () => {
-    const searchField        = find('search-box').get(0);
-    let pipelinesCountOnPage = $root.find('.pipeline');
+    const searchField        = helper.findByDataTestId('search-box').get(0);
+    let pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(2);
 
     $(searchField).val('foo');
@@ -99,7 +99,7 @@ describe("Dashboard Widget", () => {
 
     m.redraw();
 
-    pipelinesCountOnPage = $root.find('.pipeline');
+    pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(0);
 
     $(searchField).val('up42');
@@ -107,7 +107,7 @@ describe("Dashboard Widget", () => {
 
     m.redraw();
 
-    pipelinesCountOnPage = $root.find('.pipeline');
+    pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(1);
 
     $(searchField).val('up43');
@@ -115,7 +115,7 @@ describe("Dashboard Widget", () => {
 
     m.redraw();
 
-    pipelinesCountOnPage = $root.find('.pipeline');
+    pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(1);
 
     $(searchField).val('UP43');
@@ -123,7 +123,7 @@ describe("Dashboard Widget", () => {
 
     m.redraw();
 
-    pipelinesCountOnPage = $root.find('.pipeline');
+    pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(1);
 
     $(searchField).val('up');
@@ -131,7 +131,7 @@ describe("Dashboard Widget", () => {
 
     m.redraw();
 
-    pipelinesCountOnPage = $root.find('.pipeline');
+    pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(2);
 
     $(searchField).val('');
@@ -139,21 +139,21 @@ describe("Dashboard Widget", () => {
 
     m.redraw();
 
-    pipelinesCountOnPage = $root.find('.pipeline');
+    pipelinesCountOnPage = helper.find('.pipeline');
     expect(pipelinesCountOnPage).toHaveLength(2);
   });
 
   it("should show appropriate modal for pausing a searched pipeline", () => {
-    const searchField = find('search-box').get(0);
-    expect($root.find('.pipeline')).toHaveLength(2);
+    const searchField = helper.findByDataTestId('search-box').get(0);
+    expect(helper.find('.pipeline')).toHaveLength(2);
 
     $(searchField).val('up42');
     simulateEvent.simulate(searchField, 'input');
     m.redraw();
 
-    expect($root.find('.pipeline')).toHaveLength(1);
+    expect(helper.find('.pipeline')).toHaveLength(1);
 
-    simulateEvent.simulate($root.find('.pause').get(0), 'click');
+    simulateEvent.simulate(helper.find('.pause').get(0), 'click');
     expect($('.modal-body').text()).toEqual('Specify a reason for pausing schedule on pipeline up42');
 
     //close specify pause cause popup for up42 pipeline
@@ -163,9 +163,9 @@ describe("Dashboard Widget", () => {
     simulateEvent.simulate(searchField, 'input');
     m.redraw();
 
-    expect($root.find('.pipeline')).toHaveLength(1);
+    expect(helper.find('.pipeline')).toHaveLength(1);
 
-    simulateEvent.simulate($root.find('.pause').get(0), 'click');
+    simulateEvent.simulate(helper.find('.pause').get(0), 'click');
     expect($('.modal-body').text()).toEqual('Specify a reason for pausing schedule on pipeline up43');
 
     //close specify pause cause popup for up43 pipeline
@@ -185,17 +185,17 @@ describe("Dashboard Widget", () => {
         status:          200
       });
 
-      simulateEvent.simulate($root.find('.pause').get(0), 'click');
+      simulateEvent.simulate(helper.find('.pause').get(0), 'click');
       expect($('.modal-body').text()).toEqual('Specify a reason for pausing schedule on pipeline up42');
       $('.reveal input').val(pauseCause);
       expect($('.reveal input')).toHaveValue(pauseCause);
 
       simulateEvent.simulate($('.reveal .primary').get(0), 'click');
 
-      expect($root.find('.pipeline_message')).toContainText(responseMessage);
-      expect($root.find('.pipeline_message')).toHaveClass("success");
+      expect(helper.find('.pipeline_message')).toContainText(responseMessage);
+      expect(helper.find('.pipeline_message')).toHaveClass("success");
 
-      simulateEvent.simulate($root.find('.pause').get(0), 'click');
+      simulateEvent.simulate(helper.find('.pause').get(0), 'click');
       expect($('.reveal input')).toHaveValue('');
 
       Modal.destroyAll();
@@ -205,15 +205,15 @@ describe("Dashboard Widget", () => {
   it("should show changes popup for a searched pipeline", () => {
     stubBuildCauseAjaxCall();
 
-    const searchField = find('search-box').get(0);
-    expect($root.find('.pipeline')).toHaveLength(2);
+    const searchField = helper.findByDataTestId('search-box').get(0);
+    expect(helper.find('.pipeline')).toHaveLength(2);
 
     $(searchField).val('up42');
     simulateEvent.simulate(searchField, 'input');
     m.redraw();
 
-    expect($root.find('.pipeline')).toHaveLength(1);
-    expect($root.find('.material_changes')).not.toBeInDOM();
+    expect(helper.find('.pipeline')).toHaveLength(1);
+    expect(helper.find('.material_changes')).not.toBeInDOM();
 
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
@@ -221,17 +221,17 @@ describe("Dashboard Widget", () => {
         responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
         status:          200
       });
-      $root.find('.info a').get(1).click();
+      helper.find('.info a').get(1).click();
     });
 
-    expect($root.find('.material_changes')).toBeInDOM();
+    expect(helper.find('.material_changes')).toBeInDOM();
 
     $(searchField).val('up43');
     simulateEvent.simulate(searchField, 'input');
     m.redraw();
 
-    expect($root.find('.pipeline')).toHaveLength(1);
-    expect($root.find('.material_changes')).not.toBeInDOM();
+    expect(helper.find('.pipeline')).toHaveLength(1);
+    expect(helper.find('.material_changes')).not.toBeInDOM();
 
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(SparkRoutes.buildCausePath('up42', '1'), undefined, 'GET').andReturn({
@@ -239,10 +239,10 @@ describe("Dashboard Widget", () => {
         responseHeaders: {'Content-Type': 'application/vnd.go.cd.v1+json'},
         status:          200
       });
-      $root.find('.info a').get(1).click();
+      helper.find('.info a').get(1).click();
     });
 
-    expect($root.find('.material_changes')).toBeInDOM();
+    expect(helper.find('.material_changes')).toBeInDOM();
   });
 
   it("should unlock a searched pipeline", () => {
@@ -256,59 +256,59 @@ describe("Dashboard Widget", () => {
         status:          200
       });
 
-      const searchField = find('search-box').get(0);
-      expect($root.find('.pipeline')).toHaveLength(2);
+      const searchField = helper.findByDataTestId('search-box').get(0);
+      expect(helper.find('.pipeline')).toHaveLength(2);
 
       $(searchField).val('up43');
       simulateEvent.simulate(searchField, 'input');
       m.redraw();
 
-      expect($root.find('.pipeline')).toHaveLength(1);
+      expect(helper.find('.pipeline')).toHaveLength(1);
 
       expect(doCancelPolling).not.toHaveBeenCalled();
       expect(doRefreshImmediately).not.toHaveBeenCalled();
 
-      simulateEvent.simulate($root.find('.pipeline_locked').get(0), 'click');
+      simulateEvent.simulate(helper.find('.pipeline_locked').get(0), 'click');
 
       expect(doCancelPolling).toHaveBeenCalled();
       expect(doRefreshImmediately).toHaveBeenCalled();
 
-      expect($root.find('.pipeline_message')).toContainText(responseMessage);
-      expect($root.find('.pipeline_message')).toHaveClass("success");
+      expect(helper.find('.pipeline_message')).toContainText(responseMessage);
+      expect(helper.find('.pipeline_message')).toHaveClass("success");
     });
   });
 
   it("should render pipeline groups", () => {
     const pipelineGroupsCount = dashboardJson._embedded.pipeline_groups.length;
-    const pipelineGroups      = $root.find('.dashboard-group');
+    const pipelineGroups      = helper.find('.dashboard-group');
 
     expect(pipelineGroups.size()).toEqual(pipelineGroupsCount);
     expect(pipelineGroups.get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
   });
 
   it("should render pipeline group title", () => {
-    expect($root.find('.dashboard-group_title a').get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
+    expect(helper.find('.dashboard-group_title a').get(0)).toContainText(dashboardJson._embedded.pipeline_groups[0].name);
   });
 
   it("should show pipeline group name which links to pipeline group index page for admin users", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = $root.find('.dashboard-group_title>a').get(0);
+    const title = helper.find('.dashboard-group_title>a').get(0);
     expect(title.href.indexOf(`/go/admin/pipelines#group-${pipelineGroupJSON.name}`)).not.toEqual(-1);
   });
 
   it("should show pipeline group icon which links to pipeline group settings page for admin users", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = $root.find('.dashboard-group_title>a').get(1);
+    const title = helper.find('.dashboard-group_title>a').get(1);
     expect(title.href.indexOf(`/go/admin/pipeline_group/${pipelineGroupJSON.name}/edit`)).not.toEqual(-1);
   });
 
   it("should show disabled pipeline group settings icon showing tooltip for non admin users", () => {
     unmount();
     mount(false);
-    expect($root.find('.dashboard-group_title .edit_config')).toHaveClass('disabled');
-    expect($root.find('.dashboard-group_title .edit_config')).toHaveAttr('data-tooltip-id');
+    expect(helper.find('.dashboard-group_title .edit_config')).toHaveClass('disabled');
+    expect(helper.find('.dashboard-group_title .edit_config')).toHaveAttr('data-tooltip-id');
   });
 
   it("should show pipeline group name as a disabled link for non admin users", () => {
@@ -316,7 +316,7 @@ describe("Dashboard Widget", () => {
     mount(false);
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
-    const title = $root.find('.dashboard-group_title>a').get(0);
+    const title = helper.find('.dashboard-group_title>a').get(0);
     expect(title).toContainText(pipelineGroupJSON.name);
     expect(title).toHaveClass('disabled');
   });
@@ -325,7 +325,7 @@ describe("Dashboard Widget", () => {
   it("should render pipelines within each pipeline group", () => {
     const pipelineName                      = dashboardJson._embedded.pipeline_groups[0].pipelines[0];
     const pipelinesWithinPipelineGroupCount = dashboardJson._embedded.pipeline_groups[0].pipelines.length;
-    const pipelinesWithinPipelineGroup      = $root.find('.dashboard-group .pipeline');
+    const pipelinesWithinPipelineGroup      = helper.find('.dashboard-group .pipeline');
 
     expect(pipelinesWithinPipelineGroup.size()).toEqual(pipelinesWithinPipelineGroupCount);
     expect(pipelinesWithinPipelineGroup).toContainText(pipelineName);
@@ -378,10 +378,10 @@ describe("Dashboard Widget", () => {
         "pipelines":       [
           {
             "_links":                 {
-              "self":                 {
+              "self": {
                 "href": "http://localhost:8153/go/api/pipelines/up42/history"
               },
-              "doc":                  {
+              "doc":  {
                 "href": "https://api.go.cd/current/#pipelines"
               }
             },
@@ -398,10 +398,10 @@ describe("Dashboard Widget", () => {
               "instances": [
                 {
                   "_links":       {
-                    "self":            {
+                    "self": {
                       "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
                     },
-                    "doc":             {
+                    "doc":  {
                       "href": "https://api.go.cd/current/#get-pipeline-instance"
                     }
                   },
@@ -434,10 +434,10 @@ describe("Dashboard Widget", () => {
           },
           {
             "_links":                 {
-              "self":                 {
+              "self": {
                 "href": "http://localhost:8153/go/api/pipelines/up43/history"
               },
-              "doc":                  {
+              "doc":  {
                 "href": "https://api.go.cd/current/#pipelines"
               }
             },
@@ -455,10 +455,10 @@ describe("Dashboard Widget", () => {
               "instances": [
                 {
                   "_links":       {
-                    "self":            {
+                    "self": {
                       "href": "http://localhost:8153/go/api/pipelines/up43/instance/1"
                     },
-                    "doc":             {
+                    "doc":  {
                       "href": "https://api.go.cd/current/#get-pipeline-instance"
                     }
                   },
@@ -500,27 +500,20 @@ describe("Dashboard Widget", () => {
 
     const dashboardViewModel           = new DashboardVM(dashboard);
     dashboardViewModel._performRouting = _.noop;
-
-    m.mount(root, {
-      view() {
-        return m(DashboardWidget, {
-          personalizeVM,
-          showSpinner,
-          pluginsSupportingAnalytics: {},
-          shouldShowAnalyticsIcon:    false,
-          doCancelPolling,
-          doRefreshImmediately,
-          vm:                         dashboardViewModel
-        });
-      }
-    });
-    m.redraw(true);
+    helper.mount(() => m(DashboardWidget, {
+      personalizeVM,
+      showSpinner,
+      pluginsSupportingAnalytics: {},
+      shouldShowAnalyticsIcon:    false,
+      doCancelPolling,
+      doRefreshImmediately,
+      vm:                         dashboardViewModel
+    }));
   }
 
   function unmount() {
     $("body").off();
-    m.mount(root, null);
-    m.redraw();
+    helper.unmount();
   }
 
   function stubBuildCauseAjaxCall() {
@@ -538,7 +531,4 @@ describe("Dashboard Widget", () => {
     });
   }
 
-  function find(id) {
-    return $root.find(`[data-test-id='${id}']`);
-  }
 });

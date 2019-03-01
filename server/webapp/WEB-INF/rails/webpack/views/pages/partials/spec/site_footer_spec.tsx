@@ -16,38 +16,15 @@
 
 import {GoCDVersion} from "gen/gocd_version";
 import * as m from "mithril";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {Attrs, SiteFooter} from "views/pages/partials/site_footer";
 
 describe("SiteFooter", () => {
-  let $root: any, root: HTMLElement;
-  beforeEach(() => {
-    //@ts-ignore
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(unmount);
-  //@ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   function mount(attrs: Attrs) {
-    m.mount(root, {
-      view() {
-        return (
-          <SiteFooter {...attrs}/>
-        );
-      }
-    });
-
-    m.redraw();
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
+    helper.mount(() => <SiteFooter {...attrs}/>);
   }
 
   it("should render footer", () => {
@@ -57,12 +34,12 @@ describe("SiteFooter", () => {
     };
     mount(attrs);
 
-    expect($root).toContainHtml(`Copyright &copy; ${GoCDVersion.copyrightYear}`);
-    expect($root).toContainElement(`a[href="/go/assets/dependency-license-report-${GoCDVersion.fullVersion}"]`);
-    expect($root).toContainText(`GoCD Version: ${GoCDVersion.formattedVersion}`);
-    expect($root).not.toContainText("maintenance");
-    expect(find("maintenance-mode-banner")).not.toBeInDOM();
-    expect($root).not.toContainText("unsupported browser");
+    expect(helper.root).toContainHtml(`Copyright &copy; ${GoCDVersion.copyrightYear}`);
+    expect(helper.root).toContainElement(`a[href="/go/assets/dependency-license-report-${GoCDVersion.fullVersion}"]`);
+    expect(helper.root).toContainText(`GoCD Version: ${GoCDVersion.formattedVersion}`);
+    expect(helper.root).not.toContainText("maintenance");
+    expect(helper.findByDataTestId("maintenance-mode-banner")).not.toBeInDOM();
+    expect(helper.root).not.toContainText("unsupported browser");
   });
 
   it("should render maintenance mode banner", () => {
@@ -76,9 +53,9 @@ describe("SiteFooter", () => {
     };
     mount(attrs);
 
-    expect(find("maintenance-mode-banner")).toBeInDOM();
-    expect($root).toContainText("maintenance");
-    expect($root).not.toContainText("unsupported browser");
+    expect(helper.findByDataTestId("maintenance-mode-banner")).toBeInDOM();
+    expect(helper.root).toContainText("maintenance");
+    expect(helper.root).not.toContainText("unsupported browser");
   });
 
   it("should render old browser message on IE11", () => {
@@ -92,10 +69,10 @@ describe("SiteFooter", () => {
     };
     mount(attrs);
 
-    expect(find("maintenance-mode-banner")).not.toBeInDOM();
-    expect(find("unsupported-browser-banner")).toBeInDOM();
-    expect($root).not.toContainText("maintenance");
-    expect($root).toContainText("unsupported browser");
+    expect(helper.findByDataTestId("maintenance-mode-banner")).not.toBeInDOM();
+    expect(helper.findByDataTestId("unsupported-browser-banner")).toBeInDOM();
+    expect(helper.root).not.toContainText("maintenance");
+    expect(helper.root).toContainText("unsupported browser");
   });
 
 });

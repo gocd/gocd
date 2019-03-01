@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Pipeline Dashboard Metrics", () => {
   const m      = require('mithril');
   require('jasmine-jquery');
@@ -20,28 +22,26 @@ describe("Pipeline Dashboard Metrics", () => {
 
   const PipelineMetrics = require('views/analytics/pipeline_metrics');
 
-  let $root, root;
   const supportedMetrics = () => ({
     "plugin-id-x": [{type: "pipeline", id: "metric-1"}],
     "plugin-id-y": [{type: "pipeline", id: "metric-1"}]
   });
 
   const pipelineList = () => ["p1", "p2", "p3"];
+  const helper = new TestHelper();
 
   beforeEach(() => {
     jasmine.Ajax.install();
-    [$root, root] = window.createDomElementForTest();
     mount(pipelineList(), supportedMetrics());
   });
 
   afterEach(() => {
     jasmine.Ajax.uninstall();
-    unmount();
-    window.destroyDomElementForTest();
+    helper.unmount();
   });
 
   it('should have a dropdown with each pipeline', () => {
-    const list = $root.find("select option");
+    const list = helper.find("select option");
     expect(list.length).toBe(3);
     expect($(list[0]).val()).toBe("p1");
     expect($(list[1]).val()).toBe("p2");
@@ -49,11 +49,11 @@ describe("Pipeline Dashboard Metrics", () => {
   });
 
   it('Add a frame for each plugin', () => {
-    expect($root.find("iframe").length).toBe(2);
+    expect(helper.find("iframe").length).toBe(2);
   });
 
   it('should change displayed graphs when new pipeline is selected', () => {
-    $root.find("select").val("p2").trigger("change");
+    helper.find("select").val("p2").trigger("change");
     const requests = jasmine.Ajax.requests;
     expect(requests.count()).toBe(4);
     expect(requests.at(2).url).toBe('/go/analytics/plugin-id-x/pipeline/metric-1?pipeline_name=p2&context=dashboard');
@@ -61,19 +61,10 @@ describe("Pipeline Dashboard Metrics", () => {
   });
 
   const mount = (pipelines, metrics) => {
-    m.mount(root, {
-      view() {
-        return m(PipelineMetrics, {
-          pipelines,
-          metrics
-        });
-      }
-    });
-    m.redraw();
+    helper.mount(() => m(PipelineMetrics, {
+      pipelines,
+      metrics
+    }));
   };
 
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
-  };
 });

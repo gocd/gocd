@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Button Row Widget", () => {
   const m      = require('mithril');
   const Stream = require('mithril/stream');
@@ -26,11 +28,7 @@ describe("Button Row Widget", () => {
 
   let agents;
 
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
+  const helper = new TestHelper();
 
   const selectedAgents     = () => {
   };
@@ -56,20 +54,18 @@ describe("Button Row Widget", () => {
     m.redraw();
   });
 
-  afterEach(() => {
-    unmount();
-  });
+  afterEach(helper.unmount.bind(helper));
 
   describe('Heading Row', () => {
     it('should contain the agents page heading text', () => {
-      const headingText = $root.find('.page-header h1');
+      const headingText = helper.find('.page-header h1');
       expect(headingText).toHaveText('Agents');
     });
   });
 
   describe('Button Group', () => {
     it('should contain the row elements', () => {
-      const rowElementButtons = $root.find('.header-panel-button-group button');
+      const rowElementButtons = helper.find('.header-panel-button-group button');
       expect(rowElementButtons).toHaveLength(5);
       expect(rowElementButtons[0]).toHaveText("Delete");
       expect(rowElementButtons[1]).toHaveText("Disable");
@@ -79,7 +75,7 @@ describe("Button Row Widget", () => {
     });
 
     it('should disable the buttons if agents are not selected', () => {
-      const rowElements = $root.find('.header-panel-button-group button');
+      const rowElements = helper.find('.header-panel-button-group button');
       expect(rowElements[0]).toBeDisabled();
       expect(rowElements[1]).toBeDisabled();
       expect(rowElements[2]).toBeDisabled();
@@ -89,8 +85,9 @@ describe("Button Row Widget", () => {
 
     it('should enable the buttons if at least one agent is selected', () => {
       const areOperationsAllowed = Stream(true);
+      helper.unmount();
       mount(areOperationsAllowed);
-      const rowElements = $root.find('.header-panel-button-group button');
+      const rowElements = helper.find('.header-panel-button-group button');
 
       expect(rowElements[0]).not.toBeDisabled();
       expect(rowElements[1]).not.toBeDisabled();
@@ -102,26 +99,16 @@ describe("Button Row Widget", () => {
   });
 
   const mount = (areOperationsAllowed) => {
-    m.mount(root, {
-      view() {
-        return m(ButtonRowWidget, {
-          areOperationsAllowed,
-          dropdown:             agentsVM.dropdown,
-          selectedAgents,
-          onDisable:            disableAgents,
-          onEnable:             enableAgents,
-          onDelete:             deleteAgents,
-          onResourcesUpdate:    updateResources,
-          onEnvironmentsUpdate: updateEnvironments
-        });
-      }
-    });
-    m.redraw();
-  };
-
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
+    helper.mount(() => m(ButtonRowWidget, {
+      areOperationsAllowed,
+      dropdown:             agentsVM.dropdown,
+      selectedAgents,
+      onDisable:            disableAgents,
+      onEnable:             enableAgents,
+      onDelete:             deleteAgents,
+      onResourcesUpdate:    updateResources,
+      onEnvironmentsUpdate: updateEnvironments
+    }));
   };
 
   const json = () => [

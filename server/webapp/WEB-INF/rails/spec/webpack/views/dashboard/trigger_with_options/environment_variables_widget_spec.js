@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Dashboard Environment Variables Trigger Widget", () => {
   const m             = require("mithril");
   const $             = require("jquery");
@@ -22,15 +24,7 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
   const EnvironmentVariablesWidget = require("views/dashboard/trigger_with_options/environment_variables_widget");
   const EnvironmentVariables       = require('models/dashboard/environment_variables');
 
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(() => {
-    window.destroyDomElementForTest();
-  });
-
+  const helper = new TestHelper();
 
   describe("Plain Text Variables", () => {
     const json = [
@@ -51,27 +45,29 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
 
     beforeEach(() => {
       variables = EnvironmentVariables.fromJSON(json);
-      mount('Plain', variables);
+      helper.mount(() => m(EnvironmentVariablesWidget['Plain'], {
+        variables
+      }));
     });
 
-    afterEach(unmount);
+    afterEach(helper.unmount.bind(helper));
 
     it("should render plain text variables", () => {
-      expect($root.find('.environment-variables .name')).toHaveLength(2);
-      expect($root.find('.environment-variables input')).toHaveLength(2);
+      expect(helper.find('.environment-variables .name')).toHaveLength(2);
+      expect(helper.find('.environment-variables input')).toHaveLength(2);
 
-      expect($root.find('.environment-variables .name').get(0)).toContainText(json[0].name);
-      expect($root.find('.environment-variables .name').get(1)).toContainText(json[1].name);
+      expect(helper.find('.environment-variables .name').get(0)).toContainText(json[0].name);
+      expect(helper.find('.environment-variables .name').get(1)).toContainText(json[1].name);
 
-      expect($root.find('.environment-variables input').get(0)).toHaveValue(json[0].value);
-      expect($root.find('.environment-variables input').get(1)).toHaveValue(json[1].value);
+      expect(helper.find('.environment-variables input').get(0)).toHaveValue(json[0].value);
+      expect(helper.find('.environment-variables input').get(1)).toHaveValue(json[1].value);
     });
 
     it("it should display variable overriden message", () => {
-      const valueInputField = $root.find('.environment-variables input').get(0);
+      const valueInputField = helper.find('.environment-variables input').get(0);
 
       expect(valueInputField).toHaveValue(json[0].value);
-      expect($root.find('.overridden-message')).not.toBeInDOM();
+      expect(helper.find('.overridden-message')).not.toBeInDOM();
 
       const newValue = "ldap";
       $(valueInputField).val(newValue);
@@ -80,7 +76,7 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
 
       expect(variables[0].value()).toBe(newValue);
       expect(valueInputField).toHaveValue(newValue);
-      expect($root.find('.overridden-message')).toContainText(`The value is overridden. Default value :${json[0].value}`);
+      expect(helper.find('.overridden-message')).toContainText(`The value is overridden. Default value :${json[0].value}`);
     });
   });
 
@@ -99,33 +95,35 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
     const variables = EnvironmentVariables.fromJSON(json);
 
     beforeEach(() => {
-      mount('Secure', variables);
+      helper.mount(() => m(EnvironmentVariablesWidget['Secure'], {
+        variables
+      }));
     });
 
-    afterEach(unmount);
+    afterEach(helper.unmount.bind(helper));
 
     it("should render Secure text variables", () => {
-      expect($root.find('.environment-variables .name')).toHaveLength(2);
-      expect($root.find('.environment-variables input')).toHaveLength(2);
+      expect(helper.find('.environment-variables .name')).toHaveLength(2);
+      expect(helper.find('.environment-variables input')).toHaveLength(2);
 
-      expect($root.find('.environment-variables .name').get(0)).toContainText(json[0].name);
-      expect($root.find('.environment-variables .name').get(1)).toContainText(json[1].name);
+      expect(helper.find('.environment-variables .name').get(0)).toContainText(json[0].name);
+      expect(helper.find('.environment-variables .name').get(1)).toContainText(json[1].name);
 
-      expect($root.find('.environment-variables input').get(0)).toHaveValue('*****');
-      expect($root.find('.environment-variables input').get(1)).toHaveValue('*****');
+      expect(helper.find('.environment-variables input').get(0)).toHaveValue('*****');
+      expect(helper.find('.environment-variables input').get(1)).toHaveValue('*****');
     });
 
     it("it should display variable overriden message", () => {
-      const valueInputField = $root.find('.environment-variables input').get(0);
+      const valueInputField = helper.find('.environment-variables input').get(0);
       expect(valueInputField).toBeDisabled();
 
       expect(valueInputField).toHaveValue('*****');
-      expect($root.find('.reset')).not.toBeInDOM();
+      expect(helper.find('.reset')).not.toBeInDOM();
 
-      simulateEvent.simulate($root.find('.override').get(0), 'click');
+      simulateEvent.simulate(helper.find('.override').get(0), 'click');
       m.redraw();
       expect(valueInputField).not.toBeDisabled();
-      expect($root.find('.reset')).toBeInDOM();
+      expect(helper.find('.reset')).toBeInDOM();
 
       const newValue = "ldap";
       $(valueInputField).val(newValue);
@@ -135,26 +133,10 @@ describe("Dashboard Environment Variables Trigger Widget", () => {
       expect(variables[0].value()).toBe(newValue);
       expect(valueInputField).toHaveValue(newValue);
 
-      simulateEvent.simulate($root.find('.reset').get(0), 'click');
+      simulateEvent.simulate(helper.find('.reset').get(0), 'click');
       m.redraw();
       expect(valueInputField).toBeDisabled();
-      expect($root.find('.reset')).not.toBeInDOM();
+      expect(helper.find('.reset')).not.toBeInDOM();
     });
   });
-
-  function mount(widgetName, variables) {
-    m.mount(root, {
-      view() {
-        return m(EnvironmentVariablesWidget[widgetName], {
-          variables
-        });
-      }
-    });
-    m.redraw(true);
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
 });

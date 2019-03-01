@@ -14,43 +14,42 @@
  * limitations under the License.
  */
 
+import * as m from "mithril";
 import * as stream from "mithril/stream";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {SwitchBtn} from "../index";
 import * as styles from "../index.scss";
 
 describe("SwitchBtn component", () => {
-  const m             = require("mithril");
-  const simulateEvent = require("simulate-event");
-  const switchStream  = stream(false);
+  const switchStream = stream(false);
 
-  let $root: any, root: any;
+  const helper = new TestHelper();
+
   beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
     switchStream(false);
   });
 
-  afterEach(unmount);
+  afterEach(helper.unmount.bind(helper));
 
   it("should render switch", () => {
     mount();
 
-    expect(find("switch-wrapper")).toBeInDOM();
-    expect(find("switch-wrapper")).toHaveClass(styles.switchBtn);
+    expect(helper.findByDataTestId("switch-wrapper")).toBeInDOM();
+    expect(helper.findByDataTestId("switch-wrapper")).toHaveClass(styles.switchBtn);
 
-    expect(find("switch-label")).toContainText("This is switch");
-    expect(find("switch-label")).toHaveClass(styles.switchLabel);
+    expect(helper.findByDataTestId("switch-label")).toContainText("This is switch");
+    expect(helper.findByDataTestId("switch-label")).toHaveClass(styles.switchLabel);
 
-    expect(find("switch-checkbox")).toHaveClass(styles.switchInput);
-    expect(find("switch-paddle")).toHaveClass(styles.switchPaddle);
+    expect(helper.findByDataTestId("switch-checkbox")).toHaveClass(styles.switchInput);
+    expect(helper.findByDataTestId("switch-paddle")).toHaveClass(styles.switchPaddle);
   });
 
   it("should render small switch", () => {
     mount(true);
 
-    expect(find("switch-wrapper")).toBeInDOM();
-    expect(find("switch-wrapper")).toHaveClass(styles.switchBtn);
-    expect(find("switch-wrapper")).toHaveClass(styles.switchSmall);
+    expect(helper.findByDataTestId("switch-wrapper")).toBeInDOM();
+    expect(helper.findByDataTestId("switch-wrapper")).toHaveClass(styles.switchBtn);
+    expect(helper.findByDataTestId("switch-wrapper")).toHaveClass(styles.switchSmall);
   });
 
   it("should toggle a state of field", () => {
@@ -58,10 +57,10 @@ describe("SwitchBtn component", () => {
 
     expect(switchStream()).toBe(false);
 
-    simulateEvent.simulate(find("switch-paddle").get(0), "click");
+    helper.clickByDataTestId("switch-paddle");
     expect(switchStream()).toBe(true);
 
-    simulateEvent.simulate(find("switch-paddle").get(0), "click");
+    helper.clickByDataTestId("switch-paddle");
     expect(switchStream()).toBe(false);
   });
 
@@ -70,29 +69,15 @@ describe("SwitchBtn component", () => {
 
     expect(switchStream()).toBe(false);
 
-    simulateEvent.simulate(find("switch-paddle").get(0), "click");
+    helper.clickByDataTestId("switch-paddle");
     expect(switchStream()).toBe(true);
 
-    simulateEvent.simulate(find("switch-paddle").get(0), "click");
+    helper.clickByDataTestId("switch-paddle");
     expect(switchStream()).toBe(false);
   });
 
   function mount(isSmallSwitch?: boolean) {
-    m.mount(root, {
-      view() {
-        return (<SwitchBtn field={switchStream} label={"This is switch"} small={isSmallSwitch}/>);
-      }
-    });
-
-    m.redraw(true);
+    helper.mount(() => <SwitchBtn field={switchStream} label={"This is switch"} small={isSmallSwitch}/>);
   }
 
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
-  }
 });

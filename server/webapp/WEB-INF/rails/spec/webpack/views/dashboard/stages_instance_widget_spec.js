@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Dashboard Stages Instance Widget", () => {
   const m = require("mithril");
 
   const StagesInstanceWidget = require("views/dashboard/stages_instance_widget");
   const PipelineInstance     = require('models/dashboard/pipeline_instance');
 
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   const pipelineInstanceJson = {
     "_links":       {
@@ -94,37 +93,27 @@ describe("Dashboard Stages Instance Widget", () => {
   const stagesInstance = new PipelineInstance(pipelineInstanceJson, pipelineName).stages;
 
   beforeEach(() => {
-    m.mount(root, {
-      view() {
-        return m(StagesInstanceWidget, {
-          stages: stagesInstance
-        });
-      }
-    });
-    m.redraw(true);
-  });
-
-  afterEach(() => {
-    m.mount(root, null);
-    m.redraw();
+    helper.mount(() => m(StagesInstanceWidget, {
+      stages: stagesInstance
+    }));
   });
 
   it("should render each stage instance", () => {
-    const stagesInstance = $root.find('.pipeline_stage');
+    const stagesInstance = helper.find('.pipeline_stage');
 
     expect(stagesInstance.get(0)).toHaveClass('failed');
     expect(stagesInstance.get(1)).toHaveClass('unknown');
   });
 
   it("should link to stage details page", () => {
-    const stagesInstance = $root.find('.pipeline_stage');
+    const stagesInstance = helper.find('.pipeline_stage');
 
     expect(stagesInstance.get(0).href.indexOf(`/go/pipelines/up42/1/up42_stage/1`)).not.toEqual(-1);
   });
 
   it("should not link to stage details page for stages with no run", () => {
-    expect($root.find('span.pipeline_stage')).toBeInDOM();
-    expect($root.find('span.pipeline_stage')).toHaveClass('unknown');
+    expect(helper.find('span.pipeline_stage')).toBeInDOM();
+    expect(helper.find('span.pipeline_stage')).toHaveClass('unknown');
   });
 
   it("should show stage status on hover", () => {
@@ -133,8 +122,8 @@ describe("Dashboard Stages Instance Widget", () => {
     const stage2Status = `${stages[1].name} (${stages[1].status})`;
     const stage3Status = `${stages[2].name} (cancelled by: ${stages[2].cancelled_by})`;
 
-    expect($root.find('.pipeline_stage').get(0).title).toEqual(stage1Status);
-    expect($root.find('.pipeline_stage').get(1).title).toEqual(stage2Status);
-    expect($root.find('.pipeline_stage').get(2).title).toEqual(stage3Status);
+    expect(helper.find('.pipeline_stage').get(0).title).toEqual(stage1Status);
+    expect(helper.find('.pipeline_stage').get(1).title).toEqual(stage2Status);
+    expect(helper.find('.pipeline_stage').get(2).title).toEqual(stage3Status);
   });
 });

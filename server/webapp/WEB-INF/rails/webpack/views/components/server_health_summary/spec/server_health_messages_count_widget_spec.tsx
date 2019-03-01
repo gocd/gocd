@@ -18,14 +18,13 @@ import * as $ from "jquery";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
-import * as simulateEvent from "simulate-event";
 import * as s from "underscore.string";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {ServerHealthMessagesCountWidget} from "views/components/server_health_summary/server_health_messages_count_widget";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 
 describe("ServerHealthMessagesCountWidget", () => {
   const TimeFormatter = require("helpers/time_formatter");
-  let $root: any, root: HTMLElement;
 
   const jsonData             = [
     {
@@ -43,40 +42,23 @@ describe("ServerHealthMessagesCountWidget", () => {
   ];
   const serverHealthMessages = new ServerHealthMessages(jsonData);
 
-  beforeEach(() => {
-    //@ts-ignore
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  //@ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  const helper = new TestHelper();
 
   afterEach(() => {
     ModalManager.closeAll();
-    m.mount(root, null);
-    m.redraw();
+    helper.unmount();
   });
 
   it("should render the count of errors and warnings", () => {
-    m.mount(root, {
-      view() {
-        return (<ServerHealthMessagesCountWidget serverHealthMessages={stream(serverHealthMessages)}/>);
-      }
-    });
-    m.redraw();
+    helper.mount(() => <ServerHealthMessagesCountWidget serverHealthMessages={stream(serverHealthMessages)}/>);
 
-    expect($root.find("a")).toContainText("1 error and 1 warning");
+    expect(helper.find("a")).toContainText("1 error and 1 warning");
   });
 
   it("should render the list of messages in modal on click", () => {
-    m.mount(root, {
-      view() {
-        return (<ServerHealthMessagesCountWidget serverHealthMessages={stream(serverHealthMessages)}/>);
-      }
-    });
-    m.redraw();
-    simulateEvent.simulate($root.find("a").get(0), "click");
-    m.redraw();
+    helper.mount(() => <ServerHealthMessagesCountWidget serverHealthMessages={stream(serverHealthMessages)}/>);
+
+    helper.click('a');
 
     expect($(`.component-modal-container [data-test-id='server-health-message-for-${s.slugify(jsonData[0].message)}'] [data-test-class='server-health-message_message']:first`))
       .toContainText(jsonData[0].message);
@@ -87,20 +69,15 @@ describe("ServerHealthMessagesCountWidget", () => {
   });
 
   it("should trust html messages in modal", () => {
-    m.mount(root, {
-      view() {
-        return <ServerHealthMessagesCountWidget serverHealthMessages={stream(new ServerHealthMessages([{
-          message: "Test Message",
-          detail: `This is a <a href="http://example.com">link</a>`,
-          level: "ERROR",
-          time: "2018-01-30T07:34:43Z"
-        }]))}
-        />;
-      }
-    });
-    m.redraw();
-    simulateEvent.simulate($root.find("a").get(0), "click");
-    m.redraw();
+    helper.mount(() => <ServerHealthMessagesCountWidget serverHealthMessages={stream(new ServerHealthMessages([{
+      message: "Test Message",
+      detail: `This is a <a href="http://example.com">link</a>`,
+      level: "ERROR",
+      time: "2018-01-30T07:34:43Z"
+    }]))}
+    />);
+
+    helper.click('a');
 
     expect($(".component-modal-container [data-test-id='server-health-message-for-test-message'] [data-test-class='server-health-message_message']"))
       .toContainText("Test Message");

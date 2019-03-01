@@ -21,101 +21,83 @@ import {TestData} from "models/auth_configs/spec/test_data";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {AuthConfigsWidget} from "views/pages/auth_configs/auth_configs_widget";
 
 describe("AuthorizationConfigurationWidget", () => {
-  let $root: any, root: any;
   const onEdit   = jasmine.createSpy("onEdit");
   const onClone  = jasmine.createSpy("onClone");
   const onDelete = jasmine.createSpy("onDelete");
-  beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
-  });
+
   const authConfigs = AuthConfigs.fromJSON(TestData.authConfigList(TestData.ldapAuthConfig()));
   const pluginInfos = [PluginInfo.fromJSON(AuthorizationPluginInfo.ldap())];
 
-  beforeEach(() => {
-    mount(authConfigs, pluginInfos);
-  });
-
-  afterEach(unmount);
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   it("should render info message when authorization plugins are not installed on the server", () => {
     mount(new AuthConfigs(), []);
-    expect(find("flash-message-info")).toContainText("No authorization plugin installed.");
+    expect(helper.findByDataTestId("flash-message-info")).toContainText("No authorization plugin installed.");
   });
 
   it("should render id info and action buttons", () => {
-    expect(find("key-value-key-id")).toContainText("Id");
-    expect(find("key-value-value-id")).toContainText("ldap");
-    expect(find("key-value-key-plugin-id")).toContainText("Plugin Id");
-    expect(find("key-value-value-plugin-id")).toContainText("cd.go.authorization.ldap");
-    expect(find("auth-config-edit")).toBeInDOM();
-    expect(find("auth-config-clone")).toBeInDOM();
-    expect(find("auth-config-delete")).toBeInDOM();
+    mount(authConfigs, pluginInfos);
+    expect(helper.findByDataTestId("key-value-key-id")).toContainText("Id");
+    expect(helper.findByDataTestId("key-value-value-id")).toContainText("ldap");
+    expect(helper.findByDataTestId("key-value-key-plugin-id")).toContainText("Plugin Id");
+    expect(helper.findByDataTestId("key-value-value-plugin-id")).toContainText("cd.go.authorization.ldap");
+    expect(helper.findByDataTestId("auth-config-edit")).toBeInDOM();
+    expect(helper.findByDataTestId("auth-config-clone")).toBeInDOM();
+    expect(helper.findByDataTestId("auth-config-delete")).toBeInDOM();
 
-    expect(find("auth-config-edit")).not.toBeDisabled();
-    expect(find("auth-config-clone")).not.toBeDisabled();
-    expect(find("auth-config-delete")).not.toBeDisabled();
+    expect(helper.findByDataTestId("auth-config-edit")).not.toBeDisabled();
+    expect(helper.findByDataTestId("auth-config-clone")).not.toBeDisabled();
+    expect(helper.findByDataTestId("auth-config-delete")).not.toBeDisabled();
   });
 
   it("should disable edit & clone button when plugin is not installed", () => {
     mount(authConfigs, []);
-    expect(find("auth-config-edit")).toBeDisabled();
-    expect(find("auth-config-clone")).toBeDisabled();
-    expect(find("auth-config-delete")).not.toBeDisabled();
+    expect(helper.findByDataTestId("auth-config-edit")).toBeDisabled();
+    expect(helper.findByDataTestId("auth-config-clone")).toBeDisabled();
+    expect(helper.findByDataTestId("auth-config-delete")).not.toBeDisabled();
   });
 
   it("should render auth config properties", () => {
-    expect(find("key-value-key-url")).toContainText("Url");
-    expect(find("key-value-key-managerdn")).toContainText("ManagerDN");
-    expect(find("key-value-key-password")).toContainText("Password");
-    expect(find("key-value-value-url")).toContainText("ldap://ldap.server.url");
-    expect(find("key-value-value-managerdn")).toContainText("uid=admin,ou=system");
-    expect(find("key-value-value-password")).toContainText("************");
+    mount(authConfigs, pluginInfos);
+    expect(helper.findByDataTestId("key-value-key-url")).toContainText("Url");
+    expect(helper.findByDataTestId("key-value-key-managerdn")).toContainText("ManagerDN");
+    expect(helper.findByDataTestId("key-value-key-password")).toContainText("Password");
+    expect(helper.findByDataTestId("key-value-value-url")).toContainText("ldap://ldap.server.url");
+    expect(helper.findByDataTestId("key-value-value-managerdn")).toContainText("uid=admin,ou=system");
+    expect(helper.findByDataTestId("key-value-value-password")).toContainText("************");
   });
 
   it("should callback the edit function when edit button is clicked", () => {
-    simulateEvent.simulate(find("auth-config-edit").get(0), "click");
+    mount(authConfigs, pluginInfos);
+    simulateEvent.simulate(helper.findByDataTestId("auth-config-edit").get(0), "click");
 
     expect(onEdit).toHaveBeenCalledWith(authConfigs[0], jasmine.any(Event));
   });
 
   it("should callback the clone function when clone button is clicked", () => {
-    simulateEvent.simulate(find("auth-config-clone").get(0), "click");
+    mount(authConfigs, pluginInfos);
+    simulateEvent.simulate(helper.findByDataTestId("auth-config-clone").get(0), "click");
 
     expect(onClone).toHaveBeenCalledWith(authConfigs[0], jasmine.any(Event));
   });
 
   it("should callback the delete function when delete button is clicked", () => {
-    simulateEvent.simulate(find("auth-config-delete").get(0), "click");
+    mount(authConfigs, pluginInfos);
+    simulateEvent.simulate(helper.findByDataTestId("auth-config-delete").get(0), "click");
 
     expect(onDelete).toHaveBeenCalledWith(authConfigs[0], jasmine.any(Event));
   });
 
   function mount(authConfigs: AuthConfigs, pluginInfos: Array<PluginInfo<any>>) {
-    m.mount(root, {
-      view() {
-        return <AuthConfigsWidget authConfigs={authConfigs}
-                                  pluginInfos={stream(pluginInfos)}
-                                  onEdit={onEdit}
-                                  onClone={onClone}
-                                  onDelete={onDelete}/>
-          ;
-      }
-    });
-    m.redraw();
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
+    helper.mount(() => <AuthConfigsWidget authConfigs={authConfigs}
+                                          pluginInfos={stream(pluginInfos)}
+                                          onEdit={onEdit}
+                                          onClone={onClone}
+                                          onDelete={onDelete}/>);
   }
 });

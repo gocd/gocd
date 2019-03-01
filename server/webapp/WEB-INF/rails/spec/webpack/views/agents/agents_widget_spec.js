@@ -15,6 +15,7 @@
  */
 
 import SparkRoutes from "helpers/spark_routes";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 
 describe("Agents Widget", () => {
 
@@ -32,12 +33,7 @@ describe("Agents Widget", () => {
   const Agents       = require('models/agents/agents');
   const AgentsWidget = require("views/agents/agents_widget");
   const AgentsVM     = require("views/agents/models/agents_widget_view_model");
-
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
+  const helper       = new TestHelper();
 
   const showSpinner      = Stream();
   const permanentMessage = Stream({});
@@ -54,46 +50,46 @@ describe("Agents Widget", () => {
   });
 
   const route = (isUserAdmin) => {
-    m.route(root, '', {
-      '':                  {
-        view() {
-          return m(AgentsWidget, {
-            vm:                   agentsVM,
-            allAgents:            agents,
-            isUserAdmin,
-            showSpinner,
-            permanentMessage,
-            shouldShowAnalyticsIcon,
-            sortOrder:            routeHandler,
-            doCancelPolling:      _.noop,
-            doRefreshImmediately: _.noop
-          });
+    helper.route('', () => {
+      return {
+        '':                  {
+          view() {
+            return m(AgentsWidget, {
+              vm:                   agentsVM,
+              allAgents:            agents,
+              isUserAdmin,
+              showSpinner,
+              permanentMessage,
+              shouldShowAnalyticsIcon,
+              sortOrder:            routeHandler,
+              doCancelPolling:      _.noop,
+              doRefreshImmediately: _.noop
+            });
+          }
+        },
+        '/:sortBy/:orderBy': {
+          view() {
+            return m(AgentsWidget, {
+              vm:                   agentsVM,
+              allAgents:            agents,
+              isUserAdmin,
+              showSpinner,
+              permanentMessage,
+              shouldShowAnalyticsIcon,
+              sortOrder:            routeHandler,
+              doCancelPolling:      _.noop,
+              doRefreshImmediately: _.noop
+            });
+          }
         }
-      },
-      '/:sortBy/:orderBy': {
-        view() {
-          return m(AgentsWidget, {
-            vm:                   agentsVM,
-            allAgents:            agents,
-            isUserAdmin,
-            showSpinner,
-            permanentMessage,
-            shouldShowAnalyticsIcon,
-            sortOrder:            routeHandler,
-            doCancelPolling:      _.noop,
-            doRefreshImmediately: _.noop
-          });
-        }
-      }
+      };
     });
     m.route.set('');
     m.redraw();
   };
 
   const unmount = () => {
-    m.route.set('');
-    m.mount(root, null);
-    m.redraw();
+    helper.unmount();
   };
 
   beforeEach(() => {
@@ -109,12 +105,12 @@ describe("Agents Widget", () => {
   });
 
   it('should contain the agent rows equal to the number of agents', () => {
-    const agentRows = $root.find('table tbody tr');
+    const agentRows = helper.find('table tbody tr');
     expect(agentRows).toHaveLength(2);
   });
 
   it('should contain the agent row information', () => {
-    const agentInfo      = $root.find('table tbody tr')[0];
+    const agentInfo      = helper.find('table tbody tr')[0];
     const firstAgentInfo = $(agentInfo).find('td');
     expect(firstAgentInfo).toHaveLength(10);
     expect($(firstAgentInfo[0]).find(':checkbox')).toExist();
@@ -132,12 +128,12 @@ describe("Agents Widget", () => {
     shouldShowAnalyticsIcon = true;
     m.redraw();
 
-    expect($root.find('th')).toHaveLength(11);
+    expect(helper.find('th')).toHaveLength(11);
   });
 
   it('should select all the agents when selectAll checkbox is checked', () => {
-    const allBoxes          = $root.find('tbody :checkbox');
-    const selectAllCheckbox = $root.find('thead :checkbox');
+    const allBoxes          = helper.find('tbody :checkbox');
+    const selectAllCheckbox = helper.find('thead :checkbox');
 
     expect(selectAllCheckbox[0]).not.toBeChecked();
     expect(allBoxes[0]).not.toBeChecked();
@@ -152,8 +148,8 @@ describe("Agents Widget", () => {
   });
 
   it('should check select all checkbox on selecting all the checkboxes', () => {
-    const allBoxes          = $root.find('tbody :checkbox');
-    const selectAllCheckbox = $root.find('thead :checkbox');
+    const allBoxes          = helper.find('tbody :checkbox');
+    const selectAllCheckbox = helper.find('thead :checkbox');
 
     expect(selectAllCheckbox[0]).not.toBeChecked();
     expect(allBoxes[0]).not.toBeChecked();
@@ -170,13 +166,13 @@ describe("Agents Widget", () => {
 
     jasmine.Ajax.withMock(() => {
       stubResourcesList();
-      const resourceButton = $root.find("button:contains('Resources')");
+      const resourceButton = helper.find("button:contains('Resources')");
       resourceButton.click();
       m.redraw();
 
       expect($(resourceButton).parent().attr('class')).toContain('is-open');
 
-      const body = $root.find('.agents-search-panel');
+      const body = helper.find('.agents-search-panel');
       $(body).click();
       m.redraw(true);
 
@@ -190,11 +186,11 @@ describe("Agents Widget", () => {
     jasmine.Ajax.withMock(() => {
       stubResourcesList();
 
-      const resourceButton = $root.find("button:contains('Resources')");
+      const resourceButton = helper.find("button:contains('Resources')");
       simulateEvent.simulate(resourceButton.get(0), 'click');
       m.redraw();
       expect(resourceButton.parent()).toHaveClass('is-open');
-      simulateEvent.simulate($root.find('.resource-dropdown').get(0), 'click');
+      simulateEvent.simulate(helper.find('.resource-dropdown').get(0), 'click');
       m.redraw();
       expect(resourceButton.parent()).toHaveClass('is-open');
     });
@@ -204,7 +200,7 @@ describe("Agents Widget", () => {
     unmount();
     route(false);
     clickAllAgents();
-    const sampleButton = $root.find("button:contains('Resources')");
+    const sampleButton = helper.find("button:contains('Resources')");
     expect(sampleButton).toBeDisabled();
   });
 
@@ -213,11 +209,11 @@ describe("Agents Widget", () => {
       clickAllAgents();
 
       allowBulkUpdate('PATCH');
-      let message = $root.find('.callout');
+      let message = helper.find('.callout');
       expect(message).toHaveLength(0);
-      simulateEvent.simulate($root.find("button:contains('Disable')").get(0), 'click');
+      simulateEvent.simulate(helper.find("button:contains('Disable')").get(0), 'click');
       m.redraw();
-      message = $root.find('.callout');
+      message = helper.find('.callout');
       expect(message).toHaveText('Disabled 2 agents');
     });
   });
@@ -228,27 +224,28 @@ describe("Agents Widget", () => {
       clickAllAgents();
       allowBulkUpdate('PATCH');
 
-      let message = $root.find('.callout');
+      let message = helper.find('.callout');
       expect(message).toHaveLength(0);
-      simulateEvent.simulate($root.find("button:contains('Enable')").get(0), 'click');
+      simulateEvent.simulate(helper.find("button:contains('Enable')").get(0), 'click');
       m.redraw();
-      message = $root.find('.callout');
+      message = helper.find('.callout');
       expect(message).toHaveText('Enabled 2 agents');
     });
   });
 
   it('should show message after deleting the agents', () => {
+    unmount();
     route(true);
 
     jasmine.Ajax.withMock(() => {
       clickAllAgents();
       allowBulkUpdate('DELETE');
 
-      let message = $root.find('.callout');
+      let message = helper.find('.callout');
       expect(message).toHaveLength(0);
-      simulateEvent.simulate($root.find("button:contains('Delete')").get(0), 'click');
+      simulateEvent.simulate(helper.find("button:contains('Delete')").get(0), 'click');
       m.redraw();
-      message = $root.find('.callout');
+      message = helper.find('.callout');
       expect(message).toHaveText('Deleted 2 agents');
     });
   });
@@ -259,16 +256,16 @@ describe("Agents Widget", () => {
       allowBulkUpdate('PATCH');
       stubResourcesList();
 
-      let message = $root.find('.callout');
+      let message = helper.find('.callout');
       expect(message).toHaveLength(0);
 
-      simulateEvent.simulate($root.find("button:contains('Resources')").get(0), 'click');
+      simulateEvent.simulate(helper.find("button:contains('Resources')").get(0), 'click');
       m.redraw();
 
-      simulateEvent.simulate($root.find(".add-resource button:contains('Apply')").get(0), 'click');
+      simulateEvent.simulate(helper.find(".add-resource button:contains('Apply')").get(0), 'click');
       m.redraw();
 
-      message = $root.find('.callout');
+      message = helper.find('.callout');
       expect(message).toHaveText('Resources modified on 2 agents');
     });
   });
@@ -279,48 +276,48 @@ describe("Agents Widget", () => {
       allowBulkUpdate('PATCH');
       stubEnvironmentsList();
 
-      let message = $root.find('.callout');
+      let message = helper.find('.callout');
       expect(message).toHaveLength(0);
 
-      simulateEvent.simulate($root.find("button:contains('Environments')").get(0), 'click');
+      simulateEvent.simulate(helper.find("button:contains('Environments')").get(0), 'click');
       m.redraw();
 
-      simulateEvent.simulate($root.find(".env-dropdown button:contains('Apply')").get(0), 'click');
+      simulateEvent.simulate(helper.find(".env-dropdown button:contains('Apply')").get(0), 'click');
       m.redraw();
 
-      message = $root.find('.callout');
+      message = helper.find('.callout');
       expect(message).toHaveText('Environments modified on 2 agents');
     });
   });
 
   it('should show only filtered agents after inserting filter text', () => {
-    const searchField     = $root.find('#filter-agent').get(0);
-    let agentsCountOnPage = $root.find('.agents-table-body .agents-table tbody tr');
+    const searchField     = helper.find('#filter-agent').get(0);
+    let agentsCountOnPage = helper.find('.agents-table-body .agents-table tbody tr');
     expect(agentsCountOnPage).toHaveLength(2);
 
     $(searchField).val('host-2');
     simulateEvent.simulate(searchField, 'input');
     m.redraw();
 
-    agentsCountOnPage = $root.find('.agents-table-body .agents-table tbody tr');
+    agentsCountOnPage = helper.find('.agents-table-body .agents-table tbody tr');
     expect(agentsCountOnPage).toHaveLength(1);
 
     $(searchField).val('host-');
     simulateEvent.simulate(searchField, 'input');
     m.redraw();
 
-    agentsCountOnPage = $root.find('.agents-table-body .agents-table tbody tr');
+    agentsCountOnPage = helper.find('.agents-table-body .agents-table tbody tr');
     expect(agentsCountOnPage).toHaveLength(2);
   });
 
   it('should preserve the selection of agents during filter', () => {
-    const searchField = $root.find('#filter-agent').get(0);
+    const searchField = helper.find('#filter-agent').get(0);
 
     $(searchField).val('host-1');
     simulateEvent.simulate(searchField, 'input');
     m.redraw();
 
-    let allBoxes = $root.find('.agents-table-body .agents-table tbody tr input[type="checkbox"]');
+    let allBoxes = helper.find('.agents-table-body .agents-table tbody tr input[type="checkbox"]');
     allBoxes.each((_i, checkbox) => {
       simulateEvent.simulate(checkbox, 'click');
     });
@@ -329,7 +326,7 @@ describe("Agents Widget", () => {
     simulateEvent.simulate(searchField, 'input');
     m.redraw();
 
-    allBoxes = $root.find('.agents-table tbody tr input[type="checkbox"]');
+    allBoxes = helper.find('.agents-table tbody tr input[type="checkbox"]');
     expect(allBoxes).toHaveLength(2);
     expect(allBoxes[0]).toBeChecked();
     expect(allBoxes[1]).not.toBeChecked();
@@ -337,24 +334,24 @@ describe("Agents Widget", () => {
 
   it('should allow sorting', () => {
     const getHostnamesInTable = () => {
-      const hostnameCells = $root.find(".agents-table tbody td:nth-child(3)");
+      const hostnameCells = helper.find(".agents-table tbody td:nth-child(3)");
 
       return hostnameCells.map((_i, cell) => $(cell).find('.content').text()).toArray();
     };
 
-    let agentNameHeader = $root.find("label:contains('Agent Name')");
+    let agentNameHeader = helper.find("label:contains('Agent Name')");
     simulateEvent.simulate(agentNameHeader.get(0), 'click');
     m.redraw();
 
     expect(getHostnamesInTable()).toEqual(['host-1', 'host-2']);
 
-    agentNameHeader = $root.find("label:contains('Agent Name')");
+    agentNameHeader = helper.find("label:contains('Agent Name')");
     simulateEvent.simulate(agentNameHeader.get(0), 'click');
     m.redraw();
 
     expect(getHostnamesInTable()).toEqual(['host-2', 'host-1']);
 
-    agentNameHeader = $root.find("label:contains('Agent Name')");
+    agentNameHeader = helper.find("label:contains('Agent Name')");
     simulateEvent.simulate(agentNameHeader.get(0), 'click');
     m.redraw();
 
@@ -362,19 +359,20 @@ describe("Agents Widget", () => {
   });
 
   it('should toggle the resources list on click of the resources button', () => {
+    unmount();
     route(true);
 
     jasmine.Ajax.withMock(() => {
       clickAllAgents();
       stubResourcesList();
-      const resourceButton = $root.find("button:contains('Resources')");
-      let resourcesList    = $root.find('.has-dropdown')[0];
+      const resourceButton = helper.find("button:contains('Resources')");
+      let resourcesList    = helper.find('.has-dropdown')[0];
       expect(resourcesList.classList).not.toContain('is-open');
 
       $(resourceButton).click();
       m.redraw();
 
-      resourcesList = $root.find('.has-dropdown')[0];
+      resourcesList = helper.find('.has-dropdown')[0];
       expect(resourcesList.classList).toContain('is-open');
 
       resourceButton.click();
@@ -388,13 +386,13 @@ describe("Agents Widget", () => {
       clickAllAgents();
       stubEnvironmentsList();
 
-      const environmentButton = $root.find("button:contains('Environments')");
-      let environmentsList    = $root.find('.has-dropdown')[1];
+      const environmentButton = helper.find("button:contains('Environments')");
+      let environmentsList    = helper.find('.has-dropdown')[1];
       expect(environmentsList.classList).not.toContain('is-open');
 
       $(environmentButton).click();
       m.redraw();
-      environmentsList = $root.find('.has-dropdown')[1];
+      environmentsList = helper.find('.has-dropdown')[1];
       expect(environmentsList.classList).toContain('is-open');
 
       environmentButton.click();
@@ -408,9 +406,9 @@ describe("Agents Widget", () => {
       clickAllAgents();
       stubResourcesList();
       stubEnvironmentsList();
-      const environmentButton = $root.find("button:contains('Environments')");
-      const resourcesButton   = $root.find("button:contains('Resources')");
-      const resourcesDropdown = $root.find("button:contains('Resources')").parent()[0];
+      const environmentButton = helper.find("button:contains('Environments')");
+      const resourcesButton   = helper.find("button:contains('Resources')");
+      const resourcesDropdown = helper.find("button:contains('Resources')").parent()[0];
 
       resourcesButton.click();
       m.redraw();
@@ -432,9 +430,9 @@ describe("Agents Widget", () => {
       stubResourcesList();
       stubEnvironmentsList();
 
-      const environmentButton    = $root.find("button:contains('Environments')");
-      const resourcesButton      = $root.find("button:contains('Resources')");
-      const environmentsDropdown = $root.find("button:contains('Environments')").parent()[0];
+      const environmentButton    = helper.find("button:contains('Environments')");
+      const resourcesButton      = helper.find("button:contains('Resources')");
+      const environmentsDropdown = helper.find("button:contains('Environments')").parent()[0];
 
       environmentButton.click();
       m.redraw();
@@ -451,14 +449,14 @@ describe("Agents Widget", () => {
   });
 
   it('should show build details dropdown for building agent', () => {
-    let buildingAgentStatus = $root.find(".agents-table tbody td:nth-child(7)")[0];
+    let buildingAgentStatus = helper.find(".agents-table tbody td:nth-child(7)")[0];
     expect(buildingAgentStatus).not.toHaveClass('is-open');
     const buildingDetailsLink = $(buildingAgentStatus).find('.has-build-details-drop-down')[0];
 
     $(buildingDetailsLink).click();
     m.redraw();
 
-    buildingAgentStatus = $root.find(".agents-table tbody td:nth-child(7)")[0];
+    buildingAgentStatus = helper.find(".agents-table tbody td:nth-child(7)")[0];
     expect(buildingAgentStatus).toHaveClass('is-open');
   });
 

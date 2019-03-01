@@ -36,7 +36,7 @@ describe("PluginRoleModalBodyWidget", () => {
 
   const helper = new TestHelper();
 
-  afterEach((done) => helper.unmount(done));
+  afterEach(helper.unmount.bind(helper));
 
   it("should render plugin role view", () => {
     mount();
@@ -65,14 +65,14 @@ describe("PluginRoleModalBodyWidget", () => {
     authConfigDropDown.val("github");
     simulateEvent.simulate(authConfigDropDown.get(0), "change");
     //Had to do this as m.redraw() was't working :(
-    helper.remount();
+    m.redraw();
 
     expect(helper.find(".plugin-view")).toContainText("This is github role config view.");
   });
 
   function mount(isNameDisabled = false) {
     const role = Role.fromJSON(RolesTestData.LdapPluginRoleJSON());
-    helper.mount(<PluginRoleModalBodyWidget isNameDisabled={isNameDisabled}
+    helper.mount(() => <PluginRoleModalBodyWidget isNameDisabled={isNameDisabled}
                                             role={role}
                                             authConfigs={authConfigs}
                                             pluginInfos={pluginInfos}/>);

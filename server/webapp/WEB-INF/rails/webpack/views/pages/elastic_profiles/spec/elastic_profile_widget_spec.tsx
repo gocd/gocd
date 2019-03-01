@@ -22,6 +22,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as keyValuePairStyles from "views/components/key_value_pair/index.scss";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {TestData} from "views/pages/elastic_profiles/spec/test_data";
 
 import {ElasticProfileWidget} from "../elastic_profiles_widget";
@@ -30,20 +31,15 @@ describe("New Elastic Profile Widget", () => {
   const simulateEvent  = require("simulate-event");
   const pluginInfo     = PluginInfo.fromJSON(TestData.DockerPluginJSON(), TestData.DockerPluginJSON()._links);
   const elasticProfile = ElasticProfile.fromJSON(TestData.DockerElasticProfile());
+  const helper         = new TestHelper();
 
-  let $root: any, root: any;
   beforeEach(() => {
-    //@ts-ignore
-    [$root, root] = window.createDomElementForTest();
     mount(pluginInfo, elasticProfile);
   });
-  afterEach(unmount);
-
-  //@ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  afterEach(helper.unmount.bind(helper));
 
   it("should render elastic profile id", () => {
-    const profileHeader = $root.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
+    const profileHeader = helper.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
     expect(profileHeader).toContainText("Profile Id");
     expect(profileHeader).toContainText(TestData.DockerElasticProfile().id);
   });
@@ -55,7 +51,7 @@ describe("New Elastic Profile Widget", () => {
   });
 
   it("should render properties of elastic profile", () => {
-    const profileHeader = $root.find(`.${keyValuePairStyles.keyValuePair}`).get(1);
+    const profileHeader = helper.find(`.${keyValuePairStyles.keyValuePair}`).get(1);
 
     expect(profileHeader).toContainText("Image");
     expect(profileHeader).toContainText("docker-image122345");
@@ -77,13 +73,13 @@ describe("New Elastic Profile Widget", () => {
 
     //expand elastic profile info
     simulateEvent.simulate(elasticProfileHeader, "click");
-    m.redraw();
+    helper.redraw();
 
     expect(elasticProfileHeader).toHaveClass(collapsiblePanelStyles.expanded);
 
     //collapse elastic profile info
     simulateEvent.simulate(elasticProfileHeader, "click");
-    m.redraw();
+    helper.redraw();
 
     expect(elasticProfileHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
   });
@@ -91,27 +87,15 @@ describe("New Elastic Profile Widget", () => {
   function mount(pluginInfo: PluginInfo<Extension>,
                  elasticProfile: ElasticProfile) {
     const noop = _.noop;
-    m.mount(root, {
-      view() {
-        return (
-          <ElasticProfileWidget pluginInfo={pluginInfo}
-                                elasticProfile={elasticProfile}
-                                onEdit={noop}
-                                onClone={noop}
-                                onDelete={noop}
-                                onShowUsage={noop}/>
-        );
-      }
-    });
-    m.redraw();
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
+    helper.mount(() => <ElasticProfileWidget pluginInfo={pluginInfo}
+                                             elasticProfile={elasticProfile}
+                                             onEdit={noop}
+                                             onClone={noop}
+                                             onDelete={noop}
+                                             onShowUsage={noop}/>);
   }
 
   function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
+    return helper.findByDataTestId(id);
   }
 });

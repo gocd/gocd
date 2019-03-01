@@ -15,16 +15,15 @@
  */
 
 import * as m from "mithril";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {Attrs, SiteHeader} from "views/pages/partials/site_header";
 import * as styles from "../site_header.scss";
 
-//currently disabled because background Ajax requests aren't getting mocked
-xdescribe("Site Header", () => {
+describe("Site Header", () => {
 
-  let $root: any, root: any;
+  const helper = new TestHelper();
+
   beforeEach(() => {
-    //@ts-ignore
-    [$root, root] = window.createDomElementForTest();
     jasmine.Ajax.install();
     jasmine.Ajax.stubRequest("/go/api/data_sharing/settings/notification_auth", undefined, "GET").andReturn({});
     jasmine.Ajax.stubRequest("https://datasharing.gocd.org/v1", undefined, "POST").andReturn({});
@@ -34,8 +33,6 @@ xdescribe("Site Header", () => {
   });
 
   afterEach(unmount);
-  //@ts-ignore
-  afterEach(window.destroyDomElementForTest);
 
   it("should display the user menu when a user is logged in", () => {
     mount({
@@ -47,7 +44,7 @@ xdescribe("Site Header", () => {
       canViewAdminPage: false,
       showAnalyticsDashboard: false
     });
-    expect($root.find(`.${styles.userLink}`)).toHaveText("Jon Doe");
+    expect(helper.find(`.${styles.userLink}`)).toHaveText("Jon Doe");
     expect(findMenuItem("/go/preferences/notifications")).toHaveText("Preferences");
     expect(findMenuItem("/go/access_tokens")).toHaveText("Personal Access Tokens");
     expect(findMenuItem("/go/auth/logout")).toHaveText("Sign out");
@@ -64,7 +61,7 @@ xdescribe("Site Header", () => {
       canViewAdminPage: false,
       showAnalyticsDashboard: false
     });
-    expect($root.find(`.${styles.userLink}`)).not.toBeInDOM();
+    expect(helper.find(`.${styles.userLink}`)).not.toBeInDOM();
     expect(findMenuItem("/go/preferences/notifications")).not.toBeInDOM();
     expect(findMenuItem("/go/access_tokens")).not.toBeInDOM();
     expect(findMenuItem("/go/auth/logout")).not.toBeInDOM();
@@ -72,21 +69,15 @@ xdescribe("Site Header", () => {
   });
 
   function mount(attrs: Attrs) {
-    m.mount(root, {
-      view() {
-        return <SiteHeader {...attrs}/>;
-      }
-    });
-    m.redraw();
+    helper.mount(() => <SiteHeader {...attrs}/>);
   }
 
   function unmount() {
-    m.mount(root, null);
-    m.redraw();
+    helper.unmount();
     jasmine.Ajax.uninstall();
   }
 
   function findMenuItem(href: string) {
-    return $root.find(`a[href='${href}']`);
+    return helper.find(`a[href='${href}']`);
   }
 });

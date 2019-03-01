@@ -21,32 +21,17 @@ import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
 import {Attrs, UsersWidget} from "views/pages/users/users_widget";
 
 describe("UsersWidget", () => {
-  let $root: any, root: any;
-
-  beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(unmount);
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   let attrs: Attrs;
 
   beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
-
     attrs = {
       users: stream(new Users(bob(), alice())),
       user: bob(),
@@ -68,14 +53,7 @@ describe("UsersWidget", () => {
 
     attrs.userViewHelper().systemAdmins().users([bob().loginName()]);
 
-    m.mount(root, {
-      view() {
-        return (<UsersWidget {...attrs}/>);
-      }
-    });
-
-    m.redraw();
-
+    helper.mount(() => <UsersWidget {...attrs}/>);
   });
 
   function bob() {
@@ -103,24 +81,24 @@ describe("UsersWidget", () => {
   }
 
   it("should render a list of user attributes", () => {
-    expect(find("users-table")).toBeInDOM();
-    expect(find("users-header")[0].children[1]).toContainText("Username");
-    expect(find("users-header")[0].children[2]).toContainText("Display name");
-    expect(find("users-header")[0].children[4]).toContainText("System Admin");
-    expect(find("users-header")[0].children[5]).toContainText("Email");
-    expect(find("users-header")[0].children[6]).toContainText("Enabled");
+    expect(helper.findByDataTestId("users-table")).toBeInDOM();
+    expect(helper.findByDataTestId("users-header")[0].children[1]).toContainText("Username");
+    expect(helper.findByDataTestId("users-header")[0].children[2]).toContainText("Display name");
+    expect(helper.findByDataTestId("users-header")[0].children[4]).toContainText("System Admin");
+    expect(helper.findByDataTestId("users-header")[0].children[5]).toContainText("Email");
+    expect(helper.findByDataTestId("users-header")[0].children[6]).toContainText("Enabled");
 
-    expect(find("user-row")).toHaveLength(2);
+    expect(helper.findByDataTestId("user-row")).toHaveLength(2);
 
-    expect(find("user-username")[0]).toContainText("bob");
-    expect(find("user-display-name")[0]).toContainText("Bob");
-    expect(find("user-email")[0]).toContainText("bob@example.com");
-    expect(find("user-enabled")[0]).toContainText("Yes");
+    expect(helper.findByDataTestId("user-username")[0]).toContainText("bob");
+    expect(helper.findByDataTestId("user-display-name")[0]).toContainText("Bob");
+    expect(helper.findByDataTestId("user-email")[0]).toContainText("bob@example.com");
+    expect(helper.findByDataTestId("user-enabled")[0]).toContainText("Yes");
 
-    expect(find("user-username")[1]).toContainText("alice");
-    expect(find("user-display-name")[1]).toContainText("Alice");
-    expect(find("user-email")[1]).toContainText("alice@example.com");
-    expect(find("user-enabled")[1]).toContainText("No");
+    expect(helper.findByDataTestId("user-username")[1]).toContainText("alice");
+    expect(helper.findByDataTestId("user-display-name")[1]).toContainText("Alice");
+    expect(helper.findByDataTestId("user-email")[1]).toContainText("alice@example.com");
+    expect(helper.findByDataTestId("user-enabled")[1]).toContainText("No");
   });
 
   it("should render in progress icon if update operation is in progress", () => {
@@ -129,7 +107,7 @@ describe("UsersWidget", () => {
 
     m.redraw();
 
-    expect(findIn(find("user-super-admin-switch")[0], "Spinner-icon")).toBeInDOM();
+    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "Spinner-icon")).toBeInDOM();
   });
 
   it("should render success icon is update operation is successful", () => {
@@ -138,8 +116,8 @@ describe("UsersWidget", () => {
 
     m.redraw();
 
-    expect(find("user-super-admin-switch"));
-    expect(findIn(find("user-super-admin-switch")[0], "update-successful")).toBeInDOM();
+    expect(helper.findByDataTestId("user-super-admin-switch"));
+    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-successful")).toBeInDOM();
   });
 
   it("should render error icon with message if update operation is unsuccessful", () => {
@@ -148,17 +126,8 @@ describe("UsersWidget", () => {
 
     m.redraw();
 
-    expect(findIn(find("user-super-admin-switch")[0], "update-unsuccessful")).toBeInDOM();
-    expect(find("user-update-error-message")).toContainText("boom!");
+    expect(helper.findIn(helper.findByDataTestId("user-super-admin-switch")[0], "update-unsuccessful")).toBeInDOM();
+    expect(helper.findByDataTestId("user-update-error-message")).toContainText("boom!");
 
   });
-
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
-  }
-
-  function findIn(elem: any, id: string) {
-    return $(elem).find(`[data-test-id='${id}']`);
-  }
-
 });

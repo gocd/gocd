@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Analytics iFrame Widget", () => {
   const m      = require('mithril');
   const Stream = require('mithril/stream');
   require('jasmine-jquery');
 
   const AnalyticsiFrameWidget = require('views/shared/analytics_iframe_widget');
+
+  const helper = new TestHelper();
 
   function newModel(loadedData, loadedView) {
     const data   = Stream(),
@@ -37,16 +41,7 @@ describe("Analytics iFrame Widget", () => {
   const noop = () => {
   };
 
-  let $root, root;
-
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(() => {
-    unmount();
-    window.destroyDomElementForTest();
-  });
+  afterEach(helper.unmount.bind(helper));
 
   it('should load model oncreate', () => {
     let called  = false;
@@ -61,7 +56,7 @@ describe("Analytics iFrame Widget", () => {
 
   it('should load view path from model and create an iframe with sandbox', () => {
     mount(newModel({a: 1}, "/some/path"), noop);
-    const iframe = $root.find('iframe');
+    const iframe = helper.find('iframe');
 
     expect(iframe.attr('sandbox')).toEqual('allow-scripts');
     expect(iframe.attr('src')).toEqual('/some/path');
@@ -74,18 +69,18 @@ describe("Analytics iFrame Widget", () => {
       responseText:      "here is an error"
     });
     mount(model, noop);
-    expect($root.find(".frame-container")[0].getAttribute("data-error-text")).toBe("here is an error");
+    expect(helper.find(".frame-container")[0].getAttribute("data-error-text")).toBe("here is an error");
   });
 
   it('should render html error if any', () => {
-    const model         = newModel(null, null);
+    const model           = newModel(null, null);
     const htmlErrorString = "<html><body>Boom!</body></html>";
     model.errors({
       getResponseHeader: () => "text/html",
       responseText:      htmlErrorString
     });
     mount(model, noop);
-    expect($root.find("iframe")[0].getAttribute("src")).toBe(`data:text/html;charset=utf-8,${htmlErrorString}`);
+    expect(helper.find("iframe")[0].getAttribute("src")).toBe(`data:text/html;charset=utf-8,${htmlErrorString}`);
   });
 
   it('should initialize iframe oncreate', () => {
@@ -95,7 +90,7 @@ describe("Analytics iFrame Widget", () => {
       actualMessage = JSON.stringify(data);
     });
 
-    const iframe = $root.find('iframe')[0];
+    const iframe = helper.find('iframe')[0];
     iframe.onload();
 
     const expectedMessage = JSON.stringify({
@@ -106,19 +101,8 @@ describe("Analytics iFrame Widget", () => {
     expect(actualMessage).toBe(expectedMessage);
   });
 
-  const mount = (model, init) => {
-    m.mount(root,
-      {
-        view() {
-          return m(AnalyticsiFrameWidget, {model, pluginId: "some-plugin", uid: "some-uid", init});
-        }
-      }
-    );
-    m.redraw();
-  };
+  function mount(model, init) {
+    helper.mount(() => m(AnalyticsiFrameWidget, {model, pluginId: "some-plugin", uid: "some-uid", init}));
+  }
 
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
-  };
 });

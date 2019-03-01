@@ -14,20 +14,18 @@
  * limitations under the License.
  */
 
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Agent State Count Widget", () => {
   const m      = require('mithril');
   const Stream = require('mithril/stream');
-
+  const helper = new TestHelper();
   require("jasmine-jquery");
+
 
   const Agents                = require('models/agents/agents');
   const AgentStateCountWidget = require("views/agents/agent_state_count_widget");
 
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
   beforeEach(() => {
     const agents    = Stream();
     const allAgents = Agents.fromJSON(json());
@@ -35,49 +33,35 @@ describe("Agent State Count Widget", () => {
     mount(agents);
   });
 
-  afterEach(() => {
-    unmount();
-  });
+  afterEach(helper.unmount.bind(helper));
 
   it('should contain the agents state count information', () => {
-    const children = $root.find('.search-summary').children();
+    const children = helper.find('.search-summary').children();
     expect(children).toHaveLength(4);
     expect(children[0]).toContainText('Total');
     expect(children[0]).toContainText('1');
   });
 
   it('should contain the agents Pending count information', () => {
-    const children = $root.find('.search-summary').children();
+    const children = helper.find('.search-summary').children();
     expect(children[1]).toContainText('Pending');
     expect(children[1]).toContainText('0');
   });
 
   it('should contain the agents Enabled count information', () => {
-    const children = $root.find('.search-summary').children();
+    const children = helper.find('.search-summary').children();
     expect(children[2]).toContainText('Enabled');
     expect(children[2]).toContainText('1');
   });
 
   it('should contain the agents Disabled count information', () => {
-    const children = $root.find('.search-summary').children();
+    const children = helper.find('.search-summary').children();
     expect(children[3]).toContainText('Disabled');
     expect(children[3]).toContainText('0');
   });
 
   const mount = (agents) => {
-    m.mount(root,
-      {
-        view() {
-          return m(AgentStateCountWidget, {agents});
-        }
-      }
-    );
-    m.redraw();
-  };
-
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
+    helper.mount(() => m(AgentStateCountWidget, {agents}));
   };
 
   const json = () => [

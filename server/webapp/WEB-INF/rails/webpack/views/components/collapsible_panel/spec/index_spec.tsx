@@ -14,78 +14,58 @@
  * limitations under the License.
  */
 
+import * as m from "mithril";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {CollapsiblePanel} from "../index";
 import * as styles from "../index.scss";
 
 describe("Collapsible Panel Component", () => {
-  const m             = require("mithril");
   const simulateEvent = require("simulate-event");
 
   const pageTitle = "Test Header";
   const body      = [<div class="collapse-content">This is body</div>];
+  const helper    = new TestHelper();
 
-  let $root: any, root: any;
-  beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(unmount);
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  afterEach(helper.unmount.bind(helper));
 
   it("should render expand collapsible component", () => {
     mount();
-    expect(find("collapse-header")).toContainText(pageTitle);
-    expect($root.find(".collapse-content")).toBeInDOM();
+    expect(helper.findByDataTestId("collapse-header")).toContainText(pageTitle);
+    expect(helper.find(".collapse-content")).toBeInDOM();
   });
 
   it("should render component, collapsed by default", () => {
     mount();
-    expect(find("collapse-header")).not.toHaveClass(styles.expanded);
-    expect(find("collapse-body")).toHaveClass(styles.hide);
+    expect(helper.findByDataTestId("collapse-header")).not.toHaveClass(styles.expanded);
+    expect(helper.findByDataTestId("collapse-body")).toHaveClass(styles.hide);
   });
 
   it("should toggle component state on click", () => {
     mount();
-    expect(find("collapse-header")).not.toHaveClass(styles.expanded);
-    expect(find("collapse-body")).toHaveClass(styles.hide);
+    expect(helper.findByDataTestId("collapse-header")).not.toHaveClass(styles.expanded);
+    expect(helper.findByDataTestId("collapse-body")).toHaveClass(styles.hide);
 
-    simulateEvent.simulate(find("collapse-header").get(0), "click");
-    m.redraw();
+    simulateEvent.simulate(helper.findByDataTestId("collapse-header").get(0), "click");
+    helper.redraw();
 
-    expect(find("collapse-header")).toHaveClass(styles.expanded);
-    expect(find("collapse-body")).not.toHaveClass(styles.hide);
+    expect(helper.findByDataTestId("collapse-header")).toHaveClass(styles.expanded);
+    expect(helper.findByDataTestId("collapse-body")).not.toHaveClass(styles.hide);
 
-    simulateEvent.simulate(find("collapse-header").get(0), "click");
-    m.redraw();
+    simulateEvent.simulate(helper.findByDataTestId("collapse-header").get(0), "click");
+    helper.redraw();
 
-    expect(find("collapse-header")).not.toHaveClass(styles.expanded);
-    expect(find("collapse-body")).toHaveClass(styles.hide);
+    expect(helper.findByDataTestId("collapse-header")).not.toHaveClass(styles.expanded);
+    expect(helper.findByDataTestId("collapse-body")).toHaveClass(styles.hide);
   });
 
   it("should apply error state", () => {
     mount(true);
-    expect(find('collapsible-panel-wrapper')).toHaveClass(styles.error);
+    expect(helper.findByDataTestId("collapsible-panel-wrapper")).toHaveClass(styles.error);
   });
 
   function mount(error?: boolean) {
-    m.mount(root, {
-      view() {
-        return (
-          <CollapsiblePanel error={error} dataTestId={"collapsible-panel-wrapper"} header={pageTitle}>{body}</CollapsiblePanel>);
-      }
-    });
-
-    m.redraw(true);
+    helper.mount(() => <CollapsiblePanel error={error} dataTestId={"collapsible-panel-wrapper"}
+                                         header={pageTitle}>{body}</CollapsiblePanel>);
   }
 
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
-  }
 });

@@ -133,10 +133,10 @@ describe("ArtifactStoresModal", () => {
   });
 
   function mount(artifactStores: ArtifactStores, pluginInfos: Array<PluginInfo<any>>) {
-    helper.mount(<ArtifactStoresWidget pluginInfos={stream(pluginInfos)}
-                                       artifactStores={artifactStores}
-                                       onEdit={onEdit}
-                                       onClone={onClone}
-                                       onDelete={onDelete}/>);
+    helper.mount(() => <ArtifactStoresWidget pluginInfos={stream(pluginInfos)}
+                                             artifactStores={artifactStores}
+                                             onEdit={onEdit}
+                                             onClone={onClone}
+                                             onDelete={onDelete}/>);
   }
 });

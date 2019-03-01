@@ -15,64 +15,39 @@
  */
 
 import * as m from "mithril";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {Table} from "../index";
 
 describe("Table component", () => {
-  let $root: any, root: Element;
-
-  beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
-
-  });
-
-  afterEach(unmount);
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   const headers = ["Col1", "Col2", "Col3"];
-  const data = [[1, 2, ''], [true, "two", null]];
-
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  const data    = [[1, 2, ""], [true, "two", null]];
 
   it("should render table component", () => {
     mount();
-    expect(find("table")).toBeVisible();
-    expect(find("table-header-row").length).toEqual(1);
-    expect(find("table-row").length).toEqual(2);
+    expect(helper.findByDataTestId("table")).toBeVisible();
+    expect(helper.findByDataTestId("table-header-row").length).toEqual(1);
+    expect(helper.findByDataTestId("table-row").length).toEqual(2);
   });
 
   it("should render headers and data", () => {
     mount();
-    expect(find("table-header-row")).toContainText("Col1");
-    expect(find("table-header-row")).toContainText("Col2");
-    expect(find("table-header-row")).toContainText("Col3");
+    expect(helper.findByDataTestId("table-header-row")).toContainText("Col1");
+    expect(helper.findByDataTestId("table-header-row")).toContainText("Col2");
+    expect(helper.findByDataTestId("table-header-row")).toContainText("Col3");
 
-    expect(find("table-row").get(0)).toContainText("1");
-    expect(find("table-row").get(0)).toContainText("2");
-    expect(find("table-row").get(0)).toContainText("");
+    expect(helper.findByDataTestId("table-row").get(0)).toContainText("1");
+    expect(helper.findByDataTestId("table-row").get(0)).toContainText("2");
+    expect(helper.findByDataTestId("table-row").get(0)).toContainText("");
 
-    expect(find("table-row").get(1)).toContainText("true");
-    expect(find("table-row").get(1)).toContainText("two");
-    expect(find("table-row").get(1)).toContainText("");
+    expect(helper.findByDataTestId("table-row").get(1)).toContainText("true");
+    expect(helper.findByDataTestId("table-row").get(1)).toContainText("two");
+    expect(helper.findByDataTestId("table-row").get(1)).toContainText("");
   });
 
   function mount() {
-    m.mount(root, {
-      view() {
-        return (<Table headers={headers} data={data} />);
-      }
-    });
-
-    // @ts-ignore
-    m.redraw(true);
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
+    helper.mount(() => <Table headers={headers} data={data}/>);
   }
 });

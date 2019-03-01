@@ -13,59 +13,59 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Analytics Widget", () => {
   const m = require('mithril');
   require('jasmine-jquery');
 
   const AnalyticsWidget = require('views/analytics/analytics_widget');
 
-  let $root, root;
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   beforeEach(() => {
     jasmine.Ajax.install();
-    [$root, root] = window.createDomElementForTest();
     mount();
   });
 
   afterEach(() => {
     jasmine.Ajax.uninstall();
-    unmount();
-    window.destroyDomElementForTest();
   });
 
   it('should render analytics header', () => {
-    expect($root.find('.header-panel')).toBeInDOM();
-    expect($root.find('.header-panel')).toContainText("Analytics");
+    expect(helper.find('.header-panel')).toBeInDOM();
+    expect(helper.find('.header-panel')).toContainText("Analytics");
   });
 
   it('should render global tab', () => {
-    expect($root.find('.dashboard-tabs li').get(0)).toContainText("Global");
+    expect(helper.find('.dashboard-tabs li').get(0)).toContainText("Global");
   });
 
   it('should render pipelines tab', () => {
-    expect($root.find('.dashboard-tabs li').get(1)).toContainText("Pipeline");
+    expect(helper.find('.dashboard-tabs li').get(1)).toContainText("Pipeline");
   });
 
   it('should render global chart contents when global tab is selected', () => {
-    expect($root.find('.dashboard-tabs li').get(0)).toContainText("Global");
-    expect($root.find('.dashboard-tabs li').get(0)).toHaveClass("current");
-    expect($root.find('.global')).toBeInDOM();
+    expect(helper.find('.dashboard-tabs li').get(0)).toContainText("Global");
+    expect(helper.find('.dashboard-tabs li').get(0)).toHaveClass("current");
+    expect(helper.find('.global')).toBeInDOM();
   });
 
   it('should render global chart contents when global tab is selected', () => {
-    $root.find('.dashboard-tabs li').get(1).click();
+    helper.find('.dashboard-tabs li').get(1).click();
     m.redraw();
 
-    expect($root.find('.dashboard-tabs li').get(1)).toContainText("Pipeline");
-    expect($root.find('.dashboard-tabs li').get(1)).toHaveClass("current");
-    expect($root.find('.pipeline')).toBeInDOM();
+    expect(helper.find('.dashboard-tabs li').get(1)).toContainText("Pipeline");
+    expect(helper.find('.dashboard-tabs li').get(1)).toHaveClass("current");
+    expect(helper.find('.pipeline')).toBeInDOM();
   });
 
   it('should render no analytics plugin installed message when no analytics plugin is installed', () => {
-    unmount();
+    helper.unmount();
     mount(0);
 
-    expect($root.find('.info')).toContainText('No analytics plugin installed.');
+    expect(helper.find('.info')).toContainText('No analytics plugin installed.');
   });
 
 
@@ -76,16 +76,7 @@ describe("Analytics Widget", () => {
       };
     };
 
-    m.mount(root, {
-      view() {
-        return <AnalyticsWidget metrics={{}} pipelines={[]} pluginInfos={pluginInfos}/>;
-      }
-    });
-    m.redraw();
+    helper.mount(() => <AnalyticsWidget metrics={{}} pipelines={[]} pluginInfos={pluginInfos}/>);
   };
 
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
-  };
 });

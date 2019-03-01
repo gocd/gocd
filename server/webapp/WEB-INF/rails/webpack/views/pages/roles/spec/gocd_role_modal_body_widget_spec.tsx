@@ -32,7 +32,7 @@ describe("GoCDRoleModalBodyWidget", () => {
 
   afterEach((done) => helper.unmount(done));
   it("should render view", () => {
-    helper.mount(<GoCDRoleModalBodyWidget role={gocdRole} isNameDisabled={false}/>);
+    helper.mount(() => <GoCDRoleModalBodyWidget role={gocdRole} isNameDisabled={false}/>);
 
     expect(helper.findByDataTestId("form-field-input-role-name")).toBeInDOM();
     expect(helper.findByDataTestId("form-field-input-role-name")).not.toBeDisabled();
@@ -46,7 +46,7 @@ describe("GoCDRoleModalBodyWidget", () => {
   });
 
   it("should disable role name when isNameDisabled is set to true", () => {
-    helper.mount(<GoCDRoleModalBodyWidget role={gocdRole} isNameDisabled={true}/>);
+    helper.mount(() => <GoCDRoleModalBodyWidget role={gocdRole} isNameDisabled={true}/>);
 
     expect(helper.findByDataTestId("form-field-input-role-name")).toBeInDOM();
     expect(helper.findByDataTestId("form-field-input-role-name").prop("readonly")).toBeTruthy();
@@ -59,7 +59,7 @@ describe("GoCDRoleModalBodyWidget", () => {
   });
 
   it("should add user when add user button is clicked", () => {
-    helper.mount(<GoCDRoleModalBodyWidget role={gocdRole} isNameDisabled={false}/>);
+    helper.mount(() => <GoCDRoleModalBodyWidget role={gocdRole} isNameDisabled={false}/>);
 
     expect(gocdRole.attributes().hasUser("John")).toBeFalsy();
 
@@ -72,7 +72,7 @@ describe("GoCDRoleModalBodyWidget", () => {
   });
 
   it("should delete user when delete icon on user's tag is clicked", () => {
-    helper.mount(<GoCDRoleModalBodyWidget role={gocdRole} isNameDisabled={false}/>);
+    helper.mount(() => <GoCDRoleModalBodyWidget role={gocdRole} isNameDisabled={false}/>);
 
     expect(gocdRole.attributes().users.length).toEqual(3);
 

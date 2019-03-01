@@ -40,26 +40,27 @@ const MaterialSearchResultsWidget = {
       resultMessage = <span class="helper">Last {inflection.pluralize('commit', results.length, true)} listed in chronological order</span>;
     }
 
+    const commitInfos = _.map(results, (result) => {
+      const li = (
+        <li onclick={() => {
+          material.selectRevision(result.revision);
+        }}>
+          <div class="info">
+            <span class="rev">{result.revision}</span>
+            <span class="committer">{result.user}</span>
+            <span class="time">{TimeFormatter.format(result.date)}</span>
+          </div>
+          <div class="commit_message">{result.comment}</div>
+        </li>
+      );
+      return li;
+    });
+
     return (
       <div class="commits">
         {resultMessage}
         <ul class="commit_info">
-          {
-            _.map(results, (result) => {
-              return (
-                <li onclick={() => {
-                  material.selectRevision(result.revision);
-                }}>
-                  <div class="info">
-                    <span class="rev">{result.revision}</span>
-                    <span class="committer">{result.user}</span>
-                    <span class="time">{TimeFormatter.format(result.date)}</span>
-                  </div>
-                  <div class="commit_message">{result.comment}</div>
-                </li>
-              );
-            })
-          }
+          {commitInfos}
         </ul>
       </div>
     );

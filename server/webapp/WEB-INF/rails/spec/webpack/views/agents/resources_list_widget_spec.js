@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("ResourcesListWidget", () => {
   const $                = require("jquery");
   const simulateEvent    = require('simulate-event');
@@ -23,13 +25,9 @@ describe("ResourcesListWidget", () => {
   require("foundation-sites");
 
   const ResourcesListWidget = require("views/agents/resources_list_widget");
+  const helper = new TestHelper();
 
-
-  let $root, root, resources;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
+  let resources;
 
   let vm;
   beforeEach(() => {
@@ -64,7 +62,7 @@ describe("ResourcesListWidget", () => {
   });
 
   afterEach(() => {
-    unmount();
+    helper.unmount();
   });
 
   it('should contain all the resources checkbox', () => {
@@ -99,66 +97,68 @@ describe("ResourcesListWidget", () => {
   });
 
   it('should have button to add resources', () => {
-    const addButton = $root.find('.add-resource :button')[0];
+    const addButton = helper.find('.add-resource :button')[0];
     expect(addButton).toHaveText("Add");
   });
 
   it('should have button to apply resources', () => {
-    const applyButton = $root.find('.add-resource :button')[1];
+    const applyButton = helper.find('.add-resource :button')[1];
     expect(applyButton).toHaveText("Apply");
   });
 
   it('should add resource after invoking add button', () => {
-    let allResources = $root.find('.resources-items :checkbox');
+    let allResources = helper.find('.resources-items :checkbox');
     expect(allResources).toHaveLength(4);
 
-    const inputBox = $root.find('.add-resource-input').get(0);
+    const inputBox = helper.find('.add-resource-input').get(0);
     $(inputBox).val('Chrome');
     simulateEvent.simulate(inputBox, 'input');
 
     expect(inputBox).toHaveValue('Chrome');
-    const addButton = $root.find('.add-resource .add-resource-btn')[0];
+    const addButton = helper.find('.add-resource .add-resource-btn')[0];
     simulateEvent.simulate(addButton, 'click');
     m.redraw();
 
-    allResources = $root.find('.resources-items :checkbox');
+    allResources = helper.find('.resources-items :checkbox');
     expect(allResources).toHaveLength(5);
   });
 
 
   it('should clear input-text box after adding resource', () => {
-    let inputBox = $root.find('.add-resource input');
+    let inputBox = helper.find('.add-resource input');
     $(inputBox).val('Chrome').trigger('change');
 
     expect(inputBox).toHaveValue('Chrome');
-    const addButton = $root.find('.add-resource button')[0];
+    const addButton = helper.find('.add-resource button')[0];
     addButton.click();
     m.redraw();
 
-    inputBox = $root.find('.add-resource input');
+    inputBox = helper.find('.add-resource input');
     expect(inputBox).toHaveValue('');
   });
 
   it('should not add duplicate resources', () => {
-    let allResources = $root.find('.resources-items input[type="Checkbox"]');
+    let allResources = helper.find('.resources-items input[type="Checkbox"]');
     expect(allResources).toHaveLength(4);
     expect(allResources[2]).toHaveValue('Linux');
 
-    const inputBox = $root.find('.add-resource :input')[0];
+    const inputBox = helper.find('.add-resource :input')[0];
     $(inputBox).val('Linux').trigger('change');
 
-    const addButton = $root.find('.add-resource :button')[1];
+    const addButton = helper.find('.add-resource :button')[1];
     addButton.click();
     m.redraw();
 
-    allResources = $root.find('.resources-items input[type="Checkbox"]');
+    allResources = helper.find('.resources-items input[type="Checkbox"]');
     expect(allResources).toHaveLength(4);
   });
 
   describe('Page Spinner', () => {
     it('should show page spinner until resources are fetched', () => {
+      helper.unmount();
       mount(undefined);
       expect($('.page-spinner')).toBeInDOM();
+      helper.unmount();
       mount(resources);
       expect($('.page-spinner')).not.toBeInDOM();
     });
@@ -167,30 +167,20 @@ describe("ResourcesListWidget", () => {
   describe('Fetch Error', () => {
     it('should show error when resources fetch fails', () => {
       const err = 'BOOM!';
+      helper.unmount();
       mount(resources, () => err);
       expect($('.alert')).toContainText(err);
     });
   });
 
   const mount = (resources, resourcesFetchError = () => {}) => {
-    m.mount(root, {
-      view() {
-        return m(ResourcesListWidget, {
-          hideDropDown: () => {},
-          dropDownReset: () => {},
-          resourcesFetchError,
-          'onResourcesUpdate': Stream(),
-          'resources':         Stream(resources)
-        });
-      }
-    });
-
-    m.redraw();
-  };
-
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
+    helper.mount(() => m(ResourcesListWidget, {
+      hideDropDown: () => {},
+      dropDownReset: () => {},
+      resourcesFetchError,
+      'onResourcesUpdate': Stream(),
+      'resources':         Stream(resources)
+    }));
   };
 
 });

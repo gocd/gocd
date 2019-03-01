@@ -16,6 +16,8 @@
 
 //for skipped tests, jasmine isnt calling afterEach,
 // so skipped the test suit to make sure randomize doesnt cause any problem
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Agent Table Header Widget", () => {
 
   const $      = require("jquery");
@@ -27,12 +29,9 @@ describe("Agent Table Header Widget", () => {
 
   const AgentsTableHeader = require("views/agents/agent_table_header");
   const RouteHandler      = require('views/agents/models/route_handler');
+  const helper            = new TestHelper();
 
-  let $root, root, routeHandler;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
+  let routeHandler;
 
   beforeEach(() => {
     routeHandler           = Stream(new RouteHandler());
@@ -45,17 +44,19 @@ describe("Agent Table Header Widget", () => {
   });
 
   const route = (isUserAdmin) => {
-    m.route(root, '', {
-      '':                  {
-        view() {
-          return agentTableHeaderComponent(isUserAdmin);
+    helper.route('', () => {
+      return {
+        '':                  {
+          view() {
+            return agentTableHeaderComponent(isUserAdmin);
+          }
+        },
+        '/:sortBy/:orderBy': {
+          view() {
+            return agentTableHeaderComponent(isUserAdmin);
+          }
         }
-      },
-      '/:sortBy/:orderBy': {
-        view() {
-          return agentTableHeaderComponent(isUserAdmin);
-        }
-      }
+      };
     });
 
     m.route.set('');
@@ -63,18 +64,17 @@ describe("Agent Table Header Widget", () => {
   };
 
   const unmount = () => {
-    m.route.set('');
-    m.mount(root, null);
-    m.redraw();
+    helper.unmount();
   };
 
 
   it('should select the checkbox depending upon the "checkboxValue" ', () => {
-    const checkbox = $root.find('thead input')[0];
+    const checkbox = helper.find('thead input')[0];
     expect(checkbox.checked).toBe(checkboxValue());
   });
 
   it('should not display checkbox for non-admin user', () => {
+    unmount();
     route(false);
     expect($('thead input')).not.toBeInDOM();
   });
@@ -83,7 +83,7 @@ describe("Agent Table Header Widget", () => {
   it('should add the ascending css class to table header cell attribute when table is sorted ascending on the corresponding attribute', () => {
     routeHandler().toggleSortingOrder('hostname');
     m.redraw();
-    const headerAttribute = $root.find("th:contains('Agent Name') .sort");
+    const headerAttribute = helper.find("th:contains('Agent Name') .sort");
     expect(headerAttribute).toHaveClass('asc');
   });
 
@@ -91,7 +91,7 @@ describe("Agent Table Header Widget", () => {
     routeHandler().toggleSortingOrder('hostname');
     routeHandler().toggleSortingOrder('hostname');
     m.redraw();
-    const headerAttribute = $root.find("th:contains('Agent Name') .sort");
+    const headerAttribute = helper.find("th:contains('Agent Name') .sort");
     expect(headerAttribute).toHaveClass('desc');
   });
 

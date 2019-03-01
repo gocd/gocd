@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {TestHelper} from "../../../../../webpack/views/pages/artifact_stores/spec/test_helper";
+
 describe("Dashboard Trigger With Options Material Info Widget", () => {
   const m = require("mithril");
 
@@ -21,24 +23,13 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
   const MaterialInfoWidget     = require("views/dashboard/trigger_with_options/material_info_widget");
   const TimeFormatter          = require('helpers/time_formatter');
 
-  let $root, root;
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(() => {
-    window.destroyDomElementForTest();
-  });
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   let triggerWithOptionsInfo;
 
   beforeEach(() => {
     triggerWithOptionsInfo = TriggerWithOptionsInfo.fromJSON(json);
-  });
-
-  afterEach(() => {
-    m.mount(root, null);
-    m.redraw();
   });
 
   function mount(material) {
@@ -48,56 +39,51 @@ describe("Dashboard Trigger With Options Material Info Widget", () => {
     material.materialSearchResults = jasmine.createSpy('materialSearchResult');
     material.isRevisionSelected    = jasmine.createSpy('isRevisionSelected');
     material.materialSearchResults.and.returnValue(searchResults);
-    m.mount(root, {
-      view() {
-        return m(MaterialInfoWidget, {
-          material
-        });
-      }
-    });
-    m.redraw(true);
+    helper.mount(() => m(MaterialInfoWidget, {
+      material
+    }));
   }
 
   it("it should render material info when revision is present", () => {
     mount(triggerWithOptionsInfo.materials[0]);
     const material = json.materials[0];
 
-    expect($root.find('.name-value .meta')).toContainText(material.type);
+    expect(helper.find('.name-value .meta')).toContainText(material.type);
 
-    expect($root.find('.name-value .meta')).toContainText(material.name);
+    expect(helper.find('.name-value .meta')).toContainText(material.name);
 
-    expect($root.find('.name-value .destination')).toContainText(material.folder);
+    expect(helper.find('.name-value .destination')).toContainText(material.folder);
 
-    expect($root.find('.name-value .date')).toContainText(TimeFormatter.format(material.revision.date));
+    expect(helper.find('.name-value .date')).toContainText(TimeFormatter.format(material.revision.date));
 
-    expect($root.find('.name-value .user')).toContainText(material.revision.user);
+    expect(helper.find('.name-value .user')).toContainText(material.revision.user);
 
-    expect($root.find('.name-value .comment')).toContainText(material.revision.comment);
+    expect(helper.find('.name-value .comment')).toContainText(material.revision.comment);
 
-    expect($root.find('.name-value .last-run-revision')).toContainText(material.revision.last_run_revision);
+    expect(helper.find('.name-value .last-run-revision')).toContainText(material.revision.last_run_revision);
   });
 
   it("it should render material info when revision is not present", () => {
     mount(triggerWithOptionsInfo.materials[1]);
     const material = json.materials[1];
 
-    expect($root.find('.name-value .meta')).toContainText(material.type);
-    expect($root.find('.name-value .meta')).toContainText(material.name);
+    expect(helper.find('.name-value .meta')).toContainText(material.type);
+    expect(helper.find('.name-value .meta')).toContainText(material.name);
 
-    expect($root.find('.name-value .destination')).toContainText('not specified');
+    expect(helper.find('.name-value .destination')).toContainText('not specified');
 
-    expect($root.find('.name-value .date')).toContainText('never ran');
+    expect(helper.find('.name-value .date')).toContainText('never ran');
 
-    expect($root.find('.name-value .user')).toContainText('never ran');
+    expect(helper.find('.name-value .user')).toContainText('never ran');
 
-    expect($root.find('.name-value .comment')).toContainText('never ran');
+    expect(helper.find('.name-value .comment')).toContainText('never ran');
 
-    expect($root.find('.name-value .last-run-revision')).toContainText('never ran');
+    expect(helper.find('.name-value .last-run-revision')).toContainText('never ran');
   });
 
   it('should render searched material revision spinner', () => {
     mount(triggerWithOptionsInfo.materials[0]);
-    expect($root.find('.commits')).toBeInDOM();
+    expect(helper.find('.commits')).toBeInDOM();
   });
 
   const json = {

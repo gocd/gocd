@@ -14,38 +14,20 @@
  * limitations under the License.
  */
 
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Page Load Error Widget", () => {
 
-  const m                  = require('mithril');
+  const m             = require('mithril');
   const PageLoadError = require('views/shared/page_load_error');
+  const helper        = new TestHelper();
 
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
-  };
-
-  let $root, root;
-
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(() => {
-    unmount();
-    window.destroyDomElementForTest();
-  });
+  afterEach(helper.unmount.bind(helper));
 
   it('should render error message', () => {
-    m.mount(root,
-      {
-        view() {
-          return m(PageLoadError, {message: "some-message"});
-        }
-      }
-    );
-    m.redraw();
+    helper.mount(() => m(PageLoadError, {message: "some-message"}));
 
-    expect($root).toContainHtml("<div class=\"alert callout\">" +
+    expect(helper.root).toContainHtml("<div class=\"alert callout\">" +
       "<h5>some-message</h5>" +
       "<p>Refresh <a href=\"javascript: window.location.reload()\">this page</a> in some time, and if the problem persists, " +
       "check the server logs.</p></div>" +

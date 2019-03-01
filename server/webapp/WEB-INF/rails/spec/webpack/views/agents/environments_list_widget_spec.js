@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Environments List Widget", () => {
   const _                = require('lodash');
   const $                = require("jquery");
@@ -26,19 +28,16 @@ describe("Environments List Widget", () => {
   require('jasmine-ajax');
 
   const EnvironmentsListWidget = require("views/agents/environments_list_widget");
+  const helper = new TestHelper();
 
-  let root, environments;
-  beforeEach(() => {
-    [, root] = window.createDomElementForTest();
-  });
-  afterEach(window.destroyDomElementForTest);
+  let  environments;
 
   beforeEach(() => {
     jasmine.Ajax.install();
     jasmine.Ajax.stubRequest(/\/api\/agents/).andReturn({"status": 304});
   });
 
-  beforeEach((done) => {
+  beforeEach(() => {
     const selectedAgents = [
       {
         uuid: '1',
@@ -64,11 +63,11 @@ describe("Environments List Widget", () => {
     ];
 
 
-    mount(done, environments);
+    mount(environments);
   });
 
   afterEach(() => {
-    unmount();
+    helper.unmount();
     jasmine.Ajax.uninstall();
   });
 
@@ -105,9 +104,11 @@ describe("Environments List Widget", () => {
 
   describe('Page Spinner', () => {
     it('should show page spinner until environments are fetched', () => {
-      mount(_.noop);
+      helper.unmount();
+      mount();
       expect($('.page-spinner')).toBeInDOM();
-      mount(_.noop, environments);
+      helper.unmount();
+      mount(environments);
       expect($('.page-spinner')).not.toBeInDOM();
     });
   });
@@ -116,31 +117,20 @@ describe("Environments List Widget", () => {
     it('should show error when environments fetch fails', () => {
       const err              = 'BOOM!';
       const environmentsFetchError = () => err;
-      mount(_.noop, environments, environmentsFetchError);
+      helper.unmount();
+      mount(environments, environmentsFetchError);
       expect($('.alert')).toContainText(err);
     });
   });
 
-  const mount = (done, environments, environmentsFetchError = () => {}) => {
-    m.mount(root,
-      {
-        oncreate: done,
-        view() {
-          return m(EnvironmentsListWidget, {
-            hideDropDown: () => {},
-            dropDownReset: () => {},
-            onEnvironmentsUpdate: () => {},
-            environments: Stream(environments),
-            environmentsFetchError
-          });
-        }
-      }
-    );
-    m.redraw();
+  const mount = (environments, environmentsFetchError = () => {}) => {
+    helper.mount(() => m(EnvironmentsListWidget, {
+      hideDropDown: () => {},
+      dropDownReset: () => {},
+      onEnvironmentsUpdate: () => {},
+      environments: Stream(environments),
+      environmentsFetchError
+    }));
   };
 
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
-  };
 });

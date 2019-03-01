@@ -16,49 +16,42 @@
 
 import * as m from "mithril";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair/index";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import * as styles from "../index.scss";
 
 describe("KeyValuePair", () => {
-  let $root: any, root: HTMLElement;
-
-  beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(unmount);
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   it("should render key value pairs", () => {
-    mount();
+    helper.mount(() => <KeyValuePair data={data()}/>);
 
-    expect($root.find(`.${styles.keyValuePair}`).children()).toHaveLength(data().size);
+    expect(helper.find(`.${styles.keyValuePair}`).children()).toHaveLength(data().size);
 
-    expect($root.find(`.${styles.keyValuePair} .${styles.key}`).get(0)).toHaveText("First Name");
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(0)).toHaveText("Jon");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.key}`).get(0)).toHaveText("First Name");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(0)).toHaveText("Jon");
 
-    expect($root.find(`.${styles.keyValuePair} .${styles.key}`).get(1)).toHaveText("Last Name");
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(1)).toHaveText("Doe");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.key}`).get(1)).toHaveText("Last Name");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(1)).toHaveText("Doe");
 
-    expect($root.find(`.${styles.keyValuePair} .${styles.key}`).get(2)).toHaveText("email");
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(2)).toHaveText("jdoe@example.com");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.key}`).get(2)).toHaveText("email");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(2)).toHaveText("jdoe@example.com");
 
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(3)).toHaveText("true");
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(4)).toHaveText("false");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(3)).toHaveText("true");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(4)).toHaveText("false");
 
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(5)).toHaveHtml("<em>(Not specified)</em>");
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(6)).toHaveHtml("<em>(Not specified)</em>");
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(7)).toHaveHtml("<em>(Not specified)</em>");
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(8)).toHaveHtml("<em>(Not specified)</em>");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(5)).toHaveHtml("<em>(Not specified)</em>");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(6)).toHaveHtml("<em>(Not specified)</em>");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(7)).toHaveHtml("<em>(Not specified)</em>");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(8)).toHaveHtml("<em>(Not specified)</em>");
 
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(9)).toHaveHtml("<strong>grrr!</strong>");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(9)).toHaveHtml("<strong>grrr!</strong>");
 
-    expect($root.find(`.${styles.keyValuePair} .${styles.key}`).get(10)).toHaveText("Integer");
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(10)).toHaveText("1");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.key}`).get(10)).toHaveText("Integer");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(10)).toHaveText("1");
 
-    expect($root.find(`.${styles.keyValuePair} .${styles.key}`).get(11)).toHaveText("Float");
-    expect($root.find(`.${styles.keyValuePair} .${styles.value}`).get(11)).toHaveText("3.14");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.key}`).get(11)).toHaveText("Float");
+    expect(helper.find(`.${styles.keyValuePair} .${styles.value}`).get(11)).toHaveText("3.14");
   });
 
   function data() {
@@ -83,74 +76,33 @@ describe("KeyValuePair", () => {
                                        ]);
   }
 
-  function mount() {
-    m.mount(root, {
-      view() {
-        return <KeyValuePair data={data()}/>;
-      }
-    });
-
-    m.redraw();
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
 });
 
 describe("KeyValueTitle", () => {
-  let $root: any, root: HTMLElement;
-
-  beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(unmount);
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   it("should render key value title", () => {
-    mount(false);
+    helper.mount(() => <KeyValueTitle {...data()} inline={false}/>);
 
-    expect($root.find(`.${styles.title}`)).toContainText('A Long Descriptive Title');
-    expect($root.find(`.${styles.title}`)).not.toHaveClass(styles.titleInline);
-    expect(find('data-test-icon-span')).toContainText('Icon Goes Here');
+    expect(helper.find(`.${styles.title}`)).toContainText("A Long Descriptive Title");
+    expect(helper.find(`.${styles.title}`)).not.toHaveClass(styles.titleInline);
+    expect(helper.findByDataTestId("data-test-icon-span")).toContainText("Icon Goes Here");
   });
 
   it("should render key value title inline", () => {
-    mount(true);
+    helper.mount(() => <KeyValueTitle {...data()} inline={true}/>);
 
-    expect($root.find(`.${styles.title}`)).toContainText('A Long Descriptive Title');
-    expect($root.find(`.${styles.title}`)).toHaveClass(styles.titleInline);
-    expect(find('data-test-icon-span')).toContainText('Icon Goes Here');
+    expect(helper.find(`.${styles.title}`)).toContainText("A Long Descriptive Title");
+    expect(helper.find(`.${styles.title}`)).toHaveClass(styles.titleInline);
+    expect(helper.findByDataTestId("data-test-icon-span")).toContainText("Icon Goes Here");
   });
 
   function data() {
     return {
       title: "A Long Descriptive Title",
       image: (<span data-test-id="data-test-icon-span">Icon Goes Here</span>),
-      titleTestId: 'data-test-key-title',
+      titleTestId: "data-test-key-title",
     };
-  }
-
-  function mount(inlineTitle: boolean) {
-    m.mount(root, {
-      view() {
-        return <KeyValueTitle {...data()} inline={inlineTitle}/>;
-      }
-    });
-
-    m.redraw();
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
   }
 });

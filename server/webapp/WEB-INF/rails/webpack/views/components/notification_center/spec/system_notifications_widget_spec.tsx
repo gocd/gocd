@@ -18,6 +18,7 @@ import * as m from "mithril";
 import * as Stream from "mithril/stream";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";
 import {SystemNotificationsWidget} from "views/components/notification_center/system_notifications_widget";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 
 describe("SystemNotificationsWidget", () => {
   const simulateEvent = require("simulate-event");
@@ -25,39 +26,21 @@ describe("SystemNotificationsWidget", () => {
   require("jasmine-jquery");
   require("jasmine-ajax");
 
-  let $root: any, root: any;
-  beforeEach(() => {
-    //@ts-ignore
-    [$root, root] = window.createDomElementForTest();
-  });
-  //@ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   const systemNotifications = Stream(new SystemNotifications());
 
   beforeEach(() => {
-    m.mount(root, {
-      view() {
-        return (<SystemNotificationsWidget systemNotifications={systemNotifications}/>);
-      }
-    });
-    m.redraw();
-  });
-
-  beforeEach(() => {
+    helper.mount(() => <SystemNotificationsWidget systemNotifications={systemNotifications}/>);
     localStorage.clear();
     localStorage.setItem("system_notifications", JSON.stringify([]));
   });
 
-  afterEach(() => {
-    m.mount(root, null);
-    m.redraw();
-  });
-
   it("should not display notification bell when there are no notifications to display", () => {
     systemNotifications(SystemNotifications.fromJSON([]));
-    m.redraw();
-    expect($root.find(".notifications").get(0)).not.toBeInDOM();
+    helper.redraw();
+    expect(helper.find(".notifications").get(0)).not.toBeInDOM();
   });
 
   it("should display notification bell and the notifications", () => {
@@ -81,8 +64,8 @@ describe("SystemNotificationsWidget", () => {
     ] as Notification[];
 
     systemNotifications(SystemNotifications.fromJSON(notifications));
-    m.redraw();
-    const allNotifications = find("notification-item");
+    helper.redraw();
+    const allNotifications = helper.findByDataTestId("notification-item");
     expect(allNotifications.get(0)).toBeInDOM();
     expect(allNotifications.length).toBe(2);
     expect(allNotifications.eq(0)).toContainText("message 1. read more");
@@ -114,13 +97,13 @@ describe("SystemNotificationsWidget", () => {
     ] as Notification[];
 
     systemNotifications(SystemNotifications.fromJSON(notifications));
-    m.redraw();
-    let allNotifications = find("notification-item");
+    helper.redraw();
+    let allNotifications = helper.findByDataTestId("notification-item");
     expect(allNotifications.length).toBe(2);
     simulateEvent.simulate(allNotifications.eq(0).find(`[data-test-id='notification-item_close']`).get(0), "click");
-    m.redraw();
+    helper.redraw();
 
-    allNotifications = find("notification-item");
+    allNotifications = helper.findByDataTestId("notification-item");
     expect(allNotifications.length).toBe(1);
     expect(allNotifications.eq(0)).toContainText("message 2. read more");
 
@@ -137,7 +120,4 @@ describe("SystemNotificationsWidget", () => {
     expect(remainingNotification.read).toBe(false);
   });
 
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
-  }
 });

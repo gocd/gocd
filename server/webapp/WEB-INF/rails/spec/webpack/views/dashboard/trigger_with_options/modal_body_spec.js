@@ -15,6 +15,7 @@
  */
 
 import SparkRoutes from "helpers/spark_routes";
+import {TestHelper} from "../../../../../webpack/views/pages/artifact_stores/spec/test_helper";
 
 describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   const m                           = require("mithril");
@@ -25,8 +26,6 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
 
   const TriggerWithOptionsVM   = require('views/dashboard/models/trigger_with_options_vm');
   const TriggerWithOptionsInfo = require("models/dashboard/trigger_with_options_info");
-
-  let $root, root;
 
   const json = {
     "variables": [
@@ -55,8 +54,9 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
     ]
   };
 
+  const helper = new TestHelper();
+
   beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
     jasmine.Ajax.install();
     stubMaterialSearch(json.materials[0].fingerprint);
 
@@ -65,7 +65,6 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
     vm.initialize(triggerWithOptionsInfo());
     mount(triggerWithOptionsInfo, vm);
   });
-  afterEach(window.destroyDomElementForTest);
 
   let triggerWithOptionsInfo, vm;
   const pipelineName = 'up42';
@@ -76,11 +75,11 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   });
 
   it("should render pipeline trigger with options information", () => {
-    expect($root.find('.pipeline-trigger-with-options')).toBeInDOM();
+    expect(helper.find('.pipeline-trigger-with-options')).toBeInDOM();
   });
 
   it("shoould render tab headings", () => {
-    const headings = $root.find('.pipeline_options-heading li');
+    const headings = helper.find('.pipeline_options-heading li');
 
     expect(headings.length).toBe(3);
     expect(headings.get(0)).toContainText('Materials');
@@ -89,23 +88,23 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   });
 
   it("should render materials section", () => {
-    expect($root.find('.material-for-trigger')).toBeInDOM();
+    expect(helper.find('.material-for-trigger')).toBeInDOM();
   });
 
   it("should render environment variables section", () => {
-    expect($root.find('.environment-variables.plain')).toBeInDOM();
+    expect(helper.find('.environment-variables.plain')).toBeInDOM();
   });
 
   it("should render secure environment variables section", () => {
-    expect($root.find('.environment-variables.secure')).toBeInDOM();
+    expect(helper.find('.environment-variables.secure')).toBeInDOM();
   });
 
   it("should show select materials tab by default", () => {
-    expect($root.find('.pipeline_options-heading li').get(0)).toHaveClass('active');
+    expect(helper.find('.pipeline_options-heading li').get(0)).toHaveClass('active');
 
-    const materialsContent = $root.find('.pipeline_options-body .h-tab_content:first');
-    const envContent       = $root.find('.pipeline_options-body .h-tab_content:nth-child(2)');
-    const secureEnvContent = $root.find('.pipeline_options-body .h-tab_content:nth-child(3)');
+    const materialsContent = helper.find('.pipeline_options-body .h-tab_content:first');
+    const envContent       = helper.find('.pipeline_options-body .h-tab_content:nth-child(2)');
+    const secureEnvContent = helper.find('.pipeline_options-body .h-tab_content:nth-child(3)');
 
     expect(materialsContent).not.toHaveClass('hidden');
     expect(envContent).toHaveClass('hidden');
@@ -113,19 +112,19 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   });
 
   it("should show appropriate content based on tab selected", () => {
-    const materialsContent = $root.find('.pipeline_options-body .h-tab_content:first');
-    const envContent       = $root.find('.pipeline_options-body .h-tab_content:nth-child(2)');
-    const secureEnvContent = $root.find('.pipeline_options-body .h-tab_content:nth-child(3)');
+    const materialsContent = helper.find('.pipeline_options-body .h-tab_content:first');
+    const envContent       = helper.find('.pipeline_options-body .h-tab_content:nth-child(2)');
+    const secureEnvContent = helper.find('.pipeline_options-body .h-tab_content:nth-child(3)');
 
-    expect($root.find('.pipeline_options-heading li').get(0)).toHaveClass('active');
+    expect(helper.find('.pipeline_options-heading li').get(0)).toHaveClass('active');
 
     expect(materialsContent).not.toHaveClass('hidden');
     expect(envContent).toHaveClass('hidden');
     expect(secureEnvContent).toHaveClass('hidden');
 
-    $root.find('.pipeline_options-heading li').get(1).click();
+    helper.find('.pipeline_options-heading li').get(1).click();
 
-    expect($root.find('.pipeline_options-heading li').get(1)).toHaveClass('active');
+    expect(helper.find('.pipeline_options-heading li').get(1)).toHaveClass('active');
 
     expect(materialsContent).toHaveClass('hidden');
     expect(envContent).not.toHaveClass('hidden');
@@ -136,7 +135,7 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
     triggerWithOptionsInfo(TriggerWithOptionsInfo.fromJSON({variables: [], materials: json.materials}));
     vm.initialize(triggerWithOptionsInfo());
     m.redraw();
-    const headings = $root.find('.pipeline_options-heading li');
+    const headings = helper.find('.pipeline_options-heading li');
 
     expect(headings.length).toBe(1);
     expect(headings.get(0)).toContainText('Materials');
@@ -146,7 +145,7 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
     const errorMessage = Stream("Error occurred while parsing the data.");
     unmount();
     mount(Stream(), new TriggerWithOptionsVM(), errorMessage);
-    expect($root.find('.callout.alert')).toBeInDOM();
+    expect(helper.find('.callout.alert')).toBeInDOM();
   });
 
   function mount(triggerWithOptionsInfo, vm, errorMessage) {
@@ -161,23 +160,17 @@ describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
       }
     };
 
-    m.mount(root, {
-      view() {
-        return m(TriggerWithOptionsModalBody, {
-          triggerWithOptionsInfo,
-          vm: Stream(vm),
-          message: errorMessage,
-          searchVM
-        });
-      }
-    });
-    m.redraw(true);
+    helper.mount(() => m(TriggerWithOptionsModalBody, {
+      triggerWithOptionsInfo,
+      vm: Stream(vm),
+      message: errorMessage,
+      searchVM
+    }));
   }
 
   function unmount() {
     Modal.destroyAll();
-    m.mount(root, null);
-    m.redraw();
+    helper.unmount();
   }
 
   function stubMaterialSearch(fingerprint) {

@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+
 describe("Global Dashboard Metrics", () => {
   const m = require('mithril');
   require('jasmine-jquery');
 
   const GlobalMetrics = require('views/analytics/global_metrics');
+  const helper = new TestHelper();
 
-  let $root, root;
   const supportedMetrics = {
     "plugin-id-x": [{type: "x", id: "one"}, {type: "y", id: "two"}],
     "plugin-id-y": [{type: "z", id: "three"}]
@@ -27,13 +29,11 @@ describe("Global Dashboard Metrics", () => {
 
   beforeEach(() => {
     jasmine.Ajax.install();
-    [$root, root] = window.createDomElementForTest();
   });
 
   afterEach(() => {
     jasmine.Ajax.uninstall();
-    unmount();
-    window.destroyDomElementForTest();
+    helper.unmount();
   });
 
   it('Add a frame for each plugin metric', () => {
@@ -41,21 +41,8 @@ describe("Global Dashboard Metrics", () => {
     jasmine.Ajax.stubRequest("/analytics/plugin-id-x/y/two", undefined, 'GET').andReturn({status: 200});
     jasmine.Ajax.stubRequest("/analytics/plugin-id-y/z/three", undefined, 'GET').andReturn({status: 200});
 
-    mount(supportedMetrics);
-    expect($root.find("iframe").length).toBe(3);
+    helper.mount(() => <GlobalMetrics metrics={supportedMetrics}/>);
+    expect(helper.find("iframe").length).toBe(3);
   });
 
-  const mount = (metrics) => {
-    m.mount(root, {
-      view() {
-        return <GlobalMetrics metrics={metrics}/>;
-      }
-    });
-    m.redraw();
-  };
-
-  const unmount = () => {
-    m.mount(root, null);
-    m.redraw();
-  };
 });

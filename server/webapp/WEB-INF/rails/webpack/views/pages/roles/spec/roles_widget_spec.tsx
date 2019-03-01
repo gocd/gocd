@@ -41,7 +41,7 @@ describe("RolesWidgetSpec", () => {
   function mount(roles: Array<GoCDRole | PluginRole>,
                  authConfigs: AuthConfigs,
                  pluginInfos: Array<PluginInfo<Extension>>) {
-    helper.mount(<RolesWidget roles={roles}
+    helper.mount(() => <RolesWidget roles={roles}
                               authConfigs={authConfigs}
                               pluginInfos={pluginInfos}
                               onEdit={onEdit}

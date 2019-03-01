@@ -15,24 +15,19 @@
  */
 
 import {HeaderPanel} from "../index";
+import {TestHelper} from "../../../pages/artifact_stores/spec/test_helper";
 
 const m = require("mithril");
 
 describe("Header Panel Component", () => {
 
-  let $root, root;
-
-  beforeEach(() => {
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(unmount);
-  afterEach(window.destroyDomElementForTest);
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
 
   it("should render header panel component", () => {
     const pageTitle = "Test Header";
     mount(pageTitle, []);
-    expect(find('title')).toContainText(pageTitle);
+    expect(helper.findByDataTestId('title')).toContainText(pageTitle);
   });
 
   it("should render header panel along with buttons", () => {
@@ -40,9 +35,9 @@ describe("Header Panel Component", () => {
     const buttons   = [m("button", "Do something"), m("button", "Do something more")];
     mount(pageTitle, buttons);
 
-    expect(find('title')).toContainText(pageTitle);
+    expect(helper.findByDataTestId('title')).toContainText(pageTitle);
 
-    const pageActionButtons = find('pageActions').children();
+    const pageActionButtons = helper.findByDataTestId('pageActions').children();
 
     expect(pageActionButtons).toHaveLength(buttons.length);
     expect(pageActionButtons.get(0)).toContainText("Do something");
@@ -53,29 +48,14 @@ describe("Header Panel Component", () => {
     const pageTitle = "Test Header";
     mount(pageTitle);
 
-    expect(find('title')).toContainText(pageTitle);
-    expect(find('pageActions')).not.toBeInDOM();
+    expect(helper.findByDataTestId('title')).toContainText(pageTitle);
+    expect(helper.findByDataTestId('pageActions')).not.toBeInDOM();
   });
 
   function mount(pageTitle, buttons) {
-    m.mount(root, {
-      view() {
-        return m(HeaderPanel, {
-          title: pageTitle,
-          buttons
-        });
-      }
-    });
-
-    m.redraw(true);
+    helper.mount(() => m(HeaderPanel, {
+      title: pageTitle, buttons
+    }));
   }
 
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function find(id) {
-    return $root.find(`[data-test-id='${id}']`);
-  }
 });

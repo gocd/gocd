@@ -16,20 +16,14 @@
 
 import * as m from "mithril";
 import {MaintenanceModeInfo} from "models/maintenance_mode/types";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {DisabledSubsystemsWidget} from "views/pages/maintenance_mode/disabled_susbsystems_widget";
 import {TestData} from "views/pages/maintenance_mode/spec/test_data";
 
 describe("Maintenance Mode Disabled subsystem Widget", () => {
-  let $root: any, root: any;
+  const helper = new TestHelper();
 
-  beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
-  });
-
-  afterEach(unmount);
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
+  afterEach(helper.unmount.bind(helper));
 
   describe("During Maintenance Mode", () => {
     describe("Has No Running Services", () => {
@@ -172,24 +166,12 @@ describe("Maintenance Mode Disabled subsystem Widget", () => {
     });
   });
 
-  //private
   function mount(maintenanceModeInfo: MaintenanceModeInfo) {
-    m.mount(root, {
-      view() {
-        return (<DisabledSubsystemsWidget maintenanceModeInfo={maintenanceModeInfo}/>);
-      }
-    });
-
-    m.redraw();
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
+    helper.mount(() => <DisabledSubsystemsWidget maintenanceModeInfo={maintenanceModeInfo}/>);
   }
 
   function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
+    return helper.findByDataTestId(id);
   }
 
   function checkIcon() {

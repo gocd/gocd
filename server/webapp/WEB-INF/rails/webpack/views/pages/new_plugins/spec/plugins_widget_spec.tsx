@@ -16,6 +16,7 @@
 
 import * as m from "mithril";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {PluginsWidget} from "../plugins_widget";
 
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
@@ -31,34 +32,30 @@ describe("New Plugins Widget", () => {
     PluginInfo.fromJSON(getInvalidPluginInfo(), undefined)
   ];
 
-  let $root: any, root: any;
+  const helper = new TestHelper();
+  afterEach(helper.unmount.bind(helper));
+
   beforeEach(() => {
-    //@ts-ignore
-    [$root, root] = window.createDomElementForTest();
-    mount(pluginInfos);
+    helper.mount(() => <PluginsWidget isUserAnAdmin={true} pluginInfos={pluginInfos}/>);
   });
 
-  afterEach(unmount);
-  //@ts-ignore
-  afterEach(window.destroyDomElementForTest);
-
   it("should render all plugin infos", () => {
-    expect(find("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
   });
 
   it("should render plugin name and image", () => {
-    expect(find("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
 
-    expect(find("plugin-name").get(0)).toContainText(getEAPluginInfo().about.name);
-    expect($root.find(`.${headerIconStyles.headerIcon} img`).get(0)).toHaveAttr("src", getEAPluginInfo()._links.image.href);
-    expect(find("plugin-name").get(1)).toContainText(getNotificationPluginInfo().about.name);
+    expect(helper.findByDataTestId("plugin-name").get(0)).toContainText(getEAPluginInfo().about.name);
+    expect(helper.find(`.${headerIconStyles.headerIcon} img`).get(0)).toHaveAttr("src", getEAPluginInfo()._links.image.href);
+    expect(helper.findByDataTestId("plugin-name").get(1)).toContainText(getNotificationPluginInfo().about.name);
   });
 
   it("should render plugin version", () => {
-    expect(find("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
 
-    const EAPluginHeader           = $root.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
-    const notificationPluginHeader = $root.find(`.${keyValuePairStyles.keyValuePair}`).get(2);
+    const EAPluginHeader           = helper.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
+    const notificationPluginHeader = helper.find(`.${keyValuePairStyles.keyValuePair}`).get(2);
 
     expect(EAPluginHeader).toContainText("Version");
     expect(EAPluginHeader).toContainText(getEAPluginInfo().about.version);
@@ -68,17 +65,17 @@ describe("New Plugins Widget", () => {
   });
 
   it("should render all invalid plugin infos expanded", () => {
-    expect(find("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
 
-    const invalidPluginInfo = $root.find(`.${collapsiblePanelStyles.collapse}`).get(2);
+    const invalidPluginInfo = helper.find(`.${collapsiblePanelStyles.collapse}`).get(2);
     expect(invalidPluginInfo).toHaveClass(collapsiblePanelStyles.expanded);
   });
 
   it("should toggle expanded state of plugin infos on click", () => {
-    expect(find("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
 
-    const EAPluginInfoHeader           = find("collapse-header").get(0);
-    const NotificationPluginInfoHeader = find("collapse-header").get(1);
+    const EAPluginInfoHeader           = helper.findByDataTestId("collapse-header").get(0);
+    const NotificationPluginInfoHeader = helper.findByDataTestId("collapse-header").get(1);
 
     expect(EAPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
     expect(NotificationPluginInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
@@ -107,14 +104,14 @@ describe("New Plugins Widget", () => {
   });
 
   it("should render plugin infos information in collapsed body", () => {
-    expect(find("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
 
-    const EAPluginInfoHeader           = find("collapse-header").get(0);
-    const NotificationPluginInfoHeader = find("collapse-header").get(1);
+    const EAPluginInfoHeader           = helper.findByDataTestId("collapse-header").get(0);
+    const NotificationPluginInfoHeader = helper.findByDataTestId("collapse-header").get(1);
     simulateEvent.simulate(EAPluginInfoHeader, "click");
     simulateEvent.simulate(NotificationPluginInfoHeader, "click");
 
-    const EAPluginInfoBody = find("collapse-body").get(0);
+    const EAPluginInfoBody = helper.findByDataTestId("collapse-body").get(0);
 
     expect(EAPluginInfoBody).toContainText("Id");
     expect(EAPluginInfoBody).toContainText(getEAPluginInfo().id);
@@ -134,7 +131,7 @@ describe("New Plugins Widget", () => {
     expect(EAPluginInfoBody).toContainText("Target GoCD Version");
     expect(EAPluginInfoBody).toContainText("16.12.0");
 
-    const NotificationPluginInfoBody = find("collapse-body").get(1);
+    const NotificationPluginInfoBody = helper.findByDataTestId("collapse-body").get(1);
 
     expect(NotificationPluginInfoBody).toContainText("Description");
     expect(NotificationPluginInfoBody).toContainText(getNotificationPluginInfo().about.description);
@@ -153,43 +150,22 @@ describe("New Plugins Widget", () => {
   });
 
   it("should render plugin settings icon for plugins supporting settings", () => {
-    expect(find("edit-plugin-settings").get(0)).toBeInDOM();
-    expect(find("edit-plugin-settings").get(1)).toBeInDOM();
-    expect(find("edit-plugin-settings")).toHaveLength(2);
+    expect(helper.findByDataTestId("edit-plugin-settings").get(0)).toBeInDOM();
+    expect(helper.findByDataTestId("edit-plugin-settings").get(1)).toBeInDOM();
+    expect(helper.findByDataTestId("edit-plugin-settings")).toHaveLength(2);
   });
 
   it("should render status report link for ea plugins supporting status report", () => {
-    expect(find("status-report-link").get(0)).toBeInDOM();
-    expect(find("status-report-link")).toHaveLength(1);
+    expect(helper.findByDataTestId("status-report-link").get(0)).toBeInDOM();
+    expect(helper.findByDataTestId("status-report-link")).toHaveLength(1);
   });
 
   it("should render error messages for plugins in invalid/error state", () => {
-    const yumPluginInfoBody = find("collapse-body").get(3);
+    const yumPluginInfoBody = helper.findByDataTestId("collapse-body").get(3);
     expect(yumPluginInfoBody).toContainText("There were errors loading the plugin");
     expect(yumPluginInfoBody).toContainText("Plugin with ID (yum) is not valid: Incompatible with current operating system 'Mac OS X'. Valid operating systems are: [Linux].");
-    expect($root.find(`.${collapsiblePanelStyles.collapse}`).get(3)).toHaveClass(collapsiblePanelStyles.error);
+    expect(helper.find(`.${collapsiblePanelStyles.collapse}`).get(3)).toHaveClass(collapsiblePanelStyles.error);
   });
-
-  function mount(pluginInfos: any, isUserAdmin: boolean = true) {
-    m.mount(root, {
-      view() {
-        return (
-          <PluginsWidget isUserAnAdmin={isUserAdmin} pluginInfos={pluginInfos}/>
-        );
-      }
-    });
-
-    m.redraw();
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
-  }
 
   function getEAPluginInfo() {
     return {

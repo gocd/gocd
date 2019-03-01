@@ -23,11 +23,11 @@ import * as simulateEvent from "simulate-event";
 import * as uuid from "uuid/v4";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as headerIconStyles from "views/components/header_icon/index.scss";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import * as styles from "views/pages/config_repos/index.scss";
 
 describe("ConfigReposWidget", () => {
-  let $root: any, root: any;
   let attrs: Attrs<ConfigRepo>;
   let onDelete: jasmine.Spy;
   let onEdit: jasmine.Spy;
@@ -35,10 +35,9 @@ describe("ConfigReposWidget", () => {
   let configRepos: Stream<ConfigRepo[]>;
   let pluginInfos: Stream<Array<PluginInfo<any>>>;
 
-  beforeEach(() => {
-    // @ts-ignore
-    [$root, root] = window.createDomElementForTest();
+  const helper = new TestHelper();
 
+  beforeEach(() => {
     onDelete    = jasmine.createSpy("onDelete");
     onEdit      = jasmine.createSpy("onEdit");
     onRefresh   = jasmine.createSpy("onRefresh");
@@ -54,35 +53,16 @@ describe("ConfigReposWidget", () => {
     };
   });
 
-  beforeEach(mount);
+  beforeEach(() => {
+    helper.mount(() => <ConfigReposWidget {...attrs}/>);
+  });
 
-  afterEach(unmount);
-  // @ts-ignore
-  afterEach(window.destroyDomElementForTest);
-
-  function mount() {
-    m.mount(root, {
-      view() {
-        return (<ConfigReposWidget {...attrs}/>);
-      }
-    });
-
-    m.redraw();
-  }
-
-  function unmount() {
-    m.mount(root, null);
-    m.redraw();
-  }
-
-  function find(id: string) {
-    return $root.find(`[data-test-id='${id}']`);
-  }
+  afterEach(helper.unmount.bind(helper));
 
   it("should render a message when there are no config repos", () => {
     configRepos([]);
-    m.redraw();
-    expect(find("flash-message-info"))
+    helper.redraw();
+    expect(helper.findByDataTestId("flash-message-info"))
       .toContainText("There are no config repositories setup. Click the \"Add\" button to add one.");
   });
 
@@ -90,8 +70,8 @@ describe("ConfigReposWidget", () => {
 
     it("should render material details section", () => {
       configRepos([createConfigRepo()]);
-      m.redraw();
-      const materialPanel = find("config-repo-material-panel");
+      helper.redraw();
+      const materialPanel = helper.findByDataTestId("config-repo-material-panel");
       const title         = materialPanel.children().get(0);
       const keyValuePair  = materialPanel.children().get(1).children[0].children;
 
@@ -106,8 +86,8 @@ describe("ConfigReposWidget", () => {
 
     it("should render config repository configuration details section", () => {
       configRepos([createConfigRepo({id: "testPlugin"})]);
-      m.redraw();
-      const materialPanel = find("config-repo-plugin-panel");
+      helper.redraw();
+      const materialPanel = helper.findByDataTestId("config-repo-plugin-panel");
       const title         = materialPanel.children().get(0);
       const keyValuePair  = materialPanel.children().get(1).children[0].children;
 
@@ -120,8 +100,8 @@ describe("ConfigReposWidget", () => {
 
     it("should render good modification details section", () => {
       configRepos([createConfigRepo()]);
-      m.redraw();
-      const materialPanel = find("config-repo-good-modification-panel");
+      helper.redraw();
+      const materialPanel = helper.findByDataTestId("config-repo-good-modification-panel");
       const icon          = materialPanel.find(`.${styles.goodModificationIcon}`);
       const title         = materialPanel.find(`.${styles.sectionHeaderTitle}`);
       const keyValuePair  = materialPanel.find(`.${styles.configRepoProperties} li`);
@@ -143,8 +123,8 @@ describe("ConfigReposWidget", () => {
 
     it("should render latest modification details section", () => {
       configRepos([createConfigRepo()]);
-      m.redraw();
-      const materialPanel = find("config-repo-latest-modification-panel");
+      helper.redraw();
+      const materialPanel = helper.findByDataTestId("config-repo-latest-modification-panel");
       const icon          = materialPanel.find(`.${styles.errorLastModificationIcon}`);
       const title         = materialPanel.find(`.${styles.sectionHeaderTitle}`);
       const keyValuePair  = materialPanel.find(`.${styles.configRepoProperties} li`);
@@ -173,12 +153,12 @@ describe("ConfigReposWidget", () => {
     const repo2 = createConfigRepo();
     configRepos([repo1, repo2]);
     pluginInfos([configRepoPluginInfo()]);
-    m.redraw();
+    helper.redraw();
 
-    const repoIds = find("collapse-header");
+    const repoIds = helper.findByDataTestId("collapse-header");
     expect(repoIds).toHaveLength(2);
-    expect(find("plugin-icon")).toHaveLength(2);
-    expect(find("plugin-icon").get(0))
+    expect(helper.findByDataTestId("plugin-icon")).toHaveLength(2);
+    expect(helper.findByDataTestId("plugin-icon").get(0))
       .toHaveAttr("src", "http://localhost:8153/go/api/plugin_images/json.config.plugin/f787");
 
     expect(repoIds.get(0)).toContainText(repo1.id());
@@ -195,16 +175,18 @@ describe("ConfigReposWidget", () => {
                                      repoId: "0b4243ff-7431-48e1-a60e-a79b7b80b654"
                                    });
     configRepos([repo1, repo2]);
-    m.redraw();
+    helper.redraw();
 
-    expect($root.find(`.${styles.headerTitleText}`)[0]).toContainText("Repo1");
-    expect($root.find(`.${styles.headerTitleUrl}`)[0]).toContainText("https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427");
-    expect($root.find(`.${styles.comment}`)[0])
+    expect(helper.find(`.${styles.headerTitleText}`)[0]).toContainText("Repo1");
+    expect(helper.find(`.${styles.headerTitleUrl}`)[0])
+      .toContainText("https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427");
+    expect(helper.find(`.${styles.comment}`)[0])
       .toContainText("Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d...");
-    expect($root.find(`.${styles.committerInfo}`)[0]).toContainText("Mahesh <mahesh@gmail.com> | 5432");
+    expect(helper.find(`.${styles.committerInfo}`)[0]).toContainText("Mahesh <mahesh@gmail.com> | 5432");
 
-    expect($root.find(`.${styles.headerTitleText}`)[1]).toContainText("Repo2");
-    expect($root.find(`.${styles.headerTitleUrl}`)[1]).toContainText("https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654");
+    expect(helper.find(`.${styles.headerTitleText}`)[1]).toContainText("Repo2");
+    expect(helper.find(`.${styles.headerTitleUrl}`)[1])
+      .toContainText("https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654");
   });
 
   it("should render config repo's trimmed commit-message, username and revision if they are too long to fit in header",
@@ -218,20 +200,22 @@ describe("ConfigReposWidget", () => {
                                       });
 
        configRepos([repo1]);
-       m.redraw();
+       helper.redraw();
 
-       expect($root.find(`.${styles.headerTitleText}`)).toContainText("Repo1");
-       expect($root.find(`.${styles.headerTitleUrl}`)).toContainText("https://example.com/");
-       expect($root.find(`.${styles.comment}`)).toContainText("A very very long commit message which will be trimmed after 82 characters and thi...");
-       expect($root.find(`.${styles.committerInfo}`)).toContainText("A_Long_username_with_a_long_long_long... | df31759540dc28f75a20f443a19b1148df317...");
+       expect(helper.find(`.${styles.headerTitleText}`)).toContainText("Repo1");
+       expect(helper.find(`.${styles.headerTitleUrl}`)).toContainText("https://example.com/");
+       expect(helper.find(`.${styles.comment}`))
+         .toContainText("A very very long commit message which will be trimmed after 82 characters and thi...");
+       expect(helper.find(`.${styles.committerInfo}`))
+         .toContainText("A_Long_username_with_a_long_long_long... | df31759540dc28f75a20f443a19b1148df317...");
      });
 
   it("should render a warning message when plugin is missing", () => {
     const repo = createConfigRepo();
     configRepos([repo]);
-    m.redraw();
-    expect(find("flash-message-alert")).toHaveText("This plugin is missing.");
-    expect($root.find(`.${headerIconStyles.unknownIcon}`)).toBeInDOM();
+    helper.redraw();
+    expect(helper.findByDataTestId("flash-message-alert")).toHaveText("This plugin is missing.");
+    expect(helper.find(`.${headerIconStyles.unknownIcon}`)).toBeInDOM();
   });
 
   it("should render a warning message when parsing did not finish", () => {
@@ -239,34 +223,34 @@ describe("ConfigReposWidget", () => {
     repo.lastParse(null);
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
-    m.redraw();
-    expect(find("flash-message-alert")).toHaveText("This configuration repository was never parsed.");
+    helper.redraw();
+    expect(helper.findByDataTestId("flash-message-alert")).toHaveText("This configuration repository was never parsed.");
   });
 
   it("should render a warning message when parsing failed and there is no latest modification", () => {
     const repo = createConfigRepoWithError();
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
-    m.redraw();
-    expect(find("flash-message-alert")).toContainText("There was an error parsing this configuration repository:");
-    expect(find("flash-message-alert")).toContainText("blah!");
+    helper.redraw();
+    expect(helper.findByDataTestId("flash-message-alert")).toContainText("There was an error parsing this configuration repository:");
+    expect(helper.findByDataTestId("flash-message-alert")).toContainText("blah!");
   });
 
   it("should render in-progress icon when material update is in progress", () => {
     const repo = createConfigRepo({material_update_in_progress: true});
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
-    m.redraw();
-    expect(find("repo-update-in-progress-icon")).toBeInDOM();
-    expect(find("repo-update-in-progress-icon")).toHaveClass(styles.configRepoUpdateInProgress);
+    helper.redraw();
+    expect(helper.findByDataTestId("repo-update-in-progress-icon")).toBeInDOM();
+    expect(helper.findByDataTestId("repo-update-in-progress-icon")).toHaveClass(styles.configRepoUpdateInProgress);
   });
 
   it("should render red top border and expand the widget to indicate error in config repo parsing", () => {
     const repo = createConfigRepo();
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
-    m.redraw();
-    const detailsPanel = find("config-repo-details-panel");
+    helper.redraw();
+    const detailsPanel = helper.findByDataTestId("config-repo-details-panel");
     expect(detailsPanel).toBeInDOM();
     expect(detailsPanel).toHaveClass(collapsiblePanelStyles.error);
     expect(detailsPanel).toHaveAttr("data-test-element-state", "expanded");
@@ -279,8 +263,8 @@ describe("ConfigReposWidget", () => {
     }
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
-    m.redraw();
-    const detailsPanel = find("config-repo-details-panel");
+    helper.redraw();
+    const detailsPanel = helper.findByDataTestId("config-repo-details-panel");
     expect(detailsPanel).toBeInDOM();
     expect(detailsPanel).not.toHaveClass(collapsiblePanelStyles.error);
     expect(detailsPanel).toHaveAttr("data-test-element-state", "collapsed");
@@ -289,9 +273,9 @@ describe("ConfigReposWidget", () => {
   it("should callback the delete function when delete button is clicked", () => {
     const repo = createConfigRepo();
     configRepos([repo]);
-    m.redraw();
+    helper.redraw();
 
-    simulateEvent.simulate(find("config-repo-delete").get(0), "click");
+    simulateEvent.simulate(helper.findByDataTestId("config-repo-delete").get(0), "click");
 
     expect(onDelete).toHaveBeenCalledWith(repo, jasmine.any(MouseEvent));
   });
@@ -299,9 +283,9 @@ describe("ConfigReposWidget", () => {
   it("should callback the edit function when edit button is clicked", () => {
     const repo = createConfigRepo();
     configRepos([repo]);
-    m.redraw();
+    helper.redraw();
 
-    simulateEvent.simulate(find("config-repo-edit").get(0), "click");
+    simulateEvent.simulate(helper.findByDataTestId("config-repo-edit").get(0), "click");
 
     expect(onEdit).toHaveBeenCalledWith(repo, jasmine.any(MouseEvent));
   });
@@ -309,9 +293,9 @@ describe("ConfigReposWidget", () => {
   it("should callback the refresh function when refresh button is clicked", () => {
     const repo = createConfigRepo();
     configRepos([repo]);
-    m.redraw();
+    helper.redraw();
 
-    simulateEvent.simulate(find("config-repo-refresh").get(0), "click");
+    simulateEvent.simulate(helper.findByDataTestId("config-repo-refresh").get(0), "click");
 
     expect(onRefresh).toHaveBeenCalledWith(repo, jasmine.any(MouseEvent));
   });
@@ -390,7 +374,7 @@ describe("ConfigReposWidget", () => {
   }
 
   function configRepoPluginInfo() {
-    const links = {
+    const links                             = {
       self: {
         href: "http://localhost:8153/go/api/admin/plugin_info/json.config.plugin"
       },

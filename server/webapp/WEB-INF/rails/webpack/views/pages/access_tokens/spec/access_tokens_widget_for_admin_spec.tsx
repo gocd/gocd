@@ -17,7 +17,10 @@ import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
-import {AccessTokensWidgetForAdmin, formatTimeInformation} from "views/pages/access_tokens/access_tokens_widget";
+import {
+  AccessTokensWidgetForAdmin,
+  formatTimeInformation, getLastUsedInformation
+} from "views/pages/access_tokens/access_tokens_widget";
 import {AccessTokenTestData} from "views/pages/access_tokens/spec/test_data";
 
 describe("AccessTokensWidgetForAdminSpec", () => {
@@ -52,48 +55,41 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     expect(findByDataTestId("tab-header-1")).not.toBeInDOM();
   });
 
-  it("should be able to render two tabs with table when access tokens are present", () => {
+  it("should be able to render two tabs when access tokens are present", () => {
     mount(stream(allAccessTokens));
 
-    expect(findByDataTestId("access_token_info")).not.toBeInDOM();
-
+    expect(findByDataTestId("access-token-info")).not.toBeInDOM();
     expect(findByDataTestId("tab-header-0")).toBeInDOM();
+    expect(findByDataTestId("tab-header-0")).toHaveText("Active Tokens");
     expect(findByDataTestId("tab-header-1")).toBeInDOM();
     expect(findByDataTestId("tab-header-0").text()).toContain("Active Token");
-    expect(findByDataTestId("tab-header-1").text()).toContain("Revoked Token");
-    expect(findByDataTestId("tab-content-0")).toBeInDOM();
-    expect(findByDataTestId("tab-content-1")).toBeInDOM();
-    expect(findByDataTestId("tab-content-0")).toBeVisible();
+  });
 
-    const tabContent = find("div[data-test-id=\"tab-content-0\"]");
-    expect(findIn(tabContent, "table-header-row")).toBeInDOM();
-    const tabContentHeaderRow = findIn(findByDataTestId("tab-content-0"),
-                                       "table-header-row").find("th");
-    expect(tabContentHeaderRow.length).toEqual(5);
-    expect(tabContentHeaderRow.eq(0)).toHaveText("Created By");
-    expect(tabContentHeaderRow.eq(1)).toHaveText("Description");
-    expect(tabContentHeaderRow.eq(2)).toHaveText("Created At");
-    expect(tabContentHeaderRow.eq(3)).toHaveText("Last Used");
-    expect(tabContentHeaderRow.eq(4)).toHaveText("Revoke");
+  it("should be able to render active access tokens data", () => {
+    mount(stream(new AccessTokens(stream(validToken))));
 
-    expect(findByDataTestId("tab-content-1")).toBeHidden();
+    const activeTokensTab = findByDataTestId("tab-header-0");
+    expect(activeTokensTab).toBeInDOM();
+    expect(activeTokensTab).toHaveText("Active Tokens");
+    const activeTokenTableHeaders = findIn(findByDataTestId("tab-content-0"), "table-header-row").find("th");
+    expect(activeTokenTableHeaders.eq(0)).toHaveText("Created By");
+    expect(activeTokenTableHeaders.eq(1)).toHaveText("Description");
+    expect(activeTokenTableHeaders.eq(2)).toHaveText("Created At");
+    expect(activeTokenTableHeaders.eq(3)).toHaveText("Last Used");
+    expect(activeTokenTableHeaders.eq(4)).toHaveText("Revoke");
+
+    const activeTokenTableRows = findIn(findByDataTestId("tab-content-0"), "table-row");
+    expect(activeTokenTableRows.length).toEqual(1);
+    expect(activeTokenTableRows).toContainText(validToken.description());
+    expect(activeTokenTableRows)
+      .toContainText(formatTimeInformation(validToken.createdAt()));
+    expect(activeTokenTableRows)
+      .toContainText(getLastUsedInformation(validToken));
+
     const revokedTokensTab = findByDataTestId("tab-header-1");
     expect(revokedTokensTab).toHaveText("Revoked Tokens");
     expect(findIn(findByDataTestId("tab-content-1"), "table-header-row")).not.toBeInDOM();
     expect(findByDataTestId("tab-content-1")).toHaveText("You don't have any revoked tokens.");
-
-  });
-
-  it("should be able to render active access tokens data", () => {
-    mount(stream(allAccessTokens));
-
-    const accessTokensRows = find("div[data-test-id=\"tab-content-0\"] tr[data-test-id=\"table-row\"]");
-
-    expect(accessTokensRows.length).toEqual(1);
-    expect(accessTokensRows.first().find("td")[0].innerHTML).toContain(validToken.username());
-    expect(accessTokensRows.first().find("td")[1].innerHTML).toContain(validToken.description());
-    expect(accessTokensRows.first().find("td")[2].innerHTML).toContain(formatTimeInformation(validToken.createdAt()));
-    expect(accessTokensRows.first().find("td")[4].innerHTML).toContain("Revoke");
   });
 
   it("should be able to render revoked access tokens data", () => {
@@ -102,16 +98,16 @@ describe("AccessTokensWidgetForAdminSpec", () => {
 
     mount(stream(allAccessTokens));
 
-    const accessTokensRows = find("div[data-test-id=\"tab-content-1\"] tr[data-test-id=\"table-row\"]");
+    const revokedAccessTokensColumns = findIn(findByDataTestId("tab-content-1"), "table-row").find("td");
 
-    expect(accessTokensRows.length).toEqual(1);
-    expect(accessTokensRows.first().find("td")[0].innerHTML).toContain(revokedToken.username());
-    expect(accessTokensRows.first().find("td")[1].innerHTML).toContain(revokedToken.description());
-    expect(accessTokensRows.first().find("td")[2].innerHTML).toContain(formatTimeInformation(revokedToken.createdAt()));
+    expect(revokedAccessTokensColumns.length).toEqual(6);
+    expect(revokedAccessTokensColumns.eq(0)).toHaveText(revokedToken.username());
+    expect(revokedAccessTokensColumns.eq(1)).toHaveText(revokedToken.description());
+    expect(revokedAccessTokensColumns.eq(2)).toHaveText(formatTimeInformation(revokedToken.createdAt()));
     const revokedAt = revokedToken.revokedAt();
-    expect(accessTokensRows.first().find("td")[4].innerHTML)
-      .toContain((revokedAt ? formatTimeInformation(revokedAt) : ""));
-    expect(accessTokensRows.first().find("td")[5].innerHTML).toContain(revokedToken.revokeCause());
+    expect(revokedAccessTokensColumns.eq(4))
+      .toHaveText((revokedAt ? formatTimeInformation(revokedAt) : ""));
+    expect(revokedAccessTokensColumns.eq(5)).toHaveText(revokedToken.revokeCause());
   });
 
   afterEach(unmount);
@@ -125,10 +121,6 @@ describe("AccessTokensWidgetForAdminSpec", () => {
 
   function findByDataTestId(id: string) {
     return $root.find(`[data-test-id='${id}']`);
-  }
-
-  function find(selectors: string) {
-    return $root.find(selectors);
   }
 
   function findIn(elem: any, dataTestId: string) {

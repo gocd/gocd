@@ -49,7 +49,7 @@ export class Tabs extends MithrilComponent<Attrs, State> {
 
           return <li onclick={() => vnode.state.selectedTabIndex(index)}>
             <a className={classesToApply}
-               href={`#tab${index}`}
+               href={"javascript:void(0);"}
                data-test-id={`tab-header-${index}`}
             >{tab}</a>
           </li>;

@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.ConfigRepoService;
@@ -82,7 +82,7 @@ public class ConfigReposMaterialParseResultManager {
         configService.register(reparseOnPipelineConfigUpdate());
         configService.register(reparseOnEnvConfigUpdate());
         configService.register(reparseOnTemplateConfigUpdate());
-        configService.register(reparseOnScmConfigUpdate());
+        configService.register(reparseOnScmUpdate());
         configService.register(reparseOnConfigRepoConfigUpdate());
     }
 
@@ -117,10 +117,10 @@ public class ConfigReposMaterialParseResultManager {
         };
     }
 
-    EntityConfigChangedListener<ScmMaterialConfig> reparseOnScmConfigUpdate() {
-        return new EntityConfigChangedListener<ScmMaterialConfig>() {
+    EntityConfigChangedListener<SCM> reparseOnScmUpdate() {
+        return new EntityConfigChangedListener<SCM>() {
             @Override
-            public void onEntityConfigChange(ScmMaterialConfig entity) {
+            public void onEntityConfigChange(SCM entity) {
                 markFailedResultsForReparse();
             }
         };

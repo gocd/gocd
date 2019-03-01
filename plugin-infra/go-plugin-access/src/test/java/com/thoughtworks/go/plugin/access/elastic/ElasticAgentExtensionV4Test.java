@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +67,7 @@ public class ElasticAgentExtensionV4Test {
     public void setUp() throws Exception {
         initMocks(this);
         requestArgumentCaptor = ArgumentCaptor.forClass(GoPluginApiRequest.class);
-        final List<String> goSupportedVersions = Arrays.asList("3.0", "4.0");
+        final List<String> goSupportedVersions = Arrays.asList("4.0");
 
         when(descriptor.id()).thenReturn(PLUGIN_ID);
 

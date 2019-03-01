@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 
 import static com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension.SUPPORTED_VERSIONS;
-import static com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentPluginConstantsV3.REQUEST_GET_PLUGIN_SETTINGS_ICON;
+import static com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentPluginConstantsV4.REQUEST_GET_PLUGIN_SETTINGS_ICON;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.Matchers.is;
@@ -65,7 +65,7 @@ public class ElasticAgentExtensionTest {
         when(pluginManager.getPluginDescriptorFor(PLUGIN_ID)).thenReturn(descriptor);
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, PLUGIN_ID)).thenReturn(true);
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn("3.0");
+        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn("4.0");
     }
 
     @Test
@@ -89,7 +89,7 @@ public class ElasticAgentExtensionTest {
 
         extension.getIcon(PLUGIN_ID);
 
-        assertExtensionRequest("3.0", REQUEST_GET_PLUGIN_SETTINGS_ICON, null);
+        assertExtensionRequest("4.0", REQUEST_GET_PLUGIN_SETTINGS_ICON, null);
     }
 
     @Test

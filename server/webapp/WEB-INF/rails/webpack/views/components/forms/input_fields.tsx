@@ -166,6 +166,7 @@ class Label extends MithrilViewComponent<LabelComponentAttrs> {
                     className={classnames(styles.formLabel)}>
         {vnode.attrs.label}
         <RequiredLabel {...vnode.attrs} />
+        {vnode.children}
       </label>;
     }
   }

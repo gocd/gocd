@@ -24,6 +24,7 @@
     "bourbon": "^5.1.0",
     "classnames": "^2.2.6",
     "clipboard-polyfill": "^2.7.0",
+    "details-element-polyfill": "^2.3.1",
     "filesize": "^3.5.10",
     "font-awesome": "^4.7.0",
     "foundation-sites": "^6.2.3",

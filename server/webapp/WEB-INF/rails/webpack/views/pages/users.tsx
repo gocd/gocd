@@ -99,10 +99,11 @@ export class UsersPage extends Page<null, State> {
 
     vnode.state.onToggleAdmin = (e: MouseEvent, user: User) => {
       vnode.state.userViewHelper().userUpdateInProgress(user);
-      const json = {
+      const addUserToSystemAdmins = vnode.state.userViewHelper().noAdminsConfigured() || !user.isAdmin();
+      const json                  = {
         operations: {
           users: {
-            [user.isAdmin() ? "remove" : "add"]: [user.loginName()]
+            [addUserToSystemAdmins ? "add" : "remove"]: [user.loginName()]
           }
         }
       };
@@ -235,21 +236,14 @@ export class UsersPage extends Page<null, State> {
     AdminsCRUD.bulkUpdate(json)
               .then((apiResult) => {
                 apiResult.do((bulkUpdateSuccess) => {
-                               vnode.state.userViewHelper().systemAdmins(bulkUpdateSuccess.body);
-
-                               UsersCRUD.get(user.loginName())
-                                        .then((apiResult) => apiResult.do((getUserResponse) => {
-                                                                            vnode.state.initialUsers().replace(getUserResponse.body);
-                                                                            vnode.state.userViewHelper().userUpdateSuccessful(user);
-                                                                          },
-                                                                          (errorResponse) => {
-                                                                            vnode.state.userViewHelper()
-                                                                                 .userUpdateFailure(user, errorResponse.message);
-                                                                            this.flashMessage.setMessage(MessageType.alert,
-                                                                                                         errorResponse.message);
-                                                                            this.pageState = PageState.FAILED;
-                                                                          })
-                                        );
+                               this.fetchData(vnode).then(() => {
+                                 const newUser = vnode.state.initialUsers()
+                                                      .find((eachUser) => eachUser.loginName() === user.loginName());
+                                 if (newUser) {
+                                   vnode.state.userViewHelper().userUpdateSuccessful(newUser);
+                                   m.redraw();
+                                 }
+                               });
                              },
                              (errorResponse) => {
                                vnode.state.userViewHelper().userUpdateFailure(user, errorResponse.message);

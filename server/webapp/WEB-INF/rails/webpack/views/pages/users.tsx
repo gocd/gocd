@@ -237,12 +237,8 @@ export class UsersPage extends Page<null, State> {
               .then((apiResult) => {
                 apiResult.do((bulkUpdateSuccess) => {
                                this.fetchData(vnode).then(() => {
-                                 const newUser = vnode.state.initialUsers()
-                                                      .find((eachUser) => eachUser.loginName() === user.loginName());
-                                 if (newUser) {
-                                   vnode.state.userViewHelper().userUpdateSuccessful(newUser);
-                                   m.redraw();
-                                 }
+                                 vnode.state.userViewHelper().userUpdateSuccessful(user);
+                                 m.redraw();
                                });
                              },
                              (errorResponse) => {

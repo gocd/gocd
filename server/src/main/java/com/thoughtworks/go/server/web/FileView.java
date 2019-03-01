@@ -66,7 +66,9 @@ public class FileView implements View, ServletContextAware {
         if (needToZip) {
             new ZipUtil().zip(file, out, Deflater.NO_COMPRESSION);
         } else {
-            IOUtils.copy(new FileInputStream(file), out);
+            try (FileInputStream input = new FileInputStream(file)) {
+                IOUtils.copy(input, out, 32 * 1024);
+            }
         }
         out.flush();
     }

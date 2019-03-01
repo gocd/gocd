@@ -108,10 +108,6 @@ export class User {
   pluginRoles() {
     return _(this.roles()).filter((role) => "gocd" !== role.type).map((role) => role.name).value();
   }
-
-  isIndividualAdmin(systemAdminUsers: string[]) {
-    return systemAdminUsers.includes(this.loginName());
-  }
 }
 
 export class Users extends Array<User> {

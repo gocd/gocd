@@ -76,13 +76,6 @@ describe("Super Admin Toggle", () => {
     expect(find("switch-checkbox").get(0).checked).toBe(false);
   });
 
-  it("should render disabled toggle system administrators are not configured", () => {
-    userViewHelper().systemAdmins().users([]);
-    m.redraw();
-
-    expect(find("switch-checkbox").get(0).checked).toBe(false);
-  });
-
   it("should render make current user admin tooltip when system administrators are not configured", () => {
     userViewHelper().systemAdmins().users([]);
     m.redraw();
@@ -120,6 +113,8 @@ describe("Super Admin Toggle", () => {
 
   it("should disable switch if user is admin because of the role", () => {
     userViewHelper().systemAdmins().users([]);
+    userViewHelper().systemAdmins().roles(["admin"]);
+
     m.redraw();
 
     expect(find("switch-checkbox").prop("disabled")).toBe(true);

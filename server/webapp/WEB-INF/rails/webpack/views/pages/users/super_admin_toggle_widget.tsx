@@ -42,10 +42,11 @@ export class SuperAdminPrivilegeSwitch extends MithrilComponent<SuperAdminPrivil
     let optionalTooltip;
     let isAdminText          = vnode.attrs.user.isAdmin() ? "YES" : "NO";
     const loginName          = vnode.attrs.user.loginName;
-    const isUserGroupedAdmin = vnode.attrs.user.isAdmin() && !vnode.attrs.userViewHelper()
-                                                                   .isIndividualAdmin(vnode.attrs.user);
+    const userViewHelper     = vnode.attrs.userViewHelper();
+    const isUserActualAdmin  = (!userViewHelper.noAdminsConfigured() && vnode.attrs.user.isAdmin());
+    const isUserGroupedAdmin = isUserActualAdmin && !userViewHelper.isIndividualAdmin(vnode.attrs.user);
 
-    if (vnode.attrs.userViewHelper().noAdminsConfigured()) {
+    if (userViewHelper.noAdminsConfigured()) {
       optionalTooltip = (
         <Tooltip.Info size={TooltipSize.small}
                       content={`Explicitly making '${loginName}' user a system administrator will result into other users not having system administrator privileges.`}/>
@@ -59,10 +60,10 @@ export class SuperAdminPrivilegeSwitch extends MithrilComponent<SuperAdminPrivil
     }
 
     return <div class={styles.adminSwitchWrapper} data-test-id="admin-switch-wrapper">
-      <SwitchBtn field={stream((vnode.attrs.user.isAdmin() && !vnode.attrs.userViewHelper().noAdminsConfigured()))}
+      <SwitchBtn field={stream((vnode.attrs.user.isAdmin() && !userViewHelper.noAdminsConfigured()))}
                  small={true}
-                 disabled={isUserGroupedAdmin || !vnode.attrs.user.enabled() || vnode.attrs.userViewHelper()
-                                                                                     .isInProgress(vnode.attrs.user)}
+                 disabled={isUserGroupedAdmin || !vnode.attrs.user.enabled() || userViewHelper
+                   .isInProgress(vnode.attrs.user)}
                  onclick={this.toggle.bind(this, vnode)}/>
       <span class={styles.isAdminText} data-test-id="is-admin-text">{isAdminText}</span>
       {optionalTooltip}

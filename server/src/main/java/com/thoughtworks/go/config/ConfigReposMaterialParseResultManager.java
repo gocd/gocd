@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.scm.SCM;
-import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.service.ConfigRepoService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -29,6 +28,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -73,66 +73,12 @@ public class ConfigReposMaterialParseResultManager {
     }
 
     /**
-     * Registers the various ConfigChangedListener instances to mark config-repos for reparse on config updates.
+     * Registers the EntityChangedListener for various classes to mark config-repos for reparse on config updates.
      *
      * @param configService the {@link GoConfigService} to register events
      */
     void attachConfigUpdateListeners(GoConfigService configService) {
-        configService.register(reparseOnConfigUpdate());
-        configService.register(reparseOnPipelineConfigUpdate());
-        configService.register(reparseOnEnvConfigUpdate());
-        configService.register(reparseOnTemplateConfigUpdate());
-        configService.register(reparseOnScmUpdate());
-        configService.register(reparseOnConfigRepoConfigUpdate());
-    }
-
-    ConfigChangedListener reparseOnConfigUpdate() {
-        return newCruiseConfig -> markFailedResultsForReparse();
-    }
-
-    EntityConfigChangedListener<PipelineConfig> reparseOnPipelineConfigUpdate() {
-        return new EntityConfigChangedListener<PipelineConfig>() {
-            @Override
-            public void onEntityConfigChange(PipelineConfig entity) {
-                markFailedResultsForReparse();
-            }
-        };
-    }
-
-    EntityConfigChangedListener<EnvironmentConfig> reparseOnEnvConfigUpdate() {
-        return new EntityConfigChangedListener<EnvironmentConfig>() {
-            @Override
-            public void onEntityConfigChange(EnvironmentConfig entity) {
-                markFailedResultsForReparse();
-            }
-        };
-    }
-
-    EntityConfigChangedListener<PipelineTemplateConfig> reparseOnTemplateConfigUpdate() {
-        return new EntityConfigChangedListener<PipelineTemplateConfig>() {
-            @Override
-            public void onEntityConfigChange(PipelineTemplateConfig entity) {
-                markFailedResultsForReparse();
-            }
-        };
-    }
-
-    EntityConfigChangedListener<SCM> reparseOnScmUpdate() {
-        return new EntityConfigChangedListener<SCM>() {
-            @Override
-            public void onEntityConfigChange(SCM entity) {
-                markFailedResultsForReparse();
-            }
-        };
-    }
-
-    EntityConfigChangedListener<ConfigRepoConfig> reparseOnConfigRepoConfigUpdate() {
-        return new EntityConfigChangedListener<ConfigRepoConfig>() {
-            @Override
-            public void onEntityConfigChange(ConfigRepoConfig entity) {
-                markFailedResultsForReparse();
-            }
-        };
+        configService.register(new ConfigRepoReparseListener(this));
     }
 
     /**
@@ -195,5 +141,35 @@ public class ConfigReposMaterialParseResultManager {
         //if no result exists in the map, create a new one
         //if already a result exists in the map, override the result, as the latest modification is successful. regardless of the result being successful or failed
         return fingerprintOfPartialToParseResultMap.put(fingerprint, PartialConfigParseResult.parseSuccess(modification, newPart));
+    }
+
+    static class ConfigRepoReparseListener extends EntityConfigChangedListener<Object> {
+        private final List<Class<?>> configClassesToCareAbout = Arrays.asList(
+                PipelineConfig.class,
+                EnvironmentConfig.class,
+                PipelineTemplateConfig.class,
+                SCM.class,
+                ConfigRepoConfig.class
+        );
+        private final ConfigReposMaterialParseResultManager configReposMaterialParseResultManager;
+
+        ConfigRepoReparseListener(ConfigReposMaterialParseResultManager configReposMaterialParseResultManager) {
+            this.configReposMaterialParseResultManager = configReposMaterialParseResultManager;
+        }
+
+        @Override
+        public boolean shouldCareAbout(Object entity) {
+            return configClassesToCareAbout.stream().anyMatch(aClass -> aClass.isAssignableFrom(entity.getClass()));
+        }
+
+        @Override
+        public void onEntityConfigChange(Object entity) {
+            configReposMaterialParseResultManager.markFailedResultsForReparse();
+        }
+
+        @Override
+        public void onConfigChange(CruiseConfig newCruiseConfig) {
+            configReposMaterialParseResultManager.markFailedResultsForReparse();
+        }
     }
 }

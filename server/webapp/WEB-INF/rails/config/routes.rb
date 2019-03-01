@@ -1,5 +1,5 @@
 ##########################GO-LICENSE-START################################
-# Copyright 2018 ThoughtWorks, Inc.
+# Copyright 2019 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -251,8 +251,6 @@ Rails.application.routes.draw do
 
       get 'stages/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter' => 'stages#show', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, pipeline_counter: PIPELINE_COUNTER_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_counter: STAGE_COUNTER_FORMAT}, as: :stage_instance_by_counter_api
       get 'stages/:pipeline_name/:stage_name' => 'stages#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT}, as: :stage_history_api
-
-      get 'dashboard', controller: :dashboard, action: :dashboard, as: :show_dashboard
 
       get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
       get 'version_infos/latest_version', controller: :version_infos, action: :latest_version, as: :latest_version_info

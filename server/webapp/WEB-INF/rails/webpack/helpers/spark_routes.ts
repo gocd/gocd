@@ -17,6 +17,11 @@
 import * as m from "mithril";
 
 export default class {
+
+  static serverHealthMessagesPath() {
+    return `/go/api/server_health_messages`;
+  }
+
   static adminPipelineConfigPath(pipelineName: string): string {
     return `/go/api/admin/pipelines/${pipelineName}`;
   }

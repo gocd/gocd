@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import * as _ from 'lodash';
+import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import SparkRoutes from "helpers/spark_routes";
+import * as _ from "lodash";
 
-const CrudMixins = require('models/mixins/crud_mixins');
-
-const inflection = require('lodash-inflection');
+const inflection = require("lodash-inflection");
 
 export interface ServerHealthMessage {
   message: string;
@@ -28,8 +28,7 @@ export interface ServerHealthMessage {
 }
 
 export class ServerHealthMessages {
-
-  static API_VERSION = 'v1';
+  static API_VERSION = ApiVersion.v1;
   private readonly messages: ServerHealthMessage[];
 
   constructor(messages: ServerHealthMessage[]) {
@@ -40,13 +39,15 @@ export class ServerHealthMessages {
     return new ServerHealthMessages(messages);
   }
 
-  //Typescript requires all to be defined on the model. This is overriden by CrudMixins
-  static all(xhrCB: () => any): any {
-    return null;
+  static all() {
+    return ApiRequestBuilder.GET(SparkRoutes.serverHealthMessagesPath(), this.API_VERSION)
+                            .then((result: ApiResult<string>) => result.map((body) => {
+                              return ServerHealthMessages.fromJSON(JSON.parse(body));
+                            }));
   }
 
-  countErrors   = () => _.filter(this.messages, {level: 'ERROR'}).length;
-  countWarnings = () => _.filter(this.messages, {level: 'WARNING'}).length;
+  countErrors   = () => _.filter(this.messages, {level: "ERROR"}).length;
+  countWarnings = () => _.filter(this.messages, {level: "WARNING"}).length;
 
   hasMessages(): boolean {
     return this.messages.length > 0;
@@ -55,21 +56,15 @@ export class ServerHealthMessages {
   summaryMessage(): string {
     const messages = [];
     if (this.countErrors() > 0) {
-      messages.push(inflection.pluralize('error', this.countErrors(), true));
+      messages.push(inflection.pluralize("error", this.countErrors(), true));
     }
     if (this.countWarnings() > 0) {
-      messages.push(inflection.pluralize('warning', this.countWarnings(), true));
+      messages.push(inflection.pluralize("warning", this.countWarnings(), true));
     }
-    return _.join(messages, ' and ');
+    return _.join(messages, " and ");
   }
 
   collect<T, K extends keyof T>(cb: any): Array<T[K]> {
     return _.map(this.messages, cb);
   }
 }
-
-CrudMixins.Index({
-  type:     ServerHealthMessages,
-  indexUrl: '/go/api/server_health_messages',
-  version:  ServerHealthMessages.API_VERSION
-});

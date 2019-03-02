@@ -14,29 +14,36 @@
  * limitations under the License.
  */
 
+import {AjaxPoller} from "helpers/ajax_poller";
 import * as m from "mithril";
-import * as stream from 'mithril/stream';
-
+import * as stream from "mithril/stream";
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
 import {ServerHealthMessagesCountWidget} from "./server_health_messages_count_widget";
-
-const AjaxPoller = require('helpers/ajax_poller').AjaxPoller;
 
 const serverHealthMessages = stream(new ServerHealthMessages([]));
 
 function createRepeater() {
-  return new AjaxPoller((xhrCB: () => void) => {
-    return ServerHealthMessages.all(xhrCB)
-      .then((messages: ServerHealthMessages) => {
-        serverHealthMessages(messages);
-      });
-  });
+  const options = {
+    repeaterFn: () => {
+      return ServerHealthMessages.all()
+                                 .then((result) => {
+                                   result.do(
+                                     (successResponse) => serverHealthMessages(successResponse.body),
+                                     (errorResponse) => {
+                                       // ignore
+                                     }
+                                   );
+                                 });
+    }
+  };
+  return new AjaxPoller(options);
 }
 
-const repeater = createRepeater();
+let repeater: AjaxPoller<void>;
 
 const ServerHealthSummary = {
   oninit() {
+    repeater = createRepeater();
     repeater.start();
   },
   onbeforeremove() {

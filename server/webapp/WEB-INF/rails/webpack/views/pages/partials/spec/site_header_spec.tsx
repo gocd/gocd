@@ -36,14 +36,15 @@ describe("Site Header", () => {
 
   it("should display the user menu when a user is logged in", () => {
     mount({
-      isAnonymous: false,
-      userDisplayName: "Jon Doe",
-      canViewTemplates: false,
-      isGroupAdmin: false,
-      isUserAdmin: false,
-      canViewAdminPage: false,
-      showAnalyticsDashboard: false
-    });
+            isAnonymous: false,
+            userDisplayName: "Jon Doe",
+            canViewTemplates: false,
+            isGroupAdmin: false,
+            isUserAdmin: false,
+            canViewAdminPage: false,
+            showAnalyticsDashboard: false,
+            enableAdminAccessTokensSPA: false
+          });
     expect(helper.find(`.${styles.userLink}`)).toHaveText("Jon Doe");
     expect(findMenuItem("/go/preferences/notifications")).toHaveText("Preferences");
     expect(findMenuItem("/go/access_tokens")).toHaveText("Personal Access Tokens");
@@ -53,14 +54,15 @@ describe("Site Header", () => {
 
   it("should not display the user menu when logged in as anonymous", () => {
     mount({
-      isAnonymous: true,
-      userDisplayName: "",
-      canViewTemplates: false,
-      isGroupAdmin: false,
-      isUserAdmin: false,
-      canViewAdminPage: false,
-      showAnalyticsDashboard: false
-    });
+            isAnonymous: true,
+            userDisplayName: "",
+            canViewTemplates: false,
+            isGroupAdmin: false,
+            isUserAdmin: false,
+            canViewAdminPage: false,
+            showAnalyticsDashboard: false,
+            enableAdminAccessTokensSPA: false
+          });
     expect(helper.find(`.${styles.userLink}`)).not.toBeInDOM();
     expect(findMenuItem("/go/preferences/notifications")).not.toBeInDOM();
     expect(findMenuItem("/go/access_tokens")).not.toBeInDOM();

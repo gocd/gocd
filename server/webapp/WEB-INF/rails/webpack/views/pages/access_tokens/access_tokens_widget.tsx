@@ -223,7 +223,7 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
 
     return <div className={styles.revokedTokensTable}>
       <Table data={revokedTokensData}
-             headers={["Username", "Description", "Created At", "Last Used", "Revoked By", "Revoked At", "Revoked Message"]}/>
+             headers={["Created By", "Description", "Created At", "Last Used", "Revoked By", "Revoked At", "Revoked Message"]}/>
     </div>;
   }
 

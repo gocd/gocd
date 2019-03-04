@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -47,8 +48,15 @@ public class AdminAccessTokensController implements SparkController {
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
             before("", authenticationHelper::checkAdminUserAnd403);
+            before("", this::checkForToggle);
             get("", this::index, engine);
         });
+    }
+
+    private void checkForToggle(Request request, Response response) {
+        if (!Toggles.isToggleOn(Toggles.ENABLE_ADMIN_ACCESS_TOKENS_SPA)) {
+            throw authenticationHelper.renderNotFoundResponse();
+        }
     }
 
     public ModelAndView index(Request request, Response response) {

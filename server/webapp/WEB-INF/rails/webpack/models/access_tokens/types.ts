@@ -74,7 +74,7 @@ export class AccessTokens extends Array<Stream<AccessToken>> {
   }
 }
 
-class RevokedTokens extends AccessTokens {
+export class RevokedTokens extends AccessTokens {
   constructor(access_tokens: Array<Stream<AccessToken>>) {
     super(..._.filter(access_tokens, (accessToken) => accessToken().revoked()));
     Object.setPrototypeOf(this, Object.create(RevokedTokens.prototype));

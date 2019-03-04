@@ -17,7 +17,7 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {AccessToken, AccessTokens} from "models/access_tokens/types";
+import {AccessToken, AccessTokens, RevokedTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
 import {Ellipsize} from "views/components/ellipsize";
 import {SearchField} from "views/components/forms/input_fields";
@@ -47,9 +47,12 @@ export function formatTimeInformation(date: Date) {
 }
 
 interface Attrs {
-  searchText: Stream<string>;
   accessTokens: Stream<AccessTokens>;
   onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void;
+}
+
+interface AdminAttrs extends Attrs {
+  searchText: Stream<string>;
 }
 
 export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs> {
@@ -62,9 +65,6 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
       </ul>);
     }
     return [
-      <div className={styles.accessTokenSearchBox}>
-        <SearchField property={vnode.attrs.searchText} dataTestId={"search-box"} placeholder={"Search tokens"}/>
-      </div>,
       <Tabs
         tabs={["Active Tokens", "Revoked Tokens"]}
         contents={[
@@ -107,14 +107,7 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
   }
 
   private getActiveTokensData(vnode: m.Vnode<Attrs>): m.Child[][] {
-    let accessTokens;
-
-    if (vnode.attrs.searchText) {
-      accessTokens = vnode.attrs.accessTokens().filterBySearchText(vnode.attrs.searchText());
-    } else {
-      accessTokens = vnode.attrs.accessTokens();
-    }
-    return accessTokens.activeTokens().sortByCreateDate().map((accessToken) => {
+    return vnode.attrs.accessTokens().activeTokens().sortByCreateDate().map((accessToken) => {
       return [
         <Ellipsize text={accessToken().description()}/>,
         formatTimeInformation(accessToken().createdAt()),
@@ -125,16 +118,8 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
   }
 
   private getRevokedTokensData(vnode: m.Vnode<Attrs>): m.Child[][] {
-    let accessTokens;
-
-    if (vnode.attrs.searchText) {
-      accessTokens = vnode.attrs.accessTokens().filterBySearchText(vnode.attrs.searchText());
-    } else {
-      accessTokens = vnode.attrs.accessTokens();
-    }
-    return accessTokens.revokedTokens().sortByRevokeTime().map((accessToken) => {
+    return vnode.attrs.accessTokens().revokedTokens().sortByRevokeTime().map((accessToken) => {
       const revokedAt = accessToken().revokedAt();
-
       return [
         <Ellipsize text={accessToken().description()}/>,
         formatTimeInformation(accessToken().createdAt()),
@@ -147,16 +132,14 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
 
 }
 
-export class AccessTokensWidgetForAdmin extends MithrilViewComponent<Attrs> {
+export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs> {
 
-  view(vnode: m.Vnode<Attrs>) {
+  view(vnode: m.Vnode<AdminAttrs>) {
     const accessTokens = vnode.attrs.accessTokens();
     if (accessTokens.length === 0) {
-      return (<ul data-test-id="access_token_info">
-        <li>Click on "Generate Token" to create new personal access token.</li>
-        <li>A Generated token can be used to access the GoCD API.</li>
-      </ul>);
+      return AccessTokensWidgetForAdmin.helpTextWhenNoTokensCreated();
     }
+
     return [
       <div className={styles.accessTokenSearchBox}>
         <SearchField property={vnode.attrs.searchText} dataTestId={"search-box"} placeholder={"Search tokens"}/>
@@ -164,84 +147,100 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<Attrs> {
       <Tabs
         tabs={["Active Tokens", "Revoked Tokens"]}
         contents={[
-          this.getActiveTokensView(vnode),
-          this.getRevokedTokensView(vnode)
+          this.getActiveTokensView(accessTokens.activeTokens(), vnode.attrs.onRevoke, vnode.attrs.searchText()),
+          this.getRevokedTokensView(accessTokens.revokedTokens(), vnode.attrs.searchText())
         ]}
       />
     ];
   }
 
-  getRevokeButton(vnode: m.Vnode<Attrs>, accessToken: Stream<AccessToken>) {
+  getRevokeButton(accessToken: Stream<AccessToken>,
+                  onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void) {
     if (accessToken().revoked()) {
       return <span className={styles.revoked}>Revoked</span>;
     }
     return <Buttons.Default data-test-id="button-revoke"
-                            onclick={vnode.attrs.onRevoke.bind(this, accessToken)}>Revoke</Buttons.Default>;
+                            onclick={onRevoke.bind(this, accessToken)}>Revoke</Buttons.Default>;
   }
 
-  private getActiveTokensView(vnode: m.Vnode<Attrs>) {
-    const activeTokensData = this.getActiveTokensData(vnode);
+  private static helpTextWhenNoTokensCreated() {
+    return (<ol data-test-id="access_token_info">
+      <li>Navigate to <a href="/go/access_tokens">Personal Access Tokens</a></li>
+      <li>Click on "Generate Token" to create new personal access token.</li>
+      <li>The generated token can be used to access the GoCD API.</li>
+    </ol>);
+  }
 
-    if (activeTokensData.length === 0) {
+  private filterBySearchText(accessTokens: AccessTokens, searchText?: string) {
+    if (searchText) {
+      return accessTokens.filterBySearchText(searchText);
+    }
+    return accessTokens;
+  }
+
+  private getActiveTokensView(allActiveTokens: AccessTokens,
+                              onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void,
+                              searchText?: string) {
+    if (allActiveTokens.length === 0) {
       return <p>
         You don't have any active tokens.
         Click on 'Generate Token' button to create a new token.
       </p>;
     }
 
+    const accessTokenDataPostFilter = this.getActiveTokensData(allActiveTokens, onRevoke, searchText);
+    if (accessTokenDataPostFilter.length === 0) {
+      return <p>You don't have any active tokens matching your search query.</p>;
+    }
+
     return <Table headers={["Created By", "Description", "Created At", "Last Used", "Revoke"]}
-                  data={activeTokensData}/>;
+                  data={accessTokenDataPostFilter}/>;
   }
 
-  private getRevokedTokensView(vnode: m.Vnode<Attrs>) {
-    const revokedTokensData = this.getRevokedTokensData(vnode);
-
-    if (revokedTokensData.length === 0) {
+  private getRevokedTokensView(allRevokedTokens: RevokedTokens, searchText?: string) {
+    if (allRevokedTokens.length === 0) {
       return <p>You don't have any revoked tokens.</p>;
     }
 
+    const revokedTokensData = this.getRevokedTokensData(allRevokedTokens, searchText);
+
+    if (revokedTokensData.length === 0) {
+      return <p>You don't have any revoked tokens matching your search query.</p>;
+    }
+
     return <Table data={revokedTokensData}
-                  headers={["Description", "Created At", "Last Used", "Revoked At", "Revoked Message"]}/>;
+                  headers={["Username", "Description", "Created At", "Last Used", "Revoked At", "Revoked Message"]}/>;
   }
 
-  private getActiveTokensData(vnode: m.Vnode<Attrs>): m.Child[][] {
-    let accessTokens;
-
-    if (vnode.attrs.searchText) {
-      accessTokens = vnode.attrs.accessTokens().filterBySearchText(vnode.attrs.searchText());
-    } else {
-      accessTokens = vnode.attrs.accessTokens();
-    }
-    return accessTokens.activeTokens().sortByCreateDate().map((accessToken) => {
-      return [
-        accessToken().username,
-        <Ellipsize text={accessToken().description()}/>,
-        formatTimeInformation(accessToken().createdAt()),
-        getLastUsedInformation(accessToken()),
-        this.getRevokeButton(vnode, accessToken)
-      ];
-    });
+  private getActiveTokensData(accessTokens: AccessTokens,
+                              onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void,
+                              searchText?: string): m.Child[][] {
+    return this.filterBySearchText(accessTokens, searchText)
+               .sortByCreateDate()
+               .map((accessToken) => {
+                 return [
+                   accessToken().username,
+                   <Ellipsize text={accessToken().description()}/>,
+                   formatTimeInformation(accessToken().createdAt()),
+                   getLastUsedInformation(accessToken()),
+                   this.getRevokeButton(accessToken, onRevoke)
+                 ];
+               });
   }
 
-  private getRevokedTokensData(vnode: m.Vnode<Attrs>): m.Child[][] {
-    let accessTokens;
+  private getRevokedTokensData(revokedTokens: RevokedTokens, searchText?: string): m.Child[][] {
+    return this.filterBySearchText(revokedTokens.sortByRevokeTime(), searchText)
+               .map((accessToken) => {
+                 const revokedAt = accessToken().revokedAt();
 
-    if (vnode.attrs.searchText) {
-      accessTokens = vnode.attrs.accessTokens().filterBySearchText(vnode.attrs.searchText());
-    } else {
-      accessTokens = vnode.attrs.accessTokens();
-    }
-    return accessTokens.revokedTokens().sortByRevokeTime().map((accessToken) => {
-      const revokedAt = accessToken().revokedAt();
-
-      return [
-        accessToken().username,
-        <Ellipsize text={accessToken().description()}/>,
-        formatTimeInformation(accessToken().createdAt()),
-        getLastUsedInformation(accessToken()),
-        revokedAt ? formatTimeInformation(revokedAt) : null,
-        <Ellipsize text={accessToken().revokeCause()}/>
-      ];
-    });
+                 return [
+                   accessToken().username,
+                   <Ellipsize text={accessToken().description()}/>,
+                   formatTimeInformation(accessToken().createdAt()),
+                   getLastUsedInformation(accessToken()),
+                   revokedAt ? formatTimeInformation(revokedAt) : null,
+                   <Ellipsize text={accessToken().revokeCause()}/>
+                 ];
+               });
   }
 }

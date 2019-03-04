@@ -17,7 +17,7 @@
 import {AccessTokenJSON, AccessTokensJSON} from "models/access_tokens/types";
 
 export class AccessTokenTestData {
-  static all(accessTokens: AccessTokenJSON[]) {
+  static all(...accessTokens: AccessTokenJSON[]) {
     return {
       _embedded: {
         access_tokens: accessTokens
@@ -26,23 +26,26 @@ export class AccessTokenTestData {
     } as AccessTokensJSON;
   }
 
-  static validAccessToken() {
+  static new(description: string, username = "bob", revoked = false, revoked_at: string | null = null) {
     return {
-      id: 1,
-      name: "ValidToken",
-      description: "This is dummy description",
+      id: Math.random(),
+      description,
       auth_config_id: "auth_config_id0",
-      username: "admin",
+      username,
       revoke_cause: "",
       revoked_by: "",
-      revoked: false,
-      revoked_at: null,
+      revoked,
+      revoked_at,
       created_at: "2019-02-05T06:41:58Z",
       last_used_at: "2019-02-05T07:41:58Z",
     } as AccessTokenJSON;
   }
 
-  static validAccessToken2() {
+  static newRevoked(description: string, username = "bob", revoked = true, revoked_at = "2019-02-05T07:41:58Z") {
+    return this.new(description, username, revoked, revoked_at);
+  }
+
+  static validAccessToken() {
     return {
       id: 1,
       name: "ValidToken",

@@ -15,7 +15,6 @@
  */
 import * as m from "mithril";
 import * as stream from "mithril/stream";
-import {Stream} from "mithril/stream";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import {
   AccessTokensWidgetForAdmin,
@@ -27,28 +26,36 @@ import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 describe("AccessTokensWidgetForAdminSpec", () => {
   const helper          = new TestHelper();
   const onRevoke        = jasmine.createSpy("onRevoke");
-  const allAccessTokens = AccessTokens.fromJSON(AccessTokenTestData.all([AccessTokenTestData.validAccessToken()]));
-  const validToken      = AccessToken.fromJSON(AccessTokenTestData.validAccessToken());
+  const allAccessTokens = AccessTokens.fromJSON(AccessTokenTestData.all(
+    AccessTokenTestData.new("This is active token 1"),
+    AccessTokenTestData.new("This is active token 2"),
+    AccessTokenTestData.newRevoked("This is revoked token 3"),
+    AccessTokenTestData.new("This is active token 1", "John"),
+    AccessTokenTestData.newRevoked("This is revoked token 2", "John"),
+    AccessTokenTestData.newRevoked("This is revoked token 3", "John")
+  ));
 
-  function mount(accessTokens: Stream<AccessTokens>) {
-    helper.mount(() => <AccessTokensWidgetForAdmin accessTokens={accessTokens} onRevoke={onRevoke}
-                                                   searchText={stream()}/>);
+  function mount(accessTokens = allAccessTokens, searchText = stream("")) {
+    helper.mount(() => <AccessTokensWidgetForAdmin accessTokens={stream(accessTokens)}
+                                                   onRevoke={onRevoke}
+                                                   searchText={searchText}/>);
   }
 
   it("should be able to render info when no access tokens have been created", () => {
-    mount(stream(new AccessTokens()));
+    helper.mount(() => <AccessTokensWidgetForAdmin accessTokens={stream(new AccessTokens())} onRevoke={onRevoke}
+                                                   searchText={stream("")}/>);
 
     expect(helper.findByDataTestId("access_token_info")).toBeInDOM();
     expect(helper.findByDataTestId("access_token_info").text())
       .toContain(
-        "Click on \"Generate Token\" to create new personal access token.A Generated token can be used to access the GoCD API.");
+        "Navigate to Personal Access TokensClick on \"Generate Token\" to create new personal access token.The generated token can be used to access the GoCD API.");
 
     expect(helper.findByDataTestId("tab-header-0")).not.toBeInDOM();
     expect(helper.findByDataTestId("tab-header-1")).not.toBeInDOM();
   });
 
   it("should be able to render two tabs when access tokens are present", () => {
-    mount(stream(allAccessTokens));
+    mount();
 
     expect(helper.findByDataTestId("access-token-info")).not.toBeInDOM();
     expect(helper.findByDataTestId("tab-header-0")).toBeInDOM();
@@ -58,7 +65,8 @@ describe("AccessTokensWidgetForAdminSpec", () => {
   });
 
   it("should be able to render active access tokens data", () => {
-    mount(stream(new AccessTokens(stream(validToken))));
+    const allActiveAccessTokens = allAccessTokens.activeTokens();
+    mount(allActiveAccessTokens);
 
     const activeTokensTab = helper.findByDataTestId("tab-header-0");
     expect(activeTokensTab).toBeInDOM();
@@ -72,12 +80,10 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     expect(activeTokenTableHeaders.eq(4)).toHaveText("Revoke");
 
     const activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-row");
-    expect(activeTokenTableRows.length).toEqual(1);
-    expect(activeTokenTableRows).toContainText(validToken.description());
-    expect(activeTokenTableRows)
-      .toContainText(formatTimeInformation(validToken.createdAt()));
-    expect(activeTokenTableRows)
-      .toContainText(getLastUsedInformation(validToken));
+    expect(activeTokenTableRows.length).toEqual(3);
+    assertActiveTokenRow(activeTokenTableRows.eq(0), allActiveAccessTokens[0]());
+    assertActiveTokenRow(activeTokenTableRows.eq(1), allActiveAccessTokens[1]());
+    assertActiveTokenRow(activeTokenTableRows.eq(2), allActiveAccessTokens[2]());
 
     const revokedTokensTab = helper.findByDataTestId("tab-header-1");
     expect(revokedTokensTab).toHaveText("Revoked Tokens");
@@ -86,23 +92,137 @@ describe("AccessTokensWidgetForAdminSpec", () => {
   });
 
   it("should be able to render revoked access tokens data", () => {
-    const revokedToken    = AccessToken.fromJSON(AccessTokenTestData.revokedAccessToken());
-    const allAccessTokens = AccessTokens.fromJSON(AccessTokenTestData.all([AccessTokenTestData.validAccessToken(), AccessTokenTestData.revokedAccessToken()]));
+    const revokedTokens = allAccessTokens.revokedTokens();
+    mount(revokedTokens);
 
-    mount(stream(allAccessTokens));
+    const revokedTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
+    expect(revokedTokenTableRows.length).toEqual(3);
+    assertRevokedTokenRow(revokedTokenTableRows.eq(0), revokedTokens[0]());
+    assertRevokedTokenRow(revokedTokenTableRows.eq(1), revokedTokens[1]());
+    assertRevokedTokenRow(revokedTokenTableRows.eq(2), revokedTokens[2]());
 
-    const revokedAccessTokensColumns = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row").find("td");
+    const activeTokensTab = helper.findByDataTestId("tab-header-0");
+    expect(activeTokensTab).toHaveText("Active Tokens");
+    expect(helper.findIn(helper.findByDataTestId("tab-content-0"), "table-header-row")).not.toBeInDOM();
+    expect(helper.findByDataTestId("tab-content-0"))
+      .toHaveText("You don't have any active tokens. Click on 'Generate Token' button to create a new token.");
+  });
 
-    expect(revokedAccessTokensColumns.length).toEqual(6);
-    expect(revokedAccessTokensColumns.eq(0)).toHaveText(revokedToken.username());
-    expect(revokedAccessTokensColumns.eq(1)).toHaveText(revokedToken.description());
-    expect(revokedAccessTokensColumns.eq(2)).toHaveText(formatTimeInformation(revokedToken.createdAt()));
-    const revokedAt = revokedToken.revokedAt();
-    expect(revokedAccessTokensColumns.eq(4))
-      .toHaveText((revokedAt ? formatTimeInformation(revokedAt) : ""));
-    expect(revokedAccessTokensColumns.eq(5)).toHaveText(revokedToken.revokeCause());
+  describe("Search By Description", () => {
+    it("should filter active tokens", () => {
+      const searchText = stream("");
+      mount(allAccessTokens, searchText);
+
+      let activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-row");
+      expect(activeTokenTableRows.length).toEqual(3);
+
+      searchText("token 1");
+      helper.redraw();
+
+      const filteredActiveAccessTokens = allAccessTokens.activeTokens().filterBySearchText("token 1");
+      activeTokenTableRows             = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-row");
+      expect(activeTokenTableRows.length).toEqual(2);
+      assertActiveTokenRow(activeTokenTableRows.eq(0), filteredActiveAccessTokens[0]());
+      assertActiveTokenRow(activeTokenTableRows.eq(1), filteredActiveAccessTokens[1]());
+    });
+
+    it("should filter revoked tokens", () => {
+      const searchText = stream("");
+      mount(allAccessTokens, searchText);
+
+      let activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
+      expect(activeTokenTableRows.length).toEqual(3);
+
+      searchText("token 2");
+      helper.redraw();
+
+      const filteredRevokedAccessTokens = allAccessTokens.revokedTokens().filterBySearchText("token 2");
+      activeTokenTableRows              = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
+      expect(activeTokenTableRows.length).toEqual(1);
+      assertRevokedTokenRow(activeTokenTableRows.eq(0), filteredRevokedAccessTokens[0]());
+    });
+
+    it("should show message if the search query results in empty array for active tokens", () => {
+      const searchText = stream("");
+      mount(allAccessTokens, searchText);
+
+      const activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-row");
+      expect(activeTokenTableRows.length).toEqual(3);
+
+      searchText("token 14");
+      helper.redraw();
+
+      const tabContent = helper.findByDataTestId("tab-content-0");
+      expect(tabContent).toHaveText("You don't have any active tokens matching your search query.");
+    });
+
+    it("should show message if the search query results in empty array for revoked tokens", () => {
+      const searchText = stream("");
+      mount(allAccessTokens, searchText);
+
+      const activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
+      expect(activeTokenTableRows.length).toEqual(3);
+
+      searchText("token 14");
+      helper.redraw();
+
+      const tabContent = helper.findByDataTestId("tab-content-1");
+      expect(tabContent).toHaveText("You don't have any revoked tokens matching your search query.");
+    });
+  });
+
+  describe("Search By Username", () => {
+    it("should filter active tokens", () => {
+      const searchText = stream("");
+      mount(allAccessTokens, searchText);
+
+      let activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-row");
+      expect(activeTokenTableRows.length).toEqual(3);
+
+      searchText("John");
+      helper.redraw();
+
+      const filteredActiveTokens = allAccessTokens.activeTokens().filterBySearchText("John");
+      activeTokenTableRows       = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-row");
+      expect(activeTokenTableRows.length).toEqual(1);
+      assertActiveTokenRow(activeTokenTableRows.eq(0), filteredActiveTokens[0]());
+    });
+
+    it("should filter revoked tokens", () => {
+      const searchText = stream("");
+      mount(allAccessTokens, searchText);
+
+      let activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
+      expect(activeTokenTableRows.length).toEqual(3);
+
+      searchText("John");
+      helper.redraw();
+
+      const filteredRevokedTokens = allAccessTokens.revokedTokens().filterBySearchText("John");
+      activeTokenTableRows        = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
+      expect(activeTokenTableRows.length).toEqual(2);
+      assertRevokedTokenRow(activeTokenTableRows.eq(0), filteredRevokedTokens[0]());
+      assertRevokedTokenRow(activeTokenTableRows.eq(1), filteredRevokedTokens[1]());
+    });
   });
 
   afterEach(helper.unmount.bind(helper));
 
+  function assertActiveTokenRow(elem: any, accessToken: AccessToken) {
+    const columns = elem.find("td");
+    expect(columns.eq(0)).toContainText(accessToken.username());
+    expect(columns.eq(1)).toContainText(accessToken.description());
+    expect(columns.eq(2)).toContainText(formatTimeInformation(accessToken.createdAt()));
+    expect(columns.eq(3)).toContainText(getLastUsedInformation(accessToken));
+  }
+
+  function assertRevokedTokenRow(elem: any, accessToken: AccessToken) {
+    const columns = elem.find("td");
+    expect(columns.eq(0)).toContainText(accessToken.username());
+    expect(columns.eq(1)).toContainText(accessToken.description());
+    expect(columns.eq(2)).toContainText(formatTimeInformation(accessToken.createdAt()));
+    expect(columns.eq(3)).toContainText(getLastUsedInformation(accessToken));
+    expect(columns.eq(4)).toContainText(formatTimeInformation(accessToken.revokedAt()));
+    expect(columns.eq(5)).toContainText(accessToken.revokeCause());
+  }
 });

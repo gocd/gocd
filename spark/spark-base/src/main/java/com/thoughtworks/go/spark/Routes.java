@@ -510,4 +510,8 @@ public class Routes {
     public class AdminAccessTokens {
         public static final String SPA_BASE = "/admin/admin_access_tokens";
     }
+
+    public class CCTray {
+        public static final String BASE = "/cctray.xml";
+    }
 }

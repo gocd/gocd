@@ -25,6 +25,11 @@
         "key": "enable_admin_access_tokens_spa",
         "description": "Show admin access token SPA in menu for admin.",
         "value": true
+      },
+      {
+        "key": "cctray_using_rails",
+        "description": "Show CCTray Feeds using rails.",
+        "value": true
       }
   ]
 }

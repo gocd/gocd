@@ -30,6 +30,10 @@ public class SparkOrRailsToggle {
         basedOnToggle(Toggles.USE_OLD_ENVIRONMENTS_API, request);
     }
 
+    public void ccTrayUsingRails(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.CCTRAY_USING_RAILS, request);
+    }
+
     private void basedOnToggle(String toggle, HttpServletRequest request) {
         if (Toggles.isToggleOn(toggle)) {
             request.setAttribute("sparkOrRails", "rails");

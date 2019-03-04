@@ -346,3 +346,6 @@ util/target/
 plugin-infra/go-plugin-infra/felix-cache/
 **/*.log
 
+api/api-cctray/out/
+api/api-cctray/target/
+api/api-cctray/logs/

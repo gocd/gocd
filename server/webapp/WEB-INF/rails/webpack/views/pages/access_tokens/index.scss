@@ -37,62 +37,68 @@ $revoked_text_color: #e94c35;
 
 .personal-access-token-container {
   .active-tokens-table thead {
-    th:first-child {
-      width:     33%;
-      min-width: 250px;
+    th {
+      width: 25%;
+    }
+
+    th:nth-child(1) {
+      width: 40%;
     }
 
     th:last-child {
-      width: 150px;
+      width: 10%;
     }
   }
 
   .revoked-tokens-table thead {
-    th:nth-child(2) {
-      max-width: 280px;
+    th {
+      width: 15%;
     }
 
-    th:nth-child(3) {
-      max-width: 280px;
+    th:first-child {
+      width: 20%;
     }
 
-    th:nth-child(4) {
-      max-width: 280px;
-    }
-
-    th:nth-child(5) {
-      max-width: 280px;
+    th:last-child {
+      width: 20%;
     }
   }
 }
 
 .admin-access-token-container {
   .active-tokens-table thead {
+    th {
+      width: 15%;
+    }
+
+    th:nth-child(1) {
+      width: 20%;
+    }
+
     th:nth-child(2) {
-      width:     33%;
-      min-width: 250px;
+      width: 40%;
     }
 
     th:last-child {
-      width: 150px;
+      width: 10%;
     }
   }
 
   .revoked-tokens-table thead {
-    th:nth-child(3) {
-      max-width: 280px;
+    th {
+      width: 15%;
     }
 
-    th:nth-child(4) {
-      max-width: 280px;
+    th:nth-child(1) {
+      width: 10%;
+    }
+
+    th:nth-child(2) {
+      width: 20%;
     }
 
     th:nth-child(5) {
-      max-width: 280px;
-    }
-
-    th:nth-child(6) {
-      max-width: 280px;
+      width: 10%;
     }
   }
 }

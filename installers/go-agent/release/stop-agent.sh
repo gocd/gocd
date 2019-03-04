@@ -28,7 +28,7 @@ AGENT_DIR=`(cd "$CWD" && pwd)`
 
 AGENT_WORK_DIR=${AGENT_WORK_DIR:-"$AGENT_DIR"}
 
-if [ "$1" == "service_mode" ] && [ -d "/var/run/go-agent" ]; then
+if [ "$2" == "service_mode" ] && [ -d "/var/run/go-agent" ]; then
   PID_FILE="/var/run/go-agent/${SERVICE_NAME}.pid"
 else
   PID_FILE="$AGENT_WORK_DIR/go-agent.pid"

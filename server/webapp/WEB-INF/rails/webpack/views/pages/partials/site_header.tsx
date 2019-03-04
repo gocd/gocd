@@ -32,6 +32,7 @@ export interface Attrs {
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
   showAnalyticsDashboard: boolean;
+  enableAdminAccessTokensSPA: boolean;
 }
 
 export class SiteHeader extends MithrilViewComponent<Attrs> {
@@ -77,7 +78,7 @@ export class SiteHeader extends MithrilViewComponent<Attrs> {
                       isUserAdmin={isUserAdmin}
                       isGroupAdmin={isGroupAdmin}
                       canViewTemplates={canViewTemplates}
-            />
+                      enableAdminAccessTokensSPA={vnode.attrs.enableAdminAccessTokensSPA}/>
           </div>
 
           <div class={styles.siteHeaderRight}>

@@ -122,6 +122,7 @@ export interface Attrs {
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
   showAnalytics: boolean;
+  enableAdminAccessTokensSPA: boolean;
 }
 
 export default class SiteMenu extends MithrilViewComponent<Attrs> {
@@ -131,6 +132,11 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
       <SiteNavItem href="/go/analytics" text="Analytics"/> : null;
 
     let adminMenu = null;
+    let linkToAccessTokenManagementSPA;
+    if (vnode.attrs.enableAdminAccessTokensSPA) {
+      linkToAccessTokenManagementSPA =
+        <SiteSubNavItem href="/go/admin/admin_access_tokens" text="Access Tokens Management"/>;
+    }
 
     if (vnode.attrs.canViewAdminPage) {
       if (vnode.attrs.isUserAdmin) {
@@ -159,6 +165,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
                 <SiteSubNavItem href="/go/admin/security/auth_configs" text="Authorization Configuration"/>
                 <SiteSubNavItem href="/go/admin/security/roles" text="Role configuration"/>
                 <SiteSubNavItem href="/go/admin/users" text="Users Management"/>
+                {linkToAccessTokenManagementSPA}
               </SiteSubNav>
             </div>
           </SiteNavItem>

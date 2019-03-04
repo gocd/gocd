@@ -497,6 +497,10 @@ module ApplicationHelper
     pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general')
   end
 
+  def enable_admin_access_token?
+    Toggles.isToggleOn(Toggles.ENABLE_ADMIN_ACCESS_TOKENS_SPA)
+  end
+
   def plugin_supports_status_report?(plugin_id)
     plugin_info = ElasticAgentMetadataStore.instance().getPluginInfo(plugin_id)
 

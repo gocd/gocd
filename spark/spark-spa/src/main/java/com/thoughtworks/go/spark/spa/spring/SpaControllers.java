@@ -17,7 +17,6 @@
 package com.thoughtworks.go.spark.spa.spring;
 
 import com.thoughtworks.go.plugin.access.analytics.AnalyticsExtension;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.service.AuthorizationExtensionCacheService;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
@@ -53,7 +52,8 @@ public class SpaControllers implements SparkSpringController {
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
 
 
-        sparkControllers.add(new AccessTokensController(authenticationHelper, authorizationExtensionCacheService,securityAuthConfigService, templateEngineFactory.create(AccessTokensController.class, () -> COMPONENT_LAYOUT_PATH)));
+        sparkControllers.add(new AccessTokensController(authenticationHelper, authorizationExtensionCacheService, securityAuthConfigService, templateEngineFactory.create(AccessTokensController.class, () -> COMPONENT_LAYOUT_PATH)));
+        sparkControllers.add(new AdminAccessTokensController(authenticationHelper, templateEngineFactory.create(AdminAccessTokensController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new ArtifactStoresController(authenticationHelper, templateEngineFactory.create(ArtifactStoresController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new AuthConfigsController(authenticationHelper, templateEngineFactory.create(AuthConfigsController.class, () -> COMPONENT_LAYOUT_PATH)));
         sparkControllers.add(new UsersController(authenticationHelper, templateEngineFactory.create(UsersController.class, () -> COMPONENT_LAYOUT_PATH)));

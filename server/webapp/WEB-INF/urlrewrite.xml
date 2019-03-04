@@ -26,8 +26,8 @@
 <urlrewrite>
   <rule>
     <name>Admin Access Tokens SPA</name>
-    <from>^/admin/access_tokens(/?)$</from>
-    <to last="true">/spark/admin/access_tokens</to>
+    <from>^/admin/admin_access_tokens(/?)$</from>
+    <to last="true">/spark/admin/admin_access_tokens</to>
   </rule>
 
   <rule>

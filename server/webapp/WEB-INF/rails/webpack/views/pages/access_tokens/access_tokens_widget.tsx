@@ -46,6 +46,13 @@ export function formatTimeInformation(date: Date) {
   return dateStr;
 }
 
+export function getRevokedBy(revokedBy: string) {
+  if (revokedBy === document.body.getAttribute("data-username")) {
+    revokedBy = "You";
+  }
+  return revokedBy;
+}
+
 interface Attrs {
   accessTokens: Stream<AccessTokens>;
   onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void;
@@ -103,7 +110,7 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
     }
 
     return <Table data={revokedTokensData}
-                  headers={["Description", "Created At", "Last Used", "Revoked At", "Revoked Message"]}/>;
+                  headers={["Description", "Created At", "Last Used", "Revoked By", "Revoked At", "Revoked Message"]}/>;
   }
 
   private getActiveTokensData(vnode: m.Vnode<Attrs>): m.Child[][] {
@@ -124,12 +131,12 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
         <Ellipsize text={accessToken().description()}/>,
         formatTimeInformation(accessToken().createdAt()),
         getLastUsedInformation(accessToken()),
+        getRevokedBy(accessToken().revokedBy()),
         revokedAt ? formatTimeInformation(revokedAt) : null,
         <Ellipsize text={accessToken().revokeCause()}/>
       ];
     });
   }
-
 }
 
 export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs> {
@@ -182,15 +189,12 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
                               onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void,
                               searchText?: string) {
     if (allActiveTokens.length === 0) {
-      return <p>
-        You don't have any active tokens.
-        Click on 'Generate Token' button to create a new token.
-      </p>;
+      return <p>There are no active tokens.</p>;
     }
 
     const accessTokenDataPostFilter = this.getActiveTokensData(allActiveTokens, onRevoke, searchText);
     if (accessTokenDataPostFilter.length === 0) {
-      return <p>You don't have any active tokens matching your search query.</p>;
+      return <p>There are no active tokens matching your search query.</p>;
     }
 
     return <Table headers={["Created By", "Description", "Created At", "Last Used", "Revoke"]}
@@ -199,17 +203,17 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
 
   private getRevokedTokensView(allRevokedTokens: RevokedTokens, searchText?: string) {
     if (allRevokedTokens.length === 0) {
-      return <p>You don't have any revoked tokens.</p>;
+      return <p>There are no revoked tokens.</p>;
     }
 
     const revokedTokensData = this.getRevokedTokensData(allRevokedTokens, searchText);
 
     if (revokedTokensData.length === 0) {
-      return <p>You don't have any revoked tokens matching your search query.</p>;
+      return <p>There are no revoked tokens matching your search query.</p>;
     }
 
     return <Table data={revokedTokensData}
-                  headers={["Username", "Description", "Created At", "Last Used", "Revoked At", "Revoked Message"]}/>;
+                  headers={["Username", "Description", "Created At", "Last Used", "Revoked By", "Revoked At", "Revoked Message"]}/>;
   }
 
   private getActiveTokensData(accessTokens: AccessTokens,
@@ -232,12 +236,12 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
     return this.filterBySearchText(revokedTokens.sortByRevokeTime(), searchText)
                .map((accessToken) => {
                  const revokedAt = accessToken().revokedAt();
-
                  return [
                    accessToken().username,
                    <Ellipsize text={accessToken().description()}/>,
                    formatTimeInformation(accessToken().createdAt()),
                    getLastUsedInformation(accessToken()),
+                   getRevokedBy(accessToken().revokedBy()),
                    revokedAt ? formatTimeInformation(revokedAt) : null,
                    <Ellipsize text={accessToken().revokeCause()}/>
                  ];

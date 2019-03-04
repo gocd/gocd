@@ -18,7 +18,7 @@ import * as stream from "mithril/stream";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import {
   AccessTokensWidgetForAdmin,
-  formatTimeInformation, getLastUsedInformation
+  formatTimeInformation, getLastUsedInformation, getRevokedBy
 } from "views/pages/access_tokens/access_tokens_widget";
 import {AccessTokenTestData} from "views/pages/access_tokens/spec/test_data";
 import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
@@ -34,6 +34,14 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     AccessTokenTestData.newRevoked("This is revoked token 2", "John"),
     AccessTokenTestData.newRevoked("This is revoked token 3", "John")
   ));
+
+  beforeAll(() => {
+    document.body.setAttribute("data-username", "bob");
+  });
+
+  afterAll(() => {
+    document.body.removeAttribute("data-username");
+  });
 
   function mount(accessTokens = allAccessTokens, searchText = stream("")) {
     helper.mount(() => <AccessTokensWidgetForAdmin accessTokens={stream(accessTokens)}
@@ -88,7 +96,7 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     const revokedTokensTab = helper.findByDataTestId("tab-header-1");
     expect(revokedTokensTab).toHaveText("Revoked Tokens");
     expect(helper.findIn(helper.findByDataTestId("tab-content-1"), "table-header-row")).not.toBeInDOM();
-    expect(helper.findByDataTestId("tab-content-1")).toHaveText("You don't have any revoked tokens.");
+    expect(helper.findByDataTestId("tab-content-1")).toHaveText("There are no revoked tokens.");
   });
 
   it("should be able to render revoked access tokens data", () => {
@@ -105,7 +113,7 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     expect(activeTokensTab).toHaveText("Active Tokens");
     expect(helper.findIn(helper.findByDataTestId("tab-content-0"), "table-header-row")).not.toBeInDOM();
     expect(helper.findByDataTestId("tab-content-0"))
-      .toHaveText("You don't have any active tokens. Click on 'Generate Token' button to create a new token.");
+      .toHaveText("There are no active tokens.");
   });
 
   describe("Search By Description", () => {
@@ -153,7 +161,7 @@ describe("AccessTokensWidgetForAdminSpec", () => {
       helper.redraw();
 
       const tabContent = helper.findByDataTestId("tab-content-0");
-      expect(tabContent).toHaveText("You don't have any active tokens matching your search query.");
+      expect(tabContent).toHaveText("There are no active tokens matching your search query.");
     });
 
     it("should show message if the search query results in empty array for revoked tokens", () => {
@@ -167,7 +175,7 @@ describe("AccessTokensWidgetForAdminSpec", () => {
       helper.redraw();
 
       const tabContent = helper.findByDataTestId("tab-content-1");
-      expect(tabContent).toHaveText("You don't have any revoked tokens matching your search query.");
+      expect(tabContent).toHaveText("There are no revoked tokens matching your search query.");
     });
   });
 
@@ -222,7 +230,8 @@ describe("AccessTokensWidgetForAdminSpec", () => {
     expect(columns.eq(1)).toContainText(accessToken.description());
     expect(columns.eq(2)).toContainText(formatTimeInformation(accessToken.createdAt()));
     expect(columns.eq(3)).toContainText(getLastUsedInformation(accessToken));
-    expect(columns.eq(4)).toContainText(formatTimeInformation(accessToken.revokedAt()));
-    expect(columns.eq(5)).toContainText(accessToken.revokeCause());
+    expect(columns.eq(4)).toContainText(getRevokedBy(accessToken.revokedBy()));
+    expect(columns.eq(5)).toContainText(formatTimeInformation(accessToken.revokedAt()));
+    expect(columns.eq(6)).toContainText(accessToken.revokeCause());
   }
 });

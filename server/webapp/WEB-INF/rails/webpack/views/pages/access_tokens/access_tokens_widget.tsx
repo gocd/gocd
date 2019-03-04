@@ -71,13 +71,15 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
         <li>A Generated token can be used to access the GoCD API.</li>
       </ul>);
     }
-    return [
-      <Tabs
-        tabs={["Active Tokens", "Revoked Tokens"]}
-        contents={[
-          this.getActiveTokensView(vnode),
-          this.getRevokedTokensView(vnode)
-        ]}/>];
+    return (
+      <div className={styles.personalAccessTokenContainer}>
+        <Tabs tabs={["Active Tokens", "Revoked Tokens"]}
+              contents={[
+                this.getActiveTokensView(vnode),
+                this.getRevokedTokensView(vnode)
+              ]}/>
+      </div>
+    );
   }
 
   getRevokeButton(vnode: m.Vnode<Attrs>, accessToken: Stream<AccessToken>) {
@@ -98,8 +100,10 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
       </p>;
     }
 
-    return <Table headers={["Description", "Created At", "Last Used", "Revoke"]}
-                  data={activeTokensData}/>;
+    return <div className={styles.activeTokensTable}>
+      <Table headers={["Description", "Created At", "Last Used", "Revoke"]}
+             data={activeTokensData}/>
+    </div>;
   }
 
   private getRevokedTokensView(vnode: m.Vnode<Attrs>) {
@@ -109,8 +113,10 @@ export class AccessTokensWidgetForCurrentUser extends MithrilViewComponent<Attrs
       return <p>You don't have any revoked tokens.</p>;
     }
 
-    return <Table data={revokedTokensData}
-                  headers={["Description", "Created At", "Last Used", "Revoked By", "Revoked At", "Revoked Message"]}/>;
+    return <div className={styles.revokedTokensTable}>
+      <Table data={revokedTokensData}
+             headers={["Description", "Created At", "Last Used", "Revoked By", "Revoked At", "Revoked Message"]}/>
+    </div>;
   }
 
   private getActiveTokensData(vnode: m.Vnode<Attrs>): m.Child[][] {
@@ -147,18 +153,20 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
       return AccessTokensWidgetForAdmin.helpTextWhenNoTokensCreated();
     }
 
-    return [
-      <div className={styles.accessTokenSearchBox}>
-        <SearchField property={vnode.attrs.searchText} dataTestId={"search-box"} placeholder={"Search tokens"}/>
-      </div>,
-      <Tabs
-        tabs={["Active Tokens", "Revoked Tokens"]}
-        contents={[
-          this.getActiveTokensView(accessTokens.activeTokens(), vnode.attrs.onRevoke, vnode.attrs.searchText()),
-          this.getRevokedTokensView(accessTokens.revokedTokens(), vnode.attrs.searchText())
-        ]}
-      />
-    ];
+    return (
+      <div className={styles.adminAccessTokenContainer}>
+        <div className={styles.accessTokenSearchBox}>
+          <SearchField property={vnode.attrs.searchText} dataTestId={"search-box"} placeholder={"Search tokens"}/>
+        </div>
+        <Tabs
+          tabs={["Active Tokens", "Revoked Tokens"]}
+          contents={[
+            this.getActiveTokensView(accessTokens.activeTokens(), vnode.attrs.onRevoke, vnode.attrs.searchText()),
+            this.getRevokedTokensView(accessTokens.revokedTokens(), vnode.attrs.searchText())
+          ]}
+        />
+      </div>
+    );
   }
 
   getRevokeButton(accessToken: Stream<AccessToken>,
@@ -197,8 +205,9 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
       return <p>There are no active tokens matching your search query.</p>;
     }
 
-    return <Table headers={["Created By", "Description", "Created At", "Last Used", "Revoke"]}
-                  data={accessTokenDataPostFilter}/>;
+    return <div className={styles.activeTokensTable}>
+      <Table headers={["Created By", "Description", "Created At", "Last Used", "Revoke"]}
+             data={accessTokenDataPostFilter}/></div>;
   }
 
   private getRevokedTokensView(allRevokedTokens: RevokedTokens, searchText?: string) {
@@ -212,8 +221,10 @@ export class AccessTokensWidgetForAdmin extends MithrilViewComponent<AdminAttrs>
       return <p>There are no revoked tokens matching your search query.</p>;
     }
 
-    return <Table data={revokedTokensData}
-                  headers={["Username", "Description", "Created At", "Last Used", "Revoked By", "Revoked At", "Revoked Message"]}/>;
+    return <div className={styles.revokedTokensTable}>
+      <Table data={revokedTokensData}
+             headers={["Username", "Description", "Created At", "Last Used", "Revoked By", "Revoked At", "Revoked Message"]}/>
+    </div>;
   }
 
   private getActiveTokensData(accessTokens: AccessTokens,

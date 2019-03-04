@@ -29,7 +29,6 @@ import {AddOperation, SaveOperation} from "views/pages/page_operations";
 
 interface State extends AddOperation<AccessToken>, SaveOperation {
   accessTokens: Stream<AccessTokens>;
-  searchText: Stream<string>;
   onRevoke: (accessToken: Stream<AccessToken>, e: MouseEvent) => void;
   meta: MetaJSON;
 }
@@ -38,7 +37,6 @@ export class AccessTokensPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.accessTokens = stream();
     vnode.state.meta         = JSON.parse(document.body.getAttribute("data-meta") || "{}") as MetaJSON;
-    vnode.state.searchText   = stream();
     super.oninit(vnode);
 
     vnode.state.onAdd = (e: MouseEvent) => {
@@ -82,8 +80,7 @@ export class AccessTokensPage extends Page<null, State> {
       const flashMessage = this.flashMessage ?
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
       return [flashMessage, <AccessTokensWidgetForCurrentUser accessTokens={vnode.state.accessTokens}
-                                                              onRevoke={vnode.state.onRevoke}
-                                                              searchText={vnode.state.searchText}/>];
+                                                              onRevoke={vnode.state.onRevoke}/>];
     }
     return <FlashMessage type={MessageType.info}>
       Creation of access token is not supported by the plugin <strong>{vnode.state.meta.pluginId}</strong>.

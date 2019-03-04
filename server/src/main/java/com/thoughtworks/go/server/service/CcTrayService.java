@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 /* Understands how to serve a request for the CcTray XML for the current user. */
@@ -38,24 +39,37 @@ public class CcTrayService {
         this.goConfigService = goConfigService;
     }
 
+    @Deprecated // used by rails, remove once controller is removed
     public String getCcTrayXml(String siteUrlPrefix) {
         String userName = CaseInsensitiveString.str(SessionUtils.currentUsername().getUsername());
+
+        StringBuilder xml = new StringBuilder();
+
+        return renderCCTrayXML(siteUrlPrefix, userName, xml).toString();
+    }
+
+    public Appendable renderCCTrayXML(String siteUrlPrefix, String userName, Appendable appendable) {
         boolean isSecurityEnabled = goConfigService.isSecurityEnabled();
-
-        List<ProjectStatus> statuses = ccTrayCache.allEntriesInOrder();
-
-        StringBuilder xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Projects>\n");
-        for (ProjectStatus status : statuses) {
-            if (!isSecurityEnabled || status.canBeViewedBy(userName)) {
-
-                String xmlRepresentation = status.xmlRepresentation();
-                if (!StringUtils.isBlank(xmlRepresentation)) {
-                    xml.append("  ").append(xmlRepresentation).append("\n");
+        try {
+            appendable.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+            appendable.append("\n");
+            appendable.append("<Projects>");
+            appendable.append("\n");
+            List<ProjectStatus> statuses = ccTrayCache.allEntriesInOrder();
+            for (ProjectStatus status : statuses) {
+                if (!isSecurityEnabled || status.canBeViewedBy(userName)) {
+                    String xmlRepresentation = status.xmlRepresentation().replaceAll(ProjectStatus.SITE_URL_PREFIX, siteUrlPrefix);
+                    if (!StringUtils.isBlank(xmlRepresentation)) {
+                        appendable.append("  ").append(xmlRepresentation).append("\n");
+                    }
                 }
-
             }
+
+            appendable.append("</Projects>");
+        } catch (IOException e) {
+            // ignore. `StringBuilder#append` does not throw
         }
 
-        return xml.append("</Projects>").toString().replaceAll(ProjectStatus.SITE_URL_PREFIX, siteUrlPrefix);
+        return appendable;
     }
 }

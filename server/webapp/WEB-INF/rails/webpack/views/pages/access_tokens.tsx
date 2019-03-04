@@ -22,8 +22,8 @@ import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
-import {AccessTokensWidget} from "views/pages/access_tokens/access_tokens_widget";
-import {GenerateTokenModal, RevokeTokenModal} from "views/pages/access_tokens/modals";
+import {AccessTokensWidgetForCurrentUser} from "views/pages/access_tokens/access_tokens_widget";
+import {GenerateTokenModal, RevokeAccessTokenForCurrentUser} from "views/pages/access_tokens/modals";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation, SaveOperation} from "views/pages/page_operations";
 
@@ -46,10 +46,10 @@ export class AccessTokensPage extends Page<null, State> {
 
     vnode.state.onRevoke = (accessToken: Stream<AccessToken>, e: MouseEvent) => {
       e.stopPropagation();
-      new RevokeTokenModal(vnode.state.accessTokens,
-                           accessToken,
-                           vnode.state.onSuccessfulSave,
-                           vnode.state.onError).render();
+      new RevokeAccessTokenForCurrentUser(vnode.state.accessTokens,
+                                          accessToken,
+                                          vnode.state.onSuccessfulSave,
+                                          vnode.state.onError).render();
     };
 
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
@@ -79,8 +79,8 @@ export class AccessTokensPage extends Page<null, State> {
     if (vnode.state.meta.supportsAccessToken) {
       const flashMessage = this.flashMessage ?
         <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type}/> : null;
-      return [flashMessage, <AccessTokensWidget accessTokens={vnode.state.accessTokens}
-                                                onRevoke={vnode.state.onRevoke}/>];
+      return [flashMessage, <AccessTokensWidgetForCurrentUser accessTokens={vnode.state.accessTokens}
+                                                              onRevoke={vnode.state.onRevoke}/>];
     }
     return <FlashMessage type={MessageType.info}>
       Creation of access token is not supported by the plugin <strong>{vnode.state.meta.pluginId}</strong>.

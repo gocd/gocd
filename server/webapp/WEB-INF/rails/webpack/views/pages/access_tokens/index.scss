@@ -28,3 +28,72 @@ $revoked_text_color: #e94c35;
   color:       $revoked_text_color;
   font-weight: 600;
 }
+
+.access-token-search-box {
+  display:         flex;
+  justify-content: flex-end;
+  margin-bottom:   10px;
+}
+
+.personal-access-token-container {
+  .active-tokens-table thead {
+    th:first-child {
+      width:     33%;
+      min-width: 250px;
+    }
+
+    th:last-child {
+      width: 150px;
+    }
+  }
+
+  .revoked-tokens-table thead {
+    th:nth-child(2) {
+      max-width: 280px;
+    }
+
+    th:nth-child(3) {
+      max-width: 280px;
+    }
+
+    th:nth-child(4) {
+      max-width: 280px;
+    }
+
+    th:nth-child(5) {
+      max-width: 280px;
+    }
+  }
+}
+
+.admin-access-token-container {
+  .active-tokens-table thead {
+    th:nth-child(2) {
+      width:     33%;
+      min-width: 250px;
+    }
+
+    th:last-child {
+      width: 150px;
+    }
+  }
+
+  .revoked-tokens-table thead {
+    th:nth-child(3) {
+      max-width: 280px;
+    }
+
+    th:nth-child(4) {
+      max-width: 280px;
+    }
+
+    th:nth-child(5) {
+      max-width: 280px;
+    }
+
+    th:nth-child(6) {
+      max-width: 280px;
+    }
+  }
+}
+

@@ -68,9 +68,13 @@ export class AccessTokens extends Array<Stream<AccessToken>> {
   revokedTokens() {
     return new RevokedTokens(_.filter(this, (accessToken) => accessToken().revoked()));
   }
+
+  filterBySearchText(searchText: string) {
+    return new AccessTokens(..._.filter(this, (accessToken) => accessToken().matches(searchText)));
+  }
 }
 
-class RevokedTokens extends AccessTokens {
+export class RevokedTokens extends AccessTokens {
   constructor(access_tokens: Array<Stream<AccessToken>>) {
     super(..._.filter(access_tokens, (accessToken) => accessToken().revoked()));
     Object.setPrototypeOf(this, Object.create(RevokedTokens.prototype));
@@ -88,10 +92,10 @@ export class AccessToken extends ValidatableMixin {
   description: Stream<string>;
   username: Stream<string>;
   createdAt: Stream<Date>;
-  lastUsedAt: Stream<Date | null>;
+  lastUsedAt: Stream<Date>;
   token: Stream<string> = stream();
   revoked: Stream<boolean>;
-  revokedAt: Stream<Date | null>;
+  revokedAt: Stream<Date>;
   revokedBy: Stream<string>;
   revokeCause: Stream<string>;
   revokedBecauseUserDeleted: Stream<boolean>;
@@ -101,9 +105,9 @@ export class AccessToken extends ValidatableMixin {
                       username: string,
                       revoked: boolean,
                       revokedBy: string,
-                      revokedAt: Date | null,
+                      revokedAt: Date | undefined,
                       createdAt: Date,
-                      lastUsedAt: Date | null,
+                      lastUsedAt: Date | undefined,
                       revokeCause?: string,
                       revokedBecauseUserDeleted?: boolean,
                       token: string  = "",
@@ -141,13 +145,23 @@ export class AccessToken extends ValidatableMixin {
   }
 
   static new(): AccessToken {
-    return new AccessToken(-1, "", "", false, "", null, new Date(), null, undefined, false);
+    return new AccessToken(-1, "", "", false, "", undefined, new Date(), undefined, undefined, false);
+  }
+
+  matches(searchText: string) {
+    if (searchText) {
+      searchText               = searchText.toLowerCase();
+      const matchesDescription = this.description().toLowerCase().includes(searchText);
+      const matchesUsername    = this.username().toLowerCase().includes(searchText);
+      return matchesDescription || matchesUsername;
+    }
+    return true;
   }
 
   private static parseDate(dateString: string | null) {
     if (dateString) {
       return TimeFormatter.toDate(dateString);
     }
-    return null;
+    return undefined;
   }
 }

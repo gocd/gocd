@@ -37,12 +37,13 @@
   <script type="text/javascript" src="$req.getContextPath()/$concatenatedJavascriptFilePath"></script>
   <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>
 
-  #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/polyfill", "single_page_apps/header_footer_shim")})
+    #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor(
+        "single_page_apps/polyfill", "single_page_apps/header_footer_shim")})
       <script src="${js}"></script>
-  #end
-  #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/header_footer_shim")})
-    <link rel="stylesheet" type="text/css" href="${css}"
-  #end
+    #end
+    #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/header_footer_shim")})
+      <link rel="stylesheet" type="text/css" href="${css}"
+    #end
 
   <title>
       #if($title)
@@ -56,14 +57,16 @@
         #set($current_tab = $currentTab.name)
     #end
 <body
-      data-is-user-admin="$userHasAdministratorRights"
-      data-can-user-view-admin="$userHasViewAdministratorRights"
-      data-is-user-group-admin="$userHasGroupAdministratorRights"
-      data-can-user-view-templates="$userHasTemplateViewUserRights"
-      data-show-analytics-dashboard="$showAnalyticsDashboard"
-      data-user-display-name="$principal"
-      data-user-anonymous="$isAnonymousUser"
-      data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}">
+  data-is-user-admin="$userHasAdministratorRights"
+  data-can-user-view-admin="$userHasViewAdministratorRights"
+  data-is-user-group-admin="$userHasGroupAdministratorRights"
+  data-can-user-view-templates="$userHasTemplateViewUserRights"
+  data-show-analytics-dashboard="$showAnalyticsDashboard"
+  data-user-display-name="$principal"
+  data-user-anonymous="$isAnonymousUser"
+  data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}"
+  data-enable-admin-access-tokens-spa="$enable_admin_access_tokens_spa">
+
 <div class="page-wrap">
   <div id="body_bg">
     <div id="body_bg_highlight">
@@ -74,7 +77,6 @@
         ##    #else
         ##        <div id="doc3" class="yui-t6">
         ##    #end
-
 
           <div id="app-menu">
           </div>

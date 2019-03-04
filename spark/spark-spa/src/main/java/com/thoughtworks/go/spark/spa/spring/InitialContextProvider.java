@@ -76,6 +76,7 @@ public class InitialContextProvider {
         context.put("spaTimeout", SystemEnvironment.goSpaTimeout());
         context.put("showAnalyticsDashboard", showAnalyticsDashboard());
         context.put("devMode", !new SystemEnvironment().useCompressedJs());
+        context.put("enableAdminAccessTokensSPA", Toggles.isToggleOn(Toggles.ENABLE_ADMIN_ACCESS_TOKENS_SPA));
         return new VelocityContext(context);
     }
 

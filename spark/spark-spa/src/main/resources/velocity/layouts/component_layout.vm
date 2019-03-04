@@ -30,7 +30,8 @@
       <link href="${css}" media="screen" rel="stylesheet"/>
     #end
 
-    #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor("single_page_apps/polyfill", "single_page_apps/${controllerName}")})
+    #foreach( $js in ${webpackAssetsService.getJSAssetPathsFor(
+        "single_page_apps/polyfill", "single_page_apps/${controllerName}")})
       <script src="${js}"></script>
     #end
 
@@ -45,12 +46,11 @@
       data-view-name="${viewName}"
       data-show-analytics-dashboard="${showAnalyticsDashboard}"
       data-user-display-name="${currentUser.displayName}"
+      data-username="${currentUser.username}"
       data-user-anonymous="${currentUser.anonymous}"
       data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}"
       data-meta="${meta}"
-      data-supports-access-token="${supportsAccessToken}"
-      data-supports-access-token="${supportsAccessToken}"
-      >
+      data-enable-admin-access-tokens-spa="${enableAdminAccessTokensSPA}">
 
     #if(${devMode})
     <script>

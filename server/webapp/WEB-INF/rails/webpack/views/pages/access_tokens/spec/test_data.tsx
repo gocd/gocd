@@ -17,18 +17,38 @@
 import {AccessTokenJSON, AccessTokensJSON} from "models/access_tokens/types";
 
 export class AccessTokenTestData {
-  static all() {
+  static all(...accessTokens: AccessTokenJSON[]) {
     return {
       _embedded: {
-        access_tokens: [AccessTokenTestData.validAccessToken(), AccessTokenTestData.revokedAccessToken()]
+        access_tokens: accessTokens
 
       }
     } as AccessTokensJSON;
   }
 
+  static new(description: string, username = "bob", revoked = false, revoked_at: string | null = null) {
+    return {
+      id: Math.random(),
+      description,
+      auth_config_id: "auth_config_id0",
+      username,
+      revoke_cause: "",
+      revoked_by: "",
+      revoked,
+      revoked_at,
+      created_at: "2019-02-05T06:41:58Z",
+      last_used_at: "2019-02-05T07:41:58Z",
+    } as AccessTokenJSON;
+  }
+
+  static newRevoked(description: string, username = "bob", revoked = true, revoked_at = "2019-02-05T07:41:58Z") {
+    return this.new(description, username, revoked, revoked_at);
+  }
+
   static validAccessToken() {
     return {
       id: 1,
+      name: "ValidToken",
       description: "This is dummy description",
       auth_config_id: "auth_config_id0",
       username: "admin",
@@ -41,30 +61,15 @@ export class AccessTokenTestData {
     } as AccessTokenJSON;
   }
 
-  static newAccessTokenWithTokenText() {
-    return {
-      id: 2,
-      description: "This is dummy description",
-      auth_config_id: "auth_config_id0",
-      username: "admin",
-      revoke_cause: "",
-      revoked_by: "",
-      token: "05724e1de425eeeaf750b7cb2ee98636abdf",
-      revoked: false,
-      revoked_at: null,
-      created_at: "2019-02-05T06:41:58Z",
-      last_used_at: "2019-02-05T07:41:58Z"
-    } as AccessTokenJSON;
-  }
-
   static revokedAccessToken() {
     return {
       id: 3,
+      name: "RevokedToken",
       description: "This is token is revoked",
       auth_config_id: "auth_config_id0",
       revoked: true,
       revoked_at: "2019-02-05T06:41:58Z",
-      created_at: "2019-02-06T06:41:58Z",
+      created_at: "2019-02-04T06:41:58Z",
       last_used_at: "2019-02-04T07:41:58Z",
       username: "admin",
       revoke_cause: "revoked as not in use",

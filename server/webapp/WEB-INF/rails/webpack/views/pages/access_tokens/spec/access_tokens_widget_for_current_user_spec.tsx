@@ -20,7 +20,11 @@ import {Stream} from "mithril/stream";
 import {AccessTokenTestData} from "models/access_tokens/spec/access_token_test_data";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as simulateEvent from "simulate-event";
-import {AccessTokensWidget} from "views/pages/access_tokens/access_tokens_widget";
+import {
+  AccessTokensWidgetForCurrentUser,
+  formatTimeInformation,
+  getLastUsedInformation, getRevokedBy
+} from "views/pages/access_tokens/access_tokens_widget";
 import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 
 describe("AccessTokensWidgetForCurrentUserSpec", () => {
@@ -67,11 +71,7 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
 
     const activeTokenTableRows = helper.findIn(helper.findByDataTestId("tab-content-0"), "table-row");
     expect(activeTokenTableRows.length).toEqual(1);
-    expect(activeTokenTableRows).toContainText(validToken.description());
-    expect(activeTokenTableRows)
-      .toContainText(AccessTokensWidget.formatTimeInformation(validToken.createdAt()));
-    expect(activeTokenTableRows)
-      .toContainText(AccessTokensWidget.getLastUsedInformation(validToken));
+    assertActiveTokenRow(activeTokenTableRows.eq(0), validToken);
 
     const revokedTokensTab = helper.findByDataTestId("tab-header-1");
     expect(revokedTokensTab).toHaveText("Revoked Tokens");
@@ -99,23 +99,35 @@ describe("AccessTokensWidgetForCurrentUserSpec", () => {
     expect(revokedTokenTableHeaders.eq(0)).toHaveText("Description");
     expect(revokedTokenTableHeaders.eq(1)).toHaveText("Created At");
     expect(revokedTokenTableHeaders.eq(2)).toHaveText("Last Used");
-    expect(revokedTokenTableHeaders.eq(3)).toHaveText("Revoked At");
-    expect(revokedTokenTableHeaders.eq(4)).toHaveText("Revoked Message");
+    expect(revokedTokenTableHeaders.eq(3)).toHaveText("Revoked By");
+    expect(revokedTokenTableHeaders.eq(4)).toHaveText("Revoked At");
+    expect(revokedTokenTableHeaders.eq(5)).toHaveText("Revoked Message");
 
     const revokedTokensTableRows = helper.findIn(helper.findByDataTestId("tab-content-1"), "table-row");
     expect(revokedTokensTableRows.length).toEqual(1);
-    expect(revokedTokensTableRows).toContainText(revokedToken.description());
-    expect(revokedTokensTableRows).toContainText(AccessTokensWidget.formatTimeInformation(revokedToken.createdAt()));
-    expect(revokedTokensTableRows).toContainText(AccessTokensWidget.getLastUsedInformation(revokedToken));
-    const revokedAt = revokedToken.revokedAt() as Date;
-    expect(revokedTokensTableRows).toContainText(AccessTokensWidget.formatTimeInformation(revokedAt));
-    expect(revokedTokensTableRows).toContainText(revokedToken.revokeCause());
+    assertRevokedTokenRow(revokedTokensTableRows.eq(0), revokedToken);
   });
 
   function mount(accessTokens: Stream<AccessTokens>) {
-    helper.mount(() => <AccessTokensWidget accessTokens={accessTokens} onRevoke={onRevoke}/>);
+    helper.mount(() => <AccessTokensWidgetForCurrentUser accessTokens={accessTokens} onRevoke={onRevoke}/>);
   }
 
   afterEach(helper.unmount.bind(helper));
 
+  function assertActiveTokenRow(elem: any, accessToken: AccessToken) {
+    const columns = elem.find("td");
+    expect(columns.eq(0)).toContainText(accessToken.description());
+    expect(columns.eq(1)).toContainText(formatTimeInformation(accessToken.createdAt()));
+    expect(columns.eq(2)).toContainText(getLastUsedInformation(accessToken));
+  }
+
+  function assertRevokedTokenRow(elem: any, accessToken: AccessToken) {
+    const columns = elem.find("td");
+    expect(columns.eq(0)).toContainText(accessToken.description());
+    expect(columns.eq(1)).toContainText(formatTimeInformation(accessToken.createdAt()));
+    expect(columns.eq(2)).toContainText(getLastUsedInformation(accessToken));
+    expect(columns.eq(3)).toContainText(getRevokedBy(accessToken.revokedBy()));
+    expect(columns.eq(4)).toContainText(formatTimeInformation(accessToken.revokedAt()));
+    expect(columns.eq(5)).toContainText(accessToken.revokeCause());
+  }
 });

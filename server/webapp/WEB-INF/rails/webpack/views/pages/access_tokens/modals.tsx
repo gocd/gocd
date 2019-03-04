@@ -14,70 +14,17 @@
  * limitations under the License.
  */
 
-import {ApiResult, ErrorResponse, ObjectWithEtag, SuccessResponse} from "helpers/api_request_builder";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {AccessTokenCRUD} from "models/access_tokens/access_token_crud";
 import {AccessToken, AccessTokens} from "models/access_tokens/types";
+import {AdminAccessTokenCRUD} from "models/admin_access_tokens/admin_access_token_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {CopyField, Size, TextAreaField} from "views/components/forms/input_fields";
-import {Modal} from "views/components/modal";
-
-abstract class BaseModal extends Modal {
-  protected accessToken: Stream<AccessToken>;
-
-  protected constructor(accessTokens: Stream<AccessTokens>,
-                        accessToken: Stream<AccessToken>,
-                        onSuccessfulSave: (msg: m.Children) => void,
-                        onError: (msg: m.Children) => void) {
-    super();
-    this.accessTokens     = accessTokens;
-    this.onSuccessfulSave = onSuccessfulSave;
-    this.onFailedSave     = onError;
-    this.accessToken      = accessToken;
-  }
-
-  protected readonly accessTokens: Stream<AccessTokens>;
-  protected readonly onSuccessfulSave: (msg: m.Children) => void;
-  private readonly onFailedSave: (msg: m.Children) => void;
-
-  protected performOperation(e: MouseEvent) {
-    this.operationPromise().then(this.onOperationResult.bind(this)).finally(() => m.redraw());
-  }
-
-  protected abstract operationPromise(): Promise<any>;
-
-  protected abstract afterSuccess(): void;
-
-  private onOperationResult(result: ApiResult<ObjectWithEtag<AccessToken>>) {
-    result.do(this.onSuccess.bind(this), (e) => {
-      this.onError(e, result.getStatusCode());
-    });
-  }
-
-  private onError(errorResponse: ErrorResponse, statusCode: number) {
-    if (422 === statusCode && errorResponse.body) {
-      const json = JSON.parse(errorResponse.body);
-      if (json && json.hasOwnProperty("created_at")) {
-        this.accessToken(AccessToken.fromJSON(json));
-      } else {
-        this.onFailedSave(json.message);
-        this.close();
-      }
-    } else {
-      this.onFailedSave(errorResponse.message);
-      this.close();
-    }
-  }
-
-  private onSuccess(successResponse: SuccessResponse<ObjectWithEtag<AccessToken>>) {
-    this.accessToken(successResponse.body.object);
-    this.afterSuccess();
-  }
-}
+import {BaseModal, RevokeTokenModal} from "views/pages/access_tokens/commons/modals";
 
 export class GenerateTokenModal extends BaseModal {
   constructor(accessTokens: Stream<AccessTokens>,
@@ -137,42 +84,14 @@ export class GenerateTokenModal extends BaseModal {
   }
 }
 
-export class RevokeTokenModal extends BaseModal {
-  private cause: Stream<string> = stream();
-
-  constructor(accessTokens: Stream<AccessTokens>,
-              accessToken: Stream<AccessToken>,
-              onSuccessfulSave: (msg: m.Children) => void,
-              onError: (msg: m.Children) => void) {
-    super(accessTokens, accessToken, onSuccessfulSave, onError);
-    this.closeModalOnOverlayClick = false;
-  }
-
-  body(): m.Children {
-    return (
-      <TextAreaField helpText={"Why do you want to revoke this token?"}
-                     label="Are you sure you want to revoke this token?"
-                     rows={5}
-                     size={Size.MATCH_PARENT}
-                     property={this.cause}/>
-    );
-  }
-
-  title(): string {
-    return "Revoke Token";
-  }
-
-  buttons(): m.ChildArray {
-    return [<Buttons.Primary data-test-id="button-revoke-token"
-                             onclick={this.performOperation.bind(this)}>Revoke token</Buttons.Primary>,
-      <Buttons.Cancel data-test-id="button-cancel" onclick={() => this.close()}>Cancel</Buttons.Cancel>];
-  }
-
+export class RevokeAccessTokenForCurrentUser extends RevokeTokenModal {
   protected operationPromise(): Promise<any> {
     return AccessTokenCRUD.revoke(this.accessToken(), this.cause()).finally(() => this.close());
   }
+}
 
-  protected afterSuccess() {
-    this.onSuccessfulSave("Access token was successfully revoked.");
+export class RevokeAccessTokenByAdmin extends RevokeTokenModal {
+  protected operationPromise(): Promise<any> {
+    return AdminAccessTokenCRUD.revoke(this.accessToken(), this.cause()).finally(() => this.close());
   }
 }

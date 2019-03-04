@@ -501,4 +501,8 @@ public class Routes {
     public class AccessTokens {
         public static final String SPA_BASE = "/access_tokens";
     }
+
+    public class AdminAccessTokens {
+        public static final String SPA_BASE = "/admin/admin_access_tokens";
+    }
 }

@@ -24,6 +24,11 @@
 -->
 
 <urlrewrite>
+  <rule>
+    <name>Admin Access Tokens SPA</name>
+    <from>^/admin/admin_access_tokens(/?)$</from>
+    <to last="true">/spark/admin/admin_access_tokens</to>
+  </rule>
 
   <rule>
     <name>User Search API</name>

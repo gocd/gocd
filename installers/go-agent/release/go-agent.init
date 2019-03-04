@@ -31,6 +31,8 @@ SERVICE_NAME=${0##*/}
 # Strips initV leading chars if the script is located in rcX.d (automatically executed on runlevel change)
 INIT_DIR=${0%/*}; echo ${INIT_DIR##*/} | grep -e '^rc[0-9]\.d$' >/dev/null && SERVICE_NAME=$(echo "${SERVICE_NAME}" | sed 's/^[SK][0-9][0-9]//');
 
+AGENT_WORK_DIR=${AGENT_WORK_DIR:-"$AGENT_DIR"}
+
 CUR_USER=$(whoami)
 
 start_daemon() {
@@ -48,7 +50,12 @@ log_failure_msg() {
 . /etc/default/${SERVICE_NAME}
 
 check_proc() {
-    pgrep -u go -f /usr/share/${SERVICE_NAME}/agent-bootstrapper.jar >/dev/null
+  #no need to check service mode because we always run in service mode from the init script
+  if [ -d "/var/run/go-agent" ]; then
+    ps -p "$(cat "/var/run/go-agent/${SERVICE_NAME}.pid")" >/dev/null
+  else
+    ps -p "$(cat "$AGENT_WORK_DIR/go-agent.pid")" >/dev/null
+  fi
 }
 
 start_go_agent() {

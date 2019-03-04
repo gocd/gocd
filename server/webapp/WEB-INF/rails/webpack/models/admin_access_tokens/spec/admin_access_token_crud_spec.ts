@@ -25,7 +25,7 @@ describe("AdminAccessTokenCRUDSpec", () => {
   const BASE_PATH = "/go/api/admin/access_tokens";
 
   it("should get all access tokens", (done) => {
-    jasmine.Ajax.stubRequest(BASE_PATH).andReturn(accessTokensResponse());
+    jasmine.Ajax.stubRequest(BASE_PATH + "?filter=all").andReturn(accessTokensResponse());
 
     const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
@@ -36,7 +36,7 @@ describe("AdminAccessTokenCRUDSpec", () => {
     AdminAccessTokenCRUD.all().then(onResponse);
 
     const request = jasmine.Ajax.requests.mostRecent();
-    expect(request.url).toEqual(BASE_PATH);
+    expect(request.url).toEqual(BASE_PATH + "?filter=all");
     expect(request.method).toEqual("GET");
     expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v1+json"});
   });

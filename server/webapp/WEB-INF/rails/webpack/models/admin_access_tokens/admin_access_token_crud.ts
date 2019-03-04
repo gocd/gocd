@@ -22,7 +22,7 @@ export class AdminAccessTokenCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
   static all() {
-    return ApiRequestBuilder.GET(SparkRoutes.apiAdminAccessTokensPath(), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminAccessTokensPath("filter=all"), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => {
                                 return AccessTokens.fromJSON(JSON.parse(body) as AccessTokensJSON);

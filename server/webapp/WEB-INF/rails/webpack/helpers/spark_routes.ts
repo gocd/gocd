@@ -226,11 +226,15 @@ export default class {
     }
   }
 
-  static apiAdminAccessTokensPath() {
-    return "/go/api/admin/access_tokens";
+  static apiAdminAccessTokensBasePath() {
+    return `/go/api/admin/access_tokens`;
+  }
+
+  static apiAdminAccessTokensPath(filter: string) {
+    return `${this.apiAdminAccessTokensBasePath()}?${filter}`;
   }
 
   static apiAdminAccessTokenRevokePath(id: number) {
-    return `${this.apiAdminAccessTokensPath()}/${id}/revoke`;
+    return `${this.apiAdminAccessTokensBasePath()}/${id}/revoke`;
   }
 }

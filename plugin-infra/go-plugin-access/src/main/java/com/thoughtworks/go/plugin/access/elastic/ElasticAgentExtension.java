@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessa
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentExtensionV3;
 import com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentExtensionV4;
+import com.thoughtworks.go.plugin.access.elastic.v5.ElasticAgentExtensionV5;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -40,7 +41,7 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_A
 
 @Component
 public class ElasticAgentExtension extends AbstractExtension {
-    public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionV3.VERSION, ElasticAgentExtensionV4.VERSION);
+    public static final List<String> SUPPORTED_VERSIONS = Arrays.asList(ElasticAgentExtensionV3.VERSION, ElasticAgentExtensionV4.VERSION, ElasticAgentExtensionV5.VERSION);
     private final Map<String, VersionedElasticAgentExtension> elasticAgentExtensionMap = new HashMap<>();
 
     @Autowired
@@ -48,9 +49,11 @@ public class ElasticAgentExtension extends AbstractExtension {
         super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ELASTIC_AGENT_EXTENSION), ELASTIC_AGENT_EXTENSION);
         elasticAgentExtensionMap.put(ElasticAgentExtensionV3.VERSION, new ElasticAgentExtensionV3(pluginRequestHelper));
         elasticAgentExtensionMap.put(ElasticAgentExtensionV4.VERSION, new ElasticAgentExtensionV4(pluginRequestHelper));
+        elasticAgentExtensionMap.put(ElasticAgentExtensionV5.VERSION, new ElasticAgentExtensionV5(pluginRequestHelper));
 
         registerHandler(ElasticAgentExtensionV3.VERSION, new PluginSettingsJsonMessageHandler1_0());
         registerHandler(ElasticAgentExtensionV4.VERSION, new PluginSettingsJsonMessageHandler1_0());
+        registerHandler(ElasticAgentExtensionV5.VERSION, new PluginSettingsJsonMessageHandler1_0());
     }
 
 

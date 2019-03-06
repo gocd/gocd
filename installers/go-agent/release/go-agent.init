@@ -64,7 +64,7 @@ start_go_agent() {
         exit 4
     fi
 
-    check_proc
+    check_proc &>/dev/null
     if [ $? -eq 0 ]; then
         log_success_msg "Go Agent already running."
         exit 0

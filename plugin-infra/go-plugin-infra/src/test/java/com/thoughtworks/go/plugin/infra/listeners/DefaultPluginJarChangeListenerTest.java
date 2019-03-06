@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra.listeners;
 
+import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.infra.GoPluginOSGiFramework;
 import com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
@@ -436,7 +437,7 @@ public class DefaultPluginJarChangeListenerTest {
 
         assertThat(descriptor.getStatus().getMessages().size(), is(1));
         assertThat(descriptor.getStatus().getMessages().get(0),
-                is("Plugin with ID (some.old.id) is not valid: Incompatible with GoCD version '19.2.0'. Compatible version is: 9999.0.0."));
+                is("Plugin with ID (some.old.id) is not valid: Incompatible with GoCD version '" + CurrentGoCDVersion.getInstance().goVersion() + "'. Compatible version is: 9999.0.0."));
     }
 
     @Test

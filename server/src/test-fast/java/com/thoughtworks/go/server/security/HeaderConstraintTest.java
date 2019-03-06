@@ -49,6 +49,17 @@ public class HeaderConstraintTest {
     }
 
     @Test
+    public void shouldBeSatisfiedInPresenceOfNewConfirmHeader() {
+        SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+
+        when(systemEnvironment.isApiSafeModeEnabled()).thenReturn(true);
+        request.addHeader("X-GoCD-Confirm", "True");
+
+        assertTrue(new HeaderConstraint(systemEnvironment).isSatisfied(request));
+    }
+
+    @Test
     public void shouldBeUnsatisfiedIfRequiredHeadersAreAbsent() {
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         MockHttpServletRequest request = new MockHttpServletRequest();

@@ -83,9 +83,9 @@ describe Admin::BackupController do
     it "should return success if the backup is successful" do
       allow(controller).to receive(:backup_service).and_return(backup_service = double("backup_service"))
 
-      expect(backup_service).to receive(:startBackup).with(an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |u, r|
-        r.setMessage("Backup completed successfully.")
-      end
+      expect(backup_service).to receive(:startBackup).with(an_instance_of(Username)).and_return(backup = double('Server backup'))
+      expect(backup).to receive(:isSuccessful).and_return(true)
+      expect(backup).to receive(:getMessage).and_return("Backup completed successfully.")
 
       post :perform_backup
 
@@ -95,9 +95,9 @@ describe Admin::BackupController do
     it "should return error if the backup has failed" do
       allow(controller).to receive(:backup_service).and_return(backup_service = double("backup_service"))
 
-      expect(backup_service).to receive(:startBackup).with(an_instance_of(Username), an_instance_of(HttpLocalizedOperationResult)) do |user, result|
-        result.badRequest("Failed to perform backup. Reason: Ran out of disk space")
-      end
+      expect(backup_service).to receive(:startBackup).with(an_instance_of(Username)).and_return(backup = double('Server backup'))
+      expect(backup).to receive(:isSuccessful).and_return(false)
+      expect(backup).to receive(:getMessage).and_return("Failed to perform backup. Reason: Ran out of disk space")
 
       post :perform_backup
 

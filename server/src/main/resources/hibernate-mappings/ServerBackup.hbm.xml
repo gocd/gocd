@@ -26,5 +26,12 @@
         <property name="path"/>
         <property name="time"/>
         <property name="username"/>
+        <property name="message"/>
+        <property name="status" not-null="true">
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">com.thoughtworks.go.server.domain.BackupStatus</param>
+                <param name="type">12</param>
+            </type>
+        </property>
     </class>
 </hibernate-mapping>

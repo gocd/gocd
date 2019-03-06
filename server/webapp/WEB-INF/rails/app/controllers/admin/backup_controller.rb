@@ -27,7 +27,7 @@ class Admin::BackupController < ApplicationController
   end
 
   def perform_backup
-    backup_service.startBackup(current_user, op_result = HttpLocalizedOperationResult.new())
-    redirect_with_flash(op_result.message(), :action => :index, :class => op_result.isSuccessful() ? "success" : "error")
+    backup = backup_service.startBackup(current_user)
+    redirect_with_flash(backup.getMessage(), :action => :index, :class => backup.isSuccessful() ? "success" : "error")
   end
 end

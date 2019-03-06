@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.admin.backups.representers
+package com.thoughtworks.go.apiv2.backups.representers
 
 import com.thoughtworks.go.apiv1.user.representers.UserSummaryRepresenter
+import com.thoughtworks.go.server.domain.BackupStatus
 import com.thoughtworks.go.server.domain.ServerBackup
 import org.junit.jupiter.api.Test
 
@@ -29,7 +30,7 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 class BackupRepresenterTest {
   @Test
   void 'should serialize'() {
-    def backup = new ServerBackup("/foo/bar", new Date(42), "bob", "")
+    def backup = new ServerBackup("/foo/bar", new Date(42), "bob", BackupStatus.IN_PROGRESS, "exporting config", 99)
 
     def actualJson = toObjectString({ BackupRepresenter.toJSON(it, backup) })
 
@@ -39,7 +40,9 @@ class BackupRepresenterTest {
       ],
       time  : jsonDate(new Date(42)),
       path  : "/foo/bar",
-      user  : toObject({ UserSummaryRepresenter.toJSON(it, "bob") })
+      user  : toObject({ UserSummaryRepresenter.toJSON(it, "bob") }),
+      status : 'IN_PROGRESS',
+      message : 'exporting config'
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)

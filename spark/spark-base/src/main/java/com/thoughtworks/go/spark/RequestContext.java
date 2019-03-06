@@ -43,6 +43,14 @@ public class RequestContext {
         return new Link(name, urlFor(pathAfterContext));
     }
 
+    public String pathWithContext(String pathAfterContext) {
+        try {
+            return new URL(protocol, host, port, contextPath + pathAfterContext).getPath();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public String urlFor(String pathAfterContext) {
         try {
             return new URL(protocol, host, port, contextPath + pathAfterContext).toExternalForm();

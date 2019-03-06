@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.admin.backups
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv1.admin.backups.representers.BackupRepresenter
+import com.thoughtworks.go.server.domain.BackupStatus
 import com.thoughtworks.go.server.domain.ServerBackup
 import com.thoughtworks.go.server.service.BackupService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -60,17 +61,13 @@ class BackupsControllerTest implements ControllerTrait<BackupsController>, Secur
       void 'should create a backup'() {
         enableSecurity()
         loginAsAdmin()
-        def backup = new ServerBackup("/foo/bar", new Date(), currentUserLoginName().toString())
+        def backup = new ServerBackup("/foo/bar", new Date(), currentUserLoginName().toString(), BackupStatus.COMPLETED, "Completed", 23)
 
-        doAnswer({ InvocationOnMock invocationOnMock ->
-          HttpLocalizedOperationResult result = invocationOnMock.arguments.last() as HttpLocalizedOperationResult
-          result.setMessage("success!")
-          return backup
-        }).when(backupService).startBackup(eq(currentUsername()), any() as HttpLocalizedOperationResult)
+        doReturn(backup).when(backupService).startBackup(eq(currentUsername()))
 
         postWithApiHeader(controller.controllerBasePath(), [confirm: 'true'], null)
 
-        verify(backupService).startBackup(eq(currentUsername()), any() as HttpLocalizedOperationResult)
+        verify(backupService).startBackup(eq(currentUsername()))
 
         assertThatResponse()
           .isOk()

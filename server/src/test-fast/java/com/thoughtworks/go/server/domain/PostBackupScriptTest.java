@@ -30,7 +30,7 @@ class PostBackupScriptTest {
     @Test
     void shouldCreateCommandLineForSuccessfulBackupInitiatedViaTimer() {
         Date time = new Date(1535551235962L);
-        ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, null);
+        ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, null, "");
         PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.TIMER, null, backup, "/foo/bar/backupDir", time);
         CommandLine commandLine = postBackupScript.commandLine();
         assertThat(commandLine.getExecutable()).isEqualTo("upload-to-s3");
@@ -63,8 +63,8 @@ class PostBackupScriptTest {
     @Test
     void shouldCreateCommandLineForSuccessfulBackupInitiatedByUser() {
         Date time = new Date(1535551235962L);
-        ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, "bob");
-        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.USER, new Username("bob"), backup, "/foo/bar/backupDir", time);
+        ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, "bob", "");
+        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.USER, "bob", backup, "/foo/bar/backupDir", time);
         CommandLine commandLine = postBackupScript.commandLine();
         assertThat(commandLine.getExecutable()).isEqualTo("upload-to-s3");
         assertThat(commandLine.getArguments()).isEmpty();
@@ -81,7 +81,7 @@ class PostBackupScriptTest {
     @Test
     void shouldCreateCommandLineForBackupThatErroredWhenInitiatedByUser() {
         Date time = new Date(1535551235962L);
-        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.USER, new Username("bob"), null, null, time);
+        PostBackupScript postBackupScript = new PostBackupScript("upload-to-s3", BackupService.BackupInitiator.USER, "bob", null, null, time);
         CommandLine commandLine = postBackupScript.commandLine();
         assertThat(commandLine.getExecutable()).isEqualTo("upload-to-s3");
         assertThat(commandLine.getArguments()).isEmpty();
@@ -97,8 +97,8 @@ class PostBackupScriptTest {
     void shouldReturnFalseAndNotBlowUpIfExecutionOfCommandFails() {
         Date time = new Date(1535551235962L);
         String command = RandomStringUtils.randomAlphabetic(32);
-        ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, "bob");
-        PostBackupScript postBackupScript = new PostBackupScript(command, BackupService.BackupInitiator.USER, new Username("bob"), backup, "/foo/bar/backupDir", time);
+        ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, "bob", "");
+        PostBackupScript postBackupScript = new PostBackupScript(command, BackupService.BackupInitiator.USER, "bob", backup, "/foo/bar/backupDir", time);
         assertThat(postBackupScript.execute()).isFalse();
     }
 
@@ -106,8 +106,8 @@ class PostBackupScriptTest {
     void shouldReturnTrueIfExecutionOfCommandSucceeds() {
         Date time = new Date(1535551235962L);
         String command = "jcmd"; // provided by the JDK
-        ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, "bob");
-        PostBackupScript postBackupScript = new PostBackupScript(command, BackupService.BackupInitiator.USER, new Username("bob"), backup, "/foo/bar/backupDir", time);
+        ServerBackup backup = new ServerBackup("/foo/bar/backupDir/backup_someTimeStamp", time, "bob", "");
+        PostBackupScript postBackupScript = new PostBackupScript(command, BackupService.BackupInitiator.USER, "bob", backup, "/foo/bar/backupDir", time);
         assertThat(postBackupScript.execute()).isTrue();
     }
 }

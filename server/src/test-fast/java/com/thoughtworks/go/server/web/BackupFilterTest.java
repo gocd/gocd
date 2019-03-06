@@ -81,7 +81,7 @@ public class BackupFilterTest {
     @Test
     public void shouldPassHealthCheckRequestWhenBackupIsBeingTaken() throws Exception {
         when(backupService.isBackingUp()).thenReturn(true);
-        Request request = request(HttpMethod.GET, "", "/go/api/v1/health");
+        Request request = request(HttpMethod.GET, "", "/api/v1/health");
         backupFilter.doFilter(request, res, chain);
         verify(res, times(0)).setContentType("text/html");
         verify(writer, times(0)).print("some test data for my input stream");
@@ -124,6 +124,17 @@ public class BackupFilterTest {
         verify(res).setHeader("Cache-Control", "private, max-age=0, no-cache");
         verify(res).setDateHeader("Expires", 0);
         verify(res).setStatus(503);
+    }
+
+    @Test
+    public void shouldGetServerBackupByIdWhenBackupIsBeingTaken() throws Exception {
+        when(backupService.isBackingUp()).thenReturn(true);
+        Request request = request(HttpMethod.GET, "", "/api/backups/12");
+        backupFilter.doFilter(request, res, chain);
+
+        verify(res, times(0)).setContentType("text/html");
+        verify(writer, times(0)).print("some test data for my input stream");
+        verify(res, never()).setStatus(anyInt());
     }
 
 

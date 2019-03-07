@@ -26,4 +26,5 @@ public interface PluginConstants {
     String CONFIG_REPO_EXTENSION = "configrepo";
     String ANALYTICS_EXTENSION = "analytics";
     String ARTIFACT_EXTENSION = "artifact";
+    String SECRETS_EXTENSION = "secrets";
 }

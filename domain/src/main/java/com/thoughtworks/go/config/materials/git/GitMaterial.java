@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.config.materials.git;
 
+import com.thoughtworks.go.config.BackedBySecretParam;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -53,7 +55,7 @@ import static java.lang.String.format;
 /**
  * Understands configuration for git version control
  */
-public class GitMaterial extends ScmMaterial {
+public class GitMaterial extends ScmMaterial implements BackedBySecretParam {
     private static final Logger LOG = LoggerFactory.getLogger(GitMaterial.class);
     public static final int UNSHALLOW_TRYOUT_STEP = 100;
     public static final int DEFAULT_SHALLOW_CLONE_DEPTH = 2;
@@ -69,6 +71,7 @@ public class GitMaterial extends ScmMaterial {
     private static final Pattern GIT_VERSION_PATTERN = Pattern.compile(".*\\s+(\\d(\\.\\d)+).*");
     private static final String ERR_GIT_NOT_FOUND = "Failed to find 'git' on your PATH. Please ensure 'git' is executable by the Go Server and on the Go Agents where this material will be used.";
     public static final String ERR_GIT_OLD_VERSION = "Please install Git-core 1.6 or above. ";
+    private boolean parsed = false;
 
     public GitMaterial(String url) {
         super(TYPE);
@@ -107,6 +110,8 @@ public class GitMaterial extends ScmMaterial {
         this.submoduleFolder = config.getSubmoduleFolder();
         this.invertFilter = config.getInvertFilter();
     }
+
+
 
     @Override
     public MaterialConfig config() {
@@ -429,6 +434,16 @@ public class GitMaterial extends ScmMaterial {
         this.shallowClone = ((GitMaterialConfig) materialConfig).isShallowClone();
     }
 
+    @Override
+    public boolean containsSecretParams() {
+        return this.url.hasSecretParams();
+    }
+
+    @Override
+    public List<SecretParam> fetchSecretParams() {
+        return url.fetchSecretParams();
+    }
+
     public GitMaterial withShallowClone(boolean value) {
         GitMaterialConfig config = (GitMaterialConfig) config();
         config.setShallowClone(value);
@@ -438,5 +453,4 @@ public class GitMaterial extends ScmMaterial {
     public String branchWithDefault() {
         return StringUtils.isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch;
     }
-
 }

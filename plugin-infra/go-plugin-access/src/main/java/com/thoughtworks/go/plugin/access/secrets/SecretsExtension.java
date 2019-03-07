@@ -75,8 +75,8 @@ public class SecretsExtension extends AbstractExtension {
         return getVersionedSecretsExtension(pluginId).validateSecretsConfig(pluginId, configuration);
     }
 
-    public List<Secret> lookupSecrets(String pluginId, List<String> keys, SecretConfig secretConfig) {
-        return getVersionedSecretsExtension(pluginId).lookupSecrets(pluginId, keys, secretConfig);
+    public List<Secret> lookupSecrets(String pluginId, SecretConfig secretConfig, List<String> keys) {
+        return getVersionedSecretsExtension(pluginId).lookupSecrets(pluginId, secretConfig, keys);
     }
 
     protected VersionedSecretsExtension getVersionedSecretsExtension(String pluginId) {

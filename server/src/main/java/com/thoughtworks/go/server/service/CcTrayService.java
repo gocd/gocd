@@ -20,12 +20,15 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /* Understands how to serve a request for the CcTray XML for the current user. */
 @Service
@@ -45,17 +48,23 @@ public class CcTrayService {
 
         StringBuilder xml = new StringBuilder();
 
-        return renderCCTrayXML(siteUrlPrefix, userName, xml).toString();
+        return renderCCTrayXML(siteUrlPrefix, userName, xml, (String etag) -> {
+        }).toString();
     }
 
-    public Appendable renderCCTrayXML(String siteUrlPrefix, String userName, Appendable appendable) {
+    public Appendable renderCCTrayXML(String siteUrlPrefix, String userName, Appendable appendable, Consumer<String> etagConsumer) {
         boolean isSecurityEnabled = goConfigService.isSecurityEnabled();
+        List<ProjectStatus> statuses = ccTrayCache.allEntriesInOrder();
+
+        String hashCodes = statuses.stream().map(ProjectStatus::hashCode).map(Object::toString).collect(Collectors.joining("/"));
+        String etag = DigestUtils.sha256Hex(ProjectStatus.SITE_URL_PREFIX + "/" + hashCodes);
+        etagConsumer.accept(etag);
+
         try {
             appendable.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             appendable.append("\n");
             appendable.append("<Projects>");
             appendable.append("\n");
-            List<ProjectStatus> statuses = ccTrayCache.allEntriesInOrder();
             for (ProjectStatus status : statuses) {
                 if (!isSecurityEnabled || status.canBeViewedBy(userName)) {
                     String xmlRepresentation = status.xmlRepresentation().replaceAll(ProjectStatus.SITE_URL_PREFIX, siteUrlPrefix);

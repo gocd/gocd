@@ -60,7 +60,7 @@ public class CcTrayServiceTest {
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user1")));
         loginAs("other_user");
 
-        String xml = ccTrayService.renderCCTrayXML("some-prefix", Username.ANONYMOUS.getUsername().toString(), new StringBuilder()).toString();
+        String xml = ccTrayService.renderCCTrayXML("some-prefix", Username.ANONYMOUS.getUsername().toString(), new StringBuilder(), etag -> {}).toString();
 
         assertCcTrayXmlFor(xml, "some-prefix", "proj1", "proj2");
     }
@@ -71,11 +71,11 @@ public class CcTrayServiceTest {
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
         loginAs("USER1");
-        String xml = ccTrayService.renderCCTrayXML("some-prefix", "USER1", new StringBuilder()).toString();
+        String xml = ccTrayService.renderCCTrayXML("some-prefix", "USER1", new StringBuilder(), etag -> {}).toString();
         assertCcTrayXmlFor(xml, "some-prefix", "proj1");
 
         loginAs("uSEr2");
-        xml = ccTrayService.renderCCTrayXML("some-prefix", "uSEr2", new StringBuilder()).toString();
+        xml = ccTrayService.renderCCTrayXML("some-prefix", "uSEr2", new StringBuilder(), etag -> {}).toString();
         assertCcTrayXmlFor(xml, "some-prefix", "proj2");
     }
 
@@ -85,7 +85,7 @@ public class CcTrayServiceTest {
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
         loginAs("some-user-without-permissions");
-        String xml = ccTrayService.renderCCTrayXML("some-prefix", "some-user-without-permissions", new StringBuilder()).toString();
+        String xml = ccTrayService.renderCCTrayXML("some-prefix", "some-user-without-permissions", new StringBuilder(), etag -> {}).toString();
         assertCcTrayXmlFor(xml, "some-prefix");
     }
 
@@ -95,11 +95,11 @@ public class CcTrayServiceTest {
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
         loginAs("user1");
-        String xml = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder()).toString();
+        String xml = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), etag -> {}).toString();
         assertCcTrayXmlFor(xml, "prefix1", "proj1");
 
         loginAs("user2");
-        xml = ccTrayService.renderCCTrayXML("prefix2", "user2", new StringBuilder()).toString();
+        xml = ccTrayService.renderCCTrayXML("prefix2", "user2", new StringBuilder(), etag -> {}).toString();
         assertCcTrayXmlFor(xml, "prefix2", "proj2");
     }
 
@@ -109,7 +109,7 @@ public class CcTrayServiceTest {
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))));
 
         loginAs("user1");
-        String xml = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder()).toString();
+        String xml = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), etag -> {}).toString();
 
         assertThat(xml, is("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<Projects>\n" +

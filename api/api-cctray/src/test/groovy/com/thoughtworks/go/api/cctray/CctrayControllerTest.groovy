@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.invocation.InvocationOnMock
 
+import java.util.function.Consumer
+
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
@@ -83,8 +85,10 @@ class CctrayControllerTest implements SecurityServiceTrait, ControllerTrait<Cctr
       void 'should render XML returned by cctray service'() {
         enableSecurity()
         loginAsUser()
-        when(ccTrayService.renderCCTrayXML(eq("http://test.host/go"), eq(currentUsernameString()), any() as Appendable)).thenAnswer({ InvocationOnMock invocation ->
+        when(ccTrayService.renderCCTrayXML(eq("http://test.host/go"), eq(currentUsernameString()), any() as Appendable, any() as Consumer<String>)).thenAnswer({ InvocationOnMock invocation ->
           Appendable appendable = invocation.getArgument(2)
+          Consumer<String> etag = invocation.getArgument(3)
+          etag.accept("some-etag")
 
           appendable.append("blah!")
         })
@@ -93,6 +97,7 @@ class CctrayControllerTest implements SecurityServiceTrait, ControllerTrait<Cctr
 
         assertThatResponse()
           .isOk()
+          .hasEtag('"some-etag"')
           .hasContentType("application/xml")
           .hasBody("blah!")
       }

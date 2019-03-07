@@ -65,10 +65,17 @@ public class CctrayController implements SparkSpringController, SparkController 
 
     public String index(Request req, Response res) throws IOException {
         OutputStreamWriter appendable = new OutputStreamWriter(res.raw().getOutputStream());
-        ccTrayService.renderCCTrayXML(siteUrlPrefix(req), currentUsername().getUsername().toString(), appendable);
+        ccTrayService.renderCCTrayXML(siteUrlPrefix(req), currentUsername().getUsername().toString(), appendable, etag -> setEtagHeader(res, etag));
         appendable.flush();
         // because we've streamed the ccontent already.
         return ControllerMethods.NOTHING;
+    }
+
+    private void setEtagHeader(Response res, String value) {
+        if (value == null) {
+            return;
+        }
+        res.header("ETag", '"' + value + '"');
     }
 
     private String siteUrlPrefix(Request req) {

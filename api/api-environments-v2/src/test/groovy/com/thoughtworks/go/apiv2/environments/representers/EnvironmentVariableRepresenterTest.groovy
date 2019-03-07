@@ -45,7 +45,7 @@ class EnvironmentVariableRepresenterTest {
     def json = toObjectString({ EnvironmentVariableRepresenter.toJSON(it, config) })
 
     assertThatJson(json).isEqualTo([
-      "encrypted_value": "****",
+      "encrypted_value": config.getEncryptedValue(),
       "name"           : "secret",
       "secure"         : true
     ])

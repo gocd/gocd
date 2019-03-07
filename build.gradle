@@ -116,6 +116,7 @@ def GO_VERSION_SEGMENTS = [
 ]
 def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
 def GO_VERSION_PREVIOUS = '19.2.0'
+def GO_VERSION_NEXT = '19.4.0'
 def DIST_VERSION = releaseRevision()
 def GIT_REVISION = gitRevision()
 
@@ -148,6 +149,7 @@ if (System.getenv().containsKey("GO_SERVER_URL")) {
 }
 
 rootProject.ext.previousVersion = GO_VERSION_PREVIOUS
+rootProject.ext.nextVersion = GO_VERSION_NEXT
 rootProject.ext.goVersionSegments = GO_VERSION_SEGMENTS
 rootProject.ext.goVersion = GO_VERSION
 rootProject.ext.distVersion = DIST_VERSION
@@ -1122,8 +1124,8 @@ task newApi {
       newProjects.sort().unique().each { out.println "include '${it}'" }
     }
 
-    file('.gitignore').withWriterAppend {out ->
-      ignoredFiles.each {line ->
+    file('.gitignore').withWriterAppend { out ->
+      ignoredFiles.each { line ->
         out.println(line)
       }
     }

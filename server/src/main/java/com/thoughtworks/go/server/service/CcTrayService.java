@@ -57,7 +57,7 @@ public class CcTrayService {
         List<ProjectStatus> statuses = ccTrayCache.allEntriesInOrder();
 
         String hashCodes = statuses.stream().map(ProjectStatus::hashCode).map(Object::toString).collect(Collectors.joining("/"));
-        String etag = DigestUtils.sha256Hex(ProjectStatus.SITE_URL_PREFIX + "/" + hashCodes);
+        String etag = DigestUtils.sha256Hex(siteUrlPrefix + "/" + hashCodes);
         etagConsumer.accept(etag);
 
         try {

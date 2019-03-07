@@ -28,12 +28,12 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAs;
 import static com.thoughtworks.go.util.DataStructureUtils.s;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -60,7 +60,8 @@ public class CcTrayServiceTest {
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user1")));
         loginAs("other_user");
 
-        String xml = ccTrayService.renderCCTrayXML("some-prefix", Username.ANONYMOUS.getUsername().toString(), new StringBuilder(), etag -> {}).toString();
+        String xml = ccTrayService.renderCCTrayXML("some-prefix", Username.ANONYMOUS.getUsername().toString(), new StringBuilder(), etag -> {
+        }).toString();
 
         assertCcTrayXmlFor(xml, "some-prefix", "proj1", "proj2");
     }
@@ -71,11 +72,13 @@ public class CcTrayServiceTest {
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
         loginAs("USER1");
-        String xml = ccTrayService.renderCCTrayXML("some-prefix", "USER1", new StringBuilder(), etag -> {}).toString();
+        String xml = ccTrayService.renderCCTrayXML("some-prefix", "USER1", new StringBuilder(), etag -> {
+        }).toString();
         assertCcTrayXmlFor(xml, "some-prefix", "proj1");
 
         loginAs("uSEr2");
-        xml = ccTrayService.renderCCTrayXML("some-prefix", "uSEr2", new StringBuilder(), etag -> {}).toString();
+        xml = ccTrayService.renderCCTrayXML("some-prefix", "uSEr2", new StringBuilder(), etag -> {
+        }).toString();
         assertCcTrayXmlFor(xml, "some-prefix", "proj2");
     }
 
@@ -85,7 +88,8 @@ public class CcTrayServiceTest {
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
         loginAs("some-user-without-permissions");
-        String xml = ccTrayService.renderCCTrayXML("some-prefix", "some-user-without-permissions", new StringBuilder(), etag -> {}).toString();
+        String xml = ccTrayService.renderCCTrayXML("some-prefix", "some-user-without-permissions", new StringBuilder(), etag -> {
+        }).toString();
         assertCcTrayXmlFor(xml, "some-prefix");
     }
 
@@ -95,11 +99,13 @@ public class CcTrayServiceTest {
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), statusFor("proj2", "user2")));
 
         loginAs("user1");
-        String xml = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), etag -> {}).toString();
+        String xml = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), etag -> {
+        }).toString();
         assertCcTrayXmlFor(xml, "prefix1", "proj1");
 
         loginAs("user2");
-        xml = ccTrayService.renderCCTrayXML("prefix2", "user2", new StringBuilder(), etag -> {}).toString();
+        xml = ccTrayService.renderCCTrayXML("prefix2", "user2", new StringBuilder(), etag -> {
+        }).toString();
         assertCcTrayXmlFor(xml, "prefix2", "proj2");
     }
 
@@ -109,12 +115,54 @@ public class CcTrayServiceTest {
         when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))));
 
         loginAs("user1");
-        String xml = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), etag -> {}).toString();
+        String xml = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), etag -> {
+        }).toString();
 
-        assertThat(xml, is("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
+        assertThat(xml).isEqualTo("<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
                 "<Projects>\n" +
                 "  <Project name=\"proj1\" activity=\"activity1\" lastBuildStatus=\"build-status-1\" lastBuildLabel=\"build-label-1\" lastBuildTime=\"2010-05-23T08:00:00Z\" webUrl=\"" + "prefix1" + "/web-url\" />\n" +
-                "</Projects>"));
+                "</Projects>");
+    }
+
+    @Test
+    public void shouldChangeEtagIfSitePrefixChanges() throws Exception {
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
+        when(ccTrayCache.allEntriesInOrder()).thenReturn(asList(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))));
+
+        AtomicReference<String> originalEtag = new AtomicReference<>();
+        String originalXML = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), etag -> {
+            originalEtag.set(etag);
+        }).toString();
+
+        AtomicReference<String> newEtag = new AtomicReference<>();
+        String newXML = ccTrayService.renderCCTrayXML("prefix2", "user1", new StringBuilder(), etag -> {
+            newEtag.set(etag);
+        }).toString();
+
+        assertThat(originalEtag.get()).isNotEqualTo(newEtag.get());
+        assertThat(originalXML).isNotEqualTo(newXML);
+    }
+
+    @Test
+    public void shouldChangeEtagIfProjectStatusChanges() throws Exception {
+        when(goConfigService.isSecurityEnabled()).thenReturn(true);
+        when(ccTrayCache.allEntriesInOrder())
+                .thenReturn(asList(statusFor("proj1", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))))
+                .thenReturn(asList(statusFor("proj2", "user1"), new ProjectStatus.NullProjectStatus("proj1").updateViewers(viewers("user1"))));
+
+        AtomicReference<String> originalEtag = new AtomicReference<>();
+        String originalXML = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), etag -> {
+            originalEtag.set(etag);
+        }).toString();
+
+
+        AtomicReference<String> newEtag = new AtomicReference<>();
+        String newXML = ccTrayService.renderCCTrayXML("prefix1", "user1", new StringBuilder(), etag -> {
+            newEtag.set(etag);
+        }).toString();
+
+        assertThat(originalEtag.get()).isNotEqualTo(newEtag.get());
+        assertThat(originalXML).isNotEqualTo(newXML);
     }
 
     private ProjectStatus statusFor(String projectName, String... allowedUsers) throws Exception {
@@ -130,7 +178,7 @@ public class CcTrayServiceTest {
         }
         expectedXml.append("</Projects>");
 
-        assertThat(actualXml, is(expectedXml.toString()));
+        assertThat(actualXml).isEqualTo(expectedXml.toString());
     }
 
     private Users viewers(String... users) {

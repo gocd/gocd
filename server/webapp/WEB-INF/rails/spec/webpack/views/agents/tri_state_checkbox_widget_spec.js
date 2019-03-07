@@ -55,13 +55,13 @@ describe("TriStateCheckboxWidget", () => {
 
   it('should disable the checkbox when disabled flag is set', () => {
     mount(new TriStateCheckbox('Chrome', resources, true));
-    const checkbox = $root.find('input')[0];
+    const checkbox = helper.find('input')[0];
     expect(checkbox).toHaveAttr('disabled');
   });
 
   it('should not disable the checkbox when disabled flag is not set', () => {
     mount(new TriStateCheckbox('Chrome', resources));
-    const checkbox = $root.find('input')[0];
+    const checkbox = helper.find('input')[0];
     expect(checkbox).not.toHaveAttr('disabled');
   });
 

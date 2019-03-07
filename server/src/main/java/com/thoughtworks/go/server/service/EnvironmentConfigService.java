@@ -155,6 +155,10 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return environments.environmentsForAgent(uuid);
     }
 
+    public Set<EnvironmentConfig> environmentConfigsFor(String agentUuid) {
+        return environments.environmentConfigsForAgent(agentUuid);
+    }
+
     public void modifyEnvironments(List<AgentInstance> agents, List<TriStateSelection> selections) {
         goConfigService.modifyEnvironments(agents, selections);
     }

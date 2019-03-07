@@ -25,6 +25,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -440,6 +441,7 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
         return null;
     }
 
+    @Deprecated //To be merged with originForAgent. Use that instead
     public ConfigOrigin getOriginForAgent(String agentUUID) {
         for (EnvironmentConfig part : this) {
             if (part.hasAgent(agentUUID)) {
@@ -447,6 +449,11 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
             }
         }
         return null;
+    }
+
+    @Override
+    public Optional<ConfigOrigin> originForAgent(String agentUuid) {
+        return Optional.ofNullable(getOriginForAgent(agentUuid));
     }
 
     public ConfigOrigin getOriginForEnvironmentVariable(String variableName) {

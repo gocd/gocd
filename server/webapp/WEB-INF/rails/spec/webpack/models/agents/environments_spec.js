@@ -17,6 +17,7 @@
 describe('Agent Environments Model', () => {
 
   const Environments = require('models/agents/environments');
+  const Agents       = require('models/agents/agents');
 
   require('jasmine-ajax');
 
@@ -42,10 +43,23 @@ describe('Agent Environments Model', () => {
   it("should initialize the environments with state depending upon the checkedAgents", () => {
     const checkedAgents = [{
       environments() {
+        return [
+          new Agents.Agent.Environment({name: 'Test', origin: {type: "config-repo"}}),
+          new Agents.Agent.Environment({name: 'QA', origin: {type: "gocd"}})
+        ];
+      },
+      environmentNames() {
         return ['Test', 'QA'];
       }
     }, {
       environments() {
+        return [
+          new Agents.Agent.Environment({name: 'Test', origin: {type: "gocd"}}),
+          new Agents.Agent.Environment({name: 'Dev', origin: {type: "gocd"}}),
+          new Agents.Agent.Environment({name: 'QA', origin: {type: "gocd"}})
+        ];
+      },
+      environmentNames() {
         return ['Test', 'Dev', 'QA'];
       }
     }];
@@ -64,10 +78,16 @@ describe('Agent Environments Model', () => {
 
         expect(environments[0].isChecked()).toBe(false);
         expect(environments[0].isIndeterminate()).toBe(true);
+        expect(environments[0].disabled()).toBe(false);
+
         expect(environments[1].isChecked()).toBe(true);
         expect(environments[1].isIndeterminate()).toBe(false);
+        expect(environments[1].disabled()).toBe(false);
+
         expect(environments[2].isChecked()).toBe(true);
         expect(environments[2].isIndeterminate()).toBe(false);
+        expect(environments[2].disabled()).toBe(true);
+        expect(environments[2].tooltip()).toBe("Cannot edit Environment associated from Config Repo");
       });
 
       Environments.all(checkedAgents).then(successCallback);

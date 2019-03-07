@@ -34,7 +34,11 @@ describe('Agent Model', () => {
     expect(agent.agentState()).toBe('Building');
     expect(agent.buildState()).toBe('Unknown');
     expect(agent.resources()).toEqual(['linux', 'java']);
-    expect(agent.environments()).toEqual(['staging', 'perf']);
+    expect(agent.environments().length).toBe(2);
+    expect(agent.environments()[0].name()).toEqual('staging');
+    expect(agent.environments()[1].name()).toEqual('perf');
+    expect(agent.environments()[0].associatedFromConfigRepo()).toBe(true);
+    expect(agent.environments()[1].associatedFromConfigRepo()).toBe(false);
     expect(agent.buildDetails().pipelineUrl()).toEqual("http://localhost:8153/go/tab/pipeline/history/up42");
     expect(agent.buildDetails().stageUrl()).toEqual("http://localhost:8153/go/pipelines/up42/2/up42_stage/1");
     expect(agent.buildDetails().jobUrl()).toEqual("http://localhost:8153/go/tab/build/detail/up42/2/up42_stage/1/up42_job");
@@ -193,9 +197,9 @@ describe('Agent Model', () => {
     });
 
     it("should sort based on agent's free space", () => {
-      const agents       = Agents.fromJSON(agentData);
-      const sortedAgents = agents.sortBy('freeSpace', 'asc');
-      const freeSpaceOfAgents = agents.collectAgentProperty('freeSpace');
+      const agents                  = Agents.fromJSON(agentData);
+      const sortedAgents            = agents.sortBy('freeSpace', 'asc');
+      const freeSpaceOfAgents       = agents.collectAgentProperty('freeSpace');
       const expectedFreeSpacesOrder = _.sortBy(freeSpaceOfAgents, (space) => parseInt(space));
 
       const freeSpacesOfSortedAgents = sortedAgents.collectAgentProperty('freeSpace');
@@ -267,7 +271,37 @@ describe('Agent Model', () => {
         "linux", "java"
       ],
       "environments":       [
-        "staging", "perf"
+        {
+          "name":   "staging",
+          "origin": {
+            "type":   "config-repo",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/api/admin/config_repos/Shields_up._I_recommend_we_transfer_power_to_phasers_and_arm_the_photon_torpedoes"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#config-repos"
+              },
+              "find": {
+                "href": "http://localhost:8153/go/api/admin/config_repos/:id"
+              }
+            }
+          }
+        },
+        {
+          "name":   "perf",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
       ],
       "build_details":      {
         "_links":   {
@@ -332,7 +366,22 @@ describe('Agent Model', () => {
       "agent_state":        "Missing",
       "build_state":        "Unknown",
       "resources":          ["zzzz"],
-      "environments":       ['prod']
+      "environments":       [
+        {
+          "name":   "prod",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "_links":             {
@@ -356,7 +405,22 @@ describe('Agent Model', () => {
       "agent_state":        "LostContact",
       "build_state":        "Unknown",
       "resources":          [],
-      "environments":       ['ci']
+      "environments":       [
+        {
+          "name":   "ci",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
+      ]
     },
     {
       "_links":             {

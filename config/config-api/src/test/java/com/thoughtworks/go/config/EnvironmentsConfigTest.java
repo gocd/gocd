@@ -24,8 +24,9 @@ import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import java.util.Set;
+
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -69,6 +70,13 @@ public class EnvironmentsConfigTest {
     @Test
     public void shouldUnderstandEnvironmentsForAgent() {
         assertThat(configs.environmentsForAgent("agent-one"), hasItem("uat"));
+    }
+
+    @Test
+    public void shouldFindEnvironmentConfigsForAgent() {
+        Set<EnvironmentConfig> environmentConfigs = configs.environmentConfigsForAgent("agent-one");
+        assertThat(environmentConfigs, hasItem(env));
+        assertThat(environmentConfigs, hasSize(1));
     }
 
     @Test public void shouldThrowExceptionIfTheEnvironmentDoesNotExist() {

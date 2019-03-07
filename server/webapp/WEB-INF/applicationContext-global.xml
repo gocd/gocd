@@ -29,6 +29,7 @@
 
   <context:component-scan base-package="com.thoughtworks.go.api.cctray"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.backups"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv5.agents"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.accessToken"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.environments"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.adminsconfig"/>

@@ -529,9 +529,35 @@ describe("Agents Widget", () => {
       "resources":          [
         "Firefox"
       ],
-      "environments":       [
-        "Dev",
-        "Test"
+      "environments": [
+        {
+          "name": "Dev",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        },
+        {
+          "name": "Test",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
       ],
       "build_details":      {
         "_links":   {
@@ -574,8 +600,21 @@ describe("Agents Widget", () => {
       "resources":          [
         "Chrome"
       ],
-      "environments":       [
-        "Test"
+      "environments": [
+        {
+          "name": "Test",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
       ]
     }
   ];

@@ -273,8 +273,21 @@ describe("Agent Row Widget", () => {
       "resources":          [
         "firefox"
       ],
-      "environments":       [
-        "Dev"
+      "environments": [
+        {
+          "name": "Dev",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
       ]
     },
     {
@@ -325,8 +338,35 @@ describe("Agent Row Widget", () => {
       "resources":          [
         "linux", "java"
       ],
-      "environments":       [
-        "staging", "perf"
+      "environments": [
+        {
+          "name": "staging",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        },
+        {
+          "name": "perf",
+          "origin": {
+            "type":   "gocd",
+            "_links": {
+              "self": {
+                "href": "http://localhost:8153/go/admin/config_xml"
+              },
+              "doc":  {
+                "href": "https://api.gocd.org/19.2.0/#get-configuration"
+              }
+            }
+          }
+        }
       ],
       "build_details":      {
         "_links":        {

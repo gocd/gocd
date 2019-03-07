@@ -284,8 +284,23 @@ public class EnvironmentConfigServiceTest {
         assertThat(envForProd, hasItem("prod"));
         Set<String> envForOmniPresent = environmentConfigService.environmentsFor(EnvironmentConfigMother.OMNIPRESENT_AGENT);
         assertThat(envForOmniPresent.size(), is(2));
+        assertThat(envForOmniPresent, hasItem("uat"));
         assertThat(envForOmniPresent, hasItem("prod"));
-        assertThat(envForOmniPresent, hasItem("prod"));
+    }
+
+    @Test
+    public void shouldReturnEnvironmentConfigsForAnAgent() {
+        environmentConfigService.sync(environments("uat", "prod"));
+        Set<EnvironmentConfig> envForUat = environmentConfigService.environmentConfigsFor("uat-agent");
+        assertThat(envForUat.size(), is(1));
+        assertThat(envForUat, hasItem(environment("uat")));
+        Set<EnvironmentConfig> envForProd = environmentConfigService.environmentConfigsFor("prod-agent");
+        assertThat(envForProd.size(), is(1));
+        assertThat(envForProd, hasItem(environment("prod")));
+        Set<EnvironmentConfig> envForOmniPresent = environmentConfigService.environmentConfigsFor(EnvironmentConfigMother.OMNIPRESENT_AGENT);
+        assertThat(envForOmniPresent.size(), is(2));
+        assertThat(envForOmniPresent, hasItem(environment("uat")));
+        assertThat(envForOmniPresent, hasItem(environment("prod")));
     }
 
     @Test

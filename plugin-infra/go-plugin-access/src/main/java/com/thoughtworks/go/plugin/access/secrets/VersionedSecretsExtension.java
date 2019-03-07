@@ -34,5 +34,5 @@ public interface VersionedSecretsExtension {
 
     ValidationResult validateSecretsConfig(String pluginId, final Map<String, String> configuration);
 
-    List<Secret> lookupSecrets(String pluginId, List<String> lookupStrings, SecretConfig secretConfig);
+    List<Secret> lookupSecrets(String pluginId, SecretConfig secretConfig, List<String> lookupStrings);
 }

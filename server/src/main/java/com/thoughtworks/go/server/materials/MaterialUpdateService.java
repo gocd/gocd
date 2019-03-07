@@ -16,9 +16,8 @@
 
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigWatchList;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Material;
@@ -173,6 +172,10 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             LOGGER.debug("[Material Update] Starting update of material {}", material);
             try {
                 long trackingId = mduPerformanceLogger.materialSentToUpdateQueue(material);
+                if((material instanceof BackedBySecretParam) && ((BackedBySecretParam) material).containsSecretParams()) {
+                    List<SecretParam> secretParams = ((BackedBySecretParam) material).fetchSecretParams();
+//                  pass all the secret params to a SecretParam resolver, the resolver will talk to appropriate plugin and resolve the params
+                }
                 queueFor(material).post(new MaterialUpdateMessage(material, trackingId));
 
                 return true;

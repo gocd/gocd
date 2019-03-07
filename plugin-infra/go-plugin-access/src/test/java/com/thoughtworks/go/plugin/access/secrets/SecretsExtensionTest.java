@@ -132,9 +132,9 @@ public class SecretsExtensionTest {
 
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SECRETS_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(SecretsExtensionV1.VERSION);
 
-        this.extension.lookupSecrets(PLUGIN_ID, keys, new SecretConfig());
+        this.extension.lookupSecrets(PLUGIN_ID, new SecretConfig(), keys);
 
-        verify(secretsExtensionV1).lookupSecrets(PLUGIN_ID, keys, new SecretConfig());
+        verify(secretsExtensionV1).lookupSecrets(PLUGIN_ID, new SecretConfig(), keys);
     }
 
     @Test

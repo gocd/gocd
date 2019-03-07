@@ -19,6 +19,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigOriginTraceable;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -37,7 +38,7 @@ import static java.lang.String.format;
  * @understands an environment variable value that will be passed to a job when it is run
  */
 @ConfigTag("variable")
-public class EnvironmentVariableConfig implements Serializable, Validatable, ParamsAttributeAware, PasswordEncrypter, ConfigOriginTraceable {
+public class EnvironmentVariableConfig implements Serializable, Validatable, ParamsAttributeAware, PasswordEncrypter, ConfigOriginTraceable, BackedBySecretParam {
     public static final String NAME = "name";
     public static final String VALUE = "valueForDisplay";
     public static final String ENCRYPTEDVALUE = "encryptedValue";
@@ -335,5 +336,10 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
 
     public void setOrigins(ConfigOrigin origins) {
         this.origin = origins;
+    }
+
+    @Override
+    public boolean containsSecretParams() {
+        return SecretParam.isSecretParam(getValue());
     }
 }

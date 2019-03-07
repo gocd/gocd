@@ -133,7 +133,7 @@ public class SecretsExtensionV1Test {
         secretConfig.add(ConfigurationPropertyMother.create("AWS_ACCESS_KEY", false, "some-access-key"));
         secretConfig.add(ConfigurationPropertyMother.create("AWS_SECRET_KEY", true, "some-secret-value"));
 
-        List<Secret> secrets = secretsExtensionV1.lookupSecrets(PLUGIN_ID, asList("key1", "key2"), secretConfig);
+        List<Secret> secrets = secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, asList("key1", "key2"));
 
         assertThat(secrets.size(), is(2));
         assertThat(secrets, containsInAnyOrder(

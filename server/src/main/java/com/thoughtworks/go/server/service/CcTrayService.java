@@ -16,10 +16,8 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.activity.ProjectStatus;
 import com.thoughtworks.go.domain.cctray.CcTrayCache;
-import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,16 +38,6 @@ public class CcTrayService {
     public CcTrayService(CcTrayCache ccTrayCache, GoConfigService goConfigService) {
         this.ccTrayCache = ccTrayCache;
         this.goConfigService = goConfigService;
-    }
-
-    @Deprecated // used by rails, remove once controller is removed
-    public String getCcTrayXml(String siteUrlPrefix) {
-        String userName = CaseInsensitiveString.str(SessionUtils.currentUsername().getUsername());
-
-        StringBuilder xml = new StringBuilder();
-
-        return renderCCTrayXML(siteUrlPrefix, userName, xml, (String etag) -> {
-        }).toString();
     }
 
     public Appendable renderCCTrayXML(String siteUrlPrefix, String userName, Appendable appendable, Consumer<String> etagConsumer) {

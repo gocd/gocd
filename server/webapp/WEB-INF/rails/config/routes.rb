@@ -411,5 +411,4 @@ Rails.application.routes.draw do
 
   get "errors/inactive" => 'go_errors#inactive'
 
-  get "cctray.xml" => "cctray#index", :format => "xml", as: :cctray
 end

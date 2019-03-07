@@ -41,9 +41,9 @@ public class EnvironmentVariableRepresenter {
 
     private static void addValue(OutputWriter outputWriter, EnvironmentVariableConfig environmentVariableConfig) {
         if (environmentVariableConfig.isSecure()) {
-            outputWriter.add("encrypted_value", environmentVariableConfig.getDisplayValue());
+            outputWriter.add("encrypted_value", environmentVariableConfig.getEncryptedValue());
         } else {
-            outputWriter.add("value", environmentVariableConfig.getDisplayValue());
+            outputWriter.add("value", environmentVariableConfig.getValue());
         }
     }
 }

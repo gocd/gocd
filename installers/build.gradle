@@ -45,16 +45,18 @@ task versionFile {
     versionFile.getParentFile().mkdirs()
     versionFile.withWriter { out ->
       out.write(JsonOutput.prettyPrint(JsonOutput.toJson([
-          go_version      : rootProject.goVersion,
-          go_build_number : rootProject.distVersion,
-          go_full_version : rootProject.fullVersion,
-          git_sha         : rootProject.gitRevision,
-          pipeline_name   : System.getenv('GO_PIPELINE_NAME'),
-          pipeline_counter: System.getenv('GO_PIPELINE_COUNTER'),
-          pipeline_label  : System.getenv('GO_PIPELINE_LABEL'),
-          stage_name      : System.getenv('GO_STAGE_NAME'),
-          stage_counter   : System.getenv('GO_STAGE_COUNTER'),
-          job_name        : System.getenv('GO_JOB_NAME')
+        go_version         : rootProject.goVersion,
+        previous_go_version: rootProject.previousVersion,
+        next_go_version    : rootProject.nextVersion,
+        go_build_number    : rootProject.distVersion,
+        go_full_version    : rootProject.fullVersion,
+        git_sha            : rootProject.gitRevision,
+        pipeline_name      : System.getenv('GO_PIPELINE_NAME'),
+        pipeline_counter   : System.getenv('GO_PIPELINE_COUNTER'),
+        pipeline_label     : System.getenv('GO_PIPELINE_LABEL'),
+        stage_name         : System.getenv('GO_STAGE_NAME'),
+        stage_counter      : System.getenv('GO_STAGE_COUNTER'),
+        job_name           : System.getenv('GO_JOB_NAME')
       ])))
     }
   }

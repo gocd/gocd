@@ -68,8 +68,8 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", this::setContentType);
-            before("/*", this::setContentType);
+            before("", mimeType, this::setContentType);
+            before("/*", mimeType, this::setContentType);
             before("", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
 

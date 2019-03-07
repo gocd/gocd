@@ -48,8 +48,8 @@ public class ServerHealthController extends ApiController implements SparkSpring
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", this::setContentType);
-            get("", this::show);
+            before("", mimeType, this::setContentType);
+            get("", mimeType, this::show);
         });
     }
 

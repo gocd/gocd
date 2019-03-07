@@ -80,8 +80,8 @@ public class StageOperationsControllerV1 extends ApiController implements SparkS
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             before(Routes.Stage.TRIGGER_STAGE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before(Routes.Stage.TRIGGER_FAILED_JOBS_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);

@@ -52,14 +52,14 @@ public class ServerHealthMessagesController extends ApiController implements Spa
     @Override
     public void setupRoutes() {
         path(Routes.ServerHealthMessages.BASE, () -> {
-            before("", this::setContentType);
-            before("/*", this::setContentType);
+            before("", mimeType, this::setContentType);
+            before("/*", mimeType, this::setContentType);
 
-            before("", apiAuthenticationHelper::checkUserAnd403);
-            before("/*", apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
+            before("/*", mimeType, apiAuthenticationHelper::checkUserAnd403);
 
-            get("", this::show);
-            head("", this::show);
+            get("", mimeType, this::show);
+            head("", mimeType, this::show);
         });
     }
 

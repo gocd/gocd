@@ -64,8 +64,8 @@ public class ExportControllerV1 extends ApiController implements SparkSpringCont
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             before(Export.PIPELINES_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
 

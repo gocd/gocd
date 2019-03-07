@@ -68,11 +68,11 @@ public class ConfigReposControllerV1 extends ApiController implements SparkSprin
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("", mimeType, authHelper::checkAdminUserAnd403);
-            before("", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
 
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, authHelper::checkAdminUserAnd403);
-            before("/*", this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             get(ConfigRepos.INDEX_PATH, mimeType, this::index);
             get(ConfigRepos.REPO_PATH, mimeType, this::showRepo);

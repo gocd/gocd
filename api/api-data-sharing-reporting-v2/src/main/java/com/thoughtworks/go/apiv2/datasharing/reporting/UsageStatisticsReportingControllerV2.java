@@ -57,8 +57,8 @@ public class UsageStatisticsReportingControllerV2 extends ApiController implemen
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             before("/info", mimeType, apiAuthenticationHelper::checkUserAnd403);
             before("/start", mimeType, apiAuthenticationHelper::checkUserAnd403);

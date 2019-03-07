@@ -74,11 +74,11 @@ public class ConfigReposInternalControllerV1 extends ApiController implements Sp
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("", mimeType, authHelper::checkAdminUserAnd403);
-            before("", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
 
             before("/*", mimeType, this::setContentType);
             before("/*", mimeType, authHelper::checkAdminUserAnd403);
-            before("/*", this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             get(ConfigRepos.INDEX_PATH, mimeType, this::listRepos);
             get(ConfigRepos.REPO_PATH, mimeType, this::showRepo);

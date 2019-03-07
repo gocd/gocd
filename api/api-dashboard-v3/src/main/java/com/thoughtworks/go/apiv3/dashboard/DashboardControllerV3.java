@@ -77,8 +77,8 @@ public class DashboardControllerV3 extends ApiController implements SparkSpringC
     public void setupRoutes() {
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
-            before("", this::verifyContentType);
-            before("", apiAuthenticationHelper::checkUserAnd403);
+            before("", mimeType, this::verifyContentType);
+            before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
 
             get("", mimeType, this::index);
         });

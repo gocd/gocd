@@ -89,8 +89,8 @@ public class PipelineSelectionController extends ApiController implements SparkS
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             get(Routes.PipelineSelection.PIPELINES_DATA, mimeType, this::pipelinesData);
             get("", mimeType, this::show);

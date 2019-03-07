@@ -67,9 +67,9 @@ public class UsageStatisticsControllerV3 extends ApiController implements SparkS
     public void setupRoutes() {
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
-            before("/encrypted", this::setContentType);
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("/encrypted", mimeType, this::setContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
             before("/encrypted", mimeType, apiAuthenticationHelper::checkUserAnd403);

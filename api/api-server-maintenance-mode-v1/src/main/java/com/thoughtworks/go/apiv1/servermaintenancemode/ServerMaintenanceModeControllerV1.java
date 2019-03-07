@@ -82,8 +82,8 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             before(Routes.MaintenanceMode.ENABLE, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
             before(Routes.MaintenanceMode.DISABLE, mimeType, apiAuthenticationHelper::checkAdminUserAnd403);

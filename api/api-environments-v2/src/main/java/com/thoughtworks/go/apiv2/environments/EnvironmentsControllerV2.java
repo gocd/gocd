@@ -81,8 +81,8 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", this::setContentType);
-            before("/*", this::setContentType);
+            before("", mimeType, this::setContentType);
+            before("/*", mimeType, this::setContentType);
 
             before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
@@ -90,8 +90,8 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
             get(Routes.Environments.NAME, mimeType, this::show);
             post("", mimeType, this::create);
             put(Routes.Environments.NAME, mimeType, this::update);
-            patch(Routes.Environments.NAME, this::partialUpdate);
-            delete(Routes.Environments.NAME, this::remove);
+            patch(Routes.Environments.NAME, mimeType, this::partialUpdate);
+            delete(Routes.Environments.NAME, mimeType, this::remove);
             exception(RecordNotFoundException.class, this::notFound);
         });
     }

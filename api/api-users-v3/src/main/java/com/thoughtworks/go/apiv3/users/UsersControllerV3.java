@@ -82,8 +82,8 @@ public class UsersControllerV3 extends ApiController implements SparkSpringContr
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
             before("/*", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);

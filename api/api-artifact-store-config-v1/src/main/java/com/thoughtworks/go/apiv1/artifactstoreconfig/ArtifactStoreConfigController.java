@@ -90,17 +90,17 @@ public class ArtifactStoreConfigController extends ApiController implements Spar
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", this::setContentType);
-            before("/*", this::setContentType);
+            before("", mimeType, this::setContentType);
+            before("/*", mimeType, this::setContentType);
 
             before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
-            get("", this::index);
-            get(Routes.ArtifactStoreConfig.ID, this::show);
-            post("", this::create);
-            put(Routes.ArtifactStoreConfig.ID, this::update);
-            delete(Routes.ArtifactStoreConfig.ID, this::destroy);
+            get("", mimeType, this::index);
+            get(Routes.ArtifactStoreConfig.ID, mimeType, this::show);
+            post("", mimeType, this::create);
+            put(Routes.ArtifactStoreConfig.ID, mimeType, this::update);
+            delete(Routes.ArtifactStoreConfig.ID, mimeType, this::destroy);
 
             exception(RecordNotFoundException.class, this::notFound);
         });

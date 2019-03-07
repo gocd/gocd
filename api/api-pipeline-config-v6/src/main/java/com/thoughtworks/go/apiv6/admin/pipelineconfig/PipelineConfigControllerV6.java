@@ -103,8 +103,8 @@ public class PipelineConfigControllerV6 extends ApiController implements SparkSp
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
             before("", mimeType, apiAuthenticationHelper::checkPipelineCreationAuthorizationAnd403);
             before(Routes.PipelineConfig.NAME, mimeType, apiAuthenticationHelper::checkPipelineGroupAdminUserAnd403);
 

@@ -57,14 +57,14 @@ public class MaterialSearchController extends ApiController implements SparkSpri
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", this::setContentType);
-            before("/*", this::setContentType);
+            before("", mimeType, this::setContentType);
+            before("/*", mimeType, this::setContentType);
 
             before("", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before("/*", mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
 
-            get("", this::search);
-            head("", this::search);
+            get("", mimeType, this::search);
+            head("", mimeType, this::search);
         });
     }
 

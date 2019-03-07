@@ -62,8 +62,8 @@ public class CurrentUserController extends ApiController implements SparkSpringC
         Spark.path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             before("", mimeType, apiAuthenticationHelper::checkNonAnonymousUser);
             before("/*", mimeType, apiAuthenticationHelper::checkNonAnonymousUser);

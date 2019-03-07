@@ -67,8 +67,8 @@ public class RolesControllerV1 extends ApiController implements SparkSpringContr
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
             before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
             before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 

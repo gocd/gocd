@@ -73,15 +73,15 @@ public class DataSharingSettingsControllerV1 extends ApiController implements Sp
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             before("", mimeType, apiAuthenticationHelper::checkUserAnd403);
             before("", mimeType, this::checkAdminUserAnd403OnlyForPatch);
             before("/notification_auth", mimeType, apiAuthenticationHelper::checkUserAnd403);
-            get("", this::getDataSharingSettings);
+            get("", mimeType, this::getDataSharingSettings);
             patch("", mimeType, this::patchDataSharingSettings);
-            get("/notification_auth", this::getDataSharingNotificationForCurrentUser);
+            get("/notification_auth", mimeType, this::getDataSharingNotificationForCurrentUser);
         });
     }
 

@@ -77,8 +77,8 @@ public class PipelineOperationsControllerV1 extends ApiController implements Spa
         path(controllerPath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", this::verifyContentType);
-            before("/*", this::verifyContentType);
+            before("", mimeType, this::verifyContentType);
+            before("/*", mimeType, this::verifyContentType);
 
             before(Routes.Pipeline.PAUSE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);
             before(Routes.Pipeline.UNPAUSE_PATH, mimeType, apiAuthenticationHelper::checkPipelineGroupOperateUserAnd403);

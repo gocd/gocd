@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigSubtag;
 import com.thoughtworks.go.config.ConfigTag;
 
+import java.util.Objects;
+
 @ConfigTag("elastic")
 public class ElasticConfig {
     @ConfigAttribute(value = "jobStarvationTimeout", optional = true, allowNull = false)
@@ -27,6 +29,9 @@ public class ElasticConfig {
 
     @ConfigSubtag
     private ElasticProfiles profiles = new ElasticProfiles();
+
+    @ConfigSubtag
+    private ClusterProfiles clusterProfiles = new ClusterProfiles();
 
     public Long getJobStarvationTimeout() {
         return jobStarvationTimeout * 60 * 1000L;
@@ -40,22 +45,26 @@ public class ElasticConfig {
         this.profiles = profiles;
     }
 
+    public ClusterProfiles getClusterProfiles() {
+        return clusterProfiles;
+    }
+
+    public void setClusterProfiles(ClusterProfiles clusterProfiles) {
+        this.clusterProfiles = clusterProfiles;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         ElasticConfig that = (ElasticConfig) o;
-
-        if (jobStarvationTimeout != that.jobStarvationTimeout) return false;
-        return profiles != null ? profiles.equals(that.profiles) : that.profiles == null;
-
+        return jobStarvationTimeout == that.jobStarvationTimeout &&
+                Objects.equals(profiles, that.profiles) &&
+                Objects.equals(clusterProfiles, that.clusterProfiles);
     }
 
     @Override
     public int hashCode() {
-        int result = jobStarvationTimeout;
-        result = 31 * result + (profiles != null ? profiles.hashCode() : 0);
-        return result;
+        return Objects.hash(jobStarvationTimeout, profiles, clusterProfiles);
     }
 }

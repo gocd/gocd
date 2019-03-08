@@ -348,7 +348,10 @@ util/out/
 util/target/
 plugin-infra/go-plugin-infra/felix-cache/
 **/*.log
-
 api/api-cctray/out/
 api/api-cctray/target/
 api/api-cctray/logs/
+api/api-cluster-profiles-v1/out/
+api/api-cluster-profiles-v1/target/
+api/api-cluster-profiles-v1/logs/
+api/api-cluster-profiles-v1/config/

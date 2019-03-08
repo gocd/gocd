@@ -44,6 +44,17 @@
     <to last="true">/spark/api/user_search</to>
   </rule>
 
+  <rule>
+    <name>Spark Cluster Profile Index API</name>
+    <from>^/api/admin/elastic/cluster_profiles(/?)$</from>
+    <to last="true">/spark/api/admin/elastic/cluster_profiles</to>
+  </rule>
+
+  <rule>
+    <name>Spark Cluster Profile Get API</name>
+    <from>^/api/admin/elastic/cluster_profiles/(.*)$</from>
+    <to last="true">/spark/api/admin/elastic/cluster_profiles/${escape:$1}</to>
+  </rule>
 
   <rule>
     <name>Spark Users Index API</name>

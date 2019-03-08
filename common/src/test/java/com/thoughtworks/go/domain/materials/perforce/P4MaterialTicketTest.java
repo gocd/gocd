@@ -29,6 +29,6 @@ public class P4MaterialTicketTest extends P4MaterialTestBase {
     }
 
     @Test
-    public void dummyTestSoIntelliJNoticesMe() {
+    void dummyTestSoIntelliJNoticesMe() {
     }
 }

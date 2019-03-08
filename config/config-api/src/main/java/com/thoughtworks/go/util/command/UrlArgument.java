@@ -145,7 +145,7 @@ public class UrlArgument extends CommandArgument {
         return secretParams != null && !secretParams.isEmpty();
     }
 
-    public List<SecretParam> fetchSecretParams() {
+    public List<SecretParam> getSecretParams() {
         return secretParams;
     }
 }

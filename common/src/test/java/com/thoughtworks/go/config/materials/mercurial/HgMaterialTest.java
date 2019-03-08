@@ -16,9 +16,10 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
-import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
 import com.googlecode.junit.ext.checkers.OSChecker;
+import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
@@ -32,13 +33,14 @@ import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
+
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,12 +53,11 @@ import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(JunitExtRunner.class)
+@EnableRuleMigrationSupport
 public class HgMaterialTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -90,8 +91,8 @@ public class HgMaterialTest {
     private static final String REVISION_1 = "35ff2159f303ecf986b3650fc4299a6ffe5a14e1";
     private static final String REVISION_2 = "ca3ebb67f527c0ad7ed26b789056823d8b9af23f";
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         temporaryFolder.create();
         hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
@@ -99,15 +100,15 @@ public class HgMaterialTest {
         outputStreamConsumer = inMemoryConsumer();
     }
 
-    @After
-    public void teardown() {
+    @AfterEach
+    void teardown() {
         temporaryFolder.delete();
         FileUtils.deleteQuietly(workingFolder);
         TestRepo.internalTearDown();
     }
 
     @Test
-    public void shouldRefreshWorkingFolderWhenRepositoryChanged() throws Exception {
+    void shouldRefreshWorkingFolderWhenRepositoryChanged() throws Exception {
         new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).clone(inMemoryConsumer(), hgTestRepo.url());
         File testFile = createNewFileInWorkingFolder();
 
@@ -116,13 +117,13 @@ public class HgMaterialTest {
         hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
 
         String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).workingRepositoryUrl().outputAsString();
-        assertThat(workingUrl, is(hgTestRepo2.projectRepositoryUrl()));
-        assertThat(testFile.exists(), is(false));
+        assertThat(workingUrl).isEqualTo(hgTestRepo2.projectRepositoryUrl());
+        assertThat(testFile.exists()).isFalse();
     }
 
     @Test
     @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldNotRefreshWorkingFolderWhenFileProtocolIsUsedOnLinux() throws Exception {
+    void shouldNotRefreshWorkingFolderWhenFileProtocolIsUsedOnLinux() throws Exception {
         final UrlArgument repoUrl = hgTestRepo.url();
         new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).clone(inMemoryConsumer(), repoUrl);
         File testFile = createNewFileInWorkingFolder();
@@ -131,8 +132,8 @@ public class HgMaterialTest {
         updateMaterial(hgMaterial, new StringRevision("0"));
 
         String workingUrl = new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).workingRepositoryUrl().outputAsString();
-        assertThat(workingUrl, is(hgTestRepo.projectRepositoryUrl()));
-        assertThat(testFile.exists(), is(true));
+        assertThat(workingUrl).isEqualTo(hgTestRepo.projectRepositoryUrl());
+        assertThat(testFile.exists()).isTrue();
     }
 
     private void updateMaterial(HgMaterial hgMaterial, StringRevision revision) {
@@ -140,101 +141,100 @@ public class HgMaterialTest {
     }
 
     @Test
-    public void shouldNotRefreshWorkingDirectoryIfDefaultRemoteUrlDoesNotContainPasswordButMaterialUrlDoes() throws Exception {
+    void shouldNotRefreshWorkingDirectoryIfDefaultRemoteUrlDoesNotContainPasswordButMaterialUrlDoes() throws Exception {
         final HgMaterial material = new HgMaterial("http://user:pwd@domain:9999/path", null);
         final HgCommand hgCommand = mock(HgCommand.class);
         final ConsoleResult consoleResult = mock(ConsoleResult.class);
         when(consoleResult.outputAsString()).thenReturn("http://user@domain:9999/path");
         when(hgCommand.workingRepositoryUrl()).thenReturn(consoleResult);
-        assertFalse((Boolean) ReflectionUtil.invoke(material, "isRepositoryChanged", hgCommand));
+        assertThat((Boolean) ReflectionUtil.invoke(material, "isRepositoryChanged", hgCommand)).isFalse();
     }
 
     @Test
-    public void shouldRefreshWorkingDirectoryIfUsernameInDefaultRemoteUrlIsDifferentFromOneInMaterialUrl() throws Exception {
+    void shouldRefreshWorkingDirectoryIfUsernameInDefaultRemoteUrlIsDifferentFromOneInMaterialUrl() throws Exception {
         final HgMaterial material = new HgMaterial("http://some_new_user:pwd@domain:9999/path", null);
         final HgCommand hgCommand = mock(HgCommand.class);
         final ConsoleResult consoleResult = mock(ConsoleResult.class);
         when(consoleResult.outputAsString()).thenReturn("http://user:pwd@domain:9999/path");
         when(hgCommand.workingRepositoryUrl()).thenReturn(consoleResult);
-        assertTrue((Boolean) ReflectionUtil.invoke(material, "isRepositoryChanged", hgCommand));
+        assertThat((Boolean) ReflectionUtil.invoke(material, "isRepositoryChanged", hgCommand)).isTrue();
     }
 
     @Test
-    public void shouldGetModifications() {
+    void shouldGetModifications() {
         List<Modification> mods = hgMaterial.modificationsSince(workingFolder, new StringRevision(REVISION_0), new TestSubprocessExecutionContext());
-        assertThat(mods.size(), is(2));
+        assertThat(mods.size()).isEqualTo(2);
         Modification modification = mods.get(0);
-        assertThat(modification.getRevision(), is(REVISION_2));
-        assertThat(modification.getModifiedFiles().size(), is(1));
+        assertThat(modification.getRevision()).isEqualTo(REVISION_2);
+        assertThat(modification.getModifiedFiles().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldNotAppendDestinationDirectoryWhileFetchingModifications() {
+    void shouldNotAppendDestinationDirectoryWhileFetchingModifications() {
         hgMaterial.setFolder("dest");
         hgMaterial.modificationsSince(workingFolder, new StringRevision(REVISION_0), new TestSubprocessExecutionContext());
-        assertThat(new File(workingFolder, "dest").exists(), is(false));
+        assertThat(new File(workingFolder, "dest").exists()).isFalse();
     }
 
     @Test
-    public void shouldGetModificationsBasedOnRevision() {
+    void shouldGetModificationsBasedOnRevision() {
         List<Modification> modificationsSince = hgMaterial.modificationsSince(workingFolder,
                 new StringRevision(REVISION_0), new TestSubprocessExecutionContext());
 
-        assertThat(modificationsSince.get(0).getRevision(), is(REVISION_2));
-        assertThat(modificationsSince.get(1).getRevision(), is(REVISION_1));
-        assertThat(modificationsSince.size(), is(2));
+        assertThat(modificationsSince.get(0).getRevision()).isEqualTo(REVISION_2);
+        assertThat(modificationsSince.get(1).getRevision()).isEqualTo(REVISION_1);
+        assertThat(modificationsSince.size()).isEqualTo(2);
     }
 
     @Test
-    public void shouldReturnLatestRevisionIfNoModificationsDetected() {
+    void shouldReturnLatestRevisionIfNoModificationsDetected() {
         List<Modification> modification = hgMaterial.modificationsSince(workingFolder,
                 new StringRevision(REVISION_2), new TestSubprocessExecutionContext());
-        assertThat(modification.isEmpty(), is(true));
+        assertThat(modification.isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldUpdateToSpecificRevision() {
+    void shouldUpdateToSpecificRevision() {
         updateMaterial(hgMaterial, new StringRevision("0"));
         File end2endFolder = new File(workingFolder, "end2end");
-        assertThat(end2endFolder.listFiles().length, is(3));
-        assertThat(outputStreamConsumer.getStdOut(), is(not("")));
+        assertThat(end2endFolder.listFiles().length).isEqualTo(3);
+        assertThat(outputStreamConsumer.getStdOut()).isNotEqualTo("");
         updateMaterial(hgMaterial, new StringRevision("1"));
-        assertThat(end2endFolder.listFiles().length, is(4));
+        assertThat(end2endFolder.listFiles().length).isEqualTo(4);
     }
 
     @Test
-    public void shouldUpdateToDestinationFolder() {
+    void shouldUpdateToDestinationFolder() {
         hgMaterial.setFolder("dest");
         updateMaterial(hgMaterial, new StringRevision("0"));
         File end2endFolder = new File(workingFolder, "dest/end2end");
-        assertThat(end2endFolder.exists(), is(true));
+        assertThat(end2endFolder.exists()).isTrue();
     }
 
     @Test
-    public void shouldLogRepoInfoToConsoleOutWithoutFolder() {
+    void shouldLogRepoInfoToConsoleOutWithoutFolder() {
         updateMaterial(hgMaterial, new StringRevision("0"));
-        assertThat(outputStreamConsumer.getStdOut(), containsString(
-                format("Start updating %s at revision %s from %s", "files", "0",
-                        hgMaterial.getUrl())));
+        assertThat(outputStreamConsumer.getStdOut()).contains(format("Start updating %s at revision %s from %s", "files", "0",
+                hgMaterial.getUrl()));
     }
 
     @Test
-    public void shouldDeleteWorkingFolderWhenItIsNotAnHgRepository() throws Exception {
+    void shouldDeleteWorkingFolderWhenItIsNotAnHgRepository() throws Exception {
         File testFile = createNewFileInWorkingFolder();
         hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
 
-        assertThat(testFile.exists(), is(false));
+        assertThat(testFile.exists()).isFalse();
     }
 
     @Test
-    public void shouldThrowExceptionWithUsefulInfoIfFailedToFindModifications() {
+    void shouldThrowExceptionWithUsefulInfoIfFailedToFindModifications() {
         final String url = "/tmp/notExistDir";
         hgMaterial = MaterialsMother.hgMaterial(url);
         try {
             hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
             fail("Should have thrown an exception when failed to clone from an invalid url");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("abort: repository " + url + " not found!"));
+            assertThat(e.getMessage()).contains("abort: repository " + url + " not found!");
         }
     }
 
@@ -249,124 +249,125 @@ public class HgMaterialTest {
 
 
     @Test
-    public void shouldBeEqualWhenUrlSameForHgMaterial() {
+    void shouldBeEqualWhenUrlSameForHgMaterial() {
         final Material material = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         final Material anotherMaterial = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
-        assertThat(material.equals(anotherMaterial), is(true));
-        assertThat(anotherMaterial.equals(material), is(true));
+        assertThat(material.equals(anotherMaterial)).isTrue();
+        assertThat(anotherMaterial.equals(material)).isTrue();
     }
 
     @Test
-    public void shouldNotBeEqualWhenUrlDifferent() {
+    void shouldNotBeEqualWhenUrlDifferent() {
         final Material material1 = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         final Material material2 = MaterialsMother.hgMaterials("url2", "hgdir").get(0);
-        assertThat(material1.equals(material2), is(false));
-        assertThat(material2.equals(material1), is(false));
+        assertThat(material1.equals(material2)).isFalse();
+        assertThat(material2.equals(material1)).isFalse();
     }
 
     @Test
-    public void shouldNotBeEqualWhenTypeDifferent() {
+    void shouldNotBeEqualWhenTypeDifferent() {
         final Material material = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         final Material svnMaterial = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
-        assertThat(material.equals(svnMaterial), is(false));
-        assertThat(svnMaterial.equals(material), is(false));
+        assertThat(material.equals(svnMaterial)).isFalse();
+        assertThat(svnMaterial.equals(material)).isFalse();
     }
 
     @Test
-    public void shouldBeEqual() {
+    void shouldBeEqual() {
         final Material hgMaterial1 = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         final Material hgMaterial2 = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
-        assertThat(hgMaterial1.equals(hgMaterial2), is(true));
-        assertThat(hgMaterial1.hashCode(), is(hgMaterial2.hashCode()));
+        assertThat(hgMaterial1.equals(hgMaterial2)).isTrue();
+        assertThat(hgMaterial1.hashCode()).isEqualTo(hgMaterial2.hashCode());
     }
 
     @Test
-    public void shouldReturnTrueForLinuxDistributeLowerThanOneZero() {
-        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_094), is(false));
+    void shouldReturnTrueForLinuxDistributeLowerThanOneZero() {
+        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_094)).isFalse();
     }
 
     @Test
-    public void shouldReturnTrueForLinuxDistributeHigerThanOneZero() {
-        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_101), is(true));
+    void shouldReturnTrueForLinuxDistributeHigerThanOneZero() {
+        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_101)).isTrue();
     }
 
     @Test
-    public void shouldReturnTrueForLinuxDistributeEqualsOneZero() {
-        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_10), is(true));
+    void shouldReturnTrueForLinuxDistributeEqualsOneZero() {
+        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_10)).isTrue();
     }
 
     @Test
-    public void shouldReturnTrueForWindowsDistributionHigerThanOneZero() {
-        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(WINDOWS_HG_OFFICAL_102), is(true));
-    }
-
-    @Test(expected = Exception.class)
-    public void shouldReturnFalseWhenVersionIsNotRecgonized() {
-        hgMaterial.isVersionOnedotZeorOrHigher(WINDOWS_HG_TORTOISE);
+    void shouldReturnTrueForWindowsDistributionHigerThanOneZero() {
+        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(WINDOWS_HG_OFFICAL_102)).isTrue();
     }
 
     @Test
-    public void shouldCheckConnection() {
+    void shouldReturnFalseWhenVersionIsNotRecgonized() {
+        assertThatCode(() -> hgMaterial.isVersionOnedotZeorOrHigher(WINDOWS_HG_TORTOISE))
+                .isInstanceOf(Exception.class);
+    }
+
+    @Test
+    void shouldCheckConnection() {
         ValidationBean validation = hgMaterial.checkConnection(new TestSubprocessExecutionContext());
-        assertThat(validation.isValid(), is(true));
+        assertThat(validation.isValid()).isTrue();
         String notExistUrl = "http://notExisthost/hg";
         hgMaterial = MaterialsMother.hgMaterial(notExistUrl);
         validation = hgMaterial.checkConnection(new TestSubprocessExecutionContext());
-        assertThat(validation.isValid(), is(false));
+        assertThat(validation.isValid()).isFalse();
     }
 
     @Test
-    public void shouldReturnInvalidBeanWithRootCauseAsLowerVersionInstalled() {
+    void shouldReturnInvalidBeanWithRootCauseAsLowerVersionInstalled() {
         ValidationBean validationBean = hgMaterial.handleException(new Exception(), LINUX_HG_094);
-        assertThat(validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("Please install Mercurial Version 1.0 or above"));
+        assertThat(validationBean.isValid()).isFalse();
+        assertThat(validationBean.getError()).contains("Please install Mercurial Version 1.0 or above");
     }
 
     @Test
-    public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFound() {
+    void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFound() {
         ValidationBean validationBean = hgMaterial.handleException(new Exception(), WINDOWS_HG_OFFICAL_102);
-        assertThat(validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("not found!"));
+        assertThat(validationBean.isValid()).isFalse();
+        assertThat(validationBean.getError()).contains("not found!");
     }
 
 
     @Test
-    public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsNotKnown() {
+    void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsNotKnown() {
         ValidationBean validationBean = hgMaterial.handleException(new Exception(), WINDOWS_HG_TORTOISE);
-        assertThat(validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("not found!"));
+        assertThat(validationBean.isValid()).isFalse();
+        assertThat(validationBean.getError()).contains("not found!");
     }
 
 
     @Test
-    public void shouldBeAbleToConvertToJson() {
+    void shouldBeAbleToConvertToJson() {
         Map<String, Object> json = new LinkedHashMap<>();
         hgMaterial.toJson(json, new StringRevision("123"));
 
         JsonValue jsonValue = from(json);
-        assertThat(jsonValue.getString("scmType"), is("Mercurial"));
-        assertThat(new File(jsonValue.getString("location")), is(new File(hgTestRepo.projectRepositoryUrl())));
-        assertThat(jsonValue.getString("action"), is("Modified"));
+        assertThat(jsonValue.getString("scmType")).isEqualTo("Mercurial");
+        assertThat(new File(jsonValue.getString("location"))).isEqualTo(new File(hgTestRepo.projectRepositoryUrl()));
+        assertThat(jsonValue.getString("action")).isEqualTo("Modified");
     }
 
     @Test
-    public void shouldRemoveTheForwardSlashAndApplyThePattern() {
+    void shouldRemoveTheForwardSlashAndApplyThePattern() {
         Material material = MaterialsMother.hgMaterial();
 
-        assertThat(material.matches("a.doc", "/a.doc"), is(true));
-        assertThat(material.matches("/a.doc", "a.doc"), is(false));
+        assertThat(material.matches("a.doc", "/a.doc")).isTrue();
+        assertThat(material.matches("/a.doc", "a.doc")).isFalse();
     }
 
     @Test
-    public void shouldApplyThePatternDirectly() {
+    void shouldApplyThePatternDirectly() {
         Material material = MaterialsMother.hgMaterial();
 
-        assertThat(material.matches("a.doc", "a.doc"), is(true));
+        assertThat(material.matches("a.doc", "a.doc")).isTrue();
     }
 
     @Test
     // #3103
-    public void shouldParseComplexCommitMessage() throws Exception {
+    void shouldParseComplexCommitMessage() throws Exception {
         String comment = "changeset:   8139:b1a0b0bbb4d1\n"
                 + "branch:      trunk\n"
                 + "user:        QYD\n"
@@ -376,17 +377,17 @@ public class HgMaterialTest {
 
         List<Modification> modification = hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
 
-        assertThat(modification.size(), Matchers.is(1));
-        assertThat(modification.get(0).getComment(), is(comment));
+        assertThat(modification.size()).isEqualTo(1);
+        assertThat(modification.get(0).getComment()).isEqualTo(comment);
     }
 
     @Test
-    public void shouldGenerateSqlCriteriaMapInSpecificOrder() {
+    void shouldGenerateSqlCriteriaMapInSpecificOrder() {
         Map<String, Object> map = hgMaterial.getSqlCriteria();
-        assertThat(map.size(), is(2));
+        assertThat(map.size()).isEqualTo(2);
         Iterator<Map.Entry<String, Object>> iter = map.entrySet().iterator();
-        assertThat(iter.next().getKey(), is("type"));
-        assertThat(iter.next().getKey(), is("url"));
+        assertThat(iter.next().getKey()).isEqualTo("type");
+        assertThat(iter.next().getKey()).isEqualTo("url");
     }
 
     /**
@@ -394,62 +395,99 @@ public class HgMaterialTest {
      * %h:	short-form changeset hash (12 bytes of hexadecimal)
      */
     @Test
-    public void shouldtruncateHashTo12charsforAShortRevision() {
+    void shouldtruncateHashTo12charsforAShortRevision() {
         Material hgMaterial = new HgMaterial("file:///foo", null);
-        assertThat(hgMaterial.getShortRevision("dc3d7e656831d1b203d8b7a63c4de82e26604e52"), is("dc3d7e656831"));
-        assertThat(hgMaterial.getShortRevision("dc3d7e65683"), is("dc3d7e65683"));
-        assertThat(hgMaterial.getShortRevision("dc3d7e6568312"), is("dc3d7e656831"));
-        assertThat(hgMaterial.getShortRevision("24"), is("24"));
-        assertThat(hgMaterial.getShortRevision(null), is(nullValue()));
+        assertThat(hgMaterial.getShortRevision("dc3d7e656831d1b203d8b7a63c4de82e26604e52")).isEqualTo("dc3d7e656831");
+        assertThat(hgMaterial.getShortRevision("dc3d7e65683")).isEqualTo("dc3d7e65683");
+        assertThat(hgMaterial.getShortRevision("dc3d7e6568312")).isEqualTo("dc3d7e656831");
+        assertThat(hgMaterial.getShortRevision("24")).isEqualTo("24");
+        assertThat(hgMaterial.getShortRevision(null)).isNull();
     }
 
     @Test
-    public void shouldNotDisplayPasswordInToString() {
+    void shouldNotDisplayPasswordInToString() {
         HgMaterial hgMaterial = new HgMaterial("https://user:loser@foo.bar/baz?quux=bang", null);
-        assertThat(hgMaterial.toString(), not(containsString("loser")));
+        assertThat(hgMaterial.toString()).doesNotContain("loser");
     }
 
     @Test
-    public void shouldGetLongDescriptionForMaterial() {
+    void shouldGetLongDescriptionForMaterial() {
         HgMaterial material = new HgMaterial("http://url/", "folder");
-        assertThat(material.getLongDescription(), is("URL: http://url/"));
+        assertThat(material.getLongDescription()).isEqualTo("URL: http://url/");
     }
 
     @Test
-    public void shouldFindTheBranchName() {
+    void shouldFindTheBranchName() {
         HgMaterial material = new HgMaterial("http://url/##foo", "folder");
-        assertThat(material.getBranch(), is("foo"));
+        assertThat(material.getBranch()).isEqualTo("foo");
     }
 
     @Test
-    public void shouldSetDefaultAsBranchNameIfBranchNameIsNotSpecifiedInUrl() {
+    void shouldSetDefaultAsBranchNameIfBranchNameIsNotSpecifiedInUrl() {
         HgMaterial material = new HgMaterial("http://url/", "folder");
-        assertThat(material.getBranch(), is("default"));
+        assertThat(material.getBranch()).isEqualTo("default");
     }
 
     @Test
-    public void shouldMaskThePasswordInDisplayName() {
+    void shouldMaskThePasswordInDisplayName() {
         HgMaterial material = new HgMaterial("http://user:pwd@url##branch", "folder");
-        assertThat(material.getDisplayName(), is("http://user:******@url##branch"));
+        assertThat(material.getDisplayName()).isEqualTo("http://user:******@url##branch");
     }
 
     @Test
-    public void shouldGetAttributesWithSecureFields() {
+    void shouldGetAttributesWithSecureFields() {
         HgMaterial material = new HgMaterial("http://username:password@hgrepo.com", null);
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat(attributes.get("type"), is("mercurial"));
+        assertThat(attributes.get("type")).isEqualTo("mercurial");
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
-        assertThat(configuration.get("url"), is("http://username:password@hgrepo.com"));
+        assertThat(configuration.get("url")).isEqualTo("http://username:password@hgrepo.com");
     }
 
     @Test
-    public void shouldGetAttributesWithoutSecureFields() {
+    void shouldGetAttributesWithoutSecureFields() {
         HgMaterial material = new HgMaterial("http://username:password@hgrepo.com", null);
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat(attributes.get("type"), is("mercurial"));
+        assertThat(attributes.get("type")).isEqualTo("mercurial");
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("mercurial-configuration");
-        assertThat(configuration.get("url"), is("http://username:******@hgrepo.com"));
+        assertThat(configuration.get("url")).isEqualTo("http://username:******@hgrepo.com");
+    }
+
+    @Nested
+    class hasSecretParams {
+        @Test
+        void shouldBeTrueIfMaterialUrlHasSecretParams() {
+            HgMaterial git = new HgMaterial("http://username:#{SECRET[secret_config_id][lookup_password]}@foo.com", null);
+
+            assertThat(git.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeFalseInMaterialUrlDoesNotHaveSecretParams() {
+            HgMaterial git = new HgMaterial("http://username:password@foo.com", null);
+
+            assertThat(git.hasSecretParams()).isFalse();
+        }
+    }
+
+    @Nested
+    class getSecretParams {
+        @Test
+        void shouldReturnAListOfSecretParams() {
+            HgMaterial git = new HgMaterial("http://username:#{SECRET[secret_config_id][lookup_password]}@foo.com", null);
+
+            assertThat(git.getSecretParams())
+                    .hasSize(1)
+                    .contains(new SecretParam("secret_config_id", "lookup_password"));
+        }
+
+        @Test
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialUrl() {
+            HgMaterial git = new HgMaterial("http://username:password@foo.com", null);
+
+            assertThat(git.getSecretParams())
+                    .hasSize(0);
+        }
     }
 }

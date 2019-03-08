@@ -16,31 +16,29 @@
 
 package com.thoughtworks.go.spark.spa
 
-import com.thoughtworks.go.http.mocks.MockHttpSession
+
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
 
 import static org.assertj.core.api.Assertions.assertThat
+import static org.mockito.Mockito.mock
 
 class LogoutPageControllerTest implements ControllerTrait<LogoutPageController>, SecurityServiceTrait {
 
   @Override
   LogoutPageController createControllerInstance() {
-    return new LogoutPageController(templateEngine, Mockito.mock(LoginLogoutHelper.class))
+    return new LogoutPageController(templateEngine, mock(LoginLogoutHelper.class))
   }
 
   @Nested
   class PerformLogout {
     @Test
     void shouldInvalidateSessionAndCreateANewOne() {
-      def originalSession = new MockHttpSession()
-      httpRequestBuilder.withSession(originalSession)
       get("/auth/logout")
 
-      assertThat(originalSession).isNotSameAs(request.getSession(false))
+      assertThat(session).isNotSameAs(request.getSession(false))
       assertThat(Collections.list(request.getSession().getAttributeNames())).isEmpty()
     }
   }

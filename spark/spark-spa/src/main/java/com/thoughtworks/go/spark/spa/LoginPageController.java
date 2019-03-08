@@ -17,24 +17,36 @@
 package com.thoughtworks.go.spark.spa;
 
 import com.google.common.collect.ImmutableMap;
+import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
+import com.thoughtworks.go.server.service.SecurityService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
+import com.thoughtworks.go.util.Clock;
+import com.thoughtworks.go.util.SystemEnvironment;
 import spark.ModelAndView;
 import spark.Request;
 import spark.Response;
 import spark.TemplateEngine;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
 
+import static com.thoughtworks.go.server.newsecurity.utils.SessionUtils.isAnonymousAuthenticationToken;
 import static spark.Spark.get;
 
 public class LoginPageController implements SparkController {
     private final TemplateEngine engine;
     private final LoginLogoutHelper loginLogoutHelper;
+    private final SecurityService securityService;
+    private final Clock clock;
+    private final SystemEnvironment systemEnvironment;
 
-    public LoginPageController(TemplateEngine engine, LoginLogoutHelper loginLogoutHelper) {
+    public LoginPageController(TemplateEngine engine, LoginLogoutHelper loginLogoutHelper, SecurityService securityService, Clock clock, SystemEnvironment systemEnvironment) {
         this.engine = engine;
         this.loginLogoutHelper = loginLogoutHelper;
+        this.securityService = securityService;
+        this.clock = clock;
+        this.systemEnvironment = systemEnvironment;
     }
 
     @Override
@@ -48,6 +60,11 @@ public class LoginPageController implements SparkController {
     }
 
     public ModelAndView show(Request request, Response response) {
+        if (securityIsDisabledOrAlreadyLoggedIn(request.raw())) {
+            response.redirect("/go/pipelines");
+            return null;
+        }
+
         Map<String, Object> meta = loginLogoutHelper.buildMeta(request);
 
         Map<String, Object> object = ImmutableMap.<String, Object>builder()
@@ -58,5 +75,11 @@ public class LoginPageController implements SparkController {
         return new ModelAndView(object, null);
     }
 
+    private boolean securityIsDisabledOrAlreadyLoggedIn(HttpServletRequest request) {
+        boolean securityEnabled = securityService.isSecurityEnabled();
+        boolean anonymousAuthenticationToken = isAnonymousAuthenticationToken(request);
+        boolean authenticated = SessionUtils.isAuthenticated(request, clock, systemEnvironment);
+        return !securityEnabled || (!anonymousAuthenticationToken && authenticated);
+    }
 
 }

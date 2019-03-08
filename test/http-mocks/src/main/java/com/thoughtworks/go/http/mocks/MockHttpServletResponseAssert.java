@@ -21,6 +21,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.assertj.core.api.AbstractObjectAssert;
+import org.assertj.core.error.ShouldContainCharSequence;
 import org.assertj.core.internal.Failures;
 import org.assertj.core.util.Objects;
 import org.springframework.util.InvalidMimeTypeException;
@@ -124,6 +125,14 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
         return myself;
     }
 
+    public SELF hasBodyContaining(String expectedSubstring) throws UnsupportedEncodingException {
+        if (!actual.getContentAsString().contains(expectedSubstring)) {
+            this.as("body containing");
+            throw Failures.instance().failure(info, ShouldContainCharSequence.shouldContain(actual.getContentAsString(), expectedSubstring));
+        }
+        return myself;
+    }
+
     public SELF hasJsonAttribute(String attribute, Object object) throws UnsupportedEncodingException {
         JsonFluentAssert.assertThatJson(actual.getContentAsString()).node(attribute).isEqualTo(object);
         return myself;
@@ -151,7 +160,7 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
 
     public SELF redirectsTo(String url) {
         if (!(actual.containsHeader("location") && actual.getHeader("location").equals(url))) {
-            failWithMessage("Expected location header to be set to `%s` but was `%s`", url, actual.getHeader("location"));
+            failWithMessage("Expected `Location` header to be set to `%s` but was `%s`", url, actual.getHeader("location"));
         }
         return hasStatus(302);
     }
@@ -232,7 +241,6 @@ public class MockHttpServletResponseAssert<SELF extends MockHttpServletResponseA
     public SELF isInsufficientStorage() {
         return hasStatus(507);
     }
-
 
     public SELF isForbidden() {
         return hasStatus(403);

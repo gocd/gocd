@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse
+import com.thoughtworks.go.http.mocks.MockHttpSession
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken
@@ -48,7 +49,8 @@ trait ControllerTrait<T extends SparkController> {
   MockHttpServletResponse response
   RequestContext requestContext = new TestRequestContext()
   StubTemplateEngine templateEngine = new StubTemplateEngine()
-  HttpRequestBuilder httpRequestBuilder = new HttpRequestBuilder()
+  MockHttpSession session = new MockHttpSession()
+  HttpRequestBuilder httpRequestBuilder = new HttpRequestBuilder().withSession(session)
   Part part = mock(Part)
   Collection<Part> parts = Collections.singletonList(part)
 

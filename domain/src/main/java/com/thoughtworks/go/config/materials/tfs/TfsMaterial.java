@@ -32,6 +32,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -310,11 +311,11 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     public boolean hasSecretParams() {
-        return false;
+        return this.url.hasSecretParams() || !SecretParam.parse(getPassword()).isEmpty();
     }
 
     @Override
     public List<SecretParam> getSecretParams() {
-        return null;
+        return ListUtils.union(url.getSecretParams(), SecretParam.parse(getPassword()));
     }
 }

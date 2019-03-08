@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 
+import {docsUrl} from "gen/gocd_version";
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
@@ -22,6 +23,7 @@ import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import * as s from "underscore.string";
 import {Primary} from "views/components/buttons";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Form, FormBody, FormHeader} from "views/components/forms/form";
 import {SimplePasswordField, TextField} from "views/components/forms/input_fields";
 import * as styles from "./login_page_widget.scss";
@@ -150,6 +152,7 @@ export class LoginPageWidget extends MithrilViewComponent<AuthPluginInfoWithCred
     return (
       <FormHeader>
         <Form>
+          {this.maybeLoginError(vnode)}
           {this.maybeShowLoginFormWidget(vnode)}
           {this.maybeShowLoginIcons(vnode)}
         </Form>
@@ -170,6 +173,18 @@ export class LoginPageWidget extends MithrilViewComponent<AuthPluginInfoWithCred
       } else {
         return <ShowAllWebBasedPluginLinks {...vnode.attrs} />;
       }
+    }
+  }
+
+  private maybeLoginError(vnode: m.Vnode<AuthPluginInfoWithCredentials, this>) {
+    if (vnode.attrs.loginError) {
+      return (
+        <FlashMessage type={MessageType.alert}>
+          {vnode.attrs.loginError.replace(/\.$/, "")}.
+          See <a target="_blank" rel="noopener" href={docsUrl("/configuration/dev_authentication.html#common-errors")}>Help
+          Topic: Authentication</a>.
+        </FlashMessage>
+      );
     }
   }
 }

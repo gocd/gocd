@@ -77,7 +77,7 @@ describe("LoginPageWidget", () => {
             }]
           });
 
-    expect(helper.find('input')).not.toBeInDOM();
+    expect(helper.find("input")).not.toBeInDOM();
 
     expect($(helper.root!)).not.toContainText("redirect");
 
@@ -97,12 +97,29 @@ describe("LoginPageWidget", () => {
             }]
           });
 
-    expect(helper.find('input')).not.toBeInDOM();
+    expect(helper.find("input")).not.toBeInDOM();
 
     expect($(helper.root!)).toContainText("redirect");
 
     expect(helper.find("a")).toBeInDOM();
     expect(helper.find("img")).toBeInDOM();
+  });
+
+  it("should show login error", () => {
+    mount({
+            loginError: "Login error: wrong username or password",
+            hasPasswordPlugins: false,
+            hasWebBasedPlugins: true,
+            doNotAutoRedirect: true,
+            webBasedPlugins: [{
+              imageUrl: "https://example.com/image1",
+              pluginName: "My plugin1",
+              redirectUrl: "/some-redirect-url1"
+            }]
+          });
+
+    expect(helper.findByDataTestId("flash-message-alert")).toContainText("Login error: wrong username or password.");
+
   });
 
   function mount(authPluginInfo: AuthPluginInfo) {

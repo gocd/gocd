@@ -126,7 +126,6 @@ public class BuildDetailPageVelocityTemplateTest {
     private TestVelocityView getBuildDetailVelocityView(HashMap<String, Object> data) {
         TestVelocityView view = new TestVelocityView("/WEB-INF/vm/build_detail/build_detail_page.vm", data);
         view.setupAdditionalRealTemplate("shared/_header.vm");
-        view.setupAdditionalRealTemplate("shared/_copyright_license_info.vm");
         view.setupAdditionalRealTemplate("shared/_footer.vm");
         view.setupAdditionalRealTemplate("shared/_flash_message.vm");
         view.setupAdditionalRealTemplate("shared/_artifacts.vm");

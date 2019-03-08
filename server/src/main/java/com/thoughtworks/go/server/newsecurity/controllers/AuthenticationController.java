@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.newsecurity.controllers;
 
-import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.server.newsecurity.models.AccessToken;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.UsernamePassword;
@@ -25,7 +24,6 @@ import com.thoughtworks.go.server.newsecurity.providers.WebBasedPluginAuthentica
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.web.GoVelocityView;
 import com.thoughtworks.go.util.Clock;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
@@ -38,11 +36,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -105,22 +101,6 @@ public class AuthenticationController {
         } catch (Exception e) {
             return unknownAuthenticationError(request);
         }
-    }
-
-    @RequestMapping(value = "/spring/auth/login", method = RequestMethod.GET)
-    public Object renderLoginPage(HttpServletRequest request, HttpServletResponse response) {
-        if (securityIsDisabledOrAlreadyLoggedIn(request)) {
-            return new RedirectView("/pipelines", true);
-        }
-
-        response.setHeader("Cache-Control", "no-cache, must-revalidate, no-store");
-        response.setHeader("Pragma", "no-cache");
-
-        Map<String, Object> model = new HashMap<>();
-        model.put("security_auth_config_service", securityAuthConfigService);
-        model.put(GoVelocityView.CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
-
-        return new ModelAndView("auth/login", model);
     }
 
     @RequestMapping(value = "/plugin/{pluginId}/login", method = RequestMethod.GET)

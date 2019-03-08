@@ -28,8 +28,7 @@
   <rule>
     <name>Login page</name>
     <from>^/auth/login(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrSpringToggle" method="authPageUsingSpring"/>
-    <to last="true">/%{attribute:sparkOrSpring}/auth/login</to>
+    <to last="true">/spark/auth/login</to>
   </rule>
 
   <rule>

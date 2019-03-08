@@ -30,11 +30,6 @@
         "key": "cctray_using_rails",
         "description": "Show CCTray Feeds using rails.",
         "value": false
-       },
-       {
-        "key": "auth_page_using_spring",
-        "description": "Switch to using spark based auth page.",
-        "value": false
       },
       {
          "key": "backup_page_using_rails",

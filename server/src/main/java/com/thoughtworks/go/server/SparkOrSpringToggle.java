@@ -19,12 +19,8 @@ package com.thoughtworks.go.server;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrSpringToggle {
-    public void authPageUsingSpring(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.AUTH_PAGE_USING_SPRING, request);
-    }
 
     private void basedOnToggle(String toggle, HttpServletRequest request) {
         if (Toggles.isToggleOn(toggle)) {

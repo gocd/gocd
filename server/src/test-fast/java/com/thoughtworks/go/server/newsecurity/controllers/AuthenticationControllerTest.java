@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.newsecurity.controllers;
 
-import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
@@ -31,14 +30,11 @@ import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.server.service.SecurityAuthConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
-import com.thoughtworks.go.server.web.GoVelocityView;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpSession;
@@ -170,100 +166,6 @@ class AuthenticationControllerTest {
 
                 assertThat(redirectView.getUrl()).isEqualTo("/pipelines");
                 assertThat(originalSession).isSameAs(request.getSession(false));
-            }
-        }
-    }
-
-    @Nested
-    class RenderLoginPage {
-        @Nested
-        class SecurityDisabled {
-            @BeforeEach
-            void setUp() {
-                when(securityService.isSecurityEnabled()).thenReturn(false);
-            }
-
-            @Test
-            void shouldRedirectToHomePageOnFormSubmit() {
-                assertThat(((RedirectView) controller.renderLoginPage(request, response)).getUrl()).isEqualTo("/pipelines");
-
-                assertThat(originalSession).isSameAs(request.getSession(false));
-            }
-        }
-
-        @Nested
-        class SecurityEnabled {
-            @BeforeEach
-            void setUp() {
-                when(securityService.isSecurityEnabled()).thenReturn(true);
-            }
-
-            @Test
-            void shouldRedirectToHomepageIfUserIsAlreadyAuthenticated() {
-                when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
-                when(systemEnvironment.getReAuthenticationTimeInterval()).thenReturn(15000L);
-
-                final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(BOB, DISPLAY_NAME);
-                final AuthenticationToken<UsernamePassword> usernamePasswordAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, CREDENTIALS, null, clock.currentTimeMillis(), null);
-                clock.addMillis(10000);
-
-                SessionUtils.setAuthenticationTokenAfterRecreatingSession(usernamePasswordAuthenticationToken, request);
-                originalSession = request.getSession(false);
-
-                final RedirectView redirectView = (RedirectView) controller.renderLoginPage(request, response);
-
-                assertThat(redirectView.getUrl()).isEqualTo("/pipelines");
-                assertThat(originalSession).isSameAs(request.getSession(false));
-            }
-
-            @Test
-            void shouldRedirectToLoginPageIfAuthenticationTokenIsExpired() {
-                when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
-                when(systemEnvironment.getReAuthenticationTimeInterval()).thenReturn(5000L);
-
-                final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(BOB, DISPLAY_NAME);
-                final AuthenticationToken<UsernamePassword> usernamePasswordAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, CREDENTIALS, null, clock.currentTimeMillis(), null);
-                clock.addMillis(10000);
-
-                SessionUtils.setAuthenticationTokenAfterRecreatingSession(usernamePasswordAuthenticationToken, request);
-                originalSession = request.getSession(false);
-
-                final ModelAndView modelAndView = (ModelAndView) controller.renderLoginPage(request, response);
-
-                assertThat(modelAndView.getViewName()).isEqualTo("auth/login");
-            }
-
-            @Test
-            void shouldRememberUrlBeforeLogin() {
-                when(systemEnvironment.isReAuthenticationEnabled()).thenReturn(true);
-                when(systemEnvironment.getReAuthenticationTimeInterval()).thenReturn(5000L);
-                SavedRequest savedRequest = mock(SavedRequest.class);
-
-                final GoUserPrinciple goUserPrinciple = new GoUserPrinciple(BOB, DISPLAY_NAME);
-                final AuthenticationToken<UsernamePassword> usernamePasswordAuthenticationToken = new AuthenticationToken<>(goUserPrinciple, CREDENTIALS, null, clock.currentTimeMillis(), null);
-                clock.addMillis(10000);
-
-                SessionUtils.setAuthenticationTokenAfterRecreatingSession(usernamePasswordAuthenticationToken, request);
-                originalSession = request.getSession(false);
-
-                SessionUtils.saveRequest(request, savedRequest);
-                final ModelAndView modelAndView = (ModelAndView) controller.renderLoginPage(request, response);
-
-                assertThat(modelAndView.getViewName()).isEqualTo("auth/login");
-                assertThat(SessionUtils.savedRequest(request)).isEqualTo(savedRequest);
-            }
-
-            @Test
-            void shouldRenderLoginPage() {
-                authenticateAsAnonymous();
-
-                final ModelAndView modelAndView = (ModelAndView) controller.renderLoginPage(request, response);
-                assertThat(modelAndView.getModel())
-                        .hasSize(2)
-                        .containsEntry("security_auth_config_service", securityAuthConfigService)
-                        .containsEntry(GoVelocityView.CURRENT_GOCD_VERSION, CurrentGoCDVersion.getInstance());
-
-                assertThat(modelAndView.getViewName()).isEqualTo("auth/login");
             }
         }
     }

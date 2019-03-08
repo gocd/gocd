@@ -51,7 +51,7 @@ public class GitCommand extends SCMCommand {
         super(materialFingerprint);
         this.workingDir = workingDir;
         this.secrets = secrets != null ? secrets : new ArrayList<>();
-        this.branch = StringUtils.isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch ;
+        this.branch = StringUtils.isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch;
         this.isSubmodule = isSubmodule;
         this.environment = environment;
     }
@@ -73,7 +73,7 @@ public class GitCommand extends SCMCommand {
     public int clone(ConsoleOutputStreamConsumer outputStreamConsumer, String url, Integer depth) {
         CommandLine gitClone = cloneCommand();
 
-        if(depth < Integer.MAX_VALUE) {
+        if (depth < Integer.MAX_VALUE) {
             gitClone.withArg(String.format("--depth=%s", depth));
         }
         gitClone.withArg(new UrlArgument(url)).withArg(workingDir.getAbsolutePath());
@@ -152,9 +152,10 @@ public class GitCommand extends SCMCommand {
     public void resetWorkingDir(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision) {
         outputStreamConsumer.stdOutput(String.format("[GIT] Reset working directory %s", workingDir));
         cleanAllUnversionedFiles(outputStreamConsumer);
-        removeSubmoduleSectionsFromGitConfig(outputStreamConsumer);
         resetHard(outputStreamConsumer, revision);
         checkoutAllModifiedFilesInSubmodules(outputStreamConsumer);
+        removeSubmoduleSectionsFromGitConfig(outputStreamConsumer);
+        submoduleSync();
         updateSubmoduleWithInit(outputStreamConsumer);
         cleanAllUnversionedFiles(outputStreamConsumer);
     }
@@ -166,10 +167,15 @@ public class GitCommand extends SCMCommand {
 
     private void cleanAllUnversionedFiles(ConsoleOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Cleaning all unversioned files in working copy");
-        for (Map.Entry<String, String> submoduleFolder : submoduleUrls().entrySet()) {
-            cleanUnversionedFiles(new File(workingDir, submoduleFolder.getKey()));
-        }
+        cleanUnversionedFilesInAllSubmodulesRecursively();
         cleanUnversionedFiles(workingDir);
+    }
+
+    private void cleanUnversionedFilesInAllSubmodulesRecursively() {
+        CommandLine gitCmd = git(environment)
+                .withArgs("submodule", "foreach", "--recursive", "git", "clean", "-dffx")
+                .withWorkingDir(workingDir);
+        runOrBomb(gitCmd);
     }
 
     private void printSubmoduleStatus(ConsoleOutputStreamConsumer outputStreamConsumer) {
@@ -180,8 +186,9 @@ public class GitCommand extends SCMCommand {
 
     public void resetHard(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision) {
         outputStreamConsumer.stdOutput("[GIT] Updating working copy to revision " + revision.getRevision());
-        String[] args = new String[]{"reset", "--hard", revision.getRevision()};
-        CommandLine gitCmd = git(environment).withArgs(args).withWorkingDir(workingDir);
+        CommandLine gitCmd = git(environment)
+                .withArgs("reset", "--hard", revision.getRevision())
+                .withWorkingDir(workingDir);
         int result = run(gitCmd, outputStreamConsumer);
         if (result != 0) {
             throw new RuntimeException(String.format("git reset failed for [%s]", this.workingDir));
@@ -200,36 +207,33 @@ public class GitCommand extends SCMCommand {
     }
 
     public void updateSubmoduleWithInit(ConsoleOutputStreamConsumer outputStreamConsumer) {
-        if (!gitsubmoduleEnabled()) {
+        if (!gitSubmoduleEnabled()) {
             return;
         }
-        outputStreamConsumer.stdOutput("[GIT] Updating git sub-modules");
+        outputStreamConsumer.stdOutput("[GIT] Initializing and Updating git sub-modules");
 
-        String[] initArgs = new String[]{"submodule", "init"};
-        CommandLine initCmd = git(environment).withArgs(initArgs).withWorkingDir(workingDir);
-        runOrBomb(initCmd);
+        CommandLine initUpdateCmd = git(environment)
+                .withArgs("submodule", "update", "--init", "--recursive")
+                .withWorkingDir(workingDir);
+        runOrBomb(initUpdateCmd);
 
         submoduleSync();
-
-        String[] updateArgs = new String[]{"submodule", "update"};
-        CommandLine updateCmd = git(environment).withArgs(updateArgs).withWorkingDir(workingDir);
-        runOrBomb(updateCmd);
 
         outputStreamConsumer.stdOutput("[GIT] Cleaning unversioned files and sub-modules");
         printSubmoduleStatus(outputStreamConsumer);
     }
 
     private void cleanUnversionedFiles(File workingDir) {
-        String[] args = new String[]{"clean", "-dff"};
-        CommandLine gitCmd = git(environment).withArgs(args).withWorkingDir(workingDir);
+        CommandLine gitCmd = git(environment)
+                .withArgs("clean", "-dffx")
+                .withWorkingDir(workingDir);
         runOrBomb(gitCmd);
     }
 
     private void removeSubmoduleSectionsFromGitConfig(ConsoleOutputStreamConsumer outputStreamConsumer) {
-        outputStreamConsumer.stdOutput("[GIT] Cleaning submodule configurations in .git/config");
-        for (String submoduleFolder : submoduleUrls().keySet()) {
-            configRemoveSection("submodule." + submoduleFolder);
-        }
+        outputStreamConsumer.stdOutput("[GIT] Deinit submodules");
+        CommandLine gitCmd = git(environment).withArgs("submodule", "deinit", "-f", "--all");
+        runOrBomb(gitCmd);
     }
 
     private void configRemoveSection(String section) {
@@ -238,7 +242,7 @@ public class GitCommand extends SCMCommand {
         runOrBomb(gitCmd, false);
     }
 
-    private boolean gitsubmoduleEnabled() {
+    private boolean gitSubmoduleEnabled() {
         return new File(workingDir, ".gitmodules").exists();
     }
 
@@ -252,7 +256,7 @@ public class GitCommand extends SCMCommand {
     public void checkConnection(UrlArgument repoUrl, String branch, Map<String, String> environment) {
         CommandLine commandLine = git(environment).withArgs("ls-remote").withArg(repoUrl).withArg("refs/heads/" + branch);
         ConsoleResult result = commandLine.runOrBomb(repoUrl.forDisplay());
-        if(!hasOnlyOneMatchingBranch(result)){
+        if (!hasOnlyOneMatchingBranch(result)) {
             throw new CommandLineException(String.format("The branch %s could not be found.", branch));
         }
     }
@@ -434,13 +438,9 @@ public class GitCommand extends SCMCommand {
     }
 
     public void submoduleSync() {
-        String[] syncArgs = new String[]{"submodule", "sync"};
+        String[] syncArgs = new String[]{"submodule", "sync", "--recursive"};
         CommandLine syncCmd = git(environment).withArgs(syncArgs).withWorkingDir(workingDir);
         runOrBomb(syncCmd);
-
-        String[] foreachArgs = new String[]{"submodule", "foreach", "--recursive", "git", "submodule", "sync"};
-        CommandLine foreachCmd = git(environment).withArgs(foreachArgs).withWorkingDir(workingDir);
-        runOrBomb(foreachCmd);
     }
 
     public boolean isShallow() {

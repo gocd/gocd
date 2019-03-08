@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright 2019 ThoughtWorks, Inc.
+  ~ Copyright 2018 ThoughtWorks, Inc.
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -89,7 +89,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="117"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="116"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -311,13 +311,6 @@
   </xsd:complexType>
   <xsd:complexType name="elasticConfigType">
     <xsd:sequence>
-      <xsd:element name="clusterProfiles" type="elasticAgentClusterProfilesType" minOccurs="0" maxOccurs="1">
-        <xsd:unique name="uniqueClusterProfileId">
-          <xsd:selector xpath="clusterProfile"/>
-          <xsd:field xpath="@id"/>
-          <!-- Unique clusterProfile id -->
-        </xsd:unique>
-      </xsd:element>
       <xsd:element name="profiles" type="elasticAgentProfilesType" minOccurs="0" maxOccurs="1">
         <xsd:unique name="uniqueProfileId">
           <xsd:selector xpath="profile"/>
@@ -331,11 +324,6 @@
   <xsd:complexType name="elasticAgentProfilesType">
     <xsd:sequence>
       <xsd:element minOccurs="0" maxOccurs="unbounded" name="profile" type="pluginProfile"/>
-    </xsd:sequence>
-  </xsd:complexType>
-  <xsd:complexType name="elasticAgentClusterProfilesType">
-    <xsd:sequence>
-      <xsd:element minOccurs="0" maxOccurs="unbounded" name="clusterProfile" type="pluginProfile"/>
     </xsd:sequence>
   </xsd:complexType>
   <xsd:complexType name="artifactStoresType">

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.domain.materials.svn;
 
+import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.Material;
@@ -30,11 +32,11 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.*;
@@ -45,12 +47,8 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class SvnMaterialTest {
@@ -61,11 +59,11 @@ public class SvnMaterialTest {
 
     private SvnMaterial svnMaterial;
     private static final String URL = "svn://something";
-    SubversionRevision revision = new SubversionRevision("1");
+    private SubversionRevision revision = new SubversionRevision("1");
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         temporaryFolder.create();
         subversion = mock(Subversion.class);
 
@@ -78,8 +76,8 @@ public class SvnMaterialTest {
         svnMaterial.setUrl(URL);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         temporaryFolder.delete();
     }
 
@@ -93,16 +91,16 @@ public class SvnMaterialTest {
     }
 
     @Test
-    public void shouldNotDisplayPasswordInStringRepresentation() {
+    void shouldNotDisplayPasswordInStringRepresentation() {
         SvnMaterial svn = new SvnMaterial("my-url", "user", "loser", false);
-        assertThat(svn.toString(), not(containsString("loser")));
+        assertThat(svn.toString()).doesNotContain("loser");
 
         svn = new SvnMaterial("https://user:loser@foo.bar/baz?quux=bang", "user", "loser", false);
-        assertThat(svn.toString(), not(containsString("loser")));
+        assertThat(svn.toString()).doesNotContain("loser");
     }
 
     @Test
-    public void shouldCheckoutWhenFolderDoesNotExist() {
+    void shouldCheckoutWhenFolderDoesNotExist() {
         final File workingCopy = new File("xyz");
 
         updateMaterial(svnMaterial, revision, workingCopy);
@@ -111,25 +109,24 @@ public class SvnMaterialTest {
     }
 
     @Test
-    public void shouldLogRepoInfoToConsoleOutWithOutFolder() throws Exception {
+    void shouldLogRepoInfoToConsoleOutWithOutFolder() throws Exception {
         final File workingCopy = new File("xyz");
 
         updateMaterial(svnMaterial, revision, workingCopy);
         String stdout = outputStreamConsumer.getStdOut();
-        assertThat(stdout, containsString(
-                String.format("Start updating %s at revision %s from %s", "files", revision.getRevision(),
-                        svnMaterial.getUrl())));
+        assertThat(stdout).contains(String.format("Start updating %s at revision %s from %s", "files", revision.getRevision(),
+                svnMaterial.getUrl()));
 
         verify(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
     }
 
     @Test
-    public void shouldCheckoutForInvalidSvnWorkingCopy() throws IOException {
+    void shouldCheckoutForInvalidSvnWorkingCopy() throws IOException {
         final File workingCopy = createSvnWorkingCopy(false);
 
         updateMaterial(svnMaterial, revision, workingCopy);
 
-        assertThat(workingCopy.exists(), is(false));
+        assertThat(workingCopy.exists()).isFalse();
         verify(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
     }
 
@@ -138,18 +135,18 @@ public class SvnMaterialTest {
     }
 
     @Test
-    public void shouldCheckoutIfSvnRepositoryChanged() throws IOException {
+    void shouldCheckoutIfSvnRepositoryChanged() throws IOException {
         final File workingCopy = createSvnWorkingCopy(true);
 
         when(subversion.workingRepositoryUrl(workingCopy)).thenReturn("new url");
 
         updateMaterial(svnMaterial, revision, workingCopy);
-        assertThat(workingCopy.exists(), is(false));
+        assertThat(workingCopy.exists()).isFalse();
         verify(subversion).checkoutTo(outputStreamConsumer, workingCopy, revision);
     }
 
     @Test
-    public void shouldUpdateForValidSvnWorkingCopy() throws IOException {
+    void shouldUpdateForValidSvnWorkingCopy() throws IOException {
         final File workingCopy = createSvnWorkingCopy(true);
 
         when(subversion.workingRepositoryUrl(workingCopy)).thenReturn(URL);
@@ -161,7 +158,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    public void shouldBeEqualWhenUrlSameForSvnMaterial() throws Exception {
+    void shouldBeEqualWhenUrlSameForSvnMaterial() throws Exception {
         final Material material1 = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
         final Material material = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
         assertComplementaryEquals(material1, material, true);
@@ -169,21 +166,21 @@ public class SvnMaterialTest {
     }
 
     @Test
-    public void shouldNotBeEqualWhenUrlDifferent() throws Exception {
+    void shouldNotBeEqualWhenUrlDifferent() throws Exception {
         final Material material1 = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
         final Material material2 = MaterialsMother.defaultSvnMaterialsWithUrl("url2").get(0);
         assertComplementaryEquals(material1, material2, false);
     }
 
     @Test
-    public void shouldNotBeEqualWhenTypeDifferent() throws Exception {
+    void shouldNotBeEqualWhenTypeDifferent() throws Exception {
         final Material hgMaterial = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         final Material nonHgMaterial = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
         assertComplementaryEquals(hgMaterial, nonHgMaterial, false);
     }
 
     @Test
-    public void shouldNotBeEqualWhenAlternateFolderDifferent() throws Exception {
+    void shouldNotBeEqualWhenAlternateFolderDifferent() throws Exception {
         final SvnMaterial material1 = MaterialsMother.svnMaterial("url1");
         final SvnMaterial material2 = MaterialsMother.svnMaterial("url1");
 
@@ -199,59 +196,59 @@ public class SvnMaterialTest {
     }
 
     @Test
-    public void shouldSerializeAndDeserializeCorrectly() throws Exception {
+    void shouldSerializeAndDeserializeCorrectly() throws Exception {
         final SvnMaterial material1 = MaterialsMother.svnMaterial("url1", "foo");
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         ObjectOutputStream serialized = new ObjectOutputStream(buf);
         serialized.writeObject(material1);
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(buf.toByteArray()));
-        assertThat(in.readObject(), is(material1));
+        assertThat(in.readObject()).isEqualTo(material1);
     }
 
     @Test
-    public void shouldReturnNotEqualsWhenUrlIsChanged() throws Exception {
+    void shouldReturnNotEqualsWhenUrlIsChanged() throws Exception {
         SvnMaterial material = MaterialsMother.svnMaterial("A");
 
         SvnMaterial other = MaterialsMother.svnMaterial("B");
-        assertThat(material, is(not(other)));
+        assertThat(material).isNotEqualTo(other);
     }
 
     @Test
-    public void shouldReturnNotEqualsWhenUserNameIsChanged() throws Exception {
+    void shouldReturnNotEqualsWhenUserNameIsChanged() throws Exception {
         SvnMaterial material = MaterialsMother.svnMaterial("url", "svnDir", "userName", null, false, "*.txt");
 
         SvnMaterial other = MaterialsMother.svnMaterial("url", "svnDir", "userName1", null, false, "*.txt");
-        assertThat(material, is(not(other)));
+        assertThat(material).isNotEqualTo(other);
     }
 
     @Test
-    public void shouldReturnEqualsEvenIfPasswordsAreDifferent() throws Exception {
+    void shouldReturnEqualsEvenIfPasswordsAreDifferent() throws Exception {
         SvnMaterial material = MaterialsMother.svnMaterial();
         material.setPassword("password");
 
         SvnMaterial other = MaterialsMother.svnMaterial();
         other.setPassword("password1");
-        assertThat(material, is(other));
+        assertThat(material).isEqualTo(other);
     }
 
     @Test
-    public void shouldReturnNotEqualsWhenCheckExternalsIsChanged() throws Exception {
+    void shouldReturnNotEqualsWhenCheckExternalsIsChanged() throws Exception {
         SvnMaterial material = MaterialsMother.svnMaterial("url", "svnDir", null, null, true, "*.txt");
         SvnMaterial other = MaterialsMother.svnMaterial("url", "svnDir", null, null, false, "*.txt");
-        assertThat(material, is(not(other)));
+        assertThat(material).isNotEqualTo(other);
     }
 
     @Test
-    public void shouldReturnEqualsWhenEverythingIsSame() throws Exception {
+    void shouldReturnEqualsWhenEverythingIsSame() throws Exception {
         SvnMaterial material = MaterialsMother.svnMaterial("URL", "dummy-folder", "userName", "password", true, "*.doc");
         SvnMaterial other = MaterialsMother.svnMaterial("URL", "dummy-folder", "userName", "password", true, "*.doc");
 
-        assertThat(other, is(material));
+        assertThat(other).isEqualTo(material);
     }
 
     /* TODO: *SBD* Move this test into SvnMaterialConfig test after mothers are moved. */
     @Test
-    public void shouldReturnEqualsWhenEverythingIsSameForSvnMaterialConfigs() throws Exception {
+    void shouldReturnEqualsWhenEverythingIsSameForSvnMaterialConfigs() throws Exception {
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
         svnMaterialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
         svnMaterialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.USERNAME, "userName"));
@@ -265,74 +262,74 @@ public class SvnMaterialTest {
         other.setPassword("password");
         other.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.URL, "URL"));
 
-        assertThat(other, is(svnMaterialConfig));
+        assertThat(other).isEqualTo(svnMaterialConfig);
     }
 
     @Test
-    public void shouldBeAbleToConvertToJson() {
+    void shouldBeAbleToConvertToJson() {
         SvnMaterial material = MaterialsMother.svnMaterial("url");
         Map<String, Object> json = new LinkedHashMap<>();
         material.toJson(json, revision);
 
         JsonValue jsonValue = from(json);
-        assertThat(jsonValue.getString("scmType"), is("Subversion"));
-        assertThat(new File(jsonValue.getString("location")), is(new File(material.getUrl())));
-        assertThat(jsonValue.getString("action"), is("Modified"));
+        assertThat(jsonValue.getString("scmType")).isEqualTo("Subversion");
+        assertThat(new File(jsonValue.getString("location"))).isEqualTo(new File(material.getUrl()));
+        assertThat(jsonValue.getString("action")).isEqualTo("Modified");
     }
 
     @Test
-    public void shouldAddTheForwardSlashAndApplyThePattern() throws Exception {
+    void shouldAddTheForwardSlashAndApplyThePattern() throws Exception {
         SvnMaterial material = MaterialsMother.svnMaterial();
 
-        assertThat(material.matches("/a.doc", "a.doc"), is(true));
-        assertThat(material.matches("a.doc", "a.doc"), is(false));
+        assertThat(material.matches("/a.doc", "a.doc")).isTrue();
+        assertThat(material.matches("a.doc", "a.doc")).isFalse();
     }
 
     @Test
-    public void shouldApplyThePatternDirectly() throws Exception {
+    void shouldApplyThePatternDirectly() throws Exception {
         SvnMaterial material = MaterialsMother.svnMaterial();
 
-        assertThat(material.matches("/a.doc", "/a.doc"), is(true));
+        assertThat(material.matches("/a.doc", "/a.doc")).isTrue();
     }
 
     @Test
-    public void shouldGenerateSqlCriteriaMapInSpecificOrder() throws Exception {
+    void shouldGenerateSqlCriteriaMapInSpecificOrder() throws Exception {
         SvnMaterial material = new SvnMaterial("url", "username", "password", true);
         Map<String, Object> map = material.getSqlCriteria();
-        assertThat(map.size(), is(4));
+        assertThat(map.size()).isEqualTo(4);
         Iterator<Map.Entry<String, Object>> iter = map.entrySet().iterator();
-        assertThat(iter.next().getKey(), is("type"));
-        assertThat(iter.next().getKey(), is("url"));
-        assertThat(iter.next().getKey(), is("username"));
-        assertThat(iter.next().getKey(), is("checkExternals"));
+        assertThat(iter.next().getKey()).isEqualTo("type");
+        assertThat(iter.next().getKey()).isEqualTo("url");
+        assertThat(iter.next().getKey()).isEqualTo("username");
+        assertThat(iter.next().getKey()).isEqualTo("checkExternals");
     }
 
     @Test
-    public void shouldGenerateFingerprintBasedOnSqlCriteria() throws Exception {
+    void shouldGenerateFingerprintBasedOnSqlCriteria() throws Exception {
         SvnMaterial one = new SvnMaterial("url", "username", "password", true);
         SvnMaterial two = new SvnMaterial("url", "username", "password", false);
-        assertThat(one.getFingerprint(), is(Matchers.not(two.getFingerprint())));
-        assertThat(one.getFingerprint(), is(DigestUtils.sha256Hex("type=SvnMaterial<|>url=url<|>username=username<|>checkExternals=true")));
+        assertThat(one.getFingerprint()).isNotEqualTo(two.getFingerprint());
+        assertThat(one.getFingerprint()).isEqualTo(DigestUtils.sha256Hex("type=SvnMaterial<|>url=url<|>username=username<|>checkExternals=true"));
     }
 
     @Test
-    public void shouldGeneratePipelineUniqueFingerprintBasedOnFingerprintAndDest() throws Exception {
+    void shouldGeneratePipelineUniqueFingerprintBasedOnFingerprintAndDest() throws Exception {
         SvnMaterial one = new SvnMaterial("url", "username", "password", true, "folder1");
         SvnMaterial two = new SvnMaterial("url", "username", "password", true, "folder2");
-        assertThat(one.getPipelineUniqueFingerprint(), is(Matchers.not(two.getFingerprint())));
-        assertThat(one.getPipelineUniqueFingerprint(), is(DigestUtils.sha256Hex("type=SvnMaterial<|>url=url<|>username=username<|>checkExternals=true<|>dest=folder1")));
+        assertThat(one.getPipelineUniqueFingerprint()).isNotEqualTo(two.getFingerprint());
+        assertThat(one.getPipelineUniqueFingerprint()).isEqualTo(DigestUtils.sha256Hex("type=SvnMaterial<|>url=url<|>username=username<|>checkExternals=true<|>dest=folder1"));
     }
 
     @Test
-    public void shouldNotUsePasswordForEquality() {
+    void shouldNotUsePasswordForEquality() {
         SvnMaterial svnBoozer = new SvnMaterial("foo.com", "loser", "boozer", true);
         SvnMaterial svnZooser = new SvnMaterial("foo.com", "loser", "zooser", true);
-        assertThat(svnBoozer.hashCode(), is(svnZooser.hashCode()));
-        assertThat(svnBoozer, is(svnZooser));
+        assertThat(svnBoozer.hashCode()).isEqualTo(svnZooser.hashCode());
+        assertThat(svnBoozer).isEqualTo(svnZooser);
     }
 
     @Test
-    public void shouldEncryptSvnPasswordAndMarkPasswordAsNull() throws Exception {
+    void shouldEncryptSvnPasswordAndMarkPasswordAsNull() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
         when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
@@ -340,12 +337,12 @@ public class SvnMaterialTest {
         SvnMaterial material = new SvnMaterial("/foo", "username", "password", false, mockGoCipher);
         material.ensureEncrypted();
 
-        assertThat(material.getPassword(), is(nullValue()));
-        assertThat(material.getEncryptedPassword(), is("encrypted"));
+        assertThat(material.getPassword()).isNull();
+        assertThat(material.getEncryptedPassword()).isEqualTo("encrypted");
     }
 
     @Test
-    public void shouldDecryptSvnPassword() throws Exception {
+    void shouldDecryptSvnPassword() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
         when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
@@ -354,11 +351,11 @@ public class SvnMaterialTest {
         ReflectionUtil.setField(material, "encryptedPassword", "encrypted");
 
         material.ensureEncrypted();
-        assertThat(material.getPassword(), is("password"));
+        assertThat(material.getPassword()).isEqualTo("password");
     }
 
     @Test
-    public void shouldNotDecryptSvnPasswordIfPasswordIsNotNull() throws Exception {
+    void shouldNotDecryptSvnPasswordIfPasswordIsNotNull() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
@@ -369,11 +366,11 @@ public class SvnMaterialTest {
         material.setPassword("new_password");
         when(mockGoCipher.decrypt("new_encrypted")).thenReturn("new_password");
 
-        assertThat(material.getPassword(), is("new_password"));
+        assertThat(material.getPassword()).isEqualTo("new_password");
     }
 
     @Test
-    public void shouldErrorOutIfDecryptionFails() throws CryptoException {
+    void shouldErrorOutIfDecryptionFails() throws CryptoException {
         GoCipher mockGoCipher = mock(GoCipher.class);
         String fakeCipherText = "fake cipher text";
         when(mockGoCipher.decrypt(fakeCipherText)).thenThrow(new CryptoException("exception"));
@@ -383,65 +380,111 @@ public class SvnMaterialTest {
             material.getPassword();
             fail("Should have thrown up");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Could not decrypt the password to get the real password"));
+            assertThat(e.getMessage()).isEqualTo("Could not decrypt the password to get the real password");
         }
     }
 
     @Test
-    public void shouldErrorOutIfEncryptionFails() throws Exception {
+    void shouldErrorOutIfEncryptionFails() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.encrypt("password")).thenThrow(new CryptoException("exception"));
         try {
             new SvnMaterial("/foo", "username", "password", false, mockGoCipher);
             fail("Should have thrown up");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Password encryption failed. Please verify your cipher key."));
+            assertThat(e.getMessage()).isEqualTo("Password encryption failed. Please verify your cipher key.");
         }
     }
 
     @Test
-    public void shouldGetLongDescriptionForMaterial() {
+    void shouldGetLongDescriptionForMaterial() {
         SvnMaterial material = new SvnMaterial("http://url/", "user", "password", true, "folder");
-        assertThat(material.getLongDescription(), is("URL: http://url/, Username: user, CheckExternals: true"));
+        assertThat(material.getLongDescription()).isEqualTo("URL: http://url/, Username: user, CheckExternals: true");
     }
 
     @Test
-    public void shouldCopyOverPasswordWhenConvertingToConfig() throws Exception {
+    void shouldCopyOverPasswordWhenConvertingToConfig() throws Exception {
         SvnMaterial material = new SvnMaterial("abc", "def", "ghi", false);
         SvnMaterialConfig config = (SvnMaterialConfig) material.config();
 
-        assertThat(config.getEncryptedPassword(), is(not(Matchers.nullValue())));
-        assertThat(config.getPassword(), is("ghi"));
+        assertThat(config.getEncryptedPassword()).isNotNull();
+        assertThat(config.getPassword()).isEqualTo("ghi");
     }
 
     private void assertComplementaryEquals(Object o1, Object o2, boolean value) {
-        assertThat(o1.equals(o2), is(value));
-        assertThat(o2.equals(o1), is(value));
+        assertThat(o1.equals(o2)).isEqualTo(value);
+        assertThat(o2.equals(o1)).isEqualTo(value);
     }
 
     @Test
-    public void shouldGetAttributesWithSecureFields() {
+    void shouldGetAttributesWithSecureFields() {
         SvnMaterial material = new SvnMaterial("http://username:password@svnrepo.com", "user", "password", true);
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat(attributes.get("type"), is("svn"));
+        assertThat(attributes.get("type")).isEqualTo("svn");
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("svn-configuration");
-        assertThat(configuration.get("url"), is("http://username:password@svnrepo.com"));
-        assertThat(configuration.get("username"), is("user"));
-        assertThat(configuration.get("password"), is("password"));
-        assertThat(configuration.get("check-externals"), is(true));
+        assertThat(configuration.get("url")).isEqualTo("http://username:password@svnrepo.com");
+        assertThat(configuration.get("username")).isEqualTo("user");
+        assertThat(configuration.get("password")).isEqualTo("password");
+        assertThat(configuration.get("check-externals")).isEqualTo(true);
     }
 
     @Test
-    public void shouldGetAttributesWithoutSecureFields() {
+    void shouldGetAttributesWithoutSecureFields() {
         SvnMaterial material = new SvnMaterial("http://username:password@svnrepo.com", "user", "password", true);
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat(attributes.get("type"), is("svn"));
+        assertThat(attributes.get("type")).isEqualTo("svn");
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("svn-configuration");
-        assertThat(configuration.get("url"), is("http://username:******@svnrepo.com"));
-        assertThat(configuration.get("username"), is("user"));
-        assertThat(configuration.get("password"), is(nullValue()));
-        assertThat(configuration.get("check-externals"), is(true));
+        assertThat(configuration.get("url")).isEqualTo("http://username:******@svnrepo.com");
+        assertThat(configuration.get("username")).isEqualTo("user");
+        assertThat(configuration.get("password")).isNull();
+        assertThat(configuration.get("check-externals")).isEqualTo(true);
+    }
+
+    @Nested
+    class hasSecretParams {
+        @Test
+        void shouldBeTrueIfMaterialUrlHasSecretParams() {
+            SvnMaterial svnMaterial = new SvnMaterial("http://username:#{SECRET[secret_config_id][lookup_password]}@foo.com", null, null, false);
+
+            assertThat(svnMaterial.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeTrueIfPasswordHasSecretParam() {
+            SvnMaterial svnMaterial = new SvnMaterial("http://foo.com", null, "#{SECRET[secret_config_id][lookup_password]}", false);
+
+            assertThat(svnMaterial.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeFalseIfMaterialUrlAndPasswordDoesNotHaveSecretParams() {
+            SvnMaterial svnMaterial = new SvnMaterial("http://foo.com", null, "password", false);
+
+            assertThat(svnMaterial.hasSecretParams()).isFalse();
+        }
+    }
+
+    @Nested
+    class getSecretParams {
+        @Test
+        void shouldReturnAListOfSecretParams() {
+            SvnMaterial svnMaterial = new SvnMaterial("http://username:#{SECRET[secret_config_id][lookup_password]}@foo.com",
+                    null, "#{SECRET[secret_config_id][lookup_pass]}", false);
+
+            assertThat(svnMaterial.getSecretParams())
+                    .hasSize(2)
+                    .contains(new SecretParam("secret_config_id", "lookup_password"),
+                            new SecretParam("secret_config_id", "lookup_pass"));
+        }
+
+        @Test
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialUrlOrPassword() {
+            SvnMaterial svnMaterial = new SvnMaterial("http://foo.com", null, "pass", false);
+
+            assertThat(svnMaterial.getSecretParams())
+                    .hasSize(0);
+        }
     }
 }

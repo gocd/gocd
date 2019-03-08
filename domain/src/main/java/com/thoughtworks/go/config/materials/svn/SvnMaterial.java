@@ -30,6 +30,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,10 +39,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -375,11 +373,11 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     @Override
     public boolean hasSecretParams() {
-        return false;
+        return this.url.hasSecretParams() || !SecretParam.parse(getPassword()).isEmpty();
     }
 
     @Override
     public List<SecretParam> getSecretParams() {
-        return null;
+        return ListUtils.union(url.getSecretParams(), SecretParam.parse(getPassword()));
     }
 }

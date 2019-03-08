@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.materials.git;
 
 import com.googlecode.junit.ext.JunitExtRunner;
 import com.googlecode.junit.ext.RunIf;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -33,14 +34,18 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
+
+import org.assertj.core.api.AbstractThrowableAssert;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -57,15 +62,10 @@ import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
-@RunWith(JunitExtRunner.class)
+@EnableRuleMigrationSupport
 public class GitMaterialTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -86,8 +86,8 @@ public class GitMaterialTest {
     private static final String SUBMODULE = "submodule-1";
     private GitTestRepo gitFooBranchBundle;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() throws Exception {
         temporaryFolder.create();
         GitTestRepo gitRepo = new GitTestRepo(temporaryFolder);
         outputStreamConsumer = inMemoryConsumer();
@@ -98,73 +98,73 @@ public class GitMaterialTest {
         gitFooBranchBundle = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, temporaryFolder);
     }
 
-    @After
-    public void teardown() throws Exception {
+    @AfterEach
+    void teardown() throws Exception {
         temporaryFolder.delete();
         TestRepo.internalTearDown();
     }
 
     @Test
-    public void shouldNotDisplayPasswordInStringRepresentation() {
+    void shouldNotDisplayPasswordInStringRepresentation() {
         GitMaterial git = new GitMaterial("https://user:loser@foo.bar/baz?quux=bang");
-        assertThat(git.toString(), not(containsString("loser")));
+        assertThat(git.toString()).doesNotContain("loser");
     }
 
     @Test
-    public void shouldGetLatestModification() throws Exception {
+    void shouldGetLatestModification() throws Exception {
         List<Modification> modifications = git.latestModification(workingDir, new TestSubprocessExecutionContext());
-        assertThat(modifications.size(), is(1));
+        assertThat(modifications.size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldNotCheckingOutWorkingCopyUponCallingGetLatestModification() throws Exception {
+    void shouldNotCheckingOutWorkingCopyUponCallingGetLatestModification() throws Exception {
         git.latestModification(workingDir, new TestSubprocessExecutionContext(true));
         assertWorkingCopyNotCheckedOut(workingDir);
     }
 
     @Test
-    public void shouldGetLatestModificationUsingPassword() {
+    void shouldGetLatestModificationUsingPassword() {
         GitMaterial gitMaterial = new GitMaterial("http://username:password@0.0.0.0");
         try {
             gitMaterial.latestModification(workingDir, new TestSubprocessExecutionContext());
             fail("should throw exception because url is not reachable");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("******"));
-            assertThat(e.getMessage(), not(containsString("password")));
+            assertThat(e.getMessage()).contains("******");
+            assertThat(e.getMessage()).doesNotContain("password");
         }
     }
 
     @Test
-    public void shouldGetLatestModificationFromBranch() throws Exception {
+    void shouldGetLatestModificationFromBranch() throws Exception {
         GitTestRepo branchedTestRepo = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, temporaryFolder);
         GitMaterial branchedGit = new GitMaterial(branchedTestRepo.projectRepositoryUrl(), BRANCH);
         List<Modification> modifications = branchedGit.latestModification(temporaryFolder.newFolder(), new TestSubprocessExecutionContext());
-        assertThat(modifications.size(), is(1));
-        assertThat(modifications.get(0).getComment(), Matchers.is("Started foo branch"));
+        assertThat(modifications.size()).isEqualTo(1);
+        assertThat(modifications.get(0).getComment()).isEqualTo("Started foo branch");
     }
 
     @Test
-    public void shouldFindAllModificationsSinceARevision() throws Exception {
+    void shouldFindAllModificationsSinceARevision() throws Exception {
         List<Modification> modifications = git.modificationsSince(workingDir, GitTestRepo.REVISION_0, new TestSubprocessExecutionContext());
-        assertThat(modifications.size(), is(4));
-        assertThat(modifications.get(0).getRevision(), is(GitTestRepo.REVISION_4.getRevision()));
-        assertThat(modifications.get(0).getComment(), is("Added 'run-till-file-exists' ant target"));
-        assertThat(modifications.get(1).getRevision(), is(GitTestRepo.REVISION_3.getRevision()));
-        assertThat(modifications.get(1).getComment(), is("adding build.xml"));
-        assertThat(modifications.get(2).getRevision(), is(GitTestRepo.REVISION_2.getRevision()));
-        assertThat(modifications.get(2).getComment(), is("Created second.txt from first.txt"));
-        assertThat(modifications.get(3).getRevision(), is(GitTestRepo.REVISION_1.getRevision()));
-        assertThat(modifications.get(3).getComment(), is("Added second line"));
+        assertThat(modifications.size()).isEqualTo(4);
+        assertThat(modifications.get(0).getRevision()).isEqualTo(GitTestRepo.REVISION_4.getRevision());
+        assertThat(modifications.get(0).getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
+        assertThat(modifications.get(1).getRevision()).isEqualTo(GitTestRepo.REVISION_3.getRevision());
+        assertThat(modifications.get(1).getComment()).isEqualTo("adding build.xml");
+        assertThat(modifications.get(2).getRevision()).isEqualTo(GitTestRepo.REVISION_2.getRevision());
+        assertThat(modifications.get(2).getComment()).isEqualTo("Created second.txt from first.txt");
+        assertThat(modifications.get(3).getRevision()).isEqualTo(GitTestRepo.REVISION_1.getRevision());
+        assertThat(modifications.get(3).getComment()).isEqualTo("Added second line");
     }
 
     @Test
-    public void shouldRetrieveLatestModificationIfRevisionIsNotFound() throws IOException {
+    void shouldRetrieveLatestModificationIfRevisionIsNotFound() throws IOException {
         List<Modification> modifications = git.modificationsSince(workingDir, GitTestRepo.NON_EXISTENT_REVISION, new TestSubprocessExecutionContext());
-        assertThat(modifications, is(git.latestModification(workingDir, new TestSubprocessExecutionContext())));
+        assertThat(modifications).isEqualTo(git.latestModification(workingDir, new TestSubprocessExecutionContext()));
     }
 
     @Test
-    public void shouldNotCheckingOutWorkingCopyUponCallingModificationsSinceARevision() throws Exception {
+    void shouldNotCheckingOutWorkingCopyUponCallingModificationsSinceARevision() throws Exception {
         SystemEnvironment mockSystemEnvironment = Mockito.mock(SystemEnvironment.class);
         GitMaterial material = new GitMaterial(repositoryUrl, true);
         when(mockSystemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE)).thenReturn(false);
@@ -174,91 +174,89 @@ public class GitMaterialTest {
     }
 
     @Test
-    public void shouldRetrieveModifiedFiles() throws Exception {
+    void shouldRetrieveModifiedFiles() throws Exception {
         List<Modification> mods = git.modificationsSince(workingDir, GitTestRepo.REVISION_0, new TestSubprocessExecutionContext());
         List<ModifiedFile> mod1Files = mods.get(0).getModifiedFiles();
-        assertThat(mod1Files.size(), Matchers.is(1));
-        assertThat(mod1Files.get(0).getFileName(), Matchers.is("build.xml"));
-        assertThat(mod1Files.get(0).getAction(), Matchers.is(ModifiedAction.modified));
+        assertThat(mod1Files.size()).isEqualTo(1);
+        assertThat(mod1Files.get(0).getFileName()).isEqualTo("build.xml");
+        assertThat(mod1Files.get(0).getAction()).isEqualTo(ModifiedAction.modified);
     }
 
     @Test
-    public void shouldUpdateToSpecificRevision() throws Exception {
+    void shouldUpdateToSpecificRevision() throws Exception {
         File newFile = new File(workingDir, "second.txt");
-        assertThat(outputStreamConsumer.getStdError(), is(""));
+        assertThat(outputStreamConsumer.getStdError()).isEqualTo("");
 
         InMemoryStreamConsumer output = inMemoryConsumer();
         git.updateTo(output, workingDir, new RevisionContext(GitTestRepo.REVISION_1, GitTestRepo.REVISION_0, 2), new TestSubprocessExecutionContext());
-        assertThat(output.getStdOut(),
-                containsString("Start updating files at revision " + GitTestRepo.REVISION_1.getRevision()));
-        assertThat(newFile.exists(), is(false));
+        assertThat(output.getStdOut()).contains("Start updating files at revision " + GitTestRepo.REVISION_1.getRevision());
+        assertThat(newFile.exists()).isFalse();
 
         output = inMemoryConsumer();
         git.updateTo(output, workingDir, new RevisionContext(GitTestRepo.REVISION_2, GitTestRepo.REVISION_1, 2), new TestSubprocessExecutionContext());
-        assertThat(output.getStdOut(),
-                containsString("Start updating files at revision " + GitTestRepo.REVISION_2.getRevision()));
-        assertThat(newFile.exists(), is(true));
+        assertThat(output.getStdOut()).contains("Start updating files at revision " + GitTestRepo.REVISION_2.getRevision());
+        assertThat(newFile.exists()).isTrue();
     }
 
     @Test
-    public void shouldRemoveSubmoduleFolderFromWorkingDirWhenSubmoduleIsRemovedFromRepo() throws Exception {
+    void shouldRemoveSubmoduleFolderFromWorkingDirWhenSubmoduleIsRemovedFromRepo() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
         StringRevision revision = new StringRevision("origin/master");
         gitMaterial.updateTo(outputStreamConsumer, workingDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
-        assertThat(new File(workingDir, "sub1"), exists());
+        assertThat(new File(workingDir, "sub1")).exists();
 
         submoduleRepos.removeSubmodule("sub1");
 
         outputStreamConsumer = inMemoryConsumer();
         gitMaterial.updateTo(outputStreamConsumer, workingDir, new RevisionContext(revision), new TestSubprocessExecutionContext());
-        assertThat(new File(workingDir, "sub1"), not(exists()));
+        assertThat(new File(workingDir, "sub1")).isNotEqualTo(exists());
     }
 
     @Test
-    public void shouldDeleteAndRecheckoutDirectoryWhenUrlChanges() throws Exception {
+    void shouldDeleteAndRecheckoutDirectoryWhenUrlChanges() throws Exception {
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
         File shouldBeRemoved = new File(workingDir, "shouldBeRemoved");
         shouldBeRemoved.createNewFile();
-        assertThat(shouldBeRemoved.exists(), is(true));
+        assertThat(shouldBeRemoved.exists()).isTrue();
 
         git = new GitMaterial(new GitTestRepo(temporaryFolder).projectRepositoryUrl());
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
-        assertThat("Should have deleted whole folder", shouldBeRemoved.exists(), is(false));
+        assertThat(shouldBeRemoved.exists()).as("Should have deleted whole folder").isFalse();
     }
 
     @Test
-    public void shouldNotDeleteAndRecheckoutDirectoryWhenUrlSame() throws Exception {
+    void shouldNotDeleteAndRecheckoutDirectoryWhenUrlSame() throws Exception {
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
         File shouldNotBeRemoved = new File(new File(workingDir, ".git"), "shouldNotBeRemoved");
         FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi", UTF_8);
-        assertThat(shouldNotBeRemoved.exists(), is(true));
+        assertThat(shouldNotBeRemoved.exists()).isTrue();
 
         git = new GitMaterial(repositoryUrl);
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
-        assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
+        assertThat(shouldNotBeRemoved.exists()).as("Should not have deleted whole folder").isTrue();
     }
 
     @Test
-    public void shouldNotDeleteAndRecheckoutDirectoryWhenUrlsOnlyDifferInFileProtocol() throws Exception {
+    void shouldNotDeleteAndRecheckoutDirectoryWhenUrlsOnlyDifferInFileProtocol() throws Exception {
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
         File shouldNotBeRemoved = new File(new File(workingDir, ".git"), "shouldNotBeRemoved");
         FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi", UTF_8);
-        assertThat(shouldNotBeRemoved.exists(), is(true));
+        assertThat(shouldNotBeRemoved.exists()).isTrue();
 
         git = new GitMaterial(repositoryUrl.replace("file://", ""));
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
-        assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
+        assertThat(shouldNotBeRemoved.exists()).as("Should not have deleted whole folder").isTrue();
     }
 
     /* This is to test the functionality of the private method isRepositoryChanged() */
     @Test
-    public void shouldNotDeleteAndRecheckoutDirectoryWhenBranchIsBlank() throws Exception {
+    void shouldNotDeleteAndRecheckoutDirectoryWhenBranchIsBlank() throws Exception {
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
         File shouldNotBeRemoved = new File(new File(workingDir, ".git"), "shouldNotBeRemoved");
@@ -266,12 +264,12 @@ public class GitMaterialTest {
 
         git = new GitMaterial(repositoryUrl, " ");
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
-        assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
+        assertThat(shouldNotBeRemoved.exists()).as("Should not have deleted whole folder").isTrue();
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
-    public void shouldThrowExceptionWhenWorkingDirectoryIsNotGitRepoAndItsUnableToDeleteIt() throws Exception {
+    @EnabledOnOs({OS.WINDOWS})
+    void shouldThrowExceptionWhenWorkingDirectoryIsNotGitRepoAndItsUnableToDeleteIt() throws Exception {
         File fileToBeLocked = new File(workingDir, "file");
         RandomAccessFile lockedFile = new RandomAccessFile(fileToBeLocked, "rw");
         FileLock lock = lockedFile.getChannel().lock();
@@ -279,164 +277,164 @@ public class GitMaterialTest {
             git.latestModification(workingDir, new TestSubprocessExecutionContext());
             fail("Should have failed to check modifications since the file is locked and cannot be removed.");
         } catch (Exception e) {
-            assertEquals(e.getMessage().trim(), "Failed to delete directory: " + workingDir.getAbsolutePath().trim());
-            assertEquals(true, fileToBeLocked.exists());
-        }
-        finally {
+            assertThat("Failed to delete directory: " + workingDir.getAbsolutePath().trim()).isEqualTo(e.getMessage().trim());
+            assertThat(fileToBeLocked.exists()).isTrue();
+        } finally {
             lock.release();
         }
     }
 
     @Test
-    public void shouldDeleteAndRecheckoutDirectoryWhenBranchChanges() throws Exception {
+    void shouldDeleteAndRecheckoutDirectoryWhenBranchChanges() throws Exception {
         git = new GitMaterial(gitFooBranchBundle.projectRepositoryUrl());
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         InMemoryStreamConsumer output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
-        assertThat(output.getStdOut(), is("* master"));
+        assertThat(output.getStdOut()).isEqualTo("* master");
 
         git = new GitMaterial(gitFooBranchBundle.projectRepositoryUrl(), "foo");
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
-        assertThat(output.getStdOut(), is("* foo"));
+        assertThat(output.getStdOut()).isEqualTo("* foo");
     }
 
     @Test
-    public void shouldCheckRemoteConnection() throws Exception {
+    void shouldCheckRemoteConnection() throws Exception {
         ValidationBean validationBean = git.checkConnection(new TestSubprocessExecutionContext());
-        assertThat("Connection should be valid", validationBean.isValid(), is(true));
+        assertThat(validationBean.isValid()).as("Connection should be valid").isTrue();
         String badHost = "http://nonExistantHost/git";
         git = new GitMaterial(badHost);
         validationBean = git.checkConnection(new TestSubprocessExecutionContext());
-        assertThat("Connection should not be valid", validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("Error performing command"));
-        assertThat(validationBean.getError(), containsString("git ls-remote http://nonExistantHost/git refs/heads/master"));
+        assertThat(validationBean.isValid()).as("Connection should not be valid").isFalse();
+        assertThat(validationBean.getError()).contains("Error performing command");
+        assertThat(validationBean.getError()).contains("git ls-remote http://nonExistantHost/git refs/heads/master");
     }
 
     @Test
-    public void shouldBeEqualWhenUrlSameForHgMaterial() throws Exception {
+    void shouldBeEqualWhenUrlSameForHgMaterial() throws Exception {
         Material material = MaterialsMother.gitMaterials("url1").get(0);
         Material anotherMaterial = MaterialsMother.gitMaterials("url1").get(0);
-        assertThat(material.equals(anotherMaterial), is(true));
-        assertThat(anotherMaterial.equals(material), is(true));
-        assertThat(anotherMaterial.hashCode() == material.hashCode(), is(true));
+        assertThat(material.equals(anotherMaterial)).isTrue();
+        assertThat(anotherMaterial.equals(material)).isTrue();
+        assertThat(anotherMaterial.hashCode() == material.hashCode()).isTrue();
     }
 
     @Test
-    public void shouldNotBeEqualWhenUrlDifferent() throws Exception {
+    void shouldNotBeEqualWhenUrlDifferent() throws Exception {
         Material material1 = MaterialsMother.gitMaterials("url1").get(0);
         Material material2 = MaterialsMother.gitMaterials("url2").get(0);
-        assertThat(material1.equals(material2), is(false));
-        assertThat(material2.equals(material1), is(false));
+        assertThat(material1.equals(material2)).isFalse();
+        assertThat(material2.equals(material1)).isFalse();
     }
 
     @Test
-    public void shouldNotBeEqualWhenTypeDifferent() throws Exception {
+    void shouldNotBeEqualWhenTypeDifferent() throws Exception {
         Material material = MaterialsMother.gitMaterials("url1").get(0);
         final Material hgMaterial = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
-        assertThat(material.equals(hgMaterial), is(false));
-        assertThat(hgMaterial.equals(material), is(false));
+        assertThat(material.equals(hgMaterial)).isFalse();
+        assertThat(hgMaterial.equals(material)).isFalse();
     }
 
     @Test
-    public void shouldReturnValidateBean() throws Exception {
+    void shouldReturnValidateBean() throws Exception {
         ValidationBean validationBean = git.checkConnection(new TestSubprocessExecutionContext());
-        assertThat("Repository should exist", validationBean.isValid(), Matchers.is(true));
+        assertThat(validationBean.isValid()).as("Repository should exist").isEqualTo(true);
     }
 
 
     @Test
-    public void shouldReturnInValidBean() throws Exception {
+    void shouldReturnInValidBean() throws Exception {
         git = new GitMaterial("http://0.0.0.0");
         ValidationBean validationBean = git.checkConnection(new TestSubprocessExecutionContext());
-        assertThat("Repository should not exist", validationBean.isValid(), Matchers.is(false));
+        assertThat(validationBean.isValid()).as("Repository should not exist").isEqualTo(false);
     }
 
     @Test
-    public void shouldReturnTrueIfVersionHigherThan1Dot6OnLinux() throws Exception {
-        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_6_0_2), is(true));
+    void shouldReturnTrueIfVersionHigherThan1Dot6OnLinux() throws Exception {
+        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_6_0_2)).isTrue();
     }
 
     @Test
-    public void shouldReturnTrueIfVersionHigherThan1Dot5OnLinux() throws Exception {
-        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_5_4_3), is(false));
+    void shouldReturnTrueIfVersionHigherThan1Dot5OnLinux() throws Exception {
+        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_5_4_3)).isFalse();
     }
 
     @Test
-    public void shouldReturnTrueIfVersionHigherThan1Dot6OnWindows() throws Exception {
-        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_6_0_2_ON_WINDOWS), is(true));
-    }
-
-    @Test(expected = Exception.class)
-    public void shouldReturnFalseWhenVersionIsNotRecgonized() throws Exception {
-        git.isVersionOnedotSixOrHigher(GIT_VERSION_NODE_ON_WINDOWS);
+    void shouldReturnTrueIfVersionHigherThan1Dot6OnWindows() throws Exception {
+        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_6_0_2_ON_WINDOWS)).isTrue();
     }
 
     @Test
-    public void shouldReturnInvalidBeanWithRootCauseAsLowerVersionInstalled() throws Exception {
+    void shouldReturnFalseWhenVersionIsNotRecgonized() {
+        assertThatCode(() -> git.isVersionOnedotSixOrHigher(GIT_VERSION_NODE_ON_WINDOWS))
+                .isInstanceOf(Exception.class)
+                .isNotNull();
+    }
+
+    @Test
+    void shouldReturnInvalidBeanWithRootCauseAsLowerVersionInstalled() throws Exception {
         ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_1_5_4_3);
-        assertThat(validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString(GitMaterial.ERR_GIT_OLD_VERSION));
+        assertThat(validationBean.isValid()).isFalse();
+        assertThat(validationBean.getError()).contains(GitMaterial.ERR_GIT_OLD_VERSION);
     }
 
     @Test
-    public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnLinux()
+    void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnLinux()
             throws Exception {
         ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6_0_2);
-        assertThat(validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("not found!"));
+        assertThat(validationBean.isValid()).isFalse();
+        assertThat(validationBean.getError()).contains("not found!");
     }
 
     @Test
-    public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnWindows()
+    void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnWindows()
             throws Exception {
         ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6_0_2_ON_WINDOWS);
-        assertThat(validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("not found!"));
+        assertThat(validationBean.isValid()).isFalse();
+        assertThat(validationBean.getError()).contains("not found!");
     }
 
 
     @Test
-    public void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsNotKnown() throws Exception {
+    void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsNotKnown() throws Exception {
         ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_NODE_ON_WINDOWS);
-        assertThat(validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("not found!"));
+        assertThat(validationBean.isValid()).isFalse();
+        assertThat(validationBean.getError()).contains("not found!");
     }
 
     @Test
-    public void shouldThrowExceptionWithUsefulInfoIfFailedToFindModifications() throws Exception {
+    void shouldThrowExceptionWithUsefulInfoIfFailedToFindModifications() throws Exception {
         final String url = "notExistDir";
         git = new GitMaterial(url);
         try {
             git.modificationsSince(workingDir, GitTestRepo.REVISION_0, new TestSubprocessExecutionContext());
             fail("Should have thrown an exception when failed to clone from an invalid url");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Failed to run git clone command"));
+            assertThat(e.getMessage()).contains("Failed to run git clone command");
         }
     }
 
     @Test
-    public void shouldBeAbleToConvertToJson() {
+    void shouldBeAbleToConvertToJson() {
         Map<String, Object> json = new LinkedHashMap<>();
         git.toJson(json, new StringRevision("123"));
 
         JsonValue jsonValue = from(json);
-        assertThat(jsonValue.getString("scmType"), is("Git"));
-        assertThat(new File(jsonValue.getString("location")), is(new File(git.getUrl())));
-        assertThat(jsonValue.getString("action"), is("Modified"));
+        assertThat(jsonValue.getString("scmType")).isEqualTo("Git");
+        assertThat(new File(jsonValue.getString("location"))).isEqualTo(new File(git.getUrl()));
+        assertThat(jsonValue.getString("action")).isEqualTo("Modified");
     }
 
     @Test
-    public void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
+    void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
         git.updateTo(outputStreamConsumer, workingDir, new RevisionContext(GitTestRepo.REVISION_1), new TestSubprocessExecutionContext());
-        assertThat(outputStreamConsumer.getStdOut(), containsString(
-                String.format("Start updating %s at revision %s from %s", "files", GitTestRepo.REVISION_1.getRevision(),
-                        git.getUrl())));
+        assertThat(outputStreamConsumer.getStdOut()).contains(String.format("Start updating %s at revision %s from %s", "files", GitTestRepo.REVISION_1.getRevision(),
+                git.getUrl()));
     }
 
     @Test
-    public void shouldGetLatestModificationsFromRepoWithSubmodules() throws Exception {
+    void shouldGetLatestModificationsFromRepoWithSubmodules() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
@@ -446,13 +444,13 @@ public class GitMaterialTest {
         materials.add(gitMaterial);
 
         MaterialRevisions materialRevisions = materials.latestModification(workingDirectory, new TestSubprocessExecutionContext());
-        assertThat(materialRevisions.numberOfRevisions(), is(1));
+        assertThat(materialRevisions.numberOfRevisions()).isEqualTo(1);
         MaterialRevision materialRevision = materialRevisions.getMaterialRevision(0);
-        assertThat(materialRevision.getRevision().getRevision(), is(submoduleRepos.currentRevision(GitSubmoduleRepos.NAME)));
+        assertThat(materialRevision.getRevision().getRevision()).isEqualTo(submoduleRepos.currentRevision(GitSubmoduleRepos.NAME));
     }
 
     @Test
-    public void shouldUpdateSubmodules() throws Exception {
+    void shouldUpdateSubmodules() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
@@ -468,15 +466,15 @@ public class GitMaterialTest {
         materialRevision.updateTo(agentWorkingDir, inMemoryConsumer(), new TestSubprocessExecutionContext());
 
         File localFile = submoduleRepos.files(GitSubmoduleRepos.NAME).get(0);
-        assertThat(new File(agentWorkingDir, localFile.getName()), exists());
+        assertThat(new File(agentWorkingDir, localFile.getName())).exists();
 
         File file = submoduleRepos.files(SUBMODULE).get(0);
         File workingSubmoduleFolder = new File(agentWorkingDir, "sub1");
-        assertThat(new File(workingSubmoduleFolder, file.getName()), exists());
+        assertThat(new File(workingSubmoduleFolder, file.getName())).exists();
     }
 
     @Test
-    public void shouldHaveModificationsWhenSubmoduleIsAdded() throws Exception {
+    void shouldHaveModificationsWhenSubmoduleIsAdded() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
@@ -489,12 +487,12 @@ public class GitMaterialTest {
 
         List<Modification> afterAdd = gitMaterial.modificationsSince(serverWorkingDir, new Modifications(beforeAdd).latestRevision(gitMaterial), new TestSubprocessExecutionContext());
 
-        assertThat(afterAdd.size(), is(1));
-        assertThat(afterAdd.get(0).getComment(), is("Added submodule new-submodule"));
+        assertThat(afterAdd.size()).isEqualTo(1);
+        assertThat(afterAdd.get(0).getComment()).isEqualTo("Added submodule new-submodule");
     }
 
     @Test
-    public void shouldHaveModificationsWhenSubmoduleIsRemoved() throws Exception {
+    void shouldHaveModificationsWhenSubmoduleIsRemoved() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
@@ -507,85 +505,123 @@ public class GitMaterialTest {
 
         List<Modification> after = gitMaterial.modificationsSince(serverWorkingDir, new Modifications(beforeAdd).latestRevision(gitMaterial), new TestSubprocessExecutionContext());
 
-        assertThat(after.size(), is(1));
-        assertThat(after.get(0).getComment(), is("Removed submodule sub1"));
+        assertThat(after.size()).isEqualTo(1);
+        assertThat(after.get(0).getComment()).isEqualTo("Removed submodule sub1");
     }
 
     @Test
-    public void shouldGenerateSqlCriteriaMapInSpecificOrder() throws Exception {
+    void shouldGenerateSqlCriteriaMapInSpecificOrder() throws Exception {
         Map<String, Object> map = git.getSqlCriteria();
-        assertThat(map.size(), is(3));
+        assertThat(map.size()).isEqualTo(3);
         Iterator<Map.Entry<String, Object>> iter = map.entrySet().iterator();
-        assertThat(iter.next().getKey(), is("type"));
-        assertThat(iter.next().getKey(), is("url"));
-        assertThat(iter.next().getKey(), is("branch"));
+        assertThat(iter.next().getKey()).isEqualTo("type");
+        assertThat(iter.next().getKey()).isEqualTo("url");
+        assertThat(iter.next().getKey()).isEqualTo("branch");
     }
 
     /**
      * A git abbreviated hash is 7 chars. See the git documentation.
      */
     @Test
-    public void shouldtruncateHashTo7charsforAShortRevision() throws Exception {
+    void shouldtruncateHashTo7charsforAShortRevision() throws Exception {
         Material git = new GitMaterial("file:///foo");
-        assertThat(git.getShortRevision("dc3d7e656831d1b203d8b7a63c4de82e26604e52"), is("dc3d7e6"));
-        assertThat(git.getShortRevision("24"), is("24"));
-        assertThat(git.getShortRevision(null), is(nullValue()));
+        assertThat(git.getShortRevision("dc3d7e656831d1b203d8b7a63c4de82e26604e52")).isEqualTo("dc3d7e6");
+        assertThat(git.getShortRevision("24")).isEqualTo("24");
+        assertThat(git.getShortRevision(null)).isNull();
     }
 
     @Test
-    public void shouldGetLongDescriptionForMaterial() {
+    void shouldGetLongDescriptionForMaterial() {
         GitMaterial gitMaterial = new GitMaterial("http://url/", "branch", "folder");
-        assertThat(gitMaterial.getLongDescription(), is("URL: http://url/, Branch: branch"));
+        assertThat(gitMaterial.getLongDescription()).isEqualTo("URL: http://url/, Branch: branch");
     }
 
     @Test
-    public void shouldNotUseWorkingDirectoryWhichHasBeenSetupOnMaterial_WhenCheckingForModifications() throws Exception {
+    void shouldNotUseWorkingDirectoryWhichHasBeenSetupOnMaterial_WhenCheckingForModifications() throws Exception {
         String workingDirSpecifiedInMaterial = "some-working-dir";
 
         GitMaterial git = new GitMaterial(repositoryUrl, GitMaterialConfig.DEFAULT_BRANCH, workingDirSpecifiedInMaterial);
         List<Modification> modifications = git.latestModification(workingDir, new TestSubprocessExecutionContext());
 
-        assertThat(modifications.size(), is(greaterThan(0)));
-        assertThat(new File(workingDir, ".git").isDirectory(), is(true));
-        assertThat(new File(new File(workingDir, workingDirSpecifiedInMaterial), ".git").isDirectory(), is(false));
+        assertThat(modifications.size()).isGreaterThan(0);
+        assertThat(new File(workingDir, ".git").isDirectory()).isTrue();
+        assertThat(new File(new File(workingDir, workingDirSpecifiedInMaterial), ".git").isDirectory()).isFalse();
     }
 
     @Test
-    public void shouldNotUseWorkingDirectoryWhichHasBeenSetupOnMaterial_WhenLookingForModificationsSinceAGivenRevision() throws Exception {
+    void shouldNotUseWorkingDirectoryWhichHasBeenSetupOnMaterial_WhenLookingForModificationsSinceAGivenRevision() throws Exception {
         String workingDirSpecifiedInMaterial = "some-working-dir";
 
         GitMaterial git = new GitMaterial(repositoryUrl, GitMaterialConfig.DEFAULT_BRANCH, workingDirSpecifiedInMaterial);
         List<Modification> modifications = git.modificationsSince(workingDir, GitTestRepo.REVISION_0, new TestSubprocessExecutionContext());
 
-        assertThat(modifications.size(), is(greaterThan(0)));
-        assertThat(new File(workingDir, ".git").isDirectory(), is(true));
-        assertThat(new File(workingDir, workingDirSpecifiedInMaterial).isDirectory(), is(false));
-        assertThat(new File(new File(workingDir, workingDirSpecifiedInMaterial), ".git").isDirectory(), is(false));
+        assertThat(modifications.size()).isGreaterThan(0);
+        assertThat(new File(workingDir, ".git").isDirectory()).isTrue();
+        assertThat(new File(workingDir, workingDirSpecifiedInMaterial).isDirectory()).isFalse();
+        assertThat(new File(new File(workingDir, workingDirSpecifiedInMaterial), ".git").isDirectory()).isFalse();
     }
 
     @Test
-    public void shouldGetAttributesWithSecureFields() {
+    void shouldGetAttributesWithSecureFields() {
         GitMaterial git = new GitMaterial("http://username:password@gitrepo.com", GitMaterialConfig.DEFAULT_BRANCH);
         Map<String, Object> attributes = git.getAttributes(true);
 
-        assertThat(attributes.get("type"), is("git"));
+        assertThat(attributes.get("type")).isEqualTo("git");
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("git-configuration");
-        assertThat(configuration.get("url"), is("http://username:password@gitrepo.com"));
-        assertThat(configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
+        assertThat(configuration.get("url")).isEqualTo("http://username:password@gitrepo.com");
+        assertThat(configuration.get("branch")).isEqualTo(GitMaterialConfig.DEFAULT_BRANCH);
     }
 
     @Test
-    public void shouldGetAttributesWithoutSecureFields() {
+    void shouldGetAttributesWithoutSecureFields() {
         GitMaterial git = new GitMaterial("http://username:password@gitrepo.com", GitMaterialConfig.DEFAULT_BRANCH);
         Map<String, Object> attributes = git.getAttributes(false);
 
-        assertThat(attributes.get("type"), is("git"));
+        assertThat(attributes.get("type")).isEqualTo("git");
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("git-configuration");
-        assertThat(configuration.get("url"), is("http://username:******@gitrepo.com"));
-        assertThat(configuration.get("branch"), is(GitMaterialConfig.DEFAULT_BRANCH));
+        assertThat(configuration.get("url")).isEqualTo("http://username:******@gitrepo.com");
+        assertThat(configuration.get("branch")).isEqualTo(GitMaterialConfig.DEFAULT_BRANCH);
+    }
+
+
+    @Nested
+    class hasSecretParams {
+        @Test
+        void shouldBeTrueIfMaterialUrlHasSecretParams() {
+            GitMaterial git = new GitMaterial("http://username:#{SECRET[secret_config_id][lookup_password]}@foo.com");
+
+            assertThat(git.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeFalseInMaterialUrlDoesNotHaveSecretParams() {
+            GitMaterial git = new GitMaterial("http://username:password@foo.com");
+
+            assertThat(git.hasSecretParams()).isFalse();
+        }
+    }
+
+    @Nested
+    class getSecretParams {
+        @Test
+        void shouldReturnAListOfSecretParams() {
+            GitMaterial git = new GitMaterial("http://username:#{SECRET[secret_config_id][lookup_password]}@foo.com");
+
+            assertThat(git.getSecretParams())
+                    .hasSize(1)
+                    .contains(new SecretParam("secret_config_id", "lookup_password"));
+        }
+
+        @Test
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialUrl() {
+            GitMaterial git = new GitMaterial("http://username:password@foo.com");
+
+            assertThat(git.getSecretParams())
+                    .hasSize(0);
+        }
     }
 
     private void assertWorkingCopyNotCheckedOut(File localWorkingDir) {
-        assertThat(localWorkingDir.listFiles(), is(new File[]{new File(localWorkingDir, ".git")}));
+        assertThat(localWorkingDir.listFiles()).isEqualTo(new File[]{new File(localWorkingDir, ".git")});
     }
 }

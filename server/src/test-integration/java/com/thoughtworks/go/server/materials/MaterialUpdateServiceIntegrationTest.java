@@ -64,7 +64,7 @@ public class MaterialUpdateServiceIntegrationTest {
 
         MaterialUpdateService materialUpdateService = new MaterialUpdateService(null,null, mock(MaterialUpdateCompletedTopic.class),
                 mock(GoConfigWatchList.class),mock(GoConfigService.class),
-                systemEnvironment, serverHealthService, null, mock(MDUPerformanceLogger.class), materialConfigConverter, null, maintenanceModeService);
+                systemEnvironment, serverHealthService, null, mock(MDUPerformanceLogger.class), materialConfigConverter, null, maintenanceModeService, null);
 
         materialUpdateService.onConfigChange(configWithMaterial(goodMaterial));
 

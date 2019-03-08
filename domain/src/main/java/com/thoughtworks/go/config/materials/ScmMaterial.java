@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials;
 
+import com.thoughtworks.go.config.SecretParamAware;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -36,7 +37,7 @@ import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escape
 /**
  * @understands a source control repository and its configuration
  */
-public abstract class ScmMaterial extends AbstractMaterial {
+public abstract class ScmMaterial extends AbstractMaterial implements SecretParamAware {
 
     public static final String GO_REVISION = "GO_REVISION";
     public static final String GO_TO_REVISION = "GO_TO_REVISION";

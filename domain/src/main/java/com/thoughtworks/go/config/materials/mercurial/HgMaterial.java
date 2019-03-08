@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -335,5 +336,15 @@ public class HgMaterial extends ScmMaterial {
             return componentsOfUrl[1];
         }
         return HG_DEFAULT_BRANCH;
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        return false;
+    }
+
+    @Override
+    public List<SecretParam> getSecretParams() {
+        return null;
     }
 }

@@ -16,9 +16,10 @@
 
 $button_color: #2d6ca2;
 .wrapper {
-  display:   inline-block;
-  max-width: 300px;
-  min-width: 250px;
+  display:    inline-block;
+  max-width:  300px;
+  min-width:  250px;
+  word-break: break-all;
 }
 
 .ellipsis-action-button {

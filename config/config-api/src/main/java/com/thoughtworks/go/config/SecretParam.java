@@ -17,12 +17,16 @@
 package com.thoughtworks.go.config;
 
 import java.io.Serializable;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
 
 public class SecretParam implements Serializable {
+    private static final Pattern pattern = Pattern.compile("(?:#\\{SECRET\\[(.*?)\\]\\[(.*?)\\]})+");
     private String secretConfigId;
     private String key;
     private String value;
@@ -32,16 +36,19 @@ public class SecretParam implements Serializable {
         this.key = key;
     }
 
-    public SecretParam(String secretParam) {
-
-    }
-
     public static List<SecretParam> parse(String str) {
-        return null;
-    }
+        final List<SecretParam> secretParams = new ArrayList<>();
 
-    public static boolean isSecretParam(String secretParam) {
-        return false;
+        if(isBlank(str)) {
+            return secretParams;
+        }
+
+        final Matcher matcher = pattern.matcher(str);
+        while (matcher.find()) {
+            secretParams.add(new SecretParam(matcher.group(1), matcher.group(2)));
+        }
+
+        return secretParams;
     }
 
     public String getSecretConfigId() {
@@ -52,8 +59,8 @@ public class SecretParam implements Serializable {
         return key;
     }
 
-    public String toSecretParam() {
-        return format("#{SECRET[%s][%s]}", secretConfigId, key);
+    public void setValue(String value) {
+        this.value = value;
     }
 
     @Override
@@ -68,9 +75,5 @@ public class SecretParam implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(secretConfigId, key);
-    }
-
-    public void setValue(String value) {
-        this.value = value;
     }
 }

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.materials.perforce;
 
 import com.thoughtworks.go.config.PasswordEncrypter;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -413,5 +414,15 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
     public String getEncryptedPassword() {
         return encryptedPassword;
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        return false;
+    }
+
+    @Override
+    public List<SecretParam> getSecretParams() {
+        return null;
     }
 }

@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.materials;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.GoConfigWatchList;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -35,9 +32,10 @@ import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialType;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialTypeResolver;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
-import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
+import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -46,18 +44,19 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.*;
 
 import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMaterialUpdateMessage;
-import static junit.framework.TestCase.assertTrue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class MaterialUpdateServiceTest {
@@ -82,9 +81,10 @@ public class MaterialUpdateServiceTest {
     private MaterialConfigConverter materialConfigConverter;
     private DependencyMaterialUpdateQueue dependencyMaterialUpdateQueue;
     private MaintenanceModeService maintenanceModeService;
+    private SecretParamResolver secretParamResolver;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         queue = mock(MaterialUpdateQueue.class);
         configQueue = mock(ConfigMaterialUpdateQueue.class);
         watchList = mock(GoConfigWatchList.class);
@@ -99,9 +99,11 @@ public class MaterialUpdateServiceTest {
         MDUPerformanceLogger mduPerformanceLogger = mock(MDUPerformanceLogger.class);
         dependencyMaterialUpdateQueue = mock(DependencyMaterialUpdateQueue.class);
         maintenanceModeService = mock(MaintenanceModeService.class);
+        secretParamResolver = mock(SecretParamResolver.class);
 
         service = new MaterialUpdateService(queue, configQueue, completed, watchList, goConfigService, systemEnvironment,
-                serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter, dependencyMaterialUpdateQueue, maintenanceModeService);
+                serverHealthService, postCommitHookMaterialType, mduPerformanceLogger, materialConfigConverter,
+                dependencyMaterialUpdateQueue, maintenanceModeService, secretParamResolver);
 
         service.registerMaterialSources(scmMaterialSource);
         service.registerMaterialUpdateCompleteListener(scmMaterialSource);
@@ -121,13 +123,13 @@ public class MaterialUpdateServiceTest {
         when(invalidMaterialType.isValid(anyString())).thenReturn(false);
     }
 
-    @After
-    public void teardown() throws Exception {
+    @AfterEach
+    void teardown() throws Exception {
         systemEnvironment.reset(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT);
     }
 
     @Test
-    public void shouldSendMaterialUpdateMessageForAllSchedulableMaterials_onTimer() throws Exception {
+    void shouldSendMaterialUpdateMessageForAllSchedulableMaterials_onTimer() throws Exception {
         when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
 
         service.onTimer();
@@ -136,7 +138,7 @@ public class MaterialUpdateServiceTest {
     }
 
     @Test
-    public void shouldNotSendMaterialUpdateMessageForAllSchedulableMaterials_onTimerWhenServerIsInMaintenanceMode() throws Exception {
+    void shouldNotSendMaterialUpdateMessageForAllSchedulableMaterials_onTimerWhenServerIsInMaintenanceMode() throws Exception {
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
 
@@ -145,81 +147,98 @@ public class MaterialUpdateServiceTest {
         Mockito.verifyZeroInteractions(queue);
     }
 
-    @Test
-    public void shouldPostUpdateMessageOnUpdateQueueForNonConfigMaterial_updateMaterial() {
-        assertTrue(service.updateMaterial(svnMaterial));
+    @Nested
+    class updateMaterial {
 
-        Mockito.verify(queue).post(matchMaterialUpdateMessage(svnMaterial));
-        Mockito.verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
+        @Test
+        void shouldPostUpdateMessageOnUpdateQueueForNonConfigMaterial() {
+            assertThat(service.updateMaterial(svnMaterial)).isTrue();
+
+            Mockito.verify(queue).post(matchMaterialUpdateMessage(svnMaterial));
+            Mockito.verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
+        }
+
+        @Test
+        void shouldPostUpdateMessageOnConfigQueueForConfigMaterial() {
+            when(watchList.hasConfigRepoWithFingerprint(svnMaterial.getFingerprint())).thenReturn(true);
+
+            assertThat(service.updateMaterial(svnMaterial)).isTrue();
+
+            Mockito.verify(configQueue).post(matchMaterialUpdateMessage(svnMaterial));
+            Mockito.verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
+        }
+
+        @Test
+        void shouldPostUpdateMessageOnDependencyMaterialUpdateQueueForDependencyMaterial() {
+            when(watchList.hasConfigRepoWithFingerprint(svnMaterial.getFingerprint())).thenReturn(false);
+
+            assertThat(service.updateMaterial(dependencyMaterial)).isTrue();
+
+            Mockito.verify(dependencyMaterialUpdateQueue).post(matchMaterialUpdateMessage(dependencyMaterial));
+            Mockito.verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
+            Mockito.verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
+        }
+
+        @Test
+        void shouldAllowConcurrentUpdatesForNonAutoUpdateMaterials() throws Exception {
+            ScmMaterial material = mock(ScmMaterial.class);
+            when(material.isAutoUpdate()).thenReturn(false);
+            MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
+            doNothing().when(queue).post(message);
+
+            assertThat(service.updateMaterial(material)).isTrue(); //prune inprogress queue to have this material in i.isTrue()t
+            assertThat(service.updateMaterial(material)).isTrue(); // immediately notify another check-i.isTrue()n
+
+            verify(queue, times(2)).post(message);
+            verify(material).isAutoUpdate();
+        }
+
+        @Test
+        void shouldNotAllowConcurrentUpdatesForAutoUpdateConfigMaterials() throws Exception {
+            ScmMaterial material = mock(ScmMaterial.class);
+            when(material.isAutoUpdate()).thenReturn(true);
+            when(material.getFingerprint()).thenReturn("fingerprint");
+            when(watchList.hasConfigRepoWithFingerprint("fingerprint")).thenReturn(true);
+            MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
+            doNothing().when(configQueue).post(message);
+
+            assertThat(service.updateMaterial(material)).isTrue(); //prune inprogress queue to have this material in i.isTrue()t
+            assertThat(service.updateMaterial(material)).isFalse(); // immediately notify another check-in
+
+            verify(configQueue, times(1)).post(message);
+            verify(material).isAutoUpdate();
+        }
+
+        @Test
+        void shouldNotAllowConcurrentUpdatesForAutoUpdateMaterials() throws Exception {
+            ScmMaterial material = mock(ScmMaterial.class);
+            when(material.isAutoUpdate()).thenReturn(true);
+            MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
+            doNothing().when(queue).post(message);
+
+            assertThat(service.updateMaterial(material)).isTrue(); //prune inprogress queue to have this material in i.isTrue()t
+            assertThat(service.updateMaterial(material)).isFalse(); // immediately notify another check-in
+
+            verify(queue, times(1)).post(message);
+            verify(material).isAutoUpdate();
+        }
+
+        @Test
+        void shouldResolveSecretParamsForMaterials() {
+            ScmMaterial material = mock(ScmMaterial.class);
+            List<SecretParam> secretParams = singletonList(new SecretParam("id", "key"));
+
+            when(material.hasSecretParams()).thenReturn(true);
+            when(material.getSecretParams()).thenReturn(secretParams);
+
+            service.updateMaterial(material);
+
+            verify(secretParamResolver).resolve(secretParams);
+        }
     }
 
     @Test
-    public void shouldPostUpdateMessageOnConfigQueueForConfigMaterial_updateMaterial() {
-        when(watchList.hasConfigRepoWithFingerprint(svnMaterial.getFingerprint())).thenReturn(true);
-
-        assertTrue(service.updateMaterial(svnMaterial));
-
-        Mockito.verify(configQueue).post(matchMaterialUpdateMessage(svnMaterial));
-        Mockito.verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
-    }
-
-    @Test
-    public void shouldPostUpdateMessageOnDependencyMaterialUpdateQueueForDependencyMaterial_updateMaterial() {
-        when(watchList.hasConfigRepoWithFingerprint(svnMaterial.getFingerprint())).thenReturn(false);
-
-        assertTrue(service.updateMaterial(dependencyMaterial));
-
-        Mockito.verify(dependencyMaterialUpdateQueue).post(matchMaterialUpdateMessage(dependencyMaterial));
-        Mockito.verify(queue, times(0)).post(any(MaterialUpdateMessage.class));
-        Mockito.verify(configQueue, times(0)).post(any(MaterialUpdateMessage.class));
-    }
-
-    @Test
-    public void shouldAllowConcurrentUpdatesForNonAutoUpdateMaterials_updateMaterial() throws Exception {
-        ScmMaterial material = mock(ScmMaterial.class);
-        when(material.isAutoUpdate()).thenReturn(false);
-        MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
-        doNothing().when(queue).post(message);
-
-        assertTrue(service.updateMaterial(material)); //prune inprogress queue to have this material in it
-        assertTrue(service.updateMaterial(material)); // immediately notify another check-in
-
-        verify(queue, times(2)).post(message);
-        verify(material).isAutoUpdate();
-    }
-
-    @Test
-    public void shouldNotAllowConcurrentUpdatesForAutoUpdateConfigMaterials_updateMaterial() throws Exception {
-        ScmMaterial material = mock(ScmMaterial.class);
-        when(material.isAutoUpdate()).thenReturn(true);
-        when(material.getFingerprint()).thenReturn("fingerprint");
-        when(watchList.hasConfigRepoWithFingerprint("fingerprint")).thenReturn(true);
-        MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
-        doNothing().when(configQueue).post(message);
-
-        assertTrue(service.updateMaterial(material)); //prune inprogress queue to have this material in it
-        assertFalse(service.updateMaterial(material)); // immediately notify another check-in
-
-        verify(configQueue, times(1)).post(message);
-        verify(material).isAutoUpdate();
-    }
-
-    @Test
-    public void shouldNotAllowConcurrentUpdatesForAutoUpdateMaterials_updateMaterial() throws Exception {
-        ScmMaterial material = mock(ScmMaterial.class);
-        when(material.isAutoUpdate()).thenReturn(true);
-        MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
-        doNothing().when(queue).post(message);
-
-        assertTrue(service.updateMaterial(material)); //prune inprogress queue to have this material in it
-        assertFalse(service.updateMaterial(material)); // immediately notify another check-in
-
-        verify(queue, times(1)).post(message);
-        verify(material).isAutoUpdate();
-    }
-
-    @Test
-    public void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateTrue() throws Exception {
+    void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateTrue() throws Exception {
         ScmMaterial material = mock(ScmMaterial.class);
         when(material.isAutoUpdate()).thenReturn(true);
         MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
@@ -232,7 +251,7 @@ public class MaterialUpdateServiceTest {
     }
 
     @Test
-    public void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateFalse() throws Exception {
+    void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateFalse() throws Exception {
         ScmMaterial material = mock(ScmMaterial.class);
         when(material.isAutoUpdate()).thenReturn(false);
         MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
@@ -245,33 +264,33 @@ public class MaterialUpdateServiceTest {
     }
 
     @Test
-    public void shouldReturn401WhenUserIsNotAnAdmin_WhenInvokingPostCommitHookMaterialUpdate() {
+    void shouldReturn401WhenUserIsNotAnAdmin_WhenInvokingPostCommitHookMaterialUpdate() {
         when(goConfigService.isUserAdmin(username)).thenReturn(false);
         service.notifyMaterialsForUpdate(username, new HashMap(), result);
 
         HttpLocalizedOperationResult forbiddenResult = new HttpLocalizedOperationResult();
         forbiddenResult.forbidden("Unauthorized to access this API.", HealthStateType.forbidden());
 
-        assertThat(result, is(forbiddenResult));
+        assertThat(result).isEqualTo(forbiddenResult);
 
         verify(goConfigService).isUserAdmin(username);
     }
 
     @Test
-    public void shouldReturn400WhenTypeIsMissing_WhenInvokingPostCommitHookMaterialUpdate() {
+    void shouldReturn400WhenTypeIsMissing_WhenInvokingPostCommitHookMaterialUpdate() {
         when(goConfigService.isUserAdmin(username)).thenReturn(true);
         service.notifyMaterialsForUpdate(username, new HashMap(), result);
 
         HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
         badRequestResult.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
 
-        assertThat(result, is(badRequestResult));
+        assertThat(result).isEqualTo(badRequestResult);
 
         verify(goConfigService).isUserAdmin(username);
     }
 
     @Test
-    public void shouldReturn400WhenTypeIsInvalid_WhenInvokingPostCommitHookMaterialUpdate() {
+    void shouldReturn400WhenTypeIsInvalid_WhenInvokingPostCommitHookMaterialUpdate() {
         when(goConfigService.isUserAdmin(username)).thenReturn(true);
         when(postCommitHookMaterialType.toType("some_invalid_type")).thenReturn(invalidMaterialType);
         final HashMap params = new HashMap();
@@ -281,13 +300,13 @@ public class MaterialUpdateServiceTest {
         HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
         badRequestResult.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
 
-        assertThat(result, is(badRequestResult));
+        assertThat(result).isEqualTo(badRequestResult);
 
         verify(goConfigService).isUserAdmin(username);
     }
 
     @Test
-    public void shouldReturn404WhenThereAreNoMaterialsToSchedule_WhenInvokingPostCommitHookMaterialUpdate() {
+    void shouldReturn404WhenThereAreNoMaterialsToSchedule_WhenInvokingPostCommitHookMaterialUpdate() {
         when(goConfigService.isUserAdmin(username)).thenReturn(true);
 
         PostCommitHookMaterialType materialType = mock(PostCommitHookMaterialType.class);
@@ -311,13 +330,13 @@ public class MaterialUpdateServiceTest {
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         operationResult.notFound("Unable to find material. Materials must be configured not to poll for new changes before they can be used with the notification mechanism.", HealthStateType.general(HealthStateScope.GLOBAL));
 
-        assertThat(result, is(operationResult));
+        assertThat(result).isEqualTo(operationResult);
 
         verify(hookImplementer).prune(anySet(), anyMap());
     }
 
     @Test
-    public void shouldReturnImplementerOfSvnPostCommitHookAndPerformMaterialUpdate_WhenInvokingPostCommitHookMaterialUpdate() {
+    void shouldReturnImplementerOfSvnPostCommitHookAndPerformMaterialUpdate_WhenInvokingPostCommitHookMaterialUpdate() {
         final HashMap params = new HashMap();
         params.put(MaterialUpdateService.TYPE, "svn");
         when(goConfigService.isUserAdmin(username)).thenReturn(true);
@@ -337,11 +356,11 @@ public class MaterialUpdateServiceTest {
         HttpLocalizedOperationResult acceptedResult = new HttpLocalizedOperationResult();
         acceptedResult.accepted("The material is now scheduled for an update. Please check relevant pipeline(s) for status.");
 
-        assertThat(result, is(acceptedResult));
+        assertThat(result).isEqualTo(acceptedResult);
     }
 
     @Test
-    public void shouldUpdateServerHealthMessageWhenHung() {
+    void shouldUpdateServerHealthMessageWhenHung() {
         //given
         service = spy(service);
         systemEnvironment.set(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT, 1);
@@ -362,14 +381,13 @@ public class MaterialUpdateServiceTest {
         verify(serverHealthService).removeByScope(HealthStateScope.forMaterialUpdate(material));
         ArgumentCaptor<ServerHealthState> argumentCaptor = ArgumentCaptor.forClass(ServerHealthState.class);
         verify(serverHealthService).update(argumentCaptor.capture());
-        assertThat(argumentCaptor.getValue().getMessage(), is("Material update for uri hung:"));
-        assertThat(argumentCaptor.getValue().getDescription(),
-                is("Material update is currently running but has not shown any activity in the last 1 minute(s). This may be hung. Details - details to uniquely identify a material"));
-        assertThat(argumentCaptor.getValue().getType(), is(HealthStateType.general(HealthStateScope.forMaterialUpdate(material))));
+        assertThat(argumentCaptor.getValue().getMessage()).isEqualTo("Material update for uri hung:");
+        assertThat(argumentCaptor.getValue().getDescription()).isEqualTo("Material update is currently running but has not shown any activity in the last 1 minute(s). This may be hung. Details - details to uniquely identify a material");
+        assertThat(argumentCaptor.getValue().getType()).isEqualTo(HealthStateType.general(HealthStateScope.forMaterialUpdate(material)));
     }
 
     @Test
-    public void shouldNotUpdateServerHealthMessageWhenIdleTimeLessThanConfigured() {
+    void shouldNotUpdateServerHealthMessageWhenIdleTimeLessThanConfigured() {
         //given
         service = spy(service);
         systemEnvironment.set(SystemEnvironment.MATERIAL_UPDATE_INACTIVE_TIMEOUT, 2);
@@ -389,7 +407,7 @@ public class MaterialUpdateServiceTest {
     }
 
     @Test
-    public void shouldRemoveServerHealthMessageOnMaterialUpdateCompletion() {
+    void shouldRemoveServerHealthMessageOnMaterialUpdateCompletion() {
         Material material = mock(Material.class);
         when(material.getFingerprint()).thenReturn("fingerprint");
 
@@ -399,7 +417,7 @@ public class MaterialUpdateServiceTest {
     }
 
     @Test
-    public void shouldNotifyAllMaterialUpdateCompleteListenersOnMaterialUpdate() {
+    void shouldNotifyAllMaterialUpdateCompleteListenersOnMaterialUpdate() {
         Material material = mock(Material.class);
 
         service.onMessage(new MaterialUpdateCompletedMessage(material, 0));
@@ -409,19 +427,19 @@ public class MaterialUpdateServiceTest {
     }
 
     @Test
-    public void shouldRemoveFromInProgressOnMaterialUpdateSkippedMessage() {
+    void shouldRemoveFromInProgressOnMaterialUpdateSkippedMessage() {
         when(scmMaterialSource.materialsForUpdate()).thenReturn(new HashSet<>(Arrays.asList(svnMaterial)));
         service.onTimer();
 
-        assertTrue(service.isInProgress(svnMaterial));
+        assertThat(service.isInProgress(svnMaterial)).isTrue();
 
         service.onMessage(new MaterialUpdateSkippedMessage(svnMaterial, 0));
 
-        assertFalse(service.isInProgress(svnMaterial));
+        assertThat(service.isInProgress(svnMaterial)).isFalse();
     }
 
     @Test
-    public void shouldNotRemoveServerHealthMessageOnMaterialUpdateSkippedMessage() {
+    void shouldNotRemoveServerHealthMessageOnMaterialUpdateSkippedMessage() {
         Material material = mock(Material.class);
         when(material.getFingerprint()).thenReturn("fingerprint");
 
@@ -431,7 +449,7 @@ public class MaterialUpdateServiceTest {
     }
 
     @Test
-    public void shouldNotNotifyAllMaterialUpdateCompleteListenersOnMaterialUpdateSkippedMessage() {
+    void shouldNotNotifyAllMaterialUpdateCompleteListenersOnMaterialUpdateSkippedMessage() {
         Material material = mock(Material.class);
 
         service.onMessage(new MaterialUpdateSkippedMessage(material, 0));
@@ -441,7 +459,7 @@ public class MaterialUpdateServiceTest {
     }
 
     @Test
-    public void shouldMaterialUpdateShouldNotBeInProgressIfUpdateMaterialMessagePostFails() {
+    void shouldMaterialUpdateShouldNotBeInProgressIfUpdateMaterialMessagePostFails() {
         doThrow(new RuntimeException("failed")).when(queue).post(matchMaterialUpdateMessage(svnMaterial));
         try {
             service.updateMaterial(svnMaterial);
@@ -450,6 +468,6 @@ public class MaterialUpdateServiceTest {
             // should re-throw exception
         }
         Map<Material, Date> inProgress = (Map<Material, Date>) ReflectionUtil.getField(service, "inProgress");
-        assertThat(inProgress.containsKey(svnMaterial), is(false));
+        assertThat(inProgress.containsKey(svnMaterial)).isFalse();
     }
 }

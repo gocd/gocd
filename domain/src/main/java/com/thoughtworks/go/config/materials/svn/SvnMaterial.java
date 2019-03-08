@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.materials.svn;
 
 import com.thoughtworks.go.config.PasswordEncrypter;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -370,5 +371,15 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         } catch (CryptoException e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        return false;
+    }
+
+    @Override
+    public List<SecretParam> getSecretParams() {
+        return null;
     }
 }

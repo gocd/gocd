@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.materials.tfs;
 
 import com.thoughtworks.go.config.PasswordEncrypter;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -305,5 +306,15 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     /* Needed although there is a getUserName above */
     public String getUsername() {
         return userName;
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        return false;
+    }
+
+    @Override
+    public List<SecretParam> getSecretParams() {
+        return null;
     }
 }

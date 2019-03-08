@@ -18,8 +18,8 @@ package com.thoughtworks.go.config;
 
 import java.util.List;
 
-public interface BackedBySecretParam {
-    boolean containsSecretParams();
+public interface SecretParamAware {
+    boolean hasSecretParams();
 
-    List<SecretParam> fetchSecretParams();
+    List<SecretParam> getSecretParams();
 }

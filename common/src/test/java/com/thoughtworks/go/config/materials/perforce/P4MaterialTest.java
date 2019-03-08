@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.config.materials.perforce;
 
+import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
@@ -25,19 +27,16 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -51,11 +50,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
     }
 
     @Test
-    public void dummyTestSoIntelliJNoticesMe() {
-    }
-
-    @Test
-    public void shouldAddServerSideEnvironmentVariablesClientNameEnvironmentVariable() throws IOException {
+    void shouldAddServerSideEnvironmentVariablesClientNameEnvironmentVariable() throws IOException {
         File p4_working_dir = temporaryFolder.newFolder();
 
         P4Material p4 = new P4Material("host:10", "beautiful", "user");
@@ -64,13 +59,13 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
         envVarCtx = new EnvironmentVariableContext();
         p4.populateEnvironmentContext(envVarCtx, new MaterialRevision(p4, new Modification("loser", "loserish commit", "loser@boozer.com", new Date(), "123")), p4_working_dir);
-        assertThat(envVarCtx.getProperty("GO_REVISION"), is("123"));
-        assertThat(envVarCtx.getProperty("GO_TO_REVISION"), is("123"));
-        assertThat(envVarCtx.getProperty("GO_FROM_REVISION"), is("123"));
+        assertThat(envVarCtx.getProperty("GO_REVISION")).isEqualTo("123");
+        assertThat(envVarCtx.getProperty("GO_TO_REVISION")).isEqualTo("123");
+        assertThat(envVarCtx.getProperty("GO_FROM_REVISION")).isEqualTo("123");
     }
 
     @Test
-    public void shouldAddClientNameEnvironmentVariable() throws IOException {
+    void shouldAddClientNameEnvironmentVariable() throws IOException {
         File p4_working_dir = temporaryFolder.newFolder();
 
         P4Material p4 = new P4Material("host:10", "beautiful", "user");
@@ -79,33 +74,32 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
         envVarCtx = new EnvironmentVariableContext();
         p4.populateAgentSideEnvironmentContext(envVarCtx, p4_working_dir);
-        assertThat(envVarCtx.getProperty("GO_P4_CLIENT"), is(p4.clientName(p4_working_dir)));
+        assertThat(envVarCtx.getProperty("GO_P4_CLIENT")).isEqualTo(p4.clientName(p4_working_dir));
     }
 
     @Test
-    public void shouldGenerateTheSameP4ClientValueForCommandAndEnvironment() throws Exception {
+    void shouldGenerateTheSameP4ClientValueForCommandAndEnvironment() throws Exception {
 
         P4Material p4Material = new P4Material("server:10", "out-of-the-window");
         ReflectionUtil.setField(p4Material, "folder", "crapy_dir");
 
         P4Client p4Client = p4Material._p4(tempDir, new InMemoryStreamConsumer(), false);
 
-        assertThat(p4Client, is(not(nullValue())));
+        assertThat(p4Client).isNotNull();
         String client = (String) ReflectionUtil.getField(p4Client, "p4ClientName");
-        assertThat(client, is(p4Material.clientName(tempDir)));
+        assertThat(client).isEqualTo(p4Material.clientName(tempDir));
     }
 
     @Test
-    public void shouldNotDisplayPasswordInStringRepresentation() {
+    void shouldNotDisplayPasswordInStringRepresentation() {
         P4Material p4 = new P4Material("host:10", "beautiful");
         p4.setUsername("user");
         p4.setPassword("loser");
-        assertThat(p4.toString(), not(containsString("loser")));
+        assertThat(p4.toString()).doesNotContain("loser");
     }
 
-
     @Test
-    public void shouldEncryptP4Password() throws Exception {
+    void shouldEncryptP4Password() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.encrypt("password")).thenReturn("encrypted");
         when(mockGoCipher.maybeReEncryptForPostConstructWithoutExceptions("encrypted")).thenReturn("encrypted");
@@ -114,12 +108,12 @@ public class P4MaterialTest extends P4MaterialTestBase {
         p4Material.setPassword("password");
         p4Material.ensureEncrypted();
 
-        assertThat(p4Material.getEncryptedPassword(), is("encrypted"));
-        assertThat(p4Material.getPassword(), is(nullValue()));
+        assertThat(p4Material.getEncryptedPassword()).isEqualTo("encrypted");
+        assertThat(p4Material.getPassword()).isNull();
     }
 
     @Test
-    public void shouldDecryptP4Password() throws Exception {
+    void shouldDecryptP4Password() throws Exception {
         GoCipher mockGoCipher = mock(GoCipher.class);
         when(mockGoCipher.decrypt("encrypted")).thenReturn("password");
 
@@ -127,85 +121,126 @@ public class P4MaterialTest extends P4MaterialTestBase {
         ReflectionUtil.setField(p4Material, "encryptedPassword", "encrypted");
         p4Material.getPassword();
 
-        assertThat(p4Material.getPassword(), is("password"));
+        assertThat(p4Material.getPassword()).isEqualTo("password");
     }
 
     @Test
-    public void shouldReturnEqualsEvenIfPasswordsAreDifferent() throws Exception {
+    void shouldReturnEqualsEvenIfPasswordsAreDifferent() throws Exception {
         P4Material material = MaterialsMother.p4Material();
         material.setPassword("password");
 
         P4Material other = MaterialsMother.p4Material();
         other.setPassword("password1");
-        assertThat(material, is(other));
+        assertThat(material).isEqualTo(other);
     }
 
     @Test
-    public void shouldNotConsiderPasswordForEqualityCheck() {
+    void shouldNotConsiderPasswordForEqualityCheck() {
         P4Material one = new P4Material("host:123", "through_window");
         one.setPassword("password");
         P4Material two = new P4Material("host:123", "through_window");
         two.setPassword("wordpass");
 
-        assertThat(one, is(two));
-        assertThat(one.hashCode(), is(two.hashCode()));
+        assertThat(one).isEqualTo(two);
+        assertThat(one.hashCode()).isEqualTo(two.hashCode());
     }
 
     @Test
-    public void shouldGetLongDescriptionForMaterial(){
+    void shouldGetLongDescriptionForMaterial() {
         P4Material material = new P4Material("host:123", "through_window", "user", "folder");
-        assertThat(material.getLongDescription(), is("URL: host:123, View: through_window, Username: user"));
+        assertThat(material.getLongDescription()).isEqualTo("URL: host:123, View: through_window, Username: user");
     }
 
     @Test
-    public void shouldCopyOverPasswordWhenConvertingToConfig() throws Exception {
-        P4Material material = new P4Material("blah.com","view");
+    void shouldCopyOverPasswordWhenConvertingToConfig() throws Exception {
+        P4Material material = new P4Material("blah.com", "view");
         material.setPassword("password");
 
         P4MaterialConfig config = (P4MaterialConfig) material.config();
 
-        assertThat(config.getPassword(), is("password"));
-        assertThat(config.getEncryptedPassword(), is(Matchers.not(Matchers.nullValue())));
+        assertThat(config.getPassword()).isEqualTo("password");
+        assertThat(config.getEncryptedPassword()).isNotNull();
     }
 
     @Test
-    public void shouldGetAttributesWithSecureFields() {
+    void shouldGetAttributesWithSecureFields() {
         P4Material material = new P4Material("host:1234", "view", "username");
         material.setPassword("password");
         material.setUseTickets(true);
         Map<String, Object> attributes = material.getAttributes(true);
 
-        assertThat(attributes.get("type"), is("perforce"));
+        assertThat(attributes.get("type")).isEqualTo("perforce");
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
-        assertThat(configuration.get("url"), is("host:1234"));
-        assertThat(configuration.get("username"), is("username"));
-        assertThat(configuration.get("password"), is("password"));
-        assertThat(configuration.get("view"), is("view"));
-        assertThat(configuration.get("use-tickets"), is(true));
+        assertThat(configuration.get("url")).isEqualTo("host:1234");
+        assertThat(configuration.get("username")).isEqualTo("username");
+        assertThat(configuration.get("password")).isEqualTo("password");
+        assertThat(configuration.get("view")).isEqualTo("view");
+        assertThat(configuration.get("use-tickets")).isEqualTo(true);
     }
 
     @Test
-    public void shouldGetAttributesWithoutSecureFields() {
+    void shouldGetAttributesWithoutSecureFields() {
         P4Material material = new P4Material("host:1234", "view", "username");
         material.setPassword("password");
         material.setUseTickets(true);
         Map<String, Object> attributes = material.getAttributes(false);
 
-        assertThat(attributes.get("type"), is("perforce"));
+        assertThat(attributes.get("type")).isEqualTo("perforce");
         Map<String, Object> configuration = (Map<String, Object>) attributes.get("perforce-configuration");
-        assertThat(configuration.get("url"), is("host:1234"));
-        assertThat(configuration.get("username"), is("username"));
-        assertThat(configuration.get("password"), is(nullValue()));
-        assertThat(configuration.get("view"), is("view"));
-        assertThat(configuration.get("use-tickets"), is(true));
+        assertThat(configuration.get("url")).isEqualTo("host:1234");
+        assertThat(configuration.get("username")).isEqualTo("username");
+        assertThat(configuration.get("password")).isNull();
+        assertThat(configuration.get("view")).isEqualTo("view");
+        assertThat(configuration.get("use-tickets")).isEqualTo(true);
     }
 
     @Test
-    public void shouldSetGO_P4_CLIENT_toTheClientName(){
+    void shouldSetGO_P4_CLIENT_toTheClientName() {
         P4Material material = new P4Material("host:1234", "view", "username", "destination");
         EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
         File agentWorkingDirectory = new File("pipelines/pipeline-name");
         material.populateAgentSideEnvironmentContext(environmentVariableContext, agentWorkingDirectory);
-        assertThat(environmentVariableContext.getProperty("GO_P4_CLIENT_DESTINATION"), is(material.clientName(material.workingdir(agentWorkingDirectory))));
+        assertThat(environmentVariableContext.getProperty("GO_P4_CLIENT_DESTINATION")).isEqualTo(material.clientName(material.workingdir(agentWorkingDirectory)));
+    }
+
+    @Nested
+    class hasSecretParams {
+        @Test
+        void shouldBeTrueIfMaterialUrlHasSecretParams() {
+            P4Material p4Material = new P4Material(null, null);
+            p4Material.setPassword("#{SECRET[secret_config_id][lookup_password]}");
+
+            assertThat(p4Material.hasSecretParams()).isTrue();
+        }
+
+        @Test
+        void shouldBeFalseInMaterialUrlDoesNotHaveSecretParams() {
+            P4Material p4Material = new P4Material(null, null);
+            p4Material.setPassword("foo");
+
+            assertThat(p4Material.hasSecretParams()).isFalse();
+        }
+    }
+
+    @Nested
+    class getSecretParams {
+        @Test
+        void shouldReturnAListOfSecretParams() {
+            P4Material p4Material = new P4Material(null, null);
+            p4Material.setPassword("#{SECRET[secret_config_id][lookup_password]}");
+
+            assertThat(p4Material.getSecretParams())
+                    .hasSize(1)
+                    .contains(new SecretParam("secret_config_id", "lookup_password"));
+        }
+
+        @Test
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialUrl() {
+            P4Material p4Material = new P4Material(null, null);
+            p4Material.setPassword("pass");
+
+            assertThat(p4Material.getSecretParams())
+                    .hasSize(0);
+        }
     }
 }

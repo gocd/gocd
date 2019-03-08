@@ -110,8 +110,6 @@ public class GitMaterial extends ScmMaterial {
         this.invertFilter = config.getInvertFilter();
     }
 
-
-
     @Override
     public MaterialConfig config() {
         return new GitMaterialConfig(url, branch, submoduleFolder, autoUpdate, filter, invertFilter, folder, name, shallowClone);
@@ -440,7 +438,7 @@ public class GitMaterial extends ScmMaterial {
 
     @Override
     public List<SecretParam> getSecretParams() {
-        return url.fetchSecretParams();
+        return url.getSecretParams();
     }
 
     public GitMaterial withShallowClone(boolean value) {

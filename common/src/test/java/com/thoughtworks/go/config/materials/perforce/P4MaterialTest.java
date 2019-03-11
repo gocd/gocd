@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config.materials.perforce;
 
 import com.thoughtworks.go.config.SecretParam;
-import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
@@ -29,7 +28,6 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 
 import java.io.File;
 import java.io.IOException;
@@ -207,7 +205,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
     class hasSecretParams {
         @Test
         void shouldBeTrueIfMaterialUrlHasSecretParams() {
-            P4Material p4Material = new P4Material(null, null);
+            P4Material p4Material = new P4Material("host:10", "beautiful");
             p4Material.setPassword("#{SECRET[secret_config_id][lookup_password]}");
 
             assertThat(p4Material.hasSecretParams()).isTrue();
@@ -215,7 +213,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
         @Test
         void shouldBeFalseInMaterialUrlDoesNotHaveSecretParams() {
-            P4Material p4Material = new P4Material(null, null);
+            P4Material p4Material = new P4Material("host:10", "beautiful");
             p4Material.setPassword("foo");
 
             assertThat(p4Material.hasSecretParams()).isFalse();
@@ -226,7 +224,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
     class getSecretParams {
         @Test
         void shouldReturnAListOfSecretParams() {
-            P4Material p4Material = new P4Material(null, null);
+            P4Material p4Material = new P4Material("host:10", "beautiful");
             p4Material.setPassword("#{SECRET[secret_config_id][lookup_password]}");
 
             assertThat(p4Material.getSecretParams())
@@ -236,7 +234,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
         @Test
         void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialUrl() {
-            P4Material p4Material = new P4Material(null, null);
+            P4Material p4Material = new P4Material("host:10", "beautiful");
             p4Material.setPassword("pass");
 
             assertThat(p4Material.getSecretParams())

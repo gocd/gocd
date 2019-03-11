@@ -348,4 +348,12 @@ public class GoConfigMother {
     public PluginRoleConfig createPluginRole(String roleName, String pluginId) {
         return new PluginRoleConfig(roleName, pluginId);
     }
+
+    public static CruiseConfig configWithSecretConfig(SecretConfig... SecretConfigs) {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setSecretConfigs(new SecretConfigs());
+        Arrays.stream(SecretConfigs)
+                .forEach(secretConfig -> cruiseConfig.getSecretConfigs().add(secretConfig));
+        return cruiseConfig;
+    }
 }

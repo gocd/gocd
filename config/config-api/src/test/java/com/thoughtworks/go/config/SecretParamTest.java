@@ -19,8 +19,6 @@ package com.thoughtworks.go.config;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 class SecretParamTest {
@@ -30,7 +28,7 @@ class SecretParamTest {
         @Test
         void shouldParseSecretParamStringToObject() {
             String materialUrl = "http://#{SECRET[secret_config_id][lookup_username]}:#{SECRET[secret_config_id][lookup_password]}@foo.com/foo.git";
-            List<SecretParam> secretParams = SecretParam.parse(materialUrl);
+            SecretParams secretParams = SecretParams.parse(materialUrl);
 
             assertThat(secretParams)
                     .hasSize(2)
@@ -41,14 +39,14 @@ class SecretParamTest {
         @Test
         void shouldReturnAnEmptyListInAbsenceOfSecretParamsInString() {
             String materialUrl = "http://username:#{SECRET[secret_config_id]}@foo.com/foo.git";
-            List<SecretParam> secretParams = SecretParam.parse(materialUrl);
+            SecretParams secretParams = SecretParams.parse(materialUrl);
 
             assertThat(secretParams).isEmpty();
         }
 
         @Test
         void shouldReturnAnEmptyListForNull() {
-            assertThat(SecretParam.parse(null)).isEmpty();
+            assertThat(SecretParams.parse(null)).isEmpty();
         }
     }
 }

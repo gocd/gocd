@@ -54,7 +54,6 @@ import org.mockito.Mockito;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMaterialUpdateMessage;
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -226,7 +225,7 @@ public class MaterialUpdateServiceTest {
         @Test
         void shouldResolveSecretParamsForMaterials() {
             ScmMaterial material = mock(ScmMaterial.class);
-            List<SecretParam> secretParams = singletonList(new SecretParam("id", "key"));
+            SecretParams secretParams = new SecretParams(new SecretParam("id", "key"));
 
             when(material.hasSecretParams()).thenReturn(true);
             when(material.getSecretParams()).thenReturn(secretParams);

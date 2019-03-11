@@ -17,7 +17,7 @@
 package com.thoughtworks.go.config.materials.tfs;
 
 import com.thoughtworks.go.config.PasswordEncrypter;
-import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -32,7 +32,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -311,11 +310,11 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     public boolean hasSecretParams() {
-        return this.url.hasSecretParams() || !SecretParam.parse(getPassword()).isEmpty();
+        return this.url.hasSecretParams() || !SecretParams.parse(getPassword()).isEmpty();
     }
 
     @Override
-    public List<SecretParam> getSecretParams() {
-        return ListUtils.union(url.getSecretParams(), SecretParam.parse(getPassword()));
+    public SecretParams getSecretParams() {
+        return SecretParams.union(url.getSecretParams(), SecretParams.parse(getPassword()));
     }
 }

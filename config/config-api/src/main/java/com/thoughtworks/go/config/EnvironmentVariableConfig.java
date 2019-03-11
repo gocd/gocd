@@ -29,7 +29,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 
 import static java.lang.String.format;
@@ -344,7 +343,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
     }
 
     @Override
-    public List<SecretParam> getSecretParams() {
+    public SecretParams getSecretParams() {
         return null;
     }
 }

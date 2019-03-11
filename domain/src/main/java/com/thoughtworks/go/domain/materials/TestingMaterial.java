@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
@@ -25,9 +25,10 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import org.joda.time.DateTime;
 
 import java.io.File;
-import java.util.*;
-
-import static java.util.Collections.emptyList;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 public class TestingMaterial extends ScmMaterial {
     public static final Date TWO_DAYS_AGO_CHECKIN = new DateTime().minusDays(2).toDate();
@@ -96,7 +97,8 @@ public class TestingMaterial extends ScmMaterial {
         return null;
     }
 
-    @Override public String getEncryptedPassword() {
+    @Override
+    public String getEncryptedPassword() {
         return null;
     }
 
@@ -108,7 +110,8 @@ public class TestingMaterial extends ScmMaterial {
         return url;
     }
 
-    @Override protected UrlArgument getUrlArgument() {
+    @Override
+    protected UrlArgument getUrlArgument() {
         return new UrlArgument(url);
     }
 
@@ -149,7 +152,7 @@ public class TestingMaterial extends ScmMaterial {
     }
 
     @Override
-    public List<SecretParam> getSecretParams() {
-        return emptyList();
+    public SecretParams getSecretParams() {
+        return new SecretParams();
     }
 }

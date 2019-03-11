@@ -3,7 +3,9 @@
         <button id="<%= "next_to_#{scope[:current_tab_name]}" -%>" class="right primary next submit"><span>Next</span></button>
     <% end %>
     <% if scope[:needs_finish] %>
-        <%= submit_button('Finish', :class => 'primary finish') %>
+        <%= hidden_field_tag :save_and_edit, true %>
+        <%= submit_button('Finish', :class => 'primary finish', :onclick => "Util.set_value('save_and_edit', 'false')();" ) %>
+        <%= submit_button('Save and Edit', :class => 'primary finish') %>
     <% end %>
     <% if scope[:needs_prev] %>
         <button id="<%= "prev_to_#{scope[:current_tab_name]}" -%>" class="right primary prev submit"><span>Previous</span></button>

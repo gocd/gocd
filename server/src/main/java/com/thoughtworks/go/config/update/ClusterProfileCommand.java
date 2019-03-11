@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.i18n.LocalizedMessage;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -29,8 +30,11 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import java.util.Map;
 
 public abstract class ClusterProfileCommand extends PluginProfileCommand<ClusterProfile, ClusterProfiles> {
-    public ClusterProfileCommand(GoConfigService goConfigService, ClusterProfile clusterProfile, Username username, HttpLocalizedOperationResult result) {
+    private final ElasticAgentExtension extension;
+
+    public ClusterProfileCommand(ElasticAgentExtension extension, GoConfigService goConfigService, ClusterProfile clusterProfile, Username username, HttpLocalizedOperationResult result) {
         super(goConfigService, clusterProfile, username, result);
+        this.extension = extension;
     }
 
     @Override
@@ -40,8 +44,7 @@ public abstract class ClusterProfileCommand extends PluginProfileCommand<Cluster
 
     @Override
     public ValidationResult validateUsingExtension(String pluginId, Map<String, String> configuration) {
-        //todo: @Vrushali and @Ganesh did this. change this to talk to real extension.
-        return new ValidationResult();
+        return extension.validateClusterProfile(pluginId, configuration);
     }
 
     @Override

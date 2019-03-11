@@ -158,4 +158,19 @@ public class ElasticAgentExtensionV3 implements VersionedElasticAgentExtension {
     public void jobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
         LOG.debug("Plugin: '{}' uses elastic agent extension v3 and job completion is not supported by elastic agent V3", pluginId);
     }
+
+    @Override
+    public List<PluginConfiguration> getClusterProfileMetadata(String pluginId) {
+        throw new UnsupportedOperationException(String.format("Plugin: '%s' uses elastic agent extension v3 and cluster profile extension calls are not supported by elastic agent V3", pluginId));
+    }
+
+    @Override
+    public String getClusterProfileView(String pluginId) {
+        throw new UnsupportedOperationException(String.format("Plugin: '%s' uses elastic agent extension v3 and cluster profile extension calls are not supported by elastic agent V3", pluginId));
+    }
+
+    @Override
+    public ValidationResult validateClusterProfile(String pluginId, Map<String, String> configuration) {
+        throw new UnsupportedOperationException(String.format("Plugin: '%s' uses elastic agent extension v3 and cluster profile extension calls are not supported by elastic agent V3", pluginId));
+    }
 }

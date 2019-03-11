@@ -81,6 +81,18 @@ public class ElasticAgentExtension extends AbstractExtension {
         return getVersionedElasticAgentExtension(pluginId).validateElasticProfile(pluginId, configuration);
     }
 
+    List<PluginConfiguration> getClusterProfileMetadata(String pluginId) {
+        return getVersionedElasticAgentExtension(pluginId).getClusterProfileMetadata(pluginId);
+    }
+
+    String getClusterProfileView(String pluginId) {
+        return getVersionedElasticAgentExtension(pluginId).getClusterProfileView(pluginId);
+    }
+
+    public ValidationResult validateClusterProfile(final String pluginId, final Map<String, String> configuration) {
+        return getVersionedElasticAgentExtension(pluginId).validateClusterProfile(pluginId, configuration);
+    }
+
     com.thoughtworks.go.plugin.domain.common.Image getIcon(String pluginId) {
         return getVersionedElasticAgentExtension(pluginId).getIcon(pluginId);
     }

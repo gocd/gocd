@@ -95,6 +95,40 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
         });
     }
 
+    @Override
+    public List<PluginConfiguration> getClusterProfileMetadata(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CLUSTER_PROFILE_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
+            @Override
+            public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                return elasticAgentExtensionConverterV5.getElasticProfileMetadataResponseFromBody(responseBody);
+            }
+        });
+    }
+
+    @Override
+    public String getClusterProfileView(String pluginId) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_CLUSTER_PROFILE_VIEW, new DefaultPluginInteractionCallback<String>() {
+            @Override
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                return elasticAgentExtensionConverterV5.getProfileViewResponseFromBody(responseBody);
+            }
+        });
+    }
+
+    @Override
+    public ValidationResult validateClusterProfile(String pluginId, Map<String, String> configuration) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_CLUSTER_PROFILE, new DefaultPluginInteractionCallback<ValidationResult>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return elasticAgentExtensionConverterV5.validateElasticProfileRequestBody(configuration);
+            }
+
+            @Override
+            public ValidationResult onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                return elasticAgentExtensionConverterV5.getElasticProfileValidationResultResponseFromBody(responseBody);
+            }
+        });
+    }
 
     @Override
     public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, JobIdentifier jobIdentifier) {

@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -26,13 +27,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import java.util.HashMap;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 class AddClusterProfileCommandTest {
     @Mock
     private GoConfigService goConfigService;
+    @Mock
+    private ElasticAgentExtension extension;
     private ClusterProfile clusterProfile;
     private Username username;
     private HttpLocalizedOperationResult result;
@@ -47,7 +52,7 @@ class AddClusterProfileCommandTest {
         clusterProfile = new ClusterProfile("cluster-id", "plugin-id");
         username = new Username("Bob");
         result = new HttpLocalizedOperationResult();
-        command = new AddClusterProfileCommand(goConfigService, clusterProfile, username, result);
+        command = new AddClusterProfileCommand(extension, goConfigService, clusterProfile, username, result);
     }
 
     @Test
@@ -84,5 +89,14 @@ class AddClusterProfileCommandTest {
     @Test
     void shouldSpecifyClusterProfileObjectDescriptor() {
         assertThat(command.getObjectDescriptor()).isEqualTo("Cluster Profile");
+    }
+
+    @Test
+    void shouldMakeACallToExtensionToValidateClusterProfile() {
+        String pluginId = "plugin-id";
+        HashMap<String, String> configuration = new HashMap<>();
+        command.validateUsingExtension(pluginId, configuration);
+
+        verify(extension, times(1)).validateClusterProfile(pluginId, configuration);
     }
 }

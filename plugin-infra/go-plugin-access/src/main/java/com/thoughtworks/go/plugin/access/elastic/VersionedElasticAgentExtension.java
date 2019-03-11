@@ -18,7 +18,6 @@ package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
-import com.thoughtworks.go.plugin.access.elastic.v3.ElasticAgentExtensionV3;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -36,6 +35,12 @@ public interface VersionedElasticAgentExtension {
     String getElasticProfileView(String pluginId);
 
     ValidationResult validateElasticProfile(String pluginId, Map<String, String> configuration);
+
+    List<PluginConfiguration> getClusterProfileMetadata(String pluginId);
+
+    String getClusterProfileView(String pluginId);
+
+    ValidationResult validateClusterProfile(String pluginId, Map<String, String> configuration);
 
     void createAgent(String pluginId, String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier);
 

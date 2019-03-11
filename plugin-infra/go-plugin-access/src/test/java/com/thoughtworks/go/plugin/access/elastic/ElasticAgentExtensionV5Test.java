@@ -45,7 +45,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentPluginConstantsV4.*;
+import static com.thoughtworks.go.plugin.access.elastic.v5.ElasticAgentPluginConstantsV5.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.Matchers.*;
@@ -146,6 +146,51 @@ public class ElasticAgentExtensionV5Test {
         ));
 
         assertExtensionRequest("5.0", REQUEST_VALIDATE_PROFILE, "{}");
+    }
+
+
+    @Test
+    public void shouldGetClusterProfileMetadata() {
+        String responseBody = "[{\"key\":\"Username\",\"metadata\":{\"required\":true,\"secure\":false}},{\"key\":\"Password\",\"metadata\":{\"required\":true,\"secure\":true}}]";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+
+        final List<PluginConfiguration> metadata = extensionV5.getClusterProfileMetadata(PLUGIN_ID);
+
+        assertThat(metadata, hasSize(2));
+        assertThat(metadata, containsInAnyOrder(
+                new PluginConfiguration("Username", new Metadata(true, false)),
+                new PluginConfiguration("Password", new Metadata(true, true))
+        ));
+
+        assertExtensionRequest("5.0", REQUEST_GET_CLUSTER_PROFILE_METADATA, null);
+    }
+
+    @Test
+    public void shouldGetClusterProfileView() {
+        String responseBody = "{ \"template\": \"<div>This is profile view snippet</div>\" }";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+
+        final String view = extensionV5.getClusterProfileView(PLUGIN_ID);
+
+        assertThat(view, is("<div>This is profile view snippet</div>"));
+
+        assertExtensionRequest("5.0", REQUEST_GET_CLUSTER_PROFILE_VIEW, null);
+    }
+
+    @Test
+    public void shouldValidateClusterProfile() {
+        String responseBody = "[{\"message\":\"Url must not be blank.\",\"key\":\"Url\"},{\"message\":\"SearchBase must not be blank.\",\"key\":\"SearchBase\"}]";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+
+        final ValidationResult result = extensionV5.validateClusterProfile(PLUGIN_ID, Collections.emptyMap());
+
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.getErrors(), containsInAnyOrder(
+                new ValidationError("Url", "Url must not be blank."),
+                new ValidationError("SearchBase", "SearchBase must not be blank.")
+        ));
+
+        assertExtensionRequest("5.0", REQUEST_VALIDATE_CLUSTER_PROFILE, "{}");
     }
 
     @Test

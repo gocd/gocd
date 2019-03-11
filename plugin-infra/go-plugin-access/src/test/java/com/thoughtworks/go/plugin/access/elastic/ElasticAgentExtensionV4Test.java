@@ -40,18 +40,13 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentPluginConstantsV4.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -271,6 +266,31 @@ public class ElasticAgentExtensionV4Test {
                 "}";
 
         assertExtensionRequest("4.0", REQUEST_AGENT_STATUS_REPORT, requestBody);
+    }
+
+
+    @Test
+    public void shouldNotSupportGetClusterProfileConfigurationCall() {
+        thrown.expect(UnsupportedOperationException.class);
+        thrown.expectMessage(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
+
+        extensionV4.getClusterProfileMetadata(PLUGIN_ID);
+    }
+
+    @Test
+    public void shouldNotSupportGetClusterProfileViewCall() {
+        thrown.expect(UnsupportedOperationException.class);
+        thrown.expectMessage(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
+
+        extensionV4.getClusterProfileView(PLUGIN_ID);
+    }
+
+    @Test
+    public void shouldNotSupportValidateClusterProfileCall() {
+        thrown.expect(UnsupportedOperationException.class);
+        thrown.expectMessage(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
+
+        extensionV4.validateClusterProfile(PLUGIN_ID, new HashMap<>());
     }
 
     @Test

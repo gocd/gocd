@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -33,6 +34,8 @@ import static org.mockito.MockitoAnnotations.initMocks;
 class DeleteClusterProfileCommandTest {
     @Mock
     private GoConfigService goConfigService;
+    @Mock
+    private ElasticAgentExtension extension;
     private ClusterProfile clusterProfile;
     private Username username;
     private HttpLocalizedOperationResult result;
@@ -48,7 +51,7 @@ class DeleteClusterProfileCommandTest {
         config.getElasticConfig().getClusterProfiles().add(clusterProfile);
         username = new Username("Bob");
         result = new HttpLocalizedOperationResult();
-        command = new DeleteClusterProfileCommand(goConfigService, clusterProfile, username, result);
+        command = new DeleteClusterProfileCommand(extension, goConfigService, clusterProfile, username, result);
     }
 
     @Test

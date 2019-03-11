@@ -24,6 +24,8 @@ import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -31,6 +33,7 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentPluginConstantsV4.*;
 
 public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
+    private static final Logger LOG = LoggerFactory.getLogger(ElasticAgentExtensionV4.class);
     public static final String VERSION = "4.0";
     private final PluginRequestHelper pluginRequestHelper;
     private final ElasticAgentExtensionConverterV4 elasticAgentExtensionConverterV4;
@@ -95,6 +98,20 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
         });
     }
 
+    @Override
+    public List<PluginConfiguration> getClusterProfileMetadata(String pluginId) {
+        throw new UnsupportedOperationException(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", pluginId));
+    }
+
+    @Override
+    public String getClusterProfileView(String pluginId) {
+        throw new UnsupportedOperationException(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", pluginId));
+    }
+
+    @Override
+    public ValidationResult validateClusterProfile(String pluginId, Map<String, String> configuration) {
+        throw new UnsupportedOperationException(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", pluginId));
+    }
 
     @Override
     public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, JobIdentifier jobIdentifier) {

@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.update.AddClusterProfileCommand;
 import com.thoughtworks.go.config.update.DeleteClusterProfileCommand;
 import com.thoughtworks.go.config.update.UpdateClusterProfileCommand;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,9 +29,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ClusterProfilesService extends PluginProfilesService<ClusterProfile> {
+    private final ElasticAgentExtension extension;
+
     @Autowired
-    public ClusterProfilesService(GoConfigService goConfigService, EntityHashingService hashingService) {
+    public ClusterProfilesService(GoConfigService goConfigService, EntityHashingService hashingService, ElasticAgentExtension extension) {
         super(goConfigService, hashingService);
+        this.extension = extension;
     }
 
     @Override
@@ -39,18 +43,18 @@ public class ClusterProfilesService extends PluginProfilesService<ClusterProfile
     }
 
     public ClusterProfile create(ClusterProfile clusterProfile, Username currentUser, HttpLocalizedOperationResult result) {
-        AddClusterProfileCommand addClusterProfileCommand = new AddClusterProfileCommand(goConfigService, clusterProfile, currentUser, result);
+        AddClusterProfileCommand addClusterProfileCommand = new AddClusterProfileCommand(extension, goConfigService, clusterProfile, currentUser, result);
         update(currentUser, clusterProfile, result, addClusterProfileCommand);
         return clusterProfile;
     }
 
     public void delete(ClusterProfile clusterProfile, Username currentUser, HttpLocalizedOperationResult result) {
-        DeleteClusterProfileCommand deleteClusterProfileCommand = new DeleteClusterProfileCommand(goConfigService, clusterProfile, currentUser, result);
+        DeleteClusterProfileCommand deleteClusterProfileCommand = new DeleteClusterProfileCommand(extension, goConfigService, clusterProfile, currentUser, result);
         update(currentUser, clusterProfile, result, deleteClusterProfileCommand);
     }
 
     public ClusterProfile update(ClusterProfile newClusterProfile, Username currentUser, HttpLocalizedOperationResult result) {
-        UpdateClusterProfileCommand updateClusterProfileCommand = new UpdateClusterProfileCommand(goConfigService, newClusterProfile, currentUser, result);
+        UpdateClusterProfileCommand updateClusterProfileCommand = new UpdateClusterProfileCommand(extension, goConfigService, newClusterProfile, currentUser, result);
         update(currentUser, newClusterProfile, result, updateClusterProfileCommand);
         return newClusterProfile;
     }

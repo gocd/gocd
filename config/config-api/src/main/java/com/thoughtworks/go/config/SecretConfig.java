@@ -21,6 +21,8 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.secrets.SecretsMetadataStore;
 import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 
+import java.util.Objects;
+
 import static java.util.Objects.isNull;
 
 @ConfigTag("secretConfig")
@@ -86,5 +88,21 @@ public class SecretConfig extends PluginProfile {
         @ConfigValue
         private String text;
 
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SecretConfig)) return false;
+        if (!super.equals(o)) return false;
+        SecretConfig that = (SecretConfig) o;
+        return Objects.equals(configuration, that.configuration) &&
+                Objects.equals(rules, that.rules) &&
+                Objects.equals(description, that.description);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), configuration, rules, description);
     }
 }

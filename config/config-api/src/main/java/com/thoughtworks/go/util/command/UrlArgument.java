@@ -17,25 +17,22 @@
 package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.config.ConfigAttributeValue;
-import com.thoughtworks.go.config.SecretParam;
-import com.thoughtworks.go.plugin.domain.secrets.Secret;
+import com.thoughtworks.go.config.SecretParams;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Collections;
-import java.util.List;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
 @ConfigAttributeValue(fieldName = "url")
 public class UrlArgument extends CommandArgument {
     protected String url;
-    private List<SecretParam> secretParams;
+    private SecretParams secretParams;
 
     public UrlArgument(String url) {
         bombIfNull(url, "null url");
         this.url = url;
-        secretParams = SecretParam.parse(this.url);
+        secretParams = SecretParams.parse(this.url);
     }
 
     public String forCommandline() {
@@ -145,7 +142,7 @@ public class UrlArgument extends CommandArgument {
         return secretParams != null && !secretParams.isEmpty();
     }
 
-    public List<SecretParam> getSecretParams() {
+    public SecretParams getSecretParams() {
         return secretParams;
     }
 }

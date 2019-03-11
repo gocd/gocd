@@ -17,16 +17,10 @@
 package com.thoughtworks.go.config;
 
 import java.io.Serializable;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isBlank;
+import java.util.Objects;
 
 
 public class SecretParam implements Serializable {
-    private static final Pattern pattern = Pattern.compile("(?:#\\{SECRET\\[(.*?)\\]\\[(.*?)\\]})+");
     private String secretConfigId;
     private String key;
     private String value;
@@ -36,27 +30,16 @@ public class SecretParam implements Serializable {
         this.key = key;
     }
 
-    public static List<SecretParam> parse(String str) {
-        final List<SecretParam> secretParams = new ArrayList<>();
-
-        if(isBlank(str)) {
-            return secretParams;
-        }
-
-        final Matcher matcher = pattern.matcher(str);
-        while (matcher.find()) {
-            secretParams.add(new SecretParam(matcher.group(1), matcher.group(2)));
-        }
-
-        return secretParams;
-    }
-
     public String getSecretConfigId() {
         return secretConfigId;
     }
 
     public String getKey() {
         return key;
+    }
+
+    public String getValue() {
+        return this.value;
     }
 
     public void setValue(String value) {

@@ -16,10 +16,8 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.List;
-
 public interface SecretParamAware {
     boolean hasSecretParams();
 
-    List<SecretParam> getSecretParams();
+    SecretParams getSecretParams();
 }

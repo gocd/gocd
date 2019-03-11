@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
@@ -24,11 +24,8 @@ import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Collections.emptyList;
 
 /**
  * ChrisS and ChrisT :
@@ -46,7 +43,8 @@ public final class DummyMaterial extends ScmMaterial {
         return url;
     }
 
-    @Override protected UrlArgument getUrlArgument() {
+    @Override
+    protected UrlArgument getUrlArgument() {
         return new UrlArgument(url);
     }
 
@@ -103,7 +101,8 @@ public final class DummyMaterial extends ScmMaterial {
         throw unsupported();
     }
 
-    @Override public String getEncryptedPassword() {
+    @Override
+    public String getEncryptedPassword() {
         throw unsupported();
     }
 
@@ -130,7 +129,7 @@ public final class DummyMaterial extends ScmMaterial {
     }
 
     @Override
-    public List<SecretParam> getSecretParams() {
-        return emptyList();
+    public SecretParams getSecretParams() {
+        return new SecretParams();
     }
 }

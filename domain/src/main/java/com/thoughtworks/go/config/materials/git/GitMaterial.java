@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.config.materials.git;
 
-import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -437,7 +437,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     @Override
-    public List<SecretParam> getSecretParams() {
+    public SecretParams getSecretParams() {
         return url.getSecretParams();
     }
 

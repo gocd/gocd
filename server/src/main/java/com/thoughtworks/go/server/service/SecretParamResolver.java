@@ -18,19 +18,23 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 @Component
 public class SecretParamResolver {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecretParamResolver.class);
     private SecretsExtension secretsExtension;
     private GoConfigService goConfigService;
 
@@ -40,24 +44,26 @@ public class SecretParamResolver {
         this.goConfigService = goConfigService;
     }
 
-    public void resolve(List<SecretParam> secretParams) {
-        Map<SecretConfig, List<SecretParam>> collect = secretParams.stream()
-                .collect(groupingBy(secretParam -> goConfigService.cruiseConfig().getSecretConfigs().find(secretParam.getSecretConfigId())));
+    public void resolve(SecretParams secretParams) {
+        if (secretParams == null || secretParams.isEmpty()) {
+            LOGGER.debug("No secret params to resolve.");
+            return;
+        }
 
-        collect.forEach((sc, l) -> {
-            List<Secret> secrets = secretsExtension.lookupSecrets(sc.getPluginId(), sc, keys(l));
-            assignValue(secrets, l);
-        });
+        secretParams.groupBySecretConfigId().forEach(lookupAndUpdateSecretParamsValue());
     }
 
-    private List<String> keys(List<SecretParam> secretParams) {
-        return secretParams.stream().map(SecretParam::getKey).collect(toList());
+    private BiConsumer<String, SecretParams> lookupAndUpdateSecretParamsValue() {
+        return (secretConfigId, secretParamsToResolve) -> {
+            final Map<String, SecretParam> secretParamMap = secretParamsToResolve.stream().collect(toMap(SecretParam::getKey, secretParam -> secretParam));
+            final SecretConfig secretConfig = goConfigService.cruiseConfig().getSecretConfigs().find(secretConfigId);
+
+            secretsExtension.lookupSecrets(secretConfig.getPluginId(), secretConfig, secretParamsToResolve.keys())
+                    .forEach(assignValue(secretParamMap));
+        };
     }
 
-    private void assignValue(List<Secret> secrets, List<SecretParam> secretParams) {
-        secrets.stream().forEach(secret -> {
-            List<SecretParam> params = secretParams.stream().filter(secretParam -> secret.getKey().equalsIgnoreCase(secretParam.getKey())).collect(toList());
-            params.stream().forEach(p -> p.setValue(secret.getValue()));
-        });
+    private Consumer<Secret> assignValue(Map<String, SecretParam> secretParamMap) {
+        return secret -> secretParamMap.get(secret.getKey()).setValue(secret.getValue());
     }
 }

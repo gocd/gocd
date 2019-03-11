@@ -16,27 +16,62 @@
 
 package com.thoughtworks.go.apiv2.environments.representers;
 
-import com.google.gson.JsonObject;
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.ErrorGetter;
+import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.api.util.HaltApiResponses;
+import com.thoughtworks.go.apiv2.environments.exception.InvalidGoCipherTextRuntimeException;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
-import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.security.CryptoException;
+
+import java.util.HashMap;
 
 
 public class EnvironmentVariableRepresenter {
     public static void toJSON(OutputWriter outputWriter, EnvironmentVariableConfig environmentVariableConfig) {
+        if (!environmentVariableConfig.errors().isEmpty()) {
+            outputWriter.addChild("errors", errorWriter -> {
+                HashMap<String, String> mapping = new HashMap<>();
+                mapping.put("encryptedValue", "encrypted_value");
+                new ErrorGetter(mapping).toJSON(outputWriter, environmentVariableConfig);
+            });
+        }
+
         outputWriter
                 .add("secure", environmentVariableConfig.isSecure())
                 .add("name", environmentVariableConfig.getName());
         addValue(outputWriter, environmentVariableConfig);
     }
 
-    public static EnvironmentVariableConfig fromJSON(JsonObject jsonReader) {
-        String name = jsonReader.get("name").getAsString();
-        String value = jsonReader.get("value").getAsString();
-        boolean secure = jsonReader.has("secure") && jsonReader.get("secure").getAsBoolean();
+    public static EnvironmentVariablesConfig fromJSONArray(JsonReader jsonReader) {
+        EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
+        jsonReader.readArrayIfPresent("environment_variables", environmentVariables -> {
+            environmentVariables.forEach(variable -> {
+                variables.add(EnvironmentVariableRepresenter.fromJSON(new JsonReader(variable.getAsJsonObject())));
+            });
+        });
+        return variables;
+    }
 
-        EnvironmentVariableConfig environmentConfig = new EnvironmentVariableConfig(new GoCipher(), name, value, secure);
-        return environmentConfig;
+    public static EnvironmentVariableConfig fromJSON(JsonReader jsonReader) {
+        String name = jsonReader.getString("name");
+        Boolean secure = jsonReader.optBoolean("secure").orElse(false);
+
+        if (!jsonReader.optString("value").isPresent()
+                && !jsonReader.optString("encrypted_value").isPresent()) {
+            HaltApiResponses.haltBecauseOfReason("Environment variable must contain either 'value' or 'encrypted_value'");
+        }
+
+        String value = secure ? jsonReader.optString("value").orElse(null) : jsonReader.getString("value");
+        String encryptedValue = jsonReader.optString("encrypted_value").orElse(null);
+        try {
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig();
+            environmentVariableConfig.deserialize(name, value, secure, encryptedValue);
+            return environmentVariableConfig;
+        } catch (CryptoException e) {
+            throw new InvalidGoCipherTextRuntimeException(e.getMessage(), e);
+        }
     }
 
     private static void addValue(OutputWriter outputWriter, EnvironmentVariableConfig environmentVariableConfig) {

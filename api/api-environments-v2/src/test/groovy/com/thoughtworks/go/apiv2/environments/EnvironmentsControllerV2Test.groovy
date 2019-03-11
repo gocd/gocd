@@ -23,7 +23,9 @@ import com.thoughtworks.go.apiv2.environments.representers.EnvironmentsRepresent
 import com.thoughtworks.go.config.BasicEnvironmentConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.EnvironmentConfig
+import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.domain.ConfigElementForEdit
+import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -260,6 +262,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         env1.addAgent("agent1")
         env1.addAgent("agent2")
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        env1.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "Secured", new GoCipher().encrypt("confidential")))
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
@@ -437,6 +440,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         env1.addAgent("agent1")
         env1.addAgent("agent2")
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        env1.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "Secured", new GoCipher().encrypt("confidential")))
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 

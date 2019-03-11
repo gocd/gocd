@@ -51,7 +51,7 @@ public class PatchEnvironmentRequestRepresenter {
 
             reader.readArrayIfPresent("add", array ->
                     array.forEach(envVariable -> envVariablesToAdd
-                            .add(EnvironmentVariableRepresenter.fromJSON(envVariable.getAsJsonObject()))
+                            .add(EnvironmentVariableRepresenter.fromJSON(new JsonReader(envVariable.getAsJsonObject())))
                     ));
         });
 

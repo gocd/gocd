@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-apply plugin: 'jacoco'
-apply plugin: 'groovy'
+package com.thoughtworks.go.apiv2.shared.exception;
 
-dependencies {
-  compile project(':api:api-base')
-  compile project(':api:api-shared-v2')
-  testCompile project(path: ':api:api-base', configuration: 'testOutput')
+public class InvalidGoCipherTextRuntimeException extends RuntimeException {
 
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+    public InvalidGoCipherTextRuntimeException(String message, Throwable throwable) {
+        super(message, throwable);
+    }
 }

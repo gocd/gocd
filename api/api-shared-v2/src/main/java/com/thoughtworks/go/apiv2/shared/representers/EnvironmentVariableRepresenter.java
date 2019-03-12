@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv2.environments.representers;
+package com.thoughtworks.go.apiv2.shared.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.util.HaltApiResponses;
-import com.thoughtworks.go.apiv2.environments.exception.InvalidGoCipherTextRuntimeException;
+import com.thoughtworks.go.apiv2.shared.exception.InvalidGoCipherTextRuntimeException;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.security.CryptoException;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 
 public class EnvironmentVariableRepresenter {
@@ -57,14 +58,15 @@ public class EnvironmentVariableRepresenter {
     public static EnvironmentVariableConfig fromJSON(JsonReader jsonReader) {
         String name = jsonReader.getString("name");
         Boolean secure = jsonReader.optBoolean("secure").orElse(false);
+        Optional<String> optValue = jsonReader.optString("value");
+        Optional<String> optEncValue = jsonReader.optString("encrypted_value");
 
-        if (!jsonReader.optString("value").isPresent()
-                && !jsonReader.optString("encrypted_value").isPresent()) {
+        if (!optValue.isPresent() && !optEncValue.isPresent()) {
             HaltApiResponses.haltBecauseOfReason("Environment variable must contain either 'value' or 'encrypted_value'");
         }
 
-        String value = secure ? jsonReader.optString("value").orElse(null) : jsonReader.getString("value");
-        String encryptedValue = jsonReader.optString("encrypted_value").orElse(null);
+        String value = secure ? optValue.orElse(null) : jsonReader.getString("value");
+        String encryptedValue = optEncValue.orElse(null);
         try {
             EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig();
             environmentVariableConfig.deserialize(name, value, secure, encryptedValue);

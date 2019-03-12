@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv2.environments
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv2.environments.EnvironmentsControllerV2
 import com.thoughtworks.go.apiv2.environments.representers.EnvironmentRepresenter
 import com.thoughtworks.go.apiv2.environments.representers.EnvironmentsRepresenter
 import com.thoughtworks.go.config.BasicEnvironmentConfig

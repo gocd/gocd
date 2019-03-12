@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv2.environments.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv2.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.spark.Routes;
 
@@ -55,7 +56,7 @@ public class EnvironmentRepresenter {
         jsonReader.readArrayIfPresent("agents", array -> array.forEach(element -> environmentConfig.addAgent(element.getAsJsonObject().get("uuid").getAsString())));
 
         jsonReader.readArrayIfPresent("pipelines", array -> array.forEach(element -> environmentConfig.addPipeline(new CaseInsensitiveString(element.getAsJsonObject().get("name").getAsString()))));
-        
+
         EnvironmentVariableRepresenter.fromJSONArray(jsonReader).stream().forEach(environmentConfig::addEnvironmentVariable);
 
         return environmentConfig;

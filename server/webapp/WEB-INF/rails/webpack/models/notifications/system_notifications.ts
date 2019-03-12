@@ -103,7 +103,12 @@ export class SystemNotifications {
                                                message, type, link, linkText
                                              } as Notification));
 
+    const existingArrayPrototype = (Array.prototype as any).toJSON;
+    delete (Array.prototype as any).toJSON;
+
     localStorage.setItem("system_notifications", JSON.stringify(systemNotifications.toJSON()));
+
+    (Array.prototype as any).toJSON = existingArrayPrototype;
   }
 
   //model_mixin method

@@ -77,8 +77,15 @@ export class SystemNotifications {
 
   static all() {
     return new Promise<SystemNotifications>((resolve) => {
-      const notifications: Notification[] = JSON.parse(localStorage.getItem("system_notifications") || "[]");
-      resolve(SystemNotifications.fromJSON(notifications));
+      try {
+        const notifications: Notification[] = JSON.parse(localStorage.getItem("system_notifications") || "[]");
+        const systemNotifications           = SystemNotifications.fromJSON(notifications);
+        resolve(systemNotifications);
+      } catch (e) {
+        //Badly escaped data causing system notification to fail while reading.
+        //clear the current local storage. on next page refresh, each notification handler will populate the new notification message.
+        localStorage.setItem("system_notifications", "[]");
+      }
     });
   }
 
@@ -103,7 +110,12 @@ export class SystemNotifications {
                                                message, type, link, linkText
                                              } as Notification));
 
+    const existingArrayPrototype = (Array.prototype as any).toJSON;
+    delete (Array.prototype as any).toJSON;
+
     localStorage.setItem("system_notifications", JSON.stringify(systemNotifications.toJSON()));
+
+    (Array.prototype as any).toJSON = existingArrayPrototype;
   }
 
   //model_mixin method

@@ -16,12 +16,14 @@
 
 package com.thoughtworks.go.apiv2.environments.representers
 
+import com.google.gson.JsonParser
 import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.assertj.core.api.Assertions.assertThat
 
 class EnvironmentVariableRepresenterTest {
 
@@ -49,5 +51,27 @@ class EnvironmentVariableRepresenterTest {
       "name"           : "secret",
       "secure"         : true
     ])
+  }
+
+  @Test
+  void 'should deserialize from JSON'() {
+    EnvironmentVariableConfig expected = new EnvironmentVariableConfig("JAVA_HOME", "/bin/java")
+
+    def json = toObjectString({ EnvironmentVariableRepresenter.toJSON(it, expected) })
+    JsonParser parser = new JsonParser()
+    EnvironmentVariableConfig actual = EnvironmentVariableRepresenter.fromJSON(parser.parse(json).getAsJsonObject())
+
+    assertThat(actual).isEqualTo(expected)
+  }
+
+  @Test
+  void 'should deserialize secure environment variable from JSON'() {
+    EnvironmentVariableConfig expected = new EnvironmentVariableConfig(new GoCipher(), "secret", "password", true)
+
+    def json = toObjectString({ EnvironmentVariableRepresenter.toJSON(it, expected) })
+    JsonParser parser = new JsonParser()
+    EnvironmentVariableConfig actual = EnvironmentVariableRepresenter.fromJSON(parser.parse(json).getAsJsonObject())
+
+    assertThat(actual).isEqualTo(expected)
   }
 }

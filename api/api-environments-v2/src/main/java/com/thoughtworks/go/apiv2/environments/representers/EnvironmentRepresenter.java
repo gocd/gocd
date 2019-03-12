@@ -60,10 +60,7 @@ public class EnvironmentRepresenter {
 
         jsonReader.readArrayIfPresent("environment_variables",
                 array -> array.forEach(envVar -> {
-                            String name = envVar.getAsJsonObject().get("name").getAsString();
-                            String value = envVar.getAsJsonObject().get("value").getAsString();
-                            boolean secure = envVar.getAsJsonObject().get("secure").getAsBoolean();
-                            environmentConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), name, value, secure));
+                            environmentConfig.addEnvironmentVariable(EnvironmentVariableRepresenter.fromJSON(envVar.getAsJsonObject()));
                         }
                 )
         );

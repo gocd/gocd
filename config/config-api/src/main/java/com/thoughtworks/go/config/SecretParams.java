@@ -16,22 +16,27 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-
+import static org.apache.commons.lang3.StringUtils.replaceOnce;
 
 public class SecretParams extends ArrayList<SecretParam> implements Serializable {
-    private static final Pattern pattern = Pattern.compile("(?:#\\{SECRET\\[(.*?)\\]\\[(.*?)\\]})+");
+    private static final Pattern PATTERN = Pattern.compile("(?:#\\{SECRET\\[(.*?)\\]\\[(.*?)\\]})+");
 
     public SecretParams() {
     }
@@ -46,12 +51,17 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
         super(size);
     }
 
+
     public List<String> keys() {
         return this.stream().map(SecretParam::getKey).collect(toList());
     }
 
     public Map<String, SecretParams> groupBySecretConfigId() {
         return this.stream().collect(groupingBy(SecretParam::getSecretConfigId, toSecretParams()));
+    }
+
+    public boolean hasSecretParams() {
+        return !this.isEmpty();
     }
 
     public SecretParams merge(SecretParams secretParams) {
@@ -63,6 +73,10 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
         return Collector.of(SecretParams::new, SecretParams::add, SecretParams::merge);
     }
 
+    public static Collector<SecretParams, SecretParams, SecretParams> toFlatSecretParams() {
+        return Collector.of(SecretParams::new, SecretParams::addAll, SecretParams::merge);
+    }
+
     public static SecretParams parse(String stringToParse) {
         final SecretParams secretParams = new SecretParams();
 
@@ -70,7 +84,7 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
             return secretParams;
         }
 
-        final Matcher matcher = pattern.matcher(stringToParse);
+        final Matcher matcher = PATTERN.matcher(stringToParse);
         while (matcher.find()) {
             secretParams.add(new SecretParam(matcher.group(1), matcher.group(2)));
         }
@@ -83,5 +97,28 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
         newMergedList.addAll(list1);
         newMergedList.addAll(list2);
         return newMergedList;
+    }
+
+    public String substitute(String originalValue) {
+        return this.stream()
+                .map(this::textReplaceFunction)
+                .reduce(Function.identity(), Function::andThen)
+                .apply(originalValue);
+    }
+
+    private Function<String, String> textReplaceFunction(SecretParam secretParam) {
+        return text -> {
+            if (secretParam.isUnresolved()) {
+                throw new UnresolvedSecretParamException(secretParam.getKey());
+            }
+
+            return replaceOnce(text, format("#{SECRET[%s][%s]}", secretParam.getSecretConfigId(), secretParam.getKey()), secretParam.getValue());
+        };
+    }
+
+    public Optional<SecretParam> findFirst(String key) {
+        return this.stream()
+                .filter(secretParam -> secretParam.getKey().equals(key))
+                .findFirst();
     }
 }

@@ -80,10 +80,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifyNoFiles;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.TestUtils.sleepQuietly;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -120,6 +117,7 @@ public class BuildAssignmentServiceIntegrationTest {
     @Autowired private ElasticAgentPluginService elasticAgentPluginService;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
     @Autowired private MaintenanceModeService maintenanceModeService;
+    @Autowired private SecretParamResolver secretParamResolver;
 
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
@@ -396,23 +394,21 @@ public class BuildAssignmentServiceIntegrationTest {
         };
 
         final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService,
-                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment);
+                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver);
 
         final Throwable[] fromThread = new Throwable[1];
         buildAssignmentServiceUnderTest.onTimer();
 
-        Thread assigner = new Thread(new Runnable() {
-            public void run() {
-                try {
-                    final AgentConfig agentConfig = AgentMother.localAgentWithResources("some-other-resource");
+        Thread assigner = new Thread(() -> {
+            try {
+                final AgentConfig agentConfig = AgentMother.localAgentWithResources("some-other-resource");
 
-                    buildAssignmentServiceUnderTest.assignWorkToAgent(agent(agentConfig));
-                } catch (Throwable e) {
-                    e.printStackTrace();
-                    fromThread[0] = e;
-                } finally {
+                buildAssignmentServiceUnderTest.assignWorkToAgent(agent(agentConfig));
+            } catch (Throwable e) {
+                e.printStackTrace();
+                fromThread[0] = e;
+            } finally {
 
-                }
             }
         }, "assignmentThread");
         assigner.start();
@@ -439,7 +435,7 @@ public class BuildAssignmentServiceIntegrationTest {
         when(mockGoConfigService.getCurrentConfig()).thenReturn(config);
 
         buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService,
-                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment);
+                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver);
         buildAssignmentService.onTimer();
 
         AgentConfig agentConfig = AgentMother.localAgent();
@@ -774,7 +770,7 @@ public class BuildAssignmentServiceIntegrationTest {
         String[] hgRevs = new String[]{"h1"};
         u.checkinInOrder(hgMaterial, hgRevs);
 
-        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("ANOTHER_PIPELINE_WHICH_WILL_EVENTUALLY_CHANGE_CASE", "STAGE_WHICH_WILL_EVENTUALLY_CHANGE_CASE",  u.m(hgMaterial));
+        ScheduleTestUtil.AddedPipeline p1 = u.saveConfigWith("ANOTHER_PIPELINE_WHICH_WILL_EVENTUALLY_CHANGE_CASE", "STAGE_WHICH_WILL_EVENTUALLY_CHANGE_CASE", u.m(hgMaterial));
         BuildCause buildCause = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, hgRevs)), "user");
         Pipeline originalPipelineRun = scheduleService.schedulePipeline(p1.config.name(), buildCause);
         ScheduleTestUtil.AddedPipeline renamedPipeline = u.renamePipelineAndFirstStage(p1, p1.config.name().toLower(), p1.config.getStages().first().name().toLower());
@@ -848,7 +844,7 @@ public class BuildAssignmentServiceIntegrationTest {
         configHelper.addAgent(agentConfig);
         fixture.createPipelineWithFirstStageScheduled();
 
-        AgentStatus[] statuses = new AgentStatus[] {
+        AgentStatus[] statuses = new AgentStatus[]{
                 AgentStatus.Building, AgentStatus.Pending,
                 AgentStatus.Disabled,
                 AgentStatus.LostContact, AgentStatus.Missing

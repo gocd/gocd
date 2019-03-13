@@ -39,7 +39,6 @@ import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionCallback;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -71,13 +70,16 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private MaintenanceModeService maintenanceModeService;
     private final ElasticAgentPluginService elasticAgentPluginService;
     private final SystemEnvironment systemEnvironment;
+    private SecretParamResolver secretParamResolver;
 
     @Autowired
-    public BuildAssignmentService(GoConfigService goConfigService, JobInstanceService jobInstanceService, ScheduleService scheduleService,
-                                  AgentService agentService, EnvironmentConfigService environmentConfigService,
-                                  TransactionTemplate transactionTemplate, ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService, BuilderFactory builderFactory,
-                                  AgentRemoteHandler agentRemoteHandler, MaintenanceModeService maintenanceModeService,
-                                  ElasticAgentPluginService elasticAgentPluginService, SystemEnvironment systemEnvironment) {
+    public BuildAssignmentService(GoConfigService goConfigService, JobInstanceService jobInstanceService,
+                                  ScheduleService scheduleService, AgentService agentService,
+                                  EnvironmentConfigService environmentConfigService, TransactionTemplate transactionTemplate,
+                                  ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService,
+                                  BuilderFactory builderFactory, AgentRemoteHandler agentRemoteHandler,
+                                  MaintenanceModeService maintenanceModeService, ElasticAgentPluginService elasticAgentPluginService,
+                                  SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver) {
         this.goConfigService = goConfigService;
         this.jobInstanceService = jobInstanceService;
         this.scheduleService = scheduleService;
@@ -91,6 +93,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
         this.maintenanceModeService = maintenanceModeService;
         this.elasticAgentPluginService = elasticAgentPluginService;
         this.systemEnvironment = systemEnvironment;
+        this.secretParamResolver = secretParamResolver;
     }
 
     public void initialize() {
@@ -320,7 +323,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 List<Task> tasks = goConfigService.tasksForJob(pipeline.getName(), job.getIdentifier().getStageName(), job.getName());
                 final List<Builder> builders = builderFactory.buildersForTasks(pipeline, tasks, resolver);
 
-                return transactionTemplate.execute((TransactionCallback) status -> {
+                return transactionTemplate.execute(status -> {
                     if (scheduleService.updateAssignedInfo(agentUuid, job)) {
                         return NO_WORK;
                     }
@@ -329,6 +332,10 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
                     final ArtifactStores requiredArtifactStores = goConfigService.artifactStores().getArtifactStores(getArtifactStoreIdsRequiredByArtifactPlans(job.getArtifactPlans()));
                     BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), contextFromEnvironment, requiredArtifactStores);
+
+                    if (buildAssignment.initialEnvironmentVariableContext().hasSecretParams()) {
+                        secretParamResolver.resolve(buildAssignment.initialEnvironmentVariableContext().getSecretParams());
+                    }
 
                     return new BuildWork(buildAssignment, systemEnvironment.consoleLogCharset());
                 });

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.util.command;
 
+import com.thoughtworks.go.config.SecretParamAware;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.util.GoConstants;
 
 import java.io.Serializable;
@@ -26,7 +28,7 @@ import static java.lang.String.format;
 /**
  * @understands a set of variables to be passed to the Agent for a job
  */
-public class EnvironmentVariableContext implements Serializable {
+public class EnvironmentVariableContext implements Serializable, SecretParamAware {
 
 
     public List<SecretString> secrets() {
@@ -38,24 +40,38 @@ public class EnvironmentVariableContext implements Serializable {
         return passwordArguments;
     }
 
-    public static class EnvironmentVariable implements Serializable {
-        private String name;
-        private String value;
-        private boolean secure;
+    @Override
+    public boolean hasSecretParams() {
+        return this.properties.stream().anyMatch(EnvironmentVariable::hasSecretParams);
+    }
+
+    @Override
+    public SecretParams getSecretParams() {
+        return this.properties.stream()
+                .map(EnvironmentVariable::getSecretParams)
+                .collect(SecretParams.toFlatSecretParams());
+    }
+
+    public static class EnvironmentVariable implements Serializable, SecretParamAware {
+        private final String name;
+        private final String value;
+        private final boolean secure;
         public static final String MASK_VALUE = "********";
+        private SecretParams secretParams;
 
         EnvironmentVariable() {
+            this(null, null, false);
         }
 
         public EnvironmentVariable(String name, String value) {
-            this.name = name;
-            this.value = value;
-            this.secure = false;
+            this(name, value, false);
         }
 
-        public EnvironmentVariable(String key, String value, boolean secure) {
-            this(key, value);
+        public EnvironmentVariable(String name, String value, boolean secure) {
+            this.name = name;
+            this.value = value;
             this.secure = secure;
+            secretParams = SecretParams.parse(this.value);
         }
 
 
@@ -64,15 +80,20 @@ public class EnvironmentVariableContext implements Serializable {
         }
 
         public String value() {
-            return value;
+            if (!hasSecretParams()) {
+                return value;
+            }
+
+            return secretParams.substitute(this.value);
         }
 
         public String valueForDisplay() {
             return isSecure() ? EnvironmentVariable.MASK_VALUE : value();
         }
 
-        @Override public String toString() {
-            return format("%s => %s",name,value);
+        @Override
+        public String toString() {
+            return format("%s => %s", name, value);
         }
 
         @Override
@@ -105,6 +126,16 @@ public class EnvironmentVariableContext implements Serializable {
 
         public boolean isSecure() {
             return secure;
+        }
+
+        @Override
+        public boolean hasSecretParams() {
+            return secretParams != null;
+        }
+
+        @Override
+        public SecretParams getSecretParams() {
+            return secretParams;
         }
     }
 
@@ -146,7 +177,7 @@ public class EnvironmentVariableContext implements Serializable {
     public List<EnvironmentVariable> getSecureEnvironmentVariables() {
         List<EnvironmentVariable> environmentVariables = new ArrayList<>();
         for (EnvironmentVariable property : properties) {
-            if(property.isSecure()) {
+            if (property.isSecure()) {
                 environmentVariables.add(property);
             }
         }
@@ -162,7 +193,7 @@ public class EnvironmentVariableContext implements Serializable {
     }
 
     private EnvironmentVariable getEnvironmentVariable(String key) {
-        for (int i = properties.size()-1; i >= 0 ; i--) {
+        for (int i = properties.size() - 1; i >= 0; i--) {
             EnvironmentVariable property = properties.get(i);
             if (property.name().equals(key)) {
                 return property;
@@ -207,7 +238,8 @@ public class EnvironmentVariableContext implements Serializable {
         this.properties.addAll(another.properties);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "EnvironmentVariableContext{" +
                 "properties=" + properties +
                 '}';

@@ -19,33 +19,36 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.JobConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.remote.work.BuildWork;
+import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.Before;
-import org.junit.Test;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class BuildAssignmentServiceTest {
+class BuildAssignmentServiceTest {
 
     @Mock
     private GoConfigService goConfigService;
@@ -84,10 +87,10 @@ public class BuildAssignmentServiceTest {
     private String elasticProfileId2;
     private AgentInstance regularAgentInstance;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         initMocks(this);
-        buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment);
+        buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, null);
         elasticProfileId1 = "elastic.profile.id.1";
         elasticProfileId2 = "elastic.profile.id.2";
         elasticAgent = AgentMother.elasticAgent();
@@ -107,7 +110,7 @@ public class BuildAssignmentServiceTest {
     }
 
     @Test
-    public void shouldMatchAnElasticJobToAnElasticAgentOnlyIfThePluginAgreesToTheAssignment() {
+    void shouldMatchAnElasticJobToAnElasticAgentOnlyIfThePluginAgreesToTheAssignment() {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
         JobPlan jobPlan = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
         jobPlans.add(jobPlan);
@@ -115,12 +118,12 @@ public class BuildAssignmentServiceTest {
         buildAssignmentService.onTimer();
 
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(elasticAgentInstance);
-        assertThat(matchingJob, is(jobPlan));
-        assertThat(buildAssignmentService.jobPlans().size(), is(0));
+        assertThat(matchingJob).isEqualTo(jobPlan);
+        assertThat(buildAssignmentService.jobPlans().size()).isEqualTo(0);
     }
 
     @Test
-    public void shouldNotMatchAnElasticJobToAnElasticAgentOnlyIfThePluginIdMatches() {
+    void shouldNotMatchAnElasticJobToAnElasticAgentOnlyIfThePluginIdMatches() {
         PipelineConfig pipelineWithElasticJob = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1);
         JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWithElasticJob.first().getJobs().first(), schedulingContext);
         jobPlans.add(jobPlan1);
@@ -128,12 +131,12 @@ public class BuildAssignmentServiceTest {
         buildAssignmentService.onTimer();
 
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(elasticAgentInstance);
-        assertThat(matchingJob, is(nullValue()));
-        assertThat(buildAssignmentService.jobPlans().size(), is(1));
+        assertThat(matchingJob).isNull();
+        assertThat(buildAssignmentService.jobPlans().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldMatchAnElasticJobToAnElasticAgentOnlyIfThePluginAgreesToTheAssignmentWhenMultipleElasticJobsRequiringTheSamePluginAreScheduled() {
+    void shouldMatchAnElasticJobToAnElasticAgentOnlyIfThePluginAgreesToTheAssignmentWhenMultipleElasticJobsRequiringTheSamePluginAreScheduled() {
         PipelineConfig pipelineWith2ElasticJobs = PipelineConfigMother.pipelineWithElasticJob(elasticProfileId1, elasticProfileId2);
         JobPlan jobPlan1 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.first().getJobs().first(), schedulingContext);
         JobPlan jobPlan2 = new InstanceFactory().createJobPlan(pipelineWith2ElasticJobs.first().getJobs().last(), schedulingContext);
@@ -145,12 +148,12 @@ public class BuildAssignmentServiceTest {
 
 
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(elasticAgentInstance);
-        assertThat(matchingJob, is(jobPlan2));
-        assertThat(buildAssignmentService.jobPlans().size(), is(1));
+        assertThat(matchingJob).isEqualTo(jobPlan2);
+        assertThat(buildAssignmentService.jobPlans().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldMatchNonElasticJobToNonElasticAgentIfResourcesMatch() {
+    void shouldMatchNonElasticJobToNonElasticAgentIfResourcesMatch() {
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
         pipeline.first().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
         pipeline.first().getJobs().add(JobConfigMother.elasticJob(elasticProfileId1));
@@ -161,13 +164,13 @@ public class BuildAssignmentServiceTest {
         buildAssignmentService.onTimer();
 
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(regularAgentInstance);
-        assertThat(matchingJob, is(regularJobPlan));
-        assertThat(buildAssignmentService.jobPlans().size(), is(1));
+        assertThat(matchingJob).isEqualTo(regularJobPlan);
+        assertThat(buildAssignmentService.jobPlans().size()).isEqualTo(1);
         verify(elasticAgentPluginService, never()).shouldAssignWork(any(ElasticAgentMetadata.class), any(String.class), any(ElasticProfile.class), any(JobIdentifier.class));
     }
 
     @Test
-    public void shouldNotMatchJobsDuringMaintenanceMode() {
+    void shouldNotMatchJobsDuringMaintenanceMode() {
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
         PipelineConfig pipeline = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
         pipeline.first().getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
@@ -179,13 +182,13 @@ public class BuildAssignmentServiceTest {
         buildAssignmentService.onTimer();
 
         JobPlan matchingJob = buildAssignmentService.findMatchingJob(regularAgentInstance);
-        assertNull(matchingJob);
-        assertThat(buildAssignmentService.jobPlans().size(), is(0));
+        assertThat(matchingJob).isNull();
+        assertThat(buildAssignmentService.jobPlans().size()).isEqualTo(0);
         verify(elasticAgentPluginService, never()).shouldAssignWork(any(ElasticAgentMetadata.class), any(String.class), any(ElasticProfile.class), any(JobIdentifier.class));
     }
 
     @Test
-    public void shouldGetMismatchingJobPlansInCaseOfPipelineHasUpdated() {
+    void shouldGetMismatchingJobPlansInCaseOfPipelineHasUpdated() {
         StageConfig second = StageConfigMother.stageConfig("second");
         second.getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
@@ -210,18 +213,18 @@ public class BuildAssignmentServiceTest {
         //delete a stage
         pipeline.remove(1);
 
-        assertThat(jobPlans.size(), is(3));
+        assertThat(jobPlans.size()).isEqualTo(3);
 
         when(goConfigService.hasPipelineNamed(pipeline.getName())).thenReturn(true);
         buildAssignmentService.pipelineConfigChangedListener().onEntityConfigChange(pipeline);
 
-        assertThat(jobPlans.size(), is(2));
-        assertThat(jobPlans.get(0), is(jobPlan1));
-        assertThat(jobPlans.get(1), is(jobPlan3));
+        assertThat(jobPlans.size()).isEqualTo(2);
+        assertThat(jobPlans.get(0)).isEqualTo(jobPlan1);
+        assertThat(jobPlans.get(1)).isEqualTo(jobPlan3);
     }
 
     @Test
-    public void shouldGetMismatchingJobPlansInCaseOfPipelineHasBeenDeleted() {
+    void shouldGetMismatchingJobPlansInCaseOfPipelineHasBeenDeleted() {
         StageConfig second = StageConfigMother.stageConfig("second");
         second.getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
 
@@ -246,8 +249,40 @@ public class BuildAssignmentServiceTest {
         when(goConfigService.hasPipelineNamed(pipeline.getName())).thenReturn(false);
         buildAssignmentService.pipelineConfigChangedListener().onEntityConfigChange(pipeline);
 
-        assertThat(jobPlans.size(), is(1));
-        assertThat(jobPlans.get(0), is(jobPlan3));
+        assertThat(jobPlans.size()).isEqualTo(1);
+        assertThat(jobPlans.get(0)).isEqualTo(jobPlan3);
+    }
+
+    @Test
+    void shouldResolveSecretParamsInEnvironmentVariableContext() {
+        final EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+        environmentVariableContext.setProperty("Foo", "#{SECRET[secret_config_id][lookup_password]}", true);
+        environmentVariableContext.setProperty("Bar", "some-value", false);
+
+        final TransactionTemplate transactionTemplate = dummy();
+        final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+        pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        final AgentInstance agentInstance = mock(AgentInstance.class);
+        final Pipeline pipeline = mock(Pipeline.class);
+        final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
+        final SecretParamResolver secretParamResolver = mock(SecretParamResolver.class);
+        when(agentInstance.isRegistered()).thenReturn(true);
+        when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
+        when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
+        when(pipeline.getBuildCause()).thenReturn(BuildCause.createNeverRun());
+        when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
+        when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
+        when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
+        when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
+        when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(environmentVariableContext);
+
+        BuildWork work = (BuildWork) new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService,
+                agentService, environmentConfigService, transactionTemplate,
+                scheduledPipelineLoader, pipelineService, builderFactory,
+                agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver)
+                .assignWorkToAgent(agentInstance);
+
+        verify(secretParamResolver).resolve(work.getAssignment().initialEnvironmentVariableContext().getSecretParams());
     }
 
     private JobPlan getJobPlan(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, JobConfig job) {
@@ -256,7 +291,13 @@ public class BuildAssignmentServiceTest {
         jobPlan.getIdentifier().setPipelineName(pipelineName.toString());
         jobPlan.getIdentifier().setStageName(stageName.toString());
         jobPlan.getIdentifier().setBuildName(job.name().toString());
+        jobPlan.getIdentifier().setPipelineCounter(1);
 
         return jobPlan;
+    }
+
+    private TransactionTemplate dummy() {
+        PlatformTransactionManager transactionManager = mock(PlatformTransactionManager.class);
+        return new TransactionTemplate(new org.springframework.transaction.support.TransactionTemplate(transactionManager));
     }
 }

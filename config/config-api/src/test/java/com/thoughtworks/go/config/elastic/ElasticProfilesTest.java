@@ -26,14 +26,14 @@ public class ElasticProfilesTest {
     @Test
     public void shouldFindProfileById() throws Exception {
         assertThat(new ElasticProfiles().find("foo"), is(nullValue()));
-        ElasticProfile profile = new ElasticProfile("foo", "docker");
+        ElasticProfile profile = new ElasticProfile("foo", "docker", "prod-cluster");
         assertThat(new ElasticProfiles(profile).find("foo"), is(profile));
     }
 
     @Test
     public void shouldNotAllowMultipleProfilesWithSameId() throws Exception {
-        ElasticProfile profile1 = new ElasticProfile("foo", null);
-        ElasticProfile profile2 = new ElasticProfile("foo", null);
+        ElasticProfile profile1 = new ElasticProfile("foo", null, "prod-cluster");
+        ElasticProfile profile2 = new ElasticProfile("foo", null, "prod-cluster");
         ElasticProfiles profiles = new ElasticProfiles(profile1, profile2);
         profiles.validate(null);
 

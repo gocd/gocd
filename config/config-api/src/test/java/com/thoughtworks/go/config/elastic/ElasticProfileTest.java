@@ -58,7 +58,7 @@ public class ElasticProfileTest {
 
     @Test
     public void shouldValidateElasticPluginIdPattern() throws Exception {
-        ElasticProfile profile = new ElasticProfile("!123", "docker");
+        ElasticProfile profile = new ElasticProfile("!123", "docker", "prod-cluster");
         profile.validate(null);
         assertThat(profile.errors().size(), is(1));
         assertThat(profile.errors().on(ElasticProfile.ID), is("Invalid id '!123'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
@@ -68,7 +68,7 @@ public class ElasticProfileTest {
     public void shouldValidateConfigPropertyNameUniqueness() throws Exception {
         ConfigurationProperty prop1 = ConfigurationPropertyMother.create("USERNAME");
         ConfigurationProperty prop2 = ConfigurationPropertyMother.create("USERNAME");
-        ElasticProfile profile = new ElasticProfile("docker.unit-test", "cd.go.elastic-agent.docker", prop1, prop2);
+        ElasticProfile profile = new ElasticProfile("docker.unit-test", "cd.go.elastic-agent.docker", "prod-cluster", prop1, prop2);
 
         profile.validate(null);
 
@@ -85,7 +85,7 @@ public class ElasticProfileTest {
     public void addConfigurations_shouldAddConfigurationsWithValue() throws Exception {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name"));
 
-        ElasticProfile profile = new ElasticProfile("id", "plugin_id");
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id", "prod-cluster");
         profile.addConfigurations(Arrays.asList(property));
 
         assertThat(profile.size(), is(1));
@@ -96,7 +96,7 @@ public class ElasticProfileTest {
     public void addConfigurations_shouldAddConfigurationsWithEncryptedValue() throws Exception {
         ConfigurationProperty property = new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name"));
 
-        ElasticProfile profile = new ElasticProfile("id", "plugin_id");
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id", "prod-cluster");
         profile.addConfigurations(Arrays.asList(property));
 
         assertThat(profile.size(), is(1));
@@ -109,7 +109,7 @@ public class ElasticProfileTest {
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null);
 
         store.setPluginInfo(pluginInfo);
-        ElasticProfile profile = new ElasticProfile("id", "plugin_id");
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id", "prod-cluster");
         profile.addConfigurations(Arrays.asList(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
         assertThat(profile.size(), is(1));
@@ -121,7 +121,7 @@ public class ElasticProfileTest {
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), new PluggableInstanceSettings(new ArrayList<>()), null, null, null);
 
         store.setPluginInfo(pluginInfo);
-        ElasticProfile profile = new ElasticProfile("id", "plugin_id");
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id", "prod-cluster");
         profile.addConfigurations(Arrays.asList(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
         assertThat(profile.size(), is(1));
@@ -135,7 +135,7 @@ public class ElasticProfileTest {
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), profileSettings, null, null, null);
 
         store.setPluginInfo(pluginInfo);
-        ElasticProfile profile = new ElasticProfile("id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id", "prod-cluster", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
 
         profile.encryptSecureConfigurations();
 
@@ -145,7 +145,7 @@ public class ElasticProfileTest {
 
     @Test
     public void postConstruct_shouldIgnoreEncryptionIfPluginInfoIsNotDefined() {
-        ElasticProfile profile = new ElasticProfile("id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
+        ElasticProfile profile = new ElasticProfile("id", "plugin_id", "prod-cluster", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
 
         profile.encryptSecureConfigurations();
 

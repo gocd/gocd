@@ -16,12 +16,14 @@
 
 package com.thoughtworks.go.config.elastic;
 
+import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigCollection;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.PluginProfile;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Collection;
 
@@ -29,16 +31,24 @@ import java.util.Collection;
 @ConfigCollection(value = ConfigurationProperty.class)
 public class ElasticProfile extends PluginProfile {
 
+    @ConfigAttribute(value = "clusterProfileId", allowNull = false)
+    protected String clusterProfileId;
+
     public ElasticProfile() {
         super();
     }
 
-    public ElasticProfile(String id, String pluginId, ConfigurationProperty... props) {
+    public ElasticProfile(String id, String pluginId, String clusterProfileId, ConfigurationProperty... props) {
         super(id, pluginId, props);
+        this.clusterProfileId = StringUtils.isBlank(clusterProfileId) ? "default" : clusterProfileId;
     }
 
-    public ElasticProfile(String id, String pluginId, Collection<ConfigurationProperty> configProperties) {
-        this(id, pluginId, configProperties.toArray(new ConfigurationProperty[0]));
+    public ElasticProfile(String id, String pluginId, String clusterProfileId, Collection<ConfigurationProperty> configProperties) {
+        this(id, pluginId, clusterProfileId, configProperties.toArray(new ConfigurationProperty[0]));
+    }
+
+    public String getClusterProfileId() {
+        return clusterProfileId;
     }
 
     @Override

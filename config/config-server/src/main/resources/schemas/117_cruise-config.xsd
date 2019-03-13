@@ -89,7 +89,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="118"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="117"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -310,7 +310,7 @@
     <xsd:attribute name="emailOnFailure" type="xsd:boolean" />
   </xsd:complexType>
   <xsd:complexType name="elasticConfigType">
-    <xsd:all>
+    <xsd:sequence>
       <xsd:element name="clusterProfiles" type="elasticAgentClusterProfilesType" minOccurs="0" maxOccurs="1">
         <xsd:unique name="uniqueClusterProfileId">
           <xsd:selector xpath="clusterProfile"/>
@@ -325,12 +325,12 @@
           <!-- Unique profile id -->
         </xsd:unique>
       </xsd:element>
-    </xsd:all>
+    </xsd:sequence>
     <xsd:attribute name="jobStarvationTimeout" type="xsd:long"/>
   </xsd:complexType>
   <xsd:complexType name="elasticAgentProfilesType">
     <xsd:sequence>
-      <xsd:element minOccurs="0" maxOccurs="unbounded" name="profile" type="elasticAgentProfile"/>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="profile" type="pluginProfile"/>
     </xsd:sequence>
   </xsd:complexType>
   <xsd:complexType name="elasticAgentClusterProfilesType">
@@ -347,14 +347,6 @@
     <xsd:sequence>
       <xsd:element minOccurs="0" maxOccurs="unbounded" name="authConfig" type="pluginProfile"/>
     </xsd:sequence>
-  </xsd:complexType>
-  <xsd:complexType name="elasticAgentProfile">
-    <xsd:sequence>
-      <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
-    </xsd:sequence>
-    <xsd:attribute type="nameType" name="clusterProfileId" use="required"/>
-    <xsd:attribute type="nameType" name="pluginId" use="required"/>
-    <xsd:attribute type="nameType" name="id" use="required"/>
   </xsd:complexType>
   <xsd:complexType name="pluginProfile">
     <xsd:sequence>

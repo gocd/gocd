@@ -782,7 +782,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     public void shouldSaveJobAgentMetadata() {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "cd.go.elastic-agent:docker", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "cd.go.elastic-agent:docker", "prod-cluster", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
         JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArrayList<>(),
                 new ArrayList<>(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile);
         jobInstanceDao.save(instance.getId(), plan);

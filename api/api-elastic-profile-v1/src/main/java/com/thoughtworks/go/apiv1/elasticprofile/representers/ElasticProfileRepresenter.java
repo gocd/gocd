@@ -48,7 +48,8 @@ public class ElasticProfileRepresenter {
     public static ElasticProfile fromJSON(JsonReader jsonReader) {
         ElasticProfile elasticProfile = new ElasticProfile(
                 jsonReader.getString("id"),
-                jsonReader.getString("plugin_id"));
+                jsonReader.getString("plugin_id"),
+                null);
         elasticProfile.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "properties"));
         return elasticProfile;
     }

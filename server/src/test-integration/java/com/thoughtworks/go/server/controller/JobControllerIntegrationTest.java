@@ -183,7 +183,7 @@ public class JobControllerIntegrationTest {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
         ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false, true)));
 
-        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
+        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", "prod-cluster", Collections.EMPTY_LIST)));
 
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
@@ -201,7 +201,7 @@ public class JobControllerIntegrationTest {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
         ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false, true)));
 
-        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
+        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", "prod-cluster", Collections.EMPTY_LIST)));
 
         final AgentConfig agentConfig = new AgentConfig(job.getAgentUuid());
         agentConfig.setElasticAgentId("elastic_agent_id");

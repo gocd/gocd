@@ -142,7 +142,7 @@ public class ConfigSaveValidationContextTest {
     public void isValidProfileIdShouldBeValidInPresenceOfElasticProfile() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         ElasticConfig elasticConfig = new ElasticConfig();
-        elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker")));
+        elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker", "prod-cluster")));
         cruiseConfig.setElasticConfig(elasticConfig);
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
@@ -153,7 +153,7 @@ public class ConfigSaveValidationContextTest {
     public void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfileForTheGivenId() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         ElasticConfig elasticConfig = new ElasticConfig();
-        elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker")));
+        elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker", "prod-cluster")));
         cruiseConfig.setElasticConfig(elasticConfig);
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 

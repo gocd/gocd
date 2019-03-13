@@ -1234,7 +1234,7 @@ public class GoConfigMigrationIntegrationTest {
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size(), is(1));
 
-        ElasticProfile expectedProfile = new ElasticProfile(jobConfig.getElasticProfileId(), "docker",
+        ElasticProfile expectedProfile = new ElasticProfile(jobConfig.getElasticProfileId(), "docker", "prod-cluster",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
 
         ElasticProfile elasticProfile = profiles.get(0);
@@ -1290,11 +1290,11 @@ public class GoConfigMigrationIntegrationTest {
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size(), is(2));
 
-        ElasticProfile expectedDockerProfile = new ElasticProfile(jobs.get(0).getElasticProfileId(), "docker",
+        ElasticProfile expectedDockerProfile = new ElasticProfile(jobs.get(0).getElasticProfileId(), "docker", "prod-cluster",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(0), is(expectedDockerProfile));
 
-        ElasticProfile expectedAWSProfile = new ElasticProfile(jobs.get(1).getElasticProfileId(), "aws",
+        ElasticProfile expectedAWSProfile = new ElasticProfile(jobs.get(1).getElasticProfileId(), "aws", "prod-cluster",
                 new ConfigurationProperty(new ConfigurationKey("ami"), new ConfigurationValue("some.ami")),
                 new ConfigurationProperty(new ConfigurationKey("ram"), new ConfigurationValue("1024")),
                 new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
@@ -1363,17 +1363,17 @@ public class GoConfigMigrationIntegrationTest {
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size(), is(3));
 
-        ElasticProfile expectedDockerProfile = new ElasticProfile(buildJobs.get(0).getElasticProfileId(), "docker",
+        ElasticProfile expectedDockerProfile = new ElasticProfile(buildJobs.get(0).getElasticProfileId(), "docker", "prod-cluster",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(0), is(expectedDockerProfile));
 
-        ElasticProfile expectedAWSProfile = new ElasticProfile(buildJobs.get(1).getElasticProfileId(), "aws",
+        ElasticProfile expectedAWSProfile = new ElasticProfile(buildJobs.get(1).getElasticProfileId(), "aws", "prod-cluster",
                 new ConfigurationProperty(new ConfigurationKey("ami"), new ConfigurationValue("some.ami")),
                 new ConfigurationProperty(new ConfigurationKey("ram"), new ConfigurationValue("1024")),
                 new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
         assertThat(profiles.get(1), is(expectedAWSProfile));
 
-        ElasticProfile expectedSecondDockerProfile = new ElasticProfile(distJobs.get(0).getElasticProfileId(), "docker",
+        ElasticProfile expectedSecondDockerProfile = new ElasticProfile(distJobs.get(0).getElasticProfileId(), "docker", "prod-cluster",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(2), is(expectedSecondDockerProfile));
     }
@@ -1438,11 +1438,11 @@ public class GoConfigMigrationIntegrationTest {
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size(), is(2));
 
-        ElasticProfile expectedDockerProfile = new ElasticProfile(up42Jobs.get(0).getElasticProfileId(), "docker",
+        ElasticProfile expectedDockerProfile = new ElasticProfile(up42Jobs.get(0).getElasticProfileId(), "docker", "prod-cluster",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(0), is(expectedDockerProfile));
 
-        ElasticProfile expectedAWSProfile = new ElasticProfile(up43Jobs.get(0).getElasticProfileId(), "aws",
+        ElasticProfile expectedAWSProfile = new ElasticProfile(up43Jobs.get(0).getElasticProfileId(), "aws", "prod-cluster",
                 new ConfigurationProperty(new ConfigurationKey("ami"), new ConfigurationValue("some.ami")),
                 new ConfigurationProperty(new ConfigurationKey("ram"), new ConfigurationValue("1024")),
                 new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
@@ -1782,7 +1782,7 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(cruiseConfig.server().artifactsDir(), is("artifactsDir"));
         assertThat(cruiseConfig.getElasticConfig().getProfiles(), hasSize(1));
         assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0), is(
-                new ElasticProfile("dev-build", "cd.go.contrib.elastic-agent.docker-swarm",
+                new ElasticProfile("dev-build", "cd.go.contrib.elastic-agent.docker-swarm", "prod-cluster",
                         ConfigurationPropertyMother.create("Image", false, "bar"),
                         ConfigurationPropertyMother.create("ReservedMemory", false, "3GB"),
                         ConfigurationPropertyMother.create("MaxMemory", false, "3GB")
@@ -1856,7 +1856,7 @@ public class GoConfigMigrationIntegrationTest {
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml, 100);
         assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0), is(
-                new ElasticProfile("dev-build", "cd.go.contrib.elastic-agent.docker-swarm",
+                new ElasticProfile("dev-build", "cd.go.contrib.elastic-agent.docker-swarm", "prod-cluster",
                         ConfigurationPropertyMother.create("Image", false, "#bar")
                 )
                 )
@@ -2458,6 +2458,33 @@ public class GoConfigMigrationIntegrationTest {
 
         assertThat(migratedContent, containsString("<cruise schemaVersion=\"116\""));
         assertThat(migratedContent, containsString(configContent));
+    }
+
+    @Test
+    public void shouldAddDefaultClusterProfileIdOnAgentProfilesAsOfMigration118() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configContent = "<elastic>\n" +
+                "    <profiles>\n" +
+                "      <profile id=\"asdf\" pluginId=\"cd.go.contrib.elastic-agent.docker\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>asdf</value>\n" +
+                "        </property>" +
+                "      </profile>" +
+                "    </profiles>" +
+                "  </elastic>";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"117\">\n"
+                + configContent
+                + "</cruise>";
+
+        String defaultCluster = "<clusterProfiles><clusterProfile id=\"default\" pluginId=\"non.existing.elastic.agent.plugin\"><property><key>Image</key><value>asdf</value></property></clusterProfile></clusterProfiles>";
+
+        String migratedContent = migrateXmlString(configXml, 117, 118);
+
+        assertThat(migratedContent, containsString("<cruise schemaVersion=\"118\""));
+        assertThat(migratedContent, containsString("<profile clusterProfileId=\"default\" id=\"asdf\" pluginId=\"cd.go.contrib.elastic-agent.docker\">"));
+        assertThat(migratedContent, containsString(defaultCluster));
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

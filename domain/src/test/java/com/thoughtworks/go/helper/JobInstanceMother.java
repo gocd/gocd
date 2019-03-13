@@ -265,7 +265,7 @@ public class JobInstanceMother {
 
     public static JobPlan jobPlanWithAssociatedEntities(String jobName, long id, List<ArtifactPlan> artifactPlans, List<ArtifactPropertiesGenerator> artifactPropertiesGenerators) {
         ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey("image"), new ConfigurationValue("elastic-agent"));
-        ElasticProfile elasticProfile = new ElasticProfile("elastic", "plugin", configurationProperty);
+        ElasticProfile elasticProfile = new ElasticProfile("elastic", "plugin", "prod-cluster", configurationProperty);
 
         EnvironmentVariables variables = new EnvironmentVariables();
         variables.add("some_var", "blah");

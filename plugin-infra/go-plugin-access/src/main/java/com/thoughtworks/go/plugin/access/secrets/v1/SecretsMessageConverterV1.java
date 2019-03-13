@@ -28,6 +28,7 @@ import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -36,6 +37,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class SecretsMessageConverterV1 implements SecretsMessageConverter {
     public static final String VERSION = "1.0";
+    private static final Gson GSON = new GsonBuilder().serializeNulls().create();
 
     @Override
     public Image getImageFromResponseBody(String responseBody) {
@@ -64,13 +66,16 @@ public class SecretsMessageConverterV1 implements SecretsMessageConverter {
 
     @Override
     public String validatePluginConfigurationRequestBody(Map<String, String> configuration) {
-        JsonObject properties = mapToJsonObject(configuration);
-        return new GsonBuilder().serializeNulls().create().toJson(properties);
+        return GSON.toJson(mapToJsonObject(configuration));
     }
 
     @Override
-    public String lookupSecretsRequestBody(List<String> lookupStrings) {
-        return new GsonBuilder().create().toJson(lookupStrings);
+    public String lookupSecretsRequestBody(List<String> lookupStrings, Map<String, String> configurationAsMap) {
+        final Map<String, Object> requestBodyMap = new HashMap<>();
+        requestBodyMap.put("keys", lookupStrings);
+        requestBodyMap.put("configuration", mapToJsonObject(configurationAsMap));
+
+        return GSON.toJson(requestBodyMap);
     }
 
     @Override
@@ -80,9 +85,7 @@ public class SecretsMessageConverterV1 implements SecretsMessageConverter {
 
     private JsonObject mapToJsonObject(Map<String, String> configuration) {
         final JsonObject properties = new JsonObject();
-
-        configuration.forEach((k,v) -> properties.addProperty(k, v));
-
+        configuration.forEach(properties::addProperty);
         return properties;
     }
 }

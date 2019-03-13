@@ -25,8 +25,6 @@ import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -34,7 +32,6 @@ import java.util.Map;
 import static com.thoughtworks.go.plugin.access.secrets.SecretsPluginConstants.*;
 
 public class SecretsExtensionV1 implements VersionedSecretsExtension {
-    private static final Logger LOG = LoggerFactory.getLogger(SecretsExtensionV1.class);
     public static final String VERSION = "1.0";
     private final PluginRequestHelper pluginRequestHelper;
     private final SecretsMessageConverterV1 secretsMessageConverterV1;
@@ -48,35 +45,35 @@ public class SecretsExtensionV1 implements VersionedSecretsExtension {
     public Image getIcon(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, SecretsPluginConstants.REQUEST_GET_PLUGIN_ICON,
                 new DefaultPluginInteractionCallback<Image>() {
-            @Override
-            public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String,
-                    String> responseHeaders, String resolvedExtensionVersion) {
-                return secretsMessageConverterV1.getImageFromResponseBody(responseBody);
-            }
-        });
+                    @Override
+                    public com.thoughtworks.go.plugin.domain.common.Image onSuccess(String responseBody, Map<String,
+                            String> responseHeaders, String resolvedExtensionVersion) {
+                        return secretsMessageConverterV1.getImageFromResponseBody(responseBody);
+                    }
+                });
     }
 
     @Override
     public List<PluginConfiguration> getSecretsConfigMetadata(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_SECRETS_CONFIG_METADATA,
                 new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
-            @Override
-            public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders,
-                                                       String resolvedExtensionVersion) {
-                return secretsMessageConverterV1.getSecretsConfigMetadataFromResponse(responseBody);
-            }
-        });
+                    @Override
+                    public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders,
+                                                               String resolvedExtensionVersion) {
+                        return secretsMessageConverterV1.getSecretsConfigMetadataFromResponse(responseBody);
+                    }
+                });
     }
 
     @Override
     public String getSecretsConfigView(String pluginId) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_SECRETS_CONFIG_VIEW,
                 new DefaultPluginInteractionCallback<String>() {
-            @Override
-            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
-                return secretsMessageConverterV1.getSecretsConfigViewFromResponse(responseBody);
-            }
-        });
+                    @Override
+                    public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                        return secretsMessageConverterV1.getSecretsConfigViewFromResponse(responseBody);
+                    }
+                });
     }
 
     @Override
@@ -102,7 +99,7 @@ public class SecretsExtensionV1 implements VersionedSecretsExtension {
                 new DefaultPluginInteractionCallback<List<Secret>>() {
                     @Override
                     public String requestBody(String resolvedExtensionVersion) {
-                        return secretsMessageConverterV1.lookupSecretsRequestBody(keys);
+                        return secretsMessageConverterV1.lookupSecretsRequestBody(keys, secretConfig.getConfigurationAsMap(true));
                     }
 
                     @Override

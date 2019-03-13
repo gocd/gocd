@@ -35,7 +35,7 @@ public interface SecretsMessageConverter {
 
     String validatePluginConfigurationRequestBody(Map<String, String> configuration);
 
-    String lookupSecretsRequestBody(List<String> lookupStrings);
+    String lookupSecretsRequestBody(List<String> lookupStrings, Map<String, String> configurationAsMap);
 
     List<Secret> getSecretsFromResponse(String responseBody);
 }

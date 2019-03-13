@@ -46,22 +46,18 @@ abstract class P4CommandTestBase extends PerforceFixture {
     }
 
     @Test
-    void shouldCheckConnectionAndReturnErrorIfIncorrectDepotMentioned() throws Exception {
-        p4 = p4Fixture.createClient("client", "//NonExistantDepot/... //client/...");
-
-        assertThatCode(() -> p4.checkConnection())
+    void shouldCheckConnectionAndReturnErrorIfIncorrectDepotMentioned() {
+        assertThatCode(() -> p4 = p4Fixture.createClient("client", "//NonExistantDepot/... //client/..."))
                 .isInstanceOf(RuntimeException.class);
     }
 
     @Test
     void shouldCheckConnectionAndReturnErrorIfIncorrectViewMentioned() throws Exception {
         p4 = p4Fixture.createClient("client", "//depot/FolderThatDoesNotExist... //client/...");
-        try {
-            p4.checkConnection();
-        } catch (Exception e) {
-            assertThat(e).isInstanceOf(RuntimeException.class);
-            assertThat(e.getMessage()).contains("STDERR: //client/... - no such file(s)");
-        }
+
+        assertThatCode(() -> p4.checkConnection())
+                .isInstanceOf(RuntimeException.class)
+                .hasMessageContaining("STDERR: //client/... - no such file(s)");
     }
 
     @Test

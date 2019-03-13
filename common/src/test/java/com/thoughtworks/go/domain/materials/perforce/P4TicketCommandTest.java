@@ -28,7 +28,7 @@ public class P4TicketCommandTest extends P4CommandTestBase {
     }
 
     @Test
-    public void dummyTestSoIntelliJNoticesMe() {
+    void dummyTestSoIntelliJNoticesMe() {
     }
 
 }

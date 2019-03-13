@@ -52,7 +52,7 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
-public class JobAssignmentTest {
+public class JobAssignmentIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoConfigDao cruiseConfigDao;
     @Autowired private BuildAssignmentService assignmentService;

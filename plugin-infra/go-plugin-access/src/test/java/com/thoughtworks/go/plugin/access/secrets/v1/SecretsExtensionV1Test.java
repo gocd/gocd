@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.access.secrets.v1;
 
 import com.thoughtworks.go.config.SecretConfig;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -128,7 +129,11 @@ public class SecretsExtensionV1Test {
         String responseBody = "[{\"key\":\"key1\",\"value\":\"secret1\"},{\"key\":\"key2\",\"value\":\"secret2\"}]";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(SECRETS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        List<Secret> secrets = secretsExtensionV1.lookupSecrets(PLUGIN_ID, asList("key1", "key2"), new SecretConfig());
+        final SecretConfig secretConfig = new SecretConfig();
+        secretConfig.add(ConfigurationPropertyMother.create("AWS_ACCESS_KEY", false, "some-access-key"));
+        secretConfig.add(ConfigurationPropertyMother.create("AWS_SECRET_KEY", true, "some-secret-value"));
+
+        List<Secret> secrets = secretsExtensionV1.lookupSecrets(PLUGIN_ID, asList("key1", "key2"), secretConfig);
 
         assertThat(secrets.size(), is(2));
         assertThat(secrets, containsInAnyOrder(
@@ -136,7 +141,7 @@ public class SecretsExtensionV1Test {
                 new Secret("key2", "secret2")
         ));
 
-        assertExtensionRequest(REQUEST_LOOKUP_SECRETS, "[\"key1\",\"key2\"]");
+        assertExtensionRequest(REQUEST_LOOKUP_SECRETS, "{\"configuration\":{\"AWS_ACCESS_KEY\":\"some-access-key\",\"AWS_SECRET_KEY\":\"some-secret-value\"},\"keys\":[ \"key1\", \"key2\"]}");
     }
 
     private void assertExtensionRequest(String requestName, String requestBody) {

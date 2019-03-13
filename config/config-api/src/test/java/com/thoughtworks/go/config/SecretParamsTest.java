@@ -16,12 +16,15 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class SecretParamsTest {
 
@@ -34,8 +37,7 @@ class SecretParamsTest {
 
             assertThat(secretParams)
                     .hasSize(2)
-                    .contains(new SecretParam("secret_config_id", "lookup_username"))
-                    .contains(new SecretParam("secret_config_id", "lookup_password"));
+                    .contains(newParam("lookup_username"), newParam("lookup_password"));
         }
 
         @Test
@@ -56,8 +58,8 @@ class SecretParamsTest {
     class Union {
         @Test
         void shouldMergeToSecretParamsListAndReturnAsNewList() {
-            final SecretParams list1 = new SecretParams(new SecretParam("secret_config_id", "lookup_username"));
-            final SecretParams list2 = new SecretParams(new SecretParam("secret_config_id", "lookup_password"));
+            final SecretParams list1 = new SecretParams(newParam("lookup_username"));
+            final SecretParams list2 = new SecretParams(newParam("lookup_password"));
 
             final SecretParams merged = SecretParams.union(list1, list2);
 
@@ -74,28 +76,28 @@ class SecretParamsTest {
         @Test
         void shouldGroupSecretParams() {
             final SecretParams allSecretParams = new SecretParams(
-                    new SecretParam("secret_config_id_1", "lookup_username"),
-                    new SecretParam("secret_config_id_1", "lookup_password"),
-                    new SecretParam("secret_config_id_2", "lookup_bucket_name"),
-                    new SecretParam("secret_config_id_2", "lookup_access_key"),
-                    new SecretParam("secret_config_id_2", "lookup_secret_key"),
-                    new SecretParam("secret_config_id_foo", "lookup_foo")
+                    newParam("secret_config_id_1", "lookup_username"),
+                    newParam("secret_config_id_1", "lookup_password"),
+                    newParam("secret_config_id_2", "lookup_bucket_name"),
+                    newParam("secret_config_id_2", "lookup_access_key"),
+                    newParam("secret_config_id_2", "lookup_secret_key"),
+                    newParam("secret_config_id_foo", "lookup_foo")
             );
 
             final Map<String, SecretParams> groupedBySecretConfigId = allSecretParams.groupBySecretConfigId();
 
             assertThat(groupedBySecretConfigId).hasSize(3)
                     .containsEntry("secret_config_id_1", new SecretParams(
-                            new SecretParam("secret_config_id_1", "lookup_username"),
-                            new SecretParam("secret_config_id_1", "lookup_password")
+                            newParam("secret_config_id_1", "lookup_username"),
+                            newParam("secret_config_id_1", "lookup_password")
                     ))
                     .containsEntry("secret_config_id_2", new SecretParams(
-                            new SecretParam("secret_config_id_2", "lookup_bucket_name"),
-                            new SecretParam("secret_config_id_2", "lookup_access_key"),
-                            new SecretParam("secret_config_id_2", "lookup_secret_key")
+                            newParam("secret_config_id_2", "lookup_bucket_name"),
+                            newParam("secret_config_id_2", "lookup_access_key"),
+                            newParam("secret_config_id_2", "lookup_secret_key")
                     ))
                     .containsEntry("secret_config_id_foo", new SecretParams(
-                            new SecretParam("secret_config_id_foo", "lookup_foo")
+                            newParam("secret_config_id_foo", "lookup_foo")
                     ));
 
 
@@ -106,16 +108,77 @@ class SecretParamsTest {
     class Merge {
         @Test
         void shouldMergeGivenSecretParamsToTheCurrentList() {
-            final SecretParams mergeInThis = new SecretParams(new SecretParam("secret_config_id", "lookup_username"));
-            final SecretParams paramsToMerge = new SecretParams(new SecretParam("secret_config_id", "lookup_password"));
+            final SecretParams mergeInThis = new SecretParams(newParam("lookup_username"));
+            final SecretParams paramsToMerge = new SecretParams(newParam("lookup_password"));
 
             mergeInThis.merge(paramsToMerge);
 
             assertThat(paramsToMerge).hasSize(1);
             assertThat(mergeInThis).hasSize(2)
-                    .contains(new SecretParam("secret_config_id", "lookup_username"),
-                            new SecretParam("secret_config_id", "lookup_password"));
+                    .contains(
+                            newParam("lookup_username"),
+                            newParam("lookup_password")
+                    );
         }
     }
 
+    @Nested
+    class toFlatSecretParams {
+        @Test
+        void shouldCollectMultipleSecretParamsToFlatList() {
+            final SecretParams listOne = new SecretParams(newParam("lookup_username"));
+            final SecretParams listTwo = new SecretParams(newParam("lookup_password"));
+
+            final SecretParams flattenList = Stream.of(listOne, listTwo).collect(SecretParams.toFlatSecretParams());
+
+            assertThat(flattenList).hasSize(2)
+                    .contains(
+                            newParam("lookup_username"),
+                            newParam("lookup_password")
+                    );
+        }
+    }
+
+    @Nested
+    class substitute {
+        @Test
+        void shouldSubstituteSecretParamsValueInGiveString() {
+            final SecretParams allSecretParams = new SecretParams(
+                    newResolvedParam("username", "some-username"),
+                    newResolvedParam("password", "some-password")
+            );
+
+            assertThat(allSecretParams.substitute("#{SECRET[secret_config_id][username]}"))
+                    .isEqualTo("some-username");
+
+            assertThat(allSecretParams.substitute("#{SECRET[secret_config_id][username]}@#{SECRET[secret_config_id][password]}"))
+                    .isEqualTo("some-username@some-password");
+
+        }
+
+        @Test
+        void shouldThrowWhenSecretParamIsUsedBeforeItIsResolved() {
+            final SecretParams secretParams = new SecretParams(newParam("username"));
+
+            assertThatCode(() -> secretParams.substitute("#{SECRET[secret_config_id][username]}"))
+                    .isInstanceOf(UnresolvedSecretParamException.class)
+                    .hasMessage("SecretParam 'username' is used before it is resolved.");
+
+        }
+    }
+
+    private SecretParam newResolvedParam(String key, String value) {
+        final SecretParam secretParam = newParam("secret_config_id", key);
+        secretParam.setValue(value);
+        return secretParam;
+    }
+
+
+    private SecretParam newParam(String secretConfigId, String key) {
+        return new SecretParam(secretConfigId, key);
+    }
+
+    private SecretParam newParam(String key) {
+        return newParam("secret_config_id", key);
+    }
 }

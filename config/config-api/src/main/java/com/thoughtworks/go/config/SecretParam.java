@@ -19,11 +19,11 @@ package com.thoughtworks.go.config;
 import java.io.Serializable;
 import java.util.Objects;
 
-
 public class SecretParam implements Serializable {
     private String secretConfigId;
     private String key;
     private String value;
+    private boolean resolved = false;
 
     public SecretParam(String secretConfigId, String key) {
         this.secretConfigId = secretConfigId;
@@ -44,6 +44,11 @@ public class SecretParam implements Serializable {
 
     public void setValue(String value) {
         this.value = value;
+        this.resolved = true;
+    }
+
+    public boolean isUnresolved() {
+        return !resolved;
     }
 
     @Override

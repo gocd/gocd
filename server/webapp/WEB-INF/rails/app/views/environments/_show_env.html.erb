@@ -74,8 +74,9 @@
 <%= end_content_wrapper %>
 <script type="text/javascript">
     Util.on_load(function () {
-        var envHeader = "#<%='environment_entity_'+environment.name().to_s%> .environment-header";
-        var env = "#<%='environment_entity_'+environment.name().to_s%>";
+        var envHeader = "div[id=\"<%='environment_entity_'+environment.name().to_s%>\"] > .environment-header";
+        var env       = "div[id=\"<%='environment_entity_'+environment.name().to_s%>\"]";
+
         jQuery(envHeader).click(function () {
             if (jQuery(env).hasClass("expanded")) {
                 jQuery(env).removeClass("expanded");

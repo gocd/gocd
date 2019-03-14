@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,8 +25,9 @@ import com.thoughtworks.go.remote.work.HttpServiceStub;
 import com.thoughtworks.go.util.TestingClock;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.text.StrLookup;
-import org.junit.Before;
 import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -35,9 +36,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.BuildCommand.exec;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
+@EnableRuleMigrationSupport
 public class BuildSessionBasedTestCase {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -50,7 +51,7 @@ public class BuildSessionBasedTestCase {
     protected HttpServiceStub httpService;
     protected AgentIdentifier agentIdentifier;
 
-    @Before
+    @BeforeEach
     public void superSetup() throws IOException {
         temporaryFolder.delete();
         temporaryFolder.create();
@@ -82,14 +83,14 @@ public class BuildSessionBasedTestCase {
 
     protected void runBuild(BuildSession buildSession, BuildCommand command, JobResult expectedResult) {
         JobResult result = buildSession.build(command);
-        assertThat(buildInfo(), result, is(expectedResult));
+        assertThat(result).as(buildInfo()).isEqualTo(expectedResult);
     }
 
     protected void runBuild(BuildCommand command, JobResult expectedResult) {
         runBuild(newBuildSession(), command, expectedResult);
     }
 
-    protected String pathSystemEnvName() {
+    String pathSystemEnvName() {
         return SystemUtils.IS_OS_WINDOWS ? "Path" : "PATH";
     }
 
@@ -101,7 +102,7 @@ public class BuildSessionBasedTestCase {
         }
     }
 
-    protected String execSleepScriptProcessCommand() {
+    String execSleepScriptProcessCommand() {
         return SystemUtils.IS_OS_WINDOWS ? "powershell.exe" : "sleep";
     }
 

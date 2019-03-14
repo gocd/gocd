@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,69 +26,65 @@ import com.thoughtworks.go.domain.materials.perforce.P4Fixture;
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialUpdater;
 import com.thoughtworks.go.helper.P4TestRepo;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
-import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class P4MaterialUpdaterTestBase extends BuildSessionBasedTestCase {
     protected File workingDir;
     protected P4TestRepo repo;
-    protected P4Fixture p4Fixture;
+    P4Fixture p4Fixture;
     protected P4Client p4;
 
     protected final StringRevision REVISION_1 = new StringRevision("1");
     protected final StringRevision REVISION_2 = new StringRevision("2");
-    protected final StringRevision REVISION_3 = new StringRevision("3");
+    private final StringRevision REVISION_3 = new StringRevision("3");
     protected static final String VIEW = "//depot/... //something/...";
 
     @Test
-    public void shouldCleanWorkingDir() throws Exception {
+    void shouldCleanWorkingDir() throws Exception {
         P4Material material = p4Fixture.material(VIEW);
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
         File tmpFile = new File(workingDir, "shouldBeDeleted");
         FileUtils.writeStringToFile(tmpFile, "testing", UTF_8);
-        assert(tmpFile.exists());
+        assert (tmpFile.exists());
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
-        assert(!tmpFile.exists());
+        assert (!tmpFile.exists());
     }
 
     @Test
-    public void shouldSyncToSpecifiedRevision() throws Exception {
+    void shouldSyncToSpecifiedRevision() {
         P4Material material = p4Fixture.material(VIEW);
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
-        assertThat(workingDir.listFiles().length, is(7));
+        assertThat(workingDir.listFiles()).hasSize(7);
         updateTo(material, new RevisionContext(REVISION_3), JobResult.Passed);
-        assertThat(workingDir.listFiles().length, is(6));
+        assertThat(workingDir.listFiles()).hasSize(6);
     }
 
     @Test
-    public void shouldNotFailIfDestDoesNotExist() throws Exception {
+    void shouldNotFailIfDestDoesNotExist() throws Exception {
         FileUtils.deleteDirectory(workingDir);
-        assert(!workingDir.exists());
+        assert (!workingDir.exists());
         P4Material material = p4Fixture.material(VIEW);
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
-        assert(workingDir.exists());
+        assert (workingDir.exists());
     }
 
     @Test
-    public void shouldSupportCustomDestinations() throws Exception {
+    void shouldSupportCustomDestinations() {
         P4Material material = p4Fixture.material(VIEW);
         material.setFolder("dest");
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
-        assertThat(workingDir.listFiles().length, is(1));
-        assertThat(new File(workingDir, "dest").listFiles().length, is(7));
+        assertThat(workingDir.listFiles()).hasSize(1);
+        assertThat(new File(workingDir, "dest").listFiles()).hasSize(7);
     }
 
     protected void updateTo(P4Material material, RevisionContext revisionContext, JobResult expectedResult) {
         BuildSession buildSession = newBuildSession();
         JobResult result = buildSession.build(new P4MaterialUpdater(material).updateTo(workingDir.toString(), revisionContext));
-        assertThat(buildInfo(), result, is(expectedResult));
+        assertThat(result).as(buildInfo()).isEqualTo(expectedResult);
     }
 }

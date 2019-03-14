@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,120 +15,109 @@
  */
 package com.thoughtworks.go.buildsession;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
-import com.googlecode.junit.ext.checkers.OSChecker;
-import com.thoughtworks.go.domain.BuildCommand;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.util.LogFixture;
 import ch.qos.logback.classic.Level;
+import com.thoughtworks.go.domain.BuildCommand;
+import com.thoughtworks.go.util.LogFixture;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import java.io.IOException;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import static com.thoughtworks.go.domain.BuildCommand.*;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedAppsMissingInfoOnUnix;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedAppsMissingInfoOnWindows;
+import static com.thoughtworks.go.matchers.ConsoleOutMatcherJunit5.assertConsoleOut;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(JunitExtRunner.class)
-public class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
+class ExecCommandExecutorTest extends BuildSessionBasedTestCase {
     @Test
-    public void execExecuteExternalCommandAndConnectOutputToBuildConsole() {
+    void execExecuteExternalCommandAndConnectOutputToBuildConsole() {
         runBuild(exec("echo", "foo"), Passed);
-        assertThat(console.lastLine(), is("foo"));
+        assertThat(console.lastLine()).isEqualTo("foo");
     }
 
     @Test
-    public void execShouldFailIfWorkingDirectoryNotExists() {
+    void execShouldFailIfWorkingDirectoryNotExists() {
         runBuild(exec("echo", "should not show").setWorkingDirectory("not-exists"), Failed);
-        assertThat(console.lineCount(), is(1));
-        assertThat(console.firstLine(), containsString("not-exists\" is not a directory!"));
+        assertThat(console.lineCount()).isEqualTo(1);
+        assertThat(console.firstLine()).contains("not-exists\" is not a directory!");
     }
 
     @Test
-    public void execUseSystemEnvironmentVariables() {
+    void execUseSystemEnvironmentVariables() {
         runBuild(execEchoEnv(pathSystemEnvName()), Passed);
-        assertThat(console.output(), is(System.getenv(pathSystemEnvName())));
+        assertThat(console.output()).isEqualTo(System.getenv(pathSystemEnvName()));
     }
 
     @Test
-    public void execUsePresetEnvs() {
+    void execUsePresetEnvs() {
         BuildSession buildSession = newBuildSession();
         buildSession.setEnv("GO_SERVER_URL", "https://far.far.away/go");
         runBuild(buildSession, execEchoEnv("GO_SERVER_URL"), Passed);
-        assertThat(console.output(), is("https://far.far.away/go"));
+        assertThat(console.output()).isEqualTo("https://far.far.away/go");
     }
 
     @Test
-    public void execUseExportedEnv() throws IOException {
+    void execUseExportedEnv() {
         runBuild(compose(
                 export("foo", "bar", false),
                 execEchoEnv("foo")), Passed);
-        assertThat(console.lastLine(), is("bar"));
+        assertThat(console.lastLine()).isEqualTo("bar");
     }
 
     @Test
-    public void execUseExportedEnvWithOverridden() throws Exception {
+    void execUseExportedEnvWithOverridden() {
         runBuild(compose(
                 export("answer", "2", false),
                 export("answer", "42", false),
                 execEchoEnv("answer")), Passed);
-        assertThat(console.lastLine(), is("42"));
+        assertThat(console.lastLine()).isEqualTo("42");
     }
 
 
     @Test
-    public void execUseOverriddenSystemEnvValue() throws Exception {
+    void execUseOverriddenSystemEnvValue() {
         runBuild(compose(
                 export(pathSystemEnvName(), "/foo/bar", false),
                 execEchoEnv(pathSystemEnvName())), Passed);
-        assertThat(console.lastLine(), is("/foo/bar"));
+        assertThat(console.lastLine()).isEqualTo("/foo/bar");
     }
 
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void execExecuteNotExistExternalCommandOnUnix() {
+    @DisabledOnOs(OS.WINDOWS)
+    void execExecuteNotExistExternalCommandOnUnix() {
         runBuild(exec("not-not-not-exist"), Failed);
-        assertThat(console.output(), printedAppsMissingInfoOnUnix("not-not-not-exist"));
+        assertConsoleOut(console.output()).printedAppsMissingInfoOnUnix("not-not-not-exist");
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
-    public void execExecuteNotExistExternalCommandOnWindows() {
+    @EnabledOnOs(OS.WINDOWS)
+    void execExecuteNotExistExternalCommandOnWindows() {
         runBuild(exec("not-not-not-exist"), Failed);
-        assertThat(console.output(), printedAppsMissingInfoOnWindows("not-not-not-exist"));
+        assertConsoleOut(console.output()).printedAppsMissingInfoOnWindows("not-not-not-exist");
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldNotLeakSecretsToConsoleLog() {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldNotLeakSecretsToConsoleLog() {
         runBuild(compose(secret("topsecret"),
                 exec("not-not-not-exist", "topsecret")), Failed);
-        assertThat(console.output(), containsString("not-not-not-exist ******"));
-        assertThat(console.output(), not(containsString("topsecret")));
+        assertThat(console.output()).contains("not-not-not-exist ******");
+        assertThat(console.output()).doesNotContain("topsecret");
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldNotLeakSecretsToLog() {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldNotLeakSecretsToLog() {
         try (LogFixture logFixture = logFixtureFor(ExecCommandExecutor.class, Level.DEBUG)) {
             runBuild(compose(secret("topsecret"),
                     exec("not-not-not-exist", "topsecret")), Failed);
             String logs = logFixture.getLog();
-            assertThat(logs, containsString("not-not-not-exist ******"));
-            assertThat(logs, not(containsString("topsecret")));
+            assertThat(logs).contains("not-not-not-exist ******");
+            assertThat(logs).doesNotContain("topsecret");
         }
     }
 

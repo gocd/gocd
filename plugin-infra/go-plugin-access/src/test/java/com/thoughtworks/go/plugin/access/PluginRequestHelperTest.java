@@ -30,8 +30,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 public class PluginRequestHelperTest {
@@ -70,9 +70,9 @@ public class PluginRequestHelperTest {
             });
             fail("should throw exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Interaction with plugin with id 'pid' implementing 'some-extension' extension failed while requesting for 'req'. Reason: [The plugin sent a response that could not be understood by Go. Plugin returned with code '500' and the following response: 'junk']"));
-            assertThat(e.getCause().getMessage(), is("The plugin sent a response that could not be understood by Go. Plugin returned with code '500' and the following response: 'junk'"));
-            assertFalse(isSuccessInvoked[0]);
+            assertThat(e.getMessage()).isEqualTo("Interaction with plugin with id 'pid' implementing 'some-extension' extension failed while requesting for 'req'. Reason: [The plugin sent a response that could not be understood by Go. Plugin returned with code '500' and the following response: 'junk']");
+            assertThat(e.getCause().getMessage()).isEqualTo("The plugin sent a response that could not be understood by Go. Plugin returned with code '500' and the following response: 'junk'");
+            assertThat(isSuccessInvoked[0]).isFalse();
             verify(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
         }
     }
@@ -89,7 +89,7 @@ public class PluginRequestHelperTest {
                 return null;
             }
         });
-        assertTrue(isSuccessInvoked[0]);
+        assertThat(isSuccessInvoked[0]).isTrue();
         verify(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
     }
 
@@ -130,10 +130,10 @@ public class PluginRequestHelperTest {
                 return requestBody;
             }
         });
-        assertThat(generatedRequest[0].requestBody(), is(requestBody));
-        assertThat(generatedRequest[0].extension(), is(extensionName));
-        assertThat(generatedRequest[0].requestName(), is(requestName));
-        assertTrue(generatedRequest[0].requestParameters().isEmpty());
+        assertThat(generatedRequest[0].requestBody()).isEqualTo(requestBody);
+        assertThat(generatedRequest[0].extension()).isEqualTo(extensionName);
+        assertThat(generatedRequest[0].requestName()).isEqualTo(requestName);
+        assertThat(generatedRequest[0].requestParameters().isEmpty()).isTrue();
     }
 
     @Test
@@ -176,12 +176,12 @@ public class PluginRequestHelperTest {
             }
         });
 
-        assertThat(generatedRequest[0].requestBody(), is(requestBody));
-        assertThat(generatedRequest[0].extension(), is(extensionName));
-        assertThat(generatedRequest[0].requestName(), is(requestName));
-        assertThat(generatedRequest[0].requestParameters().size(), is(2));
-        assertThat(generatedRequest[0].requestParameters().get("p1"), is("v1"));
-        assertThat(generatedRequest[0].requestParameters().get("p2"), is("v2"));
+        assertThat(generatedRequest[0].requestBody()).isEqualTo(requestBody);
+        assertThat(generatedRequest[0].extension()).isEqualTo(extensionName);
+        assertThat(generatedRequest[0].requestName()).isEqualTo(requestName);
+        assertThat(generatedRequest[0].requestParameters().size()).isEqualTo(2);
+        assertThat(generatedRequest[0].requestParameters().get("p1")).isEqualTo("v1");
+        assertThat(generatedRequest[0].requestParameters().get("p2")).isEqualTo("v2");
     }
 
     @Test
@@ -221,11 +221,11 @@ public class PluginRequestHelperTest {
             }
         });
 
-        assertThat(generatedRequest[0].requestBody(), is(requestBody));
-        assertThat(generatedRequest[0].extension(), is(extensionName));
-        assertThat(generatedRequest[0].requestName(), is(requestName));
-        assertThat(generatedRequest[0].requestHeaders().size(), is(2));
-        assertThat(generatedRequest[0].requestHeaders().get("HEADER-1"), is("HEADER-VALUE-1"));
-        assertThat(generatedRequest[0].requestHeaders().get("HEADER-2"), is("HEADER-VALUE-2"));
+        assertThat(generatedRequest[0].requestBody()).isEqualTo(requestBody);
+        assertThat(generatedRequest[0].extension()).isEqualTo(extensionName);
+        assertThat(generatedRequest[0].requestName()).isEqualTo(requestName);
+        assertThat(generatedRequest[0].requestHeaders().size()).isEqualTo(2);
+        assertThat(generatedRequest[0].requestHeaders().get("HEADER-1")).isEqualTo("HEADER-VALUE-1");
+        assertThat(generatedRequest[0].requestHeaders().get("HEADER-2")).isEqualTo("HEADER-VALUE-2");
     }
 }

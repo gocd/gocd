@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.domain.materials;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
@@ -32,52 +30,49 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialsMother;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
-@RunWith(JunitExtRunner.class)
+@EnableRuleMigrationSupport
 public class MaterialsTest {
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
-    public void setup() throws IOException {
+    @BeforeEach
+    void setup() throws IOException {
         temporaryFolder.create();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() {
         temporaryFolder.delete();
     }
 
     @Test
-    public void shouldKnowModificationCheckInterval() {
+    void shouldKnowModificationCheckInterval() {
         final Materials materials = new Materials(42, new ArrayList<>());
-        assertThat(materials.interval(), is(42));
+        assertThat(materials.interval()).isEqualTo(42);
     }
 
     @Test
-    public void shouldGetMaterialByFolder() {
+    void shouldGetMaterialByFolder() {
         Materials materials = new Materials();
         HgMaterial material1 = MaterialsMother.hgMaterial();
         material1.setFolder("folder1");
@@ -88,11 +83,11 @@ public class MaterialsTest {
         materials.add(material1);
         materials.add(material2);
 
-        assertThat(materials.byFolder("folder1"), is(material1));
+        assertThat(materials.byFolder("folder1")).isEqualTo(material1);
     }
 
     @Test
-    public void shouldNotGetDependencyMaterialWhenOneOtherScmMaterialWithNoFolder() {
+    void shouldNotGetDependencyMaterialWhenOneOtherScmMaterialWithNoFolder() {
         Materials materials = new Materials();
         Material material1 = new DependencyMaterial(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"));
 
@@ -101,32 +96,32 @@ public class MaterialsTest {
         materials.add(material1);
         materials.add(material2);
 
-        assertThat(materials.byFolder(null), is(material2));
+        assertThat(materials.byFolder(null)).isEqualTo(material2);
     }
 
     @Test
-    public void shouldGetMaterialByFolderWhenHasOnlyOneMaterial() {
+    void shouldGetMaterialByFolderWhenHasOnlyOneMaterial() {
         Materials materials = new Materials();
         HgMaterial material1 = MaterialsMother.hgMaterial();
 
         materials.add(material1);
 
-        assertThat(materials.byFolder(material1.getFolder()), is(material1));
+        assertThat(materials.byFolder(material1.getFolder())).isEqualTo(material1);
     }
 
     @Test
-    public void shouldNotGetPackageMaterialWhenOneOtherScmMaterialWithNoFolder() {
+    void shouldNotGetPackageMaterialWhenOneOtherScmMaterialWithNoFolder() {
         Materials materials = new Materials();
         Material material1 = new PackageMaterial("pid");
         Material material2 = new HgMaterial("", null);
         materials.add(material1);
         materials.add(material2);
 
-        assertThat(materials.byFolder(null), is(material2));
+        assertThat(materials.byFolder(null)).isEqualTo(material2);
     }
 
     @Test
-    public void shouldGetPluggableSCMMaterial_byFolder() {
+    void shouldGetPluggableSCMMaterial_byFolder() {
         Materials materials = new Materials();
         PluggableSCMMaterial material1 = new PluggableSCMMaterial("scm-id");
         material1.setFolder("folder");
@@ -134,11 +129,11 @@ public class MaterialsTest {
         materials.add(material1);
         materials.add(material2);
 
-        assertThat(materials.byFolder("folder"), is(material1));
+        assertThat(materials.byFolder("folder")).isEqualTo(material1);
     }
 
     @Test
-    public void shouldReturnMaterialMatchingTheGivenMaterial() {
+    void shouldReturnMaterialMatchingTheGivenMaterial() {
         Materials materials = new Materials();
         HgMaterial material1 = MaterialsMother.hgMaterial();
         material1.setFilter(new Filter(new IgnoredFiles("patter")));
@@ -147,7 +142,7 @@ public class MaterialsTest {
         materials.add(material1);
         materials.add(material2);
 
-        assertThat(materials.get(MaterialsMother.hgMaterial()), is(material1));
+        assertThat(materials.get(MaterialsMother.hgMaterial())).isEqualTo(material1);
         try {
             materials.get(MaterialsMother.p4Material());
             fail("Must not have found the p4 material");
@@ -156,7 +151,7 @@ public class MaterialsTest {
     }
 
     @Test
-    public void shouldReturnMaterialBasedOnPiplineUniqueFingerPrint() {
+    void shouldReturnMaterialBasedOnPiplineUniqueFingerPrint() {
         Materials materials = new Materials();
         HgMaterial expectedMaterial = MaterialsMother.hgMaterial();
         materials.add(expectedMaterial);
@@ -164,12 +159,12 @@ public class MaterialsTest {
         materials.add(MaterialsMother.svnMaterial("url", "folder"));
 
         Material actualMaterial = materials.getByFingerPrint(expectedMaterial.getPipelineUniqueFingerprint());
-        assertThat(actualMaterial, is(expectedMaterial));
+        assertThat(actualMaterial).isEqualTo(expectedMaterial);
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldFailIfMultipleMaterialsHaveSameFolderNameSet_CaseInSensitive() {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldFailIfMultipleMaterialsHaveSameFolderNameSet_CaseInSensitive() {
         HgMaterialConfig materialOne = new HgMaterialConfig("http://url1", null);
         materialOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder"));
         HgMaterialConfig materialTwo = new HgMaterialConfig("http://url2", null);
@@ -181,15 +176,15 @@ public class MaterialsTest {
         MaterialConfigs materials = pipelineOne.materialConfigs();
         materials.validate(ConfigSaveValidationContext.forChain(config));
 
-        assertThat(materials.get(0).errors().isEmpty(), is(false));
-        assertThat(materials.get(1).errors().isEmpty(), is(false));
+        assertThat(materials.get(0).errors().isEmpty()).isFalse();
+        assertThat(materials.get(1).errors().isEmpty()).isFalse();
 
-        assertThat(materials.get(0).errors().on(ScmMaterialConfig.FOLDER), is("The destination directory must be unique across materials."));
-        assertThat(materials.get(1).errors().on(ScmMaterialConfig.FOLDER), is("The destination directory must be unique across materials."));
+        assertThat(materials.get(0).errors().on(ScmMaterialConfig.FOLDER)).isEqualTo("The destination directory must be unique across materials.");
+        assertThat(materials.get(1).errors().on(ScmMaterialConfig.FOLDER)).isEqualTo("The destination directory must be unique across materials.");
     }
 
     @Test
-    public void shouldReturnTrueIfScmMaterialHasNoDestinationFolderSet() {
+    void shouldReturnTrueIfScmMaterialHasNoDestinationFolderSet() {
         Materials materials = new Materials();
         SvnMaterial material1 = new SvnMaterial("url", "user", "pass", false);
         DependencyMaterial material2 = new DependencyMaterial(new CaseInsensitiveString("pipelineName"), new CaseInsensitiveString("stageName"));
@@ -198,76 +193,76 @@ public class MaterialsTest {
         materials.add(material1);
         materials.add(material2);
 
-        assertThat(materials.scmMaterialsHaveDestination(), is(false));
+        assertThat(materials.scmMaterialsHaveDestination()).isFalse();
     }
 
     @Test
-    public void shouldReturnANewSvnMaterialIfTheMaterialsCollectionDoesNotHaveASvnMaterial() {
-        assertThat(new Materials().getSvnMaterial(), is(new SvnMaterial("", "", "", false)));
+    void shouldReturnANewSvnMaterialIfTheMaterialsCollectionDoesNotHaveASvnMaterial() {
+        assertThat(new Materials().getSvnMaterial()).isEqualTo(new SvnMaterial("", "", "", false));
     }
 
     @Test
-    public void shouldReturnExistingSvnMaterialFromMaterialsIfItContainsOne() {
+    void shouldReturnExistingSvnMaterialFromMaterialsIfItContainsOne() {
         Materials materials = new Materials();
         SvnMaterial existingMaterial = new SvnMaterial("foo", "bar", "blah", true);
         materials.add(existingMaterial);
-        assertThat(materials.getSvnMaterial(), is(sameInstance(existingMaterial)));
+        assertThat(materials.getSvnMaterial()).isSameAs(existingMaterial);
     }
 
     @Test
-    public void shouldReturnANewGitMaterialIfTheMaterialsCollectionDoesNotHaveAGitMaterial() {
-        assertThat(new Materials().getGitMaterial(), is(new GitMaterial("")));
+    void shouldReturnANewGitMaterialIfTheMaterialsCollectionDoesNotHaveAGitMaterial() {
+        assertThat(new Materials().getGitMaterial()).isEqualTo(new GitMaterial(""));
     }
 
     @Test
-    public void shouldReturnExistingGitMaterialFromMaterialsIfItContainsOne() {
+    void shouldReturnExistingGitMaterialFromMaterialsIfItContainsOne() {
         Materials materials = new Materials();
         GitMaterial existingMaterial = new GitMaterial("foo");
         materials.add(existingMaterial);
-        assertThat(materials.getGitMaterial(), is(sameInstance(existingMaterial)));
+        assertThat(materials.getGitMaterial()).isSameAs(existingMaterial);
     }
 
     @Test
-    public void shouldReturnAP4SvnMaterialIfTheMaterialsCollectionDoesNotHaveAP4Material() {
-        assertThat(new Materials().getP4Material(), is(new P4Material("", "")));
+    void shouldReturnAP4SvnMaterialIfTheMaterialsCollectionDoesNotHaveAP4Material() {
+        assertThat(new Materials().getP4Material()).isEqualTo(new P4Material("", ""));
     }
 
     @Test
-    public void shouldReturnExistingP4MaterialFromMaterialsIfItContainsOne() {
+    void shouldReturnExistingP4MaterialFromMaterialsIfItContainsOne() {
         Materials materials = new Materials();
         P4Material existingMaterial = new P4Material("foo", "bar");
         materials.add(existingMaterial);
-        assertThat(materials.getP4Material(), is(sameInstance(existingMaterial)));
+        assertThat(materials.getP4Material()).isSameAs(existingMaterial);
     }
 
     @Test
-    public void shouldReturnANewHgMaterialIfTheMaterialsCollectionDoesNotHaveAHgMaterial() {
-        assertThat(new Materials().getHgMaterial(), is(new HgMaterial("", null)));
+    void shouldReturnANewHgMaterialIfTheMaterialsCollectionDoesNotHaveAHgMaterial() {
+        assertThat(new Materials().getHgMaterial()).isEqualTo(new HgMaterial("", null));
     }
 
     @Test
-    public void shouldReturnExistingHgMaterialFromMaterialsIfItContainsOne() {
+    void shouldReturnExistingHgMaterialFromMaterialsIfItContainsOne() {
         Materials materials = new Materials();
         HgMaterial existingMaterial = new HgMaterial("foo", null);
         materials.add(existingMaterial);
-        assertThat(materials.getHgMaterial(), is(sameInstance(existingMaterial)));
+        assertThat(materials.getHgMaterial()).isSameAs(existingMaterial);
     }
 
     @Test
-    public void shouldReturnANewDependencyMaterialIfTheMaterialsCollectionDoesNotHaveAHgMaterial() {
-        assertThat(new Materials().getDependencyMaterial(), is(new DependencyMaterial(new CaseInsensitiveString(""), new CaseInsensitiveString(""))));
+    void shouldReturnANewDependencyMaterialIfTheMaterialsCollectionDoesNotHaveAHgMaterial() {
+        assertThat(new Materials().getDependencyMaterial()).isEqualTo(new DependencyMaterial(new CaseInsensitiveString(""), new CaseInsensitiveString("")));
     }
 
     @Test
-    public void shouldReturnExistingDependencyMaterialFromMaterialsIfItContainsOne() {
+    void shouldReturnExistingDependencyMaterialFromMaterialsIfItContainsOne() {
         Materials materials = new Materials();
         DependencyMaterial existingMaterial = new DependencyMaterial(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"));
         materials.add(existingMaterial);
-        assertThat(materials.getDependencyMaterial(), is(sameInstance(existingMaterial)));
+        assertThat(materials.getDependencyMaterial()).isSameAs(existingMaterial);
     }
 
     @Test
-    public void shouldRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsFalse() throws Exception {
+    void shouldRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsFalse() throws Exception {
         File junkFolder = temporaryFolder.newFolder("junk-folder");
         Materials materials = new Materials();
         GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
@@ -275,12 +270,12 @@ public class MaterialsTest {
 
         materials.cleanUp(temporaryFolder.getRoot(), mock(ConsoleOutputStreamConsumer.class));
 
-        assertThat(junkFolder.exists(), is(false));
+        assertThat(junkFolder.exists()).isFalse();
         temporaryFolder.delete();
     }
 
     @Test
-    public void shouldNotRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsTrue() throws Exception {
+    void shouldNotRemoveJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsTrue() throws Exception {
         File junkFolder = temporaryFolder.newFolder("junk-folder");
         Materials materials = new Materials();
         GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch");
@@ -288,26 +283,26 @@ public class MaterialsTest {
 
         materials.cleanUp(temporaryFolder.getRoot(), mock(ConsoleOutputStreamConsumer.class));
 
-        assertThat(junkFolder.exists(), is(true));
+        assertThat(junkFolder.exists()).isTrue();
         temporaryFolder.delete();
     }
 
     @Test
-    public void shouldGenerateCleanupCommandForRemovingJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsFalse() throws Exception {
+    void shouldGenerateCleanupCommandForRemovingJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsFalse() throws Exception {
         Materials materials = new Materials();
         GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
         materials.add(gitMaterial);
 
         BuildCommand command = materials.cleanUpCommand("basedir");
-        assertThat(command.getName(), is("cleandir"));
-        assertThat(command.getStringArg("path"), is("basedir"));
-        assertThat(command.getArrayArg("allowed"), is(new String[]{"some-folder", "cruise-output"}));
+        assertThat(command.getName()).isEqualTo("cleandir");
+        assertThat(command.getStringArg("path")).isEqualTo("basedir");
+        assertThat(command.getArrayArg("allowed")).isEqualTo(new String[]{"some-folder", "cruise-output"});
     }
 
     @Test
-    public void shouldGenerateNoopCommandWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsTrue() throws Exception {
+    void shouldGenerateNoopCommandWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsTrue() throws Exception {
         Materials materials = new Materials();
         materials.add(new GitMaterial("http://some-url.com", "some-branch"));
-        assertThat(materials.cleanUpCommand("foo"), is(BuildCommand.noop()));
+        assertThat(materials.cleanUpCommand("foo")).isEqualTo(BuildCommand.noop());
     }
 }

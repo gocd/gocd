@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,44 +15,44 @@
  */
 package com.thoughtworks.go.buildsession;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.domain.BuildCommand.compose;
 import static com.thoughtworks.go.domain.BuildCommand.export;
 import static com.thoughtworks.go.domain.JobResult.Passed;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class ExportCommandExecutorTest extends BuildSessionBasedTestCase {
+class ExportCommandExecutorTest extends BuildSessionBasedTestCase {
     @Test
-    public void exportEnvironmentVariableHasMeaningfulOutput() throws Exception {
+    void exportEnvironmentVariableHasMeaningfulOutput() {
         runBuild(compose(
                 export("answer", "2", false),
                 export("answer", "42", false)), Passed);
-        assertThat(console.asList().get(0), is("[go] setting environment variable 'answer' to value '2'"));
-        assertThat(console.asList().get(1), is("[go] overriding environment variable 'answer' with value '42'"));
+        assertThat(console.asList().get(0)).isEqualTo("[go] setting environment variable 'answer' to value '2'");
+        assertThat(console.asList().get(1)).isEqualTo("[go] overriding environment variable 'answer' with value '42'");
     }
 
     @Test
-    public void exportOutputWhenOverridingSystemEnv() throws Exception {
+    void exportOutputWhenOverridingSystemEnv() {
         String envName = pathSystemEnvName();
         runBuild(export(envName, "/foo/bar", false), Passed);
-        assertThat(console.output(), is(String.format("[go] overriding environment variable '%s' with value '/foo/bar'", envName)));
+        assertThat(console.output()).isEqualTo(String.format("[go] overriding environment variable '%s' with value '/foo/bar'", envName));
     }
 
     @Test
-    public void exportSecretEnvShouldMaskValue() throws Exception {
+    void exportSecretEnvShouldMaskValue() {
         runBuild(export("answer", "42", true), Passed);
-        assertThat(console.output(), is("[go] setting environment variable 'answer' to value '********'"));
+        assertThat(console.output()).isEqualTo("[go] setting environment variable 'answer' to value '********'");
     }
 
     @Test
-    public void exportWithoutValueDisplayCurrentValue() throws Exception {
+    void exportWithoutValueDisplayCurrentValue() {
         runBuild(export("foo"), Passed);
-        assertThat(console.lastLine(), is("[go] setting environment variable 'foo' to value 'null'"));
+        assertThat(console.lastLine()).isEqualTo("[go] setting environment variable 'foo' to value 'null'");
         runBuild(compose(
                 export("foo", "bar", false),
                 export("foo")), Passed);
-        assertThat(console.lastLine(), is("[go] setting environment variable 'foo' to value 'bar'"));
+        assertThat(console.lastLine()).isEqualTo("[go] setting environment variable 'foo' to value 'bar'");
     }
 }

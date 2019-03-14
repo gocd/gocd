@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 package com.thoughtworks.go.buildsession;
 
 import com.thoughtworks.go.domain.JobResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,103 +24,100 @@ import java.io.IOException;
 import static com.thoughtworks.go.domain.BuildCommand.*;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class TestCommandExecutorTest extends BuildSessionBasedTestCase {
+class TestCommandExecutorTest extends BuildSessionBasedTestCase {
     @Test
-    public void testDirExists() throws IOException {
+    void testDirExists() throws IOException {
         runBuild(test("-d", ""), Passed);
         runBuild(test("-d", "dir"), Failed);
         runBuild(test("-d", "file"), Failed);
-        assertTrue(new File(sandbox, "file").createNewFile());
-        assertTrue(new File(sandbox, "dir").mkdir());
+        assertThat(new File(sandbox, "file").createNewFile()).isTrue();
+        assertThat(new File(sandbox, "dir").mkdir()).isTrue();
         runBuild(test("-d", "file"), Failed);
         runBuild(test("-d", "dir"), Passed);
     }
 
     @Test
-    public void testDirNotExists() throws IOException {
+    void testDirNotExists() throws IOException {
         runBuild(test("-nd", ""), Failed);
         runBuild(test("-nd", "dir"), Passed);
         runBuild(test("-nd", "file"), Passed);
-        assertTrue(new File(sandbox, "file").createNewFile());
-        assertTrue(new File(sandbox, "dir").mkdir());
+        assertThat(new File(sandbox, "file").createNewFile()).isTrue();
+        assertThat(new File(sandbox, "dir").mkdir()).isTrue();
         runBuild(test("-nd", "file"), Passed);
         runBuild(test("-nd", "dir"), Failed);
     }
 
     @Test
-    public void testFileExists() throws IOException {
+    void testFileExists() throws IOException {
         runBuild(test("-f", ""), Failed);
         runBuild(test("-f", "file"), Failed);
         File file = new File(sandbox, "file");
-        assertTrue(file.createNewFile());
+        assertThat(file.createNewFile()).isTrue();
         runBuild(test("-f", "file"), Passed);
     }
 
     @Test
-    public void testFileNotExists() throws IOException {
+    void testFileNotExists() throws IOException {
         runBuild(test("-nf", ""), Passed);
         runBuild(test("-nf", "file"), Passed);
         File file = new File(sandbox, "file");
-        assertTrue(file.createNewFile());
+        assertThat(file.createNewFile()).isTrue();
         runBuild(test("-nf", "file"), Failed);
     }
 
     @Test
-    public void testEqWithCommandOutput() throws IOException {
+    void testEqWithCommandOutput() {
         runBuild(test("-eq", "foo", echo("foo")), Passed);
         runBuild(test("-eq", "bar", echo("foo")), Failed);
-        assertThat(console.lineCount(), is(0));
+        assertThat(console.lineCount()).isEqualTo(0);
     }
 
     @Test
-    public void testNotEqWithCommandOutput() throws IOException {
+    void testNotEqWithCommandOutput() {
         runBuild(test("-neq", "foo", echo("foo")), Failed);
         runBuild(test("-neq", "bar", echo("foo")), Passed);
-        assertThat(console.lineCount(), is(0));
+        assertThat(console.lineCount()).isEqualTo(0);
     }
 
     @Test
-    public void testCommandOutputContainsString() throws IOException {
+    void testCommandOutputContainsString() {
         runBuild(test("-in", "foo", echo("foo bar")), Passed);
         runBuild(test("-in", "foo", echo("bar")), Failed);
-        assertThat(console.lineCount(), is(0));
+        assertThat(console.lineCount()).isEqualTo(0);
     }
 
     @Test
-    public void testCommandOutputDoesNotContainsString() throws IOException {
+    void testCommandOutputDoesNotContainsString() {
         runBuild(test("-nin", "foo", echo("foo bar")), Failed);
         runBuild(test("-nin", "foo", echo("bar")), Passed);
-        assertThat(console.lineCount(), is(0));
+        assertThat(console.lineCount()).isEqualTo(0);
     }
 
     @Test
-    public void mkdirWithWorkingDir() {
+    void mkdirWithWorkingDir() {
         runBuild(mkdirs("foo").setWorkingDirectory("bar"), Passed);
-        assertThat(new File(sandbox, "bar/foo").isDirectory(), is(true));
-        assertThat(new File(sandbox, "foo").isDirectory(), is(false));
+        assertThat(new File(sandbox, "bar/foo").isDirectory()).isTrue();
+        assertThat(new File(sandbox, "foo").isDirectory()).isFalse();
     }
 
     @Test
-    public void shouldNotFailBuildWhenTestCommandFail() {
+    void shouldNotFailBuildWhenTestCommandFail() {
         runBuild(echo("foo").setTest(fail("")), Passed);
-        assertThat(statusReporter.singleResult(), is(Passed));
+        assertThat(statusReporter.singleResult()).isEqualTo(Passed);
     }
 
     @Test
-    public void shouldNotFailBuildWhenComposedTestCommandFail() {
+    void shouldNotFailBuildWhenComposedTestCommandFail() {
         runBuild(echo("foo").setTest(compose(echo(""), fail(""))), Passed);
-        assertThat(statusReporter.singleResult(), is(JobResult.Passed));
+        assertThat(statusReporter.singleResult()).isEqualTo(JobResult.Passed);
     }
 
     @Test
-    public void shouldNotFailBuildWhenTestEqWithComposedCommandOutputFail() {
+    void shouldNotFailBuildWhenTestEqWithComposedCommandOutputFail() {
         runBuild(echo("foo").setTest(test("-eq", "42", compose(fail("42")))), Passed);
-        assertThat(statusReporter.singleResult(), is(Passed));
-        assertThat(console.output(), containsString("foo"));
+        assertThat(statusReporter.singleResult()).isEqualTo(Passed);
+        assertThat(console.output()).contains("foo");
     }
 }

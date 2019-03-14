@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,17 +21,15 @@ import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.perforce.P4Fixture;
 import com.thoughtworks.go.helper.P4TestRepo;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class P4MaterialUpdaterTicketTest extends P4MaterialUpdaterTestBase {
-    @Before
-    public void setup() throws Exception {
+class P4MaterialUpdaterTicketTest extends P4MaterialUpdaterTestBase {
+    @BeforeEach
+    void setup() throws Exception {
         repo = P4TestRepo.createP4TestRepoWithTickets(temporaryFolder, temporaryFolder.newFolder());
         repo.onSetup();
         p4Fixture = new P4Fixture();
@@ -43,17 +41,17 @@ public class P4MaterialUpdaterTicketTest extends P4MaterialUpdaterTestBase {
         p4 = p4Fixture.createClient();
     }
 
-    @After
-    public void teardown() throws Exception {
+    @AfterEach
+    void teardown() {
         p4Fixture.stop(p4);
         FileUtils.deleteQuietly(workingDir);
     }
 
     @Test
-    public void shouldNotDisplayPassword() throws Exception {
+    void shouldNotDisplayPassword() {
         P4Material material = p4Fixture.material(VIEW);
         material.setPassword("wubba lubba dub dub");
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Failed);
-        assertThat(console.output(), not(containsString("wubba lubba dub dub")));
+        assertThat(console.output()).doesNotContain("wubba lubba dub dub");
     }
 }

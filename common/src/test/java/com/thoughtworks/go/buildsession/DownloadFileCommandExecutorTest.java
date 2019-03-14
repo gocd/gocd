@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package com.thoughtworks.go.buildsession;
 
 import com.thoughtworks.go.util.FileUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,32 +29,30 @@ import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.util.MapBuilder.map;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class DownloadFileCommandExecutorTest extends BuildSessionBasedTestCase {
+class DownloadFileCommandExecutorTest extends BuildSessionBasedTestCase {
     @Test
-    public void downloadFilePrintErrorWhenFailed() {
+    void downloadFilePrintErrorWhenFailed() {
         runBuild(downloadFile(map(
                 "url", "http://far.far.away/foo.jar",
                 "dest", new File(sandbox, "bar.jar").getPath())), Failed);
-        assertThat(console.output(), containsString("Could not fetch artifact"));
+        assertThat(console.output()).contains("Could not fetch artifact");
     }
 
     @Test
-    public void downloadFileWithoutMD5Check() throws IOException {
+    void downloadFileWithoutMD5Check() throws IOException {
         File dest = new File(sandbox, "bar.jar");
         httpService.setupDownload("http://far.far.away/foo.jar", "some content");
         runBuild(downloadFile(map(
                 "url", "http://far.far.away/foo.jar",
                 "dest", "bar.jar")), Passed);
-        assertThat(console.output(), containsString("without verifying the integrity"));
-        assertThat(FileUtils.readFileToString(dest, UTF_8), is("some content"));
+        assertThat(console.output()).contains("without verifying the integrity");
+        assertThat(FileUtils.readFileToString(dest, UTF_8)).isEqualTo("some content");
     }
 
     @Test
-    public void downloadFileWithMD5Check() throws IOException {
+    void downloadFileWithMD5Check() throws IOException {
         httpService.setupDownload("http://far.far.away/foo.jar", "some content");
         httpService.setupDownload("http://far.far.away/foo.jar.md5", "foo.jar=9893532233caff98cd083a116b013c0b");
         runBuild(downloadFile(map(
@@ -62,12 +60,12 @@ public class DownloadFileCommandExecutorTest extends BuildSessionBasedTestCase {
                 "dest", "dest.jar",
                 "src", "foo.jar",
                 "checksumUrl", "http://far.far.away/foo.jar.md5")), Passed);
-        assertThat(console.output(), containsString(String.format("Saved artifact to [%s] after verifying the integrity of its contents", new File(sandbox, "dest.jar").getPath())));
-        assertThat(FileUtils.readFileToString(new File(sandbox, "dest.jar"), UTF_8), is("some content"));
+        assertThat(console.output()).contains(String.format("Saved artifact to [%s] after verifying the integrity of its contents", new File(sandbox, "dest.jar").getPath()));
+        assertThat(FileUtils.readFileToString(new File(sandbox, "dest.jar"), UTF_8)).isEqualTo("some content");
     }
 
     @Test
-    public void downloadFileShouldAppendSha1IntoDownloadUrlIfDestFileAlreadyExists() throws IOException {
+    void downloadFileShouldAppendSha1IntoDownloadUrlIfDestFileAlreadyExists() throws IOException {
         File dest = new File(sandbox, "bar.jar");
         Files.write(Paths.get(dest.getPath()), "foobar".getBytes());
         String sha1 = java.net.URLEncoder.encode(FileUtil.sha1Digest(dest), "UTF-8");
@@ -77,7 +75,7 @@ public class DownloadFileCommandExecutorTest extends BuildSessionBasedTestCase {
         runBuild(downloadFile(map(
                 "url", "http://far.far.away/foo.jar",
                 "dest", "bar.jar")), Passed);
-        assertThat(console.output(), containsString("Saved artifact"));
-        assertThat(FileUtils.readFileToString(dest, UTF_8), is("content with sha1"));
+        assertThat(console.output()).contains("Saved artifact");
+        assertThat(FileUtils.readFileToString(dest, UTF_8)).isEqualTo("content with sha1");
     }
 }

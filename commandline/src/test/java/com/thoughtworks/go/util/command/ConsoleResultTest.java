@@ -16,20 +16,20 @@
 
 package com.thoughtworks.go.util.command;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class ConsoleResultTest {
+class ConsoleResultTest {
 
     @Test
     @SuppressWarnings({"ThrowableInstanceNeverThrown"})
-    public void shouldSmudgeExceptionMessagesForNestedExceptions() {
+    void shouldSmudgeExceptionMessagesForNestedExceptions() {
         List<CommandArgument> args = Arrays.asList(new StringArgument("foo"), new PasswordArgument("bar"));
         List<SecretString> secrets = Arrays.asList((SecretString) new PasswordArgument("quux"));
         ConsoleResult result = new ConsoleResult(0, Arrays.asList(" foo ", " bar ", " baz ", " abc "), Arrays.asList(" quux ", " bang "), args, secrets);
@@ -37,30 +37,30 @@ public class ConsoleResultTest {
         Exception topException = new RuntimeException("foo bar abc", innerException);
         Exception exception = result.smudgedException(topException);
 
-        assertThat(exception.getMessage(), is("foo ****** abc"));
-        assertThat(exception, sameInstance(topException));
+        assertThat(exception.getMessage()).isEqualTo("foo ****** abc");
+        assertThat(exception).isSameAs(topException);
 
-        assertThat(exception.getCause().getMessage(), is("baz ****** baz"));
-        assertThat(exception.getCause(), sameInstance(innerException));
+        assertThat(exception.getCause().getMessage()).isEqualTo("baz ****** baz");
+        assertThat(exception.getCause()).isSameAs(innerException);
     }
 
     @Test
-    public void shouldReplaceSecretInfoShouldNotFailForNull() {
+    void shouldReplaceSecretInfoShouldNotFailForNull() {
         ArrayList<CommandArgument> commands = new ArrayList<>();
         commands.add(new PasswordArgument("foo"));
         ArrayList<SecretString> secretStrings = new ArrayList<>();
         secretStrings.add(new PasswordArgument("foo"));
         ConsoleResult result = new ConsoleResult(10, new ArrayList<>(), new ArrayList<>(), commands, secretStrings);
-        assertThat(result.replaceSecretInfo(null), is(nullValue()));
+        assertThat(result.replaceSecretInfo(null)).isNull();
     }
 
     @Test
-    public void shouldDescribeResult() {
+    void shouldDescribeResult() {
         List<CommandArgument> args = Arrays.asList(new StringArgument("foo"), new PasswordArgument("bar"));
         List<SecretString> secrets = Arrays.asList((SecretString) new PasswordArgument("quux"));
         ConsoleResult result = new ConsoleResult(42, Arrays.asList(" foo ", " bar ", " baz ", " abc "), Arrays.asList(" quux ", " bang "), args, secrets);
-        assertThat(result.describe(), containsString("--- EXIT CODE (42) ---"));
-        assertThat(result.describe(), containsString("--- STANDARD OUT ---"));
-        assertThat(result.describe(), containsString("--- STANDARD ERR ---"));
+        assertThat(result.describe()).contains("--- EXIT CODE (42) ---");
+        assertThat(result.describe()).contains("--- STANDARD OUT ---");
+        assertThat(result.describe()).contains("--- STANDARD ERR ---");
     }
 }

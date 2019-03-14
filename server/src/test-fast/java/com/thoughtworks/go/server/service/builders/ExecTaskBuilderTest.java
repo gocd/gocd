@@ -16,36 +16,29 @@
 
 package com.thoughtworks.go.server.service.builders;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.ExecTask;
 import com.thoughtworks.go.domain.NullPipeline;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.File;
 
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
-import static com.thoughtworks.go.util.TestUtils.isSamePath;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-@RunWith(JunitExtRunner.class)
-public class ExecTaskBuilderTest {
+class ExecTaskBuilderTest {
     private UpstreamPipelineResolver resolver;
     private ExecTaskBuilder execTaskBuilder;
     private BuilderFactory builderFactory;
 
-    public static Pipeline pipelineStub(final String label, final String defaultWorkingFolder) {
+    static Pipeline pipelineStub(final String label, final String defaultWorkingFolder) {
         return new NullPipeline() {
             @Override
             public String getLabel() {
@@ -59,34 +52,35 @@ public class ExecTaskBuilderTest {
         };
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         resolver = mock(UpstreamPipelineResolver.class);
         builderFactory = mock(BuilderFactory.class);
         execTaskBuilder = new ExecTaskBuilder();
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         verifyNoMoreInteractions(resolver);
     }
 
-    @Test public void shouldUseProjectDefaultWorkingDirectoryIfNotSpecified() throws Exception {
+    @Test
+    void shouldUseProjectDefaultWorkingDirectoryIfNotSpecified() {
         ExecTask task = new ExecTask("command", "", (String) null);
         final File defaultWorkingDir = new File("foo");
 
         CommandBuilder builder = (CommandBuilder) execTaskBuilder.createBuilder(builderFactory, task, pipelineStub("label", "foo"), resolver);
 
-        assertThat(builder.getWorkingDir(), isSamePath(defaultWorkingDir));
+        assertThat(builder.getWorkingDir()).isEqualTo(defaultWorkingDir);
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldNormalizeWorkingDirectory() throws Exception {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldNormalizeWorkingDirectory() {
         ExecTask execTask = new ExecTask("ant", "", "folder\\child");
 
         CommandBuilder builder = (CommandBuilder) execTaskBuilder.createBuilder(builderFactory, execTask, pipelineStub("label", "."), resolver);
 
-        assertThat(builder.getWorkingDir().getPath(), is("./folder/child"));
+        assertThat(builder.getWorkingDir().getPath()).isEqualTo("./folder/child");
     }
 }

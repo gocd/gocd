@@ -17,19 +17,20 @@
 package com.thoughtworks.go.util.command;
 
 import ch.qos.logback.classic.Level;
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
-import com.googlecode.junit.ext.checkers.OSChecker;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
-import com.thoughtworks.go.util.*;
+import com.thoughtworks.go.util.LogFixture;
+import com.thoughtworks.go.util.ProcessManager;
+import com.thoughtworks.go.util.ProcessWrapper;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -37,14 +38,14 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.regex.Matcher;
 
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-@RunWith(JunitExtRunner.class)
+@EnableRuleMigrationSupport
 public class CommandLineTest {
 
     private static final String DBL_QUOTE = "\"";
@@ -58,8 +59,8 @@ public class CommandLineTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         // Have to call this as it uses another Junit runner which overrides the rule
         temporaryFolder.create();
         subFolder = temporaryFolder.newFolder("subFolder");
@@ -67,13 +68,13 @@ public class CommandLineTest {
         file.setExecutable(true);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() {
         temporaryFolder.delete();
     }
 
     @Test
-    public void testToStringWithSeparator() throws Exception {
+    void testToStringWithSeparator() {
         final String separator = "], [";
         assertEquals("", CommandLine.toString(null, false, separator));
 
@@ -89,7 +90,7 @@ public class CommandLineTest {
     }
 
     @Test
-    public void testToStrings() throws Exception {
+    void testToStrings() {
         final CommandLine cl = CommandLine.createCommandLine(EXEC_WITH_SPACES).withEncoding("utf-8");
 
         cl.withArg(ARG_SPACES_NOQUOTES);
@@ -108,7 +109,7 @@ public class CommandLineTest {
     }
 
     @Test
-    public void testToStringMisMatchedQuote() {
+    void testToStringMisMatchedQuote() {
         final CommandLine cl2 = CommandLine.createCommandLine(EXEC_WITH_SPACES).withEncoding("utf-8");
         final String argWithMismatchedDblQuote = "argMisMatch='singlequoted\"WithMismatchedDblQuote'";
         cl2.withArg(argWithMismatchedDblQuote);
@@ -118,13 +119,13 @@ public class CommandLineTest {
     }
 
     @Test
-    public void shouldReportPasswordsOnTheLogAsStars() {
+    void shouldReportPasswordsOnTheLogAsStars() {
         CommandLine line = CommandLine.createCommandLine("notexist").withArg(new PasswordArgument("secret")).withEncoding("utf-8");
         assertThat(line.toString(), not(containsString("secret")));
     }
 
     @Test
-    public void shouldLogPasswordsOnTheLogAsStars() {
+    void shouldLogPasswordsOnTheLogAsStars() {
         try (LogFixture logFixture = logFixtureFor(ProcessManager.class, Level.DEBUG)) {
             CommandLine line = CommandLine.createCommandLine("notexist").withArg(new PasswordArgument("secret")).withEncoding("utf-8");
             try {
@@ -137,8 +138,8 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldNotLogPasswordsFromStream() {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldNotLogPasswordsFromStream() {
         try (LogFixture logFixture = logFixtureFor(CommandLine.class, Level.DEBUG)) {
             CommandLine line = CommandLine.createCommandLine("/bin/echo").withArg("=>").withArg(new PasswordArgument("secret")).withEncoding("utf-8");
             line.runOrBomb(null);
@@ -148,8 +149,8 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldNotLogPasswordsOnExceptionThrown() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldNotLogPasswordsOnExceptionThrown() throws IOException {
         File dir = temporaryFolder.newFolder();
         File file = new File(dir, "test.sh");
         FileOutputStream out = new FileOutputStream(file);
@@ -165,8 +166,8 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldLogPasswordsOnOutputAsStarsUnderLinux() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldLogPasswordsOnOutputAsStarsUnderLinux() throws IOException {
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("My Password is:")
                 .withArg(new PasswordArgument("secret"))
@@ -181,8 +182,8 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = OSChecker.class, arguments = OSChecker.WINDOWS)
-    public void shouldLogPasswordsOnOutputAsStarsUnderWindows() throws IOException {
+    @EnabledOnOs(OS.WINDOWS)
+    void shouldLogPasswordsOnOutputAsStarsUnderWindows() {
         CommandLine line = CommandLine.createCommandLine("cmd")
                 .withEncoding("utf-8")
                 .withArg("/c")
@@ -199,7 +200,7 @@ public class CommandLineTest {
     }
 
     @Test
-    public void shouldShowPasswordsInToStringForDisplayAsStars() throws IOException {
+    void shouldShowPasswordsInToStringForDisplayAsStars() {
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("My Password is:")
                 .withArg(new PasswordArgument("secret"))
@@ -208,7 +209,7 @@ public class CommandLineTest {
     }
 
     @Test
-    public void shouldShowPasswordsInDescribeAsStars() throws IOException {
+    void shouldShowPasswordsInDescribeAsStars() {
         HashMap<String, String> map = new HashMap<>();
         map.put("password1", "secret");
         map.put("password2", "secret");
@@ -225,8 +226,8 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldLogPasswordsOnEnvironemntAsStarsUnderLinux() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldLogPasswordsOnEnvironemntAsStarsUnderLinux() {
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg("My Password is:")
                 .withArg("secret")
@@ -246,8 +247,8 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldBeAbleToSpecifyEncoding() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldBeAbleToSpecifyEncoding() {
         String chrisWasHere = "?????";
         CommandLine line = CommandLine.createCommandLine("echo")
                 .withArg(chrisWasHere)
@@ -260,8 +261,8 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldBeAbleToRunCommandsInSubdirectories() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldBeAbleToRunCommandsInSubdirectories() throws IOException {
 
         File shellScript = createScript("hello-world.sh", "echo ${PWD}");
         assertThat(shellScript.setExecutable(true), is(true));
@@ -275,8 +276,8 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldBeAbleToRunCommandsInSubdirectoriesWithNoWorkingDir() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldBeAbleToRunCommandsInSubdirectoriesWithNoWorkingDir() throws IOException {
 
         File shellScript = createScript("hello-world.sh", "echo 'Hello World!'");
         assertThat(shellScript.setExecutable(true), is(true));
@@ -290,8 +291,8 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldNotRunLocalCommandsThatAreNotExecutable() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldNotRunLocalCommandsThatAreNotExecutable() throws IOException {
         createScript("echo", "echo 'this should not be here'");
 
         CommandLine line = CommandLine.createCommandLine("echo")
@@ -306,8 +307,8 @@ public class CommandLineTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldBeAbleToRunCommandsFromRelativeDirectories() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldBeAbleToRunCommandsFromRelativeDirectories() throws IOException {
         File shellScript = temporaryFolder.newFile("hello-world.sh");
 
         FileUtils.writeStringToFile(shellScript, "echo ${PWD}", UTF_8);
@@ -329,7 +330,7 @@ public class CommandLineTest {
     }
 
     @Test
-    public void shouldReturnEchoResult() throws Exception {
+    void shouldReturnEchoResult() {
         if (SystemUtils.IS_OS_WINDOWS) {
             ConsoleResult result = CommandLine.createCommandLine("cmd").withEncoding("utf-8").runOrBomb(null);
             assertThat(result.outputAsString(), containsString("Windows"));
@@ -341,14 +342,15 @@ public class CommandLineTest {
         }
     }
 
-    @Test(expected = Exception.class)
-    public void shouldReturnThrowExceptionWhenCommandNotExist() throws Exception {
-        CommandLine.createCommandLine("something").withEncoding("utf-8").runOrBomb(null);
+    @Test
+    void shouldReturnThrowExceptionWhenCommandNotExist() {
+        assertThatCode(() -> CommandLine.createCommandLine("something").withEncoding("utf-8").runOrBomb(null))
+                .isInstanceOf(Exception.class);
 
     }
 
     @Test
-    public void shouldGetTheCommandFromCommandlineAsIs() throws IOException {
+    void shouldGetTheCommandFromCommandlineAsIs() {
         String file = "originalCommand";
         CommandLine command = CommandLine.createCommandLine(file);
         command.setWorkingDir(new File("."));
@@ -357,7 +359,7 @@ public class CommandLineTest {
     }
 
     @Test
-    public void shouldPrefixStderrOutput() {
+    void shouldPrefixStderrOutput() {
         CommandLine line = CommandLine.createCommandLine("git")
                 .withArg("clone")
                 .withArg("https://foo/bar")

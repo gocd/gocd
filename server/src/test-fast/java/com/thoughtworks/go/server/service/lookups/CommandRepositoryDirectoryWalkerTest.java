@@ -16,35 +16,33 @@
 
 package com.thoughtworks.go.server.service.lookups;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.helper.CommandSnippetMother;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.serverhealth.HealthStateLevel;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.junit.*;
+import org.junit.Rule;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
-import org.mockito.ArgumentMatchers;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
-@RunWith(JunitExtRunner.class)
+@EnableRuleMigrationSupport
 public class CommandRepositoryDirectoryWalkerTest {
 
     @Rule
@@ -59,8 +57,8 @@ public class CommandRepositoryDirectoryWalkerTest {
     private File docFile;
     private File sampleDir;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         temporaryFolder.create();
         hiddenFolder = temporaryFolder.newFolder(".hidden");
         visibleReadableFolder = temporaryFolder.newFolder("visible");
@@ -72,45 +70,45 @@ public class CommandRepositoryDirectoryWalkerTest {
         sampleDir = temporaryFolder.newFolder("sampleDir");
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         temporaryFolder.delete();
         sampleDir.delete();
     }
 
     @Test
-    public void shouldIgnoreAllUnixStyleHiddenDirectoriesAndShouldNotUpdateServerHealth() throws IOException {
-        assertThat(walker.handleDirectory(hiddenFolder, 0, new ArrayList()), is(false));
+    void shouldIgnoreAllUnixStyleHiddenDirectoriesAndShouldNotUpdateServerHealth() {
+        assertThat(walker.handleDirectory(hiddenFolder, 0, new ArrayList())).isFalse();
         verify(serverHealthService, never()).update(any(ServerHealthState.class));
     }
 
     @Test
-    public void shouldProcessADirectoryWithReadAccess() throws IOException {
-        assertThat(walker.handleDirectory(visibleReadableFolder, 0, new ArrayList()), is(true));
+    void shouldProcessADirectoryWithReadAccess() {
+        assertThat(walker.handleDirectory(visibleReadableFolder, 0, new ArrayList())).isTrue();
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldIgnoreFoldersForWhichUsersDoNotHaveReadAccess() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldIgnoreFoldersForWhichUsersDoNotHaveReadAccess() {
         folderWithNoReadAccess.setReadable(false);
-        assertThat(walker.handleDirectory(folderWithNoReadAccess, 0, new ArrayList()), is(false));
+        assertThat(walker.handleDirectory(folderWithNoReadAccess, 0, new ArrayList())).isFalse();
     }
 
     @Test
-    public void shouldProcessXmlFiles() throws IOException {
+    void shouldProcessXmlFiles() throws IOException {
         FileUtils.writeStringToFile(xmlFile, CommandSnippetMother.validXMLSnippetContentForCommand("MsBuild"), UTF_8);
         ArrayList results = new ArrayList();
         walker.handleFile(xmlFile, 0, results);
-        assertThat(results.size(), is(1));
+        assertThat(results.size()).isEqualTo(1);
 
         CommandSnippet snippet = (CommandSnippet) results.get(0);
-        Assert.assertThat(snippet.getBaseFileName(), is("foo"));
-        Assert.assertThat(snippet.getCommandName(), is("MsBuild"));
-        Assert.assertThat(snippet.getArguments(), is(Arrays.asList("pack", "component.nuspec")));
+        assertThat(snippet.getBaseFileName()).isEqualTo("foo");
+        assertThat(snippet.getCommandName()).isEqualTo("MsBuild");
+        assertThat(snippet.getArguments()).isEqualTo(Arrays.asList("pack", "component.nuspec"));
     }
 
     @Test
-    public void shouldProcessXmlFilesInsideCommandRepo() throws Exception {
+    void shouldProcessXmlFilesInsideCommandRepo() throws Exception {
         File command_repo = temporaryFolder.newFolder("command-repo");
         File windows = new File(command_repo, "windows");
         windows.mkdirs();
@@ -119,20 +117,19 @@ public class CommandRepositoryDirectoryWalkerTest {
         CommandSnippets results = walker.getAllCommandSnippets(command_repo.getPath());
 
         String expectedRelativePath = "/windows/msbuild.xml".replace('/', File.separatorChar);
-        assertThat(results,
-                is(new CommandSnippets(Arrays.asList(new CommandSnippet("MsBuild", Arrays.asList("pack", "component.nuspec"), new EmptySnippetComment(), "msbuild", expectedRelativePath)))));
+        assertThat(results).isEqualTo(new CommandSnippets(Arrays.asList(new CommandSnippet("MsBuild", Arrays.asList("pack", "component.nuspec"), new EmptySnippetComment(), "msbuild", expectedRelativePath))));
     }
 
     @Test
-    public void shouldIgnoreNonXmlFiles() throws IOException {
+    void shouldIgnoreNonXmlFiles() {
         ArrayList results = new ArrayList();
         walker.handleFile(docFile, 0, results);
-        assertThat(results.isEmpty(), is(true));
+        assertThat(results.isEmpty()).isTrue();
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldUpdateServerHealthServiceIfTheCommandRepositoryDirectoryIsUnReadable() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldUpdateServerHealthServiceIfTheCommandRepositoryDirectoryIsUnReadable() {
         sampleDir.setReadable(false);
 
         walker.getAllCommandSnippets(sampleDir.getPath());
@@ -142,8 +139,8 @@ public class CommandRepositoryDirectoryWalkerTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldUpdateServerHealthServiceIfTheCommandRepositoryDirectoryIsNotExecutable() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldUpdateServerHealthServiceIfTheCommandRepositoryDirectoryIsNotExecutable() {
         sampleDir.setReadable(true);
         sampleDir.setExecutable(false);
 
@@ -154,8 +151,8 @@ public class CommandRepositoryDirectoryWalkerTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldUpdateServerHealthServiceIfTheCommandRepositoryDirectoryDoesNotExist() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldUpdateServerHealthServiceIfTheCommandRepositoryDirectoryDoesNotExist() {
         File nonExistentDirectory = new File("dirDoesNotExist");
         walker.getAllCommandSnippets(nonExistentDirectory.getPath());
 
@@ -164,8 +161,8 @@ public class CommandRepositoryDirectoryWalkerTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldUpdateServerHealthServiceIfTheCommandRepositoryDirectoryIsUnReadableAndRemoveItOnceItsReadable() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldUpdateServerHealthServiceIfTheCommandRepositoryDirectoryIsUnReadableAndRemoveItOnceItsReadable() {
         sampleDir.setReadable(false);
         walker.getAllCommandSnippets(sampleDir.getPath());
 
@@ -180,8 +177,8 @@ public class CommandRepositoryDirectoryWalkerTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldUpdateServerHealthServiceIfACommandSnippetXMLIsUnReadableAndRemoveItOnceItsReadable() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldUpdateServerHealthServiceIfACommandSnippetXMLIsUnReadableAndRemoveItOnceItsReadable() throws IOException {
         File dirWithUnreadableFile = temporaryFolder.newFolder("dirWithUnreadableFile");
         File unreadableFile = new File(dirWithUnreadableFile, "unreadable.xml");
         FileUtils.copyFile(xmlFile, unreadableFile);
@@ -200,8 +197,8 @@ public class CommandRepositoryDirectoryWalkerTest {
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldUpdateServerHealthServiceIfTheCommandRepositoryDirectoryIsActuallyAFile() throws IOException {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldUpdateServerHealthServiceIfTheCommandRepositoryDirectoryIsActuallyAFile() throws IOException {
         walker.getAllCommandSnippets(xmlFile.getPath());
 
         verify(serverHealthService).update(serverHealthWarningMessageWhichContains("Failed to access command repository located in Go Server Directory at " + xmlFile.getPath() +
@@ -230,7 +227,7 @@ public class CommandRepositoryDirectoryWalkerTest {
 
                 boolean isTheMessageWeHaveBeenWaitingFor = description.contains(expectedPartOfMessage);
                 if (isTheMessageWeHaveBeenWaitingFor) {
-                    assertThat(o.getLogLevel(), is(HealthStateLevel.WARNING));
+                    assertThat(o.getLogLevel()).isEqualTo(HealthStateLevel.WARNING);
                 }
                 return isTheMessageWeHaveBeenWaitingFor;
             }

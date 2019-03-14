@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.buildsession;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -26,90 +26,89 @@ import static com.thoughtworks.go.domain.BuildCommand.*;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobState.*;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class BuildSessionTest extends BuildSessionBasedTestCase {
+class BuildSessionTest extends BuildSessionBasedTestCase {
     @Test
-    public void resolveRelativeDir() throws IOException {
+    void resolveRelativeDir() {
         BuildSession buildSession = newBuildSession();
-        assertThat(buildSession.resolveRelativeDir("foo"), is(new File(sandbox, "foo")));
-        assertThat(buildSession.resolveRelativeDir("foo", "bar"), is(new File(sandbox, "foo/bar")));
-        assertThat(buildSession.resolveRelativeDir("", "bar"), is(new File(sandbox, "bar")));
+        assertThat(buildSession.resolveRelativeDir("foo")).isEqualTo(new File(sandbox, "foo"));
+        assertThat(buildSession.resolveRelativeDir("foo", "bar")).isEqualTo(new File(sandbox, "foo/bar"));
+        assertThat(buildSession.resolveRelativeDir("", "bar")).isEqualTo(new File(sandbox, "bar"));
     }
 
     @Test
-    public void echoCommandAppendContentToConsole() {
+    void echoCommandAppendContentToConsole() {
         runBuild(echo("o1o2"), Passed);
-        assertThat(console.asList(), is(Collections.singletonList("o1o2")));
+        assertThat(console.asList()).isEqualTo(Collections.singletonList("o1o2"));
     }
 
     @Test
-    public void testReportCurrentStatus() {
+    void testReportCurrentStatus() {
         runBuild(compose(
                 reportCurrentStatus(Preparing),
                 reportCurrentStatus(Building),
                 reportCurrentStatus(Completing)), Passed);
-        assertThat(statusReporter.status(), is(Arrays.asList(Preparing, Building, Completing, Completed)));
+        assertThat(statusReporter.status()).isEqualTo(Arrays.asList(Preparing, Building, Completing, Completed));
     }
 
     @Test
-    public void testReportCompleting() {
+    void testReportCompleting() {
         runBuild(reportCompleting(), Passed);
-        assertThat(statusReporter.results(), is(Arrays.asList(Passed, Passed)));
+        assertThat(statusReporter.results()).isEqualTo(Arrays.asList(Passed, Passed));
     }
 
     @Test
-    public void resultShouldBeFailedWhenCommandFailed() {
+    void resultShouldBeFailedWhenCommandFailed() {
         runBuild(fail("force build failure"), Failed);
-        assertThat(statusReporter.singleResult(), is(Failed));
+        assertThat(statusReporter.singleResult()).isEqualTo(Failed);
     }
 
     @Test
-    public void forceBuildFailWithMessage() {
+    void forceBuildFailWithMessage() {
         runBuild(fail("force failure"), Failed);
-        assertThat(console.output(), is("force failure"));
+        assertThat(console.output()).isEqualTo("force failure");
     }
 
     @Test
-    public void composeRunAllSubCommands() {
+    void composeRunAllSubCommands() {
         runBuild(compose(echo("hello"), echo("world")), Passed);
-        assertThat(console.asList(), is(Arrays.asList("hello", "world")));
+        assertThat(console.asList()).isEqualTo(Arrays.asList("hello", "world"));
     }
 
     @Test
-    public void shouldNotRunCommandWithRunIfFailedIfBuildIsPassing() {
+    void shouldNotRunCommandWithRunIfFailedIfBuildIsPassing() {
         runBuild(compose(
                 echo("on pass"),
                 echo("on failure").runIf("failed")), Passed);
-        assertThat(console.asList(), is(Collections.singletonList("on pass")));
+        assertThat(console.asList()).isEqualTo(Collections.singletonList("on pass"));
     }
 
     @Test
-    public void shouldRunCommandWithRunIfFailedIfBuildIsFailed() {
+    void shouldRunCommandWithRunIfFailedIfBuildIsFailed() {
         runBuild(compose(
                 fail("force failure"),
                 echo("on failure").runIf("failed")), Failed);
-        assertThat(console.lastLine(), is("on failure"));
+        assertThat(console.lastLine()).isEqualTo("on failure");
     }
 
     @Test
-    public void shouldRunCommandWithRunIfAnyRegardlessOfBuildResult() {
+    void shouldRunCommandWithRunIfAnyRegardlessOfBuildResult() {
         runBuild(compose(
                 echo("foo"),
                 echo("on passing").runIf("any"),
                 fail("force failure"),
                 echo("on failure").runIf("any")), Failed);
-        assertThat(console.asList(), is(Arrays.asList("foo", "on passing", "force failure", "on failure")));
+        assertThat(console.asList()).isEqualTo(Arrays.asList("foo", "on passing", "force failure", "on failure"));
     }
 
 
     @Test
-    public void echoWithBuildVariableSubstitution() {
+    void echoWithBuildVariableSubstitution() {
         runBuild(echo("hello ${test.foo}"), Passed);
-        assertThat(console.lastLine(), is("hello ${test.foo}"));
+        assertThat(console.lastLine()).isEqualTo("hello ${test.foo}");
         buildVariables.put("test.foo", "world");
         runBuild(echo("hello ${test.foo}"), Passed);
-        assertThat(console.lastLine(), is("hello world"));
+        assertThat(console.lastLine()).isEqualTo("hello world");
     }
 }

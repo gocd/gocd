@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ dependencies {
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
   testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
   testCompile group: 'org.mockito', name: 'mockito-core', version: project.versions.mockito
+  testCompile group: 'org.assertj', name: 'assertj-core', version: project.versions.assertJ
 }
 
 jar {

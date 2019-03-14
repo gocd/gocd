@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,30 +16,25 @@
 
 package com.thoughtworks.go.plugin.infra.monitor;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
-import com.googlecode.junit.ext.checkers.OSChecker;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 
 import java.io.File;
 
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.util.SystemEnvironment.*;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(JunitExtRunner.class)
-@RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON,  OSChecker.WINDOWS})
+@DisabledOnOs(OS.WINDOWS)
 public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
 
     private DefaultPluginJarLocationMonitor monitor;
@@ -51,7 +46,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     @Mock
     private PluginJarChangeListener changeListener;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         temporaryFolder.create();
@@ -69,21 +64,21 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
         monitor.initialize();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    public void tearDown() throws Exception
+    {
         monitor.stop();
         super.tearDown();
     }
-
     @Test
-    public void shouldCreatePluginDirectoryIfItDoesNotExist() throws Exception {
+    void shouldCreatePluginDirectoryIfItDoesNotExist() {
         bundledPluginDir.delete();
         new DefaultPluginJarLocationMonitor(systemEnvironment).initialize();
-        assertThat(bundledPluginDir.exists(), is(true));
+        assertThat(bundledPluginDir.exists()).isTrue();
     }
 
     @Test
-    public void shouldNotFailIfNoListenerIsPresentWhenAPluginJarIsAdded() throws Exception {
+    void shouldNotFailIfNoListenerIsPresentWhenAPluginJarIsAdded() throws Exception {
         copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin.jar");
         monitor.start();
 
@@ -93,7 +88,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldDetectNewlyAddedPluginJar() throws Exception {
+    void shouldDetectNewlyAddedPluginJar() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -105,7 +100,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldDetectOnlyJarsAsNewPlugins() throws Exception {
+    void shouldDetectOnlyJarsAsNewPlugins() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -116,7 +111,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldRunOnlyOnceWhenIntervalIsLessThanZero() throws Exception {
+    void shouldRunOnlyOnceWhenIntervalIsLessThanZero() throws Exception {
         when(systemEnvironment.get(PLUGIN_LOCATION_MONITOR_INTERVAL_IN_SECONDS)).thenReturn(-1);
 
         monitor.addPluginJarChangeListener(changeListener);
@@ -132,7 +127,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldDetectRemovedPluginJar() throws Exception {
+    void shouldDetectRemovedPluginJar() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
         copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin.jar");
@@ -147,7 +142,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldNotifyListenerOfMultiplePluginFilesAdded() throws Exception {
+    void shouldNotifyListenerOfMultiplePluginFilesAdded() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -165,7 +160,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldNotifyListenerOfMultiplePluginFilesAddedEvenIfOneListenerThrowsAnException() throws Exception {
+    void shouldNotifyListenerOfMultiplePluginFilesAddedEvenIfOneListenerThrowsAnException() throws Exception {
         PluginJarChangeListener exceptionRasingListener = mock(PluginJarChangeListener.class);
         doThrow(new RuntimeException("Dummy Listener Exception")).when(exceptionRasingListener).pluginJarAdded(any(PluginFileDetails.class));
         monitor.addPluginJarChangeListener(exceptionRasingListener);
@@ -190,7 +185,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldNotifyListenerOfMultiplePluginFilesRemoved() throws Exception {
+    void shouldNotifyListenerOfMultiplePluginFilesRemoved() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -215,7 +210,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldNotifyRemoveEventBeforeAddEventInCaseOfFileRename() throws Exception {
+    void shouldNotifyRemoveEventBeforeAddEventInCaseOfFileRename() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -236,7 +231,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldNotifyListenersOfUpdatesToPluginJars() throws Exception {
+    void shouldNotifyListenersOfUpdatesToPluginJars() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
         copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin.jar");
@@ -251,7 +246,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldCreatePluginZipIfPluginJarIsAdded() throws Exception {
+    void shouldCreatePluginZipIfPluginJarIsAdded() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
         copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin.jar");
@@ -260,7 +255,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldCreatePluginZipIfPluginJarIsRemoved() throws Exception {
+    void shouldCreatePluginZipIfPluginJarIsRemoved() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
         String pluginJar = "descriptor-aware-test-plugin.jar";
@@ -274,7 +269,7 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldCreatePluginZipIfPluginJarIsUpdated() throws Exception {
+    void shouldCreatePluginZipIfPluginJarIsUpdated() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -289,14 +284,14 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldNotCreatePluginZipIfPluginJarIsNeitherUpdatedNorAddedOrRemoved() throws Exception {
+    void shouldNotCreatePluginZipIfPluginJarIsNeitherUpdatedNorAddedOrRemoved() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
         waitUntilNextRun(monitor);
     }
 
     @Test
-    public void shouldNotSendAnyNotificationsToAListenerWhichHasBeenRemoved() throws Exception {
+    void shouldNotSendAnyNotificationsToAListenerWhichHasBeenRemoved() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
         copyPluginToThePluginDirectory(bundledPluginDir, "descriptor-aware-test-plugin-1.jar");
@@ -311,13 +306,13 @@ public class DefaultPluginJarLocationMonitorTest extends AbstractDefaultPluginJa
     }
 
     @Test
-    public void shouldNotAllowMonitorToBeStartedMultipleTimes() throws Exception {
+    void shouldNotAllowMonitorToBeStartedMultipleTimes() throws Exception {
         try {
             monitor.start();
             monitor.start();
             fail("Expected an IllegalStateException.");
         } catch (IllegalStateException e) {
-            assertEquals("Cannot start the monitor multiple times.", e.getMessage());
+            assertThat(e.getMessage()).isEqualTo("Cannot start the monitor multiple times.");
         }
     }
 }

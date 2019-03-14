@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,130 +16,125 @@
 
 package com.thoughtworks.go.server.service.builders;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.NantTask;
 import com.thoughtworks.go.domain.NullPipeline;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.File;
 
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-@RunWith(JunitExtRunner.class)
-public class NantTaskBuilderTest {
-    Pipeline pipeline = new NullPipeline();
+class NantTaskBuilderTest {
+    private Pipeline pipeline = new NullPipeline();
     private UpstreamPipelineResolver resolver;
     private NantTaskBuilder nantTaskBuilder;
     private BuilderFactory builderFactory;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         resolver = mock(UpstreamPipelineResolver.class);
         builderFactory = mock(BuilderFactory.class);
         nantTaskBuilder = new NantTaskBuilder();
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         verifyNoMoreInteractions(resolver);
     }
 
     @Test
-    public void shouldSetTargetWhenTargetIsSpecified() throws Exception {
+    void shouldSetTargetWhenTargetIsSpecified() {
         NantTask nantTask = new NantTask();
         nantTask.setTarget("unit-test");
         CommandBuilder commandBuilder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, pipeline, resolver);
-        assertThat(commandBuilder.getArgs(), is("unit-test"));
+        assertThat(commandBuilder.getArgs()).isEqualTo("unit-test");
     }
 
     @Test
-    public void shouldUseDefaultWorkingDirectoryByDefault() throws Exception {
+    void shouldUseDefaultWorkingDirectoryByDefault() {
         NantTask nantTask = new NantTask();
         CommandBuilder commandBuilder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, ExecTaskBuilderTest.pipelineStub("label", "/cruise"), resolver);
-        assertThat(commandBuilder.getWorkingDir(), is(new File("/cruise")));
+        assertThat(commandBuilder.getWorkingDir()).isEqualTo(new File("/cruise"));
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldUseAbsoluteNantPathIfAbsoluteNantPathIsSpecifiedOnLinux() throws Exception {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldUseAbsoluteNantPathIfAbsoluteNantPathIsSpecifiedOnLinux() {
         NantTask nantTask = new NantTask();
         nantTask.setNantPath("/usr/bin");
 
         CommandBuilder builder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, pipeline, resolver);
-        assertThat(new File(builder.getCommand()), is(new File("/usr/bin/nant")));
+        assertThat(new File(builder.getCommand())).isEqualTo(new File("/usr/bin/nant"));
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
-    public void shouldUseAbsoluteNantPathIfAbsoluteNantPathIsSpecifiedOnWindows() throws Exception {
+    @EnabledOnOs(OS.WINDOWS)
+    void shouldUseAbsoluteNantPathIfAbsoluteNantPathIsSpecifiedOnWindows() {
         NantTask nantTask = new NantTask();
         nantTask.setNantPath("c:\\nantdir");
 
         CommandBuilder builder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, pipeline, resolver);
-        assertThat(new File(builder.getCommand()), is(new File("c:\\nantdir\\nant")));
+        assertThat(new File(builder.getCommand())).isEqualTo(new File("c:\\nantdir\\nant"));
     }
 
     @Test
-    public void shouldJoinNantPathWithWorkingDirectoryIfRelativeNantPathIsSpecified() throws Exception {
+    void shouldJoinNantPathWithWorkingDirectoryIfRelativeNantPathIsSpecified() {
         NantTask nantTask = new NantTask();
         nantTask.setNantPath("lib");
 
         CommandBuilder builder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, pipeline, resolver);
-        assertThat(new File(builder.getCommand()), is(new File("lib/nant")));
+        assertThat(new File(builder.getCommand())).isEqualTo(new File("lib/nant"));
     }
 
     @Test
-    public void shouldDealWithSpacesInNantPath() throws Exception {
+    void shouldDealWithSpacesInNantPath() {
         NantTask nantTask = new NantTask();
         nantTask.setNantPath("lib/nant 1.0");
         nantTask.setBuildFile("ccnet default.build");
 
         CommandBuilder builder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, pipeline, resolver);
-        assertThat(new File(builder.getCommand()), is(new File("lib/nant 1.0/nant")));
-        assertThat(builder.getArgs(), is("-buildfile:\"ccnet default.build\""));
+        assertThat(new File(builder.getCommand())).isEqualTo(new File("lib/nant 1.0/nant"));
+        assertThat(builder.getArgs()).isEqualTo("-buildfile:\"ccnet default.build\"");
     }
 
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void nantTaskShouldNormalizeWorkingDirectory() throws Exception {
+    @DisabledOnOs(OS.WINDOWS)
+    void nantTaskShouldNormalizeWorkingDirectory() {
         NantTask nantTask = new NantTask();
         nantTask.setWorkingDirectory("folder1\\folder2");
         CommandBuilder builder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, nantTask, ExecTaskBuilderTest.pipelineStub("label", "/var/cruise-agent/pipelines/cruise"), resolver);
-        assertThat(builder.getWorkingDir(), is(new File("/var/cruise-agent/pipelines/cruise/folder1/folder2")));
+        assertThat(builder.getWorkingDir()).isEqualTo(new File("/var/cruise-agent/pipelines/cruise/folder1/folder2"));
     }
 
     @Test
-    public void shouldSetNAntWorkingDirectoryAbsolutelyIfSpecified() throws Exception {
+    void shouldSetNAntWorkingDirectoryAbsolutelyIfSpecified() {
         final File absoluteFile = new File("project").getAbsoluteFile();
         NantTask task = new NantTask();
         task.setWorkingDirectory(absoluteFile.getPath());
 
         CommandBuilder builder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, task, pipeline, resolver);
-        assertThat(builder.getWorkingDir(), is(absoluteFile));
+        assertThat(builder.getWorkingDir()).isEqualTo(absoluteFile);
     }
 
     @Test
-    public void nantTaskShouldNormalizeBuildFile() throws Exception {
+    void nantTaskShouldNormalizeBuildFile() {
         NantTask task = new NantTask();
         task.setBuildFile("pavan\\build.xml");
 
         CommandBuilder builder = (CommandBuilder) nantTaskBuilder.createBuilder(builderFactory, task, pipeline, resolver);
 
-        assertThat(builder.getArgs(), is("-buildfile:\"pavan/build.xml\""));
+        assertThat(builder.getArgs()).isEqualTo("-buildfile:\"pavan/build.xml\"");
     }
 
 }

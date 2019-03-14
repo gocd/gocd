@@ -16,32 +16,27 @@
 
 package com.thoughtworks.go.server.database;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.junitext.DatabaseChecker;
+import com.thoughtworks.go.junit5.EnableIfH2;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(JunitExtRunner.class)
-public class H2ServerDatabaseTest {
+class H2ServerDatabaseTest {
 
     private H2Database h2Database;
     private DatabaseFixture dbFixture;
     private SystemEnvironment env;
 
-    @Before
-    public void copyDatabaseDirectory() throws IOException, SQLException {
+    @BeforeEach
+    void copyDatabaseDirectory() throws IOException, SQLException {
         dbFixture = new DatabaseFixture();
         dbFixture.copyH2Db();
 
@@ -57,8 +52,8 @@ public class H2ServerDatabaseTest {
         h2Database.startDatabase();
     }
 
-    @After
-    public void deleteTempDbDirectory() throws IOException, SQLException {
+    @AfterEach
+    void deleteTempDbDirectory() throws IOException, SQLException {
         h2Database.shutdown();
         try {
             dbFixture.tearDown();
@@ -69,23 +64,23 @@ public class H2ServerDatabaseTest {
     }
 
     @Test
-    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
-    public void shouldBeAbleToStartANewDatabase() throws SQLException {
+    @EnableIfH2
+    void shouldBeAbleToStartANewDatabase() throws SQLException {
         h2Database.startDatabase();
         assertDatabaseIsUp(h2Database);
     }
 
     @Test
-    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
-    public void shouldNotCrashIfStartTwice() throws SQLException {
+    @EnableIfH2
+    void shouldNotCrashIfStartTwice() throws SQLException {
         h2Database.startDatabase();
         h2Database.startDatabase();
         assertDatabaseIsUp(h2Database);
     }
 
     @Test
-    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
-    public void shouldDetectAlreadyRunningServer() throws SQLException {
+    @EnableIfH2
+    void shouldDetectAlreadyRunningServer() throws SQLException {
         h2Database.startDatabase();
 
         H2Database h2Database2 = new H2Database(env);
@@ -96,7 +91,7 @@ public class H2ServerDatabaseTest {
     private void assertDatabaseIsUp(H2Database db) throws SQLException {
         Connection connection = db.createDataSource().getConnection();
         ResultSet set = connection.getMetaData().getTables(null, null, null, null);
-        assertThat(set.next(), is(true));
+        assertThat(set.next()).isTrue();
     }
 
 }

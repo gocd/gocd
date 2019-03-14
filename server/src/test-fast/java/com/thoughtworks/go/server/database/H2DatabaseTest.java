@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,13 @@
 
 package com.thoughtworks.go.server.database;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.database.Database;
-import com.thoughtworks.go.junitext.DatabaseChecker;
+import com.thoughtworks.go.junit5.EnableIfH2;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.dbcp2.BasicDataSource;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,16 +38,14 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@RunWith(JunitExtRunner.class)
-@RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
-public class H2DatabaseTest {
+class H2DatabaseTest {
     private H2Database h2Database;
     private DatabaseFixture dbFixture;
 
-    @Before
-    public void copyDatabaseDirectory() throws IOException {
-        System.setProperty("db.maxActive","20");
-        System.setProperty("db.maxIdle","10");
+    @BeforeEach
+    void copyDatabaseDirectory() throws IOException {
+        System.setProperty("db.maxActive", "20");
+        System.setProperty("db.maxIdle", "10");
         dbFixture = new DatabaseFixture();
         dbFixture.copyH2Db();
         SystemEnvironment env = dbFixture.env();
@@ -59,8 +54,8 @@ public class H2DatabaseTest {
         h2Database.startDatabase();
     }
 
-    @After
-    public void deleteTempDbDirectory() throws IOException, SQLException {
+    @AfterEach
+    void deleteTempDbDirectory() throws IOException, SQLException {
         h2Database.shutdown();
         try {
             Thread.sleep(2000);
@@ -70,7 +65,7 @@ public class H2DatabaseTest {
     }
 
     @Test
-    public void shouldBeAbleToStartANewDatabase() throws SQLException {
+    void shouldBeAbleToStartANewDatabase() throws SQLException {
         h2Database.startDatabase();
 
         Connection connection = h2Database.createDataSource().getConnection();
@@ -79,7 +74,7 @@ public class H2DatabaseTest {
     }
 
     @Test
-    public void shouldUpgradeDatabase() throws SQLException {
+    void shouldUpgradeDatabase() throws SQLException {
         h2Database.shutdown();
         h2Database.startDatabase();
         BasicDataSource dataSource = h2Database.createDataSource();
@@ -94,7 +89,7 @@ public class H2DatabaseTest {
     }
 
     @Test
-    public void shouldMigrateBuildbufferToTextColumn() throws SQLException, IOException {
+    void shouldMigrateBuildbufferToTextColumn() throws SQLException, IOException {
         h2Database.startDatabase();
         h2Database.upgrade();
 
@@ -104,7 +99,7 @@ public class H2DatabaseTest {
     }
 
     @Test
-    public void shouldPopulateModificationTablePipelineIdWithTheCorrectPipeline_CaseInSensitiveIssue() throws Exception {
+    void shouldPopulateModificationTablePipelineIdWithTheCorrectPipeline_CaseInSensitiveIssue() throws Exception {
         dbFixture.copyDeltas();
         dbFixture.copyH2Db("migration84_test_db.zip");
         H2Database database = new H2Database(dbFixture.env());
@@ -123,7 +118,7 @@ public class H2DatabaseTest {
     }
 
     @Test
-    public void shouldUseMVCCWhenRunning() throws Exception {
+    void shouldUseMVCCWhenRunning() throws Exception {
         h2Database.startDatabase();
         h2Database.upgrade();
 
@@ -132,7 +127,7 @@ public class H2DatabaseTest {
     }
 
     @Test
-    public void shouldBackupDatabase() throws Exception {
+    void shouldBackupDatabase() throws Exception {
         File destDir = new File(".");
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         Database database = new H2Database(systemEnvironment);
@@ -151,7 +146,7 @@ public class H2DatabaseTest {
     }
 
     @Test
-    public void shouldThrowUpWhenBackupFails() throws Exception {
+    void shouldThrowUpWhenBackupFails() throws Exception {
         File destDir = new File(".");
         SystemEnvironment systemEnvironment = mock(SystemEnvironment.class);
         Database database = new H2Database(systemEnvironment);
@@ -174,27 +169,27 @@ public class H2DatabaseTest {
     }
 
     @Test
-    public void shouldUseParamterizedActiveAndIdleConnections() throws Exception {
+    void shouldUseParamterizedActiveAndIdleConnections() {
         BasicDataSource dataSource = h2Database.createDataSource();
-        assertThat(dataSource.getMaxTotal(),is(20));
-        assertThat(dataSource.getMaxIdle(),is(10));
+        assertThat(dataSource.getMaxTotal(), is(20));
+        assertThat(dataSource.getMaxIdle(), is(10));
     }
 
     @Test
-    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
-    public void shouldGetDialect() throws Exception {
+    @EnableIfH2
+    void shouldGetDialect() {
         assertThat(h2Database.dialectForHibernate(), is(H2Database.DIALECT_H2));
     }
 
     @Test
-    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
-    public void shouldGetDatabaseType() throws Exception {
+    @EnableIfH2
+    void shouldGetDatabaseType() {
         assertThat(h2Database.getType(), is("h2"));
     }
 
     @Test
-    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
-    public void shouldGetDatabaseSpecificIbatisConfigXmlLocation() throws Exception {
+    @EnableIfH2
+    void shouldGetDatabaseSpecificIbatisConfigXmlLocation() {
         assertThat(h2Database.getIbatisConfigXmlLocation(), nullValue());
     }
 }

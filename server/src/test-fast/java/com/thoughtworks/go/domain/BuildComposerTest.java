@@ -312,14 +312,14 @@ class BuildComposerTest extends BuildSessionBasedTestCase {
     @Test
     void shouldRunTasksBasedOnConditions() throws Exception {
         build(MULTIPLE_TASKS, PIPELINE_NAME, true, false);
-        assertThat(console.output()).contains("run when status is failed");
-        assertConsoleOut(console.output()).printedExcRunIfInfo("command-not-found", "passed");
-        assertThat(console.output()).contains("run when status is any");
-        assertConsoleOut(console.output()).printedExcRunIfInfo("echo", "run when status is any", "failed");
-        assertThat(console.output()).doesNotContain("run when status is passed");
-        assertConsoleOut(console.output()).not().printedExcRunIfInfo("echo", "run when status is passed", "failed");
-        assertThat(console.output()).doesNotContain("run when status is cancelled");
-        assertConsoleOut(console.output()).not().printedExcRunIfInfo("echo", "run when status is cancelled", "failed");
+        assertConsoleOut(console.output()).contains("run when status is failed")
+                .printedExcRunIfInfo("command-not-found", "passed")
+                .contains("run when status is any")
+                .printedExcRunIfInfo("echo", "run when status is any", "failed")
+                .doesNotContain("run when status is passed")
+                .doesNotContainExcRunIfInfo("echo", "run when status is passed", "failed")
+                .doesNotContain("run when status is cancelled")
+                .doesNotContainExcRunIfInfo("echo", "run when status is cancelled", "failed");
     }
 
     @Test

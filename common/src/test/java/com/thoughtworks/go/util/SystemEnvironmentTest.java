@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,503 +17,499 @@
 package com.thoughtworks.go.util;
 
 import ch.qos.logback.classic.Level;
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.junitext.DatabaseChecker;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.thoughtworks.go.junit5.EnableIfH2;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.Properties;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@RunWith(JunitExtRunner.class)
-public class SystemEnvironmentTest {
-    static final Cloner CLONER = new Cloner();
+class SystemEnvironmentTest {
+    private static final Cloner CLONER = new Cloner();
     private Properties original;
     private SystemEnvironment systemEnvironment;
 
-    @Before
-    public void before() {
+    @BeforeEach
+    void before() {
         original = CLONER.deepClone(System.getProperties());
         systemEnvironment = new SystemEnvironment();
     }
 
-    @After
-    public void after() {
+    @AfterEach
+    void after() {
         System.setProperties(original);
         new SystemEnvironment().reset(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE);
     }
 
     @Test
-    public void shouldDisableNewFeaturesByDefault() {
-        assertThat(systemEnvironment.isFeatureEnabled("cruise.experimental.feature.some-feature"), is(false));
+    void shouldDisableNewFeaturesByDefault() {
+        assertThat(systemEnvironment.isFeatureEnabled("cruise.experimental.feature.some-feature")).isFalse();
     }
 
     @Test
-    public void shouldBeAbletoEnableAllNewFeatures() {
+    void shouldBeAbletoEnableAllNewFeatures() {
         Properties properties = new Properties();
         properties.setProperty(SystemEnvironment.CRUISE_EXPERIMENTAL_ENABLE_ALL, "true");
         SystemEnvironment systemEnvironment = new SystemEnvironment(properties);
-        assertThat(systemEnvironment.isFeatureEnabled("cruise.experimental.feature.some-feature"), is(true));
+        assertThat(systemEnvironment.isFeatureEnabled("cruise.experimental.feature.some-feature")).isTrue();
     }
 
     @Test
-    public void shouldFindJettyConfigInTheConfigDir() {
-        assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty.xml")));
+    void shouldFindJettyConfigInTheConfigDir() {
+        assertThat(systemEnvironment.getJettyConfigFile()).isEqualTo(new File(systemEnvironment.getConfigDir(), "jetty.xml"));
         systemEnvironment.set(SystemEnvironment.JETTY_XML_FILE_NAME, "jetty-old.xml");
-        assertThat(systemEnvironment.getJettyConfigFile(), is(new File(systemEnvironment.getConfigDir(), "jetty-old.xml")));
+        assertThat(systemEnvironment.getJettyConfigFile()).isEqualTo(new File(systemEnvironment.getConfigDir(), "jetty-old.xml"));
     }
 
     @Test
-    public void shouldUnderstandOperatingSystem() {
-        assertThat(systemEnvironment.getOperatingSystemName(), is(System.getProperty("os.name")));
+    void shouldUnderstandOperatingSystem() {
+        assertThat(systemEnvironment.getOperatingSystemName()).isEqualTo(System.getProperty("os.name"));
     }
 
 
     @Test
-    public void shouldUnderstandWetherToUseCompressedJs() throws Exception {
-        assertThat(systemEnvironment.useCompressedJs(), is(true));
+    void shouldUnderstandWetherToUseCompressedJs() {
+        assertThat(systemEnvironment.useCompressedJs()).isTrue();
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.FALSE.toString());
-        assertThat(systemEnvironment.useCompressedJs(), is(false));
+        assertThat(systemEnvironment.useCompressedJs()).isFalse();
         systemEnvironment.setProperty(GoConstants.USE_COMPRESSED_JAVASCRIPT, Boolean.TRUE.toString());
-        assertThat(systemEnvironment.useCompressedJs(), is(true));
+        assertThat(systemEnvironment.useCompressedJs()).isTrue();
     }
 
     @Test
-    public void shouldSetTrueAsDefaultForUseIframeSandbox() {
-        assertThat(systemEnvironment.useIframeSandbox(), is(true));
+    void shouldSetTrueAsDefaultForUseIframeSandbox() {
+        assertThat(systemEnvironment.useIframeSandbox()).isTrue();
     }
 
     @Test
-    public void shouldCacheAgentConnectionSystemPropertyOnFirstAccess() {
+    void shouldCacheAgentConnectionSystemPropertyOnFirstAccess() {
         System.setProperty(SystemEnvironment.AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "1");
-        assertThat(systemEnvironment.getAgentConnectionTimeout(), is(1));
+        assertThat(systemEnvironment.getAgentConnectionTimeout()).isEqualTo(1);
         System.setProperty(SystemEnvironment.AGENT_CONNECTION_TIMEOUT_IN_SECONDS, "2");
-        assertThat(systemEnvironment.getAgentConnectionTimeout(), is(1));
+        assertThat(systemEnvironment.getAgentConnectionTimeout()).isEqualTo(1);
     }
 
     @Test
-    public void shouldCacheSslPortSystemPropertyOnFirstAccess() {
+    void shouldCacheSslPortSystemPropertyOnFirstAccess() {
         System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, "8154");
-        assertThat(systemEnvironment.getSslServerPort(), is(8154));
+        assertThat(systemEnvironment.getSslServerPort()).isEqualTo(8154);
         System.setProperty(SystemEnvironment.CRUISE_SERVER_SSL_PORT, "20000");
-        assertThat(systemEnvironment.getSslServerPort(), is(8154));
+        assertThat(systemEnvironment.getSslServerPort()).isEqualTo(8154);
     }
 
     @Test
-    public void shouldCacheConfigDirOnFirstAccess() {
-        assertThat(systemEnvironment.getConfigDir(), is("config"));
+    void shouldCacheConfigDirOnFirstAccess() {
+        assertThat(systemEnvironment.getConfigDir()).isEqualTo("config");
         System.setProperty(SystemEnvironment.CONFIG_DIR_PROPERTY, "raghu");
-        assertThat(systemEnvironment.getConfigDir(), is("config"));
+        assertThat(systemEnvironment.getConfigDir()).isEqualTo("config");
     }
 
     @Test
-    public void shouldCacheConfigFilePathOnFirstAccess() {
-        assertThat(systemEnvironment.configDir(), is(new File("config")));
+    void shouldCacheConfigFilePathOnFirstAccess() {
+        assertThat(systemEnvironment.configDir()).isEqualTo(new File("config"));
         System.setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, "foo");
-        assertThat(systemEnvironment.getConfigDir(), is("config"));
+        assertThat(systemEnvironment.getConfigDir()).isEqualTo("config");
     }
 
 
     @Test
-    public void shouldCacheDatabaseDiskFullOnFirstAccess() {
+    void shouldCacheDatabaseDiskFullOnFirstAccess() {
         System.setProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT, "100");
-        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimit(), is(100L));
+        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimit()).isEqualTo(100L);
         System.setProperty(SystemEnvironment.DATABASE_FULL_SIZE_LIMIT, "50M");
-        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimit(), is(100L));
+        assertThat(systemEnvironment.getDatabaseDiskSpaceFullLimit()).isEqualTo(100L);
     }
 
     @Test
-    public void shouldCacheArtifactDiskFullOnFirstAccess() {
+    void shouldCacheArtifactDiskFullOnFirstAccess() {
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "100");
-        assertThat(systemEnvironment.getArtifactReposiotryFullLimit(), is(100L));
+        assertThat(systemEnvironment.getArtifactReposiotryFullLimit()).isEqualTo(100L);
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "50M");
-        assertThat(systemEnvironment.getArtifactReposiotryFullLimit(), is(100L));
+        assertThat(systemEnvironment.getArtifactReposiotryFullLimit()).isEqualTo(100L);
     }
 
     @Test
-    public void shouldClearCachedValuesOnSettingNewProperty() {
+    void shouldClearCachedValuesOnSettingNewProperty() {
         System.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "100");
-        assertThat(systemEnvironment.getArtifactReposiotryFullLimit(), is(100L));
+        assertThat(systemEnvironment.getArtifactReposiotryFullLimit()).isEqualTo(100L);
         systemEnvironment.setProperty(SystemEnvironment.ARTIFACT_FULL_SIZE_LIMIT, "50");
-        assertThat(systemEnvironment.getArtifactReposiotryFullLimit(), is(50L));
+        assertThat(systemEnvironment.getArtifactReposiotryFullLimit()).isEqualTo(50L);
     }
 
     @Test
-    public void shouldPrefixApplicationPathWithContext() {
-        assertThat(systemEnvironment.pathFor("foo/bar"), is("/go/foo/bar"));
-        assertThat(systemEnvironment.pathFor("/baz/quux"), is("/go/baz/quux"));
+    void shouldPrefixApplicationPathWithContext() {
+        assertThat(systemEnvironment.pathFor("foo/bar")).isEqualTo("/go/foo/bar");
+        assertThat(systemEnvironment.pathFor("/baz/quux")).isEqualTo("/go/baz/quux");
     }
 
     @Test
-    public void shouldUnderstandConfigRepoDir() {
+    void shouldUnderstandConfigRepoDir() {
         Properties properties = new Properties();
         SystemEnvironment systemEnvironment = new SystemEnvironment(properties);
-        assertThat(systemEnvironment.getConfigRepoDir(), is(new File("db/config.git")));
+        assertThat(systemEnvironment.getConfigRepoDir()).isEqualTo(new File("db/config.git"));
         properties.setProperty(SystemEnvironment.CRUISE_CONFIG_REPO_DIR, "foo/bar.git");
-        assertThat(systemEnvironment.getConfigRepoDir(), is(new File("foo/bar.git")));
+        assertThat(systemEnvironment.getConfigRepoDir()).isEqualTo(new File("foo/bar.git"));
     }
 
     @Test
-    public void shouldUnderstandMaterialUpdateInterval() {
-        assertThat(systemEnvironment.getMaterialUpdateIdleInterval(), is(60000L));
+    void shouldUnderstandMaterialUpdateInterval() {
+        assertThat(systemEnvironment.getMaterialUpdateIdleInterval()).isEqualTo(60000L);
         systemEnvironment.setProperty(SystemEnvironment.MATERIAL_UPDATE_IDLE_INTERVAL_PROPERTY, "20");
-        assertThat(systemEnvironment.getMaterialUpdateIdleInterval(), is(20L));
+        assertThat(systemEnvironment.getMaterialUpdateIdleInterval()).isEqualTo(20L);
     }
 
     @Test
-    public void shouldUnderstandH2CacheSize() {
-        assertThat(systemEnvironment.getCruiseDbCacheSize(), is(String.valueOf(128 * 1024)));
+    void shouldUnderstandH2CacheSize() {
+        assertThat(systemEnvironment.getCruiseDbCacheSize()).isEqualTo(String.valueOf(128 * 1024));
         System.setProperty(SystemEnvironment.CRUISE_DB_CACHE_SIZE, String.valueOf(512 * 1024));
-        assertThat(systemEnvironment.getCruiseDbCacheSize(), is(String.valueOf(512 * 1024)));
+        assertThat(systemEnvironment.getCruiseDbCacheSize()).isEqualTo(String.valueOf(512 * 1024));
     }
 
     @Test
-    public void shouldReturnTheJobWarningLimit() {
-        assertThat(systemEnvironment.getUnresponsiveJobWarningThreshold(), is(5 * 60 * 1000L));
+    void shouldReturnTheJobWarningLimit() {
+        assertThat(systemEnvironment.getUnresponsiveJobWarningThreshold()).isEqualTo(5 * 60 * 1000L);
         System.setProperty(SystemEnvironment.UNRESPONSIVE_JOB_WARNING_THRESHOLD, "30");
-        assertThat(systemEnvironment.getUnresponsiveJobWarningThreshold(), is(30 * 60 * 1000L));
+        assertThat(systemEnvironment.getUnresponsiveJobWarningThreshold()).isEqualTo(30 * 60 * 1000L);
     }
 
     @Test
-    public void shouldReturnTheDefaultValueForActiveMqUseJMX() {
-        assertThat(systemEnvironment.getActivemqUseJmx(), is(false));
+    void shouldReturnTheDefaultValueForActiveMqUseJMX() {
+        assertThat(systemEnvironment.getActivemqUseJmx()).isFalse();
         System.setProperty(SystemEnvironment.ACTIVEMQ_USE_JMX, "true");
-        assertThat(systemEnvironment.getActivemqUseJmx(), is(true));
+        assertThat(systemEnvironment.getActivemqUseJmx()).isTrue();
     }
 
     @Test
-    public void shouldResolveRevisionsForDependencyGraph_byDefault() {
-        assertThat(System.getProperty(SystemEnvironment.RESOLVE_FANIN_REVISIONS), nullValue());
-        assertThat(new SystemEnvironment().enforceRevisionCompatibilityWithUpstream(), is(true));
+    void shouldResolveRevisionsForDependencyGraph_byDefault() {
+        assertThat(System.getProperty(SystemEnvironment.RESOLVE_FANIN_REVISIONS)).isNull();
+        assertThat(new SystemEnvironment().enforceRevisionCompatibilityWithUpstream()).isTrue();
     }
 
     @Test
-    public void should_NOT_resolveRevisionsForDependencyGraph_whenExplicitlyDisabled() {
+    void should_NOT_resolveRevisionsForDependencyGraph_whenExplicitlyDisabled() {
         System.setProperty(SystemEnvironment.RESOLVE_FANIN_REVISIONS, SystemEnvironment.CONFIGURATION_NO);
-        assertThat(new SystemEnvironment().enforceRevisionCompatibilityWithUpstream(), is(false));
+        assertThat(new SystemEnvironment().enforceRevisionCompatibilityWithUpstream()).isFalse();
     }
 
     @Test
-    public void shouldResolveRevisionsForDependencyGraph_whenEnabledExplicitly() {
+    void shouldResolveRevisionsForDependencyGraph_whenEnabledExplicitly() {
         System.setProperty(SystemEnvironment.RESOLVE_FANIN_REVISIONS, SystemEnvironment.CONFIGURATION_YES);
-        assertThat(new SystemEnvironment().enforceRevisionCompatibilityWithUpstream(), is(true));
+        assertThat(new SystemEnvironment().enforceRevisionCompatibilityWithUpstream()).isTrue();
     }
 
     @Test
-    public void should_cache_whetherToResolveRevisionsForDependencyGraph() {//because access to properties is synchronized
-        assertThat(System.getProperty(SystemEnvironment.RESOLVE_FANIN_REVISIONS), nullValue());
+    void should_cache_whetherToResolveRevisionsForDependencyGraph() {//because access to properties is synchronized
+        assertThat(System.getProperty(SystemEnvironment.RESOLVE_FANIN_REVISIONS)).isNull();
         SystemEnvironment systemEnvironment = new SystemEnvironment();
-        assertThat(systemEnvironment.enforceRevisionCompatibilityWithUpstream(), is(true));
+        assertThat(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).isTrue();
         System.setProperty(SystemEnvironment.RESOLVE_FANIN_REVISIONS, SystemEnvironment.CONFIGURATION_NO);
-        assertThat(systemEnvironment.enforceRevisionCompatibilityWithUpstream(), is(true));
+        assertThat(systemEnvironment.enforceRevisionCompatibilityWithUpstream()).isTrue();
     }
 
     @Test
-    public void shouldTurnOnConfigMergeFeature_byDefault() {
-        assertThat(System.getProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY), nullValue());
-        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE), is(true));
+    void shouldTurnOnConfigMergeFeature_byDefault() {
+        assertThat(System.getProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY)).isNull();
+        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)).isTrue();
     }
 
     @Test
-    public void should_NOT_TurnOnConfigMergeFeature_whenExplicitlyDisabled() {
+    void should_NOT_TurnOnConfigMergeFeature_whenExplicitlyDisabled() {
         System.setProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY, SystemEnvironment.CONFIGURATION_NO);
-        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE), is(false));
+        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)).isFalse();
     }
 
     @Test
-    public void shouldTurnOnConfigMergeFeature_whenEnabledExplicitly() {
+    void shouldTurnOnConfigMergeFeature_whenEnabledExplicitly() {
         System.setProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY, SystemEnvironment.CONFIGURATION_YES);
-        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE), is(true));
+        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)).isTrue();
     }
 
     @Test
-    public void should_cache_whetherToTurnOnConfigMergeFeature() {//because access to properties is synchronized
-        assertThat(System.getProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY), nullValue());
-        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE), is(true));
+    void should_cache_whetherToTurnOnConfigMergeFeature() {//because access to properties is synchronized
+        assertThat(System.getProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY)).isNull();
+        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)).isTrue();
         System.setProperty(SystemEnvironment.ENABLE_CONFIG_MERGE_PROPERTY, SystemEnvironment.CONFIGURATION_NO);
-        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE), is(true));
+        assertThat(new SystemEnvironment().get(SystemEnvironment.ENABLE_CONFIG_MERGE_FEATURE)).isTrue();
     }
 
     @Test
-    public void shouldGetTfsSocketTimeOut() {
-        assertThat(systemEnvironment.getTfsSocketTimeout(), is(SystemEnvironment.TFS_SOCKET_TIMEOUT_IN_MILLISECONDS));
+    void shouldGetTfsSocketTimeOut() {
+        assertThat(systemEnvironment.getTfsSocketTimeout()).isEqualTo(SystemEnvironment.TFS_SOCKET_TIMEOUT_IN_MILLISECONDS);
         System.setProperty(SystemEnvironment.TFS_SOCKET_TIMEOUT_PROPERTY, "100000000");
-        assertThat(systemEnvironment.getTfsSocketTimeout(), is(100000000));
+        assertThat(systemEnvironment.getTfsSocketTimeout()).isEqualTo(100000000);
     }
 
     @Test
-    public void shouldGiveINFOAsTheDefaultLevelOfAPluginWithoutALoggingLevelSet() throws Exception {
-        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-1"), is(Level.INFO));
+    void shouldGiveINFOAsTheDefaultLevelOfAPluginWithoutALoggingLevelSet() {
+        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-1")).isEqualTo(Level.INFO);
     }
 
     @Test
-    public void shouldGiveINFOAsTheDefaultLevelOfAPluginWithAnInvalidLoggingLevelSet() throws Exception {
+    void shouldGiveINFOAsTheDefaultLevelOfAPluginWithAnInvalidLoggingLevelSet() {
         System.setProperty("plugin.some-plugin-2.log.level", "SOME-INVALID-LOG-LEVEL");
 
-        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-2"), is(Level.INFO));
+        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-2")).isEqualTo(Level.INFO);
     }
 
     @Test
-    public void shouldGiveTheLevelOfAPluginWithALoggingLevelSet() throws Exception {
+    void shouldGiveTheLevelOfAPluginWithALoggingLevelSet() {
         System.setProperty("plugin.some-plugin-3.log.level", "DEBUG");
         System.setProperty("plugin.some-plugin-4.log.level", "INFO");
         System.setProperty("plugin.some-plugin-5.log.level", "WARN");
         System.setProperty("plugin.some-plugin-6.log.level", "ERROR");
 
-        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-3"), is(Level.DEBUG));
-        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-4"), is(Level.INFO));
-        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-5"), is(Level.WARN));
-        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-6"), is(Level.ERROR));
+        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-3")).isEqualTo(Level.DEBUG);
+        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-4")).isEqualTo(Level.INFO);
+        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-5")).isEqualTo(Level.WARN);
+        assertThat(systemEnvironment.pluginLoggingLevel("some-plugin-6")).isEqualTo(Level.ERROR);
     }
 
+
     @Test
-    @RunIf(value = DatabaseChecker.class, arguments = {DatabaseChecker.H2})
-    public void shouldGetGoDatabaseProvider() {
-        assertThat("default provider should be h2db", systemEnvironment.getDatabaseProvider(), is("com.thoughtworks.go.server.database.H2Database"));
+    @EnableIfH2
+    void shouldGetGoDatabaseProvider() {
+        assertThat(systemEnvironment.getDatabaseProvider()).as("default provider should be h2db").isEqualTo("com.thoughtworks.go.server.database.H2Database");
         System.setProperty("go.database.provider", "foo");
-        assertThat(systemEnvironment.getDatabaseProvider(), is("foo"));
+        assertThat(systemEnvironment.getDatabaseProvider()).isEqualTo("foo");
+    }
+
+
+    @Test
+    void shouldFindGoServerStatusToBeActiveByDefault() {
+        assertThat(systemEnvironment.isServerActive()).isTrue();
     }
 
     @Test
-    public void shouldFindGoServerStatusToBeActiveByDefault() throws Exception {
-        assertThat(systemEnvironment.isServerActive(), is(true));
-    }
-
-    @Test
-    public void shouldPutServerInActiveMode() throws Exception {
+    void shouldPutServerInActiveMode() {
         String key = "go.server.state";
         try {
             System.setProperty(key, "passive");
             systemEnvironment.switchToActiveState();
-            assertThat(systemEnvironment.isServerActive(), is(true));
+            assertThat(systemEnvironment.isServerActive()).isTrue();
         } finally {
             System.clearProperty(key);
         }
     }
 
     @Test
-    public void shouldPutServerInPassiveMode() throws Exception {
+    void shouldPutServerInPassiveMode() {
         String key = "go.server.state";
         try {
             System.setProperty(key, "active");
             systemEnvironment.switchToPassiveState();
-            assertThat(systemEnvironment.isServerActive(), is(false));
+            assertThat(systemEnvironment.isServerActive()).isFalse();
         } finally {
             System.clearProperty(key);
         }
     }
 
     @Test
-    public void shouldFindGoServerStatusToBePassive() throws Exception {
+    void shouldFindGoServerStatusToBePassive() {
         try {
             SystemEnvironment systemEnvironment = new SystemEnvironment();
             System.setProperty("go.server.state", "passive");
-            assertThat(systemEnvironment.isServerActive(), is(false));
+            assertThat(systemEnvironment.isServerActive()).isFalse();
         } finally {
             System.clearProperty("go.server.state");
         }
     }
 
     @Test
-    public void shouldUseJetty9ByDefault() {
-        assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER), is(SystemEnvironment.JETTY9));
-        assertThat(systemEnvironment.usingJetty9(), is(true));
+    void shouldUseJetty9ByDefault() {
+        assertThat(systemEnvironment.get(SystemEnvironment.APP_SERVER)).isEqualTo(SystemEnvironment.JETTY9);
+        assertThat(systemEnvironment.usingJetty9()).isTrue();
 
         systemEnvironment.set(SystemEnvironment.APP_SERVER, "JETTY6");
-        assertThat(systemEnvironment.usingJetty9(), is(false));
+        assertThat(systemEnvironment.usingJetty9()).isFalse();
     }
 
     @Test
-    public void shouldGetDefaultLandingPageAsPipelines() throws Exception {
+    void shouldGetDefaultLandingPageAsPipelines() {
         String landingPage = systemEnvironment.landingPage();
-        assertThat(landingPage, is("/pipelines"));
+        assertThat(landingPage).isEqualTo("/pipelines");
     }
 
     @Test
-    public void shouldAbleToOverrideDefaultLandingPageAsPipelines() throws Exception {
+    void shouldAbleToOverrideDefaultLandingPageAsPipelines() {
         try {
             System.setProperty("go.landing.page", "/admin/pipelines");
             String landingPage = systemEnvironment.landingPage();
-            assertThat(landingPage, is("/admin/pipelines"));
+            assertThat(landingPage).isEqualTo("/admin/pipelines");
         } finally {
             System.clearProperty("go.landing.page");
         }
     }
 
     @Test
-    public void shouldSetTLS1Dot2AsDefaultTransportProtocolForAgent() {
-        assertThat(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT.propertyName(), is("go.ssl.agent.protocol"));
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT), is("TLSv1.2"));
+    void shouldSetTLS1Dot2AsDefaultTransportProtocolForAgent() {
+        assertThat(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT.propertyName()).isEqualTo("go.ssl.agent.protocol");
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT)).isEqualTo("TLSv1.2");
         System.setProperty(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT.propertyName(), "SSL");
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT), is("SSL"));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_TRANSPORT_PROTOCOL_TO_BE_USED_BY_AGENT)).isEqualTo("SSL");
     }
 
     @Test
-    public void shouldGetIncludedCiphersForSSLConfig() {
-        assertThat(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS.propertyName(), is("go.ssl.ciphers.include"));
-        assertThat(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS instanceof SystemEnvironment.GoStringArraySystemProperty, is(true));
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS), is(nullValue()));
+    void shouldGetIncludedCiphersForSSLConfig() {
+        assertThat(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS.propertyName()).isEqualTo("go.ssl.ciphers.include");
+        assertThat(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS instanceof SystemEnvironment.GoStringArraySystemProperty).isTrue();
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_CIPHERS)).isNull();
     }
 
     @Test
-    public void shouldGetExcludedCiphersForSSLConfig() {
-        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS.propertyName(), is("go.ssl.ciphers.exclude"));
-        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS instanceof SystemEnvironment.GoStringArraySystemProperty, is(true));
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS), is(nullValue()));
+    void shouldGetExcludedCiphersForSSLConfig() {
+        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS.propertyName()).isEqualTo("go.ssl.ciphers.exclude");
+        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS instanceof SystemEnvironment.GoStringArraySystemProperty).isTrue();
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_CIPHERS)).isNull();
     }
 
     @Test
-    public void shouldGetExcludedProtocolsForSSLConfig() {
-        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS.propertyName(), is("go.ssl.protocols.exclude"));
-        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS instanceof SystemEnvironment.GoStringArraySystemProperty, is(true));
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS), is(nullValue()));
+    void shouldGetExcludedProtocolsForSSLConfig() {
+        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS.propertyName()).isEqualTo("go.ssl.protocols.exclude");
+        assertThat(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS instanceof SystemEnvironment.GoStringArraySystemProperty).isTrue();
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_EXCLUDE_PROTOCOLS)).isNull();
     }
 
     @Test
-    public void shouldGetIncludedProtocolsForSSLConfig() {
-        assertThat(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS.propertyName(), is("go.ssl.protocols.include"));
-        assertThat(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS instanceof SystemEnvironment.GoStringArraySystemProperty, is(true));
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS), is(nullValue()));
+    void shouldGetIncludedProtocolsForSSLConfig() {
+        assertThat(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS.propertyName()).isEqualTo("go.ssl.protocols.include");
+        assertThat(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS instanceof SystemEnvironment.GoStringArraySystemProperty).isTrue();
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_INCLUDE_PROTOCOLS)).isNull();
     }
 
     @Test
-    public void shouldGetRenegotiationAllowedFlagForSSLConfig() {
-        assertThat(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED.propertyName(), is("go.ssl.renegotiation.allowed"));
+    void shouldGetRenegotiationAllowedFlagForSSLConfig() {
+        assertThat(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED.propertyName()).isEqualTo("go.ssl.renegotiation.allowed");
         boolean defaultValue = true;
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED), is(defaultValue));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).isEqualTo(defaultValue);
         System.clearProperty("go.ssl.renegotiation.allowed");
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED), is(defaultValue));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).isEqualTo(defaultValue);
         System.setProperty("go.ssl.renegotiation.allowed", "false");
-        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED), is(false));
+        assertThat(systemEnvironment.get(SystemEnvironment.GO_SSL_RENEGOTIATION_ALLOWED)).isFalse();
     }
 
     @Test
-    public void ShouldRemoveWhiteSpacesForStringArraySystemProperties() {
+    void ShouldRemoveWhiteSpacesForStringArraySystemProperties() {
         String[] defaultValue = {"junk", "funk"};
         String propertyName = "property.name";
         SystemEnvironment.GoStringArraySystemProperty property = new SystemEnvironment.GoStringArraySystemProperty(propertyName, defaultValue);
         System.setProperty(propertyName, " foo    ,  bar  ");
-        assertThat(systemEnvironment.get(property).length, is(2));
-        assertThat(systemEnvironment.get(property)[0], is("foo"));
-        assertThat(systemEnvironment.get(property)[1], is("bar"));
+        assertThat(systemEnvironment.get(property).length).isEqualTo(2);
+        assertThat(systemEnvironment.get(property)[0]).isEqualTo("foo");
+        assertThat(systemEnvironment.get(property)[1]).isEqualTo("bar");
     }
 
     @Test
-    public void ShouldUseDefaultValueForStringArraySystemPropertiesWhenTheValueIsSetToEmptyString() {
+    void ShouldUseDefaultValueForStringArraySystemPropertiesWhenTheValueIsSetToEmptyString() {
         String[] defaultValue = {"junk", "funk"};
         String propertyName = "property.name";
         SystemEnvironment.GoStringArraySystemProperty property = new SystemEnvironment.GoStringArraySystemProperty(propertyName, defaultValue);
         System.clearProperty(propertyName);
-        assertThat(systemEnvironment.get(property), is(defaultValue));
+        assertThat(systemEnvironment.get(property)).isEqualTo(defaultValue);
         System.setProperty(propertyName, " ");
-        assertThat(systemEnvironment.get(property), is(defaultValue));
+        assertThat(systemEnvironment.get(property)).isEqualTo(defaultValue);
     }
 
     @Test
-    public void shouldSetConfigRepoGCToBeAggressiveByDefault() {
-        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE), is(true));
+    void shouldSetConfigRepoGCToBeAggressiveByDefault() {
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_GC_AGGRESSIVE)).isTrue();
     }
 
     @Test
-    public void shouldTurnOffPeriodicGCByDefault() {
-        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
+    void shouldTurnOffPeriodicGCByDefault() {
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).isFalse();
     }
 
     @Test
-    public void shouldGetUpdateServerPublicKeyFilePath() {
-        assertThat(SystemEnvironment.GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME.propertyName(), is("go.update.server.public.key.file.name"));
+    void shouldGetUpdateServerPublicKeyFilePath() {
+        assertThat(SystemEnvironment.GO_UPDATE_SERVER_PUBLIC_KEY_FILE_NAME.propertyName()).isEqualTo("go.update.server.public.key.file.name");
 
         System.setProperty("go.update.server.public.key.file.name", "public_key");
-        assertThat(systemEnvironment.getUpdateServerPublicKeyPath(), is(systemEnvironment.getConfigDir() + "/public_key"));
+        assertThat(systemEnvironment.getUpdateServerPublicKeyPath()).isEqualTo(systemEnvironment.getConfigDir() + "/public_key");
     }
 
     @Test
-    public void shouldGetUpdateServerUrl() {
-        assertThat(SystemEnvironment.GO_UPDATE_SERVER_URL.propertyName(), is("go.update.server.url"));
+    void shouldGetUpdateServerUrl() {
+        assertThat(SystemEnvironment.GO_UPDATE_SERVER_URL.propertyName()).isEqualTo("go.update.server.url");
 
         System.setProperty("go.update.server.url", "http://update_server_url");
-        assertThat(systemEnvironment.getUpdateServerUrl(), is("http://update_server_url"));
+        assertThat(systemEnvironment.getUpdateServerUrl()).isEqualTo("http://update_server_url");
     }
 
     @Test
-    public void shouldGetMaxNumberOfRequestsForEncryptionApi() {
-        assertThat(SystemEnvironment.GO_ENCRYPTION_API_MAX_REQUESTS.propertyName(), is("go.encryption.api.max.requests"));
-        assertThat(systemEnvironment.getMaxEncryptionAPIRequestsPerMinute(), is(30));
+    void shouldGetMaxNumberOfRequestsForEncryptionApi() {
+        assertThat(SystemEnvironment.GO_ENCRYPTION_API_MAX_REQUESTS.propertyName()).isEqualTo("go.encryption.api.max.requests");
+        assertThat(systemEnvironment.getMaxEncryptionAPIRequestsPerMinute()).isEqualTo(30);
 
         System.setProperty("go.encryption.api.max.requests", "50");
 
-        assertThat(systemEnvironment.getMaxEncryptionAPIRequestsPerMinute(), is(50));
+        assertThat(systemEnvironment.getMaxEncryptionAPIRequestsPerMinute()).isEqualTo(50);
     }
 
     @Test
-    public void shouldCheckIfGOUpdatesIsEnabled() {
-        assertThat(SystemEnvironment.GO_CHECK_UPDATES.propertyName(), is("go.check.updates"));
-        assertTrue(systemEnvironment.isGOUpdateCheckEnabled());
+    void shouldCheckIfGOUpdatesIsEnabled() {
+        assertThat(SystemEnvironment.GO_CHECK_UPDATES.propertyName()).isEqualTo("go.check.updates");
+        assertThat(systemEnvironment.isGOUpdateCheckEnabled()).isTrue();
 
         System.setProperty("go.check.updates", "false");
-        assertFalse(systemEnvironment.isGOUpdateCheckEnabled());
+        assertThat(systemEnvironment.isGOUpdateCheckEnabled()).isFalse();
     }
 
     @Test
-    public void shouldEnableTemplateAutoSuggestByDefault() {
-        assertThat(SystemEnvironment.GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST.propertyName(), is("go.fetch-artifact.template.auto-suggest"));
-        assertTrue(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled());
+    void shouldEnableTemplateAutoSuggestByDefault() {
+        assertThat(SystemEnvironment.GO_FETCH_ARTIFACT_TEMPLATE_AUTO_SUGGEST.propertyName()).isEqualTo("go.fetch-artifact.template.auto-suggest");
+        assertThat(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()).isTrue();
     }
 
     @Test
-    public void shouldDisableTemplateAutoSuggest() {
+    void shouldDisableTemplateAutoSuggest() {
         System.setProperty("go.fetch-artifact.template.auto-suggest", "false");
-        assertFalse(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled());
+        assertThat(systemEnvironment.isFetchArtifactTemplateAutoSuggestEnabled()).isFalse();
     }
 
     @Test
-    public void shouldReturnTheDefaultGCExpireTimeInMilliSeconds() {
-        assertThat(SystemEnvironment.GO_CONFIG_REPO_GC_EXPIRE.propertyName(), is("go.config.repo.gc.expire"));
-        assertThat(systemEnvironment.getConfigGitGCExpireTime(), is(24*60*60*1000L));
+    void shouldReturnTheDefaultGCExpireTimeInMilliSeconds() {
+        assertThat(SystemEnvironment.GO_CONFIG_REPO_GC_EXPIRE.propertyName()).isEqualTo("go.config.repo.gc.expire");
+        assertThat(systemEnvironment.getConfigGitGCExpireTime()).isEqualTo(24 * 60 * 60 * 1000L);
     }
 
     @Test
-    public void shouldReturnTHeGCExpireTimeInMilliSeconds() {
-        assertThat(systemEnvironment.getConfigGitGCExpireTime(), is(24*60*60*1000L));
+    void shouldReturnTHeGCExpireTimeInMilliSeconds() {
+        assertThat(systemEnvironment.getConfigGitGCExpireTime()).isEqualTo(24 * 60 * 60 * 1000L);
         System.setProperty("go.config.repo.gc.expire", "1");
-        assertThat(systemEnvironment.getConfigGitGCExpireTime(), is(60*60*1000L));
+        assertThat(systemEnvironment.getConfigGitGCExpireTime()).isEqualTo(60 * 60 * 1000L);
     }
 
     @Test
-    public void shouldReturnTrueIfBooleanSystemPropertyIsEnabledByY() {
-        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
+    void shouldReturnTrueIfBooleanSystemPropertyIsEnabledByY() {
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).isFalse();
         System.setProperty("go.config.repo.gc.periodic", "Y");
-        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(true));
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).isTrue();
     }
 
     @Test
-    public void shouldReturnTrueIfBooleanSystemPropertyIsEnabledByTrue() {
-        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
+    void shouldReturnTrueIfBooleanSystemPropertyIsEnabledByTrue() {
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).isFalse();
         System.setProperty("go.config.repo.gc.periodic", "true");
-        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(true));
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).isTrue();
     }
 
     @Test
-    public void shouldReturnFalseIfBooleanSystemPropertyIsAnythingButYOrTrue() {
-        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
+    void shouldReturnFalseIfBooleanSystemPropertyIsAnythingButYOrTrue() {
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).isFalse();
         System.setProperty("go.config.repo.gc.periodic", "some-value");
-        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC), is(false));
+        assertThat(new SystemEnvironment().get(SystemEnvironment.GO_CONFIG_REPO_PERIODIC_GC)).isFalse();
     }
 
     @Test
-    public void shouldBeInStandByModeIfGoServerModeIsSetToStandby() {
-        assertFalse(new SystemEnvironment().isServerInStandbyMode());
+    void shouldBeInStandByModeIfGoServerModeIsSetToStandby() {
+        assertThat(new SystemEnvironment().isServerInStandbyMode()).isFalse();
 
         System.setProperty("go.server.mode", "StandBy");
 
-        assertTrue(new SystemEnvironment().isServerInStandbyMode());
+        assertThat(new SystemEnvironment().isServerInStandbyMode()).isTrue();
     }
 }

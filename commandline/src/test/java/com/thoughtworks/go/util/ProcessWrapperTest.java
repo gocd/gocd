@@ -17,45 +17,40 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.util.command.*;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ProcessWrapperTest {
+class ProcessWrapperTest {
 
     @Test
-    public void shouldReturnTrueWhenAProcessIsRunning(){
+    void shouldReturnTrueWhenAProcessIsRunning() {
         Process process = getMockedProcess(mock(OutputStream.class));
         when(process.exitValue()).thenThrow(new IllegalThreadStateException());
         ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), "utf-8", null);
-        assertThat(processWrapper.isRunning(), is(true));
+        assertThat(processWrapper.isRunning()).isTrue();
     }
 
     @Test
-    public void shouldReturnFalseWhenAProcessHasExited(){
+    void shouldReturnFalseWhenAProcessHasExited() {
         Process process = getMockedProcess(mock(OutputStream.class));
         when(process.exitValue()).thenReturn(1);
         ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), "utf-8", null);
-        assertThat(processWrapper.isRunning(), is(false));
+        assertThat(processWrapper.isRunning()).isFalse();
     }
 
     @Test
-    public void shouldTypeInputToConsole(){
+    void shouldTypeInputToConsole() {
         OutputStream processInputStream = new ByteArrayOutputStream();// mock(OutputStream.class);
         Process process = getMockedProcess(processInputStream);
         ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), "utf-8", null);
@@ -66,47 +61,41 @@ public class ProcessWrapperTest {
 
         String input = processInputStream.toString();
         String[] parts = input.split("\\r?\\n");
-        assertThat(parts[0], is("input1"));
-        assertThat(parts[1], is("input2"));
+        assertThat(parts[0]).isEqualTo("input1");
+        assertThat(parts[1]).isEqualTo("input2");
     }
 
     @Test
-    public void shouldThrowExceptionWhenExecutableDoesNotExist() throws IOException {
+    void shouldThrowExceptionWhenExecutableDoesNotExist() {
         CommandLine line = CommandLine.createCommandLine("doesnotexist").withEncoding("utf-8");
-        try {
-            ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
-            line.execute(outputStreamConsumer, new EnvironmentVariableContext(), null);
-            fail("Expected exception");
-        } catch (CommandLineException e) {
-            assertThat(e.getMessage(), containsString("Make sure this command can execute manually."));
-            assertThat(e.getMessage(), containsString("doesnotexist"));
-            assertThat(e.getResult(), notNullValue());
-        }
+        ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
+        final CommandLineException exception = assertThrows(CommandLineException.class, () -> line.execute(outputStreamConsumer, new EnvironmentVariableContext(), null));
+        assertThat(exception)
+                .isInstanceOf(CommandLineException.class)
+                .hasMessageContaining("Make sure this command can execute manually.")
+                .hasMessageContaining("doesnotexist");
+
+        assertThat(exception.getResult()).isNotNull();
     }
 
     @Test
-    public void shouldTryCommandWithTimeout() throws IOException {
+    void shouldTryCommandWithTimeout() {
         CommandLine line = CommandLine.createCommandLine("doesnotexist").withEncoding("utf-8");
-        try {
-            line.waitForSuccess(100);
-            fail("Expected Exception");
-        } catch (Exception e) {
-            assertThat(e.getMessage(),
-                    containsString("Timeout after 0.1 seconds waiting for command 'doesnotexist'"));
-        }
+        assertThatCode(() -> line.waitForSuccess(100))
+                .hasMessageContaining("Timeout after 0.1 seconds waiting for command 'doesnotexist'");
     }
 
 
     @Test
-    public void shouldCollectOutput() throws Exception {
+    void shouldCollectOutput() {
         String output = "SYSOUT: Hello World!";
         String error = "SYSERR: Some error happened!";
         CommandLine line = CommandLine.createCommandLine("ruby").withEncoding("utf-8").withArgs(script("echo"), output, error);
         ConsoleResult result = run(line);
 
-        assertThat("Errors: " + result.errorAsString(), result.returnValue(), is(0));
-        assertThat(result.output(), contains(output));
-        assertThat(result.error(), contains(error));
+        assertThat(result.returnValue()).as("Errors: " + result.errorAsString()).isEqualTo(0);
+        assertThat(result.output()).contains(output);
+        assertThat(result.error().toString()).contains(error);
     }
 
     private String script(final String name) {
@@ -114,40 +103,40 @@ public class ProcessWrapperTest {
     }
 
     @Test
-    public void shouldAcceptInputString() throws Exception {
+    void shouldAcceptInputString() {
         String input = "SYSIN: Hello World!";
         CommandLine line = CommandLine.createCommandLine("ruby").withEncoding("utf-8").withArgs(script("echo-input"));
         ConsoleResult result = run(line, input);
-        assertThat(result.output(), contains(input));
-        assertThat(result.error().size(), is(0));
+        assertThat(result.output()).contains(input);
+        assertThat(result.error().size()).isEqualTo(0);
     }
 
     @Test
-    public void shouldBeAbleToCompleteInput() throws Exception {
+    void shouldBeAbleToCompleteInput() {
         String input1 = "SYSIN: Line 1!";
         String input2 = "SYSIN: Line 2!";
         CommandLine line = CommandLine.createCommandLine("ruby").withEncoding("utf-8").withArgs(script("echo-all-input"));
         ConsoleResult result = run(line, input1, input2);
-        assertThat(result.returnValue(), is(0));
-        assertThat(result.output(), contains("You said: " + input1));
-        assertThat(result.output(), contains("You said: " + input2));
-        assertThat(result.error().size(), is(0));
+        assertThat(result.returnValue()).isEqualTo(0);
+        assertThat(result.output()).contains("You said: " + input1);
+        assertThat(result.output()).contains("You said: " + input2);
+        assertThat(result.error().size()).isEqualTo(0);
     }
 
     @Test
-    public void shouldReportReturnValueIfProcessFails() {
+    void shouldReportReturnValueIfProcessFails() {
         CommandLine line = CommandLine.createCommandLine("ruby").withEncoding("utf-8").withArgs(script("nonexistent-script"));
         ConsoleResult result = run(line);
-        assertThat(result.returnValue(), is(1));
+        assertThat(result.returnValue()).isEqualTo(1);
     }
 
     @Test
-    public void shouldSetGoServerVariablesIfTheyExist() {
+    void shouldSetGoServerVariablesIfTheyExist() {
         System.setProperty("GO_DEPENDENCY_LABEL_PIPELINE_NAME", "999");
         CommandLine line = CommandLine.createCommandLine("ruby").withEncoding("utf-8").withArgs(script("dump-environment"));
         ConsoleResult result = run(line);
-        assertThat("Errors: " + result.errorAsString(), result.returnValue(), is(0));
-        assertThat(result.output(), contains("GO_DEPENDENCY_LABEL_PIPELINE_NAME=999"));
+        assertThat(result.returnValue()).as("Errors: " + result.errorAsString()).isEqualTo(0);
+        assertThat(result.output()).contains("GO_DEPENDENCY_LABEL_PIPELINE_NAME=999");
     }
 
     private ConsoleResult run(CommandLine line, String... inputs) {
@@ -162,22 +151,6 @@ public class ProcessWrapperTest {
                 outputStreamConsumer.getErrLines(), line.getArguments(), new ArrayList<>());
     }
 
-    private Matcher<List<String>> contains(final String output) {
-        return new TypeSafeMatcher<List<String>>() {
-            public boolean matchesSafely(List<String> lines) {
-                for (String line : lines) {
-                    if (line.contains(output)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-
-            public void describeTo(Description description) {
-                description.appendText("to contain " + output);
-            }
-        };
-    }
     private Process getMockedProcess(OutputStream outputStream) {
         Process process = mock(Process.class);
         when(process.getErrorStream()).thenReturn(mock(InputStream.class));

@@ -32,9 +32,7 @@ import org.junit.Test;
 import java.io.File;
 import java.util.List;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.Mockito.*;
 
@@ -64,7 +62,7 @@ public class TfsSDKCommandTest {
         TfsSDKCommand spy = spy(tfsCommand);
         doReturn(null).when(spy).getModifiedFiles(changeSets[0]);
 
-        assertThat(spy.latestModification(null).isEmpty(), is(false));
+        assertThat(spy.latestModification(null).isEmpty()).isFalse();
 
         verify(client).queryHistory(TFS_PROJECT, null, 1);
         verify(spy).getModifiedFiles(changeSets[0]);
@@ -94,7 +92,7 @@ public class TfsSDKCommandTest {
             fail("should have thrown an exception");
         }
         catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Failed while checking connection using Url: http://some.repo.local:8000/, Project Path: $/project_path, Username: username, Domain: domain, Root Cause: could not connect"));
+            assertThat(e.getMessage()).isEqualTo("Failed while checking connection using Url: http://some.repo.local:8000/, Project Path: $/project_path, Username: username, Domain: domain, Root Cause: could not connect");
         }
         verify(client).queryHistory(TFS_PROJECT, null, 1);
     }
@@ -108,7 +106,7 @@ public class TfsSDKCommandTest {
 
         List<Modification> modifications = spy.modificationsSince(null, new StringRevision("2"));
 
-        assertThat(modifications.isEmpty(), is(false));
+        assertThat(modifications.isEmpty()).isFalse();
 
         verify(client, times(2)).queryHistory(eq(TFS_PROJECT), or(isNull(), any(ChangesetVersionSpec.class)), anyInt());
     }
@@ -164,7 +162,7 @@ public class TfsSDKCommandTest {
         try {
             tfsCommandForInvalidCollection.init();
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(), is("Unable to connect to TFS Collection invalid_url java.lang.RuntimeException: [TFS] Failed when converting the url string to a uri: invalid_url, Project Path: $/project_path, Username: username, Domain: domain"));
+            assertThat(e.getMessage()).isEqualTo("Unable to connect to TFS Collection invalid_url java.lang.RuntimeException: [TFS] Failed when converting the url string to a uri: invalid_url, Project Path: $/project_path, Username: username, Domain: domain");
         }
     }
 

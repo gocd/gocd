@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,59 +18,56 @@ package com.thoughtworks.go.buildsession;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.JobResult;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class GeneratePropertyCommandExecutorTest extends BuildSessionBasedTestCase {
+class GeneratePropertyCommandExecutorTest extends BuildSessionBasedTestCase {
     private static final String TEST_PROPERTY = "test_property";
 
     @Test
-    public void shouldReportFailureWhenArtifactFileDoesNotExist() throws IOException {
+    void shouldReportFailureWhenArtifactFileDoesNotExist() {
         runBuild(BuildCommand.generateProperty(TEST_PROPERTY, "not-exists.xml", "//src"), JobResult.Passed);
-        assertThat(console.output(), containsString("Failed to create property"));
-        assertThat(console.output(), containsString(new File(sandbox, "not-exists.xml").getAbsolutePath()));
-        assertThat(artifactsRepository.propertyValue(TEST_PROPERTY), nullValue());
+        assertThat(console.output()).contains("Failed to create property");
+        assertThat(console.output()).contains(new File(sandbox, "not-exists.xml").getAbsolutePath());
+        assertThat(artifactsRepository.propertyValue(TEST_PROPERTY)).isNull();
     }
 
     @Test
-    public void shouldReportNotingMatchedWhenNoNodeCanMatch() throws IOException {
+    void shouldReportNotingMatchedWhenNoNodeCanMatch() throws IOException {
         createSrcFile("xmlfile");
         runBuild(BuildCommand.generateProperty(TEST_PROPERTY, "xmlfile", "//HTML"), JobResult.Passed);
-        assertThat(console.output(), containsString("Failed to create property"));
-        assertThat(console.output(), containsString("Nothing matched xpath \"//HTML\""));
-        assertThat(artifactsRepository.propertyValue(TEST_PROPERTY), nullValue());
+        assertThat(console.output()).contains("Failed to create property");
+        assertThat(console.output()).contains("Nothing matched xpath \"//HTML\"");
+        assertThat(artifactsRepository.propertyValue(TEST_PROPERTY)).isNull();
     }
 
     @Test
-    public void shouldReportNotingMatchedWhenXPATHisNotValid() throws IOException {
+    void shouldReportNotingMatchedWhenXPATHisNotValid() throws IOException {
         createSrcFile("xmlfile");
         runBuild(BuildCommand.generateProperty(TEST_PROPERTY, "xmlfile", "////////HTML"), JobResult.Passed);
-        assertThat(console.output(), containsString("Failed to create property"));
-        assertThat(console.output(), containsString("Illegal xpath: \"////////HTML\""));
-        assertThat(artifactsRepository.propertyValue(TEST_PROPERTY), nullValue());
+        assertThat(console.output()).contains("Failed to create property");
+        assertThat(console.output()).contains("Illegal xpath: \"////////HTML\"");
+        assertThat(artifactsRepository.propertyValue(TEST_PROPERTY)).isNull();
     }
 
     @Test
-    public void shouldReportPropertyIsCreated() throws Exception {
+    void shouldReportPropertyIsCreated() throws Exception {
         createSrcFile("xmlfile");
         runBuild(BuildCommand.generateProperty(TEST_PROPERTY, "xmlfile", "//buildplan/@name"), JobResult.Passed);
-        assertThat(console.output(), containsString("Property " + TEST_PROPERTY + " = test created"));
-        assertThat(artifactsRepository.propertyValue(TEST_PROPERTY), is("test"));
+        assertThat(console.output()).contains("Property " + TEST_PROPERTY + " = test created");
+        assertThat(artifactsRepository.propertyValue(TEST_PROPERTY)).isEqualTo("test");
     }
 
     @Test
-    public void shouldReportFirstMatchedProperty() throws Exception {
+    void shouldReportFirstMatchedProperty() throws Exception {
         createSrcFile("xmlfile");
         runBuild(BuildCommand.generateProperty(TEST_PROPERTY, "xmlfile", "//artifact/@src"), JobResult.Passed);
-        assertThat(console.output(), containsString("Property " + TEST_PROPERTY + " = target\\connectfour.jar created"));
-        assertThat(artifactsRepository.propertyValue(TEST_PROPERTY), is("target\\connectfour.jar"));
+        assertThat(console.output()).contains("Property " + TEST_PROPERTY + " = target\\connectfour.jar created");
+        assertThat(artifactsRepository.propertyValue(TEST_PROPERTY)).isEqualTo("target\\connectfour.jar");
     }
 
     private void createSrcFile(String filename) throws IOException {

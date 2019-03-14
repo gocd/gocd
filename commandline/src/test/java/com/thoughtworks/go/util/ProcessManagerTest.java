@@ -17,23 +17,21 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Predicate;
 
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ProcessManagerTest {
+class ProcessManagerTest {
 
     private ProcessManager processManager;
     private Process processOne;
@@ -42,8 +40,8 @@ public class ProcessManagerTest {
     private ProcessWrapper wrapperForProcessTwo;
     private Process processStartedByManager;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         processManager = new ProcessManager() {
             @Override
             Process startProcess(ProcessBuilder processBuilder, String msgCommandInfo) {
@@ -72,21 +70,21 @@ public class ProcessManagerTest {
     }
 
     @Test
-    public void shouldAddToProcessListWhenNewProcessCreated() {
+    void shouldAddToProcessListWhenNewProcessCreated() {
         processManager.createProcess(new String[]{"echo", "message"}, "echo 'message'", null, new HashMap<>(), new EnvironmentVariableContext(), inMemoryConsumer(), "test-tag", "utf-8",
                 "ERROR: ");
-        assertThat(processManager.getProcessMap().size(), is(3));
+        assertThat(processManager.getProcessMap().size()).isEqualTo(3);
     }
 
     @Test
-    public void shouldRemoveKilledProcessFromList() {
+    void shouldRemoveKilledProcessFromList() {
         processManager.processKilled(processTwo);
-        assertThat(processManager.getProcessMap().size(), is(1));
-        assertThat(processManager.getProcessMap().containsKey(processOne), is(true));
+        assertThat(processManager.getProcessMap().size()).isEqualTo(1);
+        assertThat(processManager.getProcessMap().containsKey(processOne)).isTrue();
     }
 
     @Test
-    public void shouldGetIdleTimeForGivenProcess() {
+    void shouldGetIdleTimeForGivenProcess() {
         processManager = new ProcessManager();
         ProcessWrapper processWrapperOne = mock(ProcessWrapper.class);
         Process processOne = mock(Process.class);
@@ -102,11 +100,11 @@ public class ProcessManagerTest {
         when(processWrapperTwo.getIdleTime()).thenReturn(100L);
 
         long timeout = processManager.getIdleTimeFor("tag2");
-        assertThat(timeout, is(100L));
+        assertThat(timeout).isEqualTo(100L);
     }
 
     @Test
-    public void processListForDisplayShouldBeSameAsTheCurrentProcessList() throws Exception {
+    void processListForDisplayShouldBeSameAsTheCurrentProcessList() {
         processManager = new ProcessManager();
         ProcessWrapper processWrapperOne = mock(ProcessWrapper.class);
         Process processOne = mock(Process.class);
@@ -117,17 +115,13 @@ public class ProcessManagerTest {
         processMap.put(processTwo, processWrapperTwo);
 
         Collection<ProcessWrapper> processWrappersForDisplay = processManager.currentProcessListForDisplay();
-        assertThat(processWrappersForDisplay, is(processMap.values()));
+        assertThat(processWrappersForDisplay).isEqualTo(processMap.values());
     }
 
     @Test
-    public void canGetProcessLevelEnvironmentVariableNames() {
-        processManager.environmentVariableNames().stream().filter(new Predicate<String>() {
-            @Override
-            public boolean test(String item) {
-                return item.equalsIgnoreCase("path");
-            }
-        }).findFirst().orElse(null);
+    void canGetProcessLevelEnvironmentVariableNames() {
+        final String path = processManager.environmentVariableNames().stream().filter(item -> item.equalsIgnoreCase("path")).findFirst().orElse(null);
 
+        assertThat(path).isEqualTo("PATH");
     }
 }

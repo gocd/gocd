@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,14 +27,12 @@ import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitSubmoduleRepos;
 import com.thoughtworks.go.helper.TestRepo;
-import com.thoughtworks.go.matchers.RegexMatcher;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,90 +43,88 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
+import static com.thoughtworks.go.matchers.ConsoleOutMatcherJunit5.assertConsoleOut;
 import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static junit.framework.TestCase.assertTrue;
 import static org.apache.commons.io.filefilter.FileFilterUtils.*;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
+class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
     private static final String SUBMODULE = "submodule-1";
 
     private File workingDir;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() {
         workingDir = new File(sandbox, "working");
     }
 
-    @After
-    public void teardown() throws Exception {
+    @AfterEach
+    void teardown() {
         TestRepo.internalTearDown();
     }
 
     @Test
-    public void shouldCreateBuildCommandUpdateToSpecificRevision() throws Exception {
+    void shouldCreateBuildCommandUpdateToSpecificRevision() throws Exception {
         GitMaterial material = new GitMaterial(new GitTestRepo(temporaryFolder).projectRepositoryUrl(), true);
         File newFile = new File(workingDir, "second.txt");
         updateTo(material, new RevisionContext(REVISION_1, REVISION_0, 2), JobResult.Passed);
-        assertThat(console.output(),
-                containsString("Start updating files at revision " + REVISION_1.getRevision()));
-        assertThat(newFile.exists(), is(false));
+        assertThat(console.output()).contains("Start updating files at revision " + REVISION_1.getRevision());
+        assertThat(newFile.exists()).isFalse();
 
         console.clear();
         updateTo(material, new RevisionContext(REVISION_2, REVISION_1, 2), JobResult.Passed);
 
-        assertThat(console.output(),
-                containsString("Start updating files at revision " + REVISION_2.getRevision()));
-        assertThat(newFile.exists(), is(true));
+        assertThat(console.output()).contains("Start updating files at revision " + REVISION_2.getRevision());
+        assertThat(newFile.exists()).isTrue();
     }
 
     @Test
-    public void shouldRemoveSubmoduleFolderFromWorkingDirWhenSubmoduleIsRemovedFromRepo() throws Exception {
+    void shouldRemoveSubmoduleFolderFromWorkingDirWhenSubmoduleIsRemovedFromRepo() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl(), true);
         StringRevision revision = new StringRevision("origin/master");
         updateTo(gitMaterial, new RevisionContext(revision), JobResult.Passed);
-        assertThat(new File(workingDir, "sub1"), exists());
+        assertThat(new File(workingDir, "sub1")).exists();
         submoduleRepos.removeSubmodule("sub1");
         updateTo(gitMaterial, new RevisionContext(revision), JobResult.Passed);
-        assertThat(new File(workingDir, "sub1"), not(exists()));
+        assertThat(new File(workingDir, "sub1")).isNotEqualTo(exists());
     }
 
     @Test
-    public void shouldDeleteAndRecheckoutDirectoryWhenUrlChanges() throws Exception {
+    void shouldDeleteAndRecheckoutDirectoryWhenUrlChanges() throws Exception {
         updateTo(new GitMaterial(new GitTestRepo(temporaryFolder).projectRepositoryUrl(), true),
                 new RevisionContext(new StringRevision("origin/master")), JobResult.Passed);
 
         File shouldBeRemoved = new File(workingDir, "shouldBeRemoved");
         shouldBeRemoved.createNewFile();
-        assertThat(shouldBeRemoved.exists(), is(true));
+        assertThat(shouldBeRemoved.exists()).isTrue();
 
         String repositoryUrl = new GitTestRepo(temporaryFolder).projectRepositoryUrl();
         GitMaterial material = new GitMaterial(repositoryUrl, true);
         updateTo(material, new RevisionContext(REVISION_4), JobResult.Passed);
-        assertThat(localRepoFor(material).workingRepositoryUrl().forCommandline(), is(repositoryUrl));
-        assertThat(shouldBeRemoved.exists(), is(false));
+        assertThat(localRepoFor(material).workingRepositoryUrl().forCommandline()).isEqualTo(repositoryUrl);
+        assertThat(shouldBeRemoved.exists()).isFalse();
     }
 
     @Test
-    public void shouldNotDeleteAndRecheckoutDirectoryWhenUrlSame() throws Exception {
+    void shouldNotDeleteAndRecheckoutDirectoryWhenUrlSame() throws Exception {
         GitMaterial material = new GitMaterial(new GitTestRepo(temporaryFolder).projectRepositoryUrl(), true);
         updateTo(material, new RevisionContext(new StringRevision("origin/master")), JobResult.Passed);
         File shouldNotBeRemoved = new File(new File(workingDir, ".git"), "shouldNotBeRemoved");
         FileUtils.writeStringToFile(shouldNotBeRemoved, "gundi", UTF_8);
-        assertThat(shouldNotBeRemoved.exists(), is(true));
+        assertThat(shouldNotBeRemoved.exists()).isTrue();
         updateTo(material, new RevisionContext(new StringRevision("origin/master")), JobResult.Passed);
-        assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
+        assertThat(shouldNotBeRemoved.exists()).as("Should not have deleted whole folder").isTrue();
     }
 
     /* This is to test the functionality of the private method isRepositoryChanged() */
     @Test
-    public void shouldNotDeleteAndRecheckoutDirectoryWhenBranchIsBlank() throws Exception {
+    void shouldNotDeleteAndRecheckoutDirectoryWhenBranchIsBlank() throws Exception {
         String repositoryUrl = new GitTestRepo(temporaryFolder).projectRepositoryUrl();
         GitMaterial material = new GitMaterial(repositoryUrl, false);
         updateTo(material, new RevisionContext(new StringRevision("origin/master")), JobResult.Passed);
@@ -138,75 +134,74 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
         GitMaterial material1 = new GitMaterial(repositoryUrl, " ");
         updateTo(material1, new RevisionContext(new StringRevision("origin/master")), JobResult.Passed);
-        assertThat("Should not have deleted whole folder", shouldNotBeRemoved.exists(), is(true));
+        assertThat(shouldNotBeRemoved.exists()).as("Should not have deleted whole folder").isTrue();
     }
 
     @Test
-    public void shouldDeleteAndRecheckoutDirectoryWhenBranchChanges() throws Exception {
+    void shouldDeleteAndRecheckoutDirectoryWhenBranchChanges() throws Exception {
         GitTestRepo repoWithBranch = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, "foo", temporaryFolder);
         GitMaterial material = new GitMaterial(repoWithBranch.projectRepositoryUrl(), true);
         updateTo(material, new RevisionContext(new StringRevision("origin/master")), JobResult.Passed);
         InMemoryStreamConsumer output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
-        assertThat(output.getStdOut(), is("* master"));
+        assertThat(output.getStdOut()).isEqualTo("* master");
 
         GitMaterial material1 = new GitMaterial(repoWithBranch.projectRepositoryUrl(), "foo", null, true);
         updateTo(material1, new RevisionContext(new StringRevision("origin/foo")), JobResult.Passed);
 
         output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
-        assertThat(output.getStdOut(), is("* foo"));
+        assertThat(output.getStdOut()).isEqualTo("* foo");
     }
 
     @Test
-    public void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
+    void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
         String repositoryUrl = new GitTestRepo(temporaryFolder).projectRepositoryUrl();
         GitMaterial material = new GitMaterial(repositoryUrl, false);
         updateTo(material, new RevisionContext(REVISION_1), JobResult.Passed);
-        assertThat(console.output(), containsString(
-                format("Start updating %s at revision %s from %s", "files", REVISION_1.getRevision(),
-                        repositoryUrl)));
+        assertThat(console.output()).contains(format("Start updating %s at revision %s from %s", "files", REVISION_1.getRevision(),
+                repositoryUrl));
     }
 
     @Test
-    public void shouldConvertExistingRepoToFullRepoWhenShallowCloneIsOff() throws IOException {
+    void shouldConvertExistingRepoToFullRepoWhenShallowCloneIsOff() throws IOException {
         String repositoryUrl = new GitTestRepo(temporaryFolder).projectRepositoryUrl();
         GitMaterial shallowMaterial = new GitMaterial(repositoryUrl, true);
         updateTo(shallowMaterial, new RevisionContext(REVISION_3), JobResult.Passed);
-        assertThat(localRepoFor(shallowMaterial).isShallow(), is(true));
+        assertThat(localRepoFor(shallowMaterial).isShallow()).isTrue();
         GitMaterial fullMaterial = new GitMaterial(repositoryUrl, false);
         updateTo(fullMaterial, new RevisionContext(REVISION_4), JobResult.Passed);
-        assertThat(localRepoFor(fullMaterial).isShallow(), is(false));
+        assertThat(localRepoFor(fullMaterial).isShallow()).isFalse();
     }
 
     @Test
-    public void shouldCleanDirtyFilesUponUpdate() throws IOException {
+    void shouldCleanDirtyFilesUponUpdate() throws IOException {
         String repositoryUrl = new GitTestRepo(temporaryFolder).projectRepositoryUrl();
         GitMaterial material = new GitMaterial(repositoryUrl, true);
         updateTo(material, new RevisionContext(REVISION_4), JobResult.Passed);
         File shouldBeRemoved = new File(workingDir, "shouldBeRemoved");
         assertTrue(shouldBeRemoved.createNewFile());
         updateTo(material, new RevisionContext(REVISION_4), JobResult.Passed);
-        assertThat(shouldBeRemoved.exists(), is(false));
+        assertThat(shouldBeRemoved.exists()).isFalse();
     }
 
     @Test
-    public void cloneWithDeepWorkingDir() throws Exception {
+    void cloneWithDeepWorkingDir() throws Exception {
         GitMaterial material = new GitMaterial(new GitTestRepo(temporaryFolder).projectRepositoryUrl(), "", "foo/bar/baz", true);
         updateTo(material, new RevisionContext(REVISION_4), JobResult.Passed);
-        assertThat(new File(workingDir, "foo/bar/baz/build.xml").exists(), is(true));
+        assertThat(new File(workingDir, "foo/bar/baz/build.xml").exists()).isTrue();
     }
 
     @Test
-    public void failureCommandShouldNotLeakPasswordOnUrl() throws Exception {
+    void failureCommandShouldNotLeakPasswordOnUrl() {
         GitMaterial material = new GitMaterial("https://foo:foopassword@this.is.absolute.not.exists", true);
         updateTo(material, new RevisionContext(new StringRevision("origin/master")), JobResult.Failed);
-        assertThat(console.output(), containsString("https://foo:******@this.is.absolute.not.exists/"));
-        assertThat(console.output(), not(containsString("foopassword")));
+        assertThat(console.output()).contains("https://foo:******@this.is.absolute.not.exists/");
+        assertThat(console.output()).doesNotContain("foopassword");
     }
 
     @Test
-    public void shouldCleanUnversionedFilesInsideSubmodulesBeforeUpdating() throws Exception {
+    void shouldCleanUnversionedFilesInsideSubmodulesBeforeUpdating() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         String submoduleDirectoryName = "local-submodule";
         submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
@@ -216,11 +211,11 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         File unversionedFile = new File(new File(workingDir, submoduleDirectoryName), "unversioned_file.txt");
         FileUtils.writeStringToFile(unversionedFile, "this is an unversioned file. lets see you deleting me.. come on.. I dare you!!!!", UTF_8);
         updateTo(material, new RevisionContext(new StringRevision("origin/HEAD")), JobResult.Passed);
-        assertThat(unversionedFile.exists(), Matchers.is(false));
+        assertThat(unversionedFile.exists()).isEqualTo(false);
     }
 
     @Test
-    public void shouldRemoveChangesToModifiedFilesInsideSubmodulesBeforeUpdating() throws Exception {
+    void shouldRemoveChangesToModifiedFilesInsideSubmodulesBeforeUpdating() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         String submoduleDirectoryName = "local-submodule";
         File remoteSubmoduleLocation = submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
@@ -237,11 +232,11 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
                 remoteSubmoduleLocation, submoduleDirectoryName, fileInSubmodule.getName(), "NEW CONTENT OF FILE");
 
         updateTo(material, new RevisionContext(new StringRevision(modifications.get(0).getRevision())), JobResult.Passed);
-        assertThat(FileUtils.readFileToString(fileInSubmodule, UTF_8), Matchers.is("NEW CONTENT OF FILE"));
+        assertThat(FileUtils.readFileToString(fileInSubmodule, UTF_8)).isEqualTo("NEW CONTENT OF FILE");
     }
 
     @Test
-    public void shouldAllowSubmoduleUrlstoChange() throws Exception {
+    void shouldAllowSubmoduleUrlstoChange() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         String submoduleDirectoryName = "local-submodule";
         submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
@@ -249,38 +244,34 @@ public class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         updateTo(material, new RevisionContext(new StringRevision("origin/HEAD")), JobResult.Passed);
         submoduleRepos.changeSubmoduleUrl(submoduleDirectoryName);
         updateTo(material, new RevisionContext(new StringRevision("origin/HEAD")), JobResult.Passed);
-        assertThat(console.output(), containsString("Synchronizing submodule url for 'local-submodule'"));
+        assertThat(console.output()).contains("Synchronizing submodule url for 'local-submodule'");
     }
 
     @Test
-    public void shouldOutputSubmoduleRevisionsAfterUpdate() throws Exception {
+    void shouldOutputSubmoduleRevisionsAfterUpdate() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial material = new GitMaterial(submoduleRepos.projectRepositoryUrl(), true);
         updateTo(material, new RevisionContext(new StringRevision("origin/HEAD")), JobResult.Passed);
         Matcher matcher = Pattern.compile(".*^\\s[a-f0-9A-F]{40} sub1 \\(heads/master\\)$.*", Pattern.MULTILINE | Pattern.DOTALL).matcher(console.output());
-        assertThat(matcher.matches(), Matchers.is(true));
+        assertThat(matcher.matches()).isEqualTo(true);
     }
 
     @Test
-    public void shouldBombForFetchAndResetWhenSubmoduleUpdateFails() throws Exception {
+    void shouldBombForFetchAndResetWhenSubmoduleUpdateFails() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         File submoduleFolder = submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial material = new GitMaterial(submoduleRepos.projectRepositoryUrl(), true);
         FileUtils.deleteDirectory(submoduleFolder);
-        assertThat(submoduleFolder.exists(), Matchers.is(false));
+        assertThat(submoduleFolder.exists()).isEqualTo(false);
         updateTo(material, new RevisionContext(new StringRevision("origin/HEAD")), JobResult.Failed);
-        assertThat(console.output(),
-                // different versions of git use different messages
-                // git on windows prints full submodule paths
-                new RegexMatcher(String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed", Pattern.quote(submoduleFolder.getAbsolutePath())))
-        );
+        assertConsoleOut(console.output()).matchUsingRegex(String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed", Pattern.quote(submoduleFolder.getAbsolutePath())));
     }
 
     private void updateTo(GitMaterial material, RevisionContext revisionContext, JobResult expectedResult) {
         BuildSession buildSession = newBuildSession();
         JobResult result = buildSession.build(new GitMaterialUpdater(material).updateTo("working", revisionContext));
-        assertThat(buildInfo(), result, is(expectedResult));
+        assertThat(result).as(buildInfo()).isEqualTo(expectedResult);
     }
 
     private GitCommand localRepoFor(GitMaterial material) {

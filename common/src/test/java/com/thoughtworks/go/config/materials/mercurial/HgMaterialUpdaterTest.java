@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,124 +28,118 @@ import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.HgTestRepo.*;
 import static java.lang.String.format;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
+class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
     private HgMaterial hgMaterial;
     private HgTestRepo hgTestRepo;
     private File workingFolder;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl());
         workingFolder = temporaryFolder.newFolder("workingFolder");
     }
 
-    @After
-    public void teardown() {
+    @AfterEach
+    void teardown() {
         TestRepo.internalTearDown();
     }
 
     @Test
-    public void shouldUpdateToSpecificRevision() throws Exception {
+    void shouldUpdateToSpecificRevision() {
         updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
         File end2endFolder = new File(workingFolder, "end2end");
-        assertThat(end2endFolder.listFiles().length, is(3));
+        assertThat(end2endFolder.listFiles().length).isEqualTo(3);
         updateTo(hgMaterial, new RevisionContext(REVISION_1), JobResult.Passed);
-        assertThat(end2endFolder.listFiles().length, is(4));
+        assertThat(end2endFolder.listFiles().length).isEqualTo(4);
     }
 
     @Test
-    public void shouldUpdateToDestinationFolder() throws Exception {
+    void shouldUpdateToDestinationFolder() {
         hgMaterial.setFolder("dest");
         updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
         File end2endFolder = new File(workingFolder, "dest/end2end");
-        assertThat(new File(workingFolder, "dest").exists(), is(true));
-        assertThat(end2endFolder.exists(), is(true));
+        assertThat(new File(workingFolder, "dest").exists()).isTrue();
+        assertThat(end2endFolder.exists()).isTrue();
     }
 
     @Test
-    public void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
+    void shouldLogRepoInfoToConsoleOutWithoutFolder() {
         updateTo(hgMaterial, new RevisionContext(new StringRevision("0")), JobResult.Passed);
-        assertThat(console.output(), containsString(
-                format("Start updating %s at revision %s from %s", "files", "0",
-                        hgMaterial.getUrl())));
+        assertThat(console.output()).contains(format("Start updating %s at revision %s from %s", "files", "0",
+                hgMaterial.getUrl()));
     }
 
     @Test
-    public void failureCommandShouldNotLeakPasswordOnUrl() throws Exception {
+    void failureCommandShouldNotLeakPasswordOnUrl() {
         HgMaterial material = MaterialsMother.hgMaterial("https://foo:foopassword@this.is.absolute.not.exists");
         updateTo(material, new RevisionContext(REVISION_1), JobResult.Failed);
-        assertThat(console.output(), containsString("https://foo:******@this.is.absolute.not.exists"));
-        assertThat(console.output(), not(containsString("foopassword")));
+        assertThat(console.output()).contains("https://foo:******@this.is.absolute.not.exists");
+        assertThat(console.output()).doesNotContain("foopassword");
     }
 
     @Test
-    public void shouldCreateBuildCommandUpdateToSpecificRevision() throws Exception {
+    void shouldCreateBuildCommandUpdateToSpecificRevision() {
         File newFile = new File(workingFolder, "end2end/revision2.txt");
         updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
-        assertThat(console.output(),
-                containsString("Start updating files at revision " + REVISION_0.getRevision()));
-        assertThat(newFile.exists(), is(false));
+        assertThat(console.output()).contains("Start updating files at revision " + REVISION_0.getRevision());
+        assertThat(newFile.exists()).isFalse();
 
         console.clear();
         updateTo(hgMaterial, new RevisionContext(REVISION_2, REVISION_1, 2), JobResult.Passed);
 
-        assertThat(console.output(),
-                containsString("Start updating files at revision " + REVISION_2.getRevision()));
-        assertThat(newFile.exists(), is(true));
+        assertThat(console.output()).contains("Start updating files at revision " + REVISION_2.getRevision());
+        assertThat(newFile.exists()).isTrue();
     }
 
     @Test
-    public void shouldNotDeleteAndRecheckoutDirectoryUnlessUrlChanges() throws Exception {
+    void shouldNotDeleteAndRecheckoutDirectoryUnlessUrlChanges() throws Exception {
         String repositoryUrl = new HgTestRepo(temporaryFolder).projectRepositoryUrl();
         HgMaterial material = MaterialsMother.hgMaterial(repositoryUrl);
         updateTo(material, new RevisionContext(REVISION_0), JobResult.Passed);
         File shouldNotBeRemoved = new File(workingFolder, "shouldBeRemoved");
         shouldNotBeRemoved.createNewFile();
-        assertThat(shouldNotBeRemoved.exists(), is(true));
+        assertThat(shouldNotBeRemoved.exists()).isTrue();
 
 
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
-        assert(MaterialUrl.sameUrl(material.getUrl(), repositoryUrl));
-        assertThat(shouldNotBeRemoved.exists(), is(true));
+        assert (MaterialUrl.sameUrl(material.getUrl(), repositoryUrl));
+        assertThat(shouldNotBeRemoved.exists()).isTrue();
     }
 
     @Test
-    public void shouldDeleteAndRecheckoutDirectoryWhenUrlChanges() throws Exception {
+    void shouldDeleteAndRecheckoutDirectoryWhenUrlChanges() throws Exception {
         updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
         File shouldBeRemoved = new File(workingFolder, "shouldBeRemoved");
         shouldBeRemoved.createNewFile();
-        assertThat(shouldBeRemoved.exists(), is(true));
+        assertThat(shouldBeRemoved.exists()).isTrue();
 
         String repositoryUrl = new HgTestRepo(temporaryFolder).projectRepositoryUrl();
         HgMaterial material = MaterialsMother.hgMaterial(repositoryUrl);
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
-        assertThat(material.getUrl(), not(hgMaterial.getUrl()));
-        assert(MaterialUrl.sameUrl(material.getUrl(), repositoryUrl));
-        assertThat(shouldBeRemoved.exists(), is(false));
+        assertThat(material.getUrl()).isNotEqualTo(hgMaterial.getUrl());
+        assert (MaterialUrl.sameUrl(material.getUrl(), repositoryUrl));
+        assertThat(shouldBeRemoved.exists()).isFalse();
     }
 
     @Test
-    public void shouldPullNewChangesFromRemoteBeforeUpdating() throws Exception {
+    void shouldPullNewChangesFromRemoteBeforeUpdating() throws Exception {
         File newWorkingFolder = temporaryFolder.newFolder("newWorkingFolder");
         updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);
         String repositoryUrl = hgTestRepo.projectRepositoryUrl();
         HgMaterial material = MaterialsMother.hgMaterial(repositoryUrl);
-        assertThat(material.getUrl(), is(hgMaterial.getUrl()));
+        assertThat(material.getUrl()).isEqualTo(hgMaterial.getUrl());
         updateTo(material, new RevisionContext(REVISION_0), JobResult.Passed, newWorkingFolder);
 
         hgTestRepo.commitAndPushFile("SomeDocumentation.txt", "whatever");
@@ -154,19 +148,18 @@ public class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
         StringRevision revision = new StringRevision(modification.get(0).getRevision());
 
         updateTo(material, new RevisionContext(revision), JobResult.Passed, newWorkingFolder);
-        assertThat(console.output(),
-                containsString("Start updating files at revision " + revision.getRevision()));
+        assertThat(console.output()).contains("Start updating files at revision " + revision.getRevision());
     }
 
     private void updateTo(HgMaterial material, RevisionContext revisionContext, JobResult expectedResult, File workingFolder) {
         BuildSession buildSession = newBuildSession();
         JobResult result = buildSession.build(new HgMaterialUpdater(material).updateTo(workingFolder.toString(), revisionContext));
-        assertThat(buildInfo(), result, is(expectedResult));
+        assertThat(result).as(buildInfo()).isEqualTo(expectedResult);
     }
 
     private void updateTo(HgMaterial material, RevisionContext revisionContext, JobResult expectedResult) {
         BuildSession buildSession = newBuildSession();
         JobResult result = buildSession.build(new HgMaterialUpdater(material).updateTo(workingFolder.toString(), revisionContext));
-        assertThat(buildInfo(), result, is(expectedResult));
+        assertThat(result).as(buildInfo()).isEqualTo(expectedResult);
     }
 }

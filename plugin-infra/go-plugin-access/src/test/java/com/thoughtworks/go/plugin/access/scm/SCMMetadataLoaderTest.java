@@ -21,9 +21,7 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class SCMMetadataLoaderTest {
@@ -53,14 +51,14 @@ public class SCMMetadataLoaderTest {
         metadataLoader.fetchSCMMetaData(pluginDescriptor);
 
         SCMConfigurations configurationMetadata = SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id());
-        assertThat(configurationMetadata.size(), is(1));
+        assertThat(configurationMetadata.size()).isEqualTo(1);
         SCMConfiguration scmConfiguration = configurationMetadata.get("k1");
-        assertThat(scmConfiguration.getKey(), is("k1"));
-        assertThat(scmConfiguration.getOption(SCMProperty.REQUIRED), is(true));
-        assertThat(scmConfiguration.getOption(SCMProperty.PART_OF_IDENTITY), is(false));
+        assertThat(scmConfiguration.getKey()).isEqualTo("k1");
+        assertThat(scmConfiguration.getOption(SCMProperty.REQUIRED)).isTrue();
+        assertThat(scmConfiguration.getOption(SCMProperty.PART_OF_IDENTITY)).isFalse();
         SCMView viewMetadata = SCMMetadataStore.getInstance().getViewMetadata(pluginDescriptor.id());
-        assertThat(viewMetadata.displayValue(), is("display-value"));
-        assertThat(viewMetadata.template(), is("template"));
+        assertThat(viewMetadata.displayValue()).isEqualTo("display-value");
+        assertThat(viewMetadata.template()).isEqualTo("template");
     }
 
     @Test
@@ -69,9 +67,9 @@ public class SCMMetadataLoaderTest {
         try {
             metadataLoader.fetchSCMMetaData(pluginDescriptor);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Plugin[plugin-id] returned null SCM configuration"));
+            assertThat(e.getMessage()).isEqualTo("Plugin[plugin-id] returned null SCM configuration");
         }
-        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id()), nullValue());
+        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id())).isNull();
     }
 
     @Test
@@ -81,9 +79,9 @@ public class SCMMetadataLoaderTest {
         try {
             metadataLoader.fetchSCMMetaData(pluginDescriptor);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Plugin[plugin-id] returned null SCM view"));
+            assertThat(e.getMessage()).isEqualTo("Plugin[plugin-id] returned null SCM view");
         }
-        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id()), nullValue());
+        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id())).isNull();
     }
 
     @Test
@@ -121,8 +119,8 @@ public class SCMMetadataLoaderTest {
 
         metadataLoader.pluginUnLoaded(pluginDescriptor);
 
-        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id()), is(nullValue()));
-        assertThat(SCMMetadataStore.getInstance().getViewMetadata(pluginDescriptor.id()), is(nullValue()));
+        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id())).isNull();
+        assertThat(SCMMetadataStore.getInstance().getViewMetadata(pluginDescriptor.id())).isNull();
     }
 
     @Test
@@ -134,8 +132,8 @@ public class SCMMetadataLoaderTest {
 
         metadataLoader.pluginUnLoaded(pluginDescriptor);
 
-        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id()), is(scmConfigurations));
-        assertThat(SCMMetadataStore.getInstance().getViewMetadata(pluginDescriptor.id()), is(scmView));
+        assertThat(SCMMetadataStore.getInstance().getConfigurationMetadata(pluginDescriptor.id())).isEqualTo(scmConfigurations);
+        assertThat(SCMMetadataStore.getInstance().getViewMetadata(pluginDescriptor.id())).isEqualTo(scmView);
     }
 
     private SCMView createSCMView(final String displayValue, final String template) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,50 +15,48 @@
  */
 package com.thoughtworks.go.buildsession;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static com.thoughtworks.go.domain.BuildCommand.*;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class SecretCommandExecutorTest extends BuildSessionBasedTestCase {
+class SecretCommandExecutorTest extends BuildSessionBasedTestCase {
 
     @Test
-    public void secretMaskValuesInExecOutput() throws Exception {
+    void secretMaskValuesInExecOutput() {
         runBuild(compose(
                 secret("42"),
                 exec("echo", "the answer is 42")), Passed);
-        assertThat(console.output(), containsString("the answer is ******"));
+        assertThat(console.output()).contains("the answer is ******");
     }
 
     @Test
-    public void secretMaskValuesInExportOutput() throws Exception {
+    void secretMaskValuesInExportOutput() {
         runBuild(compose(
                 secret("42"),
                 export("oracle", "the answer is 42", false)), Passed);
-        assertThat(console.output(), is("[go] setting environment variable 'oracle' to value 'the answer is ******'"));
+        assertThat(console.output()).isEqualTo("[go] setting environment variable 'oracle' to value 'the answer is ******'");
     }
 
     @Test
-    public void addSecretWithSubstitution() throws Exception {
+    void addSecretWithSubstitution() {
         runBuild(compose(
                 secret("foo:bar@ssss.com", "foo:******@ssss.com"),
                 exec("echo", "connecting to foo:bar@ssss.com"),
                 exec("echo", "connecting to foo:bar@tttt.com")), Passed);
-        assertThat(console.firstLine(), containsString("connecting to foo:******@ssss.com"));
-        assertThat(console.asList().get(1), containsString("connecting to foo:bar@tttt.com"));
+        assertThat(console.firstLine()).contains("connecting to foo:******@ssss.com");
+        assertThat(console.asList().get(1)).contains("connecting to foo:bar@tttt.com");
     }
 
     @Test
-    public void shouldNotLeakSecretWhenExceptionHappened() throws Exception {
+    void shouldNotLeakSecretWhenExceptionHappened() {
         runBuild(compose(
                 secret("the-answer-is-42"),
                 error("error: the-answer-is-42")), Failed);
-        assertThat(console.output(), containsString("error: ******"));
-        assertThat(console.output(), not(containsString("the-anwser-is-42")));
+        assertThat(console.output()).contains("error: ******");
+        assertThat(console.output()).doesNotContain("the-anwser-is-42");
     }
 }

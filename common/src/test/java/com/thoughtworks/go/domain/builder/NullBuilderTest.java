@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,14 @@ package com.thoughtworks.go.domain.builder;
 import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.JobResult;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class NullBuilderTest extends BuildSessionBasedTestCase {
+class NullBuilderTest extends BuildSessionBasedTestCase {
     @Test
-    public void shouldSupportBuildCommand() throws Exception {
+    void shouldSupportBuildCommand() {
         BuildCommand command = new NullBuilder().buildCommand();
-        assertThat(newBuildSession().build(command), is(JobResult.Passed));
+        assertThat(newBuildSession().build(command)).isEqualTo(JobResult.Passed);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,8 +22,8 @@ import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.UUID;
@@ -31,16 +31,13 @@ import java.util.zip.Deflater;
 
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestCase {
+class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestCase {
     private File zip;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         File folder = temporaryFolder.newFolder("log");
         File consolelog = new File(folder, "console.log");
         folder.mkdirs();
@@ -52,7 +49,7 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
 
 
     @Test
-    public void shouldUnzipWhenFetchingFolder() throws Exception {
+    void shouldUnzipWhenFetchingFolder() throws Exception {
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/log.zip", new URLService().baseRemoteURL()), zip);
 
         FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -10, "1", "dev", "1", "windows", 1L), "log", "dest", new DirHandler("log", new File("pipelines/cruise/dest")));
@@ -61,47 +58,47 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
     }
 
     @Test
-    public void shouldGiveWarningWhenMd5FileNotExists() throws Exception {
+    void shouldGiveWarningWhenMd5FileNotExists() {
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/a.jar", new URLService().baseRemoteURL()), "some content");
 
         FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("pipelines/cruise/foo/a.jar"), "a.jar"));
 
         runBuilder(builder, JobResult.Passed);
-        assertThat(new File(sandbox, "pipelines/cruise/foo/a.jar").isFile(), is(true));
-        assertThat(console.output(), containsString("[WARN] The md5checksum property file was not found"));
+        assertThat(new File(sandbox, "pipelines/cruise/foo/a.jar").isFile()).isTrue();
+        assertThat(console.output()).contains("[WARN] The md5checksum property file was not found");
     }
 
     @Test
-    public void shouldFailBuildWhenChecksumNotValidForArtifact() throws Exception {
+    void shouldFailBuildWhenChecksumNotValidForArtifact() {
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/cruise-output/md5.checksum", new URLService().baseRemoteURL()), "a.jar=invalid-checksum");
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/a.jar", new URLService().baseRemoteURL()), "some content");
 
         FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("pipelines/cruise/foo/a.jar"), "a.jar"));
         runBuilder(builder, JobResult.Failed);
-        assertThat(console.output(), containsString("[ERROR] Verification of the integrity of the artifact [a.jar] failed"));
-        assertThat(new File(sandbox, "pipelines/cruise/foo/a.jar").isFile(), is(true));
+        assertThat(console.output()).contains("[ERROR] Verification of the integrity of the artifact [a.jar] failed");
+        assertThat(new File(sandbox, "pipelines/cruise/foo/a.jar").isFile()).isTrue();
     }
 
     @Test
-    public void shouldBuildWhenChecksumValidForArtifact() throws Exception {
+    void shouldBuildWhenChecksumValidForArtifact() {
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/cruise-output/md5.checksum", new URLService().baseRemoteURL()), "a.jar=9893532233caff98cd083a116b013c0b");
         httpService.setupDownload(format("%s/remoting/files/cruise/1/dev/1/windows/a.jar", new URLService().baseRemoteURL()), "some content");
 
         FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("pipelines/cruise/foo/a.jar"), "a.jar"));
         runBuilder(builder, JobResult.Passed);
-        assertThat(console.output(), containsString(format("Saved artifact to [%s] after verifying the integrity of its contents", new File(sandbox, "pipelines/cruise/foo/a.jar").getPath())));
+        assertThat(console.output()).contains(format("Saved artifact to [%s] after verifying the integrity of its contents", new File(sandbox, "pipelines/cruise/foo/a.jar").getPath()));
     }
 
     @Test
-    public void shouldFailBuildAndPrintErrorMessageToConsoleWhenArtifactNotExisit() throws Exception {
+    void shouldFailBuildAndPrintErrorMessageToConsoleWhenArtifactNotExisit() {
         FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("pipelines/cruise/foo/a.jar"), "a.jar"));
         runBuilder(builder, JobResult.Failed);
-        assertThat(console.output(), not(containsString("Saved artifact")));
-        assertThat(console.output(), containsString("Could not fetch artifact"));
+        assertThat(console.output()).doesNotContain("Saved artifact");
+        assertThat(console.output()).contains("Could not fetch artifact");
     }
 
     @Test
-    public void shouldDownloadWithURLContainsSHA1WhenFileExists() throws Exception {
+    void shouldDownloadWithURLContainsSHA1WhenFileExists() throws Exception {
         File artifactOnAgent = new File(sandbox, "pipelines/cruise/foo/a.jar");
         new File(sandbox, "pipelines/cruise/foo").mkdirs();
         FileUtils.writeStringToFile(artifactOnAgent, "foobar", UTF_8);
@@ -115,24 +112,24 @@ public class FetchArtifactBuilderBuildCommandTest extends BuildSessionBasedTestC
         FetchArtifactBuilder builder = getBuilder(new JobIdentifier("cruise", -1, "1", "dev", "1", "windows", 1L), "a.jar", "foo", new FileHandler(new File("pipelines/cruise/foo/a.jar"), "a.jar"));
 
         runBuilder(builder, JobResult.Passed);
-        assertThat(artifactOnAgent.isFile(), is(true));
-        assertThat(FileUtils.readFileToString(artifactOnAgent, UTF_8), is("content for url with sha1"));
+        assertThat(artifactOnAgent.isFile()).isTrue();
+        assertThat(FileUtils.readFileToString(artifactOnAgent, UTF_8)).isEqualTo("content for url with sha1");
     }
 
 
     private void assertDownloaded(File destOnAgent) {
         File logFolder = new File(destOnAgent, "log");
-        assertThat(logFolder.exists(), is(true));
-        assertThat(logFolder.isDirectory(), is(true));
-        assertThat(new File(logFolder, "console.log").exists(), is(true));
-        assertThat(destOnAgent.listFiles(), is(new File[]{logFolder}));
+        assertThat(logFolder.exists()).isTrue();
+        assertThat(logFolder.isDirectory()).isTrue();
+        assertThat(new File(logFolder, "console.log").exists()).isTrue();
+        assertThat(destOnAgent.listFiles()).isEqualTo(new File[]{logFolder});
     }
 
 
     private void runBuilder(FetchArtifactBuilder builder, JobResult expectedResult) {
         BuildCommand buildCommand = builder.buildCommand();
         JobResult result = newBuildSession().build(buildCommand);
-        assertThat(buildInfo(), result, is(expectedResult));
+        assertThat(result).as(buildInfo()).isEqualTo(expectedResult);
     }
 
     private String getSrc() {

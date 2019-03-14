@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package com.thoughtworks.go.buildsession;
 
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -28,15 +28,13 @@ import static com.thoughtworks.go.domain.BuildCommand.downloadDir;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.util.MapBuilder.map;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
 
-public class DownloadDirCommandExecutorTest extends BuildSessionBasedTestCase {
+class DownloadDirCommandExecutorTest extends BuildSessionBasedTestCase {
 
     @Test
-    public void downloadDirWithChecksum() throws Exception {
+    void downloadDirWithChecksum() throws Exception {
         File folder = temporaryFolder.newFolder("log");
         Files.write(Paths.get(folder.getPath(), "a"), "content for a".getBytes());
         Files.write(Paths.get(folder.getPath(), "b"), "content for b".getBytes());
@@ -54,9 +52,8 @@ public class DownloadDirCommandExecutorTest extends BuildSessionBasedTestCase {
                 "checksumUrl", "http://far.far.away/log.zip.md5")), Passed);
         File dest = new File(sandbox, "dest");
 
-        assertThat(console.output(), containsString(String.format("Saved artifact to [%s] after verifying the integrity of its contents", dest.getPath())));
-        assertThat(FileUtils.readFileToString(new File(dest, "log/a"), UTF_8), is("content for a"));
-        assertThat(FileUtils.readFileToString(new File(dest, "log/b"), UTF_8), is("content for b"));
+        assertThat(console.output()).contains(String.format("Saved artifact to [%s] after verifying the integrity of its contents", dest.getPath()));
+        assertThat(FileUtils.readFileToString(new File(dest, "log/a"), UTF_8)).isEqualTo("content for a");
+        assertThat(FileUtils.readFileToString(new File(dest, "log/b"), UTF_8)).isEqualTo("content for b");
     }
-
 }

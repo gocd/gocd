@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,8 @@
  */
 package com.thoughtworks.go.buildsession;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 
@@ -23,28 +24,27 @@ import static com.thoughtworks.go.domain.BuildCommand.mkdirs;
 import static com.thoughtworks.go.domain.BuildCommand.test;
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
-import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class MkdirsCommandExecutorTest extends BuildSessionBasedTestCase {
+class MkdirsCommandExecutorTest extends BuildSessionBasedTestCase {
     @Test
-    public void mkdirsShouldCreateDirectoryIfNotExists() {
+    void mkdirsShouldCreateDirectoryIfNotExists() {
         runBuild(mkdirs("foo"), Passed);
-        assertThat(new File(sandbox, "foo").isDirectory(), is(true));
+        assertThat(new File(sandbox, "foo").isDirectory()).isTrue();
     }
 
     @Test
-    public void mkdirsShouldFailIfDirExists() {
+    void mkdirsShouldFailIfDirExists() {
         runBuild(mkdirs("foo"), Passed);
         runBuild(mkdirs("foo"), Failed);
-        assertThat(new File(sandbox, "foo").isDirectory(), is(true));
+        assertThat(new File(sandbox, "foo").isDirectory()).isTrue();
     }
 
     @Test
-    public void testDirectoryExistsBeforeMkdir() {
+    void testDirectoryExistsBeforeMkdir() {
         File dir = new File(sandbox, "foo");
         runBuild(mkdirs("foo"), Passed);
         runBuild(mkdirs("foo").setTest(test("-nd", dir.getPath())), Passed);
-        assertThat(new File(sandbox, "foo").isDirectory(), is(true));
+        assertThat(new File(sandbox, "foo").isDirectory()).isTrue();
     }
 }

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.elastic;
 
+import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigCollection;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.PluginProfile;
@@ -29,6 +30,9 @@ import java.util.Collection;
 @ConfigCollection(value = ConfigurationProperty.class)
 public class ElasticProfile extends PluginProfile {
 
+    @ConfigAttribute(value = "clusterProfileId", allowNull = true)
+    protected String clusterProfileId;
+
     public ElasticProfile() {
         super();
     }
@@ -37,13 +41,26 @@ public class ElasticProfile extends PluginProfile {
         super(id, pluginId, props);
     }
 
+    public ElasticProfile(String id, String pluginId, String clusterProfileId, ConfigurationProperty... props) {
+        super(id, pluginId, props);
+        this.clusterProfileId = clusterProfileId;
+    }
+
     public ElasticProfile(String id, String pluginId, Collection<ConfigurationProperty> configProperties) {
         this(id, pluginId, configProperties.toArray(new ConfigurationProperty[0]));
+    }
+
+    public ElasticProfile(String id, String pluginId, String clusterProfileId, Collection<ConfigurationProperty> configProperties) {
+        this(id, pluginId, clusterProfileId, configProperties.toArray(new ConfigurationProperty[0]));
     }
 
     @Override
     protected String getObjectDescription() {
         return "Elastic agent profile";
+    }
+
+    public String getClusterProfileId() {
+        return clusterProfileId;
     }
 
     @Override

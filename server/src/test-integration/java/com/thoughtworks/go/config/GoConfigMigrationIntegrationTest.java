@@ -2460,6 +2460,53 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent, containsString(configContent));
     }
 
+    @Test
+    public void shouldOnlyUpdateSchemaVersionForMigration118() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        String configContent =  " <elastic>\n" +
+                "    <profiles>\n" +
+                "      <profile id=\"asdf\" pluginId=\"cd.go.contrib.elastic-agent.docker\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>asdf</value>\n" +
+                "        </property>\n" +
+                "      </profile>" +
+                "    </profiles>" +
+                "  </elastic>";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"117\">\n"
+                + configContent
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 117, 118);
+
+        assertThat(migratedContent, containsString("<cruise schemaVersion=\"118\""));
+        assertThat(migratedContent, containsString(configContent));
+    }
+
+    @Test
+    public void shouldAllowSpecifyingClusterProfileIdAttributeOnProfilesAsPartMigration118() throws Exception {
+        String configContent =  " <elastic>\n" +
+        "    <profiles>\n" +
+                "      <profile clusterProfileId=\"foo\" id=\"profile1\" pluginId=\"cd.go.contrib.elastic-agent.docker\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>asdf</value>\n" +
+                "        </property>\n" +
+                "      </profile>" +
+                "    </profiles>" +
+                "  </elastic>";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"118\">\n"
+                + configContent
+                + "</cruise>";
+
+        CruiseConfig config = loadConfigFileWithContent(configXml);
+        ElasticProfile elasticProfile = config.getElasticConfig().getProfiles().find("profile1");
+        assertThat(elasticProfile.getClusterProfileId(), is("foo"));
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertEquals(expected.replaceAll("\\r", ""), actual.replaceAll("\\r", ""));
     }

@@ -53,8 +53,8 @@ describe("admin crud", () => {
 
       expect(request.url).toEqual(API_SYSTEM_ADMINS_PATH);
       expect(request.method).toEqual("PATCH");
-      expect(request.requestHeaders)
-        .toEqual({"Accept": "application/vnd.go.cd.v2+json", "Content-Type": "application/json; charset=utf-8"});
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+      expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
     });
   });
 });

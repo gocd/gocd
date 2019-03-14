@@ -31,7 +31,7 @@ describe("ArtifactStoreCRUD", () => {
     expect(request.url).toEqual("/go/api/admin/artifact_stores");
     expect(request.method).toEqual("GET");
     expect(request.data()).toEqual(toJSON({} as ArtifactStoreJSON));
-    expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v1+json"});
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
   });
 
   it("should create a new artifact store", () => {
@@ -43,11 +43,8 @@ describe("ArtifactStoreCRUD", () => {
     expect(request.url).toEqual("/go/api/admin/artifact_stores");
     expect(request.method).toEqual("POST");
     expect(request.data()).toEqual(toJSON(ArtifactStoreTestData.dockerArtifactStore()));
-    expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
-                                             "Content-Type": "application/json; charset=utf-8"
-                                           });
-
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
   });
 
   it("should update a artifact store", () => {
@@ -61,12 +58,9 @@ describe("ArtifactStoreCRUD", () => {
     expect(request.url).toEqual(`/go/api/admin/artifact_stores/${dockerArtifactStore.id}`);
     expect(request.method).toEqual("PUT");
     expect(request.data()).toEqual(toJSON(dockerArtifactStore));
-    expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
-                                             "Content-Type": "application/json; charset=utf-8",
-                                             "If-Match": "some-etag"
-                                           });
-
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
+    expect(request.requestHeaders["If-Match"]).toEqual("some-etag");
   });
 
   it("should delete a artifact store", () => {
@@ -80,12 +74,9 @@ describe("ArtifactStoreCRUD", () => {
     expect(request.url).toEqual(`/go/api/admin/artifact_stores/${dockerArtifactStore.id}`);
     expect(request.method).toEqual("DELETE");
     expect(request.data()).toEqual(toJSON({} as ArtifactStoreJSON));
-    expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
-                                             "Content-Type": "application/json; charset=utf-8",
-                                             "X-GoCD-Confirm": "true"
-                                           });
-
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
+    expect(request.requestHeaders["X-GoCD-Confirm"]).toEqual("true");
   });
 
 });

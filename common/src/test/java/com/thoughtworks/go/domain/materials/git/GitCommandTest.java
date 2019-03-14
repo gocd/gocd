@@ -40,13 +40,16 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,6 +80,9 @@ public class GitCommandTest {
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
+
+    @Rule
+    public final TestRule restoreSystemProperties = new RestoreSystemProperties();
 
     @Mock
     private TestSubprocessExecutionContext testSubprocessExecutionContext;
@@ -622,6 +628,35 @@ public class GitCommandTest {
         submoduleRepos.changeSubmoduleUrl(submoduleDirectoryName);
 
         clonedCopy.fetchAndResetToHead(outputStreamConsumer);
+    }
+
+    @Test
+    public void shouldCleanIgnoredFilesIfToggleIsDisabled() throws IOException {
+        InMemoryStreamConsumer output = inMemoryConsumer();
+        File gitIgnoreFile = new File(repoLocation, ".gitignore");
+        FileUtils.writeStringToFile(gitIgnoreFile, "*.foo", Charset.forName("UTF-8"));
+        gitRepo.addFileAndPush(gitIgnoreFile, "added gitignore");
+        git.fetchAndResetToHead(output);
+
+        File ignoredFile = new File(gitLocalRepoDir, "ignored.foo");
+        assertTrue(ignoredFile.createNewFile());
+        git.fetchAndResetToHead(output);
+        assertThat(ignoredFile.exists(), is(false));
+    }
+
+    @Test
+    public void shouldNotCleanIgnoredFilesIfToggleIsEnabled() throws IOException {
+        System.setProperty("toggle.agent.git.clean.keep.ignored.files", "Y");
+        InMemoryStreamConsumer output = inMemoryConsumer();
+        File gitIgnoreFile = new File(repoLocation, ".gitignore");
+        FileUtils.writeStringToFile(gitIgnoreFile, "*.foo", Charset.forName("UTF-8"));
+        gitRepo.addFileAndPush(gitIgnoreFile, "added gitignore");
+        git.fetchAndResetToHead(output);
+
+        File ignoredFile = new File(gitLocalRepoDir, "ignored.foo");
+        assertTrue(ignoredFile.createNewFile());
+        git.fetchAndResetToHead(output);
+        assertThat(ignoredFile.exists(), is(true));
     }
 
     private List<File> allFilesIn(File directory, String prefixOfFiles) {

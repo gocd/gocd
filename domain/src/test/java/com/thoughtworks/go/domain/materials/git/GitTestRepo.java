@@ -24,7 +24,6 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.FileUtil;
-import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.junit.rules.TemporaryFolder;
@@ -134,6 +133,10 @@ public class GitTestRepo extends TestRepo {
     public List<Modification> addFileAndPush(String fileName, String message) throws IOException {
         File newFile = new File(gitRepo, fileName);
         newFile.createNewFile();
+        return addFileAndPush(newFile, message);
+    }
+
+    public List<Modification> addFileAndPush(File newFile, String message) throws IOException {
         new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null).add(newFile);
         new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null).commit(message);
         return createMaterial().latestModification(temporaryFolder.newFolder(), new TestSubprocessExecutionContext());

@@ -24,6 +24,8 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.*;
@@ -36,9 +38,12 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 
 public class GitCommand extends SCMCommand {
+    private static final Logger LOG = LoggerFactory.getLogger(GitCommand.class);
+
     private static final Pattern GIT_SUBMODULE_STATUS_PATTERN = Pattern.compile("^.[0-9a-fA-F]{40} (.+?)( \\(.+\\))?$");
     private static final Pattern GIT_SUBMODULE_URL_PATTERN = Pattern.compile("^submodule\\.(.+)\\.url (.+)$");
     private static final Pattern GIT_DIFF_TREE_PATTERN = Pattern.compile("^(.)\\s+(.+)$");
+    private static final String GIT_CLEAN_KEEP_IGNORED_FILES_FLAG = "toggle.agent.git.clean.keep.ignored.files";
 
     private final File workingDir;
     private final List<SecretString> secrets;
@@ -173,9 +178,18 @@ public class GitCommand extends SCMCommand {
 
     private void cleanUnversionedFilesInAllSubmodulesRecursively() {
         CommandLine gitCmd = git(environment)
-                .withArgs("submodule", "foreach", "--recursive", "git", "clean", "-dffx")
+                .withArgs("submodule", "foreach", "--recursive", "git", "clean", gitCleanArgs())
                 .withWorkingDir(workingDir);
         runOrBomb(gitCmd);
+    }
+
+    private String gitCleanArgs() {
+        if ("Y".equalsIgnoreCase(System.getProperty(GIT_CLEAN_KEEP_IGNORED_FILES_FLAG))) {
+            LOG.info("{} = Y. Using old behaviour for clean using `-dff`", GIT_CLEAN_KEEP_IGNORED_FILES_FLAG);
+            return "-dff";
+        } else {
+            return "-dffx";
+        }
     }
 
     private void printSubmoduleStatus(ConsoleOutputStreamConsumer outputStreamConsumer) {
@@ -225,7 +239,7 @@ public class GitCommand extends SCMCommand {
 
     private void cleanUnversionedFiles(File workingDir) {
         CommandLine gitCmd = git(environment)
-                .withArgs("clean", "-dffx")
+                .withArgs("clean", gitCleanArgs())
                 .withWorkingDir(workingDir);
         runOrBomb(gitCmd);
     }

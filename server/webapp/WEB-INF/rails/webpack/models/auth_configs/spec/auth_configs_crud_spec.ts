@@ -31,7 +31,7 @@ describe("AuthorizationConfigurationCRUD", () => {
     expect(request.url).toEqual("/go/api/admin/security/auth_configs");
     expect(request.method).toEqual("GET");
     expect(request.data()).toEqual(toJSON({} as AuthConfigJSON));
-    expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v1+json"});
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
   });
 
   it("should create a new auth config", () => {
@@ -43,11 +43,8 @@ describe("AuthorizationConfigurationCRUD", () => {
     expect(request.url).toEqual("/go/api/admin/security/auth_configs");
     expect(request.method).toEqual("POST");
     expect(request.data()).toEqual(toJSON(TestData.ldapAuthConfig()));
-    expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
-                                             "Content-Type": "application/json; charset=utf-8"
-                                           });
-
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
   });
 
   it("should update a auth config", () => {
@@ -61,12 +58,9 @@ describe("AuthorizationConfigurationCRUD", () => {
     expect(request.url).toEqual(`/go/api/admin/security/auth_configs/${ldapAuthConfig.id}`);
     expect(request.method).toEqual("PUT");
     expect(request.data()).toEqual(toJSON(ldapAuthConfig));
-    expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
-                                             "Content-Type": "application/json; charset=utf-8",
-                                             "If-Match": "some-etag"
-                                           });
-
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
+    expect(request.requestHeaders["If-Match"]).toEqual("some-etag");
   });
 
   it("should delete a auth config", () => {
@@ -80,12 +74,9 @@ describe("AuthorizationConfigurationCRUD", () => {
     expect(request.url).toEqual(`/go/api/admin/security/auth_configs/${ldapAuthConfig.id}`);
     expect(request.method).toEqual("DELETE");
     expect(request.data()).toEqual(toJSON({} as AuthConfigJSON));
-    expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
-                                             "Content-Type": "application/json; charset=utf-8",
-                                             "X-GoCD-Confirm": "true"
-                                           });
-
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
+    expect(request.requestHeaders["X-GoCD-Confirm"]).toEqual("true");
   });
 
 });

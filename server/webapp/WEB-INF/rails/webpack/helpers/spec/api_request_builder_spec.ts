@@ -128,9 +128,10 @@ describe("Api Request Builder", () => {
       mockSuccessfulRequest();
       ApiRequestBuilder.GET("/foo", ApiVersion.v1, {headers: {foo: "bar"}});
       const request = jasmine.Ajax.requests.mostRecent();
-      expect(Object.keys(request.requestHeaders)).toHaveLength(2);
+      expect(Object.keys(request.requestHeaders)).toHaveLength(3);
       expect(request.requestHeaders.Accept).toBe("application/vnd.go.cd.v1+json");
       expect(request.requestHeaders.foo).toBe("bar");
+      expect(request.requestHeaders["X-Requested-With"]).toBe("XMLHttpRequest");
     });
 
     it("should pass if-none-match Header", () => {

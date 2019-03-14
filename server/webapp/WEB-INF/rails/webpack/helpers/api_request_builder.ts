@@ -217,6 +217,8 @@ export class ApiRequestBuilder {
       headers["X-GoCD-Confirm"] = "true";
     }
 
+    headers["X-Requested-With"] = "XMLHttpRequest";
+
     return headers;
   }
 

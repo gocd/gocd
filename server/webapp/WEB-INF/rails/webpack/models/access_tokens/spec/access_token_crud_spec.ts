@@ -39,7 +39,7 @@ describe("AccessTokenCRUD", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(ALL_ACESS_TOKENS_PATH);
     expect(request.method).toEqual("GET");
-    expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v1+json"});
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
   });
 
   it("should create access token", (done) => {
@@ -60,10 +60,8 @@ describe("AccessTokenCRUD", () => {
     expect(request.method).toEqual("POST");
     const requestData = toAccessTokenJSON(request.data());
     expect(requestData.description).toEqual(accessToken.description());
-    expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
-                                             "Content-Type": "application/json; charset=utf-8"
-                                           });
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
   });
 
   it("should revoke access token", (done) => {
@@ -84,10 +82,8 @@ describe("AccessTokenCRUD", () => {
     expect(request.method).toEqual("POST");
     const data = toAccessTokenJSON(request.data());
     expect(data.revoke_cause).toEqual("Some cause to revoke the token");
-    expect(request.requestHeaders).toEqual({
-                                             "Accept": "application/vnd.go.cd.v1+json",
-                                             "Content-Type": "application/json; charset=utf-8"
-                                           });
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+    expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
   });
 
 });

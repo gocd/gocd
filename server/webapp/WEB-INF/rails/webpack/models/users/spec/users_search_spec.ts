@@ -35,7 +35,7 @@ describe("Users search", () => {
     const request = jasmine.Ajax.requests.mostRecent();
     expect(request.url).toEqual(USERS_SEARCH_API);
     expect(request.method).toEqual("GET");
-    expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v1+json"});
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
   });
 });
 

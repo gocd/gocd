@@ -38,7 +38,7 @@ describe("UsersCRUD", () => {
       const request = jasmine.Ajax.requests.mostRecent();
       expect(request.url).toEqual(ALL_USERS_API);
       expect(request.method).toEqual("GET");
-      expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v3+json"});
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
     });
   });
 
@@ -68,8 +68,8 @@ describe("UsersCRUD", () => {
 
       expect(request.url).toEqual(ALL_USERS_API);
       expect(request.method).toEqual("POST");
-      expect(request.requestHeaders)
-        .toEqual({"Accept": "application/vnd.go.cd.v3+json", "Content-Type": "application/json; charset=utf-8"});
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
+      expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
     });
   });
 
@@ -104,8 +104,8 @@ describe("UsersCRUD", () => {
 
       expect(request.url).toEqual(BULK_UPDATE_USERS_API);
       expect(request.method).toEqual("PATCH");
-      expect(request.requestHeaders)
-        .toEqual({"Accept": "application/vnd.go.cd.v3+json", "Content-Type": "application/json; charset=utf-8"});
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
+      expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
     });
   });
 
@@ -137,8 +137,8 @@ describe("UsersCRUD", () => {
 
       expect(request.url).toEqual(BULK_DELETE_USERS_API);
       expect(request.method).toEqual("DELETE");
-      expect(request.requestHeaders)
-        .toEqual({"Accept": "application/vnd.go.cd.v3+json", "Content-Type": "application/json; charset=utf-8"});
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
+      expect(request.requestHeaders["Content-Type"]).toEqual("application/json; charset=utf-8");
     });
   });
 
@@ -167,7 +167,7 @@ describe("UsersCRUD", () => {
       const request = jasmine.Ajax.requests.mostRecent();
       expect(request.url).toEqual(GET_USER_API);
       expect(request.method).toEqual("GET");
-      expect(request.requestHeaders).toEqual({Accept: "application/vnd.go.cd.v3+json"});
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v3+json");
     });
   });
 });

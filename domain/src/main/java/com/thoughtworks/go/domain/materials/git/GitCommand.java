@@ -167,7 +167,8 @@ public class GitCommand extends SCMCommand {
 
     private void checkoutAllModifiedFilesInSubmodules(ConsoleOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Removing modified files in submodules");
-        runOrBomb(git(environment).withArgs("submodule", "foreach", "--recursive", "git", "checkout", ".").withWorkingDir(workingDir));
+        runOrBomb(git(environment).withArgs("submodule", "foreach", "--recursive", "git", "checkout", ".")
+                .withWorkingDir(workingDir));
     }
 
     private void cleanAllUnversionedFiles(ConsoleOutputStreamConsumer outputStreamConsumer) {
@@ -246,7 +247,9 @@ public class GitCommand extends SCMCommand {
 
     private void removeSubmoduleSectionsFromGitConfig(ConsoleOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Deinit submodules");
-        CommandLine gitCmd = git(environment).withArgs("submodule", "deinit", "-f", "--all");
+        CommandLine gitCmd = git(environment)
+                .withArgs("submodule", "deinit", "-f", "--all")
+                .withWorkingDir(workingDir);
         runOrBomb(gitCmd);
     }
 

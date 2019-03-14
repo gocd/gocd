@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,35 +16,28 @@
 
 package com.thoughtworks.go.server.service.builders;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.AntTask;
 import com.thoughtworks.go.config.ExecTask;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.StubGoPublisher;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.builder.CommandBuilder;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 import java.io.File;
 
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@RunWith(JunitExtRunner.class)
-public class AntTaskBuilderTest {
+class AntTaskBuilderTest {
     private AntTask antTask;
     private static final String DEFAULT_WORKING_DIRECTORY = "default/working/directory";
     private static final String PIPELINE_LABEL = "label";
@@ -56,8 +49,8 @@ public class AntTaskBuilderTest {
     private ExecTaskBuilder execTaskBuilder;
     private TaskExtension taskEntension;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() {
         antTask = new AntTask();
         antTaskBuilder = new AntTaskBuilder();
         execTaskBuilder = new ExecTaskBuilder();
@@ -66,29 +59,29 @@ public class AntTaskBuilderTest {
         taskEntension = mock(TaskExtension.class);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         verifyNoMoreInteractions(resolver);
     }
 
     @Test
-    public void shouldUseAbsoluteWorkingDirectoryWhenItIsSet() {
+    void shouldUseAbsoluteWorkingDirectoryWhenItIsSet() {
         final File absoluteFile = new File("me/antdirectory").getAbsoluteFile();
         antTask.setWorkingDirectory(absoluteFile.getPath());
 
         CommandBuilder builder = (CommandBuilder) antTaskBuilder.createBuilder(builderFactory, antTask, pipeline, resolver);
-        assertThat(builder.getWorkingDir(), is(absoluteFile));
+        assertThat(builder.getWorkingDir()).isEqualTo(absoluteFile);
     }
 
     @Test
-    public void shouldUseDefaultWorkingDirectoryWhenItIsNotSet() {
+    void shouldUseDefaultWorkingDirectoryWhenItIsNotSet() {
         File workingDir = new File(DEFAULT_WORKING_DIRECTORY);
         CommandBuilder builder = (CommandBuilder) antTaskBuilder.createBuilder(builderFactory, antTask, pipeline, resolver);
-        assertThat(builder.getWorkingDir(), is(workingDir));
+        assertThat(builder.getWorkingDir()).isEqualTo(workingDir);
     }
 
     @Test
-    public void shouldFailWhenTargetDoesNotExist() {
+    void shouldFailWhenTargetDoesNotExist() {
         String target = "not-exist-target";
         String buildXml = "./build.xml";
         antTask.setBuildFile(buildXml);
@@ -96,33 +89,33 @@ public class AntTaskBuilderTest {
         Builder builder = antTaskBuilder.createBuilder(builderFactory, antTask, ExecTaskBuilderTest.pipelineStub(PIPELINE_LABEL, "."), resolver);
 
         try {
-            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension, null, null,"utf-8");
+            builder.build(new StubGoPublisher(), new EnvironmentVariableContext(), taskEntension, null, null, "utf-8");
         } catch (CruiseControlException e) {
-            assertThat(e.getMessage(), containsString("Build failed. Command ant reported [BUILD FAILED]."));
+            assertThat(e.getMessage()).contains("Build failed. Command ant reported [BUILD FAILED].");
         }
     }
 
     @Test
-    public void shouldPrependDefaultWorkingDirectoryIfRelativeAntHomeIsUsed() {
+    void shouldPrependDefaultWorkingDirectoryIfRelativeAntHomeIsUsed() {
         antTask.setWorkingDirectory("lib");
         File baseDir = new File(DEFAULT_WORKING_DIRECTORY);
         CommandBuilder builder = (CommandBuilder) antTaskBuilder.createBuilder(builderFactory, antTask, pipeline, resolver);
-        assertThat(builder.getWorkingDir(), is(new File(baseDir, "lib")));
+        assertThat(builder.getWorkingDir()).isEqualTo(new File(baseDir, "lib"));
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void antTaskShouldNormalizeWorkingDirectory() {
+    @DisabledOnOs(OS.WINDOWS)
+    void antTaskShouldNormalizeWorkingDirectory() {
         AntTask task = new AntTask();
         task.setWorkingDirectory("folder1\\folder2");
 
         CommandBuilder commandBuilder = (CommandBuilder) antTaskBuilder.createBuilder(builderFactory, task, ExecTaskBuilderTest.pipelineStub("label", "/var/cruise-agent/pipelines/cruise"), resolver);
 
-        assertThat(commandBuilder.getWorkingDir().getPath(), is("/var/cruise-agent/pipelines/cruise/folder1/folder2"));
+        assertThat(commandBuilder.getWorkingDir().getPath()).isEqualTo("/var/cruise-agent/pipelines/cruise/folder1/folder2");
     }
 
     @Test
-    public void shouldReturnBuilderWithCancelBuilderIfOnCancelDefined() {
+    void shouldReturnBuilderWithCancelBuilderIfOnCancelDefined() {
         ExecTask cancelTask = new ExecTask();
         Builder builderForCancelTask = execTaskBuilder.createBuilder(builderFactory, cancelTask, pipeline, resolver);
 
@@ -133,7 +126,7 @@ public class AntTaskBuilderTest {
         Builder expected = expectedBuilder(antTask, builderForCancelTask);
 
         Builder actualBuilder = antTaskBuilder.createBuilder(builderFactory, antTask, pipeline, resolver);
-        assertThat(actualBuilder, is(expected));
+        assertThat(actualBuilder).isEqualTo(expected);
     }
 
     private Builder expectedBuilder(AntTask antTask, Builder builderForCancelTask) {

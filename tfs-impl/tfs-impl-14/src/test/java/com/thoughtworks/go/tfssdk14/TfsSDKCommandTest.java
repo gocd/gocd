@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,17 +26,18 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.tfssdk14.wrapper.GoTfsVersionControlClient;
 import com.thoughtworks.go.tfssdk14.wrapper.GoTfsWorkspace;
 import com.thoughtworks.go.util.command.StringArgument;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.Mockito.*;
 
-public class TfsSDKCommandTest {
+class TfsSDKCommandTest {
 
     private TfsSDKCommand tfsCommand;
     private final String DOMAIN = "domain";
@@ -48,15 +49,15 @@ public class TfsSDKCommandTest {
     private GoTfsVersionControlClient client;
     private TFSTeamProjectCollection collection;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         client = mock(GoTfsVersionControlClient.class);
         collection = mock(TFSTeamProjectCollection.class);
         tfsCommand = new TfsSDKCommand(client, collection, null, new StringArgument(TFS_COLLECTION), DOMAIN, USERNAME, PASSWORD, TFS_WORKSPACE, TFS_PROJECT);
     }
 
     @Test
-    public void shouldGetLatestModifications() throws Exception {
+    void shouldGetLatestModifications() {
         Changeset[] changeSets = getChangeSets(42);
         when(client.queryHistory(TFS_PROJECT, null, 1)).thenReturn(changeSets);
         TfsSDKCommand spy = spy(tfsCommand);
@@ -69,15 +70,14 @@ public class TfsSDKCommandTest {
     }
 
     @Test
-    public void shouldCheckConnectionSuccessfullyIfAllCredentialsAreValid() throws Exception {
+    void shouldCheckConnectionSuccessfullyIfAllCredentialsAreValid() {
         Changeset[] changeSets = getChangeSets(42);
         when(client.queryHistory(TFS_PROJECT, null, 1)).thenReturn(changeSets);
         TfsSDKCommand spy = spy(tfsCommand);
         doReturn(null).when(spy).getModifiedFiles(changeSets[0]);
-        try{
+        try {
             spy.checkConnection();
-        }
-        catch (Exception e){
+        } catch (Exception e) {
             fail("Should not have thrown exception");
         }
         verify(client).queryHistory(TFS_PROJECT, null, 1);
@@ -85,20 +85,19 @@ public class TfsSDKCommandTest {
     }
 
     @Test
-    public void shouldThrowExceptionDuringCheckConnectionIfInvalid() throws Exception {
+    void shouldThrowExceptionDuringCheckConnectionIfInvalid() {
         when(client.queryHistory(TFS_PROJECT, null, 1)).thenThrow(new RuntimeException("could not connect"));
-        try{
+        try {
             tfsCommand.checkConnection();
             fail("should have thrown an exception");
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             assertThat(e.getMessage()).isEqualTo("Failed while checking connection using Url: http://some.repo.local:8000/, Project Path: $/project_path, Username: username, Domain: domain, Root Cause: could not connect");
         }
         verify(client).queryHistory(TFS_PROJECT, null, 1);
     }
 
     @Test
-    public void shouldReturnChangeSetsFromAPreviouslyKnownRevisionUptilTheLatest() throws Exception {
+    void shouldReturnChangeSetsFromAPreviouslyKnownRevisionUptilTheLatest() {
         Changeset[] changeSets = getChangeSets(42);
         when(client.queryHistory(eq(TFS_PROJECT), or(isNull(), any(ChangesetVersionSpec.class)), anyInt())).thenReturn(changeSets);
         TfsSDKCommand spy = spy(tfsCommand);
@@ -112,7 +111,7 @@ public class TfsSDKCommandTest {
     }
 
     @Test
-    public void shouldCreateWorkspaceAndMapDirectory() throws Exception {
+    void shouldCreateWorkspaceAndMapDirectory() throws Exception {
         File workingDirectory = mock(File.class);
         when(workingDirectory.exists()).thenReturn(false);
         when(workingDirectory.getCanonicalPath()).thenReturn("/some-random-path/");
@@ -135,7 +134,7 @@ public class TfsSDKCommandTest {
     }
 
     @Test
-    public void shouldOnlyMapDirectoryAndNotCreateAWorkspaceIfWorkspaceIsAlreadyCreated() throws Exception {
+    void shouldOnlyMapDirectoryAndNotCreateAWorkspaceIfWorkspaceIsAlreadyCreated() throws Exception {
         File workingDirectory = mock(File.class);
         when(workingDirectory.exists()).thenReturn(false);
         when(workingDirectory.getCanonicalPath()).thenReturn("/some-random-path/");
@@ -157,7 +156,7 @@ public class TfsSDKCommandTest {
     }
 
     @Test
-    public void shouldThrowUpWhenUrlIsInvalid() throws Exception {
+    void shouldThrowUpWhenUrlIsInvalid() throws Exception {
         TfsSDKCommand tfsCommandForInvalidCollection = new TfsSDKCommand(null, new StringArgument("invalid_url"), DOMAIN, USERNAME, PASSWORD, TFS_WORKSPACE, TFS_PROJECT);
         try {
             tfsCommandForInvalidCollection.init();
@@ -167,7 +166,7 @@ public class TfsSDKCommandTest {
     }
 
     @Test
-    public void shouldCheckoutAllFilesWhenWorkingDirectoryIsDeleted() throws Exception {
+    void shouldCheckoutAllFilesWhenWorkingDirectoryIsDeleted() throws Exception {
         File workingDirectory = mock(File.class);
         when(workingDirectory.exists()).thenReturn(false);
         when(workingDirectory.getCanonicalPath()).thenReturn("canonical_path");
@@ -186,7 +185,7 @@ public class TfsSDKCommandTest {
     }
 
     @Test
-    public void should_GetLatestRevisions_WhenCheckingOutToLaterRevision() throws Exception {
+    void should_GetLatestRevisions_WhenCheckingOutToLaterRevision() throws Exception {
         File workingDirectory = mock(File.class);
         when(workingDirectory.exists()).thenReturn(false);
         when(workingDirectory.getCanonicalPath()).thenReturn("canonical_path");
@@ -206,7 +205,7 @@ public class TfsSDKCommandTest {
     }
 
     @Test
-    public void shouldClearWorkingDirectoryBeforeCheckingOut() throws Exception {
+    void shouldClearWorkingDirectoryBeforeCheckingOut() {
         File workingDirectory = mock(File.class);
         when(workingDirectory.exists()).thenReturn(true);
         TfsSDKCommand spy = spy(tfsCommand);
@@ -219,7 +218,7 @@ public class TfsSDKCommandTest {
     }
 
     @Test
-    public void shouldDeleteWorkspace() throws Exception {
+    void shouldDeleteWorkspace() {
         GoTfsWorkspace workspace = mock(GoTfsWorkspace.class);
         when(client.queryWorkspace(TFS_WORKSPACE, USERNAME)).thenReturn(workspace);
         doNothing().when(client).deleteWorkspace(workspace);
@@ -231,7 +230,7 @@ public class TfsSDKCommandTest {
     }
 
     @Test
-    public void destroyShouldCloseClientAndCollection() throws Exception {
+    void destroyShouldCloseClientAndCollection() {
         doNothing().when(client).close();
         doNothing().when(collection).close();
 

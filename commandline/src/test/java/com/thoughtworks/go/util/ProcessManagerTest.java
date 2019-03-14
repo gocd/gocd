@@ -122,6 +122,6 @@ class ProcessManagerTest {
     void canGetProcessLevelEnvironmentVariableNames() {
         final String path = processManager.environmentVariableNames().stream().filter(item -> item.equalsIgnoreCase("path")).findFirst().orElse(null);
 
-        assertThat(path).isEqualTo("PATH");
+        assertThat(path).isEqualToIgnoringCase("PATH");
     }
 }

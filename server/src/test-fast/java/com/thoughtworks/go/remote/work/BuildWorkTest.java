@@ -16,15 +16,12 @@
 
 package com.thoughtworks.go.remote.work;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.StageMother;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -42,10 +39,12 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.mockito.Mock;
 
 import javax.servlet.http.HttpServletResponse;
@@ -59,27 +58,20 @@ import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.JobResult.Passed;
 import static com.thoughtworks.go.domain.JobState.*;
 import static com.thoughtworks.go.helper.ConfigFileFixture.withJob;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.*;
-import static com.thoughtworks.go.matchers.RegexMatcher.matches;
+import static com.thoughtworks.go.matchers.ConsoleOutMatcherJunit5.assertConsoleOut;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_ACCEPTABLE;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(JunitExtRunner.class)
-public class BuildWorkTest {
+class BuildWorkTest {
 
-    public static final String PIPELINE_NAME = "pipeline1";
-    public static final String PIPELINE_LABEL = "100";
-    public static final String STAGE_NAME = "mingle";
-    public static final String JOB_PLAN_NAME = "run-ant";
+    static final String PIPELINE_NAME = "pipeline1";
+    private static final String PIPELINE_LABEL = "100";
+    private static final String STAGE_NAME = "mingle";
+    private static final String JOB_PLAN_NAME = "run-ant";
     private BuildWork buildWork;
     private AgentIdentifier agentIdentifier;
 
@@ -258,8 +250,8 @@ public class BuildWorkTest {
     private static final String SERVER_URL = "somewhere-does-not-matter";
     private static final JobIdentifier JOB_IDENTIFIER = new JobIdentifier(PIPELINE_NAME, -3, PIPELINE_LABEL, STAGE_NAME, String.valueOf(STAGE_COUNTER), JOB_PLAN_NAME, 1L);
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         initMocks(this);
         agentIdentifier = new AgentIdentifier("localhost", "127.0.0.1", "uuid");
         environmentVariableContext = new EnvironmentVariableContext();
@@ -268,48 +260,46 @@ public class BuildWorkTest {
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub();
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         new SystemEnvironment().clearProperty("serviceUrl");
         verifyNoMoreInteractions(resolver);
     }
 
     @Test
-    public void shouldReportStatus() throws Exception {
+    void shouldReportStatus() throws Exception {
         buildWork = (BuildWork) getWork(WILL_FAIL, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
-        assertThat(buildRepository.states, containsState(Preparing));
-        assertThat(buildRepository.states, containsState(Building));
-        assertThat(buildRepository.states, containsState(Completing));
+        assertThat(buildRepository.states).contains(Preparing, Building, Completing);
     }
 
     @Test
-    public void shouldNotRunTaskWhichConditionDoesNotMatch() throws Exception {
+    void shouldNotRunTaskWhichConditionDoesNotMatch() throws Exception {
         buildWork = (BuildWork) getWork(WILL_NOT_RUN, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
         String actual = artifactManipulator.consoleOut();
-        assertThat(actual, not(containsString("run when status is failed")));
+        assertThat(actual).doesNotContain("run when status is failed");
     }
 
     @Test
-    public void shouldRunTaskWhenConditionMatches() throws Exception {
+    void shouldRunTaskWhenConditionMatches() throws Exception {
         buildWork = (BuildWork) getWork(MULTIPLE_RUN_IFS, PIPELINE_NAME);
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
         String actual = artifactManipulator.consoleOut();
-        assertThat(actual, containsString("[go] Task: echo run when status is failed, passed or cancelled"));
-        assertThat(actual, matches("\\[go] Task status: passed \\(\\d+ ms\\)"));
-        assertThat(actual, containsString("[go] Current job status: passed"));
-        assertThat(actual, containsString("run when status is failed, passed or cancelled"));
+        assertThat(actual).contains("[go] Task: echo run when status is failed, passed or cancelled");
+        assertConsoleOut(actual).matchUsingRegex("\\[go] Task status: passed \\(\\d+ ms\\)");
+        assertThat(actual).contains("[go] Current job status: passed");
+        assertThat(actual).contains("run when status is failed, passed or cancelled");
     }
 
     @Test
-    public void shouldRunTasksBasedOnConditions() throws Exception {
+    void shouldRunTasksBasedOnConditions() throws Exception {
         buildWork = (BuildWork) getWork(MULTIPLE_TASKS, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
@@ -317,37 +307,37 @@ public class BuildWorkTest {
 
         String actual = artifactManipulator.consoleOut();
 
-        assertThat(actual, containsString("run when status is failed"));
-        assertThat(actual, printedExcRunIfInfo("command-not-found", "passed"));
-        assertThat(actual, containsString("run when status is any"));
-        assertThat(actual, printedExcRunIfInfo("echo", "run when status is any", "failed"));
-        assertThat(actual, not(containsString("run when status is passed")));
-        assertThat(actual, not(printedExcRunIfInfo("echo", "run when status is passed", "failed")));
-        assertThat(actual, not(containsString("run when status is cancelled")));
-        assertThat(actual, not(printedExcRunIfInfo("echo", "run when status is cancelled", "failed")));
+        assertConsoleOut(actual).contains("run when status is failed")
+                .printedExcRunIfInfo("command-not-found", "failed")
+                .contains("run when status is any")
+                .printedExcRunIfInfo("echo", "run when status is any", "failed")
+                .doesNotContain("run when status is passed")
+                .doesNotContain("run when status is cancelled")
+                .doesNotContainExcRunIfInfo("echo", "run when status is passed", "failed")
+                .doesNotContainExcRunIfInfo("echo", "run when status is cancelled", "failed");
     }
 
     @Test
-    public void shouldReportBuildIsFailedWhenAntBuildFailed() throws Exception {
+    void shouldReportBuildIsFailedWhenAntBuildFailed() throws Exception {
         buildWork = (BuildWork) getWork(WILL_FAIL, PIPELINE_NAME);
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
-        assertThat(buildRepository.results, containsResult(Failed));
+        assertThat(buildRepository.results).contains(Failed);
     }
 
     @Test
-    public void shouldReportDirectoryNotExists() throws Exception {
+    void shouldReportDirectoryNotExists() throws Exception {
         buildWork = (BuildWork) getWork(NANT_WITH_WORKINGDIR, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
-        assertThat(artifactManipulator.consoleOut(), containsString("not-exists\" is not a directory!"));
+        assertThat(artifactManipulator.consoleOut()).contains("not-exists\" is not a directory!");
     }
 
     @Test
-    public void shouldReportUploadMessageWhenUpload() throws Exception {
+    void shouldReportUploadMessageWhenUpload() throws Exception {
         String destFolder = "dest\\test\\sub-folder";
         final String url = String.format("%s/remoting/files/%s/%s/%s/%s/%s/%s?attempt=1&buildId=0", SERVER_URL, PIPELINE_NAME, PIPELINE_LABEL, STAGE_NAME, STAGE_COUNTER, JOB_PLAN_NAME,
                 destFolder.replaceAll("\\\\", "/"));
@@ -365,16 +355,16 @@ public class BuildWorkTest {
 
         String actual = artifactManipulator.consoleOut();
 
-        assertThat(actual.toLowerCase(), containsString(("Uploading artifacts from " + new File(basedir, artifactFile).getCanonicalPath()).toLowerCase()));
+        assertThat(actual.toLowerCase()).contains(("Uploading artifacts from " + new File(basedir, artifactFile).getCanonicalPath()).toLowerCase());
 
         Map<String, File> uploadedFiles = httpService.getUploadedFiles();
 
-        assertThat(uploadedFiles.size(), is(1));
-        assertThat(uploadedFiles.get(url).getAbsolutePath(), containsString(artifactFile + ".zip"));
+        assertThat(uploadedFiles.size()).isEqualTo(1);
+        assertThat(uploadedFiles.get(url).getAbsolutePath()).contains(artifactFile + ".zip");
     }
 
     @Test
-    public void shouldFailTheJobWhenFailedToUploadArtifact() throws Exception {
+    void shouldFailTheJobWhenFailedToUploadArtifact() throws Exception {
         String artifactFile = "some.txt";
         buildWork = (BuildWork) getWork(willUpload(artifactFile), PIPELINE_NAME);
         artifactManipulator = new GoArtifactsManipulatorStub(new HttpServiceStub(SC_NOT_ACCEPTABLE));
@@ -384,12 +374,12 @@ public class BuildWorkTest {
 
         String actual = artifactManipulator.consoleOut();
 
-        assertThat(actual, printedRuleDoesNotMatchFailure(new File("pipelines/pipeline1").getPath(), artifactFile));
-        assertThat(buildRepository.results, containsResult(Failed));
+        assertConsoleOut(actual).printedRuleDoesNotMatchFailure(new File("pipelines/pipeline1").getPath(), artifactFile);
+        assertThat(buildRepository.results).contains(Failed);
     }
 
     @Test
-    public void shouldCallArtifactExtensionToPublishPluggableArtifact() throws Exception {
+    void shouldCallArtifactExtensionToPublishPluggableArtifact() throws Exception {
         final ArtifactExtension artifactExtension = mock(ArtifactExtension.class);
         buildWork = (BuildWork) getWork(pluggableArtifact(), PIPELINE_NAME);
         artifactManipulator = new GoArtifactsManipulatorStub(new HttpServiceStub(SC_NOT_ACCEPTABLE));
@@ -401,17 +391,17 @@ public class BuildWorkTest {
     }
 
     @Test
-    public void shouldReportBuildIsFailedWhenAntBuildPassed() throws Exception {
+    void shouldReportBuildIsFailedWhenAntBuildPassed() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
-        assertThat(buildRepository.results, containsResult(Passed));
+        assertThat(buildRepository.results).contains(Passed);
     }
 
     @Test
-    public void shouldSendAResultStatusToServerWhenAThrowableErrorIsThrown() throws Exception {
+    void shouldSendAResultStatusToServerWhenAThrowableErrorIsThrown() {
         BuildAssignment buildAssignment = mock(BuildAssignment.class);
         when(buildAssignment.shouldFetchMaterials()).thenThrow(new AssertionError());
         when(buildAssignment.initialEnvironmentVariableContext()).thenReturn(new EnvironmentVariableContext());
@@ -424,14 +414,14 @@ public class BuildWorkTest {
             buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
             fail("Should have thrown an assertion error");
         } catch (AssertionError e) {
-            assertThat(buildRepository.results.isEmpty(), is(true));
-            assertThat(buildRepository.states.size(), is(1));
-            assertThat(buildRepository.states.get(0), is(JobState.Preparing));
+            assertThat(buildRepository.results.isEmpty()).isTrue();
+            assertThat(buildRepository.states.size()).isEqualTo(1);
+            assertThat(buildRepository.states.get(0)).isEqualTo(JobState.Preparing);
         }
     }
 
     @Test
-    public void shouldSendAResultStatusToServerWhenAnExceptionIsThrown() throws Exception {
+    void shouldSendAResultStatusToServerWhenAnExceptionIsThrown() throws Exception {
         BuildAssignment buildAssignment = mock(BuildAssignment.class);
         when(buildAssignment.shouldFetchMaterials()).thenThrow(new RuntimeException());
         when(buildAssignment.initialEnvironmentVariableContext()).thenReturn(new EnvironmentVariableContext());
@@ -444,162 +434,160 @@ public class BuildWorkTest {
             buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
             fail("Should have thrown an assertion error");
         } catch (AssertionError e) {
-            assertThat(buildRepository.results.isEmpty(), is(false));
-            assertThat(buildRepository.results.get(0), is(JobResult.Failed));
+            assertThat(buildRepository.results.isEmpty()).isFalse();
+            assertThat(buildRepository.results.get(0)).isEqualTo(JobResult.Failed);
         }
     }
 
     @Test
-    public void shouldUpdateOnlyStatusWhenBuildIsIgnored() throws Exception {
+    void shouldUpdateOnlyStatusWhenBuildIsIgnored() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, "pipeline1");
         buildRepository = new com.thoughtworks.go.remote.work.BuildRepositoryRemoteStub(true);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
-        assertThat(buildRepository.results.isEmpty(), is(true));
-        assertThat(buildRepository.states, containsResult(JobState.Completed));
+        assertThat(buildRepository.results.isEmpty()).isTrue();
+        assertThat(buildRepository.states).contains(JobState.Completed);
     }
 
     @Test
-    public void shouldUpdateBothStatusAndResultWhenBuildHasPassed() throws Exception {
+    void shouldUpdateBothStatusAndResultWhenBuildHasPassed() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, "pipeline1");
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
-        assertThat(buildRepository.results, containsResult(JobResult.Passed));
-        assertThat(buildRepository.states, containsResult(JobState.Completed));
+        assertThat(buildRepository.results).contains(JobResult.Passed);
+        assertThat(buildRepository.states).contains(JobState.Completed);
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldReportErrorWhenComandIsNotExistOnLinux() throws Exception {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldReportErrorWhenComandIsNotExistOnLinux() throws Exception {
         buildWork = (BuildWork) getWork(CMD_NOT_EXIST, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator,
                 new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
-        assertThat(artifactManipulator.consoleOut(), printedAppsMissingInfoOnUnix(SOMETHING_NOT_EXIST));
-        assertThat(buildRepository.results, containsResult(Failed));
+        assertConsoleOut(artifactManipulator.consoleOut()).printedAppsMissingInfoOnUnix(SOMETHING_NOT_EXIST);
+        assertThat(buildRepository.results).contains(Failed);
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
-    public void shouldReportErrorWhenComandIsNotExistOnWindows() throws Exception {
+    @EnabledOnOs(OS.WINDOWS)
+    void shouldReportErrorWhenComandIsNotExistOnWindows() throws Exception {
         buildWork = (BuildWork) getWork(CMD_NOT_EXIST, PIPELINE_NAME);
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
-        assertThat(artifactManipulator.consoleOut(), printedAppsMissingInfoOnWindows(SOMETHING_NOT_EXIST));
-        assertThat(buildRepository.results, containsResult(Failed));
+        assertConsoleOut(artifactManipulator.consoleOut()).printedAppsMissingInfoOnWindows(SOMETHING_NOT_EXIST);
+        assertThat(buildRepository.results).contains(Failed);
     }
 
     @Test
-    public void shouldReportConsoleout() throws Exception {
+    void shouldReportConsoleOut() throws Exception {
         buildWork = (BuildWork) getWork(WILL_FAIL, PIPELINE_NAME);
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
         String consoleOutAsString = artifactManipulator.consoleOut();
 
         String locator = JOB_IDENTIFIER.buildLocator();
-        assertThat(consoleOutAsString, printedPreparingInfo(locator));
-        assertThat(consoleOutAsString, printedBuildingInfo(locator));
-        assertThat(consoleOutAsString, printedUploadingInfo(locator));
-        assertThat(consoleOutAsString, printedBuildFailed());
+        assertConsoleOut(consoleOutAsString).printedPreparingInfo(locator)
+                .printedBuildingInfo(locator)
+                .printedUploadingInfo(locator)
+                .printedBuildFailed();
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
-    public void nantTest() throws Exception {
+    @EnabledOnOs(OS.WINDOWS)
+    void nantTest() throws Exception {
         buildWork = (BuildWork) getWork(NANT, PIPELINE_NAME);
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
-        assertThat(artifactManipulator.consoleOut(), containsString("Usage : NAnt [options] <target> <target> ..."));
+        assertThat(artifactManipulator.consoleOut()).contains("Usage : NAnt [options] <target> <target> ...");
     }
 
     @Test
-    public void rakeTest() throws Exception {
+    void rakeTest() throws Exception {
         buildWork = (BuildWork) getWork(RAKE, PIPELINE_NAME);
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
-        assertThat(artifactManipulator.consoleOut(), containsString("rake [-f rakefile] {options} targets..."));
+        assertThat(artifactManipulator.consoleOut()).contains("rake [-f rakefile] {options} targets...");
     }
 
     @Test
-    public void doWork_shouldSkipMaterialUpdateWhenFetchMaterialsIsSetToFalse() throws Exception {
+    void doWork_shouldSkipMaterialUpdateWhenFetchMaterialsIsSetToFalse() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, PIPELINE_NAME, false, false);
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut(), containsString("Start to prepare"));
-        assertThat(artifactManipulator.consoleOut(), not(containsString("Start updating")));
-        assertThat(artifactManipulator.consoleOut(), containsString("Skipping material update since stage is configured not to fetch materials"));
-        assertThat(buildRepository.states.contains(JobState.Preparing), is(true));
+        assertThat(artifactManipulator.consoleOut()).contains("Start to prepare");
+        assertThat(artifactManipulator.consoleOut()).doesNotContain("Start updating");
+        assertThat(artifactManipulator.consoleOut()).contains("Skipping material update since stage is configured not to fetch materials");
+        assertThat(buildRepository.states.contains(JobState.Preparing)).isTrue();
     }
 
     @Test
-    public void doWork_shouldUpdateMaterialsWhenFetchMaterialsIsTrue() throws Exception {
+    void doWork_shouldUpdateMaterialsWhenFetchMaterialsIsTrue() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, PIPELINE_NAME, true, false);
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut(), containsString("Start to prepare"));
-        assertThat(buildRepository.states.contains(JobState.Preparing), is(true));
-        assertThat(artifactManipulator.consoleOut(), containsString("Start to update materials"));
+        assertThat(artifactManipulator.consoleOut()).contains("Start to prepare");
+        assertThat(buildRepository.states.contains(JobState.Preparing)).isTrue();
+        assertThat(artifactManipulator.consoleOut()).contains("Start to update materials");
     }
 
     @Test
-    public void shouldCreateAgentWorkingDirectoryIfNotExist() throws Exception {
+    void shouldCreateAgentWorkingDirectoryIfNotExist() throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
         File workingdir = new File("pipelines/" + pipelineName);
         if (workingdir.exists()) {
             FileUtils.deleteDirectory(workingdir);
         }
-        assertThat(workingdir.exists(), is(false));
+        assertThat(workingdir.exists()).isFalse();
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
                 buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut(),
-                not(containsString("Working directory \"" + workingdir.getAbsolutePath() + "\" is not a directory")));
+        assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingdir.getAbsolutePath() + "\" is not a directory");
 
-        assertThat(buildRepository.results.contains(Passed), is(true));
-        assertThat(workingdir.exists(), is(true));
+        assertThat(buildRepository.results.contains(Passed)).isTrue();
+        assertThat(workingdir.exists()).isTrue();
         FileUtils.deleteDirectory(workingdir);
     }
 
     @Test
-    public void shouldNotBombWhenCreatingWorkingDirectoryIfCleanWorkingDirectoryFlagIsTrue() throws Exception {
+    void shouldNotBombWhenCreatingWorkingDirectoryIfCleanWorkingDirectoryFlagIsTrue() throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
         File workingdir = new File("pipelines/" + pipelineName);
         if (workingdir.exists()) {
             FileUtils.deleteDirectory(workingdir);
         }
-        assertThat(workingdir.exists(), is(false));
+        assertThat(workingdir.exists()).isFalse();
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName, true, true);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
                 buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut(),
-                not(containsString("Working directory \"" + workingdir.getAbsolutePath() + "\" is not a directory")));
+        assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingdir.getAbsolutePath() + "\" is not a directory");
 
-        assertThat(buildRepository.results.contains(Passed), is(true));
-        assertThat(workingdir.exists(), is(true));
+        assertThat(buildRepository.results.contains(Passed)).isTrue();
+        assertThat(workingdir.exists()).isTrue();
     }
 
     @Test
-    public void shouldCreateAgentWorkingDirectoryIfNotExistWhenFetchMaterialsIsFalse() throws Exception {
+    void shouldCreateAgentWorkingDirectoryIfNotExistWhenFetchMaterialsIsFalse() throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
         File workingdir = new File("pipelines/" + pipelineName);
         if (workingdir.exists()) {
             FileUtils.deleteDirectory(workingdir);
         }
-        assertThat(workingdir.exists(), is(false));
+        assertThat(workingdir.exists()).isFalse();
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName, false, false);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
                 buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut(), not(containsString("Working directory \"" + workingdir.getAbsolutePath() + "\" is not a directory")));
-        assertThat(buildRepository.results.contains(Passed), is(true));
-        assertThat(workingdir.exists(), is(true));
+        assertThat(artifactManipulator.consoleOut()).doesNotContain("Working directory \"" + workingdir.getAbsolutePath() + "\" is noa directory");
+        assertThat(buildRepository.results.contains(Passed)).isTrue();
+        assertThat(workingdir.exists()).isTrue();
     }
 
     @Test
-    public void shouldCleanAgentWorkingDirectoryIfExistsWhenCleanWorkingDirIsTrue() throws Exception {
+    void shouldCleanAgentWorkingDirectoryIfExistsWhenCleanWorkingDirIsTrue() throws Exception {
         String pipelineName = "pipeline" + UUID.randomUUID();
         File workingdir = new File("pipelines/" + pipelineName);
         if (workingdir.exists()) {
@@ -607,26 +595,25 @@ public class BuildWorkTest {
         }
         workingdir.mkdirs();
         createDummyFilesAndDirectories(workingdir);
-        assertThat(workingdir.listFiles().length, is(2));
+        assertThat(workingdir.listFiles().length).isEqualTo(2);
 
         buildWork = (BuildWork) getWork(WILL_PASS, pipelineName, false, true);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
                 buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut(), containsString("Cleaning working directory \"" + workingdir.getAbsolutePath()));
-        assertThat(buildRepository.results.contains(Passed), is(true));
-        assertThat(workingdir.exists(), is(true));
-        assertThat(workingdir.listFiles().length, is(0));
+        assertThat(artifactManipulator.consoleOut()).contains("Cleaning working directory \"" + workingdir.getAbsolutePath());
+        assertThat(buildRepository.results.contains(Passed)).isTrue();
+        assertThat(workingdir.exists()).isTrue();
+        assertThat(workingdir.listFiles().length).isEqualTo(0);
     }
 
     @Test
-    public void shouldReportCurrentWorkingDirectory() throws Exception {
+    void shouldReportCurrentWorkingDirectory() throws Exception {
         buildWork = (BuildWork) getWork(WILL_PASS, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier,
                 buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
-        assertThat(artifactManipulator.consoleOut(),
-                containsString("[" + SystemUtil.currentWorkingDirectory() + "]"));
+        assertThat(artifactManipulator.consoleOut()).contains("[" + SystemUtil.currentWorkingDirectory() + "]");
     }
 
     private void createDummyFilesAndDirectories(File workingdir) {
@@ -639,7 +626,7 @@ public class BuildWorkTest {
         }
     }
 
-    public static Work getWork(String jobXml, String pipelineName) throws Exception {
+    static Work getWork(String jobXml, String pipelineName) throws Exception {
         return getWork(jobXml, pipelineName, true, false);
     }
 
@@ -666,7 +653,7 @@ public class BuildWorkTest {
     }
 
     @Test
-    public void shouldReportEnvironmentVariables() throws Exception {
+    void shouldReportEnvironmentVariables() throws Exception {
         buildWork = (BuildWork) getWork(WITH_ENV_VAR, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
@@ -674,49 +661,49 @@ public class BuildWorkTest {
         String consoleOut = artifactManipulator.consoleOut();
 
 
-        assertThat(consoleOut, matches("'GO_SERVER_URL' (to|with) value '" + SERVER_URL));
-        assertThat(consoleOut, matches("'GO_PIPELINE_LABEL' (to|with) value '" + PIPELINE_LABEL));
-        assertThat(consoleOut, matches("'GO_PIPELINE_NAME' (to|with) value '" + PIPELINE_NAME));
-        assertThat(consoleOut, matches("'GO_STAGE_NAME' (to|with) value '" + STAGE_NAME));
-        assertThat(consoleOut, matches("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER));
-        assertThat(consoleOut, matches("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME));
+        assertConsoleOut(consoleOut).matchUsingRegex("'GO_SERVER_URL' (to|with) value '" + SERVER_URL);
+        assertConsoleOut(consoleOut).matchUsingRegex("'GO_PIPELINE_LABEL' (to|with) value '" + PIPELINE_LABEL);
+        assertConsoleOut(consoleOut).matchUsingRegex("'GO_PIPELINE_NAME' (to|with) value '" + PIPELINE_NAME);
+        assertConsoleOut(consoleOut).matchUsingRegex("'GO_STAGE_NAME' (to|with) value '" + STAGE_NAME);
+        assertConsoleOut(consoleOut).matchUsingRegex("'GO_STAGE_COUNTER' (to|with) value '" + STAGE_COUNTER);
+        assertConsoleOut(consoleOut).matchUsingRegex("'GO_JOB_NAME' (to|with) value '" + JOB_PLAN_NAME);
 
-        assertThat(consoleOut, containsString("[go] setting environment variable 'JOB_ENV' to value 'foobar'"));
+        assertThat(consoleOut).contains("[go] setting environment variable 'JOB_ENV' to value 'foobar'");
         if (SystemUtils.IS_OS_WINDOWS) {
-            assertThat(consoleOut, containsString("[go] overriding environment variable 'Path' with value '/tmp'"));
+            assertThat(consoleOut).contains("[go] overriding environment variable 'Path' with value '/tmp'");
         } else {
-            assertThat(consoleOut, containsString("[go] overriding environment variable 'PATH' with value '/tmp'"));
+            assertThat(consoleOut).contains("[go] overriding environment variable 'PATH' with value '/tmp'");
         }
     }
 
     @Test
-    public void shouldOverrideAgentGO_SERVER_URL_EnvironmentVariableIfDefinedInJob() throws Exception {
+    void shouldOverrideAgentGO_SERVER_URL_EnvironmentVariableIfDefinedInJob() throws Exception {
         buildWork = (BuildWork) getWork(WITH_GO_SERVER_URL_ENV_VAR, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
         String consoleOut = artifactManipulator.consoleOut();
 
-        assertThat(consoleOut, matches("'GO_SERVER_URL' (to|with) value '" + SERVER_URL));
-        assertThat(consoleOut, containsString("[go] overriding environment variable 'GO_SERVER_URL' with value 'go_server_url_from_job'"));
+        assertConsoleOut(consoleOut).matchUsingRegex("'GO_SERVER_URL' (to|with) value '" + SERVER_URL);
+        assertThat(consoleOut).contains("[go] overriding environment variable 'GO_SERVER_URL' with value 'go_server_url_from_job'");
     }
 
     @Test
-    public void shouldMaskSecretInEnvironmentVarialbeReport() throws Exception {
+    void shouldMaskSecretInEnvironmentVarialbeReport() throws Exception {
         buildWork = (BuildWork) getWork(WITH_SECRET_ENV_VAR, PIPELINE_NAME);
 
         buildWork.doWork(environmentVariableContext, new AgentWorkContext(agentIdentifier, buildRepository, artifactManipulator, new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false), packageRepositoryExtension, scmExtension, taskExtension, null, pluginRequestProcessorRegistry));
 
         String consoleOut = artifactManipulator.consoleOut();
-        assertThat(consoleOut, containsString("[go] setting environment variable 'foo' to value 'foo(******)'"));
-        assertThat(consoleOut, containsString("[go] setting environment variable 'bar' to value '********'"));
-        assertThat(consoleOut, not(containsString("i am a secret")));
+        assertThat(consoleOut).contains("[go] setting environment variable 'foo' to value 'foo(******)'");
+        assertThat(consoleOut).contains("[go] setting environment variable 'bar' to value '********'");
+        assertThat(consoleOut).doesNotContain("i am a secret");
     }
 
     @Test
-    public void encodeAndDecodeBuildWorkAsMessageData() throws Exception {
+    void encodeAndDecodeBuildWorkAsMessageData() throws Exception {
         Work original = getWork(WILL_FAIL, PIPELINE_NAME);
         Work clone = MessageEncoding.decodeWork(MessageEncoding.encodeWork(original));
-        assertThat(clone, is(original));
+        assertThat(clone).isEqualTo(original);
     }
 }

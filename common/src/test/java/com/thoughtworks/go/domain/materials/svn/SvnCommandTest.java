@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,19 @@
 
 package com.thoughtworks.go.domain.materials.svn;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
-import com.googlecode.junit.ext.checkers.OSChecker;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.helper.SvnTestRepo;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.command.*;
-import org.hamcrest.Matchers;
 import org.jdom2.input.SAXBuilder;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -44,25 +41,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-@RunWith(JunitExtRunner.class)
+@EnableRuleMigrationSupport
 public class SvnCommandTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
     public static SvnTestRepo testRepo;
-    protected static final DotSvnIgnoringFilter DOT_SVN_IGNORING_FILTER = new DotSvnIgnoringFilter();
+    private static final DotSvnIgnoringFilter DOT_SVN_IGNORING_FILTER = new DotSvnIgnoringFilter();
 
-    protected String svnRepositoryUrl;
-    protected File checkoutFolder;
+    private String svnRepositoryUrl;
+    private File checkoutFolder;
     protected SvnCommand subversion;
     protected ProcessOutputStreamConsumer outputStreamConsumer;
     private final String svnInfoOutput = "<?xml version=\"1.0\"?>\n"
@@ -84,9 +77,8 @@ public class SvnCommandTest {
             + "</entry>\n"
             + "</info>";
 
-    @Before
-    public void setup() throws IOException {
-        temporaryFolder.create();
+    @BeforeEach
+    void setup() throws IOException {
         testRepo = new SvnTestRepo(temporaryFolder);
         svnRepositoryUrl = testRepo.projectRepositoryUrl();
         subversion = new SvnCommand(null, svnRepositoryUrl, "user", "pass", false);
@@ -94,42 +86,41 @@ public class SvnCommandTest {
         checkoutFolder = temporaryFolder.newFolder("workingcopy");
     }
 
-    @After
-    public void teardown() {
+    @AfterEach
+    void teardown() {
         testRepo.tearDown();
-        temporaryFolder.delete();
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldRecogniseSvnAsTheSameIfURLContainsSpaces() throws Exception {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldRecogniseSvnAsTheSameIfURLContainsSpaces() throws Exception {
         File working = temporaryFolder.newFolder("shouldRecogniseSvnAsTheSameIfURLContainsSpaces");
         SvnTestRepo repo = new SvnTestRepo(temporaryFolder, "a directory with spaces");
         SvnMaterial material = repo.material();
-        assertThat(material.getUrl(), containsString("%20"));
+        assertThat(material.getUrl()).contains("%20");
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
         material.freshCheckout(output, new SubversionRevision("3"), working);
-        assertThat(output.getAllOutput(), containsString("Checked out revision 3"));
+        assertThat(output.getAllOutput()).contains("Checked out revision 3");
 
         InMemoryStreamConsumer output2 = new InMemoryStreamConsumer();
         material.updateTo(output2, working, new RevisionContext(new SubversionRevision("4")), new TestSubprocessExecutionContext());
-        assertThat(output2.getAllOutput(), containsString("Updated to revision 4"));
+        assertThat(output2.getAllOutput()).contains("Updated to revision 4");
 
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldRecogniseSvnAsTheSameIfURLUsesFileProtocol() throws Exception {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldRecogniseSvnAsTheSameIfURLUsesFileProtocol() throws Exception {
         SvnTestRepo repo = new SvnTestRepo(temporaryFolder);
         File working = temporaryFolder.newFolder("someDir");
         SvnMaterial material = repo.material();
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
         material.freshCheckout(output, new SubversionRevision("3"), working);
-        assertThat(output.getAllOutput(), containsString("Checked out revision 3"));
+        assertThat(output.getAllOutput()).contains("Checked out revision 3");
 
         InMemoryStreamConsumer output2 = new InMemoryStreamConsumer();
         updateMaterial(material, new SubversionRevision("4"), working, output2);
-        assertThat(output2.getAllOutput(), containsString("Updated to revision 4"));
+        assertThat(output2.getAllOutput()).contains("Updated to revision 4");
 
     }
 
@@ -139,88 +130,88 @@ public class SvnCommandTest {
 
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldRecogniseSvnAsTheSameIfURLContainsChineseCharacters() throws Exception {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldRecogniseSvnAsTheSameIfURLContainsChineseCharacters() throws Exception {
         File working = temporaryFolder.newFolder("shouldRecogniseSvnAsTheSameIfURLContainsSpaces");
         SvnTestRepo repo = new SvnTestRepo(temporaryFolder, "a directory with 司徒空在此");
         SvnMaterial material = repo.material();
-        assertThat(material.getUrl(), containsString("%20"));
+        assertThat(material.getUrl()).contains("%20");
         InMemoryStreamConsumer output = new InMemoryStreamConsumer();
         material.freshCheckout(output, new SubversionRevision("3"), working);
-        assertThat(output.getAllOutput(), containsString("Checked out revision 3"));
+        assertThat(output.getAllOutput()).contains("Checked out revision 3");
 
         InMemoryStreamConsumer output2 = new InMemoryStreamConsumer();
         updateMaterial(material, new SubversionRevision("4"), working, output2);
-        assertThat(output2.getAllOutput(), containsString("Updated to revision 4"));
+        assertThat(output2.getAllOutput()).contains("Updated to revision 4");
 
     }
 
 
     @Test
-    public void shouldFilterModifiedFilesByRepositoryURL() {
+    void shouldFilterModifiedFilesByRepositoryURL() {
         subversion = new SvnCommand(null, testRepo.end2endRepositoryUrl() + "/unit-reports", "user", "pass", false);
         List list = subversion.modificationsSince(new SubversionRevision(0));
 
         Modification modification = (Modification) list.get(0);
-        assertThat(modification.getModifiedFiles().size(), is(3));
+        assertThat(modification.getModifiedFiles().size()).isEqualTo(3);
         for (ModifiedFile file : modification.getModifiedFiles()) {
-            assertThat(file.getFileName().startsWith("/unit-reports"), is(true));
-            assertThat(file.getFileName().startsWith("/ft-reports"), is(false));
+            assertThat(file.getFileName().startsWith("/unit-reports")).isTrue();
+            assertThat(file.getFileName().startsWith("/ft-reports")).isFalse();
         }
     }
 
     @Test
-    public void shouldNotFilterModifiedFilesWhileURLPointsToRoot() {
+    void shouldNotFilterModifiedFilesWhileURLPointsToRoot() {
         subversion = new SvnCommand(null, testRepo.end2endRepositoryUrl(), "user", "pass", false);
         List list = subversion.modificationsSince(new SubversionRevision(0));
 
         Modification modification = (Modification) list.get(list.size() - 1);
-        assertThat(modification.getModifiedFiles().size(), is(7));
+        assertThat(modification.getModifiedFiles().size()).isEqualTo(7);
     }
 
     @Test
-    public void shouldCheckVCSConnection() {
+    void shouldCheckVCSConnection() {
         ValidationBean validationBean = subversion.checkConnection();
-        assertThat(validationBean.isValid(), is(true));
+        assertThat(validationBean.isValid()).isTrue();
     }
 
     @Test
-    public void shouldReplacePasswordWithStarWhenCheckSvnConnection() {
+    void shouldReplacePasswordWithStarWhenCheckSvnConnection() {
         SvnCommand command = new SvnCommand(null, "http://do-not-care.com", "user", "password", false);
         ValidationBean validationBean = command.checkConnection();
-        assertThat(validationBean.isValid(), is(false));
-        assertThat(validationBean.getError(), containsString("INPUT"));
-        assertThat(validationBean.getError(), containsString("******"));
+        assertThat(validationBean.isValid()).isFalse();
+        assertThat(validationBean.getError()).contains("INPUT");
+        assertThat(validationBean.getError()).contains("******");
     }
 
     @Test
-    public void shouldGetModificationsFromSubversionSinceARevision() {
+    void shouldGetModificationsFromSubversionSinceARevision() {
         final List list = subversion.modificationsSince(new SubversionRevision("1"));
-        assertThat(list.size(), is(3));
-        assertThat(((Modification) list.get(0)).getRevision(), is("4"));
-        assertThat(((Modification) list.get(1)).getRevision(), is("3"));
-        assertThat(((Modification) list.get(2)).getRevision(), is("2"));
+        assertThat(list.size()).isEqualTo(3);
+        assertThat(((Modification) list.get(0)).getRevision()).isEqualTo("4");
+        assertThat(((Modification) list.get(1)).getRevision()).isEqualTo("3");
+        assertThat(((Modification) list.get(2)).getRevision()).isEqualTo("2");
     }
 
     @Test
-    public void shouldGetLatestModificationFromSubversion() {
+    void shouldGetLatestModificationFromSubversion() {
         final List<Modification> materialRevisions = subversion.latestModification();
-        assertThat(materialRevisions.size(), is(1));
+        assertThat(materialRevisions.size()).isEqualTo(1);
         final Modification modification = materialRevisions.get(0);
-        assertThat(modification.getComment(), is("Added simple build shell to dump the environment to console."));
-        assertThat(modification.getModifiedFiles().size(), is(1));
+        assertThat(modification.getComment()).isEqualTo("Added simple build shell to dump the environment to console.");
+        assertThat(modification.getModifiedFiles().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldCheckoutToSpecificRevision() {
+    void shouldCheckoutToSpecificRevision() {
         subversion.checkoutTo(outputStreamConsumer, checkoutFolder, revision(2));
-        assertThat(checkoutFolder.exists(), is(true));
-        assertThat(checkoutFolder.listFiles().length, is(not(0)));
+        assertThat(checkoutFolder.exists()).isTrue();
+        assertThat(checkoutFolder.listFiles().length).isNotEqualTo(0);
         assertAtRevision(2, "TestReport-Unit.xml");
     }
 
     @Test
-    public void shouldUpdateToSpecificRevision() {
+    void shouldUpdateToSpecificRevision() {
         subversion.checkoutTo(outputStreamConsumer, checkoutFolder, SubversionRevision.HEAD);
         assertAtRevision(4, "TestReport-Unit.xml");
         subversion.updateTo(outputStreamConsumer, checkoutFolder, revision(2));
@@ -230,39 +221,39 @@ public class SvnCommandTest {
     }
 
     @Test
-    public void shouldThrowExceptionWithTheSecretHiddenWhenUpdateToFails() {
+    void shouldThrowExceptionWithTheSecretHiddenWhenUpdateToFails() {
         subversion.checkoutTo(outputStreamConsumer, checkoutFolder, SubversionRevision.HEAD);
         assertAtRevision(4, "TestReport-Unit.xml");
         try {
             subversion.updateTo(outputStreamConsumer, checkoutFolder, revision(-1));
             fail("should throw exception");
         } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("--password ******"));
+            assertThat(e.getMessage()).contains("--password ******");
         }
 
     }
 
     @Test
-    public void shouldUnlockAndRevertWorkingCopy() {
+    void shouldUnlockAndRevertWorkingCopy() {
         subversion.checkoutTo(outputStreamConsumer, checkoutFolder, SubversionRevision.HEAD);
         File file = checkoutFolder.listFiles(DOT_SVN_IGNORING_FILTER)[0];
         file.delete();
-        assertThat(file.exists(), is(false));
+        assertThat(file.exists()).isFalse();
         subversion.cleanupAndRevert(outputStreamConsumer, checkoutFolder);
-        assertThat(file.exists(), is(true));
+        assertThat(file.exists()).isTrue();
     }
 
     @Test
-    public void shouldGetWorkingUrl() throws IOException {
+    void shouldGetWorkingUrl() throws IOException {
         subversion.checkoutTo(outputStreamConsumer, checkoutFolder, SubversionRevision.HEAD);
         String url = subversion.workingRepositoryUrl(checkoutFolder);
-        assertThat(URLDecoder.decode(url, "UTF-8"), equalToIgnoringCase(svnRepositoryUrl));
+        assertThat(URLDecoder.decode(url, "UTF-8")).isEqualToIgnoringCase(svnRepositoryUrl);
     }
 
-    protected void assertAtRevision(int rev, String file) {
+    void assertAtRevision(int rev, String file) {
         String[] filenames = checkoutFolder.list(DOT_SVN_IGNORING_FILTER);
-        assertThat(filenames.length, is(rev));
-        assertThat(Arrays.asList(filenames), org.junit.matchers.JUnitMatchers.hasItem(file));
+        assertThat(filenames.length).isEqualTo(rev);
+        assertThat(Arrays.asList(filenames)).contains(file);
     }
 
     protected SubversionRevision revision(int revision) {
@@ -276,7 +267,7 @@ public class SvnCommandTest {
     }
 
     @Test
-    public void shouldParseSvnInfoWithParthDifferentFromUrl() {
+    void shouldParseSvnInfoWithParthDifferentFromUrl() {
         String output = "<?xml version=\"1.0\"?>\n"
                 + "<info>\n"
                 + "<entry\n"
@@ -297,13 +288,12 @@ public class SvnCommandTest {
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
-        assertThat(svnInfo.getPath(), is("/bloresvn/TISSIP/branch/DEV/PurchaseDeliverables"));
-        assertThat(svnInfo.getUrl(),
-                is("http://svn.somewhere.com/someotherline/bloresvn/TISSIP/branch/DEV/PurchaseDeliverables"));
+        assertThat(svnInfo.getPath()).isEqualTo("/bloresvn/TISSIP/branch/DEV/PurchaseDeliverables");
+        assertThat(svnInfo.getUrl()).isEqualTo("http://svn.somewhere.com/someotherline/bloresvn/TISSIP/branch/DEV/PurchaseDeliverables");
     }
 
     @Test
-    public void shouldParseSvnInfo() {
+    void shouldParseSvnInfo() {
         String output = "<?xml version=\"1.0\"?>\n"
                 + "<info>\n"
                 + "<entry\n"
@@ -324,14 +314,13 @@ public class SvnCommandTest {
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
-        assertThat(svnInfo.getPath(), is("/someotherline"));
-        assertThat(svnInfo.getUrl(),
-                is("http://svn.somewhere.com/svn/someotherline"));
-        assertThat(svnInfo.getRoot(), is("http://svn.somewhere.com/svn"));
+        assertThat(svnInfo.getPath()).isEqualTo("/someotherline");
+        assertThat(svnInfo.getUrl()).isEqualTo("http://svn.somewhere.com/svn/someotherline");
+        assertThat(svnInfo.getRoot()).isEqualTo("http://svn.somewhere.com/svn");
     }
 
     @Test
-    public void shouldParseSvnInfoWithUTF8ChineseNameInUrl() {
+    void shouldParseSvnInfoWithUTF8ChineseNameInUrl() {
         String output = "<?xml version=\"1.0\"?>\n"
                 + "<info>\n"
                 + "<entry\n"
@@ -352,13 +341,12 @@ public class SvnCommandTest {
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
-        assertThat(svnInfo.getPath(), is("/司徒空在此"));
-        assertThat(svnInfo.getUrl(),
-                is("file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4"));
+        assertThat(svnInfo.getPath()).isEqualTo("/司徒空在此");
+        assertThat(svnInfo.getUrl()).isEqualTo("file:///home/cceuser/bigfs/projects/cruise/common/test-resources/unit/data/svnrepo/end2end/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4");
     }
 
     @Test
-    public void shouldParseEncodedUrl() {
+    void shouldParseEncodedUrl() {
         String output = "<?xml version=\"1.0\"?>\n"
                 + "<info>\n"
                 + "<entry\n"
@@ -379,12 +367,12 @@ public class SvnCommandTest {
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
-        assertThat(svnInfo.getUrl(), is("https://217.45.214.17:8443/svn/Entropy%20System/Envoy%20Enterprise/trunk"));
-        assertThat(svnInfo.getPath(), is("/Entropy System/Envoy Enterprise/trunk"));
+        assertThat(svnInfo.getUrl()).isEqualTo("https://217.45.214.17:8443/svn/Entropy%20System/Envoy%20Enterprise/trunk");
+        assertThat(svnInfo.getPath()).isEqualTo("/Entropy System/Envoy Enterprise/trunk");
     }
 
     @Test
-    public void shouldParseEncodedUrlAndPath() {
+    void shouldParseEncodedUrlAndPath() {
         String output = "<?xml version=\"1.0\"?>\n"
                 + "<info>\n"
                 + "<entry\n"
@@ -405,12 +393,12 @@ public class SvnCommandTest {
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
-        assertThat(svnInfo.getUrl(), is("file:///C:/Documents%20and%20Settings/cceuser/Local%20Settings/Temp/testSvnRepo-1243722556125/end2end/unit-reports"));
-        assertThat(svnInfo.getPath(), is("/unit-reports"));
+        assertThat(svnInfo.getUrl()).isEqualTo("file:///C:/Documents%20and%20Settings/cceuser/Local%20Settings/Temp/testSvnRepo-1243722556125/end2end/unit-reports");
+        assertThat(svnInfo.getPath()).isEqualTo("/unit-reports");
     }
 
     @Test
-    public void shouldParsePartlyEncodedUrlAndPath() {
+    void shouldParsePartlyEncodedUrlAndPath() {
         String output = "<?xml version=\"1.0\"?>\n"
                 + "<info>\n"
                 + "<entry\n"
@@ -431,60 +419,59 @@ public class SvnCommandTest {
                 + "</info>";
         SvnCommand.SvnInfo svnInfo = new SvnCommand.SvnInfo();
         svnInfo.parse(output, new SAXBuilder());
-        assertThat(svnInfo.getUrl(), is("svn+ssh://hostname/foo%20bar%20baz/end2end"));
-        assertThat(svnInfo.getPath(), is("/end2end"));
+        assertThat(svnInfo.getUrl()).isEqualTo("svn+ssh://hostname/foo%20bar%20baz/end2end");
+        assertThat(svnInfo.getPath()).isEqualTo("/end2end");
     }
 
     @Test
-    public void shouldHidePasswordInUrl() {
+    void shouldHidePasswordInUrl() {
         SvnCommand command = new SvnCommand(
                 null, "https://user:password@217.45.214.17:8443/svn/Entropy%20System/Envoy%20Enterprise/trunk");
-        assertThat(command.getUrlForDisplay(),
-                is("https://user:******@217.45.214.17:8443/svn/Entropy%20System/Envoy%20Enterprise/trunk"));
+        assertThat(command.getUrlForDisplay()).isEqualTo("https://user:******@217.45.214.17:8443/svn/Entropy%20System/Envoy%20Enterprise/trunk");
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, OSChecker.WINDOWS})
-    public void shouldSupportUTF8CheckInMessageAndFilename() throws Exception {
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldSupportUTF8CheckInMessageAndFilename() throws Exception {
         String message = "司徒空在此";
         String filename = "司徒空在此.scn";
         testRepo.checkInOneFile(filename, message);
 
         Modification modification = subversion.latestModification().get(0);
-        assertThat(modification.getComment(), is(message));
-        assertThat(modification.getModifiedFiles().get(0).getFileName(), containsString(filename));
+        assertThat(modification.getComment()).isEqualTo(message);
+        assertThat(modification.getModifiedFiles().get(0).getFileName()).contains(filename);
     }
 
     @Test
-    public void shouldNotAddEmptyPasswordWhenUsernameIsProvidedWithNoPassword() {
+    void shouldNotAddEmptyPasswordWhenUsernameIsProvidedWithNoPassword() {
         SvnCommand command = new SvnCommand(null, "url", "shilpaIsGreat", null, false);
         CommandArgument argument = new StringArgument("--password=");
-        assertThat(command.buildSvnLogCommandForLatestOne().getArguments(), not(hasItem(argument)));
+        assertThat(command.buildSvnLogCommandForLatestOne().getArguments()).doesNotContain(argument);
     }
 
     @Test
-    public void shouldNotAddEmptyPasswordWhenUsernameIsProvidedWithPassword() {
+    void shouldNotAddEmptyPasswordWhenUsernameIsProvidedWithPassword() {
         SvnCommand command = new SvnCommand(null, "url", "shilpaIsGreat", "noSheIsNot", false);
         CommandArgument argument = new StringArgument("--password");
         CommandArgument passArg = new PasswordArgument("noSheIsNot");
-        assertThat(command.buildSvnLogCommandForLatestOne().getArguments(), hasItems(argument, passArg));
+        assertThat(command.buildSvnLogCommandForLatestOne().getArguments()).contains(argument, passArg);
     }
 
     @Test
-    public void shouldAddNothingWhenNoUsernameIsNotProvided() {
+    void shouldAddNothingWhenNoUsernameIsNotProvided() {
         SvnCommand commandWithNullUsername = new SvnCommand(null, "url", null, null, false);
 
-        assertThat(commandWithNullUsername.buildSvnLogCommandForLatestOne().toString().contains("--password="), is(false));
-        assertThat(commandWithNullUsername.buildSvnLogCommandForLatestOne().toString().contains("--username"), is(false));
+        assertThat(commandWithNullUsername.buildSvnLogCommandForLatestOne().toString().contains("--password=")).isFalse();
+        assertThat(commandWithNullUsername.buildSvnLogCommandForLatestOne().toString().contains("--username")).isFalse();
 
         SvnCommand commandWithEmptyUsername = new SvnCommand(null, "url", " ", " ", false);
 
-        assertThat(commandWithEmptyUsername.buildSvnLogCommandForLatestOne().toString().contains("--password="), is(false));
-        assertThat(commandWithEmptyUsername.buildSvnLogCommandForLatestOne().toString().contains("--username"), is(false));
+        assertThat(commandWithEmptyUsername.buildSvnLogCommandForLatestOne().toString().contains("--password=")).isFalse();
+        assertThat(commandWithEmptyUsername.buildSvnLogCommandForLatestOne().toString().contains("--username")).isFalse();
     }
 
     @Test
-    public void shouldGetSvnInfoAndReturnMapOfUrlToUUID() {
+    void shouldGetSvnInfoAndReturnMapOfUrlToUUID() {
         final String svnInfoOutput = "<?xml version=\"1.0\"?>\n"
                 + "<info>\n"
                 + "<entry\n"
@@ -516,17 +503,17 @@ public class SvnCommandTest {
             @Override
             public Object answer(InvocationOnMock invocation) {
                 final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
-                assertThat(commandLine.toString(), containsString("svn info --xml --username user --password ****** http://localhost/svn/project1"));
+                assertThat(commandLine.toString()).contains("svn info --xml --username user --password ****** http://localhost/svn/project1");
                 return consoleResult;
             }
         }).when(spy).executeCommand(any(CommandLine.class));
         final HashMap<String, String> urlToRemoteUUIDMap = spy.createUrlToRemoteUUIDMap(svnMaterials);
-        assertThat(urlToRemoteUUIDMap.size(), is(1));
-        assertThat(urlToRemoteUUIDMap.get("http://localhost/svn/project1"), is("b51fe673-20c0-4205-a07b-5deb54bb09f3"));
+        assertThat(urlToRemoteUUIDMap.size()).isEqualTo(1);
+        assertThat(urlToRemoteUUIDMap.get("http://localhost/svn/project1")).isEqualTo("b51fe673-20c0-4205-a07b-5deb54bb09f3");
     }
 
     @Test
-    public void shouldGetSvnInfoForMultipleMaterialsAndReturnMapOfUrlToUUID() {
+    void shouldGetSvnInfoForMultipleMaterialsAndReturnMapOfUrlToUUID() {
         final SvnMaterial svnMaterial1 = mock(SvnMaterial.class);
         when(svnMaterial1.getUrl()).thenReturn("http://localhost/svn/project1");
         final SvnMaterial svnMaterial2 = mock(SvnMaterial.class);
@@ -556,13 +543,13 @@ public class SvnCommandTest {
             fail("Should not have failed although exception was thrown " + e);
         }
 
-        assertThat(urlToRemoteUUIDMap.size(), is(1));
-        assertThat(urlToRemoteUUIDMap.get("http://localhost/svn/project1"), is("b51fe673-20c0-4205-a07b-5deb54bb09f3"));
+        assertThat(urlToRemoteUUIDMap.size()).isEqualTo(1);
+        assertThat(urlToRemoteUUIDMap.get("http://localhost/svn/project1")).isEqualTo("b51fe673-20c0-4205-a07b-5deb54bb09f3");
         verify(spy, times(2)).executeCommand(any(CommandLine.class));
     }
 
     @Test
-    public void shouldUseCorrectCredentialsPerSvnMaterialWhenQueryingForInfo() {
+    void shouldUseCorrectCredentialsPerSvnMaterialWhenQueryingForInfo() {
         final String svnMaterial1Url = "http://localhost/svn/project1";
         final String svnMaterial1User = "svnMaterial1_user";
         final String svnMaterial1Password = "svnMaterial1_password";
@@ -589,12 +576,12 @@ public class SvnCommandTest {
                     List<CommandArgument> arguments = commandLine.getArguments();
                     for (CommandArgument argument : arguments) {
                         if (argument instanceof PasswordArgument) {
-                            assertThat(argument.forCommandline(), is(svnMaterial1Password));
+                            assertThat(argument.forCommandline()).isEqualTo(svnMaterial1Password);
                         }
                     }
                 } else {
-                    assertThat(commandString, not(Matchers.containsString("--username")));
-                    assertThat(commandString, not(Matchers.containsString("password")));
+                    assertThat(commandString).doesNotContainPattern("--username");
+                    assertThat(commandString).doesNotContainPattern("password");
                 }
             }
         }).when(spy).executeCommand(any(CommandLine.class));

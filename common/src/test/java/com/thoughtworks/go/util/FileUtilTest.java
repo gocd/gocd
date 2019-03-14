@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,190 +16,183 @@
 
 package com.thoughtworks.go.util;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
 
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
-import static com.thoughtworks.go.util.TestUtils.isSameAsPath;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-@RunWith(JunitExtRunner.class)
+@EnableRuleMigrationSupport
 public class FileUtilTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         temporaryFolder.create();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         temporaryFolder.delete();
     }
 
     @Test
-    public void shouldBeHiddenIfFileStartWithDot() {
-        assertTrue(FileUtil.isHidden(new File(".svn")));
+    void shouldBeHiddenIfFileStartWithDot() {
+        assertThat(FileUtil.isHidden(new File(".svn"))).isTrue();
     }
 
     @Test
-    public void shouldBeHiddenIfFileIsHidden() {
+    void shouldBeHiddenIfFileIsHidden() {
         File mockFile = Mockito.mock(File.class);
         Mockito.when(mockFile.isHidden()).thenReturn(true);
-        assertTrue(FileUtil.isHidden(mockFile));
+        assertThat(FileUtil.isHidden(mockFile)).isTrue();
     }
 
     @Test
-    public void shouldUseSpeficiedFolderIfAbsolute() throws Exception {
+    void shouldUseSpeficiedFolderIfAbsolute() {
         final File absolutePath = new File("zx").getAbsoluteFile();
-        assertThat(FileUtil.applyBaseDirIfRelative(new File("xyz"), absolutePath), is(absolutePath));
+        assertThat(FileUtil.applyBaseDirIfRelative(new File("xyz"), absolutePath)).isEqualTo(absolutePath);
     }
 
     @Test
-    public void shouldUseSpeficiedFolderIfBaseDirIsEmpty() throws Exception {
-        assertThat(FileUtil.applyBaseDirIfRelative(new File(""), new File("zx")), is(new File("zx")));
+    void shouldUseSpeficiedFolderIfBaseDirIsEmpty() throws Exception {
+        assertThat(FileUtil.applyBaseDirIfRelative(new File(""), new File("zx"))).isEqualTo(new File("zx"));
     }
 
     @Test
-    public void shouldAppendToDefaultIfRelative() throws Exception {
+    void shouldAppendToDefaultIfRelative() throws Exception {
         final File relativepath = new File("zx");
-        assertThat(FileUtil.applyBaseDirIfRelative(new File("xyz"), relativepath),
-                is(new File("xyz", relativepath.getPath())));
+        assertThat(FileUtil.applyBaseDirIfRelative(new File("xyz"), relativepath)).isEqualTo(new File("xyz", relativepath.getPath()));
     }
 
     @Test
-    public void shouldUseDefaultIfActualisNull() throws Exception {
+    void shouldUseDefaultIfActualisNull() throws Exception {
         final File baseFile = new File("xyz");
-        assertThat(FileUtil.applyBaseDirIfRelative(baseFile, null), is(baseFile));
+        assertThat(FileUtil.applyBaseDirIfRelative(baseFile, null)).isEqualTo(baseFile);
     }
 
     @Test
-    public void shouldCreateUniqueHashForFolders() throws Exception {
+    void shouldCreateUniqueHashForFolders() throws Exception {
         File file = new File("c:a/b/c/d/e");
         File file2 = new File("c:foo\\bar\\baz");
-        assertThat(FileUtil.filesystemSafeFileHash(file).matches("[0-9a-zA-Z\\.\\-]*"), is(true));
-        assertThat(FileUtil.filesystemSafeFileHash(file2), not(FileUtil.filesystemSafeFileHash(file)));
+        assertThat(FileUtil.filesystemSafeFileHash(file).matches("[0-9a-zA-Z\\.\\-]*")).isTrue();
+        assertThat(FileUtil.filesystemSafeFileHash(file2)).isNotEqualTo(FileUtil.filesystemSafeFileHash(file));
     }
 
     @Test
-    public void shouldDetectSubfolders() throws Exception {
-        assertThat(isSubdirectoryOf(new File("a"), new File("a")), is(true));
-        assertThat(isSubdirectoryOf(new File("a"), new File("a/b")), is(true));
-        assertThat(isSubdirectoryOf(new File("a"), new File("aaaa")), is(false));
-        assertThat(isSubdirectoryOf(new File("a/b/c/d"), new File("a/b/c/d/e")), is(true));
-        assertThat(isSubdirectoryOf(new File("a/b/c/d/e"), new File("a/b/c/d")), is(false));
-        assertThat(isSubdirectoryOf(new File("/a/b"), new File("c/d")), is(false));
+    void shouldDetectSubfolders() throws Exception {
+        assertThat(isSubdirectoryOf(new File("a"), new File("a"))).isTrue();
+        assertThat(isSubdirectoryOf(new File("a"), new File("a/b"))).isTrue();
+        assertThat(isSubdirectoryOf(new File("a"), new File("aaaa"))).isFalse();
+        assertThat(isSubdirectoryOf(new File("a/b/c/d"), new File("a/b/c/d/e"))).isTrue();
+        assertThat(isSubdirectoryOf(new File("a/b/c/d/e"), new File("a/b/c/d"))).isFalse();
+        assertThat(isSubdirectoryOf(new File("/a/b"), new File("c/d"))).isFalse();
     }
 
     @Test
-    public void shouldDetectSubfoldersWhenUsingRelativePaths() throws Exception {
+    void shouldDetectSubfoldersWhenUsingRelativePaths() throws Exception {
         File parent = new File("/a/b");
-        assertThat(isSubdirectoryOf(parent, new File(parent, "../../..")), is(false));
+        assertThat(isSubdirectoryOf(parent, new File(parent, "../../.."))).isFalse();
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON, WINDOWS})
-    public void shouldCreateFileURIForFile() {
-        assertThat(FileUtil.toFileURI(new File("/var/lib/foo/")), is("file:///var/lib/foo"));
-        assertThat(FileUtil.toFileURI(new File("/var/a dir with spaces/foo")), is("file:///var/a%20dir%20with%20spaces/foo"));
-        assertThat(FileUtil.toFileURI(new File("/var/司徒空在此/foo")), is("file:///var/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4/foo"));
+    @DisabledOnOs(OS.WINDOWS)
+    void shouldCreateFileURIForFile() {
+        assertThat(FileUtil.toFileURI(new File("/var/lib/foo/"))).isEqualTo("file:///var/lib/foo");
+        assertThat(FileUtil.toFileURI(new File("/var/a dir with spaces/foo"))).isEqualTo("file:///var/a%20dir%20with%20spaces/foo");
+        assertThat(FileUtil.toFileURI(new File("/var/司徒空在此/foo"))).isEqualTo("file:///var/%E5%8F%B8%E5%BE%92%E7%A9%BA%E5%9C%A8%E6%AD%A4/foo");
     }
 
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
-    public void shouldCreateFileURIForFileOnWindows() {
-        assertThat(FileUtil.toFileURI(new File("c:\\foo")).startsWith("file:///c:/foo"), is(true));
-        assertThat(FileUtil.toFileURI(new File("c:\\a dir with spaces\\foo")).startsWith("file:///c:/a%20dir%20with%20spaces/foo"), is(true));
+    @EnabledOnOs(OS.WINDOWS)
+    void shouldCreateFileURIForFileOnWindows() {
+        assertThat(FileUtil.toFileURI(new File("c:\\foo")).startsWith("file:///c:/foo")).isTrue();
+        assertThat(FileUtil.toFileURI(new File("c:\\a dir with spaces\\foo")).startsWith("file:///c:/a%20dir%20with%20spaces/foo")).isTrue();
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
-    public void shouldReturnFalseForInvalidWindowsUNCFilePath() {
-        assertThat(FileUtil.isAbsolutePath("\\\\host\\"), is(false));
-        assertThat(FileUtil.isAbsolutePath("\\\\host"), is(false));
+    @EnabledOnOs(OS.WINDOWS)
+    void shouldReturnFalseForInvalidWindowsUNCFilePath() {
+        assertThat(FileUtil.isAbsolutePath("\\\\host\\")).isFalse();
+        assertThat(FileUtil.isAbsolutePath("\\\\host")).isFalse();
     }
 
     @Test
-    @RunIf(value = EnhancedOSChecker.class, arguments = {EnhancedOSChecker.WINDOWS})
-    public void shouldReturnTrueForValidWindowsUNCFilePath() {
-        assertThat(FileUtil.isAbsolutePath("\\\\host\\share"), is(true));
-        assertThat(FileUtil.isAbsolutePath("\\\\host\\share\\dir"), is(true));
+    @EnabledOnOs(OS.WINDOWS)
+    void shouldReturnTrueForValidWindowsUNCFilePath() {
+        assertThat(FileUtil.isAbsolutePath("\\\\host\\share")).isTrue();
+        assertThat(FileUtil.isAbsolutePath("\\\\host\\share\\dir")).isTrue();
     }
 
     @Test
-    public void FolderIsEmptyWhenItHasNoContents() throws Exception {
+    void FolderIsEmptyWhenItHasNoContents() throws Exception {
         File folder = temporaryFolder.newFolder();
-        assertThat(FileUtil.isFolderEmpty(folder), is(true));
+        assertThat(FileUtil.isFolderEmpty(folder)).isTrue();
     }
 
     @Test
-    public void FolderIsNotEmptyWhenItHasContents() throws Exception {
+    void FolderIsNotEmptyWhenItHasContents() throws Exception {
         File folder = temporaryFolder.newFolder();
         new File(folder, "subfolder").createNewFile();
-        assertThat(FileUtil.isFolderEmpty(folder), is(false));
+        assertThat(FileUtil.isFolderEmpty(folder)).isFalse();
     }
 
     @Test
-    public void shouldReturnCanonicalPath() throws IOException {
+    void shouldReturnCanonicalPath() throws IOException {
         File f = temporaryFolder.newFolder();
-        assertThat(FileUtil.getCanonicalPath(f), is(f.getCanonicalPath()));
+        assertThat(FileUtil.getCanonicalPath(f)).isEqualTo(f.getCanonicalPath());
         File spyFile = spy(new File("/xyz/non-existent-file"));
         IOException canonicalPathException = new IOException("Failed to build the canonical path");
         when(spyFile.getCanonicalPath()).thenThrow(canonicalPathException);
         try {
             FileUtil.getCanonicalPath(spyFile);
         } catch (RuntimeException e) {
-            assertThat(e.getCause(), is(canonicalPathException));
+            assertThat(e.getCause()).isEqualTo(canonicalPathException);
         }
     }
 
     @Test
-    public void shouldRemoveLeadingFilePathFromAFilePath() throws Exception {
+    void shouldRemoveLeadingFilePathFromAFilePath() {
         File file = new File("/var/command-repo/default/windows/echo.xml");
         File base = new File("/var/command-repo/default");
 
-        assertThat(FileUtil.removeLeadingPath(base.getAbsolutePath(), file.getAbsolutePath()), isSameAsPath("/windows/echo.xml"));
-        assertThat(FileUtil.removeLeadingPath(new File("/var/command-repo/default/").getAbsolutePath(), new File("/var/command-repo/default/windows/echo.xml").getAbsolutePath()), isSameAsPath("/windows/echo.xml"));
-        assertThat(FileUtil.removeLeadingPath("/some/random/path", "/var/command-repo/default/windows/echo.xml"), is("/var/command-repo/default/windows/echo.xml"));
-        assertThat(FileUtil.removeLeadingPath(new File("C:/blah").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath()), isSameAsPath("/abcd.txt"));
-        assertThat(FileUtil.removeLeadingPath(new File("C:/blah/").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath()), isSameAsPath("/abcd.txt"));
-        assertThat(FileUtil.removeLeadingPath(null, new File("/blah/abcd.txt").getAbsolutePath()), isSameAsPath(new File("/blah/abcd.txt").getAbsolutePath()));
-        assertThat(FileUtil.removeLeadingPath("", new File("/blah/abcd.txt").getAbsolutePath()), isSameAsPath(new File("/blah/abcd.txt").getAbsolutePath()));
+        assertThat(FileUtil.removeLeadingPath(base.getAbsolutePath(), file.getAbsolutePath())).isEqualTo("/windows/echo.xml".replace('/', File.separatorChar));
+        assertThat(FileUtil.removeLeadingPath(new File("/var/command-repo/default/").getAbsolutePath(), new File("/var/command-repo/default/windows/echo.xml").getAbsolutePath())).isEqualTo("/windows/echo.xml");
+        assertThat(FileUtil.removeLeadingPath("/some/random/path", "/var/command-repo/default/windows/echo.xml")).isEqualTo("/var/command-repo/default/windows/echo.xml");
+        assertThat(FileUtil.removeLeadingPath(new File("C:/blah").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isEqualTo("/abcd.txt");
+        assertThat(FileUtil.removeLeadingPath(new File("C:/blah/").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isEqualTo("/abcd.txt");
+        assertThat(FileUtil.removeLeadingPath(null, new File("/blah/abcd.txt").getAbsolutePath())).isEqualTo(new File("/blah/abcd.txt").getAbsolutePath());
+        assertThat(FileUtil.removeLeadingPath("", new File("/blah/abcd.txt").getAbsolutePath())).isEqualTo(new File("/blah/abcd.txt").getAbsolutePath());
     }
 
     @Test
-    public void shouldReturnTrueIfDirectoryIsReadable() throws IOException {
+    void shouldReturnTrueIfDirectoryIsReadable() {
         File readableDirectory = mock(File.class);
         when(readableDirectory.canRead()).thenReturn(true);
         when(readableDirectory.canExecute()).thenReturn(true);
         when(readableDirectory.listFiles()).thenReturn(new File[]{});
-        assertThat(FileUtil.isDirectoryReadable(readableDirectory), is(true));
+        assertThat(FileUtil.isDirectoryReadable(readableDirectory)).isTrue();
 
         File unreadableDirectory = mock(File.class);
         when(readableDirectory.canRead()).thenReturn(false);
         when(readableDirectory.canExecute()).thenReturn(false);
-        assertThat(FileUtil.isDirectoryReadable(unreadableDirectory), is(false));
+        assertThat(FileUtil.isDirectoryReadable(unreadableDirectory)).isFalse();
 
         verify(readableDirectory).canRead();
         verify(readableDirectory).canExecute();
@@ -209,10 +202,10 @@ public class FileUtilTest {
     }
 
     @Test
-    public void shouldCalculateSha1Digest() throws IOException {
+    void shouldCalculateSha1Digest() throws IOException {
         File tempFile = temporaryFolder.newFile();
         FileUtils.writeStringToFile(tempFile, "12345", UTF_8);
-        assertThat(FileUtil.sha1Digest(tempFile), is("jLIjfQZ5yojbZGTqxg2pY0VROWQ="));
+        assertThat(FileUtil.sha1Digest(tempFile)).isEqualTo("jLIjfQZ5yojbZGTqxg2pY0VROWQ=");
     }
 
 }

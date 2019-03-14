@@ -1,45 +1,39 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.plugin.infra.monitor;
 
-import com.googlecode.junit.ext.JunitExtRunner;
-import com.googlecode.junit.ext.RunIf;
-import com.googlecode.junit.ext.checkers.OSChecker;
-import com.thoughtworks.go.junitext.EnhancedOSChecker;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 
 import java.io.File;
 
-import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.util.SystemEnvironment.*;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
-@RunWith(JunitExtRunner.class)
-@RunIf(value = EnhancedOSChecker.class, arguments = {DO_NOT_RUN_ON,  OSChecker.WINDOWS})
+@DisabledOnOs(OS.WINDOWS)
 public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefaultPluginJarLocationMonitorTest {
 
     private File pluginBundledDir;
@@ -49,7 +43,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     private PluginJarChangeListener changeListener;
     private SystemEnvironment systemEnvironment;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         super.setUp();
         temporaryFolder.create();
@@ -66,7 +60,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
         monitor.initialize();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         monitor.stop();
         super.tearDown();
@@ -74,25 +68,25 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     }
 
     @Test
-    public void shouldCreateExternalPluginDirectoryIfItDoesNotExist() throws Exception {
+    void shouldCreateExternalPluginDirectoryIfItDoesNotExist() {
         pluginExternalDir.delete();
         new DefaultPluginJarLocationMonitor(systemEnvironment).initialize();
-        assertThat(pluginExternalDir.exists(), is(true));
+        assertThat(pluginExternalDir.exists()).isTrue();
     }
 
     @Test
-    public void shouldThrowUpWhenExternalPluginDirectoryCreationFails() throws Exception {
+    void shouldThrowUpWhenExternalPluginDirectoryCreationFails() throws Exception {
         when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn("/xyz");
         try {
             new DefaultPluginJarLocationMonitor(systemEnvironment).initialize();
             fail("should have failed for missing external plugin folder");
         } catch (RuntimeException e) {
-            assertThat(e.getMessage(),is("Failed to create external plugins folder in location /xyz"));
+            assertThat(e.getMessage()).isEqualTo("Failed to create external plugins folder in location /xyz");
         }
     }
 
     @Test
-    public void shouldDetectNewlyAddedPluginJar() throws Exception {
+    void shouldDetectNewlyAddedPluginJar() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -104,7 +98,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     }
 
     @Test
-    public void shouldDetectOnlyJarsAsNewPlugins() throws Exception {
+    void shouldDetectOnlyJarsAsNewPlugins() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -115,7 +109,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     }
 
     @Test
-    public void shouldDetectRemovedPluginJar() throws Exception {
+    void shouldDetectRemovedPluginJar() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
         copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-plugin-2.jar");
@@ -130,7 +124,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     }
 
     @Test
-    public void shouldNotifyListenerOfMultiplePluginFilesAdded() throws Exception {
+    void shouldNotifyListenerOfMultiplePluginFilesAdded() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -147,7 +141,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     }
 
     @Test
-    public void shouldNotifyListenerOfMultiplePluginFilesRemoved() throws Exception {
+    void shouldNotifyListenerOfMultiplePluginFilesRemoved() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -168,7 +162,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     }
 
     @Test
-    public void shouldNotifyRemoveEventBeforeAddEventInCaseOfFileRename() throws Exception {
+    void shouldNotifyRemoveEventBeforeAddEventInCaseOfFileRename() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -189,7 +183,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     }
 
     @Test
-    public void shouldNotifyListenersOfUpdatesToPluginJars() throws Exception {
+    void shouldNotifyListenersOfUpdatesToPluginJars() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
         copyPluginToThePluginDirectory(pluginExternalDir, "descriptor-aware-test-external-plugin.jar");
@@ -204,7 +198,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     }
 
     @Test
-    public void shouldAlwaysHandleBundledPluginsAheadOfExternalPlugins() throws Exception {
+    void shouldAlwaysHandleBundledPluginsAheadOfExternalPlugins() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -234,7 +228,7 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
     }
 
     @Test
-    public void shouldSpecifyIfPluginIsBundledOrExternalWhenAdded() throws Exception {
+    void shouldSpecifyIfPluginIsBundledOrExternalWhenAdded() throws Exception {
         monitor.addPluginJarChangeListener(changeListener);
         monitor.start();
 
@@ -243,8 +237,8 @@ public class DefaultExternalPluginJarLocationMonitorTest extends AbstractDefault
         ArgumentCaptor<PluginFileDetails> pluginFileDetailsArgumentCaptor = ArgumentCaptor.forClass(PluginFileDetails.class);
         waitUntilNextRun(monitor);
         verify(changeListener, times(2)).pluginJarAdded(pluginFileDetailsArgumentCaptor.capture());
-        assertThat(pluginFileDetailsArgumentCaptor.getAllValues().get(0).isBundledPlugin(), is(true));
-        assertThat(pluginFileDetailsArgumentCaptor.getAllValues().get(1).isBundledPlugin(), is(false));
+        assertThat(pluginFileDetailsArgumentCaptor.getAllValues().get(0).isBundledPlugin()).isTrue();
+        assertThat(pluginFileDetailsArgumentCaptor.getAllValues().get(1).isBundledPlugin()).isFalse();
         verifyNoMoreInteractions(changeListener);
 
     }

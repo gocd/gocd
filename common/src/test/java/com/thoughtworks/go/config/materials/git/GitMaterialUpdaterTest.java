@@ -107,7 +107,7 @@ class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         String repositoryUrl = new GitTestRepo(temporaryFolder).projectRepositoryUrl();
         GitMaterial material = new GitMaterial(repositoryUrl, true);
         updateTo(material, new RevisionContext(REVISION_4), JobResult.Passed);
-        assertThat(localRepoFor(material).workingRepositoryUrl().forCommandline()).isEqualTo(repositoryUrl);
+        assertThat(localRepoFor(material).workingRepositoryUrl().rawUrl()).isEqualTo(repositoryUrl);
         assertThat(shouldBeRemoved.exists()).isFalse();
     }
 

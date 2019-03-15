@@ -24,7 +24,7 @@ public class PasswordArgumentTest {
     private CommandArgument argument = new PasswordArgument("secret");
 
     @Test public void shouldReturnStringValueForCommandLine() throws Exception {
-        assertThat(argument.forCommandline(), is("secret"));
+        assertThat(argument.rawUrl(), is("secret"));
     }
 
     @Test public void shouldReturnStringValueForReporting() throws Exception {

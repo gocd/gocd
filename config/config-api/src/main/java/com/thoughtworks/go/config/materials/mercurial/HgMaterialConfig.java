@@ -54,7 +54,7 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
     }
 
     @Override
@@ -83,8 +83,9 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     @Override
+    //TODO: Check the usages of the method. add one more forCommandLine if needed
     public String getUrl() {
-        return url != null ? url.forCommandline() : null;
+        return url != null ? url.rawUrl() : null;
     }
 
     @Override

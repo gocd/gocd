@@ -382,7 +382,7 @@ public class GoConfigFileHelper {
     }
 
     public PipelineConfig addPipeline(String pipelineName, String stageName, Subversion repository, String... buildNames) {
-        return addPipeline(pipelineName, stageName, new SvnMaterialConfig(repository.getUrl().forCommandline(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals()), buildNames);
+        return addPipeline(pipelineName, stageName, new SvnMaterialConfig(repository.getUrl().rawUrl(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals()), buildNames);
     }
 
     public void updateArtifactRoot(String path) {
@@ -392,7 +392,7 @@ public class GoConfigFileHelper {
     }
 
     public PipelineConfig addPipeline(String pipelineName, String stageName, Subversion repository, Filter filter, String... buildNames) throws Exception {
-        return addPipeline(pipelineName, stageName, new SvnMaterialConfig(repository.getUrl().forCommandline(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals()), filter, buildNames);
+        return addPipeline(pipelineName, stageName, new SvnMaterialConfig(repository.getUrl().rawUrl(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals()), filter, buildNames);
     }
 
     private PipelineConfig addPipeline(String pipelineName, String stageName, SvnMaterialConfig svnMaterialConfig, Filter filter,

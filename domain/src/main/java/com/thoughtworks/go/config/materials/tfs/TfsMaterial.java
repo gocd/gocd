@@ -127,8 +127,9 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     @Override
+    //TODO: Check the usages of the method. add one more forCommandLine if needed
     public String getUrl() {
-        return url == null ? null : url.forCommandline();
+        return url == null ? null : url.rawUrl();
     }
 
     @Override
@@ -147,7 +148,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put(TfsMaterialConfig.DOMAIN, domain);
         parameters.put(TfsMaterialConfig.PROJECT_PATH, projectPath);
@@ -191,7 +192,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new TfsMaterialInstance(url.forCommandline(), userName, domain, projectPath, UUID.randomUUID().toString());
+        return new TfsMaterialInstance(url.rawUrl(), userName, domain, projectPath, UUID.randomUUID().toString());
     }
 
     public String getTypeForDisplay() {
@@ -204,7 +205,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         materialMap.put("type", "tfs");
         Map<String, Object> configurationMap = new HashMap<>();
         if (addSecureFields) {
-            configurationMap.put("url", url.forCommandline());
+            configurationMap.put("url", url.rawUrl());
         } else {
             configurationMap.put("url", url.forDisplay());
         }

@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -207,7 +206,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
     }
 
     public String getUserName() {
-        return userName.forCommandline();
+        return userName.rawUrl();
     }
 
     public String getPassword() {
@@ -248,9 +247,9 @@ public class SvnCommand extends SCMCommand implements Subversion {
     }
 
     private void addCredentials(CommandLine line, StringArgument svnUserName, PasswordArgument svnPassword) {
-        if (!StringUtils.isBlank(svnUserName.forCommandline())) {
-            line.withArgs("--username", svnUserName.forCommandline());
-            if (!StringUtils.isBlank(svnPassword.forCommandline())) {
+        if (!StringUtils.isBlank(svnUserName.rawUrl())) {
+            line.withArgs("--username", svnUserName.rawUrl());
+            if (!StringUtils.isBlank(svnPassword.rawUrl())) {
                 line.withArg("--password");
                 line.withArg(svnPassword);
             }

@@ -43,7 +43,7 @@ public class SvnMaterialUpdater {
 
       return compose(
               echoWithPrefix(format("Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay())),
-              secret(url.forCommandline(), url.forDisplay()),
+              secret(url.forCommandLine(), url.forDisplay()),
               secret(material.getPassword(), "*********************"),
               cleanupAndUpdate(workingDir, revision).setTest(shouldDoCleanupAndUpdate(workingDir)),
               freshCheckout(workingDir, revision).setTest(isNotRepository(workingDir)),
@@ -69,7 +69,7 @@ public class SvnMaterialUpdater {
        args.add("--non-interactive");
        args.add("-r");
        args.add(revision.getRevision());
-       args.add(material.getUrlArgument().forCommandline());
+       args.add(material.getUrlArgument().forCommandLine());
        args.add(workingDir);
        return exec("svn", args.toArray(new String[args.size()]));
    }

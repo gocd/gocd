@@ -73,7 +73,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public SvnMaterial(Subversion svn) {
-        this(svn.getUrl().forCommandline(), svn.getUserName(), svn.getPassword(), svn.isCheckExternals());
+        this(svn.getUrl().rawUrl(), svn.getUserName(), svn.getPassword(), svn.isCheckExternals());
         this.svnLazyLoaded = svn;
     }
 
@@ -107,7 +107,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     private Subversion svn() {
         if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().equals(url)) {
-            svnLazyLoaded = new SvnCommand(getFingerprint(), url.forCommandline(), userName, getPassword(), checkExternals);
+            svnLazyLoaded = new SvnCommand(getFingerprint(), url.forCommandLine(), userName, getPassword(), checkExternals);
         }
         return svnLazyLoaded;
     }
@@ -121,12 +121,12 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new SvnMaterialInstance(url.forCommandline(), userName, UUID.randomUUID().toString(), checkExternals);
+        return new SvnMaterialInstance(url.rawUrl(), userName, UUID.randomUUID().toString(), checkExternals);
     }
 
     @Override
     protected void appendCriteria(Map parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put("checkExternals", checkExternals);
     }
@@ -234,13 +234,14 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return "Subversion";
     }
 
+    //TODO: verify usages of getAttributes, this is required to check if url needs to be resolved?
     @Override
     public Map<String, Object> getAttributes(boolean addSecureFields) {
         Map<String, Object> materialMap = new HashMap<>();
         materialMap.put("type", "svn");
         Map<String, Object> configurationMap = new HashMap<>();
         if (addSecureFields) {
-            configurationMap.put("url", url.forCommandline());
+            configurationMap.put("url", url.forCommandLine());
         } else {
             configurationMap.put("url", url.forDisplay());
         }
@@ -262,7 +263,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public String getUrl() {
-        return url == null ? null : url.forCommandline();
+        return url == null ? null : url.rawUrl();
     }
 
     @Override

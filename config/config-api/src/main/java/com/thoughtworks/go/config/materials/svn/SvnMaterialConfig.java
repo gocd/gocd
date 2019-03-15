@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
@@ -191,7 +190,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     public String getUrl() {
-        return url != null ? url.forCommandline() : null;
+        return url != null ? url.rawUrl() : null;
     }
 
     @Override
@@ -237,7 +236,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     protected void appendCriteria(Map parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put("checkExternals", checkExternals);
     }

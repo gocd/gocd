@@ -41,7 +41,7 @@ public class GitMaterialUpdater {
         UrlArgument url = material.getUrlArgument();
         return compose(
                 echoWithPrefix("Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay()),
-                secret(url.forCommandline(), url.forDisplay()),
+                secret(url.forCommandLine(), url.forDisplay()),
                 cloneIfNeeded(workingDir, revisionContext.numberOfModifications() + 1),
                 fetchRemote(workingDir),
                 unshallowIfNeeded(workingDir, revision, new Integer[]{GitMaterial.UNSHALLOW_TRYOUT_STEP, Integer.MAX_VALUE}),
@@ -140,7 +140,7 @@ public class GitMaterialUpdater {
 
     private BuildCommand isRepoUrlChanged(String workDir) {
         return test("-neq",
-                material.getUrlArgument().forCommandline(),
+                material.getUrlArgument().rawUrl(),
                 exec("git", "config", "remote.origin.url").setWorkingDirectory(workDir));
     }
 
@@ -159,7 +159,7 @@ public class GitMaterialUpdater {
         if (material.isShallowClone()) {
             cloneArgs.add(format("--depth=%s", String.valueOf(cloneDepth)));
         }
-        cloneArgs.add(material.getUrlArgument().forCommandline());
+        cloneArgs.add(material.getUrlArgument().rawUrl());
         cloneArgs.add(workDir);
         return exec("git", cloneArgs.toArray(new String[cloneArgs.size()]))
                 .setTest(isNotRepository(workDir));

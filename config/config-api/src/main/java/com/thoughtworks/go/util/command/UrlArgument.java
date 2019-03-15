@@ -17,6 +17,7 @@
 package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.config.ConfigAttributeValue;
+import com.thoughtworks.go.config.SecretParamAware;
 import com.thoughtworks.go.config.SecretParams;
 
 import java.net.URI;
@@ -25,7 +26,7 @@ import java.net.URISyntaxException;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 
 @ConfigAttributeValue(fieldName = "url")
-public class UrlArgument extends CommandArgument {
+public class UrlArgument extends CommandArgument implements SecretParamAware {
     protected String url;
     private SecretParams secretParams;
 
@@ -35,10 +36,22 @@ public class UrlArgument extends CommandArgument {
         secretParams = SecretParams.parse(this.url);
     }
 
-    public String forCommandline() {
+    @Override
+    public boolean hasSecretParams() {
+        return secretParams != null && !secretParams.isEmpty();
+    }
+
+    @Override
+    public SecretParams getSecretParams() {
+        return secretParams;
+    }
+
+    @Override
+    public String rawUrl() {
         return url;
     }
 
+    @Override
     public String forDisplay() {
         try {
             URI uri = new URI(sanitizeUrl());
@@ -51,6 +64,11 @@ public class UrlArgument extends CommandArgument {
             // In subversion we may have a file path that is not actually a URL
             return url;
         }
+    }
+
+    @Override
+    public String forCommandLine() {
+        return rawUrl();
     }
 
     protected String uriToDisplay(URI uri) {
@@ -103,7 +121,7 @@ public class UrlArgument extends CommandArgument {
     }
 
     public String replaceSecretInfo(String line) {
-        if (forCommandline().length() > 0) {
+        if (rawUrl().length() > 0) {
             line = line.replace(hostInfoForCommandline(), hostInfoForDisplay());
         }
 
@@ -120,7 +138,7 @@ public class UrlArgument extends CommandArgument {
     }
 
     private String cleanPath(CommandArgument commandArgument) {
-        String path = commandArgument.forCommandline();
+        String path = commandArgument.rawUrl();
         if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
@@ -136,13 +154,5 @@ public class UrlArgument extends CommandArgument {
         } catch (URISyntaxException e) {
             return url;
         }
-    }
-
-    public boolean hasSecretParams() {
-        return secretParams != null && !secretParams.isEmpty();
-    }
-
-    public SecretParams getSecretParams() {
-        return secretParams;
     }
 }

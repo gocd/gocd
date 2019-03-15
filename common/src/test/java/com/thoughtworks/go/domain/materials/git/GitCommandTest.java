@@ -514,7 +514,7 @@ public class GitCommandTest {
 
     @Test
     public void shouldRetrieveRemoteRepoValue() throws Exception {
-        assertThat(git.workingRepositoryUrl().forCommandline()).startsWith(repoUrl);
+        assertThat(git.workingRepositoryUrl().rawUrl()).startsWith(repoUrl);
     }
 
     @Test

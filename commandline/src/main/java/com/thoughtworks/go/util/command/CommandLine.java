@@ -105,7 +105,7 @@ public class CommandLine {
         }
         for (int i = 0; i < arguments.size(); i++) {
             CommandArgument argument = arguments.get(i);
-            args.add(argument.forCommandline());
+            args.add(argument.forCommandLine());
         }
         return args.toArray(new String[args.size()]);
     }

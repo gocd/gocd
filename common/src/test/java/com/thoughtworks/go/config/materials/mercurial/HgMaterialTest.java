@@ -88,14 +88,14 @@ public class HgMaterialTest {
 
     @Test
     void shouldRefreshWorkingFolderWhenRepositoryChanged() throws Exception {
-        new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).clone(inMemoryConsumer(), hgTestRepo.url());
+        new HgCommand(null, workingFolder, "default", hgTestRepo.url().rawUrl(), null).clone(inMemoryConsumer(), hgTestRepo.url());
         File testFile = createNewFileInWorkingFolder();
 
         HgTestRepo hgTestRepo2 = new HgTestRepo("hgTestRepo2", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo2.projectRepositoryUrl());
         hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
 
-        String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).workingRepositoryUrl().outputAsString();
+        String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().rawUrl(), null).workingRepositoryUrl().outputAsString();
         assertThat(workingUrl).isEqualTo(hgTestRepo2.projectRepositoryUrl());
         assertThat(testFile.exists()).isFalse();
     }
@@ -104,13 +104,13 @@ public class HgMaterialTest {
     @DisabledOnOs(OS.WINDOWS)
     void shouldNotRefreshWorkingFolderWhenFileProtocolIsUsedOnLinux() throws Exception {
         final UrlArgument repoUrl = hgTestRepo.url();
-        new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).clone(inMemoryConsumer(), repoUrl);
+        new HgCommand(null, workingFolder, "default", repoUrl.rawUrl(), null).clone(inMemoryConsumer(), repoUrl);
         File testFile = createNewFileInWorkingFolder();
 
         hgMaterial = MaterialsMother.hgMaterial("file://" + hgTestRepo.projectRepositoryUrl());
         updateMaterial(hgMaterial, new StringRevision("0"));
 
-        String workingUrl = new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).workingRepositoryUrl().outputAsString();
+        String workingUrl = new HgCommand(null, workingFolder, "default", repoUrl.rawUrl(), null).workingRepositoryUrl().outputAsString();
         assertThat(workingUrl).isEqualTo(hgTestRepo.projectRepositoryUrl());
         assertThat(testFile.exists()).isTrue();
     }

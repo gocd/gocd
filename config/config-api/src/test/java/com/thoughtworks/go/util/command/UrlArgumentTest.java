@@ -35,7 +35,7 @@ public class UrlArgumentTest {
     }
 
     @Test public void shouldReturnStringValueForCommandLine() throws Exception {
-        Assert.assertThat(argument.forCommandline(), is(URL_WITH_PASSWORD));
+        Assert.assertThat(argument.rawUrl(), is(URL_WITH_PASSWORD));
     }
 
     @Test public void shouldReturnStringValueForReporting() throws Exception {

@@ -129,12 +129,12 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new GitMaterialInstance(url.forCommandline(), branch, submoduleFolder, UUID.randomUUID().toString());
+        return new GitMaterialInstance(url.rawUrl(), branch, submoduleFolder, UUID.randomUUID().toString());
     }
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
         parameters.put("branch", branch);
     }
 
@@ -222,9 +222,9 @@ public class GitMaterial extends ScmMaterial {
             int cloneDepth = shallowClone ? preferredCloneDepth : Integer.MAX_VALUE;
             int returnValue;
             if (executionContext.isServer()) {
-                returnValue = gitCommand.cloneWithNoCheckout(outputStreamConsumer, url.forCommandline());
+                returnValue = gitCommand.cloneWithNoCheckout(outputStreamConsumer, url.forCommandLine());
             } else {
-                returnValue = gitCommand.clone(outputStreamConsumer, url.forCommandline(), cloneDepth);
+                returnValue = gitCommand.clone(outputStreamConsumer, url.forCommandLine(), cloneDepth);
             }
             bombIfFailedToRunCommandLine(returnValue, "Failed to run git clone command");
         }
@@ -232,8 +232,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     private List<SecretString> secrets() {
-        SecretString secretSubstitution = line -> line.replace(url.forCommandline(), url.forDisplay());
-
+        SecretString secretSubstitution = line -> line.replace(url.forCommandLine(), url.forDisplay());
         return Collections.singletonList(secretSubstitution);
     }
 
@@ -268,7 +267,7 @@ public class GitMaterial extends ScmMaterial {
         UrlArgument currentWorkingUrl = command.workingRepositoryUrl();
         LOG.trace("Current repository url of [{}]: {}", workingDirectory, currentWorkingUrl);
         LOG.trace("Target repository url: {}", url);
-        return !MaterialUrl.sameUrl(url.forDisplay(), currentWorkingUrl.forCommandline())
+        return !MaterialUrl.sameUrl(url.forDisplay(), currentWorkingUrl.forDisplay())
                 || !isBranchEqual(command)
                 || (!shallowClone && command.isShallow());
     }
@@ -280,8 +279,9 @@ public class GitMaterial extends ScmMaterial {
     /**
      * @deprecated Breaks encapsulation really badly. But we need it for IBatis :-(
      */
+    //TODO: Check the usages of the method. add one more forCommandLine if needed
     public String getUrl() {
-        return url.forCommandline();
+        return url.rawUrl();
     }
 
     public UrlArgument getUrlArgument() {
@@ -381,7 +381,7 @@ public class GitMaterial extends ScmMaterial {
         materialMap.put("type", "git");
         Map<String, Object> configurationMap = new HashMap<>();
         if (addSecureFields) {
-            configurationMap.put("url", url.forCommandline());
+            configurationMap.put("url", url.forCommandLine());
         } else {
             configurationMap.put("url", url.forDisplay());
         }

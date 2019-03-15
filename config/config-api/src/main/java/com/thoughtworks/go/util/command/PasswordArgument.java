@@ -26,11 +26,17 @@ public class PasswordArgument extends CommandArgument implements SecretString {
         this.secret = secret;
     }
 
-    public String forCommandline() {
-        return secret == null ? "": secret;
+    //TODO: Resolve is this is set to use secret param
+    public String forCommandLine() {
+        return secret == null ? "" : secret;
     }
 
     public String forDisplay() {
-        return secret == null ? null: "******";
+        return secret == null ? null : "******";
+    }
+
+    @Override
+    public String rawUrl() {
+        return secret == null ? "" : secret;
     }
 }

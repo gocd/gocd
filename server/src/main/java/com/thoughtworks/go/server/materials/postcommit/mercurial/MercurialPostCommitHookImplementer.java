@@ -50,7 +50,7 @@ public class MercurialPostCommitHookImplementer implements PostCommitHookImpleme
     }
 
     boolean isUrlEqual(String paramRepoUrl, HgMaterial material) {
-        String materialUrl = material.getUrlArgument().forCommandline();
+        String materialUrl = material.getUrlArgument().rawUrl();
         return validators.perform(paramRepoUrl, materialUrl);
     }
 }

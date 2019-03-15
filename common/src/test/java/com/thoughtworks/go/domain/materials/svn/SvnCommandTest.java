@@ -576,7 +576,7 @@ public class SvnCommandTest {
                     List<CommandArgument> arguments = commandLine.getArguments();
                     for (CommandArgument argument : arguments) {
                         if (argument instanceof PasswordArgument) {
-                            assertThat(argument.forCommandline()).isEqualTo(svnMaterial1Password);
+                            assertThat(argument.rawUrl()).isEqualTo(svnMaterial1Password);
                         }
                     }
                 } else {

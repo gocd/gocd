@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -114,7 +114,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
     }
 
     @Override
-    public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, JobIdentifier jobIdentifier) {
+    public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, Map<String, String> clusterProfileConfiguration, JobIdentifier jobIdentifier) {
         pluginRequestHelper.submitRequest(pluginId, REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {

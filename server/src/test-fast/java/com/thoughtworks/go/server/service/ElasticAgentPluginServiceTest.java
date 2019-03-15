@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.AgentInstanceMother;
@@ -74,6 +75,9 @@ class ElasticAgentPluginServiceTest {
     private GoConfigService goConfigService;
     @Mock
     private CreateAgentQueueHandler createAgentQueue;
+    @Mock
+    private ClusterProfilesService clusterProfilesService;
+
     private TimeProvider timeProvider;
     private String autoRegisterKey = "key";
     private ElasticAgentPluginService service;
@@ -96,7 +100,7 @@ class ElasticAgentPluginServiceTest {
         elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
         timeProvider = new TimeProvider();
 
-        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService, elasticAgentMetadataStore);
+        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService, elasticAgentMetadataStore, clusterProfilesService);
         when(goConfigService.serverConfig()).thenReturn(GoConfigMother.configWithAutoRegisterKey(autoRegisterKey).server());
     }
 
@@ -136,9 +140,12 @@ class ElasticAgentPluginServiceTest {
 
     @Test
     void shouldCreateAgentForNewlyAddedJobPlansOnly() {
-        when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
         JobPlan plan1 = plan(1, "docker");
         JobPlan plan2 = plan(2, "docker");
+        when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
+        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getElasticProfile().getPluginId());
+        when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
+
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
         when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
@@ -155,9 +162,11 @@ class ElasticAgentPluginServiceTest {
 
     @Test
     void shouldPostCreateAgentMessageWithTimeToLiveLesserThanJobStarvationThreshold() throws Exception {
-        when(goConfigService.elasticJobStarvationThreshold()).thenReturn(20000L);
         JobPlan plan1 = plan(1, "docker");
         JobPlan plan2 = plan(2, "docker");
+        when(goConfigService.elasticJobStarvationThreshold()).thenReturn(20000L);
+        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getElasticProfile().getPluginId());
+        when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
 
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
@@ -170,8 +179,11 @@ class ElasticAgentPluginServiceTest {
 
     @Test
     void shouldRetryCreateAgentForJobThatHasBeenWaitingForAnAgentForALongTime() {
-        when(goConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
         JobPlan plan1 = plan(1, "docker");
+
+        when(goConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
+        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getElasticProfile().getPluginId());
+        when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
         ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
         service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
@@ -205,6 +217,8 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldRemoveExistingMissingPluginErrorFromAPreviousAttemptIfThePluginIsNowRegistered() {
         JobPlan plan1 = plan(1, "docker");
+        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getElasticProfile().getPluginId());
+        when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
         ArgumentCaptor<HealthStateScope> captor = ArgumentCaptor.forClass(HealthStateScope.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
 
@@ -353,7 +367,7 @@ class ElasticAgentPluginServiceTest {
     }
 
     private JobPlan plan(int jobId, String pluginId) {
-        ElasticProfile elasticProfile = new ElasticProfile("id", pluginId);
+        ElasticProfile elasticProfile = new ElasticProfile("id", pluginId, "clusterProfileId");
         JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
         return new DefaultJobPlan(null, new ArrayList<>(), null, jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile);
     }

@@ -58,10 +58,20 @@ public class ElasticAgentExtensionConverterV5Test {
         Map<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");
         configuration.put("key2", "value2");
-        String json = new ElasticAgentExtensionConverterV5().createAgentRequestBody("secret-key", "prod", configuration, jobIdentifier);
+
+        Map<String, String> clusterProfileConfiguration = new HashMap<>();
+        clusterProfileConfiguration.put("key1", "value1");
+        clusterProfileConfiguration.put("key2", "value2");
+
+        String json = new ElasticAgentExtensionConverterV5().createAgentRequestBody("secret-key", "prod", configuration, clusterProfileConfiguration, jobIdentifier);
+
         assertThatJson(json).isEqualTo("{" +
                 "  \"auto_register_key\":\"secret-key\"," +
-                "  \"properties\":{" +
+                "  \"elastic_agent_profile_properties\":{" +
+                "    \"key1\":\"value1\"," +
+                "    \"key2\":\"value2\"" +
+                "    }," +
+                "  \"cluster_profile_properties\":{" +
                 "    \"key1\":\"value1\"," +
                 "    \"key2\":\"value2\"" +
                 "    }," +

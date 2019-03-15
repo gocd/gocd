@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,6 @@ public class CreateAgentListener implements GoMessageListener<CreateAgentMessage
 
     @Override
     public void onMessage(CreateAgentMessage message) {
-        elasticAgentPluginRegistry.createAgent(message.pluginId(), message.autoregisterKey(), message.environment(), message.configuration(), message.jobIdentifier());
+        elasticAgentPluginRegistry.createAgent(message.pluginId(), message.autoregisterKey(), message.environment(), message.configuration(), message.getClusterProfileConfiguration(), message.jobIdentifier());
     }
 }

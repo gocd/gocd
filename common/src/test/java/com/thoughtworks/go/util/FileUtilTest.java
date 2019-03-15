@@ -172,13 +172,17 @@ public class FileUtilTest {
         File file = new File("/var/command-repo/default/windows/echo.xml");
         File base = new File("/var/command-repo/default");
 
-        assertThat(FileUtil.removeLeadingPath(base.getAbsolutePath(), file.getAbsolutePath())).isEqualTo("/windows/echo.xml".replace('/', File.separatorChar));
-        assertThat(FileUtil.removeLeadingPath(new File("/var/command-repo/default/").getAbsolutePath(), new File("/var/command-repo/default/windows/echo.xml").getAbsolutePath())).isEqualTo("/windows/echo.xml");
-        assertThat(FileUtil.removeLeadingPath("/some/random/path", "/var/command-repo/default/windows/echo.xml")).isEqualTo("/var/command-repo/default/windows/echo.xml");
-        assertThat(FileUtil.removeLeadingPath(new File("C:/blah").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isEqualTo("/abcd.txt");
-        assertThat(FileUtil.removeLeadingPath(new File("C:/blah/").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isEqualTo("/abcd.txt");
+        assertThat(FileUtil.removeLeadingPath(base.getAbsolutePath(), file.getAbsolutePath())).isEqualTo(toOsSpecificPath("/windows/echo.xml"));
+        assertThat(FileUtil.removeLeadingPath(new File("/var/command-repo/default/").getAbsolutePath(), new File("/var/command-repo/default/windows/echo.xml").getAbsolutePath())).isEqualTo(toOsSpecificPath("/windows/echo.xml"));
+        assertThat(FileUtil.removeLeadingPath("/some/random/path", "/var/command-repo/default/windows/echo.xml")).isEqualTo(toOsSpecificPath("/var/command-repo/default/windows/echo.xml"));
+        assertThat(FileUtil.removeLeadingPath(new File("C:/blah").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isEqualTo(toOsSpecificPath("/abcd.txt"));
+        assertThat(FileUtil.removeLeadingPath(new File("C:/blah/").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isEqualTo(toOsSpecificPath("/abcd.txt"));
         assertThat(FileUtil.removeLeadingPath(null, new File("/blah/abcd.txt").getAbsolutePath())).isEqualTo(new File("/blah/abcd.txt").getAbsolutePath());
         assertThat(FileUtil.removeLeadingPath("", new File("/blah/abcd.txt").getAbsolutePath())).isEqualTo(new File("/blah/abcd.txt").getAbsolutePath());
+    }
+
+    private String toOsSpecificPath(String path) {
+        return path.replace('/', File.separatorChar);
     }
 
     @Test

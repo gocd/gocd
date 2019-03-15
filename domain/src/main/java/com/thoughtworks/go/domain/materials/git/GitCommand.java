@@ -228,7 +228,7 @@ public class GitCommand extends SCMCommand {
         outputStreamConsumer.stdOutput("[GIT] Initializing and Updating git sub-modules");
 
         CommandLine initUpdateCmd = git(environment)
-                .withArgs("submodule", "update", "--init", "--recursive")
+                .withArgs("submodule", "update", "--init", "--recursive", "--remote")
                 .withWorkingDir(workingDir);
         runOrBomb(initUpdateCmd);
 

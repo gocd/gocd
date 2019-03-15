@@ -46,6 +46,7 @@
   <context:component-scan base-package="com.thoughtworks.go.apiv1.configrepos"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.configrepooperations"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.elasticprofile"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv2.elasticprofile"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.security"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.adminsconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.admin.encryption.spring"/>

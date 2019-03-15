@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 
 import java.util.Collection;
+import java.util.Objects;
 
 @ConfigTag("profile")
 @ConfigCollection(value = ConfigurationProperty.class)
@@ -83,5 +84,29 @@ public class ElasticProfile extends PluginProfile {
 
     private ElasticAgentMetadataStore metadataStore() {
         return ElasticAgentMetadataStore.instance();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        ElasticProfile that = (ElasticProfile) o;
+        return Objects.equals(clusterProfileId, that.clusterProfileId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), clusterProfileId);
+    }
+
+    @Override
+    public String toString() {
+        return getObjectDescription() + "{" +
+                "id='" + id + '\'' +
+                ", pluginId='" + pluginId + '\'' +
+                ", clusterProfileId='" + clusterProfileId + '\'' +
+                ", properties='" + super.getPropertyMetadataAndValuesAsMap() + '\'' +
+                '}';
     }
 }

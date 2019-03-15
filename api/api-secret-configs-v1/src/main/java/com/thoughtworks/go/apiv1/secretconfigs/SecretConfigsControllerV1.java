@@ -21,8 +21,10 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigsRepresenter;
 import com.thoughtworks.go.config.SecretConfigs;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.server.service.SecretConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +42,13 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
 
     public static final String CONFIG_ID_PARAM = "config_id";
     public final ApiAuthenticationHelper apiAuthenticationHelper;
+    private SecretConfigService configService;
 
     @Autowired
-    public SecretConfigsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper) {
+    public SecretConfigsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, SecretConfigService configService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
+        this.configService = configService;
     }
 
     @Override
@@ -72,7 +76,8 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
     }
 
     public String index(Request request, Response response) throws IOException {
-        return writerForTopLevelObject(request, response, writer -> writer.add("action", "index"));
+        SecretConfigs allSecretConfigs = configService.getAllSecretConfigs();
+        return writerForTopLevelObject(request, response, writer -> SecretConfigsRepresenter.toJSON(writer, allSecretConfigs));
     }
 
     public String show(Request request, Response response) throws IOException {
@@ -104,12 +109,6 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
     @Override
     public SecretConfigs buildEntityFromRequestBody(Request req) {
         return null;
-    }
-
-    //todo do we need this method
-    @Override
-    public String jsonize(Request req, SecretConfigs o) {
-        return null; // to be implemented
     }
 
     @Override

@@ -59,6 +59,17 @@ class SecretConfigRepresenterTest {
       def json = toObjectString({ toJSON(it, secretConfig) })
 
       JsonFluentAssert.assertThatJson(json).isEqualTo([
+        "_links": [
+          "doc": [
+            "href": "https://api.gocd.org/19.3.0/#secret_configs"
+          ],
+          "find": [
+            "href": "http://test.host/go/api/admin/secret_configs/:config_id"
+          ],
+          "self": [
+            "href": "http://test.host/go/api/admin/secret_configs/id"
+          ]
+        ],
         "id"        : "id",
         "plugin_id" : "plugin-id",
         "properties": [
@@ -114,6 +125,17 @@ class SecretConfigRepresenterTest {
       def json = toObjectString({ toJSON(it, secretConfig) })
 
       JsonFluentAssert.assertThatJson(json).isEqualTo([
+        "_links": [
+          "doc": [
+            "href": "https://api.gocd.org/19.3.0/#secret_configs"
+          ],
+          "find": [
+            "href": "http://test.host/go/api/admin/secret_configs/:config_id"
+          ],
+          "self": [
+            "href": "http://test.host/go/api/admin/secret_configs/id"
+          ]
+        ],
         "id"        : "id",
         "plugin_id" : "plugin-id",
         "properties": [

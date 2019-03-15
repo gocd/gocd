@@ -20,16 +20,20 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.SecretConfig;
+import com.thoughtworks.go.spark.Routes;
 import org.apache.commons.collections4.CollectionUtils;
 
 public class SecretConfigRepresenter {
     public static void toJSON(OutputWriter jsonWriter, SecretConfig secretConfig) {
         if (secretConfig == null)
             return;
-
-        jsonWriter.add("id", secretConfig.getId());
-        jsonWriter.add("plugin_id", secretConfig.getPluginId());
-        jsonWriter.addIfNotNull("description", secretConfig.getDescription());
+        jsonWriter.addLinks(linksWriter -> linksWriter
+                .addLink("self", Routes.SecretConfigsAPI.id(secretConfig.getId()))
+                .addAbsoluteLink("doc", Routes.SecretConfigsAPI.DOC)
+                .addLink("find", Routes.SecretConfigsAPI.find()))
+                .add("id", secretConfig.getId())
+                .add("plugin_id", secretConfig.getPluginId())
+                .addIfNotNull("description", secretConfig.getDescription());
 
         jsonWriter.addChildList("properties", listWriter -> {
             ConfigurationPropertyRepresenter.toJSON(listWriter, secretConfig);

@@ -38,7 +38,7 @@ public class SecretConfig extends PluginProfile implements RulesAware {
     private Rules rules = new Rules();
 
     @ConfigSubtag
-    private Description description;
+    private Description description = new Description();
 
     private static final List<String> allowedActions = unmodifiableList(asList("refer"));
     private static final List<String> allowedTypes = unmodifiableList(asList("pipeline_group"));
@@ -65,6 +65,10 @@ public class SecretConfig extends PluginProfile implements RulesAware {
         return this.description.text;
     }
 
+    public void setDescription(String description) {
+        this.description.text = description;
+    }
+
     public Rules getRules() {
         return this.rules;
     }
@@ -82,6 +86,10 @@ public class SecretConfig extends PluginProfile implements RulesAware {
                 return new RulesValidationContext(allowedActions, allowedTypes);
             }
         });
+    }
+
+    public void setRules(Rules rules) {
+        this.rules = rules;
     }
 
     @Override

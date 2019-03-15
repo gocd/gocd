@@ -25,7 +25,6 @@ public class Allow extends AbstractDirective {
     public Allow(String action, String type, String resource) {
         super(action, type, resource);
     }
-
 }
 
 

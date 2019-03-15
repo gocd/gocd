@@ -42,7 +42,7 @@ public interface VersionedElasticAgentExtension {
 
     ValidationResult validateClusterProfile(String pluginId, Map<String, String> configuration);
 
-    void createAgent(String pluginId, String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier);
+    void createAgent(String pluginId, String autoRegisterKey, String environment, Map<String, String> configuration, Map<String, String> clusterProfileConfiguration, JobIdentifier jobIdentifier);
 
     void serverPing(String pluginId);
 

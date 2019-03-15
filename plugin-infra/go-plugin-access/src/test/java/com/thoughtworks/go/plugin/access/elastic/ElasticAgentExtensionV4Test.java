@@ -151,7 +151,7 @@ public class ElasticAgentExtensionV4Test {
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
-        extensionV4.createAgent(PLUGIN_ID, "auto-registration-key", "test-env", profile, jobIdentifier);
+        extensionV4.createAgent(PLUGIN_ID, "auto-registration-key", "test-env", profile, null, jobIdentifier);
 
         String expectedRequestBody = "{\n" +
                 "  \"auto_register_key\": \"auto-registration-key\",\n" +

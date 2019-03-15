@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.messaging.elasticagents;
 
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -23,6 +24,7 @@ import com.thoughtworks.go.domain.config.ConfigurationValue;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -33,10 +35,22 @@ public class CreateAgentMessageTest {
     @Test
     public void shouldGetPluginId() {
         List<ConfigurationProperty> properties = Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
-        ElasticProfile jobAgentConfig = new ElasticProfile("foo", "plugin-id", properties);
-        CreateAgentMessage message = new CreateAgentMessage("key", "env", jobAgentConfig, null);
-        assertThat(message.pluginId(), is(jobAgentConfig.getPluginId()));
-        Map<String, String> configurationAsMap = jobAgentConfig.getConfigurationAsMap(true);
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "plugin-id", properties);
+        ClusterProfile clusterProfile = new ClusterProfile("foo", "plugin-id", properties);
+        CreateAgentMessage message = new CreateAgentMessage("key", "env", elasticProfile, clusterProfile, null);
+        assertThat(message.pluginId(), is(elasticProfile.getPluginId()));
+        Map<String, String> configurationAsMap = elasticProfile.getConfigurationAsMap(true);
         assertThat(message.configuration(), is(configurationAsMap));
+        Map<String, String> clusterProfileConfigurations = clusterProfile.getConfigurationAsMap(true);
+        assertThat(message.getClusterProfileConfiguration(), is(clusterProfileConfigurations));
+    }
+
+    @Test
+    public void shouldCreateCreateAgentMessageWhenClusterProfileIsNotSpecified() {
+        List<ConfigurationProperty> properties = Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "plugin-id", properties);
+
+        CreateAgentMessage createAgentMessage = new CreateAgentMessage(null, null, elasticProfile, null, null);
+        assertThat(createAgentMessage.getClusterProfileConfiguration(), is(Collections.emptyMap()));
     }
 }

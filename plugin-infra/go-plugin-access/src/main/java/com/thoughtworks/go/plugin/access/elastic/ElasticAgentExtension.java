@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
@@ -54,8 +55,8 @@ public class ElasticAgentExtension extends AbstractExtension {
     }
 
 
-    public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, JobIdentifier jobIdentifier) {
-        getVersionedElasticAgentExtension(pluginId).createAgent(pluginId, autoRegisterKey, environment, configuration, jobIdentifier);
+    public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, final Map<String, String>  clusterProfileConfiguration, JobIdentifier jobIdentifier) {
+        getVersionedElasticAgentExtension(pluginId).createAgent(pluginId, autoRegisterKey, environment, configuration, clusterProfileConfiguration, jobIdentifier);
     }
 
     public void serverPing(final String pluginId) {

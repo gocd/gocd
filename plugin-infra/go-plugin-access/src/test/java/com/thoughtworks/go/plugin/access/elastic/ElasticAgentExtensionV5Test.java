@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -195,15 +195,19 @@ public class ElasticAgentExtensionV5Test {
 
     @Test
     public void shouldMakeCreateAgentCall() {
-        final Map<String, String> profile = Collections.singletonMap("ServerURL", "https://example.com/go");
+        final Map<String, String> profile = Collections.singletonMap("Image", "alpine:latest");
+        final Map<String, String> clusterProfile = Collections.singletonMap("ServerURL", "https://example.com/go");
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
-        extensionV5.createAgent(PLUGIN_ID, "auto-registration-key", "test-env", profile, jobIdentifier);
+        extensionV5.createAgent(PLUGIN_ID, "auto-registration-key", "test-env", profile, clusterProfile, jobIdentifier);
 
         String expectedRequestBody = "{\n" +
                 "  \"auto_register_key\": \"auto-registration-key\",\n" +
-                "  \"properties\": {\n" +
+                "  \"elastic_agent_profile_properties\": {\n" +
+                "    \"Image\": \"alpine:latest\"\n" +
+                "  },\n" +
+                "  \"cluster_profile_properties\": {\n" +
                 "    \"ServerURL\": \"https://example.com/go\"\n" +
                 "  },\n" +
                 "  \"environment\": \"test-env\",\n" +

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,12 +34,12 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
         super(pluginManager, elasticAgentExtension);
     }
 
-    public void createAgent(final String pluginId, String autoRegisterKey, String environment, Map<String, String> configuration, JobIdentifier jobIdentifier) {
+    public void createAgent(final String pluginId, String autoRegisterKey, String environment, Map<String, String> configuration, Map<String, String> clusterProfileConfiguration, JobIdentifier jobIdentifier) {
         PluginDescriptor plugin = findPlugin(pluginId);
         if (plugin != null) {
-            LOGGER.debug("Processing create agent for plugin: {} with environment: {} with configuration: {}", pluginId, environment, configuration);
-            extension.createAgent(pluginId, autoRegisterKey, environment, configuration, jobIdentifier);
-            LOGGER.debug("Done processing create agent for plugin: {} with environment: {} with configuration: {}", pluginId, environment, configuration);
+            LOGGER.debug("Processing create agent for plugin: {} with environment: {} with elastic agent configuration: {} in cluster: {}", pluginId, environment, configuration, clusterProfileConfiguration);
+            extension.createAgent(pluginId, autoRegisterKey, environment, configuration, clusterProfileConfiguration, jobIdentifier);
+            LOGGER.debug("Done processing create agent for plugin: {} with environment: {} with elastic agent configuration: {} in cluster: {}", pluginId, environment, configuration, clusterProfileConfiguration);
         } else {
             LOGGER.warn("Could not find plugin with id: {}", pluginId);
         }

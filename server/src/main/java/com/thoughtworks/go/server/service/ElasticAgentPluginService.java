@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.Sets;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -70,6 +71,7 @@ public class ElasticAgentPluginService {
     @Value("${go.elasticplugin.heartbeat.interval}")
     private long elasticPluginHeartBeatInterval;
     private final ElasticAgentMetadataStore elasticAgentMetadataStore;
+    private ClusterProfilesService clusterProfilesService;
 
     //    for test only
     public void setElasticPluginHeartBeatInterval(long elasticPluginHeartBeatInterval) {
@@ -81,17 +83,18 @@ public class ElasticAgentPluginService {
             PluginManager pluginManager, ElasticAgentPluginRegistry elasticAgentPluginRegistry,
             AgentService agentService, EnvironmentConfigService environmentConfigService,
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
-            GoConfigService goConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService) {
+            GoConfigService goConfigService, TimeProvider timeProvider, ClusterProfilesService clusterProfilesService, ServerHealthService serverHealthService) {
 
         this(pluginManager, elasticAgentPluginRegistry, agentService, environmentConfigService, createAgentQueue,
-                serverPingQueue, goConfigService, timeProvider, serverHealthService, ElasticAgentMetadataStore.instance());
+                serverPingQueue, goConfigService, timeProvider, serverHealthService, ElasticAgentMetadataStore.instance(), clusterProfilesService);
     }
 
     ElasticAgentPluginService(
             PluginManager pluginManager, ElasticAgentPluginRegistry elasticAgentPluginRegistry,
             AgentService agentService, EnvironmentConfigService environmentConfigService,
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
-            GoConfigService goConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService, ElasticAgentMetadataStore elasticAgentMetadataStore) {
+            GoConfigService goConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService,
+            ElasticAgentMetadataStore elasticAgentMetadataStore, ClusterProfilesService clusterProfilesService) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
         this.agentService = agentService;
@@ -102,6 +105,7 @@ public class ElasticAgentPluginService {
         this.timeProvider = timeProvider;
         this.serverHealthService = serverHealthService;
         this.elasticAgentMetadataStore = elasticAgentMetadataStore;
+        this.clusterProfilesService = clusterProfilesService;
     }
 
     public void heartbeat() {
@@ -157,15 +161,17 @@ public class ElasticAgentPluginService {
 
         for (JobPlan plan : plansThatRequireElasticAgent) {
             jobCreationTimeMap.put(plan.getJobId(), timeProvider.currentTimeMillis());
-            if (elasticAgentPluginRegistry.has(plan.getElasticProfile().getPluginId())) {
+            ElasticProfile elasticProfile = plan.getElasticProfile();
+            if (elasticAgentPluginRegistry.has(elasticProfile.getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-                createAgentQueue.post(new CreateAgentMessage(goConfigService.serverConfig().getAgentAutoRegisterKey(), environment, plan.getElasticProfile(), plan.getIdentifier()), messageTimeToLive);
+                ClusterProfile clusterProfile = clusterProfilesService.findProfile(elasticProfile.getClusterProfileId());
+                createAgentQueue.post(new CreateAgentMessage(goConfigService.serverConfig().getAgentAutoRegisterKey(), environment, elasticProfile, clusterProfile, plan.getIdentifier()), messageTimeToLive);
                 serverHealthService.removeByScope(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
             } else {
                 String jobConfigIdentifier = plan.getIdentifier().jobConfigIdentifier().toString();
                 String description = String.format("Plugin [%s] associated with %s is missing. Either the plugin is not " +
                         "installed or could not be registered. Please check plugins tab " +
-                        "and server logs for more details.", plan.getElasticProfile().getPluginId(), jobConfigIdentifier);
+                        "and server logs for more details.", elasticProfile.getPluginId(), jobConfigIdentifier);
                 serverHealthService.update(ServerHealthState.error(String.format("Unable to find agent for %s",
                         jobConfigIdentifier), description, HealthStateType.general(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()))));
                 LOGGER.error(description);

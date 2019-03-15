@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,28 @@
 
 package com.thoughtworks.go.server.messaging.elasticagents;
 
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.server.messaging.PluginAwareMessage;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class CreateAgentMessage implements PluginAwareMessage {
     private final String autoregisterKey;
     private final String environment;
     private final Map<String, String> configuration;
+    private Map<String, String> clusterProfile;
     private final JobIdentifier jobIdentifier;
     private final String pluginId;
 
-    public CreateAgentMessage(String autoregisterKey, String environment, ElasticProfile elasticProfile, JobIdentifier jobIdentifier) {
+    public CreateAgentMessage(String autoregisterKey, String environment, ElasticProfile elasticProfile, ClusterProfile clusterProfile, JobIdentifier jobIdentifier) {
         this.autoregisterKey = autoregisterKey;
         this.environment = environment;
         this.pluginId = elasticProfile.getPluginId();
         this.configuration = elasticProfile.getConfigurationAsMap(true);
+        this.clusterProfile = clusterProfile != null ? clusterProfile.getConfigurationAsMap(true) : Collections.emptyMap();
         this.jobIdentifier = jobIdentifier;
     }
 
@@ -51,6 +55,8 @@ public class CreateAgentMessage implements PluginAwareMessage {
                 "autoregisterKey='" + autoregisterKey + '\'' +
                 ", environment='" + environment + '\'' +
                 ", configuration=" + configuration +
+                ", clusterProfile=" + clusterProfile +
+                ", jobIdentifier=" + jobIdentifier +
                 ", pluginId='" + pluginId + '\'' +
                 '}';
     }
@@ -65,5 +71,9 @@ public class CreateAgentMessage implements PluginAwareMessage {
 
     public JobIdentifier jobIdentifier() {
         return jobIdentifier;
+    }
+
+    public Map<String, String> getClusterProfileConfiguration() {
+        return clusterProfile;
     }
 }

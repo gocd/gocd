@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,13 +56,14 @@ public class ElasticAgentPluginRegistryTest {
     @Test
     public void shouldTalkToExtensionToCreateElasticAgent() {
         final Map<String, String> configuration = Collections.singletonMap("GoServerURL", "foo");
+        final Map<String, String> clusterConfiguration = Collections.singletonMap("GoServerURL", "foo");
         final JobIdentifier jobIdentifier = new JobIdentifier();
         final String autoRegisterKey = "auto-register-key";
         final String environment = "test-env";
 
-        elasticAgentPluginRegistry.createAgent(PLUGIN_ID, autoRegisterKey, environment, configuration, jobIdentifier);
+        elasticAgentPluginRegistry.createAgent(PLUGIN_ID, autoRegisterKey, environment, configuration, clusterConfiguration, jobIdentifier);
 
-        verify(elasticAgentExtension, times(1)).createAgent(PLUGIN_ID, autoRegisterKey, environment, configuration, jobIdentifier);
+        verify(elasticAgentExtension, times(1)).createAgent(PLUGIN_ID, autoRegisterKey, environment, configuration, clusterConfiguration, jobIdentifier);
         verifyNoMoreInteractions(elasticAgentExtension);
     }
 

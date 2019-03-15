@@ -131,11 +131,11 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
     }
 
     @Override
-    public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, JobIdentifier jobIdentifier) {
+    public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, Map<String, String> clusterProfileConfiguration, JobIdentifier jobIdentifier) {
         pluginRequestHelper.submitRequest(pluginId, REQUEST_CREATE_AGENT, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV5.createAgentRequestBody(autoRegisterKey, environment, configuration, jobIdentifier);
+                return elasticAgentExtensionConverterV5.createAgentRequestBody(autoRegisterKey, environment, configuration, clusterProfileConfiguration, jobIdentifier);
             }
         });
     }

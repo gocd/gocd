@@ -369,3 +369,6 @@ api/api-support/config/
 api/api-plugin-infos-v5/out/
 api/api-plugin-infos-v5/target/
 api/api-plugin-infos-v5/logs/
+api/api-secret-configs-v1/out/
+api/api-secret-configs-v1/target/
+api/api-secret-configs-v1/logs/

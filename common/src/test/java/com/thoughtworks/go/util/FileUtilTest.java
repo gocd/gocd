@@ -17,6 +17,8 @@
 package com.thoughtworks.go.util;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.AbstractAssert;
 import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +34,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.thoughtworks.go.util.FileUtil.isSubdirectoryOf;
+import static com.thoughtworks.go.util.FileUtilTest.FilePathMatcher.assertPath;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -168,21 +171,17 @@ public class FileUtilTest {
     }
 
     @Test
-    void shouldRemoveLeadingFilePathFromAFilePath() {
+    void shouldRemoveLeadingFilePathFromAFilePathOnWindows() {
         File file = new File("/var/command-repo/default/windows/echo.xml");
         File base = new File("/var/command-repo/default");
 
-        assertThat(FileUtil.removeLeadingPath(base.getAbsolutePath(), file.getAbsolutePath())).isEqualTo(toOsSpecificPath("/windows/echo.xml"));
-        assertThat(FileUtil.removeLeadingPath(new File("/var/command-repo/default/").getAbsolutePath(), new File("/var/command-repo/default/windows/echo.xml").getAbsolutePath())).isEqualTo(toOsSpecificPath("/windows/echo.xml"));
-        assertThat(FileUtil.removeLeadingPath("/some/random/path", "/var/command-repo/default/windows/echo.xml")).isEqualTo(toOsSpecificPath("/var/command-repo/default/windows/echo.xml"));
-        assertThat(FileUtil.removeLeadingPath(new File("C:/blah").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isEqualTo(toOsSpecificPath("/abcd.txt"));
-        assertThat(FileUtil.removeLeadingPath(new File("C:/blah/").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isEqualTo(toOsSpecificPath("/abcd.txt"));
-        assertThat(FileUtil.removeLeadingPath(null, new File("/blah/abcd.txt").getAbsolutePath())).isEqualTo(new File("/blah/abcd.txt").getAbsolutePath());
-        assertThat(FileUtil.removeLeadingPath("", new File("/blah/abcd.txt").getAbsolutePath())).isEqualTo(new File("/blah/abcd.txt").getAbsolutePath());
-    }
-
-    private String toOsSpecificPath(String path) {
-        return path.replace('/', File.separatorChar);
+        assertPath(FileUtil.removeLeadingPath(base.getAbsolutePath(), file.getAbsolutePath())).isSameAs("/windows/echo.xml");
+        assertPath(FileUtil.removeLeadingPath(new File("/var/command-repo/default/").getAbsolutePath(), new File("/var/command-repo/default/windows/echo.xml").getAbsolutePath())).isSameAs("/windows/echo.xml");
+        assertThat(FileUtil.removeLeadingPath("/some/random/path", "/var/command-repo/default/windows/echo.xml")).isEqualTo("/var/command-repo/default/windows/echo.xml");
+        assertPath(FileUtil.removeLeadingPath(new File("C:/blah").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isSameAs("/abcd.txt");
+        assertPath(FileUtil.removeLeadingPath(new File("C:/blah/").getAbsolutePath(), new File("C:/blah/abcd.txt").getAbsolutePath())).isSameAs("/abcd.txt");
+        assertPath(FileUtil.removeLeadingPath(null, new File("/blah/abcd.txt").getAbsolutePath())).isSameAs(new File("/blah/abcd.txt").getAbsolutePath());
+        assertPath(FileUtil.removeLeadingPath("", new File("/blah/abcd.txt").getAbsolutePath())).isSameAs(new File("/blah/abcd.txt").getAbsolutePath());
     }
 
     @Test
@@ -210,6 +209,26 @@ public class FileUtilTest {
         File tempFile = temporaryFolder.newFile();
         FileUtils.writeStringToFile(tempFile, "12345", UTF_8);
         assertThat(FileUtil.sha1Digest(tempFile)).isEqualTo("jLIjfQZ5yojbZGTqxg2pY0VROWQ=");
+    }
+
+    static class FilePathMatcher extends AbstractAssert<FilePathMatcher, String> {
+
+        public FilePathMatcher(String consoleOut) {
+            super(consoleOut, FilePathMatcher.class);
+        }
+
+        public static FilePathMatcher assertPath(String actual) {
+            return new FilePathMatcher(actual);
+        }
+
+        public FilePathMatcher isSameAs(String expected) {
+            final String osSpecificPath = expected.replace('/', File.separatorChar);
+            if (!StringUtils.equals(actual, osSpecificPath)) {
+                failWithMessage("The actual path: [<%s>] does not match the expected path [<%s>]", actual, osSpecificPath);
+            }
+
+            return this;
+        }
     }
 
 }

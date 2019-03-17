@@ -359,3 +359,7 @@ api/api-cluster-profiles-v1/out/
 api/api-cluster-profiles-v1/target/
 api/api-cluster-profiles-v1/logs/
 api/api-cluster-profiles-v1/config/
+api/api-support/out/
+api/api-support/target/
+api/api-support/logs/
+api/api-support/config/

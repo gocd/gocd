@@ -536,4 +536,8 @@ public class Routes {
     public class LogoutPage {
         public static final String SPA_BASE = "/auth/logout";
     }
+
+    public class Support {
+        public static final String BASE = "/api/support";
+    }
 }

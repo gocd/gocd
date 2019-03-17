@@ -357,7 +357,6 @@ Rails.application.routes.draw do
 
       defaults :format => 'json' do
         get 'process_list' => 'process_list#process_list'
-        get 'support' => 'server#capture_support_info'
       end
 
       defaults :format => 'xml' do

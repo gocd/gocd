@@ -46,6 +46,12 @@
   </rule>
 
   <rule>
+    <name>API support</name>
+    <from>^/api/support</from>
+    <to last="true">/spark/api/support</to>
+  </rule>
+
+  <rule>
     <name>Admin Access Tokens SPA</name>
     <from>^/admin/admin_access_tokens(/?)$</from>
     <to last="true">/spark/admin/admin_access_tokens</to>

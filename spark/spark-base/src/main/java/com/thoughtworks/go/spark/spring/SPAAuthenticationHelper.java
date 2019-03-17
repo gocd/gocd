@@ -28,7 +28,6 @@ import static spark.Spark.halt;
 @Component
 public class SPAAuthenticationHelper extends AbstractAuthenticationHelper {
 
-
     @Autowired
     public SPAAuthenticationHelper(SecurityService securityService, GoConfigService goConfigService) {
         super(securityService, goConfigService);
@@ -42,5 +41,4 @@ public class SPAAuthenticationHelper extends AbstractAuthenticationHelper {
     public HaltException renderNotFoundResponse() {
         return halt(404, HtmlErrorPage.errorPage(404, "Not Found"));
     }
-
 }

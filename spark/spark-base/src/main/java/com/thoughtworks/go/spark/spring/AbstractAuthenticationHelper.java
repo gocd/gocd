@@ -206,5 +206,4 @@ public abstract class AbstractAuthenticationHelper {
         return securityService.isSecurityEnabled();
     }
 
-    public abstract HaltException renderNotFoundResponse();
 }

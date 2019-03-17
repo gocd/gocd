@@ -29,16 +29,9 @@ import static java.lang.String.format;
 import static spark.Spark.halt;
 
 public abstract class HaltApiResponses {
-    public static HaltException haltBecauseNotFound() {
-        return halt(HttpStatus.NOT_FOUND.value(), MessageJson.create(notFoundMessage()));
-    }
 
     public static HaltException haltBecauseQueryParamIsUnknown(String paramName, String value, String... goodValues) {
         return halt(HttpStatus.BAD_REQUEST.value(), MessageJson.create(queryParamIsUnknownMessage(paramName, value, goodValues)));
-    }
-
-    public static HaltException haltBecauseNotFound(String message, Object... tokens) {
-        return halt(HttpStatus.NOT_FOUND.value(), MessageJson.create(format(message, tokens)));
     }
 
     public static HaltException haltBecauseForbidden() {

@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.materials.mercurial;
 import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
+import com.thoughtworks.go.domain.materials.mercurial.HgVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -62,26 +63,8 @@ public class HgMaterialTest {
     private HgTestRepo hgTestRepo;
     private File workingFolder;
     private InMemoryStreamConsumer outputStreamConsumer;
-    private static final String LINUX_HG_094 = "Mercurial Distributed SCM (version 0.9.4)\n"
-            + "\n"
-            + "Copyright (C) 2005-2007 Matt Mackall <mpm@selenic.com> and others\n"
-            + "This is free software; see the source for copying conditions. There is NO\n"
-            + "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.";
-    private static final String LINUX_HG_101 = "Mercurial Distributed SCM (version 1.0.1)\n"
-            + "\n"
-            + "Copyright (C) 2005-2007 Matt Mackall <mpm@selenic.com> and others\n"
-            + "This is free software; see the source for copying conditions. There is NO\n"
-            + "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.";
-    private static final String LINUX_HG_10 = "Mercurial Distributed SCM (version 1.0)\n"
-            + "\n"
-            + "Copyright (C) 2005-2007 Matt Mackall <mpm@selenic.com> and others\n"
-            + "This is free software; see the source for copying conditions. There is NO\n"
-            + "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.";
-    private static final String WINDOWS_HG_OFFICAL_102 = "Mercurial Distributed SCM (version 1.0.2+20080813)\n"
-            + "\n"
-            + "Copyright (C) 2005-2008 Matt Mackall <mpm@selenic.com>; and others\n"
-            + "This is free software; see the source for copying conditions. There is NO\n"
-            + "warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.";
+    private static final HgVersion LINUX_HG_094 = HgVersion.parse("Mercurial Distributed SCM (version 0.9.4)\n");
+    private static final HgVersion WINDOWS_HG_OFFICIAL_102 = HgVersion.parse("Mercurial Distributed SCM (version 1.0.2+20080813)\n");
     private static final String WINDOWS_HG_TORTOISE = "Mercurial Distributed SCM (version 626cb86a6523+tortoisehg)";
     private static final String REVISION_0 = "b61d12de515d82d3a377ae3aae6e8abe516a2651";
     private static final String REVISION_1 = "35ff2159f303ecf986b3650fc4299a6ffe5a14e1";
@@ -277,28 +260,8 @@ public class HgMaterialTest {
     }
 
     @Test
-    void shouldReturnTrueForLinuxDistributeLowerThanOneZero() {
-        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_094)).isFalse();
-    }
-
-    @Test
-    void shouldReturnTrueForLinuxDistributeHigerThanOneZero() {
-        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_101)).isTrue();
-    }
-
-    @Test
-    void shouldReturnTrueForLinuxDistributeEqualsOneZero() {
-        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(LINUX_HG_10)).isTrue();
-    }
-
-    @Test
-    void shouldReturnTrueForWindowsDistributionHigerThanOneZero() {
-        assertThat(hgMaterial.isVersionOnedotZeorOrHigher(WINDOWS_HG_OFFICAL_102)).isTrue();
-    }
-
-    @Test
     void shouldReturnFalseWhenVersionIsNotRecgonized() {
-        assertThatCode(() -> hgMaterial.isVersionOnedotZeorOrHigher(WINDOWS_HG_TORTOISE))
+        assertThatCode(() -> hgMaterial.isVersionOneDotZeroOrHigher(WINDOWS_HG_TORTOISE))
                 .isInstanceOf(Exception.class);
     }
 
@@ -321,19 +284,10 @@ public class HgMaterialTest {
 
     @Test
     void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFound() {
-        ValidationBean validationBean = hgMaterial.handleException(new Exception(), WINDOWS_HG_OFFICAL_102);
+        ValidationBean validationBean = hgMaterial.handleException(new Exception(), WINDOWS_HG_OFFICIAL_102);
         assertThat(validationBean.isValid()).isFalse();
         assertThat(validationBean.getError()).contains("not found!");
     }
-
-
-    @Test
-    void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsNotKnown() {
-        ValidationBean validationBean = hgMaterial.handleException(new Exception(), WINDOWS_HG_TORTOISE);
-        assertThat(validationBean.isValid()).isFalse();
-        assertThat(validationBean.getError()).contains("not found!");
-    }
-
 
     @Test
     void shouldBeAbleToConvertToJson() {

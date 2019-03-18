@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
+import com.thoughtworks.go.domain.materials.mercurial.HgVersion;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.*;
@@ -145,7 +146,7 @@ public class HgMaterial extends ScmMaterial {
         hg(baseDir, consumer).push(consumer);
     }
 
-    boolean isVersionOnedotZeorOrHigher(String hgout) {
+    boolean isVersionOneDotZeroOrHigher(String hgout) {
         String hgVersion = parseHgVersion(hgout);
         Float aFloat = NumberUtils.createFloat(hgVersion.subSequence(0, 3).toString());
         return aFloat >= 1;
@@ -168,24 +169,20 @@ public class HgMaterial extends ScmMaterial {
             hgCommand.checkConnection(url);
             return ValidationBean.valid();
         } catch (Exception e) {
-            String message = null;
             try {
-                message = hgCommand.version();
-                return handleException(e, message);
+                return handleException(e, hgCommand.version());
             } catch (Exception ex) {
                 return ValidationBean.notValid(ERR_NO_HG_INSTALLED);
             }
         }
     }
 
-
-    ValidationBean handleException(Exception e, String hgVersionConsoleOut) {
+    ValidationBean handleException(Exception e, HgVersion version) {
         ValidationBean defaultResponse = ValidationBean.notValid(
                 "Repository " + url.forDisplay() + " not found!" + " : \n" + e.getMessage());
         try {
-            boolean olderThanHg10 = !isVersionOnedotZeorOrHigher(hgVersionConsoleOut);
-            if (olderThanHg10) {
-                return ValidationBean.notValid(ERROR_OLD_VERSION + hgVersionConsoleOut);
+            if (version.isOlderThanOneDotZero()) {
+                return ValidationBean.notValid(ERROR_OLD_VERSION + version.toString());
             } else {
                 return defaultResponse;
             }

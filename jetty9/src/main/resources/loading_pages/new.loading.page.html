@@ -13,17 +13,36 @@
   ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
-  -->
+-->
 
 <html>
-<head>
-  <title>GoCD server - Loading ...</title>
-  <meta charset="utf-8">
-  <style type="text/css">.glide{position:relative;width:100%;box-sizing:border-box}.glide *{box-sizing:inherit}.glide__track{overflow:hidden}.glide__slides{position:relative;width:100%;list-style:none;backface-visibility:hidden;transform-style:preserve-3d;touch-action:pan-Y;overflow:hidden;padding:0;white-space:nowrap;display:flex;flex-wrap:nowrap;will-change:transform}.glide__slides--dragging{user-select:none}.glide__slide{width:100%;height:100%;flex-shrink:0;white-space:normal;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}.glide__slide a{user-select:none;-webkit-user-drag:none;-moz-user-select:none;-ms-user-select:none}.glide__arrows{-webkit-touch-callout:none;user-select:none}.glide__bullets{-webkit-touch-callout:none;user-select:none}.glide--rtl{direction:rtl}</style>
-<style type="text/css">.glide__arrow{position:absolute;display:block;top:50%;z-index:2;color:white;text-transform:uppercase;padding:9px 12px;background-color:transparent;border:2px solid rgba(255,255,255,0.5);border-radius:4px;box-shadow:0 0.25em 0.5em 0 rgba(0,0,0,0.1);text-shadow:0 0.25em 0.5em rgba(0,0,0,0.1);opacity:1;cursor:pointer;transition:opacity 150ms ease, border 300ms ease-in-out;transform:translateY(-50%);line-height:1}.glide__arrow:focus{outline:none}.glide__arrow:hover{border-color:white}.glide__arrow--left{left:2em}.glide__arrow--right{right:2em}.glide__arrow--disabled{opacity:0.33}.glide__bullets{position:absolute;z-index:2;bottom:2em;left:50%;display:inline-flex;list-style:none;transform:translateX(-50%)}.glide__bullet{background-color:rgba(255,255,255,0.5);width:9px;height:9px;padding:0;border-radius:50%;border:2px solid transparent;transition:all 300ms ease-in-out;cursor:pointer;line-height:0;box-shadow:0 0.25em 0.5em 0 rgba(0,0,0,0.1);margin:0 0.25em}.glide__bullet:focus{outline:none}.glide__bullet:hover,.glide__bullet:focus{border:2px solid white;background-color:rgba(255,255,255,0.5)}.glide__bullet--active{background-color:white}.glide--swipeable{cursor:grab;cursor:-moz-grab;cursor:-webkit-grab}.glide--dragging{cursor:grabbing;cursor:-moz-grabbing;cursor:-webkit-grabbing} </style>
-  <style type="text/css">
+  <head>
+    <title>GoCD server - Loading ...</title>
+    <meta charset="utf-8">
+    <style type="text/css">.glide{position:relative;width:100%;box-sizing:border-box}.glide *{box-sizing:inherit}.glide__track{overflow:hidden}.glide__slides{position:relative;width:100%;list-style:none;backface-visibility:hidden;transform-style:preserve-3d;touch-action:pan-Y;overflow:hidden;padding:0;white-space:nowrap;display:flex;flex-wrap:nowrap;will-change:transform}.glide__slides--dragging{user-select:none}.glide__slide{width:100%;height:100%;flex-shrink:0;white-space:normal;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}.glide__slide a{user-select:none;-webkit-user-drag:none;-moz-user-select:none;-ms-user-select:none}.glide__arrows{-webkit-touch-callout:none;user-select:none}.glide__bullets{-webkit-touch-callout:none;user-select:none}.glide--rtl{direction:rtl}</style>
+    <style type="text/css">.glide__arrow{position:absolute;display:block;top:50%;z-index:2;color:white;text-transform:uppercase;padding:9px 12px;background-color:transparent;border:2px solid rgba(255,255,255,0.5);border-radius:4px;box-shadow:0 0.25em 0.5em 0 rgba(0,0,0,0.1);text-shadow:0 0.25em 0.5em rgba(0,0,0,0.1);opacity:1;cursor:pointer;transition:opacity 150ms ease, border 300ms ease-in-out;transform:translateY(-50%);line-height:1}.glide__arrow:focus{outline:none}.glide__arrow:hover{border-color:white}.glide__arrow--left{left:2em}.glide__arrow--right{right:2em}.glide__arrow--disabled{opacity:0.33}.glide__bullets{position:absolute;z-index:2;bottom:2em;left:50%;display:inline-flex;list-style:none;transform:translateX(-50%)}.glide__bullet{background-color:rgba(255,255,255,0.5);width:9px;height:9px;padding:0;border-radius:50%;border:2px solid transparent;transition:all 300ms ease-in-out;cursor:pointer;line-height:0;box-shadow:0 0.25em 0.5em 0 rgba(0,0,0,0.1);margin:0 0.25em}.glide__bullet:focus{outline:none}.glide__bullet:hover,.glide__bullet:focus{border:2px solid white;background-color:rgba(255,255,255,0.5)}.glide__bullet--active{background-color:white}.glide--swipeable{cursor:grab;cursor:-moz-grab;cursor:-webkit-grab}.glide--dragging{cursor:grabbing;cursor:-moz-grabbing;cursor:-webkit-grabbing} </style>
+    <style type="text/css">
+
+
+
     body {
       margin: 0 auto;
+    }
+
+    .loader {
+      border: 5px solid #f3f3f3; /* Light grey */
+      border-top: 5px solid #3498db; /* Blue */
+      border-radius: 50%;
+      margin-left: 15px;
+      width: 10px;
+      height: 10px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
 
     #logo {
@@ -35,9 +54,27 @@
       fill: black;
     }
 
+    .concepts-title {
+      text-align: center;
+      font-size: 24px;
+      font-family: sans-serif, serif;
+      margin: 0 auto;
+      width: 75%;
+      padding-top: 1em;
+    }
+
+
     .glide__arrow {
       color: black;
-      top: 0;
+      background-color: rgb(120, 120, 120);
+      border: 2px solid rgb(120, 120, 120, 0.5);
+      color: white;
+      top: 50px;
+    }
+
+    .glide__arrow:hover {
+      border-color: rgb(100, 100, 100, 0.5);
+      background-color: rgb(100, 100, 100);
     }
 
     .glide__slides {
@@ -139,7 +176,7 @@
 </div>
 
 <div class="section-by-status" id="status-STARTING">
-  GoCD server is starting. Please wait ...
+  GoCD server is starting. Please wait<span class="loader"></span>
 </div>
 
 <div class="section-by-status" id="status-STARTED" style="display: none;">
@@ -149,11 +186,12 @@
 <div class="section-by-status" id="status-UNKNOWN" style="display: none;">
   Unable to contact the GoCD server. It might not have started. Please check the server logs.
 </div>
+<div class="concepts-title">GoCD Concepts</div>
 
 <div id="Glide" class="info-section glide">
   <div data-glide-el="controls" class="glide__arrows">
-    <button class="glide__arrow glide__arrow--left prev" data-glide-dir="<"><</button>
-    <button class="glide__arrow glide__arrow--right next" data-glide-dir=">">></button>
+    <button class="glide__arrow glide__arrow--left prev" data-glide-dir="<">Prev</button>
+    <button class="glide__arrow glide__arrow--right next" data-glide-dir=">">Next</button>
   </div>
 
   <div data-glide-el="track" class="glide__track">

@@ -2446,30 +2446,6 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldOnlyUpdateSchemaVersionForMigration118() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        String configContent =  " <elastic>\n" +
-                "    <profiles>\n" +
-                "      <profile id=\"asdf\" pluginId=\"cd.go.contrib.elastic-agent.docker\">\n" +
-                "        <property>\n" +
-                "          <key>Image</key>\n" +
-                "          <value>asdf</value>\n" +
-                "        </property>\n" +
-                "      </profile>" +
-                "    </profiles>" +
-                "  </elastic>";
-
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion=\"117\">\n"
-                + configContent
-                + "</cruise>";
-
-        String migratedContent = migrateXmlString(configXml, 117, 118);
-
-        assertThat(migratedContent).contains("<cruise schemaVersion=\"118\"");
-        assertThat(migratedContent).contains(configContent);
-    }
-
-    @Test
     public void shouldAllowSpecifyingClusterProfileIdAttributeOnProfilesAsPartMigration118() throws Exception {
         String configContent =  " <elastic>\n" +
         "    <profiles>\n" +

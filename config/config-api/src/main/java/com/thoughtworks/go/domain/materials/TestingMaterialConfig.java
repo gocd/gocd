@@ -16,12 +16,11 @@
 
 package com.thoughtworks.go.domain.materials;
 
+import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import org.joda.time.DateTime;
+
 import java.util.Date;
 import java.util.Map;
-
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.util.command.UrlArgument;
-import org.joda.time.DateTime;
 
 public class TestingMaterialConfig extends ScmMaterialConfig {
     public static final Date TWO_DAYS_AGO_CHECKIN = new DateTime().minusDays(2).toDate();
@@ -72,11 +71,6 @@ public class TestingMaterialConfig extends ScmMaterialConfig {
     }
 
     @Override
-    protected UrlArgument getUrlArgument() {
-        return new UrlArgument(url);
-    }
-
-    @Override
     public String getLongDescription() {
         return String.format("Url: %s", url);
     }
@@ -84,6 +78,11 @@ public class TestingMaterialConfig extends ScmMaterialConfig {
     @Override
     protected String getLocation() {
         return getUrl();
+    }
+
+    @Override
+    public String getUriForDisplay() {
+        return this.url;
     }
 
     @Override

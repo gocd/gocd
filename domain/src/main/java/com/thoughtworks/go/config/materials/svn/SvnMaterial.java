@@ -77,15 +77,6 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         this.svnLazyLoaded = svn;
     }
 
-    public SvnMaterial(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
-        this(goCipher);
-        bombIfNull(url, "null url");
-        setUrl(url);
-        this.userName = userName;
-        setPassword(password);
-        this.checkExternals = checkExternals;
-    }
-
     public SvnMaterial(String url, String userName, String password, boolean checkExternals, String folder) {
         this(url, userName, password, checkExternals);
         this.folder = folder;
@@ -98,6 +89,16 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         this.invertFilter = config.getInvertFilter();
         this.folder = config.getFolder();
         this.name = config.getName();
+    }
+
+    public SvnMaterial(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
+        super("SvnMaterial");
+        this.goCipher = goCipher;
+        bombIfNull(url, "null url");
+        setUrl(url);
+        this.userName = userName;
+        setPassword(password);
+        this.checkExternals = checkExternals;
     }
 
     @Override
@@ -234,7 +235,6 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return "Subversion";
     }
 
-    //TODO: verify usages of getAttributes, this is required to check if url needs to be resolved?
     @Override
     public Map<String, Object> getAttributes(boolean addSecureFields) {
         Map<String, Object> materialMap = new HashMap<>();

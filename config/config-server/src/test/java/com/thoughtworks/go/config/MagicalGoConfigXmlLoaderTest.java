@@ -74,7 +74,6 @@ import com.thoughtworks.go.security.AESEncrypter;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.util.*;
-import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -978,7 +977,7 @@ public class MagicalGoConfigXmlLoaderTest {
     private void shouldBeHgMaterial(MaterialConfig material) {
         assertThat(material).isInstanceOf(HgMaterialConfig.class);
         HgMaterialConfig hgMaterial = (HgMaterialConfig) material;
-        assertThat(hgMaterial.getUrlArgument()).isEqualTo(new HgUrlArgument("http://username:password@hgUrl.com"));
+        assertThat(hgMaterial.getUrl()).isEqualTo("http://username:password@hgUrl.com");
     }
 
     private void shouldBeP4Material(MaterialConfig material) {
@@ -993,7 +992,7 @@ public class MagicalGoConfigXmlLoaderTest {
     private void shouldBeGitMaterial(MaterialConfig material) {
         assertThat(material).isInstanceOf(GitMaterialConfig.class);
         GitMaterialConfig gitMaterial = (GitMaterialConfig) material;
-        assertThat(gitMaterial.getUrlArgument()).isEqualTo(new UrlArgument("git://username:password@gitUrl"));
+        assertThat(gitMaterial.getUrl()).isEqualTo("git://username:password@gitUrl");
     }
 
     @Test

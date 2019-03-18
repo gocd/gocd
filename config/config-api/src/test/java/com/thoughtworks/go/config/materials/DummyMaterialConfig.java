@@ -57,12 +57,12 @@ public class DummyMaterialConfig extends ScmMaterialConfig {
     }
 
     @Override
-    protected UrlArgument getUrlArgument() {
+    protected String getLocation() {
         return null;
     }
 
     @Override
-    protected String getLocation() {
+    public String getUriForDisplay() {
         return null;
     }
 

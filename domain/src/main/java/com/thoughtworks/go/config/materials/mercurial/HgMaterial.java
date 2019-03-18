@@ -238,7 +238,6 @@ public class HgMaterial extends ScmMaterial {
         return false;
     }
 
-    //TODO: Check the usages of the method. add one more forCommandLine if needed
     public String getUrl() {
         return url.rawUrl();
     }

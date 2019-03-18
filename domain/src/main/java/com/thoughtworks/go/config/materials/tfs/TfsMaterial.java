@@ -77,7 +77,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     public TfsMaterial(TfsMaterialConfig config) {
-        this(config.getGoCipher(), config.getUrlArgument(), config.getUserName(), config.getDomain(), config.getPassword(), config.getProjectPath());
+        this(config.getGoCipher(), new UrlArgument(config.getUrl()), config.getUserName(), config.getDomain(), config.getPassword(), config.getProjectPath());
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
         this.invertFilter = config.getInvertFilter();
@@ -127,7 +127,6 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     @Override
-    //TODO: Check the usages of the method. add one more forCommandLine if needed
     public String getUrl() {
         return url == null ? null : url.rawUrl();
     }

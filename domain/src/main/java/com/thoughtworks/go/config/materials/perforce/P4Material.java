@@ -175,8 +175,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
             return ValidationBean.valid();
         } catch (Exception e) {
             return ValidationBean.notValid("Unable to connect to server " + serverAndPort + " : \n" + e.getMessage());
-        }
-        finally{
+        } finally {
             FileUtils.deleteQuietly(baseDir);
         }
     }
@@ -197,12 +196,13 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return serverAndPort;
     }
 
-    @Override protected UrlArgument getUrlArgument() {
+    @Override
+    protected UrlArgument getUrlArgument() {
         return new UrlArgument(serverAndPort);
     }
 
     public String getLongDescription() {
-       return format("URL: %s, View: %s, Username: %s", serverAndPort, view.getValue(), userName);
+        return format("URL: %s, View: %s, Username: %s", serverAndPort, view.getValue(), userName);
     }
 
     public String getUserName() {
@@ -226,7 +226,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
      */
     P4Client _p4(File workDir, ConsoleOutputStreamConsumer consumer, boolean failOnError) throws Exception {
         String clientName = clientName(workDir);
-        return P4Client.fromServerAndPort(getFingerprint(), serverAndPort, userName, getPassword(), clientName,this.useTickets, workDir, p4view(clientName), consumer, failOnError);
+        return P4Client.fromServerAndPort(getFingerprint(), serverAndPort, userName, getPassword(), clientName, this.useTickets, workDir, p4view(clientName), consumer, failOnError);
     }
 
     public void populateAgentSideEnvironmentContext(EnvironmentVariableContext environmentVariableContext, File baseDir) {
@@ -353,7 +353,8 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         this.useTickets = useTickets;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "P4Material{" +
                 "serverAndPort='" + serverAndPort + '\'' +
                 ", userName='" + userName + '\'' +

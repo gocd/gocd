@@ -32,7 +32,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.*;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "svn", label = "Subversion")
 public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordEncrypter, PasswordAwareMaterial {
@@ -83,6 +82,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         setPassword(password);
         this.checkExternals = checkExternals;
     }
+
     public SvnMaterialConfig(String url, String userName, boolean checkExternals, GoCipher goCipher) {
         this(goCipher);
         bombIfNull(url, "null url");
@@ -201,11 +201,6 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     @Override
-    protected UrlArgument getUrlArgument() {
-        return url;
-    }
-
-    @Override
     public String getLongDescription() {
         return String.format("URL: %s, Username: %s, CheckExternals: %s", url.forDisplay(), userName, checkExternals);
     }
@@ -213,6 +208,11 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @Override
     protected String getLocation() {
         return url == null ? null : url.forDisplay();
+    }
+
+    @Override
+    public String getUriForDisplay() {
+        return this.url.forDisplay();
     }
 
     @Override
@@ -229,7 +229,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
                 currentPassword();
             } catch (Exception e) {
                 addError("encryptedPassword", format("Encrypted password value for svn material with url '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
-                       this.getUriForDisplay()));
+                        this.getUriForDisplay()));
             }
         }
     }

@@ -83,7 +83,6 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     @Override
-    //TODO: Check the usages of the method. add one more forCommandLine if needed
     public String getUrl() {
         return url != null ? url.rawUrl() : null;
     }
@@ -93,11 +92,6 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         if (url != null) {
             this.url = new HgUrlArgument(url);
         }
-    }
-
-    @Override
-    public UrlArgument getUrlArgument() {
-        return url;
     }
 
     @Override
@@ -142,7 +136,12 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     @Override
     protected String getLocation() {
-        return getUrlArgument().forDisplay();
+        return this.url.forDisplay();
+    }
+
+    @Override
+    public String getUriForDisplay() {
+        return this.url.forDisplay();
     }
 
     @Override
@@ -161,7 +160,8 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         return revision.substring(0, 12);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "HgMaterialConfig{" +
                 "url=" + url +
                 '}';

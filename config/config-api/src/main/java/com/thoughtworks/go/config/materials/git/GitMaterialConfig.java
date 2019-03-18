@@ -92,7 +92,6 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     }
 
     @Override
-    //TODO: Check the usages of the method. add one more forCommandLine if needed
     public String getUrl() {
         return url != null ? url.rawUrl() : null;
     }
@@ -102,11 +101,6 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         if (url != null) {
             this.url = new UrlArgument(url);
         }
-    }
-
-    @Override
-    public UrlArgument getUrlArgument() {
-        return url;
     }
 
     @Override
@@ -160,6 +154,11 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     @Override
     protected String getLocation() {
         return url.forDisplay();
+    }
+
+    @Override
+    public String getUriForDisplay() {
+        return this.url.forDisplay();
     }
 
     @Override

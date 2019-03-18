@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.FilenameUtil;
-import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -68,7 +67,8 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         this.autoUpdate = autoUpdate;
     }
 
-    @Override protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
+    @Override
+    protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
         basicCriteria.put("dest", folder);
     }
 
@@ -99,8 +99,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     public abstract String getUrl();
 
     public abstract void setUrl(String url);
-
-    protected abstract UrlArgument getUrlArgument();
 
     protected abstract String getLocation();
 
@@ -139,9 +137,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         return getUriForDisplay();
     }
 
-    public String getUriForDisplay() {
-        return getUrlArgument().forDisplay();
-    }
+    public abstract String getUriForDisplay();
 
     public String getFolder() {
         return folder;
@@ -232,7 +228,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     }
 
     public boolean isAutoUpdateStateMismatch(MaterialConfigs materialAutoUpdateMap) {
-        if(materialAutoUpdateMap.size() > 1){
+        if (materialAutoUpdateMap.size() > 1) {
             for (MaterialConfig otherMaterial : materialAutoUpdateMap) {
                 if (otherMaterial.isAutoUpdate() != this.autoUpdate) {
                     return true;

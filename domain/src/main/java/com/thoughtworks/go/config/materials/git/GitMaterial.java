@@ -279,7 +279,6 @@ public class GitMaterial extends ScmMaterial {
     /**
      * @deprecated Breaks encapsulation really badly. But we need it for IBatis :-(
      */
-    //TODO: Check the usages of the method. add one more forCommandLine if needed
     public String getUrl() {
         return url.rawUrl();
     }

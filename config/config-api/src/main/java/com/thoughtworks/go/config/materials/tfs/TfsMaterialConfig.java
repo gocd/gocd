@@ -81,6 +81,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         this.domain = domain;
         this.projectPath = projectPath;
     }
+
     public TfsMaterialConfig(GoCipher goCipher, UrlArgument url, String userName, String domain, String password, String projectPath) {
         this(goCipher);
         this.url = url;
@@ -121,6 +122,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
     @Override
     public void setPassword(String password) {
         resetPassword(password);
@@ -158,11 +160,6 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     @Override
-    protected UrlArgument getUrlArgument() {
-        return url;
-    }
-
-    @Override
     public String getLongDescription() {
         return String.format("URL: %s, Username: %s, Domain: %s, ProjectPath: %s", url.forDisplay(), userName, domain, projectPath);
     }
@@ -170,6 +167,11 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @Override
     protected String getLocation() {
         return url == null ? null : url.forDisplay();
+    }
+
+    @Override
+    public String getUriForDisplay() {
+        return this.url.forDisplay();
     }
 
     @Override
@@ -183,15 +185,15 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         if (StringUtils.isBlank(projectPath)) {
             errors().add(PROJECT_PATH, "Project Path cannot be blank");
         }
-        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)){
+        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)) {
             addError("password", "You may only specify `password` or `encrypted_password`, not both!");
             addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
         }
 
-        if(isNotEmpty(this.encryptedPassword)) {
-            try{
+        if (isNotEmpty(this.encryptedPassword)) {
+            try {
                 goCipher.decrypt(encryptedPassword);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 addError("encryptedPassword", format("Encrypted password value for TFS material with url '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
                         this.getUriForDisplay()));
             }

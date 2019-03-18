@@ -91,6 +91,9 @@ public class MaterialExpansionService {
     }
 
     //TODO: Need to verify the usages. Should it be raw url or resolved one.
+    // Note: this is only used to expand the material configs.
+    // Keep which is later used to produce build cause (newProduceBuildCause). Resolve url and password in BuildCauseProducerService
+    // No need to change this here
     private Subversion svn(SvnMaterialConfig svnMaterialConfig) {
         String cacheKey = cacheKeyForSubversionMaterialCommand(svnMaterialConfig.getFingerprint());
         Subversion svnLazyLoaded = (SvnCommand) goCache.get(cacheKey);

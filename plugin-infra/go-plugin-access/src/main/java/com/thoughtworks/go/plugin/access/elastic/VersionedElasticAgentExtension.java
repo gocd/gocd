@@ -46,7 +46,7 @@ public interface VersionedElasticAgentExtension {
 
     void serverPing(String pluginId);
 
-    boolean shouldAssignWork(String pluginId, AgentMetadata agent, String environment, Map<String, String> configuration, JobIdentifier identifier);
+    boolean shouldAssignWork(String pluginId, AgentMetadata agent, String environment, Map<String, String> configuration, Map<String, String> clusterProfileProperties, JobIdentifier identifier);
 
     String getPluginStatusReport(String pluginId);
 

@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
-import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
@@ -49,13 +48,13 @@ public class ElasticAgentExtension extends AbstractExtension {
         super(pluginManager, extensionsRegistry, new PluginRequestHelper(pluginManager, SUPPORTED_VERSIONS, ELASTIC_AGENT_EXTENSION), ELASTIC_AGENT_EXTENSION);
         elasticAgentExtensionMap.put(ElasticAgentExtensionV4.VERSION, new ElasticAgentExtensionV4(pluginRequestHelper));
         elasticAgentExtensionMap.put(ElasticAgentExtensionV5.VERSION, new ElasticAgentExtensionV5(pluginRequestHelper));
-        
+
         registerHandler(ElasticAgentExtensionV4.VERSION, new PluginSettingsJsonMessageHandler1_0());
         registerHandler(ElasticAgentExtensionV5.VERSION, new PluginSettingsJsonMessageHandler1_0());
     }
 
 
-    public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, final Map<String, String>  clusterProfileConfiguration, JobIdentifier jobIdentifier) {
+    public void createAgent(String pluginId, final String autoRegisterKey, final String environment, final Map<String, String> configuration, final Map<String, String> clusterProfileConfiguration, JobIdentifier jobIdentifier) {
         getVersionedElasticAgentExtension(pluginId).createAgent(pluginId, autoRegisterKey, environment, configuration, clusterProfileConfiguration, jobIdentifier);
     }
 
@@ -63,8 +62,8 @@ public class ElasticAgentExtension extends AbstractExtension {
         getVersionedElasticAgentExtension(pluginId).serverPing(pluginId);
     }
 
-    public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration, JobIdentifier identifier) {
-        return getVersionedElasticAgentExtension(pluginId).shouldAssignWork(pluginId, agent, environment, configuration, identifier);
+    public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration, Map<String, String> clusterProfileProperties, JobIdentifier identifier) {
+        return getVersionedElasticAgentExtension(pluginId).shouldAssignWork(pluginId, agent, environment, configuration, clusterProfileProperties, identifier);
     }
 
     List<PluginConfiguration> getProfileMetadata(String pluginId) {

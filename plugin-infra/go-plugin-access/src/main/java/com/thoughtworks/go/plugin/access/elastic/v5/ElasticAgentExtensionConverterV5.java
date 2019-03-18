@@ -19,7 +19,6 @@ package com.thoughtworks.go.plugin.access.elastic.v5;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
-import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
@@ -49,10 +48,11 @@ class ElasticAgentExtensionConverterV5 {
         return GSON.toJson(jsonObject);
     }
 
-    String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration, JobIdentifier identifier) {
+    String shouldAssignWorkRequestBody(AgentMetadata elasticAgent, String environment, Map<String, String> configuration, Map<String, String> clusterProfileProperties, JobIdentifier identifier) {
         JsonObject jsonObject = new JsonObject();
-        jsonObject.add("properties", mapToJsonObject(configuration));
         jsonObject.addProperty("environment", environment);
+        jsonObject.add("elastic_agent_profile_properties", mapToJsonObject(configuration));
+        jsonObject.add("cluster_profile_properties", mapToJsonObject(clusterProfileProperties));
         jsonObject.add("agent", agentMetadataConverterV5.toDTO(elasticAgent).toJSON());
         jsonObject.add("job_identifier", jobIdentifierJson(identifier));
         return GSON.toJson(jsonObject);

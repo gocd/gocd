@@ -254,7 +254,7 @@ class ElasticAgentPluginServiceTest {
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
         ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
 
-        when(registry.shouldAssignWork(any(), any(), any(), any(), any())).thenReturn(true);
+        when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(true);
         assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null)).isTrue();
     }
 
@@ -264,7 +264,7 @@ class ElasticAgentPluginServiceTest {
         String elasticPluginId = "plugin-1";
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
         ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
-        when(registry.shouldAssignWork(any(), any(), any(), any(), any())).thenReturn(false);
+        when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(false);
 
         assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null)).isFalse();
     }

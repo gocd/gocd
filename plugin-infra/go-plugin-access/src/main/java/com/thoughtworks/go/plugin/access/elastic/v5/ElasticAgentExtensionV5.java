@@ -146,11 +146,11 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
     }
 
     @Override
-    public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration, JobIdentifier identifier) {
+    public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration, Map<String, String> clusterProfileProperties, JobIdentifier identifier) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV5.shouldAssignWorkRequestBody(agent, environment, configuration, identifier);
+                return elasticAgentExtensionConverterV5.shouldAssignWorkRequestBody(agent, environment, configuration,clusterProfileProperties, identifier);
             }
 
             @Override

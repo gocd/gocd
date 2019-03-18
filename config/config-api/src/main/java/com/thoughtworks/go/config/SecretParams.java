@@ -114,4 +114,15 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
                 .filter(secretParam -> secretParam.getKey().equals(key))
                 .findFirst();
     }
+
+    public String mask(String originalValue) {
+        return this.stream()
+                .map(this::maskFunction)
+                .reduce(Function.identity(), Function::andThen)
+                .apply(originalValue);
+    }
+
+    private Function<String, String> maskFunction(SecretParam secretParam) {
+        return text -> replaceOnce(text, format("#{SECRET[%s][%s]}", secretParam.getSecretConfigId(), secretParam.getKey()), "******");
+    }
 }

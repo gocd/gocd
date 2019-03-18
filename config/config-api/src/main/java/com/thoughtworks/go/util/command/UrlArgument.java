@@ -53,13 +53,16 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
 
     @Override
     public String forDisplay() {
+        if (hasSecretParams()) {
+            return secretParams.mask(sanitizeUrl());
+        }
+
         try {
             URI uri = new URI(sanitizeUrl());
             if (uri.getUserInfo() != null) {
-                //(String scheme, String userInfo, String host, int port, String path, String query, String fragment)
                 uri = new URI(uri.getScheme(), clean(uri.getScheme(), uri.getUserInfo()), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
             }
-            return uriToDisplay(uri);
+            return uri.toString();
         } catch (URISyntaxException e) {
             // In subversion we may have a file path that is not actually a URL
             return url;
@@ -68,11 +71,7 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
 
     @Override
     public String forCommandLine() {
-        return rawUrl();
-    }
-
-    protected String uriToDisplay(URI uri) {
-        return uri.toString();
+        return secretParams.substitute(this.rawUrl());
     }
 
     protected String sanitizeUrl() {
@@ -81,28 +80,24 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
 
     protected String hostInfoForDisplay() {
         try {
-            URI uri = new URI(url);
+            URI uri = new URI(forDisplay());
             if (uri.getUserInfo() != null) {
-                //(String scheme, String userInfo, String host, int port, String path, String query, String fragment)
                 uri = new URI(uri.getScheme(), clean(uri.getScheme(), uri.getUserInfo()), uri.getHost(), uri.getPort(), null, null, null);
             }
             return uri.toString();
         } catch (URISyntaxException e) {
-            // In subversion we may have a file path that is not actually a URL
             return url;
         }
     }
 
     protected String hostInfoForCommandline() {
         try {
-            URI uri = new URI(url);
+            URI uri = new URI(forCommandLine());
             if (uri.getUserInfo() != null) {
-                //(String scheme, String userInfo, String host, int port, String path, String query, String fragment)
                 uri = new URI(uri.getScheme(), uri.getUserInfo(), uri.getHost(), uri.getPort(), null, null, null);
             }
             return uri.toString();
         } catch (URISyntaxException e) {
-            // In subversion we may have a file path that is not actually a URL
             return url;
         }
     }
@@ -132,7 +127,7 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
     public boolean equal(CommandArgument that) {
         //BUG #3276 - on windows svn info includes a password in svn+ssh
         if (url.startsWith("svn+ssh")) {
-            return this.forDisplay().equals(that.forDisplay());
+            return this.rawUrl().equals(that.rawUrl());
         }
         return cleanPath(this).equals(cleanPath(that));
     }
@@ -148,9 +143,9 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
     public String withoutCredentials() {
         try {
             URI uri = null;
-            uri = new URI(url);
+            uri = new URI(forDisplay());
             uri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
-            return uriToDisplay(uri);
+            return uri.toString();
         } catch (URISyntaxException e) {
             return url;
         }

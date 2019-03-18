@@ -167,6 +167,19 @@ class SecretParamsTest {
         }
     }
 
+    @Nested
+    class Mask {
+        @Test
+        void shouldMaskSecretParamsInGivenString() {
+            final String originalValue = "bob:#{SECRET[secret_config_id][username]}";
+            final SecretParams secretParams = new SecretParams(newParam("username"));
+
+            final String maskedValue = secretParams.mask(originalValue);
+
+            assertThat(maskedValue).isEqualTo("bob:******");
+        }
+    }
+
     private SecretParam newResolvedParam(String key, String value) {
         final SecretParam secretParam = newParam("secret_config_id", key);
         secretParam.setValue(value);

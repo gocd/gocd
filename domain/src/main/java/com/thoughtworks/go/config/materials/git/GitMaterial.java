@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
+import com.thoughtworks.go.domain.materials.git.GitVersion;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.util.GoConstants;
@@ -33,7 +34,6 @@ import com.thoughtworks.go.util.command.SecretString;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -41,8 +41,6 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 
 import java.io.File;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfFailedToRunCommandLine;
@@ -67,7 +65,6 @@ public class GitMaterial extends ScmMaterial {
 
     //TODO: use iBatis to set the type for us, and we can get rid of this field.
     public static final String TYPE = "GitMaterial";
-    private static final Pattern GIT_VERSION_PATTERN = Pattern.compile(".*\\s+(\\d(\\.\\d)+).*");
     private static final String ERR_GIT_NOT_FOUND = "Failed to find 'git' on your PATH. Please ensure 'git' is executable by the Go Server and on the Go Agents where this material will be used.";
     public static final String ERR_GIT_OLD_VERSION = "Please install Git-core 1.6 or above. ";
     private boolean parsed = false;
@@ -177,33 +174,16 @@ public class GitMaterial extends ScmMaterial {
         }
     }
 
-    public ValidationBean handleException(Exception e, String gitVersionConsoleOut) {
+    public ValidationBean handleException(Exception e, GitVersion gitVersion) {
         ValidationBean defaultResponse = ValidationBean.notValid(e.getMessage());
         try {
-            if (!isVersionOnedotSixOrHigher(gitVersionConsoleOut)) {
-                return ValidationBean.notValid(ERR_GIT_OLD_VERSION + gitVersionConsoleOut);
+            if (!gitVersion.isVersionOneDotSixOrHigher()) {
+                return ValidationBean.notValid(ERR_GIT_OLD_VERSION + gitVersion.toString());
             } else {
                 return defaultResponse;
             }
         } catch (Exception ex) {
             return defaultResponse;
-        }
-    }
-
-    boolean isVersionOnedotSixOrHigher(String hgout) {
-        String hgVersion = parseGitVersion(hgout);
-        Float aFloat = NumberUtils.createFloat(hgVersion.subSequence(0, 3).toString());
-        return aFloat >= 1.6;
-    }
-
-    private String parseGitVersion(String hgOut) {
-        String[] lines = hgOut.split("\n");
-        String firstLine = lines[0];
-        Matcher m = GIT_VERSION_PATTERN.matcher(firstLine);
-        if (m.matches()) {
-            return m.group(1);
-        } else {
-            throw bomb("can not parse hgout : " + hgOut);
         }
     }
 

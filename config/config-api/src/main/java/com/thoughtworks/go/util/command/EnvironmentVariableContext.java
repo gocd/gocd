@@ -70,8 +70,8 @@ public class EnvironmentVariableContext implements Serializable, SecretParamAwar
         public EnvironmentVariable(String name, String value, boolean secure) {
             this.name = name;
             this.value = value;
-            this.secure = secure;
             secretParams = SecretParams.parse(this.value);
+            this.secure = secure || secretParams.hasSecretParams();
         }
 
 

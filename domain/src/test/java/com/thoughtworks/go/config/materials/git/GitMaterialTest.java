@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
+import com.thoughtworks.go.domain.materials.git.GitVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitSubmoduleRepos;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -57,11 +58,14 @@ import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 @EnableRuleMigrationSupport
 public class GitMaterialTest {
+    public static final GitVersion GIT_VERSION_1_6 = GitVersion.parse("git version 1.6.0");
+    public static final GitVersion GIT_VERSION_1_5 = GitVersion.parse("git version 1.5.4.3");
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -74,10 +78,6 @@ public class GitMaterialTest {
     private String repositoryUrl;
     private InMemoryStreamConsumer outputStreamConsumer;
 
-    private static final String GIT_VERSION_1_6_0_2 = "git version 1.6.0.2";
-    private static final String GIT_VERSION_1_5_4_3 = "git version 1.5.4.3";
-    private static final String GIT_VERSION_1_6_0_2_ON_WINDOWS = "git version 1.6.0.2.1172.ga5ed0";
-    private static final String GIT_VERSION_NODE_ON_WINDOWS = "git version ga5ed0asdasd.ga5ed0";
     private static final String SUBMODULE = "submodule-1";
     private GitTestRepo gitFooBranchBundle;
 
@@ -346,30 +346,8 @@ public class GitMaterialTest {
     }
 
     @Test
-    void shouldReturnTrueIfVersionHigherThan1Dot6OnLinux() throws Exception {
-        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_6_0_2)).isTrue();
-    }
-
-    @Test
-    void shouldReturnTrueIfVersionHigherThan1Dot5OnLinux() throws Exception {
-        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_5_4_3)).isFalse();
-    }
-
-    @Test
-    void shouldReturnTrueIfVersionHigherThan1Dot6OnWindows() throws Exception {
-        assertThat(git.isVersionOnedotSixOrHigher(GIT_VERSION_1_6_0_2_ON_WINDOWS)).isTrue();
-    }
-
-    @Test
-    void shouldReturnFalseWhenVersionIsNotRecgonized() {
-        assertThatCode(() -> git.isVersionOnedotSixOrHigher(GIT_VERSION_NODE_ON_WINDOWS))
-                .isInstanceOf(Exception.class)
-                .isNotNull();
-    }
-
-    @Test
     void shouldReturnInvalidBeanWithRootCauseAsLowerVersionInstalled() throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_1_5_4_3);
+        ValidationBean validationBean = git.handleException(new Exception(), GIT_VERSION_1_5);
         assertThat(validationBean.isValid()).isFalse();
         assertThat(validationBean.getError()).contains(GitMaterial.ERR_GIT_OLD_VERSION);
     }
@@ -377,7 +355,7 @@ public class GitMaterialTest {
     @Test
     void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnLinux()
             throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6_0_2);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6);
         assertThat(validationBean.isValid()).isFalse();
         assertThat(validationBean.getError()).contains("not found!");
     }
@@ -385,15 +363,7 @@ public class GitMaterialTest {
     @Test
     void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnWindows()
             throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6_0_2_ON_WINDOWS);
-        assertThat(validationBean.isValid()).isFalse();
-        assertThat(validationBean.getError()).contains("not found!");
-    }
-
-
-    @Test
-    void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsNotKnown() throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_NODE_ON_WINDOWS);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6);
         assertThat(validationBean.isValid()).isFalse();
         assertThat(validationBean.getError()).contains("not found!");
     }

@@ -282,10 +282,11 @@ public class GitCommand extends SCMCommand {
         return (branchList.output().size() == 1);
     }
 
-    public String version(Map<String, String> map) {
+    public GitVersion version(Map<String, String> map) {
         CommandLine gitLsRemote = git(map).withArgs("version");
 
-        return gitLsRemote.runOrBomb("git version check").outputAsString();
+        String gitVersionString = gitLsRemote.runOrBomb("git version check").outputAsString();
+        return GitVersion.parse(gitVersionString);
     }
 
     public void add(File fileToAdd) {

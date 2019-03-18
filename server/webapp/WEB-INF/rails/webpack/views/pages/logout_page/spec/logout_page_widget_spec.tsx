@@ -29,6 +29,7 @@ describe("LogoutPageWidget", () => {
     mount({
             hasPasswordPlugins: true,
             hasWebBasedPlugins: true,
+            doNotAutoRedirect: true,
             webBasedPlugins: [{
               imageUrl: "https://example.com/image",
               pluginName: "My plugin",
@@ -45,6 +46,7 @@ describe("LogoutPageWidget", () => {
     mount({
             hasPasswordPlugins: true,
             hasWebBasedPlugins: false,
+            doNotAutoRedirect: true,
             webBasedPlugins: []
           });
 
@@ -57,6 +59,7 @@ describe("LogoutPageWidget", () => {
     mount({
             hasPasswordPlugins: false,
             hasWebBasedPlugins: true,
+            doNotAutoRedirect: true,
             webBasedPlugins: [{
               imageUrl: "https://example.com/image1",
               pluginName: "My plugin1",

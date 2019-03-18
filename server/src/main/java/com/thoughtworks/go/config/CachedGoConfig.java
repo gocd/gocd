@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -149,12 +149,8 @@ public class CachedGoConfig {
     }
 
     public synchronized void upgradeConfig() throws Exception {
-        if (systemEnvironment.optimizeFullConfigSave()) {
-            GoConfigHolder goConfigHolder = goConfigMigrator.migrate();
-            saveValidConfigToCacheAndNotifyConfigChangeListeners(goConfigHolder);
-        } else {
-            dataSource.upgradeIfNecessary();
-        }
+        GoConfigHolder goConfigHolder = goConfigMigrator.migrate();
+        saveValidConfigToCacheAndNotifyConfigChangeListeners(goConfigHolder);
     }
 
     public synchronized ConfigSaveState writeWithLock(UpdateConfigCommand updateConfigCommand) {
@@ -210,11 +206,6 @@ public class CachedGoConfig {
 
     public String getFileLocation() {
         return dataSource.getFileLocation();
-    }
-
-    public synchronized void save(String configFileContent, boolean shouldMigrate) throws Exception {
-        GoConfigHolder newConfigHolder = dataSource.write(configFileContent, shouldMigrate);
-        saveValidConfigToCacheAndNotifyConfigChangeListeners(newConfigHolder);
     }
 
     public GoConfigValidity checkConfigFileValid() {

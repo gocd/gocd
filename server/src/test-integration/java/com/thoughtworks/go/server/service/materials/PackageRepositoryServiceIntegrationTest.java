@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,13 @@
 
 package com.thoughtworks.go.server.service.materials;
 
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.presentation.TriStateSelection;
@@ -28,6 +30,7 @@ import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,6 +63,9 @@ public class PackageRepositoryServiceIntegrationTest {
     private PackageRepositoryService service;
     @Autowired
     private PluginSqlMapDao pluginSqlMapDao;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    private GoConfigFileHelper configHelper;
 
     @Mock
     private PluginManager pluginManager;
@@ -69,6 +75,21 @@ public class PackageRepositoryServiceIntegrationTest {
     @Before
     public void setUp() throws Exception {
         initMocks(this);
+        String content = ConfigFileFixture.configWithSecurity("<security>\n" +
+                "      <authConfigs>\n" +
+                "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
+                "          <property>\n" +
+                "            <key>PasswordFilePath</key>\n" +
+                "            <value>../manual-testing/ant_hg/password.properties</value>\n" +
+                "          </property>\n" +
+                "        </authConfig>\n" +
+                "      </authConfigs>" +
+                "</security>");
+
+        configHelper = new GoConfigFileHelper(content);
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.onSetUp();
+        goConfigService.forceNotifyListeners();
         service.setPluginManager(pluginManager);
         username = new Username("CurrentUser");
         UpdateConfigCommand command = goConfigService.modifyAdminPrivilegesCommand(asList(username.getUsername().toString()), new TriStateSelection(Admin.GO_SYSTEM_ADMIN, TriStateSelection.Action.add));
@@ -77,6 +98,7 @@ public class PackageRepositoryServiceIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
+        configHelper.onTearDown();
         pluginSqlMapDao.deleteAllPlugins();
         goConfigService.getConfigForEditing().setPackageRepositories(new PackageRepositories());
     }

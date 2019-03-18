@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,24 +28,18 @@ import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.helper.StageConfigMother;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.GoConfigFileHelper;
-import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.TestUtils;
 import org.apache.commons.io.FileUtils;
-import ch.qos.logback.classic.Level;
 import org.junit.Test;
 
 import java.io.File;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
-import static com.thoughtworks.go.helper.ConfigFileFixture.*;
+import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS;
+import static com.thoughtworks.go.helper.ConfigFileFixture.WITH_3_AGENT_CONFIG;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
-import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
@@ -346,62 +340,6 @@ public abstract class GoConfigDaoTestBase {
     }
 
     @Test
-    public void shouldOverwriteConfigContentAfterSave() throws Exception {
-        useConfigString(WITH_3_AGENT_CONFIG);
-        cachedGoConfig.save(CONFIG_WITH_ANT_BUILDER, false);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.jobConfigByName("pipeline1", "mingle", "cardlist", true).tasks().size(), is(1));
-    }
-
-    @Test
-    public void shouldNotChangeCurrentConfigIfInvalid() throws Exception {
-        useConfigString(WITH_3_AGENT_CONFIG);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-
-        try {
-            cachedGoConfig.save("This is invalid Cruise", false);
-            fail();
-        } catch (Exception ignored) {
-
-        }
-        assertCurrentConfigIs(cruiseConfig);
-    }
-
-    @Test
-    public void shouldNotAllowTypeForArtifactsBecausePolymorphismIsUsedInstead() throws Exception {
-        try {
-            cachedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
-            fail();
-        } catch (Exception e) {
-            assertThat(e.toString(), TestUtils.contains("Value 'NUnit' is not facet-valid with respect to enumeration '[build, test, external]'. It must be a value from the enumeration."));
-        }
-    }
-
-    @Test
-    public void shouldNotAllowOldXml() throws Exception {
-        try {
-            cachedGoConfig.save(ConfigFileFixture.VERSION_5, false);
-            fail();
-        } catch (Exception e) {
-            assertThat(e.getMessage(), containsString("Value '5' of attribute 'schemaVersion' of element 'cruise' is not valid"));
-        }
-    }
-
-    @Test
-    public void shouldLogAnyErrorMessageIncludingTheValidationError() throws Exception {
-        try (LogFixture logger = logFixtureFor(GoFileConfigDataSource.class, Level.DEBUG)) {
-            try {
-                cachedGoConfig.save(INVALID_CONFIG_WITH_TYPE_FOR_ARTIFACT, false);
-                fail();
-            } catch (Exception e) {
-                assertThat(logger.getLog(),
-                        containsString(
-                                "Value 'NUnit' is not facet-valid with respect to enumeration '[build, test, external]'. It must be a value from the enumeration."));
-            }
-        }
-    }
-
-    @Test
     public void should_NOT_allowUpdateOf_serverId() throws Exception {
         useConfigString(ConfigFileFixture.CRUISE);
         String oldServerId = goConfigDao.load().server().getServerId();
@@ -429,7 +367,8 @@ public abstract class GoConfigDaoTestBase {
     @Test
     public void shouldNotConfigMultipleTrackingTools() throws Exception {
         try {
-            useConfigString(INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS);
+            FileUtils.writeStringToFile(new File(goConfigDao.fileLocation()), INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS);
+            goConfigDao.forceReload();
         } catch (Exception e) {
             assertThat(e.getMessage(), containsString("Invalid content was found starting with element 'trackingtool'. One of '{timer, environmentvariables, dependencies, materials}"));
         }
@@ -480,12 +419,6 @@ public abstract class GoConfigDaoTestBase {
         goConfigDao.updateConfig(saveCommand, currentUser);
 
         verify(cachedConfigService).writeEntityWithLock(saveCommand, currentUser);
-    }
-
-    private void assertCurrentConfigIs(CruiseConfig cruiseConfig) throws Exception {
-        CruiseConfig currentConfig = goConfigDao.load();
-        assertThat(currentConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).size(),
-                is(cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1")).size()));
     }
 
 

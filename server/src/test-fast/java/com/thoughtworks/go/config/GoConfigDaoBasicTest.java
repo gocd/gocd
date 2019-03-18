@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,12 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.junit.Before;
-import org.junit.Test;
-
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class GoConfigDaoBasicTest extends GoConfigDaoTestBase {
 
-    public  GoConfigDaoBasicTest()
-    {
+    public GoConfigDaoBasicTest() {
         configHelper = new GoConfigFileHelper();
         goConfigDao = configHelper.getGoConfigDao();
         cachedGoConfig = configHelper.getCachedGoConfig();
@@ -36,13 +30,5 @@ public class GoConfigDaoBasicTest extends GoConfigDaoTestBase {
     @Before
     public void setup() throws Exception {
         configHelper.initializeConfigFile();
-    }
-
-   @Test
-    public void shouldUpgradeOldXmlWhenRequestedTo() throws Exception {
-        cachedGoConfig.save(ConfigFileFixture.VERSION_5, true);
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.getAllPipelineConfigs().size(), is(1));
-        assertThat(cruiseConfig.getAllPipelineConfigs().get(0).name(), is(new CaseInsensitiveString("framework")));
     }
 }

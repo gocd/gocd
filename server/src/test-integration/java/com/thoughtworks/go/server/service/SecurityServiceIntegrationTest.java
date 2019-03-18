@@ -270,7 +270,7 @@ public class SecurityServiceIntegrationTest {
 
     @Test public void shouldReturnAllPipelinesThatUserHasViewPermissionsFor() throws Exception {
         configHelper.onTearDown();
-        cachedGoConfig.save(CONFIG_WITH_2_GROUPS, true);
+        configHelper.saveFullConfig(CONFIG_WITH_2_GROUPS, true);
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("blah"))).size(), is(0));
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin"))), is(Arrays.asList(new CaseInsensitiveString("pipeline1"), new CaseInsensitiveString("pipeline2"))));
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("pavan"))), is(Arrays.asList(new CaseInsensitiveString("pipeline3"))));
@@ -278,7 +278,7 @@ public class SecurityServiceIntegrationTest {
 
     @Test public void shouldReturnAllPipelinesWithNoSecurity() throws Exception {
         configHelper.onTearDown();
-        cachedGoConfig.save(ConfigFileFixture.multipleMaterial("<hg url='http://localhost'/>"), true);
+        configHelper.saveFullConfig(ConfigFileFixture.multipleMaterial("<hg url='http://localhost'/>"), true);
         assertThat(securityService.viewablePipelinesFor(new Username(new CaseInsensitiveString("admin"))),
                 is(Arrays.asList(new CaseInsensitiveString("ecl"), new CaseInsensitiveString("ec2"), new CaseInsensitiveString("framework"))));
         assertThat(securityService.viewablePipelinesFor(Username.ANONYMOUS),

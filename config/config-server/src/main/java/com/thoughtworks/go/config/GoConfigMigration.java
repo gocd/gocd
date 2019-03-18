@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,6 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.GoConfigRevision;
-import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
 import org.jdom2.Document;
@@ -44,7 +42,6 @@ import java.util.List;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.XmlUtils.buildXmlDocument;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @understands how to migrate from a previous version of config
@@ -53,84 +50,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public class GoConfigMigration {
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(GoConfigMigration.class.getName());
     private final String schemaVersion = "schemaVersion";
-    private final UpgradeFailedHandler upgradeFailed;
-    private final ConfigRepository configRepository;
     private final TimeProvider timeProvider;
-    private ConfigCache configCache;
     private final ConfigElementImplementationRegistry registry;
 
-    public static final String UPGRADE = "Upgrade";
-
     @Autowired
-    public GoConfigMigration(final ConfigRepository configRepository, final TimeProvider timeProvider, ConfigCache configCache, ConfigElementImplementationRegistry registry) {
-        this(e -> {
-            e.printStackTrace();
-            System.err.println(
-                    "There are errors in the Cruise config file.  Please read the error message and correct the errors.\n"
-                            + "Once fixed, please restart GoCD.\nError: " + e.getMessage());
-            LOG.error("There are errors in the Cruise config file.  Please read the error message and correct the errors.\nOnce fixed, please restart GoCD.\nError: {}", e.getMessage());
-            // Send exit signal in a separate thread otherwise it will deadlock jetty
-            new Thread(() -> System.exit(1)).start();
-
-        }, configRepository, timeProvider, configCache, registry);
-    }
-
-    GoConfigMigration(UpgradeFailedHandler upgradeFailed, ConfigRepository configRepository, TimeProvider timeProvider,
-                      ConfigCache configCache, ConfigElementImplementationRegistry registry) {
-        this.upgradeFailed = upgradeFailed;
-        this.configRepository = configRepository;
+    public GoConfigMigration(final TimeProvider timeProvider, ConfigElementImplementationRegistry registry) {
         this.timeProvider = timeProvider;
-        this.configCache = configCache;
         this.registry = registry;
-    }
-
-    //  This method should be removed once upgrade is done using new com.thoughtworks.go.config.GoConfigMigrator#migrate()
-    @Deprecated
-    public GoConfigMigrationResult upgradeIfNecessary(File configFile, final String currentGoServerVersion) {
-        try {
-            return upgradeValidateAndVersion(configFile, true, currentGoServerVersion);
-        } catch (Exception e) {
-            upgradeFailed.handle(e);
-        }
-        return GoConfigMigrationResult.unexpectedFailure("Failed to upgrade");
-    }
-
-    private GoConfigMigrationResult upgradeValidateAndVersion(File configFile, boolean shouldTryOlderVersion, String currentGoServerVersion) throws Exception {
-        try {
-            ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            String xmlStringBeforeUpgrade = FileUtils.readFileToString(configFile, UTF_8);
-            int currentVersion = getCurrentSchemaVersion(xmlStringBeforeUpgrade);
-            String reloadedXml;
-            if (shouldUpgrade(currentVersion)) {
-                backup(configFile);
-                reloadedXml = upgrade(xmlStringBeforeUpgrade, currentVersion);
-                GoConfigHolder configHolder = reloadedConfig(stream, reloadedXml);
-                reloadedXml = new String(stream.toByteArray());
-                configRepository.checkin(new GoConfigRevision(reloadedXml, CachedDigestUtils.md5Hex(reloadedXml), UPGRADE,
-                        currentGoServerVersion, timeProvider));
-            } else {
-                GoConfigHolder configHolder = reloadedConfig(stream, xmlStringBeforeUpgrade);
-                reloadedXml = new String(stream.toByteArray());
-            }
-            FileUtils.writeStringToFile(configFile, reloadedXml);
-        } catch (Exception e) {
-            GoConfigRevision currentConfigRevision = configRepository.getCurrentRevision();
-            if (shouldTryOlderVersion && ifVersionedConfig(currentConfigRevision)) {
-                GoConfigMigrationResult goConfigMigrationResult = revertFileToVersion(configFile, currentConfigRevision, e);
-                upgradeValidateAndVersion(configFile, false, currentGoServerVersion);
-                return goConfigMigrationResult;
-            } else {
-                log(shouldTryOlderVersion);
-                throw e;
-            }
-        }
-        return GoConfigMigrationResult.success();
-    }
-
-    private GoConfigHolder reloadedConfig(ByteArrayOutputStream stream, String upgradedXmlString) throws Exception {
-        GoConfigHolder configHolder = validateAfterMigrationFinished(upgradedXmlString);
-        new MagicalGoConfigXmlWriter(configCache, registry).write(configHolder.configForEdit, stream, false);
-        return configHolder;
     }
 
     public File revertFileToVersion(File configFile, GoConfigRevision currentConfigRevision) {
@@ -145,48 +71,8 @@ public class GoConfigMigration {
         return backupFile;
     }
 
-    private GoConfigMigrationResult revertFileToVersion(File configFile, GoConfigRevision currentConfigRevision, Exception e) {
-        File backupFile = getBackupFile(configFile, "invalid.");
-        try {
-            backup(configFile, backupFile);
-            FileUtils.writeStringToFile(configFile, currentConfigRevision.getContent());
-        } catch (IOException e1) {
-            throw new RuntimeException(String.format("Could not write to config file '%s'.", configFile.getAbsolutePath()), e1);
-        }
-
-        String invalidConfigMessage = String.format("Go encountered an invalid configuration file while starting up. "
-                        + "The invalid configuration file has been renamed to ‘%s’ and a new configuration file has been automatically created using the last good configuration. Cause: '%s'",
-                backupFile.getAbsolutePath(), e.getMessage());
-        return GoConfigMigrationResult.failedToUpgrade(invalidConfigMessage);
-    }
-
-    private void log(boolean shouldTryOlderVersion) {
-        if (shouldTryOlderVersion) {
-            LOG.warn("There is no versioned configuration to use.");
-        } else {
-            LOG.warn("The versioned config file could be invalid or migrating the versioned config resulted in an invalid configuration");
-        }
-    }
-
-    private boolean ifVersionedConfig(GoConfigRevision currentConfigRevision) {
-        return currentConfigRevision != null;
-    }
-
     public String upgradeIfNecessary(String content) {
         return upgrade(content, getCurrentSchemaVersion(content));
-    }
-
-    private boolean shouldUpgrade(int currentVersion) {
-        return currentVersion < GoConfigSchema.currentSchemaVersion();
-    }
-
-    private GoConfigHolder validateAfterMigrationFinished(String content) throws Exception {
-        return new MagicalGoConfigXmlLoader(configCache, registry).loadConfigHolder(content);
-    }
-
-    private void backup(File configFile) throws IOException {
-        File backupFile = getBackupFile(configFile, "");
-        backup(configFile, backupFile);
     }
 
     private void backup(File configFile, File backupFile) throws IOException {
@@ -273,9 +159,4 @@ public class GoConfigMigration {
             throw bomb(e);
         }
     }
-
-    public static interface UpgradeFailedHandler {
-        void handle(Exception e);
-    }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,24 +30,22 @@ import static org.mockito.Mockito.mock;
 public class ConfigMigrator {
     public static GoConfigMigration migrate(final File configFile) {
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
+        String content = "";
+        try {
+            content = FileUtils.readFileToString(configFile, UTF_8);
+        } catch (IOException e1) {
+        }
 
-        GoConfigMigration upgrader = new GoConfigMigration(new GoConfigMigration.UpgradeFailedHandler() {
-            public void handle(Exception e) {
-                String content = "";
-                try {
-                    content = FileUtils.readFileToString(configFile, UTF_8);
-                } catch (IOException e1) {
-                }
-                throw bomb(e.getMessage() + ": content=\n" + content + "\n" + (e.getCause() == null ? "" : e.getCause().getMessage()), e);
-            }
-        }, mock(ConfigRepository.class), new TimeProvider(), new ConfigCache(), registry
-        );
+        GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider(), registry);
         //TODO: LYH & GL GoConfigMigration should be able to handle stream instead of binding to file
-        upgrader.upgradeIfNecessary(configFile, "N/A");
+        String upgradedContent = upgrader.upgradeIfNecessary(content);
+        try {
+            FileUtils.writeStringToFile(configFile, upgradedContent, UTF_8);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         return upgrader;
     }
-
-
 
     public static String migrate(String configXml) throws IOException {
         File tempFile = TestFileUtil.createTempFile("cruise-config.xml");

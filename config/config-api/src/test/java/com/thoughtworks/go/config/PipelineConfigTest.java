@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,12 +41,8 @@ import java.util.*;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.*;
 import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
@@ -274,6 +270,36 @@ public class PipelineConfigTest {
         String labelFormat = "pipeline-${COUNT}-${noSuch[:7]}-alpha";
         PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelFormat);
         assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), startsWith("You have defined a label template in pipeline"));
+    }
+
+    @Test
+    public void shouldNotAllowInvalidLabelTemplate() {
+        assertPipelineLabelTemplateIsInvalid("1.3.0",
+                "Invalid label '1.3.0'. Label should be composed of alphanumeric text, it can contain the build number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.");
+        assertPipelineLabelTemplateIsInvalid("1.3.0-{COUNT}",
+                "Invalid label '1.3.0-{COUNT}'. Label should be composed of alphanumeric text, it can contain the build number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.");
+        assertPipelineLabelTemplateIsInvalid("1.3.0-$COUNT}",
+                "Invalid label '1.3.0-$COUNT}'. Label should be composed of alphanumeric text, it can contain the build number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.");
+        assertPipelineLabelTemplateIsInvalid("1.3.0-${COUNT",
+                "Invalid label '1.3.0-${COUNT'. Label should be composed of alphanumeric text, it can contain the build number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.");
+        assertPipelineLabelTemplateIsInvalid("1.3.0-${}",
+                "Label template variable cannot be blank.");
+
+        assertPipelineLabelTemplateIsInvalid("1.3.0-${COUNT}-${git:7]}",
+                "You have defined a label template in pipeline 'cruise' that refers to a material called 'git:7]', but no material with this name is defined.");
+        assertPipelineLabelTemplateIsInvalid("1.3.0-${COUNT}-${git[:7}",
+                "Invalid label '1.3.0-${COUNT}-${git[:7}'. Label should be composed of alphanumeric text, it can contain the build number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.");
+        assertPipelineLabelTemplateIsInvalid("1.3.0-${COUNT}-${git[7]}",
+                "Invalid label '1.3.0-${COUNT}-${git[7]}'. Label should be composed of alphanumeric text, it can contain the build number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.");
+        assertPipelineLabelTemplateIsInvalid("1.3.0-${COUNT}-${git[:]}",
+                "Invalid label '1.3.0-${COUNT}-${git[:]}'. Label should be composed of alphanumeric text, it can contain the build number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.");
+        assertPipelineLabelTemplateIsInvalid("1.3.0-${COUNT}-${git[:-1]}",
+                "Invalid label '1.3.0-${COUNT}-${git[:-1]}'. Label should be composed of alphanumeric text, it can contain the build number as ${COUNT}, can contain a material revision as ${<material-name>} of ${<material-name>[:<number>]}, or use params as #{<param-name>}.");
+    }
+
+    public void assertPipelineLabelTemplateIsInvalid(String labelTemplate, String expectedError) {
+        PipelineConfig pipelineConfig = createAndValidatePipelineLabel(labelTemplate);
+        assertThat(pipelineConfig.errors().on(PipelineConfig.LABEL_TEMPLATE), containsString(expectedError));
     }
 
     @Test

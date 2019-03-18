@@ -16,12 +16,15 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.exceptions.ConflictException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.server.dao.AccessTokenSqlMapDao;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.server.exceptions.InvalidAccessTokenException;
 import com.thoughtworks.go.server.exceptions.RevokedAccessTokenException;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -48,19 +51,39 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 })
 public class AccessTokenServiceIntegrationTest {
     @Autowired
-    DatabaseAccessHelper dbHelper;
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private GoConfigDao goConfigDao;
 
     @Autowired
-    AccessTokenService accessTokenService;
+    private AccessTokenService accessTokenService;
 
     @Autowired
-    AccessTokenSqlMapDao accessTokenSqlMapDao;
+    private AccessTokenSqlMapDao accessTokenSqlMapDao;
     private String authConfigId;
+    private GoConfigFileHelper configHelper;
 
     @Before
     public void setUp() throws Exception {
         dbHelper.onSetUp();
         authConfigId = "auth-config-1";
+        String content = ConfigFileFixture.configWithSecurity("<security>\n" +
+                "      <authConfigs>\n" +
+                "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
+                "          <property>\n" +
+                "            <key>PasswordFilePath</key>\n" +
+                "            <value>../manual-testing/ant_hg/password.properties</value>\n" +
+                "          </property>\n" +
+                "        </authConfig>\n" +
+                "      </authConfigs>" +
+                "</security>");
+
+        configHelper = new GoConfigFileHelper(content);
+        configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
+        configHelper.onSetUp();
+        goConfigService.forceNotifyListeners();
     }
 
     @After

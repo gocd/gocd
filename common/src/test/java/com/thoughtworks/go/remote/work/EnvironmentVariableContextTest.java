@@ -158,6 +158,15 @@ public class EnvironmentVariableContextTest {
         assertThat(context.getProperty("GO_DEPENDENCY_LOCATOR_PIPELINE_NAME")).isEqualTo("pipeline-name/1/stage-name/1");
     }
 
+    @Test
+    void shouldConsiderEnvironmentVariableSecureIfItHasSecretParams() {
+        EnvironmentVariableContext context = new EnvironmentVariableContext();
+        context.setProperty("GO_SERVER_URL", "#{SECRET[secret_config_id][test]}", false);
+
+        assertThat(context.getSecureEnvironmentVariables()).hasSize(1);
+        assertThat(context.getSecureEnvironmentVariables().get(0).isSecure()).isTrue();
+    }
+
     @Nested
     class hasSecretParams {
         @Test

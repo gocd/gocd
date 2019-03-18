@@ -58,9 +58,10 @@ public class HgCommand extends SCMCommand {
         return execute(hg, outputStreamConsumer) == 0;
     }
 
-    public String version() {
+    public HgVersion version() {
         CommandLine hg = createCommandLine("hg").withArgs("version").withEncoding("utf-8");
-        return execute(hg, "hg version check").outputAsString();
+        String hgOut = execute(hg, "hg version check").outputAsString();
+        return HgVersion.parse(hgOut);
     }
 
 

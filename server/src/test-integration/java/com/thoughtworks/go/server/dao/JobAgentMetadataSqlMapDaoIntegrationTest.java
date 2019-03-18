@@ -75,7 +75,7 @@ public class JobAgentMetadataSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldSaveElasticAgentPropertyOnJob() throws Exception {
-        ElasticProfile profile = new ElasticProfile("elastic", "plugin", new ConfigurationProperty());
+        ElasticProfile profile = new ElasticProfile("elastic", "plugin", "clusterProfileId", new ConfigurationProperty());
         JobAgentMetadata jobAgentMetadata = new JobAgentMetadata(jobId, profile);
         dao.save(jobAgentMetadata);
 
@@ -86,7 +86,7 @@ public class JobAgentMetadataSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldDeleteElasticAgentPropertySetToJob() throws Exception {
-        ElasticProfile profile = new ElasticProfile("elastic", "plugin", new ConfigurationProperty());
+        ElasticProfile profile = new ElasticProfile("elastic", "plugin", "clusterProfileId", new ConfigurationProperty());
         JobAgentMetadata jobAgentMetadata = new JobAgentMetadata(jobId, profile);
         dao.save(jobAgentMetadata);
 

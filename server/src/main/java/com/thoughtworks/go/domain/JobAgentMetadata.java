@@ -46,17 +46,19 @@ public class JobAgentMetadata extends PersistentObject {
         Gson gson = new Gson();
         Map map = gson.fromJson(metadata, LinkedHashMap.class);
         String pluginId = (String) map.get("pluginId");
+        String clusterProfileId = (String) map.get("clusterProfileId");
         String id = (String) map.get("id");
         Map<String, String> properties = (Map<String, String>) map.get("properties");
 
         Collection<ConfigurationProperty> configProperties = properties.entrySet().stream().map(entry -> new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue()))).collect(Collectors.toList());
 
-        return new ElasticProfile(id, pluginId, configProperties);
+        return new ElasticProfile(id, pluginId, clusterProfileId, configProperties);
     }
 
     private static String toJSON(ElasticProfile elasticProfile) {
         Gson gson = new Gson();
         Map<String, Object> map = new LinkedHashMap<>();
+        map.put("clusterProfileId", elasticProfile.getClusterProfileId());
         map.put("pluginId", elasticProfile.getPluginId());
         map.put("id", elasticProfile.getId());
         map.put("properties", elasticProfile.getConfigurationAsMap(true));

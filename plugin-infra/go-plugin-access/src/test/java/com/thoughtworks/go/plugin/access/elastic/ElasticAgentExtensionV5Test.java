@@ -259,17 +259,20 @@ public class ElasticAgentExtensionV5Test {
 
     @Test
     public void shouldMakeShouldAssignWorkCall() {
-        final Map<String, String> profile = Collections.singletonMap("ServerURL", "https://example.com/go");
+        final Map<String, String> profile = Collections.singletonMap("Image", "alpine:latest");
+        final Map<String, String> clusterProfileProperties = Collections.singletonMap("ServerURL", "https://example.com/go");
         final AgentMetadata agentMetadata = new AgentMetadata("foo-agent-id", "Idle", "Idle", "Enabled");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("true"));
-
-        final boolean shouldAssignWork = extensionV5.shouldAssignWork(PLUGIN_ID, agentMetadata, "test-env", profile, new JobIdentifier());
+        final boolean shouldAssignWork = extensionV5.shouldAssignWork(PLUGIN_ID, agentMetadata, "test-env", profile, clusterProfileProperties, new JobIdentifier());
 
         assertTrue(shouldAssignWork);
 
         String expectedRequestBody = "{\n" +
-                "  \"properties\": {\n" +
+                "  \"cluster_profile_properties\": {\n" +
                 "    \"ServerURL\": \"https://example.com/go\"\n" +
+                "  },\n" +
+                "  \"elastic_agent_profile_properties\": {\n" +
+                "    \"Image\": \"alpine:latest\"\n" +
                 "  },\n" +
                 "  \"environment\": \"test-env\",\n" +
                 "  \"agent\": {\n" +

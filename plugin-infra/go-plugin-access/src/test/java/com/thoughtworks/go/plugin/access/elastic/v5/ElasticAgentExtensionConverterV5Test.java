@@ -92,7 +92,10 @@ public class ElasticAgentExtensionConverterV5Test {
     public void shouldJSONizeShouldAssignWorkRequestBody() throws Exception {
         HashMap<String, String> configuration = new HashMap<>();
         configuration.put("property_name", "property_value");
-        String actual = new ElasticAgentExtensionConverterV5().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration, jobIdentifier);
+        HashMap<String, String> clusterProfileProperties = new HashMap<>();
+        clusterProfileProperties.put("property_name", "property_value");
+
+        String actual = new ElasticAgentExtensionConverterV5().shouldAssignWorkRequestBody(elasticAgent(), "prod", configuration, clusterProfileProperties, jobIdentifier);
         String expected = "{" +
                 "  \"environment\":\"prod\"," +
                 "  \"agent\":{" +
@@ -101,7 +104,10 @@ public class ElasticAgentExtensionConverterV5Test {
                 "    \"build_state\":\"Idle\"," +
                 "    \"config_state\":\"Enabled\"" +
                 "  }," +
-                "  \"properties\":{" +
+                "  \"elastic_agent_profile_properties\":{" +
+                "    \"property_name\":\"property_value\"" +
+                "  }," +
+                "  \"cluster_profile_properties\":{" +
                 "    \"property_name\":\"property_value\"" +
                 "  }," +
                 "  \"job_identifier\": {\n" +

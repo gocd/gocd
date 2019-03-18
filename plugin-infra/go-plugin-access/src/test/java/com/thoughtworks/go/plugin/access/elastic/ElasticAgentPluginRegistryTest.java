@@ -79,12 +79,12 @@ public class ElasticAgentPluginRegistryTest {
     public void shouldTalkToExtensionToExecuteShouldAssignWorkCall() {
         final String environment = "test-env";
         final JobIdentifier jobIdentifier = new JobIdentifier();
-        final Map<String, String> configuration = Collections.singletonMap("GoServerURL", "foo");
+        final Map<String, String> configuration = Collections.singletonMap("Image", "alpine:latest");
+        final Map<String, String> clusterProfileProperties = Collections.singletonMap("GoServerURL", "foo");
         final AgentMetadata agentMetadata = new AgentMetadata("som-id", "Idle", "Idle", "Enabled");
 
-        elasticAgentPluginRegistry.shouldAssignWork(pluginDescriptor, agentMetadata, environment, configuration, jobIdentifier);
-
-        verify(elasticAgentExtension, times(1)).shouldAssignWork(PLUGIN_ID, agentMetadata, environment, configuration, jobIdentifier);
+        elasticAgentPluginRegistry.shouldAssignWork(pluginDescriptor, agentMetadata, environment, configuration, clusterProfileProperties, jobIdentifier);
+        verify(elasticAgentExtension, times(1)).shouldAssignWork(PLUGIN_ID, agentMetadata, environment, configuration, clusterProfileProperties, jobIdentifier);
         verifyNoMoreInteractions(elasticAgentExtension);
     }
 

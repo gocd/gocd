@@ -51,10 +51,10 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
         LOGGER.debug("Done processing server ping for plugin {}", pluginId);
     }
 
-    public boolean shouldAssignWork(PluginDescriptor plugin, AgentMetadata agent, String environment, Map<String, String> configuration, JobIdentifier identifier) {
-        LOGGER.debug("Processing should assign work for plugin: {} with agent: {} with environment: {} with configuration: {}", plugin.id(), agent, environment, configuration);
-        boolean result = extension.shouldAssignWork(plugin.id(), agent, environment, configuration, identifier);
-        LOGGER.debug("Done processing should assign work (result: {}) for plugin: {} with agent: {} with environment: {} with configuration {}", result, plugin.id(), agent, environment, configuration);
+    public boolean shouldAssignWork(PluginDescriptor plugin, AgentMetadata agent, String environment, Map<String, String> configuration, Map<String, String> clusterProfileProperties, JobIdentifier identifier) {
+        LOGGER.debug("Processing should assign work for plugin: {} with agent: {} with environment: {} with configuration: {} in cluster: {}", plugin.id(), agent, environment, configuration, clusterProfileProperties);
+        boolean result = extension.shouldAssignWork(plugin.id(), agent, environment, configuration, clusterProfileProperties, identifier);
+        LOGGER.debug("Done processing should assign work (result: {}) for plugin: {} with agent: {} with environment: {} with configuration {} in cluster: {}", result, plugin.id(), agent, environment, configuration, clusterProfileProperties);
         return result;
     }
 

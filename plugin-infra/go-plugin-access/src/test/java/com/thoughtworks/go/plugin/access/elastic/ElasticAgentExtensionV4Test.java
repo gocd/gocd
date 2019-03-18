@@ -211,7 +211,7 @@ public class ElasticAgentExtensionV4Test {
         final AgentMetadata agentMetadata = new AgentMetadata("foo-agent-id", "Idle", "Idle", "Enabled");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success("true"));
 
-        final boolean shouldAssignWork = extensionV4.shouldAssignWork(PLUGIN_ID, agentMetadata, "test-env", profile, new JobIdentifier());
+        final boolean shouldAssignWork = extensionV4.shouldAssignWork(PLUGIN_ID, agentMetadata, "test-env", profile, null, new JobIdentifier());
 
         assertTrue(shouldAssignWork);
 

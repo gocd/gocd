@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitSubmoduleRepos;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.mail.SysOutStreamConsumer;
-import com.thoughtworks.go.matchers.RegexMatcher;
 import com.thoughtworks.go.util.DateUtils;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.CommandLineException;
@@ -34,19 +33,21 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.hamcrest.Description;
-import org.hamcrest.Matchers;
 import org.hamcrest.TypeSafeMatcher;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.RestoreSystemProperties;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,8 +60,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.commons.io.filefilter.FileFilterUtils.*;
 import static org.apache.commons.lang3.time.DateUtils.addDays;
 import static org.apache.commons.lang3.time.DateUtils.setMilliseconds;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class GitCommandTest {
@@ -78,13 +79,17 @@ public class GitCommandTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
+    @Rule
+    public final TestRule restoreSystemProperties = new RestoreSystemProperties();
+
     @Mock
     private TestSubprocessExecutionContext testSubprocessExecutionContext;
 
     @Rule
     public final ExpectedException expectedException = ExpectedException.none();
 
-    @Before public void setup() throws Exception {
+    @Before
+    public void setup() throws Exception {
         gitRepo = new GitTestRepo(temporaryFolder);
         gitLocalRepoDir = createTempWorkingDirectory();
         git = new GitCommand(null, gitLocalRepoDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
@@ -99,26 +104,27 @@ public class GitCommandTest {
         initMocks(this);
     }
 
-    @After public void teardown() throws Exception {
+    @After
+    public void teardown() throws Exception {
         unsetColoring();
         TestRepo.internalTearDown();
     }
 
     @Test
-    public void shouldDefaultToMasterIfNoBranchIsSpecified(){
-        assertThat(getField(new GitCommand(null, gitLocalRepoDir, null, false, new HashMap<>(), null), "branch"), is("master"));
-        assertThat(getField(new GitCommand(null, gitLocalRepoDir, " ", false, new HashMap<>(), null), "branch"), is("master"));
-        assertThat(getField(new GitCommand(null, gitLocalRepoDir, "master", false, new HashMap<>(), null), "branch"), is("master"));
-        assertThat(getField(new GitCommand(null, gitLocalRepoDir, "branch", false, new HashMap<>(), null), "branch"), is("branch"));
+    public void shouldDefaultToMasterIfNoBranchIsSpecified() {
+        assertThat(getField(new GitCommand(null, gitLocalRepoDir, null, false, new HashMap<>(), null), "branch")).isEqualTo("master");
+        assertThat(getField(new GitCommand(null, gitLocalRepoDir, " ", false, new HashMap<>(), null), "branch")).isEqualTo("master");
+        assertThat(getField(new GitCommand(null, gitLocalRepoDir, "master", false, new HashMap<>(), null), "branch")).isEqualTo("master");
+        assertThat(getField(new GitCommand(null, gitLocalRepoDir, "branch", false, new HashMap<>(), null), "branch")).isEqualTo("branch");
     }
 
     @Test
-    public void shouldCloneFromMasterWhenNoBranchIsSpecified(){
+    public void shouldCloneFromMasterWhenNoBranchIsSpecified() {
         InMemoryStreamConsumer output = inMemoryConsumer();
         git.clone(output, repoUrl);
         CommandLine commandLine = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir);
         commandLine.run(output, "");
-        assertThat(output.getStdOut(), is("* master"));
+        assertThat(output.getStdOut()).isEqualTo("* master");
     }
 
     @Test
@@ -139,20 +145,20 @@ public class GitCommandTest {
 
     @Test
     public void fullCloneIsNotShallow() {
-        assertThat(git.isShallow(), is(false));
+        assertThat(git.isShallow()).isFalse();
     }
 
     @Test
     public void shouldOnlyCloneLimitedRevisionsIfDepthSpecified() throws Exception {
         FileUtils.deleteQuietly(this.gitLocalRepoDir);
         git.clone(inMemoryConsumer(), repoUrl, 2);
-        assertThat(git.isShallow(), is(true));
-        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_4), is(true));
-        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_3), is(true));
+        assertThat(git.isShallow()).isTrue();
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_4)).isTrue();
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_3)).isTrue();
         // can not assert on revision_2, because on old version of git (1.7)
         // depth '2' actually clone 3 revisions
-        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_1), is(false));
-        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_0), is(false));
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_1)).isFalse();
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_0)).isFalse();
 
     }
 
@@ -161,16 +167,16 @@ public class GitCommandTest {
         FileUtils.deleteQuietly(this.gitLocalRepoDir);
         git.clone(inMemoryConsumer(), repoUrl, 2);
         git.unshallow(inMemoryConsumer(), 3);
-        assertThat(git.isShallow(), is(true));
-        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_2), is(true));
+        assertThat(git.isShallow()).isTrue();
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_2)).isTrue();
         // can not assert on revision_1, because on old version of git (1.7)
         // depth '3' actually clone 4 revisions
-        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_0), is(false));
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_0)).isFalse();
 
         git.unshallow(inMemoryConsumer(), Integer.MAX_VALUE);
-        assertThat(git.isShallow(), is(false));
+        assertThat(git.isShallow()).isFalse();
 
-        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_0), is(true));
+        assertThat(git.containsRevisionInBranch(GitTestRepo.REVISION_0)).isTrue();
     }
 
     @Test
@@ -189,7 +195,7 @@ public class GitCommandTest {
         branchedGit.clone(inMemoryConsumer(), gitFooBranchBundle.projectRepositoryUrl());
         InMemoryStreamConsumer output = inMemoryConsumer();
         CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir).run(output, "");
-        assertThat(output.getStdOut(), is("* foo"));
+        assertThat(output.getStdOut()).isEqualTo("* foo");
     }
 
     @Test
@@ -199,7 +205,7 @@ public class GitCommandTest {
         gitCloneCommand.withArg("--branch=" + BRANCH).withArg(new UrlArgument(gitFooBranchBundle.projectRepositoryUrl())).withArg(gitLocalRepoDir.getAbsolutePath());
         gitCloneCommand.run(inMemoryConsumer(), "");
         git = new GitCommand(null, gitLocalRepoDir, BRANCH, false, new HashMap<>(), null);
-        assertThat(git.getCurrentBranch(), is(BRANCH));
+        assertThat(git.getCurrentBranch()).isEqualTo(BRANCH);
     }
 
     @Test
@@ -211,7 +217,7 @@ public class GitCommandTest {
             git.fetch(output);
             fail("should have failed for non 0 return code. Git output was:\n " + output.getAllOutput());
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("git fetch failed for [git://user:******@foo.bar/baz]"));
+            assertThat(e.getMessage()).isEqualTo("git fetch failed for [git://user:******@foo.bar/baz]");
         }
     }
 
@@ -221,7 +227,7 @@ public class GitCommandTest {
             git.resetWorkingDir(new SysOutStreamConsumer(), new StringRevision("abcdef"));
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
-            assertThat(e.getMessage(), is(String.format("git reset failed for [%s]", gitLocalRepoDir)));
+            assertThat(e.getMessage()).isEqualTo(String.format("git reset failed for [%s]", gitLocalRepoDir));
         }
     }
 
@@ -234,7 +240,7 @@ public class GitCommandTest {
         InMemoryStreamConsumer outConsumer = new InMemoryStreamConsumer();
         gitWithSubmodule.resetWorkingDir(outConsumer, new StringRevision("HEAD"));
         Matcher matcher = Pattern.compile(".*^\\s[a-f0-9A-F]{40} sub1 \\(heads/master\\)$.*", Pattern.MULTILINE | Pattern.DOTALL).matcher(outConsumer.getAllOutput());
-        assertThat(matcher.matches(), is(true));
+        assertThat(matcher.matches()).isTrue();
     }
 
     @Test
@@ -245,53 +251,53 @@ public class GitCommandTest {
         gitWithSubmodule.clone(inMemoryConsumer(), submoduleRepos.mainRepo().getUrl());
         FileUtils.deleteDirectory(submoduleFolder);
 
-        assertThat(submoduleFolder.exists(), is(false));
+        assertThat(submoduleFolder.exists()).isFalse();
         try {
             gitWithSubmodule.resetWorkingDir(new SysOutStreamConsumer(), new StringRevision("HEAD"));
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
-            assertThat(e.getMessage(),
-                    new RegexMatcher(String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed", Pattern.quote(submoduleFolder.getAbsolutePath()))));
+            assertThat(e.getMessage()).containsPattern(
+                    String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed", Pattern.quote(submoduleFolder.getAbsolutePath())));
         }
     }
 
     @Test
     public void shouldRetrieveLatestModification() throws Exception {
         Modification mod = git.latestModification().get(0);
-        assertThat(mod.getUserName(), is("Chris Turner <cturner@thoughtworks.com>"));
-        assertThat(mod.getComment(), is("Added 'run-till-file-exists' ant target"));
-        assertThat(mod.getModifiedTime(), is(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800")));
-        assertThat(mod.getRevision(), is("5def073a425dfe239aabd4bf8039ffe3b0e8856b"));
+        assertThat(mod.getUserName()).isEqualTo("Chris Turner <cturner@thoughtworks.com>");
+        assertThat(mod.getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
+        assertThat(mod.getModifiedTime()).isEqualTo(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800"));
+        assertThat(mod.getRevision()).isEqualTo("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
 
         List<ModifiedFile> files = mod.getModifiedFiles();
-        assertThat(files.size(), is(1));
-        assertThat(files.get(0).getFileName(), is("build.xml"));
-        assertThat(files.get(0).getAction(), Matchers.is(ModifiedAction.modified));
+        assertThat(files.size()).isEqualTo(1);
+        assertThat(files.get(0).getFileName()).isEqualTo("build.xml");
+        assertThat(files.get(0).getAction()).isEqualTo(ModifiedAction.modified);
     }
 
     @Test
     public void shouldRetrieveLatestModificationWhenColoringIsSetToAlways() throws Exception {
         setColoring();
         Modification mod = git.latestModification().get(0);
-        assertThat(mod.getUserName(), is("Chris Turner <cturner@thoughtworks.com>"));
-        assertThat(mod.getComment(), is("Added 'run-till-file-exists' ant target"));
-        assertThat(mod.getModifiedTime(), is(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800")));
-        assertThat(mod.getRevision(), is("5def073a425dfe239aabd4bf8039ffe3b0e8856b"));
+        assertThat(mod.getUserName()).isEqualTo("Chris Turner <cturner@thoughtworks.com>");
+        assertThat(mod.getComment()).isEqualTo("Added 'run-till-file-exists' ant target");
+        assertThat(mod.getModifiedTime()).isEqualTo(parseRFC822("Fri, 12 Feb 2010 16:12:04 -0800"));
+        assertThat(mod.getRevision()).isEqualTo("5def073a425dfe239aabd4bf8039ffe3b0e8856b");
 
         List<ModifiedFile> files = mod.getModifiedFiles();
-        assertThat(files.size(), is(1));
-        assertThat(files.get(0).getFileName(), is("build.xml"));
-        assertThat(files.get(0).getAction(), Matchers.is(ModifiedAction.modified));
+        assertThat(files.size()).isEqualTo(1);
+        assertThat(files.get(0).getFileName()).isEqualTo("build.xml");
+        assertThat(files.get(0).getAction()).isEqualTo(ModifiedAction.modified);
     }
 
     @Test
-    public void retrieveLatestModificationShouldNotResultInWorkingCopyCheckOut() throws Exception{
+    public void retrieveLatestModificationShouldNotResultInWorkingCopyCheckOut() throws Exception {
         git.latestModification();
         assertWorkingCopyNotCheckedOut();
     }
 
     @Test
-    public void getModificationsSinceShouldNotResultInWorkingCopyCheckOut() throws Exception{
+    public void getModificationsSinceShouldNotResultInWorkingCopyCheckOut() throws Exception {
         git.modificationsSince(GitTestRepo.REVISION_2);
         assertWorkingCopyNotCheckedOut();
     }
@@ -305,7 +311,7 @@ public class GitCommandTest {
 
         Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
 
-        assertThat(command.modificationsSince(new StringRevision(modification.getRevision())).isEmpty(), is(true));
+        assertThat(command.modificationsSince(new StringRevision(modification.getRevision()))).isEmpty();
 
     }
 
@@ -318,7 +324,7 @@ public class GitCommandTest {
 
         Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
 
-        assertThat(command.modificationsSince(REVISION_4).get(0), is(modification));
+        assertThat(command.modificationsSince(REVISION_4).get(0)).isEqualTo(modification);
     }
 
     @Test
@@ -331,7 +337,7 @@ public class GitCommandTest {
         Modification modification = remoteRepo.addFileAndAmend("foo", "amendedCommit").get(0);
         setColoring();
 
-        assertThat(command.modificationsSince(REVISION_4).get(0), is(modification));
+        assertThat(command.modificationsSince(REVISION_4).get(0)).isEqualTo(modification);
     }
 
     @Test(expected = CommandLineException.class)
@@ -373,12 +379,12 @@ public class GitCommandTest {
 
     @Test
     public void shouldReturnTrueIfTheGivenBranchContainsTheRevision() {
-        assertThat(git.containsRevisionInBranch(REVISION_4), is(true));
+        assertThat(git.containsRevisionInBranch(REVISION_4)).isTrue();
     }
 
     @Test
     public void shouldReturnFalseIfTheGivenBranchDoesNotContainTheRevision() {
-        assertThat(git.containsRevisionInBranch(NON_EXISTENT_REVISION), is(false));
+        assertThat(git.containsRevisionInBranch(NON_EXISTENT_REVISION)).isFalse();
     }
 
     @Test
@@ -386,26 +392,27 @@ public class GitCommandTest {
         GitTestRepo testRepo = new GitTestRepo(GitTestRepo.GIT_SUBMODULE_REF_BUNDLE, temporaryFolder);
         GitCommand gitCommand = new GitCommand(null, testRepo.gitRepository(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
         Modification modification = gitCommand.latestModification().get(0);
-        assertThat(modification.getModifiedFiles().size(), is(1));
-        assertThat(modification.getModifiedFiles().get(0).getFileName(), is("remote.txt"));
+        assertThat(modification.getModifiedFiles()).hasSize(1);
+        assertThat(modification.getModifiedFiles().get(0).getFileName()).isEqualTo("remote.txt");
     }
 
-    @Test public void shouldRetrieveLatestModificationFromBranch() throws Exception {
+    @Test
+    public void shouldRetrieveLatestModificationFromBranch() throws Exception {
         GitTestRepo branchedRepo = GitTestRepo.testRepoAtBranch(GIT_FOO_BRANCH_BUNDLE, BRANCH, temporaryFolder);
         GitCommand branchedGit = new GitCommand(null, createTempWorkingDirectory(), BRANCH, false, new HashMap<>(), null);
         branchedGit.clone(inMemoryConsumer(), branchedRepo.projectRepositoryUrl());
 
         Modification mod = branchedGit.latestModification().get(0);
 
-        assertThat(mod.getUserName(), is("Chris Turner <cturner@thoughtworks.com>"));
-        assertThat(mod.getComment(), is("Started foo branch"));
-        assertThat(mod.getModifiedTime(), is(parseRFC822("Tue, 05 Feb 2009 14:28:08 -0800")));
-        assertThat(mod.getRevision(), is("b4fa7271c3cef91822f7fa502b999b2eab2a380d"));
+        assertThat(mod.getUserName()).isEqualTo("Chris Turner <cturner@thoughtworks.com>");
+        assertThat(mod.getComment()).isEqualTo("Started foo branch");
+        assertThat(mod.getModifiedTime()).isEqualTo(parseRFC822("Tue, 05 Feb 2009 14:28:08 -0800"));
+        assertThat(mod.getRevision()).isEqualTo("b4fa7271c3cef91822f7fa502b999b2eab2a380d");
 
         List<ModifiedFile> files = mod.getModifiedFiles();
-        assertThat(files.size(), is(1));
-        assertThat(files.get(0).getFileName(), is("first.txt"));
-        assertThat(files.get(0).getAction(), is(ModifiedAction.modified));
+        assertThat(files).hasSize(1);
+        assertThat(files.get(0).getFileName()).isEqualTo("first.txt");
+        assertThat(files.get(0).getAction()).isEqualTo(ModifiedAction.modified);
     }
 
     @Test
@@ -418,8 +425,8 @@ public class GitCommandTest {
         gitWithSubmodule.fetchAndResetToHead(outputStreamConsumer);
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
         List<String> folders = gitWithSubmodule.submoduleFolders();
-        assertThat(folders.size(), is(1));
-        assertThat(folders.get(0), is("sub1"));
+        assertThat(folders).hasSize(1);
+        assertThat(folders.get(0)).isEqualTo("sub1");
     }
 
     @Test
@@ -428,7 +435,8 @@ public class GitCommandTest {
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null) {
             //hack to reproduce synchronization issue
-            @Override public Map<String, String> submoduleUrls() {
+            @Override
+            public Map<String, String> submoduleUrls() {
                 return Collections.singletonMap("submodule", "submodule");
             }
         };
@@ -449,8 +457,8 @@ public class GitCommandTest {
         gitWithSubmodule.fetchAndResetToHead(outputStreamConsumer);
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
         List<String> folders = gitWithSubmodule.submoduleFolders();
-        assertThat(folders.size(), is(1));
-        assertThat(folders.get(0), is("sub1"));
+        assertThat(folders).hasSize(1);
+        assertThat(folders.get(0)).isEqualTo("sub1");
     }
 
     @Test
@@ -464,22 +472,24 @@ public class GitCommandTest {
 
         gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
         Map<String, String> urls = gitWithSubmodule.submoduleUrls();
-        assertThat(urls.size(), is(1));
-        assertThat(urls.containsKey("sub1"), is(true));
-        assertThat(urls.get("sub1"), endsWith(SUBMODULE));
+        assertThat(urls).hasSize(1);
+        assertThat(urls.containsKey("sub1")).isTrue();
+        assertThat(urls.get("sub1")).endsWith(SUBMODULE);
     }
 
     @Test
     public void shouldRetrieveZeroSubmoduleUrlsIfTheyAreNotConfigured() throws Exception {
         Map<String, String> submoduleUrls = git.submoduleUrls();
-        assertThat(submoduleUrls.size(), is(0));
+        assertThat(submoduleUrls).isEmpty();
     }
 
-    @Test public void shouldRetrieveRemoteRepoValue() throws Exception {
-        assertThat(git.workingRepositoryUrl().forCommandline(), startsWith(repoUrl));
+    @Test
+    public void shouldRetrieveRemoteRepoValue() throws Exception {
+        assertThat(git.workingRepositoryUrl().forCommandline()).startsWith(repoUrl);
     }
 
-    @Test public void shouldCheckIfRemoteRepoExists() throws Exception {
+    @Test
+    public void shouldCheckIfRemoteRepoExists() throws Exception {
         GitCommand gitCommand = new GitCommand(null, null, null, false, null, null);
         final TestSubprocessExecutionContext executionContext = new TestSubprocessExecutionContext();
 
@@ -502,34 +512,38 @@ public class GitCommandTest {
     }
 
 
-    @Test public void shouldIncludeNewChangesInModificationCheck() throws Exception {
+    @Test
+    public void shouldIncludeNewChangesInModificationCheck() throws Exception {
         String originalNode = git.latestModification().get(0).getRevision();
         File testingFile = checkInNewRemoteFile();
 
         Modification modification = git.latestModification().get(0);
-        assertThat(modification.getRevision(), is(not(originalNode)));
-        assertThat(modification.getComment(), is("New checkin of " + testingFile.getName()));
-        assertThat(modification.getModifiedFiles().size(), is(1));
-        assertThat(modification.getModifiedFiles().get(0).getFileName(), is(testingFile.getName()));
+        assertThat(modification.getRevision()).isNotEqualTo(originalNode);
+        assertThat(modification.getComment()).isEqualTo("New checkin of " + testingFile.getName());
+        assertThat(modification.getModifiedFiles()).hasSize(1);
+        assertThat(modification.getModifiedFiles().get(0).getFileName()).isEqualTo(testingFile.getName());
     }
 
-    @Test public void shouldIncludeChangesFromTheFutureInModificationCheck() throws Exception {
+    @Test
+    public void shouldIncludeChangesFromTheFutureInModificationCheck() throws Exception {
         String originalNode = git.latestModification().get(0).getRevision();
         File testingFile = checkInNewRemoteFileInFuture(THREE_DAYS_FROM_NOW);
 
         Modification modification = git.latestModification().get(0);
-        assertThat(modification.getRevision(), is(not(originalNode)));
-        assertThat(modification.getComment(), is("New checkin of " + testingFile.getName()));
-        assertThat(modification.getModifiedTime(), is(THREE_DAYS_FROM_NOW));
+        assertThat(modification.getRevision()).isNotEqualTo(originalNode);
+        assertThat(modification.getComment()).isEqualTo("New checkin of " + testingFile.getName());
+        assertThat(modification.getModifiedTime()).isEqualTo(THREE_DAYS_FROM_NOW);
     }
 
-    @Test public void shouldThrowExceptionIfRepoCanNotConnectWhenModificationCheck() throws Exception {
+    @Test
+    public void shouldThrowExceptionIfRepoCanNotConnectWhenModificationCheck() throws Exception {
         FileUtils.deleteQuietly(repoLocation);
         try {
             git.latestModification();
             fail("Should throw exception when repo cannot connected");
         } catch (Exception e) {
-            assertThat(e.getMessage(), anyOf(containsString("The remote end hung up unexpectedly"), containsString("Could not read from remote repository")));
+            assertThat(e.getMessage()).matches(str -> str.contains("The remote end hung up unexpectedly") ||
+                    str.contains("Could not read from remote repository"));
         }
     }
 
@@ -542,13 +556,13 @@ public class GitCommandTest {
 
         GitModificationParser parser = new GitModificationParser();
         List<Modification> mods = parser.parse(stringList);
-        assertThat(mods.size(), is(3));
+        assertThat(mods).hasSize(3);
 
         Modification mod = mods.get(2);
-        assertThat(mod.getRevision(), is("46cceff864c830bbeab0a7aaa31707ae2302762f"));
-        assertThat(mod.getModifiedTime(), is(DateUtils.parseISO8601("2009-08-11 12:37:09 -0700")));
-        assertThat(mod.getUserDisplayName(), is("Cruise Developer <cruise@cruise-sf3.(none)>"));
-        assertThat(mod.getComment(), is("author:cruise <cceuser@CceDev01.(none)>\n"
+        assertThat(mod.getRevision()).isEqualTo("46cceff864c830bbeab0a7aaa31707ae2302762f");
+        assertThat(mod.getModifiedTime()).isEqualTo(DateUtils.parseISO8601("2009-08-11 12:37:09 -0700"));
+        assertThat(mod.getUserDisplayName()).isEqualTo("Cruise Developer <cruise@cruise-sf3.(none)>");
+        assertThat(mod.getComment()).isEqualTo("author:cruise <cceuser@CceDev01.(none)>\n"
                 + "node:ecfab84dd4953105e3301c5992528c2d381c1b8a\n"
                 + "date:2008-12-31 14:32:40 +0800\n"
                 + "description:Moving rakefile to build subdirectory for #2266\n"
@@ -556,7 +570,7 @@ public class GitCommandTest {
                 + "author:CceUser <cceuser@CceDev01.(none)>\n"
                 + "node:fd16efeb70fcdbe63338c49995ce9ff7659e6e77\n"
                 + "date:2008-12-31 14:17:06 +0800\n"
-                + "description:Adding rakefile"));
+                + "description:Adding rakefile");
     }
 
     @Test
@@ -574,7 +588,7 @@ public class GitCommandTest {
 
         clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD")); // Should clean unversioned file on next fetch - Pipeline counter 2
 
-        assertThat(unversionedFile.exists(), is(false));
+        assertThat(unversionedFile.exists()).isFalse();
     }
 
     @Test
@@ -603,11 +617,11 @@ public class GitCommandTest {
         clonedCopy.fetch(outputStreamConsumer);
         clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision(modifications.get(0).getRevision()));
 
-        assertThat(FileUtils.readFileToString(fileInSubmodule, UTF_8), is("NEW CONTENT OF FILE"));
+        assertThat(FileUtils.readFileToString(fileInSubmodule, UTF_8)).isEqualTo("NEW CONTENT OF FILE");
     }
 
     @Test
-    public void shouldAllowSubmoduleUrlstoChange() throws Exception {
+    public void shouldAllowSubmoduleUrlsToChange() throws Exception {
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         String submoduleDirectoryName = "local-submodule";
@@ -622,6 +636,35 @@ public class GitCommandTest {
         submoduleRepos.changeSubmoduleUrl(submoduleDirectoryName);
 
         clonedCopy.fetchAndResetToHead(outputStreamConsumer);
+    }
+
+    @Test
+    public void shouldCleanIgnoredFilesIfToggleIsDisabled() throws IOException {
+        InMemoryStreamConsumer output = inMemoryConsumer();
+        File gitIgnoreFile = new File(repoLocation, ".gitignore");
+        FileUtils.writeStringToFile(gitIgnoreFile, "*.foo", Charset.forName("UTF-8"));
+        gitRepo.addFileAndPush(gitIgnoreFile, "added gitignore");
+        git.fetchAndResetToHead(output);
+
+        File ignoredFile = new File(gitLocalRepoDir, "ignored.foo");
+        assertThat(ignoredFile.createNewFile()).isTrue();
+        git.fetchAndResetToHead(output);
+        assertThat(ignoredFile.exists()).isFalse();
+    }
+
+    @Test
+    public void shouldNotCleanIgnoredFilesIfToggleIsEnabled() throws IOException {
+        System.setProperty("toggle.agent.git.clean.keep.ignored.files", "Y");
+        InMemoryStreamConsumer output = inMemoryConsumer();
+        File gitIgnoreFile = new File(repoLocation, ".gitignore");
+        FileUtils.writeStringToFile(gitIgnoreFile, "*.foo", Charset.forName("UTF-8"));
+        gitRepo.addFileAndPush(gitIgnoreFile, "added gitignore");
+        git.fetchAndResetToHead(output);
+
+        File ignoredFile = new File(gitLocalRepoDir, "ignored.foo");
+        assertThat(ignoredFile.createNewFile()).isTrue();
+        git.fetchAndResetToHead(output);
+        assertThat(ignoredFile.exists()).isTrue();
     }
 
     private List<File> allFilesIn(File directory, String prefixOfFiles) {
@@ -670,7 +713,7 @@ public class GitCommandTest {
         CommandLine commandLine = CommandLine.createCommandLine(command);
         commandLine.withArgs(args);
         commandLine.withEncoding("utf-8");
-        assertThat(dir.exists(), is(true));
+        assertThat(dir.exists()).isTrue();
         commandLine.setWorkingDir(dir);
         commandLine.runOrBomb(true, null);
     }
@@ -690,10 +733,10 @@ public class GitCommandTest {
     }
 
     private void assertWorkingCopyNotCheckedOut() {
-        assertThat(gitLocalRepoDir.listFiles(), is(new File[]{new File(gitLocalRepoDir, ".git")}));
+        assertThat(gitLocalRepoDir.listFiles()).isEqualTo(new File[]{new File(gitLocalRepoDir, ".git")});
     }
 
     private void assertWorkingCopyCheckedOut(File workingDir) {
-        assertTrue(workingDir.listFiles().length > 1);
+        assertThat(workingDir.listFiles().length).isGreaterThan(1);
     }
 }

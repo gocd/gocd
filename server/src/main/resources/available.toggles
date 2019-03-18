@@ -29,7 +29,7 @@
       {
         "key": "cctray_using_rails",
         "description": "Show CCTray Feeds using rails.",
-        "value": true
+        "value": false
        },
        {
         "key": "auth_page_using_spring",

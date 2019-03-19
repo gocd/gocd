@@ -920,6 +920,7 @@ task verifyWar(type: VerifyJarTask) {
         "plugin-metadata-store-${project.version}.jar",
         "quartz-${project.versions.quartz}.jar",
         "rack_hack-${project.version}.jar",
+        "semantic-version-${project.versions.semanticVersion}.jar",
         "slf4j-api-${project.versions.slf4j}.jar",
         "smtp-${project.versions.mail}.jar",
         "spark-core-${project.versions.spark}.jar",

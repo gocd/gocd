@@ -181,6 +181,7 @@ task verifyJar(type: VerifyJarTask) {
       "org.apache.felix.framework-${project.versions.felix}.jar",
       "plugin-metadata-store-${project.version}.jar",
       "quartz-${project.versions.quartz}.jar",
+      "semantic-version-${project.versions.semanticVersion}.jar",
       "slf4j-api-${project.versions.slf4j}.jar",
       "spring-aop-${project.versions.spring}.jar",
       "spring-beans-${project.versions.spring}.jar",

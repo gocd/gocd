@@ -64,7 +64,7 @@ import static org.mockito.Mockito.when;
 
 @EnableRuleMigrationSupport
 public class GitMaterialTest {
-    public static final GitVersion GIT_VERSION_1_6 = GitVersion.parse("git version 1.6.0");
+    public static final GitVersion GIT_VERSION_1_9 = GitVersion.parse("git version 1.9.0");
     public static final GitVersion GIT_VERSION_1_5 = GitVersion.parse("git version 1.5.4.3");
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -353,17 +353,9 @@ public class GitMaterialTest {
     }
 
     @Test
-    void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnLinux()
+    void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbove19()
             throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6);
-        assertThat(validationBean.isValid()).isFalse();
-        assertThat(validationBean.getError()).contains("not found!");
-    }
-
-    @Test
-    void shouldReturnInvalidBeanWithRootCauseAsRepositoryURLIsNotFoundIfVersionIsAbvoe16OnWindows()
-            throws Exception {
-        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_6);
+        ValidationBean validationBean = git.handleException(new Exception("not found!"), GIT_VERSION_1_9);
         assertThat(validationBean.isValid()).isFalse();
         assertThat(validationBean.getError()).contains("not found!");
     }

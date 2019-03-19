@@ -48,14 +48,17 @@ public class GitVersionTest {
     }
 
     @Test
-    void shouldReturnTrueIfVersionEqualToOrHigherThan1Dot6() {
-        GitVersion version = GitVersion.parse("git version 1.6.0.2");
-        assertThat(version.isVersionOneDotSixOrHigher()).isTrue();
+    void shouldReturnTrueIfVersionIsGreaterThanOrEqualToOneDotNine() {
+        GitVersion version = GitVersion.parse("git version 1.9.0");
+        assertThat(version.isMinimumSupportedVersionOrHigher()).isTrue();
+
+        version = GitVersion.parse("git version 1.10.0");
+        assertThat(version.isMinimumSupportedVersionOrHigher()).isTrue();
     }
 
     @Test
-    void shouldReturnFalseIfVersionLowerThan1Dot6() {
+    void shouldReturnFalseIfVersionLowerThan1Dot9() {
         GitVersion version = GitVersion.parse("git version 1.5.0.1");
-        assertThat(version.isVersionOneDotSixOrHigher()).isFalse();
+        assertThat(version.isMinimumSupportedVersionOrHigher()).isFalse();
     }
 }

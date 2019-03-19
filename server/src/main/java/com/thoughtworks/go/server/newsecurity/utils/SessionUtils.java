@@ -76,6 +76,7 @@ public class SessionUtils {
     }
 
     public static void saveRequest(HttpServletRequest request, SavedRequest savedRequest) {
+        LOGGER.debug("Saving request {}", request.getRequestURI());
         request.getSession().setAttribute(SAVED_REQUEST, savedRequest);
     }
 
@@ -124,8 +125,10 @@ public class SessionUtils {
 
     public static void setUserId(HttpServletRequest request, Long id) {
         if (id == null || id == NOT_PERSISTED) {
+            LOGGER.debug("Unsetting current user id from session {}", id);
             request.getSession().removeAttribute(CURRENT_USER_ID);
         } else {
+            LOGGER.debug("Setting current user id into session {}", id);
             request.getSession().setAttribute(CURRENT_USER_ID, id);
         }
     }
@@ -138,10 +141,12 @@ public class SessionUtils {
         if (user == null) {
             throw new IllegalArgumentException("Use unsetCurrentUser instead");
         }
+        LOGGER.debug("Setting user {} into thread local", user.getUsername());
         USERS.set(user);
     }
 
     public static void unsetCurrentUser() {
+        LOGGER.debug("Unsetting current user from thread local");
         USERS.remove();
     }
 

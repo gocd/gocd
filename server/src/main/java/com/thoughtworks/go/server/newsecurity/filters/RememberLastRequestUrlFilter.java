@@ -35,7 +35,6 @@ public class RememberLastRequestUrlFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws IOException, ServletException {
         if (request.getMethod().equals("GET") || request.getMethod().equals("HEAD")) {
-            LOGGER.debug("Saving request {}", request.getRequestURI());
             SessionUtils.saveRequest(request);
         }
         filterChain.doFilter(request, response);

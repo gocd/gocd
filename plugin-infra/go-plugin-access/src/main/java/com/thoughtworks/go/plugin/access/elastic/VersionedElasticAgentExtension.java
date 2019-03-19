@@ -52,5 +52,5 @@ public interface VersionedElasticAgentExtension {
 
     String getAgentStatusReport(String pluginId, JobIdentifier identifier, String elasticAgentId);
 
-    void jobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier);
+    void jobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier, Map<String, String> elasticProfileConfiguration, Map<String, String> clusterProfileConfiguration);
 }

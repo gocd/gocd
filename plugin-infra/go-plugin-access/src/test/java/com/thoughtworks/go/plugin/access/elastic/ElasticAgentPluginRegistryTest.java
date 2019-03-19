@@ -110,10 +110,12 @@ public class ElasticAgentPluginRegistryTest {
     public void shouldTalkToExtensionToReportJobCompletion() {
         final JobIdentifier jobIdentifier = new JobIdentifier();
         final String elasticAgentId = "ea_1";
+        final Map<String, String> elasticProfileConfiguration = Collections.singletonMap("Image", "alpine:latest");
+        final Map<String, String> clusterProfileConfiguration = Collections.singletonMap("ServerURL", "https://example.com/go");
 
-        elasticAgentPluginRegistry.reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier);
+        elasticAgentPluginRegistry.reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
 
-        verify(elasticAgentExtension, times(1)).reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier);
+        verify(elasticAgentExtension, times(1)).reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
         verifyNoMoreInteractions(elasticAgentExtension);
     }
 }

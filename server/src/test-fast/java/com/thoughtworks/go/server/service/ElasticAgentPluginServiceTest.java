@@ -48,10 +48,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.util.LinkedMultiValueMap;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -333,6 +330,9 @@ class ElasticAgentPluginServiceTest {
 
         @Test
         void shouldMakeJobCompletionCallToThePluginWhenJobAssignedToAnElastic() {
+            ElasticProfile elasticProfile = new ElasticProfile("foo", "docker", "clusterId");
+            ClusterProfile clusterProfile = new ClusterProfile("clusterId", "docker");
+
             String elasticAgentId = "i-123456";
             String elasticPluginId = "com.example.aws";
 
@@ -344,16 +344,21 @@ class ElasticAgentPluginServiceTest {
 
             JobInstance up42_job = JobInstanceMother.completed("up42_job");
             up42_job.setAgentUuid(agent.getUuid());
+            DefaultJobPlan plan = new DefaultJobPlan(null, new ArrayList<>(), new ArrayList<>(), -1, null, null, null, new EnvironmentVariables(), elasticProfile, clusterProfile);
+            up42_job.setPlan(plan);
 
             when(agentService.findAgent(agent.getUuid())).thenReturn(agent);
+            when(clusterProfilesService.findProfile("clusterId")).thenReturn(clusterProfile);
+            Map<String, String> elasticProfileConfiguration = elasticProfile.getConfigurationAsMap(true);
+            Map<String, String> clusterProfileConfiguration = clusterProfile.getConfigurationAsMap(true);
 
             service.jobCompleted(up42_job);
 
-            verify(registry, times(1)).reportJobCompletion(elasticPluginId, elasticAgentId, up42_job.getIdentifier());
+            verify(registry, times(1)).reportJobCompletion(elasticPluginId, elasticAgentId, up42_job.getIdentifier(), elasticProfileConfiguration, clusterProfileConfiguration);
         }
 
         @Test
-        void shouldMakeJobCompletionCallToThePluginWhenJobAssignedToNonElastic() {
+        void shouldNotMakeJobCompletionCallToThePluginWhenJobAssignedToNonElastic() {
             AgentInstance agent = AgentInstanceMother.idle();
             JobInstance up42_job = JobInstanceMother.completed("up42_job");
             up42_job.setAgentUuid(agent.getUuid());
@@ -362,7 +367,7 @@ class ElasticAgentPluginServiceTest {
 
             service.jobCompleted(up42_job);
 
-            verify(registry, times(0)).reportJobCompletion(any(), any(), any());
+            verify(registry, times(0)).reportJobCompletion(any(), any(), any(), any(), any());
         }
     }
 

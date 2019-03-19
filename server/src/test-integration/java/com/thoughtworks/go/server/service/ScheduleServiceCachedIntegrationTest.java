@@ -170,7 +170,7 @@ public class ScheduleServiceCachedIntegrationTest {
         ScheduleService service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, pipelineDao,
                 stageDao, stageOrderService, securityService, pipelineScheduleQueue, jobInstanceService, jobInstanceDao, agentAssignment, environmentConfigService,
                 pipelineLockService, serverHealthService, transactionTemplate, agentService, synchronizationManager, null, null, null, null, schedulingPerformanceLogger,
-                null
+                null,null
         );
 
         Pipeline assigned = preCondition.createPipelineWithFirstStageAssigned();

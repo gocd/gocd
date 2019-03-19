@@ -186,11 +186,11 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
     }
 
     @Override
-    public void jobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
+    public void jobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier, Map<String, String> elasticProfileConfiguration, Map<String, String> clusterProfileConfiguration) {
         pluginRequestHelper.submitRequest(pluginId, REQUEST_JOB_COMPLETION, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV5.getJobCompletionRequestBody(elasticAgentId, jobIdentifier);
+                return elasticAgentExtensionConverterV5.getJobCompletionRequestBody(elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
             }
         });
     }

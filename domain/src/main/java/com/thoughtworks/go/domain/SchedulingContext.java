@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 
 import java.util.Collection;
@@ -42,4 +43,6 @@ public interface SchedulingContext {
     SchedulingContext rerunContext();
 
     ElasticProfile getElasticProfile(String profileId);
+
+    ClusterProfile getClusterProfile(String clusterProfileId);
 }

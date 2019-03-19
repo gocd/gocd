@@ -31,6 +31,8 @@ import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.messaging.JobStatusListener;
+import com.thoughtworks.go.server.messaging.JobStatusMessage;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleOptions;
@@ -51,14 +53,14 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.UUID;
 
 import static com.thoughtworks.go.helper.ModificationsMother.forceBuild;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
@@ -106,6 +108,8 @@ public class ScheduleServiceIntegrationTest {
     private TransactionTemplate transactionTemplate;
     @Autowired
     private PipelinePauseService pipelinePauseService;
+    @Autowired
+    private JobStatusListener jobStatusListener;
 
     private PipelineConfig mingleConfig;
     @Autowired
@@ -342,7 +346,11 @@ public class ScheduleServiceIntegrationTest {
         EnvironmentVariables variables = jobPlan.getVariables();
         assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
 
-        pass(pipeline);
+
+        Pipeline successfulPipeline = pass(pipeline);
+        JobInstance jobInstance = successfulPipeline.getFirstStage().getFirstJob();
+        jobStatusListener.onMessage(new JobStatusMessage(jobInstance.getIdentifier(), jobInstance.getState(), jobInstance.getAgentUuid()));
+
         jobPlan = jobInstanceDao.loadPlan(jobId);
         assertThat(jobPlan.getVariables().size(), is(0));
 
@@ -374,7 +382,10 @@ public class ScheduleServiceIntegrationTest {
         EnvironmentVariables variables = jobPlan.getVariables();
         assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
 
-        pass(pipeline);
+        Pipeline successfulPipeline = pass(pipeline);
+        JobInstance jobInstance = successfulPipeline.getFirstStage().getFirstJob();
+        jobStatusListener.onMessage(new JobStatusMessage(jobInstance.getIdentifier(), jobInstance.getState(), jobInstance.getAgentUuid()));
+
         jobPlan = jobInstanceDao.loadPlan(jobId);
         assertThat(jobPlan.getVariables().size(), is(0));
 
@@ -401,7 +412,10 @@ public class ScheduleServiceIntegrationTest {
         EnvironmentVariables variables = jobPlan.getVariables();
         assertThat(variables, hasItems(new EnvironmentVariable("K1", "V1"), new EnvironmentVariable("K2", "V2"), new EnvironmentVariable("K3", "V3")));
 
-        pass(pipeline);
+        Pipeline successfulPipeline = pass(pipeline);
+        JobInstance jobInstance = successfulPipeline.getFirstStage().getFirstJob();
+        jobStatusListener.onMessage(new JobStatusMessage(jobInstance.getIdentifier(), jobInstance.getState(), jobInstance.getAgentUuid()));
+
         jobPlan = jobInstanceDao.loadPlan(jobId);
         assertThat(jobPlan.getVariables().size(), is(0));
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.controller;
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -183,7 +184,10 @@ public class JobControllerIntegrationTest {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
         ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false, true)));
 
-        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
+        ElasticProfile profile = new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", Collections.EMPTY_LIST);
+        ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.EMPTY_LIST);
+
+        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), profile, clusterProfile));
 
         ModelAndView modelAndView = controller.jobDetail(pipeline.getName(), String.valueOf(pipeline.getCounter()),
                 stage.getName(), String.valueOf(stage.getCounter()), job.getName());
@@ -201,7 +205,10 @@ public class JobControllerIntegrationTest {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
         ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false, true)));
 
-        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), new ElasticProfile("profile_id", "plugin_id", Collections.EMPTY_LIST)));
+        ElasticProfile profile = new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", Collections.EMPTY_LIST);
+        ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.EMPTY_LIST);
+
+        fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), profile, clusterProfile));
 
         final AgentConfig agentConfig = new AgentConfig(job.getAgentUuid());
         agentConfig.setElasticAgentId("elastic_agent_id");

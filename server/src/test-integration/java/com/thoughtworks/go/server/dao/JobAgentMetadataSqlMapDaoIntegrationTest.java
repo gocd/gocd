@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,12 @@
 package com.thoughtworks.go.server.dao;
 
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.DefaultSchedulingContext;
+import com.thoughtworks.go.domain.JobAgentMetadata;
+import com.thoughtworks.go.domain.Pipeline;
+import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.helper.BuildPlanMother;
 import com.thoughtworks.go.helper.PipelineMother;
@@ -36,6 +40,7 @@ import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -52,9 +57,12 @@ public class JobAgentMetadataSqlMapDaoIntegrationTest {
     private static final String PIPELINE_NAME = "pipeline";
     private long jobId;
 
-    @Autowired private InstanceFactory instanceFactory;
-    @Autowired private JobAgentMetadataSqlMapDao dao;
-    @Autowired private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private InstanceFactory instanceFactory;
+    @Autowired
+    private JobAgentMetadataSqlMapDao dao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
 
     @Before
     public void setup() throws Exception {
@@ -75,19 +83,34 @@ public class JobAgentMetadataSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldSaveElasticAgentPropertyOnJob() throws Exception {
-        ElasticProfile profile = new ElasticProfile("elastic", "plugin", "clusterProfileId", new ConfigurationProperty());
-        JobAgentMetadata jobAgentMetadata = new JobAgentMetadata(jobId, profile);
+        ElasticProfile profile = new ElasticProfile("elastic", "plugin", "clusterProfileId");
+        ClusterProfile clusterProfile = new ClusterProfile("clusterProfileId", "plugin");
+        JobAgentMetadata jobAgentMetadata = new JobAgentMetadata(jobId, profile, clusterProfile);
         dao.save(jobAgentMetadata);
 
         JobAgentMetadata metadataFromDb = dao.load(jobId);
+        assertThat(metadataFromDb.elasticProfile(), is(profile));
+        assertThat(metadataFromDb.clusterProfile(), is(clusterProfile));
         assertThat(metadataFromDb, is(jobAgentMetadata));
     }
 
+    @Test
+    public void shouldNotSaveClusterProfilePropertyOnJobWhenNotSpecified_forEAExtensionV4() throws Exception {
+        ElasticProfile profile = new ElasticProfile("elastic", "plugin");
+        JobAgentMetadata jobAgentMetadata = new JobAgentMetadata(jobId, profile, null);
+        dao.save(jobAgentMetadata);
+
+        JobAgentMetadata metadataFromDb = dao.load(jobId);
+        assertThat(metadataFromDb.elasticProfile(), is(profile));
+        assertNull(metadataFromDb.clusterProfile());
+        assertThat(metadataFromDb, is(jobAgentMetadata));
+    }
 
     @Test
     public void shouldDeleteElasticAgentPropertySetToJob() throws Exception {
         ElasticProfile profile = new ElasticProfile("elastic", "plugin", "clusterProfileId", new ConfigurationProperty());
-        JobAgentMetadata jobAgentMetadata = new JobAgentMetadata(jobId, profile);
+        ClusterProfile clusterProfile = new ClusterProfile("clusterProfileId", "plugin", new ConfigurationProperty());
+        JobAgentMetadata jobAgentMetadata = new JobAgentMetadata(jobId, profile, clusterProfile);
         dao.save(jobAgentMetadata);
 
         JobAgentMetadata metadataFromDb = dao.load(jobId);

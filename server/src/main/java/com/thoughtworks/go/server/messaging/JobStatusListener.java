@@ -16,7 +16,9 @@
 
 package com.thoughtworks.go.server.messaging;
 
+import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import com.thoughtworks.go.server.service.StageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,16 +30,19 @@ public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
     private StageService stageService;
     private final StageStatusTopic stageStatusTopic;
     private final ElasticAgentPluginService elasticAgentPluginService;
+    private JobInstanceSqlMapDao jobInstanceSqlMapDao;
 
     @Autowired
     public JobStatusListener(JobStatusTopic jobStatusTopic,
                              StageService stageService,
                              StageStatusTopic stageStatusTopic,
-                             ElasticAgentPluginService elasticAgentPluginService) {
+                             ElasticAgentPluginService elasticAgentPluginService,
+                             JobInstanceSqlMapDao jobInstanceSqlMapDao) {
         this.jobStatusTopic = jobStatusTopic;
         this.stageService = stageService;
         this.stageStatusTopic = stageStatusTopic;
         this.elasticAgentPluginService = elasticAgentPluginService;
+        this.jobInstanceSqlMapDao = jobInstanceSqlMapDao;
     }
 
     public void init() {
@@ -48,9 +53,16 @@ public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
         if (message.getJobState().isCompleted()) {
             final Stage stage = stageService.findStageWithIdentifier(message.getStageIdentifier());
             if (stage.isCompleted()) {
+                //post a stage status change message to send email notification about stage completion
                 stageStatusTopic.post(new StageStatusMessage(message.getStageIdentifier(), stage.stageState(), stage.getResult()));
             }
-            elasticAgentPluginService.jobCompleted(stage.findJob(message.getJobIdentifier().getBuildName()));
+            JobInstance job = stage.findJob(message.getJobIdentifier().getBuildName());
+
+            //send job-completion message to elastic agent plugin
+            elasticAgentPluginService.jobCompleted(job);
+
+            //remove job plan related information from DB
+            jobInstanceSqlMapDao.deleteJobPlanAssociatedEntities(job);
         }
     }
 }

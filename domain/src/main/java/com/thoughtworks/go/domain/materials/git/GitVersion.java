@@ -29,6 +29,7 @@ public class GitVersion {
             "git version (\\d+)\\.(\\d+)(?:\\.(\\d+))?(?:\\.(\\d+))?(.*)", Pattern.CASE_INSENSITIVE);
 
     private final Version version;
+    private final static Version MINIMUM_SUPPORTED_VERSION = Version.create(1,9,0);
 
     private GitVersion(Version parsedVersion) {
         this.version = parsedVersion;
@@ -48,8 +49,8 @@ public class GitVersion {
         throw bomb("cannot parse git version : " + versionFromConsoleOutput);
     }
 
-    public boolean isVersionOneDotSixOrHigher() {
-        return this.version.compareTo(Version.create(1, 6, 0)) >= 0;
+    public boolean isMinimumSupportedVersionOrHigher() {
+        return this.version.compareTo(MINIMUM_SUPPORTED_VERSION) >= 0;
     }
 
     public Version getVersion() {

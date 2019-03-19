@@ -177,7 +177,7 @@ public class GitMaterial extends ScmMaterial {
     public ValidationBean handleException(Exception e, GitVersion gitVersion) {
         ValidationBean defaultResponse = ValidationBean.notValid(e.getMessage());
         try {
-            if (!gitVersion.isVersionOneDotSixOrHigher()) {
+            if (!gitVersion.isMinimumSupportedVersionOrHigher()) {
                 return ValidationBean.notValid(ERR_GIT_OLD_VERSION + gitVersion.toString());
             } else {
                 return defaultResponse;

@@ -227,6 +227,12 @@ public class ElasticAgentPluginService {
 
         String pluginId = agentInstance.elasticAgentMetadata().elasticPluginId();
         String elasticAgentId = agentInstance.elasticAgentMetadata().elasticAgentId();
-        elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, job.getIdentifier());
+
+        ElasticProfile elasticProfile = job.getPlan().getElasticProfile();
+        ClusterProfile clusterProfile = job.getPlan().getClusterProfile();
+        Map<String, String> elasticProfileConfiguration = elasticProfile.getConfigurationAsMap(true);
+        Map<String, String> clusterProfileConfiguration = clusterProfile != null ? clusterProfile.getConfigurationAsMap(true) : Collections.EMPTY_MAP;
+
+        elasticAgentPluginRegistry.reportJobCompletion(pluginId, elasticAgentId, job.getIdentifier(), elasticProfileConfiguration, clusterProfileConfiguration);
     }
 }

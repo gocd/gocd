@@ -228,12 +228,20 @@ public class ElasticAgentExtensionV5Test {
     public void shouldMakeJobCompletionCall() {
         final String elasticAgentId = "ea1";
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
+        final Map<String, String> profile = Collections.singletonMap("Image", "alpine:latest");
+        final Map<String, String> clusterProfile = Collections.singletonMap("ServerURL", "https://example.com/go");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
-        extensionV5.jobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier);
+        extensionV5.jobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier, profile, clusterProfile);
 
         String expectedRequestBody = "{\n" +
                 "  \"elastic_agent_id\": \"ea1\",\n" +
+                "  \"elastic_agent_profile_properties\": {\n" +
+                "    \"Image\": \"alpine:latest\"\n" +
+                "  },\n" +
+                "  \"cluster_profile_properties\": {\n" +
+                "    \"ServerURL\": \"https://example.com/go\"\n" +
+                "  },\n" +
                 "  \"job_identifier\": {\n" +
                 "    \"pipeline_name\": \"up42\",\n" +
                 "    \"pipeline_label\": \"Test\",\n" +

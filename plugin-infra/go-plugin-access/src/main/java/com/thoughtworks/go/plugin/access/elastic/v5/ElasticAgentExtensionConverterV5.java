@@ -135,10 +135,14 @@ class ElasticAgentExtensionConverterV5 {
         return jobIdentifierJson;
     }
 
-    public String getJobCompletionRequestBody(String elasticAgentId, JobIdentifier jobIdentifier) {
+    public String getJobCompletionRequestBody(String elasticAgentId, JobIdentifier jobIdentifier, Map<String, String> elasticProfileConfiguration, Map<String, String> clusterProfileConfiguration) {
         JsonObject jsonObject = new JsonObject();
+
         jsonObject.addProperty("elastic_agent_id", elasticAgentId);
         jsonObject.add("job_identifier", jobIdentifierJson(jobIdentifier));
+        jsonObject.add("elastic_agent_profile_properties", mapToJsonObject(elasticProfileConfiguration));
+        jsonObject.add("cluster_profile_properties", mapToJsonObject(clusterProfileConfiguration));
+
         return GSON.toJson(jsonObject);
     }
 }

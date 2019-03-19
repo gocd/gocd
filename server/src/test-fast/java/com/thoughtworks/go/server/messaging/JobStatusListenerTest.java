@@ -27,6 +27,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -153,5 +156,25 @@ class JobStatusListenerTest {
         jobStatusListener.onMessage(jobStatusMessage);
 
         verifyNoMoreInteractions(elasticAgentPluginService);
+    }
+
+    @Test
+    void shouldPopulateJobInstanceWithJobPlan() {
+        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
+        JobInstance jobInstance = JobInstanceMother.completed(jobIdentifier.getBuildName());
+        Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
+        stage.setJobInstances(new JobInstances(jobInstance));
+        JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Completed, "agent1");
+        when(stageService.findStageWithIdentifier(jobStatusMessage.getStageIdentifier())).thenReturn(stage);
+
+        DefaultJobPlan plan = new DefaultJobPlan(null, new ArrayList<>(), null, 100, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
+        when(jobInstanceSqlMapDao.loadPlan(jobInstance.getId())).thenReturn(plan);
+
+        assertThat(jobInstance.getPlan()).isNull();
+
+        jobStatusListener.onMessage(jobStatusMessage);
+
+        assertThat(jobInstance.getPlan()).isEqualTo(plan);
+        verify(jobInstanceSqlMapDao, times(1)).loadPlan(jobInstance.getId());
     }
 }

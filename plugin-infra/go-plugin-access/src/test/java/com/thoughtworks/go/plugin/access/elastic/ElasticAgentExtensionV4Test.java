@@ -178,7 +178,7 @@ public class ElasticAgentExtensionV4Test {
         final JobIdentifier jobIdentifier = new JobIdentifier("up42", 2, "Test", "up42_stage", "10", "up42_job");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
-        extensionV4.jobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier);
+        extensionV4.jobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier, Collections.EMPTY_MAP, Collections.EMPTY_MAP);
 
         String expectedRequestBody = "{\n" +
                 "  \"elastic_agent_id\": \"ea1\",\n" +

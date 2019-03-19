@@ -106,9 +106,8 @@ public class ElasticAgentExtension extends AbstractExtension {
         return getVersionedElasticAgentExtension(pluginId).getCapabilities(pluginId);
     }
 
-    public void reportJobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
-        VersionedElasticAgentExtension elasticAgentExtension = getVersionedElasticAgentExtension(pluginId);
-        elasticAgentExtension.jobCompletion(pluginId, elasticAgentId, jobIdentifier);
+    public void reportJobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier, Map<String, String> elasticProfileConfiguration, Map<String, String> clusterProfileConfiguration) {
+        getVersionedElasticAgentExtension(pluginId).jobCompletion(pluginId, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
     }
 
     @Override

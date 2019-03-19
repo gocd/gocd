@@ -126,10 +126,20 @@ public class ElasticAgentExtensionConverterV5Test {
 
     @Test
     public void shouldJSONizeJobCompletionRequestBody() throws Exception {
-        String actual = new ElasticAgentExtensionConverterV5().getJobCompletionRequestBody("ea1", jobIdentifier);
+        HashMap<String, String> elasticProfileConfiguration = new HashMap<>();
+        elasticProfileConfiguration.put("property_name", "property_value");
+        HashMap<String, String> clusterProfileConfiguration = new HashMap<>();
+        clusterProfileConfiguration.put("property_name", "property_value");
+        String actual = new ElasticAgentExtensionConverterV5().getJobCompletionRequestBody("ea1", jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
 
         String expected = "{" +
                 "  \"elastic_agent_id\":\"ea1\"," +
+                "  \"elastic_agent_profile_properties\":{" +
+                "    \"property_name\":\"property_value\"" +
+                "  }," +
+                "  \"cluster_profile_properties\":{" +
+                "    \"property_name\":\"property_value\"" +
+                "  }," +
                 "  \"job_identifier\": {\n" +
                 "    \"pipeline_name\": \"test-pipeline\",\n" +
                 "    \"pipeline_counter\": 1,\n" +

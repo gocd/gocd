@@ -76,9 +76,9 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
         return findPlugin(pluginId) != null;
     }
 
-    public void reportJobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier) {
-        LOGGER.debug("Processing report job completion for plugin: {} for elasticAgentId: {} for job: {}", pluginId, elasticAgentId, jobIdentifier);
-        extension.reportJobCompletion(pluginId, elasticAgentId, jobIdentifier);
-        LOGGER.debug("Done processing report job completion for plugin: {} for elasticAgentId: {} for job: {}", pluginId, elasticAgentId, jobIdentifier);
+    public void reportJobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier, Map<String, String> elasticProfileConfiguration, Map<String, String> clusterProfileConfiguration) {
+        LOGGER.debug("Processing report job completion for plugin: {} for elasticAgentId: {} for job: {} with configuration: {} in cluster: {}", pluginId, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
+        extension.reportJobCompletion(pluginId, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
+        LOGGER.debug("Done processing report job completion for plugin: {} for elasticAgentId: {} for job: {} with configuration: {} in cluster: {}", pluginId, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
     }
 }

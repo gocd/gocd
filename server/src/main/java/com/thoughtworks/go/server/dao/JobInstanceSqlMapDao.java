@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.dao;
 
 import com.opensymphony.oscache.base.Cache;
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.server.cache.CacheKeyGenerator;
@@ -27,6 +29,7 @@ import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.persistence.ArtifactPlanRepository;
 import com.thoughtworks.go.server.persistence.ArtifactPropertiesGeneratorRepository;
 import com.thoughtworks.go.server.persistence.ResourceRepository;
+import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.transaction.SqlMapClientDaoSupport;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
@@ -71,6 +74,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
     private Cloner cloner = new Cloner();
     private ResourceRepository resourceRepository;
     private ArtifactPlanRepository artifactPlanRepository;
+    private final ClusterProfilesService clusterProfilesService;
     private ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository;
 
     @Autowired
@@ -84,6 +88,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
                                 Database database,
                                 ResourceRepository resourceRepository,
                                 ArtifactPlanRepository artifactPlanRepository,
+                                ClusterProfilesService clusterProfilesService,
                                 ArtifactPropertiesGeneratorRepository artifactPropertiesGeneratorRepository,
                                 JobAgentMetadataDao jobAgentMetadataDao) {
         super(goCache, sqlSessionFactory, systemEnvironment, database);
@@ -93,6 +98,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.resourceRepository = resourceRepository;
         this.artifactPlanRepository = artifactPlanRepository;
+        this.clusterProfilesService = clusterProfilesService;
         this.artifactPropertiesGeneratorRepository = artifactPropertiesGeneratorRepository;
         this.jobAgentMetadataDao = jobAgentMetadataDao;
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
@@ -237,7 +243,9 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         environmentVariableDao.save(jobId, EnvironmentVariableType.Job, jobPlan.getVariables());
 
         if (jobPlan.requiresElasticAgent()) {
-            jobAgentMetadataDao.save(new JobAgentMetadata(jobId, jobPlan.getElasticProfile()));
+            ElasticProfile elasticProfile = jobPlan.getElasticProfile();
+            ClusterProfile clusterProfile = clusterProfilesService.findProfile(elasticProfile.getClusterProfileId());
+            jobAgentMetadataDao.save(new JobAgentMetadata(jobId, elasticProfile, clusterProfile));
         }
     }
 

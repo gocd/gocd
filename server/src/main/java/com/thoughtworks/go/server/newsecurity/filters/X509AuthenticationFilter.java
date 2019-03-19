@@ -59,15 +59,26 @@ public class X509AuthenticationFilter extends OncePerRequestFilter {
             LOGGER.debug("Denying access, certificate is not provided.");
             response.setStatus(403);
         } else {
-            LOGGER.debug("Adding agent user to current session and proceeding.");
-            String subjectDN = (String) subjectDnX509PrincipalExtractor.extractPrincipal(x509Certificate);
-            final GoUserPrinciple agentUser = new GoUserPrinciple("_go_agent_" + subjectDN, "", GoAuthority.ROLE_AGENT.asAuthority());
+            AuthenticationToken<?> authenticationToken = SessionUtils.getAuthenticationToken(request);
+            if (isAuthenticated(x509Certificate, authenticationToken)) {
+                LOGGER.debug("Agent is already authenticated");
+            } else {
+                String subjectDN = (String) subjectDnX509PrincipalExtractor.extractPrincipal(x509Certificate);
+                GoUserPrinciple agentUser = new GoUserPrinciple("_go_agent_" + subjectDN, "", GoAuthority.ROLE_AGENT.asAuthority());
+                AuthenticationToken<X509Credential> authentication = new AuthenticationToken<>(agentUser, new X509Credential(x509Certificate), null, clock.currentTimeMillis(), null);
 
-            final AuthenticationToken<X509Credential> authentication = new AuthenticationToken<>(agentUser, new X509Credential(x509Certificate), null, clock.currentTimeMillis(), null);
+                LOGGER.debug("Adding agent user to current session and proceeding.");
+                SessionUtils.setAuthenticationTokenAfterRecreatingSession(authentication, request);
+            }
 
-            SessionUtils.setAuthenticationTokenAfterRecreatingSession(authentication, request);
             filterChain.doFilter(request, response);
         }
+    }
+
+    private boolean isAuthenticated(X509Certificate x509Certificate, AuthenticationToken<?> authenticationToken) {
+        return authenticationToken != null
+                && authenticationToken.getCredentials() instanceof X509Credential
+                && ((X509Credential) authenticationToken.getCredentials()).getX509Certificate().equals(x509Certificate);
     }
 
     private X509Certificate extractClientCertificate(HttpServletRequest request) {

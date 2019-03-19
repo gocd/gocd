@@ -17,16 +17,14 @@
 package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.ClearSingleton;
-import com.thoughtworks.go.http.mocks.HttpRequestBuilder;
-import com.thoughtworks.go.http.mocks.MockHttpServletRequest;
-import com.thoughtworks.go.http.mocks.MockHttpServletResponse;
-import com.thoughtworks.go.http.mocks.MockHttpServletResponseAssert;
+import com.thoughtworks.go.http.mocks.*;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.security.X509CertificateGenerator;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
 import com.thoughtworks.go.server.newsecurity.models.X509Credential;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
+import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.Rule;
 import org.junit.jupiter.api.Test;
@@ -62,7 +60,7 @@ public class X509AuthenticationFilterTest {
 
         new X509AuthenticationFilter(clock).doFilter(request, response, filterChain);
 
-        final AuthenticationToken<X509Credential> authentication = (AuthenticationToken<X509Credential>) SessionUtils.getAuthenticationToken(request);
+        final AuthenticationToken authentication = SessionUtils.getAuthenticationToken(request);
         assertThat(authentication.getUser().getUsername())
                 .isEqualTo("_go_agent_blah");
         assertThat(authentication.getUser().getAuthorities())
@@ -77,13 +75,13 @@ public class X509AuthenticationFilterTest {
         final MockHttpServletRequest request = HttpRequestBuilder.GET("/").build();
         new X509AuthenticationFilter(clock).doFilter(request, response, filterChain);
 
-        assertThat((AuthenticationToken) SessionUtils.getAuthenticationToken(request)).isNull();
+        assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
         verifyZeroInteractions(filterChain);
         assertThat(response.getStatus()).isEqualTo(403);
     }
 
     @Test
-    void shouldReauthenticateIfCredentialsAreProvidedInRequestEvenIfRequestWasPreviouslyAuthenticated() throws ServletException, IOException {
+    void shouldReauthenticateIfCredentialsAreProvidedInRequestEvenIfRequestWasPreviouslyAuthenticatedAsANormalUser() throws ServletException, IOException {
         final Registration registration = createRegistration("blah");
         final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
                 .withX509(registration.getChain())
@@ -94,9 +92,36 @@ public class X509AuthenticationFilterTest {
 
         new X509AuthenticationFilter(clock).doFilter(request, response, filterChain);
 
-        final AuthenticationToken<X509Credential> authentication = (AuthenticationToken<X509Credential>) SessionUtils.getAuthenticationToken(request);
+        final AuthenticationToken authentication = SessionUtils.getAuthenticationToken(request);
         assertThat(authentication.getUser().getUsername())
                 .isEqualTo("_go_agent_blah");
+        assertThat(authentication.getUser().getAuthorities())
+                .hasSize(1)
+                .contains(GoAuthority.ROLE_AGENT.asAuthority());
+        verify(filterChain).doFilter(request, response);
+        assertThat(response.getStatus()).isEqualTo(200);
+        assertThat(request.getSession(false)).isNotSameAs(originalSession);
+    }
+
+    @Test
+    void shouldReauthenticateIfCredentialsAreProvidedInRequestEvenIfRequestWasPreviouslyAuthenticatedUsingAStolenX509Certificate() throws ServletException, IOException {
+        final Registration registration = createRegistration("good");
+        GoUserPrinciple goodAgentPrinciple = new GoUserPrinciple("_go_agent_good", "");
+        X509Credential x509Credential = new X509Credential(registration.getFirstCertificate());
+        MockHttpSession originalSession = new MockHttpSession();
+        SessionUtils.setAuthenticationTokenWithoutRecreatingSession(new AuthenticationToken<>(goodAgentPrinciple, x509Credential, null, 0, null), HttpRequestBuilder.GET("/dont-care").withSession(originalSession).build());
+
+        final Registration anotherRegistration = createRegistration("reject-me");
+        final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
+                .withX509(anotherRegistration.getChain())
+                .withSession(originalSession)
+                .build();
+
+        new X509AuthenticationFilter(clock).doFilter(request, response, filterChain);
+
+        final AuthenticationToken authentication = SessionUtils.getAuthenticationToken(request);
+        assertThat(authentication.getUser().getUsername())
+                .isEqualTo("_go_agent_reject-me");
         assertThat(authentication.getUser().getAuthorities())
                 .hasSize(1)
                 .contains(GoAuthority.ROLE_AGENT.asAuthority());

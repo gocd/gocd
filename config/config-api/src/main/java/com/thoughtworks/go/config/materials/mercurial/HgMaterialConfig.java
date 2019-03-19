@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.HgUrlArgument;
-import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
@@ -54,7 +53,7 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
     }
 
     @Override
@@ -84,7 +83,7 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     @Override
     public String getUrl() {
-        return url != null ? url.rawUrl() : null;
+        return url != null ? url.originalArgument() : null;
     }
 
     @Override

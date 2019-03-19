@@ -95,6 +95,6 @@ public class MaterialExpansionServiceCachingTest {
         svn = (SvnCommand) goCache.get(cacheKey);
 
         assertNotNull(svn);
-        assertThat(svn.getUrl().rawUrl(), is(svnMaterialConfig.getUrl()));
+        assertThat(svn.getUrl().originalArgument(), is(svnMaterialConfig.getUrl()));
     }
 }

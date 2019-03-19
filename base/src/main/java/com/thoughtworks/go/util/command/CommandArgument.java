@@ -19,7 +19,7 @@ package com.thoughtworks.go.util.command;
 import java.io.Serializable;
 
 public abstract class CommandArgument implements Serializable {
-    public abstract String rawUrl();
+    public abstract String originalArgument();
 
     public abstract String forDisplay();
 
@@ -30,8 +30,8 @@ public abstract class CommandArgument implements Serializable {
     }
 
     public int hashCode() {
-        String rawUrl = this.rawUrl();
-        return rawUrl == null ? 0 : rawUrl.hashCode();
+        String originalArgument = this.originalArgument();
+        return originalArgument == null ? 0 : originalArgument.hashCode();
     }
 
     public boolean equals(Object that) {
@@ -42,14 +42,14 @@ public abstract class CommandArgument implements Serializable {
     }
 
     protected boolean equal(CommandArgument that) {
-        String rawUrl = this.rawUrl();
-        String othersRawUrl = that.rawUrl();
-        return rawUrl != null ? rawUrl.equals(othersRawUrl) : othersRawUrl == null;
+        String originalArgument = this.originalArgument();
+        String othersOriginalArgument = that.originalArgument();
+        return originalArgument != null ? originalArgument.equals(othersOriginalArgument) : othersOriginalArgument == null;
     }
 
     public String replaceSecretInfo(String line) {
-        if (rawUrl().length() > 0) {
-            line = line.replace(rawUrl(), forDisplay());
+        if (originalArgument().length() > 0) {
+            line = line.replace(originalArgument(), forDisplay());
         }
         return line;
     }

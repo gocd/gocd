@@ -27,7 +27,7 @@ public class StringArgument extends CommandArgument {
     }
 
     @Override
-    public String rawUrl() {
+    public String originalArgument() {
         return value;
     }
 
@@ -41,7 +41,7 @@ public class StringArgument extends CommandArgument {
 
     @Override
     public String forCommandLine() {
-        return rawUrl();
+        return originalArgument();
     }
 
     public static CommandArgument[] toArgs(Object... inputs) {

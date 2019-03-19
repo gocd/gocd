@@ -129,12 +129,12 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new GitMaterialInstance(url.rawUrl(), branch, submoduleFolder, UUID.randomUUID().toString());
+        return new GitMaterialInstance(url.originalArgument(), branch, submoduleFolder, UUID.randomUUID().toString());
     }
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put("branch", branch);
     }
 
@@ -280,7 +280,7 @@ public class GitMaterial extends ScmMaterial {
      * @deprecated Breaks encapsulation really badly. But we need it for IBatis :-(
      */
     public String getUrl() {
-        return url.rawUrl();
+        return url.originalArgument();
     }
 
     public UrlArgument getUrlArgument() {

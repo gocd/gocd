@@ -128,7 +128,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     public String getUrl() {
-        return url == null ? null : url.rawUrl();
+        return url == null ? null : url.originalArgument();
     }
 
     @Override
@@ -147,7 +147,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put(TfsMaterialConfig.DOMAIN, domain);
         parameters.put(TfsMaterialConfig.PROJECT_PATH, projectPath);
@@ -191,7 +191,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new TfsMaterialInstance(url.rawUrl(), userName, domain, projectPath, UUID.randomUUID().toString());
+        return new TfsMaterialInstance(url.originalArgument(), userName, domain, projectPath, UUID.randomUUID().toString());
     }
 
     public String getTypeForDisplay() {
@@ -204,7 +204,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         materialMap.put("type", "tfs");
         Map<String, Object> configurationMap = new HashMap<>();
         if (addSecureFields) {
-            configurationMap.put("url", url.rawUrl());
+            configurationMap.put("url", url.originalArgument());
         } else {
             configurationMap.put("url", url.forDisplay());
         }

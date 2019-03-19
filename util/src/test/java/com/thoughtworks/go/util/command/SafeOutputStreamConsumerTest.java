@@ -38,7 +38,7 @@ public class SafeOutputStreamConsumerTest {
     private CommandArgument commandArgumentWhichHasASecret(final String secret) {
         return new CommandArgument() {
             @Override
-            public String rawUrl() {
+            public String originalArgument() {
                 return secret;
             }
 
@@ -49,7 +49,7 @@ public class SafeOutputStreamConsumerTest {
 
             @Override
             public String forCommandLine() {
-                return rawUrl();
+                return originalArgument();
             }
         };
     }

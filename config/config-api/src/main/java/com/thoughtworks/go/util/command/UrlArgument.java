@@ -1,18 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
+ */
 
 package com.thoughtworks.go.util.command;
 
@@ -47,7 +47,7 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
     }
 
     @Override
-    public String rawUrl() {
+    public String originalArgument() {
         return url;
     }
 
@@ -71,7 +71,7 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
 
     @Override
     public String forCommandLine() {
-        return secretParams.substitute(this.rawUrl());
+        return secretParams.substitute(this.originalArgument());
     }
 
     protected String sanitizeUrl() {
@@ -116,7 +116,7 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
     }
 
     public String replaceSecretInfo(String line) {
-        if (rawUrl().length() > 0) {
+        if (originalArgument().length() > 0) {
             line = line.replace(hostInfoForCommandline(), hostInfoForDisplay());
         }
 
@@ -127,13 +127,13 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
     public boolean equal(CommandArgument that) {
         //BUG #3276 - on windows svn info includes a password in svn+ssh
         if (url.startsWith("svn+ssh")) {
-            return this.rawUrl().equals(that.rawUrl());
+            return this.originalArgument().equals(that.originalArgument());
         }
         return cleanPath(this).equals(cleanPath(that));
     }
 
     private String cleanPath(CommandArgument commandArgument) {
-        String path = commandArgument.rawUrl();
+        String path = commandArgument.originalArgument();
         if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
@@ -142,8 +142,7 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
 
     public String withoutCredentials() {
         try {
-            URI uri = null;
-            uri = new URI(forDisplay());
+            URI uri = new URI(forDisplay());
             uri = new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
             return uri.toString();
         } catch (URISyntaxException e) {

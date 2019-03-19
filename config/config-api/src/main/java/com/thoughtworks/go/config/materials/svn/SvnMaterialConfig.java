@@ -190,7 +190,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     public String getUrl() {
-        return url != null ? url.rawUrl() : null;
+        return url != null ? url.originalArgument() : null;
     }
 
     @Override
@@ -236,7 +236,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     protected void appendCriteria(Map parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put("checkExternals", checkExternals);
     }

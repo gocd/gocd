@@ -36,7 +36,7 @@ public class PasswordArgument extends CommandArgument implements SecretString {
     }
 
     @Override
-    public String rawUrl() {
+    public String originalArgument() {
         return secret == null ? "" : secret;
     }
 }

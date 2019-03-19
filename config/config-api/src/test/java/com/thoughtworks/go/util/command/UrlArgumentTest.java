@@ -38,7 +38,7 @@ class UrlArgumentTest {
     class rawUrl {
         @Test
         void shouldReturnStringValue() {
-            assertThat(argument.rawUrl()).isEqualTo(URL_WITH_PASSWORD);
+            assertThat(argument.originalArgument()).isEqualTo(URL_WITH_PASSWORD);
         }
     }
 

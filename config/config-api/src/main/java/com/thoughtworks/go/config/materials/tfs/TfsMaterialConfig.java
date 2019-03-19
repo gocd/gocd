@@ -149,7 +149,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     public String getUrl() {
-        return url != null ? url.rawUrl() : null;
+        return url != null ? url.originalArgument() : null;
     }
 
     @Override
@@ -202,7 +202,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put(DOMAIN, domain);
         parameters.put(PROJECT_PATH, projectPath);

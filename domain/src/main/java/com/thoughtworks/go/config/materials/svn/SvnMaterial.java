@@ -73,7 +73,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public SvnMaterial(Subversion svn) {
-        this(svn.getUrl().rawUrl(), svn.getUserName(), svn.getPassword(), svn.isCheckExternals());
+        this(svn.getUrl().originalArgument(), svn.getUserName(), svn.getPassword(), svn.isCheckExternals());
         this.svnLazyLoaded = svn;
     }
 
@@ -122,12 +122,12 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new SvnMaterialInstance(url.rawUrl(), userName, UUID.randomUUID().toString(), checkExternals);
+        return new SvnMaterialInstance(url.originalArgument(), userName, UUID.randomUUID().toString(), checkExternals);
     }
 
     @Override
     protected void appendCriteria(Map parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put("checkExternals", checkExternals);
     }
@@ -263,7 +263,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public String getUrl() {
-        return url == null ? null : url.rawUrl();
+        return url == null ? null : url.originalArgument();
     }
 
     @Override

@@ -80,7 +80,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put("branch", branch);
     }
 
@@ -93,7 +93,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     public String getUrl() {
-        return url != null ? url.rawUrl() : null;
+        return url != null ? url.originalArgument() : null;
     }
 
     @Override

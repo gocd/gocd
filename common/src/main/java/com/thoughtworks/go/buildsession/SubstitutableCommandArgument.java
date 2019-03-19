@@ -27,7 +27,7 @@ public class SubstitutableCommandArgument extends CommandArgument {
     }
 
     @Override
-    public String rawUrl() {
+    public String originalArgument() {
         return argument;
     }
 
@@ -38,6 +38,6 @@ public class SubstitutableCommandArgument extends CommandArgument {
 
     @Override
     public String forCommandLine() {
-        return rawUrl();
+        return originalArgument();
     }
 }

@@ -95,12 +95,12 @@ public class HgMaterial extends ScmMaterial {
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new HgMaterialInstance(url.rawUrl(), UUID.randomUUID().toString());
+        return new HgMaterialInstance(url.originalArgument(), UUID.randomUUID().toString());
     }
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.rawUrl());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
     }
 
     @Override
@@ -239,7 +239,7 @@ public class HgMaterial extends ScmMaterial {
     }
 
     public String getUrl() {
-        return url.rawUrl();
+        return url.originalArgument();
     }
 
     public UrlArgument getUrlArgument() {
@@ -323,7 +323,7 @@ public class HgMaterial extends ScmMaterial {
     }
 
     public String getBranch() {
-        return getBranchFromUrl(url.rawUrl());
+        return getBranchFromUrl(url.originalArgument());
     }
 
     private String getBranchFromUrl(String url) {

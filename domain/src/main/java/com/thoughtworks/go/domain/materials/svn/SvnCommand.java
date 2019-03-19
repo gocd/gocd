@@ -206,7 +206,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
     }
 
     public String getUserName() {
-        return userName.rawUrl();
+        return userName.originalArgument();
     }
 
     public String getPassword() {
@@ -247,9 +247,9 @@ public class SvnCommand extends SCMCommand implements Subversion {
     }
 
     private void addCredentials(CommandLine line, StringArgument svnUserName, PasswordArgument svnPassword) {
-        if (!StringUtils.isBlank(svnUserName.rawUrl())) {
-            line.withArgs("--username", svnUserName.rawUrl());
-            if (!StringUtils.isBlank(svnPassword.rawUrl())) {
+        if (!StringUtils.isBlank(svnUserName.originalArgument())) {
+            line.withArgs("--username", svnUserName.originalArgument());
+            if (!StringUtils.isBlank(svnPassword.originalArgument())) {
                 line.withArg("--password");
                 line.withArg(svnPassword);
             }

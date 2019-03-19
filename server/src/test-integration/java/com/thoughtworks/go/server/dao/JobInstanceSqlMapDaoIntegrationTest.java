@@ -30,6 +30,7 @@ import com.thoughtworks.go.helper.BuildPlanMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
 import com.thoughtworks.go.helper.PipelineMother;
 import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.messaging.JobStatusListener;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.ScheduleService;
@@ -62,12 +63,7 @@ import static com.thoughtworks.go.server.dao.PersistentObjectMatchers.hasSameId;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.Matchers.hasProperty;
-import static org.hamcrest.Matchers.hasItemInArray;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -100,6 +96,8 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     private GoConfigDao goConfigDao;
     @Autowired
     private InstanceFactory instanceFactory;
+    @Autowired
+    private JobStatusListener jobStatusListener;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -441,10 +439,7 @@ public class JobInstanceSqlMapDaoIntegrationTest {
         assertThat(jobPlanFromDb.getVariables(), is(jobPlan.getVariables()));
         assertThat(jobPlanFromDb.getElasticProfile(), is(jobPlan.getElasticProfile()));
 
-        Date completionDate = new Date();
-        jobInstance.completing(JobResult.Passed, completionDate);
-        jobInstance.completed(completionDate);
-        jobInstanceDao.updateStateAndResult(jobInstance);
+        jobInstanceDao.deleteJobPlanAssociatedEntities(jobInstance);
         jobPlanFromDb = jobInstanceDao.loadPlan(jobInstance.getId());
 
         assertThat(jobPlanFromDb.getArtifactPlans().size(), is(2));

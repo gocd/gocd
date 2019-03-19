@@ -267,7 +267,9 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         }
     }
 
-    private void deleteJobPlanAssociatedEntities(JobInstance job) {
+    //delete all job plan associated entities on job completion
+    //this will be called from Job Status Listener when Job is completed.
+    public void deleteJobPlanAssociatedEntities(JobInstance job) {
         JobPlan jobPlan = loadPlan(job.getId());
         environmentVariableDao.deleteAll(jobPlan.getVariables());
         artifactPlanRepository.deleteAll(jobPlan.getArtifactPlansOfType(ArtifactPlanType.file));
@@ -423,10 +425,6 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
             return null;
         });
         saveTransitions(jobInstance);
-
-        if (jobInstance.isCompleted()) {
-            deleteJobPlanAssociatedEntities(jobInstance);
-        }
     }
 
     private void updateResult(JobInstance job) {

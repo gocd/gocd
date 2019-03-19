@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import com.thoughtworks.go.server.service.StageService;
@@ -49,7 +50,7 @@ import static org.mockito.Mockito.*;
         "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
-public class JobStatusListenerTest {
+public class JobStatusListenerIntegrationTest {
     @Autowired
     private StageService stageService;
     @Autowired
@@ -62,6 +63,8 @@ public class JobStatusListenerTest {
     private GoCache goCache;
     @Autowired
     private ElasticAgentPluginService elasticAgentPluginService;
+    @Autowired
+    private JobInstanceSqlMapDao jobInstanceSqlMapDao;
 
     private static final String PIPELINE_NAME = "mingle";
     private static final String STAGE_NAME = "dev";
@@ -103,7 +106,7 @@ public class JobStatusListenerTest {
     public void shouldSendStageCompletedMessage() {
         final ElasticAgentPluginService spyOfElasticAgentPluginService = spy(this.elasticAgentPluginService);
         dbHelper.pass(savedPipeline);
-        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, spyOfElasticAgentPluginService);
+        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, spyOfElasticAgentPluginService, jobInstanceSqlMapDao);
         final StageStatusMessage stagePassed = new StageStatusMessage(jobIdentifier.getStageIdentifier(), StageState.Passed, StageResult.Passed);
 
         listener.onMessage(new JobStatusMessage(jobIdentifier, JobState.Completed, AGENT1.getUuid()));
@@ -116,7 +119,7 @@ public class JobStatusListenerTest {
         final ElasticAgentPluginService spyOfElasticAgentPluginService = spy(this.elasticAgentPluginService);
         dbHelper.pass(savedPipeline);
 
-        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, spyOfElasticAgentPluginService);
+        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, spyOfElasticAgentPluginService, jobInstanceSqlMapDao);
 
         listener.onMessage(new JobStatusMessage(jobIdentifier, JobState.Building, AGENT1.getUuid()));
 
@@ -127,7 +130,7 @@ public class JobStatusListenerTest {
     @Test
     public void shouldSendStageCompletedMessageForCancelledStage() {
         dbHelper.cancelStage(savedPipeline.getStages().get(0));
-        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, mock(ElasticAgentPluginService.class));
+        listener = new JobStatusListener(new JobStatusTopic(null), stageService, stageStatusTopic, mock(ElasticAgentPluginService.class), jobInstanceSqlMapDao);
         final StageStatusMessage stageCancelled = new StageStatusMessage(jobIdentifier.getStageIdentifier(), StageState.Cancelled, StageResult.Cancelled);
 
         listener.onMessage(new JobStatusMessage(jobIdentifier, JobState.Completed, AGENT1.getUuid()));

@@ -48,7 +48,7 @@ public class HgMaterialUpdater {
     }
 
     private BuildCommand pull(String workingDir) {
-        return exec("hg", "pull", "-b", material.getBranch(), "--config", String.format("paths.default=%s", material.getUrl())).
+        return exec("hg", "pull", "-b", material.getBranch(), "--config", String.format("paths.default=%s", material.urlForCommandLine())).
                 setWorkingDirectory(workingDir);
     }
 
@@ -90,6 +90,6 @@ public class HgMaterialUpdater {
     }
 
     private BuildCommand cmdClone(String workingDir) {
-        return exec("hg", "clone", "-b", this.material.getBranch(), material.getUrl(), workingDir);
+        return exec("hg", "clone", "-b", this.material.getBranch(), material.urlForCommandLine(), workingDir);
     }
 }

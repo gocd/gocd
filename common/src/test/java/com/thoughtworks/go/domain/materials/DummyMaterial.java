@@ -44,6 +44,11 @@ public final class DummyMaterial extends ScmMaterial {
     }
 
     @Override
+    public String urlForCommandLine() {
+        return url;
+    }
+
+    @Override
     protected UrlArgument getUrlArgument() {
         return new UrlArgument(url);
     }

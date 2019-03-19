@@ -132,6 +132,11 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     @Override
+    public String urlForCommandLine() {
+        return url.forCommandLine();
+    }
+
+    @Override
     protected UrlArgument getUrlArgument() {
         return url;
     }

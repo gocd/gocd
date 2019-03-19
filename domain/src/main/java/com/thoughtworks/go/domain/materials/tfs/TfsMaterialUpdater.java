@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.RevisionContext;
-import com.thoughtworks.go.util.MapBuilder;
 
 import java.io.File;
 import java.util.Map;
@@ -52,7 +51,7 @@ public class TfsMaterialUpdater {
                 "password", material.getPassword(),
                 "domain", material.getDomain(),
                 "projectPath",  material.getProjectPath(),
-                "url", material.getUrl(),
+                "url", material.urlForCommandLine(),
                 "revision", revision.getRevision());
         return plugin(properties).setWorkingDirectory(workingDir);
     }

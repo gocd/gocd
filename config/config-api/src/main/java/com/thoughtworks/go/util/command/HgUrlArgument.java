@@ -30,12 +30,14 @@ public class HgUrlArgument extends UrlArgument {
         super(url);
     }
 
-    protected String uriToDisplay(URI uri) {
-        return uri.toString().replace(SINGLE_HASH, DOUBLE_HASH);
+
+    @Override
+    public String forDisplay() {
+        return super.forDisplay().replace(SINGLE_HASH, DOUBLE_HASH);
     }
 
     protected String sanitizeUrl() {
-        return url.replace(DOUBLE_HASH, SINGLE_HASH);
+        return super.sanitizeUrl().replace(DOUBLE_HASH, SINGLE_HASH);
     }
 
     private String removePassword(String userInfo) {

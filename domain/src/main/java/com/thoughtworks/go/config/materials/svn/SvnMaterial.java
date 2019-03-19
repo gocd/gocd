@@ -262,8 +262,14 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return svn().checkConnection();
     }
 
+    @Override
     public String getUrl() {
         return url == null ? null : url.originalArgument();
+    }
+
+    @Override
+    public String urlForCommandLine() {
+        return url.forCommandLine();
     }
 
     @Override

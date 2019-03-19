@@ -24,10 +24,10 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.util.SvnLogXmlParser;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -279,7 +279,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         for (SvnMaterial svnMaterial : svnMaterials) {
             CommandLine command = svnExecutable().withArgs("info", "--xml");
             addCredentials(command, new StringArgument(svnMaterial.getUserName()), new PasswordArgument(svnMaterial.getPassword()));
-            final String queryUrl = svnMaterial.getUrl();
+            final String queryUrl = svnMaterial.urlForCommandLine();
             command.withArg(queryUrl);
             ConsoleResult consoleResult = null;
             try {

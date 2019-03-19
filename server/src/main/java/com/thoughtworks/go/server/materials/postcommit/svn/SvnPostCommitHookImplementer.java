@@ -16,24 +16,26 @@
 
 package com.thoughtworks.go.server.materials.postcommit.svn;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
 
     static final String UUID = "uuid";
 
-    @Override public Set<Material> prune(Set<Material> materials, Map params) {
+    @Override
+    public Set<Material> prune(Set<Material> materials, Map params) {
         final HashSet<Material> prunedMaterials = new HashSet<>();
         if (params.containsKey(UUID)) {
             final String targetUUID = (String) params.get(UUID);
+
             final HashMap<String, String> urlToRemoteUUIDMap = createUrlToRemoteUUIDMap(materials);
             for (Material material : materials) {
                 if (material instanceof SvnMaterial && isQualified(targetUUID, (SvnMaterial) material, urlToRemoteUUIDMap)) {
@@ -45,8 +47,8 @@ public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
     }
 
     boolean isQualified(String incomingUUID, SvnMaterial material, HashMap urlToUUIDMap) {
-        if (urlToUUIDMap.containsKey(material.getUrl())) {
-            final String remoteUUID = (String) urlToUUIDMap.get(material.getUrl());
+        if (urlToUUIDMap.containsKey(material.urlForCommandLine())) {
+            final String remoteUUID = (String) urlToUUIDMap.get(material.urlForCommandLine());
             return incomingUUID.equals(remoteUUID);
         }
         return false;

@@ -192,7 +192,13 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return false;
     }
 
+    @Override
     public String getUrl() {
+        return serverAndPort;
+    }
+
+    @Override
+    public String urlForCommandLine() {
         return serverAndPort;
     }
 

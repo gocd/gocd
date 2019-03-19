@@ -30,108 +30,108 @@ import static com.thoughtworks.go.domain.BuildCommand.*;
 import static java.lang.String.format;
 
 public class SvnMaterialUpdater {
-   private SvnMaterial material;
+    private SvnMaterial material;
 
-   public SvnMaterialUpdater(SvnMaterial material) {
-      this.material = material;
-   }
-
-   public BuildCommand updateTo(String baseDir, RevisionContext revisionContext) {
-      Revision revision = revisionContext.getLatestRevision();
-      String workingDir = material.workingdir(new File(baseDir)).getPath();
-      UrlArgument url = material.getUrlArgument();
-
-      return compose(
-              echoWithPrefix(format("Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay())),
-              secret(url.forCommandLine(), url.forDisplay()),
-              secret(material.getPassword(), "*********************"),
-              cleanupAndUpdate(workingDir, revision).setTest(shouldDoCleanupAndUpdate(workingDir)),
-              freshCheckout(workingDir, revision).setTest(isNotRepository(workingDir)),
-              freshCheckout(workingDir, revision).setTest(test("-nd", workingDir)),
-              freshCheckout(workingDir, revision).setTest(repoUrlChanged(workingDir)),
-              echoWithPrefix(format("Done.\n"))
-      );
-   }
-
-   private BuildCommand freshCheckout(String workingDir, Revision revision) {
-      return compose(
-              echoWithPrefix("Checking out a fresh copy"),
-              cleandir(workingDir).setTest(test("-d", workingDir)),
-              mkdirs(workingDir).setTest(test("-nd", workingDir)),
-              checkout(workingDir, revision)
-      );
-   }
-
-   private BuildCommand checkout(String workingDir, Revision revision) {
-       ArrayList<String> args = new ArrayList<>();
-       addCredentials(args);
-       args.add("checkout");
-       args.add("--non-interactive");
-       args.add("-r");
-       args.add(revision.getRevision());
-       args.add(material.getUrlArgument().forCommandLine());
-       args.add(workingDir);
-       return exec("svn", args.toArray(new String[args.size()]));
-   }
-
-   private BuildCommand update(String workingDir, Revision revision) {
-       ArrayList<String> args  = new ArrayList<>();
-       addCredentials(args);
-       args.add("update");
-       args.add("--non-interactive");
-       args.add("-r");
-       args.add(revision.getRevision());
-       args.add(workingDir);
-       return exec("svn", args.toArray(new String[args.size()]));
-   }
-
-   private void addCredentials(ArrayList<String> argList) {
-       String userName = material.getUserName();
-       if (!StringUtils.isBlank(userName)) {
-           argList.add("--username");
-           argList.add(userName);
-           if (!StringUtils.isBlank(material.getPassword())) {
-               argList.add("--password");
-               argList.add(material.getPassword());
-           }
-       }
-   }
-
-   private BuildCommand cleanupAndUpdate(String workingDir, Revision revision) {
-      return compose(
-              echo("[SVN] Cleaning up working directory %s", workingDir),
-              exec("svn", "cleanup", workingDir),
-              exec("svn", "revert", "--recursive", workingDir),
-              echo("[SVN] Updating working copy to revision %s", revision.getRevision()),
-              update(workingDir, revision)
-      );
-   }
-
-   private BuildCommand shouldDoCleanupAndUpdate(String workingDir) {
-      return compose(
-              test("-d", workingDir),
-              isRepository(workingDir),
-              repoUrlUnchanged(workingDir)
-      );
-   }
-
-   private BuildCommand info(String workingDir) {
-      return exec("svn", "info", "--non-interactive").setWorkingDirectory(workingDir);
-   }
-
-   private BuildCommand repoUrlChanged(String workingDir) {
-       return test("-nin", material.getUrl(), info(workingDir));
-   }
-
-    private BuildCommand repoUrlUnchanged(String workingDir) {
-        return test("-in", material.getUrl(), info(workingDir));
+    public SvnMaterialUpdater(SvnMaterial material) {
+        this.material = material;
     }
 
-   private BuildCommand isRepository(String workingDir) {
-      return test("-d", new File(workingDir, ".svn").getPath());
-   }
+    public BuildCommand updateTo(String baseDir, RevisionContext revisionContext) {
+        Revision revision = revisionContext.getLatestRevision();
+        String workingDir = material.workingdir(new File(baseDir)).getPath();
+        UrlArgument url = material.getUrlArgument();
 
-   private BuildCommand isNotRepository(String workingDir) {
-      return test("-nd", new File(workingDir, ".svn").getPath());
-   }
+        return compose(
+                echoWithPrefix(format("Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay())),
+                secret(url.forCommandLine(), url.forDisplay()),
+                secret(material.getPassword(), "*********************"),
+                cleanupAndUpdate(workingDir, revision).setTest(shouldDoCleanupAndUpdate(workingDir)),
+                freshCheckout(workingDir, revision).setTest(isNotRepository(workingDir)),
+                freshCheckout(workingDir, revision).setTest(test("-nd", workingDir)),
+                freshCheckout(workingDir, revision).setTest(repoUrlChanged(workingDir)),
+                echoWithPrefix(format("Done.\n"))
+        );
+    }
+
+    private BuildCommand freshCheckout(String workingDir, Revision revision) {
+        return compose(
+                echoWithPrefix("Checking out a fresh copy"),
+                cleandir(workingDir).setTest(test("-d", workingDir)),
+                mkdirs(workingDir).setTest(test("-nd", workingDir)),
+                checkout(workingDir, revision)
+        );
+    }
+
+    private BuildCommand checkout(String workingDir, Revision revision) {
+        ArrayList<String> args = new ArrayList<>();
+        addCredentials(args);
+        args.add("checkout");
+        args.add("--non-interactive");
+        args.add("-r");
+        args.add(revision.getRevision());
+        args.add(material.getUrlArgument().forCommandLine());
+        args.add(workingDir);
+        return exec("svn", args.toArray(new String[args.size()]));
+    }
+
+    private BuildCommand update(String workingDir, Revision revision) {
+        ArrayList<String> args = new ArrayList<>();
+        addCredentials(args);
+        args.add("update");
+        args.add("--non-interactive");
+        args.add("-r");
+        args.add(revision.getRevision());
+        args.add(workingDir);
+        return exec("svn", args.toArray(new String[args.size()]));
+    }
+
+    private void addCredentials(ArrayList<String> argList) {
+        String userName = material.getUserName();
+        if (!StringUtils.isBlank(userName)) {
+            argList.add("--username");
+            argList.add(userName);
+            if (!StringUtils.isBlank(material.getPassword())) {
+                argList.add("--password");
+                argList.add(material.getPassword());
+            }
+        }
+    }
+
+    private BuildCommand cleanupAndUpdate(String workingDir, Revision revision) {
+        return compose(
+                echo("[SVN] Cleaning up working directory %s", workingDir),
+                exec("svn", "cleanup", workingDir),
+                exec("svn", "revert", "--recursive", workingDir),
+                echo("[SVN] Updating working copy to revision %s", revision.getRevision()),
+                update(workingDir, revision)
+        );
+    }
+
+    private BuildCommand shouldDoCleanupAndUpdate(String workingDir) {
+        return compose(
+                test("-d", workingDir),
+                isRepository(workingDir),
+                repoUrlUnchanged(workingDir)
+        );
+    }
+
+    private BuildCommand info(String workingDir) {
+        return exec("svn", "info", "--non-interactive").setWorkingDirectory(workingDir);
+    }
+
+    private BuildCommand repoUrlChanged(String workingDir) {
+        return test("-nin", material.urlForCommandLine(), info(workingDir));
+    }
+
+    private BuildCommand repoUrlUnchanged(String workingDir) {
+        return test("-in", material.urlForCommandLine(), info(workingDir));
+    }
+
+    private BuildCommand isRepository(String workingDir) {
+        return test("-d", new File(workingDir, ".svn").getPath());
+    }
+
+    private BuildCommand isNotRepository(String workingDir) {
+        return test("-nd", new File(workingDir, ".svn").getPath());
+    }
 }

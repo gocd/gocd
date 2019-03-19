@@ -238,8 +238,14 @@ public class HgMaterial extends ScmMaterial {
         return false;
     }
 
+    @Override
     public String getUrl() {
         return url.originalArgument();
+    }
+
+    @Override
+    public String urlForCommandLine() {
+        return url.forCommandLine();
     }
 
     public UrlArgument getUrlArgument() {

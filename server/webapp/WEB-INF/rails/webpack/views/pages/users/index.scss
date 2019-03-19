@@ -71,9 +71,9 @@ $selected-table-row: #e2f7fa;
 .filter-dropdown-content {
   @include dropdownContent();
   z-index: map_get($zindex, 'users-management-filter');
-  top:   36px;
-  right: 0;
-  width: 570px;
+  top:     36px;
+  right:   0;
+  width:   570px;
 }
 
 .roles-dropdown-content {
@@ -172,20 +172,21 @@ $selected-table-row: #e2f7fa;
   border-radius: $global-border-radius $global-border-radius 0 0;
 }
 
-.fl-tbl-header {
+.table-header {
   background:    $secondary-bg;
   border-radius: $global-border-radius $global-border-radius 0 0;
 }
 
-.fl-head {
+.table-head {
   padding:        10px;
   text-transform: uppercase;
   text-align:     left;
   font-weight:    600;
 }
 
-.fl-row {
+.table-row {
   border-bottom: 1px solid $border-color;
+  height:        45px;
 
   &.selected {
     background: $selected-table-row;
@@ -193,15 +194,16 @@ $selected-table-row: #e2f7fa;
 
 }
 
-.fl-tbl-header, .fl-row {
+.table-header, .table-row {
   display:     flex;
   align-items: center;
   width:       100%;
   flex-grow:   1;
   box-sizing:  border-box;
+  font-weight: 600;
 }
 
-.fl-head, .fl-cell {
+.table-head, .table-cell {
   display:         flex;
   flex-wrap:       Wrap;
   justify-content: flex-start;
@@ -262,6 +264,10 @@ $selected-table-row: #e2f7fa;
 
 .icon-check {
   @include icon-before($type: $fa-var-check, $color: $go-green);
+
+  &:before {
+    margin: 0 5px;
+  }
 }
 
 .icon-error {

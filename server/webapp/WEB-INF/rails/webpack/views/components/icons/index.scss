@@ -29,6 +29,7 @@ $btn-group-border-radius: $global-border-radius;
   color:         $icon-color;
   transition:    $transition;
   background:    $icon-bg;
+
   &:hover {
     color:      lighten($icon-color, 100%);
     transition: $transition;
@@ -43,6 +44,7 @@ $btn-group-border-radius: $global-border-radius;
 .disabled {
   opacity: 0.75;
   cursor:  not-allowed;
+
   &:hover {
     color:      $icon-color;
     background: $icon-bg;
@@ -125,14 +127,17 @@ $btn-group-border-radius: $global-border-radius;
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;
   display:       inline-flex;
+
   .btn-icon {
     border:        none;
     border-left:   1px solid $border-color;
     border-radius: 0;
+
     &:first-child {
       border-left:   none;
       border-radius: $btn-group-border-radius 0 0 $btn-group-border-radius;
     }
+
     &:last-child {
       border-radius: 0 $btn-group-border-radius $btn-group-border-radius 0;
     }

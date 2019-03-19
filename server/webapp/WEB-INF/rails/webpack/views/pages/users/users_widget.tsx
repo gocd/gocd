@@ -58,10 +58,10 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (
       <div className={styles.flexTable} data-test-id="users-table">
-        <div className={styles.flTblHeader} data-test-id="users-header">
+        <div className={styles.tableHeader} data-test-id="users-header">
           {
             _.map(UsersTableWidget.headers(vnode.attrs.users() as Users), (header) => {
-              return <div className={styles.flHead}>{header}</div>;
+              return <div className={styles.tableHead}>{header}</div>;
             })
           }
         </div>
@@ -72,32 +72,32 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
               const selectedRow = (user.checked() ? styles.selected : "");
 
               return [
-                <div className={classnames(styles.flRow, selectedRow, className)} data-test-id="user-row">
-                  <div className={styles.flCell}>
+                <div className={classnames(styles.tableRow, selectedRow, className)} data-test-id="user-row">
+                  <div className={styles.tableCell}>
                     <input type="checkbox" className={styles.formCheck}
                            checked={user.checked()}
                            onclick={m.withAttr("checked", user.checked)}/>
                   </div>
-                  <div className={styles.flCell} data-test-id="user-username">
+                  <div className={styles.tableCell} data-test-id="user-username">
                     <span>{user.loginName()}</span>
                   </div>
-                  <div className={styles.flCell} data-test-id="user-display-name">
+                  <div className={styles.tableCell} data-test-id="user-display-name">
                     <span>{user.displayName()}</span>
                   </div>
-                  <div className={styles.flCell} data-test-id="user-roles">
+                  <div className={styles.tableCell} data-test-id="user-roles">
                     <span>{UsersTableWidget.roles(user)}</span>
                   </div>
-                  <div className={classnames(styles.flCell, styles.systemAdminCell)}
+                  <div className={classnames(styles.tableCell, styles.systemAdminCell)}
                        data-test-id="user-super-admin-switch">
                     <SuperAdminPrivilegeSwitch user={user}
                                                userViewHelper={vnode.attrs.userViewHelper}
                                                onToggleAdmin={vnode.attrs.onToggleAdmin}/>
                     {this.maybeShowOperationStatusIcon(vnode, user)}
                   </div>
-                  <div className={styles.flCell} data-test-id="user-email">
+                  <div className={styles.tableCell} data-test-id="user-email">
                     <span>{user.email()}</span>
                   </div>
-                  <div className={styles.flCell} data-test-id="user-enabled">
+                  <div className={styles.tableCell} data-test-id="user-enabled">
                     <span>{user.enabled() ? "Yes" : "No"}</span>
                   </div>
                 </div>,
@@ -111,7 +111,7 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
 
   maybeShowOperationErrorMessage(vnode: m.Vnode<Attrs>, user: User) {
     if (vnode.attrs.userViewHelper().hasError(user)) {
-      return <div className={classnames(styles.flRow)}>
+      return <div className={classnames(styles.tableRow)}>
         <div className={styles.alertError} data-test-id="user-update-error-message">
           <p>{vnode.attrs.userViewHelper().errorMessageFor(user)}</p>
         </div>

@@ -16,9 +16,12 @@
 
 package com.thoughtworks.go.config.materials.perforce;
 
+import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.perforce.P4Fixture;
+import com.thoughtworks.go.domain.materials.perforce.P4MaterialUpdater;
 import com.thoughtworks.go.helper.P4TestRepo;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -26,6 +29,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 class P4MaterialUpdaterTest extends P4MaterialUpdaterTestBase {
     @BeforeEach
@@ -53,5 +57,20 @@ class P4MaterialUpdaterTest extends P4MaterialUpdaterTestBase {
         material.setPassword("wubba lubba dub dub");
         updateTo(material, new RevisionContext(REVISION_2), JobResult.Passed);
         assertThat(console.output()).doesNotContain("wubba lubba dub dub");
+    }
+
+    @Test
+    void shouldUsePasswordForCommandLineWhileBuildingAnCommand() {
+        P4Material material = p4Fixture.material(VIEW);
+        material.setPassword("#{SECRET[secret_config_id][lookup_pass]}");
+
+        material.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
+
+        final BuildCommand buildCommand = new P4MaterialUpdater(material).updateTo("baseDir", new RevisionContext(mock(Revision.class)));
+
+        assertThat(buildCommand.dump())
+                .contains("resolved_password")
+                .doesNotContain("#{SECRET[secret_config_id][lookup_pass]}");
+
     }
 }

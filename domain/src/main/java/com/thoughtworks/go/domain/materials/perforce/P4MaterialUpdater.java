@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class P4MaterialUpdater {
         this.clientName = material.clientName(new File(workingDir));
 
         return compose(
-                secret(material.getPassword()),
+                secret(material.passwordForCommandLine()),
                 loginIfUsingTickets(),
                 constructClient(workingDir, clientName),
                 cleanWorkingDir(workingDir),
@@ -56,11 +56,12 @@ public class P4MaterialUpdater {
     }
 
     private BuildCommand loginIfUsingTickets() {
-        if (material.getUseTickets() && !StringUtils.isBlank(material.getPassword())) {
-           return exec("p4", "login").setExecInput(material.getPassword()).setCommandEnvVars(envVars());
-       } else {
-           return noop();
-       }
+        final String passwordForCommandLine = material.passwordForCommandLine();
+        if (material.getUseTickets() && !StringUtils.isBlank(passwordForCommandLine)) {
+            return exec("p4", "login").setExecInput(passwordForCommandLine).setCommandEnvVars(envVars());
+        } else {
+            return noop();
+        }
     }
 
     private Map<String, String> envVars() {
@@ -70,8 +71,9 @@ public class P4MaterialUpdater {
         if (!StringUtils.isBlank(material.getUserName())) {
             env.put("P4USER", material.getUserName());
         }
-        if (!material.getUseTickets() && !StringUtils.isBlank(material.getPassword())) {
-            env.put("P4PASSWD", material.getPassword());
+        final String passwordForCommandLine = material.passwordForCommandLine();
+        if (!material.getUseTickets() && !StringUtils.isBlank(passwordForCommandLine)) {
+            env.put("P4PASSWD", passwordForCommandLine);
         }
         return env;
     }

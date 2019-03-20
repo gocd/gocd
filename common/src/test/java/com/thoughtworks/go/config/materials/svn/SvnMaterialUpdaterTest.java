@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.materials.svn;
 
 import com.thoughtworks.go.buildsession.BuildSession;
 import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
+import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.svn.SubversionRevision;
@@ -115,6 +116,21 @@ class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
         updateTo(material, new RevisionContext(revision), JobResult.Failed);
         assertThat(console.output()).contains("https://foo:******@thisdoesnotexist.io/repo");
         assertThat(console.output()).doesNotContain("foopassword");
+    }
+
+    @Test
+    void shouldUsePasswordForCommandLineWhileBuildingAnCommand() {
+        SvnMaterial svnMaterial = MaterialsMother.svnMaterial("https://foo:foopassword@thisdoesnotexist.io/repo");
+        svnMaterial.setPassword("#{SECRET[secret_config_id][lookup_pass]}");
+
+        svnMaterial.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
+
+        final BuildCommand buildCommand = new SvnMaterialUpdater(svnMaterial).updateTo(workingDir.toString(), new RevisionContext(revision));
+
+        assertThat(buildCommand.dump())
+                .contains("resolved_password")
+                .doesNotContain("#{SECRET[secret_config_id][lookup_pass]}");
+
     }
 
     private void updateTo(SvnMaterial material, RevisionContext revisionContext, JobResult expectedResult) {

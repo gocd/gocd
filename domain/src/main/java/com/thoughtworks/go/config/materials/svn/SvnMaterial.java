@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     private final GoCipher goCipher;
     public static final String TYPE = "SvnMaterial";
+    private SecretParams secretParamsForPassword;
 
     private SvnMaterial(GoCipher goCipher) {
         super("SvnMaterial");
@@ -108,7 +109,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     private Subversion svn() {
         if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().equals(url)) {
-            svnLazyLoaded = new SvnCommand(getFingerprint(), url.forCommandLine(), userName, getPassword(), checkExternals);
+            svnLazyLoaded = new SvnCommand(getFingerprint(), url.forCommandLine(), userName, passwordForCommandLine(), checkExternals);
         }
         return svnLazyLoaded;
     }
@@ -242,13 +243,11 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         Map<String, Object> configurationMap = new HashMap<>();
         if (addSecureFields) {
             configurationMap.put("url", url.forCommandLine());
+            configurationMap.put("password", getPassword());
         } else {
             configurationMap.put("url", url.forDisplay());
         }
         configurationMap.put("username", userName);
-        if (addSecureFields) {
-            configurationMap.put("password", getPassword());
-        }
         configurationMap.put("check-externals", checkExternals);
         materialMap.put("svn-configuration", configurationMap);
         return materialMap;
@@ -349,6 +348,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         }
         try {
             this.encryptedPassword = this.goCipher.encrypt(password);
+            this.secretParamsForPassword = SecretParams.parse(password);
         } catch (Exception e) {
             bomb("Password encryption failed. Please verify your cipher key.", e);
         }
@@ -372,6 +372,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         this.encryptedPassword = encryptedPassword;
     }
 
+    @Override
     public String getPassword() {
         try {
             return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
@@ -381,12 +382,17 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     @Override
+    public String passwordForCommandLine() {
+        return secretParamsForPassword.isEmpty() ? getPassword() : secretParamsForPassword.substitute(getPassword());
+    }
+
+    @Override
     public boolean hasSecretParams() {
-        return this.url.hasSecretParams() || !SecretParams.parse(getPassword()).isEmpty();
+        return this.url.hasSecretParams() || !secretParamsForPassword.isEmpty();
     }
 
     @Override
     public SecretParams getSecretParams() {
-        return SecretParams.union(url.getSecretParams(), SecretParams.parse(getPassword()));
+        return SecretParams.union(url.getSecretParams(), secretParamsForPassword);
     }
 }

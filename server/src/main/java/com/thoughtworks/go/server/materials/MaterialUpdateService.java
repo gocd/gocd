@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -176,7 +176,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             LOGGER.debug("[Material Update] Starting update of material {}", material);
             try {
                 long trackingId = mduPerformanceLogger.materialSentToUpdateQueue(material);
-                resolveSecretParamsInMaterial(material);
+                resolveSecretParams(material);
                 queueFor(material).post(new MaterialUpdateMessage(material, trackingId));
 
                 return true;
@@ -198,7 +198,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         }
     }
 
-    private void resolveSecretParamsInMaterial(Material material) {
+    private void resolveSecretParams(Material material) {
         if ((material instanceof SecretParamAware) && ((SecretParamAware) material).hasSecretParams()) {
             secretParamResolver.resolve(((SecretParamAware) material).getSecretParams());
         }

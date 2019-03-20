@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     public static final String TYPE = "P4Material";
 
     private final GoCipher goCipher;
+    private SecretParams secretParamsForPassword;
 
     private P4Material(GoCipher goCipher) {
         super(TYPE);
@@ -215,8 +216,14 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return userName;
     }
 
+    @Override
     public String getPassword() {
         return currentPassword();
+    }
+
+    @Override
+    public String passwordForCommandLine() {
+        return this.secretParamsForPassword.isEmpty() ? this.getPassword() : this.secretParamsForPassword.substitute(getPassword());
     }
 
     public void setPassword(String password) {
@@ -392,6 +399,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         }
         try {
             this.encryptedPassword = this.goCipher.encrypt(password);
+            secretParamsForPassword = SecretParams.parse(password);
         } catch (Exception e) {
             bomb("Password encryption failed. Please verify your cipher key.", e);
         }
@@ -425,11 +433,11 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
     @Override
     public boolean hasSecretParams() {
-        return !SecretParams.parse(getPassword()).isEmpty();
+        return !this.secretParamsForPassword.isEmpty();
     }
 
     @Override
     public SecretParams getSecretParams() {
-        return SecretParams.parse(getPassword());
+        return this.secretParamsForPassword;
     }
 }

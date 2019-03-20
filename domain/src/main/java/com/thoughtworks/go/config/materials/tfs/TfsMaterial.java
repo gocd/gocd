@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     private String encryptedPassword;
     private String projectPath;
     private final GoCipher goCipher;
+    private SecretParams secretParamsForPassword;
 
     public TfsMaterial(GoCipher goCipher) {
         super(TYPE);
@@ -110,6 +111,11 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         } catch (CryptoException e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }
+    }
+
+    @Override
+    public String passwordForCommandLine() {
+        return this.secretParamsForPassword.isEmpty() ? getPassword() : this.secretParamsForPassword.substitute(getPassword());
     }
 
     @Override
@@ -174,7 +180,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     TfsCommand tfs(final SubprocessExecutionContext execCtx) {
-        return new TfsCommandFactory().create(execCtx, url, domain, userName, getPassword(), getFingerprint(), projectPath);
+        return new TfsCommandFactory().create(execCtx, url, domain, userName, passwordForCommandLine(), getFingerprint(), projectPath);
     }
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
@@ -302,6 +308,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         }
         try {
             this.encryptedPassword = this.goCipher.encrypt(password);
+            secretParamsForPassword = SecretParams.parse(password);
         } catch (Exception e) {
             bomb("Password encryption failed. Please verify your cipher key.", e);
         }
@@ -315,11 +322,11 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     public boolean hasSecretParams() {
-        return this.url.hasSecretParams() || !SecretParams.parse(getPassword()).isEmpty();
+        return this.url.hasSecretParams() || !this.secretParamsForPassword.isEmpty();
     }
 
     @Override
     public SecretParams getSecretParams() {
-        return SecretParams.union(url.getSecretParams(), SecretParams.parse(getPassword()));
+        return SecretParams.union(url.getSecretParams(), this.secretParamsForPassword);
     }
 }

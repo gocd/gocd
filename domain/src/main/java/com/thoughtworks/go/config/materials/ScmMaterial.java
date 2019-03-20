@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -96,6 +96,8 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     public abstract String getUserName();
 
     public abstract String getPassword();
+
+    public abstract String passwordForCommandLine();
 
     public abstract String getEncryptedPassword();
 

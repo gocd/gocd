@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -278,7 +278,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
         HashMap<String, String> urlToUUIDMap = new HashMap<>();
         for (SvnMaterial svnMaterial : svnMaterials) {
             CommandLine command = svnExecutable().withArgs("info", "--xml");
-            addCredentials(command, new StringArgument(svnMaterial.getUserName()), new PasswordArgument(svnMaterial.getPassword()));
+            addCredentials(command, new StringArgument(svnMaterial.getUserName()), new PasswordArgument(svnMaterial.passwordForCommandLine()));
             final String queryUrl = svnMaterial.urlForCommandLine();
             command.withArg(queryUrl);
             ConsoleResult consoleResult = null;

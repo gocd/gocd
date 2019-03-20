@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package com.thoughtworks.go.config.materials.tfs;
 
 import com.thoughtworks.go.config.PasswordEncrypter;
 import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 import com.thoughtworks.go.config.materials.AbstractMaterial;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
-import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
@@ -45,8 +45,7 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.AbstractMaterial.SQL_CRITERIA_TYPE;
 import static com.thoughtworks.go.domain.materials.ValidationBean.valid;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @EnableRuleMigrationSupport
@@ -331,6 +330,46 @@ public class TfsMaterialTest {
 
             assertThat(tfsMaterial.getSecretParams())
                     .hasSize(0);
+        }
+    }
+
+    @Nested
+    class passwordForCommandLine {
+        @Test
+        void shouldReturnPasswordAsConfigured_IfNotDefinedAsSecretParam() {
+            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "badger", null);
+
+            assertThat(tfsMaterial.passwordForCommandLine()).isEqualTo("badger");
+        }
+
+        @Test
+        void shouldReturnAResolvedPassword_IfPasswordDefinedAsSecretParam() {
+            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "#{SECRET[secret_config_id][lookup_pass]}", null);
+
+            tfsMaterial.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
+
+            assertThat(tfsMaterial.passwordForCommandLine()).isEqualTo("resolved_password");
+        }
+
+        @Test
+        void shouldErrorOutWhenCalledOnAUnResolvedSecretParam_IfPasswordDefinedAsSecretParam() {
+            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "#{SECRET[secret_config_id][lookup_pass]}", null);
+
+            assertThatCode(tfsMaterial::passwordForCommandLine)
+                    .isInstanceOf(UnresolvedSecretParamException.class)
+                    .hasMessageContaining("SecretParam 'lookup_pass' is used before it is resolved.");
+        }
+    }
+
+    @Nested
+    class setPassword {
+        @Test
+        void shouldParsePasswordString_IfDefinedAsSecretParam() {
+            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "#{SECRET[secret_config_id][lookup_pass]}", null);
+
+            assertThat(tfsMaterial.getSecretParams())
+                    .hasSize(1)
+                    .contains(new SecretParam("secret_config_id", "lookup_pass"));
         }
     }
 }

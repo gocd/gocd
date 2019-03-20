@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,7 @@ public class SvnMaterialUpdater {
         return compose(
                 echoWithPrefix(format("Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay())),
                 secret(url.forCommandLine(), url.forDisplay()),
-                secret(material.getPassword(), "*********************"),
+                secret(material.passwordForCommandLine(), "*********************"),
                 cleanupAndUpdate(workingDir, revision).setTest(shouldDoCleanupAndUpdate(workingDir)),
                 freshCheckout(workingDir, revision).setTest(isNotRepository(workingDir)),
                 freshCheckout(workingDir, revision).setTest(test("-nd", workingDir)),
@@ -90,9 +90,9 @@ public class SvnMaterialUpdater {
         if (!StringUtils.isBlank(userName)) {
             argList.add("--username");
             argList.add(userName);
-            if (!StringUtils.isBlank(material.getPassword())) {
+            if (!StringUtils.isBlank(material.passwordForCommandLine())) {
                 argList.add("--password");
-                argList.add(material.getPassword());
+                argList.add(material.passwordForCommandLine());
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialUpdater;
+import com.thoughtworks.go.helper.MaterialsMother;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -58,7 +59,7 @@ class TFSMaterialUpdaterTest {
 
         tfsMaterial = mock(TfsMaterial.class);
         when(tfsMaterial.workingdir(any(File.class))).thenReturn(workingDir);
-        when(tfsMaterial.getPassword()).thenReturn("password");
+        when(tfsMaterial.passwordForCommandLine()).thenReturn("password");
         when(tfsMaterial.getUserName()).thenReturn("username");
         when(tfsMaterial.getDomain()).thenReturn("domain");
         when(tfsMaterial.getProjectPath()).thenReturn("projectpath");
@@ -76,4 +77,18 @@ class TFSMaterialUpdaterTest {
         assertThat(buildCommand.dump()).isEqualTo(expectedCommand);
     }
 
+    @Test
+    void shouldUsePasswordForCommandLineWhileBuildingAnCommand() {
+        TfsMaterial tfsMaterial = MaterialsMother.tfsMaterial("https://foo:foopassword@thisdoesnotexist.io/repo");
+        tfsMaterial.setPassword("#{SECRET[secret_config_id][lookup_pass]}");
+
+        tfsMaterial.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
+
+        final BuildCommand buildCommand = new TfsMaterialUpdater(tfsMaterial).updateTo("baseDir", new RevisionContext(mock(Revision.class)));
+
+        assertThat(buildCommand.dump())
+                .contains("resolved_password")
+                .doesNotContain("#{SECRET[secret_config_id][lookup_pass]}");
+
+    }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain.materials.svn;
 
 import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.Material;
@@ -47,8 +48,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @EnableRuleMigrationSupport
@@ -78,7 +78,7 @@ public class SvnMaterialTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         temporaryFolder.delete();
     }
 
@@ -159,7 +159,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldBeEqualWhenUrlSameForSvnMaterial() throws Exception {
+    void shouldBeEqualWhenUrlSameForSvnMaterial() {
         final Material material1 = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
         final Material material = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
         assertComplementaryEquals(material1, material, true);
@@ -167,21 +167,21 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldNotBeEqualWhenUrlDifferent() throws Exception {
+    void shouldNotBeEqualWhenUrlDifferent() {
         final Material material1 = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
         final Material material2 = MaterialsMother.defaultSvnMaterialsWithUrl("url2").get(0);
         assertComplementaryEquals(material1, material2, false);
     }
 
     @Test
-    void shouldNotBeEqualWhenTypeDifferent() throws Exception {
+    void shouldNotBeEqualWhenTypeDifferent() {
         final Material hgMaterial = MaterialsMother.hgMaterials("url1", "hgdir").get(0);
         final Material nonHgMaterial = MaterialsMother.defaultSvnMaterialsWithUrl("url1").get(0);
         assertComplementaryEquals(hgMaterial, nonHgMaterial, false);
     }
 
     @Test
-    void shouldNotBeEqualWhenAlternateFolderDifferent() throws Exception {
+    void shouldNotBeEqualWhenAlternateFolderDifferent() {
         final SvnMaterial material1 = MaterialsMother.svnMaterial("url1");
         final SvnMaterial material2 = MaterialsMother.svnMaterial("url1");
 
@@ -207,7 +207,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldReturnNotEqualsWhenUrlIsChanged() throws Exception {
+    void shouldReturnNotEqualsWhenUrlIsChanged() {
         SvnMaterial material = MaterialsMother.svnMaterial("A");
 
         SvnMaterial other = MaterialsMother.svnMaterial("B");
@@ -215,7 +215,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldReturnNotEqualsWhenUserNameIsChanged() throws Exception {
+    void shouldReturnNotEqualsWhenUserNameIsChanged() {
         SvnMaterial material = MaterialsMother.svnMaterial("url", "svnDir", "userName", null, false, "*.txt");
 
         SvnMaterial other = MaterialsMother.svnMaterial("url", "svnDir", "userName1", null, false, "*.txt");
@@ -223,7 +223,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldReturnEqualsEvenIfPasswordsAreDifferent() throws Exception {
+    void shouldReturnEqualsEvenIfPasswordsAreDifferent() {
         SvnMaterial material = MaterialsMother.svnMaterial();
         material.setPassword("password");
 
@@ -233,14 +233,14 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldReturnNotEqualsWhenCheckExternalsIsChanged() throws Exception {
+    void shouldReturnNotEqualsWhenCheckExternalsIsChanged() {
         SvnMaterial material = MaterialsMother.svnMaterial("url", "svnDir", null, null, true, "*.txt");
         SvnMaterial other = MaterialsMother.svnMaterial("url", "svnDir", null, null, false, "*.txt");
         assertThat(material).isNotEqualTo(other);
     }
 
     @Test
-    void shouldReturnEqualsWhenEverythingIsSame() throws Exception {
+    void shouldReturnEqualsWhenEverythingIsSame() {
         SvnMaterial material = MaterialsMother.svnMaterial("URL", "dummy-folder", "userName", "password", true, "*.doc");
         SvnMaterial other = MaterialsMother.svnMaterial("URL", "dummy-folder", "userName", "password", true, "*.doc");
 
@@ -249,7 +249,7 @@ public class SvnMaterialTest {
 
     /* TODO: *SBD* Move this test into SvnMaterialConfig test after mothers are moved. */
     @Test
-    void shouldReturnEqualsWhenEverythingIsSameForSvnMaterialConfigs() throws Exception {
+    void shouldReturnEqualsWhenEverythingIsSameForSvnMaterialConfigs() {
         SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig();
         svnMaterialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.CHECK_EXTERNALS, String.valueOf(true)));
         svnMaterialConfig.setConfigAttributes(Collections.singletonMap(SvnMaterialConfig.USERNAME, "userName"));
@@ -279,7 +279,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldAddTheForwardSlashAndApplyThePattern() throws Exception {
+    void shouldAddTheForwardSlashAndApplyThePattern() {
         SvnMaterial material = MaterialsMother.svnMaterial();
 
         assertThat(material.matches("/a.doc", "a.doc")).isTrue();
@@ -287,14 +287,14 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldApplyThePatternDirectly() throws Exception {
+    void shouldApplyThePatternDirectly() {
         SvnMaterial material = MaterialsMother.svnMaterial();
 
         assertThat(material.matches("/a.doc", "/a.doc")).isTrue();
     }
 
     @Test
-    void shouldGenerateSqlCriteriaMapInSpecificOrder() throws Exception {
+    void shouldGenerateSqlCriteriaMapInSpecificOrder() {
         SvnMaterial material = new SvnMaterial("url", "username", "password", true);
         Map<String, Object> map = material.getSqlCriteria();
         assertThat(map.size()).isEqualTo(4);
@@ -306,7 +306,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldGenerateFingerprintBasedOnSqlCriteria() throws Exception {
+    void shouldGenerateFingerprintBasedOnSqlCriteria() {
         SvnMaterial one = new SvnMaterial("url", "username", "password", true);
         SvnMaterial two = new SvnMaterial("url", "username", "password", false);
         assertThat(one.getFingerprint()).isNotEqualTo(two.getFingerprint());
@@ -314,7 +314,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldGeneratePipelineUniqueFingerprintBasedOnFingerprintAndDest() throws Exception {
+    void shouldGeneratePipelineUniqueFingerprintBasedOnFingerprintAndDest() {
         SvnMaterial one = new SvnMaterial("url", "username", "password", true, "folder1");
         SvnMaterial two = new SvnMaterial("url", "username", "password", true, "folder2");
         assertThat(one.getPipelineUniqueFingerprint()).isNotEqualTo(two.getFingerprint());
@@ -404,7 +404,7 @@ public class SvnMaterialTest {
     }
 
     @Test
-    void shouldCopyOverPasswordWhenConvertingToConfig() throws Exception {
+    void shouldCopyOverPasswordWhenConvertingToConfig() {
         SvnMaterial material = new SvnMaterial("abc", "def", "ghi", false);
         SvnMaterialConfig config = (SvnMaterialConfig) material.config();
 
@@ -481,11 +481,51 @@ public class SvnMaterialTest {
         }
 
         @Test
-        void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialUrlOrPassword() {
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsInMaterialUrlOrPassword() {
             SvnMaterial svnMaterial = new SvnMaterial("http://foo.com", null, "pass", false);
 
             assertThat(svnMaterial.getSecretParams())
                     .hasSize(0);
+        }
+    }
+
+    @Nested
+    class passwordForCommandLine {
+        @Test
+        void shouldReturnPasswordAsConfigured_IfNotDefinedAsSecretParam() {
+            SvnMaterial svnMaterial = new SvnMaterial("url", null, "badger", false);
+
+            assertThat(svnMaterial.passwordForCommandLine()).isEqualTo("badger");
+        }
+
+        @Test
+        void shouldReturnAResolvedPassword_IfPasswordDefinedAsSecretParam() {
+            SvnMaterial svnMaterial = new SvnMaterial("url", null, "#{SECRET[secret_config_id][lookup_pass]}", false);
+
+            svnMaterial.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
+
+            assertThat(svnMaterial.passwordForCommandLine()).isEqualTo("resolved_password");
+        }
+
+        @Test
+        void shouldErrorOutWhenCalledOnAUnResolvedSecretParam_IfPasswordDefinedAsSecretParam() {
+            SvnMaterial svnMaterial = new SvnMaterial("url", null, "#{SECRET[secret_config_id][lookup_pass]}", false);
+
+            assertThatCode(svnMaterial::passwordForCommandLine)
+                    .isInstanceOf(UnresolvedSecretParamException.class)
+                    .hasMessageContaining("SecretParam 'lookup_pass' is used before it is resolved.");
+        }
+    }
+
+    @Nested
+    class setPassword {
+        @Test
+        void shouldParsePasswordString_IfDefinedAsSecretParam() {
+            SvnMaterial svnMaterial = new SvnMaterial("url", null, "#{SECRET[secret_config_id][lookup_pass]}", false);
+
+            assertThat(svnMaterial.getSecretParams())
+                    .hasSize(1)
+                    .contains(new SecretParam("secret_config_id", "lookup_pass"));
         }
     }
 }

@@ -25,18 +25,25 @@ import com.thoughtworks.go.config.SecretConfig
 import com.thoughtworks.go.config.SecretConfigs
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
+import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.SecretConfigService
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
+import com.thoughtworks.go.server.service.result.LocalizedOperationResult
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
+import groovy.json.JsonBuilder
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.invocation.InvocationOnMock
 
+import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigRepresenter.fromJSON
+import static com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigRepresenter.toJSON
 import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
@@ -224,65 +231,133 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
       }
     }
 
-//    @Nested
-//    class AsAdmin {
-//      @BeforeEach
-//      void setUp() {
-//        enableSecurity()
-//        loginAsAdmin()
-//      }
-//
-//      @Test
-//      void 'should create secret config from given json payload'() {
-//        def jsonPayload = [
-//          "id"         : "secrets_id",
-//          "description": "This is used to lookup for secrets for the team X.",
-//          "plugin_id"  : "cd.go.secrets.file",
-//          "properties" : [
-//            [
-//              "key"  : "secrets_file_path",
-//              "value": "/home/secret/secret.dat"
-//            ],
-//            [
-//              "key"  : "cipher_file_path",
-//              "value": "/home/secret/secret-key.aes"
-//            ],
-//            [
-//              "key"            : "secret_password",
-//              "encrypted_value": "0a3ecba2e196f73d07b361398cc9d08b"
-//            ]
-//          ],
-//          "rules"      : [
-//            "allow": [
-//              [
-//                "action"  : "refer",
-//                "type"    : "PipelineGroup",
-//                "resource": "DeployPipelines"
-//              ]
-//            ],
-//            "deny" : [
-//              [
-//                "action"  : "refer",
-//                "type"    : "PipelineGroup",
-//                "resource": "TestPipelines"
-//              ]
-//            ]
-//          ]
-//        ]
-//
-//        def secretConfig = fromJSON(GsonTransformer.instance.jsonReaderFrom(jsonPayload))
-//
-//        when(entityHashingService.md5ForEntity(Mockito.any() as SecretConfig)).thenReturn('some-md5')
-//
-//        postWithApiHeader(controller.controllerPath(), jsonPayload)
-//
-//        assertThatResponse()
-//          .isOk()
-//          .hasEtag('"some-md5"')
-//          .hasContentType(controller.mimeType)
-//          .hasBodyWithJsonObject(secretConfig, SecretConfigRepresenter)
-//      }
-//    }
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should create secret config from given json payload'() {
+        def jsonPayload = [
+          "id"         : "secrets_id",
+          "description": "This is used to lookup for secrets for the team X.",
+          "plugin_id"  : "cd.go.secrets.file",
+          "properties" : [
+            [
+              "key"  : "secrets_file_path",
+              "value": "/home/secret/secret.dat"
+            ],
+            [
+              "key"  : "cipher_file_path",
+              "value": "/home/secret/secret-key.aes"
+            ],
+            [
+              "key"            : "secret_password",
+              "encrypted_value": "0a3ecba2e196f73d07b361398cc9d08b"
+            ]
+          ],
+          "rules"      : [
+            "allow": [
+              [
+                "action"  : "refer",
+                "type"    : "PipelineGroup",
+                "resource": "DeployPipelines"
+              ]
+            ],
+            "deny" : [
+              [
+                "action"  : "refer",
+                "type"    : "PipelineGroup",
+                "resource": "TestPipelines"
+              ]
+            ]
+          ]
+        ]
+
+        def secretConfig = fromJSON(GsonTransformer.instance.jsonReaderFrom(jsonPayload))
+
+        when(entityHashingService.md5ForEntity(Mockito.any() as SecretConfig)).thenReturn('some-md5')
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs())
+
+        postWithApiHeader(controller.controllerPath(), jsonPayload)
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"some-md5"')
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(secretConfig, SecretConfigRepresenter)
+      }
+
+
+      @Test
+      void 'should not create secret config if one already exist with same id'() {
+        def expectedConfig = new SecretConfig("ForDeploy", "file",
+          ConfigurationPropertyMother.create("username", false, "Jane"),
+        )
+
+        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn('md5')
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(expectedConfig))
+
+        def jsonPayload = toObjectString({ toJSON(it, expectedConfig) })
+        postWithApiHeader(controller.controllerPath(), jsonPayload)
+
+
+        def expectedResponseBody = [
+          message: "Failed to add secretConfig 'ForDeploy'. Another secretConfig with the same name already exists.",
+          data   : [
+            id        : "ForDeploy",
+            plugin_id : "file",
+            properties: [[key: "username", value: "Jane"]],
+            errors    : [id: ["Secret Configuration ids should be unique. Secret Configuration with id 'ForDeploy' already exists."]]
+          ]
+        ]
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody(new JsonBuilder(expectedResponseBody).toString())
+      }
+
+      @Test
+      void 'should return error response if there are errors in validation'() {
+        def expectedConfig = new SecretConfig("ForDeploy", "file",
+          ConfigurationPropertyMother.create("username", false, "Jane"),
+        )
+
+        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn('md5')
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs())
+
+        def jsonPayload = toObjectString({ toJSON(it, expectedConfig) })
+
+        when(secretConfigService.create(Mockito.any() as Username, Mockito.any() as SecretConfig, Mockito.any() as LocalizedOperationResult))
+          .then({ InvocationOnMock invocation ->
+          SecretConfig secretConfig = invocation.getArguments()[1]
+          secretConfig.addError("plugin_id", "Plugin not installed.")
+          HttpLocalizedOperationResult result = invocation.getArguments().last()
+          result.unprocessableEntity("validation failed")
+        })
+
+        postWithApiHeader(controller.controllerPath(), jsonPayload)
+
+        def expectedResponseBody = [
+          message: "validation failed",
+          data   : [
+            id        : "ForDeploy",
+            plugin_id : "file",
+            properties: [[key: "username", value: "Jane"]],
+            errors    : [plugin_id: ["Plugin not installed."]]
+          ]
+        ]
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonBody(new JsonBuilder(expectedResponseBody).toString())
+      }
+    }
   }
 
   @Nested

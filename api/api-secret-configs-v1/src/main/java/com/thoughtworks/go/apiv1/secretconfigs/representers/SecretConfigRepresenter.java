@@ -18,10 +18,14 @@ package com.thoughtworks.go.apiv1.secretconfigs.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ConfigurationPropertyRepresenter;
+import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.spark.Routes;
 import org.apache.commons.collections4.CollectionUtils;
+
+import java.util.Collections;
+import java.util.Map;
 
 public class SecretConfigRepresenter {
     public static void toJSON(OutputWriter jsonWriter, SecretConfig secretConfig) {
@@ -34,6 +38,11 @@ public class SecretConfigRepresenter {
                 .add("id", secretConfig.getId())
                 .add("plugin_id", secretConfig.getPluginId())
                 .addIfNotNull("description", secretConfig.getDescription());
+
+        if (secretConfig.hasErrors()) {
+            Map<String, String> fieldMapping = Collections.singletonMap("pluginId", "plugin_id");
+            jsonWriter.addChild("errors", errorWriter -> new ErrorGetter(fieldMapping).toJSON(errorWriter, secretConfig));
+        }
 
         jsonWriter.addChildList("properties", listWriter -> {
             ConfigurationPropertyRepresenter.toJSON(listWriter, secretConfig);

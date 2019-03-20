@@ -30,6 +30,7 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecretConfigService;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ import spark.Response;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
 import static spark.Spark.*;
 
 @Component
@@ -99,26 +101,22 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
     }
 
     public String create(Request request, Response response)throws IOException {
-        return writerForTopLevelObject(request, response, writer -> writer.add("action", "create"));
+        final SecretConfig secretConfigToCreate = buildEntityFromRequestBody(request);
+        haltIfEntityWithSameIdExists(secretConfigToCreate);
+
+        final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        configService.create(currentUsername(), secretConfigToCreate, operationResult);
+
+        return handleCreateOrUpdateResponse(request, response, secretConfigToCreate, operationResult);
     }
 
-//    public String create(Request request, Response response)throws IOException {
-//        final SecretConfig secretConfigToCreate = buildEntityFromRequestBody(request);
-//        haltIfEntityWithSameIdExists(secretConfigToCreate);
-//
-//        final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-//        configService.create(currentUsername(), secretConfigToCreate, operationResult);
-//
-//        return handleCreateOrUpdateResponse(request, response, secretConfigToCreate, operationResult);
-//    }
-
-//    private void haltIfEntityWithSameIdExists(SecretConfig secretConfig) {
-//        if (configService.findProfile(secretConfig.getId()) == null) {
-//            return;
-//        }
-//        secretConfig.addError("id", format("Secret Configuration ids should be unique. Secret Configuration with id '%s' already exists.", secretConfig.getId()));
-//        throw haltBecauseEntityAlreadyExists(jsonWriter(secretConfig), "secretConfig", secretConfig.getId());
-//    }
+    private void haltIfEntityWithSameIdExists(SecretConfig secretConfig) {
+        if (doFetchEntityFromConfig(secretConfig.getId()) == null) {
+            return;
+        }
+        secretConfig.addError("id", String.format("Secret Configuration ids should be unique. Secret Configuration with id '%s' already exists.", secretConfig.getId()));
+        throw haltBecauseEntityAlreadyExists(jsonWriter(secretConfig), "secretConfig", secretConfig.getId());
+    }
 
     public String update(Request request, Response response)throws IOException {
         return writerForTopLevelObject(request, response, writer -> writer.add("action", "update" + request.params(CONFIG_ID_PARAM)));
@@ -150,6 +148,6 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
 
     @Override
     public Consumer<OutputWriter> jsonWriter(SecretConfig secretConfig) {
-        return null;
+        return writer -> SecretConfigRepresenter.toJSON(writer, secretConfig);
     }
 }

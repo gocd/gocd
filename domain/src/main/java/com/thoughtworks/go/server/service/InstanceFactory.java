@@ -16,7 +16,11 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.JobConfig;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.domain.*;
@@ -111,14 +115,23 @@ public class InstanceFactory {
     public JobPlan createJobPlan(JobConfig config, SchedulingContext context) {
         JobIdentifier identifier = new JobIdentifier();
         String elasticProfileId = config.getElasticProfileId();
+        String clusterProfileId = null;
         ElasticProfile elasticProfile = null;
+        ClusterProfile clusterProfile = null;
+
         if (elasticProfileId != null) {
             elasticProfile = context.getElasticProfile(elasticProfileId);
+            clusterProfileId = elasticProfile.getClusterProfileId();
         }
+
+        if (clusterProfileId != null) {
+            clusterProfile = context.getClusterProfile(clusterProfileId);
+        }
+
         final EnvironmentVariables variables = EnvironmentVariables.toEnvironmentVariables(context.overrideEnvironmentVariables(config.getVariables()).getEnvironmentVariablesConfig());
 
         return new DefaultJobPlan(new Resources(config.resourceConfigs()),
                 ArtifactPlan.toArtifactPlans(config.artifactConfigs()),
-                ArtifactPropertiesGenerator.toArtifactProperties(config.getProperties()), -1, identifier, null, variables, new EnvironmentVariables(), elasticProfile, null);
+                ArtifactPropertiesGenerator.toArtifactProperties(config.getProperties()), -1, identifier, null, variables, new EnvironmentVariables(), elasticProfile, clusterProfile);
     }
 }

@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.Agents;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.StageNotFoundException;
@@ -89,6 +92,7 @@ public class ScheduleService {
     private InstanceFactory instanceFactory;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
     private ElasticProfileService elasticProfileService;
+    private ClusterProfilesService clusterProfilesService;
 
     protected ScheduleService() {
     }
@@ -117,7 +121,8 @@ public class ScheduleService {
                            PipelinePauseService pipelinePauseService,
                            InstanceFactory instanceFactory,
                            SchedulingPerformanceLogger schedulingPerformanceLogger,
-                           ElasticProfileService elasticProfileService
+                           ElasticProfileService elasticProfileService,
+                           ClusterProfilesService clusterProfilesService
     ) {
         this.goConfigService = goConfigService;
         this.pipelineService = pipelineService;
@@ -143,6 +148,7 @@ public class ScheduleService {
         this.instanceFactory = instanceFactory;
         this.schedulingPerformanceLogger = schedulingPerformanceLogger;
         this.elasticProfileService = elasticProfileService;
+        this.clusterProfilesService = clusterProfilesService;
     }
 
     //Note: This is called from a Spring timer
@@ -234,7 +240,7 @@ public class ScheduleService {
 
     private SchedulingContext schedulingContext(String username, PipelineConfig pipelineConfig, StageConfig stageConfig) {
         Agents availableAgents = environmentConfigService.agentsForPipeline(pipelineConfig.name());
-        SchedulingContext context = new DefaultSchedulingContext(username, availableAgents, elasticProfileService.listAll());
+        SchedulingContext context = new DefaultSchedulingContext(username, availableAgents, elasticProfileService.listAll(), clusterProfilesService.listAll());
         context = context.overrideEnvironmentVariables(pipelineConfig.getVariables());
         context = context.overrideEnvironmentVariables(stageConfig.getVariables());
         return context;

@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 
 import java.util.HashMap;
@@ -32,6 +33,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
     private final String approvedBy;
     private final Agents agents;
     private final Map<String, ElasticProfile> profiles;
+    private final Map<String, ClusterProfile> clusterProfiles;
     private EnvironmentVariablesConfig variables = new EnvironmentVariablesConfig();
     private boolean rerun;
 
@@ -48,9 +50,14 @@ public class DefaultSchedulingContext implements SchedulingContext {
     }
 
     public DefaultSchedulingContext(String approvedBy, Agents agents, Map<String, ElasticProfile> profiles) {
+        this(approvedBy, agents, profiles, new HashMap<>());
+    }
+
+    public DefaultSchedulingContext(String approvedBy, Agents agents, Map<String, ElasticProfile> profiles, Map<String, ClusterProfile> clusterProfiles) {
         this.approvedBy = approvedBy;
         this.agents = agents;
         this.profiles = profiles;
+        this.clusterProfiles = clusterProfiles;
     }
 
     public String getApprovedBy() {
@@ -72,7 +79,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
     }
 
     public SchedulingContext overrideEnvironmentVariables(EnvironmentVariablesConfig environmentVariablesConfig) {
-        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, new Agents(agents), profiles);
+        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, new Agents(agents), profiles, clusterProfiles);
         context.variables = variables.overrideWith(environmentVariablesConfig);
         context.rerun = rerun;
         return context;
@@ -85,7 +92,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
                 permitted.add(agent);
             }
         }
-        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, permitted, profiles);
+        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, permitted, profiles, clusterProfiles);
         context.variables = variables.overrideWith(new EnvironmentVariablesConfig());
         context.rerun = rerun;
         return context;
@@ -96,7 +103,7 @@ public class DefaultSchedulingContext implements SchedulingContext {
     }
 
     public SchedulingContext rerunContext() {
-        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, agents, profiles);
+        DefaultSchedulingContext context = new DefaultSchedulingContext(approvedBy, agents, profiles, clusterProfiles);
         context.variables = variables.overrideWith(new EnvironmentVariablesConfig());
         context.rerun = true;
         return context;
@@ -105,6 +112,11 @@ public class DefaultSchedulingContext implements SchedulingContext {
     @Override
     public ElasticProfile getElasticProfile(String profileId) {
         return profiles.get(profileId);
+    }
+
+    @Override
+    public ClusterProfile getClusterProfile(String clusterProfileId) {
+        return clusterProfiles.get(clusterProfileId);
     }
 
     @Override

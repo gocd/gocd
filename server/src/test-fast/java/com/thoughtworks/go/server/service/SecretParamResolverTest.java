@@ -26,6 +26,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import java.util.Collections;
+
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -92,5 +94,24 @@ class SecretParamResolverTest {
         assertThat(allSecretParams.get(1).getValue()).isEqualTo("some-password");
         assertThat(allSecretParams.get(2).getValue()).isEqualTo("ABCDEFGHIJ1D");
         assertThat(allSecretParams.get(3).getValue()).isEqualTo("xyzdfjsdlwdoasd;q");
+    }
+
+    @Test
+    void shouldResolveValueInAllParamsEvenIfListContainsDuplicatedSecretParams() {
+        final SecretParams allSecretParams = new SecretParams(
+                new SecretParam("secret_config_id_1", "username"),
+                new SecretParam("secret_config_id_1", "username")
+        );
+
+        final SecretConfig fileBasedSecretConfig = new SecretConfig("secret_config_id_1", "cd.go.file");
+        when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(fileBasedSecretConfig));
+        when(secretsExtension.lookupSecrets(fileBasedSecretConfig.getPluginId(), fileBasedSecretConfig, asList("username","username")))
+                .thenReturn(Collections.singletonList(new Secret("username", "some-username")));
+
+        secretParamResolver.resolve(allSecretParams);
+
+        assertThat(allSecretParams).hasSize(2);
+        assertThat(allSecretParams.get(0).getValue()).isEqualTo("some-username");
+        assertThat(allSecretParams.get(1).getValue()).isEqualTo("some-username");
     }
 }

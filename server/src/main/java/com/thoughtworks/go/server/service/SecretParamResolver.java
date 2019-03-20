@@ -26,11 +26,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.groupingBy;
 
 @Component
 public class SecretParamResolver {
@@ -55,7 +57,7 @@ public class SecretParamResolver {
 
     private BiConsumer<String, SecretParams> lookupAndUpdateSecretParamsValue() {
         return (secretConfigId, secretParamsToResolve) -> {
-            final Map<String, SecretParam> secretParamMap = secretParamsToResolve.stream().collect(toMap(SecretParam::getKey, secretParam -> secretParam));
+            Map<String, List<SecretParam>> secretParamMap = secretParamsToResolve.stream().collect(groupingBy(SecretParam::getKey, Collectors.toList()));
             final SecretConfig secretConfig = goConfigService.cruiseConfig().getSecretConfigs().find(secretConfigId);
 
             secretsExtension.lookupSecrets(secretConfig.getPluginId(), secretConfig, secretParamsToResolve.keys())
@@ -63,7 +65,7 @@ public class SecretParamResolver {
         };
     }
 
-    private Consumer<Secret> assignValue(Map<String, SecretParam> secretParamMap) {
-        return secret -> secretParamMap.get(secret.getKey()).setValue(secret.getValue());
+    private Consumer<Secret> assignValue(Map<String, List<SecretParam>> secretParamMap) {
+        return secret -> secretParamMap.get(secret.getKey()).forEach(secretParam -> secretParam.setValue(secret.getValue()));
     }
 }

@@ -20,6 +20,8 @@ import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.LinkedHashSet;
+
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
 
@@ -29,7 +31,7 @@ class SecretsMessageConverterV1Test {
     class lookupSecretsRequestBody {
         @Test
         void shouldSendLookupKeysWithSecretConfiguration() {
-            final String requestBody = new SecretsMessageConverterV1().lookupSecretsRequestBody(asList("username", "password"), singletonMap("FilePath", "/var/lib/secret.config"));
+            final String requestBody = new SecretsMessageConverterV1().lookupSecretsRequestBody(new LinkedHashSet<>(asList("username", "password")), singletonMap("FilePath", "/var/lib/secret.config"));
 
             JsonFluentAssert.assertThatJson(requestBody)
                     .isEqualTo("{\n" +

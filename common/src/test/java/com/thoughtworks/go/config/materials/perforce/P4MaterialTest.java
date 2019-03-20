@@ -208,7 +208,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         @Test
         void shouldBeTrueIfMaterialUrlHasSecretParams() {
             P4Material p4Material = new P4Material("host:10", "beautiful");
-            p4Material.setPassword("#{SECRET[secret_config_id][lookup_password]}");
+            p4Material.setPassword("${SECRET[secret_config_id][lookup_password]}");
 
             assertThat(p4Material.hasSecretParams()).isTrue();
         }
@@ -227,7 +227,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         @Test
         void shouldReturnAListOfSecretParams() {
             P4Material p4Material = new P4Material("host:10", "beautiful");
-            p4Material.setPassword("#{SECRET[secret_config_id][lookup_password]}");
+            p4Material.setPassword("${SECRET[secret_config_id][lookup_password]}");
 
             assertThat(p4Material.getSecretParams())
                     .hasSize(1)
@@ -257,7 +257,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         @Test
         void shouldReturnAResolvedPassword_IfPasswordDefinedAsSecretParam() {
             P4Material p4Material = new P4Material("host:10", "beautiful");
-            p4Material.setPassword("#{SECRET[secret_config_id][lookup_pass]}");
+            p4Material.setPassword("${SECRET[secret_config_id][lookup_pass]}");
 
             p4Material.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
 
@@ -267,7 +267,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         @Test
         void shouldErrorOutWhenCalledOnAUnResolvedSecretParam_IfPasswordDefinedAsSecretParam() {
             P4Material p4Material = new P4Material("host:10", "beautiful");
-            p4Material.setPassword("#{SECRET[secret_config_id][lookup_pass]}");
+            p4Material.setPassword("${SECRET[secret_config_id][lookup_pass]}");
 
             assertThatCode(p4Material::passwordForCommandLine)
                     .isInstanceOf(UnresolvedSecretParamException.class)
@@ -280,7 +280,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         @Test
         void shouldParsePasswordString_IfDefinedAsSecretParam() {
             P4Material p4Material = new P4Material("host:10", "beautiful");
-            p4Material.setPassword("#{SECRET[secret_config_id][lookup_pass]}");
+            p4Material.setPassword("${SECRET[secret_config_id][lookup_pass]}");
 
             assertThat(p4Material.getSecretParams())
                     .hasSize(1)

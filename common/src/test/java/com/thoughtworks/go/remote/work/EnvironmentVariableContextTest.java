@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -161,7 +161,7 @@ public class EnvironmentVariableContextTest {
     @Test
     void shouldConsiderEnvironmentVariableSecureIfItHasSecretParams() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
-        context.setProperty("GO_SERVER_URL", "#{SECRET[secret_config_id][test]}", false);
+        context.setProperty("GO_SERVER_URL", "${SECRET[secret_config_id][test]}", false);
 
         assertThat(context.getSecureEnvironmentVariables()).hasSize(1);
         assertThat(context.getSecureEnvironmentVariables().get(0).isSecure()).isTrue();
@@ -172,7 +172,7 @@ public class EnvironmentVariableContextTest {
         @Test
         void shouldBeTrueIfEnvironmentVariableContextHasSecretParams() {
             EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
-            environmentVariableContext.setProperty("Foo", "#{SECRET[secret_config_id][lookup_password]}", true);
+            environmentVariableContext.setProperty("Foo", "${SECRET[secret_config_id][lookup_password]}", true);
             environmentVariableContext.setProperty("Bar", "some-value", false);
 
             assertThat(environmentVariableContext.hasSecretParams()).isTrue();
@@ -193,8 +193,8 @@ public class EnvironmentVariableContextTest {
         @Test
         void shouldReturnAListOfSecretParams() {
             EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
-            environmentVariableContext.setProperty("Foo", "#{SECRET[secret_config_id][username]}@#{SECRET[secret_config_id][password]}", true);
-            environmentVariableContext.setProperty("Baz", "#{SECRET[secret_config_id][test]}", false);
+            environmentVariableContext.setProperty("Foo", "${SECRET[secret_config_id][username]}@${SECRET[secret_config_id][password]}", true);
+            environmentVariableContext.setProperty("Baz", "${SECRET[secret_config_id][test]}", false);
             environmentVariableContext.setProperty("Bar", "some-value", false);
 
             assertThat(environmentVariableContext.getSecretParams())
@@ -222,11 +222,11 @@ public class EnvironmentVariableContextTest {
 
         Stream<Arguments> secretCombinationsToTest() {
             return Stream.of(
-                    Arguments.of("#{SECRET[id][password]}", "some-password"),
-                    Arguments.of("abc_#{SECRET[id][username]}", "abc_some-username"),
-                    Arguments.of("abc_#{SECRET[id][username]}_xyz", "abc_some-username_xyz"),
-                    Arguments.of("#{SECRET[id][username]}:#{SECRET[id][password]}", "some-username:some-password"),
-                    Arguments.of("abc_#{SECRET[id][username]}@foo@#{SECRET[id][password]}_xyz", "abc_some-username@foo@some-password_xyz")
+                    Arguments.of("${SECRET[id][password]}", "some-password"),
+                    Arguments.of("abc_${SECRET[id][username]}", "abc_some-username"),
+                    Arguments.of("abc_${SECRET[id][username]}_xyz", "abc_some-username_xyz"),
+                    Arguments.of("${SECRET[id][username]}:${SECRET[id][password]}", "some-username:some-password"),
+                    Arguments.of("abc_${SECRET[id][username]}@foo@${SECRET[id][password]}_xyz", "abc_some-username@foo@some-password_xyz")
             );
         }
 
@@ -251,7 +251,7 @@ public class EnvironmentVariableContextTest {
         @Test
         void shouldThrowWhenEnvironmentVariableIsUsedBeforeItIsResolved() {
             EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
-            environmentVariableContext.setProperty("Foo", "#{SECRET[id][password]}", true);
+            environmentVariableContext.setProperty("Foo", "${SECRET[id][password]}", true);
             environmentVariableContext.setProperty("Bar", "some-value", false);
 
             assertThat(environmentVariableContext.getProperty("Bar")).isEqualTo("some-value");

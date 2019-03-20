@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -408,7 +408,7 @@ public class HgMaterialTest {
     class hasSecretParams {
         @Test
         void shouldBeTrueIfMaterialUrlHasSecretParams() {
-            HgMaterial git = new HgMaterial("http://username:#{SECRET[secret_config_id][lookup_password]}@foo.com", null);
+            HgMaterial git = new HgMaterial("http://username:${SECRET[secret_config_id][lookup_password]}@foo.com", null);
 
             assertThat(git.hasSecretParams()).isTrue();
         }
@@ -425,7 +425,7 @@ public class HgMaterialTest {
     class getSecretParams {
         @Test
         void shouldReturnAListOfSecretParams() {
-            HgMaterial git = new HgMaterial("http://username:#{SECRET[secret_config_id][lookup_password]}@foo.com", null);
+            HgMaterial git = new HgMaterial("http://username:${SECRET[secret_config_id][lookup_password]}@foo.com", null);
 
             assertThat(git.getSecretParams())
                     .hasSize(1)

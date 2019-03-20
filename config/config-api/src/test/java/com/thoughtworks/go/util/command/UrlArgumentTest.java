@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UrlArgumentTest {
     private static final String URL_WITH_PASSWORD = "http://username:password@somehere";
-    private static final String URL_WITH_SECRET_PARAMS = "https://#{SECRET[secret-config-id][username]}:#{SECRET[secret-config-id][password]}@gocd.org/foo/bar.git";
+    private static final String URL_WITH_SECRET_PARAMS = "https://${SECRET[secret-config-id][username]}:${SECRET[secret-config-id][password]}@gocd.org/foo/bar.git";
 
     private CommandArgument argument;
 
@@ -172,7 +172,7 @@ class UrlArgumentTest {
 
         @Test
         void shouldMaskSecretParamInHostInfo() {
-            UrlArgument url = new UrlArgument("https://#{SECRET[secret-config-id][username]}:#{SECRET[secret-config-id][password]}@10.18.3.171:8080/foo/bar.git");
+            UrlArgument url = new UrlArgument("https://${SECRET[secret-config-id][username]}:${SECRET[secret-config-id][password]}@10.18.3.171:8080/foo/bar.git");
             assertThat(url.hostInfoForDisplay()).isEqualTo("https://******:******@10.18.3.171:8080");
         }
     }
@@ -187,7 +187,7 @@ class UrlArgumentTest {
 
         @Test
         void shouldSubstituteSecretParams() {
-            UrlArgument url = new UrlArgument("https://#{SECRET[secret-config-id][username]}:#{SECRET[secret-config-id][password]}@10.18.3.171:8080/foo/bar.git");
+            UrlArgument url = new UrlArgument("https://${SECRET[secret-config-id][username]}:${SECRET[secret-config-id][password]}@10.18.3.171:8080/foo/bar.git");
 
             url.getSecretParams().findFirst("username").ifPresent(secretParam -> secretParam.setValue("bob"));
             url.getSecretParams().findFirst("password").ifPresent(secretParam -> secretParam.setValue("badger"));

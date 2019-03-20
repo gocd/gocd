@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -367,7 +367,7 @@ public class MaterialUpdateServiceTest {
             final HashMap params = new HashMap();
             params.put(MaterialUpdateService.TYPE, "svn");
             final PostCommitHookImplementer svnPostCommitHookImplementer = mock(PostCommitHookImplementer.class);
-            final SvnMaterial svnMaterial = new SvnMaterial("http://#{SECRET[config_id][username]}@url.com", "bob", "badger", false);
+            final SvnMaterial svnMaterial = new SvnMaterial("http://${SECRET[config_id][username]}@url.com", "bob", "badger", false);
 
             when(goConfigService.currentCruiseConfig()).thenReturn(mock(CruiseConfig.class));
             when(goConfigService.isUserAdmin(username)).thenReturn(true);

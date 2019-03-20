@@ -254,7 +254,7 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldResolveSecretParamsInEnvironmentVariableContext() {
         final EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
-        environmentVariableContext.setProperty("Foo", "#{SECRET[secret_config_id][lookup_password]}", true);
+        environmentVariableContext.setProperty("Foo", "${SECRET[secret_config_id][lookup_password]}", true);
         environmentVariableContext.setProperty("Bar", "some-value", false);
 
         final TransactionTemplate transactionTemplate = dummy();
@@ -285,7 +285,7 @@ class BuildAssignmentServiceTest {
 
     @Test
     void shouldResolveSecretParamsInMaterials() {
-        final SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://username:#{SECRET[secret_config_id][lookup_password]}@foo.com");
+        final SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://username:${SECRET[secret_config_id][lookup_password]}@foo.com");
         final Modification modification = new Modification("user", null, null, null, "rev1");
         final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(svnMaterial, modification));
         final TransactionTemplate transactionTemplate = dummy();

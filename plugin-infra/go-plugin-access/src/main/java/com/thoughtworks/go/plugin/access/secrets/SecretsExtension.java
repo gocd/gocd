@@ -29,10 +29,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SECRETS_EXTENSION;
 
@@ -75,7 +72,7 @@ public class SecretsExtension extends AbstractExtension {
         return getVersionedSecretsExtension(pluginId).validateSecretsConfig(pluginId, configuration);
     }
 
-    public List<Secret> lookupSecrets(String pluginId, SecretConfig secretConfig, List<String> keys) {
+    public List<Secret> lookupSecrets(String pluginId, SecretConfig secretConfig, Set<String> keys) {
         return getVersionedSecretsExtension(pluginId).lookupSecrets(pluginId, secretConfig, keys);
     }
 

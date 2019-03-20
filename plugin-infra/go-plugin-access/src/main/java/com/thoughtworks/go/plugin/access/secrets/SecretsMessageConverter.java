@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.domain.secrets.Secret;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface SecretsMessageConverter {
     Image getImageFromResponseBody(String responseBody);
@@ -35,7 +36,7 @@ public interface SecretsMessageConverter {
 
     String validatePluginConfigurationRequestBody(Map<String, String> configuration);
 
-    String lookupSecretsRequestBody(List<String> lookupStrings, Map<String, String> configurationAsMap);
+    String lookupSecretsRequestBody(Set<String> lookupStrings, Map<String, String> configurationAsMap);
 
     List<Secret> getSecretsFromResponse(String responseBody);
 }

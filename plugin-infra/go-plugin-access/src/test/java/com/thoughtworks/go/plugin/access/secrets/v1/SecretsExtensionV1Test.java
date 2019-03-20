@@ -35,6 +35,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static com.thoughtworks.go.plugin.access.secrets.SecretsPluginConstants.*;
@@ -133,7 +134,7 @@ public class SecretsExtensionV1Test {
         secretConfig.add(ConfigurationPropertyMother.create("AWS_ACCESS_KEY", false, "some-access-key"));
         secretConfig.add(ConfigurationPropertyMother.create("AWS_SECRET_KEY", true, "some-secret-value"));
 
-        List<Secret> secrets = secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, asList("key1", "key2"));
+        List<Secret> secrets = secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, new HashSet<>(asList("key1", "key2")));
 
         assertThat(secrets.size(), is(2));
         assertThat(secrets, containsInAnyOrder(

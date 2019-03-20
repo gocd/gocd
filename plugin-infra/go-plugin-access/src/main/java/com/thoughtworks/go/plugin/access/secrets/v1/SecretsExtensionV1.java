@@ -28,6 +28,7 @@ import com.thoughtworks.go.plugin.domain.secrets.Secret;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static com.thoughtworks.go.plugin.access.secrets.SecretsPluginConstants.*;
 
@@ -94,7 +95,7 @@ public class SecretsExtensionV1 implements VersionedSecretsExtension {
     }
 
     @Override
-    public List<Secret> lookupSecrets(String pluginId, SecretConfig secretConfig, List<String> keys) {
+    public List<Secret> lookupSecrets(String pluginId, SecretConfig secretConfig, Set<String> keys) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_LOOKUP_SECRETS,
                 new DefaultPluginInteractionCallback<List<Secret>>() {
                     @Override

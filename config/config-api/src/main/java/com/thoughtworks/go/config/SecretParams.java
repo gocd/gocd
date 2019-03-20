@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -31,7 +30,6 @@ import java.util.stream.Collector;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.replaceOnce;
 
@@ -49,11 +47,6 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
 
     public SecretParams(int size) {
         super(size);
-    }
-
-
-    public List<String> keys() {
-        return this.stream().map(SecretParam::getKey).collect(toList());
     }
 
     public Map<String, SecretParams> groupBySecretConfigId() {

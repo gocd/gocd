@@ -22,8 +22,7 @@ import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public interface VersionedSecretsExtension {
     Image getIcon(String pluginId);
@@ -34,5 +33,5 @@ public interface VersionedSecretsExtension {
 
     ValidationResult validateSecretsConfig(String pluginId, final Map<String, String> configuration);
 
-    List<Secret> lookupSecrets(String pluginId, SecretConfig secretConfig, List<String> lookupStrings);
+    List<Secret> lookupSecrets(String pluginId, SecretConfig secretConfig, Set<String> lookupStrings);
 }

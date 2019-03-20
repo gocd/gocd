@@ -26,8 +26,7 @@ import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.plugin.access.secrets.SecretsExtension.SUPPORTED_VERSIONS;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SECRETS_EXTENSION;
@@ -128,7 +127,7 @@ public class SecretsExtensionTest {
         SecretsExtensionV1 secretsExtensionV1 = mock(SecretsExtensionV1.class);
         Map<String, VersionedSecretsExtension> secretsExtensionMap = singletonMap("1.0", secretsExtensionV1);
         extension = new SecretsExtension(pluginManager, extensionsRegistry, secretsExtensionMap);
-        List<String> keys = asList("key1", "key2");
+        Set<String> keys = new HashSet<>(asList("key1", "key2"));
 
         when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SECRETS_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(SecretsExtensionV1.VERSION);
 

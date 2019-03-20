@@ -60,8 +60,14 @@ public class SecretParamResolver {
             Map<String, List<SecretParam>> secretParamMap = secretParamsToResolve.stream().collect(groupingBy(SecretParam::getKey, Collectors.toList()));
             final SecretConfig secretConfig = goConfigService.cruiseConfig().getSecretConfigs().find(secretConfigId);
 
-            secretsExtension.lookupSecrets(secretConfig.getPluginId(), secretConfig, secretParamsToResolve.keys())
-                    .forEach(assignValue(secretParamMap));
+            LOGGER.debug("Resolving secret params '{}' using secret config '{}'", secretParamMap.keySet(), secretConfig.getId());
+            List<Secret> resolvedSecrets = secretsExtension.lookupSecrets(secretConfig.getPluginId(), secretConfig, secretParamMap.keySet());
+            LOGGER.debug("Resolved secret size '{}'", resolvedSecrets.size());
+
+
+            LOGGER.debug("Updating secret params '{}' with values.", secretParamMap.keySet());
+            resolvedSecrets.forEach(assignValue(secretParamMap));
+            LOGGER.debug("Secret params '{}' updated with values.", secretParamMap.keySet());
         };
     }
 

@@ -28,9 +28,7 @@ import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -70,7 +68,7 @@ public class SecretsMessageConverterV1 implements SecretsMessageConverter {
     }
 
     @Override
-    public String lookupSecretsRequestBody(List<String> lookupStrings, Map<String, String> configurationAsMap) {
+    public String lookupSecretsRequestBody(Set<String> lookupStrings, Map<String, String> configurationAsMap) {
         final Map<String, Object> requestBodyMap = new HashMap<>();
         requestBodyMap.put("keys", lookupStrings);
         requestBodyMap.put("configuration", mapToJsonObject(configurationAsMap));

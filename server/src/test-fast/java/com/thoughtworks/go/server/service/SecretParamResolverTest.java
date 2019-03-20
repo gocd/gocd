@@ -26,9 +26,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
-import java.util.Collections;
+import java.util.HashSet;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
@@ -75,9 +77,9 @@ class SecretParamResolverTest {
         final SecretConfig fileBasedSecretConfig = new SecretConfig("secret_config_id_1", "cd.go.file");
         final SecretConfig awsBasedSecretConfig = new SecretConfig("secret_config_id_2", "cd.go.aws");
         when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(fileBasedSecretConfig, awsBasedSecretConfig));
-        when(secretsExtension.lookupSecrets(fileBasedSecretConfig.getPluginId(), fileBasedSecretConfig, asList("username", "password")))
+        when(secretsExtension.lookupSecrets(fileBasedSecretConfig.getPluginId(), fileBasedSecretConfig, new HashSet<>(asList("username", "password"))))
                 .thenReturn(asList(new Secret("username", "some-username"), new Secret("password", "some-password")));
-        when(secretsExtension.lookupSecrets(awsBasedSecretConfig.getPluginId(), awsBasedSecretConfig, asList("access_key", "secret_key")))
+        when(secretsExtension.lookupSecrets(awsBasedSecretConfig.getPluginId(), awsBasedSecretConfig, new HashSet<>(asList("access_key", "secret_key"))))
                 .thenReturn(asList(new Secret("access_key", "ABCDEFGHIJ1D"), new Secret("secret_key", "xyzdfjsdlwdoasd;q")));
 
 
@@ -105,8 +107,8 @@ class SecretParamResolverTest {
 
         final SecretConfig fileBasedSecretConfig = new SecretConfig("secret_config_id_1", "cd.go.file");
         when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(fileBasedSecretConfig));
-        when(secretsExtension.lookupSecrets(fileBasedSecretConfig.getPluginId(), fileBasedSecretConfig, asList("username","username")))
-                .thenReturn(Collections.singletonList(new Secret("username", "some-username")));
+        when(secretsExtension.lookupSecrets(fileBasedSecretConfig.getPluginId(), fileBasedSecretConfig, singleton("username")))
+                .thenReturn(singletonList(new Secret("username", "some-username")));
 
         secretParamResolver.resolve(allSecretParams);
 

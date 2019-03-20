@@ -156,7 +156,7 @@ public class BuildWorkEnvironmentVariablesTest {
 
     private BuildWork getBuildWorkWithP4MaterialRevision(P4Material p4Material) {
         pipelineConfig.setMaterialConfigs(new Materials(p4Material).convertToConfigs());
-        JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
+        JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(p4Material, new Modification("user", "comment", "a@b.com", new Date(), "10")));
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
         List<Builder> builders = new ArrayList<>();
@@ -277,7 +277,7 @@ public class BuildWorkEnvironmentVariablesTest {
     }
 
     private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) throws IOException {
-        JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
+        JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         MaterialRevisions materialRevisions = materialRevisions();
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
         List<Builder> builders = new ArrayList<>();

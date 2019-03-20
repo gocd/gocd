@@ -44,7 +44,7 @@ describe "/api/jobs" do
     allow(@artifacts_url_reader).to receive(:findArtifactUrl).with(@job.getIdentifier()).and_return("/artifacts-url")
 
     @job_plan_loader = double("job_plan_loader")
-    allow(@job_plan_loader).to receive(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, @plans, nil, 1, @job.getIdentifier, 'UUID', @variables, @variables, nil))
+    allow(@job_plan_loader).to receive(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, @plans, nil, 1, @job.getIdentifier, 'UUID', @variables, @variables, nil, nil))
 
     @context = XmlWriterContext.new("http://test.host", @job_properties_reader, @artifacts_url_reader, @job_plan_loader, nil)
     assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
@@ -120,7 +120,7 @@ describe "/api/jobs" do
       allow(@job_properties_reader).to receive(:getPropertiesForJob).with(1).and_return(properties)
       allow(@artifacts_url_reader).to receive(:findArtifactUrl).with(@job.getIdentifier()).and_return("/artifacts-url")
       allow(@artifacts_url_reader).to receive(:findArtifactRoot).with(@job.getIdentifier()).and_return("/artifacts-path")
-      allow(@job_plan_loader).to receive(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, plans, nil, 1, @job.getIdentifier, 'UUID', variables, variables, nil))
+      allow(@job_plan_loader).to receive(:loadOriginalJobPlan).with(@job.getIdentifier()).and_return(DefaultJobPlan.new(@resources, plans, nil, 1, @job.getIdentifier, 'UUID', variables, variables, nil, nil))
 
       assign(:doc, JobXmlViewModel.new(@job).toXml(@context))
     end

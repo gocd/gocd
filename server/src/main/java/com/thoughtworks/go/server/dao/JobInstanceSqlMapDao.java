@@ -244,7 +244,8 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
 
         if (jobPlan.requiresElasticAgent()) {
             ElasticProfile elasticProfile = jobPlan.getElasticProfile();
-            ClusterProfile clusterProfile = clusterProfilesService.findProfile(elasticProfile.getClusterProfileId());
+            ClusterProfile clusterProfile = jobPlan.getClusterProfile();
+
             jobAgentMetadataDao.save(new JobAgentMetadata(jobId, elasticProfile, clusterProfile));
         }
     }
@@ -264,6 +265,7 @@ public class JobInstanceSqlMapDao extends SqlMapClientDaoSupport implements JobI
         JobAgentMetadata jobAgentMetadata = jobAgentMetadataDao.load(plan.getJobId());
         if (jobAgentMetadata != null) {
             plan.setElasticProfile(jobAgentMetadata.elasticProfile());
+            plan.setClusterProfile(jobAgentMetadata.clusterProfile());
         }
     }
 

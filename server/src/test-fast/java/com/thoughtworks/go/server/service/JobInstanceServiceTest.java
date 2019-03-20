@@ -358,7 +358,7 @@ public class JobInstanceServiceTest {
         final JobInstanceService jobService = new JobInstanceService(jobInstanceDao, buildPropertiesService, topic, jobStatusCache, transactionTemplate, transactionSynchronizationManager,
                 resolver,
                 null, goConfigService, null, pluginManager, serverHealthService);
-        DefaultJobPlan expectedPlan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), 7, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
+        DefaultJobPlan expectedPlan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), 7, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         when(jobInstanceDao.loadPlan(7l)).thenReturn(expectedPlan);
         JobIdentifier givenId = new JobIdentifier("pipeline-name", 9, "label-9", "stage-name", "2", "job-name", 10l);
         when(resolver.actualJobIdentifier(givenId)).thenReturn(new JobIdentifier("pipeline-name", 8, "label-8", "stage-name", "1", "job-name", 7l));

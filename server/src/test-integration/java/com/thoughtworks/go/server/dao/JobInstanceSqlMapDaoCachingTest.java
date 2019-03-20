@@ -290,6 +290,6 @@ public class JobInstanceSqlMapDaoCachingTest {
     }
 
     private DefaultJobPlan jobPlan(long id) {
-        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), id, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), id, null, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
     }
 }

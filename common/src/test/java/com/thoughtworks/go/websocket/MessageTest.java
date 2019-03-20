@@ -94,6 +94,6 @@ public class MessageTest {
 
     private DefaultJobPlan jobPlan() {
         JobIdentifier jobIdentifier = new JobIdentifier("pipelineName", 1, "1", "defaultStage", "1", "job1", 100L);
-        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), 1L, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null);
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), 1L, jobIdentifier, null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
     }
 }

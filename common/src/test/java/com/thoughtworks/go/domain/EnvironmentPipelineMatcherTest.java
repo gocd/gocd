@@ -43,6 +43,6 @@ public class EnvironmentPipelineMatcherTest {
     }
 
     private DefaultJobPlan jobPlan(String pipelineName) {
-        return new DefaultJobPlan(null, null, null, 0, new JobIdentifier(pipelineName, 0, "label", "stage", "1", "blahBuildName", 0L), null, new EnvironmentVariables(), new EnvironmentVariables(), null);
+        return new DefaultJobPlan(null, null, null, 0, new JobIdentifier(pipelineName, 0, "label", "stage", "1", "blahBuildName", 0L), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
     }
 }

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
@@ -37,6 +38,7 @@ public class DefaultJobPlan implements JobPlan {
     private EnvironmentVariables variables;
     private EnvironmentVariables triggerVariables;
     private ElasticProfile elasticProfile;
+    private ClusterProfile clusterProfile;
     private boolean fetchMaterials = StageConfig.DEFAULT_FETCH_MATERIALS;
     private boolean cleanWorkingDir = StageConfig.DEFAULT_CLEAN_WORKING_DIR;
 
@@ -47,7 +49,7 @@ public class DefaultJobPlan implements JobPlan {
 
     public DefaultJobPlan(Resources resources, List<ArtifactPlan> artifactPlans, List<ArtifactPropertiesGenerator> generators, long jobId,
                           JobIdentifier identifier, String agentUuid, EnvironmentVariables variables,
-                          EnvironmentVariables triggerTimeVariables, ElasticProfile elasticProfile) {
+                          EnvironmentVariables triggerTimeVariables, ElasticProfile elasticProfile, ClusterProfile clusterProfile) {
         this.jobId = jobId;
         this.identifier = identifier;
         this.resources = resources;
@@ -57,6 +59,7 @@ public class DefaultJobPlan implements JobPlan {
         this.variables = variables;
         this.triggerVariables = triggerTimeVariables;
         this.elasticProfile = elasticProfile;
+        this.clusterProfile = clusterProfile;
     }
 
     public String getPipelineName() {
@@ -122,6 +125,7 @@ public class DefaultJobPlan implements JobPlan {
                 " generators=" + generators + "]";
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -210,6 +214,10 @@ public class DefaultJobPlan implements JobPlan {
         return elasticProfile;
     }
 
+    public ClusterProfile getClusterProfile() {
+        return clusterProfile;
+    }
+
     @Override
     public boolean requiresElasticAgent() {
         return elasticProfile != null;
@@ -222,6 +230,13 @@ public class DefaultJobPlan implements JobPlan {
     @Override
     public List<ArtifactPlan> getArtifactPlansOfType(final ArtifactPlanType artifactPlanType) {
         return getArtifactPlans().stream().filter(artifactPlan -> artifactPlan.getArtifactPlanType() == artifactPlanType).collect(Collectors.toList());
+    }
+
+    @Override
+    public void setClusterProfile(ClusterProfile clusterProfile) {
+        if (clusterProfile != null) {
+            this.clusterProfile = new ClusterProfile(clusterProfile.getId(), clusterProfile.getPluginId(), clusterProfile);
+        }
     }
 
     @Override

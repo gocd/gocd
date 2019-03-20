@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain;
 
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
@@ -62,6 +63,8 @@ public interface JobPlan extends Serializable {
 
     ElasticProfile getElasticProfile();
 
+    ClusterProfile getClusterProfile();
+
     boolean requiresElasticAgent();
 
     boolean assignedToAgent();
@@ -70,4 +73,5 @@ public interface JobPlan extends Serializable {
 
     List<ArtifactPlan> getArtifactPlansOfType(final ArtifactPlanType file);
 
+    void setClusterProfile(ClusterProfile clusterProfile);
 }

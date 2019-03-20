@@ -369,6 +369,6 @@ class ElasticAgentPluginServiceTest {
     private JobPlan plan(int jobId, String pluginId) {
         ElasticProfile elasticProfile = new ElasticProfile("id", pluginId, "clusterProfileId");
         JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
-        return new DefaultJobPlan(null, new ArrayList<>(), null, jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile);
+        return new DefaultJobPlan(null, new ArrayList<>(), null, jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, null);
     }
 }

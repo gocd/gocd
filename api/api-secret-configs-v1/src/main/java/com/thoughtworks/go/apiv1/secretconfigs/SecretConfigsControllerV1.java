@@ -21,9 +21,14 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigRepresenter;
 import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigsRepresenter;
+import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.config.SecretConfigs;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.HttpException;
+import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.SecretConfigService;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
@@ -38,17 +43,19 @@ import java.util.function.Consumer;
 import static spark.Spark.*;
 
 @Component
-public class SecretConfigsControllerV1 extends ApiController implements SparkSpringController, CrudController<SecretConfigs> {
+public class SecretConfigsControllerV1 extends ApiController implements SparkSpringController, CrudController<SecretConfig> {
 
     public static final String CONFIG_ID_PARAM = "config_id";
     public final ApiAuthenticationHelper apiAuthenticationHelper;
-    private SecretConfigService configService;
+    private final SecretConfigService configService;
+    private final EntityHashingService entityHashingService;
 
     @Autowired
-    public SecretConfigsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, SecretConfigService configService) {
+    public SecretConfigsControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, SecretConfigService configService, EntityHashingService entityHashingService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.configService = configService;
+        this.entityHashingService = entityHashingService;
     }
 
     @Override
@@ -61,8 +68,8 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
         path(controllerBasePath(), () -> {
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
-            before("", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
-            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            before("", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
+            before("/*", mimeType, apiAuthenticationHelper::checkAdminUserAnd403);
 
             get("", mimeType, this::index);
             get(Routes.SecretConfigsAPI.ID, mimeType, this::show);
@@ -71,7 +78,7 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
             put(Routes.SecretConfigsAPI.ID, mimeType, this::update);
             delete(Routes.SecretConfigsAPI.ID, mimeType, this::destroy);
 
-            exception(RecordNotFoundException.class, this::notFound);
+            exception(HttpException.class, this::httpException);
         });
     }
 
@@ -81,12 +88,37 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
     }
 
     public String show(Request request, Response response) throws IOException {
-        return writerForTopLevelObject(request, response, writer -> writer.add("action", "show : " + request.params(CONFIG_ID_PARAM)));
+        SecretConfig secretConfig = fetchEntityFromConfig(request.params(CONFIG_ID_PARAM));
+
+        if (isGetOrHeadRequestFresh(request, secretConfig)) {
+            return notModified(response);
+        }
+
+        setEtagHeader(response, etagFor(secretConfig));
+        return writerForTopLevelObject(request, response, writer -> SecretConfigRepresenter.toJSON(writer, secretConfig));
     }
 
     public String create(Request request, Response response)throws IOException {
         return writerForTopLevelObject(request, response, writer -> writer.add("action", "create"));
     }
+
+//    public String create(Request request, Response response)throws IOException {
+//        final SecretConfig secretConfigToCreate = buildEntityFromRequestBody(request);
+//        haltIfEntityWithSameIdExists(secretConfigToCreate);
+//
+//        final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+//        configService.create(currentUsername(), secretConfigToCreate, operationResult);
+//
+//        return handleCreateOrUpdateResponse(request, response, secretConfigToCreate, operationResult);
+//    }
+
+//    private void haltIfEntityWithSameIdExists(SecretConfig secretConfig) {
+//        if (configService.findProfile(secretConfig.getId()) == null) {
+//            return;
+//        }
+//        secretConfig.addError("id", format("Secret Configuration ids should be unique. Secret Configuration with id '%s' already exists.", secretConfig.getId()));
+//        throw haltBecauseEntityAlreadyExists(jsonWriter(secretConfig), "secretConfig", secretConfig.getId());
+//    }
 
     public String update(Request request, Response response)throws IOException {
         return writerForTopLevelObject(request, response, writer -> writer.add("action", "update" + request.params(CONFIG_ID_PARAM)));
@@ -97,22 +129,27 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
     }
 
     @Override
-    public String etagFor(SecretConfigs entityFromServer) {
-        return null; // to be implemented
+    public String etagFor(SecretConfig entityFromServer) {
+        return entityHashingService.md5ForEntity(entityFromServer);
     }
 
     @Override
-    public SecretConfigs doFetchEntityFromConfig(String name) {
-        return null;
+    public EntityType getEntityType() {
+        return EntityType.SecretConfig;
     }
 
     @Override
-    public SecretConfigs buildEntityFromRequestBody(Request req) {
-        return null;
+    public SecretConfig doFetchEntityFromConfig(String name) {
+        return configService.getAllSecretConfigs().find(name);
     }
 
     @Override
-    public Consumer<OutputWriter> jsonWriter(SecretConfigs secretConfigs) {
+    public SecretConfig buildEntityFromRequestBody(Request req) {
+        return SecretConfigRepresenter.fromJSON(GsonTransformer.getInstance().jsonReaderFrom(req.body()));
+    }
+
+    @Override
+    public Consumer<OutputWriter> jsonWriter(SecretConfig secretConfig) {
         return null;
     }
 }

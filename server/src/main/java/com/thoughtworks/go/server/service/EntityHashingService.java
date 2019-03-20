@@ -125,6 +125,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
+    public String md5ForEntity(SecretConfig config) {
+        String cacheKey = cacheKey(config, config.getId());
+        return getDomainEntityMd5FromCache(config, cacheKey);
+    }
+
     public String md5ForEntity(ClusterProfile profile) {
         String cacheKey = cacheKey(profile, profile.getId());
         return getDomainEntityMd5FromCache(profile, cacheKey);

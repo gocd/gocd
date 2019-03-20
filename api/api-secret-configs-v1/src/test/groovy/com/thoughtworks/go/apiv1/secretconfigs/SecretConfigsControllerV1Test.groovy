@@ -18,15 +18,36 @@ package com.thoughtworks.go.apiv1.secretconfigs
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigRepresenter
+import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigsRepresenter
+import com.thoughtworks.go.config.SecretConfig
+import com.thoughtworks.go.config.SecretConfigs
+import com.thoughtworks.go.config.exceptions.EntityType
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
+import com.thoughtworks.go.server.service.EntityHashingService
+import com.thoughtworks.go.server.service.SecretConfigService
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
+import org.mockito.Mock
+import org.mockito.Mockito
 
+import static com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigRepresenter.fromJSON
+import static org.mockito.Mockito.when
 import static org.mockito.MockitoAnnotations.initMocks
 
 class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerTrait<SecretConfigsControllerV1> {
+
+  @Mock
+  SecretConfigService secretConfigService
+
+  @Mock
+  EntityHashingService entityHashingService
+
   @BeforeEach
   void setup() {
     initMocks(this)
@@ -34,14 +55,14 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
 
   @Override
   SecretConfigsControllerV1 createControllerInstance() {
-    new SecretConfigsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService))
+    new SecretConfigsControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), secretConfigService, entityHashingService)
   }
 
   @Nested
   class Index {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return 'index'
@@ -52,13 +73,52 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
         getWithApiHeader(controller.controllerPath())
       }
     }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should list all secrets configs'() {
+        def expectedConfigs = new SecretConfigs(new SecretConfig("ForDeploy", "file",
+          ConfigurationPropertyMother.create("username", false, "Jane"),
+          ConfigurationPropertyMother.create("password", true, "Doe")
+        ))
+
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(expectedConfigs)
+
+        getWithApiHeader(controller.controllerPath())
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(expectedConfigs, SecretConfigsRepresenter)
+      }
+
+      @Test
+      void 'should return empty list if there are no secrets configs'() {
+        def expectedConfigs = new SecretConfigs()
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(expectedConfigs)
+
+        getWithApiHeader(controller.controllerPath())
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(expectedConfigs, SecretConfigsRepresenter)
+      }
+    }
   }
 
   @Nested
   class Show {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -69,13 +129,89 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
         getWithApiHeader(controller.controllerPath("/foo_secret_config"))
       }
     }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should return secret config if it exists'() {
+        def expectedConfig = new SecretConfig("ForDeploy", "file",
+          ConfigurationPropertyMother.create("username", false, "Jane"),
+          ConfigurationPropertyMother.create("password", true, "Doe")
+        )
+
+        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn('md5')
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(expectedConfig))
+
+        getWithApiHeader(controller.controllerPath("/ForDeploy"))
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"md5"')
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(expectedConfig, SecretConfigRepresenter)
+      }
+
+      @Test
+      void 'should return 404 if secrets config does not exist'() {
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs())
+
+        getWithApiHeader(controller.controllerPath("/non-existing-secret-config"))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasJsonMessage(EntityType.SecretConfig.notFoundMessage("non-existing-secret-config"))
+          .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void 'should return 304 if secret is not modified'() {
+        def expectedConfig = new SecretConfig("ForDeploy", "file",
+          ConfigurationPropertyMother.create("username", false, "Jane"),
+          ConfigurationPropertyMother.create("password", true, "Doe")
+        )
+
+        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn('md5')
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(expectedConfig))
+
+        getWithApiHeader(controller.controllerPath('/ForDeploy'), ['if-none-match': '"md5"'])
+
+        assertThatResponse()
+          .isNotModified()
+          .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void 'should return 200 with elastic profile if etag does not match'() {
+        def expectedConfig = new SecretConfig("ForDeploy", "file",
+          ConfigurationPropertyMother.create("username", false, "Jane"),
+          ConfigurationPropertyMother.create("password", true, "Doe")
+        )
+
+        when(entityHashingService.md5ForEntity(expectedConfig)).thenReturn('md5-new')
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(expectedConfig))
+
+        getWithApiHeader(controller.controllerPath('/ForDeploy'), ['if-none-match': '"md5"'])
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"md5-new"')
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(expectedConfig, SecretConfigRepresenter)
+      }
+    }
   }
 
   @Nested
   class Create {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -87,13 +223,73 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
         postWithApiHeader(controller.controllerPath(), '{}')
       }
     }
+
+//    @Nested
+//    class AsAdmin {
+//      @BeforeEach
+//      void setUp() {
+//        enableSecurity()
+//        loginAsAdmin()
+//      }
+//
+//      @Test
+//      void 'should create secret config from given json payload'() {
+//        def jsonPayload = [
+//          "id"         : "secrets_id",
+//          "description": "This is used to lookup for secrets for the team X.",
+//          "plugin_id"  : "cd.go.secrets.file",
+//          "properties" : [
+//            [
+//              "key"  : "secrets_file_path",
+//              "value": "/home/secret/secret.dat"
+//            ],
+//            [
+//              "key"  : "cipher_file_path",
+//              "value": "/home/secret/secret-key.aes"
+//            ],
+//            [
+//              "key"            : "secret_password",
+//              "encrypted_value": "0a3ecba2e196f73d07b361398cc9d08b"
+//            ]
+//          ],
+//          "rules"      : [
+//            "allow": [
+//              [
+//                "action"  : "refer",
+//                "type"    : "PipelineGroup",
+//                "resource": "DeployPipelines"
+//              ]
+//            ],
+//            "deny" : [
+//              [
+//                "action"  : "refer",
+//                "type"    : "PipelineGroup",
+//                "resource": "TestPipelines"
+//              ]
+//            ]
+//          ]
+//        ]
+//
+//        def secretConfig = fromJSON(GsonTransformer.instance.jsonReaderFrom(jsonPayload))
+//
+//        when(entityHashingService.md5ForEntity(Mockito.any() as SecretConfig)).thenReturn('some-md5')
+//
+//        postWithApiHeader(controller.controllerPath(), jsonPayload)
+//
+//        assertThatResponse()
+//          .isOk()
+//          .hasEtag('"some-md5"')
+//          .hasContentType(controller.mimeType)
+//          .hasBodyWithJsonObject(secretConfig, SecretConfigRepresenter)
+//      }
+//    }
   }
 
   @Nested
   class Update {
 
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -110,7 +306,7 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
   @Nested
   class Destroy {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {

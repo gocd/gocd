@@ -68,6 +68,7 @@ public class ScheduleServiceTest {
     private InstanceFactory instanceFactory = null;
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
     private ElasticProfileService elasticProfileService;
+    private ClusterProfilesService clusterProfileService;
     private StageOrderService stageOrderService;
     private PipelineLockService pipelineLockService;
 
@@ -114,7 +115,7 @@ public class ScheduleServiceTest {
         assertThat(result.isSuccessful(), is(true));
         assertThat(result.hasMessage(), is(true));
         String respMsg = "Stage is not active. Cancellation Ignored.";
-        assertThat(result.message(),is(respMsg));
+        assertThat(result.message(), is(respMsg));
         verify(stageService).stageById(stageId);
     }
 
@@ -191,7 +192,7 @@ public class ScheduleServiceTest {
             assertThat(e.getMessage(), is("foo"));
         }
         verify(serverHealthService).update(ServerHealthState.failedToScheduleStage(HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
-                "pipeline-quux","stage-baz" , "foo"));
+                "pipeline-quux", "stage-baz", "foo"));
     }
 
     @Test
@@ -223,7 +224,7 @@ public class ScheduleServiceTest {
         service.autoSchedulePipelinesFromRequestBuffer();
 
         verify(serverHealthService).update(ServerHealthState.failedToScheduleStage(HealthStateType.general(HealthStateScope.forStage("pipeline-quux", "stage-baz")),
-                "pipeline-quux","stage-baz" , "foo"));
+                "pipeline-quux", "stage-baz", "foo"));
     }
 
     @Test
@@ -312,9 +313,10 @@ public class ScheduleServiceTest {
         elasticProfileService = mock(ElasticProfileService.class);
         stageOrderService = mock(StageOrderService.class);
         pipelineLockService = mock(PipelineLockService.class);
+        clusterProfileService = mock(ClusterProfilesService.class);
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineDao.class), mock(StageDao.class), stageOrderService, securityService, pipelineScheduleQueue,
                 jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class), environmentConfigService, pipelineLockService, serverHealthService,
                 new TestTransactionTemplate(synchronizationManager),
-                mock(AgentService.class), synchronizationManager, timeProvider, consoleActivityMonitor, pipelinePauseService, instanceFactory, schedulingPerformanceLogger, elasticProfileService);
+                mock(AgentService.class), synchronizationManager, timeProvider, consoleActivityMonitor, pipelinePauseService, instanceFactory, schedulingPerformanceLogger, elasticProfileService, clusterProfileService);
     }
 }

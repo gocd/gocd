@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.google.common.collect.ImmutableMap;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
@@ -43,8 +46,7 @@ import static com.thoughtworks.go.domain.JobState.Scheduled;
 import static com.thoughtworks.go.helper.ModificationsMother.modifyOneFile;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -314,6 +316,35 @@ public class InstanceFactoryTest {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), resourceConfigs, artifactConfigs);
         JobPlan plan = instanceFactory.createJobPlan(jobConfig, new DefaultSchedulingContext());
         assertThat(plan, is(new DefaultJobPlan(new Resources(resourceConfigs), ArtifactPlan.toArtifactPlans(artifactConfigs), new ArrayList<>(), -1, new JobIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null)));
+    }
+
+    @Test
+    public void shouldAddElasticProfileOnJobPlan() {
+        ElasticProfile elasticProfile = new ElasticProfile("id", "pluginId");
+        DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile));
+
+        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactConfigs);
+        jobConfig.setElasticProfileId("id");
+        JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
+
+        assertThat(plan.getElasticProfile(), is(elasticProfile));
+        assertNull(plan.getClusterProfile());
+    }
+
+    @Test
+    public void shouldAddElasticProfileAndClusterProfileOnJobPlan() {
+        ElasticProfile elasticProfile = new ElasticProfile("id", "pluginId", "clusterId");
+        ClusterProfile clusterProfile = new ClusterProfile("clusterId", "pluginId");
+        DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile), ImmutableMap.of("clusterId", clusterProfile));
+
+        ArtifactConfigs artifactConfigs = new ArtifactConfigs();
+        JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("test"), null, artifactConfigs);
+        jobConfig.setElasticProfileId("id");
+        JobPlan plan = instanceFactory.createJobPlan(jobConfig, context);
+
+        assertThat(plan.getElasticProfile(), is(elasticProfile));
+        assertThat(plan.getClusterProfile(), is(clusterProfile));
     }
 
     @Test

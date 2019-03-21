@@ -32,7 +32,7 @@ class SecretParamsTest {
     class parse {
         @Test
         void shouldParseSecretParamStringToObject() {
-            String materialUrl = "http://${SECRET[secret_config_id][lookup_username]}:${SECRET[secret_config_id][lookup_password]}@foo.com/foo.git";
+            String materialUrl = "http://{{SECRET:[secret_config_id][lookup_username]}}:{{SECRET:[secret_config_id][lookup_password]}}@foo.com/foo.git";
             SecretParams secretParams = SecretParams.parse(materialUrl);
 
             assertThat(secretParams)
@@ -42,7 +42,7 @@ class SecretParamsTest {
 
         @Test
         void shouldReturnAnEmptyListInAbsenceOfSecretParamsInString() {
-            String materialUrl = "http://username:${SECRET[secret_config_id]}@foo.com/foo.git";
+            String materialUrl = "http://username:{{SECRET:[secret_config_id]}}@foo.com/f}oo.git";
             SecretParams secretParams = SecretParams.parse(materialUrl);
 
             assertThat(secretParams).isEmpty();
@@ -148,10 +148,10 @@ class SecretParamsTest {
                     newResolvedParam("password", "some-password")
             );
 
-            assertThat(allSecretParams.substitute("${SECRET[secret_config_id][username]}"))
+            assertThat(allSecretParams.substitute("{{SECRET:[secret_config_id][username]}}"))
                     .isEqualTo("some-username");
 
-            assertThat(allSecretParams.substitute("${SECRET[secret_config_id][username]}@${SECRET[secret_config_id][password]}"))
+            assertThat(allSecretParams.substitute("{{SECRET:[secret_config_id][username]}}@{{SECRET:[secret_config_id][password]}}"))
                     .isEqualTo("some-username@some-password");
 
         }
@@ -160,7 +160,7 @@ class SecretParamsTest {
         void shouldThrowWhenSecretParamIsUsedBeforeItIsResolved() {
             final SecretParams secretParams = new SecretParams(newParam("username"));
 
-            assertThatCode(() -> secretParams.substitute("${SECRET[secret_config_id][username]}"))
+            assertThatCode(() -> secretParams.substitute("{{SECRET:[secret_config_id][username]}}"))
                     .isInstanceOf(UnresolvedSecretParamException.class)
                     .hasMessage("SecretParam 'username' is used before it is resolved.");
 
@@ -171,7 +171,7 @@ class SecretParamsTest {
     class Mask {
         @Test
         void shouldMaskSecretParamsInGivenString() {
-            final String originalValue = "bob:${SECRET[secret_config_id][username]}";
+            final String originalValue = "bob:{{SECRET:[secret_config_id][username]}}";
             final SecretParams secretParams = new SecretParams(newParam("username"));
 
             final String maskedValue = secretParams.mask(originalValue);

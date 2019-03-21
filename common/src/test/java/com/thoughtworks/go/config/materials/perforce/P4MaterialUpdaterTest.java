@@ -62,7 +62,7 @@ class P4MaterialUpdaterTest extends P4MaterialUpdaterTestBase {
     @Test
     void shouldUsePasswordForCommandLineWhileBuildingAnCommand() {
         P4Material material = p4Fixture.material(VIEW);
-        material.setPassword("${SECRET[secret_config_id][lookup_pass]}");
+        material.setPassword("{{SECRET:[secret_config_id][lookup_pass]}}");
 
         material.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
 
@@ -70,7 +70,7 @@ class P4MaterialUpdaterTest extends P4MaterialUpdaterTestBase {
 
         assertThat(buildCommand.dump())
                 .contains("resolved_password")
-                .doesNotContain("${SECRET[secret_config_id][lookup_pass]}");
+                .doesNotContain("{{SECRET:[secret_config_id][lookup_pass]}}");
 
     }
 }

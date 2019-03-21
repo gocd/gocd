@@ -282,7 +282,7 @@ public class TfsMaterialTest {
     class hasSecretParams {
         @Test
         void shouldBeTrueIfMaterialUrlHasSecretParams() {
-            UrlArgument urlArgument = new UrlArgument("http://username:${SECRET[secret_config_id][lookup_password]}@foo.com");
+            UrlArgument urlArgument = new UrlArgument("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com");
             TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), urlArgument, null, null, null, null);
 
             assertThat(tfsMaterial.hasSecretParams()).isTrue();
@@ -292,7 +292,7 @@ public class TfsMaterialTest {
         void shouldBeTrueIfPasswordHasSecretParam() {
             UrlArgument urlArgument = new UrlArgument("http://foo.com");
             TfsMaterial tfsMaterial
-                    = new TfsMaterial(new GoCipher(), urlArgument, null, null, "${SECRET[secret_config_id][lookup_password]}", null);
+                    = new TfsMaterial(new GoCipher(), urlArgument, null, null, "{{SECRET:[secret_config_id][lookup_password]}}", null);
 
             assertThat(tfsMaterial.hasSecretParams()).isTrue();
         }
@@ -311,10 +311,10 @@ public class TfsMaterialTest {
     class getSecretParams {
         @Test
         void shouldReturnAListOfSecretParams() {
-            UrlArgument urlArgument = new UrlArgument("http://username:${SECRET[secret_config_id][lookup_password]}@foo.com");
+            UrlArgument urlArgument = new UrlArgument("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com");
             TfsMaterial tfsMaterial
                     = new TfsMaterial(new GoCipher(), urlArgument, null,
-                    null, "${SECRET[secret_config_id][lookup_pass]}", null);
+                    null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);
 
             assertThat(tfsMaterial.getSecretParams())
                     .hasSize(2)
@@ -344,7 +344,7 @@ public class TfsMaterialTest {
 
         @Test
         void shouldReturnAResolvedPassword_IfPasswordDefinedAsSecretParam() {
-            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "${SECRET[secret_config_id][lookup_pass]}", null);
+            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);
 
             tfsMaterial.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
 
@@ -353,7 +353,7 @@ public class TfsMaterialTest {
 
         @Test
         void shouldErrorOutWhenCalledOnAUnResolvedSecretParam_IfPasswordDefinedAsSecretParam() {
-            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "${SECRET[secret_config_id][lookup_pass]}", null);
+            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);
 
             assertThatCode(tfsMaterial::passwordForCommandLine)
                     .isInstanceOf(UnresolvedSecretParamException.class)
@@ -365,7 +365,7 @@ public class TfsMaterialTest {
     class setPassword {
         @Test
         void shouldParsePasswordString_IfDefinedAsSecretParam() {
-            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "${SECRET[secret_config_id][lookup_pass]}", null);
+            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("some-url"), null, null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);
 
             assertThat(tfsMaterial.getSecretParams())
                     .hasSize(1)

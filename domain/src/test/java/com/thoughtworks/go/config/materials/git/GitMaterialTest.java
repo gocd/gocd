@@ -545,7 +545,7 @@ public class GitMaterialTest {
     class hasSecretParams {
         @Test
         void shouldBeTrueIfMaterialUrlHasSecretParams() {
-            GitMaterial git = new GitMaterial("http://username:${SECRET[secret_config_id][lookup_password]}@foo.com");
+            GitMaterial git = new GitMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com");
 
             assertThat(git.hasSecretParams()).isTrue();
         }
@@ -562,7 +562,7 @@ public class GitMaterialTest {
     class getSecretParams {
         @Test
         void shouldReturnAListOfSecretParams() {
-            GitMaterial git = new GitMaterial("http://username:${SECRET[secret_config_id][lookup_password]}@foo.com");
+            GitMaterial git = new GitMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com");
 
             assertThat(git.getSecretParams())
                     .hasSize(1)

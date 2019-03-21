@@ -27,7 +27,7 @@ class SecretParamTest {
     class parse {
         @Test
         void shouldParseSecretParamStringToObject() {
-            String materialUrl = "http://${SECRET[secret_config_id][lookup_username]}:${SECRET[secret_config_id][lookup_password]}@foo.com/foo.git";
+            String materialUrl = "http://{{SECRET:[secret_config_id][lookup_username]}}:{{SECRET:[secret_config_id][lookup_password]}}@foo.com/foo.git";
             SecretParams secretParams = SecretParams.parse(materialUrl);
 
             assertThat(secretParams)
@@ -38,7 +38,7 @@ class SecretParamTest {
 
         @Test
         void shouldReturnAnEmptyListInAbsenceOfSecretParamsInString() {
-            String materialUrl = "http://username:${SECRET[secret_config_id]}@foo.com/foo.git";
+            String materialUrl = "http://username:{{SECRET:[secret_config_id]}}@foo.com/foo.git";
             SecretParams secretParams = SecretParams.parse(materialUrl);
 
             assertThat(secretParams).isEmpty();

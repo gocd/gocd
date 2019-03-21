@@ -80,7 +80,7 @@ class TFSMaterialUpdaterTest {
     @Test
     void shouldUsePasswordForCommandLineWhileBuildingAnCommand() {
         TfsMaterial tfsMaterial = MaterialsMother.tfsMaterial("https://foo:foopassword@thisdoesnotexist.io/repo");
-        tfsMaterial.setPassword("${SECRET[secret_config_id][lookup_pass]}");
+        tfsMaterial.setPassword("{{SECRET:[secret_config_id][lookup_pass]}}");
 
         tfsMaterial.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
 
@@ -88,7 +88,7 @@ class TFSMaterialUpdaterTest {
 
         assertThat(buildCommand.dump())
                 .contains("resolved_password")
-                .doesNotContain("${SECRET[secret_config_id][lookup_pass]}");
+                .doesNotContain("{{SECRET:[secret_config_id][lookup_pass]}}");
 
     }
 }

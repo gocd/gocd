@@ -121,7 +121,7 @@ class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
     @Test
     void shouldUsePasswordForCommandLineWhileBuildingAnCommand() {
         SvnMaterial svnMaterial = MaterialsMother.svnMaterial("https://foo:foopassword@thisdoesnotexist.io/repo");
-        svnMaterial.setPassword("${SECRET[secret_config_id][lookup_pass]}");
+        svnMaterial.setPassword("{{SECRET:[secret_config_id][lookup_pass]}}");
 
         svnMaterial.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
 
@@ -129,7 +129,7 @@ class SvnMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
         assertThat(buildCommand.dump())
                 .contains("resolved_password")
-                .doesNotContain("${SECRET[secret_config_id][lookup_pass]}");
+                .doesNotContain("{{SECRET:[secret_config_id][lookup_pass]}}");
 
     }
 

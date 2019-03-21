@@ -106,7 +106,7 @@ public class ElasticProfile extends PluginProfile {
                 "id='" + id + '\'' +
                 ", pluginId='" + pluginId + '\'' +
                 ", clusterProfileId='" + clusterProfileId + '\'' +
-                ", properties='" + super.getPropertyMetadataAndValuesAsMap() + '\'' +
+                ", properties='" + super.getConfigurationAsMap(false) + '\'' +
                 '}';
     }
 }

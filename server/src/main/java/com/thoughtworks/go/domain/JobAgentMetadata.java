@@ -65,7 +65,7 @@ public class JobAgentMetadata extends PersistentObject {
     public ClusterProfile clusterProfile() {
         Map map = GSON.fromJson(clusterProfileMetadata, LinkedHashMap.class);
 
-        if (map.isEmpty()) {
+        if (map == null || map.isEmpty()) {
             return null;
         }
 

@@ -16,79 +16,68 @@
 
 package com.thoughtworks.go.domain.config;
 
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.security.CryptoException;
-import com.thoughtworks.go.security.GoCipher;
-import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.junit.jupiter.api.Test;
 
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
-public class ConfigurationTest {
+class ConfigurationTest {
 
     @Test
-    public void shouldCheckForEqualityForConfiguration() {
+    void shouldCheckForEqualityForConfiguration() {
         ConfigurationProperty configurationProperty = new ConfigurationProperty();
         Configuration configuration = new Configuration(configurationProperty);
-        assertThat(configuration, is(new Configuration(configurationProperty)));
+        assertThat(configuration).isEqualTo(new Configuration(configurationProperty));
     }
 
     @Test
-    public void shouldGetConfigForDisplay() {
+    void shouldGetConfigForDisplay() {
         ConfigurationProperty property1 = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, null);
         ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, null);
 
         Configuration config = new Configuration(property1, property2);
 
-        assertThat(config.forDisplay(asList(property1)), is("[key1=value1]"));
-        assertThat(config.forDisplay(asList(property1, property2)), is("[key1=value1, key2=value2]"));
+        assertThat(config.forDisplay(asList(property1))).isEqualTo("[key1=value1]");
+        assertThat(config.forDisplay(asList(property1, property2))).isEqualTo("[key1=value1, key2=value2]");
     }
 
     @Test
-    public void shouldNotGetValuesOfSecureKeysInConfigForDisplay() {
+    void shouldNotGetValuesOfSecureKeysInConfigForDisplay() {
         ConfigurationProperty property1 = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, null);
         ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, null);
         ConfigurationProperty property3 = new ConfigurationProperty(new ConfigurationKey("secure"), null, new EncryptedConfigurationValue("secured-value"), null);
 
         Configuration config = new Configuration(property1, property2, property3);
 
-        assertThat(config.forDisplay(asList(property1, property2, property3)), is("[key1=value1, key2=value2]"));
+        assertThat(config.forDisplay(asList(property1, property2, property3))).isEqualTo("[key1=value1, key2=value2]");
     }
 
     @Test
-    public void shouldGetConfigurationKeysAsList() {
+    void shouldGetConfigurationKeysAsList() {
         ConfigurationProperty property1 = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, null);
         ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, null);
         Configuration config = new Configuration(property1, property2);
-        assertThat(config.listOfConfigKeys(), is(asList("key1", "key2")));
+        assertThat(config.listOfConfigKeys()).isEqualTo(asList("key1", "key2"));
     }
 
     @Test
-    public void shouldGetConfigPropertyForGivenKey() {
+    void shouldGetConfigPropertyForGivenKey() {
         ConfigurationProperty property1 = new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1"), null, null);
         ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2"), null, null);
         Configuration config = new Configuration(property1, property2);
-        assertThat(config.getProperty("key2"), is(property2));
+        assertThat(config.getProperty("key2")).isEqualTo(property2);
     }
 
     @Test
-    public void shouldGetNullIfPropertyNotFoundForGivenKey() {
+    void shouldGetNullIfPropertyNotFoundForGivenKey() {
         Configuration config = new Configuration();
-        assertThat(config.getProperty("key2"), is(nullValue()));
+        assertThat(config.getProperty("key2")).isNull();
     }
 
     @Test
-    public void shouldClearConfigurationsWhichAreEmptyAndNoErrors() throws Exception {
+    void shouldClearConfigurationsWhichAreEmptyAndNoErrors() throws Exception {
         Configuration configuration = new Configuration();
         configuration.add(new ConfigurationProperty(new ConfigurationKey("name-one"), new ConfigurationValue()));
         configuration.add(new ConfigurationProperty(new ConfigurationKey("name-two"), new EncryptedConfigurationValue()));
@@ -100,13 +89,13 @@ public class ConfigurationTest {
 
         configuration.clearEmptyConfigurations();
 
-        assertThat(configuration.size(), is(1));
-        assertThat(configuration.get(0).getConfigurationKey().getName(), is("name-four"));
+        assertThat(configuration.size()).isEqualTo(1);
+        assertThat(configuration.get(0).getConfigurationKey().getName()).isEqualTo("name-four");
 
     }
 
     @Test
-    public void shouldValidateUniqueKeysAreAddedToConfiguration(){
+    void shouldValidateUniqueKeysAreAddedToConfiguration() {
         ConfigurationProperty one = new ConfigurationProperty(new ConfigurationKey("one"), new ConfigurationValue("value1"));
         ConfigurationProperty duplicate1 = new ConfigurationProperty(new ConfigurationKey("ONE"), new ConfigurationValue("value2"));
         ConfigurationProperty duplicate2 = new ConfigurationProperty(new ConfigurationKey("ONE"), new ConfigurationValue("value3"));
@@ -114,17 +103,17 @@ public class ConfigurationTest {
         Configuration configuration = new Configuration(one, duplicate1, duplicate2, two);
 
         configuration.validateUniqueness("Entity");
-        assertThat(one.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Entity"), is(true));
-        assertThat(duplicate1.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Entity"), is(true));
-        assertThat(duplicate2.errors().isEmpty(), is(false));
-        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Entity"), is(true));
-        assertThat(two.errors().isEmpty(), is(true));
+        assertThat(one.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Entity")).isTrue();
+        assertThat(duplicate1.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Entity")).isTrue();
+        assertThat(duplicate2.errors().isEmpty()).isFalse();
+        assertThat(one.errors().getAllOn(ConfigurationProperty.CONFIGURATION_KEY).contains("Duplicate key 'ONE' found for Entity")).isTrue();
+        assertThat(two.errors().isEmpty()).isTrue();
     }
 
     @Test
-    public void validateTreeShouldValidateAllConfigurationProperties() {
+    void validateTreeShouldValidateAllConfigurationProperties() {
         ConfigurationProperty outputDirectory = mock(ConfigurationProperty.class);
         ConfigurationProperty inputDirectory = mock(ConfigurationProperty.class);
 
@@ -137,7 +126,7 @@ public class ConfigurationTest {
     }
 
     @Test
-    public void hasErrorsShouldVerifyIfAnyConfigurationPropertyHasErrors() {
+    void hasErrorsShouldVerifyIfAnyConfigurationPropertyHasErrors() {
         ConfigurationProperty outputDirectory = mock(ConfigurationProperty.class);
         ConfigurationProperty inputDirectory = mock(ConfigurationProperty.class);
 
@@ -146,51 +135,9 @@ public class ConfigurationTest {
 
         Configuration configuration = new Configuration(outputDirectory, inputDirectory);
 
-        assertTrue(configuration.hasErrors());
+        assertThat(configuration.hasErrors()).isTrue();
 
         verify(outputDirectory).hasErrors();
         verify(inputDirectory).hasErrors();
-    }
-
-    @Test
-    public void shouldReturnConfigWithErrorsAsMap() {
-        ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("key", false, "value");
-        configurationProperty.addError("key", "invalid key");
-        Configuration configuration = new Configuration(configurationProperty);
-        Map<String, Map<String, String>> configWithErrorsAsMap = configuration.getConfigWithErrorsAsMap();
-        HashMap<Object, Object> expectedMap = new HashMap<>();
-        HashMap<Object, Object> errorsMap = new HashMap<>();
-        errorsMap.put("value", "value");
-        ConfigErrors configErrors = new ConfigErrors();
-        configErrors.add("key", "invalid key");
-        errorsMap.put("errors", configErrors.getAll().toString());
-        expectedMap.put("key", errorsMap);
-
-        assertThat(configWithErrorsAsMap, is(expectedMap));
-    }
-
-    @Test
-    public void shouldReturnConfigWithMatadataAsMap() throws CryptoException {
-        ConfigurationProperty configurationProperty1 = ConfigurationPropertyMother.create("key", false, "value");
-        String password = new GoCipher().encrypt("password");
-        ConfigurationProperty configurationProperty2 = ConfigurationPropertyMother.create("secure");
-        configurationProperty2.setEncryptedValue(new EncryptedConfigurationValue(password));
-        Configuration configuration = new Configuration(configurationProperty1, configurationProperty2);
-        Map<String, Map<String, Object>> metadataAndValuesAsMap = configuration.getPropertyMetadataAndValuesAsMap();
-        HashMap<Object, Object> expectedMap = new HashMap<>();
-        HashMap<Object, Object> metadataMap1 = new HashMap<>();
-        metadataMap1.put("value", "value");
-        metadataMap1.put("displayValue", "value");
-        metadataMap1.put("isSecure", false);
-        expectedMap.put("key", metadataMap1);
-
-        HashMap<Object, Object> metadataMap2 = new HashMap<>();
-        metadataMap2.put("value", password);
-        metadataMap2.put("displayValue", "****");
-        metadataMap2.put("isSecure", true);
-        expectedMap.put("secure", metadataMap2);
-
-        assertThat(metadataAndValuesAsMap, is(expectedMap));
-
     }
 }

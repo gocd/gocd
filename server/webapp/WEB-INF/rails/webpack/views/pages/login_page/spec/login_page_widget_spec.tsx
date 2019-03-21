@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-import * as _ from "lodash";
 import * as m from "mithril";
 import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
 import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
-import {Credentials, LoginPageWidget} from "views/pages/login_page/login_page_widget";
+import {LoginPageWidget} from "views/pages/login_page/login_page_widget";
+import * as styles from "../login_page_widget.scss";
 
 describe("LoginPageWidget", () => {
   const helper = new TestHelper();
@@ -59,7 +59,7 @@ describe("LoginPageWidget", () => {
     expect($(helper.root!)).not.toContainText("redirect");
 
     expect(helper.find("a")).not.toBeInDOM();
-    expect(helper.find("img")).not.toBeInDOM();
+    expect(helper.find(`.${styles.loginOptions} img`)).not.toBeInDOM();
   });
 
   it("should show web login buttons and no login form when only web based plugins are installed", () => {
@@ -82,10 +82,10 @@ describe("LoginPageWidget", () => {
     expect($(helper.root!)).not.toContainText("redirect");
 
     expect(helper.find("a")).toBeInDOM();
-    expect(helper.find("img")).toBeInDOM();
+    expect(helper.find(`.${styles.loginOptions} img`)).toBeInDOM();
   });
 
-  it("should redirect message if only 1 web based plugin is installed and no password plugins", () => {
+  it("should show redirect message if only 1 web based plugin is installed and no password plugins", () => {
     mount({
             hasPasswordPlugins: false,
             hasWebBasedPlugins: true,
@@ -102,7 +102,7 @@ describe("LoginPageWidget", () => {
     expect($(helper.root!)).toContainText("redirect");
 
     expect(helper.find("a")).toBeInDOM();
-    expect(helper.find("img")).toBeInDOM();
+    expect(helper.find(`.${styles.redirect} img`)).toBeInDOM();
   });
 
   it("should show login error", () => {
@@ -123,7 +123,7 @@ describe("LoginPageWidget", () => {
   });
 
   function mount(authPluginInfo: AuthPluginInfo) {
-    helper.mount(() => <LoginPageWidget {...authPluginInfo} credentials={new Credentials()} submitCallback={_.noop}/>);
+    helper.mount(() => <LoginPageWidget {...authPluginInfo}/>);
   }
 
 });

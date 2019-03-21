@@ -17,8 +17,10 @@
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
+import * as styles from "views/pages/login_page/login_page_widget.scss";
 
 const LOGIN_PAGE_URL = "/go/auth/login";
+const loggedOut      = require("./icon_loggedout.svg");
 
 export class LogoutPageWidget extends MithrilViewComponent<AuthPluginInfo> {
 
@@ -34,12 +36,28 @@ export class LogoutPageWidget extends MithrilViewComponent<AuthPluginInfo> {
     if (LogoutPageWidget.shouldRedirect(vnode)) {
       return LogoutPageWidget.redirectMessage();
     }
-    return <div>You have been logged out. <a href={LOGIN_PAGE_URL}>Click here</a> to login again.</div>;
+    return (
+      <div className={styles.loggedOut}>
+        <div className={styles.logoutGraphics}>
+          <img src={loggedOut}/>
+        </div>
+        <p>You have been logged out. <a href={LOGIN_PAGE_URL}>Click here</a> to login again.</p>
+      </div>
+    );
   }
 
   private static redirectMessage() {
-    return (<div>You have been logged out. You will be automatically redirected to the <a href={LOGIN_PAGE_URL}>login
-      page</a> in a few seconds</div>);
+    return (
+      <div className={styles.loggedOut}>
+        <div className={styles.logoutGraphics}>
+          <img src={loggedOut}/>
+        </div>
+        <p>
+          You have been logged out.
+          You will be automatically redirected to the <a href={LOGIN_PAGE_URL}>login page</a> in a few seconds.
+        </p>
+      </div>
+    );
   }
 
   private static shouldRedirect(vnode: m.Vnode<AuthPluginInfo, LogoutPageWidget>) {

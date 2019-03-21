@@ -13,12 +13,137 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@import "../../global/common";
 
-.web-login-link {
-  padding-right: 20px;
-}
+$boxshadow: rgba(0, 0, 0, 0.15);
+
 
 .login-button-wrapper {
   padding-left:   15px;
   padding-bottom: 15px;
 }
+
+.login-form {
+  display:         flex;
+  justify-content: space-between;
+  width:           870px;
+  height:          480px;
+  margin:          0 auto;
+  box-shadow:      1px 1px 10px $boxshadow;
+  background:      $white;
+}
+
+.login-graphics {
+  width: 435px;
+}
+
+.login-methods {
+  display:         flex;
+  padding:         50px;
+  flex-direction:  column;
+  justify-content: center;
+  width:           435px;
+}
+
+.login-user {
+  width: 100%;
+}
+
+.login-form-fields {
+  list-style-type: none;
+  margin:          0;
+  padding:         0;
+
+
+  &:active {
+    border: none;
+  }
+
+  > li {
+    margin-bottom: 20px;
+  }
+}
+
+.login-input {
+  border:        none;
+  border-bottom: 1px solid $border-color;
+  width:         337px;
+  height:        50px;
+  padding:       0 20px 0 0;
+  box-sizing:    border-box;
+
+  &::placeholder {
+    color: $icon-color;
+
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.other-login-methods {
+  margin:     30px 0 0;
+  text-align: center;
+}
+
+.login-options {
+  display:         flex;
+  width:           250px;
+  height:          75px;
+  margin:          0 auto;
+  justify-content: space-between;
+  position:        relative;
+
+  &:after {
+    content:  "";
+    display:  block;
+    border:   1px dashed $border-color;
+    position: absolute;
+    left:     50%;
+    height:   100%;
+  }
+
+}
+
+.web-login-link {
+  display: block;
+}
+
+.redirect {
+  text-align: center;
+  width:      250px;
+  margin:     0 auto;
+}
+
+.logged-out {
+  display:     flex;
+  align-items: center;
+  width:       500px;
+  margin:      0 auto;
+  background:  $white;
+  padding:     30px;
+  box-shadow:  1px 1px 10px $boxshadow;
+
+  p {
+    margin-bottom: 0;
+  }
+
+  a {
+    color:           $link-color;
+    text-decoration: none;
+  }
+}
+
+.logout-graphics {
+  width:        70px;
+  margin-right: 30px;
+}
+
+.error-box {
+  width:      870px;
+  padding:    10px 0;
+  margin:     0 auto;
+
+}
+

@@ -23,14 +23,22 @@
   border-radius: $global-border-radius;
   margin:        0 0 10px 0;
   position:      relative;
+
   p {
     margin: 0;
   }
-  pre {
-    margin: 0;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+
+  a {
+    color: $link-color;
+    text-decoration: none;
   }
+
+  pre {
+    margin:      0;
+    white-space: pre-wrap;
+    word-wrap:   break-word;
+  }
+
   .close-callout {
     color:      $text-color;
     cursor:     pointer;
@@ -46,16 +54,19 @@
     color:            darken($success, 50%);
     border-color:     darken($success, 10%);
   }
+
   &.warning {
     background-color: $warning;
     color:            darken($warning, 60%);
     border-color:     darken($warning, 10%);
   }
+
   &.info {
     background-color: $info;
     color:            darken($info, 50%);;
     border-color:     darken($info, 10%);
   }
+
   &.alert {
     background-color: $alert;
     color:            darken($alert, 50%);

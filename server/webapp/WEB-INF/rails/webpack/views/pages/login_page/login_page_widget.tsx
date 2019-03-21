@@ -17,67 +17,43 @@
 import {docsUrl} from "gen/gocd_version";
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import * as stream from "mithril/stream";
-import {Stream} from "mithril/stream";
 import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
-import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import * as s from "underscore.string";
+import * as uuid from "uuid/v4";
 import {Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Form, FormBody, FormHeader} from "views/components/forms/form";
-import {SimplePasswordField, TextField} from "views/components/forms/input_fields";
 import * as styles from "./login_page_widget.scss";
 
-//tslint:disable-next-line
-export interface Credentials extends ValidatableMixin {
-}
+const gocdLogo = require("./gocd_login.svg");
 
-export class Credentials extends ValidatableMixin {
-  readonly username: Stream<string>;
-  readonly password: Stream<string>;
+class LoginFormWidget extends MithrilViewComponent<AuthPluginInfo> {
+  private readonly formID = `login-form-${uuid()}`;
 
-  constructor() {
-    super();
-    this.username = stream();
-    this.password = stream();
-
-    ValidatableMixin.call(this);
-    this.validatePresenceOf("username");
-    this.validatePresenceOf("password");
-  }
-}
-
-type AuthPluginInfoWithCredentials =
-  AuthPluginInfo
-  & { credentials: Credentials, submitCallback: (credentials: Credentials) => void };
-
-class LoginFormWidget extends MithrilViewComponent<AuthPluginInfoWithCredentials> {
-
-  view(vnode: m.Vnode<AuthPluginInfoWithCredentials, this>) {
+  view(vnode: m.Vnode<AuthPluginInfo, this>) {
     return (
-      <div onkeypress={(event: KeyboardEvent) => {
-        const keycode = (event.keyCode ? event.keyCode : event.which);
-        if (event.key === "Enter" || keycode === 13) {
-          vnode.attrs.submitCallback(vnode.attrs.credentials);
-        }
-      }}>
-        <FormBody>
-          <TextField property={vnode.attrs.credentials.username}
-                     label={"Username:"}
-                     hideRequiredAsterix={true}
-                     required={true}
-                     errorText={vnode.attrs.credentials.errors().errorsForDisplay("username")}/>
-          <SimplePasswordField property={vnode.attrs.credentials.password}
-                               label={"Password:"}
-                               required={true}
-                               hideRequiredAsterix={true}
-                               errorText={vnode.attrs.credentials.errors().errorsForDisplay("password")}/>
-          <div class={styles.loginButtonWrapper}>
-            <Primary onclick={() => {
-              vnode.attrs.submitCallback(vnode.attrs.credentials);
-            }}>Sign in</Primary>
-          </div>
-        </FormBody>
+
+      <div className={styles.loginUser}>
+
+        <form method="post" action="/go/auth/security_check" data-form-id={this.formID}>
+          <ul className={styles.loginFormFields}>
+            <li><input type="text"
+                       name="j_username"
+                       placeholder="Username"
+                       className={styles.loginInput}
+                       data-test-id="form-field-input-username"/></li>
+            <li><input type="password"
+                       name="j_password"
+                       placeholder="Password"
+                       className={styles.loginInput}
+                       data-test-id="form-field-input-password"
+            /></li>
+
+            <li>
+              <Primary onclick={() => {
+                (document.querySelector(`[data-test-id='${this.formID}']`)! as HTMLFormElement).submit();
+              }}>Sign in</Primary></li>
+          </ul>
+        </form>
       </div>
     );
   }
@@ -86,9 +62,9 @@ class LoginFormWidget extends MithrilViewComponent<AuthPluginInfoWithCredentials
 class ShowAllWebBasedPluginLinks extends MithrilViewComponent<AuthPluginInfo> {
   view(vnode: m.Vnode<AuthPluginInfo, this>): m.Children | void | null {
     return (
-      <div>
+      <div className={styles.otherLoginMethods}>
         <p>Login using one of the login methods:</p>
-        <p>
+        <div className={styles.loginOptions}>
           {vnode.attrs.webBasedPlugins.map((eachPlugin) => {
             return (
               <a
@@ -98,14 +74,15 @@ class ShowAllWebBasedPluginLinks extends MithrilViewComponent<AuthPluginInfo> {
                 href={eachPlugin.redirectUrl}>
                 <img
                   data-test-id={s.slugify(`image for ${eachPlugin.pluginName}`)}
-                  width="50px"
-                  height="50px"
+                  width="75px"
+                  height="75px"
                   alt={`Login using ${eachPlugin.pluginName}`}
                   src={eachPlugin.imageUrl}/>
+
               </a>
             );
           })}
-        </p>
+        </div>
       </div>
     );
   }
@@ -113,11 +90,11 @@ class ShowAllWebBasedPluginLinks extends MithrilViewComponent<AuthPluginInfo> {
 
 class ShowRedirectToDefaultPlugin extends MithrilComponent<AuthPluginInfo> {
   oninit(vnode: m.Vnode<AuthPluginInfo, {}>): any {
-    const defaultWebBasedPlugin = vnode.attrs.webBasedPlugins[0];
 
     if (!vnode.attrs.doNotAutoRedirect) {
       window.setTimeout(() => {
-        window.location.href = defaultWebBasedPlugin.redirectUrl;
+        const defaultWebBasedPlugin = vnode.attrs.webBasedPlugins[0];
+        window.location.href        = defaultWebBasedPlugin.redirectUrl;
       }, 5000);
     }
   }
@@ -126,9 +103,10 @@ class ShowRedirectToDefaultPlugin extends MithrilComponent<AuthPluginInfo> {
     const defaultWebBasedPlugin = vnode.attrs.webBasedPlugins[0];
 
     return (
-      <div>
-        You will be automatically redirected to login using the
-        plugin (
+      <div className={styles.redirect}>
+        <p>You will be automatically redirected to login using the
+          plugin
+        </p>
         <a
           className={styles.webLoginLink}
           data-test-id={s.slugify(`link to login using ${defaultWebBasedPlugin.pluginName}`)}
@@ -136,37 +114,45 @@ class ShowRedirectToDefaultPlugin extends MithrilComponent<AuthPluginInfo> {
           href={defaultWebBasedPlugin.redirectUrl}>
           <img
             data-test-id={s.slugify(`image for ${defaultWebBasedPlugin.pluginName}`)}
-            width="50px"
-            height="50px"
+            width="75px"
+            height="75px"
             alt={`Login using ${defaultWebBasedPlugin.pluginName}`}
             src={defaultWebBasedPlugin.imageUrl}/>
         </a>
-        )
+
       </div>
     );
   }
 }
 
-export class LoginPageWidget extends MithrilViewComponent<AuthPluginInfoWithCredentials> {
-  view(vnode: m.Vnode<AuthPluginInfoWithCredentials, this>) {
+export class LoginPageWidget extends MithrilViewComponent<AuthPluginInfo> {
+  view(vnode: m.Vnode<AuthPluginInfo, this>) {
     return (
-      <FormHeader>
-        <Form>
+      <div>
+        <div className={styles.loginForm}>
+          <div className={styles.loginMethods}>
+            {this.maybeShowLoginFormWidget(vnode)}
+            {this.maybeShowLoginIcons(vnode)}
+          </div>
+          <div className={styles.loginGraphics}>
+            <img src={gocdLogo}/>
+          </div>
+        </div>
+        <div className={styles.errorBox}>
           {this.maybeLoginError(vnode)}
-          {this.maybeShowLoginFormWidget(vnode)}
-          {this.maybeShowLoginIcons(vnode)}
-        </Form>
-      </FormHeader>
+        </div>
+      </div>
+
     );
   }
 
-  private maybeShowLoginFormWidget(vnode: m.Vnode<AuthPluginInfoWithCredentials, this>) {
+  private maybeShowLoginFormWidget(vnode: m.Vnode<AuthPluginInfo, this>) {
     if (vnode.attrs.hasPasswordPlugins) {
       return <LoginFormWidget {...vnode.attrs}/>;
     }
   }
 
-  private maybeShowLoginIcons(vnode: m.Vnode<AuthPluginInfoWithCredentials, this>) {
+  private maybeShowLoginIcons(vnode: m.Vnode<AuthPluginInfo, this>) {
     if (vnode.attrs.hasWebBasedPlugins) {
       if (vnode.attrs.webBasedPlugins.length === 1 && !vnode.attrs.hasPasswordPlugins) {
         return <ShowRedirectToDefaultPlugin {...vnode.attrs} />;
@@ -176,7 +162,7 @@ export class LoginPageWidget extends MithrilViewComponent<AuthPluginInfoWithCred
     }
   }
 
-  private maybeLoginError(vnode: m.Vnode<AuthPluginInfoWithCredentials, this>) {
+  private maybeLoginError(vnode: m.Vnode<AuthPluginInfo, this>) {
     if (vnode.attrs.loginError) {
       return (
         <FlashMessage type={MessageType.alert}>

@@ -16,26 +16,23 @@
 
 import * as m from "mithril";
 import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
-import {Credentials, LoginPageWidget} from "views/pages/login_page/login_page_widget";
+import {LoginPageWidget} from "views/pages/login_page/login_page_widget";
 import {Page} from "views/pages/page";
 
-export class LoginPage extends Page<null, { credentials: Credentials }> {
-  oninit(vnode: m.Vnode<null, { credentials: Credentials }>) {
+export class LoginPage extends Page<null> {
+  oninit(vnode: m.Vnode<null>) {
     super.oninit(vnode);
-    vnode.state.credentials = new Credentials();
   }
 
-  view(vnode: m.Vnode<null, { credentials: Credentials }>) {
+  view(vnode: m.Vnode<null>) {
     return (
-      <div style="margin: auto; max-width: 50%;">
-        <LoginPageWidget {...this.getMeta()}
-                         credentials={vnode.state.credentials}
-                         submitCallback={this.submitCredentials}/>
+      <div>
+        <LoginPageWidget {...this.getMeta()}/>
       </div>
     );
   }
 
-  fetchData(vnode: m.Vnode<null, { credentials: Credentials }>): Promise<any> {
+  fetchData(vnode: m.Vnode<null>): Promise<any> {
     return Promise.resolve();
   }
 
@@ -43,7 +40,7 @@ export class LoginPage extends Page<null, { credentials: Credentials }> {
     throw new Error("Unsupported!");
   }
 
-  componentToDisplay(vnode: m.Vnode<null, { credentials: Credentials }>): m.Children {
+  componentToDisplay(vnode: m.Vnode<null>): m.Children {
     throw new Error("Unsupported!");
   }
 
@@ -51,30 +48,4 @@ export class LoginPage extends Page<null, { credentials: Credentials }> {
     return super.getMeta() as AuthPluginInfo;
   }
 
-  private submitCredentials(credentials: Credentials) {
-    if (!credentials.isValid()) {
-      return;
-    }
-
-    // create a "dummy" form and `submit()` it, since the endpoint does not understand JSON, yet :)
-    const form         = document.createElement("form");
-    form.style.display = "none";
-    form.setAttribute("action", "/go/auth/security_check");
-    form.setAttribute("method", "post");
-
-    const usernameField = document.createElement("input");
-    usernameField.setAttribute("type", "text");
-    usernameField.setAttribute("name", "j_username");
-    usernameField.value = credentials.username();
-
-    const passwordField = document.createElement("input");
-    passwordField.setAttribute("type", "password");
-    passwordField.setAttribute("name", "j_password");
-    passwordField.value = credentials.password();
-
-    form.append(usernameField, passwordField);
-    document.body.appendChild(form);
-    form.submit();
-    form.remove();
-  }
 }

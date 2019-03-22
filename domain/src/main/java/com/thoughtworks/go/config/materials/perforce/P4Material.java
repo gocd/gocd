@@ -392,6 +392,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
     private void setPasswordIfNotBlank(String password) {
         this.password = StringUtils.stripToNull(password);
+        this.secretParamsForPassword = SecretParams.parse(password);
         this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
 
         if (this.password == null) {
@@ -399,7 +400,6 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         }
         try {
             this.encryptedPassword = this.goCipher.encrypt(password);
-            secretParamsForPassword = SecretParams.parse(password);
         } catch (Exception e) {
             bomb("Password encryption failed. Please verify your cipher key.", e);
         }

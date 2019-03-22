@@ -493,19 +493,16 @@ public class SvnCommandTest {
         final SvnMaterial svnMaterial = mock(SvnMaterial.class);
         when(svnMaterial.urlForCommandLine()).thenReturn("http://localhost/svn/project1");
         when(svnMaterial.getUserName()).thenReturn("user");
-        when(svnMaterial.getPassword()).thenReturn("password");
+        when(svnMaterial.passwordForCommandLine()).thenReturn("password");
         final ConsoleResult consoleResult = mock(ConsoleResult.class);
         when(consoleResult.outputAsString()).thenReturn(svnInfoOutput);
         final HashSet<SvnMaterial> svnMaterials = new HashSet<>();
         svnMaterials.add(svnMaterial);
         final SvnCommand spy = spy(subversion);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
-                assertThat(commandLine.toString()).contains("svn info --xml --username user --password ****** http://localhost/svn/project1");
-                return consoleResult;
-            }
+        doAnswer(invocation -> {
+            final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
+            assertThat(commandLine.toString()).contains("svn info --xml --username user --password ****** http://localhost/svn/project1");
+            return consoleResult;
         }).when(spy).executeCommand(any(CommandLine.class));
         final HashMap<String, String> urlToRemoteUUIDMap = spy.createUrlToRemoteUUIDMap(svnMaterials);
         assertThat(urlToRemoteUUIDMap.size()).isEqualTo(1);
@@ -583,13 +580,12 @@ public class SvnCommandTest {
             }
         }).when(spy).executeCommand(any(CommandLine.class));
 
-        HashMap<String, String> result = spy.createUrlToRemoteUUIDMap(svnMaterials);
-
+        spy.createUrlToRemoteUUIDMap(svnMaterials);
 
         verify(svnMaterial1).getUserName();
-        verify(svnMaterial1).getPassword();
+        verify(svnMaterial1).passwordForCommandLine();
         verify(svnMaterial2).getUserName();
-        verify(svnMaterial2).getPassword();
+        verify(svnMaterial2).passwordForCommandLine();
     }
 
     private SvnMaterial buildMockSvnMaterial(String url, String username, String password) {

@@ -301,6 +301,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     private void setPasswordIfNotBlank(String password) {
         this.password = StringUtils.stripToNull(password);
+        this.secretParamsForPassword = SecretParams.parse(password);
         this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
 
         if (this.password == null) {
@@ -308,7 +309,6 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         }
         try {
             this.encryptedPassword = this.goCipher.encrypt(password);
-            secretParamsForPassword = SecretParams.parse(password);
         } catch (Exception e) {
             bomb("Password encryption failed. Please verify your cipher key.", e);
         }

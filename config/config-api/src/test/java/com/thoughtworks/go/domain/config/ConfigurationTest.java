@@ -17,7 +17,14 @@
 package com.thoughtworks.go.domain.config;
 
 
+import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
+import com.thoughtworks.go.security.CryptoException;
+import com.thoughtworks.go.security.GoCipher;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -139,5 +146,47 @@ class ConfigurationTest {
 
         verify(outputDirectory).hasErrors();
         verify(inputDirectory).hasErrors();
+    }
+
+    @Test
+    public void shouldReturnConfigWithErrorsAsMap() {
+        ConfigurationProperty configurationProperty = ConfigurationPropertyMother.create("key", false, "value");
+        configurationProperty.addError("key", "invalid key");
+        Configuration configuration = new Configuration(configurationProperty);
+        Map<String, Map<String, String>> configWithErrorsAsMap = configuration.getConfigWithErrorsAsMap();
+        HashMap<Object, Object> expectedMap = new HashMap<>();
+        HashMap<Object, Object> errorsMap = new HashMap<>();
+        errorsMap.put("value", "value");
+        ConfigErrors configErrors = new ConfigErrors();
+        configErrors.add("key", "invalid key");
+        errorsMap.put("errors", configErrors.getAll().toString());
+        expectedMap.put("key", errorsMap);
+
+        assertThat(configWithErrorsAsMap).isEqualTo(expectedMap);
+    }
+
+    @Test
+    public void shouldReturnConfigWithMetadataAsMap() throws CryptoException {
+        ConfigurationProperty configurationProperty1 = ConfigurationPropertyMother.create("property1", false, "value");
+        ConfigurationProperty configurationProperty2 = ConfigurationPropertyMother.create("property2", false, null);
+        String password = new GoCipher().encrypt("password");
+        ConfigurationProperty configurationProperty3 = ConfigurationPropertyMother.create("property3");
+        configurationProperty3.setEncryptedValue(new EncryptedConfigurationValue(password));
+        Configuration configuration = new Configuration(configurationProperty1, configurationProperty2, configurationProperty3);
+        Map<String, Map<String, Object>> metadataAndValuesAsMap = configuration.getPropertyMetadataAndValuesAsMap();
+        HashMap<Object, Object> expectedMap = new HashMap<>();
+        expectedMap.put("property1", buildPropertyMap(false, "value", "value"));
+        expectedMap.put("property2", buildPropertyMap(false, null, null));
+        expectedMap.put("property3", buildPropertyMap(true, password, "****"));
+
+        assertThat(metadataAndValuesAsMap).isEqualTo(expectedMap);
+    }
+
+    private Map<String, Object> buildPropertyMap(boolean isSecure, String value, String displayValue) {
+        Map<String, Object> metadataMap2 = new HashMap<>();
+        metadataMap2.put("displayValue", displayValue);
+        metadataMap2.put("value", value);
+        metadataMap2.put("isSecure", isSecure);
+        return metadataMap2;
     }
 }

@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.*;
 
 import static java.lang.String.format;
+import static java.util.stream.Collectors.toList;
 
 @ConfigTag("configuration")
 @ConfigCollection(value = ConfigurationProperty.class)
@@ -136,7 +137,8 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
 
     //TODO: Move the validateUniquenessCheck from the parents to this method. Parents include SCM, PluginProfile, PluggableArtifactConfig, PackageRepository, PackageDefinition, FetchPluggableTask
     @Override
-    public void validate(ValidationContext validationContext) {}
+    public void validate(ValidationContext validationContext) {
+    }
 
     @Override
     public ConfigErrors errors() {
@@ -167,5 +169,41 @@ public class Configuration extends BaseCollection<ConfigurationProperty> impleme
             }
         }
         return configurationMap;
+    }
+
+    //Used in erb
+    public Map<String, Map<String, Object>> getPropertyMetadataAndValuesAsMap() {
+        Map<String, Map<String, Object>> configMap = new HashMap<>();
+        for (ConfigurationProperty property : this) {
+            Map<String, Object> mapValue = new HashMap<>();
+            mapValue.put("isSecure", property.isSecure());
+            if (property.isSecure()) {
+                mapValue.put(VALUE_KEY, property.getEncryptedValue());
+            } else {
+                final String value = property.getConfigurationValue() == null ? null : property.getConfigurationValue().getValue();
+                mapValue.put(VALUE_KEY, value);
+            }
+            mapValue.put("displayValue", property.getDisplayValue());
+            configMap.put(property.getConfigKeyName(), mapValue);
+        }
+        return configMap;
+    }
+
+    public Map<String, Map<String, String>> getConfigWithErrorsAsMap() {
+        Map<String, Map<String, String>> configMap = new HashMap<>();
+        for (ConfigurationProperty property : this) {
+            Map<String, String> mapValue = new HashMap<>();
+            if (property.isSecure()) {
+                mapValue.put(VALUE_KEY, property.getEncryptedValue());
+            } else {
+                final String value = property.getConfigurationValue() == null ? null : property.getConfigurationValue().getValue();
+                mapValue.put(VALUE_KEY, value);
+            }
+            if (!property.getAllErrors().isEmpty()) {
+                mapValue.put(ERRORS_KEY, StringUtils.join(property.getAllErrors().stream().map(ConfigErrors::getAll).collect(toList()), ", "));
+            }
+            configMap.put(property.getConfigKeyName(), mapValue);
+        }
+        return configMap;
     }
 }

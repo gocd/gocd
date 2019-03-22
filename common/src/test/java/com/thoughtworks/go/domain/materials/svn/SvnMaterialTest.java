@@ -447,14 +447,14 @@ public class SvnMaterialTest {
     class hasSecretParams {
         @Test
         void shouldBeTrueIfMaterialUrlHasSecretParams() {
-            SvnMaterial svnMaterial = new SvnMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}@foo.com", null, null, false);
+            SvnMaterial svnMaterial = new SvnMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com", null, null, false);
 
             assertThat(svnMaterial.hasSecretParams()).isTrue();
         }
 
         @Test
         void shouldBeTrueIfPasswordHasSecretParam() {
-            SvnMaterial svnMaterial = new SvnMaterial("http://foo.com", null, "{{SECRET:[secret_config_id][lookup_password]}", false);
+            SvnMaterial svnMaterial = new SvnMaterial("http://foo.com", null, "{{SECRET:[secret_config_id][lookup_password]}}", false);
 
             assertThat(svnMaterial.hasSecretParams()).isTrue();
         }
@@ -471,8 +471,8 @@ public class SvnMaterialTest {
     class getSecretParams {
         @Test
         void shouldReturnAListOfSecretParams() {
-            SvnMaterial svnMaterial = new SvnMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}@foo.com",
-                    null, "{{SECRET:[secret_config_id][lookup_pass]}", false);
+            SvnMaterial svnMaterial = new SvnMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com",
+                    null, "{{SECRET:[secret_config_id][lookup_pass]}}", false);
 
             assertThat(svnMaterial.getSecretParams())
                     .hasSize(2)
@@ -500,7 +500,7 @@ public class SvnMaterialTest {
 
         @Test
         void shouldReturnAResolvedPassword_IfPasswordDefinedAsSecretParam() {
-            SvnMaterial svnMaterial = new SvnMaterial("url", null, "{{SECRET:[secret_config_id][lookup_pass]}", false);
+            SvnMaterial svnMaterial = new SvnMaterial("url", null, "{{SECRET:[secret_config_id][lookup_pass]}}", false);
 
             svnMaterial.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
 
@@ -509,7 +509,7 @@ public class SvnMaterialTest {
 
         @Test
         void shouldErrorOutWhenCalledOnAUnResolvedSecretParam_IfPasswordDefinedAsSecretParam() {
-            SvnMaterial svnMaterial = new SvnMaterial("url", null, "{{SECRET:[secret_config_id][lookup_pass]}", false);
+            SvnMaterial svnMaterial = new SvnMaterial("url", null, "{{SECRET:[secret_config_id][lookup_pass]}}", false);
 
             assertThatCode(svnMaterial::passwordForCommandLine)
                     .isInstanceOf(UnresolvedSecretParamException.class)
@@ -521,7 +521,7 @@ public class SvnMaterialTest {
     class setPassword {
         @Test
         void shouldParsePasswordString_IfDefinedAsSecretParam() {
-            SvnMaterial svnMaterial = new SvnMaterial("url", null, "{{SECRET:[secret_config_id][lookup_pass]}", false);
+            SvnMaterial svnMaterial = new SvnMaterial("url", null, "{{SECRET:[secret_config_id][lookup_pass]}}", false);
 
             assertThat(svnMaterial.getSecretParams())
                     .hasSize(1)

@@ -25,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class UrlArgumentTest {
     private static final String URL_WITH_PASSWORD = "http://username:password@somehere";
-    private static final String URL_WITH_SECRET_PARAMS = "https://{{SECRET:[secret-config-id][username]}}:{{SECRET[secret-config-id][password]}}@gocd.org/foo/bar.git";
+    private static final String URL_WITH_SECRET_PARAMS = "https://{{SECRET:[secret-config-id][username]}}:{{SECRET:[secret-config-id][password]}}@gocd.org/foo/bar.git";
 
     private CommandArgument argument;
 

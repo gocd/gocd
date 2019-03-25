@@ -22,9 +22,13 @@ import {AccessToken, AccessTokens} from "models/access_tokens/types";
 import * as Buttons from "views/components/buttons";
 import {Size, TextAreaField} from "views/components/forms/input_fields";
 import {Modal} from "views/components/modal";
+import {Spinner} from "views/components/spinner";
+import * as styles from "views/pages/access_tokens/index.scss";
+import {PageState} from "views/pages/page";
 
 export abstract class BaseModal extends Modal {
   protected accessToken: Stream<AccessToken>;
+  protected operationState = stream(PageState.OK);
 
   protected constructor(accessTokens: Stream<AccessTokens>,
                         accessToken: Stream<AccessToken>,
@@ -42,7 +46,11 @@ export abstract class BaseModal extends Modal {
   private readonly onFailedSave: (msg: m.Children) => void;
 
   protected performOperation(e: MouseEvent) {
-    this.operationPromise().then(this.onOperationResult.bind(this)).finally(() => m.redraw());
+    this.operationState(PageState.LOADING);
+    this.operationPromise().then(this.onOperationResult.bind(this)).finally(() => {
+      this.operationState(PageState.OK);
+      m.redraw();
+    });
   }
 
   protected abstract operationPromise(): Promise<any>;
@@ -88,6 +96,11 @@ export abstract class RevokeTokenModal extends BaseModal {
   }
 
   body(): m.Children {
+    if (this.operationState() === PageState.LOADING) {
+      return <div className={styles.spinnerContainer}>
+        <Spinner/>
+      </div>;
+    }
     return (
       <TextAreaField helpText={"Why do you want to revoke this token?"}
                      label="Are you sure you want to revoke this token?"

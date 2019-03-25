@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv2.shared.exception;
+package com.thoughtworks.go.config.exceptions;
 
-public class InvalidGoCipherTextRuntimeException extends RuntimeException {
+import org.springframework.http.HttpStatus;
 
-    public InvalidGoCipherTextRuntimeException(String message, Throwable throwable) {
-        super(message, throwable);
+public class InvalidGoCipherTextException extends HttpException {
+    public InvalidGoCipherTextException(String message) {
+        super(HttpStatus.UNPROCESSABLE_ENTITY, message);
     }
 }

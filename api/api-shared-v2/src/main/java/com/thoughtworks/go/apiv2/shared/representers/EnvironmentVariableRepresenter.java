@@ -20,9 +20,9 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.util.HaltApiResponses;
-import com.thoughtworks.go.apiv2.shared.exception.InvalidGoCipherTextRuntimeException;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
+import com.thoughtworks.go.config.exceptions.InvalidGoCipherTextException;
 import com.thoughtworks.go.security.CryptoException;
 
 import java.util.HashMap;
@@ -72,7 +72,7 @@ public class EnvironmentVariableRepresenter {
             environmentVariableConfig.deserialize(name, value, secure, encryptedValue);
             return environmentVariableConfig;
         } catch (CryptoException e) {
-            throw new InvalidGoCipherTextRuntimeException(e.getMessage(), e);
+            throw new InvalidGoCipherTextException(e.getMessage());
         }
     }
 

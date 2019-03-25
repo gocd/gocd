@@ -590,7 +590,7 @@ describe("Validatable", () => {
 
   });
 
-  describe("Error Message", function () {
+  describe("Error Message", () => {
     it("duplicate", () => {
       expect(ErrorMessages.duplicate("id")).toEqual("Id is a duplicate");
       expect(ErrorMessages.duplicate("PluginId")).toEqual("Plugin id is a duplicate");
@@ -622,7 +622,6 @@ describe("Validatable", () => {
       expect(ErrorMessages.mustBePositiveNumber("stage_counter")).toEqual("Stage counter must be a positive integer");
       expect(ErrorMessages.mustBePositiveNumber("stage counter")).toEqual("Stage counter must be a positive integer");
     });
-
 
     it("mustContainString", () => {
       expect(ErrorMessages.mustContainString("id", "foo")).toEqual("Id must contain the string 'foo'");

@@ -388,15 +388,15 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
     @Nested
     class AsAdmin {
+      BasicEnvironmentConfig oldConfig
+      BasicEnvironmentConfig updatedConfig
+
       @BeforeEach
       void setUp() {
         enableSecurity()
         loginAsAdmin()
-      }
 
-      @Test
-      void 'should update attributes of environment'() {
-        def oldConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        oldConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
         oldConfig.addAgent("agent1")
         oldConfig.addAgent("agent2")
         oldConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
@@ -405,12 +405,15 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         oldConfig.addPipeline(new CaseInsensitiveString("Pipeline2"))
         oldConfig.addPipeline(new CaseInsensitiveString("Pipeline3"))
 
-        def updatedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        updatedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
         updatedConfig.addAgent("agent1")
         updatedConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
         updatedConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
         updatedConfig.addPipeline(new CaseInsensitiveString("Pipeline2"))
+      }
 
+      @Test
+      void 'should update attributes of environment'() {
         when(entityHashingService.md5ForEntity(updatedConfig)).thenReturn("md5-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(oldConfig)
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(updatedConfig)
@@ -472,6 +475,73 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         assertThatResponse()
           .isNotFound()
           .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
+      }
+
+      @Test
+      void 'should error out if there are errors in parsing environment variable to add in patch request'() {
+        when(entityHashingService.md5ForEntity(updatedConfig)).thenReturn("md5-hash")
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(oldConfig)
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(updatedConfig)
+        when(environmentConfigService.patchEnvironment(
+          eq(oldConfig), anyList(), anyList(), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
+        ).then({
+          InvocationOnMock invocation ->
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
+        })
+
+
+        patchWithApiHeader(controller.controllerPath("env1"), [
+          "pipelines"            : [
+            "add"   : [
+              "Pipeline1", "Pipeline2"
+            ],
+            "remove": [
+              "Pipeline3"
+            ]
+          ],
+          "agents"               : [
+            "add"   : [
+              "agent1"
+            ],
+            "remove": [
+              "agent2"
+            ]
+          ],
+          "environment_variables": [
+            "add"   : [[
+                         "secure"         : true,
+                         "name"           : "JAVA_HOME",
+                         "value"          : "/bin/java",
+                         "encrypted_value": "some_encrypted_text"
+                       ]],
+            "remove": [
+              "URL"
+            ]
+          ]
+        ])
+
+        assertThatResponse()
+          .hasJsonBody([
+          "data": [
+            "environment_variables": [
+              [
+                "encrypted_value": "AES:lzcCuNSe4vUx+CsWgN11Uw==:FKO6MqcI4nlssuYvzhHo2w==",
+                "errors": [
+                  "encrypted_value": [
+                    "You may only specify `value` or `encrypted_value`, not both!"
+                  ],
+                  "value": [
+                    "You may only specify `value` or `encrypted_value`, not both!"
+                  ]
+                ],
+                "name": "JAVA_HOME",
+                "secure": true
+              ]
+            ]
+          ],
+          "message": "Error parsing patch request"
+        ])
       }
     }
   }

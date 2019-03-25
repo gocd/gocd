@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.security.CryptoException;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Optional;
 
@@ -42,6 +43,14 @@ public class EnvironmentVariableRepresenter {
                 .add("secure", environmentVariableConfig.isSecure())
                 .add("name", environmentVariableConfig.getName());
         addValue(outputWriter, environmentVariableConfig);
+    }
+
+    public static void toJSONArray(OutputWriter outputWriter, String key, Collection<EnvironmentVariableConfig> environmentVariableConfig) {
+        outputWriter.addChildList(key, outputListWriter -> {
+            environmentVariableConfig.forEach(envVar -> {
+                outputListWriter.addChild(childWriter -> toJSON(childWriter, envVar));
+            });
+        });
     }
 
     public static EnvironmentVariablesConfig fromJSONArray(JsonReader jsonReader) {

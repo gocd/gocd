@@ -23,12 +23,16 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv2.environments.model.PatchEnvironmentRequest;
 import com.thoughtworks.go.apiv2.environments.representers.EnvironmentRepresenter;
 import com.thoughtworks.go.apiv2.environments.representers.EnvironmentsRepresenter;
 import com.thoughtworks.go.apiv2.environments.representers.PatchEnvironmentRequestRepresenter;
+import com.thoughtworks.go.apiv2.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.EnvironmentVariableConfig;
+import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
@@ -46,10 +50,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -167,6 +168,17 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
         PatchEnvironmentRequest patchRequest = PatchEnvironmentRequestRepresenter.fromJSON(jsonReader);
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         EnvironmentConfig environmentConfig = fetchEntityFromConfig(environmentName);
+
+        Optional<EnvironmentVariableConfig> errorInParsingEnvVarToAdd = patchRequest.getEnvironmentVariablesToAdd().stream().filter(envVar -> !envVar.errors().isEmpty()).findFirst();
+
+        if (errorInParsingEnvVarToAdd.isPresent()) {
+            EnvironmentVariablesConfig configs = new EnvironmentVariablesConfig(patchRequest.getEnvironmentVariablesToAdd());
+            String errorMessage = MessageJson.create("Error parsing patch request", writer -> {
+                EnvironmentVariableRepresenter.toJSONArray(writer, "environment_variables", configs);
+            });
+            response.status(422);
+            return errorMessage;
+        }
 
         environmentConfigService.patchEnvironment(environmentConfig,
                 patchRequest.getPipelineToAdd(),

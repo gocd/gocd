@@ -70,7 +70,32 @@ class EnvironmentVariableRepresenterTest {
       "name"  : "JAVA_HOME",
       "secure": false,
       "value" : "/bin/java",
-      "errors":["encrypted_value":['You may only specify `value` or `encrypted_value`, not both!'],"value":['You may only specify `value` or `encrypted_value`, not both!']]
+      "errors": ["encrypted_value": ['You may only specify `value` or `encrypted_value`, not both!'], "value": ['You may only specify `value` or `encrypted_value`, not both!']]
+    ])
+  }
+
+  @Test
+  void 'should serialize collection of environment config to JSON'() {
+    List<EnvironmentVariableConfig> configs = Arrays.asList(
+      new EnvironmentVariableConfig("JAVA_HOME", "/bin/java"),
+      new EnvironmentVariableConfig("GROOVY_HOME", "/bin/groovy")
+    )
+
+    def json = toObjectString({ EnvironmentVariableRepresenter.toJSONArray(it, "environment_variables", configs) })
+
+    assertThatJson(json).isEqualTo([
+      "environment_variables": [
+        [
+          "name": "JAVA_HOME",
+          "secure": false,
+          "value": "/bin/java"
+        ],
+        [
+          "name": "GROOVY_HOME",
+          "secure": false,
+          "value": "/bin/groovy"
+        ]
+      ]
     ])
   }
 
@@ -85,9 +110,9 @@ class EnvironmentVariableRepresenterTest {
           "secure"         : true
         ],
         [
-          "name"           : "plain",
-          "value": "plaint text value",
-          "secure"         : false
+          "name"  : "plain",
+          "value" : "plaint text value",
+          "secure": false
         ]
       ]
     ]
@@ -95,7 +120,7 @@ class EnvironmentVariableRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(json)
     def environmentVariableConfig = EnvironmentVariableRepresenter.fromJSONArray(jsonReader)
     def secureVariable = environmentVariableConfig.get(0)
-    def plainVariable  = environmentVariableConfig.get(1)
+    def plainVariable = environmentVariableConfig.get(1)
 
     assertThat(secureVariable.secure, is(true))
     assertThat(secureVariable.name, is("secured"))
@@ -111,9 +136,9 @@ class EnvironmentVariableRepresenterTest {
   @Test
   void 'should de-serialize an ambiguous encrypted variable (with both value and encrypted_value) to a variable with errors'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom([
-      name: 'PASSWORD',
-      secure: true,
-      value: 'plainText',
+      name           : 'PASSWORD',
+      secure         : true,
+      value          : 'plainText',
       encrypted_value: 'c!ph3rt3xt'
     ])
     def actualEnvironmentVariableConfig = EnvironmentVariableRepresenter.fromJSON(jsonReader)
@@ -125,7 +150,7 @@ class EnvironmentVariableRepresenterTest {
   @Test
   void 'de-serialize should error out when both value or encrypted_value not specified'() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom([
-      name: 'PASSWORD',
+      name  : 'PASSWORD',
       secure: true,
     ])
 

@@ -23,10 +23,10 @@ describe("AccessTokenCRUD", () => {
   beforeEach(() => jasmine.Ajax.install());
   afterEach(() => jasmine.Ajax.uninstall());
   const BASE_PATH             = "/go/api/current_user/access_tokens";
-  const ALL_ACESS_TOKENS_PATH = `${BASE_PATH}?filter=all`;
+  const ALL_ACCESS_TOKENS_PATH = `${BASE_PATH}?filter=all`;
 
   it("should get all access tokens", (done) => {
-    jasmine.Ajax.stubRequest(ALL_ACESS_TOKENS_PATH).andReturn(accessTokensResponse());
+    jasmine.Ajax.stubRequest(ALL_ACCESS_TOKENS_PATH).andReturn(accessTokensResponse());
 
     const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
       const responseJSON = response.unwrap() as SuccessResponse<any>;
@@ -37,7 +37,7 @@ describe("AccessTokenCRUD", () => {
     AccessTokenCRUD.all().then(onResponse);
 
     const request = jasmine.Ajax.requests.mostRecent();
-    expect(request.url).toEqual(ALL_ACESS_TOKENS_PATH);
+    expect(request.url).toEqual(ALL_ACCESS_TOKENS_PATH);
     expect(request.method).toEqual("GET");
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
   });

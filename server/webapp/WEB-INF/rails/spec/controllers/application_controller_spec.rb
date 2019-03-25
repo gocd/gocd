@@ -290,7 +290,7 @@ describe ApplicationController do
       end
 
       it "should return only the path to a given resource and not the whole url" do
-        expect(controller.url_for(controller: 'pipelines', action: :build_cause, foo: "junk",only_path:false)).to eq("http://test.host/server/pipelines/build_cause?foo=junk")
+        expect(controller.url_for(controller: 'pipelines', action: :build_cause, foo: "junk",only_path:false)).to eq("http://test.host/pipelines/build_cause?foo=junk")
       end
 
       it "should cache the url if options is an active-record object" do

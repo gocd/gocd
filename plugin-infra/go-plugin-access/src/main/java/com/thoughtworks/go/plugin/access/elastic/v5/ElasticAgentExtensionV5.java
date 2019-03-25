@@ -141,8 +141,13 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
     }
 
     @Override
-    public void serverPing(final String pluginId) {
-        pluginRequestHelper.submitRequest(pluginId, REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>());
+    public void serverPing(final String pluginId, List<Map<String, String>> clusterProfileConfigurations) {
+        pluginRequestHelper.submitRequest(pluginId, REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>(){
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return elasticAgentExtensionConverterV5.serverPingRequestBody(clusterProfileConfigurations);
+            }
+        });
     }
 
     @Override

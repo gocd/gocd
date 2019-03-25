@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -114,7 +115,8 @@ public class ElasticAgentPluginService {
         long pingMessageTimeToLive = elasticPluginHeartBeatInterval - 10000L;
 
         for (PluginDescriptor descriptor : elasticAgentPluginRegistry.getPlugins()) {
-            serverPingQueue.post(new ServerPingMessage(descriptor.id()), pingMessageTimeToLive);
+            ClusterProfiles clusterProfiles = (ClusterProfiles) clusterProfilesService.getPluginProfiles();
+            serverPingQueue.post(new ServerPingMessage(descriptor.id(), clusterProfiles), pingMessageTimeToLive);
             elasticAgentsOfMissingPlugins.remove(descriptor.id());
             serverHealthService.removeByScope(scope(descriptor.id()));
         }

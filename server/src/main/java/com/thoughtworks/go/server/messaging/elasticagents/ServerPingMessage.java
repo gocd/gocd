@@ -16,31 +16,42 @@
 
 package com.thoughtworks.go.server.messaging.elasticagents;
 
+import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.server.messaging.PluginAwareMessage;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ServerPingMessage implements PluginAwareMessage {
     private final String pluginId;
+    private ClusterProfiles clusterProfiles;
 
-    public ServerPingMessage(String pluginId) {
+    public ServerPingMessage(String pluginId, ClusterProfiles clusterProfiles) {
         this.pluginId = pluginId;
+        this.clusterProfiles = clusterProfiles;
     }
 
     public String pluginId() {
         return pluginId;
     }
 
+    public List<Map<String, String>> getClusterProfilesAsConfigList() {
+        return clusterProfiles.stream().map(profile -> profile.getConfigurationAsMap(true)).collect(Collectors.toList());
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         ServerPingMessage that = (ServerPingMessage) o;
-
-        return pluginId != null ? pluginId.equals(that.pluginId) : that.pluginId == null;
+        return Objects.equals(pluginId, that.pluginId) &&
+                Objects.equals(clusterProfiles, that.clusterProfiles);
     }
 
     @Override
     public int hashCode() {
-        return pluginId != null ? pluginId.hashCode() : 0;
+        return Objects.hash(pluginId, clusterProfiles);
     }
 }

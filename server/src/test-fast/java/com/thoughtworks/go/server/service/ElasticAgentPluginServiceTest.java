@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.AgentInstanceMother;
@@ -108,6 +109,10 @@ class ElasticAgentPluginServiceTest {
 
     @Test
     void shouldSendServerHeartbeatToAllElasticPlugins() {
+        ClusterProfiles clusterProfiles = new ClusterProfiles();
+        clusterProfiles.add(new ClusterProfile("id", "pluginId"));
+        when(clusterProfilesService.getPluginProfiles()).thenReturn(clusterProfiles);
+
         service.heartbeat();
 
         ArgumentCaptor<ServerPingMessage> captor = ArgumentCaptor.forClass(ServerPingMessage.class);
@@ -116,9 +121,9 @@ class ElasticAgentPluginServiceTest {
         List<ServerPingMessage> messages = captor.getAllValues();
         assertThat(messages).hasSize(3)
                 .contains(
-                        new ServerPingMessage("p1"),
-                        new ServerPingMessage("p2"),
-                        new ServerPingMessage("docker")
+                        new ServerPingMessage("p1", clusterProfiles),
+                        new ServerPingMessage("p2", clusterProfiles),
+                        new ServerPingMessage("docker", clusterProfiles)
                 );
     }
 

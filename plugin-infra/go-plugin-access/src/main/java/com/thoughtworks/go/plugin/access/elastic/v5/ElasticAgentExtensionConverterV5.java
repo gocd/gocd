@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.elastic.v5;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
@@ -123,6 +124,16 @@ class ElasticAgentExtensionConverterV5 {
         return properties;
     }
 
+    private JsonArray mapToJsonArray(List<Map<String, String>> configurations) {
+        JsonArray jsonArray = new JsonArray();
+
+        for (Map<String, String> configuration : configurations) {
+            jsonArray.add(mapToJsonObject(configuration));
+        }
+
+        return jsonArray;
+    }
+
     private JsonObject jobIdentifierJson(JobIdentifier jobIdentifier) {
         JsonObject jobIdentifierJson = new JsonObject();
         jobIdentifierJson.addProperty("pipeline_name", jobIdentifier.getPipelineName());
@@ -143,6 +154,12 @@ class ElasticAgentExtensionConverterV5 {
         jsonObject.add("elastic_agent_profile_properties", mapToJsonObject(elasticProfileConfiguration));
         jsonObject.add("cluster_profile_properties", mapToJsonObject(clusterProfileConfiguration));
 
+        return GSON.toJson(jsonObject);
+    }
+
+    public String serverPingRequestBody(List<Map<String, String>> clusterProfileConfigurations) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.add("all_cluster_profile_properties", mapToJsonArray(clusterProfileConfigurations));
         return GSON.toJson(jsonObject);
     }
 }

@@ -58,8 +58,8 @@ public class ElasticAgentExtension extends AbstractExtension {
         getVersionedElasticAgentExtension(pluginId).createAgent(pluginId, autoRegisterKey, environment, configuration, clusterProfileConfiguration, jobIdentifier);
     }
 
-    public void serverPing(final String pluginId) {
-        getVersionedElasticAgentExtension(pluginId).serverPing(pluginId);
+    public void serverPing(final String pluginId, List<Map<String, String>> clusterProfiles) {
+        getVersionedElasticAgentExtension(pluginId).serverPing(pluginId, clusterProfiles);
     }
 
     public boolean shouldAssignWork(String pluginId, final AgentMetadata agent, final String environment, final Map<String, String> configuration, Map<String, String> clusterProfileProperties, JobIdentifier identifier) {

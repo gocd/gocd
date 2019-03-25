@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -69,9 +70,10 @@ public class ElasticAgentPluginRegistryTest {
 
     @Test
     public void shouldTalkToExtensionToExecuteServerPingCall() {
-        elasticAgentPluginRegistry.serverPing(PLUGIN_ID);
+        final Map<String, String> clusterProfileProperties = Collections.singletonMap("GoServerURL", "foo");
+        elasticAgentPluginRegistry.serverPing(PLUGIN_ID, Arrays.asList(clusterProfileProperties));
 
-        verify(elasticAgentExtension, times(1)).serverPing(PLUGIN_ID);
+        verify(elasticAgentExtension, times(1)).serverPing(PLUGIN_ID, Arrays.asList(clusterProfileProperties));
         verifyNoMoreInteractions(elasticAgentExtension);
     }
 

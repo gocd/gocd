@@ -108,25 +108,6 @@ public class BackupFilterTest {
     }
 
     @Test
-    public void shouldGenerateHTMLResponseWhenBackupIsBeingTakenAndMessageJsonIsCalled() throws Exception {
-        when(backupService.isBackingUp()).thenReturn(true);
-        when(backupService.backupRunningSinceISO8601()).thenReturn(BACKUP_STARTED_AT);
-        when(backupService.backupStartedBy()).thenReturn(BACKUP_STARTED_BY);
-
-        String content = IOUtils.toString(inputStream, UTF_8);
-        content = backupFilter.replaceStringLiterals(content);
-        Request request = request(HttpMethod.GET, "", "/go/server/messages.json");
-
-        backupFilter.doFilter(request, res, chain);
-
-        verify(res, times(1)).setContentType("text/html");
-        verify(writer).print(content);
-        verify(res).setHeader("Cache-Control", "private, max-age=0, no-cache");
-        verify(res).setDateHeader("Expires", 0);
-        verify(res).setStatus(503);
-    }
-
-    @Test
     public void shouldGetServerBackupByIdWhenBackupIsBeingTaken() throws Exception {
         when(backupService.isBackingUp()).thenReturn(true);
         Request request = request(HttpMethod.GET, "", "/api/backups/12");

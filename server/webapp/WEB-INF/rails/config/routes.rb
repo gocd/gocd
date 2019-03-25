@@ -178,9 +178,7 @@ Rails.application.routes.draw do
     get ':pipeline_name/list/compare_with/:other_pipeline_counter' => 'comparison#list', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, format: 'json', as: :compare_pipelines_list
     get ':pipeline_name/timeline/:page' => 'comparison#timeline', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines_timeline
   end
-
-  get 'server/messages.json' => 'server#messages', :format => "json", as: :global_message
-
+  
   scope 'config_view' do
     get "templates/:name" => "config_view/templates#show", as: :config_view_templates_show, constraints: {name: TEMPLATE_NAME_FORMAT}
   end

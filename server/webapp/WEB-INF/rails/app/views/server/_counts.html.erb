@@ -1,4 +1,0 @@
-<% if !@current_server_health_states.isRealSuccess() %>
-  <a onclick="Modalbox.show($('cruise_message_body'), {title: 'Error and warning messages', overlayClose:false, class: 'errors-and-warnings-modal'})"><span class="messages"><%= build_message(@current_server_health_states) %>
-  </span></a>
-<% end %>

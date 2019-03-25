@@ -70,7 +70,7 @@ class RememberLastRequestUrlFilterChainTest {
             "/pipelines/installer-tests/663/install-tests/2.json?stage-history-page=1",
             "/pipelines/installer-tests/2.json?stage-history-page=1",
             "/pipelines/2.json?stage-history-page=1",
-            "/server/messages.json",
+            "/api/server_health_messages",
             "/pipelines.json"})
     void shouldNotSaveIncomingRequestForJSONUrls(String url) throws IOException, ServletException {
         request = HttpRequestBuilder.GET(url)

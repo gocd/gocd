@@ -81,7 +81,6 @@ public class AuthorizeFilterChain extends FilterChainProxy {
 
                 // all apis
                 .addAuthorityFilterChain("/cctray.xml", apiAccessDeniedHandler, ROLE_USER)
-                .addAuthorityFilterChain("/server/messages.json", apiAccessDeniedHandler, ROLE_USER)
                 .addAuthorityFilterChain("/pipelines.json", apiAccessDeniedHandler, ROLE_USER)
 
                 // new controllers, so we say `ROLE_USER`, and let the controller handle authorization

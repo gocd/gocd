@@ -287,6 +287,72 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
           .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
       }
 
+
+      @Test
+      void 'should error out if there are errors in parsing environment config'() {
+        def json = [
+          "name"                 : "env1",
+          "pipelines"            : [
+            [
+              "name": "Pipeline2"
+            ]
+          ],
+          "environment_variables": [
+            [
+              "secure"         : true,
+              "name"           : "JAVA_HOME",
+              "value"          : "/bin/java",
+              "encrypted_value": "some_encrypted_text"
+            ]
+          ]
+        ]
+
+        def expectedResponse = [
+          "data"   : [
+            "agents"               : [],
+            "environment_variables": [
+              [
+                "encrypted_value": "AES:lzcCuNSe4vUx+CsWgN11Uw==:FKO6MqcI4nlssuYvzhHo2w==",
+                "errors"         : [
+                  "encrypted_value": ["You may only specify `value` or `encrypted_value`, not both!"],
+                  "value"          : ["You may only specify `value` or `encrypted_value`, not both!"]
+                ],
+                "name"           : "JAVA_HOME",
+                "secure"         : true
+              ]
+            ],
+            "name"                 : "env1",
+            "pipelines"            : [
+              [
+                "name": "Pipeline2"
+              ]
+            ]
+          ],
+          "message": "Error parsing environment config from the request"
+        ]
+
+        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        env1.addAgent("agent1")
+        env1.addAgent("agent2")
+        env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        env1.addEnvironmentVariable(new EnvironmentVariableConfig(
+          new GoCipher(), "Secured", new GoCipher().encrypt("confidential"))
+        )
+        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+
+        when(entityHashingService.md5ForEntity(env1)).thenReturn("ffff")
+
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
+
+        putWithApiHeader(controller.controllerPath("env1"), json)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonBody(expectedResponse)
+      }
+
+
       @Test
       void 'should error out if the environment does not exist'() {
         when(environmentConfigService.getMergedEnvironmentforDisplay(eq("env1"), any(HttpLocalizedOperationResult)))
@@ -463,7 +529,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
       }
 
       @Test
-      void 'should error out if there are errors in parsing environment variables'() {
+      void 'should error out if there are errors in parsing environment config'() {
         def json = [
           "name"                 : "env1",
           "pipelines"            : [
@@ -481,7 +547,29 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
           ]
         ]
 
-        def expectedResponse = ["message":"Error parsing environment variable JAVA_HOME: You may only specify `value` or `encrypted_value`, not both!, You may only specify `value` or `encrypted_value`, not both!"]
+        def expectedResponse = [
+          "data"   : [
+            "agents"               : [],
+            "environment_variables": [
+              [
+                "encrypted_value": "AES:lzcCuNSe4vUx+CsWgN11Uw==:FKO6MqcI4nlssuYvzhHo2w==",
+                "errors"         : [
+                  "encrypted_value": ["You may only specify `value` or `encrypted_value`, not both!"],
+                  "value"          : ["You may only specify `value` or `encrypted_value`, not both!"]
+                ],
+                "name"           : "JAVA_HOME",
+                "secure"         : true
+              ]
+            ],
+            "name"                 : "env1",
+            "pipelines"            : [
+              [
+                "name": "Pipeline2"
+              ]
+            ]
+          ],
+          "message": "Error parsing environment config from the request"
+        ]
 
         postWithApiHeader(controller.controllerPath(), json)
 

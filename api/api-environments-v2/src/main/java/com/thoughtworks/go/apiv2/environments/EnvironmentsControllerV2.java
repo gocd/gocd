@@ -29,7 +29,6 @@ import com.thoughtworks.go.apiv2.environments.representers.EnvironmentsRepresent
 import com.thoughtworks.go.apiv2.environments.representers.PatchEnvironmentRequestRepresenter;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
@@ -47,7 +46,10 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -120,6 +122,11 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
         final BasicEnvironmentConfig environmentConfigToCreate = (BasicEnvironmentConfig) buildEntityFromRequestBody(request);
         final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
 
+        if (!environmentConfigToCreate.getAllErrors().isEmpty()) {
+            operationResult.unprocessableEntity("Error parsing environment config from the request");
+            return handleCreateOrUpdateResponse(request, response, environmentConfigToCreate, operationResult);
+        }
+
         haltIfEntityWithSameNameExists(environmentConfigToCreate);
 
         environmentConfigService.createEnvironment(environmentConfigToCreate, currentUsername(), operationResult);
@@ -133,6 +140,11 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
         BasicEnvironmentConfig environmentConfig = (BasicEnvironmentConfig) buildEntityFromRequestBody(request);
         EnvironmentConfig oldEnvironmentConfig = fetchEntityFromConfig(environmentName);
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+
+        if (!environmentConfig.getAllErrors().isEmpty()) {
+            operationResult.unprocessableEntity("Error parsing environment config from the request");
+            return handleCreateOrUpdateResponse(request, response, environmentConfig, operationResult);
+        }
 
         if (isPutRequestStale(request, oldEnvironmentConfig)) {
             throw haltBecauseEtagDoesNotMatch("environment", environmentName);
@@ -203,20 +215,7 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
     @Override
     public EnvironmentConfig buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-        EnvironmentConfig environmentConfig = EnvironmentRepresenter.fromJSON(jsonReader);
-
-        Optional<EnvironmentVariableConfig> errorParsingEnvVars = environmentConfig
-                .getVariables()
-                .stream()
-                .filter(envVar -> !envVar.errors().isEmpty())
-                .findFirst();
-
-        if (errorParsingEnvVars.isPresent()) {
-            EnvironmentVariableConfig envVar = errorParsingEnvVars.get();
-            String message = String.format("Error parsing environment variable %s: %s", envVar.getName(), envVar.errors().asString());
-            haltBecauseOfReason(message);
-        }
-        return environmentConfig;
+        return EnvironmentRepresenter.fromJSON(jsonReader);
     }
 
     @Override

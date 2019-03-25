@@ -214,12 +214,12 @@ export default class {
     return "/go/api/users";
   }
 
-  static apiBulkUserStateUpdatePath() {
-    return "/go/api/users/operations/state";
-  }
-
   static apiUserPath(username: string) {
     return `/go/api/users/${username}`;
+  }
+
+  static apiBulkUserStateUpdatePath() {
+    return "/go/api/users/operations/state";
   }
 
   static apiUsersSearchPath(searchText: string) {
@@ -271,5 +271,12 @@ export default class {
       return `/go/api/admin/elastic/cluster_profiles/${id}`;
     }
     return `/go/api/admin/elastic/cluster_profiles`;
+  }
+
+  static apiSecretConfigsPath(id?: string) {
+    if (id) {
+      return `/go/api/admin/secret_configs/${id}`;
+    }
+    return `/go/api/admin/secret_configs`;
   }
 }

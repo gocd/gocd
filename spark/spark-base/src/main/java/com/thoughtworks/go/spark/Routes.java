@@ -365,6 +365,11 @@ public class Routes {
         }
     }
 
+    public static class SecretConfigs {
+        public static final String SPA_BASE = "/admin/secret_configs";
+    }
+
+
     public static class ClusterProfilesAPI {
         public static final String BASE = "/api/admin/elastic/cluster_profiles";
         public static final String ID = "/:cluster_id";

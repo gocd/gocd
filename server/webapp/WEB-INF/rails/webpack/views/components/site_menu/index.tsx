@@ -159,6 +159,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
                 <SiteSubNavItem href="/go/admin/artifact_stores" text="Artifact Stores"/>
                 <SiteSubNavItem href="/go/admin/data_sharing/settings" text="Data Sharing"/>
                 <SiteSubNavItem href="/go/admin/maintenance_mode" text="Server Maintenance Mode"/>
+                <SiteSubNavItem href="/go/admin/secret_configs" text="Secret Management"/>
               </SiteSubNav>
               <SiteSubNav>
                 <SiteSubNavHeading text="Security"/>

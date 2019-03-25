@@ -114,7 +114,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
 
   protected abstract parseJsonToEntity(json: object): T;
 
-  protected pluginIdProxy(newPluginId?: string) {
+  protected pluginIdProxy(newPluginId?: string): any {
     if (!newPluginId) {
       return newPluginId;
     }
@@ -125,6 +125,10 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       this.onPluginChange(this.entity, pluginInfo);
     }
     return newPluginId;
+  }
+
+  protected afterSuccess(): void {
+    //implement if needed
   }
 
   private onFetchResult(result: ApiResult<ObjectWithEtag<T>>) {
@@ -145,6 +149,8 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
 
   private onSuccess(successResponse: SuccessResponse<ObjectWithEtag<T>>) {
     this.onSuccessfulSave(this.successMessage());
+    this.entity(successResponse.body.object);
+    this.afterSuccess();
     this.close();
   }
 

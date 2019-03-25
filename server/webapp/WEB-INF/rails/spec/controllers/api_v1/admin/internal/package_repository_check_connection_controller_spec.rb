@@ -57,23 +57,6 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
       end
     end
 
-    xdescribe 'route' do
-      describe 'with_header' do
-
-        it 'should route to repository_check_connection action of the repository check connection controller' do
-          expect(:post => 'api/admin/internal/repository_check_connection').to route_to(action: 'repository_check_connection', controller: 'api_v1/admin/internal/package_repository_check_connection')
-        end
-      end
-      describe 'without_header' do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to repository_check_connection action of repository check connection controller without header' do
-          expect(:post => 'api/admin/internal/repository_check_connection').to_not route_to(action: 'repository_check_connection', controller: 'api_v1/admin/internal/package_repository_check_connection')
-          expect(:post => 'api/admin/internal/repository_check_connection').to route_to(action: 'unresolved', controller: 'application', url: 'api/admin/internal/repository_check_connection')
-        end
-      end
-    end
 
     describe 'admin' do
       before :each do
@@ -131,23 +114,6 @@ describe ApiV1::Admin::Internal::PackageRepositoryCheckConnectionController do
       end
     end
 
-    xdescribe 'route' do
-      describe 'with_header' do
-
-        it 'should route to package_check_connection action of the repository check connection controller' do
-          expect(:post => 'api/admin/internal/package_check_connection').to route_to(action: 'package_check_connection', controller: 'api_v1/admin/internal/package_repository_check_connection')
-        end
-      end
-      describe 'without_header' do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to package_check_connection action of repository check connection controller without header' do
-          expect(:post => 'api/admin/internal/package_check_connection').to_not route_to(action: 'package_check_connection', controller: 'api_v1/admin/internal/package_repository_check_connection')
-          expect(:post => 'api/admin/internal/package_check_connection').to route_to(action: 'unresolved', controller: 'application', url: 'api/admin/internal/package_check_connection')
-        end
-      end
-    end
 
     describe 'admin' do
       before :each do

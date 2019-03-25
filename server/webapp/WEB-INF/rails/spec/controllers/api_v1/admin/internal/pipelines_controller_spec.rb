@@ -73,22 +73,6 @@ describe ApiV1::Admin::Internal::PipelinesController do
         expected_response = expected_response(pipeline_configs_list, ApiV1::Config::PipelineConfigsWithMinimalAttributesRepresenter)
         expect(actual_response).to eq(expected_response)
       end
-      xdescribe 'route' do
-        describe "with_header" do
-          before :each do
-            setup_header
-          end
-          it 'should route to index action of the internal pipelines controller' do
-            expect(:get => 'api/admin/internal/pipelines').to route_to(action: 'index', controller: 'api_v1/admin/internal/pipelines')
-          end
-        end
-        describe "without_header" do
-          it 'should not route to index action of internal pipelines controller without header' do
-            expect(:get => 'api/admin/internal/pipelines').to_not route_to(action: 'index', controller: 'api_v1/admin/internal/pipelines')
-            expect(:get => 'api/admin/internal/pipelines').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/internal/pipelines')
-          end
-        end
-      end
     end
   end
 end

@@ -70,22 +70,6 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    xdescribe 'route' do
-      describe "with_header" do
-        it 'should route to index action of environments controller' do
-          expect(:get => 'api/admin/repositories').to route_to(action: 'index', controller: 'api_v1/admin/repositories')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to index action of environments controller without header' do
-          expect(:get => 'api/admin/repositories').to_not route_to(action: 'index', controller: 'api_v1/admin/repositories')
-          expect(:get => 'api/admin/repositories').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/repositories')
-        end
-      end
-    end
   end
 
   describe "show" do
@@ -142,26 +126,6 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    xdescribe 'route' do
-      describe "with_header" do
-        it 'should route to show action of package repositories controller for specified package repository id' do
-          expect(:get => 'api/admin/repositories/foo123').to route_to(action: 'show', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
-        end
-
-        it 'should route to show action of repositories controller for repo_id with dots' do
-          expect(:get => 'api/admin/repositories/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of package repositories controller without header' do
-          expect(:get => 'api/admin/repositories/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/repositories')
-          expect(:get => 'api/admin/repositories/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/repositories/foo')
-        end
-      end
-    end
   end
 
   describe "destroy" do
@@ -223,25 +187,6 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    xdescribe 'route' do
-      describe "with_header" do
-        it 'should route to destroy action of package repository controller for specified package repository id' do
-          expect(:delete => 'api/admin/repositories/foo123').to route_to(action: 'destroy', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
-        end
-        it 'should route to destroy action of repositories controller for repo_id with dots' do
-          expect(:delete => 'api/admin/repositories/foo.bar').to route_to(action: 'destroy', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to destroy action of package repositories controller without header' do
-          expect(:delete => 'api_v1/admin/repositories/foo').to_not route_to(action: 'destroy', controller: 'api_v1/admin/repositories')
-          expect(:delete => 'api_v1/admin/repositories/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api_v1/admin/repositories/foo')
-        end
-      end
-    end
   end
 
   describe "create" do
@@ -307,22 +252,6 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    xdescribe 'route' do
-      describe "with_header" do
-        it 'should route to create action of package repositories controller' do
-          expect(:post => 'api/admin/repositories/').to route_to(action: 'create', controller: 'api_v1/admin/repositories')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to create action of environments controller without header' do
-          expect(:post => 'api/admin/repositories').to_not route_to(action: 'create', controller: 'api_v1/admin/repositories')
-          expect(:post => 'api/admin/environments').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/environments')
-        end
-      end
-    end
   end
 
   describe "update" do
@@ -415,25 +344,5 @@ describe ApiV1::Admin::RepositoriesController do
       end
     end
 
-    xdescribe 'route' do
-      describe "with_header" do
-
-        it 'should route to update action of repositories controller for specified package repository id' do
-          expect(:put => 'api/admin/repositories/foo123').to route_to(action: 'update', controller: 'api_v1/admin/repositories', repo_id: 'foo123')
-        end
-        it 'should route to update action of repositories controller for repo_id with dots' do
-          expect(:put => 'api/admin/repositories/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/repositories', repo_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to put action of repositories controller without header' do
-          expect(:put => 'api_v1/admin/repositories/foo').to_not route_to(action: 'update', controller: 'api_v1/admin/repositories')
-          expect(:put => 'api_v1/admin/repositories/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api_v1/admin/repositories/foo')
-        end
-      end
-    end
   end
 end

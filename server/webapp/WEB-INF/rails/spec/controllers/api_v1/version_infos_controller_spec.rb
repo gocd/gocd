@@ -199,30 +199,4 @@ describe ApiV1::VersionInfosController do
     end
   end
 
-  xdescribe 'route' do
-    describe "with_header" do
-
-      it 'should route to stale action of version_infos controller' do
-        expect(:get => 'api/version_infos/stale').to route_to(action: 'stale', controller: 'api_v1/version_infos')
-      end
-
-      it 'should route to update_server action of the version_infos controller' do
-        expect(:patch => 'api/version_infos/go_server').to route_to(action: 'update_server', controller: 'api_v1/version_infos')
-      end
-    end
-    describe "without_header" do
-      before :each do
-        teardown_header
-      end
-      it 'should not route to stale action of version_infos controller without header' do
-        expect(:get => 'api/version_infos/stale').to_not route_to(action: 'stale', controller: 'api_v1/version_infos')
-        expect(:get => 'api/version_infos/stale').to route_to(controller: 'application', action: 'unresolved', url: 'api/version_infos/stale')
-      end
-
-      it 'should not route to update_server action of version_infos controller without header' do
-        expect(:patch => 'api/version_infos/go_server').to_not route_to(action: 'update_server', controller: 'api_v1/version_infos')
-        expect(:patch => 'api/version_infos/go_server').to route_to(controller: 'application', action: 'unresolved', url: 'api/version_infos/go_server')
-      end
-    end
-  end
 end

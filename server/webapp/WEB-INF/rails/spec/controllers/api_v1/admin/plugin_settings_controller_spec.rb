@@ -115,22 +115,6 @@ describe ApiV1::Admin::PluginSettingsController do
       end
     end
 
-    xdescribe 'route' do
-      describe "with_header" do
-        it 'should route to show action of plugin_settings controller for plugin id with dots' do
-          expect(:get => 'api/admin/plugin_settings/foo.bar').to route_to(action: 'show', controller: 'api_v1/admin/plugin_settings', plugin_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of plugin_settings controller without header' do
-          expect(:get => 'api/admin/plugin_settings/foo').to_not route_to(action: 'show', controller: 'api_v1/admin/plugin_settings')
-          expect(:get => 'api/admin/plugin_settings/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_settings/foo')
-        end
-      end
-    end
   end
 
   describe 'create' do
@@ -232,22 +216,6 @@ describe ApiV1::Admin::PluginSettingsController do
       end
     end
 
-    xdescribe 'route' do
-      describe "with_header" do
-        it 'should route to show action of plugin_settings controller for plugin id with dots' do
-          expect(:post => 'api/admin/plugin_settings').to route_to(action: 'create', controller: 'api_v1/admin/plugin_settings')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of plugin_settings controller without header' do
-          expect(:post => 'api/admin/plugin_settings').to_not route_to(action: 'create', controller: 'api_v1/admin/plugin_settings')
-          expect(:post => 'api/admin/plugin_settings').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_settings')
-        end
-      end
-    end
   end
 
   describe 'update' do
@@ -381,22 +349,6 @@ describe ApiV1::Admin::PluginSettingsController do
       end
     end
 
-    xdescribe 'route' do
-      describe "with_header" do
-        it 'should route to show action of plugin_settings controller for plugin id with dots' do
-          expect(:put => 'api/admin/plugin_settings/foo.bar').to route_to(action: 'update', controller: 'api_v1/admin/plugin_settings', plugin_id: 'foo.bar')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of plugin_settings controller without header' do
-          expect(:put => 'api/admin/plugin_settings/foo').to_not route_to(action: 'update', controller: 'api_v1/admin/plugin_settings')
-          expect(:put => 'api/admin/plugin_settings/foo').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/plugin_settings/foo')
-        end
-      end
-    end
   end
 
 end

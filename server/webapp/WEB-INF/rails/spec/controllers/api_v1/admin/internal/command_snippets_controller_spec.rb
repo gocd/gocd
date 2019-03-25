@@ -71,21 +71,5 @@ describe ApiV1::Admin::Internal::CommandSnippetsController do
       end
     end
 
-    xdescribe 'route' do
-      describe "with_header" do
-        it 'should route to index action of the internal command_snippets controller' do
-          expect(:get => 'api/admin/internal/command_snippets').to route_to(action: 'index', controller: 'api_v1/admin/internal/command_snippets')
-        end
-      end
-      describe "without_header" do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to index action of internal command_snippets controller without header' do
-          expect(:get => 'api/admin/internal/command_snippets').to_not route_to(action: 'index', controller: 'api_v1/admin/internal/command_snippets')
-          expect(:get => 'api/admin/internal/command_snippets').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/internal/command_snippets')
-        end
-      end
-    end
   end
 end

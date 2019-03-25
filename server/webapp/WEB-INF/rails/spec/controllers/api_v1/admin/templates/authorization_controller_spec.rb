@@ -69,38 +69,6 @@ describe ApiV1::Admin::Templates::AuthorizationController do
         expect(controller).to disallow_action(:get, :show, params: {template_name: 'foo'})
       end
     end
-    xdescribe 'route' do
-      describe 'with_header' do
-        it 'should route to show action of templates controller for alphanumeric template name' do
-          expect(:get => 'api/admin/templates/foo123/authorization').to route_to(action: 'show', controller: 'api_v1/admin/templates/authorization', template_name: 'foo123')
-        end
-
-        it 'should route to show action of templates controller for template name with dots' do
-          expect(:get => 'api/admin/templates/foo.123/authorization').to route_to(action: 'show', controller: 'api_v1/admin/templates/authorization', template_name: 'foo.123')
-        end
-
-        it 'should route to show action of templates controller for template name with hyphen' do
-          expect(:get => 'api/admin/templates/foo-123/authorization').to route_to(action: 'show', controller: 'api_v1/admin/templates/authorization', template_name: 'foo-123')
-        end
-
-        it 'should route to show action of templates controller for template name with underscore' do
-          expect(:get => 'api/admin/templates/foo_123/authorization').to route_to(action: 'show', controller: 'api_v1/admin/templates/authorization', template_name: 'foo_123')
-        end
-
-        it 'should route to show action of templates controller for capitalized template name' do
-          expect(:get => 'api/admin/templates/FOO/authorization').to route_to(action: 'show', controller: 'api_v1/admin/templates/authorization', template_name: 'FOO')
-        end
-      end
-      describe 'without_header' do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to show action of templates controller without header' do
-          expect(:get => 'api/admin/templates/foo/authorization').to_not route_to(action: 'show', controller: 'api_v1/admin/templates/authorization')
-          expect(:get => 'api/admin/templates/foo/authorization').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo/authorization')
-        end
-      end
-    end
     describe 'admin' do
       before(:each) do
         enable_security
@@ -224,38 +192,6 @@ describe ApiV1::Admin::Templates::AuthorizationController do
         put_with_api_header :update, params:{template_name: 'some-template'}
 
         expect(response).to have_api_message_response(422, 'some error')
-      end
-    end
-    xdescribe 'route' do
-      describe 'with_header' do
-        it 'should route to update action of templates controller for alphanumeric template name' do
-          expect(:put => 'api/admin/templates/foo123/authorization').to route_to(action: 'update', controller: 'api_v1/admin/templates/authorization', template_name: 'foo123')
-        end
-
-        it 'should route to update action of templates controller for template name with dots' do
-          expect(:put => 'api/admin/templates/foo.123/authorization').to route_to(action: 'update', controller: 'api_v1/admin/templates/authorization', template_name: 'foo.123')
-        end
-
-        it 'should route to update action of templates controller for template name with hyphen' do
-          expect(:put => 'api/admin/templates/foo-123/authorization').to route_to(action: 'update', controller: 'api_v1/admin/templates/authorization', template_name: 'foo-123')
-        end
-
-        it 'should route to update action of templates controller for template name with underscore' do
-          expect(:put => 'api/admin/templates/foo_123/authorization').to route_to(action: 'update', controller: 'api_v1/admin/templates/authorization', template_name: 'foo_123')
-        end
-
-        it 'should route to update action of templates controller for capitalized template name' do
-          expect(:put => 'api/admin/templates/FOO/authorization').to route_to(action: 'update', controller: 'api_v1/admin/templates/authorization', template_name: 'FOO')
-        end
-      end
-      describe 'without_header' do
-        before :each do
-          teardown_header
-        end
-        it 'should not route to update action of templates controller without header' do
-          expect(:put => 'api/admin/templates/foo/authorization').to_not route_to(action: 'update', controller: 'api_v1/admin/templates/authorization')
-          expect(:put => 'api/admin/templates/foo/authorization').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/templates/foo/authorization')
-        end
       end
     end
   end

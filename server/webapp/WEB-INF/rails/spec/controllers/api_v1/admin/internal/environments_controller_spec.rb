@@ -95,22 +95,6 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
         expect(JSON.parse(response.body)).to eq(environments_list)
       end
 
-      xdescribe 'route' do
-        describe "with_header" do
-          it 'should route to index action of the internal environments controller' do
-            expect(:get => 'api/admin/internal/environments').to route_to(action: 'index', controller: 'api_v1/admin/internal/environments')
-          end
-        end
-        describe "without_header" do
-          before :each do
-            teardown_header
-          end
-          it 'should not route to index action of internal environments controller without header' do
-            expect(:get => 'api/admin/internal/environments').to_not route_to(action: 'index', controller: 'api_v1/admin/internal/environments')
-            expect(:get => 'api/admin/internal/environments').to route_to(controller: 'application', action: 'unresolved', url: 'api/admin/internal/environments')
-          end
-        end
-      end
     end
   end
 end

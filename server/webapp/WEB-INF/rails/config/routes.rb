@@ -375,17 +375,6 @@ Rails.application.routes.draw do
     end
   end
 
-  namespace :api do
-    scope :config do
-      namespace :internal do
-        constraints HeaderConstraint.new do
-          post 'pluggable_task/:plugin_id' => 'pluggable_task#validate', as: :pluggable_task_validation, constraints: {plugin_id: /[\w+\.\-]+/}
-        end
-      end
-    end
-  end
-
-
   post 'pipelines/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter/rerun-jobs' => 'stages#rerun_jobs', as: :rerun_jobs, constraints: STAGE_LOCATOR_CONSTRAINTS
   constraints HeaderConstraint.new do
     post 'pipelines/:pipeline_name/:pipeline_counter/comment' => 'pipelines#update_comment', as: :update_comment, constraints: PIPELINE_LOCATOR_CONSTRAINTS, format: :json

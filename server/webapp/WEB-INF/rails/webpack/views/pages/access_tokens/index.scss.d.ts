@@ -7,3 +7,4 @@ export const personalAccessTokenContainer: string;
 export const activeTokensTable: string;
 export const revokedTokensTable: string;
 export const adminAccessTokenContainer: string;
+export const spinnerContainer: string;

@@ -24,7 +24,10 @@ import {AdminAccessTokenCRUD} from "models/admin_access_tokens/admin_access_toke
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {CopyField, Size, TextAreaField} from "views/components/forms/input_fields";
+import {Spinner} from "views/components/spinner";
 import {BaseModal, RevokeTokenModal} from "views/pages/access_tokens/commons/modals";
+import * as styles from "views/pages/access_tokens/index.scss";
+import {PageState} from "views/pages/page";
 
 export class GenerateTokenModal extends BaseModal {
   constructor(accessTokens: Stream<AccessTokens>,
@@ -39,6 +42,12 @@ export class GenerateTokenModal extends BaseModal {
   }
 
   body(): m.Children {
+    if (this.operationState() === PageState.LOADING) {
+      return <div className={styles.spinnerContainer}>
+        <Spinner/>
+      </div>;
+    }
+
     if (this.hasToken()) {
       return (<div>
         <FlashMessage type={MessageType.info}

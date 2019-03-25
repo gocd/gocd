@@ -14,8 +14,6 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-/***********hack***************/
-
 .rounded-corner-for-body {
     background: #FFF
 }
@@ -29,29 +27,29 @@
   padding-top: 1em;
 }
 
-.c1, .c2, .c3, .c4 { 
+.c1, .c2, .c3, .c4 {
   background: none !important;
 }
 
-#hd div, #hd ul { 
+#hd div, #hd ul {
   clear: none;
   display: inline;
   float: right;
 }
 
-div#hd-top { 
+div#hd-top {
   float: left;
 }
 
-ul#head-links { 
+ul#head-links {
   display: none;
 }
 
-#hd #user, #hd #user strong { 
+#hd #user, #hd #user strong {
   color: #fff !important;
 }
 
-#hd a:link, #hd a:visited { 
+#hd a:link, #hd a:visited {
   color: #fff !important;
 }
 
@@ -69,15 +67,15 @@ ul#head-links {
 }
 
 #sidebar-twist-button {
-    
+
 }
 
-ul#tabs li a, ul#tabs li a:visited, ul#tabs li span, ul#tabs li.admin { 
+ul#tabs li a, ul#tabs li a:visited, ul#tabs li span, ul#tabs li.admin {
   background: none;
   margin: 0;
 }
 
-ul#tabs li { 
+ul#tabs li {
   margin: 0;
 }
 
@@ -114,15 +112,6 @@ ul#tabs li {
     padding-top: 0;
     background-color: #FFF;
 }
-
-/*#bd #page-title{*/
-    /*background: #DCDCDC;*/
-    /*color: #000;*/
-    /*font-size: 16px;*/
-    /*font-weight: bold;*/
-    /*padding: 12px 0 12px 12px;*/
-    /*margin: 0;*/
-/*}*/
 
 #yui-main{
     border:0;

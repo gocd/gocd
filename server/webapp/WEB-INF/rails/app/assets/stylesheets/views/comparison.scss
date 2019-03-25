@@ -14,29 +14,6 @@
  * limitations under the License.
  *************************GO-LICENSE-END***********************************/
 
-/**
- * Comparision.css
- */
- 
-
-/**
- * TABLE OF CONTENTS
- *
- * =SHOW
- * =PARTIALS
- * ==DEPENDENCY_MATERIAL_MODIFICATIONS_TABLE
- * ==MATERIAL_MODIFICATIONS_TABLE
- * ==MODAL_TIMELINE
- * ==PIPELINE_AUTOCOMPLETE_LIST_ENTRY
- * ==PIPELINE_INSTANCE_DROP_DOWN
- * ==STAGE_BAR_WITHOUT_CONTROLS
- * ==STABE_BAR
- */
- 
-
-/**
- * =SHOW
- */
 .compare_search_instructions {
   color: #333;
   font-size: 11px;
@@ -53,26 +30,12 @@
   float: none;
 }
 
- 
-/**
- * =PARTIALS
- */
-
- 
-/**
- * ==DEPENDENCY_MATERIAL_MODIFICATIONS_TABLE
- */
-
-
-/**
- * ==MODAL_TIMELINE
- */
 .modal_timeline {
   height: 360px;
   overflow: hidden;
 }
 .modal_timeline .results .time_list {
-  background: #DDD; 
+  background: #DDD;
   border-right: 1px solid #CCC;
   float: left;
   height: 360px;
@@ -148,7 +111,7 @@
   box-shadow: -5px 0 5px #bbb;
     -moz-box-shadow: -5px 0 5px #BBB;
     -webkit-box-shadow: -5px 0 5px #BBB;
-  
+
 }
 .modal_timeline .results .pipeline_instance_list li .pipeline_label,
 .modal_timeline .results .pipeline_instance_list li .pipeline_label_truncated {
@@ -171,7 +134,7 @@
 }
 .modal_timeline .results .pipeline_instance_list li .pipeline .stages .stage {
   position: static;
-} 
+}
 .modal_timeline .results .pipeline_instance_list li .pipeline .stages .stage_bar {
   margin-top: 7px;
   margin-right: 2px;
@@ -207,34 +170,6 @@
    margin-top: 10px;
 }
 
-
-
-/**
- * ==MATERIAL_MODIFICATIONS_TABLE
- */
-
-
-/**
- * ==PIPELINE_AUTOCOMPLETE_LIST_ENTRY
- */
-
 .pipeline_instance_details .stage_bar_wrapper a{
     cursor: default;
 }
-
-
-/**
- * ==PIPELINE_INSTANCE_DROP_DOWN
- */
-
-
-/**
- * ==STAGE_BAR_WITHOUT_CONTROLS
- */
-
-
-/**
- * ==STABE_BAR
- */
- 
- 

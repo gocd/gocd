@@ -485,22 +485,6 @@ a.xlink_as_button {
     color:#ffffff;
 }
 
-/*.application_nav .user{*/
-    /*float: right;*/
-/*    padding: 15px;*/
-/*margin-right: -19px;*/
-/*}*/
-/*.application_nav .user li {*/
-  /*padding: 2px 10px;*/
-  /*border-left: 1px solid #575757;*/
-  /*margin-left: 0;*/
-/*}*/
-/*.application_nav .user li:first-child {*/
-  /*border: 0;*/
-/*}*/
-
-
-
 /**
  * =Ported over from structure.css
  * NOTE: this looks like it's only being used currently by .vm files, so moving here
@@ -527,27 +511,6 @@ a.xlink_as_button {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
- * Title Bar
- */
 #content_titlebar .help {
     text-indent: -10000px;
     background: transparent image_url('buttons_sprites.png') no-repeat -320px top;
@@ -556,14 +519,6 @@ a.xlink_as_button {
     margin: 0 0 0 0.8em;
     float: left;
 }
-
-
-
-
-
-/*
- * Entity icon title bars
- */
 
 .pipeline_history h2.entity_title,
 .yui-b .Job h2.entity_title,
@@ -583,33 +538,6 @@ a.xlink_as_button {
     padding:0;
 
 }
-
-
-/*
-
-#admin-page h2.entity_title {
-    background-image: image_url('g9/icons/icon_admin_36.png');
-    background-position: -8px 0px;
-    padding-left: 45px;
-}
-
-.pipeline_history h2.entity_title {
-    background-image: image_url('g9/icons/icon_pipeline_36.png');
-    background-position: -8px 0px;
-    padding-left: 45px;s
-}
-
-*/
-
-
-
-
-
-
-
-/*
- * Tristate check box
- */
 
 .tristate {
     margin: 5px 0 3px 3px;
@@ -665,29 +593,7 @@ a.xlink_as_button {
     margin-right: 0;
 }
 
-/*.page_title_bar .page_status_bar{*/
-    /*float: left;*/
-    /*margin-top: .25em;*/
-/*}*/
 
-/*#body_content .page_title_bar .page_status_bar a{*/
-    /*color: #000;*/
-    /**/
-/*}*/
-
-
-
-
-
-
-
-
-
-
-
-/*
- * Pipeline/Stage Details Header - stages bar
- */
 .pipeline_flow .pipeline .stages {
     width: 100%;
 }
@@ -713,18 +619,6 @@ a.xlink_as_button {
 }
 
 
-
-
-
-
-
-
-
-
-/*
- * Smartfill
- */
-
 .smartfill_content {
     background-color: #FFF;
 }
@@ -738,9 +632,6 @@ a.xlink_as_button {
     background-color: #FF9;
 }
 
-/*
-    * Enhanced Drop down (used for resources drop down, environments drop down, etc.)
-    */
 .enhanced_dropdown{
     background-color: #FFF;
     float: left;
@@ -800,9 +691,6 @@ a.xlink_as_button {
 
 }
 
-/*
- * Overview page widgets
- */
 .overview_widget  {
     margin-bottom:15px;
     padding-bottom: 15px;
@@ -810,9 +698,6 @@ a.xlink_as_button {
 }
 
 
-/*
- * Content Wrapper
- */
 .content_wrapper_inner{
     border: 0;
     background-color: #fff;
@@ -957,13 +842,6 @@ table{
 }
 
 
-/*
- * ======= ADD ALL NEW STYLES ABOVE THIS LINE.  ONLY FLOAT CLEARING SHOULD GO BELOW ============
- */
-
-/*
- * Float Clearing
- */
 #header:after,
 #body:after,
 #footer:after,

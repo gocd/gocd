@@ -481,49 +481,8 @@ a.xlink_as_button {
   width: 114px;
 
 }
-.application_nav a,.application_nav .user li {
-    color: #aaa;
-    font-size: 11px;
-}
-.application_nav .user .help a {
-    color: #fff;
-    font-size: 12px;
-}
 .user a:hover{
     color:#ffffff;
-}
-.application_nav .current a{
-    color: #fff;
-}
-.application_nav .tabs{
-    margin-top: 5px;
-}
-.application_nav .tabs span,
-.application_nav .tabs a{
-  border-radius: 10px;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
-  display: block;
-  font-size: 11px;
-  font-weight: 200;
-  line-height: 26px;
-  padding: 0 15px;
-}
-.application_nav .tabs span {
-    color: #666;
-}
-.application_nav .tabs a:hover {
-  color: #FFF;
-  border: 0;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-    -moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-}
-.application_nav .tabs .current a {
-  background-color: #86569A;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-    -moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
-    -webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.3);
 }
 
 /*.application_nav .user{*/
@@ -539,86 +498,6 @@ a.xlink_as_button {
 /*.application_nav .user li:first-child {*/
   /*border: 0;*/
 /*}*/
-
-.application_nav .cruise_messages a{
-    color: #000;
-    background-color: #FFF1A8;
-    padding:1em;
-    /*margin-left: 20em;*/
-    float: left;
-}
-.application_nav .cruise_messages {
-    bottom:0;
-    position:fixed;
-    right:0;
-    z-index:9999;
-}
-.application_nav .cruise_messages {
-    bottom:0;
-    position:fixed;
-    right:0;
-    z-index:9999;
-    -moz-box-shadow: 0 0 8px rgba(0,0,0,.5);
-}
-.application_nav .cruise_messages a {
-    background-color:#400;
-    background-image:image_url("g9/icons/icon_error_16.png");
-    background-position:6px 4px;
-    background-repeat:no-repeat;
-    border-left: 1px solid #800;
-    border-top: 1px solid #800;
-    color:#fff;
-    display:block;
-    font-size:11px !important;
-    font-weight:200;
-    padding:6px 10px 6px 30px;
-}
-
-.cruise_message_body{
-    max-height: 400px;
-    padding: 10px;
-    overflow: auto;
-}
-
-*+html .cruise_message_body{
-    height: expression(this.scrollHeight >  400 ? "400px" : "auto");
-    overflow: auto;
-}
-.cruise_message_body .error {
-  margin-bottom: 10px;
-  border-bottom: 1px dotted #CCC;
-  padding-bottom: 10px;
-}
-.cruise_message_body .message {
-    font-weight: bold;
-    font-size: 12px;
-
-}
-
-.cruise_message_body .warning {
-    margin-bottom: 10px;
-    border-bottom: 1px dotted #CCC;
-    padding-bottom: 10px;
-}
-.cruise_message_body .warning .description {
-    border-left: 5px solid #FFF0C0;
-    padding-left: 10px;
-    margin-top: 5px;
-    font-size: 11px;
-    color: #555;
-}
-
-
-.cruise_message_body .error .description {
-    border-left: 5px solid #f7d4d4;
-    padding-left: 10px;
-    margin-top: 5px;
-    font-size: 11px;
-    color: #555;
-}
-.cruise_message_body .messages {
-    overflow: scroll;
-}
 
 
 

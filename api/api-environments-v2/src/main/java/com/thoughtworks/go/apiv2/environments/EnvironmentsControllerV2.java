@@ -29,6 +29,7 @@ import com.thoughtworks.go.apiv2.environments.representers.EnvironmentsRepresent
 import com.thoughtworks.go.apiv2.environments.representers.PatchEnvironmentRequestRepresenter;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
@@ -46,10 +47,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -205,7 +203,20 @@ public class EnvironmentsControllerV2 extends ApiController implements SparkSpri
     @Override
     public EnvironmentConfig buildEntityFromRequestBody(Request req) {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-        return EnvironmentRepresenter.fromJSON(jsonReader);
+        EnvironmentConfig environmentConfig = EnvironmentRepresenter.fromJSON(jsonReader);
+
+        Optional<EnvironmentVariableConfig> errorParsingEnvVars = environmentConfig
+                .getVariables()
+                .stream()
+                .filter(envVar -> !envVar.errors().isEmpty())
+                .findFirst();
+
+        if (errorParsingEnvVars.isPresent()) {
+            EnvironmentVariableConfig envVar = errorParsingEnvVars.get();
+            String message = String.format("Error parsing environment variable %s: %s", envVar.getName(), envVar.errors().asString());
+            haltBecauseOfReason(message);
+        }
+        return environmentConfig;
     }
 
     @Override

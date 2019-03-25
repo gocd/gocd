@@ -463,6 +463,34 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
       }
 
       @Test
+      void 'should error out if there are errors in parsing environment variables'() {
+        def json = [
+          "name"                 : "env1",
+          "pipelines"            : [
+            [
+              "name": "Pipeline2"
+            ]
+          ],
+          "environment_variables": [
+            [
+              "secure"         : true,
+              "name"           : "JAVA_HOME",
+              "value"          : "/bin/java",
+              "encrypted_value": "some_encrypted_text"
+            ]
+          ]
+        ]
+
+        def expectedResponse = ["message":"Error parsing environment variable JAVA_HOME: You may only specify `value` or `encrypted_value`, not both!, You may only specify `value` or `encrypted_value`, not both!"]
+
+        postWithApiHeader(controller.controllerPath(), json)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonBody(expectedResponse)
+      }
+
+      @Test
       void 'should error out when name parameter is missing'() {
         postWithApiHeader(controller.controllerPath(), [somethingRandom: "sjdiajdisajdi"])
 

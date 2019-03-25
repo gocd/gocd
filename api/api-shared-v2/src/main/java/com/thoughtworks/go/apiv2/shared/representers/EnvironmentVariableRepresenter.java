@@ -22,7 +22,6 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
-import com.thoughtworks.go.config.exceptions.InvalidGoCipherTextException;
 import com.thoughtworks.go.security.CryptoException;
 
 import java.util.HashMap;
@@ -67,13 +66,14 @@ public class EnvironmentVariableRepresenter {
 
         String value = secure ? optValue.orElse(null) : jsonReader.getString("value");
         String encryptedValue = optEncValue.orElse(null);
+        EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig();
         try {
-            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig();
             environmentVariableConfig.deserialize(name, value, secure, encryptedValue);
-            return environmentVariableConfig;
         } catch (CryptoException e) {
-            throw new InvalidGoCipherTextException(e.getMessage());
+            environmentVariableConfig.addError(name, e.getMessage());
         }
+
+        return environmentVariableConfig;
     }
 
     private static void addValue(OutputWriter outputWriter, EnvironmentVariableConfig environmentVariableConfig) {

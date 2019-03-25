@@ -18,27 +18,31 @@ import * as s from "underscore.string";
 
 export namespace ErrorMessages {
   export function duplicate(attribute: string) {
-    return `${s.humanize(attribute)} is a duplicate`;
+    return `${humanize(attribute)} is a duplicate`;
   }
 
   export function mustBePresent(attribute: string) {
-    return `${s.humanize(attribute).replace(/\bxpath\b/i, "XPath").replace(/\burl\b/i, "URL")} must be present`;
+    return `${humanize(attribute).replace(/\bxpath\b/i, "XPath").replace(/\burl\b/i, "URL")} must be present`;
   }
 
   export function mustBeAUrl(attribute: string) {
-    return `${s.humanize(attribute)} must be a valid http(s) url`;
+    return `${humanize(attribute)} must be a valid http(s) url`;
   }
 
   export function mustBePositiveNumber(attribute: string) {
-    return `${s.humanize(attribute)} must be a positive integer`;
+    return `${humanize(attribute)} must be a positive integer`;
   }
 
   export function mustContainString(attribute: string, requiredString: string) {
-    return `${s.humanize(attribute)} must contain the string '${requiredString}'`;
+    return `${humanize(attribute)} must contain the string '${requiredString}'`;
   }
 
-  export function mustNotExceedMaxLenth(attribute: string, maxLength: number) {
-    return `${s.humanize(attribute)} must not exceed length ${maxLength}`;
+  export function mustNotExceedMaxLength(attribute: string, maxLength: number) {
+    return `${humanize(attribute)} must not exceed length ${maxLength}`;
+  }
+
+  function humanize(str: string) {
+    return s.capitalize(s.trim(s.underscored(str).replace(/_/g, " ")));
   }
 }
 

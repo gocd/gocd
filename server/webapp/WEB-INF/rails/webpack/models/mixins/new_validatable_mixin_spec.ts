@@ -19,6 +19,7 @@ import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin, Validator, ValidatorOptions} from "models/mixins/new_validatable_mixin";
+import {ErrorMessages} from "models/mixins/validatable";
 import * as s from "underscore.string";
 
 describe("Validatable", () => {
@@ -587,5 +588,56 @@ describe("Validatable", () => {
       expect(var1.errors().hasErrors()).toBe(false);
     });
 
+  });
+
+  describe("Error Message", function () {
+    it("duplicate", () => {
+      expect(ErrorMessages.duplicate("id")).toEqual("Id is a duplicate");
+      expect(ErrorMessages.duplicate("PluginId")).toEqual("Plugin id is a duplicate");
+      expect(ErrorMessages.duplicate("pluginId")).toEqual("Plugin id is a duplicate");
+      expect(ErrorMessages.duplicate("plugin_id")).toEqual("Plugin id is a duplicate");
+      expect(ErrorMessages.duplicate("plugin id")).toEqual("Plugin id is a duplicate");
+    });
+
+    it("mustBePresent", () => {
+      expect(ErrorMessages.mustBePresent("id")).toEqual("Id must be present");
+      expect(ErrorMessages.mustBePresent("PluginId")).toEqual("Plugin id must be present");
+      expect(ErrorMessages.mustBePresent("pluginId")).toEqual("Plugin id must be present");
+      expect(ErrorMessages.mustBePresent("plugin_id")).toEqual("Plugin id must be present");
+      expect(ErrorMessages.mustBePresent("plugin id")).toEqual("Plugin id must be present");
+    });
+
+    it("mustBeAUrl", () => {
+      expect(ErrorMessages.mustBeAUrl("url")).toEqual("Url must be a valid http(s) url");
+      expect(ErrorMessages.mustBeAUrl("SomeUrl")).toEqual("Some url must be a valid http(s) url");
+      expect(ErrorMessages.mustBeAUrl("someUrl")).toEqual("Some url must be a valid http(s) url");
+      expect(ErrorMessages.mustBeAUrl("some_url")).toEqual("Some url must be a valid http(s) url");
+      expect(ErrorMessages.mustBeAUrl("some url")).toEqual("Some url must be a valid http(s) url");
+    });
+
+    it("mustBePositiveNumber", () => {
+      expect(ErrorMessages.mustBePositiveNumber("counter")).toEqual("Counter must be a positive integer");
+      expect(ErrorMessages.mustBePositiveNumber("StageCounter")).toEqual("Stage counter must be a positive integer");
+      expect(ErrorMessages.mustBePositiveNumber("stageCounter")).toEqual("Stage counter must be a positive integer");
+      expect(ErrorMessages.mustBePositiveNumber("stage_counter")).toEqual("Stage counter must be a positive integer");
+      expect(ErrorMessages.mustBePositiveNumber("stage counter")).toEqual("Stage counter must be a positive integer");
+    });
+
+
+    it("mustContainString", () => {
+      expect(ErrorMessages.mustContainString("id", "foo")).toEqual("Id must contain the string 'foo'");
+      expect(ErrorMessages.mustContainString("PluginId", "foo")).toEqual("Plugin id must contain the string 'foo'");
+      expect(ErrorMessages.mustContainString("pluginId", "foo")).toEqual("Plugin id must contain the string 'foo'");
+      expect(ErrorMessages.mustContainString("plugin_id", "foo")).toEqual("Plugin id must contain the string 'foo'");
+      expect(ErrorMessages.mustContainString("plugin id", "foo")).toEqual("Plugin id must contain the string 'foo'");
+    });
+
+    it("mustNotExceedMaxLength", () => {
+      expect(ErrorMessages.mustNotExceedMaxLength("id", 255)).toEqual("Id must not exceed length 255");
+      expect(ErrorMessages.mustNotExceedMaxLength("PluginId", 255)).toEqual("Plugin id must not exceed length 255");
+      expect(ErrorMessages.mustNotExceedMaxLength("pluginId", 255)).toEqual("Plugin id must not exceed length 255");
+      expect(ErrorMessages.mustNotExceedMaxLength("plugin_id", 255)).toEqual("Plugin id must not exceed length 255");
+      expect(ErrorMessages.mustNotExceedMaxLength("plugin id", 255)).toEqual("Plugin id must not exceed length 255");
+    });
   });
 });

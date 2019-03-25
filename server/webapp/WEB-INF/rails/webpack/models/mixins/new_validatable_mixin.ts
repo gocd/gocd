@@ -73,7 +73,7 @@ class MaxLengthValidator extends Validator {
     }
 
     if (entity[attr]().length > this.maxLength) {
-      entity.errors().add(attr, this.options.message || ErrorMessages.mustNotExceedMaxLenth(attr, this.maxLength));
+      entity.errors().add(attr, this.options.message || ErrorMessages.mustNotExceedMaxLength(attr, this.maxLength));
     }
   }
 }

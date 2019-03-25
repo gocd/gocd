@@ -40,11 +40,20 @@ class LoginFormWidget extends MithrilViewComponent<AuthPluginInfo> {
                        name="j_username"
                        placeholder="Username"
                        className={styles.loginInput}
+                       autofocus={true}
+                       autocomplete="off"
+                       autocapitalize="off"
+                       autocorrect="off"
+                       spellcheck={false}
                        data-test-id="form-field-input-username"/></li>
             <li><input type="password"
                        name="j_password"
                        placeholder="Password"
                        className={styles.loginInput}
+                       autocomplete="off"
+                       autocapitalize="off"
+                       autocorrect="off"
+                       spellcheck={false}
                        data-test-id="form-field-input-password"
             /></li>
 

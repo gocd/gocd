@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -45,10 +46,10 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
         }
     }
 
-    public void serverPing(String pluginId) {
-        LOGGER.debug("Processing server ping for plugin {}", pluginId);
-        extension.serverPing(pluginId);
-        LOGGER.debug("Done processing server ping for plugin {}", pluginId);
+    public void serverPing(String pluginId, List<Map<String, String>> clusterProfiles) {
+        LOGGER.debug("Processing server ping for plugin {} with clusters {}", pluginId, clusterProfiles);
+        extension.serverPing(pluginId, clusterProfiles);
+        LOGGER.debug("Done processing server ping for plugin {} with clusters {}", pluginId, clusterProfiles);
     }
 
     public boolean shouldAssignWork(PluginDescriptor plugin, AgentMetadata agent, String environment, Map<String, String> configuration, Map<String, String> clusterProfileProperties, JobIdentifier identifier) {

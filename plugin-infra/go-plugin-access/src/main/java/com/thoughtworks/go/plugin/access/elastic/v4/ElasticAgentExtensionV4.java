@@ -124,7 +124,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
     }
 
     @Override
-    public void serverPing(final String pluginId) {
+    public void serverPing(final String pluginId, List<Map<String, String>> clusterProfileConfigurations) {
         pluginRequestHelper.submitRequest(pluginId, REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>());
     }
 

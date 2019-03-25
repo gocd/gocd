@@ -200,9 +200,9 @@ public class ElasticAgentExtensionV4Test {
     public void shouldSendServerPing() {
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
 
-        extensionV4.serverPing(PLUGIN_ID);
-
-        assertExtensionRequest("4.0", REQUEST_SERVER_PING, null);
+        extensionV4.serverPing(PLUGIN_ID, null);
+        String expectedRequestBody = null;
+        assertExtensionRequest("4.0", REQUEST_SERVER_PING, expectedRequestBody);
     }
 
     @Test

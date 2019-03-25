@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -149,6 +150,30 @@ public class ElasticAgentExtensionConverterV5Test {
                 "    \"job_name\": \"test-job\",\n" +
                 "    \"job_id\": 100\n" +
                 "  }\n" +
+                "}";
+
+        assertThatJson(expected).isEqualTo(actual);
+    }
+
+    @Test
+    public void shouldJSONizeServerPingRequestBody() throws Exception {
+        HashMap<String, String> clusterProfileConfiguration1 = new HashMap<>();
+        clusterProfileConfiguration1.put("property_name", "property_value");
+        HashMap<String, String> clusterProfileConfiguration2 = new HashMap<>();
+        clusterProfileConfiguration2.put("property_name_1", "property_value_1");
+        clusterProfileConfiguration2.put("property_name_2", "property_value_2");
+        String actual = new ElasticAgentExtensionConverterV5().serverPingRequestBody(Arrays.asList(clusterProfileConfiguration1, clusterProfileConfiguration2));
+
+        String expected = "{" +
+                "  \"all_cluster_profile_properties\":[" +
+                "      {" +
+                "        \"property_name\":\"property_value\"" +
+                "      }," +
+                "      {" +
+                "        \"property_name_1\":\"property_value_1\"," +
+                "        \"property_name_2\":\"property_value_2\"" +
+                "      }" +
+                "    ]" +
                 "}";
 
         assertThatJson(expected).isEqualTo(actual);

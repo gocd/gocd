@@ -258,11 +258,17 @@ public class ElasticAgentExtensionV5Test {
 
     @Test
     public void shouldSendServerPing() {
+        final Map<String, String> clusterProfileProperties = Collections.singletonMap("ServerURL", "https://example.com/go");
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
+        extensionV5.serverPing(PLUGIN_ID, Arrays.asList(clusterProfileProperties));
 
-        extensionV5.serverPing(PLUGIN_ID);
+        String expectedRequestBody = "{\n" +
+                "  \"all_cluster_profile_properties\": [{\n" +
+                "    \"ServerURL\": \"https://example.com/go\"\n" +
+                "  }]\n" +
+                "}";
 
-        assertExtensionRequest("5.0", REQUEST_SERVER_PING, null);
+        assertExtensionRequest("5.0", REQUEST_SERVER_PING, expectedRequestBody);
     }
 
     @Test

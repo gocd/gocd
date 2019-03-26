@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.SecretParam;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -82,6 +84,13 @@ class UrlArgumentTest {
             final UrlArgument argument = new UrlArgument(URL_WITH_SECRET_PARAMS);
 
             assertThat(argument.forDisplay()).isEqualTo("https://******:******@gocd.org/foo/bar.git");
+        }
+
+        @Test
+        void shouldMaskSecretParamsUsedForAnythingOtherThanPassword() {
+            final UrlArgument argument = new UrlArgument("https://{{SECRET:[id][key]}}:password@foo.com/bar.git");
+
+            assertThat(argument.forDisplay()).isEqualTo("https://******:******@foo.com/bar.git");
         }
     }
 
@@ -212,6 +221,36 @@ class UrlArgumentTest {
             final UrlArgument url = new UrlArgument("https://username:password@gocd.org/foo");
 
             assertThat(url.hasSecretParams()).isFalse();
+        }
+    }
+
+    @Nested
+    class isValid {
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "https://{{SECRET:[secret-config-id][username]}}:{{SECRET:[secret-config-id][password]}}@foo/bar.git",
+                "https://username:{{SECRET:[secret-config-id][password]}}@foo/bar.git",
+                "https://{{SECRET:[secret-config-id][username]}}:password@foo/bar.git",
+                "https://{{SECRET:[secret-config-id][token]}}@foo/bar.git"
+        })
+        void shouldBeTrueIfUserInfoIsSpecifiedUsingSecretParams(String url) {
+            final UrlArgument urlArgument = new UrlArgument(url);
+
+            assertThat(urlArgument.isValid()).isTrue();
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "https://username:pass@{{SECRET:[secret-config-id][host]}}:80/foo/bar.git",
+                "https://username:pass@foo:{{SECRET:[secret-config-id][port]}}/foo/bar.git",
+                "https://username:pass@foo.com/{{SECRET:[secret-config-id][path]}}.git",
+                "https://username:pass@foo/bar.git?foo={{SECRET:[secret-config-id][some-secret]}}",
+                "https://username:pass@foo/bar.git#foo={{SECRET:[secret-config-id][some-secret]}}"
+        })
+        void shouldBeFalseIfSecretParamsIsUsedInOtherThanUserInfo(String url) {
+            final UrlArgument urlArgument = new UrlArgument(url);
+
+            assertThat(urlArgument.isValid()).isFalse();
         }
     }
 

@@ -19,6 +19,8 @@ package com.thoughtworks.go.util.command;
 import com.thoughtworks.go.config.ConfigAttributeValue;
 import com.thoughtworks.go.config.SecretParamAware;
 import com.thoughtworks.go.config.SecretParams;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -53,16 +55,16 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
 
     @Override
     public String forDisplay() {
-        if (hasSecretParams()) {
-            return secretParams.mask(sanitizeUrl());
-        }
+        final String maskedUrl = secretParams.mask(sanitizeUrl());
+        final UriComponents uriComponents = UriComponentsBuilder.fromUriString(maskedUrl).build();
 
         try {
-            URI uri = new URI(sanitizeUrl());
-            if (uri.getUserInfo() != null) {
-                uri = new URI(uri.getScheme(), clean(uri.getScheme(), uri.getUserInfo()), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+            if (uriComponents.getUserInfo() != null) {
+                final String userInfo = clean(uriComponents.getScheme(), uriComponents.getUserInfo());
+                return new URI(uriComponents.getScheme(), userInfo, uriComponents.getHost(), uriComponents.getPort(), uriComponents.getPath(), uriComponents.getQuery(), uriComponents.getFragment())
+                        .toString();
             }
-            return uri.toString();
+            return maskedUrl;
         } catch (URISyntaxException e) {
             // In subversion we may have a file path that is not actually a URL
             return url;
@@ -148,5 +150,14 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
         } catch (URISyntaxException e) {
             return url;
         }
+    }
+
+    public boolean isValid() {
+        String url = this.sanitizeUrl();
+        if (this.sanitizeUrl().contains("@")) {
+            url = sanitizeUrl().split("@")[1];
+        }
+
+        return !SecretParams.parse(url).hasSecretParams();
     }
 }

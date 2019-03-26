@@ -24,6 +24,8 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Map;
 
@@ -149,6 +151,11 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         if (url == null || StringUtils.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
         }
+        if(!url.isValid()) {
+
+        }
+        final UriComponents uriComponents = UriComponentsBuilder.fromUriString(url.forDisplay()).build();
+
     }
 
     @Override

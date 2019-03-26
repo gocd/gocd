@@ -52,7 +52,7 @@ public class GitMaterialUpdater {
     private BuildCommand fetchRemote(String workingDir) {
         return compose(
                 echo("[GIT] Fetching changes"),
-                exec("git", "fetch", "origin", "--prune").setWorkingDirectory(workingDir),
+                exec("git", "fetch", "origin", "--prune", "--recurse-submodules=no").setWorkingDirectory(workingDir),
                 exec("git", "gc", "--auto").setWorkingDirectory(workingDir));
     }
 

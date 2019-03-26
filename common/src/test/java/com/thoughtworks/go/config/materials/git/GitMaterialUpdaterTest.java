@@ -236,7 +236,7 @@ class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
     }
 
     @Test
-    void shouldAllowSubmoduleUrlstoChange() throws Exception {
+    void shouldAllowSubmoduleUrlsToChange() throws Exception {
         GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
         String submoduleDirectoryName = "local-submodule";
         submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);

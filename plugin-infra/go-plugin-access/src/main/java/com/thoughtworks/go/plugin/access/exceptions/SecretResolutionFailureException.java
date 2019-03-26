@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.plugin.access;
+package com.thoughtworks.go.plugin.access.exceptions;
 
-import java.util.Map;
-
-public interface PluginInteractionCallback<T> {
-    String requestBody(String resolvedExtensionVersion);
-
-    Map<String, String> requestParams(String resolvedExtensionVersion);
-
-    Map<String, String> requestHeaders(String resolvedExtensionVersion);
-
-    T onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion);
-
-    void onFailure(int responseCode, String responseBody, String resolvedExtensionVersion);
+public class SecretResolutionFailureException extends RuntimeException {
+    public SecretResolutionFailureException(String message) {
+        super(message);
+    }
 }

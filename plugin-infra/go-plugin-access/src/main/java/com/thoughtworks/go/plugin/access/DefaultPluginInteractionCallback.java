@@ -18,6 +18,8 @@ package com.thoughtworks.go.plugin.access;
 
 import java.util.Map;
 
+import static java.lang.String.format;
+
 public class DefaultPluginInteractionCallback<T> implements PluginInteractionCallback<T> {
     @Override
     public String requestBody(String resolvedExtensionVersion) {
@@ -37,5 +39,9 @@ public class DefaultPluginInteractionCallback<T> implements PluginInteractionCal
     @Override
     public T onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
         return null;
+    }
+
+    @Override
+    public void onFailure(int responseCode, String responseBody, String resolvedExtensionVersion) {
     }
 }

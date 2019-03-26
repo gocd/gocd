@@ -39,4 +39,6 @@ public interface SecretsMessageConverter {
     String lookupSecretsRequestBody(Set<String> lookupStrings, Map<String, String> configurationAsMap);
 
     List<Secret> getSecretsFromResponse(String responseBody);
+
+    String getErrorMessageFromResponse(String responseBody);
 }

@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.secrets.v1;
 import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationError;
@@ -28,9 +29,9 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
+
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -43,8 +44,8 @@ import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SECRETS_E
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonMap;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -76,8 +77,8 @@ public class SecretsExtensionV1Test {
 
         final Image icon = secretsExtensionV1.getIcon(PLUGIN_ID);
 
-        assertThat(icon.getContentType(), is("image/png"));
-        assertThat(icon.getData(), is("Zm9vYmEK"));
+        assertThat(icon.getContentType()).isEqualTo("image/png");
+        assertThat(icon.getData()).isEqualTo("Zm9vYmEK");
         assertExtensionRequest(REQUEST_GET_PLUGIN_ICON, null);
     }
 
@@ -88,11 +89,8 @@ public class SecretsExtensionV1Test {
 
         final List<PluginConfiguration> metadata = secretsExtensionV1.getSecretsConfigMetadata(PLUGIN_ID);
 
-        assertThat(metadata, hasSize(2));
-        assertThat(metadata, containsInAnyOrder(
-                new PluginConfiguration("Username", new Metadata(true, false)),
-                new PluginConfiguration("Password", new Metadata(true, true))
-        ));
+        assertThat(metadata).hasSize(2);
+        assertThat(metadata).contains(new PluginConfiguration("Username", new Metadata(true, false)), new PluginConfiguration("Password", new Metadata(true, true)));
 
         assertExtensionRequest(REQUEST_GET_SECRETS_CONFIG_METADATA, null);
     }
@@ -104,7 +102,7 @@ public class SecretsExtensionV1Test {
 
         final String view = secretsExtensionV1.getSecretsConfigView(PLUGIN_ID);
 
-        assertThat(view, is("<div>This is secrets config view snippet</div>"));
+        assertThat(view).isEqualTo("<div>This is secrets config view snippet</div>");
 
         assertExtensionRequest(REQUEST_GET_SECRETS_CONFIG_VIEW, null);
     }
@@ -116,40 +114,50 @@ public class SecretsExtensionV1Test {
 
         final ValidationResult result = secretsExtensionV1.validateSecretsConfig(PLUGIN_ID, singletonMap("username", "some_name"));
 
-        assertThat(result.isSuccessful(), is(false));
-        assertThat(result.getErrors(), containsInAnyOrder(
-                new ValidationError("Url", "Vault Url cannot be blank."),
-                new ValidationError("Path", "Path cannot be blank.")
-        ));
+        assertThat(result.isSuccessful()).isFalse();
+        assertThat(result.getErrors()).contains(new ValidationError("Url", "Vault Url cannot be blank."), new ValidationError("Path", "Path cannot be blank."));
 
         assertExtensionRequest(REQUEST_VALIDATE_SECRETS_CONFIG, "{\"username\":\"some_name\"}");
     }
 
-    @Test
-    void shouldTalkToPlugin_toLookupForSecrets() {
-        String responseBody = "[{\"key\":\"key1\",\"value\":\"secret1\"},{\"key\":\"key2\",\"value\":\"secret2\"}]";
-        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(SECRETS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+    @Nested
+    class lookupSecrets {
+        @Test
+        void shouldTalkToPlugin_toLookupForSecrets() {
+            String responseBody = "[{\"key\":\"key1\",\"value\":\"secret1\"},{\"key\":\"key2\",\"value\":\"secret2\"}]";
+            when(pluginManager.submitTo(eq(PLUGIN_ID), eq(SECRETS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final SecretConfig secretConfig = new SecretConfig();
-        secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("AWS_ACCESS_KEY", false, "some-access-key"));
-        secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("AWS_SECRET_KEY", true, "some-secret-value"));
+            final SecretConfig secretConfig = new SecretConfig();
+            secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("AWS_ACCESS_KEY", false, "some-access-key"));
+            secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("AWS_SECRET_KEY", true, "some-secret-value"));
 
-        List<Secret> secrets = secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, new HashSet<>(asList("key1", "key2")));
+            List<Secret> secrets = secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, new HashSet<>(asList("key1", "key2")));
 
-        assertThat(secrets.size(), is(2));
-        assertThat(secrets, containsInAnyOrder(
-                new Secret("key1", "secret1"),
-                new Secret("key2", "secret2")
-        ));
+            assertThat(secrets.size()).isEqualTo(2);
+            assertThat(secrets).contains(new Secret("key1", "secret1"), new Secret("key2", "secret2"));
 
-        assertExtensionRequest(REQUEST_LOOKUP_SECRETS, "{\"configuration\":{\"AWS_ACCESS_KEY\":\"some-access-key\",\"AWS_SECRET_KEY\":\"some-secret-value\"},\"keys\":[ \"key1\", \"key2\"]}");
+            assertExtensionRequest(REQUEST_LOOKUP_SECRETS, "{\"configuration\":{\"AWS_ACCESS_KEY\":\"some-access-key\",\"AWS_SECRET_KEY\":\"some-secret-value\"},\"keys\":[ \"key1\", \"key2\"]}");
+        }
+
+        @Test
+        void shouldErrorOutIfPluginReturnsAnErrorResponse() {
+            String responseBody = "{\"message\":\"Error looking up for keys 'key1'\"}";
+            when(pluginManager.submitTo(eq(PLUGIN_ID), eq(SECRETS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.error(responseBody));
+
+            final SecretConfig secretConfig = new SecretConfig();
+            secretConfig.add(ConfigurationPropertyMother.create("AWS_ACCESS_KEY", false, "some-access-key"));
+
+            assertThatCode(() -> secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, new HashSet<>(asList("key1", "key2"))))
+                    .isInstanceOf(SecretResolutionFailureException.class)
+                    .hasMessage("Error looking up secrets, plugin returned error code '500' with response: 'Error looking up for keys 'key1''");
+        }
     }
 
     private void assertExtensionRequest(String requestName, String requestBody) {
         final GoPluginApiRequest request = requestArgumentCaptor.getValue();
-        Assert.assertThat(request.requestName(), Matchers.is(requestName));
-        Assert.assertThat(request.extensionVersion(), Matchers.is("1.0"));
-        Assert.assertThat(request.extension(), Matchers.is(SECRETS_EXTENSION));
+        assertThat(request.requestName()).isEqualTo(requestName);
+        assertThat(request.extensionVersion()).isEqualTo("1.0");
+        assertThat(request.extension()).isEqualTo(SECRETS_EXTENSION);
         assertThatJson(requestBody).isEqualTo(request.requestBody());
     }
 }

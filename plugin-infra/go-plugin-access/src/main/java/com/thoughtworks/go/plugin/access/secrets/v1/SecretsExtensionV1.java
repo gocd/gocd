@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.secrets.v1;
 import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.plugin.access.secrets.SecretsPluginConstants;
 import com.thoughtworks.go.plugin.access.secrets.VersionedSecretsExtension;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -31,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.thoughtworks.go.plugin.access.secrets.SecretsPluginConstants.*;
+import static java.lang.String.format;
 
 public class SecretsExtensionV1 implements VersionedSecretsExtension {
     public static final String VERSION = "1.0";
@@ -106,6 +108,13 @@ public class SecretsExtensionV1 implements VersionedSecretsExtension {
                     @Override
                     public List<Secret> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                         return secretsMessageConverterV1.getSecretsFromResponse(responseBody);
+                    }
+
+                    @Override
+                    public void onFailure(int responseCode, String responseBody, String resolvedExtensionVersion) {
+                        String errorMessage = secretsMessageConverterV1.getErrorMessageFromResponse(responseBody);
+                        throw new SecretResolutionFailureException(
+                                format("Error looking up secrets, plugin returned error code '%s' with response: '%s'", responseCode, errorMessage));
                     }
                 });
     }

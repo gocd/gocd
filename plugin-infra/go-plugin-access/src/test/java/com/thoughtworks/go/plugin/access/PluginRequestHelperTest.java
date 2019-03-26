@@ -19,9 +19,10 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.ExpectedException;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -30,12 +31,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@EnableRuleMigrationSupport
 public class PluginRequestHelperTest {
-
     private PluginManager pluginManager;
     private PluginRequestHelper helper;
     private boolean[] isSuccessInvoked;
@@ -46,8 +46,8 @@ public class PluginRequestHelperTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         pluginManager = mock(PluginManager.class);
         helper = new PluginRequestHelper(pluginManager, asList("1.0"), extensionName);
         isSuccessInvoked = new boolean[]{false};
@@ -56,7 +56,7 @@ public class PluginRequestHelperTest {
     }
 
     @Test
-    public void shouldNotInvokeSuccessBlockOnFailureResponse() {
+    void shouldNotInvokeSuccessBlockOnFailureResponse() {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.INTERNAL_ERROR);
         when(response.responseBody()).thenReturn("junk");
         when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
@@ -78,7 +78,7 @@ public class PluginRequestHelperTest {
     }
 
     @Test
-    public void shouldInvokeSuccessBlockOnSuccessfulResponse() {
+    void shouldInvokeSuccessBlockOnSuccessfulResponse() {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
         when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
 
@@ -94,7 +94,7 @@ public class PluginRequestHelperTest {
     }
 
     @Test
-    public void shouldErrorOutOnValidationFailure() {
+    void shouldErrorOutOnValidationFailure() {
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.VALIDATION_ERROR);
         when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
 
@@ -110,7 +110,7 @@ public class PluginRequestHelperTest {
     }
 
     @Test
-    public void shouldConstructTheRequest() {
+    void shouldConstructTheRequest() {
         final String requestBody = "request_body";
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
 
@@ -137,7 +137,7 @@ public class PluginRequestHelperTest {
     }
 
     @Test
-    public void shouldConstructTheRequestWithRequestParams() {
+    void shouldConstructTheRequestWithRequestParams() {
         final String requestBody = "request_body";
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
 
@@ -174,6 +174,10 @@ public class PluginRequestHelperTest {
             public Object onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return null;
             }
+
+            @Override
+            public void onFailure(int responseCode, String responseBody, String resolvedExtensionVersion) {
+            }
         });
 
         assertThat(generatedRequest[0].requestBody()).isEqualTo(requestBody);
@@ -185,7 +189,7 @@ public class PluginRequestHelperTest {
     }
 
     @Test
-    public void shouldConstructTheRequestWithRequestHeaders() {
+    void shouldConstructTheRequestWithRequestHeaders() {
         final String requestBody = "request_body";
         when(response.responseCode()).thenReturn(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE);
 
@@ -219,6 +223,10 @@ public class PluginRequestHelperTest {
             public Object onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return null;
             }
+
+            @Override
+            public void onFailure(int responseCode, String responseBody, String resolvedExtensionVersion) {
+            }
         });
 
         assertThat(generatedRequest[0].requestBody()).isEqualTo(requestBody);
@@ -227,5 +235,20 @@ public class PluginRequestHelperTest {
         assertThat(generatedRequest[0].requestHeaders().size()).isEqualTo(2);
         assertThat(generatedRequest[0].requestHeaders().get("HEADER-1")).isEqualTo("HEADER-VALUE-1");
         assertThat(generatedRequest[0].requestHeaders().get("HEADER-2")).isEqualTo("HEADER-VALUE-2");
+    }
+
+    @Test
+    void shouldInvokeOnFailureCallbackWhenResponseCodeOtherThan200() {
+        PluginInteractionCallback pluginInteractionCallback = mock(PluginInteractionCallback.class);
+
+        when(response.responseCode()).thenReturn(400);
+        when(response.responseBody()).thenReturn("Error response");
+        when(pluginManager.submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class))).thenReturn(response);
+        when(pluginManager.resolveExtensionVersion(eq(pluginId), eq(extensionName), anyList())).thenReturn("1.0");
+
+        assertThatCode(() -> helper.submitRequest(pluginId, requestName, pluginInteractionCallback))
+                .isInstanceOf(RuntimeException.class);
+
+        verify(pluginInteractionCallback).onFailure(400, "Error response", "1.0");
     }
 }

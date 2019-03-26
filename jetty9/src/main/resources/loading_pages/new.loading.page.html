@@ -180,7 +180,7 @@
 </div>
 
 <div class="section-by-status" id="status-STARTED" style="display: none;">
-  GoCD server has started.  <a href="https://thoughtworks-products.invisionapp.com/share/VZR4BTWP4JX">Go directly to the GoCD server.</a>
+  GoCD server has started.  <a href="#" onclick="window.redirectToLanding();">Go directly to the GoCD server.</a>
 </div>
 
 <div class="section-by-status" id="status-UNKNOWN" style="display: none;">
@@ -304,6 +304,15 @@
 
   var intervalSizeInSeconds = 2;
   var numberOfIntervalsBetweenStatusUpdateCalls = 4;
+
+  var redirectToLanding = function() {
+    var locationData = window.location.search.match(/(\?|&)redirect_to=([^&]+)(&|$)/);
+    if (locationData === null) {
+      window.location.reload(true);
+    } else {
+      window.location = decodeURIComponent(locationData[2]);
+    }
+  }
 
   var hide = function hide(element) {
     element.style = "display: none";

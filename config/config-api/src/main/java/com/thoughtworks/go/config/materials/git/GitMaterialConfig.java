@@ -58,7 +58,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     public GitMaterialConfig(String url, String branch) {
         this(url);
-        if(branch != null) {
+        if (branch != null) {
             this.branch = branch;
         }
     }
@@ -71,7 +71,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name, Boolean shallowClone) {
         super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
-        if(branch != null) {
+        if (branch != null) {
             this.branch = branch;
         }
         this.submoduleFolder = submoduleFolder;
@@ -80,7 +80,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put("branch", branch);
     }
 
@@ -93,7 +93,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     public String getUrl() {
-        return url != null ? url.forCommandline() : null;
+        return url != null ? url.originalArgument() : null;
     }
 
     @Override
@@ -101,11 +101,6 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         if (url != null) {
             this.url = new UrlArgument(url);
         }
-    }
-
-    @Override
-    public UrlArgument getUrlArgument() {
-        return url;
     }
 
     @Override
@@ -159,6 +154,11 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     @Override
     protected String getLocation() {
         return url.forDisplay();
+    }
+
+    @Override
+    public String getUriForDisplay() {
+        return this.url.forDisplay();
     }
 
     @Override
@@ -228,7 +228,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         Map map = (Map) attributes;
         if (map.containsKey(BRANCH)) {
             String branchName = (String) map.get(BRANCH);
-            this.branch = StringUtils.isBlank(branchName) ? DEFAULT_BRANCH: branchName;
+            this.branch = StringUtils.isBlank(branchName) ? DEFAULT_BRANCH : branchName;
         }
         if (map.containsKey(URL)) {
             this.url = new UrlArgument((String) map.get(URL));

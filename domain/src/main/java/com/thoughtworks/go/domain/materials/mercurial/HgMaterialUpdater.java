@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
-import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 
 import java.io.File;
@@ -40,7 +39,7 @@ public class HgMaterialUpdater {
         String workingDir = material.workingdir(new File(baseDir)).getPath();
         UrlArgument url = material.getUrlArgument();
         return compose(
-                secret(url.forCommandline(), url.forDisplay()),
+                secret(url.forCommandLine(), url.forDisplay()),
                 echoWithPrefix("Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay()),
                 cloneIfNeeded(workingDir),
                 pull(workingDir),
@@ -49,7 +48,7 @@ public class HgMaterialUpdater {
     }
 
     private BuildCommand pull(String workingDir) {
-        return exec("hg", "pull", "-b", material.getBranch(), "--config", String.format("paths.default=%s", material.getUrl())).
+        return exec("hg", "pull", "-b", material.getBranch(), "--config", String.format("paths.default=%s", material.urlForCommandLine())).
                 setWorkingDirectory(workingDir);
     }
 
@@ -91,6 +90,6 @@ public class HgMaterialUpdater {
     }
 
     private BuildCommand cmdClone(String workingDir) {
-        return exec("hg", "clone", "-b", this.material.getBranch(), material.getUrl(), workingDir);
+        return exec("hg", "clone", "-b", this.material.getBranch(), material.urlForCommandLine(), workingDir);
     }
 }

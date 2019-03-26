@@ -57,8 +57,7 @@ public class GitMaterialConfigTest {
         assertThat(gitMaterialConfig.isShallowClone(), is(true));
         assertThat(gitMaterialConfig.filter(), is(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help"))));
     }
-
-
+    
     @Test
     public void byDefaultShallowCloneShouldBeOff() {
         assertThat(new GitMaterialConfig("http://url", "foo").isShallowClone(), is(false));

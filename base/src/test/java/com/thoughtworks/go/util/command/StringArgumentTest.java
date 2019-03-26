@@ -24,7 +24,7 @@ public class StringArgumentTest {
     private StringArgument argument = new StringArgument("test");
 
     @Test public void shouldReturnStringValueForCommandLine() throws Exception {
-        assertThat(argument.forCommandline(), is("test"));
+        assertThat(argument.originalArgument(), is("test"));
     }
 
     @Test public void shouldReturnStringValueForReporting() throws Exception {

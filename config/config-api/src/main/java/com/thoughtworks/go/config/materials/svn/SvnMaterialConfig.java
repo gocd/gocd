@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
 import java.util.Map;
@@ -33,7 +32,6 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.*;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "svn", label = "Subversion")
 public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordEncrypter, PasswordAwareMaterial {
@@ -84,6 +82,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         setPassword(password);
         this.checkExternals = checkExternals;
     }
+
     public SvnMaterialConfig(String url, String userName, boolean checkExternals, GoCipher goCipher) {
         this(goCipher);
         bombIfNull(url, "null url");
@@ -191,7 +190,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     public String getUrl() {
-        return url != null ? url.forCommandline() : null;
+        return url != null ? url.originalArgument() : null;
     }
 
     @Override
@@ -202,11 +201,6 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     @Override
-    protected UrlArgument getUrlArgument() {
-        return url;
-    }
-
-    @Override
     public String getLongDescription() {
         return String.format("URL: %s, Username: %s, CheckExternals: %s", url.forDisplay(), userName, checkExternals);
     }
@@ -214,6 +208,11 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @Override
     protected String getLocation() {
         return url == null ? null : url.forDisplay();
+    }
+
+    @Override
+    public String getUriForDisplay() {
+        return this.url.forDisplay();
     }
 
     @Override
@@ -230,14 +229,14 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
                 currentPassword();
             } catch (Exception e) {
                 addError("encryptedPassword", format("Encrypted password value for svn material with url '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
-                       this.getUriForDisplay()));
+                        this.getUriForDisplay()));
             }
         }
     }
 
     @Override
     protected void appendCriteria(Map parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put("checkExternals", checkExternals);
     }

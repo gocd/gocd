@@ -162,11 +162,6 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     @Override
-    protected UrlArgument getUrlArgument() {
-        return new UrlArgument(serverAndPort);
-    }
-
-    @Override
     public String getLongDescription() {
         return String.format("URL: %s, View: %s, Username: %s", serverAndPort, view.getValue(), userName);
     }
@@ -175,9 +170,10 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     public String getUserName() {
         return userName;
     }
-        public void setUserName(String userName) {
-                this.userName = userName;
-            }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
     @Override
     public String getPassword() {
@@ -237,14 +233,14 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         if (StringUtils.isBlank(getServerAndPort())) {
             errors.add(SERVER_AND_PORT, "P4 port cannot be empty.");
         }
-        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)){
+        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)) {
             addError("password", "You may only specify `password` or `encrypted_password`, not both!");
             addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
         }
-        if(isNotEmpty(this.encryptedPassword)) {
-            try{
+        if (isNotEmpty(this.encryptedPassword)) {
+            try {
                 currentPassword();
-            }catch (Exception e) {
+            } catch (Exception e) {
                 addError("encryptedPassword", format("Encrypted password value for P4 material with serverAndPort '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
                         this.getServerAndPort()));
             }
@@ -257,11 +253,17 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     @Override
+    public String getUriForDisplay() {
+        return new UrlArgument(serverAndPort).forDisplay();
+    }
+
+    @Override
     public String getTypeForDisplay() {
         return "Perforce";
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "P4MaterialConfig{" +
                 "serverAndPort='" + serverAndPort + '\'' +
                 ", userName='" + userName + '\'' +

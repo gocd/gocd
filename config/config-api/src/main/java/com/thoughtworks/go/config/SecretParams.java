@@ -34,7 +34,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.replaceOnce;
 
 public class SecretParams extends ArrayList<SecretParam> implements Serializable {
-    private static final Pattern PATTERN = Pattern.compile("(?:#\\{SECRET\\[(.*?)\\]\\[(.*?)\\]})+");
+    private static final Pattern PATTERN = Pattern.compile("(?:\\{\\{SECRET:\\[(.*?)\\]\\[(.*?)\\]}})+");
 
     public SecretParams() {
     }
@@ -105,7 +105,7 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
                 throw new UnresolvedSecretParamException(secretParam.getKey());
             }
 
-            return replaceOnce(text, format("#{SECRET[%s][%s]}", secretParam.getSecretConfigId(), secretParam.getKey()), secretParam.getValue());
+            return replaceOnce(text, format("{{SECRET:[%s][%s]}}", secretParam.getSecretConfigId(), secretParam.getKey()), secretParam.getValue());
         };
     }
 
@@ -113,5 +113,16 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
         return this.stream()
                 .filter(secretParam -> secretParam.getKey().equals(key))
                 .findFirst();
+    }
+
+    public String mask(String originalValue) {
+        return this.stream()
+                .map(this::maskFunction)
+                .reduce(Function.identity(), Function::andThen)
+                .apply(originalValue);
+    }
+
+    private Function<String, String> maskFunction(SecretParam secretParam) {
+        return text -> replaceOnce(text, format("{{SECRET:[%s][%s]}}", secretParam.getSecretConfigId(), secretParam.getKey()), "******");
     }
 }

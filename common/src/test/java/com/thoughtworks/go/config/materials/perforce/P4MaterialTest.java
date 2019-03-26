@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.materials.perforce;
 
 import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
@@ -35,6 +36,7 @@ import java.util.Date;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -206,7 +208,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         @Test
         void shouldBeTrueIfMaterialUrlHasSecretParams() {
             P4Material p4Material = new P4Material("host:10", "beautiful");
-            p4Material.setPassword("#{SECRET[secret_config_id][lookup_password]}");
+            p4Material.setPassword("{{SECRET:[secret_config_id][lookup_password]}}");
 
             assertThat(p4Material.hasSecretParams()).isTrue();
         }
@@ -225,7 +227,7 @@ public class P4MaterialTest extends P4MaterialTestBase {
         @Test
         void shouldReturnAListOfSecretParams() {
             P4Material p4Material = new P4Material("host:10", "beautiful");
-            p4Material.setPassword("#{SECRET[secret_config_id][lookup_password]}");
+            p4Material.setPassword("{{SECRET:[secret_config_id][lookup_password]}}");
 
             assertThat(p4Material.getSecretParams())
                     .hasSize(1)
@@ -239,6 +241,50 @@ public class P4MaterialTest extends P4MaterialTestBase {
 
             assertThat(p4Material.getSecretParams())
                     .hasSize(0);
+        }
+    }
+
+    @Nested
+    class passwordForCommandLine {
+        @Test
+        void shouldReturnPasswordAsConfigured_IfNotDefinedAsSecretParam() {
+            P4Material p4Material = new P4Material("host:10", "beautiful");
+            p4Material.setPassword("badger");
+
+            assertThat(p4Material.passwordForCommandLine()).isEqualTo("badger");
+        }
+
+        @Test
+        void shouldReturnAResolvedPassword_IfPasswordDefinedAsSecretParam() {
+            P4Material p4Material = new P4Material("host:10", "beautiful");
+            p4Material.setPassword("{{SECRET:[secret_config_id][lookup_pass]}}");
+
+            p4Material.getSecretParams().findFirst("lookup_pass").ifPresent(secretParam -> secretParam.setValue("resolved_password"));
+
+            assertThat(p4Material.passwordForCommandLine()).isEqualTo("resolved_password");
+        }
+
+        @Test
+        void shouldErrorOutWhenCalledOnAUnResolvedSecretParam_IfPasswordDefinedAsSecretParam() {
+            P4Material p4Material = new P4Material("host:10", "beautiful");
+            p4Material.setPassword("{{SECRET:[secret_config_id][lookup_pass]}}");
+
+            assertThatCode(p4Material::passwordForCommandLine)
+                    .isInstanceOf(UnresolvedSecretParamException.class)
+                    .hasMessageContaining("SecretParam 'lookup_pass' is used before it is resolved.");
+        }
+    }
+
+    @Nested
+    class setPassword {
+        @Test
+        void shouldParsePasswordString_IfDefinedAsSecretParam() {
+            P4Material p4Material = new P4Material("host:10", "beautiful");
+            p4Material.setPassword("{{SECRET:[secret_config_id][lookup_pass]}}");
+
+            assertThat(p4Material.getSecretParams())
+                    .hasSize(1)
+                    .contains(new SecretParam("secret_config_id", "lookup_pass"));
         }
     }
 }

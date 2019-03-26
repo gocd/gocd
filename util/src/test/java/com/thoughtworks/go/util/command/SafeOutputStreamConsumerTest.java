@@ -38,13 +38,18 @@ public class SafeOutputStreamConsumerTest {
     private CommandArgument commandArgumentWhichHasASecret(final String secret) {
         return new CommandArgument() {
             @Override
-            public String forCommandline() {
+            public String originalArgument() {
                 return secret;
             }
 
             @Override
             public String forDisplay() {
                 return "******";
+            }
+
+            @Override
+            public String forCommandLine() {
+                return originalArgument();
             }
         };
     }

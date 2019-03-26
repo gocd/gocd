@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.util.command;
 
-import com.thoughtworks.go.config.ConfigAttributeValue;
-
-@ConfigAttributeValue(fieldName = "secret")
 public class PasswordArgument extends CommandArgument implements SecretString {
     private String secret;
 
@@ -26,11 +23,18 @@ public class PasswordArgument extends CommandArgument implements SecretString {
         this.secret = secret;
     }
 
-    public String forCommandline() {
-        return secret == null ? "": secret;
+    @Override
+    public String forCommandLine() {
+        return originalArgument();
     }
 
+    @Override
     public String forDisplay() {
-        return secret == null ? null: "******";
+        return secret == null ? null : "******";
+    }
+
+    @Override
+    public String originalArgument() {
+        return secret == null ? "" : secret;
     }
 }

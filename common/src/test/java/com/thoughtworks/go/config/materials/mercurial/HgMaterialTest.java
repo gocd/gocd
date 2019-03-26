@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,14 +88,14 @@ public class HgMaterialTest {
 
     @Test
     void shouldRefreshWorkingFolderWhenRepositoryChanged() throws Exception {
-        new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).clone(inMemoryConsumer(), hgTestRepo.url());
+        new HgCommand(null, workingFolder, "default", hgTestRepo.url().originalArgument(), null).clone(inMemoryConsumer(), hgTestRepo.url());
         File testFile = createNewFileInWorkingFolder();
 
         HgTestRepo hgTestRepo2 = new HgTestRepo("hgTestRepo2", temporaryFolder);
         hgMaterial = MaterialsMother.hgMaterial(hgTestRepo2.projectRepositoryUrl());
         hgMaterial.latestModification(workingFolder, new TestSubprocessExecutionContext());
 
-        String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().forCommandline(), null).workingRepositoryUrl().outputAsString();
+        String workingUrl = new HgCommand(null, workingFolder, "default", hgTestRepo.url().originalArgument(), null).workingRepositoryUrl().outputAsString();
         assertThat(workingUrl).isEqualTo(hgTestRepo2.projectRepositoryUrl());
         assertThat(testFile.exists()).isFalse();
     }
@@ -104,13 +104,13 @@ public class HgMaterialTest {
     @DisabledOnOs(OS.WINDOWS)
     void shouldNotRefreshWorkingFolderWhenFileProtocolIsUsedOnLinux() throws Exception {
         final UrlArgument repoUrl = hgTestRepo.url();
-        new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).clone(inMemoryConsumer(), repoUrl);
+        new HgCommand(null, workingFolder, "default", repoUrl.originalArgument(), null).clone(inMemoryConsumer(), repoUrl);
         File testFile = createNewFileInWorkingFolder();
 
         hgMaterial = MaterialsMother.hgMaterial("file://" + hgTestRepo.projectRepositoryUrl());
         updateMaterial(hgMaterial, new StringRevision("0"));
 
-        String workingUrl = new HgCommand(null, workingFolder, "default", repoUrl.forCommandline(), null).workingRepositoryUrl().outputAsString();
+        String workingUrl = new HgCommand(null, workingFolder, "default", repoUrl.originalArgument(), null).workingRepositoryUrl().outputAsString();
         assertThat(workingUrl).isEqualTo(hgTestRepo.projectRepositoryUrl());
         assertThat(testFile.exists()).isTrue();
     }
@@ -408,7 +408,7 @@ public class HgMaterialTest {
     class hasSecretParams {
         @Test
         void shouldBeTrueIfMaterialUrlHasSecretParams() {
-            HgMaterial git = new HgMaterial("http://username:#{SECRET[secret_config_id][lookup_password]}@foo.com", null);
+            HgMaterial git = new HgMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com", null);
 
             assertThat(git.hasSecretParams()).isTrue();
         }
@@ -425,7 +425,7 @@ public class HgMaterialTest {
     class getSecretParams {
         @Test
         void shouldReturnAListOfSecretParams() {
-            HgMaterial git = new HgMaterial("http://username:#{SECRET[secret_config_id][lookup_password]}@foo.com", null);
+            HgMaterial git = new HgMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com", null);
 
             assertThat(git.getSecretParams())
                     .hasSize(1)

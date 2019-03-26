@@ -16,49 +16,51 @@
 
 package com.thoughtworks.go.util.command;
 
-import org.junit.Test;
+
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class HgUrlArgumentTest {
-     @Test
-     public void shouldMaskThePasswordInDisplayName(){
-         HgUrlArgument hgUrlArgument = new HgUrlArgument("http://user:pwd@url##branch");
-         assertThat(hgUrlArgument.forDisplay(), is("http://user:******@url##branch"));
-     }
+class HgUrlArgumentTest {
+    @Test
+    void shouldMaskThePasswordInDisplayName() {
+        HgUrlArgument hgUrlArgument = new HgUrlArgument("http://user:pwd@url##branch");
+        assertThat(hgUrlArgument.forDisplay(), is("http://user:******@url##branch"));
+    }
 
     @Test
-    public void shouldReturnAURLWithoutPassword(){
+    void shouldReturnAURLWithoutPassword() {
         assertThat(new HgUrlArgument("http://user:pwd@url##branch").defaultRemoteUrl(), is("http://user@url#branch"));
     }
 
     @Test
-    public void shouldReturnAURLWhenPasswordIsNotSpecified() throws Exception {
+    void shouldReturnAURLWhenPasswordIsNotSpecified() {
         assertThat(new HgUrlArgument("http://user@url##branch").defaultRemoteUrl(), is("http://user@url#branch"));
     }
 
     @Test
-    public void shouldReturnTheURLWhenNoCredentialsAreSpecified() throws Exception {
+    void shouldReturnTheURLWhenNoCredentialsAreSpecified() {
         assertThat(new HgUrlArgument("http://url##branch").defaultRemoteUrl(), is("http://url#branch"));
     }
 
     @Test
-    public void shouldReturnUrlWithoutPasswordWhenUrlIncludesPort() throws Exception {
+    void shouldReturnUrlWithoutPasswordWhenUrlIncludesPort() {
         assertThat(new HgUrlArgument("http://user:pwd@domain:9887/path").defaultRemoteUrl(), is("http://user@domain:9887/path"));
     }
 
     @Test
-    public void shouldNotModifyAbsoluteFilePaths() throws Exception {
+    void shouldNotModifyAbsoluteFilePaths() {
         assertThat(new HgUrlArgument("/tmp/foo").defaultRemoteUrl(), is("/tmp/foo"));
     }
 
     @Test
-    public void shouldNotModifyFileURIS() throws Exception {
+    void shouldNotModifyFileURIS() {
         assertThat(new HgUrlArgument("file://junk").defaultRemoteUrl(), is("file://junk"));
     }
+
     @Test
-    public void shouldNotModifyWindowsFileSystemPath() throws Exception {
+    void shouldNotModifyWindowsFileSystemPath() {
         assertThat(new HgUrlArgument("c:\\foobar").defaultRemoteUrl(), is("c:\\foobar"));
     }
 

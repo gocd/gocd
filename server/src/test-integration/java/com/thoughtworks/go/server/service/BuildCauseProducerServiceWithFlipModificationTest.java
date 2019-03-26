@@ -112,7 +112,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         svnRepository = new SvnTestRepo(temporaryFolder);
         hgTestRepo = new HgTestRepo("testHgRepo", temporaryFolder);
         repository = new SvnCommand(null, svnRepository.projectRepositoryUrl());
-        svnMaterialConfig = new SvnMaterialConfig(repository.getUrl().forCommandline(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
+        svnMaterialConfig = new SvnMaterialConfig(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
     }
 
     @After
@@ -184,7 +184,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
     }
 
     private SvnMaterialConfig setUpPipelineWithTwoMaterials() throws Exception {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig(repository.getUrl().forCommandline(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
         svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "svnDir"));
         MaterialConfigs materialConfigs = new MaterialConfigs(svnMaterialConfig, hgTestRepo.createMaterialConfig("hgDir"));
         mingleConfig = configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME, materialConfigs, "unit", "functional");

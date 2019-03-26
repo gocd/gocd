@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -42,9 +43,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections4.CollectionUtils.forAllDo;
 
 
@@ -146,7 +148,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private List<JobPlan> getAllJobPlansFromDeletedPipeline(PipelineConfig pipelineConfig, List<JobPlan> allJobPlans) {
         return allJobPlans.stream()
                 .filter(jobPlan -> new CaseInsensitiveString(jobPlan.getPipelineName()).equals(pipelineConfig.name()))
-                .collect(Collectors.toList());
+                .collect(toList());
     }
 
     public Work assignWorkToAgent(AgentIdentifier agent) {
@@ -334,9 +336,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                     final ArtifactStores requiredArtifactStores = goConfigService.artifactStores().getArtifactStores(getArtifactStoreIdsRequiredByArtifactPlans(job.getArtifactPlans()));
                     BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), contextFromEnvironment, requiredArtifactStores);
 
-                    if (buildAssignment.initialEnvironmentVariableContext().hasSecretParams()) {
-                        secretParamResolver.resolve(buildAssignment.initialEnvironmentVariableContext().getSecretParams());
-                    }
+                    resolveSecretParams(buildAssignment);
 
                     return new BuildWork(buildAssignment, systemEnvironment.consoleLogCharset());
                 });
@@ -347,6 +347,29 @@ public class BuildAssignmentService implements ConfigChangedListener {
             throw e;
         }
 
+    }
+
+    private void resolveSecretParams(BuildAssignment buildAssignment) {
+        final SecretParams allSecretParams = SecretParams.union(
+                secretParamsInMaterials(buildAssignment),
+                secretParamsInEnvironmentVariables(buildAssignment)
+        );
+
+        secretParamResolver.resolve(allSecretParams);
+    }
+
+    private SecretParams secretParamsInEnvironmentVariables(BuildAssignment buildAssignment) {
+        return buildAssignment.initialEnvironmentVariableContext().getSecretParams();
+    }
+
+    private SecretParams secretParamsInMaterials(BuildAssignment buildAssignment) {
+        final List<Material> materials = stream(buildAssignment.materialRevisions().spliterator(), true)
+                .map(MaterialRevision::getMaterial).collect(toList());
+
+        return materials.stream()
+                .filter(material -> material instanceof SecretParamAware)
+                .map(material -> ((SecretParamAware) material).getSecretParams())
+                .collect(SecretParams.toFlatSecretParams());
     }
 
     private Set<String> getArtifactStoreIdsRequiredByArtifactPlans(List<ArtifactPlan> artifactPlans) {

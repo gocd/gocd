@@ -81,6 +81,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         this.domain = domain;
         this.projectPath = projectPath;
     }
+
     public TfsMaterialConfig(GoCipher goCipher, UrlArgument url, String userName, String domain, String password, String projectPath) {
         this(goCipher);
         this.url = url;
@@ -121,6 +122,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     public void setUserName(String userName) {
         this.userName = userName;
     }
+
     @Override
     public void setPassword(String password) {
         resetPassword(password);
@@ -147,7 +149,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     public String getUrl() {
-        return url != null ? url.forCommandline() : null;
+        return url != null ? url.originalArgument() : null;
     }
 
     @Override
@@ -155,11 +157,6 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         if (url != null) {
             this.url = new UrlArgument(url);
         }
-    }
-
-    @Override
-    protected UrlArgument getUrlArgument() {
-        return url;
     }
 
     @Override
@@ -173,6 +170,11 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     @Override
+    public String getUriForDisplay() {
+        return this.url.forDisplay();
+    }
+
+    @Override
     public void validateConcreteScmMaterial() {
         if (url == null || StringUtils.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
@@ -183,15 +185,15 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         if (StringUtils.isBlank(projectPath)) {
             errors().add(PROJECT_PATH, "Project Path cannot be blank");
         }
-        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)){
+        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)) {
             addError("password", "You may only specify `password` or `encrypted_password`, not both!");
             addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
         }
 
-        if(isNotEmpty(this.encryptedPassword)) {
-            try{
+        if (isNotEmpty(this.encryptedPassword)) {
+            try {
                 goCipher.decrypt(encryptedPassword);
-            }catch (Exception e) {
+            } catch (Exception e) {
                 addError("encryptedPassword", format("Encrypted password value for TFS material with url '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
                         this.getUriForDisplay()));
             }
@@ -200,7 +202,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put(DOMAIN, domain);
         parameters.put(PROJECT_PATH, projectPath);

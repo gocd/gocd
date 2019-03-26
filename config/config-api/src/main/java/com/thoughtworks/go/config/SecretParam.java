@@ -47,6 +47,7 @@ public class SecretParam implements Serializable {
         this.resolved = true;
     }
 
+    // TODO: Do we need resolved flag or can we rely on value to derive this?
     public boolean isUnresolved() {
         return !resolved;
     }

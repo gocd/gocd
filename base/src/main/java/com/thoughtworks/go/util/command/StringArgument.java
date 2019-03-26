@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.util.command;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
-
 public class StringArgument extends CommandArgument {
     private String value;
 
@@ -27,26 +23,21 @@ public class StringArgument extends CommandArgument {
         this.value = value;
     }
 
-    public String forCommandline() {
+    @Override
+    public String originalArgument() {
         return value;
     }
 
     /**
      * This is final to prevent subclasses from exposing data they shouldn't in logs etc.
      */
+    @Override
     public String forDisplay() {
         return value;
     }
 
-    public static CommandArgument[] toArgs(Object... inputs) {
-        List<CommandArgument> args = new ArrayList<>();
-        for (Object input : inputs) {
-            if (input instanceof CommandArgument) {
-                args.add((CommandArgument) input);
-            } else {
-                args.add(new StringArgument(input.toString()));
-            }
-        }
-        return args.toArray(new CommandArgument[0]);
+    @Override
+    public String forCommandLine() {
+        return originalArgument();
     }
 }

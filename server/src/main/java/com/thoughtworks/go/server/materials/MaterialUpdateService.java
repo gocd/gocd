@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,8 @@ import com.thoughtworks.go.server.materials.postcommit.PostCommitHookMaterialTyp
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.messaging.GoMessageQueue;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
-import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.server.service.SecretParamResolver;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -140,6 +140,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             final PostCommitHookImplementer materialTypeImplementer = materialType.getImplementer();
             final CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
             Set<Material> allUniquePostCommitSchedulableMaterials = materialConfigConverter.toMaterials(cruiseConfig.getAllUniquePostCommitSchedulableMaterials());
+            resolveSecretParams(allUniquePostCommitSchedulableMaterials);
             final Set<Material> prunedMaterialList = materialTypeImplementer.prune(allUniquePostCommitSchedulableMaterials, attributes);
 
             if (prunedMaterialList.isEmpty()) {
@@ -175,9 +176,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             LOGGER.debug("[Material Update] Starting update of material {}", material);
             try {
                 long trackingId = mduPerformanceLogger.materialSentToUpdateQueue(material);
-                if ((material instanceof SecretParamAware) && ((SecretParamAware) material).hasSecretParams()) {
-                    secretParamResolver.resolve(((SecretParamAware) material).getSecretParams());
-                }
+                resolveSecretParams(material);
                 queueFor(material).post(new MaterialUpdateMessage(material, trackingId));
 
                 return true;
@@ -197,6 +196,20 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             }
             return false;
         }
+    }
+
+    private void resolveSecretParams(Material material) {
+        if ((material instanceof SecretParamAware) && ((SecretParamAware) material).hasSecretParams()) {
+            secretParamResolver.resolve(((SecretParamAware) material).getSecretParams());
+        }
+    }
+
+    private void resolveSecretParams(Set<Material> allUniquePostCommitSchedulableMaterials) {
+        final SecretParams secretParams = allUniquePostCommitSchedulableMaterials.stream()
+                .filter(material -> material instanceof SecretParamAware)
+                .map(material -> ((SecretParamAware) material).getSecretParams())
+                .collect(SecretParams.toFlatSecretParams());
+        secretParamResolver.resolve(secretParams);
     }
 
     public void registerMaterialSources(MaterialSource materialSource) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     public static final String TYPE = "P4Material";
 
     private final GoCipher goCipher;
+    private SecretParams secretParamsForPassword;
 
     private P4Material(GoCipher goCipher) {
         super(TYPE);
@@ -175,8 +176,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
             return ValidationBean.valid();
         } catch (Exception e) {
             return ValidationBean.notValid("Unable to connect to server " + serverAndPort + " : \n" + e.getMessage());
-        }
-        finally{
+        } finally {
             FileUtils.deleteQuietly(baseDir);
         }
     }
@@ -193,24 +193,37 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return false;
     }
 
+    @Override
     public String getUrl() {
         return serverAndPort;
     }
 
-    @Override protected UrlArgument getUrlArgument() {
+    @Override
+    public String urlForCommandLine() {
+        return serverAndPort;
+    }
+
+    @Override
+    protected UrlArgument getUrlArgument() {
         return new UrlArgument(serverAndPort);
     }
 
     public String getLongDescription() {
-       return format("URL: %s, View: %s, Username: %s", serverAndPort, view.getValue(), userName);
+        return format("URL: %s, View: %s, Username: %s", serverAndPort, view.getValue(), userName);
     }
 
     public String getUserName() {
         return userName;
     }
 
+    @Override
     public String getPassword() {
         return currentPassword();
+    }
+
+    @Override
+    public String passwordForCommandLine() {
+        return this.secretParamsForPassword.isEmpty() ? this.getPassword() : this.secretParamsForPassword.substitute(getPassword());
     }
 
     public void setPassword(String password) {
@@ -226,7 +239,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
      */
     P4Client _p4(File workDir, ConsoleOutputStreamConsumer consumer, boolean failOnError) throws Exception {
         String clientName = clientName(workDir);
-        return P4Client.fromServerAndPort(getFingerprint(), serverAndPort, userName, getPassword(), clientName,this.useTickets, workDir, p4view(clientName), consumer, failOnError);
+        return P4Client.fromServerAndPort(getFingerprint(), serverAndPort, userName, getPassword(), clientName, this.useTickets, workDir, p4view(clientName), consumer, failOnError);
     }
 
     public void populateAgentSideEnvironmentContext(EnvironmentVariableContext environmentVariableContext, File baseDir) {
@@ -353,7 +366,8 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         this.useTickets = useTickets;
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "P4Material{" +
                 "serverAndPort='" + serverAndPort + '\'' +
                 ", userName='" + userName + '\'' +
@@ -378,6 +392,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
     private void setPasswordIfNotBlank(String password) {
         this.password = StringUtils.stripToNull(password);
+        this.secretParamsForPassword = SecretParams.parse(password);
         this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
 
         if (this.password == null) {
@@ -418,11 +433,11 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
     @Override
     public boolean hasSecretParams() {
-        return !SecretParams.parse(getPassword()).isEmpty();
+        return !this.secretParamsForPassword.isEmpty();
     }
 
     @Override
     public SecretParams getSecretParams() {
-        return SecretParams.parse(getPassword());
+        return this.secretParamsForPassword;
     }
 }

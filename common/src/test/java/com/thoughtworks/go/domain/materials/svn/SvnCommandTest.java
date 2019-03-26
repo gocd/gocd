@@ -491,21 +491,18 @@ public class SvnCommandTest {
                 + "</entry>\n"
                 + "</info>";
         final SvnMaterial svnMaterial = mock(SvnMaterial.class);
-        when(svnMaterial.getUrl()).thenReturn("http://localhost/svn/project1");
+        when(svnMaterial.urlForCommandLine()).thenReturn("http://localhost/svn/project1");
         when(svnMaterial.getUserName()).thenReturn("user");
-        when(svnMaterial.getPassword()).thenReturn("password");
+        when(svnMaterial.passwordForCommandLine()).thenReturn("password");
         final ConsoleResult consoleResult = mock(ConsoleResult.class);
         when(consoleResult.outputAsString()).thenReturn(svnInfoOutput);
         final HashSet<SvnMaterial> svnMaterials = new HashSet<>();
         svnMaterials.add(svnMaterial);
         final SvnCommand spy = spy(subversion);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
-                assertThat(commandLine.toString()).contains("svn info --xml --username user --password ****** http://localhost/svn/project1");
-                return consoleResult;
-            }
+        doAnswer(invocation -> {
+            final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
+            assertThat(commandLine.toString()).contains("svn info --xml --username user --password ****** http://localhost/svn/project1");
+            return consoleResult;
         }).when(spy).executeCommand(any(CommandLine.class));
         final HashMap<String, String> urlToRemoteUUIDMap = spy.createUrlToRemoteUUIDMap(svnMaterials);
         assertThat(urlToRemoteUUIDMap.size()).isEqualTo(1);
@@ -515,24 +512,21 @@ public class SvnCommandTest {
     @Test
     void shouldGetSvnInfoForMultipleMaterialsAndReturnMapOfUrlToUUID() {
         final SvnMaterial svnMaterial1 = mock(SvnMaterial.class);
-        when(svnMaterial1.getUrl()).thenReturn("http://localhost/svn/project1");
+        when(svnMaterial1.urlForCommandLine()).thenReturn("http://localhost/svn/project1");
         final SvnMaterial svnMaterial2 = mock(SvnMaterial.class);
-        when(svnMaterial2.getUrl()).thenReturn("http://foo.bar");
+        when(svnMaterial2.urlForCommandLine()).thenReturn("http://foo.bar");
         final HashSet<SvnMaterial> svnMaterials = new HashSet<>();
         svnMaterials.add(svnMaterial1);
         svnMaterials.add(svnMaterial2);
         final SvnCommand spy = spy(subversion);
-        doAnswer(new Answer() {
-            @Override
-            public Object answer(InvocationOnMock invocation) {
-                final ConsoleResult consoleResult = mock(ConsoleResult.class);
-                when(consoleResult.outputAsString()).thenReturn(svnInfoOutput);
-                final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
-                if (commandLine.toString().contains("http://localhost/svn/project1")) {
-                    return consoleResult;
-                } else {
-                    throw new RuntimeException("Some thing crapped out");
-                }
+        doAnswer(invocation -> {
+            final ConsoleResult consoleResult = mock(ConsoleResult.class);
+            when(consoleResult.outputAsString()).thenReturn(svnInfoOutput);
+            final CommandLine commandLine = (CommandLine) invocation.getArguments()[0];
+            if (commandLine.toString().contains("http://localhost/svn/project1")) {
+                return consoleResult;
+            } else {
+                throw new RuntimeException("Some thing crapped out");
             }
         }).when(spy).executeCommand(any(CommandLine.class));
 
@@ -576,7 +570,7 @@ public class SvnCommandTest {
                     List<CommandArgument> arguments = commandLine.getArguments();
                     for (CommandArgument argument : arguments) {
                         if (argument instanceof PasswordArgument) {
-                            assertThat(argument.forCommandline()).isEqualTo(svnMaterial1Password);
+                            assertThat(argument.originalArgument()).isEqualTo(svnMaterial1Password);
                         }
                     }
                 } else {
@@ -586,13 +580,12 @@ public class SvnCommandTest {
             }
         }).when(spy).executeCommand(any(CommandLine.class));
 
-        HashMap<String, String> result = spy.createUrlToRemoteUUIDMap(svnMaterials);
-
+        spy.createUrlToRemoteUUIDMap(svnMaterials);
 
         verify(svnMaterial1).getUserName();
-        verify(svnMaterial1).getPassword();
+        verify(svnMaterial1).passwordForCommandLine();
         verify(svnMaterial2).getUserName();
-        verify(svnMaterial2).getPassword();
+        verify(svnMaterial2).passwordForCommandLine();
     }
 
     private SvnMaterial buildMockSvnMaterial(String url, String username, String password) {

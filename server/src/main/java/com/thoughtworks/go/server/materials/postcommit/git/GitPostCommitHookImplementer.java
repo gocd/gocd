@@ -50,7 +50,7 @@ public class GitPostCommitHookImplementer implements PostCommitHookImplementer {
     }
 
     boolean isUrlEqual(String paramRepoUrl, GitMaterial material) {
-        String materialUrl = material.getUrlArgument().forCommandline();
+        String materialUrl = material.getUrlArgument().originalArgument();
         return validators.perform(paramRepoUrl, materialUrl);
     }
 }

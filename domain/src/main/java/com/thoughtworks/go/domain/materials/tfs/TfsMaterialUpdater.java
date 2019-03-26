@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.RevisionContext;
-import com.thoughtworks.go.util.MapBuilder;
 
 import java.io.File;
 import java.util.Map;
@@ -40,7 +39,7 @@ public class TfsMaterialUpdater {
         Revision revision = revisionContext.getLatestRevision();
         String workingDir = material.workingdir(new File(baseDir)).getPath();
         return compose(
-                secret(material.getPassword()),
+                secret(material.passwordForCommandLine()),
                 execTfsCheckout(material, revision, workingDir)
         );
     }
@@ -49,10 +48,10 @@ public class TfsMaterialUpdater {
         Map<String, String> properties = map(
                 "type", "tfs",
                 "username", material.getUserName(),
-                "password", material.getPassword(),
+                "password", material.passwordForCommandLine(),
                 "domain", material.getDomain(),
                 "projectPath",  material.getProjectPath(),
-                "url", material.getUrl(),
+                "url", material.urlForCommandLine(),
                 "revision", revision.getRevision());
         return plugin(properties).setWorkingDirectory(workingDir);
     }

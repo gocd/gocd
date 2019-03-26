@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.config.materials;
 
-import com.thoughtworks.go.config.SecretParamAware;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.SecretParamAware;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -52,7 +52,8 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         super(typeName);
     }
 
-    @Override protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
+    @Override
+    protected void appendPipelineUniqueCriteria(Map<String, Object> basicCriteria) {
         basicCriteria.put("dest", folder);
     }
 
@@ -96,11 +97,15 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
 
     public abstract String getPassword();
 
+    public abstract String passwordForCommandLine();
+
     public abstract String getEncryptedPassword();
 
     public abstract boolean isCheckExternals();
 
     public abstract String getUrl();
+
+    public abstract String urlForCommandLine();
 
     protected abstract UrlArgument getUrlArgument();
 

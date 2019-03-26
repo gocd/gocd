@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -49,6 +49,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 import java.util.*;
@@ -234,128 +235,157 @@ public class MaterialUpdateServiceTest {
 
             verify(secretParamResolver).resolve(secretParams);
         }
+
+        @Test
+        void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateTrue() throws Exception {
+            ScmMaterial material = mock(ScmMaterial.class);
+            when(material.isAutoUpdate()).thenReturn(true);
+            MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
+            doNothing().when(queue).post(message);
+
+            service.updateMaterial(material); // first call to the method
+
+            verify(queue, times(1)).post(message);
+            verify(material, never()).isAutoUpdate();
+        }
+
+        @Test
+        void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateFalse() throws Exception {
+            ScmMaterial material = mock(ScmMaterial.class);
+            when(material.isAutoUpdate()).thenReturn(false);
+            MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
+            doNothing().when(queue).post(message);
+
+            service.updateMaterial(material); // first call to the method
+
+            verify(queue, times(1)).post(message);
+            verify(material, never()).isAutoUpdate();
+        }
     }
 
-    @Test
-    void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateTrue() throws Exception {
-        ScmMaterial material = mock(ScmMaterial.class);
-        when(material.isAutoUpdate()).thenReturn(true);
-        MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
-        doNothing().when(queue).post(message);
+    @Nested
+    class notifyMaterialsForUpdate {
 
-        service.updateMaterial(material); // first call to the method
+        @Test
+        void shouldReturn401WhenUserIsNotAnAdmin_WhenInvokingPostCommitHookMaterialUpdate() {
+            when(goConfigService.isUserAdmin(username)).thenReturn(false);
+            service.notifyMaterialsForUpdate(username, new HashMap(), result);
 
-        verify(queue, times(1)).post(message);
-        verify(material, never()).isAutoUpdate();
-    }
+            HttpLocalizedOperationResult forbiddenResult = new HttpLocalizedOperationResult();
+            forbiddenResult.forbidden("Unauthorized to access this API.", HealthStateType.forbidden());
 
-    @Test
-    void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateFalse() throws Exception {
-        ScmMaterial material = mock(ScmMaterial.class);
-        when(material.isAutoUpdate()).thenReturn(false);
-        MaterialUpdateMessage message = new MaterialUpdateMessage(material, 0);
-        doNothing().when(queue).post(message);
+            assertThat(result).isEqualTo(forbiddenResult);
 
-        service.updateMaterial(material); // first call to the method
+            verify(goConfigService).isUserAdmin(username);
+        }
 
-        verify(queue, times(1)).post(message);
-        verify(material, never()).isAutoUpdate();
-    }
+        @Test
+        void shouldReturn400WhenTypeIsMissing_WhenInvokingPostCommitHookMaterialUpdate() {
+            when(goConfigService.isUserAdmin(username)).thenReturn(true);
+            service.notifyMaterialsForUpdate(username, new HashMap(), result);
 
-    @Test
-    void shouldReturn401WhenUserIsNotAnAdmin_WhenInvokingPostCommitHookMaterialUpdate() {
-        when(goConfigService.isUserAdmin(username)).thenReturn(false);
-        service.notifyMaterialsForUpdate(username, new HashMap(), result);
+            HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
+            badRequestResult.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
 
-        HttpLocalizedOperationResult forbiddenResult = new HttpLocalizedOperationResult();
-        forbiddenResult.forbidden("Unauthorized to access this API.", HealthStateType.forbidden());
+            assertThat(result).isEqualTo(badRequestResult);
 
-        assertThat(result).isEqualTo(forbiddenResult);
+            verify(goConfigService).isUserAdmin(username);
+        }
 
-        verify(goConfigService).isUserAdmin(username);
-    }
+        @Test
+        void shouldReturn400WhenTypeIsInvalid_WhenInvokingPostCommitHookMaterialUpdate() {
+            when(goConfigService.isUserAdmin(username)).thenReturn(true);
+            when(postCommitHookMaterialType.toType("some_invalid_type")).thenReturn(invalidMaterialType);
+            final HashMap params = new HashMap();
+            params.put(MaterialUpdateService.TYPE, "some_invalid_type");
+            service.notifyMaterialsForUpdate(username, params, result);
 
-    @Test
-    void shouldReturn400WhenTypeIsMissing_WhenInvokingPostCommitHookMaterialUpdate() {
-        when(goConfigService.isUserAdmin(username)).thenReturn(true);
-        service.notifyMaterialsForUpdate(username, new HashMap(), result);
+            HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
+            badRequestResult.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
 
-        HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
-        badRequestResult.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
+            assertThat(result).isEqualTo(badRequestResult);
 
-        assertThat(result).isEqualTo(badRequestResult);
+            verify(goConfigService).isUserAdmin(username);
+        }
 
-        verify(goConfigService).isUserAdmin(username);
-    }
+        @Test
+        void shouldReturn404WhenThereAreNoMaterialsToSchedule_WhenInvokingPostCommitHookMaterialUpdate() {
+            when(goConfigService.isUserAdmin(username)).thenReturn(true);
 
-    @Test
-    void shouldReturn400WhenTypeIsInvalid_WhenInvokingPostCommitHookMaterialUpdate() {
-        when(goConfigService.isUserAdmin(username)).thenReturn(true);
-        when(postCommitHookMaterialType.toType("some_invalid_type")).thenReturn(invalidMaterialType);
-        final HashMap params = new HashMap();
-        params.put(MaterialUpdateService.TYPE, "some_invalid_type");
-        service.notifyMaterialsForUpdate(username, params, result);
+            PostCommitHookMaterialType materialType = mock(PostCommitHookMaterialType.class);
+            when(postCommitHookMaterialType.toType("type")).thenReturn(materialType);
 
-        HttpLocalizedOperationResult badRequestResult = new HttpLocalizedOperationResult();
-        badRequestResult.badRequest("The request could not be understood by Go Server due to malformed syntax. The client SHOULD NOT repeat the request without modifications.");
+            PostCommitHookImplementer hookImplementer = mock(PostCommitHookImplementer.class);
+            when(materialType.getImplementer()).thenReturn(hookImplementer);
+            when(materialType.isKnown()).thenReturn(true);
 
-        assertThat(result).isEqualTo(badRequestResult);
+            CruiseConfig config = mock(BasicCruiseConfig.class);
+            when(goConfigService.currentCruiseConfig()).thenReturn(config);
+            when(config.getGroups()).thenReturn(new PipelineGroups());
 
-        verify(goConfigService).isUserAdmin(username);
-    }
+            when(hookImplementer.prune(anySet(), anyMap())).thenReturn(new HashSet<Material>());
 
-    @Test
-    void shouldReturn404WhenThereAreNoMaterialsToSchedule_WhenInvokingPostCommitHookMaterialUpdate() {
-        when(goConfigService.isUserAdmin(username)).thenReturn(true);
+            final HashMap params = new HashMap();
+            params.put(MaterialUpdateService.TYPE, "type");
 
-        PostCommitHookMaterialType materialType = mock(PostCommitHookMaterialType.class);
-        when(postCommitHookMaterialType.toType("type")).thenReturn(materialType);
+            service.notifyMaterialsForUpdate(username, params, result);
 
-        PostCommitHookImplementer hookImplementer = mock(PostCommitHookImplementer.class);
-        when(materialType.getImplementer()).thenReturn(hookImplementer);
-        when(materialType.isKnown()).thenReturn(true);
+            HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+            operationResult.notFound("Unable to find material. Materials must be configured not to poll for new changes before they can be used with the notification mechanism.", HealthStateType.general(HealthStateScope.GLOBAL));
 
-        CruiseConfig config = mock(BasicCruiseConfig.class);
-        when(goConfigService.currentCruiseConfig()).thenReturn(config);
-        when(config.getGroups()).thenReturn(new PipelineGroups());
+            assertThat(result).isEqualTo(operationResult);
 
-        when(hookImplementer.prune(anySet(), anyMap())).thenReturn(new HashSet<Material>());
+            verify(hookImplementer).prune(anySet(), anyMap());
+        }
 
-        final HashMap params = new HashMap();
-        params.put(MaterialUpdateService.TYPE, "type");
+        @Test
+        void shouldReturnImplementerOfSvnPostCommitHookAndPerformMaterialUpdate_WhenInvokingPostCommitHookMaterialUpdate() {
+            final HashMap params = new HashMap();
+            params.put(MaterialUpdateService.TYPE, "svn");
+            when(goConfigService.isUserAdmin(username)).thenReturn(true);
+            final CruiseConfig cruiseConfig = new BasicCruiseConfig(PipelineConfigMother.createGroup("groupName", "pipeline1", "pipeline2"));
+            when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+            when(postCommitHookMaterialType.toType("svn")).thenReturn(validMaterialType);
+            final PostCommitHookImplementer svnPostCommitHookImplementer = mock(PostCommitHookImplementer.class);
+            final Material svnMaterial = mock(Material.class);
+            when(svnPostCommitHookImplementer.prune(anySet(), eq(params))).thenReturn(new HashSet(Arrays.asList(svnMaterial)));
+            when(validMaterialType.getImplementer()).thenReturn(svnPostCommitHookImplementer);
 
-        service.notifyMaterialsForUpdate(username, params, result);
+            service.notifyMaterialsForUpdate(username, params, result);
 
-        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        operationResult.notFound("Unable to find material. Materials must be configured not to poll for new changes before they can be used with the notification mechanism.", HealthStateType.general(HealthStateScope.GLOBAL));
+            verify(svnPostCommitHookImplementer).prune(anySet(), eq(params));
+            Mockito.verify(queue, times(1)).post(matchMaterialUpdateMessage(svnMaterial));
 
-        assertThat(result).isEqualTo(operationResult);
+            HttpLocalizedOperationResult acceptedResult = new HttpLocalizedOperationResult();
+            acceptedResult.accepted("The material is now scheduled for an update. Please check relevant pipeline(s) for status.");
 
-        verify(hookImplementer).prune(anySet(), anyMap());
-    }
+            assertThat(result).isEqualTo(acceptedResult);
+        }
 
-    @Test
-    void shouldReturnImplementerOfSvnPostCommitHookAndPerformMaterialUpdate_WhenInvokingPostCommitHookMaterialUpdate() {
-        final HashMap params = new HashMap();
-        params.put(MaterialUpdateService.TYPE, "svn");
-        when(goConfigService.isUserAdmin(username)).thenReturn(true);
-        final CruiseConfig cruiseConfig = new BasicCruiseConfig(PipelineConfigMother.createGroup("groupName", "pipeline1", "pipeline2"));
-        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-        when(postCommitHookMaterialType.toType("svn")).thenReturn(validMaterialType);
-        final PostCommitHookImplementer svnPostCommitHookImplementer = mock(PostCommitHookImplementer.class);
-        final Material svnMaterial = mock(Material.class);
-        when(svnPostCommitHookImplementer.prune(anySet(), eq(params))).thenReturn(new HashSet(Arrays.asList(svnMaterial)));
-        when(validMaterialType.getImplementer()).thenReturn(svnPostCommitHookImplementer);
+        @Test
+        void shouldResolveSecretParamsInMaterials() {
+            final HashMap params = new HashMap();
+            params.put(MaterialUpdateService.TYPE, "svn");
+            final PostCommitHookImplementer svnPostCommitHookImplementer = mock(PostCommitHookImplementer.class);
+            final SvnMaterial svnMaterial = new SvnMaterial("http://{{SECRET:[config_id][username]}}@url.com", "bob", "badger", false);
 
-        service.notifyMaterialsForUpdate(username, params, result);
+            when(goConfigService.currentCruiseConfig()).thenReturn(mock(CruiseConfig.class));
+            when(goConfigService.isUserAdmin(username)).thenReturn(true);
+            when(postCommitHookMaterialType.toType("svn")).thenReturn(validMaterialType);
+            when(validMaterialType.getImplementer()).thenReturn(svnPostCommitHookImplementer);
+            when(materialConfigConverter.toMaterials(anySet())).thenReturn(Collections.singleton(svnMaterial));
 
-        verify(svnPostCommitHookImplementer).prune(anySet(), eq(params));
-        Mockito.verify(queue, times(1)).post(matchMaterialUpdateMessage(svnMaterial));
+            service.notifyMaterialsForUpdate(username, params, result);
 
-        HttpLocalizedOperationResult acceptedResult = new HttpLocalizedOperationResult();
-        acceptedResult.accepted("The material is now scheduled for an update. Please check relevant pipeline(s) for status.");
+            final ArgumentCaptor<SecretParams> secretParamsArgumentCaptor = ArgumentCaptor.forClass(SecretParams.class);
+            InOrder inOrder = inOrder(secretParamResolver, svnPostCommitHookImplementer);
+            inOrder.verify(secretParamResolver).resolve(secretParamsArgumentCaptor.capture());
+            inOrder.verify(svnPostCommitHookImplementer).prune(Collections.singleton(svnMaterial), params);
 
-        assertThat(result).isEqualTo(acceptedResult);
+            final SecretParams secretParams = secretParamsArgumentCaptor.getValue();
+            assertThat(secretParams).hasSize(1)
+                    .contains(new SecretParam("config_id", "username"));
+        }
     }
 
     @Test

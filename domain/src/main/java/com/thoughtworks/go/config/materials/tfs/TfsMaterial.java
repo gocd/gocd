@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     private String encryptedPassword;
     private String projectPath;
     private final GoCipher goCipher;
+    private SecretParams secretParamsForPassword;
 
     public TfsMaterial(GoCipher goCipher) {
         super(TYPE);
@@ -77,7 +78,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     public TfsMaterial(TfsMaterialConfig config) {
-        this(config.getGoCipher(), config.getUrlArgument(), config.getUserName(), config.getDomain(), config.getPassword(), config.getProjectPath());
+        this(config.getGoCipher(), new UrlArgument(config.getUrl()), config.getUserName(), config.getDomain(), config.getPassword(), config.getProjectPath());
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
         this.invertFilter = config.getInvertFilter();
@@ -113,6 +114,11 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     @Override
+    public String passwordForCommandLine() {
+        return this.secretParamsForPassword.isEmpty() ? getPassword() : this.secretParamsForPassword.substitute(getPassword());
+    }
+
+    @Override
     public String getEncryptedPassword() {
         return encryptedPassword;
     }
@@ -128,7 +134,12 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     public String getUrl() {
-        return url == null ? null : url.forCommandline();
+        return url == null ? null : url.originalArgument();
+    }
+
+    @Override
+    public String urlForCommandLine() {
+        return url.forCommandLine();
     }
 
     @Override
@@ -147,7 +158,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put(TfsMaterialConfig.DOMAIN, domain);
         parameters.put(TfsMaterialConfig.PROJECT_PATH, projectPath);
@@ -169,7 +180,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     TfsCommand tfs(final SubprocessExecutionContext execCtx) {
-        return new TfsCommandFactory().create(execCtx, url, domain, userName, getPassword(), getFingerprint(), projectPath);
+        return new TfsCommandFactory().create(execCtx, url, domain, userName, passwordForCommandLine(), getFingerprint(), projectPath);
     }
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
@@ -191,7 +202,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new TfsMaterialInstance(url.forCommandline(), userName, domain, projectPath, UUID.randomUUID().toString());
+        return new TfsMaterialInstance(url.originalArgument(), userName, domain, projectPath, UUID.randomUUID().toString());
     }
 
     public String getTypeForDisplay() {
@@ -204,7 +215,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         materialMap.put("type", "tfs");
         Map<String, Object> configurationMap = new HashMap<>();
         if (addSecureFields) {
-            configurationMap.put("url", url.forCommandline());
+            configurationMap.put("url", url.originalArgument());
         } else {
             configurationMap.put("url", url.forDisplay());
         }
@@ -290,6 +301,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     private void setPasswordIfNotBlank(String password) {
         this.password = StringUtils.stripToNull(password);
+        this.secretParamsForPassword = SecretParams.parse(password);
         this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
 
         if (this.password == null) {
@@ -310,11 +322,11 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     public boolean hasSecretParams() {
-        return this.url.hasSecretParams() || !SecretParams.parse(getPassword()).isEmpty();
+        return this.url.hasSecretParams() || !this.secretParamsForPassword.isEmpty();
     }
 
     @Override
     public SecretParams getSecretParams() {
-        return SecretParams.union(url.getSecretParams(), SecretParams.parse(getPassword()));
+        return SecretParams.union(url.getSecretParams(), this.secretParamsForPassword);
     }
 }

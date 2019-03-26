@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -95,12 +95,12 @@ public class HgMaterial extends ScmMaterial {
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new HgMaterialInstance(url.forCommandline(), UUID.randomUUID().toString());
+        return new HgMaterialInstance(url.originalArgument(), UUID.randomUUID().toString());
     }
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
     }
 
     @Override
@@ -208,8 +208,7 @@ public class HgMaterial extends ScmMaterial {
     }
 
     private List<SecretString> secrets() {
-        SecretString secretSubstitution = line -> line.replace(url.forCommandline(), url.forDisplay());
-
+        SecretString secretSubstitution = line -> line.replace(url.forCommandLine(), url.forDisplay());
         return Collections.singletonList(secretSubstitution);
     }
 
@@ -226,7 +225,13 @@ public class HgMaterial extends ScmMaterial {
         return null;
     }
 
+    @Override
     public String getPassword() {
+        return null;
+    }
+
+    @Override
+    public String passwordForCommandLine() {
         return null;
     }
 
@@ -239,8 +244,14 @@ public class HgMaterial extends ScmMaterial {
         return false;
     }
 
+    @Override
     public String getUrl() {
-        return url.forCommandline();
+        return url.originalArgument();
+    }
+
+    @Override
+    public String urlForCommandLine() {
+        return url.forCommandLine();
     }
 
     public UrlArgument getUrlArgument() {
@@ -304,7 +315,7 @@ public class HgMaterial extends ScmMaterial {
         materialMap.put("type", "mercurial");
         Map<String, Object> configurationMap = new HashMap<>();
         if (addSecureFields) {
-            configurationMap.put("url", url.forCommandline());
+            configurationMap.put("url", url.forCommandLine());
         } else {
             configurationMap.put("url", url.forDisplay());
         }
@@ -324,11 +335,11 @@ public class HgMaterial extends ScmMaterial {
     }
 
     public String getBranch() {
-        return getBranchFromUrl(url.forCommandline());
+        return getBranchFromUrl(url.originalArgument());
     }
 
     private String getBranchFromUrl(String url) {
-        String[] componentsOfUrl = StringUtils.split(url.toString(), HgUrlArgument.DOUBLE_HASH);
+        String[] componentsOfUrl = StringUtils.split(url, HgUrlArgument.DOUBLE_HASH);
         if (componentsOfUrl.length > 1) {
             return componentsOfUrl[1];
         }

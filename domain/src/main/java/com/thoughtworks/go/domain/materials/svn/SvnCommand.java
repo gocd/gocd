@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,10 +24,10 @@ import com.thoughtworks.go.domain.materials.ValidationBean;
 import com.thoughtworks.go.util.SvnLogXmlParser;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.input.SAXBuilder;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
@@ -207,7 +206,7 @@ public class SvnCommand extends SCMCommand implements Subversion {
     }
 
     public String getUserName() {
-        return userName.forCommandline();
+        return userName.originalArgument();
     }
 
     public String getPassword() {
@@ -248,9 +247,9 @@ public class SvnCommand extends SCMCommand implements Subversion {
     }
 
     private void addCredentials(CommandLine line, StringArgument svnUserName, PasswordArgument svnPassword) {
-        if (!StringUtils.isBlank(svnUserName.forCommandline())) {
-            line.withArgs("--username", svnUserName.forCommandline());
-            if (!StringUtils.isBlank(svnPassword.forCommandline())) {
+        if (!StringUtils.isBlank(svnUserName.originalArgument())) {
+            line.withArgs("--username", svnUserName.originalArgument());
+            if (!StringUtils.isBlank(svnPassword.originalArgument())) {
                 line.withArg("--password");
                 line.withArg(svnPassword);
             }
@@ -279,8 +278,8 @@ public class SvnCommand extends SCMCommand implements Subversion {
         HashMap<String, String> urlToUUIDMap = new HashMap<>();
         for (SvnMaterial svnMaterial : svnMaterials) {
             CommandLine command = svnExecutable().withArgs("info", "--xml");
-            addCredentials(command, new StringArgument(svnMaterial.getUserName()), new PasswordArgument(svnMaterial.getPassword()));
-            final String queryUrl = svnMaterial.getUrl();
+            addCredentials(command, new StringArgument(svnMaterial.getUserName()), new PasswordArgument(svnMaterial.passwordForCommandLine()));
+            final String queryUrl = svnMaterial.urlForCommandLine();
             command.withArg(queryUrl);
             ConsoleResult consoleResult = null;
             try {

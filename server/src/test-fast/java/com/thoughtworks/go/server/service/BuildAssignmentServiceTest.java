@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +18,12 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.helper.AgentMother;
-import com.thoughtworks.go.helper.JobConfigMother;
-import com.thoughtworks.go.helper.PipelineConfigMother;
-import com.thoughtworks.go.helper.StageConfigMother;
+import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.remote.work.BuildWork;
-import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -256,7 +254,7 @@ class BuildAssignmentServiceTest {
     @Test
     void shouldResolveSecretParamsInEnvironmentVariableContext() {
         final EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
-        environmentVariableContext.setProperty("Foo", "#{SECRET[secret_config_id][lookup_password]}", true);
+        environmentVariableContext.setProperty("Foo", "{{SECRET:[secret_config_id][lookup_password]}}", true);
         environmentVariableContext.setProperty("Bar", "some-value", false);
 
         final TransactionTemplate transactionTemplate = dummy();
@@ -283,6 +281,38 @@ class BuildAssignmentServiceTest {
                 .assignWorkToAgent(agentInstance);
 
         verify(secretParamResolver).resolve(work.getAssignment().initialEnvironmentVariableContext().getSecretParams());
+    }
+
+    @Test
+    void shouldResolveSecretParamsInMaterials() {
+        final SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com");
+        final Modification modification = new Modification("user", null, null, null, "rev1");
+        final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(svnMaterial, modification));
+        final TransactionTemplate transactionTemplate = dummy();
+        final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+        pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+        final AgentInstance agentInstance = mock(AgentInstance.class);
+        final Pipeline pipeline = mock(Pipeline.class);
+        final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
+        final SecretParamResolver secretParamResolver = mock(SecretParamResolver.class);
+
+        when(agentInstance.isRegistered()).thenReturn(true);
+        when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
+        when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
+        when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
+        when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
+        when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
+        when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
+        when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
+        when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(new EnvironmentVariableContext());
+
+        new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService,
+                agentService, environmentConfigService, transactionTemplate,
+                scheduledPipelineLoader, pipelineService, builderFactory,
+                agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver)
+                .assignWorkToAgent(agentInstance);
+
+        verify(secretParamResolver).resolve(svnMaterial.getSecretParams());
     }
 
     private JobPlan getJobPlan(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, JobConfig job) {

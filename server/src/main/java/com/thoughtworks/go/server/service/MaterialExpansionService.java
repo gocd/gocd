@@ -90,13 +90,17 @@ public class MaterialExpansionService {
         }
     }
 
+    //TODO: Need to verify the usages. Should it be raw url or resolved one.
+    // Note: this is only used to expand the material configs.
+    // Keep which is later used to produce build cause (newProduceBuildCause). Resolve url and password in BuildCauseProducerService
+    // No need to change this here
     private Subversion svn(SvnMaterialConfig svnMaterialConfig) {
         String cacheKey = cacheKeyForSubversionMaterialCommand(svnMaterialConfig.getFingerprint());
         Subversion svnLazyLoaded = (SvnCommand) goCache.get(cacheKey);
-        if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().forCommandline().equals(svnMaterialConfig.getUrl())) {
+        if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().originalArgument().equals(svnMaterialConfig.getUrl())) {
             synchronized (cacheKey) {
                 svnLazyLoaded = (SvnCommand) goCache.get(cacheKey);
-                if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().forCommandline().equals(svnMaterialConfig.getUrl())) {
+                if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().originalArgument().equals(svnMaterialConfig.getUrl())) {
                     svnLazyLoaded = new SvnCommand(svnMaterialConfig.getFingerprint(), svnMaterialConfig.getUrl(), svnMaterialConfig.getUserName(), svnMaterialConfig.getPassword(), svnMaterialConfig.isCheckExternals());
                     goCache.put(cacheKeyForSubversionMaterialCommand(svnMaterialConfig.getFingerprint()), svnLazyLoaded);
                 }

@@ -24,7 +24,6 @@ import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.HgUrlArgument;
-import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
@@ -54,7 +53,7 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
     }
 
     @Override
@@ -84,7 +83,7 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     @Override
     public String getUrl() {
-        return url != null ? url.forCommandline() : null;
+        return url != null ? url.originalArgument() : null;
     }
 
     @Override
@@ -92,11 +91,6 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         if (url != null) {
             this.url = new HgUrlArgument(url);
         }
-    }
-
-    @Override
-    public UrlArgument getUrlArgument() {
-        return url;
     }
 
     @Override
@@ -141,7 +135,12 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     @Override
     protected String getLocation() {
-        return getUrlArgument().forDisplay();
+        return this.url.forDisplay();
+    }
+
+    @Override
+    public String getUriForDisplay() {
+        return this.url.forDisplay();
     }
 
     @Override
@@ -160,7 +159,8 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         return revision.substring(0, 12);
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "HgMaterialConfig{" +
                 "url=" + url +
                 '}';

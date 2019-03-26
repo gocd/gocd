@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     private final GoCipher goCipher;
     public static final String TYPE = "SvnMaterial";
+    private SecretParams secretParamsForPassword;
 
     private SvnMaterial(GoCipher goCipher) {
         super("SvnMaterial");
@@ -73,17 +74,8 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public SvnMaterial(Subversion svn) {
-        this(svn.getUrl().forCommandline(), svn.getUserName(), svn.getPassword(), svn.isCheckExternals());
+        this(svn.getUrl().originalArgument(), svn.getUserName(), svn.getPassword(), svn.isCheckExternals());
         this.svnLazyLoaded = svn;
-    }
-
-    public SvnMaterial(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
-        this(goCipher);
-        bombIfNull(url, "null url");
-        setUrl(url);
-        this.userName = userName;
-        setPassword(password);
-        this.checkExternals = checkExternals;
     }
 
     public SvnMaterial(String url, String userName, String password, boolean checkExternals, String folder) {
@@ -100,6 +92,16 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         this.name = config.getName();
     }
 
+    public SvnMaterial(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
+        super("SvnMaterial");
+        this.goCipher = goCipher;
+        bombIfNull(url, "null url");
+        setUrl(url);
+        this.userName = userName;
+        setPassword(password);
+        this.checkExternals = checkExternals;
+    }
+
     @Override
     public MaterialConfig config() {
         return new SvnMaterialConfig(url, userName, getPassword(), checkExternals, goCipher, autoUpdate, filter, invertFilter, folder, name);
@@ -107,7 +109,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     private Subversion svn() {
         if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().equals(url)) {
-            svnLazyLoaded = new SvnCommand(getFingerprint(), url.forCommandline(), userName, getPassword(), checkExternals);
+            svnLazyLoaded = new SvnCommand(getFingerprint(), url.forCommandLine(), userName, passwordForCommandLine(), checkExternals);
         }
         return svnLazyLoaded;
     }
@@ -121,12 +123,12 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new SvnMaterialInstance(url.forCommandline(), userName, UUID.randomUUID().toString(), checkExternals);
+        return new SvnMaterialInstance(url.originalArgument(), userName, UUID.randomUUID().toString(), checkExternals);
     }
 
     @Override
     protected void appendCriteria(Map parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.forCommandline());
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put(ScmMaterialConfig.USERNAME, userName);
         parameters.put("checkExternals", checkExternals);
     }
@@ -240,14 +242,12 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         materialMap.put("type", "svn");
         Map<String, Object> configurationMap = new HashMap<>();
         if (addSecureFields) {
-            configurationMap.put("url", url.forCommandline());
+            configurationMap.put("url", url.forCommandLine());
+            configurationMap.put("password", getPassword());
         } else {
             configurationMap.put("url", url.forDisplay());
         }
         configurationMap.put("username", userName);
-        if (addSecureFields) {
-            configurationMap.put("password", getPassword());
-        }
         configurationMap.put("check-externals", checkExternals);
         materialMap.put("svn-configuration", configurationMap);
         return materialMap;
@@ -261,8 +261,14 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return svn().checkConnection();
     }
 
+    @Override
     public String getUrl() {
-        return url == null ? null : url.forCommandline();
+        return url == null ? null : url.originalArgument();
+    }
+
+    @Override
+    public String urlForCommandLine() {
+        return url.forCommandLine();
     }
 
     @Override
@@ -335,6 +341,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     private void setPasswordIfNotBlank(String password) {
         this.password = StringUtils.stripToNull(password);
+        this.secretParamsForPassword = SecretParams.parse(password);
         this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
 
         if (this.password == null) {
@@ -365,6 +372,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         this.encryptedPassword = encryptedPassword;
     }
 
+    @Override
     public String getPassword() {
         try {
             return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
@@ -374,12 +382,17 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     @Override
+    public String passwordForCommandLine() {
+        return secretParamsForPassword.isEmpty() ? getPassword() : secretParamsForPassword.substitute(getPassword());
+    }
+
+    @Override
     public boolean hasSecretParams() {
-        return this.url.hasSecretParams() || !SecretParams.parse(getPassword()).isEmpty();
+        return this.url.hasSecretParams() || !secretParamsForPassword.isEmpty();
     }
 
     @Override
     public SecretParams getSecretParams() {
-        return SecretParams.union(url.getSecretParams(), SecretParams.parse(getPassword()));
+        return SecretParams.union(url.getSecretParams(), secretParamsForPassword);
     }
 }

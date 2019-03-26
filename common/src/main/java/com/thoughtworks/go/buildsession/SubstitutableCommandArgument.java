@@ -27,12 +27,17 @@ public class SubstitutableCommandArgument extends CommandArgument {
     }
 
     @Override
-    public String forCommandline() {
+    public String originalArgument() {
         return argument;
     }
 
     @Override
     public String forDisplay() {
         return substitution;
+    }
+
+    @Override
+    public String forCommandLine() {
+        return originalArgument();
     }
 }

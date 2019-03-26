@@ -331,7 +331,7 @@ public class GitCommand extends SCMCommand {
 
     public void fetch(ConsoleOutputStreamConsumer outputStreamConsumer) {
         outputStreamConsumer.stdOutput("[GIT] Fetching changes");
-        CommandLine gitFetch = git(environment).withArgs("fetch", "origin", "--prune").withWorkingDir(workingDir);
+        CommandLine gitFetch = git(environment).withArgs("fetch", "origin", "--prune", "--recurse-submodules=no").withWorkingDir(workingDir);
 
         int result = run(gitFetch, outputStreamConsumer);
         if (result != 0) {

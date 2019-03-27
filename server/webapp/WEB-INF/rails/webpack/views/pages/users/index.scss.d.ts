@@ -31,6 +31,7 @@ export const tableHeader: string;
 export const tableHead: string;
 export const tableRow: string;
 export const selected: string;
+export const tableBody: string;
 export const tableCell: string;
 export const flError: string;
 export const formCheck: string;

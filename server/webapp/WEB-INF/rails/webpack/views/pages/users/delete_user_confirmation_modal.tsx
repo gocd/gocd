@@ -33,7 +33,7 @@ export class DeleteUserConfirmModal extends DeleteConfirmModal {
 
   }
 
-  private static getMessage(usersToBeDeleted: Array<String>) {
+  private static getMessage(usersToBeDeleted: string[]) {
     return (<div>
       <p>Are you sure you want to delete these users:
         <span className={styles.deletedUsers}>
@@ -42,7 +42,6 @@ export class DeleteUserConfirmModal extends DeleteConfirmModal {
       </p>
     </div>);
   }
-
 
   private delete(usersToBeDeleted: BulkUserOperationJSON) {
     UsersCRUD

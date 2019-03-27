@@ -32,7 +32,7 @@ import * as styles from "./index.scss";
 const classnames = bind(styles);
 
 export interface Attrs extends UserActionsState, SuperAdminPrivilegeSwitchAttrs, RequiresUserViewHelper {
-  flashMessage?: FlashMessageModelWithTimeout
+  flashMessage?: FlashMessageModelWithTimeout;
 }
 
 export class UsersTableWidget extends MithrilViewComponent<Attrs> {
@@ -58,7 +58,7 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
-    let flashMessage = vnode.attrs.flashMessage ?
+    const flashMessage = vnode.attrs.flashMessage ?
       <FlashMessage message={vnode.attrs.flashMessage.message} type={vnode.attrs.flashMessage.type}/> : null;
     return (
       <div className={styles.flexTable} data-test-id="users-table">

@@ -100,10 +100,12 @@ export class UsersPage extends Page<null, State> {
                                    this.pageState = PageState.OK;
                                    this.flashMessage.setMessage(MessageType.success, msg);
                                    this.fetchData(vnode);
+                                   this.scrollToTop();
                                  },
                                  (errorResponse) => {
                                    this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
                                    this.fetchData(vnode);
+                                   this.scrollToTop();
                                  })
         .render();
     };
@@ -217,10 +219,12 @@ export class UsersPage extends Page<null, State> {
                               this.flashMessage.setMessage(MessageType.success,
                                                            `Users were ${json.operations.enable ? "enabled" : "disabled"} successfully!`);
                               this.fetchData(vnode);
+                              this.scrollToTop();
                             },
                             (errorResponse) => {
                               this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
                               this.fetchData(vnode);
+                              this.scrollToTop();
                             });
              });
   }

@@ -73,6 +73,14 @@ export abstract class Page<Attrs = {}, State = {}> extends MithrilComponent<Attr
     return meta ? JSON.parse(meta) : {};
   }
 
+  protected scrollToTop(): void {
+    window.scrollTo({
+                      top: 0,
+                      left: 0,
+                      behavior: "smooth"
+                    });
+  }
+
   private _onSuccess() {
     this.pageState = PageState.OK;
   }

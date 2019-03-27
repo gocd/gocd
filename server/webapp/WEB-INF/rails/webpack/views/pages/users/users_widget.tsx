@@ -19,6 +19,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {User, Users} from "models/users/users";
+import {FlashMessage, FlashMessageModelWithTimeout} from "views/components/flash_message";
 import * as Icons from "views/components/icons";
 import {
   RequiresUserViewHelper,
@@ -31,6 +32,7 @@ import * as styles from "./index.scss";
 const classnames = bind(styles);
 
 export interface Attrs extends UserActionsState, SuperAdminPrivilegeSwitchAttrs, RequiresUserViewHelper {
+  flashMessage?: FlashMessageModelWithTimeout
 }
 
 export class UsersTableWidget extends MithrilViewComponent<Attrs> {
@@ -56,8 +58,11 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
+    let flashMessage = vnode.attrs.flashMessage ?
+      <FlashMessage message={vnode.attrs.flashMessage.message} type={vnode.attrs.flashMessage.type}/> : null;
     return (
       <div className={styles.flexTable} data-test-id="users-table">
+        {flashMessage}
         <div className={styles.tableHeader} data-test-id="users-header">
           {
             _.map(UsersTableWidget.headers(vnode.attrs.users() as Users), (header) => {

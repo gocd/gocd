@@ -39,6 +39,12 @@ $selected-table-row: #e2f7fa;
   display:         flex;
   justify-content: space-between;
   margin-bottom:   10px;
+  position:        fixed;
+  left:            30px;
+  right:           30px;
+  background:      $body-bg;
+  top:             90px;
+  padding:         15px 0;
 }
 
 .user-actions-and-counts {
@@ -170,6 +176,7 @@ $selected-table-row: #e2f7fa;
 .flex-table {
   background:    $white;
   border-radius: $global-border-radius $global-border-radius 0 0;
+  margin-top:    70px;
 }
 
 .table-header {

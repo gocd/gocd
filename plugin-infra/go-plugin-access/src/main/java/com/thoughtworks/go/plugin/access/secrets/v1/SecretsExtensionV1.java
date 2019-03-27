@@ -100,7 +100,7 @@ public class SecretsExtensionV1 implements VersionedSecretsExtension {
                 new DefaultPluginInteractionCallback<List<Secret>>() {
                     @Override
                     public String requestBody(String resolvedExtensionVersion) {
-                        return secretsMessageConverterV1.lookupSecretsRequestBody(keys, secretConfig.getConfigurationAsMap(true));
+                        return secretsMessageConverterV1.lookupSecretsRequestBody(keys, secretConfig.getConfiguration().getConfigurationAsMap(true));
                     }
 
                     @Override

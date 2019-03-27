@@ -30,19 +30,31 @@
     }
 
     .loader {
-      border: 5px solid #f3f3f3; /* Light grey */
-      border-top: 5px solid #3498db; /* Blue */
-      border-radius: 50%;
-      margin-left: 15px;
-      width: 10px;
-      height: 10px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
+      position: relative;
     }
 
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    .loader:after {
+      position: absolute;
+      left: 100%;
+      overflow: hidden;
+      display: inline-block;
+      vertical-align: bottom;
+      -webkit-animation: ellipsis steps(4,end) 900ms infinite;
+      animation: ellipsis steps(4,end) 900ms infinite;
+      content: "\2026"; /* ascii code for the ellipsis character */
+      width: 0px;
+    }
+
+    @keyframes ellipsis {
+      to {
+        width: 1.25em;
+      }
+    }
+
+    @-webkit-keyframes ellipsis {
+      to {
+        width: 1.25em;
+      }
     }
 
     #logo {
@@ -59,8 +71,10 @@
       font-size: 24px;
       font-family: sans-serif, serif;
       margin: 0 auto;
+      margin-top: 60px;
       width: 75%;
-      padding-top: 1em;
+      padding-top: 60px;
+      border-top: 1px dashed #999;
     }
 
 
@@ -176,7 +190,7 @@
 </div>
 
 <div class="section-by-status" id="status-STARTING">
-  GoCD server is starting. Please wait<span class="loader"></span>
+  <span class="loader">GoCD server is starting. Please wait</span>
 </div>
 
 <div class="section-by-status" id="status-STARTED" style="display: none;">
@@ -186,7 +200,7 @@
 <div class="section-by-status" id="status-UNKNOWN" style="display: none;">
   Unable to contact the GoCD server. It might not have started. Please check the server logs.
 </div>
-<div class="concepts-title">GoCD Concepts</div>
+<div class="concepts-title">Check out these GoCD concepts in the meantime:</div>
 
 <div id="Glide" class="info-section glide">
   <div data-glide-el="controls" class="glide__arrows">

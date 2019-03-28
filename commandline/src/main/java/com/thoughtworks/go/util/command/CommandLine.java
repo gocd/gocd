@@ -313,6 +313,11 @@ public class CommandLine {
         return this;
     }
 
+    public CommandLine withArgs(List<String> args) {
+        args.forEach(arg -> arguments.add(new StringArgument(arg)));
+        return this;
+    }
+
     public CommandLine argPassword(String password) {
         arguments.add(new PasswordArgument(password));
         return this;

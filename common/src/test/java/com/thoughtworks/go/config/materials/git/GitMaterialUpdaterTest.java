@@ -25,8 +25,9 @@ import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.git.GitMaterialUpdater;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.helper.GitSubmoduleRepos;
+import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.apache.commons.io.FileUtils;
@@ -84,7 +85,7 @@ class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @Test
     void shouldRemoveSubmoduleFolderFromWorkingDirWhenSubmoduleIsRemovedFromRepo() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl(), true);
         StringRevision revision = new StringRevision("origin/master");
@@ -202,7 +203,7 @@ class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @Test
     void shouldCleanUnversionedFilesInsideSubmodulesBeforeUpdating() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         String submoduleDirectoryName = "local-submodule";
         submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
         GitMaterial material = new GitMaterial(submoduleRepos.projectRepositoryUrl(), true);
@@ -216,7 +217,7 @@ class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @Test
     void shouldRemoveChangesToModifiedFilesInsideSubmodulesBeforeUpdating() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         String submoduleDirectoryName = "local-submodule";
         File remoteSubmoduleLocation = submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
         GitMaterial material = new GitMaterial(submoduleRepos.projectRepositoryUrl(), true);
@@ -237,7 +238,7 @@ class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @Test
     void shouldAllowSubmoduleUrlsToChange() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         String submoduleDirectoryName = "local-submodule";
         submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
         GitMaterial material = new GitMaterial(submoduleRepos.projectRepositoryUrl(), true);
@@ -249,7 +250,7 @@ class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @Test
     void shouldOutputSubmoduleRevisionsAfterUpdate() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial material = new GitMaterial(submoduleRepos.projectRepositoryUrl(), true);
         updateTo(material, new RevisionContext(new StringRevision("origin/HEAD")), JobResult.Passed);
@@ -259,13 +260,14 @@ class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
 
     @Test
     void shouldBombForFetchAndResetWhenSubmoduleUpdateFails() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         File submoduleFolder = submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial material = new GitMaterial(submoduleRepos.projectRepositoryUrl(), true);
         FileUtils.deleteDirectory(submoduleFolder);
         assertThat(submoduleFolder.exists()).isEqualTo(false);
         updateTo(material, new RevisionContext(new StringRevision("origin/HEAD")), JobResult.Failed);
-        assertConsoleOut(console.output()).matchUsingRegex(String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed", Pattern.quote(submoduleFolder.getAbsolutePath())));
+        assertConsoleOut(console.output()).matchUsingRegex(String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed",
+                Pattern.quote(FileUtil.toFileURI(submoduleFolder.getAbsolutePath()) + "/")));
     }
 
     private void updateTo(GitMaterial material, RevisionContext revisionContext, JobResult expectedResult) {

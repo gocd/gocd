@@ -155,7 +155,7 @@ public class MaterialExpansionServiceTest {
 
     @Test
     public void shouldNotExpandGitSubmodulesIntoMultipleMaterialsWhenExpandingGitMaterialForScheduling() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule("submodule-1", "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
         when(materialConfigConverter.toMaterials(new MaterialConfigs(gitMaterial.config()))).thenReturn(new Materials(gitMaterial));

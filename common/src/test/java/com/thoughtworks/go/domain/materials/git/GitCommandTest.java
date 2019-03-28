@@ -22,14 +22,12 @@ import com.thoughtworks.go.domain.materials.ModifiedAction;
 import com.thoughtworks.go.domain.materials.ModifiedFile;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.helper.GitSubmoduleRepos;
+import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.mail.SysOutStreamConsumer;
 import com.thoughtworks.go.util.DateUtils;
-import com.thoughtworks.go.util.command.CommandLine;
-import com.thoughtworks.go.util.command.CommandLineException;
-import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import com.thoughtworks.go.util.command.UrlArgument;
+import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Rule;
@@ -224,7 +222,7 @@ public class GitCommandTest {
     @Test
     void shouldBombForResettingFailure() throws IOException {
         try {
-            git.resetWorkingDir(new SysOutStreamConsumer(), new StringRevision("abcdef"));
+            git.resetWorkingDir(new SysOutStreamConsumer(), new StringRevision("abcdef"), false);
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
             assertThat(e.getMessage()).isEqualTo(String.format("git reset failed for [%s]", gitLocalRepoDir));
@@ -233,19 +231,19 @@ public class GitCommandTest {
 
     @Test
     void shouldOutputSubmoduleRevisionsAfterUpdate() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
         gitWithSubmodule.clone(inMemoryConsumer(), submoduleRepos.mainRepo().getUrl());
         InMemoryStreamConsumer outConsumer = new InMemoryStreamConsumer();
-        gitWithSubmodule.resetWorkingDir(outConsumer, new StringRevision("HEAD"));
+        gitWithSubmodule.resetWorkingDir(outConsumer, new StringRevision("HEAD"), false);
         Matcher matcher = Pattern.compile(".*^\\s[a-f0-9A-F]{40} sub1 \\(heads/master\\)$.*", Pattern.MULTILINE | Pattern.DOTALL).matcher(outConsumer.getAllOutput());
         assertThat(matcher.matches()).isTrue();
     }
 
     @Test
     void shouldBombForResetWorkingDirWhenSubmoduleUpdateFails() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         File submoduleFolder = submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
         gitWithSubmodule.clone(inMemoryConsumer(), submoduleRepos.mainRepo().getUrl());
@@ -253,11 +251,12 @@ public class GitCommandTest {
 
         assertThat(submoduleFolder.exists()).isFalse();
         try {
-            gitWithSubmodule.resetWorkingDir(new SysOutStreamConsumer(), new StringRevision("HEAD"));
+            gitWithSubmodule.resetWorkingDir(new SysOutStreamConsumer(), new StringRevision("HEAD"), false);
             fail("should have failed for non 0 return code");
         } catch (Exception e) {
             assertThat(e.getMessage()).containsPattern(
-                    String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed", Pattern.quote(submoduleFolder.getAbsolutePath())));
+                    String.format("[Cc]lone of '%s' into submodule path '((.*)[\\/])?sub1' failed",
+                            Pattern.quote(FileUtil.toFileURI(submoduleFolder.getAbsolutePath()) + "/")));
         }
     }
 
@@ -447,13 +446,13 @@ public class GitCommandTest {
 
     @Test
     void shouldRetrieveListOfSubmoduleFolders() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         gitWithSubmodule.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
         gitWithSubmodule.fetchAndResetToHead(outputStreamConsumer);
-        gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
+        gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer, false);
         List<String> folders = gitWithSubmodule.submoduleFolders();
         assertThat(folders).hasSize(1);
         assertThat(folders.get(0)).isEqualTo("sub1");
@@ -461,7 +460,7 @@ public class GitCommandTest {
 
     @Test
     void shouldNotThrowErrorWhenConfigRemoveSectionFails() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null) {
             //hack to reproduce synchronization issue
@@ -473,19 +472,19 @@ public class GitCommandTest {
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         gitWithSubmodule.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
 
-        gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
+        gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer, false);
 
     }
 
     @Test
     void shouldNotFailIfUnableToRemoveSubmoduleEntryFromConfig() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         gitWithSubmodule.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
         gitWithSubmodule.fetchAndResetToHead(outputStreamConsumer);
-        gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
+        gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer, false);
         List<String> folders = gitWithSubmodule.submoduleFolders();
         assertThat(folders).hasSize(1);
         assertThat(folders.get(0)).isEqualTo("sub1");
@@ -493,18 +492,18 @@ public class GitCommandTest {
 
     @Test
     void shouldRetrieveSubmoduleUrls() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
-        submoduleRepos.addSubmodule(SUBMODULE, "sub1");
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
+        File submodule = submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitCommand gitWithSubmodule = new GitCommand(null, createTempWorkingDirectory(), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         gitWithSubmodule.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
         gitWithSubmodule.fetchAndResetToHead(outputStreamConsumer);
 
-        gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer);
+        gitWithSubmodule.updateSubmoduleWithInit(outputStreamConsumer, false);
         Map<String, String> urls = gitWithSubmodule.submoduleUrls();
         assertThat(urls).hasSize(1);
         assertThat(urls.containsKey("sub1")).isTrue();
-        assertThat(urls.get("sub1")).endsWith(SUBMODULE);
+        assertThat(urls.get("sub1")).isEqualTo(FileUtil.toFileURI(submodule));
     }
 
     @Test
@@ -607,18 +606,18 @@ public class GitCommandTest {
 
     @Test
     void shouldCleanUnversionedFilesInsideSubmodulesBeforeUpdating() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         String submoduleDirectoryName = "local-submodule";
         submoduleRepos.addSubmodule(SUBMODULE, submoduleDirectoryName);
         File cloneDirectory = createTempWorkingDirectory();
         GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         clonedCopy.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl()); // Clone repository without submodules
-        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"));  // Pull submodules to working copy - Pipeline counter 1
+        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"), false);  // Pull submodules to working copy - Pipeline counter 1
         File unversionedFile = new File(new File(cloneDirectory, submoduleDirectoryName), "unversioned_file.txt");
         FileUtils.writeStringToFile(unversionedFile, "this is an unversioned file. lets see you deleting me.. come on.. I dare you!!!!", UTF_8);
 
-        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD")); // Should clean unversioned file on next fetch - Pipeline counter 2
+        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"), false); // Should clean unversioned file on next fetch - Pipeline counter 2
 
         assertThat(unversionedFile.exists()).isFalse();
     }
@@ -626,7 +625,7 @@ public class GitCommandTest {
     @Test
     void shouldRemoveChangesToModifiedFilesInsideSubmodulesBeforeUpdating() throws Exception {
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         String submoduleDirectoryName = "local-submodule";
         File cloneDirectory = createTempWorkingDirectory();
 
@@ -635,7 +634,7 @@ public class GitCommandTest {
         /* Simulate an agent checkout of code. */
         GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
         clonedCopy.clone(outputStreamConsumer, submoduleRepos.mainRepo().getUrl());
-        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"));
+        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision("HEAD"), false);
 
         /* Simulate a local modification of file inside submodule, on agent side. */
         File fileInSubmodule = allFilesIn(new File(cloneDirectory, submoduleDirectoryName), "file-").get(0);
@@ -647,7 +646,7 @@ public class GitCommandTest {
 
         /* Simulate start of a new build on agent. */
         clonedCopy.fetch(outputStreamConsumer);
-        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision(modifications.get(0).getRevision()));
+        clonedCopy.resetWorkingDir(outputStreamConsumer, new StringRevision(modifications.get(0).getRevision()), false);
 
         assertThat(FileUtils.readFileToString(fileInSubmodule, UTF_8)).isEqualTo("NEW CONTENT OF FILE");
     }
@@ -655,7 +654,7 @@ public class GitCommandTest {
     @Test
     void shouldAllowSubmoduleUrlsToChange() throws Exception {
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         String submoduleDirectoryName = "local-submodule";
         File cloneDirectory = createTempWorkingDirectory();
 
@@ -668,6 +667,41 @@ public class GitCommandTest {
         submoduleRepos.changeSubmoduleUrl(submoduleDirectoryName);
 
         clonedCopy.fetchAndResetToHead(outputStreamConsumer);
+    }
+
+    @Test
+    @EnabledOnGitVersionsAbove("2.10.0")
+    void shouldShallowCloneSubmodulesWhenSpecified() throws Exception {
+        InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
+        GitRepoContainingSubmodule repoContainingSubmodule = new GitRepoContainingSubmodule(temporaryFolder);
+        String submoduleDirectoryName = "submoduleDir";
+        repoContainingSubmodule.addSubmodule(SUBMODULE, submoduleDirectoryName);
+
+        File cloneDirectory = createTempWorkingDirectory();
+        GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
+        clonedCopy.clone(outputStreamConsumer, FileUtil.toFileURI(repoContainingSubmodule.mainRepo().getUrl()), 1);
+        clonedCopy.fetchAndResetToHead(outputStreamConsumer, true);
+        ConsoleResult consoleResult = executeOnDir(new File(cloneDirectory, submoduleDirectoryName),
+                "git", "rev-list", "--count", "master");
+        assertThat(consoleResult.outputAsString()).isEqualTo("1");
+    }
+
+    @Test
+    @EnabledOnGitVersionsAbove("2.10.0")
+    void shouldUnshallowSubmodulesIfSubmoduleUpdateFails() throws Exception {
+        InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
+        GitRepoContainingSubmodule repoContainingSubmodule = new GitRepoContainingSubmodule(temporaryFolder);
+        String submoduleDirectoryName = "submoduleDir";
+        repoContainingSubmodule.addSubmodule(SUBMODULE, submoduleDirectoryName);
+        repoContainingSubmodule.goBackOneCommitInSubmoduleAndUpdateMainRepo(submoduleDirectoryName);
+
+        File cloneDirectory = createTempWorkingDirectory();
+        GitCommand clonedCopy = new GitCommand(null, cloneDirectory, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
+        clonedCopy.clone(outputStreamConsumer, FileUtil.toFileURI(repoContainingSubmodule.mainRepo().getUrl()), 1);
+        clonedCopy.fetchAndResetToHead(outputStreamConsumer, true);
+        ConsoleResult consoleResult = executeOnDir(new File(cloneDirectory, submoduleDirectoryName),
+                "git", "rev-list", "--count", "master");
+        assertThat(consoleResult.outputAsString()).isEqualTo("2");
     }
 
     @Test
@@ -729,13 +763,13 @@ public class GitCommandTest {
         executeOnDir(gitLocalRepoDir, command, args);
     }
 
-    private void executeOnDir(File dir, String command, String... args) {
+    private ConsoleResult executeOnDir(File dir, String command, String... args) {
         CommandLine commandLine = CommandLine.createCommandLine(command);
         commandLine.withArgs(args);
         commandLine.withEncoding("utf-8");
         assertThat(dir.exists()).isTrue();
         commandLine.setWorkingDir(dir);
-        commandLine.runOrBomb(true, null);
+        return commandLine.runOrBomb(true, null);
     }
 
     private void setColoring() {

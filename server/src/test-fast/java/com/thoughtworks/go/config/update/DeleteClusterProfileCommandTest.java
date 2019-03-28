@@ -19,7 +19,9 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -29,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -87,10 +90,23 @@ class DeleteClusterProfileCommandTest {
     }
 
     @Test
-    void shouldSetMessageOnResultIfClusterProfileIsValid() throws Exception {
+    void shouldSetMessageOnResultIfClusterProfileIsValid() {
         assertThat(result.message()).isEqualTo(null);
         command.isValid(config);
         assertThat(result.message()).isEqualTo("The Cluster Profile 'cluster-id' was deleted successfully.");
+    }
+
+    @Test
+    void shouldNotAllowDeletionOfClusterProfileWhenReferencedFromElasticAgentProfile() {
+        assertThat(result.message()).isEqualTo(null);
+
+        ElasticProfile dependentElasticAgentProfile1 = new ElasticProfile("profile1", "pluginId", clusterProfile.getId());
+        ElasticProfile dependentElasticAgentProfile2 = new ElasticProfile("profile2", "pluginId", clusterProfile.getId());
+        config.getElasticConfig().getProfiles().add(dependentElasticAgentProfile1);
+        config.getElasticConfig().getProfiles().add(dependentElasticAgentProfile2);
+
+        GoConfigInvalidException exception = assertThrows(GoConfigInvalidException.class, () -> command.isValid(config));
+        assertThat(exception.getMessage()).isEqualTo("Cannot delete cluster profile 'cluster-id' as it is referenced from elastic agent profile(s) [profile1, profile2]");
     }
 
     @Test

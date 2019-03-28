@@ -17,13 +17,21 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.PluginProfile;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
+import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentResources;
 
 public class DeleteClusterProfileCommand extends ClusterProfileCommand {
     public DeleteClusterProfileCommand(ElasticAgentExtension extension, GoConfigService goConfigService, ClusterProfile clusterProfile, Username currentUser, HttpLocalizedOperationResult result) {
@@ -40,9 +48,18 @@ public class DeleteClusterProfileCommand extends ClusterProfileCommand {
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        //todo: Validate if the cluster is associated with a profile
-        boolean isValid = super.isValid(preprocessedConfig);
-        if (isValid) {
+        List<String> usedByElasticProfiles = preprocessedConfig.getElasticConfig().getProfiles().stream()
+                .filter(profile -> profile.getClusterProfileId().equals(this.profile.getId()))
+                .map(PluginProfile::getId)
+                .collect(Collectors.toList());
+
+        boolean isValid = usedByElasticProfiles.isEmpty();
+
+        if (!isValid) {
+            String message = cannotDeleteResourceBecauseOfDependentResources(getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), EntityType.ElasticProfile.getEntityNameLowerCase(), usedByElasticProfiles);
+            result.unprocessableEntity(message);
+            throw new GoConfigInvalidException(preprocessedConfig, message);
+        } else {
             result.setMessage(LocalizedMessage.resourceDeleteSuccessful("Cluster Profile", profile.getId()));
         }
 

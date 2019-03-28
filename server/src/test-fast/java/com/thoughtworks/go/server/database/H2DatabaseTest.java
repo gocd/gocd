@@ -38,6 +38,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+@EnableIfH2
 class H2DatabaseTest {
     private H2Database h2Database;
     private DatabaseFixture dbFixture;

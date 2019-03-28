@@ -200,7 +200,7 @@ public class ElasticAgentPluginService {
 
     public String getPluginStatusReport(String pluginId) {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
-        if (pluginInfo.getCapabilities().supportsStatusReport()) {
+        if (pluginInfo.getCapabilities().supportsPluginStatusReport()) {
             return elasticAgentPluginRegistry.getPluginStatusReport(pluginId);
         }
 

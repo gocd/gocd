@@ -21,18 +21,28 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Objects;
+
 class CapabilitiesDTO {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     @Expose
-    @SerializedName("supports_status_report")
+    @SerializedName("supports_plugin_status_report")
     private boolean supportsStatusReport;
+
+    @Expose
+    @SerializedName("supports_cluster_status_report")
+    private boolean supportsClusterStatusReport;
 
     @Expose
     @SerializedName("supports_agent_status_report")
     private boolean supportsAgentStatusReport;
 
-    public boolean supportsStatusReport() {
+    public boolean supportsPluginStatusReport() {
         return supportsStatusReport;
+    }
+
+    public boolean supportsClusterStatusReport() {
+        return supportsClusterStatusReport;
     }
 
     public boolean supportsAgentStatusReport() {
@@ -42,18 +52,15 @@ class CapabilitiesDTO {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CapabilitiesDTO)) return false;
-
+        if (o == null || getClass() != o.getClass()) return false;
         CapabilitiesDTO that = (CapabilitiesDTO) o;
-
-        if (supportsStatusReport != that.supportsStatusReport) return false;
-        return supportsAgentStatusReport == that.supportsAgentStatusReport;
+        return supportsStatusReport == that.supportsStatusReport &&
+                supportsClusterStatusReport == that.supportsClusterStatusReport &&
+                supportsAgentStatusReport == that.supportsAgentStatusReport;
     }
 
     @Override
     public int hashCode() {
-        int result = (supportsStatusReport ? 1 : 0);
-        result = 31 * result + (supportsAgentStatusReport ? 1 : 0);
-        return result;
+        return Objects.hash(supportsStatusReport, supportsClusterStatusReport, supportsAgentStatusReport);
     }
 }

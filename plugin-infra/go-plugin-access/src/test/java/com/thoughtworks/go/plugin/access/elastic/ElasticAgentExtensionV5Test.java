@@ -95,12 +95,17 @@ public class ElasticAgentExtensionV5Test {
 
     @Test
     public void shouldGetCapabilitiesOfAPlugin() {
-        final String responseBody = "{\"supports_status_report\":\"true\", \"supports_agent_status_report\":\"true\"}";
+        final String responseBody = "{" +
+                "    \"supports_plugin_status_report\":\"true\", " +
+                "    \"supports_cluster_status_report\":\"true\", " +
+                "    \"supports_agent_status_report\":\"true\"" +
+                "}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
         final Capabilities capabilities = extensionV5.getCapabilities(PLUGIN_ID);
 
-        assertTrue(capabilities.supportsStatusReport());
+        assertTrue(capabilities.supportsPluginStatusReport());
+        assertTrue(capabilities.supportsClusterStatusReport());
         assertTrue(capabilities.supportsAgentStatusReport());
     }
 

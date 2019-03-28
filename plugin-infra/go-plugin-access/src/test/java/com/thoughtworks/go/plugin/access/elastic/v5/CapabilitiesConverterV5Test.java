@@ -42,24 +42,24 @@ public class CapabilitiesConverterV5Test {
 
     @Test
     public void fromDTO_shouldConvertToCapabilitiesFromCapabilitiesDTO() {
-        when(capabilitiesDTO.supportsStatusReport()).thenReturn(false);
+        when(capabilitiesDTO.supportsPluginStatusReport()).thenReturn(false);
         when(capabilitiesDTO.supportsAgentStatusReport()).thenReturn(false);
-        assertFalse(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsStatusReport());
+        assertFalse(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsPluginStatusReport());
         assertFalse(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsAgentStatusReport());
 
-        when(capabilitiesDTO.supportsStatusReport()).thenReturn(true);
+        when(capabilitiesDTO.supportsPluginStatusReport()).thenReturn(true);
         when(capabilitiesDTO.supportsAgentStatusReport()).thenReturn(true);
-        assertTrue(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsStatusReport());
+        assertTrue(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsPluginStatusReport());
         assertTrue(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsAgentStatusReport());
 
-        when(capabilitiesDTO.supportsStatusReport()).thenReturn(false);
+        when(capabilitiesDTO.supportsPluginStatusReport()).thenReturn(false);
         when(capabilitiesDTO.supportsAgentStatusReport()).thenReturn(true);
-        assertFalse(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsStatusReport());
+        assertFalse(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsPluginStatusReport());
         assertTrue(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsAgentStatusReport());
 
-        when(capabilitiesDTO.supportsStatusReport()).thenReturn(true);
+        when(capabilitiesDTO.supportsPluginStatusReport()).thenReturn(true);
         when(capabilitiesDTO.supportsAgentStatusReport()).thenReturn(false);
-        assertTrue(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsStatusReport());
+        assertTrue(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsPluginStatusReport());
         assertFalse(capabilitiesConverter.fromDTO(capabilitiesDTO).supportsAgentStatusReport());
     }
 }

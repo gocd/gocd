@@ -22,7 +22,7 @@ import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 class CapabilitiesConverterV5 implements DataConverter<Capabilities, CapabilitiesDTO> {
     @Override
     public Capabilities fromDTO(CapabilitiesDTO capabilitiesDTO) {
-        return new Capabilities(capabilitiesDTO.supportsStatusReport(), capabilitiesDTO.supportsAgentStatusReport());
+        return new Capabilities(capabilitiesDTO.supportsPluginStatusReport(), capabilitiesDTO.supportsClusterStatusReport(), capabilitiesDTO.supportsAgentStatusReport());
     }
 
     @Override

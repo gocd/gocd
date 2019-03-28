@@ -204,7 +204,7 @@ public class ElasticAgentExtensionConverterV4Test {
 
         Capabilities capabilities = new ElasticAgentExtensionConverterV4().getCapabilitiesFromResponseBody(responseBody);
 
-        assertTrue(capabilities.supportsStatusReport());
+        assertTrue(capabilities.supportsPluginStatusReport());
         assertTrue(capabilities.supportsAgentStatusReport());
     }
 

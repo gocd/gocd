@@ -16,26 +16,27 @@
 
 package com.thoughtworks.go.config.materials.git;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.junit.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.gitMaterialConfig;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class GitMaterialConfigTest {
+class GitMaterialConfigTest {
     @Test
-    public void shouldSetConfigAttributes() {
+    void shouldSetConfigAttributes() {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("");
 
         Map<String, String> map = new HashMap<>();
@@ -49,98 +50,140 @@ public class GitMaterialConfigTest {
 
         gitMaterialConfig.setConfigAttributes(map);
 
-        assertThat(gitMaterialConfig.getUrl(), is("url"));
-        assertThat(gitMaterialConfig.getFolder(), is("folder"));
-        assertThat(gitMaterialConfig.getBranch(), is("some-branch"));
-        assertThat(gitMaterialConfig.getName(), is(new CaseInsensitiveString("material-name")));
-        assertThat(gitMaterialConfig.isAutoUpdate(), is(false));
-        assertThat(gitMaterialConfig.isShallowClone(), is(true));
-        assertThat(gitMaterialConfig.filter(), is(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help"))));
-    }
-    
-    @Test
-    public void byDefaultShallowCloneShouldBeOff() {
-        assertThat(new GitMaterialConfig("http://url", "foo").isShallowClone(), is(false));
-        assertThat(new GitMaterialConfig("http://url", "foo", false).isShallowClone(), is(false));
-        assertThat(new GitMaterialConfig("http://url", "foo", null).isShallowClone(), is(false));
-        assertThat(new GitMaterialConfig("http://url", "foo", true).isShallowClone(), is(true));
+        assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(gitMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("some-branch");
+        assertThat(gitMaterialConfig.getName()).isEqualTo(new CaseInsensitiveString("material-name"));
+        assertThat(gitMaterialConfig.isAutoUpdate()).isFalse();
+        assertThat(gitMaterialConfig.isShallowClone()).isTrue();
+        assertThat(gitMaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help")));
     }
 
     @Test
-    public void validate_shouldEnsureUrlIsNotBlank() {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("");
-        gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL), is("URL cannot be blank"));
+    void byDefaultShallowCloneShouldBeOff() {
+        assertThat(new GitMaterialConfig("http://url", "foo").isShallowClone()).isFalse();
+        assertThat(new GitMaterialConfig("http://url", "foo", false).isShallowClone()).isFalse();
+        assertThat(new GitMaterialConfig("http://url", "foo", null).isShallowClone()).isFalse();
+        assertThat(new GitMaterialConfig("http://url", "foo", true).isShallowClone()).isTrue();
     }
 
     @Test
-    public void shouldReturnIfAttributeMapIsNull() {
+    void shouldReturnIfAttributeMapIsNull() {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("");
         gitMaterialConfig.setConfigAttributes(null);
-        assertThat(gitMaterialConfig, is(new GitMaterialConfig("")));
+        assertThat(gitMaterialConfig).isEqualTo(new GitMaterialConfig(""));
     }
 
     @Test
-    public void shouldReturnTheUrl() {
+    void shouldReturnTheUrl() {
         String url = "git@github.com/my/repo";
         GitMaterialConfig config = new GitMaterialConfig(url);
 
-        assertThat(config.getUrl(), is(url));
+        assertThat(config.getUrl()).isEqualTo(url);
     }
 
     @Test
-    public void shouldReturnNullIfUrlForMaterialNotSpecified() {
+    void shouldReturnNullIfUrlForMaterialNotSpecified() {
         GitMaterialConfig config = new GitMaterialConfig();
 
-        assertNull(config.getUrl());
+        assertThat(config.getUrl()).isNull();
     }
 
     @Test
-    public void shouldSetUrlForAMaterial() {
+    void shouldSetUrlForAMaterial() {
         String url = "git@github.com/my/repo";
         GitMaterialConfig config = new GitMaterialConfig();
 
         config.setUrl(url);
 
-        assertThat(config.getUrl(), is(url));
+        assertThat(config.getUrl()).isEqualTo(url);
     }
 
     @Test
-    public void shouldHandleNullWhenSettingUrlForAMaterial() {
+    void shouldHandleNullWhenSettingUrlForAMaterial() {
         GitMaterialConfig config = new GitMaterialConfig();
 
         config.setUrl(null);
 
-        assertNull(config.getUrl());
+        assertThat(config.getUrl()).isNull();
     }
 
     @Test
-    public void shouldHandleNullUrlAtTheTimeOfGitMaterialConfigCreation() {
+    void shouldHandleNullUrlAtTheTimeOfGitMaterialConfigCreation() {
         GitMaterialConfig config = new GitMaterialConfig(null);
 
-        assertNull(config.getUrl());
+        assertThat(config.getUrl()).isNull();
     }
 
     @Test
-    public void shouldHandleNullBranchAtTheTimeOfMaterialConfigCreation() {
+    void shouldHandleNullBranchAtTheTimeOfMaterialConfigCreation() {
         GitMaterialConfig config1 = new GitMaterialConfig("http://url", null);
         GitMaterialConfig config2 = new GitMaterialConfig(new UrlArgument("http://url"), null, "sub1", true, new Filter(), false, "folder", new CaseInsensitiveString("git"), false);
 
-        assertThat(config1.getBranch(), is("master"));
-        assertThat(config2.getBranch(), is("master"));
+        assertThat(config1.getBranch()).isEqualTo("master");
+        assertThat(config2.getBranch()).isEqualTo("master");
     }
 
     @Test
-    public void shouldHandleNullBranchWhileSettingConfigAttributes() {
+    void shouldHandleNullBranchWhileSettingConfigAttributes() {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://url", "foo");
         gitMaterialConfig.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, null));
-        assertThat(gitMaterialConfig.getBranch(), is("master"));
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("master");
     }
 
     @Test
-    public void shouldHandleEmptyBranchWhileSettingConfigAttributes() {
+    void shouldHandleEmptyBranchWhileSettingConfigAttributes() {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://url", "foo");
         gitMaterialConfig.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, "     "));
-        assertThat(gitMaterialConfig.getBranch(), is("master"));
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("master");
+    }
+
+    @Nested
+    class Validate {
+        @Test
+        void shouldEnsureUrlIsNotBlank() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("");
+            gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
+            assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isEqualTo("URL cannot be blank");
+        }
+
+        @Test
+        void shouldFailValidationIfMaterialURLHasSecretParamsConfiguredOtherThanForUsernamePassword() {
+            final ValidationContext validationContext = mock(ValidationContext.class);
+            final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs());
+
+            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
+
+            assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
+            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Only username and password can be specified as secret params");
+        }
+
+        @Test
+        void shouldFailIfSecretParamConfiguredWithSecretConfigIdWhichIsNotExist() {
+            final ValidationContext validationContext = mock(ValidationContext.class);
+            final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs());
+
+            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://{{SECRET:[secret_config_id_1][username]}}:{{SECRET:[secret_config_id_2][pass]}}@host/foo.git");
+
+            assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
+            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Secret configs '[secret_config_id_1, secret_config_id_2]' does not exist");
+        }
+
+        @Test
+        void shouldNotFailIfSecretConfigWithIdPresentForConfiguredSecretParams() {
+            final ValidationContext validationContext = mock(ValidationContext.class);
+            final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+            when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(new SecretConfig("secret_config_id", "cd.go.secret.file")));
+
+            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://{{SECRET:[secret_config_id][pass]}}:password@host/foo.git");
+
+            assertThat(gitMaterialConfig.validateTree(validationContext)).isTrue();
+            assertThat(gitMaterialConfig.errors().getAll()).isEmpty();
+        }
     }
 }

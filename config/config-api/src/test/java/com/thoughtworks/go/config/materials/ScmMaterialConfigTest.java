@@ -17,9 +17,11 @@
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -32,23 +34,19 @@ import java.util.HashMap;
 
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.AUTO_UPDATE;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
-public class ScmMaterialConfigTest {
+class ScmMaterialConfigTest {
     private DummyMaterialConfig material;
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         material = new DummyMaterialConfig();
     }
 
     @Test
-    public void shouldSetFilterToNullWhenBlank() {
+    void shouldSetFilterToNullWhenBlank() {
         material.setFilter(new Filter(new IgnoredFiles("*.*")));
         material.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FILTER, ""));
         assertThat(material.filter(), is(new Filter()));
@@ -56,20 +54,13 @@ public class ScmMaterialConfigTest {
     }
 
     @Test
-    public void shouldReturnFilterForDisplay() {
+    void shouldReturnFilterForDisplay() {
         material.setFilter(new Filter(new IgnoredFiles("/foo/**.*"), new IgnoredFiles("/another/**.*"), new IgnoredFiles("bar")));
         assertThat(material.getFilterAsString(), is("/foo/**.*,/another/**.*,bar"));
     }
 
     @Test
-    public void shouldNotValidateEmptyDestinationFolder() {
-        material.setConfigAttributes(Collections.singletonMap(FOLDER, ""));
-        material.validate(new ConfigSaveValidationContext(null));
-        assertThat(material.errors.isEmpty(), is(true));
-    }
-
-    @Test
-    public void shouldSetFolderToNullWhenBlank() {
+    void shouldSetFolderToNullWhenBlank() {
         material.setConfigAttributes(Collections.singletonMap(FOLDER, "foo"));
         assertThat(material.getFolder(), is(not(nullValue())));
 
@@ -78,7 +69,7 @@ public class ScmMaterialConfigTest {
     }
 
     @Test
-    public void shouldUpdateAutoUpdateFieldFromConfigAttributes() {
+    void shouldUpdateAutoUpdateFieldFromConfigAttributes() {
         material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, "false"));
         assertThat(material.isAutoUpdate(), is(false));
         material.setConfigAttributes(Collections.singletonMap(AUTO_UPDATE, null));
@@ -93,48 +84,62 @@ public class ScmMaterialConfigTest {
         assertThat(material.isAutoUpdate(), is(false));
     }
 
-    @Test
-    public void shouldFailValidationIfDestinationDirectoryIsNested() {
-        material.setFolder("f1");
-        material.validateNotSubdirectoryOf("f1/f2");
-        assertFalse(material.errors().isEmpty());
-        assertThat(material.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
-    }
+    @Nested
+    @EnableRuleMigrationSupport
+    class validate {
+        @Rule
+        public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Test
-    public void shouldNotFailValidationIfDestinationDirectoryIsMultilevelButNotNested() {
-        material.setFolder("f1/f2/f3");
-        material.validateNotSubdirectoryOf("f1/f2/f");
+        @Test
+        void shouldNotValidateEmptyDestinationFolder() {
+            material.setConfigAttributes(Collections.singletonMap(FOLDER, ""));
+            material.validate(new ConfigSaveValidationContext(null));
+            assertThat(material.errors.isEmpty(), is(true));
+        }
 
-        assertNull(material.errors().getAllOn(FOLDER));
-    }
+        @Test
+        void shouldFailValidationIfDestinationDirectoryIsNested() {
+            material.setFolder("f1");
+            material.validateNotSubdirectoryOf("f1/f2");
+            assertFalse(material.errors().isEmpty());
+            assertThat(material.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
+        }
 
-    @Test
-    public void shouldFailValidationIfDestinationDirectoryIsOutsideCurrentWorkingDirectoryAfterNormalization() {
-        material.setFolder("f1/../../f3");
+        @Test
+        void shouldNotFailValidationIfDestinationDirectoryIsMultilevelButNotNested() {
+            material.setFolder("f1/f2/f3");
+            material.validateNotSubdirectoryOf("f1/f2/f");
 
-        material.validateConcreteMaterial(null);
-        assertThat(material.errors().on(FOLDER), is("Dest folder 'f1/../../f3' is not valid. It must be a sub-directory of the working folder."));
-    }
+            assertNull(material.errors().getAllOn(FOLDER));
+        }
 
-    @Test
-    public void shouldFailValidationIfDestinationDirectoryIsNestedAfterNormalization() {
-        material.setFolder("f1/f2/../../f3");
-        material.validateNotSubdirectoryOf("f3/f4");
-        assertThat(material.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
-    }
+        @Test
+        void shouldFailValidationIfDestinationDirectoryIsOutsideCurrentWorkingDirectoryAfterNormalization() {
+            material.setFolder("f1/../../f3");
 
-    @Test
-    public void shouldNotValidateNestingOfMaterialDirectoriesBasedOnServerSideFileSystem() throws IOException {
-        final File workingDir = temporaryFolder.newFolder("go-working-dir");
-        final File material1 = new File(workingDir, "material1");
-        material1.mkdirs();
+            material.validateConcreteMaterial(null);
+            assertThat(material.errors().on(FOLDER), is("Dest folder 'f1/../../f3' is not valid. It must be a sub-directory of the working folder."));
+        }
 
-        final Path material2 = Files.createSymbolicLink(Paths.get(new File(workingDir, "material2").getPath()), Paths.get(material1.getPath()));
+        @Test
+        void shouldFailValidationIfDestinationDirectoryIsNestedAfterNormalization() {
+            material.setFolder("f1/f2/../../f3");
+            material.validateNotSubdirectoryOf("f3/f4");
+            assertThat(material.errors().on(FOLDER), is("Invalid Destination Directory. Every material needs a different destination directory and the directories should not be nested."));
+        }
 
-        material.setFolder(material1.getAbsolutePath());
-        material.validateNotSubdirectoryOf(material2.toAbsolutePath().toString());
+        @Test
+        void shouldNotValidateNestingOfMaterialDirectoriesBasedOnServerSideFileSystem() throws IOException {
+            final File workingDir = temporaryFolder.newFolder("go-working-dir");
+            final File material1 = new File(workingDir, "material1");
+            material1.mkdirs();
 
-        assertNull(material.errors().getAllOn(FOLDER));
+            final Path material2 = Files.createSymbolicLink(Paths.get(new File(workingDir, "material2").getPath()), Paths.get(material1.getPath()));
+
+            material.setFolder(material1.getAbsolutePath());
+            material.validateNotSubdirectoryOf(material2.toAbsolutePath().toString());
+
+            assertNull(material.errors().getAllOn(FOLDER));
+        }
     }
 }

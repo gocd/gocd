@@ -149,11 +149,22 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         if (url == null || StringUtils.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
         }
-        if(!url.isValid()) {
 
+        if (!url.isValid()) {
+            errors.add(URL, "Only username and password can be specified as secret params");
         }
-        final UriComponents uriComponents = UriComponentsBuilder.fromUriString(url.forDisplay()).build();
 
+        if (url.hasSecretParams()) {
+            final SecretConfigs secretConfigs = validationContext.getCruiseConfig().getSecretConfigs();
+            final List<String> missingSecretConfigs = url.getSecretParams().stream()
+                    .filter(secretParam -> secretConfigs.find(secretParam.getSecretConfigId()) == null)
+                    .map(SecretParam::getSecretConfigId)
+                    .collect(Collectors.toList());
+
+            if (!missingSecretConfigs.isEmpty()) {
+                errors.add(URL, String.format("Secret configs '%s' does not exist", missingSecretConfigs));
+            }
+        }
     }
 
     @Override

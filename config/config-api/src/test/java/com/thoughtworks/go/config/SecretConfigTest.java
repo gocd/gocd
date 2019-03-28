@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class SecretConfigTest extends PluginProfileTest {
+public class SecretConfigTest extends NewPluginProfileTest {
     private SecretsMetadataStore store = SecretsMetadataStore.instance();
 
     @AfterEach
@@ -56,7 +56,7 @@ public class SecretConfigTest extends PluginProfileTest {
 
             SecretConfig secretConfig = new SecretConfig("id", "plugin_id", property);
 
-            assertThat(secretConfig)
+            assertThat(secretConfig.getConfiguration())
                     .hasSize(1)
                     .contains(new ConfigurationProperty(new ConfigurationKey("username"), new ConfigurationValue("some_name")));
         }
@@ -67,7 +67,7 @@ public class SecretConfigTest extends PluginProfileTest {
 
             SecretConfig secretConfig = new SecretConfig("id", "plugin_id", property);
 
-            assertThat(secretConfig)
+            assertThat(secretConfig.getConfiguration())
                     .hasSize(1)
                     .contains(new ConfigurationProperty(new ConfigurationKey("username"), new EncryptedConfigurationValue("some_name")));
         }
@@ -81,8 +81,8 @@ public class SecretConfigTest extends PluginProfileTest {
             SecretConfig secretConfig = new SecretConfig("id", "plugin_id");
             secretConfig.addConfigurations(asList(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
 
-            assertThat(secretConfig).hasSize(1);
-            assertThat(secretConfig.first().isSecure()).isTrue();
+            assertThat(secretConfig.getConfiguration()).hasSize(1);
+            assertThat(secretConfig.getConfiguration().first().isSecure()).isTrue();
         }
 
         @Test
@@ -93,10 +93,10 @@ public class SecretConfigTest extends PluginProfileTest {
             SecretConfig secretConfig = new SecretConfig("id", "plugin_id",
                     new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
 
-            assertThat(secretConfig)
+            assertThat(secretConfig.getConfiguration())
                     .hasSize(1)
                     .contains(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
-            assertThat(secretConfig.first().isSecure()).isFalse();
+            assertThat(secretConfig.getConfiguration().first().isSecure()).isFalse();
         }
     }
 
@@ -114,8 +114,8 @@ public class SecretConfigTest extends PluginProfileTest {
 
             secretConfig.encryptSecureConfigurations();
 
-            assertThat(secretConfig).hasSize(1);
-            assertThat(secretConfig.first().isSecure()).isTrue();
+            assertThat(secretConfig.getConfiguration()).hasSize(1);
+            assertThat(secretConfig.getConfiguration().first().isSecure()).isTrue();
         }
 
         @Test
@@ -124,8 +124,8 @@ public class SecretConfigTest extends PluginProfileTest {
 
             secretConfig.encryptSecureConfigurations();
 
-            assertThat(secretConfig).hasSize(1);
-            assertThat(secretConfig.first().isSecure()).isFalse();
+            assertThat(secretConfig.getConfiguration()).hasSize(1);
+            assertThat(secretConfig.getConfiguration().first().isSecure()).isFalse();
         }
     }
 
@@ -196,11 +196,10 @@ public class SecretConfigTest extends PluginProfileTest {
     }
 
     @Override
-    protected PluginProfile pluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties) {
+    protected NewPluginProfile newPluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties) {
         return new SecretConfig(id, pluginId, configurationProperties);
     }
 
-    @Override
     protected String getObjectDescription() {
         return "Secret configuration";
     }

@@ -45,7 +45,7 @@ public class SecretConfigRepresenter {
         }
 
         jsonWriter.addChildList("properties", listWriter -> {
-            ConfigurationPropertyRepresenter.toJSON(listWriter, secretConfig);
+            ConfigurationPropertyRepresenter.toJSON(listWriter, secretConfig.getConfiguration());
         });
 
         if (!CollectionUtils.isEmpty(secretConfig.getRules())) {

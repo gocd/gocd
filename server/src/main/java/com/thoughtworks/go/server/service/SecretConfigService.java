@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.PluginProfiles;
+import com.thoughtworks.go.config.NewPluginProfiles;
 import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.config.SecretConfigs;
 import com.thoughtworks.go.config.update.SecretConfigCreateCommand;
@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SecretConfigService extends PluginProfilesService<SecretConfig> {
+public class SecretConfigService extends NewPluginProfilesService<SecretConfig> {
     private final SecretsExtension secretsExtension;
 
     @Autowired
@@ -37,7 +37,7 @@ public class SecretConfigService extends PluginProfilesService<SecretConfig> {
     }
 
     @Override
-    protected PluginProfiles<SecretConfig> getPluginProfiles() {
+    protected NewPluginProfiles<SecretConfig> getPluginProfiles() {
         return goConfigService.cruiseConfig().getSecretConfigs();
     }
 

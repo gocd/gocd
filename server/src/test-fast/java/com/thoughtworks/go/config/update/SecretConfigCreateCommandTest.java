@@ -54,7 +54,7 @@ public class SecretConfigCreateCommandTest {
     }
 
     @Test
-    public void shouldAddElasticProfile() throws Exception {
+    public void shouldAddSecretConfig() throws Exception {
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         SecretConfig secretConfig = new SecretConfig("CreateTest", "File");
         SecretConfigCreateCommand command = new SecretConfigCreateCommand(null, secretConfig, extension, null, null);
@@ -70,7 +70,7 @@ public class SecretConfigCreateCommandTest {
 
         SecretConfig newSecretConfig = new SecretConfig("foo", "file", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
 
-        PluginProfileCommand command = new SecretConfigCreateCommand(mock(GoConfigService.class), newSecretConfig, extension, null, new HttpLocalizedOperationResult());
+        NewPluginProfileCommand command = new SecretConfigCreateCommand(mock(GoConfigService.class), newSecretConfig, extension, null, new HttpLocalizedOperationResult());
 
         when(extension.validateSecretsConfig(eq("file"), anyMap())).thenReturn(validationResult);
 
@@ -82,7 +82,7 @@ public class SecretConfigCreateCommandTest {
         command.isValid(cruiseConfig);
         command.update(cruiseConfig);
 
-        assertThat(newSecretConfig.first().errors().size(), is(1));
-        assertThat(newSecretConfig.first().errors().asString(), is("error"));
+        assertThat(newSecretConfig.getConfiguration().first().errors().size(), is(1));
+        assertThat(newSecretConfig.getConfiguration().first().errors().asString(), is("error"));
     }
 }

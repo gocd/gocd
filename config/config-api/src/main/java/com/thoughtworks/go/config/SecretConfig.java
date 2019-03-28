@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.secrets.SecretsMetadataStore;
@@ -30,7 +31,7 @@ import static java.util.Objects.isNull;
 
 @ConfigTag("secretConfig")
 @ConfigCollection(value = ConfigurationProperty.class)
-public class SecretConfig extends PluginProfile implements RulesAware {
+public class SecretConfig extends NewPluginProfile {
     @ConfigSubtag
     private Configuration configuration = new Configuration();
 
@@ -44,6 +45,7 @@ public class SecretConfig extends PluginProfile implements RulesAware {
     private static final List<String> allowedTypes = unmodifiableList(asList("pipeline_group"));
 
     public SecretConfig() {
+        super();
     }
 
     public SecretConfig(String id, String pluginId, ConfigurationProperty... configurationProperties) {
@@ -108,6 +110,17 @@ public class SecretConfig extends PluginProfile implements RulesAware {
         }
 
         return pluginInfo.getSecretsConfigSettings().getConfiguration(key).isSecure();
+    }
+
+    @Override
+    public void addConfigurations(List<ConfigurationProperty> configurations) {
+        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
+        for (ConfigurationProperty property : configurations) {
+            configuration.add(builder.create(property.getConfigKeyName(),
+                    property.getConfigValue(),
+                    property.getEncryptedValue(),
+                    isSecure(property.getConfigKeyName())));
+        }
     }
 
     @Override

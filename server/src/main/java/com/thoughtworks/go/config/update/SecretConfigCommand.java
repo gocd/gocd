@@ -30,7 +30,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
-public abstract class SecretConfigCommand extends PluginProfileCommand<SecretConfig, SecretConfigs> {
+public abstract class SecretConfigCommand extends NewPluginProfileCommand<SecretConfig, SecretConfigs> {
     private final SecretsExtension extension;
 
     public SecretConfigCommand(GoConfigService goConfigService, SecretConfig secretConfig, SecretsExtension extension, Username currentUser, LocalizedOperationResult result) {

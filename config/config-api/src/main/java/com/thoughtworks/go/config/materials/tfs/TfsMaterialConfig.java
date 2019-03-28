@@ -175,7 +175,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     @Override
-    public void validateConcreteScmMaterial() {
+    public void validateConcreteScmMaterial(ValidationContext validationContext) {
         if (url == null || StringUtils.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
         }

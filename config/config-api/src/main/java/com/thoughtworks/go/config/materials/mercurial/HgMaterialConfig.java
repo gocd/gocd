@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigAttribute;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.ParamsAttributeAware;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
@@ -127,7 +124,7 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     @Override
-    public void validateConcreteScmMaterial() {
+    public void validateConcreteScmMaterial(ValidationContext validationContext) {
         if (url == null || StringUtils.isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
         }

@@ -191,10 +191,10 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     protected final void validateConcreteMaterial(ValidationContext validationContext) {
         validateNotOutsideSandbox();
         validateDestFolderPath();
-        validateConcreteScmMaterial();
+        validateConcreteScmMaterial(validationContext);
     }
 
-    public abstract void validateConcreteScmMaterial();
+    public abstract void validateConcreteScmMaterial(ValidationContext validationContext);
 
     private void validateDestFolderPath() {
         if (StringUtils.isBlank(folder)) {

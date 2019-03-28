@@ -226,7 +226,7 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     }
 
     @Override
-    public void validateConcreteScmMaterial() {
+    public void validateConcreteScmMaterial(ValidationContext validationContext) {
         if (getView() == null || getView().trim().isEmpty()) {
             errors.add(VIEW, "P4 view cannot be empty.");
         }

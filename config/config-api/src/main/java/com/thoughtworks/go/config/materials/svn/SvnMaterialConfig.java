@@ -216,7 +216,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     @Override
-    public void validateConcreteScmMaterial() {
+    public void validateConcreteScmMaterial(ValidationContext validationContext) {
         if (url == null || isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
         }

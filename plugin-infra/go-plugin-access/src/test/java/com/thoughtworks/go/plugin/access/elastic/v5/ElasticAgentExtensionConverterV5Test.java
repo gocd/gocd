@@ -251,11 +251,16 @@ public class ElasticAgentExtensionConverterV5Test {
 
     @Test
     public void shouldGetCapabilitiesFromResponseBody() {
-        String responseBody = "{\"supports_status_report\":\"true\",\"supports_agent_status_report\":\"true\"}";
+        String responseBody = "{" +
+                "    \"supports_plugin_status_report\":\"true\"," +
+                "    \"supports_cluster_status_report\":\"true\"," +
+                "    \"supports_agent_status_report\":\"true\"" +
+                "}";
 
         Capabilities capabilities = new ElasticAgentExtensionConverterV5().getCapabilitiesFromResponseBody(responseBody);
 
-        assertTrue(capabilities.supportsStatusReport());
+        assertTrue(capabilities.supportsPluginStatusReport());
+        assertTrue(capabilities.supportsClusterStatusReport());
         assertTrue(capabilities.supportsAgentStatusReport());
     }
 

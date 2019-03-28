@@ -42,7 +42,7 @@ public class ElasticAgentPluginInfo extends PluginInfo {
     }
 
     public boolean supportsStatusReport() {
-        return this.capabilities != null ? this.capabilities.supportsStatusReport() : false;
+        return this.capabilities != null ? this.capabilities.supportsPluginStatusReport() : false;
     }
 
     @Override

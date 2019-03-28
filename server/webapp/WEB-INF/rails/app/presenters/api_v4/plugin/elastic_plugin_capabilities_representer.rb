@@ -18,7 +18,7 @@ module ApiV4
     class ElasticPluginCapabilitiesRepresenter < BaseRepresenter
       alias_method :capabilities, :represented
 
-      property :supports_status_report
+      property :supports_plugin_status_report, as: :supports_status_report
       property :supports_agent_status_report
 
     end

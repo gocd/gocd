@@ -17,20 +17,31 @@
 package com.thoughtworks.go.plugin.domain.elastic;
 
 public class Capabilities {
-    private boolean supportsStatusReport;
+    private boolean supportsPluginStatusReport;
+    private boolean supportsClusterStatusReport;
     private boolean supportsAgentStatusReport;
 
-    public Capabilities(boolean supportsStatusReport) {
-        this.supportsStatusReport = supportsStatusReport;
+    public Capabilities(boolean supportsPluginStatusReport) {
+        this.supportsPluginStatusReport = supportsPluginStatusReport;
     }
 
-    public Capabilities(boolean supportsStatusReport, boolean supportsAgentStatusReport) {
-        this.supportsStatusReport = supportsStatusReport;
+    public Capabilities(boolean supportsPluginStatusReport, boolean supportsAgentStatusReport) {
+        this.supportsPluginStatusReport = supportsPluginStatusReport;
         this.supportsAgentStatusReport = supportsAgentStatusReport;
     }
 
-    public boolean supportsStatusReport() {
-        return supportsStatusReport;
+    public Capabilities(boolean supportsPluginStatusReport, boolean supportsClusterStatusReport, boolean supportsAgentStatusReport) {
+        this.supportsPluginStatusReport = supportsPluginStatusReport;
+        this.supportsClusterStatusReport = supportsClusterStatusReport;
+        this.supportsAgentStatusReport = supportsAgentStatusReport;
+    }
+
+    public boolean supportsPluginStatusReport() {
+        return supportsPluginStatusReport;
+    }
+
+    public boolean supportsClusterStatusReport() {
+        return supportsClusterStatusReport;
     }
 
     public boolean supportsAgentStatusReport() {
@@ -44,12 +55,12 @@ public class Capabilities {
 
         Capabilities that = (Capabilities) o;
 
-        return supportsStatusReport == that.supportsStatusReport;
+        return supportsPluginStatusReport == that.supportsPluginStatusReport;
 
     }
 
     @Override
     public int hashCode() {
-        return (supportsStatusReport ? 1 : 0);
+        return (supportsPluginStatusReport ? 1 : 0);
     }
 }

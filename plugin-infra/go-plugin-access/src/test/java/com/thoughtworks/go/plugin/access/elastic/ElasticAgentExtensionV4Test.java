@@ -46,8 +46,7 @@ import static com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentPluginCon
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -97,7 +96,8 @@ public class ElasticAgentExtensionV4Test {
 
         final Capabilities capabilities = extensionV4.getCapabilities(PLUGIN_ID);
 
-        assertTrue(capabilities.supportsStatusReport());
+        assertTrue(capabilities.supportsPluginStatusReport());
+        assertFalse(capabilities.supportsClusterStatusReport());
         assertTrue(capabilities.supportsAgentStatusReport());
     }
 

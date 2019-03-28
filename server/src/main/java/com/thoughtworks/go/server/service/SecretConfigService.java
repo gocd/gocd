@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.config.SecretConfigs;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.update.SecretConfigCreateCommand;
+import com.thoughtworks.go.config.update.SecretConfigDeleteCommand;
 import com.thoughtworks.go.config.update.SecretConfigUpdateCommand;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.server.domain.Username;
@@ -57,5 +58,11 @@ public class SecretConfigService extends NewPluginProfilesService<SecretConfig> 
         update(currentUser, secretConfig, result, command);
     }
 
+    public void delete(Username currentUser, SecretConfig secretConfig, LocalizedOperationResult result) {
+        update(currentUser, secretConfig, result, new SecretConfigDeleteCommand(goConfigService, secretConfig, secretsExtension, currentUser, result));
+        if (result.isSuccessful()) {
+            result.setMessage(EntityType.SecretConfig.deleteSuccessful(secretConfig.getId()));
+        }
+    }
 
 }

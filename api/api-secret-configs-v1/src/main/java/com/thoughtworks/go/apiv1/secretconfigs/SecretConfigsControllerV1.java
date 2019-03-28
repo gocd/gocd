@@ -133,7 +133,12 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
     }
 
     public String destroy(Request request, Response response) throws IOException {
-        return writerForTopLevelObject(request, response, writer -> writer.add("action", "destroy" + request.params(CONFIG_ID_PARAM)));
+        SecretConfig secretConfigToBeDeleted = fetchEntityFromConfig(request.params(CONFIG_ID_PARAM));
+
+        final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        configService.delete(currentUsername(), secretConfigToBeDeleted, operationResult);
+
+        return renderHTTPOperationResult(operationResult, request, response);
     }
 
     @Override

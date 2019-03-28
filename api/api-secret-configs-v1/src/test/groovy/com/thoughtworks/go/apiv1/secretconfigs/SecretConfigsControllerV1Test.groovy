@@ -555,6 +555,62 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
         deleteWithApiHeader(controller.controllerPath("/foo_secret_config"))
       }
     }
+
+    @Nested
+    class AsAdmin {
+      @BeforeEach
+      void setUp() {
+        enableSecurity()
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'should delete secret config with given id'() {
+        def secretConfig = new SecretConfig("ForDeploy", "file-plugin")
+
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(secretConfig))
+        when(secretConfigService.delete(Mockito.any() as Username, Mockito.any() as SecretConfig, Mockito.any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
+          HttpLocalizedOperationResult result = invocation.arguments.last()
+          result.setMessage(LocalizedMessage.resourceDeleteSuccessful('secret config', secretConfig.getId()))
+        })
+
+        deleteWithApiHeader(controller.controllerPath('/ForDeploy'))
+
+        assertThatResponse()
+          .isOk()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage(LocalizedMessage.resourceDeleteSuccessful('secret config', secretConfig.getId()))
+      }
+
+      @Test
+      void 'should return 404 if secret config with id does not exist'() {
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs())
+
+        deleteWithApiHeader(controller.controllerPath('/ForDeploy'))
+
+        assertThatResponse()
+          .isNotFound()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage(controller.entityType.notFoundMessage("ForDeploy"))
+      }
+
+      @Test
+      void 'should return validation error on failure'() {
+        def secretConfig = new SecretConfig("ForDeploy", "cd.go.ForDeploy")
+
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(new SecretConfigs(secretConfig))
+        doAnswer({ InvocationOnMock invocation ->
+          ((HttpLocalizedOperationResult) invocation.arguments.last()).unprocessableEntity("save failed")
+        }).when(secretConfigService).delete(any() as Username, eq(secretConfig), any() as LocalizedOperationResult)
+
+        deleteWithApiHeader(controller.controllerPath('/ForDeploy'))
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasContentType(controller.mimeType)
+          .hasJsonMessage('save failed')
+      }
+    }
   }
 
 }

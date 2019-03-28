@@ -139,8 +139,6 @@ public class ElasticProfileControllerV1 extends ApiController implements SparkSp
         return renderHTTPOperationResult(result, request, response);
     }
 
-
-
     private boolean isRenameAttempt(String profileIdFromRequestParam, String profileIdFromRequestBody) {
         return !StringUtils.equals(profileIdFromRequestBody, profileIdFromRequestParam);
     }

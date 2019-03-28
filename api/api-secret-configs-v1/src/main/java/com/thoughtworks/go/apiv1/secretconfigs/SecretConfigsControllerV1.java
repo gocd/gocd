@@ -33,6 +33,7 @@ import com.thoughtworks.go.server.service.SecretConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -42,6 +43,8 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEntityAlreadyExists;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseEtagDoesNotMatch;
+import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseRenameOfEntityIsNotSupported;
 import static spark.Spark.*;
 
 @Component
@@ -110,16 +113,23 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
         return handleCreateOrUpdateResponse(request, response, secretConfigToCreate, operationResult);
     }
 
-    private void haltIfEntityWithSameIdExists(SecretConfig secretConfig) {
-        if (doFetchEntityFromConfig(secretConfig.getId()) == null) {
-            return;
-        }
-        secretConfig.addError("id", String.format("Secret Configuration ids should be unique. Secret Configuration with id '%s' already exists.", secretConfig.getId()));
-        throw haltBecauseEntityAlreadyExists(jsonWriter(secretConfig), "secretConfig", secretConfig.getId());
-    }
-
     public String update(Request request, Response response)throws IOException {
-        return writerForTopLevelObject(request, response, writer -> writer.add("action", "update" + request.params(CONFIG_ID_PARAM)));
+        String configId = request.params(CONFIG_ID_PARAM);
+        SecretConfig oldSecretConfig = fetchEntityFromConfig(configId);
+        SecretConfig newSecretConfig = buildEntityFromRequestBody(request);
+
+        if (isRenameAttempt(oldSecretConfig.getId(), newSecretConfig.getId())) {
+            throw haltBecauseRenameOfEntityIsNotSupported(getEntityType().getEntityNameLowerCase());
+        }
+
+        if (isPutRequestStale(request, oldSecretConfig)) {
+            throw haltBecauseEtagDoesNotMatch();
+        }
+
+        final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        configService.update(currentUsername(), etagFor(newSecretConfig), newSecretConfig, operationResult);
+
+        return handleCreateOrUpdateResponse(request, response, fetchEntityFromConfig(configId), operationResult);
     }
 
     public String destroy(Request request, Response response) throws IOException {
@@ -149,5 +159,17 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
     @Override
     public Consumer<OutputWriter> jsonWriter(SecretConfig secretConfig) {
         return writer -> SecretConfigRepresenter.toJSON(writer, secretConfig);
+    }
+
+    private boolean isRenameAttempt(String profileIdFromRequestParam, String profileIdFromRequestBody) {
+        return !StringUtils.equals(profileIdFromRequestBody, profileIdFromRequestParam);
+    }
+
+    private void haltIfEntityWithSameIdExists(SecretConfig secretConfig) {
+        if (doFetchEntityFromConfig(secretConfig.getId()) == null) {
+            return;
+        }
+        secretConfig.addError("id", String.format("Secret Configuration ids should be unique. Secret Configuration with id '%s' already exists.", secretConfig.getId()));
+        throw haltBecauseEntityAlreadyExists(jsonWriter(secretConfig), "secretConfig", secretConfig.getId());
     }
 }

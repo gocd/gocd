@@ -107,6 +107,10 @@ public class FileUtil {
         return uriString.replaceAll("^file:/", "file:///");
     }
 
+    public static String toFileURI(String path) {
+        return toFileURI(new File(path));
+    }
+
     public static String filesystemSafeFileHash(File folder) {
         String hash = Base64.getEncoder().encodeToString(DigestUtils.sha1(folder.getAbsolutePath().getBytes()));
         hash = hash.replaceAll("[^0-9a-zA-Z\\.\\-]", "");

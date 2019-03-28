@@ -30,6 +30,7 @@ public class GitVersion {
 
     private final Version version;
     private final static Version MINIMUM_SUPPORTED_VERSION = Version.create(1,9,0);
+    private final static Version SUBMODULE_DEPTH_SUPPORT = Version.create(2, 10, 0);
 
     private GitVersion(Version parsedVersion) {
         this.version = parsedVersion;
@@ -51,6 +52,10 @@ public class GitVersion {
 
     public boolean isMinimumSupportedVersionOrHigher() {
         return this.version.compareTo(MINIMUM_SUPPORTED_VERSION) >= 0;
+    }
+
+    public boolean supportsSubmoduleDepth() {
+        return version.compareTo(SUBMODULE_DEPTH_SUPPORT) >= 0;
     }
 
     public Version getVersion() {

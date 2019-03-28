@@ -35,14 +35,15 @@ import java.util.List;
 
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static com.thoughtworks.go.utils.CommandUtils.exec;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class GitSubmoduleRepos extends TestRepo {
+public class GitRepoContainingSubmodule extends TestRepo {
     private final File workingDir;
     private File remoteRepoDir;
-    public static final String NAME = "with-submodules";
+    public static final String NAME = "repo-containing-submodule";
 
-    public GitSubmoduleRepos(TemporaryFolder temporaryFolder) throws Exception {
+    public GitRepoContainingSubmodule(TemporaryFolder temporaryFolder) throws Exception {
         super(temporaryFolder);
         this.workingDir = temporaryFolder.newFolder();
         remoteRepoDir = createRepo(NAME);
@@ -54,13 +55,13 @@ public class GitSubmoduleRepos extends TestRepo {
 
     public File addSubmodule(String repoName, String submoduleNameToPutInGitSubmodules, String folderName) throws Exception {
         File submodule = createRepo(repoName);
-        git(remoteRepoDir).submoduleAdd(submodule.getAbsolutePath(), submoduleNameToPutInGitSubmodules, folderName);
+        git(remoteRepoDir).submoduleAdd(FileUtil.toFileURI(submodule.getAbsolutePath()), submoduleNameToPutInGitSubmodules, folderName);
         git(remoteRepoDir).commit("Added submodule " + folderName);
         return submodule;
     }
 
     public void removeSubmodule(String folderName) throws Exception {
-        git(remoteRepoDir).updateSubmoduleWithInit(inMemoryConsumer());
+        git(remoteRepoDir).updateSubmoduleWithInit(inMemoryConsumer(), false);
         git(remoteRepoDir).submoduleRemove(folderName);
         git(remoteRepoDir).commit("Removed submodule " + folderName);
     }
@@ -84,8 +85,13 @@ public class GitSubmoduleRepos extends TestRepo {
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.name", "go_test").runOrBomb(true, "git_config");
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, "git_config");
         createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, "git_config");
+
         String fileName = "file-" + System.currentTimeMillis();
         addAndCommitNewFile(withSubmodules, fileName, "Added " + fileName);
+
+        fileName = "file-" + System.currentTimeMillis();
+        addAndCommitNewFile(withSubmodules, fileName, "Added " + fileName);
+
         return withSubmodules;
     }
 
@@ -128,6 +134,14 @@ public class GitSubmoduleRepos extends TestRepo {
         checkInOneFile(remoteRepoDir, new File(submoduleNameInRepo), comment);
 
         return latestModification();
+    }
+
+    public void goBackOneCommitInSubmoduleAndUpdateMainRepo(String submoduleNameInRepo) {
+        File submoduleDir = new File(remoteRepoDir, submoduleNameInRepo);
+        exec(submoduleDir, "git", "reset", "HEAD~1");
+        exec(submoduleDir, "git", "clean", "-dffx");
+        exec(remoteRepoDir, "git", "add", ".");
+        git(remoteRepoDir).commit("Went to previous commit in submodule");
     }
 
     private void changeFile(File parentDir, String fileName, String newFileContent) throws IOException {

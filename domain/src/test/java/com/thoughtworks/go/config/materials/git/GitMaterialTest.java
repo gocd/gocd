@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.git.GitVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
-import com.thoughtworks.go.helper.GitSubmoduleRepos;
+import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonValue;
@@ -195,7 +195,7 @@ public class GitMaterialTest {
 
     @Test
     void shouldRemoveSubmoduleFolderFromWorkingDirWhenSubmoduleIsRemovedFromRepo() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
@@ -392,7 +392,7 @@ public class GitMaterialTest {
 
     @Test
     void shouldGetLatestModificationsFromRepoWithSubmodules() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
@@ -403,12 +403,12 @@ public class GitMaterialTest {
         MaterialRevisions materialRevisions = materials.latestModification(workingDirectory, new TestSubprocessExecutionContext());
         assertThat(materialRevisions.numberOfRevisions()).isEqualTo(1);
         MaterialRevision materialRevision = materialRevisions.getMaterialRevision(0);
-        assertThat(materialRevision.getRevision().getRevision()).isEqualTo(submoduleRepos.currentRevision(GitSubmoduleRepos.NAME));
+        assertThat(materialRevision.getRevision().getRevision()).isEqualTo(submoduleRepos.currentRevision(GitRepoContainingSubmodule.NAME));
     }
 
     @Test
     void shouldUpdateSubmodules() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
@@ -422,7 +422,7 @@ public class GitMaterialTest {
         MaterialRevision materialRevision = materialRevisions.getMaterialRevision(0);
         materialRevision.updateTo(agentWorkingDir, inMemoryConsumer(), new TestSubprocessExecutionContext());
 
-        File localFile = submoduleRepos.files(GitSubmoduleRepos.NAME).get(0);
+        File localFile = submoduleRepos.files(GitRepoContainingSubmodule.NAME).get(0);
         assertThat(new File(agentWorkingDir, localFile.getName())).exists();
 
         File file = submoduleRepos.files(SUBMODULE).get(0);
@@ -432,7 +432,7 @@ public class GitMaterialTest {
 
     @Test
     void shouldHaveModificationsWhenSubmoduleIsAdded() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
@@ -450,7 +450,7 @@ public class GitMaterialTest {
 
     @Test
     void shouldHaveModificationsWhenSubmoduleIsRemoved() throws Exception {
-        GitSubmoduleRepos submoduleRepos = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule submoduleRepos = new GitRepoContainingSubmodule(temporaryFolder);
         submoduleRepos.addSubmodule(SUBMODULE, "sub1");
         GitMaterial gitMaterial = new GitMaterial(submoduleRepos.mainRepo().getUrl());
 
@@ -480,7 +480,7 @@ public class GitMaterialTest {
      * A git abbreviated hash is 7 chars. See the git documentation.
      */
     @Test
-    void shouldtruncateHashTo7charsforAShortRevision() throws Exception {
+    void shouldTruncateHashTo7CharsForAShortRevision() throws Exception {
         Material git = new GitMaterial("file:///foo");
         assertThat(git.getShortRevision("dc3d7e656831d1b203d8b7a63c4de82e26604e52")).isEqualTo("dc3d7e6");
         assertThat(git.getShortRevision("24")).isEqualTo("24");

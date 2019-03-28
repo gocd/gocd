@@ -153,7 +153,7 @@ public class GitMaterial extends ScmMaterial {
             GitCommand git = git(outputStreamConsumer, workingDir, revisionContext.numberOfModifications() + 1, execCtx);
             git.fetch(outputStreamConsumer);
             unshallowIfNeeded(git, outputStreamConsumer, revisionContext.getOldestRevision(), baseDir);
-            git.resetWorkingDir(outputStreamConsumer, revision);
+            git.resetWorkingDir(outputStreamConsumer, revision, shallowClone);
             outputStreamConsumer.stdOutput(format("[%s] Done.\n", GoConstants.PRODUCT_NAME));
         } catch (Exception e) {
             bomb(e);

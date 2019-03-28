@@ -19,7 +19,7 @@ package com.thoughtworks.go.server.materials;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
-import com.thoughtworks.go.helper.GitSubmoduleRepos;
+import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
 import com.thoughtworks.go.helper.TestRepo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -32,7 +32,7 @@ public class MaterialDatabaseGitWithSubmodulesUpdaterTest extends TestBaseForDat
     }
 
     protected TestRepo repo() throws Exception {
-        GitSubmoduleRepos testRepoWithExternal = new GitSubmoduleRepos(temporaryFolder);
+        GitRepoContainingSubmodule testRepoWithExternal = new GitRepoContainingSubmodule(temporaryFolder);
         testRepoWithExternal.addSubmodule("submodule-1", "sub1");
         return testRepoWithExternal;
     }

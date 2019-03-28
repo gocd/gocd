@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain.materials.git;
 
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
@@ -32,6 +33,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.thoughtworks.go.config.materials.git.GitMaterial.UNSHALLOW_TRYOUT_STEP;
 import static com.thoughtworks.go.domain.materials.ModifiedAction.parseGitAction;
 import static com.thoughtworks.go.util.DateUtils.formatRFC822;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -153,14 +155,13 @@ public class GitCommand extends SCMCommand {
         return GIT_DIFF_TREE_PATTERN.matcher(resultLine);
     }
 
-
-    public void resetWorkingDir(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision) {
+    public void resetWorkingDir(ConsoleOutputStreamConsumer outputStreamConsumer, Revision revision, boolean shallow) {
         log(outputStreamConsumer, "Reset working directory %s", workingDir);
         cleanAllUnversionedFiles(outputStreamConsumer);
         removeSubmoduleSectionsFromGitConfig(outputStreamConsumer);
         resetHard(outputStreamConsumer, revision);
         checkoutAllModifiedFilesInSubmodules(outputStreamConsumer);
-        updateSubmoduleWithInit(outputStreamConsumer);
+        updateSubmoduleWithInit(outputStreamConsumer, shallow);
         cleanAllUnversionedFiles(outputStreamConsumer);
     }
 
@@ -209,11 +210,15 @@ public class GitCommand extends SCMCommand {
     }
 
     public void fetchAndResetToHead(ConsoleOutputStreamConsumer outputStreamConsumer) {
-        fetch(outputStreamConsumer);
-        resetWorkingDir(outputStreamConsumer, new StringRevision(remoteBranch()));
+        fetchAndResetToHead(outputStreamConsumer, false);
     }
 
-    public void updateSubmoduleWithInit(ConsoleOutputStreamConsumer outputStreamConsumer) {
+    public void fetchAndResetToHead(ConsoleOutputStreamConsumer outputStreamConsumer, boolean shallow) {
+        fetch(outputStreamConsumer);
+        resetWorkingDir(outputStreamConsumer, new StringRevision(remoteBranch()), shallow);
+    }
+
+    public void updateSubmoduleWithInit(ConsoleOutputStreamConsumer outputStreamConsumer, boolean shallow) {
         if (!gitSubmoduleEnabled()) {
             return;
         }
@@ -225,12 +230,46 @@ public class GitCommand extends SCMCommand {
 
         submoduleSync();
 
-        String[] updateArgs = new String[]{"submodule", "update"};
-        CommandLine updateCmd = git(environment).withArgs(updateArgs).withWorkingDir(workingDir);
-        runOrBomb(updateCmd);
+        if (shallow && version(environment).supportsSubmoduleDepth()) {
+            tryToShallowUpdateSubmodules();
+        } else {
+            updateSubmodule();
+        }
 
         log(outputStreamConsumer, "Cleaning unversioned files and sub-modules");
         printSubmoduleStatus(outputStreamConsumer);
+    }
+
+    private void updateSubmodule() {
+        CommandLine updateCmd = git(environment).withArgs("submodule", "update").withWorkingDir(workingDir);
+        runOrBomb(updateCmd);
+    }
+
+    private void tryToShallowUpdateSubmodules() {
+        if (updateSubmoduleWithDepth(1)) {
+            return;
+        }
+        LOG.warn("git submodule update with --depth=1 failed. Attempting again with --depth={}", UNSHALLOW_TRYOUT_STEP);
+        if (updateSubmoduleWithDepth(UNSHALLOW_TRYOUT_STEP)) {
+            return;
+        }
+        LOG.warn("git submodule update with depth={} failed. Attempting again with --depth=Integer.MAX", UNSHALLOW_TRYOUT_STEP);
+        if (!updateSubmoduleWithDepth(Integer.MAX_VALUE)) {
+            bomb("Failed to update submodule");
+        }
+    }
+
+    private boolean updateSubmoduleWithDepth(int depth) {
+        List<String> updateArgs = new ArrayList<>(Arrays.asList("submodule", "update"));
+        updateArgs.add("--depth=" + depth);
+        CommandLine commandLine = git(environment).withArgs(updateArgs).withWorkingDir(workingDir);
+        try {
+            runOrBomb(commandLine);
+        } catch (Exception e) {
+            LOG.warn(e.getMessage(), e);
+            return false;
+        }
+        return true;
     }
 
     private void cleanUnversionedFiles(File workingDir) {

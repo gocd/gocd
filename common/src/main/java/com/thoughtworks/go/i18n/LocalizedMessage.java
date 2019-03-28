@@ -35,6 +35,10 @@ public abstract class LocalizedMessage {
         return "Cannot delete the " + resourceTypeBeingDeleted + " '" + resourceNameBeingDeleted + "' as it is used by pipeline(s): '" + join(dependentPipelines, ", ") + "'";
     }
 
+    public static String cannotDeleteResourceBecauseOfDependentResources(String resourceTypeBeingDeleted, String resourceNameBeingDeleted, String dependentResourceType, List<String> dependentResourceUUIDs) {
+        return String.format("Cannot delete %s '%s' as it is referenced from %s(s) [%s]", resourceTypeBeingDeleted, resourceNameBeingDeleted, dependentResourceType, join(dependentResourceUUIDs, ", "));
+    }
+
     public static String forbiddenToDelete(String resourceType, CaseInsensitiveString resourceName) {
         return forbiddenToDelete(resourceType, resourceName.toString());
     }

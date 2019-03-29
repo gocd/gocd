@@ -143,6 +143,26 @@ class DashboardGroupRepresenterTest {
         can_administer: false
       ])
     }
+
+    @Test
+    void 'renders pipelines in pipeline groups ordered by display-sort-order-weight'() {
+      def env = new GoDashboardEnvironment('env1', NoOne.INSTANCE)
+      def permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE)
+      env.addPipeline(dashboardPipeline('pipeline1', 'group1', permissions, 1000, 20))
+      env.addPipeline(dashboardPipeline('pipeline2', 'group1', permissions, 1000, -1))
+      env.addPipeline(dashboardPipeline('pipeline3', 'group1', permissions, 1000, 10))
+
+      def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+
+      def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, env, username) })
+
+      assertThatJson(actualJson).isEqualTo([
+        _links        : expectedLinks,
+        name          : 'env1',
+        pipelines     : ['pipeline2', 'pipeline3', 'pipeline1'],
+        can_administer: false
+      ])
+    }
   }
 
   static GoDashboardPipeline dashboardPipeline(pipeline_name, group_name = "group1", permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE), long timestamp = 1000, int displayOrderWeight = 0) {

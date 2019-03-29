@@ -26,6 +26,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
+import static org.apache.commons.lang3.StringUtils.contains;
+import static org.apache.commons.lang3.StringUtils.containsNone;
 
 @ConfigAttributeValue(fieldName = "url")
 public class UrlArgument extends CommandArgument implements SecretParamAware {
@@ -73,7 +75,11 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
 
     @Override
     public String forCommandLine() {
-        return secretParams.substitute(this.originalArgument());
+        if (this.isValid()) {
+            return secretParams.substitute(this.originalArgument());
+        }
+
+        throw new RuntimeException(String.format("Url %s is not valid url. Make sure that only password is specified as secret params.", forDisplay()));
     }
 
     protected String sanitizeUrl() {
@@ -153,11 +159,35 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
     }
 
     public boolean isValid() {
-        String url = this.sanitizeUrl();
-        if (this.sanitizeUrl().contains("@")) {
-            url = sanitizeUrl().split("@")[1];
+        if (!this.secretParams.hasSecretParams()) {
+            return true;
         }
 
-        return !SecretParams.parse(url).hasSecretParams();
+        if (containsNone(this.sanitizeUrl(), "@")) {
+            return false;
+        }
+
+        String[] parts = this.sanitizeUrl().split("@");
+        if (parts.length > 2) {
+            return false;
+        }
+
+        String restOfTheUrl = parts[1];
+        final boolean hasSecretParam = this.secretParams.stream().anyMatch(secretParams -> restOfTheUrl.contains(secretParams.asString()));
+        if (hasSecretParam) {
+            return false;
+        }
+
+        final UriComponents uriComponents = UriComponentsBuilder.fromUriString(this.secretParams.mask(this.sanitizeUrl())).build();
+        if (contains(uriComponents.getScheme(), SecretParams.MASKED_VALUE)) {
+            return false;
+        }
+
+        String maskedUserInfo = uriComponents.getUserInfo();
+        if (contains(maskedUserInfo, ":")) {
+            return !contains(maskedUserInfo.split(":")[0], SecretParams.MASKED_VALUE);
+        }
+
+        return true;
     }
 }

@@ -156,23 +156,23 @@ class HgMaterialConfigTest {
             hgMaterialConfig.setUrl("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
 
             assertThat(hgMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(hgMaterialConfig.errors().on("url")).isEqualTo("Only username and password can be specified as secret params");
+            assertThat(hgMaterialConfig.errors().on("url")).isEqualTo("Only password can be specified as secret params");
         }
 
         @Test
         void shouldFailIfSecretParamConfiguredWithSecretConfigIdWhichDoesNotExist() {
             final ValidationContext validationContext = mockValidationContextForSecretParams();
-            hgMaterialConfig.setUrl("https://{{SECRET:[secret_config_id_1][user]}}:{{SECRET:[secret_config_id_2][pass]}}@host/foo.git");
+            hgMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
 
             assertThat(hgMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(hgMaterialConfig.errors().on("url")).isEqualTo("Secret configs '[secret_config_id_1, secret_config_id_2]' does not exist");
+            assertThat(hgMaterialConfig.errors().on("url")).isEqualTo("Secret configs '[secret_config_id]' does not exist");
         }
 
         @Test
         void shouldNotFailIfSecretConfigWithIdPresentForConfiguredSecretParams() {
             final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file");
             final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-            hgMaterialConfig.setUrl("https://{{SECRET:[secret_config_id][username]}}:password@host/foo.git");
+            hgMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][username]}}@host/foo.git");
 
             assertThat(hgMaterialConfig.validateTree(validationContext)).isTrue();
             assertThat(hgMaterialConfig.errors().getAll()).isEmpty();

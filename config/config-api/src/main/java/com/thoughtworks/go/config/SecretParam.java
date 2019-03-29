@@ -19,6 +19,8 @@ package com.thoughtworks.go.config;
 import java.io.Serializable;
 import java.util.Objects;
 
+import static java.lang.String.format;
+
 public class SecretParam implements Serializable {
     private String secretConfigId;
     private String key;
@@ -64,5 +66,14 @@ public class SecretParam implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(secretConfigId, key);
+    }
+
+    @Override
+    public String toString() {
+        return asString();
+    }
+
+    public String asString() {
+        return format("{{SECRET:[%s][%s]}}", this.secretConfigId, this.key);
     }
 }

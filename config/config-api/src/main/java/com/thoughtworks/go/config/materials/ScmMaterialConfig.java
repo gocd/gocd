@@ -301,7 +301,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         }
 
         if (!url.isValid()) {
-            errors.add(URL, "Only username and password can be specified as secret params");
+            errors.add(URL, "Only password can be specified as secret params");
         }
 
         validateSecretParamsConfig(URL, url.getSecretParams(), validationContext);
@@ -328,7 +328,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
                 .collect(Collectors.toList());
 
         if (!missingSecretConfigs.isEmpty()) {
-            addError(key, String.format("Secret configs '%s' does not exist", missingSecretConfigs));
+            addError(key, String.format("Secret configs %s does not exist", String.join(", ", missingSecretConfigs)));
         }
     }
 }

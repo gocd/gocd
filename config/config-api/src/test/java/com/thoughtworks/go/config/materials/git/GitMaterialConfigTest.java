@@ -149,41 +149,41 @@ class GitMaterialConfigTest {
 
         @Test
         void shouldFailValidationIfMaterialURLHasSecretParamsConfiguredOtherThanForUsernamePassword() {
-            final ValidationContext validationContext = mock(ValidationContext.class);
-            final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs());
+            final ValidationContext validationContext = mockValidationContextForSecretParams();
 
             final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
 
             assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Only username and password can be specified as secret params");
+            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Only password can be specified as secret params");
         }
 
         @Test
         void shouldFailIfSecretParamConfiguredWithSecretConfigIdWhichIsNotExist() {
-            final ValidationContext validationContext = mock(ValidationContext.class);
-            final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs());
+            final ValidationContext validationContext = mockValidationContextForSecretParams();
 
-            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://{{SECRET:[secret_config_id_1][username]}}:{{SECRET:[secret_config_id_2][pass]}}@host/foo.git");
+            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
 
             assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Secret configs '[secret_config_id_1, secret_config_id_2]' does not exist");
+            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Secret configs '[secret_config_id]' does not exist");
         }
 
         @Test
         void shouldNotFailIfSecretConfigWithIdPresentForConfiguredSecretParams() {
-            final ValidationContext validationContext = mock(ValidationContext.class);
-            final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(new SecretConfig("secret_config_id", "cd.go.secret.file")));
+            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file");
+            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
 
-            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://{{SECRET:[secret_config_id][pass]}}:password@host/foo.git");
+            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
 
             assertThat(gitMaterialConfig.validateTree(validationContext)).isTrue();
             assertThat(gitMaterialConfig.errors().getAll()).isEmpty();
         }
+    }
+
+    private ValidationContext mockValidationContextForSecretParams(SecretConfig... secretConfigs) {
+        final ValidationContext validationContext = mock(ValidationContext.class);
+        final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(secretConfigs));
+        return validationContext;
     }
 }

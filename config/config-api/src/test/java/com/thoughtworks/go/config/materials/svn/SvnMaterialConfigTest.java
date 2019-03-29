@@ -22,9 +22,9 @@ import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +37,13 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class SvnMaterialConfigTest {
+    private SvnMaterialConfig svnMaterialConfig;
+
+    @BeforeEach
+    void setUp() {
+        svnMaterialConfig = new SvnMaterialConfig();
+    }
+
     @Test
     void shouldSetConfigAttributes() {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("", "", "", false);
@@ -119,7 +126,8 @@ class SvnMaterialConfigTest {
     class ValidateURL {
         @Test
         void shouldEnsureUrlIsNotBlank() {
-            SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("", false);
+            svnMaterialConfig.setUrl("");
+
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
             assertThat(svnMaterialConfig.errors().on(GitMaterialConfig.URL)).isEqualTo("URL cannot be blank");
@@ -127,9 +135,6 @@ class SvnMaterialConfigTest {
 
         @Test
         void shouldEnsureUrlIsNotNull() {
-            SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
-            svnMaterialConfig.setUrl(null);
-
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
             assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.URL)).isEqualTo("URL cannot be blank");
@@ -137,51 +142,46 @@ class SvnMaterialConfigTest {
 
         @Test
         void shouldEnsureMaterialNameIsValid() {
-            SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("/foo", "", "", false);
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.MATERIAL_NAME)).isNull();
 
             svnMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
             assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
         }
 
         @Test
         void shouldEnsureDestFilePathIsValid() {
-            SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("/foo", "", "", false);
             svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "../a"));
             svnMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
             assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
         }
 
         @Test
         void shouldFailValidationIfMaterialURLHasSecretParamsConfiguredOtherThanForUsernamePassword() {
             final ValidationContext validationContext = mockValidationContextForSecretParams();
-
-            final SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git",
-                    null);
+            svnMaterialConfig.setUrl("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
 
             assertThat(svnMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(svnMaterialConfig.errors().on("url")).isEqualTo("Only username and password can be specified as secret params");
+            assertThat(svnMaterialConfig.errors().on("url")).isEqualTo("Only password can be specified as secret params");
         }
 
         @Test
         void shouldFailIfSecretParamConfiguredWithSecretConfigIdWhichDoesNotExist() {
             final ValidationContext validationContext = mockValidationContextForSecretParams();
-
-
-            final SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig("https://{{SECRET:[secret_config_id_1][user]}}:{{SECRET:[secret_config_id_2][pass]}}@host/foo.git", null);
+            svnMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
 
             assertThat(svnMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(svnMaterialConfig.errors().on("url")).isEqualTo("Secret configs '[secret_config_id_1, secret_config_id_2]' does not exist");
+            assertThat(svnMaterialConfig.errors().on("url")).isEqualTo("Secret configs '[secret_config_id]' does not exist");
         }
 
         @Test
         void shouldNotFailIfSecretConfigWithIdPresentForConfiguredSecretParams() {
+            svnMaterialConfig.setUrl("https://bob:{{SECRET:[secret_config_id][username]}}@host/foo.git");
             final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file");
             final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-
-            final SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig("https://{{SECRET:[secret_config_id][username]}}:password@host/foo.git", null);
 
             assertThat(svnMaterialConfig.validateTree(validationContext)).isTrue();
             assertThat(svnMaterialConfig.errors().getAll()).isEmpty();
@@ -190,9 +190,13 @@ class SvnMaterialConfigTest {
 
     @Nested
     class ValidatePassword {
+        @BeforeEach
+        void setUp() {
+            svnMaterialConfig.setUrl("foo/bar");
+        }
+
         @Test
         void shouldFailIfEncryptedPasswordIsIncorrect() {
-            SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("foo/bar", "", "password", false);
             svnMaterialConfig.setEncryptedPassword("encryptedPassword");
 
             final boolean validationResult = svnMaterialConfig.validateTree(new ConfigSaveValidationContext(null));
@@ -203,7 +207,6 @@ class SvnMaterialConfigTest {
 
         @Test
         void shouldPassIfPasswordIsNotSpecifiedAsSecretParams() {
-            final SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig("url", null);
             svnMaterialConfig.setPassword("badger");
 
             assertThat(svnMaterialConfig.validateTree(null)).isTrue();
@@ -214,7 +217,6 @@ class SvnMaterialConfigTest {
         void shouldPassIfPasswordSpecifiedAsSecretParamIsValid() {
             final ValidationContext validationContext = mockValidationContextForSecretParams(new SecretConfig("secret_config_id", "cd.go.secret.file"));
 
-            final SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig("url", null);
             svnMaterialConfig.setPassword("{{SECRET:[secret_config_id][password]}}");
 
             assertThat(svnMaterialConfig.validateTree(validationContext)).isTrue();
@@ -225,7 +227,6 @@ class SvnMaterialConfigTest {
         void shouldFailIfSecretConfigForPasswordSpecifiedAsSecretParamDoesNotExist() {
             final ValidationContext validationContext = mockValidationContextForSecretParams();
 
-            final SvnMaterialConfig svnMaterialConfig = MaterialConfigsMother.svnMaterialConfig("url", null);
             svnMaterialConfig.setPassword("{{SECRET:[secret_config_id][password]}}");
 
             assertThat(svnMaterialConfig.validateTree(validationContext)).isFalse();

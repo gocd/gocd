@@ -24,10 +24,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 class UrlArgumentTest {
     private static final String URL_WITH_PASSWORD = "http://username:password@somehere";
-    private static final String URL_WITH_SECRET_PARAMS = "https://{{SECRET:[secret-config-id][username]}}:{{SECRET:[secret-config-id][password]}}@gocd.org/foo/bar.git";
+    private static final String URL_WITH_SECRET_PARAMS = "https://bob:{{SECRET:[secret-config-id][password]}}@gocd.org/foo/bar.git";
 
     private CommandArgument argument;
 
@@ -37,7 +38,7 @@ class UrlArgumentTest {
     }
 
     @Nested
-    class rawUrl {
+    class originalArgument {
         @Test
         void shouldReturnStringValue() {
             assertThat(argument.originalArgument()).isEqualTo(URL_WITH_PASSWORD);
@@ -83,7 +84,7 @@ class UrlArgumentTest {
         void shouldMaskSecretParamsInUrl() {
             final UrlArgument argument = new UrlArgument(URL_WITH_SECRET_PARAMS);
 
-            assertThat(argument.forDisplay()).isEqualTo("https://******:******@gocd.org/foo/bar.git");
+            assertThat(argument.forDisplay()).isEqualTo("https://bob:******@gocd.org/foo/bar.git");
         }
 
         @Test
@@ -127,7 +128,7 @@ class UrlArgumentTest {
         void shouldMaskSecretParamsInUrl() {
             final UrlArgument argument = new UrlArgument(URL_WITH_SECRET_PARAMS);
 
-            assertThat(argument.toString()).isEqualTo("https://******:******@gocd.org/foo/bar.git");
+            assertThat(argument.toString()).isEqualTo("https://bob:******@gocd.org/foo/bar.git");
         }
     }
 
@@ -196,14 +197,13 @@ class UrlArgumentTest {
 
         @Test
         void shouldSubstituteSecretParams() {
-            UrlArgument url = new UrlArgument("https://{{SECRET:[secret-config-id][username]}}:{{SECRET:[secret-config-id][password]}}@10.18.3.171:8080/foo/bar.git");
+            UrlArgument url = new UrlArgument(URL_WITH_SECRET_PARAMS);
 
-            url.getSecretParams().findFirst("username").ifPresent(secretParam -> secretParam.setValue("bob"));
             url.getSecretParams().findFirst("password").ifPresent(secretParam -> secretParam.setValue("badger"));
 
             final String actual = url.hostInfoForCommandline();
 
-            assertThat(actual).isEqualTo("https://bob:badger@10.18.3.171:8080");
+            assertThat(actual).isEqualTo("https://bob:badger@gocd.org");
         }
     }
 
@@ -228,9 +228,7 @@ class UrlArgumentTest {
     class isValid {
         @ParameterizedTest
         @ValueSource(strings = {
-                "https://{{SECRET:[secret-config-id][username]}}:{{SECRET:[secret-config-id][password]}}@foo/bar.git",
                 "https://username:{{SECRET:[secret-config-id][password]}}@foo/bar.git",
-                "https://{{SECRET:[secret-config-id][username]}}:password@foo/bar.git",
                 "https://{{SECRET:[secret-config-id][token]}}@foo/bar.git"
         })
         void shouldBeTrueIfUserInfoIsSpecifiedUsingSecretParams(String url) {
@@ -241,7 +239,12 @@ class UrlArgumentTest {
 
         @ParameterizedTest
         @ValueSource(strings = {
+                "https://{{SECRET:[secret-config-id][host]}}:80/foo/bar.git",
+                "{{SECRET:[secret-config-id][scheme]}}://hostname/foo/bar.git",
+                "{{SECRET:[secret-config-id][scheme]}}://username:{{SECRET:[secret-config-id][password]}}@hostname:80/foo/bar.git",
                 "https://username:pass@{{SECRET:[secret-config-id][host]}}:80/foo/bar.git",
+                "https://{{SECRET:[secret-config-id][username]}}:pass@hostname/foo/bar.git",
+                "https://abc_{{SECRET:[secret-config-id][username]}}:pass@hostname/foo/bar.git",
                 "https://username:pass@foo:{{SECRET:[secret-config-id][port]}}/foo/bar.git",
                 "https://username:pass@foo.com/{{SECRET:[secret-config-id][path]}}.git",
                 "https://username:pass@foo/bar.git?foo={{SECRET:[secret-config-id][some-secret]}}",
@@ -260,11 +263,8 @@ class UrlArgumentTest {
         void shouldReturnSecretParamsIfHasSecretParams() {
             final UrlArgument url = new UrlArgument(URL_WITH_SECRET_PARAMS);
 
-            assertThat(url.getSecretParams()).hasSize(2)
-                    .contains(
-                            new SecretParam("secret-config-id", "username"),
-                            new SecretParam("secret-config-id", "password")
-                    );
+            assertThat(url.getSecretParams()).hasSize(1)
+                    .contains(new SecretParam("secret-config-id", "password"));
         }
 
         @Test
@@ -288,10 +288,18 @@ class UrlArgumentTest {
         void shouldSubstituteSecretParamValue() {
             final UrlArgument url = new UrlArgument(URL_WITH_SECRET_PARAMS);
 
-            url.getSecretParams().findFirst("username").ifPresent(secretParam -> secretParam.setValue("bob"));
             url.getSecretParams().findFirst("password").ifPresent(secretParam -> secretParam.setValue("some-password"));
 
             assertThat(url.forCommandLine()).isEqualTo("https://bob:some-password@gocd.org/foo/bar.git");
+        }
+
+        @Test
+        void shouldBombIfInvalidUrl() {
+            final UrlArgument url = new UrlArgument("https://{{SECRET:[secret_config_id][key]}}:pass@gocd.org");
+
+            assertThatCode(url::forCommandLine)
+                    .isInstanceOf(RuntimeException.class)
+                    .hasMessage("Url https://******:******@gocd.org is not valid url. Make sure that only password is specified as secret params.");
         }
     }
 

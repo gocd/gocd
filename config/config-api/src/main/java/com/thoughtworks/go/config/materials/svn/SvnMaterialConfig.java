@@ -26,7 +26,9 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
 
 import javax.annotation.PostConstruct;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -103,15 +105,6 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         this.checkExternals = checkExternals;
         this.goCipher = goCipher;
         this.setPassword(password);
-    }
-
-    //for tests
-    protected SvnMaterialConfig(UrlArgument url, String password, String encryptedPassword, GoCipher goCipher, Filter filter, boolean invertFilter, String folder) {
-        super(new CaseInsensitiveString("test"), filter, invertFilter, folder, true, TYPE, new ConfigErrors());
-        this.url = url;
-        this.password = password;
-        this.encryptedPassword = encryptedPassword;
-        this.goCipher = goCipher;
     }
 
     public GoCipher getGoCipher() {
@@ -217,21 +210,47 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
-        if (url == null || isBlank(url.forDisplay())) {
-            errors().add(URL, "URL cannot be blank");
-        }
-        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)) {
-            addError("password", "You may only specify `password` or `encrypted_password`, not both!");
-            addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
-        }
+        validateMaterialUrl(validationContext);
+        validatePassword(validationContext);
+    }
+
+    private void validatePassword(ValidationContext validationContext) {
         if (isNotEmpty(this.encryptedPassword)) {
             try {
-                currentPassword();
+                validateSecretParamsConfig("encryptedPassword", SecretParams.parse(currentPassword()), validationContext);
             } catch (Exception e) {
                 addError("encryptedPassword", format("Encrypted password value for svn material with url '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
                         this.getUriForDisplay()));
             }
         }
+    }
+
+    private void validateSecretParamsConfig(String key, SecretParams secretParams, ValidationContext validationContext) {
+        if (!secretParams.hasSecretParams()) {
+            return;
+        }
+
+        final List<String> missingSecretConfigs = secretParams.stream()
+                .filter(secretParam -> validationContext.getCruiseConfig().getSecretConfigs().find(secretParam.getSecretConfigId()) == null)
+                .map(SecretParam::getSecretConfigId)
+                .collect(Collectors.toList());
+
+        if (!missingSecretConfigs.isEmpty()) {
+            addError(key, String.format("Secret configs '%s' does not exist", missingSecretConfigs));
+        }
+    }
+
+    private void validateMaterialUrl(ValidationContext validationContext) {
+        if (url == null || isBlank(url.forDisplay())) {
+            errors().add(URL, "URL cannot be blank");
+            return;
+        }
+
+        if (!url.isValid()) {
+            errors.add(URL, "Only username and password can be specified as secret params");
+        }
+
+        validateSecretParamsConfig(URL, url.getSecretParams(), validationContext);
     }
 
     @Override

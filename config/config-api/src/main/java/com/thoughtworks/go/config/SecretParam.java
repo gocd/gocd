@@ -54,8 +54,7 @@ public class SecretParam implements Serializable {
         return !resolved;
     }
 
-    //TODO: change the method name
-    public String template() {
+    public String placeholder() {
         return String.format("{{SECRET:[%s][%s]}}", secretConfigId, key);
     }
 

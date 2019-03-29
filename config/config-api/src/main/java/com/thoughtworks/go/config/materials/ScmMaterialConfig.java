@@ -21,10 +21,17 @@ import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.FilenameUtil;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 /**
  * @understands a source control repository and its configuration
@@ -287,5 +294,41 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         this.folder = folder;
     }
 
+    protected void validateMaterialUrl(UrlArgument url, ValidationContext validationContext) {
+        if (url == null || isBlank(url.forDisplay())) {
+            errors().add(URL, "URL cannot be blank");
+            return;
+        }
 
+        if (!url.isValid()) {
+            errors.add(URL, "Only username and password can be specified as secret params");
+        }
+
+        validateSecretParamsConfig(URL, url.getSecretParams(), validationContext);
+    }
+
+    protected void validatePassword(ValidationContext validationContext) {
+        if (isNotEmpty(getEncryptedPassword())) {
+            try {
+                validateSecretParamsConfig("encryptedPassword", SecretParams.parse(getPassword()), validationContext);
+            } catch (Exception e) {
+                addError("encryptedPassword", format("Encrypted password value for %s with url '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.", this.getType(), this.getUriForDisplay()));
+            }
+        }
+    }
+
+    protected void validateSecretParamsConfig(String key, SecretParams secretParams, ValidationContext validationContext) {
+        if (!secretParams.hasSecretParams()) {
+            return;
+        }
+
+        final List<String> missingSecretConfigs = secretParams.stream()
+                .filter(secretParam -> validationContext.getCruiseConfig().getSecretConfigs().find(secretParam.getSecretConfigId()) == null)
+                .map(SecretParam::getSecretConfigId)
+                .collect(Collectors.toList());
+
+        if (!missingSecretConfigs.isEmpty()) {
+            addError(key, String.format("Secret configs '%s' does not exist", missingSecretConfigs));
+        }
+    }
 }

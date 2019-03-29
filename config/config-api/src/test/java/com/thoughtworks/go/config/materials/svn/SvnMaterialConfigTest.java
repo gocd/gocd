@@ -198,7 +198,7 @@ class SvnMaterialConfigTest {
             final boolean validationResult = svnMaterialConfig.validateTree(new ConfigSaveValidationContext(null));
 
             assertThat(validationResult).isFalse();
-            assertThat(svnMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Encrypted password value for svn material with url 'foo/bar' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
+            assertThat(svnMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Encrypted password value for SvnMaterial with url 'foo/bar' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
         }
 
         @Test

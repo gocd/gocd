@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -342,7 +342,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
         allStages.add(new StageInstanceModel("stage1", "1", allJobs))
         def pipelineInstanceModel = new PipelineInstanceModel(pipelineName, 1, pipelineName, null, allStages)
         pipelineModel.addPipelineInstance(pipelineInstanceModel)
-        return new GoDashboardPipeline(pipelineModel, null, "group1", new TimeStampBasedCounter(testingClock), new FileConfigOrigin())
+        return new GoDashboardPipeline(pipelineModel, null, "group1", null, new TimeStampBasedCounter(testingClock), new FileConfigOrigin(), 0)
       }
     }
   }

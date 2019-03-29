@@ -36,6 +36,6 @@ public class GoDashboardPipelineMother {
 
     public static GoDashboardPipeline pipeline(String pipelineName, String groupName, Permissions permissions) {
         return new GoDashboardPipeline(new PipelineModel(pipelineName, false, false, notPaused()),
-                permissions, groupName, new TimeStampBasedCounter(new SystemTimeClock()), new FileConfigOrigin());
+                permissions, groupName, null, new TimeStampBasedCounter(new SystemTimeClock()), new FileConfigOrigin(), 0);
     }
 }

@@ -34,18 +34,16 @@ public class GoDashboardPipeline {
     private final TrackingTool trackingTool;
     private final long lastUpdatedTimeStamp;
     private ConfigOrigin origin;
+    private int displayOrderWeight;
 
-    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, TrackingTool trackingTool, Counter timeStampBasedCounter, ConfigOrigin origin) {
+    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, TrackingTool trackingTool, Counter timeStampBasedCounter, ConfigOrigin origin, int displayOrderWeight) {
         this.pipelineModel = pipelineModel;
         this.permissions = permissions;
         this.groupName = groupName;
         this.trackingTool = trackingTool;
         this.lastUpdatedTimeStamp = timeStampBasedCounter.getNext();
         this.origin = origin;
-    }
-
-    public GoDashboardPipeline(PipelineModel pipelineModel, Permissions permissions, String groupName, Counter timeStampBasedCounter, ConfigOrigin origin) {
-        this(pipelineModel, permissions, groupName, null, timeStampBasedCounter, origin);
+        this.displayOrderWeight = displayOrderWeight;
     }
 
     public String groupName() {
@@ -130,5 +128,9 @@ public class GoDashboardPipeline {
 
     public boolean isLocal() {
         return origin == null || origin.isLocal();
+    }
+
+    public Integer getdisplayOrderWeight() {
+        return displayOrderWeight;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     private CaseInsensitiveString templateName;
 
     private ConfigOrigin origin;
+    private int displayOrderWeight = -1;
 
     private boolean templateApplied;
 
@@ -1038,5 +1039,13 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     public String getOriginDisplayName() {
         return getOrigin() != null ? getOrigin().displayName() : new FileConfigOrigin().displayName();
+    }
+
+    public void setDisplayOrderWeight(int displayOrderWeight) {
+        this.displayOrderWeight = displayOrderWeight;
+    }
+
+    public int getDisplayOrderWeight() {
+        return displayOrderWeight;
     }
 }

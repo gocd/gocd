@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -54,11 +55,17 @@ public class ReplaceElasticAgentInformationCommand implements EntityConfigUpdate
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         String pluginId = pluginDescriptor.id();
 
-        Map<String, Map<String, Object>> pluginSettings = new Configuration(pluginService.getPluginSettings(pluginId).getPluginSettingsProperties()).getPropertyMetadataAndValuesAsMap();
+        Configuration configurationProperties = new Configuration();
+        PluginSettings pluginSettings = pluginService.getPluginSettings(pluginId);
+        if (pluginSettings != null) {
+            configurationProperties.addAll(pluginSettings.getPluginSettingsProperties());
+        }
+
+        Map<String, Map<String, Object>> pluginSettingsConfiguration = configurationProperties.getPropertyMetadataAndValuesAsMap();
         List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId);
         List<ElasticProfile> elasticAgentProfiles = elasticProfileService.getPluginProfiles().findByPluginId(pluginId);
 
-        ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
+        ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettingsConfiguration, clusterProfiles, elasticAgentProfiles);
         migratedElasticAgentInformation = elasticAgentExtension.migrateConfig(pluginId, elasticAgentInformation);
 
         List<ClusterProfile> migratedClusterProfiles = migratedElasticAgentInformation.getClusterProfiles();

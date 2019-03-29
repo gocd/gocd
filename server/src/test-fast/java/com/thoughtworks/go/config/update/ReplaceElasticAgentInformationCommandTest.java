@@ -91,6 +91,15 @@ class ReplaceElasticAgentInformationCommandTest {
     }
 
     @Test
+    void shouldMakeCallToElasticAgentExtensionToMigrateElasticAgentRelatedConfig_WhenNoPluginSettingsAreConfigured() throws Exception {
+        when(pluginService.getPluginSettings(pluginId)).thenReturn(null);
+
+        replaceElasticAgentInformationCommand.update(basicCruiseConfig);
+
+        verify(elasticAgentExtension).migrateConfig(pluginId, new ElasticAgentInformation(Collections.emptyMap(), clusterProfiles, elasticProfiles));
+    }
+
+    @Test
     void shouldUpdateGoCDConfigWithPluginReturnedMigratedConfig() throws Exception {
         ElasticConfig elasticConfig = new ElasticConfig();
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);

@@ -24,15 +24,15 @@ import java.util.Map;
 import static com.bazaarvoice.jolt.utils.JoltUtils.remove;
 import static com.bazaarvoice.jolt.utils.JoltUtils.store;
 
-public class ConfigRepoDocumentMother {
-    public String versionOneWithLockingSetTo(boolean enablePipelineLockingValue) {
+class ConfigRepoDocumentMother {
+    String versionOneWithLockingSetTo(boolean enablePipelineLockingValue) {
         Map<String, Object> map = getJSONFor("/v1_simple.json");
         store(map, "1", "target_version");
         store(map, enablePipelineLockingValue, "pipelines", 0, "enable_pipeline_locking");
         return JsonUtils.toJsonString(map);
     }
 
-    public String versionOneComprehensiveWithNoLocking() {
+    String versionOneComprehensiveWithNoLocking() {
         Map<String, Object> map = getJSONFor("/v1_comprehensive.json");
         store(map, "1", "target_version");
         remove(map, "pipelines", 0, "enable_pipeline_locking");
@@ -49,27 +49,39 @@ public class ConfigRepoDocumentMother {
         }
     }
 
-    public String versionTwoComprehensive() {
+    String versionTwoComprehensive() {
         return JsonUtils.toJsonString(getJSONFor("/v2_comprehensive.json"));
     }
 
-    public String v2WithFetchTask() {
+    String v2WithFetchTask() {
         return JsonUtils.toJsonString(getJSONFor("/v2_with_fetch_tasks.json"));
     }
 
-    public String v2WithFetchExternalArtifactTask() {
+    String v2WithFetchExternalArtifactTask() {
         return JsonUtils.toJsonString(getJSONFor("/v2_with_fetch_external_artifact_task.json"));
     }
 
-    public String v3Comprehensive() {
+    String v3Comprehensive() {
         return JsonUtils.toJsonString(getJSONFor("/v3_comprehensive.json"));
     }
 
-    public String v3WithFetchTask() {
+    String v3WithFetchTask() {
         return JsonUtils.toJsonString(getJSONFor("/v3_with_fetch_tasks.json"));
     }
 
-    public String v3WithFetchExternalArtifactTask() {
+    String v3WithFetchExternalArtifactTask() {
         return JsonUtils.toJsonString(getJSONFor("/v3_with_fetch_external_artifact_task.json"));
+    }
+
+    String v3ComprehensiveWithDisplayOrderWeightsOf10AndNull() {
+        return JsonUtils.toJsonString(getJSONFor("/v3_comprehensive_with_display_order_weight_which_was_introduced_in_v4_for_one_pipeline.json"));
+    }
+
+    String v4ComprehensiveWithDisplayOrderWeightOfMinusOneForBothPipelines() {
+        return JsonUtils.toJsonString(getJSONFor("/v4_comprehensive_with_display_order_weight_of_minus_one_for_both_pipelines.json"));
+    }
+
+    String v4ComprehensiveWithDisplayOrderWeightsOf10AndMinusOne() {
+        return JsonUtils.toJsonString(getJSONFor("/v4_comprehensive_with_display_order_weights_of_10_and_minus_one.json"));
     }
 }

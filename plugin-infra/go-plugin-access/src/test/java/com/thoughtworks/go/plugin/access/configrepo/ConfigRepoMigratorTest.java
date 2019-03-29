@@ -16,11 +16,11 @@
 
 package com.thoughtworks.go.plugin.access.configrepo;
 
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert;
 import org.junit.Before;
 import org.junit.Test;
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigRepoMigratorTest {
     private ConfigRepoMigrator migrator;
@@ -106,5 +106,27 @@ public class ConfigRepoMigratorTest {
         String transformedJSON = migrator.migrate(oldJSON, 3);
 
         assertThatJson(newJson).isEqualTo(transformedJSON);
+    }
+
+    @Test
+    public void migrateV3ToV4_shouldAddADefaultDisplayOrderWeightToPipelines() {
+        ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+        String oldJSON = documentMother.v3Comprehensive();
+        String newJSON = documentMother.v4ComprehensiveWithDisplayOrderWeightOfMinusOneForBothPipelines();
+
+        String transformedJSON = migrator.migrate(oldJSON, 4);
+
+        assertThatJson(newJSON).isEqualTo(transformedJSON);
+    }
+
+    @Test
+    public void migrateV3ToV4_shouldDefaultDisplayOrderWeightsToMinusOneOnlyForPipelinesWithoutIt() {
+        ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+        String oldJSON = documentMother.v3ComprehensiveWithDisplayOrderWeightsOf10AndNull();
+        String newJSON = documentMother.v4ComprehensiveWithDisplayOrderWeightsOf10AndMinusOne();
+
+        String transformedJSON = migrator.migrate(oldJSON, 4);
+
+        assertThatJson(newJSON).isEqualTo(transformedJSON);
     }
 }

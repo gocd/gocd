@@ -1,0 +1,94 @@
+{
+  "target_version": "4",
+  "pipelines": [
+    {
+      "name": "firstpipe",
+      "environment_variables": [
+        {
+          "name": "env1",
+          "value": "value1"
+        }
+      ],
+      "lock_behavior": "lockOnFailure",
+      "group": "configrepo-example",
+      "display_order_weight": 10,
+      "materials": [
+        {
+          "url": "https://github.com/tomzo/gocd-json-config-example.git",
+          "type": "git"
+        }
+      ],
+      "stages": [
+        {
+          "name": "build",
+          "fetch_materials": true,
+          "never_cleanup_artifacts": false,
+          "clean_working_directory": false,
+          "environment_variables": [],
+          "jobs": [
+            {
+              "name": "build",
+              "environment_variables": [],
+              "tabs": [],
+              "resources": [],
+              "artifacts": [],
+              "properties": [],
+              "run_instance_count": null,
+              "timeout": 0,
+              "tasks": [
+                {
+                  "type": "rake"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "secondpipeline",
+      "environment_variables": [
+        {
+          "name": "env2",
+          "value": "value2"
+        }
+      ],
+      "lock_behavior": "none",
+      "group": "configrepo-example-2",
+      "display_order_weight": -1,
+      "materials": [
+        {
+          "url": "https://github.com/tomzo/gocd-json-config-example-2.git",
+          "type": "git"
+        }
+      ],
+      "stages": [
+        {
+          "name": "build-2",
+          "fetch_materials": true,
+          "never_cleanup_artifacts": false,
+          "clean_working_directory": false,
+          "environment_variables": [],
+          "jobs": [
+            {
+              "name": "build-2",
+              "environment_variables": [],
+              "tabs": [],
+              "resources": [],
+              "artifacts": [],
+              "properties": [],
+              "run_instance_count": null,
+              "timeout": 0,
+              "tasks": [
+                {
+                  "type": "rake"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

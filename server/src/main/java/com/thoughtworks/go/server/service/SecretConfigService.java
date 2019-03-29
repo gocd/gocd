@@ -62,13 +62,14 @@ public class SecretConfigService extends NewPluginProfilesService<SecretConfig> 
     }
 
     public void delete(Username currentUser, SecretConfig secretConfig, LocalizedOperationResult result) {
-        update(currentUser, secretConfig, result, new SecretConfigDeleteCommand(goConfigService, secretConfig, secretsExtension, currentUser, result));
+        SecretConfigDeleteCommand command = new SecretConfigDeleteCommand(goConfigService, secretConfig, getUsageInformation(secretConfig.getId()), secretsExtension, currentUser, result);
+        update(currentUser, secretConfig, result, command);
         if (result.isSuccessful()) {
             result.setMessage(EntityType.SecretConfig.deleteSuccessful(secretConfig.getId()));
         }
     }
 
-    public Collection<SecretConfigUsage> getUsageInformation(String configId) {
+    public Set<SecretConfigUsage> getUsageInformation(String configId) {
         if (findProfile(configId) == null) {
             throw new RecordNotFoundException(EntityType.SecretConfig, configId);
         }

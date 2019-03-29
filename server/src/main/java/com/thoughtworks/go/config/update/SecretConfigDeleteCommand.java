@@ -18,14 +18,26 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.SecretConfig;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.domain.SecretConfigUsage;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.cannotDeleteResourceBecauseOfDependentPipelines;
 
 public class SecretConfigDeleteCommand extends SecretConfigCommand {
-    public SecretConfigDeleteCommand(GoConfigService goConfigService, SecretConfig secretConfig, SecretsExtension extension, Username currentUser, LocalizedOperationResult result) {
+    private final Set<SecretConfigUsage> usageInformation;
+
+    public SecretConfigDeleteCommand(GoConfigService goConfigService, SecretConfig secretConfig, Set<SecretConfigUsage> usageInformation, SecretsExtension extension, Username currentUser, LocalizedOperationResult result) {
         super(goConfigService, secretConfig, extension, currentUser, result);
+        this.usageInformation = usageInformation;
     }
 
     @Override
@@ -42,7 +54,14 @@ public class SecretConfigDeleteCommand extends SecretConfigCommand {
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
-        return true; //check for usages?
+        if (usageInformation != null && !usageInformation.isEmpty()) {
+            List<String> pipelineNames = usageInformation.stream().map(usage -> usage.getPipelineName()).collect(Collectors.toList());
+            String message = cannotDeleteResourceBecauseOfDependentPipelines(getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), pipelineNames);
+            result.unprocessableEntity(message);
+            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), StringUtils.join(pipelineNames, ", ")));
+        }
+
+        return true;
     }
 
     @Override

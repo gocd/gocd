@@ -30,6 +30,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
+import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.domain.PluginSettings;
@@ -40,7 +41,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 @Component
@@ -234,6 +237,19 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     public String md5ForEntity(PipelineConfigs pipelineConfigs) {
         String cacheKey = cacheKey(pipelineConfigs, pipelineConfigs.getGroup());
         return getDomainEntityMd5FromCache(pipelineConfigs, cacheKey);
+    }
+
+    public String md5ForEntity(CombinedPluginInfo pluginInfo) {
+        String cacheKey = cacheKey(pluginInfo, String.format("plugin_info_%s", pluginInfo.getDescriptor().id()));
+        return getFromCache(cacheKey, () -> String.valueOf(Objects.hash(pluginInfo)));
+    }
+
+    public String md5ForEntity(Collection<CombinedPluginInfo> pluginInfos) {
+        List<String> md5s = new ArrayList<>();
+        for(CombinedPluginInfo pluginInfo: pluginInfos) {
+            md5s.add(md5ForEntity(pluginInfo));
+        }
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
     }
 
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {

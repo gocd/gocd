@@ -27,7 +27,7 @@ public class PluginStatus {
     public enum State {
         ACTIVE,
         DISABLED,
-        INVALID;
+        INVALID
     }
 
     protected PluginStatus(State state) {

@@ -22,6 +22,7 @@ import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
 import com.thoughtworks.go.plugin.access.common.settings.PluginSettingsJsonMessageHandler1_0;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
+import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentExtensionV4;
 import com.thoughtworks.go.plugin.access.elastic.v5.ElasticAgentExtensionV5;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
@@ -118,5 +119,9 @@ public class ElasticAgentExtension extends AbstractExtension {
     protected VersionedElasticAgentExtension getVersionedElasticAgentExtension(String pluginId) {
         final String resolvedExtensionVersion = pluginManager.resolveExtensionVersion(pluginId, ELASTIC_AGENT_EXTENSION, goSupportedVersions());
         return elasticAgentExtensionMap.get(resolvedExtensionVersion);
+    }
+
+    public ElasticAgentInformation migrateConfig(String pluginId, ElasticAgentInformation elasticAgentInformation) {
+        return getVersionedElasticAgentExtension(pluginId).migrateConfig(pluginId, elasticAgentInformation);
     }
 }

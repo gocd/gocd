@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.elastic.VersionedElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
+import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -176,5 +177,10 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
                 return elasticAgentExtensionConverterV4.getJobCompletionRequestBody(elasticAgentId, jobIdentifier);
             }
         });
+    }
+
+    @Override
+    public ElasticAgentInformation migrateConfig(String pluginId, ElasticAgentInformation elasticAgentInformation) {
+        return elasticAgentInformation;
     }
 }

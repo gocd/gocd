@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
+import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.access.elastic.v5.ElasticAgentExtensionV5;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -340,6 +341,23 @@ public class ElasticAgentExtensionV5Test {
                 "}";
 
         assertExtensionRequest("5.0", REQUEST_AGENT_STATUS_REPORT, requestBody);
+    }
+
+    @Test
+    public void shouldMigrateElasticAgentInformation() {
+        String responseBody = "{" +
+                "    \"plugin_settings\":{}," +
+                "    \"cluster_profiles\":[]," +
+                "    \"elastic_agent_profiles\":[]" +
+                "}\n";
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+
+        ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
+        extensionV5.migrateConfig(PLUGIN_ID, elasticAgentInformation);
+
+        final String expectedRequestBody = responseBody;
+
+        assertExtensionRequest("5.0", REQUEST_MIGRATE_CONFIGURATION, expectedRequestBody);
     }
 
     @Test

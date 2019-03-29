@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.initializers;
 
+import com.thoughtworks.go.plugin.infra.ElasticAgentInformationMigrator;
 import com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -47,6 +48,7 @@ public class PluginsInitializerTest {
     private PluginsInitializer pluginsInitializer;
     private PluginManager pluginManager;
     private PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator;
+    private ElasticAgentInformationMigrator elasticAgentInformationMigrator;
 
     @Before
     public void setUp() throws Exception {
@@ -55,7 +57,8 @@ public class PluginsInitializerTest {
         when(systemEnvironment.get(SystemEnvironment.PLUGIN_GO_PROVIDED_PATH)).thenReturn(goPluginsDir.getAbsolutePath());
         pluginManager = mock(PluginManager.class);
         pluginExtensionsAndVersionValidator = mock(PluginExtensionsAndVersionValidator.class);
-        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil(), pluginExtensionsAndVersionValidator) {
+        elasticAgentInformationMigrator = mock(ElasticAgentInformationMigrator.class);
+        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil(), pluginExtensionsAndVersionValidator, elasticAgentInformationMigrator) {
             @Override
             public void startDaemon() {
 
@@ -76,7 +79,7 @@ public class PluginsInitializerTest {
     @Test
     public void shouldUnzipPluginsAndRegisterZipUpdaterBeforeStartingPluginsFramework() throws IOException {
         ZipUtil zipUtil = mock(ZipUtil.class);
-        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, zipUtil, pluginExtensionsAndVersionValidator) {
+        pluginsInitializer = new PluginsInitializer(pluginManager, systemEnvironment, zipUtil, pluginExtensionsAndVersionValidator, elasticAgentInformationMigrator) {
             @Override
             public void startDaemon() {
 
@@ -144,5 +147,13 @@ public class PluginsInitializerTest {
             FileUtils.deleteQuietly(pluginsBundles);
             FileUtils.deleteQuietly(pluginsNew);
         }
+    }
+
+    @Test
+    public void shouldSetElasticAgentInformationMigratorOnPluginManager() {
+        reset(pluginManager);
+        new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil(), pluginExtensionsAndVersionValidator, elasticAgentInformationMigrator);
+
+        verify(pluginManager, times(1)).setElasticAgentInformationMigrator(elasticAgentInformationMigrator);
     }
 }

@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
 import com.thoughtworks.go.plugin.access.common.models.PluginProfileMetadataKeys;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
+import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -35,6 +36,7 @@ import java.util.Map;
 
 class ElasticAgentExtensionConverterV5 {
     private static final Gson GSON = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    private ElasticAgentInformationConverterV5 elasticAgentInformationConverterV5 = new ElasticAgentInformationConverterV5();
     private CapabilitiesConverterV5 capabilitiesConverterV5 = new CapabilitiesConverterV5();
     private AgentMetadataConverterV5 agentMetadataConverterV5 = new AgentMetadataConverterV5();
 
@@ -116,6 +118,11 @@ class ElasticAgentExtensionConverterV5 {
         return capabilitiesConverterV5.fromDTO(capabilitiesDTO);
     }
 
+    public ElasticAgentInformation getElasticAgentInformationFromResponseBody(String responseBody) {
+        final ElasticAgentInformationDTO elasticAgentInformationDTO = GSON.fromJson(responseBody, ElasticAgentInformationDTO.class);
+        return elasticAgentInformationConverterV5.fromDTO(elasticAgentInformationDTO);
+    }
+
     private JsonObject mapToJsonObject(Map<String, String> configuration) {
         final JsonObject properties = new JsonObject();
         for (Map.Entry<String, String> entry : configuration.entrySet()) {
@@ -161,6 +168,10 @@ class ElasticAgentExtensionConverterV5 {
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("all_cluster_profile_properties", mapToJsonArray(clusterProfileConfigurations));
         return GSON.toJson(jsonObject);
+    }
+
+    public ElasticAgentInformationDTO getElasticAgentInformationDTO(ElasticAgentInformation elasticAgentInformation) {
+        return elasticAgentInformationConverterV5.toDTO(elasticAgentInformation);
     }
 }
 

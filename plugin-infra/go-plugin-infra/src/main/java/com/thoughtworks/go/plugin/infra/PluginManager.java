@@ -44,4 +44,6 @@ public interface PluginManager {
     String resolveExtensionVersion(String pluginId, String extensionType, List<String> goSupportedExtensionVersions);
 
     List<String> getRequiredExtensionVersionsByPlugin(String pluginId, String extensionType);
+
+    void setElasticAgentInformationMigrator(ElasticAgentInformationMigrator elasticAgentInformationMigrator);
 }

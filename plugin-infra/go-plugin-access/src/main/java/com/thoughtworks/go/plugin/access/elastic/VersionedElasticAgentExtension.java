@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.elastic;
 
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
+import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -53,4 +54,6 @@ public interface VersionedElasticAgentExtension {
     String getAgentStatusReport(String pluginId, JobIdentifier identifier, String elasticAgentId);
 
     void jobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier, Map<String, String> elasticProfileConfiguration, Map<String, String> clusterProfileConfiguration);
+
+    ElasticAgentInformation migrateConfig(String pluginId, ElasticAgentInformation elasticAgentInformation);
 }

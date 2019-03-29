@@ -54,6 +54,11 @@ public class SecretParam implements Serializable {
         return !resolved;
     }
 
+    //TODO: change the method name
+    public String template() {
+        return String.format("{{SECRET:[%s][%s]}}", secretConfigId, key);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

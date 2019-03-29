@@ -85,10 +85,10 @@ public abstract class NewPluginProfilesService<M extends NewPluginProfile> {
         }
     }
 
-    protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, NewPluginProfileCommand command) {
+    protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, NewPluginProfileCommand cmd) {
         try {
-            validatePluginProperties(command, pluginProfile);
-            goConfigService.updateConfig(command, currentUser);
+            validatePluginProperties(cmd, pluginProfile);
+            goConfigService.updateConfig(cmd, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {
                 result.unprocessableEntity(entityConfigValidationFailed(pluginProfile.getClass().getAnnotation(ConfigTag.class).value(), pluginProfile.getId(), e.getMessage()));

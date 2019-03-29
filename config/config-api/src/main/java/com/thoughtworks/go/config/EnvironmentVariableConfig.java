@@ -349,11 +349,11 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
 
     @Override
     public boolean hasSecretParams() {
-        return false;
+        return !SecretParams.parse(getValue()).isEmpty();
     }
 
     @Override
     public SecretParams getSecretParams() {
-        return null;
+        return SecretParams.parse(getValue());
     }
 }

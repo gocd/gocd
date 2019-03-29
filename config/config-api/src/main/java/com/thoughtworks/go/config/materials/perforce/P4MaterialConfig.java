@@ -31,8 +31,6 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "p4", label = "Perforce")
 public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordEncrypter, PasswordAwareMaterial {
@@ -233,18 +231,8 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         if (StringUtils.isBlank(getServerAndPort())) {
             errors.add(SERVER_AND_PORT, "P4 port cannot be empty.");
         }
-        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)) {
-            addError("password", "You may only specify `password` or `encrypted_password`, not both!");
-            addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
-        }
-        if (isNotEmpty(this.encryptedPassword)) {
-            try {
-                currentPassword();
-            } catch (Exception e) {
-                addError("encryptedPassword", format("Encrypted password value for P4 material with serverAndPort '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
-                        this.getServerAndPort()));
-            }
-        }
+
+        validatePassword(validationContext);
     }
 
     @Override

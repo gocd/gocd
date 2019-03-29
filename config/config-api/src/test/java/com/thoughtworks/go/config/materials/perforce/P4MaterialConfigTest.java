@@ -16,8 +16,7 @@
 
 package com.thoughtworks.go.config.materials.perforce;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
@@ -25,19 +24,27 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class P4MaterialConfigTest {
+class P4MaterialConfigTest {
+    private P4MaterialConfig p4MaterialConfig;
+
+    @BeforeEach
+    void setUp() {
+        p4MaterialConfig = new P4MaterialConfig("/foo/bar", "some-view");
+    }
 
     @Test
-    public void shouldSetConfigAttributes() {
+    void shouldSetConfigAttributes() {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("", "");
 
         Map<String, String> map = new HashMap<>();
@@ -53,23 +60,23 @@ public class P4MaterialConfigTest {
 
         p4MaterialConfig.setConfigAttributes(map);
 
-        assertThat(p4MaterialConfig.getServerAndPort(), is("serverAndPort"));
-        assertThat(p4MaterialConfig.getUserName(), is("username"));
-        assertThat(p4MaterialConfig.getView(), is("some-view"));
-        assertThat(p4MaterialConfig.getUseTickets(), is(true));
-        assertThat(p4MaterialConfig.getFolder(), is("folder"));
-        assertThat(p4MaterialConfig.getName(), is(new CaseInsensitiveString("material-name")));
-        assertThat(p4MaterialConfig.isAutoUpdate(), is(false));
-        assertThat(p4MaterialConfig.filter(), is(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help"))));
+        assertThat(p4MaterialConfig.getServerAndPort()).isEqualTo("serverAndPort");
+        assertThat(p4MaterialConfig.getUserName()).isEqualTo("username");
+        assertThat(p4MaterialConfig.getView()).isEqualTo("some-view");
+        assertThat(p4MaterialConfig.getUseTickets()).isTrue();
+        assertThat(p4MaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(p4MaterialConfig.getName()).isEqualTo(new CaseInsensitiveString("material-name"));
+        assertThat(p4MaterialConfig.isAutoUpdate()).isFalse();
+        assertThat(p4MaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help")));
     }
 
     @Test
-    public void validate_shouldEnsureThatViewIsNotBlank() {
+    void validate_shouldEnsureThatViewIsNotBlank() {
         assertError("example.com:1233", "", P4MaterialConfig.VIEW, "P4 view cannot be empty.");
     }
 
     @Test
-    public void shouldNotDoAnyValidationOnP4PortExceptToEnsureThatItIsNotEmpty() throws Exception {
+    void shouldNotDoAnyValidationOnP4PortExceptToEnsureThatItIsNotEmpty() throws Exception {
         assertError("", "view", P4MaterialConfig.SERVER_AND_PORT, "P4 port cannot be empty.");
         assertError(" ", "view", P4MaterialConfig.SERVER_AND_PORT, "P4 port cannot be empty.");
 
@@ -84,80 +91,112 @@ public class P4MaterialConfigTest {
     }
 
     @Test
-    public void shouldReturnIfAttributeMapIsNull() {
+    void shouldReturnIfAttributeMapIsNull() {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("", "");
         p4MaterialConfig.setConfigAttributes(null);
-        assertThat(p4MaterialConfig, is(new P4MaterialConfig("", "")));
+        assertThat(p4MaterialConfig).isEqualTo(new P4MaterialConfig("", ""));
     }
 
     @Test
-    public void setConfigAttributes_shouldUpdatePasswordWhenPasswordChangedBooleanChanged() throws Exception {
-        P4MaterialConfig materialConfig = new P4MaterialConfig("","");
+    void setConfigAttributes_shouldUpdatePasswordWhenPasswordChangedBooleanChanged() throws Exception {
+        P4MaterialConfig materialConfig = new P4MaterialConfig("", "");
         materialConfig.setPassword("notSecret");
         Map<String, String> map = new HashMap<>();
         map.put(P4MaterialConfig.PASSWORD, "secret");
         map.put(P4MaterialConfig.PASSWORD_CHANGED, "1");
 
         materialConfig.setConfigAttributes(map);
-        assertThat(ReflectionUtil.getField(materialConfig, "password"), is(nullValue()));
-        assertThat(materialConfig.getPassword(), is("secret"));
-        assertThat(materialConfig.getEncryptedPassword(), is(new GoCipher().encrypt("secret")));
+        assertThat(ReflectionUtil.getField(materialConfig, "password")).isNull();
+        assertThat(materialConfig.getPassword()).isEqualTo("secret");
+        assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
         //Dont change
         map.put(SvnMaterialConfig.PASSWORD, "Hehehe");
         map.put(SvnMaterialConfig.PASSWORD_CHANGED, "0");
         materialConfig.setConfigAttributes(map);
 
-        assertThat(ReflectionUtil.getField(materialConfig, "password"), is(nullValue()));
-        assertThat(materialConfig.getPassword(), is("secret"));
-        assertThat(materialConfig.getEncryptedPassword(), is(new GoCipher().encrypt("secret")));
+        assertThat(ReflectionUtil.getField(materialConfig, "password")).isNull();
+        assertThat(materialConfig.getPassword()).isEqualTo("secret");
+        assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
 
         //Dont change
         map.put(SvnMaterialConfig.PASSWORD, "");
         map.put(SvnMaterialConfig.PASSWORD_CHANGED, "1");
         materialConfig.setConfigAttributes(map);
 
-        assertThat(materialConfig.getPassword(), is(nullValue()));
-        assertThat(materialConfig.getEncryptedPassword(), is(nullValue()));
+        assertThat(materialConfig.getPassword()).isNull();
+        assertThat(materialConfig.getEncryptedPassword()).isNull();
     }
 
     @Test
-    public void shouldNotSetUseTicketsIfNotInConfigAttributesMap() {
+    void shouldNotSetUseTicketsIfNotInConfigAttributesMap() {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("", "");
 
         HashMap<String, String> map = new HashMap<>();
         map.put(P4MaterialConfig.USE_TICKETS, "true");
         p4MaterialConfig.setConfigAttributes(map);
-        assertThat(p4MaterialConfig.getUseTickets(), is(true));
+        assertThat(p4MaterialConfig.getUseTickets()).isTrue();
 
         p4MaterialConfig.setConfigAttributes(new HashMap());
-        assertThat(p4MaterialConfig.getUseTickets(), is(false));
+        assertThat(p4MaterialConfig.getUseTickets()).isFalse();
     }
 
-    @Test
-    public void shouldThrowErrorsIfBothPasswordAndEncryptedPasswordAreProvided() {
-        P4MaterialConfig materialConfig = new P4MaterialConfig("foo/bar, 80", "password", "encryptedPassword", new GoCipher());
-        materialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(materialConfig.errors().on("password"), is("You may only specify `password` or `encrypted_password`, not both!"));
-        assertThat(materialConfig.errors().on("encryptedPassword"), is("You may only specify `password` or `encrypted_password`, not both!"));
+    @Nested
+    class ValidatePassword {
+        @Test
+        void shouldFailIfEncryptedPasswordIsIncorrect() {
+            p4MaterialConfig.setEncryptedPassword("encryptedPassword");
+
+            final boolean validationResult = p4MaterialConfig.validateTree(new ConfigSaveValidationContext(null));
+
+            assertThat(validationResult).isFalse();
+            assertThat(p4MaterialConfig.errors().on("encryptedPassword")).isEqualTo("Encrypted password value for P4Material with url '/foo/bar' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
+        }
+
+        @Test
+        void shouldPassIfPasswordIsNotSpecifiedAsSecretParams() {
+            p4MaterialConfig.setPassword("badger");
+
+            assertThat(p4MaterialConfig.validateTree(null)).isTrue();
+            assertThat(p4MaterialConfig.errors().getAll()).isEmpty();
+        }
+
+        @Test
+        void shouldPassIfPasswordSpecifiedAsSecretParamIsValid() {
+            final ValidationContext validationContext = mockValidationContextForSecretParams(new SecretConfig("secret_config_id", "cd.go.secret.file"));
+            p4MaterialConfig.setPassword("{{SECRET:[secret_config_id][password]}}");
+
+            assertThat(p4MaterialConfig.validateTree(validationContext)).isTrue();
+            assertThat(p4MaterialConfig.errors().getAll()).isEmpty();
+        }
+
+        @Test
+        void shouldFailIfSecretConfigForPasswordSpecifiedAsSecretParamDoesNotExist() {
+            final ValidationContext validationContext = mockValidationContextForSecretParams();
+            p4MaterialConfig.setPassword("{{SECRET:[secret_config_id][password]}}");
+
+            assertThat(p4MaterialConfig.validateTree(validationContext)).isFalse();
+            assertThat(p4MaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret configs '[secret_config_id]' does not exist");
+        }
     }
 
-    @Test
-    public void shouldValidateWhetherTheEncryptedPasswordIsCorrect() {
-        P4MaterialConfig materialConfig = new P4MaterialConfig("foo/bar, 80", "", "encryptedPassword", new GoCipher());
-        materialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(materialConfig.errors().on("encryptedPassword"), is("Encrypted password value for P4 material with serverAndPort 'foo/bar, 80' is invalid. This usually happens when the cipher text is modified to have an invalid value."));
+    private ValidationContext mockValidationContextForSecretParams(SecretConfig... secretConfigs) {
+        final ValidationContext validationContext = mock(ValidationContext.class);
+        final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(secretConfigs));
+        return validationContext;
     }
 
     private void assertNoError(String port, String view, String expectedKeyForError) {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig(port, view);
         p4MaterialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(p4MaterialConfig.errors().on(expectedKeyForError), is(nullValue()));
+        assertThat(p4MaterialConfig.errors().on(expectedKeyForError)).isNull();
     }
 
     private void assertError(String port, String view, String expectedKeyForError, String expectedErrorMessage) {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig(port, view);
         p4MaterialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(p4MaterialConfig.errors().on(expectedKeyForError), is(expectedErrorMessage));
+        assertThat(p4MaterialConfig.errors().on(expectedKeyForError)).isEqualTo(expectedErrorMessage);
     }
 }

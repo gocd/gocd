@@ -72,6 +72,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new EnvironmentConfigListener());
         goConfigService.register(new PackageRepositoryChangeListener());
         goConfigService.register(new ElasticAgentProfileConfigListener());
+        goConfigService.register(new SecretConfigListener());
         goConfigService.register(new PackageListener());
         goConfigService.register(new SecurityAuthConfigListener());
         goConfigService.register(new ConfigRepoListener());
@@ -296,6 +297,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(ElasticProfile profile) {
             removeFromCache(profile, profile.getId());
+        }
+    }
+
+    class SecretConfigListener extends EntityConfigChangedListener<SecretConfig> {
+        @Override
+        public void onEntityConfigChange(SecretConfig config) {
+            removeFromCache(config, config.getId());
         }
     }
 

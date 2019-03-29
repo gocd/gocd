@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.HgUrlArgument;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
@@ -125,9 +124,7 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
-        if (url == null || StringUtils.isBlank(url.forDisplay())) {
-            errors().add(URL, "URL cannot be blank");
-        }
+        validateMaterialUrl(this.url, validationContext);
     }
 
     @Override

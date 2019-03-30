@@ -44,7 +44,7 @@ describe Api::WebHooks::HostedBitBucketController do
             links: {
               clone: [
                 {
-                  href: 'https://my-company.com/bitbucket/scm/my-proj/my-repo.git',
+                  href: 'https://subdomain.my-company.com/bitbucket/scm/my-proj/my-repo.git',
                   name: 'http'
                 },
                 {
@@ -89,7 +89,7 @@ describe Api::WebHooks::HostedBitBucketController do
                                })
 
         all_matching_repos = %w(
-                            https://my-company.com/bitbucket/scm/my-proj/my-repo.git
+                            https://subdomain.my-company.com/bitbucket/scm/my-proj/my-repo.git
                             ssh://git.my-company.com:7999/my-proj/my-repo.git
                             )
 

@@ -25,12 +25,6 @@ module Api
 
       protected
 
-      def repo_branch
-        payload['changes'].find {|change| change['ref']['type'] == 'BRANCH'}['ref']['displayId']
-      rescue
-        nil
-      end
-
       def possible_urls
         payload['repository']['links']['clone'].collect {|l| without_credentials(l['href'])}
       end
@@ -44,14 +38,16 @@ module Api
         str
       end
 
-      def repo_host_name
-        # Return the full repo url for logging purposes only
-        payload['repository']['links']['self'][0]['href']
+      def repo_branch
+        payload['changes'].find {|change| change['ref']['type'] == 'BRANCH'}['ref']['displayId']
+      rescue
+        nil
       end
 
-      def repo_full_name
-        # Already returning the full repo url in repo_host_name.
-        ''
+      def repo_log_name
+        hostname = URI.parse(possible_urls[0]).hostname
+        reponame = payload['repository']['name']
+        "#{hostname}/#{reponame}"
       end
 
       def prempt_ping_call
@@ -91,7 +87,6 @@ module Api
         end
 
         expected_signature = 'sha256=' + OpenSSL::HMAC.hexdigest(OpenSSL::Digest.new('sha256'), webhook_secret, request.body.read)
-        Rails.logger.warn("Expected sig: #{expected_signature}")
 
         unless Rack::Utils.secure_compare(expected_signature, request.headers['X-Hub-Signature'])
           render plain: "HMAC signature specified via `X-Hub-Signature' did not match!", status: :bad_request, layout: nil

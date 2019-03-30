@@ -16,7 +16,7 @@
 
 module Api
   module WebHooks
-    class GitHubController < WebHookController
+    class GitHubController < GuessUrlWebHookController
       before_action :verify_content_origin
       before_action :prempt_ping_call
       before_action :allow_only_push_event

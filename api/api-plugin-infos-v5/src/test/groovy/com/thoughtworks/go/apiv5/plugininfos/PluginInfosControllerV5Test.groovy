@@ -18,10 +18,10 @@ package com.thoughtworks.go.apiv5.plugininfos
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv5.plugininfos.representers.ExtensionType
 import com.thoughtworks.go.apiv5.plugininfos.representers.Helper.PluginInfoMother
 import com.thoughtworks.go.apiv5.plugininfos.representers.PluginInfoRepresenter
 import com.thoughtworks.go.apiv5.plugininfos.representers.PluginInfosRepresenter
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry
 import com.thoughtworks.go.plugin.domain.common.BadPluginInfo
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo
 import com.thoughtworks.go.plugin.domain.common.PluginInfo
@@ -52,15 +52,19 @@ class PluginInfosControllerV5Test implements SecurityServiceTrait, ControllerTra
   @Mock
   private DefaultPluginManager defaultPluginManager
 
+  @Mock
+  private ExtensionsRegistry extensionRegistry
 
   @BeforeEach
   void setup() {
     initMocks(this)
+    Set extensions = ["authorization", "scm", "configrepo", "elastic-agent", "task", "package-repository", "notification", "analytics", "artifact"]
+    when(extensionRegistry.allRegisteredExtensions()).thenReturn(extensions)
   }
 
   @Override
   PluginInfosControllerV5 createControllerInstance() {
-    new PluginInfosControllerV5(new ApiAuthenticationHelper(securityService, goConfigService), pluginInfoFinder, entityHashingService, defaultPluginManager)
+    new PluginInfosControllerV5(new ApiAuthenticationHelper(securityService, goConfigService), pluginInfoFinder, entityHashingService, defaultPluginManager, extensionRegistry)
   }
 
   @Nested
@@ -153,7 +157,7 @@ class PluginInfosControllerV5Test implements SecurityServiceTrait, ControllerTra
       @Test
       void 'should return 304 if plugin info is not modified'() {
         def descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("authorization", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), ["os"]), "/home/pluginjar/", null, true)
-        def pluginInfo = new CombinedPluginInfo(new PluginInfo(descriptor, ExtensionType.AUTHORIZATION.getExtensionType(), null, null))
+        def pluginInfo = new CombinedPluginInfo(new PluginInfo(descriptor, "authorization", null, null))
 
         when(pluginInfoFinder.pluginInfoFor('plugin_id')).thenReturn(pluginInfo)
         when(entityHashingService.md5ForEntity(pluginInfo)).thenReturn('md5')

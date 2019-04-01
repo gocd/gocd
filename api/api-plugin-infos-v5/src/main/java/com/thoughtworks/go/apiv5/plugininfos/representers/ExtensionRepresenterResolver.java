@@ -26,15 +26,15 @@ public class ExtensionRepresenterResolver {
 
     static {
         extensionRepresenter = new HashMap<>();
-        extensionRepresenter.put(ExtensionType.AUTHORIZATION.getExtensionType(), new AuthorizationExtensionRepresenter());
-        extensionRepresenter.put(ExtensionType.SCM.getExtensionType(), new SCMExtensionRepresenter());
-        extensionRepresenter.put(ExtensionType.CONFIGREPO.getExtensionType(), new ConfigRepoExtensionRepresenter());
-        extensionRepresenter.put(ExtensionType.ELASTICAGENT.getExtensionType(), new ElasticAgentExtensionRepresenter());
-        extensionRepresenter.put(ExtensionType.TASK.getExtensionType(), new TaskExtensionRepresenter());
-        extensionRepresenter.put(ExtensionType.PACKAGEREPOSITORY.getExtensionType(), new PackageMaterialExtensionRepresenter());
-        extensionRepresenter.put(ExtensionType.NOTIFICATION.getExtensionType(), new NotificationPluginInfoRepresenter());
-        extensionRepresenter.put(ExtensionType.ANALYTICS.getExtensionType(), new AnalyticsPluginInfoRepresenter());
-        extensionRepresenter.put(ExtensionType.ARTIFACT.getExtensionType(), new ArtifactPluginInfoRepresenter());
+        extensionRepresenter.put("authorization", new AuthorizationExtensionRepresenter());
+        extensionRepresenter.put("scm", new SCMExtensionRepresenter());
+        extensionRepresenter.put("configrepo", new ConfigRepoExtensionRepresenter());
+        extensionRepresenter.put("elastic-agent", new ElasticAgentExtensionRepresenter());
+        extensionRepresenter.put("task", new TaskExtensionRepresenter());
+        extensionRepresenter.put("package-repository", new PackageMaterialExtensionRepresenter());
+        extensionRepresenter.put("notification", new NotificationPluginInfoRepresenter());
+        extensionRepresenter.put("analytics", new AnalyticsPluginInfoRepresenter());
+        extensionRepresenter.put("artifact", new ArtifactPluginInfoRepresenter());
 
     }
 

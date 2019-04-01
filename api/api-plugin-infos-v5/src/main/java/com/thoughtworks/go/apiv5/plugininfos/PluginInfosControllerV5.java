@@ -19,12 +19,12 @@ package com.thoughtworks.go.apiv5.plugininfos;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
-import com.thoughtworks.go.apiv5.plugininfos.representers.ExtensionType;
 import com.thoughtworks.go.apiv5.plugininfos.representers.PluginInfoRepresenter;
 import com.thoughtworks.go.apiv5.plugininfos.representers.PluginInfosRepresenter;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
+import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.domain.common.BadPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
@@ -53,15 +53,17 @@ public class PluginInfosControllerV5 extends ApiController implements SparkSprin
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EntityHashingService entityHashingService;
     private DefaultPluginManager defaultPluginManager;
+    private ExtensionsRegistry extensionsRegistry;
     private DefaultPluginInfoFinder pluginInfoFinder;
 
     @Autowired
-    public PluginInfosControllerV5(ApiAuthenticationHelper apiAuthenticationHelper, DefaultPluginInfoFinder pluginInfoFinder, EntityHashingService entityHashingService, DefaultPluginManager defaultPluginManager) {
+    public PluginInfosControllerV5(ApiAuthenticationHelper apiAuthenticationHelper, DefaultPluginInfoFinder pluginInfoFinder, EntityHashingService entityHashingService, DefaultPluginManager defaultPluginManager, ExtensionsRegistry extensionsRegistry) {
         super(ApiVersion.v5);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.pluginInfoFinder = pluginInfoFinder;
         this.entityHashingService = entityHashingService;
         this.defaultPluginManager = defaultPluginManager;
+        this.extensionsRegistry = extensionsRegistry;
     }
 
     @Override
@@ -97,8 +99,7 @@ public class PluginInfosControllerV5 extends ApiController implements SparkSprin
 
             pluginInfos.addAll(validPluginInfos);
         } catch (InvalidPluginTypeException exception) {
-            List<String> collect = Arrays.stream(ExtensionType.values()).map(ExtensionType::getExtensionType).collect(toList());
-            throw new UnprocessableEntityException(String.format("Invalid plugin type '%s'. It has to be one of '%s'.", pluginType, String.join(", ", collect)));
+            throw new UnprocessableEntityException(String.format("Invalid plugin type '%s'. It has to be one of '%s'.", pluginType, String.join(", ", extensionsRegistry.allRegisteredExtensions())));
         }
 
         if (includeBad) {
@@ -154,11 +155,10 @@ public class PluginInfosControllerV5 extends ApiController implements SparkSprin
     }
 
     private boolean hasUnsupportedExtensionType(CombinedPluginInfo pluginInfo) {
-        List<String> extensionTypes = Arrays.stream(ExtensionType.values()).map(ExtensionType::getExtensionType).collect(toList());
+        Set<String> extensionTypes = extensionsRegistry.allRegisteredExtensions();
 
         List<String> invalidExtensions = pluginInfo.extensionNames().stream().filter(extensionName -> !extensionTypes.contains(extensionName)).collect(toList());
         return !invalidExtensions.isEmpty();
-
     }
 
     private String etagFor(CombinedPluginInfo pluginInfo) {

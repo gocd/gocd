@@ -25,7 +25,7 @@ public class PluggableInstanceSettingsRepresenter {
             writer.addChildList("configurations", configurationsWriter -> pluggableInstanceSettings.getConfigurations().forEach(
                     configuration -> configurationsWriter.addChild(configurationWriter -> {
                         configurationWriter.add("key", configuration.getKey());
-                        configurationWriter.addChild("metadata", metadataWriter -> MetadataRepresenterBuilder.create(configuration.getMetadata()).toJSON(metadataWriter, configuration.getMetadata()));
+                        configurationWriter.addChild("metadata", metadataWriter -> MetadataRepresenterResolver.resolve(configuration.getMetadata()).toJSON(metadataWriter, configuration.getMetadata()));
                     })));
         }
 

@@ -23,16 +23,18 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.MetadataWithPartOfIdentity;
 import com.thoughtworks.go.plugin.domain.common.PackageMaterialMetadata;
 
-public class MetadataRepresenterBuilder {
-    public static MetadataRepresenter create(Metadata metadata) {
-        if (metadata.getClass() == PackageMaterialMetadata.class) {
-            return new PackageMaterialMetadataRepresenter();
-        }
+import java.util.HashMap;
 
-        if (metadata.getClass() == MetadataWithPartOfIdentity.class) {
-            return new MetadataWithPartOfIdentityRepresenter();
-        }
+public class MetadataRepresenterResolver {
+    private static HashMap<Class<? extends Metadata>, MetadataRepresenter> representerMap;
 
-        return new MetadataRepresenter();
+    static {
+        representerMap = new HashMap<>();
+        representerMap.put(PackageMaterialMetadata.class, new PackageMaterialMetadataRepresenter());
+        representerMap.put(MetadataWithPartOfIdentity.class, new MetadataWithPartOfIdentityRepresenter());
+    }
+
+    public static MetadataRepresenter resolve(Metadata metadata) {
+        return representerMap.getOrDefault(metadata.getClass(), new MetadataRepresenter());
     }
 }

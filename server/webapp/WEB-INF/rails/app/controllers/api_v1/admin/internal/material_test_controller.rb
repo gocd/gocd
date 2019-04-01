@@ -26,10 +26,10 @@ module ApiV1
 
         def test
           material_config = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.get_material_type(params[:type]).new).from_hash(params)
-          material_config.validateConcreteScmMaterial()
+          material_config.validateConcreteScmMaterial(PipelineConfigSaveValidationContext.forChain(false, "group", go_config_service.cruise_config(), material_config))
           if material_config.errors.any?
             json = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(material_config).to_hash(url_builder: self)
-            return render_message('There was an error with the material configuration!', 422, {data: json})
+            return render_message(validation_errors_as_error_message(material_config.errors), 422, {data: json})
           end
 
           material_config.ensureEncrypted() if material_config.respond_to?(:ensureEncrypted)
@@ -37,7 +37,7 @@ module ApiV1
 
           material = MaterialConfigConverter.new.toMaterial(material_config)
           if material.respond_to?(:checkConnection)
-            validation_bean = material.checkConnection(subprocess_execution_context)
+            validation_bean = check_connection_for_material material
             if validation_bean.isValid
               render_message('Connection OK.', :ok)
             else
@@ -62,7 +62,22 @@ module ApiV1
         end
 
         private
+
         cattr_accessor :check_connection_execution_context
+
+        def validation_errors_as_error_message(errors)
+          combined_error_message = errors.map {|field, error| "- #{field}: #{error.join(", ")}"}.join("\n")
+          "There was an error with the material configuration.\n" + combined_error_message
+        end
+
+        def check_connection_for_material material
+          begin
+            secret_param_resolver.resolve(material.getSecretParams()) if material.is_a?(ScmMaterial)
+            material.checkConnection(subprocess_execution_context)
+          rescue com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException => e
+            com.thoughtworks.go.domain.materials.ValidationBean.notValid(e.message);
+          end
+        end
 
         def subprocess_execution_context
           if self.class.check_connection_execution_context.nil?

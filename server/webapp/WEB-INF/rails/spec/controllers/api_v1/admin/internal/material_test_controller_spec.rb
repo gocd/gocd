@@ -65,8 +65,8 @@ describe ApiV1::Admin::Internal::MaterialTestController do
         expect_any_instance_of(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig).
           to receive(:ensureEncrypted)
 
-        post_with_api_header :test, params:{
-          type:       'svn',
+        post_with_api_header :test, params: {
+          type: 'svn',
           attributes: {
             url: 'https://example.com/git/FooBarWidgets.git',
             password: 'password'
@@ -77,8 +77,8 @@ describe ApiV1::Admin::Internal::MaterialTestController do
       end
 
       it 'validates material before testing connection' do
-        post_with_api_header :test, params:{
-          type:       'svn',
+        post_with_api_header :test, params: {
+          type: 'svn',
           attributes: {
             url: 'https://example.com/svn/FooBarWidgets.git',
             password: 'foo',
@@ -86,7 +86,11 @@ describe ApiV1::Admin::Internal::MaterialTestController do
           }
         }
 
-        expect(response).to have_api_message_response(422, 'There was an error with the material configuration!')
+        expected = "There was an error with the material configuration." +
+          "\n- password: You may only specify `password` or `encrypted_password`, not both!" +
+          "\n- encryptedPassword: You may only specify `password` or `encrypted_password`, not both!"
+
+        expect(response).to have_api_message_response(422, expected)
       end
 
       it 'renders error if connection test failed' do
@@ -95,8 +99,8 @@ describe ApiV1::Admin::Internal::MaterialTestController do
         expect(@git_material).to receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.notValid('boom!'))
 
-        post_with_api_header :test, params:{
-          type:       'git',
+        post_with_api_header :test, params: {
+          type: 'git',
           attributes: {
             url: 'https://example.com/git/FooBarWidgets.git'
           }
@@ -112,6 +116,7 @@ describe ApiV1::Admin::Internal::MaterialTestController do
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
 
         @go_config_service = double(GoConfigService)
+        allow(@go_config_service).to receive(:cruise_config)
         allow(controller).to receive(:go_config_service).and_return(@go_config_service)
         @go_config_validity = double(GoConfigValidity)
         allow(@go_config_validity).to receive(:isValid).and_return(true)
@@ -125,10 +130,10 @@ describe ApiV1::Admin::Internal::MaterialTestController do
           expect(pipeline_config.name).to eq(CaseInsensitiveString.new('BuildLinux'))
         end
 
-        post_with_api_header :test, params:{
-          type:          'git',
+        post_with_api_header :test, params: {
+          type: 'git',
           pipeline_name: 'BuildLinux',
-          attributes:    {
+          attributes: {
             url: 'https://example.com/git/FooBarWidgets.git'
           }
         }
@@ -142,10 +147,10 @@ describe ApiV1::Admin::Internal::MaterialTestController do
         expect(@git_material).to receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
           and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
 
-        post_with_api_header :test, params:{
-          type:          'git',
+        post_with_api_header :test, params: {
+          type: 'git',
           pipeline_name: '',
-          attributes:    {
+          attributes: {
             url: 'https://example.com/git/FooBarWidgets.git'
           }
         }
@@ -154,5 +159,85 @@ describe ApiV1::Admin::Internal::MaterialTestController do
       end
     end
 
+    describe "SecretParams" do
+      before(:each) do
+        login_as_group_admin
+        @material_config_converter = double(MaterialConfigConverter)
+        allow(MaterialConfigConverter).to receive(:new).and_return(@material_config_converter)
+
+        @secret_params = com.thoughtworks.go.config.SecretParams.parse('')
+
+        @secret_param_resolver = double(SecretParamResolver)
+        allow(@secret_param_resolver).to receive(:resolve)
+        allow(controller).to receive(:secret_param_resolver).and_return(@secret_param_resolver)
+
+        @svn_material = double(com.thoughtworks.go.config.materials.svn.SvnMaterial)
+        allow(@svn_material).to receive(:is_a?).with(ScmMaterial).and_return(true)
+        allow(@svn_material).to receive(:getSecretParams).and_return(@secret_params)
+      end
+
+      it 'should resolve secret param before performing check connection for material' do
+        allow(@material_config_converter).to receive(:toMaterial).and_return(@svn_material)
+        expect(@svn_material).to receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
+          and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
+
+
+        expect_any_instance_of(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig).
+          to receive(:ensureEncrypted)
+
+        post_with_api_header :test, params: {
+          type: 'svn',
+          attributes: {
+            url: 'https://example.com/git/FooBarWidgets.git',
+            password: 'password'
+          }
+        }
+
+        expect(response).to have_api_message_response(200, 'Connection OK.')
+        expect(@secret_param_resolver).to have_received(:resolve).with(@secret_params).once
+      end
+
+      it 'should handle unresolved secret params exception and return the error message' do
+        allow(@material_config_converter).to receive(:toMaterial).and_return(@svn_material)
+        expect(@svn_material).to receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
+          and_raise(com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException.new('token'))
+
+        expect_any_instance_of(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig).
+          to receive(:ensureEncrypted)
+
+        post_with_api_header :test, params: {
+          type: 'svn',
+          attributes: {
+            url: 'https://example.com/git/FooBarWidgets.git',
+            password: 'password'
+          }
+        }
+
+        expect(response).to have_api_message_response(422, "SecretParam 'token' is used before it is resolved.")
+      end
+
+      it 'should not call resolve secret params if material is not ScmMaterial' do
+        @non_scm_material = double(com.thoughtworks.go.config.materials.PackageMaterial)
+        allow(@non_scm_material).to receive(:is_a?).with(ScmMaterial).and_return(false)
+        allow(@material_config_converter).to receive(:toMaterial).and_return(@non_scm_material)
+        expect(@non_scm_material).to receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
+          and_return(com.thoughtworks.go.domain.materials.ValidationBean.valid)
+
+
+        expect_any_instance_of(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig).
+          to receive(:ensureEncrypted)
+
+        post_with_api_header :test, params: {
+          type: 'svn',
+          attributes: {
+            url: 'https://example.com/git/FooBarWidgets.git',
+            password: 'password'
+          }
+        }
+
+        expect(response).to have_api_message_response(200, 'Connection OK.')
+        expect(@secret_param_resolver).not_to have_received(:resolve).with(@secret_params)
+      end
+    end
   end
 end

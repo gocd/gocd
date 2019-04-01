@@ -362,6 +362,20 @@ public class Routes {
         }
     }
 
+    public static class PluginInfoAPI {
+        public static final String BASE = "/api/admin/plugin_info";
+        public static final String ID = "/:id";
+        public static final String DOC = apiDocsUrl("#plugin-info");
+
+        public static String find() {
+            return BASE + ID;
+        }
+
+        public static String id(String id) {
+            return find().replaceAll(":id", id);
+        }
+    }
+
     public static class AgentsAPI {
         public static final String BASE = "/api/agents";
         public static final String UUID = "/:uuid";

@@ -61,6 +61,7 @@ module ApiV4
       end
 
       private
+
       def is_non_nil_and_unsupported? plugin_info
         !plugin_info.nil? && !(plugin_info.extensionNames() - PLUGIN_TYPES_FOR_VERSION).empty?
       end

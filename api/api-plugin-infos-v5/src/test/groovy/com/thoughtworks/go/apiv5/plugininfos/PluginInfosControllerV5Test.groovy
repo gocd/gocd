@@ -124,23 +124,6 @@ class PluginInfosControllerV5Test implements SecurityServiceTrait, ControllerTra
       }
 
       @Test
-      void 'should return 404 if plugin with unsupported extension type exist'() {
-        def descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("authorization", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), ["os"]), "/home/pluginjar/", null, true)
-        descriptor.markAsInvalid(new ArrayList<String>(), null)
-        def pluginInfo = new CombinedPluginInfo(new PluginInfo(descriptor, "Invalid extension name", null, null))
-
-        when(pluginInfoFinder.pluginInfoFor('plugin_id')).thenReturn(pluginInfo)
-
-        getWithApiHeader(controller.controllerPath('/plugin_id'))
-
-        assertThatResponse()
-          .isNotFound()
-          .hasJsonMessage(notFoundMessage())
-          .hasContentType(controller.mimeType)
-      }
-
-
-      @Test
       void 'should return 404 if plugin with id does not exist'() {
 
         when(pluginInfoFinder.pluginInfoFor('plugin_id')).thenReturn(null)

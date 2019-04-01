@@ -125,33 +125,24 @@ public class PluginInfosControllerV5 extends ApiController implements SparkSprin
     public String show(Request request, Response response) throws IOException {
         String pluginId = request.params("id");
         CombinedPluginInfo pluginInfo = this.pluginInfoFinder.pluginInfoFor(pluginId);
-        CombinedPluginInfo badPluginInfo = null;
-
-
-        if (pluginInfo != null && hasUnsupportedExtensionType(pluginInfo)) {
-            throw new RecordNotFoundException(notFoundMessage());
-        }
 
         if (pluginInfo == null) {
             GoPluginDescriptor pluginDescriptor = defaultPluginManager.getPluginDescriptorFor(pluginId);
             if (pluginDescriptor != null && pluginDescriptor.isInvalid()) {
-                badPluginInfo = new CombinedPluginInfo(new BadPluginInfo(pluginDescriptor));
+                pluginInfo = new CombinedPluginInfo(new BadPluginInfo(pluginDescriptor));
+            } else {
+                throw new RecordNotFoundException(notFoundMessage());
             }
         }
 
-        if (pluginInfo == null && badPluginInfo == null) {
-            throw new RecordNotFoundException(notFoundMessage());
-        }
-
-        CombinedPluginInfo extractedPluginInfo = badPluginInfo != null ? badPluginInfo : pluginInfo;
-
-        String etag = etagFor(extractedPluginInfo);
+        String etag = etagFor(pluginInfo);
         if (fresh(request, etag)) {
             return notModified(response);
         }
 
         setEtagHeader(response, etag);
-        return writerForTopLevelObject(request, response, writer -> PluginInfoRepresenter.toJSON(writer, extractedPluginInfo));
+        CombinedPluginInfo finalPluginInfo = pluginInfo;
+        return writerForTopLevelObject(request, response, writer -> PluginInfoRepresenter.toJSON(writer, finalPluginInfo));
     }
 
     private boolean hasUnsupportedExtensionType(CombinedPluginInfo pluginInfo) {

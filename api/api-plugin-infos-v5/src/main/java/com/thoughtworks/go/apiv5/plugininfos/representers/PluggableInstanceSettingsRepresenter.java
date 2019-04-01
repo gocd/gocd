@@ -17,10 +17,7 @@
 package com.thoughtworks.go.apiv5.plugininfos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.apiv5.plugininfos.representers.MetadataRepresenterBuilder;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
-
-import java.util.Map;
 
 public class PluggableInstanceSettingsRepresenter {
     public static void toJSON(OutputWriter writer, PluggableInstanceSettings pluggableInstanceSettings) {

@@ -269,7 +269,7 @@ class PluginInfosControllerV5Test implements SecurityServiceTrait, ControllerTra
       @Test
       void 'should return 422 for invalid plugin type'() {
         HashMap<String, String> queryParams = new HashMap<String, String>()
-        def pluginType = "invalid"
+        def pluginType = "foobar"
         queryParams.put("type", pluginType)
 
         when(pluginInfoFinder.allPluginInfos(pluginType)).thenThrow(new InvalidPluginTypeException())
@@ -277,7 +277,7 @@ class PluginInfosControllerV5Test implements SecurityServiceTrait, ControllerTra
 
         assertThatResponse()
           .isUnprocessableEntity()
-          .hasJsonMessage("Your request could not be processed. Invalid plugins type - `$pluginType` !")
+          .hasJsonMessage("Your request could not be processed. Invalid plugin type 'foobar'. It has to be one of 'authorization, scm, configrepo, elastic-agent, task, package-repository, notification, analytics, artifact'.")
       }
 
       @Test

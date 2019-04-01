@@ -100,7 +100,8 @@ public class PluginInfosControllerV5 extends ApiController implements SparkSprin
 
             pluginInfos.addAll(validPluginInfos);
         } catch (InvalidPluginTypeException exception) {
-            throw new UnprocessableEntityException(String.format("Invalid plugins type - `%s` !", pluginType));
+            List<String> collect = Arrays.stream(ExtensionType.values()).map(ExtensionType::getExtensionType).collect(toList());
+            throw new UnprocessableEntityException(String.format("Invalid plugin type '%s'. It has to be one of '%s'.", pluginType, String.join(", ", collect)));
         }
 
         if (includeBad) {

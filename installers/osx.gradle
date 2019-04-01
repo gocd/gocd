@@ -32,10 +32,10 @@ private File destFile(String url) {
 }
 
 task downloadOSXJre(type: DownloadFile) {
-  def srcUrl = System.getenv("OSX_JDK_URL") ?: 'https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u192-b12/OpenJDK8U-jre_x64_mac_hotspot_8u192b12.tar.gz'
+  def srcUrl = System.getenv("OSX_JDK_URL") ?: 'https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jre_x64_mac_hotspot_8u202b08.tar.gz'
   src srcUrl
   dest destFile(srcUrl)
-  checksum 'dea28404b1e8053f459f53cf7d0b97c97ae97f4acecb2856b26002c5a29bb89a'
+  checksum 'd7be3dfd5cd10323e1272e06d26f0709fbbc4a6f25a3992c2f2eef7022517fba'
 }
 
 def setupInstaller(DefaultTask task, String appName, String packageName, String bundleId, String mainClass, File destinationDir, File sourceApplicationStubFile, File applicationJar) {

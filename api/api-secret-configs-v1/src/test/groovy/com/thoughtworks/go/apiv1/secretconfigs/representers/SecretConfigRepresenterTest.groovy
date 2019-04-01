@@ -43,8 +43,8 @@ class SecretConfigRepresenterTest {
     @BeforeEach
     void setup() {
       secretConfig = new SecretConfig("id", "plugin-id")
-      secretConfig.add(ConfigurationPropertyMother.create("key1", false, "value1"))
-      secretConfig.add(ConfigurationPropertyMother.create("key2", "secret", "AES:lzcCuNSe4vUx+CsWgN11Uw==:YotExzWbFv5w/7/HmpYp3g=="))
+      secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("key1", false, "value1"))
+      secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("key2", "secret", "AES:lzcCuNSe4vUx+CsWgN11Uw==:YotExzWbFv5w/7/HmpYp3g=="))
 
       secretConfig.setRules(new Rules([
         new Allow("refer", "PipelineGroup", "DeployPipelines"),
@@ -59,8 +59,8 @@ class SecretConfigRepresenterTest {
       def json = toObjectString({ toJSON(it, secretConfig) })
 
       JsonFluentAssert.assertThatJson(json).isEqualTo([
-        "_links": [
-          "doc": [
+        "_links"    : [
+          "doc" : [
             "href": "https://api.gocd.org/19.3.0/#secret_configs"
           ],
           "find": [
@@ -83,29 +83,30 @@ class SecretConfigRepresenterTest {
           ]
         ],
         "rules"     : [
-          "allow": [
-            [
-              "action"  : "refer",
-              "resource": "DeployPipelines",
-              "type"    : "PipelineGroup"
-            ],
-            [
-              "action"  : "view",
-              "resource": "DeployEnvironment",
-              "type"    : "Environment"
-            ]
+
+          [
+            "directive": "allow",
+            "action"   : "refer",
+            "resource" : "DeployPipelines",
+            "type"     : "PipelineGroup"
           ],
-          "deny" : [
-            [
-              "action"  : "refer",
-              "resource": "TestPipelines",
-              "type"    : "PipelineGroup"
-            ],
-            [
-              "action"  : "view",
-              "resource": "TestEnvironment",
-              "type"    : "Environment"
-            ]
+          [
+            "directive": "allow",
+            "action"   : "view",
+            "resource" : "DeployEnvironment",
+            "type"     : "Environment"
+          ],
+          [
+            "directive": "deny",
+            "action"   : "refer",
+            "resource" : "TestPipelines",
+            "type"     : "PipelineGroup"
+          ],
+          [
+            "directive": "deny",
+            "action"   : "view",
+            "resource" : "TestEnvironment",
+            "type"     : "Environment"
           ]
         ]
       ])
@@ -125,8 +126,8 @@ class SecretConfigRepresenterTest {
       def json = toObjectString({ toJSON(it, secretConfig) })
 
       JsonFluentAssert.assertThatJson(json).isEqualTo([
-        "_links": [
-          "doc": [
+        "_links"    : [
+          "doc" : [
             "href": "https://api.gocd.org/19.3.0/#secret_configs"
           ],
           "find": [
@@ -170,33 +171,33 @@ class SecretConfigRepresenterTest {
           ]
         ],
         "rules"     : [
-          "allow": [
-            [
-              "action"  : "refer",
-              "resource": "DeployPipelines",
-              "type"    : "PipelineGroup"
-            ],
-            [
-              "action"  : "view",
-              "resource": "DeployEnvironment",
-              "type"    : "Environment"
-            ]
+          [
+            "directive": "allow",
+            "action"   : "refer",
+            "resource" : "DeployPipelines",
+            "type"     : "PipelineGroup"
           ],
-          "deny" : [
-            [
-              "action"  : "refer",
-              "resource": "TestPipelines",
-              "type"    : "PipelineGroup"
-            ],
-            [
-              "action"  : "view",
-              "resource": "TestEnvironment",
-              "type"    : "Environment"
-            ]
+          [
+            "directive": "allow",
+            "action"   : "view",
+            "resource" : "DeployEnvironment",
+            "type"     : "Environment"
+          ],
+
+          [
+            "directive": "deny",
+            "action"   : "refer",
+            "resource" : "TestPipelines",
+            "type"     : "PipelineGroup"
+          ],
+          [
+            "directive": "deny",
+            "action"   : "view",
+            "resource" : "TestEnvironment",
+            "type"     : "Environment"
           ]
         ]
       ]
-
 
       def secretConfig = fromJSON(GsonTransformer.instance.jsonReaderFrom(json))
 
@@ -204,15 +205,15 @@ class SecretConfigRepresenterTest {
       assertThat(secretConfig.pluginId).isEqualTo("go.secret.file")
       assertThat(secretConfig.description).isNull()
 
-      assertThat(secretConfig)
+      assertThat(secretConfig.getConfiguration())
         .hasSize(2)
         .contains(
-          ConfigurationPropertyMother.create("key1", false, "value1"),
-          ConfigurationPropertyMother.create("key2", true, "secret")
-        )
+        ConfigurationPropertyMother.create("key1", false, "value1"),
+        ConfigurationPropertyMother.create("key2", true, "secret")
+      )
       assertThat(secretConfig.rules)
         .hasSize(4)
-        .contains( new Allow("refer", "PipelineGroup", "DeployPipelines"),
+        .contains(new Allow("refer", "PipelineGroup", "DeployPipelines"),
         new Allow("view", "Environment", "DeployEnvironment"),
         new Deny("refer", "PipelineGroup", "TestPipelines"),
         new Deny("view", "Environment", "TestEnvironment"))
@@ -221,7 +222,9 @@ class SecretConfigRepresenterTest {
     @Test
     void shouldErrorOutIfIdNotProvided() {
 
-      HaltException exception = assertThrows(HaltException.class, { fromJSON(GsonTransformer.instance.jsonReaderFrom("{}")) })
+      HaltException exception = assertThrows(HaltException.class, {
+        fromJSON(GsonTransformer.instance.jsonReaderFrom("{}"))
+      })
 
       JsonFluentAssert.assertThatJson(exception.body()).isEqualTo("{\"message\" : \"Json `{}` does not contain property 'id'\"}")
     }
@@ -229,7 +232,9 @@ class SecretConfigRepresenterTest {
     @Test
     void shouldErrorOutIfPluginIdNotProvided() {
 
-      HaltException exception = assertThrows(HaltException.class, { fromJSON(GsonTransformer.instance.jsonReaderFrom([id: "foobar"])) })
+      HaltException exception = assertThrows(HaltException.class, {
+        fromJSON(GsonTransformer.instance.jsonReaderFrom([id: "foobar"]))
+      })
 
       JsonFluentAssert.assertThatJson(exception.body()).isEqualTo("{\"message\":\"Json `{\\\"id\\\":\\\"foobar\\\"}` does not contain property 'plugin_id'\"}")
     }

@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.apiv1.secretconfigs.representers
 
+import com.google.gson.Gson
+import com.google.gson.JsonArray
 import com.thoughtworks.go.Deny
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.Allow
@@ -24,7 +26,7 @@ import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
 import static org.assertj.core.api.Assertions.assertThat
 
 class RulesRepresenterTest {
@@ -33,49 +35,49 @@ class RulesRepresenterTest {
   class toJSON {
     @Test
     void shouldSerializeRules() {
-      Rules rules = new Rules();
+      Rules rules = new Rules()
       rules.add(new Allow("refer", "PipelineGroup", "DeployPipelines"))
       rules.add(new Allow("view", "Environment", "DeployEnvironment"))
       rules.add(new Deny("refer", "PipelineGroup", "TestPipelines"))
       rules.add(new Deny("view", "Environment", "TestEnvironment"))
 
-      def json = toObjectString({ RulesRepresenter.toJSON(it, rules) })
+      def json = toArrayString({ RulesRepresenter.toJSON(it, rules) })
 
-      JsonFluentAssert.assertThatJson(json).isEqualTo([
-        "allow": [
+      JsonFluentAssert.assertThatJson(json).isEqualTo(
+        [
           [
-            "action"  : "refer",
-            "resource": "DeployPipelines",
-            "type"    : "PipelineGroup"
+            directive: "allow",
+            action   : "refer",
+            type     : "PipelineGroup",
+            resource : "DeployPipelines"
           ],
           [
-            "action"  : "view",
-            "resource": "DeployEnvironment",
-            "type"    : "Environment"
-          ]
-        ],
-        "deny" : [
-          [
-            "action"  : "refer",
-            "resource": "TestPipelines",
-            "type"    : "PipelineGroup"
+            directive: "allow",
+            action   : "view",
+            resource : "DeployEnvironment",
+            type     : "Environment"
           ],
           [
-            "action"  : "view",
-            "resource": "TestEnvironment",
-            "type"    : "Environment"
+            directive: "deny",
+            action   : "refer",
+            type     : "PipelineGroup",
+            resource : "TestPipelines"
+          ],
+          [
+            directive: "deny",
+            action   : "view",
+            resource : "TestEnvironment",
+            type     : "Environment"
           ]
         ]
-      ])
+      )
     }
 
     @Test
     void shouldSerializeEmptyRules() {
-      Rules rules = new Rules()
+      def json = toArrayString({ RulesRepresenter.toJSON(it, new Rules()) })
 
-      def json = toObjectString({ RulesRepresenter.toJSON(it, rules) })
-
-      JsonFluentAssert.assertThatJson(json).isEqualTo("{}")
+      JsonFluentAssert.assertThatJson(json).isEqualTo("[]")
     }
 
   }
@@ -85,44 +87,44 @@ class RulesRepresenterTest {
     @Test
     void shouldDeSerializeRules() {
       def request = [
-        "allow": [
+        "rules": [
           [
-            "action"  : "refer",
-            "resource": "DeployPipelines",
-            "type"    : "PipelineGroup"
+            directive: "allow",
+            action   : "refer",
+            type     : "PipelineGroup",
+            resource : "DeployPipelines"
           ],
           [
-            "action"  : "view",
-            "resource": "DeployEnvironment",
-            "type"    : "Environment"
-          ]
-        ],
-        "deny" : [
-          [
-            "action"  : "refer",
-            "resource": "TestPipelines",
-            "type"    : "PipelineGroup"
+            directive: "allow",
+            action   : "view",
+            resource : "DeployEnvironment",
+            type     : "Environment"
           ],
           [
-            "action"  : "view",
-            "resource": "TestEnvironment",
-            "type"    : "Environment"
+            directive: "deny",
+            action   : "refer",
+            type     : "PipelineGroup",
+            resource : "TestPipelines"
+          ],
+          [
+            directive: "deny",
+            action   : "view",
+            resource : "TestEnvironment",
+            type     : "Environment"
           ]
         ]
       ]
 
-      def rules = RulesRepresenter.fromJSON(GsonTransformer.instance.jsonReaderFrom(request))
+
+      def jsonRequest = new Gson().toJson(request).toString()
+      def jsonObject = GsonTransformer.instance.jsonReaderFrom(jsonRequest)
+      def rules = RulesRepresenter.fromJSON(jsonObject.optJsonArray("rules").get())
 
       assertThat(rules).hasSize(4)
-      assertThat(rules.allowDirectives).hasSize(2)
-      assertThat(rules.denyDirectives).hasSize(2)
 
-      assertThat(rules.allowDirectives).contains(
+      assertThat(rules).contains(
         new Allow("view", "Environment", "DeployEnvironment"),
-        new Allow("view", "Environment", "DeployEnvironment")
-      )
-
-      assertThat(rules.denyDirectives).contains(
+        new Allow("view", "Environment", "DeployEnvironment"),
         new Deny("view", "Environment", "TestEnvironment"),
         new Deny("view", "Environment", "TestEnvironment")
       )
@@ -130,7 +132,7 @@ class RulesRepresenterTest {
 
     @Test
     void shouldDeSerializeEmptyRules() {
-      def rules = RulesRepresenter.fromJSON(GsonTransformer.instance.jsonReaderFrom("{}"))
+      def rules = RulesRepresenter.fromJSON(new JsonArray())
 
       assertThat(rules).hasSize(0)
     }

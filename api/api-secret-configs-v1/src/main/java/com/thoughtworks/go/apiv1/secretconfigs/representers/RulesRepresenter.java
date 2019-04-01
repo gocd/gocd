@@ -16,57 +16,67 @@
 
 package com.thoughtworks.go.apiv1.secretconfigs.representers;
 
+import com.google.gson.JsonArray;
 import com.thoughtworks.go.Deny;
-import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.api.util.GsonTransformer;
+import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.config.Allow;
 import com.thoughtworks.go.config.Directive;
+import com.thoughtworks.go.config.Directive.DirectiveType;
 import com.thoughtworks.go.config.Rules;
 
+import java.util.Optional;
+
+import static com.thoughtworks.go.config.Directive.DirectiveType.*;
+
 public class RulesRepresenter {
-
-    public static void toJSON(OutputWriter jsonWriter, Rules rules) {
-        if (!rules.getAllowDirectives().isEmpty()) {
-            jsonWriter.addChildList("allow", outputListWriter -> {
-                rules.getAllowDirectives().forEach(directive -> {
-                    outputListWriter.addChild(outputWriter -> {
-                        DirectiveRepresenter.toJSON(outputWriter, directive);
-                    });
-                });
+    public static void toJSON(OutputListWriter listWriter, Rules rules) {
+        rules.forEach(directive -> {
+            listWriter.addChild(directiveWriter -> {
+                directiveWriter.add("directive", directive.getDirectiveType().type());
+                directiveWriter.add("action", directive.action());
+                directiveWriter.add("type", directive.type());
+                directiveWriter.add("resource", directive.resource());
             });
-        }
-
-        if (!rules.getDenyDirectives().isEmpty()) {
-            jsonWriter.addChildList("deny", outputListWriter -> {
-                rules.getDenyDirectives().forEach(directive -> {
-                    outputListWriter.addChild(outputWriter -> {
-                        DirectiveRepresenter.toJSON(outputWriter, directive);
-                    });
-                });
-            });
-        }
+        });
     }
 
 
-    public static Rules fromJSON(JsonReader rulesJsonReader) {
+    public static Rules fromJSON(JsonArray jsonArray) {
         Rules rules = new Rules();
 
-        rulesJsonReader.optJsonArray("allow").ifPresent(array -> {
-            array.forEach(directive -> rules.add(getAllowDirective(new JsonReader(directive.getAsJsonObject()))));
-        });
-
-        rulesJsonReader.optJsonArray("deny").ifPresent(array -> {
-            array.forEach(directive -> rules.add(getDenyDirective(new JsonReader(directive.getAsJsonObject()))));
+        jsonArray.forEach(directiveJSON -> {
+            GsonTransformer gsonTransformer = GsonTransformer.getInstance();
+            rules.add(getDirective(gsonTransformer.jsonReaderFrom(directiveJSON.toString())));
         });
 
         return rules;
     }
 
-    private static Directive getAllowDirective(JsonReader jsonReader) {
-        return new Allow(jsonReader.getString("action"), jsonReader.getString("type"), jsonReader.getString("resource"));
-    }
+    private static Directive getDirective(JsonReader reader) {
+        String directive = reader.getString("directive");
+        String action = reader.getString("action");
+        String type = reader.getString("type");
+        String resource = reader.getString("resource");
 
-    private static Directive getDenyDirective(JsonReader jsonReader) {
-        return new Deny(jsonReader.getString("action"), jsonReader.getString("type"), jsonReader.getString("resource"));
+        Optional<DirectiveType> directiveType = fromString(directive);
+
+        if (!directiveType.isPresent()) {
+            HaltApiResponses.haltBecauseOfReason("Directive '%s' is not recognized as a valid directive in json '%s'", directive, reader.toString());
+        }
+
+
+        switch (directiveType.get()) {
+            case ALLOW:
+                return new Allow(action, type, resource);
+            case DENY:
+                return new Deny(action, type, resource);
+            default:
+                // it will never reach here
+                break;
+        }
+        return null;
     }
 }

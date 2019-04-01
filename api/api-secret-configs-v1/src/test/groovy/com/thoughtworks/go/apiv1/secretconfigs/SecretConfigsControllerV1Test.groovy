@@ -266,19 +266,17 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
             ]
           ],
           "rules"      : [
-            "allow": [
-              [
-                "action"  : "refer",
-                "type"    : "PipelineGroup",
-                "resource": "DeployPipelines"
-              ]
+            [
+              "directive": "allow",
+              "action"   : "refer",
+              "type"     : "PipelineGroup",
+              "resource" : "DeployPipelines"
             ],
-            "deny" : [
-              [
-                "action"  : "refer",
-                "type"    : "PipelineGroup",
-                "resource": "TestPipelines"
-              ]
+            [
+              "directive": "deny",
+              "action"   : "refer",
+              "type"     : "PipelineGroup",
+              "resource" : "TestPipelines"
             ]
           ]
         ]
@@ -422,20 +420,18 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
               "encrypted_value": "0a3ecba2e196f73d07b361398cc9d08b"
             ]
           ],
-          "rules"      : [
-            "allow": [
-              [
-                "action"  : "refer",
-                "type"    : "PipelineGroup",
-                "resource": "DeployPipelines"
-              ]
+          "rules"      :[
+            [
+              "directive": "allow",
+              "action"   : "refer",
+              "type"     : "PipelineGroup",
+              "resource" : "DeployPipelines"
             ],
-            "deny" : [
-              [
-                "action"  : "refer",
-                "type"    : "PipelineGroup",
-                "resource": "TestPipelines"
-              ]
+            [
+              "directive": "deny",
+              "action"   : "refer",
+              "type"     : "PipelineGroup",
+              "resource" : "TestPipelines"
             ]
           ]
         ]
@@ -531,6 +527,10 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
 
       @Test
       void shouldReturn422WhenMalformedJSONRequestIsReceived() {
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(
+            new SecretConfigs(new SecretConfig("foo", "bar-plugin"))
+        )
+
         putWithApiHeader(controller.controllerPath("/foo"), ['if-match': 'md5-does-not-matter'], [:])
 
         assertThatResponse()

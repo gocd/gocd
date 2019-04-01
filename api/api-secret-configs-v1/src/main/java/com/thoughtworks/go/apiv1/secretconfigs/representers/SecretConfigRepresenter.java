@@ -49,7 +49,7 @@ public class SecretConfigRepresenter {
         });
 
         if (!CollectionUtils.isEmpty(secretConfig.getRules())) {
-            jsonWriter.addChild("rules", rulesWriter -> RulesRepresenter.toJSON(rulesWriter, secretConfig.getRules()));
+            jsonWriter.addChildList("rules", rulesWriter -> RulesRepresenter.toJSON(rulesWriter, secretConfig.getRules()));
         }
     }
 
@@ -58,9 +58,10 @@ public class SecretConfigRepresenter {
         jsonReader.optString("description").ifPresent(description -> secretConfig.setDescription(description));
         secretConfig.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "properties"));
 
-        if (jsonReader.optJsonObject("rules").isPresent()) {
-            secretConfig.setRules(RulesRepresenter.fromJSON(jsonReader.readJsonObject("rules")));
-        }
+        jsonReader.readArrayIfPresent("rules", array -> {
+            secretConfig.setRules(RulesRepresenter.fromJSON(array));
+        });
+
         return secretConfig;
     }
 }

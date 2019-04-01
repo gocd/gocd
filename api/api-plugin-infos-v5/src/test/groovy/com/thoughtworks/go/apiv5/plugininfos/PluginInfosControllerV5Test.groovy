@@ -91,12 +91,13 @@ class PluginInfosControllerV5Test implements SecurityServiceTrait, ControllerTra
         def pluginInfo = new CombinedPluginInfo(PluginInfoMother.createAuthorizationPluginInfo())
 
         when(pluginInfoFinder.pluginInfoFor('plugin_id')).thenReturn(pluginInfo)
+        when(entityHashingService.md5ForEntity(pluginInfo)).thenReturn("md5")
 
         getWithApiHeader(controller.controllerPath('/plugin_id'))
 
         assertThatResponse()
           .isOk()
-          .hasEtag()
+          .hasEtag('"md5"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(pluginInfo, PluginInfoRepresenter)
       }
@@ -200,12 +201,13 @@ class PluginInfosControllerV5Test implements SecurityServiceTrait, ControllerTra
       @Test
       void 'should return all plugin infos'() {
         when(pluginInfoFinder.allPluginInfos()).thenReturn(pluginInfos)
+        when(entityHashingService.md5ForEntity(pluginInfos)).thenReturn("md5")
 
         getWithApiHeader(controller.controllerPath())
 
         assertThatResponse()
           .isOk()
-          .hasEtag()
+          .hasEtag('"md5"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(pluginInfos, PluginInfosRepresenter)
       }
@@ -225,7 +227,6 @@ class PluginInfosControllerV5Test implements SecurityServiceTrait, ControllerTra
 
         assertThatResponse()
           .isOk()
-          .hasEtag()
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(pluginInfos, PluginInfosRepresenter)
       }
@@ -260,6 +261,8 @@ class PluginInfosControllerV5Test implements SecurityServiceTrait, ControllerTra
         def expectedPluginInfo = new ArrayList<CombinedPluginInfo>()
         expectedPluginInfo.addAll(pluginInfos)
         expectedPluginInfo.add(new BadPluginInfo(badPluginDescriptor))
+
+        expectedPluginInfo.sort { a, b -> (a.descriptor.id() <=> b.descriptor.id()) }
 
         assertThatResponse()
           .isOk()

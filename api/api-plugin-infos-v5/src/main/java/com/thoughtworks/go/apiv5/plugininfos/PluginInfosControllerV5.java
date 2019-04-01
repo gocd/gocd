@@ -40,10 +40,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.api.util.HaltApiMessages.notFoundMessage;
@@ -113,6 +110,7 @@ public class PluginInfosControllerV5 extends ApiController implements SparkSprin
             pluginInfos.addAll(badPluginInfos);
         }
 
+        pluginInfos.sort(Comparator.comparing((CombinedPluginInfo pluginInfos1) -> pluginInfos1.getDescriptor().id()));
         String etag = etagFor(pluginInfos);
 
         if (fresh(request, etag)) {

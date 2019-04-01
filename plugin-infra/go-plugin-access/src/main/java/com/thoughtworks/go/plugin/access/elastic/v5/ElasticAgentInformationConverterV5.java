@@ -22,7 +22,6 @@ import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import java.util.stream.Collectors;
 
 class ElasticAgentInformationConverterV5 implements DataConverter<ElasticAgentInformation, ElasticAgentInformationDTO> {
-
     @Override
     public ElasticAgentInformation fromDTO(ElasticAgentInformationDTO elasticAgentInformationDTO) {
         return new ElasticAgentInformation(elasticAgentInformationDTO.getPluginSettings(), elasticAgentInformationDTO.getClusterProfiles(), elasticAgentInformationDTO.getElasticAgentProfiles());

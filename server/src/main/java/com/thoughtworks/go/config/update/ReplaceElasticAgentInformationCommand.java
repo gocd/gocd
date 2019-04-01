@@ -61,7 +61,7 @@ public class ReplaceElasticAgentInformationCommand implements EntityConfigUpdate
             configurationProperties.addAll(pluginSettings.getPluginSettingsProperties());
         }
 
-        Map<String, Map<String, Object>> pluginSettingsConfiguration = configurationProperties.getPropertyMetadataAndValuesAsMap();
+        Map<String, String> pluginSettingsConfiguration = configurationProperties.getConfigurationAsMap(true);
         List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId);
         List<ElasticProfile> elasticAgentProfiles = elasticProfileService.getPluginProfiles().findByPluginId(pluginId);
 

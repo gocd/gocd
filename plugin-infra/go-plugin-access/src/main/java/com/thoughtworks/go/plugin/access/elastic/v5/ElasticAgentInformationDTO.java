@@ -40,7 +40,7 @@ class ElasticAgentInformationDTO implements Serializable {
 
     @Expose
     @SerializedName("plugin_settings")
-    private final Map<String, Map<String, Object>> pluginSettings;
+    private final Map<String, String> pluginSettings;
 
     @Expose
     @SerializedName("cluster_profiles")
@@ -50,7 +50,7 @@ class ElasticAgentInformationDTO implements Serializable {
     @SerializedName("elastic_agent_profiles")
     private final List<ElasticProfileDTO> elasticAgentProfilesDTO;
 
-    public ElasticAgentInformationDTO(Map<String, Map<String, Object>> pluginSettings, List<ClusterProfileDTO> clusterProfilesDTO, List<ElasticProfileDTO> elasticAgentProfilesDTO) {
+    public ElasticAgentInformationDTO(Map<String, String> pluginSettings, List<ClusterProfileDTO> clusterProfilesDTO, List<ElasticProfileDTO> elasticAgentProfilesDTO) {
         this.pluginSettings = pluginSettings;
         this.clusterProfilesDTO = clusterProfilesDTO;
         this.elasticAgentProfilesDTO = elasticAgentProfilesDTO;
@@ -60,7 +60,7 @@ class ElasticAgentInformationDTO implements Serializable {
         return GSON.toJsonTree(this);
     }
 
-    public Map<String, Map<String, Object>> getPluginSettings() {
+    public Map<String, String> getPluginSettings() {
         return pluginSettings;
     }
 

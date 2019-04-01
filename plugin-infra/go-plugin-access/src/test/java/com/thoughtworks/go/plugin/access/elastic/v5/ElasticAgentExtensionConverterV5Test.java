@@ -25,6 +25,8 @@ import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
+import com.thoughtworks.go.security.CryptoException;
+import com.thoughtworks.go.security.GoCipher;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -267,13 +269,14 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldGetRequestBodyForMigrateCall_withOldConfig() {
+    public void shouldGetRequestBodyForMigrateCall_withOldConfig() throws CryptoException {
         ConfigurationProperty property1 = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"));
-        ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new EncryptedConfigurationValue("encrypted"));
+        ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("password")));
+
         Configuration configuration = new Configuration();
         configuration.add(property1);
         configuration.add(property2);
-        Map<String, Map<String, Object>> pluginSettings = configuration.getPropertyMetadataAndValuesAsMap();
+        Map<String, String> pluginSettings = configuration.getConfigurationAsMap(true);
 
         List<ClusterProfile> clusterProfiles = new ArrayList<>();
 
@@ -287,16 +290,8 @@ public class ElasticAgentExtensionConverterV5Test {
 
         String expectedRequestBody = "{" +
                 "    \"plugin_settings\":{" +
-                "        \"key2\":{" +
-                "            \"displayValue\":\"****\"," +
-                "            \"isSecure\":true," +
-                "            \"value\":\"encrypted\"" +
-                "        }," +
-                "        \"key\":{" +
-                "            \"displayValue\":\"value\"," +
-                "            \"isSecure\":false," +
-                "            \"value\":\"value\"" +
-                "        }" +
+                "        \"key2\":\"password\", " +
+                "        \"key\":\"value\"" +
                 "    }," +
                 "    \"cluster_profiles\":[]," +
                 "    \"elastic_agent_profiles\":[" +
@@ -324,13 +319,13 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldGetRequestBodyForMigrateCall_withNewConfig() {
+    public void shouldGetRequestBodyForMigrateCall_withNewConfig() throws CryptoException {
         ConfigurationProperty property1 = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"));
-        ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new EncryptedConfigurationValue("encrypted"));
+        ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("password")));
         Configuration configuration = new Configuration();
         configuration.add(property1);
         configuration.add(property2);
-        Map<String, Map<String, Object>> pluginSettings = configuration.getPropertyMetadataAndValuesAsMap();
+        Map<String, String> pluginSettings = configuration.getConfigurationAsMap(true);
 
         List<ClusterProfile> clusterProfiles = new ArrayList<>();
         clusterProfiles.add(new ClusterProfile("cluster_profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue("some_value2"))));
@@ -345,16 +340,8 @@ public class ElasticAgentExtensionConverterV5Test {
 
         String expectedRequestBody = "{" +
                 "    \"plugin_settings\":{" +
-                "        \"key2\":{" +
-                "            \"displayValue\":\"****\"," +
-                "            \"isSecure\":true," +
-                "            \"value\":\"encrypted\"" +
-                "        }," +
-                "        \"key\":{" +
-                "            \"displayValue\":\"value\"," +
-                "            \"isSecure\":false," +
-                "            \"value\":\"value\"" +
-                "        }" +
+                "        \"key2\":\"password\", " +
+                "        \"key\":\"value\"" +
                 "    }," +
                 "    \"cluster_profiles\":[" +
                 "        {" +
@@ -399,19 +386,11 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
-    public void shouldGetTheElasticAgentInformationFromResponseBodyOfMigrateCall() {
+    public void shouldGetTheElasticAgentInformationFromResponseBodyOfMigrateCall() throws CryptoException {
         String responseBody = "{" +
                 "    \"plugin_settings\":{" +
-                "        \"key2\":{" +
-                "            \"displayValue\":\"****\"," +
-                "            \"isSecure\":true," +
-                "            \"value\":\"encrypted\"" +
-                "        }," +
-                "        \"key\":{" +
-                "            \"displayValue\":\"value\"," +
-                "            \"isSecure\":false," +
-                "            \"value\":\"value\"" +
-                "        }" +
+                "        \"key2\":\"password\", " +
+                "        \"key\":\"value\"" +
                 "    }," +
                 "    \"cluster_profiles\":[" +
                 "        {" +
@@ -455,11 +434,12 @@ public class ElasticAgentExtensionConverterV5Test {
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentExtensionConverterV5().getElasticAgentInformationFromResponseBody(responseBody);
 
         ConfigurationProperty property1 = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"));
-        ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new EncryptedConfigurationValue("encrypted"));
+        ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("password")));
         Configuration configuration = new Configuration();
         configuration.add(property1);
         configuration.add(property2);
-        Map<String, Map<String, Object>> pluginSettings = configuration.getPropertyMetadataAndValuesAsMap();
+
+        Map<String, String> pluginSettings = configuration.getConfigurationAsMap(true);
 
         List<ClusterProfile> clusterProfiles = new ArrayList<>();
         clusterProfiles.add(new ClusterProfile("cluster_profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue("some_value2"))));

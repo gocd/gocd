@@ -24,17 +24,17 @@ import java.util.Map;
 import java.util.Objects;
 
 public class ElasticAgentInformation {
-    private final Map<String, Map<String, Object>> pluginSettings;
+    private final Map<String, String> pluginSettings;
     private final List<ClusterProfile> clusterProfiles;
     private final List<ElasticProfile> elasticAgentProfiles;
 
-    public ElasticAgentInformation(Map<String, Map<String, Object>> pluginSettings, List<ClusterProfile> clusterProfiles, List<ElasticProfile> elasticAgentProfiles) {
+    public ElasticAgentInformation(Map<String, String> pluginSettings, List<ClusterProfile> clusterProfiles, List<ElasticProfile> elasticAgentProfiles) {
         this.pluginSettings = pluginSettings;
         this.clusterProfiles = clusterProfiles;
         this.elasticAgentProfiles = elasticAgentProfiles;
     }
 
-    public Map<String, Map<String, Object>> getPluginSettings() {
+    public Map<String, String> getPluginSettings() {
         return pluginSettings;
     }
 

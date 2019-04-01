@@ -12,9 +12,9 @@ if [ "$mod" = "0" ]; then
   # use the system jvm
   true
 elif [ "$mod" = "1" ]; then
-  use_jdk "openjdk@1.10"
-elif [ "$mod" = "2" ]; then
   use_jdk "openjdk@1.11"
+elif [ "$mod" = "2" ]; then
+  use_jdk "openjdk@1.12"
 fi
 
 exec "$@"

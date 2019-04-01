@@ -7,9 +7,9 @@ function use_jdk() {
 if ($mod -eq "0") {
     Write-Host "Using system JVM"
 } elseif ($mod -eq "1") {
-    use_jdk "openjdk@1.10"
-} elseif ($mod -eq "2") {
     use_jdk "openjdk@1.11"
+} elseif ($mod -eq "2") {
+    use_jdk "openjdk@1.12"
 }
 
 $command = "$($args[0])"

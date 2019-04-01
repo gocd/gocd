@@ -16,11 +16,10 @@
 
 package com.thoughtworks.go.build
 
-import de.undercouch.gradle.tasks.download.DownloadAction
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.Task
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 
 class WindowsPackagingTask extends DefaultTask {
@@ -30,6 +29,8 @@ class WindowsPackagingTask extends DefaultTask {
   String version
   @Input
   String distVersion
+  @InputFile
+  File openJdkZipFile
 
   Closure<Task> beforePackage
 
@@ -62,18 +63,8 @@ class WindowsPackagingTask extends DefaultTask {
       buildRoot().mkdirs()
       project.convention.plugins.get("base").distsDir.mkdirs()
 
-      File jreDownloadDir = project.file("${winRootDir()}/jre-download")
-
-      jreDownloadDir.deleteDir()
-      jreDownloadDir.mkdirs()
-
-      def downloadAction = new DownloadAction(project)
-      downloadAction.src(jreLocation())
-      downloadAction.dest(jreDownloadDir)
-      downloadAction.execute()
-
       project.copy {
-        from project.zipTree(project.fileTree(jreDownloadDir).singleFile)
+        from project.zipTree(openJdkZipFile)
         into buildRoot()
 
         // exclude jdk specific stuff
@@ -83,7 +74,6 @@ class WindowsPackagingTask extends DefaultTask {
         includeEmptyDirs = false
       }
 
-      jreDownloadDir.deleteDir()
     }
 
     doLast {
@@ -91,23 +81,11 @@ class WindowsPackagingTask extends DefaultTask {
     }
   }
 
-  String jreLocation() {
-    if (specifiedJreLocation() != null) {
-      specifiedJreLocation()
-    } else {
-      throw new GradleException("Please specify environment variable WINDOWS_${flavour().toUpperCase()}_JDK_URL to point to a windows JDK location.")
-    }
-  }
-
-  def specifiedJreLocation() {
-    System.getenv("WINDOWS_${flavour().toUpperCase()}_JDK_URL")
-  }
-
-  def flavour() {
+  static def flavour() {
     "64bit"
   }
 
-  def buildPackage() {
+  private def buildPackage() {
     doLast {
       def names = []
       buildRoot().eachDirMatch(~/jdk.*/, { names << it })

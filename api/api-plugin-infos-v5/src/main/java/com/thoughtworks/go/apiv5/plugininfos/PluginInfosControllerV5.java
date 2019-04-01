@@ -30,10 +30,10 @@ import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.infra.DefaultPluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.EntityHashingService;
-import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException;
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import spark.Request;
@@ -92,15 +92,15 @@ public class PluginInfosControllerV5 extends ApiController implements SparkSprin
         String pluginType = request.queryParams("type");
         Boolean includeBad = Boolean.valueOf(request.queryParams("include_bad"));
 
-        try {
-            Collection<CombinedPluginInfo> validPluginInfos = this.pluginInfoFinder.allPluginInfos(pluginType).stream()
-                    .filter(pluginInfo -> !hasUnsupportedExtensionType(pluginInfo))
-                    .collect(Collectors.toList());
-
-            pluginInfos.addAll(validPluginInfos);
-        } catch (InvalidPluginTypeException exception) {
+        if (StringUtils.isNotBlank(pluginType) && !extensionsRegistry.allRegisteredExtensions().contains(pluginType)) {
             throw new UnprocessableEntityException(String.format("Invalid plugin type '%s'. It has to be one of '%s'.", pluginType, String.join(", ", extensionsRegistry.allRegisteredExtensions())));
         }
+
+        Collection<CombinedPluginInfo> validPluginInfos = this.pluginInfoFinder.allPluginInfos(pluginType).stream()
+                .filter(pluginInfo -> !hasUnsupportedExtensionType(pluginInfo))
+                .collect(Collectors.toList());
+
+        pluginInfos.addAll(validPluginInfos);
 
         if (includeBad) {
             List<BadPluginInfo> badPluginInfos = defaultPluginManager.plugins().stream()

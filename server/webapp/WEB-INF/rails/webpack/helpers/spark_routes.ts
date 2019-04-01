@@ -194,12 +194,12 @@ export default class {
     return "/go/api/users";
   }
 
-  static apiUserPath(username: string) {
-    return `/go/api/users/${username}`;
-  }
-
   static apiBulkUserStateUpdatePath() {
     return "/go/api/users/operations/state";
+  }
+
+  static apiUserPath(username: string) {
+    return `/go/api/users/${username}`;
   }
 
   static apiUsersSearchPath(searchText: string) {
@@ -208,6 +208,10 @@ export default class {
 
   static apisystemAdminsPath() {
     return "/go/api/admin/security/system_admins";
+  }
+
+  static apiCreateServerBackupPath() {
+    return `/go/api/backups`;
   }
 
   static apiCurrentAccessTokenPath(id: number) {

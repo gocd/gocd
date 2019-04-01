@@ -437,6 +437,10 @@ public class Routes {
         public static final String BASE = "/admin/data_sharing/settings";
     }
 
+    public class BackupsSPA {
+        public static final String BASE = "/admin/backup";
+    }
+
     public class ServerHealth {
         public static final String BASE = "/api/v1/health";
     }

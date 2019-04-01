@@ -45,6 +45,7 @@ public class SpaControllers implements SparkSpringController {
                           GoConfigService goConfigService,
                           AuthorizationExtensionCacheService authorizationExtensionCacheService,
                           SecurityAuthConfigService securityAuthConfigService,
+                          BackupService backupService,
                           Clock clock) {
 
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
@@ -68,6 +69,7 @@ public class SpaControllers implements SparkSpringController {
         sparkControllers.add(new KitchenSinkController(templateEngineFactory.create(KitchenSinkController.class, componentTemplate)));
         sparkControllers.add(new PluginsController(authenticationHelper, templateEngineFactory.create(PluginsController.class, componentTemplate)));
         sparkControllers.add(new ElasticProfilesController(authenticationHelper, templateEngineFactory.create(ElasticProfilesController.class, componentTemplate)));
+        sparkControllers.add(new BackupsController(authenticationHelper, templateEngineFactory.create(BackupsController.class, componentTemplate), backupService));
     }
 
     @Override

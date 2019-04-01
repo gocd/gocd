@@ -30,7 +30,6 @@ public enum ExtensionType {
     private String extensionType;
 
     ExtensionType(String extensionType) {
-
         this.extensionType = extensionType;
     }
 

@@ -31,6 +31,7 @@ import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.plugins.InvalidPluginTypeException
 import com.thoughtworks.go.server.service.plugins.builder.DefaultPluginInfoFinder
 import com.thoughtworks.go.spark.ControllerTrait
+import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -65,7 +66,7 @@ class PluginInfosControllerV5Test implements SecurityServiceTrait, ControllerTra
   @Nested
   class Show {
     @Nested
-    class Security implements SecurityTestTrait {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return 'show'
@@ -169,7 +170,7 @@ class PluginInfosControllerV5Test implements SecurityServiceTrait, ControllerTra
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait {
+    class Security implements SecurityTestTrait, NormalUserSecurity {
       @Override
       String getControllerMethodUnderTest() {
         return 'index'

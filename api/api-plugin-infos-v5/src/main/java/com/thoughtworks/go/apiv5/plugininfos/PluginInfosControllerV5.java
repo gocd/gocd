@@ -78,11 +78,11 @@ public class PluginInfosControllerV5 extends ApiController implements SparkSprin
             before("", mimeType, this::setContentType);
             before("/*", mimeType, this::setContentType);
 
-            before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
-            before(Routes.PluginInfoAPI.ID, this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+            before("", this.mimeType, this.apiAuthenticationHelper::checkUserAnd403);
+            before(Routes.PluginInfoAPI.ID, this.mimeType, this.apiAuthenticationHelper::checkUserAnd403);
 
-            get(Routes.PluginInfoAPI.ID, mimeType, this::show);
             get("", mimeType, this::index);
+            get(Routes.PluginInfoAPI.ID, mimeType, this::show);
 
             exception(HttpException.class, this::httpException);
         });

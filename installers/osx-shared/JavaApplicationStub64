@@ -739,7 +739,10 @@ fi
 ############################################
 
 # enable drag&drop to the dock icon
-export CFProcessPath="$0"
+# Intentionally disabled. See:
+#  - https://github.com/tofi86/universalJavaApplicationStub/issues/10
+#  - https://github.com/gocd/gocd/issues/5857
+# export CFProcessPath="$0"
 
 # remove Apples ProcessSerialNumber from passthru arguments (#39)
 if [[ "$*" == -psn* ]] ; then

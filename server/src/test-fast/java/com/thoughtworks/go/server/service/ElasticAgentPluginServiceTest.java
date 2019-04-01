@@ -285,7 +285,7 @@ class ElasticAgentPluginServiceTest {
     void shouldGetAPluginStatusReportWhenPluginSupportsStatusReport() {
         final Capabilities capabilities = new Capabilities(true);
         final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
-        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, capabilities));
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         when(registry.getPluginStatusReport("cd.go.example.plugin")).thenReturn("<div>This is a plugin status report snippet.</div>");
 
@@ -298,7 +298,7 @@ class ElasticAgentPluginServiceTest {
     void shouldErrorOutWhenPluginDoesNotSupportStatusReport() {
         final Capabilities capabilities = new Capabilities(false);
         final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
-        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, capabilities));
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> service.getPluginStatusReport("cd.go.example.plugin"));
         assertThat(exception.getMessage()).isEqualTo("Plugin does not plugin support status report.");
@@ -308,7 +308,7 @@ class ElasticAgentPluginServiceTest {
     void shouldGetAPluginAgentReportWhenPluginSupportsStatusReport() {
         final Capabilities capabilities = new Capabilities(false, true);
         final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
-        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, capabilities));
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         when(registry.getAgentStatusReport("cd.go.example.plugin", null, "some-id"))
                 .thenReturn("<div>This is a agent status report snippet.</div>");
@@ -322,7 +322,7 @@ class ElasticAgentPluginServiceTest {
     void shouldErrorOutWhenPluginDoesNotAgentSupportStatusReport() {
         final Capabilities capabilities = new Capabilities(true, false);
         final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
-        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, capabilities));
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
         final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> service.getAgentStatusReport("cd.go.example.plugin", null, null));
         assertThat(exception.getMessage()).isEqualTo("Plugin does not support agent status report.");

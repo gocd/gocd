@@ -70,7 +70,42 @@ public class ElasticAgentPluginInfoBuilderTest {
         assertThat(pluginInfo.getExtensionName(), is("elastic-agent"));
 
         assertThat(pluginInfo.getImage(), is(icon));
-        assertThat(pluginInfo.getProfileSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("profile_view"))));
+        assertThat(pluginInfo.getElasticAgentProfileSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("profile_view"))));
+        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html"))));
+        assertFalse(pluginInfo.supportsStatusReport());
+    }
+
+    @Test
+    public void shouldBuildPluginInfoWithClusterProfileSettings() {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+        List<PluginConfiguration> elasticAgentProfileConfigurations = Arrays.asList(new PluginConfiguration("aws_password", new Metadata(true, false)));
+        List<PluginConfiguration> clusterProfileConfigurations = Arrays.asList(new PluginConfiguration("aws_url", new Metadata(true, false)));
+        PluginSettingsProperty property = new PluginSettingsProperty("ami-id", "ami-123");
+        PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
+        pluginSettingsConfiguration.add(property);
+        Image icon = new Image("content_type", "data", "hash");
+
+        when(pluginManager.resolveExtensionVersion("plugin1", ELASTIC_AGENT_EXTENSION, SUPPORTED_VERSIONS)).thenReturn("1.0");
+        when(extension.getPluginSettingsConfiguration(descriptor.id())).thenReturn(pluginSettingsConfiguration);
+        when(extension.getPluginSettingsView(descriptor.id())).thenReturn("some html");
+
+        when(extension.getIcon(descriptor.id())).thenReturn(icon);
+
+        when(extension.getClusterProfileMetadata(descriptor.id())).thenReturn(clusterProfileConfigurations);
+        when(extension.getClusterProfileView(descriptor.id())).thenReturn("cluster_profile_view");
+
+        when(extension.getProfileMetadata(descriptor.id())).thenReturn(elasticAgentProfileConfigurations);
+        when(extension.getProfileView(descriptor.id())).thenReturn("elastic_agent_profile_view");
+
+        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
+        ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
+
+        assertThat(pluginInfo.getDescriptor(), is(descriptor));
+        assertThat(pluginInfo.getExtensionName(), is("elastic-agent"));
+
+        assertThat(pluginInfo.getImage(), is(icon));
+        assertThat(pluginInfo.getElasticAgentProfileSettings(), is(new PluggableInstanceSettings(elasticAgentProfileConfigurations, new PluginView("elastic_agent_profile_view"))));
+        assertThat(pluginInfo.getClusterProfileSettings(), is(new PluggableInstanceSettings(clusterProfileConfigurations, new PluginView("cluster_profile_view"))));
         assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html"))));
         assertFalse(pluginInfo.supportsStatusReport());
     }
@@ -96,7 +131,7 @@ public class ElasticAgentPluginInfoBuilderTest {
         assertThat(pluginInfo.getExtensionName(), is("elastic-agent"));
 
         assertThat(pluginInfo.getImage(), is(icon));
-        assertThat(pluginInfo.getProfileSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("profile_view"))));
+        assertThat(pluginInfo.getElasticAgentProfileSettings(), is(new PluggableInstanceSettings(pluginConfigurations, new PluginView("profile_view"))));
         assertNull(pluginInfo.getPluginSettings());
     }
 

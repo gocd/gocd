@@ -51,12 +51,12 @@ public class ClusterProfile extends PluginProfile {
         ElasticAgentPluginInfo pluginInfo = this.metadataStore().getPluginInfo(getPluginId());
 
         if (pluginInfo == null
-                || pluginInfo.getProfileSettings() == null
-                || pluginInfo.getProfileSettings().getConfiguration(key) == null) {
+                || pluginInfo.getClusterProfileSettings() == null
+                || pluginInfo.getClusterProfileSettings().getConfiguration(key) == null) {
             return false;
         }
 
-        return pluginInfo.getProfileSettings().getConfiguration(key).isSecure();
+        return pluginInfo.getClusterProfileSettings().getConfiguration(key).isSecure();
     }
 
     @Override

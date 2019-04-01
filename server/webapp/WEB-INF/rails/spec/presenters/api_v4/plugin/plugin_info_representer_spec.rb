@@ -232,7 +232,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
       plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', plugin_metadata)], plugin_view)
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true, true)
 
-      plugin_info = CombinedPluginInfo.new(ElasticAgentPluginInfo.new(descriptor, profile_settings, image, plugin_settings, capabilities))
+      plugin_info = CombinedPluginInfo.new(ElasticAgentPluginInfo.new(descriptor, profile_settings, nil, image, plugin_settings, capabilities))
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to have_link(:image).with_url('http://test.host/go/api/plugin_images/foo.example/945f43c56990feb8732e7114054fa33cd51ba1f8a208eb5160517033466d4756')
       actual_json.delete(:_links)
@@ -306,7 +306,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
       plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
       plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('username', plugin_metadata)], plugin_view)
       dashboard_analytics = SupportedAnalytics.new('dashboard', 'top_ten_agents_by_utilization', 'Top Ten Agents With Highest Utilization')
-      pipeline_analytics  = SupportedAnalytics.new('pipeline', 'top_ten_pipelines_by_wait_time', 'Top Ten Pipelines With Highest Wait Time')
+      pipeline_analytics = SupportedAnalytics.new('pipeline', 'top_ten_pipelines_by_wait_time', 'Top Ten Pipelines With Highest Wait Time')
       capabilities = com.thoughtworks.go.plugin.domain.analytics.Capabilities.new([dashboard_analytics, pipeline_analytics])
 
       plugin_info = CombinedPluginInfo.new(AnalyticsPluginInfo.new(descriptor, image, capabilities, plugin_settings))
@@ -317,7 +317,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
       expect(actual_json).to eq({
                                   id: 'foo.example',
                                   status: {
-                                      state: 'active'
+                                    state: 'active'
                                   },
                                   plugin_file_location: '/path/to/foo.jar',
                                   bundled_plugin: false,

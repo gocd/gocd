@@ -88,7 +88,7 @@ public class CombinedPluginInfoTest {
         Image image2 = new Image("c2", "d2", "hash2");
         Image image3 = new Image("c3", "d3", "hash3");
 
-        ElasticAgentPluginInfo elasticAgentPluginInfo = new ElasticAgentPluginInfo(null, null, image1, null, null);
+        ElasticAgentPluginInfo elasticAgentPluginInfo = new ElasticAgentPluginInfo(null, null, null, image1, null, null);
         AuthorizationPluginInfo authorizationPluginInfo = new AuthorizationPluginInfo(null, null, null, image2, null);
         AnalyticsPluginInfo analyticsPluginInfo = new AnalyticsPluginInfo(null, image3, null, null);
 

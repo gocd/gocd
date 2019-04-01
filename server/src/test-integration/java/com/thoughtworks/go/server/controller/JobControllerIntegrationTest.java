@@ -182,7 +182,7 @@ public class JobControllerIntegrationTest {
         JobInstance job = stage.getFirstJob();
         GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
-        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false, true)));
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, new Capabilities(false, true)));
 
         ElasticProfile profile = new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", Collections.EMPTY_LIST);
         ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.EMPTY_LIST);
@@ -203,7 +203,7 @@ public class JobControllerIntegrationTest {
 
         GoPluginDescriptor.About about = new GoPluginDescriptor.About("name", "0.1", "17.3.0", "desc", null, null);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
-        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, new Capabilities(false, true)));
+        ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, new Capabilities(false, true)));
 
         ElasticProfile profile = new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", Collections.EMPTY_LIST);
         ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.EMPTY_LIST);

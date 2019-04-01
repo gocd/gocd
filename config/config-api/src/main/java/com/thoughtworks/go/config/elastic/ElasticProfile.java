@@ -69,12 +69,12 @@ public class ElasticProfile extends PluginProfile {
         ElasticAgentPluginInfo pluginInfo = this.metadataStore().getPluginInfo(getPluginId());
 
         if (pluginInfo == null
-                || pluginInfo.getProfileSettings() == null
-                || pluginInfo.getProfileSettings().getConfiguration(key) == null) {
+                || pluginInfo.getElasticAgentProfileSettings() == null
+                || pluginInfo.getElasticAgentProfileSettings().getConfiguration(key) == null) {
             return false;
         }
 
-        return pluginInfo.getProfileSettings().getConfiguration(key).isSecure();
+        return pluginInfo.getElasticAgentProfileSettings().getConfiguration(key).isSecure();
     }
 
     @Override

@@ -41,17 +41,27 @@ public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticA
     public ElasticAgentPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         PluggableInstanceSettings pluggableInstanceSettings = getPluginSettingsAndView(descriptor, extension);
 
-        return new ElasticAgentPluginInfo(descriptor, elasticProfileSettings(descriptor.id()), image(descriptor.id()),
-                pluggableInstanceSettings, capabilities(descriptor.id()));
+        return new ElasticAgentPluginInfo(descriptor,
+                elasticElasticAgentProfileSettings(descriptor.id()),
+                elasticClusterProfileSettings(descriptor.id()),
+                image(descriptor.id()),
+                pluggableInstanceSettings,
+                capabilities(descriptor.id()));
     }
 
     private com.thoughtworks.go.plugin.domain.common.Image image(String pluginId) {
         return extension.getIcon(pluginId);
     }
 
-    private PluggableInstanceSettings elasticProfileSettings(String pluginId) {
+    private PluggableInstanceSettings elasticElasticAgentProfileSettings(String pluginId) {
         List<PluginConfiguration> profileMetadata = extension.getProfileMetadata(pluginId);
         String profileView = extension.getProfileView(pluginId);
+        return new PluggableInstanceSettings(profileMetadata, new PluginView(profileView));
+    }
+
+    private PluggableInstanceSettings elasticClusterProfileSettings(String pluginId) {
+        List<PluginConfiguration> profileMetadata = extension.getClusterProfileMetadata(pluginId);
+        String profileView = extension.getClusterProfileView(pluginId);
         return new PluggableInstanceSettings(profileMetadata, new PluginView(profileView));
     }
 

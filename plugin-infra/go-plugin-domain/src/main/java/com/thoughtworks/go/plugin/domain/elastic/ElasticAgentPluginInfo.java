@@ -22,19 +22,31 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConstants;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
 
+import java.util.Objects;
+
 public class ElasticAgentPluginInfo extends PluginInfo {
     private final PluggableInstanceSettings profileSettings;
+    private final PluggableInstanceSettings clusterProfileSettings;
     private final Capabilities capabilities;
 
-    public ElasticAgentPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings profileSettings, Image image,
+    public ElasticAgentPluginInfo(PluginDescriptor descriptor, PluggableInstanceSettings profileSettings, PluggableInstanceSettings clusterProfileSettings, Image image,
                                   PluggableInstanceSettings pluginSettings, Capabilities capabilities) {
-            super(descriptor, PluginConstants.ELASTIC_AGENT_EXTENSION, pluginSettings, image);
+        super(descriptor, PluginConstants.ELASTIC_AGENT_EXTENSION, pluginSettings, image);
         this.profileSettings = profileSettings;
+        this.clusterProfileSettings = clusterProfileSettings;
         this.capabilities = capabilities;
     }
 
-    public PluggableInstanceSettings getProfileSettings() {
+    public PluggableInstanceSettings getElasticAgentProfileSettings() {
         return profileSettings;
+    }
+
+    public PluggableInstanceSettings getProfileSettings() {
+        return getElasticAgentProfileSettings();
+    }
+
+    public PluggableInstanceSettings getClusterProfileSettings() {
+        return clusterProfileSettings;
     }
 
     public Capabilities getCapabilities() {
@@ -50,22 +62,14 @@ public class ElasticAgentPluginInfo extends PluginInfo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
-
         ElasticAgentPluginInfo that = (ElasticAgentPluginInfo) o;
-
-        if (profileSettings != null ? !profileSettings.equals(that.profileSettings) : that.profileSettings != null)
-            return false;
-        if (image != null ? !image.equals(that.image) : that.image != null) return false;
-        return capabilities != null ? capabilities.equals(that.capabilities) : that.capabilities == null;
-
+        return Objects.equals(profileSettings, that.profileSettings) &&
+                Objects.equals(clusterProfileSettings, that.clusterProfileSettings) &&
+                Objects.equals(capabilities, that.capabilities);
     }
 
     @Override
     public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (profileSettings != null ? profileSettings.hashCode() : 0);
-        result = 31 * result + (image != null ? image.hashCode() : 0);
-        result = 31 * result + (capabilities != null ? capabilities.hashCode() : 0);
-        return result;
+        return Objects.hash(super.hashCode(), profileSettings, clusterProfileSettings, capabilities);
     }
 }

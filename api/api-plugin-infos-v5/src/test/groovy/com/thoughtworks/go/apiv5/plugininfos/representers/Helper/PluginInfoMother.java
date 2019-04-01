@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.apiv5.plugininfos.representers.Helper;
 
-import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.plugin.domain.analytics.AnalyticsPluginInfo;
 import com.thoughtworks.go.plugin.domain.analytics.SupportedAnalytics;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
@@ -65,15 +64,13 @@ public class PluginInfoMother {
         return new ConfigRepoPluginInfo(descriptor, null, getPluggableSettings());
     }
 
-
     public static ElasticAgentPluginInfo createElasticAgentPluginInfo() {
         ArrayList<String> targetOperatingSystems = new ArrayList<>();
         targetOperatingSystems.add("os");
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
 
-        return new ElasticAgentPluginInfo(descriptor, getPluggableSettings(), null, getPluggableSettings(), new com.thoughtworks.go.plugin.domain.elastic.Capabilities(true, false));
+        return new ElasticAgentPluginInfo(descriptor, getPluggableSettings(), null, null, getPluggableSettings(), new com.thoughtworks.go.plugin.domain.elastic.Capabilities(true, false));
     }
-
 
     public static CombinedPluginInfo createBadPluginInfo() {
         List<String> messages = new ArrayList<>();
@@ -101,7 +98,6 @@ public class PluginInfoMother {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
 
         return new PluggableTaskPluginInfo(descriptor, "Task", getPluggableSettings());
-
     }
 
     public static PackageMaterialPluginInfo createPackageMaterialPluginInfo() {
@@ -146,6 +142,5 @@ public class PluginInfoMother {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
 
         return new ArtifactPluginInfo(descriptor, getPluggableSettings(), getPluggableSettings(), getPluggableSettings(), null, null);
-
     }
 }

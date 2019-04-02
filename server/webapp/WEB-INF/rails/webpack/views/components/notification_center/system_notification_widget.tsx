@@ -37,5 +37,3 @@ export class SystemNotificationWidget extends MithrilViewComponent<Attrs> {
     );
   }
 }
-
-module.exports = SystemNotificationWidget;

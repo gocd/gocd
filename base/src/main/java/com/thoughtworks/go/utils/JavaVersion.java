@@ -100,7 +100,6 @@ public enum JavaVersion {
         return currentJavaVersion;
     }
 
-    @VisibleForTesting
     static void resetCurrent() {
         currentJavaVersion = null;
     }

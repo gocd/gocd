@@ -1,8 +1,6 @@
 import com.thoughtworks.go.build.DownloadFile
 import org.apache.commons.codec.digest.DigestUtils
 
-import java.security.SecureRandom
-
 /*
  * Copyright 2016 ThoughtWorks, Inc.
  *
@@ -19,14 +17,6 @@ import java.security.SecureRandom
  * limitations under the License.
  */
 
-configurations {
-  antConfig { transitive = false }
-}
-
-dependencies {
-  antConfig 'com.ultramixer.jarbundler:jarbundler-core:3.3.0'
-}
-
 private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
 }
@@ -38,171 +28,248 @@ task downloadOSXJre(type: DownloadFile) {
   checksum 'd7be3dfd5cd10323e1272e06d26f0709fbbc4a6f25a3992c2f2eef7022517fba'
 }
 
-def setupInstaller(DefaultTask task, String appName, String packageName, String bundleId, String mainClass, File destinationDir, File sourceApplicationStubFile, File applicationJar) {
-  task.dependsOn downloadOSXJre
+task downloadTanukiDeltaPack(type: DownloadFile) {
+  def srcUrl = System.getenv("TANKUK_WRAPPER_URL") ?: "https://nexus.gocd.io/repository/s3-mirrors/local/tanuki/wrapper-delta-pack-${project.versions.tanuki}-st.tar.gz"
+  src srcUrl
+  dest destFile(srcUrl)
+  checksum 'c640701769c140ad5e05f3e6058b3650dd44c6abc0f2d456180307ba076340d2'
+}
 
-  def appDir = file("${destinationDir}/${appName}.app")
+task extractDeltaPack(type: Copy) {
+  dependsOn downloadTanukiDeltaPack
+  from(project.tarTree(downloadTanukiDeltaPack.outputs.files.singleFile))
+  into project.buildDir
+}
 
-  def tmpDir = file("${project.buildDir}/tmp/${new BigInteger(32, new SecureRandom()).toString(32)}")
-  def tmpStubFile = file("${tmpDir}/${packageName}")
-  def jreOutputDir = file("${tmpDir}/jre")
+enum Type {
 
-  task.configure {
-    doLast("Initialize all dirs") {
-      delete(tmpDir)
-      mkdir(tmpDir)
+  agent("Go Agent", "go-agent", "agent-bootstrapper.jar", "go-agent-bootstrapper-wrapper.log",
+    [
+      AGENT_STARTUP_ARGS: '-Xms128m -Xmx256m'
+    ],
+    []),
 
-      mkdir(destinationDir)
-    }
+  sever("Go Server", "go-server", "go.jar", "go-server-wrapper.log",
+    [:],
+    [
+      '-Xms512m',
+      '-Xmx1024m',
+      '-XX:MaxMetaspaceSize=400m',
+      '-Duser.language=en',
+      '-Duser.country=US',
+    ])
 
-    doLast("extract jre") {
-      def jreTempDir = file("${tmpDir}/tmp-jre")
-      mkdir(jreTempDir)
+  final String appName
+  final String baseName
+  final String jarFileName
+  final String logFileName
+  final Map<String, String> additionalEnvVars
+  final List<String> jvmArgs
 
-      // extract
-      project.copy {
-        from project.tarTree(downloadOSXJre.outputs.files.singleFile)
-        into jreTempDir
-      }
 
-      // strip prefix by doing a "move" (aka copy/delete)
-      def names = []
-      jreTempDir.eachDirMatch(~/jdk.*/, {
-        names << it
+  Type(String appName,
+       String baseName,
+       String jarFileName,
+       String logFileName,
+       Map<String, String> additionalEnvVars,
+       List<String> jvmArgs) {
+
+    this.jvmArgs = jvmArgs
+    this.additionalEnvVars = additionalEnvVars
+    this.logFileName = logFileName
+    this.jarFileName = jarFileName
+    this.baseName = baseName
+    this.appName = appName
+  }
+}
+
+class ConcatFileReader extends FilterReader {
+  ConcatFileReader(Reader reader) {
+    super(new StringReader("${reader.text}\n\n# Create this file and specify any overrides for environment/jvm args\n#include ../conf/wrapper-properties.conf\n"))
+  }
+}
+
+def configureOSXZip(Zip zipTask,
+                    Type type) {
+  zipTask.with {
+    dependsOn downloadOSXJre
+    dependsOn extractDeltaPack
+    destinationDirectory = file("${project.buildDir}/${project.distsDirName}/osx")
+    archiveBaseName = type.baseName
+    archiveClassifier = 'osx'
+
+    def baseDirInsideArchive = "${type.baseName}-${project.goVersion}"
+    into(baseDirInsideArchive)
+
+    from("${rootProject.projectDir}/LICENSE")
+
+    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/sh.script.in") {
+      filter({ String eachLine ->
+        eachLine = eachLine
+          .replaceAll('@app.name@', type.appName)
+          .replaceAll('@app.long.name@', type.appName)
+          .replaceAll('@app.description@', type.appName)
+
+        if (eachLine == 'WRAPPER_CMD="./wrapper"') {
+          eachLine = 'WRAPPER_CMD="../tanuki/wrapper"'
+        }
+
+        if (eachLine == 'PIDDIR="."') {
+          eachLine = 'PIDDIR="../run"'
+        }
+
+        if (eachLine == '#PASS_THROUGH=true') {
+          eachLine = 'PASS_THROUGH=true'
+        }
+
+        return eachLine
       })
-      if (names.isEmpty()) {
-        throw new GradleException("Did not find any jdk in ${jreTempDir}")
-      }
-
-      def jreDir = names.first()
-
-      copy {
-        from jreDir
-        into jreOutputDir
-      }
-
-      delete(jreTempDir)
+      rename 'sh.script.in', type.baseName
+      into "bin"
+      fileMode = 0755
     }
 
-    doLast("Create filesystem for package") {
-      def jreDir = "Contents/Resources/jre" // relative to package root
-      // copy to tmp stub file
-      mkdir(tmpStubFile.parentFile)
-      copy {
-        from(sourceApplicationStubFile)
-        into(tmpStubFile.parentFile)
-        rename('.*', tmpStubFile.name)
-      }
+    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/conf/wrapper.conf.in") {
+      filter({ String eachLine ->
+        eachLine = eachLine
+          .replaceAll('@app.name@', type.appName)
+          .replaceAll('@app.long.name@', type.appName)
+          .replaceAll('@app.description@', type.appName)
 
-      ant.taskdef(
-        name: 'jarbundler',
-        classname: 'com.ultramixer.jarbundler.JarBundler',
-        classpath: project.configurations.antConfig.asPath
-      )
-      ant.jarbundler(
-        dir: destinationDir,
-        name: appName,
-        stubFile: tmpStubFile,
-        mainclass: 'com.thoughtworks.gocd.Boot',
-        verbose: true,
-        version: "${project.fullVersion}.${project.distVersion}",
-        bundleid: bundleId,
-        build: project.distVersion,
-        jar: applicationJar,
-        useJavaXKey: true,
-        screenmenu: true,
-        icon: 'gocd.icns',
-        workingdirectory: "\${HOME}/Library/Application Support/${appName}",
-        copyright: "${appName} ${project.fullVersion}.${project.distVersion}. Copyright ThoughtWorks Inc., (c) 2000-${project.copyrightYear}",
-        jvmversion: "${project.compilerOptions.targetCompatibility}+",
-      ) {
-        javaproperty(name: 'jar-class-loader.main.class', value: mainClass)
-      }
+        if (eachLine == 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperSimpleApp') {
+          eachLine = 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperJarApp'
+        }
 
-      copy {
-        from 'osx-shared/gocd.icns'
-        into "${appDir}/Contents/Resources"
-      }
+        if (eachLine == '#encoding=UTF-8') {
+          def newLines = [
+            '#encoding=UTF-8',
+            'wrapper.working.dir=..'
+          ]
 
-      copy {
-        from jreOutputDir
-        // `JavaApplicationStub64` expects java to be here.
-        into "${appDir}/${jreDir}"
-      }
+          type.additionalEnvVars.forEach { k, v ->
+            newLines.add("set.${k}=${v}")
+          }
+
+          eachLine = newLines.join('\n')
+        }
+
+        if (eachLine == 'wrapper.java.additional.1=' && !type.jvmArgs.isEmpty()) {
+          def newLines = []
+
+          type.jvmArgs.eachWithIndex { String eachArg, int index ->
+            newLines << "wrapper.java.additional.${index + 1}=${eachArg}"
+          }
+
+          eachLine = newLines.join('\n')
+        }
+
+        if (eachLine == 'wrapper.java.additional.auto_bits=TRUE') {
+          eachLine = 'wrapper.java.additional.auto_bits=FALSE'
+        }
+
+        if (eachLine == 'wrapper.java.command=java') {
+          eachLine = 'wrapper.java.command=jre/Contents/Home/bin/java'
+        }
+
+        if (eachLine == 'wrapper.java.classpath.1=../lib/wrapper.jar') {
+          eachLine = [
+            'wrapper.java.classpath.1=tanuki/wrapper.jar',
+            "wrapper.java.classpath.2=lib/${type.jarFileName}",
+          ].join("\n")
+        }
+
+        if (eachLine == 'wrapper.java.library.path.1=../lib') {
+          eachLine = 'wrapper.java.library.path.1=tanuki'
+        }
+
+        if (eachLine == 'wrapper.app.parameter.1=<YourMainClass>') {
+          eachLine = "wrapper.app.parameter.1=lib/${type.jarFileName}"
+        }
+
+        if (eachLine == 'wrapper.logfile=../logs/wrapper.log') {
+          eachLine = "wrapper.logfile=../logs/${type.logFileName}"
+        }
+
+        if (eachLine == 'wrapper.logfile.maxsize=0') {
+          eachLine = "wrapper.logfile.maxsize=10m"
+        }
+
+        if (eachLine == 'wrapper.logfile.maxfiles=0') {
+          eachLine = "wrapper.logfile.maxfiles=4"
+        }
+
+        return eachLine
+      })
+
+      filter(ConcatFileReader)
+
+      into "conf"
+      rename 'wrapper.conf.in', 'wrapper.conf'
     }
 
-    doLast("cleanup tmp dir") {
-      delete(tmpDir)
+    from("wrapper-properties.conf.example") {
+      into 'conf'
+    }
+
+    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/bin") {
+      include 'wrapper-macosx-*'
+      into "tanuki"
+    }
+
+    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/lib") {
+      include 'wrapper.jar'
+      include 'libwrapper-macosx-*'
+      into "tanuki"
+    }
+
+    from('empty-ignore-file') {
+      into "logs"
+      rename ".*", ".ignore"
+    }
+
+    from('empty-ignore-file') {
+      into "run"
+      rename ".*", ".ignore"
+    }
+
+    // puts the content of the tar under `go-agent-XXX/jre`
+    from(tarTree(downloadOSXJre.outputs.files.singleFile)) {
+      eachFile { FileCopyDetails fcd ->
+        List<String> segments = fcd.relativePath.segments
+        segments.set(1, "jre")
+        fcd.relativePath = new RelativePath(!fcd.isDirectory(), (segments as String[]))
+      }
     }
   }
 }
 
-task layoutAgentOSXPackage { DefaultTask thisTask ->
-  def appName = 'Go Agent'
-  def packageName = 'go-agent'
+task agentOSXZip(type: Zip) { Zip thisTask ->
+  configureOSXZip(thisTask, Type.agent)
 
-  dependsOn(configurations.agentBootstrapperJar)
+  from(configurations.agentBootstrapperJar) {
+    rename "(.*)-${project.version}.(.*)", '$1.$2'
+    into "lib"
+  }
 
-  def destinationDir = file("${project.buildDir}/${packageName}-osx-filesystem")
+  from('wrapper-license-agent.conf') {
+    into "conf"
+    rename 'wrapper-license-agent.conf', 'wrapper-license.conf'
+  }
 
-  def sourceApplicationStubFile = file('osx-shared/JavaApplicationStub64')
-
-  inputs.file(sourceApplicationStubFile)
-  outputs.dir(destinationDir)
-
-  setupInstaller(
-    thisTask,
-    appName,
-    packageName,
-    'com.thoughtworks.studios.cruise.agent',
-    'com.thoughtworks.go.agent.bootstrapper.osx.AgentMacWindow',
-    destinationDir,
-    sourceApplicationStubFile,
-    configurations.agentBootstrapperJar.singleFile
-  )
 }
 
-task agentOSXZip(type: Zip) {
-  def packageName = 'go-agent'
+task serverOSXZip(type: Zip) { Zip thisTask ->
+  configureOSXZip(thisTask, Type.sever)
 
-  destinationDir = file("${project.convention.plugins.get("base").distsDir}/osx")
-  archiveName = "${packageName}-${rootProject.fullVersion}-osx.zip"
+  from(configurations.serverJar) {
+    rename "(.*)-${project.version}.(.*)", 'go.jar'
+    into "lib"
+  }
 
-  from(layoutAgentOSXPackage)
-}
-
-task layoutServerOSXPackage { DefaultTask thisTask ->
-  def appName = 'Go Server'
-  def packageName = 'go-server'
-
-  dependsOn(configurations.serverJar)
-
-  def destinationDir = file("${project.buildDir}/${packageName}-osx-filesystem")
-
-  def sourceApplicationStubFile = file('osx-shared/JavaApplicationStub64')
-
-  inputs.file(sourceApplicationStubFile)
-  outputs.dir(destinationDir)
-
-  setupInstaller(
-    thisTask,
-    appName,
-    packageName,
-    'com.thoughtworks.studios.cruise.server',
-    'com.thoughtworks.go.server.launcher.GoMacLauncher',
-    destinationDir,
-    sourceApplicationStubFile,
-    configurations.serverJar.singleFile
-  )
-}
-
-task serverOSXZip(type: Zip) {
-  def packageName = 'go-server'
-
-  destinationDir = file("${project.convention.plugins.get("base").distsDir}/osx")
-  archiveName = "${packageName}-${rootProject.fullVersion}-osx.zip"
-
-  from(layoutServerOSXPackage)
+  from('wrapper-license-server.conf') {
+    into "conf"
+    rename 'wrapper-license-server.conf', 'wrapper-license.conf'
+  }
 }
 
 assemble.dependsOn(":installers:agentOSXZip", ":installers:serverOSXZip")

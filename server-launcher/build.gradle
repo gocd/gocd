@@ -14,11 +14,26 @@
  * limitations under the License.
  */
 
+
+import com.github.jk1.license.filter.LicenseBundleNormalizer
+import com.github.jk1.license.render.JsonReportRenderer
 import com.thoughtworks.go.build.VerifyJarTask
 
 description = 'GoCD Server Launcher'
+apply plugin: 'base'
+apply plugin: 'com.github.jk1.dependency-license-report'
+
+licenseReport {
+  renderers = [new JsonReportRenderer("index.json", false)]
+  excludeGroups = ["com.thoughtworks.go"]
+  filters = [new LicenseBundleNormalizer()]
+  outputDir = file("${project.buildDir}/reports/dependency-license")
+  configurations = ['compile', 'compileOnly', 'packagingInLibDir']
+}
 
 configurations {
+  extractedAtTopLevel { transitive = false }
+  fatJarConfig
   packagingInLibDir.extendsFrom packagingOnly
   packagingInDefaultFilesDir.extendsFrom packagingOnly
 
@@ -42,8 +57,6 @@ configurations {
 }
 
 dependencies {
-  compile project(':base')
-  compile project(':server')
 
   packagingInDefaultFilesDir project(path: ':agent-launcher', configuration: 'fatJarConfig')
   packagingInDefaultFilesDir project(path: ':agent', configuration: 'fatJarConfig')
@@ -81,13 +94,9 @@ dependencies {
   extractedAtTopLevel project(':jar-class-loader')
 }
 
-jar {
-  classifier 'classes'
-}
-
 task mainJar(type: Jar) {
-  dependsOn jar, project.configurations.packagingInMainJarBaseJar, project.configurations.packagingInMainJarCommonJar, project.configurations.packagingInMainJarTopLevel
-  classifier = 'main'
+  dependsOn project.configurations.packagingInMainJarBaseJar, project.configurations.packagingInMainJarCommonJar, project.configurations.packagingInMainJarTopLevel, project.configurations.packagingInMainJarServerJar
+  archiveClassifier = 'main'
 
   from(project.configurations.packagingInMainJarTopLevel.collect { it.isDirectory() ? it : zipTree(it) }) {
     into('/')
@@ -137,7 +146,6 @@ task mainJar(type: Jar) {
     include "**/DeploymentContextWriter*.class"
     include "**/BaseUrlProvider*.class"
     include "**/GoLauncher*.class"
-
     into('/')
   }
 
@@ -145,14 +153,14 @@ task mainJar(type: Jar) {
 }
 
 task h2deltasZip(type: Zip) {
-  baseName = 'h2deltas'
-  destinationDir = project.libsDir
+  archiveBaseName = 'h2deltas'
+  destinationDirectory = file("${project.buildDir}/${project.libsDirName}")
   from("${project(':server').projectDir}/db/migrate/h2deltas") { into '/h2deltas' }
 }
 
 task h2dbZip(type: Zip) {
-  baseName = 'h2db'
-  destinationDir = project.libsDir
+  archiveBaseName = 'h2db'
+  destinationDirectory = file("${project.buildDir}/${project.libsDirName}")
   from("${project(':server').projectDir}/db/dbtemplate/h2db") { into '/h2db' }
 }
 
@@ -172,8 +180,8 @@ task cloneCommandRepository(type: Exec) {
 }
 
 task defaultCommandSnippetsZip(type: Zip, dependsOn: [':server-launcher:cloneCommandRepository']) {
-  baseName 'defaultCommandSnippets'
-  destinationDir = project.libsDir
+  archiveBaseName = 'defaultCommandSnippets'
+  destinationDirectory = file("${project.buildDir}/${project.libsDirName}")
   from("${rootProject.rootDir}/LICENSE") {
     into "/"
   }
@@ -192,7 +200,7 @@ task fatJar(type: Jar) {
   dependsOn ':server:war'
   dependsOn configurations.packagingInDefaultFilesDir, h2dbZip, h2deltasZip, defaultCommandSnippetsZip, configurations.pluginsZip,
     (project(':jetty9').configurations.compileOnly - project(':jetty9').configurations.compile),
-    configurations.packagingInLibDir, configurations.compileOnly, mainJar, configurations.extractedAtTopLevel, jar
+    configurations.packagingInLibDir, mainJar, configurations.extractedAtTopLevel
 
   manifest {
     attributes 'Main-Class': 'com.thoughtworks.gocd.Boot'
@@ -222,7 +230,7 @@ task fatJar(type: Jar) {
     into 'lib/'
   }
 
-  from(configurations.packagingInLibDir + configurations.compileOnly) {
+  from(configurations.packagingInLibDir) {
     into 'lib/'
     rename "tfs-impl-(.*)-${project.version}.jar", 'tfs-impl-$1.jar'
     rename "go-plugin-activator-${project.version}.jar", "go-plugin-activator.jar"
@@ -234,10 +242,6 @@ task fatJar(type: Jar) {
 
   from(configurations.extractedAtTopLevel.collect { it.isDirectory() ? it : zipTree(it) }) {
     into("/")
-  }
-
-  from(zipTree(jar.archivePath)) {
-    into('/')
   }
 
   from("${rootProject.rootDir}/LICENSE") {

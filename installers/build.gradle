@@ -34,7 +34,7 @@ dependencies {
 
 task versionFile {
   outputs.upToDateWhen { false }
-  def versionFile = file("${project.convention.plugins.get("base").distsDir}/meta/version.json")
+  def versionFile = file("${project.buildDir}/${project.distsDirName}/meta/version.json")
 
   inputs.property('goVersion', rootProject.goVersion)
   inputs.property('distVersion', rootProject.distVersion)

@@ -34,6 +34,7 @@ public interface ElasticAgentPluginConstantsV5 {
 
     String REQUEST_STATUS_REPORT = REQUEST_PREFIX + ".status-report";
     String REQUEST_AGENT_STATUS_REPORT = REQUEST_PREFIX + ".agent-status-report";
+    String REQUEST_CLUSTER_STATUS_REPORT = REQUEST_PREFIX + ".cluster-status-report";
     String REQUEST_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";
 
     String REQUEST_JOB_COMPLETION = REQUEST_PREFIX + ".job-completion";

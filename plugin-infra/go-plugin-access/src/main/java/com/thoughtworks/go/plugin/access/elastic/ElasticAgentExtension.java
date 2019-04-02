@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
@@ -101,6 +102,10 @@ public class ElasticAgentExtension extends AbstractExtension {
 
     public String getAgentStatusReport(String pluginId, JobIdentifier identifier, String elasticAgentId, Map<String, String> clusterProfile) {
         return getVersionedElasticAgentExtension(pluginId).getAgentStatusReport(pluginId, identifier, elasticAgentId, clusterProfile);
+    }
+
+    public String getClusterStatusReport(String pluginId, Map<String,String> clusterProfile) {
+        return getVersionedElasticAgentExtension(pluginId).getClusterStatusReport(pluginId,clusterProfile);
     }
 
     public Capabilities getCapabilities(String pluginId) {

@@ -228,6 +228,18 @@ public class ElasticAgentExtensionConverterV5Test {
     }
 
     @Test
+    public void shouldJSONizeClusterStatusReportRequestBody() throws Exception {
+        String actual = new ElasticAgentExtensionConverterV5().getClusterStatusReportRequestBody(Collections.singletonMap("key1", "value1"));
+        String expected = "{" +
+                "   \"cluster_profile_properties\":{" +
+                "       \"key1\":\"value1\"" +
+                "   }" +
+                "}";
+
+        assertThatJson(expected).isEqualTo(actual);
+    }
+
+    @Test
     public void shouldConstructValidationRequest() {
         HashMap<String, String> configuration = new HashMap<>();
         configuration.put("key1", "value1");

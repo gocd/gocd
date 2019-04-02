@@ -178,7 +178,7 @@ Rails.application.routes.draw do
     get ':pipeline_name/list/compare_with/:other_pipeline_counter' => 'comparison#list', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, format: 'json', as: :compare_pipelines_list
     get ':pipeline_name/timeline/:page' => 'comparison#timeline', constraints: {pipeline_name: PIPELINE_NAME_FORMAT}, as: :compare_pipelines_timeline
   end
-  
+
   scope 'config_view' do
     get "templates/:name" => "config_view/templates#show", as: :config_view_templates_show, constraints: {name: TEMPLATE_NAME_FORMAT}
   end
@@ -287,7 +287,8 @@ Rails.application.routes.draw do
 
   namespace :admin do
     get 'status_reports/:plugin_id' => 'status_reports#plugin_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :status_report
-    get 'status_reports/:plugin_id/:elastic_agent_id' => 'status_reports#agent_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :agent_status_report
+    get 'status_reports/:plugin_id/agent/:elastic_agent_id' => 'status_reports#agent_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :agent_status_report
+    get 'status_reports/:plugin_id/cluster/:cluster_profile_id' => 'status_reports#cluster_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :cluster_status_report
 
     namespace :security do
       resources :auth_configs, only: [:index], controller: :auth_configs, as: :auth_configs

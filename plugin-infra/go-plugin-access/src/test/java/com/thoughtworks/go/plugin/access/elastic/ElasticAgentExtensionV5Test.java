@@ -367,6 +367,25 @@ public class ElasticAgentExtensionV5Test {
     }
 
     @Test
+    public void shouldGetClusterStatusReport() {
+        final String responseBody = "{\"view\":\"<div>This is a cluster status report snippet.</div>\"}";
+
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
+
+
+        Map<String, String> clusterProfile = Collections.singletonMap("key1", "value1");
+        extensionV5.getClusterStatusReport(PLUGIN_ID, clusterProfile);
+
+        final String requestBody = "{\n" +
+                "  \"cluster_profile_properties\":{" +
+                "       \"key1\":\"value1\"" +
+                "  }" +
+                "}";
+
+        assertExtensionRequest("5.0", REQUEST_CLUSTER_STATUS_REPORT, requestBody);
+    }
+
+    @Test
     public void allRequestMustHaveRequestPrefix() {
         assertThat(REQUEST_PREFIX, is("cd.go.elastic-agent"));
 

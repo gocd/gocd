@@ -73,6 +73,13 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
         return agentStatusReportView;
     }
 
+    public String getClusterStatusReport(String pluginId, Map<String, String> clusterProfileConfigurations) {
+        LOGGER.debug("Processing get cluster status report for plugin: {} for cluster: {}", pluginId, clusterProfileConfigurations);
+        final String clusterStatusReportView = extension.getClusterStatusReport(pluginId, clusterProfileConfigurations);
+        LOGGER.debug("Done processing get cluster status report for plugin: {} for cluster: {}", pluginId, clusterProfileConfigurations);
+        return clusterStatusReportView;
+    }
+
     public boolean has(String pluginId) {
         return findPlugin(pluginId) != null;
     }

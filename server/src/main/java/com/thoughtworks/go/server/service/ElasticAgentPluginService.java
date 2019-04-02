@@ -227,6 +227,16 @@ public class ElasticAgentPluginService {
         throw new UnsupportedOperationException("Plugin does not support agent status report.");
     }
 
+    public String getClusterStatusReport(String pluginId, String clusterProfileId) {
+        final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
+        if (pluginInfo.getCapabilities().supportsClusterStatusReport()) {
+            ClusterProfile clusterProfile = clusterProfilesService.getPluginProfiles().findByPluginIdAndProfileId(pluginId, clusterProfileId);
+            return elasticAgentPluginRegistry.getClusterStatusReport(pluginId, clusterProfile.getConfigurationAsMap(true));
+        }
+
+        throw new UnsupportedOperationException("Plugin does not support cluster status report.");
+    }
+
     public void jobCompleted(JobInstance job) {
         AgentInstance agentInstance = agentService.findAgent(job.getAgentUuid());
         if (!agentInstance.isElastic()) {

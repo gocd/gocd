@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
@@ -353,6 +354,38 @@ class ElasticAgentPluginServiceTest {
 
         assertThat(exception.getMessage()).isEqualTo("Could not fetch agent status report for agent some-id as either the job running on the agent has been completed or the agent has been terminated.");
         verifyZeroInteractions(registry);
+    }
+
+    @Test
+    void shouldGetAPluginClusterReportWhenPluginSupportsStatusReport() {
+        final Capabilities capabilities = new Capabilities(false, true, false);
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
+
+        ClusterProfile clusterProfile = new ClusterProfile("cluster-profile-id", "cd.go.example.plugin");
+        clusterProfile.addNewConfigurationWithValue("go-server-url", "server-url", false);
+
+        PluginProfiles<ClusterProfile> clusterProfiles = new ClusterProfiles(clusterProfile);
+        when(clusterProfilesService.getPluginProfiles()).thenReturn(clusterProfiles);
+
+        when(registry.getClusterStatusReport("cd.go.example.plugin", clusterProfile.getConfigurationAsMap(true)))
+                .thenReturn("<div>This is a cluster status report snippet.</div>");
+
+        final String clusterStatusReport = service.getClusterStatusReport("cd.go.example.plugin", "cluster-profile-id");
+
+        assertThat(clusterStatusReport).isEqualTo("<div>This is a cluster status report snippet.</div>");
+    }
+
+    @Test
+    void shouldErrorOutWhenPluginDoesNotClusterSupportStatusReport() {
+        final Capabilities capabilities = new Capabilities(true, false, false);
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
+
+        final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> service.getClusterStatusReport("cd.go.example.plugin", null));
+        assertThat(exception.getMessage()).isEqualTo("Plugin does not support cluster status report.");
+
+
     }
 
     @Nested

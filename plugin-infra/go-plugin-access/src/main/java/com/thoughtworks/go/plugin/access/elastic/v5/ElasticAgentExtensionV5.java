@@ -197,6 +197,21 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
     }
 
     @Override
+    public String getClusterStatusReport(String pluginId, Map<String, String> clusterProfile) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_CLUSTER_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return elasticAgentExtensionConverterV5.getClusterStatusReportRequestBody(clusterProfile);
+            }
+
+            @Override
+            public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                return elasticAgentExtensionConverterV5.getStatusReportView(responseBody);
+            }
+        });
+    }
+
+    @Override
     public void jobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier, Map<String, String> elasticProfileConfiguration, Map<String, String> clusterProfileConfiguration) {
         pluginRequestHelper.submitRequest(pluginId, REQUEST_JOB_COMPLETION, new DefaultPluginInteractionCallback<String>() {
             @Override

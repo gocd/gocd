@@ -109,6 +109,17 @@ public class ElasticAgentPluginRegistryTest {
     }
 
     @Test
+    public void shouldTalkToExtensionToGetClusterStatusReport() {
+        final JobIdentifier jobIdentifier = new JobIdentifier();
+
+        Map<String, String> clusterProfileConfigurations = Collections.emptyMap();
+        elasticAgentPluginRegistry.getClusterStatusReport(PLUGIN_ID, clusterProfileConfigurations);
+
+        verify(elasticAgentExtension, times(1)).getClusterStatusReport(PLUGIN_ID, clusterProfileConfigurations);
+        verifyNoMoreInteractions(elasticAgentExtension);
+    }
+
+    @Test
     public void shouldTalkToExtensionToReportJobCompletion() {
         final JobIdentifier jobIdentifier = new JobIdentifier();
         final String elasticAgentId = "ea_1";

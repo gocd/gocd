@@ -55,6 +55,8 @@ public interface VersionedElasticAgentExtension {
 
     String getAgentStatusReport(String pluginId, JobIdentifier identifier, String elasticAgentId, Map<String, String> clusterProfile);
 
+    String getClusterStatusReport(String pluginId, Map<String, String> clusterProfile);
+
     void jobCompletion(String pluginId, String elasticAgentId, JobIdentifier jobIdentifier, Map<String, String> elasticProfileConfiguration, Map<String, String> clusterProfileConfiguration);
 
     ElasticAgentInformation migrateConfig(String pluginId, ElasticAgentInformation elasticAgentInformation);

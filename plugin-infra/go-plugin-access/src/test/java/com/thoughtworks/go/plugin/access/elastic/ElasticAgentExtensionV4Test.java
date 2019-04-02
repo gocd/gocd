@@ -304,6 +304,14 @@ public class ElasticAgentExtensionV4Test {
     }
 
     @Test
+    public void shouldNotSupportGetClusterProfileStatusReportCall() {
+        thrown.expect(UnsupportedOperationException.class);
+        thrown.expectMessage(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
+
+        extensionV4.getClusterStatusReport(PLUGIN_ID, new HashMap<>());
+    }
+
+    @Test
     public void allRequestMustHaveRequestPrefix() {
         assertThat(REQUEST_PREFIX, is("cd.go.elastic-agent"));
 

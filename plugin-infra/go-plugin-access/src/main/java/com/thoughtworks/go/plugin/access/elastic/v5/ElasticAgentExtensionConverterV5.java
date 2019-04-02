@@ -174,5 +174,11 @@ class ElasticAgentExtensionConverterV5 {
     public ElasticAgentInformationDTO getElasticAgentInformationDTO(ElasticAgentInformation elasticAgentInformation) {
         return elasticAgentInformationConverterV5.toDTO(elasticAgentInformation);
     }
+
+    public String getClusterStatusReportRequestBody(Map<String, String> clusterProfile) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.add("cluster_profile_properties", mapToJsonObject(clusterProfile));
+        return GSON.toJson(jsonObject);
+    }
 }
 

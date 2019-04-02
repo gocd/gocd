@@ -322,7 +322,9 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     public boolean hasSecretParams() {
-        return this.url.hasSecretParams() || !this.secretParamsForPassword.isEmpty();
+        return (this.url != null && this.url.hasSecretParams())
+                || (this.secretParamsForPassword != null && !this.secretParamsForPassword.isEmpty());
+
     }
 
     @Override

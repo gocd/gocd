@@ -425,7 +425,7 @@ public class GitMaterial extends ScmMaterial {
 
     @Override
     public boolean hasSecretParams() {
-        return this.url.hasSecretParams();
+        return this.url != null && this.url.hasSecretParams();
     }
 
     @Override

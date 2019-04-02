@@ -64,8 +64,8 @@ task versionFile {
 
 assemble.dependsOn(':installers:versionFile')
 
-apply from: 'osx.gradle'
 apply from: 'generic.gradle'
+apply from: 'osx.gradle'
 apply from: 'linux.gradle'
 apply from: 'windows.gradle'
 apply from: 'release-notes.gradle'

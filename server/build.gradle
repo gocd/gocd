@@ -282,7 +282,6 @@ dependencies {
     exclude(group: 'org.springframework')
   }
   compile(group: 'org.springframework.security', name: 'spring-security-config', version: project.versions.springSecurity)
-  compile group: 'com.apple', name: 'AppleJavaExtensions', version: '1.4'
   compile group: 'org.aspectj', name: 'aspectjrt', version: '1.5.4'
   compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.5.4'
   compile group: 'org.tuckey', name: 'urlrewritefilter', version: '3.2.0'
@@ -837,7 +836,6 @@ task verifyWar(type: VerifyJarTask) {
         "activemq-protobuf-1.1.jar",
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
-        "AppleJavaExtensions-1.4.jar",
         "asm-3.3.1.jar",
         "aspectjrt-1.5.4.jar",
         "aspectjweaver-1.5.4.jar",

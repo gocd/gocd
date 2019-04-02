@@ -35,6 +35,8 @@ public interface VersionedElasticAgentExtension {
 
     String getElasticProfileView(String pluginId);
 
+    boolean supportsClusterProfile();
+
     ValidationResult validateElasticProfile(String pluginId, Map<String, String> configuration);
 
     List<PluginConfiguration> getClusterProfileMetadata(String pluginId);

@@ -85,6 +85,11 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
     }
 
     @Override
+    public boolean supportsClusterProfile() {
+        return false;
+    }
+
+    @Override
     public ValidationResult validateElasticProfile(final String pluginId, final Map<String, String> configuration) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_PROFILE, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override

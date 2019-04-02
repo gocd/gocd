@@ -20,52 +20,44 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.PluginService;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ReplaceElasticAgentInformationCommand implements EntityConfigUpdateCommand<ElasticAgentInformation> {
-    private final PluginService pluginService;
+
     private final ClusterProfilesService clusterProfilesService;
     private final ElasticProfileService elasticProfileService;
     private final ElasticAgentExtension elasticAgentExtension;
-    private GoConfigService goConfigService;
-    private GoPluginDescriptor pluginDescriptor;
+    private final GoConfigService goConfigService;
+    private final GoPluginDescriptor pluginDescriptor;
+    private final HashMap<String, String> pluginSettings;
     private ElasticAgentInformation migratedElasticAgentInformation;
 
-    public ReplaceElasticAgentInformationCommand(PluginService pluginService, ClusterProfilesService clusterProfilesService, ElasticProfileService elasticProfileService, ElasticAgentExtension elasticAgentExtension, GoConfigService goConfigService, GoPluginDescriptor pluginDescriptor) {
-        this.pluginService = pluginService;
+    public ReplaceElasticAgentInformationCommand(ClusterProfilesService clusterProfilesService, ElasticProfileService elasticProfileService, ElasticAgentExtension elasticAgentExtension, GoConfigService goConfigService, GoPluginDescriptor pluginDescriptor, HashMap<String, String> pluginSettings) {
         this.clusterProfilesService = clusterProfilesService;
         this.elasticProfileService = elasticProfileService;
         this.elasticAgentExtension = elasticAgentExtension;
         this.goConfigService = goConfigService;
         this.pluginDescriptor = pluginDescriptor;
+        this.pluginSettings = pluginSettings;
     }
+
 
     @Override
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         String pluginId = pluginDescriptor.id();
 
-        Configuration configurationProperties = new Configuration();
-        PluginSettings pluginSettings = pluginService.getPluginSettings(pluginId);
-        if (pluginSettings != null) {
-            configurationProperties.addAll(pluginSettings.getPluginSettingsProperties());
-        }
-
-        Map<String, String> pluginSettingsConfiguration = configurationProperties.getConfigurationAsMap(true);
         List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId);
         List<ElasticProfile> elasticAgentProfiles = elasticProfileService.getPluginProfiles().findByPluginId(pluginId);
 
-        ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettingsConfiguration, clusterProfiles, elasticAgentProfiles);
+        ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
         migratedElasticAgentInformation = elasticAgentExtension.migrateConfig(pluginId, elasticAgentInformation);
 
         List<ClusterProfile> migratedClusterProfiles = migratedElasticAgentInformation.getClusterProfiles();

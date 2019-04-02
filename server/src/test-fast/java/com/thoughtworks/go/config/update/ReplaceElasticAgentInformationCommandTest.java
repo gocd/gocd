@@ -25,12 +25,12 @@ import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.PluginService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import java.util.Collections;
+import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,8 +40,6 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 class ReplaceElasticAgentInformationCommandTest {
-    @Mock
-    private PluginService pluginService;
     @Mock
     private ClusterProfilesService clusterProfilesService;
     @Mock
@@ -56,7 +54,7 @@ class ReplaceElasticAgentInformationCommandTest {
     private ReplaceElasticAgentInformationCommand replaceElasticAgentInformationCommand;
     private BasicCruiseConfig basicCruiseConfig;
     private String pluginId;
-    private PluginSettings pluginSettings;
+    private HashMap<String, String> pluginSettings;
     private ClusterProfiles clusterProfiles;
     private ElasticProfiles elasticProfiles;
 
@@ -67,16 +65,15 @@ class ReplaceElasticAgentInformationCommandTest {
 
         pluginId = "plugin-id";
 
-        pluginSettings = new PluginSettings();
+        pluginSettings = new HashMap<>();
         clusterProfiles = new ClusterProfiles();
         clusterProfiles.add(new ClusterProfile("cluster-id", pluginId));
         elasticProfiles = new ElasticProfiles();
         elasticProfiles.add(new ElasticProfile("profile-id", pluginId));
 
-        replaceElasticAgentInformationCommand = new ReplaceElasticAgentInformationCommand(pluginService, clusterProfilesService, elasticProfileService, elasticAgentExtension, goConfigService, pluginDescriptor);
+        replaceElasticAgentInformationCommand = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, goConfigService, pluginDescriptor, pluginSettings);
 
         when(pluginDescriptor.id()).thenReturn(pluginId);
-        when(pluginService.getPluginSettings(pluginId)).thenReturn(pluginSettings);
         when(clusterProfilesService.getPluginProfiles()).thenReturn(clusterProfiles);
         when(elasticProfileService.getPluginProfiles()).thenReturn(elasticProfiles);
         when(elasticAgentExtension.migrateConfig(eq(pluginId), any())).thenReturn(new ElasticAgentInformation(Collections.emptyMap(), clusterProfiles, elasticProfiles));
@@ -92,7 +89,7 @@ class ReplaceElasticAgentInformationCommandTest {
 
     @Test
     void shouldMakeCallToElasticAgentExtensionToMigrateElasticAgentRelatedConfig_WhenNoPluginSettingsAreConfigured() throws Exception {
-        when(pluginService.getPluginSettings(pluginId)).thenReturn(null);
+        replaceElasticAgentInformationCommand = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, goConfigService, pluginDescriptor, new HashMap<>());
 
         replaceElasticAgentInformationCommand.update(basicCruiseConfig);
 

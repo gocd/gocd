@@ -111,6 +111,10 @@ public class ElasticAgentExtension extends AbstractExtension {
         getVersionedElasticAgentExtension(pluginId).jobCompletion(pluginId, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
     }
 
+    public boolean supportsClusterProfiles(String pluginId) {
+        return getVersionedElasticAgentExtension(pluginId).supportsClusterProfile();
+    }
+
     @Override
     public List<String> goSupportedVersions() {
         return SUPPORTED_VERSIONS;

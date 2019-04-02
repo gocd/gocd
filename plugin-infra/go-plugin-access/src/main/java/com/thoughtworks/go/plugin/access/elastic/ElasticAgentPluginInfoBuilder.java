@@ -60,9 +60,13 @@ public class ElasticAgentPluginInfoBuilder implements PluginInfoBuilder<ElasticA
     }
 
     private PluggableInstanceSettings elasticClusterProfileSettings(String pluginId) {
-        List<PluginConfiguration> profileMetadata = extension.getClusterProfileMetadata(pluginId);
-        String profileView = extension.getClusterProfileView(pluginId);
-        return new PluggableInstanceSettings(profileMetadata, new PluginView(profileView));
+        if (extension.supportsClusterProfiles(pluginId)) {
+            List<PluginConfiguration> profileMetadata = extension.getClusterProfileMetadata(pluginId);
+            String profileView = extension.getClusterProfileView(pluginId);
+            return new PluggableInstanceSettings(profileMetadata, new PluginView(profileView));
+        }
+
+        return new PluggableInstanceSettings(null, null);
     }
 
     private Capabilities capabilities(String pluginId) {

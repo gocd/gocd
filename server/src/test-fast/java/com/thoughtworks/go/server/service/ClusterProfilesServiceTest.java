@@ -70,6 +70,13 @@ public class ClusterProfilesServiceTest {
     }
 
     @Test
+    void shouldNotValidateClusterProfileWhenDeletingClusterProfile() {
+        clusterProfilesService.delete(clusterProfile, new Username("Bob"), new HttpLocalizedOperationResult());
+
+        verify(extension, never()).validateClusterProfile(clusterProfile.getPluginId(), clusterProfile.getConfigurationAsMap(true));
+    }
+
+    @Test
     void shouldValidateClusterProfileUponClusterProfileUpdate() {
         clusterProfilesService.update(clusterProfile, new Username("Bob"), new HttpLocalizedOperationResult());
 

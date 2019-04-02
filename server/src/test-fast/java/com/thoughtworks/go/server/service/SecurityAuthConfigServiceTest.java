@@ -144,6 +144,16 @@ public class SecurityAuthConfigServiceTest {
     }
 
     @Test
+    public void shouldNotPerformPluginValidationsWhenDeletingSecurityAuthConfig() {
+        SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("ldap", "cd.go.ldap", create("key", false, "value"));
+
+        Username username = new Username("username");
+        securityAuthConfigService.delete(username, securityAuthConfig, new HttpLocalizedOperationResult());
+
+        verify(extension, never()).validateAuthConfig(securityAuthConfig.getPluginId(), securityAuthConfig.getConfigurationAsMap(true));
+    }
+
+    @Test
     public void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginIdWhileCreating() throws Exception {
         SecurityAuthConfig securityAuthConfig = new SecurityAuthConfig("some-id", "non-existent-plugin", create("key", false, "value"));
 

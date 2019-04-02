@@ -87,9 +87,11 @@ public abstract class PluginProfilesService<M extends PluginProfile> {
         }
     }
 
-    protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, PluginProfileCommand command) {
+    protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, PluginProfileCommand command, boolean validatePluginProperties) {
         try {
-            validatePluginProperties(command, pluginProfile);
+            if (validatePluginProperties) {
+                validatePluginProperties(command, pluginProfile);
+            }
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {

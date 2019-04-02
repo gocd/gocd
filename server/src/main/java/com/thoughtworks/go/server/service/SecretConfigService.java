@@ -105,11 +105,11 @@ public class SecretConfigService extends NewPluginProfilesService<SecretConfig> 
 
     private SecretConfigUsage createSecretConfigUsage(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig) {
         return new SecretConfigUsage(
+                getOrigin(pipelineConfig),
                 pipelineConfig.getName().toString(),
                 stageConfig == null? null : stageConfig.name().toString(),
                 jobConfig == null ? null : jobConfig.name().toString(),
-                getTemplateName(pipelineConfig),
-                getOrigin(pipelineConfig)
+                getTemplateName(pipelineConfig)
         );
     }
 

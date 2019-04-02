@@ -72,7 +72,7 @@ public class SecretConfigDeleteCommandTest {
         SecretConfig secretConfig = new SecretConfig("foo", "file-based");
 
         Set<SecretConfigUsage> usageInfo = new HashSet<>(Arrays.asList(
-                new SecretConfigUsage("P1", "S1", "J1", "template1", "gocd")
+                new SecretConfigUsage("gocd", "P1", "S1", "J1", "template1")
         ));
 
         SecretConfigDeleteCommand command = new SecretConfigDeleteCommand(null, secretConfig, usageInfo, null, null, new HttpLocalizedOperationResult());

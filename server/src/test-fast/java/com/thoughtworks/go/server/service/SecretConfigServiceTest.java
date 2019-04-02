@@ -81,14 +81,14 @@ class SecretConfigServiceTest {
             assertThat(secretConfigService.getUsageInformation("ForDeploy"))
                     .hasSize(2)
                     .contains(
-                            new SecretConfigUsage("P1", "S1", "Job1", "docker-template", "gocd"),
-                            new SecretConfigUsage("P1", "S1", "Job2", "docker-template", "gocd")
+                            new SecretConfigUsage("gocd", "P1", "S1", "Job1", "docker-template"),
+                            new SecretConfigUsage("gocd", "P1", "S1", "Job2", "docker-template")
                     );
 
             assertThat(secretConfigService.getUsageInformation("ForTestEnv"))
                     .hasSize(1)
                     .contains(
-                            new SecretConfigUsage("P3", "S1", "Job1", null, "config_repo")
+                            new SecretConfigUsage("config_repo", "P3", "S1", "Job1")
                     );
         }
 
@@ -127,7 +127,7 @@ class SecretConfigServiceTest {
             assertThat(pipelinesUsingSecretParams)
                     .hasSize(1)
                     .contains(
-                            new SecretConfigUsage("P4", null, null, null, "config_repo")
+                            new SecretConfigUsage("config_repo", "P4")
                     );
         }
     }

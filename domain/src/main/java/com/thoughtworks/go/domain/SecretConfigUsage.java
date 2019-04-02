@@ -25,7 +25,19 @@ public class SecretConfigUsage {
     private final String templateName;
     private final String pipelineConfigOrigin;
 
-    public SecretConfigUsage(String pipelineName, String stageName, String jobName, String templateName, String pipelineConfigOrigin) {
+    public SecretConfigUsage(String pipelineConfigOrigin, String pipelineName) {
+        this(pipelineConfigOrigin, pipelineName, null, null, null);
+    }
+
+    public SecretConfigUsage(String pipelineConfigOrigin, String pipelineName, String stageName) {
+        this(pipelineConfigOrigin, pipelineName, stageName, null, null);
+    }
+
+    public SecretConfigUsage(String pipelineConfigOrigin, String pipelineName, String stageName, String jobName) {
+        this(pipelineConfigOrigin, pipelineName, stageName, jobName, null);
+    }
+
+    public SecretConfigUsage(String pipelineConfigOrigin, String pipelineName, String stageName, String jobName, String templateName) {
         this.pipelineName = pipelineName;
         this.stageName = stageName;
         this.jobName = jobName;

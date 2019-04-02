@@ -50,7 +50,7 @@ export class ServerHealthSummary extends MithrilComponent<{}, State> {
                                        (successResponse) => vnode.state.serverHealthMessages(successResponse.body),
                                        (errorResponse) => {
                                          // tslint:disable-next-line:no-console
-                                         console.log("There was an error fetching server health messages!");
+                                         console.log(`There was an unknown error fetching server health messages: ${errorResponse.body}`);
                                        }
                                      );
                                    });

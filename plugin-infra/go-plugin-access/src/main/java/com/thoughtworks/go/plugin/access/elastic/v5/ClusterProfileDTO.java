@@ -18,9 +18,10 @@ package com.thoughtworks.go.plugin.access.elastic.v5;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -37,12 +38,12 @@ public class ClusterProfileDTO {
 
     @Expose
     @SerializedName("properties")
-    private Map<String, Map<String, Object>> properties;
+    private Map<String, String> properties;
 
     public ClusterProfileDTO() {
     }
 
-    public ClusterProfileDTO(String id, String pluginId, Map<String, Map<String, Object>> properties) {
+    public ClusterProfileDTO(String id, String pluginId, Map<String, String> properties) {
         this.id = id;
         this.pluginId = pluginId;
         this.properties = properties;
@@ -56,7 +57,7 @@ public class ClusterProfileDTO {
         return pluginId;
     }
 
-    public Map<String, Map<String, Object>> getProperties() {
+    public Map<String, String> getProperties() {
         return properties;
     }
 
@@ -86,16 +87,13 @@ public class ClusterProfileDTO {
 
     public ClusterProfile toDomainModel() {
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
-
-        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
-        this.properties.forEach((key, valueObject) -> {
-            boolean isSecure = (boolean) valueObject.get("isSecure");
-            String value = isSecure ? null : (String) valueObject.get("value");
-            String encryptedValue = isSecure ? (String) valueObject.get("value") : null;
-
-            configurationProperties.add(builder.create(key, value, encryptedValue, isSecure));
+        this.properties.forEach((key, value) -> {
+            configurationProperties.add(new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value)));
         });
 
-        return new ClusterProfile(this.id, this.pluginId, configurationProperties);
+        ClusterProfile clusterProfile = new ClusterProfile(this.id, this.pluginId);
+        clusterProfile.addConfigurations(configurationProperties);
+
+        return clusterProfile;
     }
 }

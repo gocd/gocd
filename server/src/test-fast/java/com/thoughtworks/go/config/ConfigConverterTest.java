@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -1053,6 +1053,7 @@ public class ConfigConverterTest {
     public void shouldConvertPipeline() {
         CRPipeline crPipeline = new CRPipeline("pipename", "group1", "label", LOCK_VALUE_LOCK_ON_FAILURE,
                 trackingTool, null, timer, environmentVariables, materials, stages, null, parameters);
+        crPipeline.setDisplayOrderWeight(10);
 
         PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline, context);
         assertThat(pipelineConfig.name().toLower(), is("pipename"));
@@ -1063,6 +1064,7 @@ public class ConfigConverterTest {
         assertThat(pipelineConfig.getTimer().getTimerSpec(), is("timer"));
         assertThat(pipelineConfig.getLabelTemplate(), is("label"));
         assertThat(pipelineConfig.isLockableOnFailure(), is(true));
+        assertThat(pipelineConfig.getDisplayOrderWeight(), is(10));
     }
 
     @Test
@@ -1221,6 +1223,7 @@ public class ConfigConverterTest {
         pipeline.setTimer(timerConfig);
         pipeline.setTrackingTool(trackingTool);
         pipeline.addEnvironmentVariable("testing", "123");
+        pipeline.setDisplayOrderWeight(10);
 
         StageConfig stage = new StageConfig();
         stage.setName(new CaseInsensitiveString("build"));
@@ -1249,6 +1252,7 @@ public class ConfigConverterTest {
         assertThat(crPipeline.getStages().get(0).getName(), is("build"));
         assertThat(crPipeline.getStages().get(0).getJobs().size(), is(1));
         assertNull(crPipeline.getMingle());
+        assertThat(crPipeline.getDisplayOrderWeight(), is(10));
     }
 
     @Test

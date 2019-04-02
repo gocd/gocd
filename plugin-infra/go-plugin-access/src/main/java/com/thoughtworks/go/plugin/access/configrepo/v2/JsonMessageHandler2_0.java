@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,8 +39,17 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * Changes from V1:
+ *   - Introduce parse-content (for validation + CLI).
+ *   - Introduce get-icon (to show in the UI).
+ *   - Introduce pipeline-export call (to allow export/conversion of pipeline back to the original format).
+ *   - Introduce get-capabilities call (to tell whether the plugin supports exports and parse content).
+ *
+ *   - Introduce target_version of 4: Allow display_order_weight at pipeline level.
+ */
 public class JsonMessageHandler2_0 implements JsonMessageHandler {
-    static final int CURRENT_CONTRACT_VERSION = 3;
+    static final int CURRENT_CONTRACT_VERSION = 4;
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler2_0.class);
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;

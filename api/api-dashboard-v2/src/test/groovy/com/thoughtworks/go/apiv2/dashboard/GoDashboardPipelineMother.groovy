@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,6 @@ class GoDashboardPipelineMother {
   static GoDashboardPipeline dashboardPipeline(pipeline_name, group_name = "group1", permissions = new Permissions(Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE, Everyone.INSTANCE), timestamp = 1000L) {
     def clock = mock(Clock.class)
     when(clock.currentTimeMillis()).thenReturn(timestamp)
-    new GoDashboardPipeline(pipeline_model(pipeline_name, 'pipeline-label'), permissions, group_name, new TimeStampBasedCounter(clock), new FileConfigOrigin())
+    new GoDashboardPipeline(pipeline_model(pipeline_name, 'pipeline-label'), permissions, group_name, null, new TimeStampBasedCounter(clock), new FileConfigOrigin(), 0)
   }
 }

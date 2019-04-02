@@ -1,0 +1,21 @@
+[
+  {
+    "operation": "shift",
+    "spec": {
+      "target_version": {
+        "#4": "&1" // Set target version to 4.
+      },
+      "*": "&"
+    }
+  },
+  {
+    "operation": "default",
+    "spec": {
+      "pipelines[]": {
+        "*": {
+          "display_order_weight": -1
+        }
+      }
+    }
+  }
+]

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ public class CRPipeline extends CRBase {
     private Collection<CRMaterial> materials = new ArrayList<>();
     private List<CRStage> stages = new ArrayList<>();
     private String template;
+    private int display_order_weight = -1;
 
     public CRPipeline(){}
     public CRPipeline(String name, String groupName, CRMaterial material, String template, CRStage... stages)
@@ -399,5 +400,13 @@ public class CRPipeline extends CRBase {
 
     public void setLock_behavior(String lock_behavior) {
         this.lock_behavior = lock_behavior;
+    }
+
+    public void setDisplayOrderWeight(int display_order_weight) {
+        this.display_order_weight = display_order_weight;
+    }
+
+    public int getDisplayOrderWeight() {
+        return display_order_weight;
     }
 }

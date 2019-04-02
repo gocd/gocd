@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ import java.util.Map;
 
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
 
-    static final int CURRENT_CONTRACT_VERSION = 3;
+    static final int CURRENT_CONTRACT_VERSION = 4;
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler1_0.class);
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,10 +26,11 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractDashboardGroup implements DashboardGroup {
     private String name;
@@ -45,8 +46,13 @@ public abstract class AbstractDashboardGroup implements DashboardGroup {
     }
 
     @Override
-    public Set<String> pipelines() {
-        return pipelines.keySet();
+    public List<String> pipelines() {
+        return pipelines
+                .values()
+                .stream()
+                .sorted(comparing(GoDashboardPipeline::getdisplayOrderWeight))
+                .map(pipeline -> pipeline.name().toString())
+                .collect(toList());
     }
 
     public abstract boolean canAdminister(Username username);

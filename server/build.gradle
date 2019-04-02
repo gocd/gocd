@@ -282,7 +282,6 @@ dependencies {
     exclude(group: 'org.springframework')
   }
   compile(group: 'org.springframework.security', name: 'spring-security-config', version: project.versions.springSecurity)
-  compile group: 'com.apple', name: 'AppleJavaExtensions', version: '1.4'
   compile group: 'org.aspectj', name: 'aspectjrt', version: '1.5.4'
   compile group: 'org.aspectj', name: 'aspectjweaver', version: '1.5.4'
   compile group: 'org.tuckey', name: 'urlrewritefilter', version: '3.2.0'
@@ -344,7 +343,7 @@ dependencies {
 }
 
 jar {
-  classifier = 'classes'
+  archiveClassifier = 'classes'
   exclude '**/*/logback.xml'
   exclude 'logback.xml'
 }
@@ -484,14 +483,14 @@ task sharedTestJar(type: Jar) {
   description = "Assembles a jar archive containing the sharedTest classes."
   group = BasePlugin.BUILD_GROUP
   from sourceSets.sharedTest.output
-  classifier = 'shared-test'
+  archiveClassifier = 'shared-test'
 }
 
 task fastUnitTestJar(type: Jar) {
   description = "Assembles a jar archive containing the fastUnitTest classes."
   group = BasePlugin.BUILD_GROUP
   from sourceSets.fastUnitTest.output
-  classifier = 'fast-unit-test'
+  archiveClassifier = 'fast-unit-test'
 }
 
 check.dependsOn(sharedTest, fastUnitTest, integrationTest)
@@ -776,7 +775,7 @@ task war(type: Jar) {
   dependsOn project.configurations.api
   dependsOn project.configurations.spark
   finalizedBy 'verifyWar'
-  baseName = 'cruise'
+  archiveBaseName = 'cruise'
   extension 'war'
 
   // do this lazily because finding gems is expensive during the configure cycle causing gradle to boot really slow
@@ -837,7 +836,6 @@ task verifyWar(type: VerifyJarTask) {
         "activemq-protobuf-1.1.jar",
         "antlr-2.7.6.jar",
         "aopalliance-1.0.jar",
-        "AppleJavaExtensions-1.4.jar",
         "asm-3.3.1.jar",
         "aspectjrt-1.5.4.jar",
         "aspectjweaver-1.5.4.jar",

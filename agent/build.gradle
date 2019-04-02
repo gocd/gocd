@@ -86,7 +86,7 @@ dependencies {
 }
 
 jar {
-  classifier 'classes'
+  archiveClassifier = 'classes'
 }
 
 clean {

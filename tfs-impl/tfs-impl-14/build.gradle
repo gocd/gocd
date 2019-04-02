@@ -33,7 +33,7 @@ dependencies {
 }
 
 jar {
-  classifier 'classes'
+  archiveClassifier = 'classes'
 }
 
 task fatJar(type: Jar) {

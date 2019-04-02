@@ -82,7 +82,7 @@ task downloadPlugins {
 task pluginsZip(type: Zip) {
   finalizedBy 'verifyPluginZip'
 
-  baseName = 'plugins'
+  archiveBaseName = 'plugins'
   dependsOn createVersionFile
   from(createVersionFile)
 

@@ -23,7 +23,7 @@ import org.apache.tools.ant.types.Commandline
 import org.gradle.internal.jvm.Jvm
 
 task pathingJar(type: Jar) {
-  classifier 'pathing'
+  archiveClassifier = 'pathing'
   dependsOn(project.railsTasksDefaultDependsOn)
 
   doFirst {

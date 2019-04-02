@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain.materials;
 
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import org.joda.time.DateTime;
 
@@ -86,7 +87,7 @@ public class TestingMaterialConfig extends ScmMaterialConfig {
     }
 
     @Override
-    public void validateConcreteScmMaterial() {
+    public void validateConcreteScmMaterial(ValidationContext validationContext) {
     }
 
     @Override

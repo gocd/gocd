@@ -35,6 +35,7 @@ import static org.apache.commons.lang3.StringUtils.replaceOnce;
 
 public class SecretParams extends ArrayList<SecretParam> implements Serializable {
     private static final Pattern PATTERN = Pattern.compile("(?:\\{\\{SECRET:\\[(.*?)\\]\\[(.*?)\\]}})+");
+    public static final String MASKED_VALUE = "******";
 
     public SecretParams() {
     }
@@ -123,6 +124,6 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
     }
 
     private Function<String, String> maskFunction(SecretParam secretParam) {
-        return text -> replaceOnce(text, format("{{SECRET:[%s][%s]}}", secretParam.getSecretConfigId(), secretParam.getKey()), "******");
+        return text -> replaceOnce(text, secretParam.asString(), MASKED_VALUE);
     }
 }

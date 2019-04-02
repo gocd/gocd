@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.config.materials;
 
-import com.thoughtworks.go.util.command.UrlArgument;
+import com.thoughtworks.go.config.ValidationContext;
 import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.Map;
@@ -67,7 +67,7 @@ public class DummyMaterialConfig extends ScmMaterialConfig {
     }
 
     @Override
-    public void validateConcreteScmMaterial() {
+    public void validateConcreteScmMaterial(ValidationContext validationContext) {
     }
 
     @Override

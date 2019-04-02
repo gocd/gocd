@@ -33,9 +33,7 @@ import javax.annotation.PostConstruct;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
 
 @ConfigTag(value = "tfs", label = "TFS")
 public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial, PasswordEncrypter {
@@ -175,29 +173,17 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     @Override
-    public void validateConcreteScmMaterial() {
-        if (url == null || StringUtils.isBlank(url.forDisplay())) {
-            errors().add(URL, "URL cannot be blank");
-        }
+    public void validateConcreteScmMaterial(ValidationContext validationContext) {
+        validateMaterialUrl(this.url, validationContext);
+        validatePassword(validationContext);
+
         if (StringUtils.isBlank(userName)) {
             errors().add(USERNAME, "Username cannot be blank");
         }
         if (StringUtils.isBlank(projectPath)) {
             errors().add(PROJECT_PATH, "Project Path cannot be blank");
         }
-        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)) {
-            addError("password", "You may only specify `password` or `encrypted_password`, not both!");
-            addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
-        }
 
-        if (isNotEmpty(this.encryptedPassword)) {
-            try {
-                goCipher.decrypt(encryptedPassword);
-            } catch (Exception e) {
-                addError("encryptedPassword", format("Encrypted password value for TFS material with url '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
-                        this.getUriForDisplay()));
-            }
-        }
     }
 
     @Override

@@ -105,15 +105,6 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         this.setPassword(password);
     }
 
-    //for tests
-    protected SvnMaterialConfig(UrlArgument url, String password, String encryptedPassword, GoCipher goCipher, Filter filter, boolean invertFilter, String folder) {
-        super(new CaseInsensitiveString("test"), filter, invertFilter, folder, true, TYPE, new ConfigErrors());
-        this.url = url;
-        this.password = password;
-        this.encryptedPassword = encryptedPassword;
-        this.goCipher = goCipher;
-    }
-
     public GoCipher getGoCipher() {
         return goCipher;
     }
@@ -216,22 +207,9 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     @Override
-    public void validateConcreteScmMaterial() {
-        if (url == null || isBlank(url.forDisplay())) {
-            errors().add(URL, "URL cannot be blank");
-        }
-        if (isNotEmpty(this.password) && isNotEmpty(this.encryptedPassword)) {
-            addError("password", "You may only specify `password` or `encrypted_password`, not both!");
-            addError("encryptedPassword", "You may only specify `password` or `encrypted_password`, not both!");
-        }
-        if (isNotEmpty(this.encryptedPassword)) {
-            try {
-                currentPassword();
-            } catch (Exception e) {
-                addError("encryptedPassword", format("Encrypted password value for svn material with url '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.",
-                        this.getUriForDisplay()));
-            }
-        }
+    public void validateConcreteScmMaterial(ValidationContext validationContext) {
+        validateMaterialUrl(this.url, validationContext);
+        validatePassword(validationContext);
     }
 
     @Override

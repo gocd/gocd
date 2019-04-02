@@ -164,7 +164,7 @@ class GitMaterialConfigTest {
             final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
 
             assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Secret configs '[secret_config_id]' does not exist");
+            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Secret configs secret_config_id does not exist");
         }
 
         @Test

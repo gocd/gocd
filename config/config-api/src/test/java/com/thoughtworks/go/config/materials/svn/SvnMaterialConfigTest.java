@@ -174,7 +174,7 @@ class SvnMaterialConfigTest {
             svnMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
 
             assertThat(svnMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(svnMaterialConfig.errors().on("url")).isEqualTo("Secret configs '[secret_config_id]' does not exist");
+            assertThat(svnMaterialConfig.errors().on("url")).isEqualTo("Secret configs secret_config_id does not exist");
         }
 
         @Test
@@ -230,7 +230,7 @@ class SvnMaterialConfigTest {
             svnMaterialConfig.setPassword("{{SECRET:[secret_config_id][password]}}");
 
             assertThat(svnMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(svnMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret configs '[secret_config_id]' does not exist");
+            assertThat(svnMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret configs secret_config_id does not exist");
         }
     }
 

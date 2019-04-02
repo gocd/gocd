@@ -279,7 +279,7 @@ class TfsMaterialConfigUpdateTest {
             tfsMaterialConfig.setUrl("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
 
             assertThat(tfsMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(tfsMaterialConfig.errors().on("url")).isEqualTo("Only username and password can be specified as secret params");
+            assertThat(tfsMaterialConfig.errors().on("url")).isEqualTo("Only password can be specified as secret params");
         }
 
         @Test
@@ -288,14 +288,16 @@ class TfsMaterialConfigUpdateTest {
             tfsMaterialConfig.setUrl("https://{{SECRET:[secret_config_id_1][user]}}:{{SECRET:[secret_config_id_2][pass]}}@host/foo.git");
 
             assertThat(tfsMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(tfsMaterialConfig.errors().on("url")).isEqualTo("Secret configs '[secret_config_id_1, secret_config_id_2]' does not exist");
+            assertThat(tfsMaterialConfig.errors().get("url"))
+                    .hasSize(2)
+                    .contains("Only password can be specified as secret params", "Secret configs secret_config_id_1, secret_config_id_2 does not exist");
         }
 
         @Test
         void shouldNotFailIfSecretConfigWithIdPresentForConfiguredSecretParams() {
             final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file");
             final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-            tfsMaterialConfig.setUrl("https://{{SECRET:[secret_config_id][username]}}:password@host/foo.git");
+            tfsMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][password]}}@host/foo.git");
 
             assertThat(tfsMaterialConfig.validateTree(validationContext)).isTrue();
             assertThat(tfsMaterialConfig.errors().getAll()).isEmpty();
@@ -342,7 +344,7 @@ class TfsMaterialConfigUpdateTest {
             tfsMaterialConfig.setPassword("{{SECRET:[secret_config_id][password]}}");
 
             assertThat(tfsMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(tfsMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret configs '[secret_config_id]' does not exist");
+            assertThat(tfsMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret configs secret_config_id does not exist");
         }
     }
 

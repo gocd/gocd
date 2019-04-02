@@ -19,11 +19,15 @@ package com.thoughtworks.go.util.command;
 import com.thoughtworks.go.config.ConfigAttributeValue;
 import com.thoughtworks.go.config.SecretParamAware;
 import com.thoughtworks.go.config.SecretParams;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static org.apache.commons.lang3.StringUtils.contains;
@@ -63,13 +67,27 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
         try {
             if (uriComponents.getUserInfo() != null) {
                 final String userInfo = clean(uriComponents.getScheme(), uriComponents.getUserInfo());
-                return new URI(uriComponents.getScheme(), userInfo, uriComponents.getHost(), uriComponents.getPort(), uriComponents.getPath(), uriComponents.getQuery(), uriComponents.getFragment())
+                final String decodedPath = decode(uriComponents.getPath());
+                return new URI(uriComponents.getScheme(), userInfo, uriComponents.getHost(), uriComponents.getPort(), decodedPath, uriComponents.getQuery(), uriComponents.getFragment())
                         .toString();
             }
             return maskedUrl;
         } catch (URISyntaxException e) {
             // In subversion we may have a file path that is not actually a URL
             return url;
+        }
+    }
+
+    private String decode(String path) {
+        if (StringUtils.isBlank(path)) {
+            return path;
+        }
+        
+        try {
+            return URLDecoder.decode(path, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            //This never happens
+            throw new RuntimeException(e);
         }
     }
 
@@ -83,7 +101,7 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
     }
 
     protected String sanitizeUrl() {
-        return url;
+        return this.url;
     }
 
     protected String hostInfoForDisplay() {
@@ -163,11 +181,12 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
             return true;
         }
 
-        if (containsNone(this.sanitizeUrl(), "@")) {
+        final String sanitizeUrl = this.sanitizeUrl();
+        if (containsNone(sanitizeUrl, "@")) {
             return false;
         }
 
-        String[] parts = this.sanitizeUrl().split("@");
+        String[] parts = sanitizeUrl.split("@");
         if (parts.length > 2) {
             return false;
         }
@@ -178,7 +197,7 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
             return false;
         }
 
-        final UriComponents uriComponents = UriComponentsBuilder.fromUriString(this.secretParams.mask(this.sanitizeUrl())).build();
+        final UriComponents uriComponents = UriComponentsBuilder.fromUriString(this.secretParams.mask(sanitizeUrl)).build();
         if (contains(uriComponents.getScheme(), SecretParams.MASKED_VALUE)) {
             return false;
         }

@@ -165,7 +165,7 @@ class HgMaterialConfigTest {
             hgMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
 
             assertThat(hgMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(hgMaterialConfig.errors().on("url")).isEqualTo("Secret configs '[secret_config_id]' does not exist");
+            assertThat(hgMaterialConfig.errors().on("url")).isEqualTo("Secret configs secret_config_id does not exist");
         }
 
         @Test

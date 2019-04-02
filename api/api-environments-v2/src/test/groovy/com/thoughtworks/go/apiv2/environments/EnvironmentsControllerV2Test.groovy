@@ -312,7 +312,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
             "agents"               : [],
             "environment_variables": [
               [
-                "encrypted_value": "AES:lzcCuNSe4vUx+CsWgN11Uw==:FKO6MqcI4nlssuYvzhHo2w==",
+                "encrypted_value": new GoCipher().encrypt("/bin/java"),
                 "errors"         : [
                   "encrypted_value": ["You may only specify `value` or `encrypted_value`, not both!"],
                   "value"          : ["You may only specify `value` or `encrypted_value`, not both!"]
@@ -526,7 +526,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
           "data": [
             "environment_variables": [
               [
-                "encrypted_value": "AES:lzcCuNSe4vUx+CsWgN11Uw==:FKO6MqcI4nlssuYvzhHo2w==",
+                "encrypted_value": new GoCipher().encrypt("/bin/java"),
                 "errors": [
                   "encrypted_value": [
                     "You may only specify `value` or `encrypted_value`, not both!"
@@ -622,7 +622,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
             "agents"               : [],
             "environment_variables": [
               [
-                "encrypted_value": "AES:lzcCuNSe4vUx+CsWgN11Uw==:FKO6MqcI4nlssuYvzhHo2w==",
+                "encrypted_value": new GoCipher().encrypt("/bin/java"),
                 "errors"         : [
                   "encrypted_value": ["You may only specify `value` or `encrypted_value`, not both!"],
                   "value"          : ["You may only specify `value` or `encrypted_value`, not both!"]

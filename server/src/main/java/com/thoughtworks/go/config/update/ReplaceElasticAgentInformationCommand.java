@@ -63,11 +63,11 @@ public class ReplaceElasticAgentInformationCommand implements EntityConfigUpdate
         List<ClusterProfile> migratedClusterProfiles = migratedElasticAgentInformation.getClusterProfiles();
         List<ElasticProfile> migratedElasticAgentProfiles = migratedElasticAgentInformation.getElasticAgentProfiles();
 
-        goConfigService.getElasticConfig().getClusterProfiles().removeAll(clusterProfiles);
-        goConfigService.getElasticConfig().getClusterProfiles().addAll(migratedClusterProfiles);
+        preprocessedConfig.getElasticConfig().getClusterProfiles().removeAll(clusterProfiles);
+        preprocessedConfig.getElasticConfig().getClusterProfiles().addAll(migratedClusterProfiles);
 
-        goConfigService.getElasticConfig().getProfiles().removeAll(elasticAgentProfiles);
-        goConfigService.getElasticConfig().getProfiles().addAll(migratedElasticAgentProfiles);
+        preprocessedConfig.getElasticConfig().getProfiles().removeAll(elasticAgentProfiles);
+        preprocessedConfig.getElasticConfig().getProfiles().addAll(migratedElasticAgentProfiles);
     }
 
     @Override

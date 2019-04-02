@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.elastic.*;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -108,10 +107,10 @@ class ReplaceElasticAgentInformationCommandTest {
 
         verify(elasticAgentExtension).migrateConfig(pluginId, new ElasticAgentInformation(Collections.emptyMap(), clusterProfiles, elasticProfiles));
 
-        assertThat(elasticConfig.getProfiles()).hasSize(1);
-        assertThat(elasticConfig.getProfiles()).isEqualTo(elasticProfiles);
-        assertThat(elasticConfig.getClusterProfiles()).hasSize(1);
-        assertThat(elasticConfig.getClusterProfiles()).isEqualTo(clusterProfiles);
+        assertThat(basicCruiseConfig.getElasticConfig().getProfiles()).hasSize(1);
+        assertThat(basicCruiseConfig.getElasticConfig().getProfiles()).isEqualTo(elasticProfiles);
+        assertThat(basicCruiseConfig.getElasticConfig().getClusterProfiles()).hasSize(1);
+        assertThat(basicCruiseConfig.getElasticConfig().getClusterProfiles()).isEqualTo(clusterProfiles);
     }
 
     @Test

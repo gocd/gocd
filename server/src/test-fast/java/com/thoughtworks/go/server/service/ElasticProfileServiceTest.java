@@ -167,6 +167,16 @@ class ElasticProfileServiceTest {
         verify(goConfigService).updateConfig(any(ElasticAgentProfileDeleteCommand.class), eq(username));
     }
 
+    @Test
+    void shouldNotPerformPluginValidationsWhileDeletingElasticProfile() {
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", "prod-cluster");
+
+        Username username = new Username("username");
+        elasticProfileService.delete(username, elasticProfile, new HttpLocalizedOperationResult());
+
+        verify(validator, never()).validate(eq(elasticProfile), anyString());
+    }
+
     @Nested
     class GetJobsUsingElasticProfile {
         @BeforeEach

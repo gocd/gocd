@@ -44,18 +44,18 @@ public class ClusterProfilesService extends PluginProfilesService<ClusterProfile
 
     public ClusterProfile create(ClusterProfile clusterProfile, Username currentUser, HttpLocalizedOperationResult result) {
         AddClusterProfileCommand addClusterProfileCommand = new AddClusterProfileCommand(extension, goConfigService, clusterProfile, currentUser, result);
-        update(currentUser, clusterProfile, result, addClusterProfileCommand);
+        update(currentUser, clusterProfile, result, addClusterProfileCommand, true);
         return clusterProfile;
     }
 
     public void delete(ClusterProfile clusterProfile, Username currentUser, HttpLocalizedOperationResult result) {
         DeleteClusterProfileCommand deleteClusterProfileCommand = new DeleteClusterProfileCommand(extension, goConfigService, clusterProfile, currentUser, result);
-        update(currentUser, clusterProfile, result, deleteClusterProfileCommand);
+        update(currentUser, clusterProfile, result, deleteClusterProfileCommand, false);
     }
 
     public ClusterProfile update(ClusterProfile newClusterProfile, Username currentUser, HttpLocalizedOperationResult result) {
         UpdateClusterProfileCommand updateClusterProfileCommand = new UpdateClusterProfileCommand(extension, goConfigService, newClusterProfile, currentUser, result);
-        update(currentUser, newClusterProfile, result, updateClusterProfileCommand);
+        update(currentUser, newClusterProfile, result, updateClusterProfileCommand, true);
         return newClusterProfile;
     }
 }

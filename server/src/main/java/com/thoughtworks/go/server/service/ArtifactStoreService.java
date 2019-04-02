@@ -51,15 +51,15 @@ public class ArtifactStoreService extends PluginProfilesService<ArtifactStore> {
     }
 
     public void create(Username currentUser, ArtifactStore newArtifactStore, LocalizedOperationResult result) {
-        update(currentUser, newArtifactStore, result, new CreateArtifactStoreConfigCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result));
+        update(currentUser, newArtifactStore, result, new CreateArtifactStoreConfigCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result), true);
     }
 
     public void update(Username currentUser, String md5, ArtifactStore newArtifactStore, LocalizedOperationResult result) {
-        update(currentUser, newArtifactStore, result, new UpdateArtifactStoreConfigCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result, hashingService, md5));
+        update(currentUser, newArtifactStore, result, new UpdateArtifactStoreConfigCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result, hashingService, md5), true);
     }
 
     public void delete(Username currentUser, ArtifactStore newArtifactStore, LocalizedOperationResult result) {
-        update(currentUser, newArtifactStore, result, new DeleteArtifactStoreConfigCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result));
+        update(currentUser, newArtifactStore, result, new DeleteArtifactStoreConfigCommand(goConfigService, newArtifactStore, artifactExtension, currentUser, result), false);
         if (result.isSuccessful()) {
             result.setMessage(EntityType.ArtifactStore.deleteSuccessful(newArtifactStore.getId()));
         }

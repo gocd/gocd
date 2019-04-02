@@ -35,8 +35,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ArtifactStoreServiceTest {
@@ -123,6 +122,16 @@ public class ArtifactStoreServiceTest {
 
         MatcherAssert.assertThat(artifactStore.first().errors().size(), is(1));
         MatcherAssert.assertThat(artifactStore.first().errors().on("key"), is("some-error"));
+    }
+
+    @Test
+    public void shouldNotPerformPluginValidationsWhenDeletingElasticProfile() {
+        ArtifactStore artifactStore = new ArtifactStore("docker", "cd.go.artifact.docker", create("key", false, "val"));
+
+        Username username = new Username("username");
+        artifactStoreService.delete(username, artifactStore, new HttpLocalizedOperationResult());
+
+        verify(extension, never()).validateArtifactStoreConfig(artifactStore.getPluginId(), artifactStore.getConfigurationAsMap(true));
     }
 
     @Test

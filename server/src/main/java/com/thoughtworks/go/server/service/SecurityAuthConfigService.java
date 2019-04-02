@@ -61,13 +61,13 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
 
     public void update(Username currentUser, String md5, SecurityAuthConfig newSecurityAuthConfig, LocalizedOperationResult result) {
         SecurityAuthConfigUpdateCommand command = new SecurityAuthConfigUpdateCommand(goConfigService, newSecurityAuthConfig, authorizationExtension, currentUser, result, hashingService, md5);
-        update(currentUser, newSecurityAuthConfig, result, command);
+        update(currentUser, newSecurityAuthConfig, result, command, true);
     }
 
 
 
     public void delete(Username currentUser, SecurityAuthConfig newSecurityAuthConfig, LocalizedOperationResult result) {
-        update(currentUser, newSecurityAuthConfig, result, new SecurityAuthConfigDeleteCommand(goConfigService, newSecurityAuthConfig, authorizationExtension, currentUser, result));
+        update(currentUser, newSecurityAuthConfig, result, new SecurityAuthConfigDeleteCommand(goConfigService, newSecurityAuthConfig, authorizationExtension, currentUser, result), false);
         if (result.isSuccessful()) {
             result.setMessage(EntityType.SecurityAuthConfig.deleteSuccessful(newSecurityAuthConfig.getId()));
         }
@@ -75,7 +75,7 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
 
     public void create(Username currentUser, SecurityAuthConfig securityAuthConfig, LocalizedOperationResult result) {
         SecurityAuthConfigCreateCommand command = new SecurityAuthConfigCreateCommand(goConfigService, securityAuthConfig, authorizationExtension, currentUser, result);
-        update(currentUser, securityAuthConfig, result, command);
+        update(currentUser, securityAuthConfig, result, command, true);
     }
 
     public VerifyConnectionResponse verifyConnection(SecurityAuthConfig securityAuthConfig) {

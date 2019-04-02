@@ -25,7 +25,8 @@ public class AssertJava8 {
             JavaVersion.VERSION_1_8,
             JavaVersion.VERSION_1_9,
             JavaVersion.VERSION_1_10,
-            JavaVersion.VERSION_11
+            JavaVersion.VERSION_11,
+            JavaVersion.VERSION_12
     ));
 
     public static void assertVMVersion() {

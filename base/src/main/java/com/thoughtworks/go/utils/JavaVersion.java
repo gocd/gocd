@@ -20,6 +20,11 @@ package com.thoughtworks.go.utils;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * An enumeration of Java versions.
+ * Before 9: http://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html
+ * 9+: http://openjdk.java.net/jeps/223
+ */
 public enum JavaVersion {
     VERSION_1_1, VERSION_1_2, VERSION_1_3, VERSION_1_4,
     VERSION_1_5, VERSION_1_6, VERSION_1_7, VERSION_1_8,
@@ -30,6 +35,13 @@ public enum JavaVersion {
      * @since 4.7
      */
     VERSION_11,
+
+    /**
+     * Java 12 major version.
+     *
+     * @since 5.0
+     */
+    VERSION_12,
 
     /**
      * Higher version of Java.
@@ -88,6 +100,7 @@ public enum JavaVersion {
         return currentJavaVersion;
     }
 
+    @VisibleForTesting
     static void resetCurrent() {
         currentJavaVersion = null;
     }
@@ -136,6 +149,15 @@ public enum JavaVersion {
         return this == VERSION_11;
     }
 
+    /**
+     * Returns if the version is Java 12.
+     *
+     * @since 5.0
+     */
+    public boolean isJava12() {
+        return this == VERSION_12;
+    }
+
     public boolean isJava5Compatible() {
         return this.compareTo(VERSION_1_5) >= 0;
     }
@@ -167,6 +189,15 @@ public enum JavaVersion {
      */
     public boolean isJava11Compatible() {
         return this.compareTo(VERSION_11) >= 0;
+    }
+
+    /**
+     * Returns if the version is Java 12 compatible.
+     *
+     * @since 5.0
+     */
+    public boolean isJava12Compatible() {
+        return this.compareTo(VERSION_12) >= 0;
     }
 
     @Override

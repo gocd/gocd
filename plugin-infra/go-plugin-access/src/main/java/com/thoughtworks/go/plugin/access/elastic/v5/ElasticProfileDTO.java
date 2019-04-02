@@ -18,9 +18,10 @@ package com.thoughtworks.go.plugin.access.elastic.v5;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -41,12 +42,12 @@ public class ElasticProfileDTO {
 
     @Expose
     @SerializedName("properties")
-    private Map<String, Map<String, Object>> properties;
+    private Map<String, String> properties;
 
     public ElasticProfileDTO() {
     }
 
-    public ElasticProfileDTO(String id, String pluginId, String clusterProfileId, Map<String, Map<String, Object>> properties) {
+    public ElasticProfileDTO(String id, String pluginId, String clusterProfileId, Map<String, String> properties) {
         this.id = id;
         this.pluginId = pluginId;
         this.clusterProfileId = clusterProfileId;
@@ -61,7 +62,7 @@ public class ElasticProfileDTO {
         return pluginId;
     }
 
-    public Map<String, Map<String, Object>> getProperties() {
+    public Map<String, String> getProperties() {
         return properties;
     }
 
@@ -94,15 +95,13 @@ public class ElasticProfileDTO {
     public ElasticProfile toDomainModel() {
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
 
-        ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
-        this.properties.forEach((key, valueObject) -> {
-            boolean isSecure = (boolean) valueObject.get("isSecure");
-            String value = isSecure ? null : (String) valueObject.get("value");
-            String encryptedValue = isSecure ? (String) valueObject.get("value") : null;
-
-            configurationProperties.add(builder.create(key, value, encryptedValue, isSecure));
+        this.properties.forEach((key, value) -> {
+            configurationProperties.add(new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value)));
         });
 
-        return new ElasticProfile(this.id, this.pluginId, this.clusterProfileId, configurationProperties);
+        ElasticProfile elasticProfile = new ElasticProfile(this.id, this.pluginId, this.clusterProfileId);
+        elasticProfile.addConfigurations(configurationProperties);
+
+        return elasticProfile;
     }
 }

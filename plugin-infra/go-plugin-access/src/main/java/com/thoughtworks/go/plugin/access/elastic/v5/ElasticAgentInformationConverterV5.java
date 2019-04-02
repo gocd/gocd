@@ -31,6 +31,6 @@ class ElasticAgentInformationConverterV5 implements DataConverter<ElasticAgentIn
     public ElasticAgentInformationDTO toDTO(ElasticAgentInformation elasticAgentInformation) {
         return new ElasticAgentInformationDTO(elasticAgentInformation.getPluginSettings(),
                 elasticAgentInformation.getClusterProfiles().stream().map(clusterProfile -> new ClusterProfileDTO(clusterProfile.getId(), clusterProfile.getPluginId(), clusterProfile.getConfigurationAsMap(true))).collect(Collectors.toList()),
-                elasticAgentInformation.getElasticAgentProfiles().stream().map(elasticProfile -> new ElasticProfileDTO(elasticProfile.getId(), elasticProfile.getPluginId(), elasticProfile.getClusterProfileId(), elasticProfile.getPropertyMetadataAndValuesAsMap())).collect(Collectors.toList()));
+                elasticAgentInformation.getElasticAgentProfiles().stream().map(elasticProfile -> new ElasticProfileDTO(elasticProfile.getId(), elasticProfile.getPluginId(), elasticProfile.getClusterProfileId(), elasticProfile.getConfigurationAsMap(true))).collect(Collectors.toList()));
     }
 }

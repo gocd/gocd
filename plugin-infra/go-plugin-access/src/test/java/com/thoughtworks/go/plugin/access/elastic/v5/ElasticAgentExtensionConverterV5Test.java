@@ -287,7 +287,7 @@ public class ElasticAgentExtensionConverterV5Test {
         List<ClusterProfile> clusterProfiles = new ArrayList<>();
 
         List<ElasticProfile> elasticAgentProfiles = new ArrayList<>();
-        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue("some_value2"))));
+        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
 
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
 
@@ -306,16 +306,8 @@ public class ElasticAgentExtensionConverterV5Test {
                 "            \"plugin_id\":\"plugin_id\"," +
                 "            \"cluster_profile_id\": null," +
                 "            \"properties\":{" +
-                "                \"some_key\":{" +
-                "                    \"displayValue\":\"some_value\"," +
-                "                    \"isSecure\":false," +
-                "                    \"value\":\"some_value\"" +
-                "                }," +
-                "                \"some_key2\":{" +
-                "                    \"displayValue\":\"****\"," +
-                "                    \"isSecure\":true," +
-                "                    \"value\":\"some_value2\"" +
-                "                }" +
+                "                \"some_key\":\"some_value\", " +
+                "                \"some_key2\":\"some_value2\"" +
                 "            }" +
                 "        }" +
                 "    ]" +
@@ -338,7 +330,7 @@ public class ElasticAgentExtensionConverterV5Test {
         clusterProfiles.add(new ClusterProfile("cluster_profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
 
         List<ElasticProfile> elasticAgentProfiles = new ArrayList<>();
-        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue("some_value2"))));
+        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
 
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
 
@@ -366,16 +358,8 @@ public class ElasticAgentExtensionConverterV5Test {
                 "            \"plugin_id\":\"plugin_id\"," +
                 "            \"cluster_profile_id\":\"cluster_profile_id\"," +
                 "            \"properties\":{" +
-                "                \"some_key\":{" +
-                "                    \"displayValue\":\"some_value\"," +
-                "                    \"isSecure\":false," +
-                "                    \"value\":\"some_value\"" +
-                "                }," +
-                "                \"some_key2\":{" +
-                "                    \"displayValue\":\"****\"," +
-                "                    \"isSecure\":true," +
-                "                    \"value\":\"some_value2\"" +
-                "                }" +
+                "                \"some_key\":\"some_value\", " +
+                "                \"some_key2\":\"some_value2\"" +
                 "            }" +
                 "        }" +
                 "    ]" +
@@ -407,24 +391,17 @@ public class ElasticAgentExtensionConverterV5Test {
                 "            \"plugin_id\":\"plugin_id\"," +
                 "            \"cluster_profile_id\":\"cluster_profile_id\"," +
                 "            \"properties\":{" +
-                "                \"some_key\":{" +
-                "                    \"displayValue\":\"some_value\"," +
-                "                    \"isSecure\":false," +
-                "                    \"value\":\"some_value\"" +
-                "                }," +
-                "                \"some_key2\":{" +
-                "                    \"displayValue\":\"****\"," +
-                "                    \"isSecure\":true," +
-                "                    \"value\":\"some_value2\"" +
-                "                }" +
+                "                \"some_key\":\"some_value\"," +
+                "                \"some_key2\":\"some_value2\"" +
                 "            }" +
                 "        }" +
                 "    ]" +
                 "}\n";
 
         ElasticAgentMetadataStore store = ElasticAgentMetadataStore.instance();
+        PluggableInstanceSettings elasticAgentProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("some_key", new Metadata(true, true))));
         PluggableInstanceSettings clusterProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("some_key2", new Metadata(true, true))));
-        store.setPluginInfo(new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), null, clusterProfileSettings, null, null, null));
+        store.setPluginInfo(new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), elasticAgentProfileSettings, clusterProfileSettings, null, null, null));
 
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentExtensionConverterV5().getElasticAgentInformationFromResponseBody(responseBody);
 
@@ -440,7 +417,7 @@ public class ElasticAgentExtensionConverterV5Test {
         clusterProfiles.add(new ClusterProfile("cluster_profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
 
         List<ElasticProfile> elasticAgentProfiles = new ArrayList<>();
-        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue("some_value2"))));
+        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value"))), new ConfigurationProperty(new ConfigurationKey("some_key2"), new ConfigurationValue("some_value2"))));
 
         ElasticAgentInformation expectedElasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
 

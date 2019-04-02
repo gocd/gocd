@@ -45,9 +45,11 @@ import static org.junit.Assert.*;
 
 public class ElasticAgentExtensionConverterV5Test {
     private JobIdentifier jobIdentifier;
+    private Map<String, String> clusterProfile;
 
     @Before
     public void setUp() throws Exception {
+        clusterProfile = Collections.singletonMap("key", "value");
         jobIdentifier = new JobIdentifier("test-pipeline", 1, "Test Pipeline", "test-stage", "1", "test-job");
         jobIdentifier.setBuildId(100L);
     }
@@ -192,8 +194,11 @@ public class ElasticAgentExtensionConverterV5Test {
     @Test
     public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenElasticAgentIdIsProvided() throws Exception {
         String elasticAgentId = "my-fancy-elastic-agent-id";
-        String actual = new ElasticAgentExtensionConverterV5().getAgentStatusReportRequestBody(null, elasticAgentId);
+        String actual = new ElasticAgentExtensionConverterV5().getAgentStatusReportRequestBody(null, elasticAgentId, clusterProfile);
         String expected = format("{" +
+                "\"cluster_profile_properties\":{" +
+                "   \"key\":\"value\"" +
+                "   }," +
                 "  \"elastic_agent_id\": \"%s\"" +
                 "}", elasticAgentId);
 
@@ -202,7 +207,7 @@ public class ElasticAgentExtensionConverterV5Test {
 
     @Test
     public void shouldJSONizeElasticAgentStatusReportRequestBodyWhenJobIdentifierIsProvided() throws Exception {
-        String actual = new ElasticAgentExtensionConverterV5().getAgentStatusReportRequestBody(jobIdentifier, null);
+        String actual = new ElasticAgentExtensionConverterV5().getAgentStatusReportRequestBody(jobIdentifier, null, clusterProfile);
         String expected = "{" +
                 "  \"job_identifier\": {\n" +
                 "    \"pipeline_name\": \"test-pipeline\",\n" +
@@ -212,7 +217,11 @@ public class ElasticAgentExtensionConverterV5Test {
                 "    \"stage_counter\": \"1\",\n" +
                 "    \"job_name\": \"test-job\",\n" +
                 "    \"job_id\": 100\n" +
-                "  }\n" +
+                "  },\n" +
+                "\"cluster_profile_properties\":" +
+                "  {" +
+                "     \"key\":\"value\"" +
+                "  }" +
                 "}";
 
         assertThatJson(expected).isEqualTo(actual);

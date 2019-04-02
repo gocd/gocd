@@ -102,9 +102,9 @@ public class ElasticAgentPluginRegistryTest {
     public void shouldTalkToExtensionToGetAgentStatusReport() {
         final JobIdentifier jobIdentifier = new JobIdentifier();
 
-        elasticAgentPluginRegistry.getAgentStatusReport(PLUGIN_ID, jobIdentifier, "some-id");
+        elasticAgentPluginRegistry.getAgentStatusReport(PLUGIN_ID, jobIdentifier, "some-id", null);
 
-        verify(elasticAgentExtension, times(1)).getAgentStatusReport(PLUGIN_ID, jobIdentifier, "some-id");
+        verify(elasticAgentExtension, times(1)).getAgentStatusReport(PLUGIN_ID, jobIdentifier, "some-id", null);
         verifyNoMoreInteractions(elasticAgentExtension);
     }
 

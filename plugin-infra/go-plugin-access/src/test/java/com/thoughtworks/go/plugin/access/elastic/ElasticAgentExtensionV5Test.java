@@ -325,7 +325,10 @@ public class ElasticAgentExtensionV5Test {
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        extensionV5.getAgentStatusReport(PLUGIN_ID, jobIdentifier, "GoCD193659b3b930480287b898eeef0ade37");
+
+        Map<String, String> clusterProfile = Collections.singletonMap("go-server-url", "server-url-value");
+
+        extensionV5.getAgentStatusReport(PLUGIN_ID, jobIdentifier, "GoCD193659b3b930480287b898eeef0ade37", clusterProfile);
 
         final String requestBody = "{\n" +
                 "  \"job_identifier\": {\n" +
@@ -337,6 +340,9 @@ public class ElasticAgentExtensionV5Test {
                 "    \"job_name\": \"up42_job\",\n" +
                 "    \"job_id\": -1\n" +
                 "  },\n" +
+                "  \"cluster_profile_properties\":{" +
+                "       \"go-server-url\":\"server-url-value\"" +
+                "  }," +
                 "  \"elastic_agent_id\": \"GoCD193659b3b930480287b898eeef0ade37\"\n" +
                 "}";
 

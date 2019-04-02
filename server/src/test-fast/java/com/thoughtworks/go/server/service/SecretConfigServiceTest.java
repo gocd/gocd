@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.SecretConfigUsage;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -50,7 +51,7 @@ class SecretConfigServiceTest {
     }
 
     @Nested
-    class GetEntitiesUsingSecretConfig {
+    class SecretConfigUsages {
         private SecretParam secretParam;
         private List<PipelineConfig> allPipelineConfigs;
 
@@ -74,7 +75,7 @@ class SecretConfigServiceTest {
         }
 
         @Test
-        void shouldReturnJobsUsingSecretConfig() {
+        void shouldReturnUsagesForJobsUsingSecretConfig() {
             when(goConfigService.getAllPipelineConfigs()).thenReturn(allPipelineConfigs);
 
             assertThat(secretConfigService.getUsageInformation("ForDeploy"))
@@ -92,7 +93,7 @@ class SecretConfigServiceTest {
         }
 
         @Test
-        void shouldReturnEmptyWhenNoneOfTheJobMatchesConfigId() {
+        void shouldReturnEmptyUsagesWhenNoneOfTheJobMatchesConfigId() {
             SecretParam secretParam = new SecretParam("ForDeploy", "username");
             final List<PipelineConfig> allPipelineConfigs = Arrays.asList(
                     templateBasedPipelineWithSecretParams("docker-template", secretParam, "P1", "S1", "Job1", "Job2"),
@@ -112,6 +113,22 @@ class SecretConfigServiceTest {
             final RecordNotFoundException recordNotFoundException = assertThrows(RecordNotFoundException.class, () -> secretConfigService.getUsageInformation("unknown-config-id"));
 
             assertThat(recordNotFoundException.getMessage()).isEqualTo(EntityType.SecretConfig.notFoundMessage("unknown-config-id"));
+        }
+
+        @Test
+        void shouldReturnUsagesForMaterialUsingSecretConfig() {
+            PipelineConfig pipelineConfig = createPipelineConfig("P4", "S1", "Job1", "Job2");
+            pipelineConfig.addMaterialConfig(MaterialConfigsMother.gitMaterialConfig("/Users/username/{{SECRET:[ForDeploy][placeholder]}}"));
+
+            when(goConfigService.getAllPipelineConfigs()).thenReturn(Arrays.asList(pipelineConfig));
+
+            final Collection<SecretConfigUsage> pipelinesUsingSecretParams = secretConfigService.getUsageInformation("ForDeploy");
+
+            assertThat(pipelinesUsingSecretParams)
+                    .hasSize(1)
+                    .contains(
+                            new SecretConfigUsage("P4", null, null, null, "config_repo")
+                    );
         }
     }
 }

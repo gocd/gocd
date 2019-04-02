@@ -19,18 +19,22 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.update.SecretConfigCreateCommand;
 import com.thoughtworks.go.config.update.SecretConfigDeleteCommand;
 import com.thoughtworks.go.config.update.SecretConfigUpdateCommand;
 import com.thoughtworks.go.domain.SecretConfigUsage;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 @Component
 public class SecretConfigService extends NewPluginProfilesService<SecretConfig> {
@@ -119,10 +123,29 @@ public class SecretConfigService extends NewPluginProfilesService<SecretConfig> 
     }
 
     private Optional<SecretConfigUsage> getPipelineUsage(PipelineConfig pipelineConfig, String configId) {
+        Optional<SecretConfigUsage> materialUsage = getMaterialUsage(pipelineConfig, configId);
+
+        if (materialUsage.isPresent()) {
+            return materialUsage;
+        }
+
         EnvironmentVariablesConfig secureVariables = pipelineConfig.getVariables().getSecureVariables();
 
         if (isUsingSecretConfig(configId, secureVariables)) {
             return Optional.of(createSecretConfigUsage(pipelineConfig, null, null));
+        }
+        return Optional.empty();
+    }
+
+    private Optional<SecretConfigUsage> getMaterialUsage(PipelineConfig pipelineConfig, String configId) {
+        for (Material material : new Materials(pipelineConfig.materialConfigs())) {
+            if (SecretParamAware.class.isAssignableFrom(material.getClass())) {
+                SecretParamAware materialWithSecretParams = (SecretParamAware) material;
+
+                if (materialWithSecretParams.hasSecretParams() && materialWithSecretParams.getSecretParams().findFirstByConfigId(configId).isPresent()) {
+                    return Optional.of(createSecretConfigUsage(pipelineConfig, null, null));
+                }
+            }
         }
         return Optional.empty();
     }

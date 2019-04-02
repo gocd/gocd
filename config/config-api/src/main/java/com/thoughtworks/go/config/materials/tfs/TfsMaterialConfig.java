@@ -332,5 +332,4 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         }
 
     }
-
 }

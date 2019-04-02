@@ -15,36 +15,38 @@
  */
 
 import {AjaxPoller} from "helpers/ajax_poller";
+import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import * as Stream from "mithril/stream";
+import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {DataSharingNotification} from "models/notifications/data_sharing_notification";
 import {SystemNotifications} from "models/notifications/system_notifications";
 import {SystemNotificationsWidget} from "views/components/notification_center/system_notifications_widget";
 
-const systemNotifications = Stream(new SystemNotifications());
-
-function createRepeater() {
-  return new AjaxPoller(() => SystemNotifications.all().then(redraw));
+interface State {
+  systemNotifications: Stream<SystemNotifications>;
+  repeater: AjaxPoller<void>;
 }
 
-const repeater = Stream(createRepeater());
-
-const NotificationCenter = {
-  oninit() {
+export class NotificationCenter extends MithrilComponent<{}, State> {
+  oninit(vnode: m.Vnode<{}, State>) {
     DataSharingNotification.createIfNotPresent();
-    repeater().start();
-  },
-  onbeforeremove() {
-    repeater().stop();
-  },
-  view() {
-    return <SystemNotificationsWidget systemNotifications={systemNotifications}/>;
+    vnode.state.repeater            = this.createRepeater(vnode);
+    vnode.state.systemNotifications = stream(new SystemNotifications());
   }
-};
 
-const redraw = (data: SystemNotifications) => {
-  systemNotifications(new SystemNotifications(data.filter((n) => n.read === false)));
-  m.redraw();
-};
+  onremove(vnode: m.VnodeDOM<{}, State>) {
+    vnode.state.repeater.stop();
+  }
 
-module.exports = NotificationCenter;
+  view(vnode: m.Vnode<{}, State>) {
+    return <SystemNotificationsWidget systemNotifications={vnode.state.systemNotifications}/>;
+  }
+
+  private createRepeater(vnode: m.Vnode<{}, State>) {
+    return new AjaxPoller(() => SystemNotifications.all().then((data: SystemNotifications) => {
+      vnode.state.systemNotifications(new SystemNotifications(data.filter((n) => !n.read)));
+      m.redraw();
+    }));
+  }
+}

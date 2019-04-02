@@ -15,44 +15,47 @@
  */
 
 import {AjaxPoller} from "helpers/ajax_poller";
+import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {ServerHealthMessages} from "models/shared/server_health_messages/server_health_messages";
 import {ServerHealthMessagesCountWidget} from "./server_health_messages_count_widget";
 
-const serverHealthMessages = stream(new ServerHealthMessages([]));
-
-function createRepeater() {
-  const options = {
-    repeaterFn: () => {
-      return ServerHealthMessages.all()
-                                 .then((result) => {
-                                   result.do(
-                                     (successResponse) => serverHealthMessages(successResponse.body),
-                                     (errorResponse) => {
-                                       // tslint:disable-next-line:no-console
-                                       console.log("There was an error fetching server health messages!");
-                                     }
-                                   );
-                                 });
-    }
-  };
-  return new AjaxPoller(options);
+interface State {
+  serverHealthMessages: Stream<ServerHealthMessages>;
+  repeater: AjaxPoller<void>;
 }
 
-let repeater: AjaxPoller<void>;
-
-const ServerHealthSummary = {
-  oninit() {
-    repeater = createRepeater();
-    repeater.start();
-  },
-  onbeforeremove() {
-    repeater.stop();
-  },
-  view() {
-    return (<ServerHealthMessagesCountWidget serverHealthMessages={serverHealthMessages}/>);
+export class ServerHealthSummary extends MithrilComponent<{}, State> {
+  oninit(vnode: m.Vnode<{}, State>): any {
+    vnode.state.repeater             = this.createRepeater(vnode);
+    vnode.state.serverHealthMessages = stream(new ServerHealthMessages([]));
   }
-};
 
-module.exports = ServerHealthSummary;
+  onremove(vnode: m.VnodeDOM<{}, State>): any {
+    vnode.state.repeater.stop();
+  }
+
+  view(vnode: m.Vnode<{}, State>) {
+    return (<ServerHealthMessagesCountWidget serverHealthMessages={vnode.state.serverHealthMessages}/>);
+  }
+
+  private createRepeater(vnode: m.Vnode<{}, State>) {
+    const options = {
+      repeaterFn: () => {
+        return ServerHealthMessages.all()
+                                   .then((result) => {
+                                     result.do(
+                                       (successResponse) => vnode.state.serverHealthMessages(successResponse.body),
+                                       (errorResponse) => {
+                                         // tslint:disable-next-line:no-console
+                                         console.log("There was an error fetching server health messages!");
+                                       }
+                                     );
+                                   });
+      }
+    };
+    return new AjaxPoller(options);
+  }
+}

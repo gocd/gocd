@@ -48,7 +48,6 @@ public class ConfigMaterialUpdateListenerTest {
     private Material material;
     private File folder = new File("checkoutDir");
     private MaterialRevisions mods;
-    private MaterialPoller poller;
     private Modification svnModification;
 
     @Before
@@ -63,8 +62,6 @@ public class ConfigMaterialUpdateListenerTest {
         material = new SvnMaterial("url", "tom", "pass", false);
 
         when(materialRepository.folderFor(material)).thenReturn(folder);
-        poller = mock(MaterialPoller.class);
-        when(materialService.getPollerImplementation(any(Material.class))).thenReturn(poller);
 
         svnModification = new Modification("user", "commend", "em@il", new Date(), "1");
         mods = revisions(material, svnModification);
@@ -88,11 +85,12 @@ public class ConfigMaterialUpdateListenerTest {
     }
 
     @Test
-    public void shouldPerformCheckoutUsingMaterialPoller() {
+    public void shouldCheckoutMaterialToASpecificRevision() {
         MaterialUpdateSuccessfulMessage message = new MaterialUpdateSuccessfulMessage(material, 123);
+
         this.configUpdater.onMessage(message);
 
-        verify(poller, times(1)).checkout(any(Material.class), any(File.class), any(Revision.class), any(SubprocessExecutionContext.class));
+        verify(materialService, times(1)).checkout(any(Material.class), any(File.class), any(Revision.class), any(SubprocessExecutionContext.class));
     }
 
     @Test

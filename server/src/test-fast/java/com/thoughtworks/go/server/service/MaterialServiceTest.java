@@ -52,6 +52,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.service.materials.GitPoller;
+import com.thoughtworks.go.server.service.materials.MaterialPoller;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
@@ -241,6 +242,22 @@ public class MaterialServiceTest {
         assertThat(actual, is(MODIFICATIONS));
     }
 
+    @Theory
+    public void shouldCheckoutAGivenRevision(RequestDataPoints data) {
+        Revision revision = mock(Revision.class);
+        MaterialPoller materialPoller = mock(MaterialPoller.class);
+        MaterialService spy = spy(materialService);
+        File baseDir = mock(File.class);
+        SubprocessExecutionContext execCtx = mock(SubprocessExecutionContext.class);
+
+        doReturn(data.klass).when(spy).getMaterialClass(data.material);
+        doReturn(materialPoller).when(spy).getPollerImplementation(data.material);
+
+        spy.checkout(data.material, baseDir, revision, execCtx);
+
+        verify(materialPoller).checkout(data.material, baseDir, revision, execCtx);
+    }
+
     @Test
     public void shouldThrowExceptionWhenPollerForMaterialNotFound() {
         try {
@@ -286,7 +303,6 @@ public class MaterialServiceTest {
         spy.modificationsSince(gitMaterial, null, null, null);
 
         verify(secretParamResolver).resolve(secretParams);
-
     }
 
     @Test

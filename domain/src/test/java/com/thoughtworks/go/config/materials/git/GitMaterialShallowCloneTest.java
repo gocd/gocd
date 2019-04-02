@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.materials.git;
 
 
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
@@ -42,6 +43,7 @@ import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -150,6 +152,19 @@ public class GitMaterialShallowCloneTest {
         assertThat(original.withShallowClone(true).isShallowClone(), is(true));
         assertThat(original.withShallowClone(false).isShallowClone(), is(false));
         assertThat(original.isShallowClone(), is(false));
+    }
+
+    @Test
+    public void withShallowCloneShouldGenerateANewMaterialRetainingTheResolvedSecretParams() {
+        GitMaterial original = new GitMaterial("http://username:{{SECRET:[id][key]}}@foo.bar");
+        original.getSecretParams().get(0).setValue("pass");
+
+        GitMaterial newMaterial = original.withShallowClone(true);
+
+        SecretParams secretParams = newMaterial.getSecretParams();
+
+        assertTrue(newMaterial.hasSecretParams());
+        assertThat(secretParams.get(0).getValue(), is("pass"));
     }
 
     @Test

@@ -436,7 +436,10 @@ public class GitMaterial extends ScmMaterial {
     public GitMaterial withShallowClone(boolean value) {
         GitMaterialConfig config = (GitMaterialConfig) config();
         config.setShallowClone(value);
-        return new GitMaterial(config);
+        GitMaterial gitMaterial = new GitMaterial(config);
+        gitMaterial.url = this.url;
+
+        return gitMaterial;
     }
 
     public String branchWithDefault() {

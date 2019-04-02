@@ -31,6 +31,7 @@ import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
@@ -54,6 +55,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
+
 @Service
 public class ElasticAgentPluginService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticAgentPluginService.class);
@@ -68,6 +71,7 @@ public class ElasticAgentPluginService {
     private final TimeProvider timeProvider;
     private final ServerHealthService serverHealthService;
     private final ConcurrentHashMap<Long, Long> jobCreationTimeMap = new ConcurrentHashMap<>();
+    private JobInstanceSqlMapDao jobInstanceSqlMapDao = null;
 
     @Value("${go.elasticplugin.heartbeat.interval}")
     private long elasticPluginHeartBeatInterval;
@@ -84,10 +88,10 @@ public class ElasticAgentPluginService {
             PluginManager pluginManager, ElasticAgentPluginRegistry elasticAgentPluginRegistry,
             AgentService agentService, EnvironmentConfigService environmentConfigService,
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
-            GoConfigService goConfigService, TimeProvider timeProvider, ClusterProfilesService clusterProfilesService, ServerHealthService serverHealthService) {
+            GoConfigService goConfigService, TimeProvider timeProvider, ClusterProfilesService clusterProfilesService, ServerHealthService serverHealthService, JobInstanceSqlMapDao jobInstanceSqlMapDao) {
 
         this(pluginManager, elasticAgentPluginRegistry, agentService, environmentConfigService, createAgentQueue,
-                serverPingQueue, goConfigService, timeProvider, serverHealthService, ElasticAgentMetadataStore.instance(), clusterProfilesService);
+                serverPingQueue, goConfigService, timeProvider, serverHealthService, ElasticAgentMetadataStore.instance(), clusterProfilesService, jobInstanceSqlMapDao);
     }
 
     ElasticAgentPluginService(
@@ -95,7 +99,7 @@ public class ElasticAgentPluginService {
             AgentService agentService, EnvironmentConfigService environmentConfigService,
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
             GoConfigService goConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService,
-            ElasticAgentMetadataStore elasticAgentMetadataStore, ClusterProfilesService clusterProfilesService) {
+            ElasticAgentMetadataStore elasticAgentMetadataStore, ClusterProfilesService clusterProfilesService, JobInstanceSqlMapDao jobInstanceSqlMapDao) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
         this.agentService = agentService;
@@ -107,6 +111,7 @@ public class ElasticAgentPluginService {
         this.serverHealthService = serverHealthService;
         this.elasticAgentMetadataStore = elasticAgentMetadataStore;
         this.clusterProfilesService = clusterProfilesService;
+        this.jobInstanceSqlMapDao = jobInstanceSqlMapDao;
     }
 
     public void heartbeat() {
@@ -124,7 +129,7 @@ public class ElasticAgentPluginService {
         if (!elasticAgentsOfMissingPlugins.isEmpty()) {
             for (String pluginId : elasticAgentsOfMissingPlugins.keySet()) {
                 Collection<String> uuids = elasticAgentsOfMissingPlugins.get(pluginId).stream().map(ElasticAgentMetadata::uuid).collect(Collectors.toList());
-                String description = String.format("Elastic agent plugin with identifier %s has gone missing, but left behind %s agent(s) with UUIDs %s.", pluginId, elasticAgentsOfMissingPlugins.get(pluginId).size(), uuids);
+                String description = format("Elastic agent plugin with identifier %s has gone missing, but left behind %s agent(s) with UUIDs %s.", pluginId, elasticAgentsOfMissingPlugins.get(pluginId).size(), uuids);
                 serverHealthService.update(ServerHealthState.warning("Elastic agents with no matching plugins", description, HealthStateType.general(scope(pluginId))));
                 LOGGER.warn(description);
             }
@@ -171,10 +176,10 @@ public class ElasticAgentPluginService {
                 serverHealthService.removeByScope(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
             } else {
                 String jobConfigIdentifier = plan.getIdentifier().jobConfigIdentifier().toString();
-                String description = String.format("Plugin [%s] associated with %s is missing. Either the plugin is not " +
+                String description = format("Plugin [%s] associated with %s is missing. Either the plugin is not " +
                         "installed or could not be registered. Please check plugins tab " +
                         "and server logs for more details.", elasticProfile.getPluginId(), jobConfigIdentifier);
-                serverHealthService.update(ServerHealthState.error(String.format("Unable to find agent for %s",
+                serverHealthService.update(ServerHealthState.error(format("Unable to find agent for %s",
                         jobConfigIdentifier), description, HealthStateType.general(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()))));
                 LOGGER.error(description);
             }
@@ -207,10 +212,16 @@ public class ElasticAgentPluginService {
         throw new UnsupportedOperationException("Plugin does not plugin support status report.");
     }
 
-    public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) {
+    public String getAgentStatusReport(String pluginId, JobIdentifier jobIdentifier, String elasticAgentId) throws Exception {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
         if (pluginInfo.getCapabilities().supportsAgentStatusReport()) {
-            return elasticAgentPluginRegistry.getAgentStatusReport(pluginId, jobIdentifier, elasticAgentId);
+            JobPlan jobPlan = jobInstanceSqlMapDao.loadPlan(jobIdentifier.getId());
+            if (jobPlan != null) {
+                ClusterProfile clusterProfile = jobPlan.getClusterProfile();
+                Map<String, String> clusterProfileConfigurations = (clusterProfile == null) ? Collections.emptyMap() : clusterProfile.getConfigurationAsMap(true);
+                return elasticAgentPluginRegistry.getAgentStatusReport(pluginId, jobIdentifier, elasticAgentId, clusterProfileConfigurations);
+            }
+            throw new Exception(format("Could not fetch agent status report for agent %s as either the job running on the agent has been completed or the agent has been terminated.", elasticAgentId));
         }
 
         throw new UnsupportedOperationException("Plugin does not support agent status report.");

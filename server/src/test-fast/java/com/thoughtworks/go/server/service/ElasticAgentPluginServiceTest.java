@@ -31,6 +31,7 @@ import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
 import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
@@ -80,6 +81,7 @@ class ElasticAgentPluginServiceTest {
     private String autoRegisterKey = "key";
     private ElasticAgentPluginService service;
     private ElasticAgentMetadataStore elasticAgentMetadataStore;
+    private JobInstanceSqlMapDao jobInstanceSqlMapDao;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -98,7 +100,8 @@ class ElasticAgentPluginServiceTest {
         elasticAgentMetadataStore = ElasticAgentMetadataStore.instance();
         timeProvider = new TimeProvider();
 
-        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService, elasticAgentMetadataStore, clusterProfilesService);
+        jobInstanceSqlMapDao = mock(JobInstanceSqlMapDao.class);
+        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService, elasticAgentMetadataStore, clusterProfilesService, jobInstanceSqlMapDao);
         when(goConfigService.serverConfig()).thenReturn(GoConfigMother.configWithAutoRegisterKey(autoRegisterKey).server());
     }
 
@@ -305,15 +308,22 @@ class ElasticAgentPluginServiceTest {
     }
 
     @Test
-    void shouldGetAPluginAgentReportWhenPluginSupportsStatusReport() {
+    void shouldGetAPluginAgentReportWhenPluginSupportsStatusReport() throws Exception {
         final Capabilities capabilities = new Capabilities(false, true);
         final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
-        when(registry.getAgentStatusReport("cd.go.example.plugin", null, "some-id"))
+        JobIdentifier jobIdentifier = mock(JobIdentifier.class);
+        ClusterProfile clusterProfile = mock(ClusterProfile.class);
+        JobPlan jobPlan = mock(JobPlan.class);
+
+        when(jobIdentifier.getId()).thenReturn(2L);
+        when(jobInstanceSqlMapDao.loadPlan(jobIdentifier.getId())).thenReturn(jobPlan);
+        when(jobPlan.getClusterProfile()).thenReturn(clusterProfile);
+        when(registry.getAgentStatusReport("cd.go.example.plugin", jobIdentifier, "some-id", clusterProfile.getConfigurationAsMap(true)))
                 .thenReturn("<div>This is a agent status report snippet.</div>");
 
-        final String agentStatusReport = service.getAgentStatusReport("cd.go.example.plugin", null, "some-id");
+        final String agentStatusReport = service.getAgentStatusReport("cd.go.example.plugin", jobIdentifier, "some-id");
 
         assertThat(agentStatusReport).isEqualTo("<div>This is a agent status report snippet.</div>");
     }
@@ -326,8 +336,23 @@ class ElasticAgentPluginServiceTest {
 
         final UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> service.getAgentStatusReport("cd.go.example.plugin", null, null));
         assertThat(exception.getMessage()).isEqualTo("Plugin does not support agent status report.");
+    }
 
+    @Test
+    void shouldRaiseExceptionIfJobPlanIsNull(){
+        final Capabilities capabilities = new Capabilities(false, true);
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
+        JobIdentifier jobIdentifier = mock(JobIdentifier.class);
+
+        when(jobIdentifier.getId()).thenReturn(2L);
+        when(jobInstanceSqlMapDao.loadPlan(jobIdentifier.getId())).thenReturn(null);
+
+        final Exception exception = assertThrows(Exception.class, () -> service.getAgentStatusReport("cd.go.example.plugin", jobIdentifier, "some-id"));
+
+        assertThat(exception.getMessage()).isEqualTo("Could not fetch agent status report for agent some-id as either the job running on the agent has been completed or the agent has been terminated.");
+        verifyZeroInteractions(registry);
     }
 
     @Nested

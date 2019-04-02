@@ -251,7 +251,7 @@ public class ElasticAgentExtensionV4Test {
 
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        extensionV4.getAgentStatusReport(PLUGIN_ID, jobIdentifier, "GoCD193659b3b930480287b898eeef0ade37");
+        extensionV4.getAgentStatusReport(PLUGIN_ID, jobIdentifier, "GoCD193659b3b930480287b898eeef0ade37", null);
 
         final String requestBody = "{\n" +
                 "  \"job_identifier\": {\n" +

@@ -160,7 +160,7 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
     }
 
     @Override
-    public String getAgentStatusReport(String pluginId, JobIdentifier identifier, String elasticAgentId) {
+    public String getAgentStatusReport(String pluginId, JobIdentifier identifier, String elasticAgentId, Map<String, String> clusterProfile) {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_AGENT_STATUS_REPORT, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {

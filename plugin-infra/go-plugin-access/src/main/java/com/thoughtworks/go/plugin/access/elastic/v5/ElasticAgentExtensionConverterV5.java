@@ -80,11 +80,12 @@ class ElasticAgentExtensionConverterV5 {
         return new ImageDeserializer().fromJSON(responseBody);
     }
 
-    String getAgentStatusReportRequestBody(JobIdentifier identifier, String elasticAgentId) {
+    String getAgentStatusReportRequestBody(JobIdentifier identifier, String elasticAgentId, Map<String, String> clusterProfile) {
         JsonObject jsonObject = new JsonObject();
         if (identifier != null) {
             jsonObject.add("job_identifier", jobIdentifierJson(identifier));
         }
+        jsonObject.add("cluster_profile_properties", mapToJsonObject(clusterProfile));
         jsonObject.addProperty("elastic_agent_id", elasticAgentId);
         return GSON.toJson(jsonObject);
     }

@@ -18,13 +18,15 @@ const Stream = require('mithril/stream');
 const s      = require('string-plus');
 
 const Capabilities = function (data) {
-  this.supportsStatusReport      = Stream(s.defaultToIfBlank(data.supportsStatusReport, false));
-  this.supportsAgentStatusReport = Stream(s.defaultToIfBlank(data.supportsAgentStatusReport, false));
+  this.supportsPluginStatusReport  = Stream(s.defaultToIfBlank(data.supportsPluginStatusReport, false));
+  this.supportsAgentStatusReport   = Stream(s.defaultToIfBlank(data.supportsAgentStatusReport, false));
+  this.supportsClusterStatusReport = Stream(s.defaultToIfBlank(data.supportsClusterStatusReport, false));
 };
 
 Capabilities.fromJSON = (data = {}) => new Capabilities({
-  supportsStatusReport:      data && data.supports_status_report,
-  supportsAgentStatusReport: data && data.supports_agent_status_report
+  supportsPluginStatusReport:  data && data.supports_plugin_status_report,
+  supportsAgentStatusReport:   data && data.supports_agent_status_report,
+  supportsClusterStatusReport: data && data.supports_cluster_status_report
 });
 
 module.exports = Capabilities;

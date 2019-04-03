@@ -468,7 +468,8 @@ describe("Agent Row Widget", () => {
           }
         },
         "capabilities":     {
-          "supports_status_report":       true,
+          "supports_plugin_status_report": true,
+          "supports_cluster_status_report": true,
           "supports_agent_status_report": true
         }
       }

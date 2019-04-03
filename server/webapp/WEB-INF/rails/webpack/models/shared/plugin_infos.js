@@ -52,7 +52,7 @@ const PluginInfos = function (data) {
 
 };
 
-PluginInfos.API_VERSION = 'v4';
+PluginInfos.API_VERSION = 'v5';
 
 CrudMixins.Index({
   type:     PluginInfos,
@@ -160,9 +160,13 @@ PluginInfos.PluginInfo.Extensions['configrepo'] = () => {
 };
 
 PluginInfos.PluginInfo.Extensions['elastic-agent'] = (extensionData = {}) => {
+  const supportsClusterProfiles = extensionData.supports_cluster_profiles || false;
+
   return {
-    capabilities:    Stream(ElasticPluginCapabilities.fromJSON(extensionData.capabilities)),
-    profileSettings: Stream(PluggableInstanceSettings.fromJSON(extensionData.profile_settings)),
+    supportsClusterProfiles: Stream(supportsClusterProfiles),
+    capabilities:            Stream(ElasticPluginCapabilities.fromJSON(extensionData.capabilities)),
+    profileSettings:         Stream(PluggableInstanceSettings.fromJSON(extensionData.elastic_agent_profile_settings)),
+    clusterProfileSettings:  Stream(supportsClusterProfiles ? PluggableInstanceSettings.fromJSON(extensionData.cluster_profile_settings) : undefined)
   };
 };
 

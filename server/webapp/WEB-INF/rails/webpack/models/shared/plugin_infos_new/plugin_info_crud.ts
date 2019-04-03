@@ -26,7 +26,7 @@ export interface PluginInfoQuery {
 }
 
 export class PluginInfoCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v4;
+  private static API_VERSION_HEADER = ApiVersion.v5;
 
   static all(options: PluginInfoQuery): Promise<ApiResult<Array<PluginInfo<Extension>>>> {
     return ApiRequestBuilder.GET(Routes.apiv4AdminPluginInfoIndexPath(options), this.API_VERSION_HEADER)

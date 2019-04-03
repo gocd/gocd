@@ -31,6 +31,7 @@ export class ServerHealthSummary extends MithrilComponent<{}, State> {
   oninit(vnode: m.Vnode<{}, State>): any {
     vnode.state.repeater             = this.createRepeater(vnode);
     vnode.state.serverHealthMessages = stream(new ServerHealthMessages([]));
+    vnode.state.repeater.start();
   }
 
   onremove(vnode: m.VnodeDOM<{}, State>): any {

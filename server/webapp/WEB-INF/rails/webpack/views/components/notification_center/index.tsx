@@ -33,6 +33,7 @@ export class NotificationCenter extends MithrilComponent<{}, State> {
     DataSharingNotification.createIfNotPresent();
     vnode.state.repeater            = this.createRepeater(vnode);
     vnode.state.systemNotifications = stream(new SystemNotifications());
+    vnode.state.repeater.start();
   }
 
   onremove(vnode: m.VnodeDOM<{}, State>) {

@@ -291,7 +291,8 @@ class ElasticAgentPluginServiceTest {
         final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
 
-        when(registry.getPluginStatusReport("cd.go.example.plugin")).thenReturn("<div>This is a plugin status report snippet.</div>");
+        when(clusterProfilesService.getPluginProfiles()).thenReturn(new ClusterProfiles());
+        when(registry.getPluginStatusReport(eq("cd.go.example.plugin"), anyList())).thenReturn("<div>This is a plugin status report snippet.</div>");
 
         final String pluginStatusReport = service.getPluginStatusReport("cd.go.example.plugin");
 

@@ -26,6 +26,7 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.*;
@@ -92,9 +93,10 @@ public class ElasticAgentPluginRegistryTest {
 
     @Test
     public void shouldTalkToExtensionToGetPluginStatusReport() {
-        elasticAgentPluginRegistry.getPluginStatusReport(PLUGIN_ID);
+        List<Map<String, String>> clusterProfiles = Collections.emptyList();
+        elasticAgentPluginRegistry.getPluginStatusReport(PLUGIN_ID, clusterProfiles);
 
-        verify(elasticAgentExtension, times(1)).getPluginStatusReport(PLUGIN_ID);
+        verify(elasticAgentExtension, times(1)).getPluginStatusReport(PLUGIN_ID, clusterProfiles);
         verifyNoMoreInteractions(elasticAgentExtension);
     }
 

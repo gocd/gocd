@@ -41,10 +41,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.plugin.access.elastic.v5.ElasticAgentPluginConstantsV5.*;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
@@ -308,14 +305,36 @@ public class ElasticAgentExtensionV5Test {
     }
 
     @Test
-    public void shouldGetStatusReport() {
+    public void shouldGetPluginStatusReport() {
         final String responseBody = "{\"view\":\"<div>This is a status report snippet.</div>\"}";
         when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(responseBody));
 
-        final String statusReportView = extensionV5.getPluginStatusReport(PLUGIN_ID);
+        HashMap<String, String> clusterProfile1 = new HashMap<>();
+        clusterProfile1.put("key1", "value1");
+        clusterProfile1.put("key2", "value2");
+
+        HashMap<String, String> clusterProfile2 = new HashMap<>();
+        clusterProfile2.put("key3", "value3");
+
+        List<Map<String, String>> clusterProfiles = new ArrayList<>();
+        clusterProfiles.add(clusterProfile1);
+        clusterProfiles.add(clusterProfile2);
+
+        final String statusReportView = extensionV5.getPluginStatusReport(PLUGIN_ID, clusterProfiles);
+        final String requestBody = "{" +
+                "\"all_cluster_profiles_properties\":[" +
+                "  {" +
+                "      \"key1\":\"value1\"," +
+                "      \"key2\":\"value2\"" +
+                "  }," +
+                "  {" +
+                "      \"key3\":\"value3\"" +
+                "  }" +
+                "]" +
+                "}";
 
         assertThat(statusReportView, is("<div>This is a status report snippet.</div>"));
-        assertExtensionRequest("5.0", REQUEST_STATUS_REPORT, null);
+        assertExtensionRequest("5.0", REQUEST_PLUGIN_STATUS_REPORT, requestBody);
     }
 
     @Test
@@ -407,4 +426,3 @@ public class ElasticAgentExtensionV5Test {
         assertThatJson(requestBody).isEqualTo(request.requestBody());
     }
 }
-

@@ -206,7 +206,8 @@ public class ElasticAgentPluginService {
     public String getPluginStatusReport(String pluginId) {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
         if (pluginInfo.getCapabilities().supportsPluginStatusReport()) {
-            return elasticAgentPluginRegistry.getPluginStatusReport(pluginId);
+            List<Map<String, String>> clusterProfiles = clusterProfilesService.getPluginProfiles().stream().map(profile -> profile.getConfigurationAsMap(true)).collect(Collectors.toList());
+            return elasticAgentPluginRegistry.getPluginStatusReport(pluginId, clusterProfiles);
         }
 
         throw new UnsupportedOperationException("Plugin does not plugin support status report.");

@@ -243,7 +243,7 @@ public class SCMExtensionTest {
         try {
             scmExtension.checkConnectionToSCM(PLUGIN_ID, scmPropertyConfiguration);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Interaction with plugin with id 'plugin-id' implementing 'scm' extension failed while requesting for 'check-scm-connection'. Reason: [exception-from-plugin]"));
+            assertThat(e.getMessage(), is("exception-from-plugin"));
         }
     }
 

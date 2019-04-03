@@ -22,6 +22,7 @@ import java.util.Objects;
 import static java.lang.String.format;
 
 public class SecretParam implements Serializable {
+    public static final String SECRET_PARAM_SYNTAX = "{{SECRET:[%s][%s]}}";
     private String secretConfigId;
     private String key;
     private String value;
@@ -55,7 +56,7 @@ public class SecretParam implements Serializable {
     }
 
     public String placeholder() {
-        return String.format("{{SECRET:[%s][%s]}}", secretConfigId, key);
+        return String.format(SECRET_PARAM_SYNTAX, secretConfigId, key);
     }
 
     @Override

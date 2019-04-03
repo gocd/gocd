@@ -18,11 +18,8 @@ package com.thoughtworks.go.config;
 
 @ConfigTag("secretConfigs")
 @ConfigCollection(SecretConfig.class)
-public class SecretConfigs extends NewPluginProfiles<SecretConfig>
-//implements Validatable
-{
-    public SecretConfigs() {
-    }
+public class SecretConfigs extends NewPluginProfiles<SecretConfig> {
+    public SecretConfigs() {}
 
     public SecretConfigs(SecretConfig... secretConfig) {
         super(secretConfig);

@@ -26,11 +26,10 @@ import com.thoughtworks.go.plugin.access.secrets.SecretsMetadataStore;
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-@ConfigTag("secretConfig")
-//@ConfigCollection(value = ConfigurationProperty.class)
 public abstract class NewPluginProfile implements Validatable {
     public static final String ID = "id";
     public static final String PLUGIN_ID = "pluginId";
@@ -88,23 +87,6 @@ public abstract class NewPluginProfile implements Validatable {
 
     }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) return true;
-//        if (!(o instanceof NewPluginProfile)) return false;
-//        if (!super.equals(o)) return false;
-//        NewPluginProfile that = (NewPluginProfile) o;
-//        return Objects.equals(configuration, that.configuration) &&
-//                Objects.equals(rules, that.rules) &&
-//                Objects.equals(description, that.description);
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(super.hashCode(), configuration, rules, description);
-//    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -121,11 +103,7 @@ public abstract class NewPluginProfile implements Validatable {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (pluginId != null ? pluginId.hashCode() : 0);
-        result = 31 * result + (configuration != null ? configuration.hashCode() : 0);
-        result = 31 * result + (errors != null ? errors.hashCode() : 0);
-        return result;
+        return Objects.hash(id.hashCode(), pluginId.hashCode(), configuration.hashCode());
     }
 
     private SecretsMetadataStore metadataStore() {

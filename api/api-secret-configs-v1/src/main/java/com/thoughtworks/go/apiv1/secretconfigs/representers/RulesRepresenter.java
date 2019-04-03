@@ -67,7 +67,6 @@ public class RulesRepresenter {
             HaltApiResponses.haltBecauseOfReason("Directive '%s' is not recognized as a valid directive in json '%s'", directive, reader.toString());
         }
 
-
         switch (directiveType.get()) {
             case ALLOW:
                 return new Allow(action, type, resource);

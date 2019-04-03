@@ -1,3 +1,6 @@
+import com.thoughtworks.go.build.docker.Distro
+import com.thoughtworks.go.build.docker.DistroVersion
+
 /*
  * Copyright 2019 ThoughtWorks, Inc.
  *
@@ -106,3 +109,12 @@ include ':test:test-utils'
 include ':tfs-impl:tfs-impl-14'
 include ':tw-go-plugins'
 include ':util'
+
+Distro.values().each { Distro distro ->
+  distro.supportedVersions.each { DistroVersion version ->
+    include ":docker:gocd-agent:${distro.projectName(version)}"
+  }
+}
+
+include ":docker:gocd-server:${Distro.centos.projectName(Distro.centos.getVersion('7'))}"
+include ":docker:gocd-server:${Distro.alpine.projectName(Distro.alpine.getVersion('3.9'))}"

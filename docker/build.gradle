@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-apply plugin: "groovy"
+apply plugin: 'base'
 
-repositories {
-  jcenter()
+subprojects {
+  apply plugin: 'base'
 }
 
-dependencies {
-  compile localGroovy()
-  compile gradleApi()
-  compile 'de.undercouch:gradle-download-task:3.2.0'
-  compile 'org.ysb33r.gradle:grolifant:0.8'
-  compile group: 'org.freemarker', name: 'freemarker', version: '2.3.28'
-}
+assemble.dependsOn(subprojects.tasks*.getByName('assemble'))
+
+
+// git add .
+// git commit -m ''
+// git push

@@ -343,7 +343,7 @@ public class PackageRepositoryExtensionTest {
         try {
             extension.checkConnectionToPackage(PLUGIN_ID, packageConfiguration, repositoryConfiguration);
         } catch (Exception e) {
-            assertThat(e.getMessage(), is("Interaction with plugin with id 'plugin-id' implementing 'package-repository' extension failed while requesting for 'check-package-connection'. Reason: [exception-from-plugin]"));
+            assertThat(e.getMessage(), is("exception-from-plugin"));
         }
     }
 

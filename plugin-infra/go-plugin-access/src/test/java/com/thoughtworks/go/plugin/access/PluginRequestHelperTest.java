@@ -70,8 +70,7 @@ public class PluginRequestHelperTest {
             });
             fail("should throw exception");
         } catch (Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Interaction with plugin with id 'pid' implementing 'some-extension' extension failed while requesting for 'req'. Reason: [The plugin sent a response that could not be understood by Go. Plugin returned with code '500' and the following response: 'junk']");
-            assertThat(e.getCause().getMessage()).isEqualTo("The plugin sent a response that could not be understood by Go. Plugin returned with code '500' and the following response: 'junk'");
+            assertThat(e.getMessage()).isEqualTo("The plugin sent a response that could not be understood by Go. Plugin returned with code '500' and the following response: 'junk'");
             assertThat(isSuccessInvoked[0]).isFalse();
             verify(pluginManager).submitTo(eq(pluginId), eq(extensionName), any(GoPluginApiRequest.class));
         }

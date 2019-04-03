@@ -24,13 +24,13 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class ElasticAgentExtensionRepresenterTest {
   @Test
-  void 'should serialize Elastic agent info to json'() {
+  void 'should serialize Elastic agent info to json for elastic agent V4 extension'() {
     def actualJson = toObjectString({
-      new ElasticAgentExtensionRepresenter().toJSON(it, PluginInfoMother.createElasticAgentPluginInfo())
+      new ElasticAgentExtensionRepresenter().toJSON(it, PluginInfoMother.createElasticAgentPluginInfoForV4())
     })
     def expectedJSON = [
-      "type"            : "elastic-agent",
-      "plugin_settings" : [
+      "type"                          : "elastic-agent",
+      "plugin_settings"               : [
         "configurations": [
           [
             "key"     : "key1",
@@ -50,7 +50,8 @@ class ElasticAgentExtensionRepresenterTest {
           "template": "Template"
         ]
       ],
-      "profile_settings": [
+      "supports_cluster_profiles"     : false,
+      "elastic_agent_profile_settings": [
         "configurations": [
           [
             "key"     : "key1",
@@ -69,9 +70,67 @@ class ElasticAgentExtensionRepresenterTest {
           "template": "Template"
         ]
       ],
-      "capabilities"    : [
-        "supports_agent_status_report": false,
-        "supports_status_report"      : true
+      "capabilities"                  : [
+        "supports_agent_status_report"  : false,
+        "supports_cluster_status_report": false,
+        "supports_plugin_status_report" : true
+      ]
+    ]
+
+    assertThatJson(actualJson).isEqualTo(expectedJSON)
+  }
+
+  @Test
+  void 'should serialize Elastic agent info to json elastic agent V5 extension'() {
+    def actualJson = toObjectString({
+      new ElasticAgentExtensionRepresenter().toJSON(it, PluginInfoMother.createElasticAgentPluginInfoForV5())
+    })
+    def expectedJSON = [
+      "type"                          : "elastic-agent",
+      "cluster_profile_settings"      : [
+        "configurations": [
+          [
+            "key"     : "key1",
+            "metadata": [
+              "required": true,
+              "secure"  : false
+            ]
+          ],
+          [
+            "key"     : "key2",
+            "metadata": [
+              "required": true,
+              "secure"  : false
+            ]
+          ]],
+        "view"          : [
+          "template": "Template"
+        ]
+      ],
+      "supports_cluster_profiles"     : true,
+      "elastic_agent_profile_settings": [
+        "configurations": [
+          [
+            "key"     : "key1",
+            "metadata": [
+              "required": true, "secure": false
+            ]
+          ],
+          [
+            "key"     : "key2",
+            "metadata": [
+              "required": true,
+              "secure"  : false
+            ]
+          ]],
+        "view"          : [
+          "template": "Template"
+        ]
+      ],
+      "capabilities"                  : [
+        "supports_agent_status_report"  : true,
+        "supports_cluster_status_report": true,
+        "supports_plugin_status_report" : true
       ]
     ]
 

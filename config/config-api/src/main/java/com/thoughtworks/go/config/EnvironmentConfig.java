@@ -111,4 +111,8 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
     boolean validateTree(ConfigSaveValidationContext validationContext, CruiseConfig preprocessedConfig);
 
     Optional<ConfigOrigin> originForAgent(String agentUuid);
+
+    default List<ConfigErrors> getAllErrors() {
+        return ErrorCollector.getAllErrors(this);
+    }
 }

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv2.environments.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Test
 
 import static org.hamcrest.MatcherAssert.assertThat
@@ -27,6 +28,7 @@ class PatchEnvironmentRequestRepresenterTest {
 
   @Test
   void 'should de-serialize a patch request from JSON'() {
+    def encryptedText = new GoCipher().encrypt("confidential")
     def patchRequestObject = [
       "pipelines"            : [
         "add"   : ["up42"],
@@ -46,6 +48,11 @@ class PatchEnvironmentRequestRepresenterTest {
             "name"  : "GO_NO_SERVER_URL",
             "value" : "https://ci.example.com/go",
             "secure": true
+          ],
+          [
+            "name"  : "Secured",
+            "encrypted_value" : encryptedText,
+            "secure": true
           ]
         ],
         "remove": ["URL"]
@@ -59,16 +66,20 @@ class PatchEnvironmentRequestRepresenterTest {
     assertThat(patchEnvironmentRequest.getPipelineToRemove().size(), is(1))
     assertThat(patchEnvironmentRequest.getAgentsToAdd().size(), is(2))
     assertThat(patchEnvironmentRequest.getAgentsToRemove().size(), is(1))
-    assertThat(patchEnvironmentRequest.getEnvironmentVariablesToAdd().size(), is(2))
+    assertThat(patchEnvironmentRequest.getEnvironmentVariablesToAdd().size(), is(3))
     assertThat(patchEnvironmentRequest.getEnvironmentVariablesToRemove().size(), is(1))
-
 
     assertThat(patchEnvironmentRequest.getPipelineToAdd().first(), equalTo("up42"))
     assertThat(patchEnvironmentRequest.getPipelineToRemove().first(), equalTo("sample"))
 
-    def secureEnvVariable = patchEnvironmentRequest.getEnvironmentVariablesToAdd().last()
+    def secureEnvVariable = patchEnvironmentRequest.getEnvironmentVariablesToAdd().get(1)
     assertThat(secureEnvVariable.getName(), equalTo("GO_NO_SERVER_URL"))
     assertThat(secureEnvVariable.getValue(), equalTo("https://ci.example.com/go"))
     assertThat(secureEnvVariable.isSecure(), equalTo(true))
+
+    def encryptedEnvVariable = patchEnvironmentRequest.getEnvironmentVariablesToAdd().last()
+    assertThat(encryptedEnvVariable.getName(), equalTo("Secured"))
+    assertThat(encryptedEnvVariable.getValue(), equalTo("confidential"))
+    assertThat(encryptedEnvVariable.isSecure(), equalTo(true))
   }
 }

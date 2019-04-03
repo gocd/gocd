@@ -18,12 +18,15 @@ package com.thoughtworks.go.apiv2.environments
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
+import com.thoughtworks.go.apiv2.environments.EnvironmentsControllerV2
 import com.thoughtworks.go.apiv2.environments.representers.EnvironmentRepresenter
 import com.thoughtworks.go.apiv2.environments.representers.EnvironmentsRepresenter
 import com.thoughtworks.go.config.BasicEnvironmentConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.EnvironmentConfig
+import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.domain.ConfigElementForEdit
+import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -260,6 +263,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         env1.addAgent("agent1")
         env1.addAgent("agent2")
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        env1.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "Secured", new GoCipher().encrypt("confidential")))
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
@@ -282,6 +286,72 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
           .hasEtag('"ffff"')
           .hasBodyWithJsonObject(env1, EnvironmentRepresenter)
       }
+
+
+      @Test
+      void 'should error out if there are errors in parsing environment config'() {
+        def json = [
+          "name"                 : "env1",
+          "pipelines"            : [
+            [
+              "name": "Pipeline2"
+            ]
+          ],
+          "environment_variables": [
+            [
+              "secure"         : true,
+              "name"           : "JAVA_HOME",
+              "value"          : "/bin/java",
+              "encrypted_value": "some_encrypted_text"
+            ]
+          ]
+        ]
+
+        def expectedResponse = [
+          "data"   : [
+            "agents"               : [],
+            "environment_variables": [
+              [
+                "encrypted_value": new GoCipher().encrypt("/bin/java"),
+                "errors"         : [
+                  "encrypted_value": ["You may only specify `value` or `encrypted_value`, not both!"],
+                  "value"          : ["You may only specify `value` or `encrypted_value`, not both!"]
+                ],
+                "name"           : "JAVA_HOME",
+                "secure"         : true
+              ]
+            ],
+            "name"                 : "env1",
+            "pipelines"            : [
+              [
+                "name": "Pipeline2"
+              ]
+            ]
+          ],
+          "message": "Error parsing environment config from the request"
+        ]
+
+        def env1 = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        env1.addAgent("agent1")
+        env1.addAgent("agent2")
+        env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        env1.addEnvironmentVariable(new EnvironmentVariableConfig(
+          new GoCipher(), "Secured", new GoCipher().encrypt("confidential"))
+        )
+        env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
+        env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
+
+        when(entityHashingService.md5ForEntity(env1)).thenReturn("ffff")
+
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(env1)
+
+        putWithApiHeader(controller.controllerPath("env1"), json)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonBody(expectedResponse)
+      }
+
 
       @Test
       void 'should error out if the environment does not exist'() {
@@ -318,15 +388,15 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
     @Nested
     class AsAdmin {
+      BasicEnvironmentConfig oldConfig
+      BasicEnvironmentConfig updatedConfig
+
       @BeforeEach
       void setUp() {
         enableSecurity()
         loginAsAdmin()
-      }
 
-      @Test
-      void 'should update attributes of environment'() {
-        def oldConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        oldConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
         oldConfig.addAgent("agent1")
         oldConfig.addAgent("agent2")
         oldConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
@@ -335,12 +405,15 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         oldConfig.addPipeline(new CaseInsensitiveString("Pipeline2"))
         oldConfig.addPipeline(new CaseInsensitiveString("Pipeline3"))
 
-        def updatedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
+        updatedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
         updatedConfig.addAgent("agent1")
         updatedConfig.addEnvironmentVariable("JAVA_HOME", "/bin/java")
         updatedConfig.addPipeline(new CaseInsensitiveString("Pipeline1"))
         updatedConfig.addPipeline(new CaseInsensitiveString("Pipeline2"))
+      }
 
+      @Test
+      void 'should update attributes of environment'() {
         when(entityHashingService.md5ForEntity(updatedConfig)).thenReturn("md5-hash")
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(oldConfig)
         when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(updatedConfig)
@@ -403,6 +476,73 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
           .isNotFound()
           .hasJsonMessage(controller.entityType.notFoundMessage("env1"))
       }
+
+      @Test
+      void 'should error out if there are errors in parsing environment variable to add in patch request'() {
+        when(entityHashingService.md5ForEntity(updatedConfig)).thenReturn("md5-hash")
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(oldConfig)
+        when(environmentConfigService.getEnvironmentConfig(eq("env1"))).thenReturn(updatedConfig)
+        when(environmentConfigService.patchEnvironment(
+          eq(oldConfig), anyList(), anyList(), anyList(), anyList(), anyList(), anyList(), eq(currentUsername()), any(HttpLocalizedOperationResult))
+        ).then({
+          InvocationOnMock invocation ->
+            HttpLocalizedOperationResult result = (HttpLocalizedOperationResult) invocation.arguments.last()
+            result.setMessage("Updated environment '\" + oldEnvironmentConfigName + \"'.")
+        })
+
+
+        patchWithApiHeader(controller.controllerPath("env1"), [
+          "pipelines"            : [
+            "add"   : [
+              "Pipeline1", "Pipeline2"
+            ],
+            "remove": [
+              "Pipeline3"
+            ]
+          ],
+          "agents"               : [
+            "add"   : [
+              "agent1"
+            ],
+            "remove": [
+              "agent2"
+            ]
+          ],
+          "environment_variables": [
+            "add"   : [[
+                         "secure"         : true,
+                         "name"           : "JAVA_HOME",
+                         "value"          : "/bin/java",
+                         "encrypted_value": "some_encrypted_text"
+                       ]],
+            "remove": [
+              "URL"
+            ]
+          ]
+        ])
+
+        assertThatResponse()
+          .hasJsonBody([
+          "data": [
+            "environment_variables": [
+              [
+                "encrypted_value": new GoCipher().encrypt("/bin/java"),
+                "errors": [
+                  "encrypted_value": [
+                    "You may only specify `value` or `encrypted_value`, not both!"
+                  ],
+                  "value": [
+                    "You may only specify `value` or `encrypted_value`, not both!"
+                  ]
+                ],
+                "name": "JAVA_HOME",
+                "secure": true
+              ]
+            ]
+          ],
+          "message": "Error parsing patch request"
+        ])
+      }
     }
   }
 
@@ -437,6 +577,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         env1.addAgent("agent1")
         env1.addAgent("agent2")
         env1.addEnvironmentVariable("JAVA_HOME", "/bin/java")
+        env1.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), "Secured", new GoCipher().encrypt("confidential")))
         env1.addPipeline(new CaseInsensitiveString("Pipeline1"))
         env1.addPipeline(new CaseInsensitiveString("Pipeline2"))
 
@@ -455,6 +596,56 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
           .isOk()
           .hasEtag('"md5-hash"')
           .hasJsonBody(json)
+      }
+
+      @Test
+      void 'should error out if there are errors in parsing environment config'() {
+        def json = [
+          "name"                 : "env1",
+          "pipelines"            : [
+            [
+              "name": "Pipeline2"
+            ]
+          ],
+          "environment_variables": [
+            [
+              "secure"         : true,
+              "name"           : "JAVA_HOME",
+              "value"          : "/bin/java",
+              "encrypted_value": "some_encrypted_text"
+            ]
+          ]
+        ]
+
+        def expectedResponse = [
+          "data"   : [
+            "agents"               : [],
+            "environment_variables": [
+              [
+                "encrypted_value": new GoCipher().encrypt("/bin/java"),
+                "errors"         : [
+                  "encrypted_value": ["You may only specify `value` or `encrypted_value`, not both!"],
+                  "value"          : ["You may only specify `value` or `encrypted_value`, not both!"]
+                ],
+                "name"           : "JAVA_HOME",
+                "secure"         : true
+              ]
+            ],
+            "name"                 : "env1",
+            "pipelines"            : [
+              [
+                "name": "Pipeline2"
+              ]
+            ]
+          ],
+          "message": "Error parsing environment config from the request"
+        ]
+
+        postWithApiHeader(controller.controllerPath(), json)
+
+        assertThatResponse()
+          .isUnprocessableEntity()
+          .hasJsonBody(expectedResponse)
       }
 
       @Test

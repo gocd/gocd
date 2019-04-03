@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv2.environments.representers;
 
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv2.environments.model.PatchEnvironmentRequest;
+import com.thoughtworks.go.apiv2.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 
 import java.util.ArrayList;
@@ -51,7 +52,7 @@ public class PatchEnvironmentRequestRepresenter {
 
             reader.readArrayIfPresent("add", array ->
                     array.forEach(envVariable -> envVariablesToAdd
-                            .add(EnvironmentVariableRepresenter.fromJSON(envVariable.getAsJsonObject()))
+                            .add(EnvironmentVariableRepresenter.fromJSON(new JsonReader(envVariable.getAsJsonObject())))
                     ));
         });
 

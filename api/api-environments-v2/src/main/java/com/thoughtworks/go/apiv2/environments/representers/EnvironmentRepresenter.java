@@ -18,8 +18,8 @@ package com.thoughtworks.go.apiv2.environments.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv2.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.spark.Routes;
 
 public class EnvironmentRepresenter {
@@ -57,16 +57,7 @@ public class EnvironmentRepresenter {
 
         jsonReader.readArrayIfPresent("pipelines", array -> array.forEach(element -> environmentConfig.addPipeline(new CaseInsensitiveString(element.getAsJsonObject().get("name").getAsString()))));
 
-
-        jsonReader.readArrayIfPresent("environment_variables",
-                array -> array.forEach(envVar -> {
-                            String name = envVar.getAsJsonObject().get("name").getAsString();
-                            String value = envVar.getAsJsonObject().get("value").getAsString();
-                            boolean secure = envVar.getAsJsonObject().get("secure").getAsBoolean();
-                            environmentConfig.addEnvironmentVariable(new EnvironmentVariableConfig(new GoCipher(), name, value, secure));
-                        }
-                )
-        );
+        EnvironmentVariableRepresenter.fromJSONArray(jsonReader).stream().forEach(environmentConfig::addEnvironmentVariable);
 
         return environmentConfig;
     }

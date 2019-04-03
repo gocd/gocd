@@ -37,4 +37,6 @@ public interface ElasticAgentPluginConstantsV5 {
     String REQUEST_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";
 
     String REQUEST_JOB_COMPLETION = REQUEST_PREFIX + ".job-completion";
+
+    String REQUEST_MIGRATE_CONFIGURATION = REQUEST_PREFIX + ".migrate-config";
 }

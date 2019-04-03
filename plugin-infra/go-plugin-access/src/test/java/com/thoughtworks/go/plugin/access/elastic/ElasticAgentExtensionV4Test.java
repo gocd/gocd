@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.elastic;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
+import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.access.elastic.v4.ElasticAgentExtensionV4;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoPluginApiResponse;
@@ -291,6 +292,15 @@ public class ElasticAgentExtensionV4Test {
         thrown.expectMessage(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
 
         extensionV4.validateClusterProfile(PLUGIN_ID, new HashMap<>());
+    }
+
+    @Test
+    public void shouldMigrateElasticAgentInformation() {
+        ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(Collections.emptyMap(), Collections.emptyList(), Collections.emptyList());
+        ElasticAgentInformation responseElasticAgentInformation = extensionV4.migrateConfig(PLUGIN_ID, elasticAgentInformation);
+
+        assertThat(responseElasticAgentInformation, is(elasticAgentInformation));
+        assertThat(requestArgumentCaptor.getAllValues(), is(Collections.emptyList()));
     }
 
     @Test

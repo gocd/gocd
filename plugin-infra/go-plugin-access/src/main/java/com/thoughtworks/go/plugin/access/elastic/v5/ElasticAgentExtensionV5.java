@@ -21,6 +21,7 @@ import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.elastic.VersionedElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
+import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
@@ -78,6 +79,11 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
                 return elasticAgentExtensionConverterV5.getProfileViewResponseFromBody(responseBody);
             }
         });
+    }
+
+    @Override
+    public boolean supportsClusterProfile() {
+        return true;
     }
 
     @Override
@@ -142,7 +148,7 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
 
     @Override
     public void serverPing(final String pluginId, List<Map<String, String>> clusterProfileConfigurations) {
-        pluginRequestHelper.submitRequest(pluginId, REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>(){
+        pluginRequestHelper.submitRequest(pluginId, REQUEST_SERVER_PING, new DefaultPluginInteractionCallback<Void>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV5.serverPingRequestBody(clusterProfileConfigurations);
@@ -155,7 +161,7 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
         return pluginRequestHelper.submitRequest(pluginId, REQUEST_SHOULD_ASSIGN_WORK, new DefaultPluginInteractionCallback<Boolean>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
-                return elasticAgentExtensionConverterV5.shouldAssignWorkRequestBody(agent, environment, configuration,clusterProfileProperties, identifier);
+                return elasticAgentExtensionConverterV5.shouldAssignWorkRequestBody(agent, environment, configuration, clusterProfileProperties, identifier);
             }
 
             @Override
@@ -196,6 +202,21 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV5.getJobCompletionRequestBody(elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
+            }
+        });
+    }
+
+    @Override
+    public ElasticAgentInformation migrateConfig(String pluginId, ElasticAgentInformation elasticAgentInformation) {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_MIGRATE_CONFIGURATION, new DefaultPluginInteractionCallback<ElasticAgentInformation>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return elasticAgentExtensionConverterV5.getElasticAgentInformationDTO(elasticAgentInformation).toJSON().toString();
+            }
+
+            @Override
+            public ElasticAgentInformation onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
+                return elasticAgentExtensionConverterV5.getElasticAgentInformationFromResponseBody(responseBody);
             }
         });
     }

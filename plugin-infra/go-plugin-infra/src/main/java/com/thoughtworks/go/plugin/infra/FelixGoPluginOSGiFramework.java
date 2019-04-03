@@ -56,6 +56,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     private SystemEnvironment systemEnvironment;
     private Collection<PluginChangeListener> pluginChangeListeners = new ConcurrentLinkedQueue<>();
     private PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator;
+    private ElasticAgentInformationMigrator elasticAgentInformationMigrator;
 
     @Autowired
     public FelixGoPluginOSGiFramework(PluginRegistry registry, SystemEnvironment systemEnvironment) {
@@ -126,6 +127,10 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
                 }
             }
 
+            if (elasticAgentInformationMigrator != null) {
+                elasticAgentInformationMigrator.migrate(pluginDescriptor);
+            }
+
             IterableUtils.forEach(pluginChangeListeners, notifyPluginLoadedEvent(pluginDescriptor));
             return bundle;
         } catch (Exception e) {
@@ -179,6 +184,11 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public void setPluginExtensionsAndVersionValidator(PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator) {
         this.pluginExtensionsAndVersionValidator = pluginExtensionsAndVersionValidator;
+    }
+
+    @Override
+    public void setElasticAgentInformationMigrator(ElasticAgentInformationMigrator elasticAgentInformationMigrator) {
+        this.elasticAgentInformationMigrator = elasticAgentInformationMigrator;
     }
 
     private void registerInternalServices(BundleContext bundleContext) {

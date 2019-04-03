@@ -17,16 +17,26 @@
 package com.thoughtworks.go.plugin.access.elastic.v5;
 
 import com.google.gson.Gson;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.config.*;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
+import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.Capabilities;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
+import com.thoughtworks.go.security.CryptoException;
+import com.thoughtworks.go.security.GoCipher;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static java.lang.String.format;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
@@ -264,7 +274,176 @@ public class ElasticAgentExtensionConverterV5Test {
         assertTrue(capabilities.supportsAgentStatusReport());
     }
 
+    @Test
+    public void shouldGetRequestBodyForMigrateCall_withOldConfig() throws CryptoException {
+        ConfigurationProperty property1 = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"));
+        ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("password")));
+
+        Configuration configuration = new Configuration();
+        configuration.add(property1);
+        configuration.add(property2);
+        Map<String, String> pluginSettings = configuration.getConfigurationAsMap(true);
+
+        List<ClusterProfile> clusterProfiles = new ArrayList<>();
+
+        List<ElasticProfile> elasticAgentProfiles = new ArrayList<>();
+        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
+
+        ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
+
+        ElasticAgentInformationDTO elasticAgentInformationDTO = new ElasticAgentExtensionConverterV5().getElasticAgentInformationDTO(elasticAgentInformation);
+        String requestBody = elasticAgentInformationDTO.toJSON().toString();
+
+        String expectedRequestBody = "{" +
+                "    \"plugin_settings\":{" +
+                "        \"key2\":\"password\", " +
+                "        \"key\":\"value\"" +
+                "    }," +
+                "    \"cluster_profiles\":[]," +
+                "    \"elastic_agent_profiles\":[" +
+                "        {" +
+                "            \"id\":\"profile_id\"," +
+                "            \"plugin_id\":\"plugin_id\"," +
+                "            \"cluster_profile_id\": null," +
+                "            \"properties\":{" +
+                "                \"some_key\":\"some_value\", " +
+                "                \"some_key2\":\"some_value2\"" +
+                "            }" +
+                "        }" +
+                "    ]" +
+                "}\n";
+
+        assertThatJson(expectedRequestBody).isEqualTo(requestBody);
+    }
+
+    @Test
+    public void shouldGetRequestBodyForMigrateCall_withNewConfig() throws CryptoException {
+        ConfigurationProperty property1 = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"));
+        ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("password")));
+
+        Configuration configuration = new Configuration();
+        configuration.add(property1);
+        configuration.add(property2);
+        Map<String, String> pluginSettings = configuration.getConfigurationAsMap(true);
+
+        List<ClusterProfile> clusterProfiles = new ArrayList<>();
+        clusterProfiles.add(new ClusterProfile("cluster_profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
+
+        List<ElasticProfile> elasticAgentProfiles = new ArrayList<>();
+        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
+
+        ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
+
+        ElasticAgentInformationDTO elasticAgentInformationDTO = new ElasticAgentExtensionConverterV5().getElasticAgentInformationDTO(elasticAgentInformation);
+        String requestBody = elasticAgentInformationDTO.toJSON().toString();
+
+        String expectedRequestBody = "{" +
+                "    \"plugin_settings\":{" +
+                "        \"key2\":\"password\", " +
+                "        \"key\":\"value\"" +
+                "    }," +
+                "    \"cluster_profiles\":[" +
+                "        {" +
+                "            \"id\":\"cluster_profile_id\"," +
+                "            \"plugin_id\":\"plugin_id\"," +
+                "            \"properties\":{" +
+                "                \"some_key\":\"some_value\"," +
+                "                \"some_key2\":\"some_value2\"" +
+                "            }" +
+                "         }" +
+                "    ]," +
+                "    \"elastic_agent_profiles\":[" +
+                "        {" +
+                "            \"id\":\"profile_id\"," +
+                "            \"plugin_id\":\"plugin_id\"," +
+                "            \"cluster_profile_id\":\"cluster_profile_id\"," +
+                "            \"properties\":{" +
+                "                \"some_key\":\"some_value\", " +
+                "                \"some_key2\":\"some_value2\"" +
+                "            }" +
+                "        }" +
+                "    ]" +
+                "}\n";
+
+        assertThatJson(expectedRequestBody).isEqualTo(requestBody);
+    }
+
+    @Test
+    public void shouldGetTheElasticAgentInformationFromResponseBodyOfMigrateCall() throws CryptoException {
+        String responseBody = "{" +
+                "    \"plugin_settings\":{" +
+                "        \"key2\":\"password\", " +
+                "        \"key\":\"value\"" +
+                "    }," +
+                "    \"cluster_profiles\":[" +
+                "        {" +
+                "            \"id\":\"cluster_profile_id\"," +
+                "            \"plugin_id\":\"plugin_id\"," +
+                "            \"properties\":{" +
+                "                \"some_key\":\"some_value\", " +
+                "                \"some_key2\":\"some_value2\"" +
+                "            }" +
+                "         }" +
+                "    ]," +
+                "    \"elastic_agent_profiles\":[" +
+                "        {" +
+                "            \"id\":\"profile_id\"," +
+                "            \"plugin_id\":\"plugin_id\"," +
+                "            \"cluster_profile_id\":\"cluster_profile_id\"," +
+                "            \"properties\":{" +
+                "                \"some_key\":\"some_value\"," +
+                "                \"some_key2\":\"some_value2\"" +
+                "            }" +
+                "        }" +
+                "    ]" +
+                "}\n";
+
+        ElasticAgentMetadataStore store = ElasticAgentMetadataStore.instance();
+        PluggableInstanceSettings elasticAgentProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("some_key", new Metadata(true, true))));
+        PluggableInstanceSettings clusterProfileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("some_key2", new Metadata(true, true))));
+        store.setPluginInfo(new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), elasticAgentProfileSettings, clusterProfileSettings, null, null, null));
+
+        ElasticAgentInformation elasticAgentInformation = new ElasticAgentExtensionConverterV5().getElasticAgentInformationFromResponseBody(responseBody);
+
+        ConfigurationProperty property1 = new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"));
+        ConfigurationProperty property2 = new ConfigurationProperty(new ConfigurationKey("key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("password")));
+        Configuration configuration = new Configuration();
+        configuration.add(property1);
+        configuration.add(property2);
+
+        Map<String, String> pluginSettings = configuration.getConfigurationAsMap(true);
+
+        List<ClusterProfile> clusterProfiles = new ArrayList<>();
+        clusterProfiles.add(new ClusterProfile("cluster_profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
+
+        List<ElasticProfile> elasticAgentProfiles = new ArrayList<>();
+        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value"))), new ConfigurationProperty(new ConfigurationKey("some_key2"), new ConfigurationValue("some_value2"))));
+
+        ElasticAgentInformation expectedElasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
+
+        assertThat(elasticAgentInformation, is(expectedElasticAgentInformation));
+    }
+
     private AgentMetadata elasticAgent() {
         return new AgentMetadata("52", "Idle", "Idle", "Enabled");
+    }
+
+    private PluginDescriptor pluginDescriptor(String pluginId) {
+        return new PluginDescriptor() {
+            @Override
+            public String id() {
+                return pluginId;
+            }
+
+            @Override
+            public String version() {
+                return null;
+            }
+
+            @Override
+            public About about() {
+                return null;
+            }
+        };
     }
 }

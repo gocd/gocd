@@ -141,6 +141,11 @@ public class DefaultPluginManager implements PluginManager {
     }
 
     @Override
+    public void setElasticAgentInformationMigrator(ElasticAgentInformationMigrator elasticAgentInformationMigrator) {
+        goPluginOSGiFramework.setElasticAgentInformationMigrator(elasticAgentInformationMigrator);
+    }
+
+    @Override
     public GoPluginApiResponse submitTo(final String pluginId, String extensionType, final GoPluginApiRequest apiRequest) {
         return goPluginOSGiFramework.doOn(GoPlugin.class, pluginId, extensionType, (plugin, pluginDescriptor) -> {
             ensureInitializerInvoked(pluginDescriptor, plugin, extensionType);

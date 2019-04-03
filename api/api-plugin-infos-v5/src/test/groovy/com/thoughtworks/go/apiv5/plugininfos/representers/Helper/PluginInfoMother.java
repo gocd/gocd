@@ -64,12 +64,20 @@ public class PluginInfoMother {
         return new ConfigRepoPluginInfo(descriptor, null, getPluggableSettings());
     }
 
-    public static ElasticAgentPluginInfo createElasticAgentPluginInfo() {
+    public static ElasticAgentPluginInfo createElasticAgentPluginInfoForV4() {
         ArrayList<String> targetOperatingSystems = new ArrayList<>();
         targetOperatingSystems.add("os");
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
 
         return new ElasticAgentPluginInfo(descriptor, getPluggableSettings(), null, null, getPluggableSettings(), new com.thoughtworks.go.plugin.domain.elastic.Capabilities(true, false));
+    }
+
+    public static ElasticAgentPluginInfo createElasticAgentPluginInfoForV5() {
+        ArrayList<String> targetOperatingSystems = new ArrayList<>();
+        targetOperatingSystems.add("os");
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
+
+        return new ElasticAgentPluginInfo(descriptor, getPluggableSettings(), getPluggableSettings(), null, null, new com.thoughtworks.go.plugin.domain.elastic.Capabilities(true, true, true));
     }
 
     public static CombinedPluginInfo createBadPluginInfo() {

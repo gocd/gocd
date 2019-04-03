@@ -224,19 +224,6 @@ public class MaterialUpdateServiceTest {
         }
 
         @Test
-        void shouldResolveSecretParamsForMaterials() {
-            ScmMaterial material = mock(ScmMaterial.class);
-            SecretParams secretParams = new SecretParams(new SecretParam("id", "key"));
-
-            when(material.hasSecretParams()).thenReturn(true);
-            when(material.getSecretParams()).thenReturn(secretParams);
-
-            service.updateMaterial(material);
-
-            verify(secretParamResolver).resolve(secretParams);
-        }
-
-        @Test
         void shouldAllowPostCommitNotificationsToPassThroughToTheQueue_WhenTheSameMaterialIsNotCurrentlyInProgressAndMaterialIsAutoUpdateTrue() throws Exception {
             ScmMaterial material = mock(ScmMaterial.class);
             when(material.isAutoUpdate()).thenReturn(true);

@@ -26,10 +26,7 @@ import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtens
 import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
-import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.MaterialExpansionService;
-import com.thoughtworks.go.server.service.MaterialService;
-import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.service.*;
 import com.thoughtworks.go.server.transaction.TransactionCallback;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -71,6 +68,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
     @Autowired private SecurityService securityService;
     @Autowired private PackageRepositoryExtension packageRepositoryExtension;
     @Autowired private SCMExtension scmExtension;
+    @Autowired private SecretParamResolver secretParamResolver;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -144,7 +142,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
     private class MaterialServiceWhichSlowsDownFirstTimeModificationCheck extends MaterialService {
         public MaterialServiceWhichSlowsDownFirstTimeModificationCheck(MaterialRepository materialRepository, GoConfigService goConfigService, SecurityService securityService,
                                                                        PackageRepositoryExtension packageRepositoryExtension, SCMExtension scmExtension) {
-            super(materialRepository, goConfigService, securityService, packageRepositoryExtension, scmExtension, transactionTemplate);
+            super(materialRepository, goConfigService, securityService, packageRepositoryExtension, scmExtension, transactionTemplate, secretParamResolver);
         }
 
         @Override

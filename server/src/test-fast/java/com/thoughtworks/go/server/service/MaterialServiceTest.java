@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -50,6 +51,8 @@ import com.thoughtworks.go.plugin.api.material.packagerepository.RepositoryConfi
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.materials.GitPoller;
+import com.thoughtworks.go.server.service.materials.MaterialPoller;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.Pagination;
@@ -65,10 +68,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
 import static java.util.Arrays.asList;
@@ -94,19 +94,22 @@ public class MaterialServiceTest {
     private SCMExtension scmExtension;
     @Mock
     private TransactionTemplate transactionTemplate;
+    @Mock
+    private SecretParamResolver secretParamResolver;
 
     private MaterialService materialService;
 
     @Before
     public void setUp() {
         initMocks(this);
-        materialService = new MaterialService(materialRepository, goConfigService, securityService, packageRepositoryExtension, scmExtension, transactionTemplate);
+        materialService = new MaterialService(materialRepository, goConfigService, securityService,
+                packageRepositoryExtension, scmExtension, transactionTemplate, secretParamResolver);
     }
 
     @Test
     public void shouldUnderstandIfMaterialHasModifications() {
-        assertHasModifcation(new MaterialRevisions(new MaterialRevision(new HgMaterial("foo.com", null), new Modification(new Date(), "2", "MOCK_LABEL-12", null))), true);
-        assertHasModifcation(new MaterialRevisions(), false);
+        assertHasModification(new MaterialRevisions(new MaterialRevision(new HgMaterial("foo.com", null), new Modification(new Date(), "2", "MOCK_LABEL-12", null))), true);
+        assertHasModification(new MaterialRevisions(), false);
     }
 
     @Test
@@ -239,6 +242,22 @@ public class MaterialServiceTest {
         assertThat(actual, is(MODIFICATIONS));
     }
 
+    @Theory
+    public void shouldCheckoutAGivenRevision(RequestDataPoints data) {
+        Revision revision = mock(Revision.class);
+        MaterialPoller materialPoller = mock(MaterialPoller.class);
+        MaterialService spy = spy(materialService);
+        File baseDir = mock(File.class);
+        SubprocessExecutionContext execCtx = mock(SubprocessExecutionContext.class);
+
+        doReturn(data.klass).when(spy).getMaterialClass(data.material);
+        doReturn(materialPoller).when(spy).getPollerImplementation(data.material);
+
+        spy.checkout(data.material, baseDir, revision, execCtx);
+
+        verify(materialPoller).checkout(data.material, baseDir, revision, execCtx);
+    }
+
     @Test
     public void shouldThrowExceptionWhenPollerForMaterialNotFound() {
         try {
@@ -247,6 +266,43 @@ public class MaterialServiceTest {
         } catch (RuntimeException e) {
             assertThat(e.getMessage(), is("unknown material type null"));
         }
+    }
+
+    @Test
+    public void latestModification_shouldResolveSecretsForMaterialConfiguredWithSecretParams() {
+        GitMaterial gitMaterial = spy(new GitMaterial("https://username:{{SECRET:[][]}@foo.bar}"));
+        MaterialService spy = spy(materialService);
+        GitPoller gitPoller = mock(GitPoller.class);
+        SecretParams secretParams = mock(SecretParams.class);
+
+        doReturn(GitMaterial.class).when(spy).getMaterialClass(gitMaterial);
+        doReturn(true).when(gitMaterial).hasSecretParams();
+        doReturn(secretParams).when(gitMaterial).getSecretParams();
+        doReturn(gitPoller).when(spy).getPollerImplementation(gitMaterial);
+        when(gitPoller.latestModification(any(), any(), any())).thenReturn(new ArrayList<>());
+
+        spy.latestModification(gitMaterial, null, null);
+
+        verify(secretParamResolver).resolve(secretParams);
+    }
+
+    @Test
+    public void modificationsSince_shouldResolveSecretsForMaterialConfiguredWithSecretParams() {
+        GitMaterial gitMaterial = spy(new GitMaterial("https://username:{{SECRET:[][]}@foo.bar}"));
+        MaterialService spy = spy(materialService);
+        GitPoller gitPoller = mock(GitPoller.class);
+        Class<GitMaterial> toBeReturned = GitMaterial.class;
+        SecretParams secretParams = mock(SecretParams.class);
+
+        doReturn(toBeReturned).when(spy).getMaterialClass(gitMaterial);
+        doReturn(true).when(gitMaterial).hasSecretParams();
+        doReturn(secretParams).when(gitMaterial).getSecretParams();
+        doReturn(gitPoller).when(spy).getPollerImplementation(gitMaterial);
+        when(gitPoller.modificationsSince(any(), any(), any(), any())).thenReturn(new ArrayList<>());
+
+        spy.modificationsSince(gitMaterial, null, null, null);
+
+        verify(secretParamResolver).resolve(secretParams);
     }
 
     @Test
@@ -338,7 +394,7 @@ public class MaterialServiceTest {
 		assertThat(gotModifications, is(modifications));
 	}
 
-    private void assertHasModifcation(MaterialRevisions materialRevisions, boolean b) {
+    private void assertHasModification(MaterialRevisions materialRevisions, boolean b) {
         HgMaterial hgMaterial = new HgMaterial("foo.com", null);
         when(materialRepository.findLatestModification(hgMaterial)).thenReturn(materialRevisions);
         assertThat(materialService.hasModificationFor(hgMaterial), is(b));

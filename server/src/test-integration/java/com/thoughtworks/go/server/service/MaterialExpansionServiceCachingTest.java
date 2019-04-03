@@ -52,12 +52,14 @@ public class MaterialExpansionServiceCachingTest {
     GoCache goCache;
     @Autowired
     private MaterialConfigConverter materialConfigConverter;
+    @Autowired
+    SecretParamResolver secretParamResolver;
     private static SvnTestRepoWithExternal svnRepo;
     private static MaterialExpansionService materialExpansionService;
 
     @Before
     public void setUp() throws Exception {
-        materialExpansionService = new MaterialExpansionService(goCache, materialConfigConverter);
+        materialExpansionService = new MaterialExpansionService(goCache, materialConfigConverter, secretParamResolver);
     }
 
     @BeforeClass

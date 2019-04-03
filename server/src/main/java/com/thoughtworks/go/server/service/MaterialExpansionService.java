@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
@@ -37,11 +38,14 @@ public class MaterialExpansionService {
     private final CacheKeyGenerator cacheKeyGenerator;
     private GoCache goCache;
     private MaterialConfigConverter materialConfigConverter;
+    private SecretParamResolver secretParamResolver;
 
     @Autowired
-    public MaterialExpansionService(GoCache goCache, MaterialConfigConverter materialConfigConverter) {
+    public MaterialExpansionService(GoCache goCache, MaterialConfigConverter materialConfigConverter,
+                                    SecretParamResolver secretParamResolver) {
         this.goCache = goCache;
         this.materialConfigConverter = materialConfigConverter;
+        this.secretParamResolver = secretParamResolver;
         this.cacheKeyGenerator = new CacheKeyGenerator(getClass());
     }
 
@@ -90,23 +94,39 @@ public class MaterialExpansionService {
         }
     }
 
-    //TODO: Need to verify the usages. Should it be raw url or resolved one.
-    // Note: this is only used to expand the material configs.
-    // Keep which is later used to produce build cause (newProduceBuildCause). Resolve url and password in BuildCauseProducerService
-    // No need to change this here
-    private Subversion svn(SvnMaterialConfig svnMaterialConfig) {
-        String cacheKey = cacheKeyForSubversionMaterialCommand(svnMaterialConfig.getFingerprint());
+    private Subversion svn(SvnMaterialConfig materialConfig) {
+        String cacheKey = cacheKeyForSubversionMaterialCommand(materialConfig.getFingerprint());
         Subversion svnLazyLoaded = (SvnCommand) goCache.get(cacheKey);
-        if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().originalArgument().equals(svnMaterialConfig.getUrl())) {
+        if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().originalArgument().equals(materialConfig.getUrl())) {
             synchronized (cacheKey) {
                 svnLazyLoaded = (SvnCommand) goCache.get(cacheKey);
-                if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().originalArgument().equals(svnMaterialConfig.getUrl())) {
-                    svnLazyLoaded = new SvnCommand(svnMaterialConfig.getFingerprint(), svnMaterialConfig.getUrl(), svnMaterialConfig.getUserName(), svnMaterialConfig.getPassword(), svnMaterialConfig.isCheckExternals());
-                    goCache.put(cacheKeyForSubversionMaterialCommand(svnMaterialConfig.getFingerprint()), svnLazyLoaded);
+                if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().originalArgument().equals(materialConfig.getUrl())) {
+                    svnLazyLoaded = new SvnCommand(materialConfig.getFingerprint(), getResolvedUrl(materialConfig.getUrl()),
+                            materialConfig.getUserName(), getResolvedPassword(materialConfig.getPassword()), materialConfig.isCheckExternals());
+                    goCache.put(cacheKeyForSubversionMaterialCommand(materialConfig.getFingerprint()), svnLazyLoaded);
                 }
             }
         }
         return svnLazyLoaded;
+    }
+
+    private String getResolvedUrl(String configUrl) {
+        return resolve(configUrl);
+    }
+
+    private String getResolvedPassword(String password) {
+        return resolve(password);
+    }
+
+    private String resolve(String str) {
+        SecretParams secretParams = SecretParams.parse(str);
+        if (!secretParams.isEmpty()) {
+            secretParamResolver.resolve(secretParams);
+
+            return secretParams.substitute(str);
+        }
+
+        return str;
     }
 
     String cacheKeyForSubversionMaterialCommand(String svnMaterialConfigFingerprint) {

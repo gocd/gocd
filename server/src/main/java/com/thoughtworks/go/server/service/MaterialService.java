@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.SecretParamAware;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -58,6 +59,7 @@ public class MaterialService {
     private PackageRepositoryExtension packageRepositoryExtension;
     private SCMExtension scmExtension;
     private TransactionTemplate transactionTemplate;
+    private SecretParamResolver secretParamResolver;
     private Map<Class, MaterialPoller> materialPollerMap = new HashMap<>();
 
     @Autowired
@@ -66,13 +68,15 @@ public class MaterialService {
                            SecurityService securityService,
                            PackageRepositoryExtension packageRepositoryExtension,
                            SCMExtension scmExtension,
-                           TransactionTemplate transactionTemplate) {
+                           TransactionTemplate transactionTemplate,
+                           SecretParamResolver secretParamResolver) {
         this.materialRepository = materialRepository;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.packageRepositoryExtension = packageRepositoryExtension;
         this.scmExtension = scmExtension;
         this.transactionTemplate = transactionTemplate;
+        this.secretParamResolver = secretParamResolver;
         populatePollerImplementations();
     }
 
@@ -112,6 +116,7 @@ public class MaterialService {
     public List<Modification> latestModification(Material material,
                                                  File baseDir,
                                                  final SubprocessExecutionContext execCtx) {
+        resolveSecretParams(material);
         return getPollerImplementation(material).latestModification(material, baseDir, execCtx);
     }
 
@@ -119,10 +124,17 @@ public class MaterialService {
                                                  File baseDir,
                                                  Revision revision,
                                                  final SubprocessExecutionContext execCtx) {
+        resolveSecretParams(material);
         return getPollerImplementation(material).modificationsSince(material, baseDir, revision, execCtx);
     }
 
-    public MaterialPoller getPollerImplementation(Material material) {
+    public void checkout(Material material, File baseDir, Revision revision, final SubprocessExecutionContext execCtx) {
+        resolveSecretParams(material);
+
+        getPollerImplementation(material).checkout(material, baseDir, revision, execCtx);
+    }
+
+    protected MaterialPoller getPollerImplementation(Material material) {
         MaterialPoller materialPoller = materialPollerMap.get(getMaterialClass(material));
         return materialPoller == null ? new NoOpPoller() : materialPoller;
     }
@@ -137,6 +149,12 @@ public class MaterialService {
         MaterialInstance materialInstance = materialRepository.findMaterialInstance(materialConfig);
 
         return materialRepository.getModificationsFor(materialInstance, pagination);
+    }
+
+    private void resolveSecretParams(Material material) {
+        if ((material instanceof SecretParamAware) && ((SecretParamAware) material).hasSecretParams()) {
+            this.secretParamResolver.resolve(((SecretParamAware) material).getSecretParams());
+        }
     }
 
     Class<? extends Material> getMaterialClass(Material material) {

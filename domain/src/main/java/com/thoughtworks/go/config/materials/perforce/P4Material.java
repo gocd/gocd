@@ -433,7 +433,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
 
     @Override
     public boolean hasSecretParams() {
-        return !this.secretParamsForPassword.isEmpty();
+        return this.secretParamsForPassword != null && !this.secretParamsForPassword.isEmpty();
     }
 
     @Override

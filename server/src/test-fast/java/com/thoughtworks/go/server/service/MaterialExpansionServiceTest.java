@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
@@ -29,17 +30,18 @@ import com.thoughtworks.go.server.cache.GoCache;
 import org.assertj.core.api.Assertions;
 import org.junit.*;
 import org.junit.rules.TemporaryFolder;
+import org.mockito.Mock;
 
 import java.io.IOException;
 import java.util.Collections;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svnMaterialConfig;
 import static com.thoughtworks.go.helper.MaterialsMother.svnMaterial;
-import static org.hamcrest.Matchers.endsWith;
+import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
 public class MaterialExpansionServiceTest {
 
@@ -48,14 +50,17 @@ public class MaterialExpansionServiceTest {
 
     private static SvnTestRepoWithExternal svnRepo;
     private MaterialExpansionService materialExpansionService;
+    @Mock
     private GoCache goCache;
+    @Mock
     private MaterialConfigConverter materialConfigConverter;
+    @Mock
+    private SecretParamResolver secretParamResolver;
 
     @Before
     public void setUp() throws Exception {
-        goCache = mock(GoCache.class);
-        materialConfigConverter = mock(MaterialConfigConverter.class);
-        materialExpansionService = new MaterialExpansionService(goCache, materialConfigConverter);
+        initMocks(this);
+        materialExpansionService = new MaterialExpansionService(goCache, materialConfigConverter, secretParamResolver);
     }
 
     @BeforeClass
@@ -176,6 +181,25 @@ public class MaterialExpansionServiceTest {
         assertThat(materials.size(), is(2));
         assertThat(materials.get(0), is(svn));
         assertThat(((SvnMaterial) materials.get(1)).getUrl(), endsWith("end2end/"));
+    }
+
+    @Test
+    public void shouldResolveSvnMaterialIfPasswordContainsSecretParams() {
+        SvnMaterial svn = svnMaterial(svnRepo.projectRepositoryUrl(), "mainRepo", "user1", "{{SECRET:[key][pass]}}", true, "*.doc");
+        SvnMaterial expectedExternalSvnMaterial = new SvnMaterial(svnRepo.externalRepositoryUrl(), "user1", "pass1", true, "mainRepo/" + svnRepo.externalMaterial().getFolder());
+
+        expectedExternalSvnMaterial.setFilter(FilterMother.filterFor("*.doc"));
+        when(materialConfigConverter.toMaterials(new MaterialConfigs(svn.config(), expectedExternalSvnMaterial.config()))).thenReturn(new Materials(svn, expectedExternalSvnMaterial));
+
+        doAnswer(invocation -> {
+            SecretParams secretParams = invocation.getArgument(0);
+            secretParams.get(0).setValue("pass1");
+            return null;
+        }).when(secretParamResolver).resolve(any());
+
+        materialExpansionService.expandForScheduling(svn, new Materials());
+
+        verify(secretParamResolver).resolve(any());
     }
 
     @Test

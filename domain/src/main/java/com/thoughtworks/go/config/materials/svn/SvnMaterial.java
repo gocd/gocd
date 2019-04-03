@@ -388,7 +388,8 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     @Override
     public boolean hasSecretParams() {
-        return this.url.hasSecretParams() || !secretParamsForPassword.isEmpty();
+        return (this.url != null && this.url.hasSecretParams())
+                || (this.secretParamsForPassword != null && !this.secretParamsForPassword.isEmpty());
     }
 
     @Override

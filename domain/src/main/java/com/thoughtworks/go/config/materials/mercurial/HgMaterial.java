@@ -348,11 +348,11 @@ public class HgMaterial extends ScmMaterial {
 
     @Override
     public boolean hasSecretParams() {
-        return getUrlArgument().hasSecretParams();
+        return this.url != null && url.hasSecretParams();
     }
 
     @Override
     public SecretParams getSecretParams() {
-        return getUrlArgument().getSecretParams();
+        return this.url.getSecretParams();
     }
 }

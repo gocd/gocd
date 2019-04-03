@@ -176,7 +176,6 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             LOGGER.debug("[Material Update] Starting update of material {}", material);
             try {
                 long trackingId = mduPerformanceLogger.materialSentToUpdateQueue(material);
-                resolveSecretParams(material);
                 queueFor(material).post(new MaterialUpdateMessage(material, trackingId));
 
                 return true;
@@ -195,12 +194,6 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
                         general(scope)));
             }
             return false;
-        }
-    }
-
-    private void resolveSecretParams(Material material) {
-        if ((material instanceof SecretParamAware) && ((SecretParamAware) material).hasSecretParams()) {
-            secretParamResolver.resolve(((SecretParamAware) material).getSecretParams());
         }
     }
 

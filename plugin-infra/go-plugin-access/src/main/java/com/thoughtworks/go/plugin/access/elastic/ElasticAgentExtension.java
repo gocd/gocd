@@ -96,8 +96,8 @@ public class ElasticAgentExtension extends AbstractExtension {
         return getVersionedElasticAgentExtension(pluginId).getIcon(pluginId);
     }
 
-    public String getPluginStatusReport(String pluginId) {
-        return getVersionedElasticAgentExtension(pluginId).getPluginStatusReport(pluginId);
+    public String getPluginStatusReport(String pluginId, List<Map<String, String>> clusterProfiles) {
+        return getVersionedElasticAgentExtension(pluginId).getPluginStatusReport(pluginId, clusterProfiles);
     }
 
     public String getAgentStatusReport(String pluginId, JobIdentifier identifier, String elasticAgentId, Map<String, String> clusterProfile) {

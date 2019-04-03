@@ -32,9 +32,9 @@ public interface ElasticAgentPluginConstantsV5 {
     String REQUEST_GET_CLUSTER_PROFILE_VIEW = REQUEST_PREFIX + ".get-cluster-profile-view";
     String REQUEST_VALIDATE_CLUSTER_PROFILE = REQUEST_PREFIX + ".validate-cluster-profile";
 
-    String REQUEST_STATUS_REPORT = REQUEST_PREFIX + ".status-report";
     String REQUEST_AGENT_STATUS_REPORT = REQUEST_PREFIX + ".agent-status-report";
     String REQUEST_CLUSTER_STATUS_REPORT = REQUEST_PREFIX + ".cluster-status-report";
+    String REQUEST_PLUGIN_STATUS_REPORT = REQUEST_PREFIX + ".plugin-status-report";
     String REQUEST_CAPABILITIES = REQUEST_PREFIX + ".get-capabilities";
 
     String REQUEST_JOB_COMPLETION = REQUEST_PREFIX + ".job-completion";

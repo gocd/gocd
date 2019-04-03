@@ -180,5 +180,11 @@ class ElasticAgentExtensionConverterV5 {
         jsonObject.add("cluster_profile_properties", mapToJsonObject(clusterProfile));
         return GSON.toJson(jsonObject);
     }
+
+    public String getPluginStatusReportRequestBody(List<Map<String, String>> clusterProfiles) {
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.add("all_cluster_profiles_properties", mapToJsonArray(clusterProfiles));
+        return GSON.toJson(jsonObject);
+    }
 }
 

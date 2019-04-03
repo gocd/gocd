@@ -445,6 +445,34 @@ public class ElasticAgentExtensionConverterV5Test {
         assertThat(elasticAgentInformation, is(expectedElasticAgentInformation));
     }
 
+    @Test
+    public void shouldJSONizePluginStatusRequestBody() {
+        Map<String, String> clusterProfile1 = new HashMap<>();
+        clusterProfile1.put("key1", "value1");
+        clusterProfile1.put("key2", "value2");
+
+        List<Map<String, String>> clusterProfileConfigurations = new ArrayList<>();
+        clusterProfileConfigurations.add(clusterProfile1);
+        clusterProfileConfigurations.add(clusterProfile1);
+
+        new ElasticAgentExtensionConverterV5().getPluginStatusReportRequestBody(clusterProfileConfigurations);
+
+        String json = new ElasticAgentExtensionConverterV5().getPluginStatusReportRequestBody(clusterProfileConfigurations);
+
+        assertThatJson(json).isEqualTo(
+                "{\"all_cluster_profiles_properties\":[" +
+                "   {" +
+                "      \"key1\":\"value1\"," +
+                "      \"key2\":\"value2\"" +
+                "   }," +
+                "   {" +
+                "      \"key1\":\"value1\"," +
+                "      \"key2\":\"value2\"" +
+                "   }" +
+                "]}");
+    }
+
+
     private AgentMetadata elasticAgent() {
         return new AgentMetadata("52", "Idle", "Idle", "Enabled");
     }

@@ -1,0 +1,92 @@
+import com.thoughtworks.go.build.docker.BuildDockerImageTask
+import com.thoughtworks.go.build.docker.Distro
+import com.thoughtworks.go.build.docker.DistroVersion
+import com.thoughtworks.go.build.docker.ImageType
+
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+apply plugin: 'base'
+
+subprojects {
+  apply plugin: 'base'
+  project.buildDir = file("${parent.buildDir}/${project.name}")
+
+  // detect the distro name and version from the project name.
+  // For e.g. `centos-6` will map to `Distro.centos` and version `6` as returned by `Distro.centos.supportedVersions`
+  def distroName = project.name.split('-').first()
+  Distro distro = Distro.valueOf(distroName)
+
+  if (!project.name.startsWith("${distro.name()}-")) {
+    throw new GradleException("Did you initialize the project ${project.path} with the wrong distro(${distro.name()})?".toString())
+  }
+
+  def distroVersionOnProject = project.name.replaceFirst("${distro.name()}-", "")
+  DistroVersion distroVersion = distro.getVersion(distroVersionOnProject)
+
+  project.tasks.create("dockerfile", BuildDockerImageTask.class) { BuildDockerImageTask task ->
+    assemble.dependsOn(task)
+
+    if (project.hasProperty('dockerBuildLocalZip')) {
+      task.dependsOn ':installers:serverGenericZip'
+      task.artifactZip = rootProject.project(':installers').tasks.getByName('serverGenericZip').outputs.files.singleFile
+    } else {
+      if (project.hasProperty('dockerbuildServerZipLocation')) {
+        task.artifactZip = project.file(project.dockerbuildServerZipLocation)
+      }
+    }
+
+    task.description = "Generate the dockerfile for GoCD server running on ${distro.name()} v${distroVersion.version}"
+    task.group = BasePlugin.BUILD_GROUP
+
+    task.distro = distro
+    task.distroVersion = distroVersion
+    task.tiniVersion = project.versions.tini
+    task.gosuVersion = project.versions.gosu
+    task.imageType = ImageType.server
+    task.outputDir = project.file("${project.parent.buildDir}/docker")
+
+    task.templateHelper = {
+      project.delete(project.fileTree(task.gitRepoDirectory).include("*"))
+
+      project.copy {
+        from rootProject.file("LICENSE")
+        into task.gitRepoDirectory
+      }
+
+      task.writeTemplateToFile("README.md.ftl", project.file("${task.gitRepoDirectory}/README.md"))
+
+      [
+        'logback-include.xml',
+      ].forEach { eachFile ->
+        project.file("${task.gitRepoDirectory}/${eachFile}").bytes = BuildDockerImageTask.class.getResource("/gocd-docker-server/${eachFile}").bytes
+      }
+
+      [
+        'install-gocd-plugins',
+        'git-clone-config',
+        'docker-entrypoint.sh'
+      ].forEach { eachFile ->
+        def file = project.file("${task.gitRepoDirectory}/${eachFile}")
+
+        file.bytes = BuildDockerImageTask.class.getResource("/gocd-docker-server/${eachFile}").bytes
+        file.setExecutable(true, false)
+      }
+    }
+  }
+}
+
+assemble.dependsOn(subprojects.tasks*.getByName('assemble'))

@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+yell() { echo "$0: $*" >&2; }
+die() { yell "$*"; exit 111; }
+try() { echo "$ $@" 1>&2; "$@" || die "cannot $*"; }
+
+try cd /godata/config
+# somehow this script and install-gocd-plugins called 2 times
+# so check if git repo already exists
+if [ ! -z "$CONFIG_GIT_REPO" ] && [ ! `git status` ]; then 
+  yell "fill /godata/config from $CONFIG_GIT_REPO"
+  BRANCH=$([ ! -z $CONFIG_GIT_BRANCH ] && echo $CONFIG_GIT_BRANCH || echo "master" )
+  try git init
+  try git remote add origin $CONFIG_GIT_REPO 
+  try git fetch
+  try git checkout -f $BRANCH
+  try chown -R go:go /godata/config
+fi

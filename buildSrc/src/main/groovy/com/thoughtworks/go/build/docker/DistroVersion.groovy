@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
-apply plugin: "groovy"
+package com.thoughtworks.go.build.docker
 
-repositories {
-  jcenter()
-}
+class DistroVersion implements Serializable {
+  String version
+  String releaseName
+  Date eolDate
+  boolean continueToBuild
 
-dependencies {
-  compile localGroovy()
-  compile gradleApi()
-  compile 'de.undercouch:gradle-download-task:3.2.0'
-  compile 'org.ysb33r.gradle:grolifant:0.8'
-  compile group: 'org.freemarker', name: 'freemarker', version: '2.3.28'
+  boolean isAboutToEol() {
+    return eolDate.before(new Date() + 95)
+  }
 }

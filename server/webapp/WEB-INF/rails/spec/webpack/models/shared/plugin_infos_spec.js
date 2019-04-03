@@ -19,7 +19,7 @@ describe('PluginInfos', () => {
   const PluginInfos = require("models/shared/plugin_infos");
   const _           = require("lodash");
 
-  const pluginInfoWithElasticAgentExtension = {
+  const pluginInfoWithElasticAgentExtensionV4 = {
     "id":               "cd.go.contrib.elastic-agent.docker",
     "status":           {
       "state": "active"
@@ -52,7 +52,7 @@ describe('PluginInfos', () => {
             "template": "elastic agent plugin settings view"
           }
         },
-        "profile_settings": {
+        "elastic_agent_profile_settings": {
           "configurations": [
             {
               "key":      "Image",
@@ -81,9 +81,81 @@ describe('PluginInfos', () => {
           }
         },
         "capabilities":     {
-          "supports_status_report": true,
+          "supports_plugin_status_report": true,
+          "supports_cluster_status_report": true,
           "supports_agent_status_report": true
         }
+      }
+    ]
+  };
+
+  const pluginInfoWithElasticAgentExtensionV5 = {
+    "id":               "cd.go.contrib.elastic-agent.docker",
+    "status":           {
+      "state": "active"
+    },
+    "about":            {
+      "name":                     "Docker Elastic Agent Plugin",
+      "version":                  "0.6.1",
+      "target_go_version":        "16.12.0",
+      "description":              "Docker Based Elastic Agent Plugins for GoCD",
+      "target_operating_systems": [],
+      "vendor":                   {
+        "name": "GoCD Contributors",
+        "url":  "https://github.com/gocd-contrib/docker-elastic-agents"
+      }
+    },
+    "extensions": [
+      {
+        "type": "elastic-agent",
+        "cluster_profile_settings": {
+          "configurations": [
+            {
+              "key": "instance_type",
+              "metadata": {
+                "secure": false,
+                "required": true
+              }
+            }
+          ],
+          "view": {
+            "template": "elastic agent plugin settings view"
+          }
+        },
+        "elastic_agent_profile_settings": {
+          "configurations": [
+            {
+              "key":      "Image",
+              "metadata": {
+                "secure":   false,
+                "required": true
+              }
+            },
+            {
+              "key":      "Command",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
+            },
+            {
+              "key":      "Environment",
+              "metadata": {
+                "secure":   false,
+                "required": false
+              }
+            }
+          ],
+          "view":           {
+            "template": '<!--\n  ~ Copyright 2016 ThoughtWorks, Inc.\n  ~\n  ~ Licensed under the Apache License, Version 2.0 (the "License");\n  ~ you may not use this file except in compliance with the License.\n  ~ You may obtain a copy of the License at\n  ~\n  ~     http://www.apache.org/licenses/LICENSE-2.0\n  ~\n  ~ Unless required by applicable law or agreed to in writing, software\n  ~ distributed under the License is distributed on an "AS IS" BASIS,\n  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n  ~ See the License for the specific language governing permissions and\n  ~ limitations under the License.\n  -->\n\n<div class="form_item_block">\n    <label ng-class="{\'is-invalid-label\': GOINPUTNAME[Image].$error.server}">Docker image:<span class=\'asterix\'>*</span></label>\n    <input ng-class="{\'is-invalid-input\': GOINPUTNAME[Image].$error.server}" type="text" ng-model="Image" ng-required="true" placeholder="alpine:latest"/>\n    <span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[Image].$error.server}" ng-show="GOINPUTNAME[Image].$error.server">{{GOINPUTNAME[Image].$error.server}}</span>\n</div>\n\n<div class="form_item_block">\n    <label ng-class="{\'is-invalid-label\': GOINPUTNAME[Command].$error.server}">Docker Command: <small>(Enter one parameter per line)</small></label>\n    <textarea ng-class="{\'is-invalid-input\': GOINPUTNAME[Command].$error.server}" type="text" ng-model="Command" ng-required="true" rows="7" placeholder="ls&#x000A;-al&#x000A;/usr/bin"></textarea>\n    <span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[Command].$error.server}" ng-show="GOINPUTNAME[Command].$error.server">{{GOINPUTNAME[Command].$error.server}}</span>\n</div>\n\n<div class="form_item_block">\n    <label ng-class="{\'is-invalid-label\': GOINPUTNAME[Environment].$error.server}">Environment Variables <small>(Enter one variable per line)</small></label>\n    <textarea ng-class="{\'is-invalid-input\': GOINPUTNAME[Environment].$error.server}" type="text" ng-model="Environment" ng-required="true" rows="7" placeholder="JAVA_HOME=/opt/java&#x000A;MAVEN_HOME=/opt/maven"></textarea>\n    <span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[Environment].$error.server}" ng-show="GOINPUTNAME[Environment].$error.server">{{GOINPUTNAME[Environment].$error.server}}</span>\n</div>\n'
+          }
+        },
+        "capabilities":     {
+          "supports_plugin_status_report": true,
+          "supports_cluster_status_report": true,
+          "supports_agent_status_report": true
+        },
+        "supports_cluster_profiles": true
       }
     ]
   };
@@ -779,24 +851,58 @@ describe('PluginInfos', () => {
 
   describe("ElasticAgent", () => {
     it("should deserialize", () => {
-      const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithElasticAgentExtension);
-      verifyBasicProperties(pluginInfo, pluginInfoWithElasticAgentExtension);
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithElasticAgentExtensionV4);
+      verifyBasicProperties(pluginInfo, pluginInfoWithElasticAgentExtensionV4);
 
       const extensionInfo = pluginInfo.extensions()['elastic-agent'];
-      expect(extensionInfo.profileSettings().viewTemplate()).toEqual(pluginInfoWithElasticAgentExtension.extensions[0].profile_settings.view.template);
+      expect(extensionInfo.profileSettings().viewTemplate()).toEqual(pluginInfoWithElasticAgentExtensionV4.extensions[0].elastic_agent_profile_settings.view.template);
       expect(extensionInfo.profileSettings().configurations().countConfiguration()).toEqual(3);
       expect(extensionInfo.profileSettings().configurations().collectConfigurationProperty('key')).toEqual(['Image', 'Command', 'Environment']);
       expect(extensionInfo.profileSettings().configurations().firstConfiguration().metadata()).toEqual({
         secure:   false,
         required: true
       });
-      expect(extensionInfo.capabilities().supportsStatusReport()).toBeTruthy();
+
+      expect(extensionInfo.supportsClusterProfiles()).toBeFalsy();
+
+      expect(extensionInfo.capabilities().supportsPluginStatusReport()).toBeTruthy();
+      expect(extensionInfo.capabilities().supportsClusterStatusReport()).toBeTruthy();
       expect(extensionInfo.capabilities().supportsAgentStatusReport()).toBeTruthy();
 
-      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(pluginInfoWithElasticAgentExtension.extensions[0].plugin_settings.view.template);
+      expect(extensionInfo.clusterProfileSettings()).toEqual(undefined);
+
+      expect(pluginInfo.pluginSettings().viewTemplate()).toEqual(pluginInfoWithElasticAgentExtensionV4.extensions[0].plugin_settings.view.template);
       expect(pluginInfo.pluginSettings().configurations().countConfiguration()).toEqual(1);
       expect(pluginInfo.pluginSettings().configurations().collectConfigurationProperty('key')).toEqual(['instance_type']);
       expect(pluginInfo.pluginSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
+      });
+    });
+
+    it("should deserialize plugin info of v5 extension", () => {
+      const pluginInfo = PluginInfos.PluginInfo.fromJSON(pluginInfoWithElasticAgentExtensionV5);
+      verifyBasicProperties(pluginInfo, pluginInfoWithElasticAgentExtensionV5);
+
+      const extensionInfo = pluginInfo.extensions()['elastic-agent'];
+      expect(extensionInfo.profileSettings().viewTemplate()).toEqual(pluginInfoWithElasticAgentExtensionV5.extensions[0].elastic_agent_profile_settings.view.template);
+      expect(extensionInfo.profileSettings().configurations().countConfiguration()).toEqual(3);
+      expect(extensionInfo.profileSettings().configurations().collectConfigurationProperty('key')).toEqual(['Image', 'Command', 'Environment']);
+      expect(extensionInfo.profileSettings().configurations().firstConfiguration().metadata()).toEqual({
+        secure:   false,
+        required: true
+      });
+
+      expect(extensionInfo.supportsClusterProfiles()).toBeTruthy();
+
+      expect(extensionInfo.capabilities().supportsPluginStatusReport()).toBeTruthy();
+      expect(extensionInfo.capabilities().supportsClusterStatusReport()).toBeTruthy();
+      expect(extensionInfo.capabilities().supportsAgentStatusReport()).toBeTruthy();
+
+      expect(extensionInfo.clusterProfileSettings().viewTemplate()).toEqual(pluginInfoWithElasticAgentExtensionV5.extensions[0].cluster_profile_settings.view.template);
+      expect(extensionInfo.clusterProfileSettings().configurations().countConfiguration()).toEqual(1);
+      expect(extensionInfo.clusterProfileSettings().configurations().collectConfigurationProperty('key')).toEqual(['instance_type']);
+      expect(extensionInfo.clusterProfileSettings().configurations().firstConfiguration().metadata()).toEqual({
         secure:   false,
         required: true
       });

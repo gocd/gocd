@@ -145,7 +145,7 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
 
     const extension = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS) as ElasticAgentSettings;
     if (extension && extension.capabilities) {
-      return extension.capabilities.supportsStatusReport;
+      return extension.capabilities.supportsPluginStatusReport;
     }
     return false;
   }

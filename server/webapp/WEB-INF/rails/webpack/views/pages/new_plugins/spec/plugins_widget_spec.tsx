@@ -206,7 +206,7 @@ describe("New Plugins Widget", () => {
               template: "elastic agent plugin settings view"
             }
           },
-          profile_settings: {
+          elastic_agent_profile_settings: {
             configurations: [
               {
                 key: "Image",
@@ -235,7 +235,8 @@ describe("New Plugins Widget", () => {
             }
           },
           capabilities: {
-            supports_status_report: true,
+            supports_plugin_status_report: true,
+            supports_cluster_status_report: true,
             supports_agent_status_report: true
           }
         }

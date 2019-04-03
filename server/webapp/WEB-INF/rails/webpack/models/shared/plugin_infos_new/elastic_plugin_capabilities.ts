@@ -15,16 +15,22 @@
  */
 
 export class ElasticPluginCapabilities {
-  readonly supportsStatusReport: boolean;
+  readonly supportsPluginStatusReport: boolean;
   readonly supportsAgentStatusReport: boolean;
+  readonly supportsClusterStatusReport: boolean;
 
-  constructor(supportsStatusReport: boolean, supportsAgentStatusReport: boolean) {
-    this.supportsStatusReport      = supportsStatusReport;
-    this.supportsAgentStatusReport = supportsAgentStatusReport;
+  constructor(supportsPluginStatusReport: boolean,
+              supportsAgentStatusReport: boolean,
+              supportsClusterStatusReport: boolean) {
+    this.supportsPluginStatusReport  = supportsPluginStatusReport;
+    this.supportsAgentStatusReport   = supportsAgentStatusReport;
+    this.supportsClusterStatusReport = supportsClusterStatusReport;
   }
 
   static fromJSON(data: any) {
-    return new ElasticPluginCapabilities(data && data.supports_status_report,
-      data && data.supports_agent_status_report);
+    return new ElasticPluginCapabilities(
+      data && data.supports_plugin_status_report,
+      data && data.supports_agent_status_report,
+      data && data.supports_cluster_status_report);
   }
 }

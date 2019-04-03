@@ -134,9 +134,9 @@ export class ArtifactSettings extends Extension {
 
   static fromJSON(data: any) {
     return new ArtifactSettings(PluginSettings.fromJSON(data.store_config_settings),
-      PluginSettings.fromJSON(data.artifact_config_settings),
-      PluginSettings.fromJSON(data.fetch_artifact_settings),
-      PluginSettings.tryParsing(data));
+                                PluginSettings.fromJSON(data.artifact_config_settings),
+                                PluginSettings.fromJSON(data.fetch_artifact_settings),
+                                PluginSettings.tryParsing(data));
   }
 }
 
@@ -154,18 +154,37 @@ class ConfigRepoSettings extends Extension {
 export class ElasticAgentSettings extends Extension {
   readonly profileSettings: PluginSettings;
   readonly capabilities: ElasticPluginCapabilities;
+  readonly clusterProfileSettings?: PluginSettings;
+  readonly supportsClusterProfiles: boolean;
 
-  constructor(profileSettings: PluginSettings,
+  constructor(supportsClusterProfiles: boolean,
+              profileSettings: PluginSettings,
               capabilities: ElasticPluginCapabilities,
-              pluginSettings?: PluginSettings) {
+              pluginSettings?: PluginSettings,
+              clusterProfileSettings?: PluginSettings) {
     super(ExtensionType.ELASTIC_AGENTS, pluginSettings);
-    this.profileSettings = profileSettings;
-    this.capabilities    = capabilities;
+    this.supportsClusterProfiles = supportsClusterProfiles;
+    this.profileSettings        = profileSettings;
+    this.clusterProfileSettings = clusterProfileSettings;
+    this.capabilities           = capabilities;
   }
 
   static fromJSON(data: any) {
-    return new ElasticAgentSettings(PluginSettings.fromJSON(data.profile_settings),
-      ElasticPluginCapabilities.fromJSON(data.capabilities), PluginSettings.tryParsing(data));
+    const supportsClusterProfiles: boolean = data.supports_cluster_profiles;
+
+    let clusterProfileSettings: PluginSettings | undefined;
+
+    if (supportsClusterProfiles) {
+      clusterProfileSettings = PluginSettings.fromJSON(data.cluster_profile_settings);
+    }
+
+    return new ElasticAgentSettings(
+      supportsClusterProfiles,
+      PluginSettings.fromJSON(data.elastic_agent_profile_settings),
+      ElasticPluginCapabilities.fromJSON(data.capabilities),
+      PluginSettings.tryParsing(data),
+      clusterProfileSettings
+    );
   }
 }
 
@@ -186,8 +205,9 @@ export class AuthorizationSettings extends Extension {
 
   static fromJSON(data: any) {
     return new AuthorizationSettings(PluginSettings.fromJSON(data.auth_config_settings),
-      PluginSettings.fromJSON(data.role_settings), AuthCapabilities.fromJSON(data.capabilities),
-      PluginSettings.tryParsing(data));
+                                     PluginSettings.fromJSON(data.role_settings),
+                                     AuthCapabilities.fromJSON(data.capabilities),
+                                     PluginSettings.tryParsing(data));
   }
 }
 
@@ -202,7 +222,9 @@ class ScmSettings extends Extension {
   }
 
   static fromJSON(data: any) {
-    return new ScmSettings(data.display_name, PluginSettings.fromJSON(data.scm_settings), PluginSettings.tryParsing(data));
+    return new ScmSettings(data.display_name,
+                           PluginSettings.fromJSON(data.scm_settings),
+                           PluginSettings.tryParsing(data));
   }
 }
 
@@ -217,7 +239,9 @@ class TaskSettings extends Extension {
   }
 
   static fromJSON(data: any) {
-    return new TaskSettings(data.display_name, PluginSettings.fromJSON(data.task_settings), PluginSettings.tryParsing(data));
+    return new TaskSettings(data.display_name,
+                            PluginSettings.fromJSON(data.task_settings),
+                            PluginSettings.tryParsing(data));
   }
 }
 
@@ -233,7 +257,7 @@ class PackageRepoSettings extends Extension {
 
   static fromJSON(data: any) {
     return new PackageRepoSettings(PluginSettings.fromJSON(data.package_settings),
-      PluginSettings.fromJSON(data.repository_settings), PluginSettings.tryParsing(data));
+                                   PluginSettings.fromJSON(data.repository_settings), PluginSettings.tryParsing(data));
   }
 }
 

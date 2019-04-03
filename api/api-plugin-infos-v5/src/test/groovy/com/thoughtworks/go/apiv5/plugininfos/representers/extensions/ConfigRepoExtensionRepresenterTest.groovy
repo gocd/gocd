@@ -24,15 +24,12 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class ConfigRepoExtensionRepresenterTest {
   @Test
-  void 'should serialize authorization extension info to JSON'() {
-
+  void 'should serialize config repo extension info to JSON'() {
     def actualJson = toObjectString({
       new ConfigRepoExtensionRepresenter().toJSON(it, PluginInfoMother.createConfigRepoPluginInfo())
     })
-
-
     def expectedJSON = [
-      type                : "configrepo",
+      type           : "configrepo",
       plugin_settings: [
         configurations: [
           [
@@ -47,7 +44,17 @@ class ConfigRepoExtensionRepresenterTest {
         view          : [template: "Template"]
       ]
     ]
+    assertThatJson(actualJson).isEqualTo(expectedJSON)
+  }
 
+  @Test
+  void 'should serialize config repo extension info without plugin settings to JSON'() {
+    def actualJson = toObjectString({
+      new ConfigRepoExtensionRepresenter().toJSON(it, PluginInfoMother.createConfigRepoPluginInfoWithoutPluginSettings())
+    })
+    def expectedJSON = [
+      type: "configrepo"
+    ]
     assertThatJson(actualJson).isEqualTo(expectedJSON)
   }
 }

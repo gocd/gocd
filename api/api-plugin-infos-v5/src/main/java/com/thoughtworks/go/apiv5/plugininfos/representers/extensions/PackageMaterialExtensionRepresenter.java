@@ -26,15 +26,8 @@ public class PackageMaterialExtensionRepresenter extends ExtensionRepresenter {
     @Override
     public void toJSON(OutputWriter extensionWriter, PluginInfo extension) {
         super.toJSON(extensionWriter, extension);
-
         PackageMaterialPluginInfo packageMaterialPluginInfo = (PackageMaterialPluginInfo) extension;
-
-        if (packageMaterialPluginInfo.getPackageSettings() != null) {
-            extensionWriter.addChild("package_settings", taskSettingsWriter -> PluggableInstanceSettingsRepresenter.toJSON(taskSettingsWriter, packageMaterialPluginInfo.getPackageSettings()));
-        }
-
-        if (packageMaterialPluginInfo.getRepositorySettings() != null) {
-            extensionWriter.addChild("repository_settings", taskSettingsWriter -> PluggableInstanceSettingsRepresenter.toJSON(taskSettingsWriter, packageMaterialPluginInfo.getRepositorySettings()));
-        }
+        extensionWriter.addChild("package_settings", taskSettingsWriter -> PluggableInstanceSettingsRepresenter.toJSON(taskSettingsWriter, packageMaterialPluginInfo.getPackageSettings()))
+                .addChild("repository_settings", taskSettingsWriter -> PluggableInstanceSettingsRepresenter.toJSON(taskSettingsWriter, packageMaterialPluginInfo.getRepositorySettings()));
     }
 }

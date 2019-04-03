@@ -26,12 +26,8 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class PluginInfoRepresenterTest {
 
-  @Test
-  void 'it should serialize valid pluginInfo'() {
-    def actualJson = toObjectString({
-      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(PluginInfoMother.createAuthorizationPluginInfo()))
-    })
-    def expectedJson = [
+  static LinkedHashMap<Object, Object> expectedJson() {
+    return [
       "_links"              : [
         "doc"  : [
           "href": apiDocsUrl("#plugin-info")
@@ -116,8 +112,15 @@ class PluginInfoRepresenterTest {
         ]
       ]
     ]
+  }
 
-    assertThatJson(actualJson).isEqualTo(expectedJson)
+  @Test
+  void 'it should serialize valid pluginInfo'() {
+    def actualJson = toObjectString({
+      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(PluginInfoMother.createAuthorizationPluginInfo()))
+    })
+
+    assertThatJson(actualJson).isEqualTo(expectedJson())
   }
 
   @Test
@@ -159,6 +162,122 @@ class PluginInfoRepresenterTest {
         ],
       ],
       "extensions"          : []
+    ]
+
+    assertThatJson(actualJson).isEqualTo(expectedJson)
+  }
+
+  @Test
+  void "should serialize plugin info if about information is not specified"() {
+    def actualJson = toObjectString({
+      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(PluginInfoMother.createAuthorizationPluginInfoWithoutAbout()))
+    })
+    def expectedJson = [
+      "_links"              : [
+        "doc"  : [
+          "href": apiDocsUrl("#plugin-info")
+        ],
+        "find" : [
+          "href": "http://test.host/go/api/admin/plugin_info/:id"
+        ],
+        "self" : [
+          "href": "http://test.host/go/api/admin/plugin_info/plugin_id"
+        ],
+        "image": [
+          "href": "http://test.host/go/api/plugin_images/plugin_id/hash"
+        ]
+      ],
+      "id"                  : "plugin_id",
+      "status"              : [
+        "state": "active"
+      ],
+      "plugin_file_location": "/home/pluginjar/",
+      "bundled_plugin"      : true,
+      "extensions"          : [
+        [
+          type                : "authorization",
+          auth_config_settings: [
+            configurations: [
+              [
+                key     : "key1",
+                metadata: [required: true, secure: false]
+              ],
+              [
+                key     : "key2",
+                metadata: [required: true, secure: false]
+              ]
+            ],
+            view          : [template: "Template"]
+          ],
+          capabilities        : [
+            can_authorize      : true,
+            can_search         : true,
+            supported_auth_type: "Password"
+          ]
+        ]
+      ]
+    ]
+
+    assertThatJson(actualJson).isEqualTo(expectedJson)
+  }
+
+  @Test
+  void "should serialize plugin info if image is not specified"() {
+    def actualJson = toObjectString({
+      PluginInfoRepresenter.toJSON(it, new CombinedPluginInfo(PluginInfoMother.createAuthorizationPluginInfoWithoutImage()))
+    })
+    def expectedJson = [
+      "_links"              : [
+        "doc" : [
+          "href": apiDocsUrl("#plugin-info")
+        ],
+        "find": [
+          "href": "http://test.host/go/api/admin/plugin_info/:id"
+        ],
+        "self": [
+          "href": "http://test.host/go/api/admin/plugin_info/plugin_id"
+        ]
+      ],
+      "id"                  : "plugin_id",
+      "status"              : [
+        "state": "active"
+      ],
+      "plugin_file_location": "/home/pluginjar/",
+      "bundled_plugin"      : true,
+      "about"               : [
+        "name"                    : "GoPlugin",
+        "version"                 : "v1",
+        "target_go_version"       : "goVersion1",
+        "description"             : "go plugin",
+        "target_operating_systems": ["os"],
+        "vendor"                  : [
+          "name": "go",
+          "url" : "goUrl"
+        ],
+      ],
+      "extensions"          : [
+        [
+          type                : "authorization",
+          auth_config_settings: [
+            configurations: [
+              [
+                key     : "key1",
+                metadata: [required: true, secure: false]
+              ],
+              [
+                key     : "key2",
+                metadata: [required: true, secure: false]
+              ]
+            ],
+            view          : [template: "Template"]
+          ],
+          capabilities        : [
+            can_authorize      : true,
+            can_search         : true,
+            supported_auth_type: "Password"
+          ]
+        ]
+      ]
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)

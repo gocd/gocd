@@ -31,9 +31,7 @@ public class ElasticAgentExtensionRepresenter extends ExtensionRepresenter {
         PluggableInstanceSettings elasticAgentProfileSettings = elasticAgentExtension.getProfileSettings();
         PluggableInstanceSettings clusterProfileSettings = elasticAgentExtension.getClusterProfileSettings();
 
-        if (elasticAgentProfileSettings != null) {
-            extensionWriter.addChild("elastic_agent_profile_settings", authConfigWriter -> PluggableInstanceSettingsRepresenter.toJSON(authConfigWriter, elasticAgentProfileSettings));
-        }
+        extensionWriter.addChild("elastic_agent_profile_settings", authConfigWriter -> PluggableInstanceSettingsRepresenter.toJSON(authConfigWriter, elasticAgentProfileSettings));
 
         if (clusterProfileSettings != null && clusterProfileSettings.getConfigurations() != null && clusterProfileSettings.getView() != null) {
             extensionWriter.add("supports_cluster_profiles", true);
@@ -42,11 +40,9 @@ public class ElasticAgentExtensionRepresenter extends ExtensionRepresenter {
             extensionWriter.add("supports_cluster_profiles", false);
         }
 
-        if (elasticAgentExtension.getCapabilities() != null) {
-            extensionWriter.addChild("capabilities", capabilitiesWriter ->
-                    capabilitiesWriter.add("supports_plugin_status_report", elasticAgentExtension.getCapabilities().supportsPluginStatusReport())
-                            .add("supports_agent_status_report", elasticAgentExtension.getCapabilities().supportsAgentStatusReport())
-                            .add("supports_cluster_status_report", elasticAgentExtension.getCapabilities().supportsClusterStatusReport()));
-        }
+        extensionWriter.addChild("capabilities", capabilitiesWriter ->
+                capabilitiesWriter.add("supports_plugin_status_report", elasticAgentExtension.getCapabilities().supportsPluginStatusReport())
+                        .add("supports_agent_status_report", elasticAgentExtension.getCapabilities().supportsAgentStatusReport())
+                        .add("supports_cluster_status_report", elasticAgentExtension.getCapabilities().supportsClusterStatusReport()));
     }
 }

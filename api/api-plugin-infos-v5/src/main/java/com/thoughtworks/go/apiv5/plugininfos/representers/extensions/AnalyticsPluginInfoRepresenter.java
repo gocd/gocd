@@ -27,13 +27,11 @@ public class AnalyticsPluginInfoRepresenter extends ExtensionRepresenter {
 
         AnalyticsPluginInfo analyticsPluginInfo = (AnalyticsPluginInfo) extension;
 
-        if (analyticsPluginInfo.getCapabilities() != null) {
-            extensionWriter.addChild("capabilities", capabilitiesWriter ->
-                    capabilitiesWriter.addChildList("supported_analytics", supportedAnalyticsWriter ->
-                            analyticsPluginInfo.getCapabilities().getSupportedAnalytics().forEach(analytics ->
-                                    supportedAnalyticsWriter.addChild(supportedAnalyticWriter -> supportedAnalyticWriter.add("type", analytics.getType())
-                                            .add("id", analytics.getId())
-                                            .add("title", analytics.getTitle())))));
-        }
+        extensionWriter.addChild("capabilities", capabilitiesWriter ->
+                capabilitiesWriter.addChildList("supported_analytics", supportedAnalyticsWriter ->
+                        analyticsPluginInfo.getCapabilities().getSupportedAnalytics().forEach(analytics ->
+                                supportedAnalyticsWriter.addChild(supportedAnalyticWriter -> supportedAnalyticWriter.add("type", analytics.getType())
+                                        .add("id", analytics.getId())
+                                        .add("title", analytics.getTitle())))));
     }
 }

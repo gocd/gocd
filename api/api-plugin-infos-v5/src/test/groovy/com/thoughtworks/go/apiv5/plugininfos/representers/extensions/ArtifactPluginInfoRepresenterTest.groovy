@@ -74,5 +74,4 @@ class ArtifactPluginInfoRepresenterTest {
     ]
     assertThatJson(actualJson).isEqualTo(expectedJSON)
   }
-
 }

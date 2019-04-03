@@ -22,46 +22,61 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class NotificationPluginInfoRepresenterTest {
+class ExtensionRepresenterTest {
   @Test
-  void 'should serialize notification extension info to JSON'() {
-
-
+  void "should serialize extension with plugin settings"() {
     def actualJson = toObjectString({
-      new NotificationPluginInfoRepresenter().toJSON(it, PluginInfoMother.createNotificationPluginInfo())
+      new AnalyticsPluginInfoRepresenter().toJSON(it, PluginInfoMother.createAnalyticsPluginInfo())
     })
 
-    assertThatJson(actualJson).isEqualTo([
-      type           : "notification",
+    def expectedJSON = [
+      type           : "analytics",
       plugin_settings: [
         configurations: [
           [
             key     : "key1",
-            metadata: [
-              required: true,
-              secure  : false
-            ]
+            metadata: [required: true, secure: false]
           ],
           [
             key     : "key2",
-            metadata: [
-              required: true,
-              secure  : false
-            ]
+            metadata: [required: true, secure: false]
           ]
         ],
         view          : [template: "Template"]
+      ],
+      capabilities   : [
+        supported_analytics: [
+          [
+            type : "Type 1",
+            id   : "Id 1",
+            title: "Title 1"
+          ]
+        ]
       ]
-    ])
+    ]
+
+    assertThatJson(actualJson).isEqualTo(expectedJSON)
   }
 
   @Test
-  void 'should serialize notification extension info without plugin settings to JSON'() {
+  void "should serialize extension without plugin settings"() {
     def actualJson = toObjectString({
-      new NotificationPluginInfoRepresenter().toJSON(it, PluginInfoMother.createNotificationPluginInfoWithoutPluginSettings())
+      new AnalyticsPluginInfoRepresenter().toJSON(it, PluginInfoMother.createAnalyticsPluginInfoWithoutPluginSettings())
     })
-    assertThatJson(actualJson).isEqualTo([
-      type           : "notification"
-    ])
+
+    def expectedJSON = [
+      type        : "analytics",
+      capabilities: [
+        supported_analytics: [
+          [
+            type : "Type 1",
+            id   : "Id 1",
+            title: "Title 1"
+          ]
+        ]
+      ]
+    ]
+
+    assertThatJson(actualJson).isEqualTo(expectedJSON)
   }
 }

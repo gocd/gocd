@@ -28,22 +28,9 @@ public class ArtifactPluginInfoRepresenter extends ExtensionRepresenter {
         super.toJSON(extensionWriter, extension);
 
         ArtifactPluginInfo artifactPluginInfo = (ArtifactPluginInfo) extension;
-        PluggableInstanceSettings artifactConfigSettings = artifactPluginInfo.getArtifactConfigSettings();
-        PluggableInstanceSettings fetchArtifactSettings = artifactPluginInfo.getFetchArtifactSettings();
-        PluggableInstanceSettings storeConfigSettings = artifactPluginInfo.getStoreConfigSettings();
 
-
-        if (storeConfigSettings != null) {
-            extensionWriter.addChild("store_config_settings", storeConfigWriter -> PluggableInstanceSettingsRepresenter.toJSON(storeConfigWriter, storeConfigSettings));
-        }
-
-        if (artifactConfigSettings != null) {
-            extensionWriter.addChild("artifact_config_settings", artifactConfigWriter -> PluggableInstanceSettingsRepresenter.toJSON(artifactConfigWriter, artifactConfigSettings));
-        }
-
-        if (fetchArtifactSettings != null) {
-            extensionWriter.addChild("fetch_artifact_settings", fetchArtifactWriter -> PluggableInstanceSettingsRepresenter.toJSON(fetchArtifactWriter, fetchArtifactSettings));
-        }
-
+        extensionWriter.addChild("store_config_settings", storeConfigWriter -> PluggableInstanceSettingsRepresenter.toJSON(storeConfigWriter, artifactPluginInfo.getStoreConfigSettings()))
+                .addChild("artifact_config_settings", artifactConfigWriter -> PluggableInstanceSettingsRepresenter.toJSON(artifactConfigWriter, artifactPluginInfo.getArtifactConfigSettings()))
+                .addChild("fetch_artifact_settings", fetchArtifactWriter -> PluggableInstanceSettingsRepresenter.toJSON(fetchArtifactWriter, artifactPluginInfo.getFetchArtifactSettings()));
     }
 }

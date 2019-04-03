@@ -27,11 +27,7 @@ public class TaskExtensionRepresenter extends ExtensionRepresenter {
         super.toJSON(extensionWriter, extension);
 
         PluggableTaskPluginInfo taskPluginInfo = (PluggableTaskPluginInfo) extension;
-        extensionWriter.add("display_name", taskPluginInfo.getDisplayName());
-
-        if (taskPluginInfo.getTaskSettings() != null) {
-            extensionWriter.addChild("task_settings", taskSettingsWriter -> PluggableInstanceSettingsRepresenter.toJSON(taskSettingsWriter, taskPluginInfo.getTaskSettings()));
-        }
-
+        extensionWriter.add("display_name", taskPluginInfo.getDisplayName())
+                .addChild("task_settings", taskSettingsWriter -> PluggableInstanceSettingsRepresenter.toJSON(taskSettingsWriter, taskPluginInfo.getTaskSettings()));
     }
 }

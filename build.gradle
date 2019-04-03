@@ -584,6 +584,18 @@ task compileAll { compileAllTask ->
 
 task prepare(dependsOn: compileAll)
 
+task gitRelatedTests { thisTask ->
+  group LifecycleBasePlugin.VERIFICATION_GROUP
+  description = "Run all Git related tests"
+  forAllTask { Test eachTestTask ->
+    eachTestTask.filter({ TestFilter testFilter ->
+      testFilter.setFailOnNoMatchingTests(false)
+      testFilter.setIncludePatterns("*Git*Test*")
+    })
+    thisTask.dependsOn eachTestTask
+  }
+}
+
 task sparkTest { thisTask ->
   group LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all api tests"

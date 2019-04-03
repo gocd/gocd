@@ -4,6 +4,7 @@ import com.thoughtworks.go.apiv5.plugininfos.representers.Helper.PluginInfoMothe
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
@@ -27,7 +28,7 @@ class PluginInfosRepresenterTest {
           "href": "http://test.host/go/api/admin/plugin_info"
         ],
         "doc" : [
-          "href": "https://api.gocd.org/19.3.0/#plugin-info"
+          "href": apiDocsUrl("#plugin-info")
         ],
         "find": [
           "href": "http://test.host/go/api/admin/plugin_info/:id"
@@ -41,7 +42,7 @@ class PluginInfosRepresenterTest {
                 "href": "http://test.host/go/api/admin/plugin_info/plugin_id"
               ],
               "doc" : [
-                "href": "https://api.gocd.org/19.3.0/#plugin-info"
+                "href": apiDocsUrl("#plugin-info")
               ],
               "find": [
                 "href": "http://test.host/go/api/admin/plugin_info/:id"
@@ -92,7 +93,7 @@ class PluginInfosRepresenterTest {
                 "href": "http://test.host/go/api/admin/plugin_info/plugin_id"
               ],
               "doc"  : [
-                "href": "https://api.gocd.org/19.3.0/#plugin-info"
+                "href": apiDocsUrl("#plugin-info")
               ],
               "image": [
                 "href": "http://test.host/go/api/plugin_images/plugin_id/hash"

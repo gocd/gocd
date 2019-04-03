@@ -277,7 +277,7 @@ subprojects {
   }
   apply plugin: 'base'
   apply plugin: "com.github.hierynomus.license"
-  apply plugin: 'com.github.jk1.dependency-license-report'
+  apply plugin: 'com.github.ben-manes.versions'
 
   license {
     skipExistingHeaders = true
@@ -305,49 +305,76 @@ subprojects {
     }
   }
 
-  apply plugin: 'java'
-  apply plugin: 'maven'
-  apply plugin: 'com.github.ben-manes.versions'
+  if (!project.fileTree("src/main/java").files.isEmpty()) {
+    apply plugin: 'java'
+    apply plugin: 'com.github.jk1.dependency-license-report'
 
-  dependencyUpdates.resolutionStrategy {
-    componentSelection { rules ->
-      rules.all { ComponentSelection selection ->
-        boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview'].any { qualifier ->
-          selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+    dependencyUpdates.resolutionStrategy {
+      componentSelection { rules ->
+        rules.all { ComponentSelection selection ->
+          boolean rejected = ['alpha', 'beta', 'rc', 'cr', 'm', 'preview'].any { qualifier ->
+            selection.candidate.version ==~ /(?i).*[.-]${qualifier}[.\d-]*/
+          }
+          if (rejected) {
+            selection.reject('Release candidate')
+          }
         }
-        if (rejected) {
-          selection.reject('Release candidate')
+      }
+    }
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+    buildDir = "${projectDir}/target"
+
+    configurations {
+      packagingOnly { transitive = false }
+      extractedAtTopLevel { transitive = false }
+      fatJarConfig
+
+      testOutput {
+        extendsFrom testRuntime
+        transitive = true
+      }
+    }
+
+    sourceSets {
+      main {
+        java {
+          compileClasspath += configurations.compileOnly
+        }
+      }
+      test {
+        java {
+          compileClasspath += configurations.compileOnly
+          runtimeClasspath += configurations.compileOnly
         }
       }
     }
-  }
 
-  sourceCompatibility = 1.8
-  targetCompatibility = 1.8
-  buildDir = "${projectDir}/target"
-
-  configurations {
-    packagingOnly { transitive = false }
-    extractedAtTopLevel { transitive = false }
-    fatJarConfig
-
-    testOutput {
-      extendsFrom testRuntime
-      transitive = true
+    licenseReport {
+      renderers = [new JsonReportRenderer("index.json", false)]
+      excludeGroups = ["com.thoughtworks.go"]
+      filters = [new LicenseBundleNormalizer()]
+      outputDir = file("${project.buildDir}/reports/dependency-license")
+      configurations = ['compile', 'compileOnly', 'packagingInLibDir']
     }
-  }
 
-  sourceSets {
-    main {
-      java {
-        compileClasspath += configurations.compileOnly
+    tasks.withType(ReportTask) { ReportTask reportTask ->
+      reportTask.outputs.cacheIf { true }
+      project.configurations.each { config ->
+        if (config.name in project.licenseReport.configurations) {
+          reportTask.inputs.files(config)
+        }
       }
     }
-    test {
-      java {
-        compileClasspath += configurations.compileOnly
-        runtimeClasspath += configurations.compileOnly
-      }
+
+    tasks.withType(License) {
+      outputs.upToDateWhen { false }
+    }
+
+    task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
+      archiveClassifier = 'tests'
+      from sourceSets.test.output
     }
   }
 
@@ -359,25 +386,8 @@ subprojects {
     delete 'out'
   }
 
-  licenseReport {
-    renderers = [new JsonReportRenderer("index.json", false)]
-    excludeGroups = ["com.thoughtworks.go"]
-    filters = [new LicenseBundleNormalizer()]
-    outputDir = file("${project.buildDir}/reports/dependency-license")
-    configurations = ['compile', 'compileOnly', 'packagingInLibDir']
-  }
-
   clean.dependsOn cleanLogs, cleanApiOut
   check.dependsOn 'license'
-
-  tasks.withType(ReportTask) { ReportTask reportTask ->
-    reportTask.outputs.cacheIf { true }
-    project.configurations.each { config ->
-      if (config.name in project.licenseReport.configurations) {
-        reportTask.inputs.files(config)
-      }
-    }
-  }
 
   tasks.withType(Jar) { jarTask ->
     manifest {
@@ -426,10 +436,6 @@ subprojects {
     options.compilerArgs += '-Xlint:-deprecation'
   }
 
-  tasks.withType(License) {
-    outputs.upToDateWhen { false }
-  }
-
   project.afterEvaluate {
     tasks.withType(License) { License thisTask ->
       thisTask.outputs.upToDateWhen { false }
@@ -444,11 +450,6 @@ subprojects {
         thisTask.source -= mappedSourceSet.resources
       }
     }
-  }
-
-  task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
-    archiveClassifier = 'tests'
-    from sourceSets.test.output
   }
 
   tasks.withType(Test) { Test testTask ->
@@ -565,7 +566,6 @@ subprojects {
 
   project.configurations*.exclude(group: 'xalan')
   project.configurations*.exclude(group: 'xml-apis')
-
 }
 
 task allDependencies {

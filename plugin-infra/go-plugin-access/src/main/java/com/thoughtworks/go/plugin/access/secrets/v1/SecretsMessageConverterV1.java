@@ -81,6 +81,13 @@ public class SecretsMessageConverterV1 implements SecretsMessageConverter {
         return SecretDTO.fromJSONList(responseBody).stream().map(SecretDTO::toDomainModel).collect(Collectors.toList());
     }
 
+    @Override
+    public String getErrorMessageFromResponse(String responseBody) {
+        String errorMessage = (String) new Gson().fromJson(responseBody, Map.class).get("message");
+
+        return errorMessage;
+    }
+
     private JsonObject mapToJsonObject(Map<String, String> configuration) {
         final JsonObject properties = new JsonObject();
         configuration.forEach(properties::addProperty);

@@ -19,7 +19,7 @@ package com.thoughtworks.go.apiv2.shared.representers
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.security.GoCipher
-import org.hamcrest.MatcherAssert
+import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.Test
 import spark.HaltException
 
@@ -158,6 +158,6 @@ class EnvironmentVariableRepresenterTest {
       EnvironmentVariableRepresenter.fromJSON(jsonReader)
     })
 
-    MatcherAssert.assertThat(haltException.body(), is("{\n  \"message\" : \"Environment variable must contain either 'value' or 'encrypted_value'\"\n}"))
+    JsonFluentAssert.assertThatJson(haltException.body()).isEqualTo("{\"message\" : \"Environment variable must contain either 'value' or 'encrypted_value'\"}")
   }
 }

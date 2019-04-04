@@ -50,6 +50,7 @@ import com.thoughtworks.go.server.dao.StageDao;
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
+import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
@@ -120,6 +121,8 @@ public class BuildAssignmentServiceIntegrationTest {
     @Autowired private DependencyMaterialUpdateNotifier notifier;
     @Autowired private MaintenanceModeService maintenanceModeService;
     @Autowired private SecretParamResolver secretParamResolver;
+    @Autowired private ConsoleService consoleService;
+    @Autowired private JobStatusTopic jobStatusTopic;
 
     private PipelineConfig evolveConfig;
     private static final String STAGE_NAME = "dev";
@@ -396,7 +399,8 @@ public class BuildAssignmentServiceIntegrationTest {
         };
 
         final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService,
-                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver);
+                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler,
+                maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver, jobStatusTopic, consoleService);
 
         final Throwable[] fromThread = new Throwable[1];
         buildAssignmentServiceUnderTest.onTimer();
@@ -437,7 +441,8 @@ public class BuildAssignmentServiceIntegrationTest {
         when(mockGoConfigService.getCurrentConfig()).thenReturn(config);
 
         buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService,
-                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver);
+                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService,
+                systemEnvironment, secretParamResolver, jobStatusTopic, consoleService);
         buildAssignmentService.onTimer();
 
         AgentConfig agentConfig = AgentMother.localAgent();

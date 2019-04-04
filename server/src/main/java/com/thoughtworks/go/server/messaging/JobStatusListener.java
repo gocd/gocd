@@ -24,6 +24,8 @@ import com.thoughtworks.go.server.service.StageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import static java.util.Optional.ofNullable;
+
 @Component
 public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
     private final JobStatusTopic jobStatusTopic;
@@ -58,6 +60,7 @@ public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
             }
             JobInstance job = stage.findJob(message.getJobIdentifier().getBuildName());
             job.setPlan(jobInstanceSqlMapDao.loadPlan(job.getId()));
+            job.setAgentUuid(ofNullable(job.getAgentUuid()).orElse(message.getAgentUuid()));
 
             //send job-completion message to elastic agent plugin
             elasticAgentPluginService.jobCompleted(job);

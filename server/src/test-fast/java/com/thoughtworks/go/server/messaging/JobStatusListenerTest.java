@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.service.ElasticAgentPluginService;
 import com.thoughtworks.go.server.service.StageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
@@ -142,6 +143,26 @@ class JobStatusListenerTest {
         jobStatusListener.onMessage(jobStatusMessage);
 
         verify(elasticAgentPluginService, times(1)).jobCompleted(jobInstance);
+    }
+
+    @Test
+    void shouldPostAMessageToElasticAgentPluginServiceWithAgentUuidFromJobStatusMessageWhenAgentIsNotAssignedToAJob() {
+        JobIdentifier jobIdentifier = JobIdentifierMother.anyBuildIdentifier();
+        JobInstance originalJobInstance = JobInstanceMother.failed(jobIdentifier.getBuildName());
+        originalJobInstance.setAgentUuid(null);
+        Stage stage = StageMother.passedStageInstance(jobIdentifier.getStageName(), jobIdentifier.getBuildName(), jobIdentifier.getPipelineName());
+        stage.setJobInstances(new JobInstances(originalJobInstance.clone()));
+        JobStatusMessage jobStatusMessage = new JobStatusMessage(jobIdentifier, JobState.Completed, "agent1");
+
+        when(stageService.findStageWithIdentifier(jobStatusMessage.getStageIdentifier())).thenReturn(stage);
+
+        jobStatusListener.onMessage(jobStatusMessage);
+
+        ArgumentCaptor<JobInstance> argumentCaptor = ArgumentCaptor.forClass(JobInstance.class);
+        verify(elasticAgentPluginService, times(1)).jobCompleted(argumentCaptor.capture());
+
+        assertThat(argumentCaptor.getValue().getAgentUuid()).isEqualTo("agent1");
+        assertThat(originalJobInstance.getAgentUuid()).isNull();
     }
 
     @Test

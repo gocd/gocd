@@ -20,13 +20,17 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.domain.BuildComposer;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
+import com.thoughtworks.go.server.messaging.JobStatusMessage;
+import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.websocket.Agent;
@@ -45,6 +49,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
+import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections4.CollectionUtils.forAllDo;
@@ -74,6 +79,8 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private final ElasticAgentPluginService elasticAgentPluginService;
     private final SystemEnvironment systemEnvironment;
     private SecretParamResolver secretParamResolver;
+    private JobStatusTopic jobStatusTopic;
+    private ConsoleService consoleService;
 
     @Autowired
     public BuildAssignmentService(GoConfigService goConfigService, JobInstanceService jobInstanceService,
@@ -82,7 +89,8 @@ public class BuildAssignmentService implements ConfigChangedListener {
                                   ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService,
                                   BuilderFactory builderFactory, AgentRemoteHandler agentRemoteHandler,
                                   MaintenanceModeService maintenanceModeService, ElasticAgentPluginService elasticAgentPluginService,
-                                  SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver) {
+                                  SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver, JobStatusTopic jobStatusTopic,
+                                  ConsoleService consoleService) {
         this.goConfigService = goConfigService;
         this.jobInstanceService = jobInstanceService;
         this.scheduleService = scheduleService;
@@ -97,6 +105,8 @@ public class BuildAssignmentService implements ConfigChangedListener {
         this.elasticAgentPluginService = elasticAgentPluginService;
         this.systemEnvironment = systemEnvironment;
         this.secretParamResolver = secretParamResolver;
+        this.jobStatusTopic = jobStatusTopic;
+        this.consoleService = consoleService;
     }
 
     public void initialize() {
@@ -341,12 +351,25 @@ public class BuildAssignmentService implements ConfigChangedListener {
                     return new BuildWork(buildAssignment, systemEnvironment.consoleLogCharset());
                 });
             });
-
         } catch (RecordNotFoundException e) {
             removeJobIfNotPresentInCruiseConfig(goConfigService.getCurrentConfig(), job);
             throw e;
-        }
+        } catch (SecretResolutionFailureException e) {
+            JobInstance instance = jobInstanceService.buildById(job.getJobId());
+            logSecretsResolutionFailure(job, e);
+            scheduleService.failJob(instance);
+            jobStatusTopic.post(new JobStatusMessage(job.getIdentifier(), instance.getState(), agent.getUuid()));
 
+            throw e;
+        }
+    }
+
+    private void logSecretsResolutionFailure(JobPlan job, SecretResolutionFailureException e) {
+        try {
+            consoleService.appendToConsoleLog(job.getIdentifier(), format("Error while resolving secret params, reason: %s", e.getMessage()));
+        } catch (IllegalArtifactLocationException e1) {
+            LOGGER.error(e1.getMessage(), e1);
+        }
     }
 
     private void resolveSecretParams(BuildAssignment buildAssignment) {

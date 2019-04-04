@@ -35,7 +35,7 @@ describe("ConfigReposModal", () => {
     ModalManager.closeAll();
   });
 
-  it("should render error message and exclamation icon when connection is not successful", (done) => {
+  xit("should render error message and exclamation icon when connection is not successful", (done) => {
     jasmine.Ajax.withMock(() => {
       const response = {message: "Error while parsing material URL"};
 
@@ -64,7 +64,7 @@ describe("ConfigReposModal", () => {
     });
   });
 
-  it("should render success icon when connection is successful", (done) => {
+  xit("should render success icon when connection is successful", (done) => {
     jasmine.Ajax.withMock(() => {
       const response = {message: "Connection OK."};
 

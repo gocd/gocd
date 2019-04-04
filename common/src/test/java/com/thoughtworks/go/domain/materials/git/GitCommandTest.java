@@ -733,6 +733,12 @@ public class GitCommandTest {
         assertThat(ignoredFile.exists()).isTrue();
     }
 
+    @Test
+    void shouldNotThrowExceptionWhenSubmoduleIsAddedWithACustomName() {
+        executeOnDir(gitLocalRepoDir, "git", "submodule", "add", "--name", "Custom", gitFooBranchBundle.projectRepositoryUrl());
+        git.fetchAndResetToHead(inMemoryConsumer());
+    }
+
     private List<File> allFilesIn(File directory, String prefixOfFiles) {
         return new ArrayList<>(FileUtils.listFiles(directory, andFileFilter(fileFileFilter(), prefixFileFilter(prefixOfFiles)), null));
     }

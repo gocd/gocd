@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
@@ -367,7 +368,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private void logSecretsResolutionFailure(JobPlan job, SecretResolutionFailureException e) {
         try {
             consoleService.appendToConsoleLog(job.getIdentifier(), format("Error while resolving secret params, reason: %s", e.getMessage()));
-        } catch (IllegalArtifactLocationException e1) {
+        } catch (IllegalArtifactLocationException | IOException e1) {
             LOGGER.error(e1.getMessage(), e1);
         }
     }

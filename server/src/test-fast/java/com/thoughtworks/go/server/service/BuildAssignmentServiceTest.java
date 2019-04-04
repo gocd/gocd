@@ -42,6 +42,7 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -270,21 +271,18 @@ class BuildAssignmentServiceTest {
 
     @Nested
     class assignWorkToAgent {
-
-
         @Test
         void shouldResolveSecretParamsInEnvironmentVariableContext() {
             final EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
             environmentVariableContext.setProperty("Foo", "{{SECRET:[secret_config_id][lookup_password]}}", true);
             environmentVariableContext.setProperty("Bar", "some-value", false);
 
-            final TransactionTemplate transactionTemplate = dummy();
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
             final AgentInstance agentInstance = mock(AgentInstance.class);
             final Pipeline pipeline = mock(Pipeline.class);
             final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
-            final SecretParamResolver secretParamResolver = mock(SecretParamResolver.class);
+
             when(agentInstance.isRegistered()).thenReturn(true);
             when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
@@ -330,7 +328,7 @@ class BuildAssignmentServiceTest {
         }
 
         @Test
-        void shouldFailJobIfSecretsResolutionFails() throws IllegalArtifactLocationException {
+        void shouldFailJobIfSecretsResolutionFails() throws Exception {
             final MaterialRevisions materialRevisions = new MaterialRevisions();
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());

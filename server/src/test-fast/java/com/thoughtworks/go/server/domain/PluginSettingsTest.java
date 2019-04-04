@@ -27,6 +27,7 @@ import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
+import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.security.CryptoException;
@@ -102,7 +103,7 @@ public class PluginSettingsTest {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("k1", new Metadata(true, false)));
         pluginConfigurations.add(new PluginConfiguration("k2", new Metadata(true, true)));
-        ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfo(null, null, new PluggableInstanceSettings(pluginConfigurations));
+        ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfo(null, null, new PluggableInstanceSettings(pluginConfigurations), new Capabilities());
 
         ArrayList<ConfigurationProperty> configurationProperties = new ArrayList<>();
         configurationProperties.add(new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1")));
@@ -122,7 +123,7 @@ public class PluginSettingsTest {
         ArrayList<PluginConfiguration> pluginConfigurations = new ArrayList<>();
         pluginConfigurations.add(new PluginConfiguration("k1", new Metadata(true, false)));
         pluginConfigurations.add(new PluginConfiguration("k2", new Metadata(true, true)));
-        ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfo(null, null, new PluggableInstanceSettings(pluginConfigurations));
+        ConfigRepoPluginInfo pluginInfo = new ConfigRepoPluginInfo(null, null, new PluggableInstanceSettings(pluginConfigurations), new Capabilities());
 
         ConfigurationProperty configProperty1 = new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("v1"));
         ConfigurationProperty configProperty2 = new ConfigurationProperty(new ConfigurationKey("k2"), new EncryptedConfigurationValue(new GoCipher().encrypt("v2")));

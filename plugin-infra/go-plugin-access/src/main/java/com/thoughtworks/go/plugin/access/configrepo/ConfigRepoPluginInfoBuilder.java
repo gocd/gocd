@@ -18,6 +18,7 @@ package com.thoughtworks.go.plugin.access.configrepo;
 
 import com.thoughtworks.go.plugin.access.common.PluginInfoBuilder;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.configrepo.Capabilities;
 import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,11 @@ public class ConfigRepoPluginInfoBuilder implements PluginInfoBuilder<ConfigRepo
     public ConfigRepoPluginInfo pluginInfoFor(GoPluginDescriptor descriptor) {
         PluggableInstanceSettings pluggableInstanceSettings = getPluginSettingsAndView(descriptor, extension);
 
-        return new ConfigRepoPluginInfo(descriptor, image(descriptor.id()), pluggableInstanceSettings);
+        return new ConfigRepoPluginInfo(descriptor, image(descriptor.id()), pluggableInstanceSettings, capabilities(descriptor.id()));
+    }
+
+    private Capabilities capabilities(String pluginId) {
+        return extension.getCapabilities(pluginId);
     }
 
     private com.thoughtworks.go.plugin.domain.common.Image image(String pluginId) {

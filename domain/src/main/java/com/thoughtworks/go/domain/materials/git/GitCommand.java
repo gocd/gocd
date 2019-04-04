@@ -172,9 +172,7 @@ public class GitCommand extends SCMCommand {
 
     private void cleanAllUnversionedFiles(ConsoleOutputStreamConsumer outputStreamConsumer) {
         log(outputStreamConsumer, "Cleaning all unversioned files in working copy");
-        for (Map.Entry<String, String> submoduleFolder : submoduleUrls().entrySet()) {
-            cleanUnversionedFiles(new File(workingDir, submoduleFolder.getKey()));
-        }
+        cleanUnversionedFilesInAllSubmodules();
         cleanUnversionedFiles(workingDir);
     }
 
@@ -275,6 +273,14 @@ public class GitCommand extends SCMCommand {
     private void cleanUnversionedFiles(File workingDir) {
         CommandLine gitCmd = git(environment)
                 .withArgs("clean", gitCleanArgs())
+                .withWorkingDir(workingDir);
+        runOrBomb(gitCmd);
+    }
+
+    private void cleanUnversionedFilesInAllSubmodules() {
+        CommandLine gitCmd = git(environment)
+                .withArgs("submodule", "foreach", "--recursive")
+                .withArgs("git", "clean", gitCleanArgs())
                 .withWorkingDir(workingDir);
         runOrBomb(gitCmd);
     }

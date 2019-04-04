@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -108,7 +108,7 @@ public class ElasticAgentPluginInfoBuilderTest {
         assertThat(pluginInfo.getImage(), is(icon));
         assertThat(pluginInfo.getElasticAgentProfileSettings(), is(new PluggableInstanceSettings(elasticAgentProfileConfigurations, new PluginView("elastic_agent_profile_view"))));
         assertThat(pluginInfo.getClusterProfileSettings(), is(new PluggableInstanceSettings(clusterProfileConfigurations, new PluginView("cluster_profile_view"))));
-        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html"))));
+        assertNull(pluginInfo.getPluginSettings());
         assertFalse(pluginInfo.supportsStatusReport());
     }
 
@@ -184,5 +184,38 @@ public class ElasticAgentPluginInfoBuilderTest {
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfoBuilder(extension).pluginInfoFor(descriptor);
 
         assertThat(pluginInfo.getCapabilities(), is(capabilities));
+    }
+
+    @Test
+    public void shouldFetchPluginSettingsForPluginsNotSupportingClusterProfiles() {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+
+        PluginSettingsConfiguration pluginSettingsConfiguration = new PluginSettingsConfiguration();
+        pluginSettingsConfiguration.add(new PluginSettingsProperty("ami-id", "ami-123"));
+
+        when(extension.getPluginSettingsConfiguration(descriptor.id())).thenReturn(pluginSettingsConfiguration);
+        when(extension.getPluginSettingsView(descriptor.id())).thenReturn("some html");
+
+        when(extension.supportsClusterProfiles("plugin1")).thenReturn(false);
+
+        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
+        ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
+
+        assertThat(pluginInfo.getPluginSettings(), is(new PluggableInstanceSettings(builder.configurations(pluginSettingsConfiguration), new PluginView("some html"))));
+    }
+
+    @Test
+    public void shouldNotFetchPluginSettingsForPluginsSupportingClusterProfiles() {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin1", null, null, null, null, false);
+
+        when(extension.supportsClusterProfiles("plugin1")).thenReturn(true);
+
+        ElasticAgentPluginInfoBuilder builder = new ElasticAgentPluginInfoBuilder(extension);
+        ElasticAgentPluginInfo pluginInfo = builder.pluginInfoFor(descriptor);
+
+        assertNull(pluginInfo.getPluginSettings());
+
+        verify(extension, never()).getPluginSettingsConfiguration(descriptor.id());
+        verify(extension, never()).getPluginSettingsView(descriptor.id());
     }
 }

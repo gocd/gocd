@@ -29,9 +29,11 @@ import com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo;
 import com.thoughtworks.go.plugin.domain.packagematerial.PackageMaterialPluginInfo;
 import com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo;
 import com.thoughtworks.go.plugin.domain.scm.SCMPluginInfo;
+import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PluginInfoMother {
@@ -124,6 +126,14 @@ public class PluginInfoMother {
 
 
         return new PackageMaterialPluginInfo(descriptor, pluggableRepositorySettings, pluggablePackageSettings, null);
+    }
+
+
+    public static SecretsPluginInfo createSecretConfigPluginInfo() {
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), Collections.emptyList()), "/home/pluginjar/", null, true);
+
+        SecretsPluginInfo secretsPluginInfo = new SecretsPluginInfo(descriptor, getPluggableSettings(), new Image("content_type", "data", "hash"));
+        return secretsPluginInfo;
     }
 
     public static NotificationPluginInfo createNotificationPluginInfo() {

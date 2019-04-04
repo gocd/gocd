@@ -141,8 +141,8 @@ abstract class BaseElasticProfileModal extends Modal {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });
 
-    const pluginSettings = (this.pluginInfo()
-                                .firstExtensionWithPluginSettings()! as ElasticAgentSettings).profileSettings;
+    const elasticAgentExtension        = this.pluginInfo().extensionOfType(ExtensionType.ELASTIC_AGENTS);
+    const elasticProfileConfigurations = (elasticAgentExtension as ElasticAgentSettings).profileSettings;
 
     return (
       <div class={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
@@ -171,7 +171,7 @@ abstract class BaseElasticProfileModal extends Modal {
         <div class={styles.elasticProfileModalFormBody}>
           <div class="row collapse">
             <AngularPluginNew
-              pluginInfoSettings={stream(pluginSettings)}
+              pluginInfoSettings={stream(elasticProfileConfigurations)}
               configuration={this.elasticProfile().properties()}
               key={this.pluginInfo().id}/>
           </div>

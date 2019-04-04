@@ -176,7 +176,7 @@ class P4MaterialConfigTest {
             p4MaterialConfig.setPassword("{{SECRET:[secret_config_id][password]}}");
 
             assertThat(p4MaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(p4MaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret configs secret_config_id does not exist");
+            assertThat(p4MaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret config with ids `secret_config_id` does not exist.");
         }
     }
 

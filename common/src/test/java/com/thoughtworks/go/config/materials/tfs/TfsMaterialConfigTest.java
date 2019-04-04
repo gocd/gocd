@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class TfsMaterialConfigUpdateTest {
+class TfsMaterialConfigTest {
     private TfsMaterialConfig tfsMaterialConfig;
 
     @BeforeEach
@@ -290,7 +290,7 @@ class TfsMaterialConfigUpdateTest {
             assertThat(tfsMaterialConfig.validateTree(validationContext)).isFalse();
             assertThat(tfsMaterialConfig.errors().get("url"))
                     .hasSize(2)
-                    .contains("Only password can be specified as secret params", "Secret configs secret_config_id_1, secret_config_id_2 does not exist");
+                    .contains("Only password can be specified as secret params", "Secret config with ids `secret_config_id_1, secret_config_id_2` does not exist.");
         }
 
         @Test
@@ -344,7 +344,7 @@ class TfsMaterialConfigUpdateTest {
             tfsMaterialConfig.setPassword("{{SECRET:[secret_config_id][password]}}");
 
             assertThat(tfsMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(tfsMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret configs secret_config_id does not exist");
+            assertThat(tfsMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret config with ids `secret_config_id` does not exist.");
         }
     }
 

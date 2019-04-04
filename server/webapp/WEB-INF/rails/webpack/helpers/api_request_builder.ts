@@ -225,8 +225,9 @@ export class ApiRequestBuilder {
       headers = _.assign({}, options.headers);
     }
 
-    if (apiVersion !== null) {
-      headers.Accept = this.versionHeader(apiVersion as ApiVersion);
+    if (apiVersion !== null || apiVersion !== undefined) {
+      headers.Accept              = this.versionHeader(apiVersion as ApiVersion);
+      headers["X-Requested-With"] = "XMLHttpRequest";
     }
 
     if (options && !_.isEmpty(options.etag)) {
@@ -236,8 +237,6 @@ export class ApiRequestBuilder {
     if ((!options || !options.payload) && ApiRequestBuilder.isAnUpdate(method)) {
       headers["X-GoCD-Confirm"] = "true";
     }
-
-    headers["X-Requested-With"] = "XMLHttpRequest";
 
     return headers;
   }

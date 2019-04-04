@@ -19,8 +19,7 @@ import SparkRoutes from "helpers/spark_routes";
 import {ElasticProfile, ElasticProfileJSON, ElasticProfiles, ProfileUsage, ProfileUsageJSON} from "./types";
 
 export class ElasticProfilesCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v1;
-
+  private static API_VERSION_HEADER = ApiVersion.v2;
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.elasticProfileListPath(), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => {

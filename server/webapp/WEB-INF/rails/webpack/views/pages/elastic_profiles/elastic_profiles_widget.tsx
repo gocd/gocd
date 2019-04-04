@@ -185,10 +185,18 @@ export interface ProfileAttrs {
 
 export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
 
-  static profileHeader(profileId: string) {
-    return (<KeyValuePair inline={true} data={new Map([
-                                                        ["Profile Id", profileId]
-                                                      ])}/>);
+  static profileHeader(profileId: string, clusterProfileId: string) {
+    let optionalClusterProfileId;
+    if (clusterProfileId) {
+      optionalClusterProfileId = (
+        <KeyValuePair inline={true} data={new Map([["Cluster Profile Id", clusterProfileId]])}/>
+      );
+    }
+
+    return [
+      <KeyValueTitle image={null} titleTestId="elastic-profile-id" title={`Profile Id: ${profileId}`}/>,
+      optionalClusterProfileId
+    ];
   }
 
   view(vnode: m.Vnode<ProfileAttrs, {}>) {
@@ -203,7 +211,7 @@ export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
         <Icons.Usage data-test-id="show-usage-elastic-profile" onclick={vnode.attrs.onShowUsage}/>
       </IconGroup>
     ];
-    return (<CollapsiblePanel header={ElasticProfileWidget.profileHeader(elasticProfile.id())}
+    return (<CollapsiblePanel header={ElasticProfileWidget.profileHeader(elasticProfile.id(), elasticProfile.clusterProfileId())}
                               actions={actions}
                               dataTestId={"elastic-profile"}>
       <KeyValuePair data={elasticProfile.properties().asMap()}/>

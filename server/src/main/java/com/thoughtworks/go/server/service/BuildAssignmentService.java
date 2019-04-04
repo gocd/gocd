@@ -367,7 +367,9 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
     private void logSecretsResolutionFailure(JobPlan job, SecretResolutionFailureException e) {
         try {
-            consoleService.appendToConsoleLog(job.getIdentifier(), format("Error while resolving secret params, reason: %s", e.getMessage()));
+            final String description = format("\nJob for pipeline '%s' failed due to errors while resolving secret params.", job.getIdentifier().buildLocator());
+            consoleService.appendToConsoleLog(job.getIdentifier(), description);
+            consoleService.appendToConsoleLog(job.getIdentifier(), format("\nReason: %s\n", e.getMessage()));
         } catch (IllegalArtifactLocationException | IOException e1) {
             LOGGER.error(e1.getMessage(), e1);
         }

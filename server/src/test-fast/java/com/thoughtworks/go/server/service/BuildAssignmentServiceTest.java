@@ -352,7 +352,7 @@ class BuildAssignmentServiceTest {
                     .isInstanceOf(SecretResolutionFailureException.class);
 
             InOrder inOrder = inOrder(scheduleService, jobStatusTopic, consoleService);
-            inOrder.verify(consoleService).appendToConsoleLog(jobPlan1.getIdentifier(), "Error while resolving secret params, reason: Failed resolving params for keys: 'key1'");
+            inOrder.verify(consoleService, times(2)).appendToConsoleLog(eq(jobPlan1.getIdentifier()), anyString());
             inOrder.verify(scheduleService).failJob(jobInstance);
             inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan1.getIdentifier(), JobState.Completed, "agent_uuid"));
         }

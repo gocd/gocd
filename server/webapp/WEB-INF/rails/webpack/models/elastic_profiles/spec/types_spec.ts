@@ -14,104 +14,208 @@
  * limitations under the License.
  */
 
-import {ElasticProfile} from "models/elastic_profiles/types";
+import {ClusterProfile, ElasticProfile} from "models/elastic_profiles/types";
 import {EncryptedValue, PlainTextValue} from "models/shared/config_value";
 import {Configuration, Configurations} from "models/shared/configuration";
 
-describe("Elastic Profile Types", () => {
+describe("Types", () => {
+  describe("Elastic Profiles", () => {
+    describe("Validation", () => {
+      it("should validate elastic profile", () => {
+        const elasticProfile = new ElasticProfile("", "", "", new Configurations([]));
+        expect(elasticProfile.isValid()).toBe(false);
+        expect(elasticProfile.errors().count()).toBe(2);
+        expect(elasticProfile.errors().keys().sort()).toEqual(["id", "pluginId"]);
+      });
 
-  describe("Validation", () => {
-    it("should validate elastic profile", () => {
-      const elasticProfile = new ElasticProfile("", "", new Configurations([]));
-      expect(elasticProfile.isValid()).toBe(false);
-      expect(elasticProfile.errors().count()).toBe(2);
-      expect(elasticProfile.errors().keys().sort()).toEqual(["id", "pluginId"]);
+      it("should validate elastic profile id format", () => {
+        const elasticProfile = new ElasticProfile("invalid id", "pluginId", "foo", new Configurations([]));
+        expect(elasticProfile.isValid()).toBe(false);
+        expect(elasticProfile.errors().count()).toBe(1);
+        expect(elasticProfile.errors().keys()).toEqual(["id"]);
+        expect(elasticProfile.errors().errors("id"))
+          .toEqual(["Invalid Id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period)."]);
+      });
     });
 
-    it("should validate elastic profile id format", () => {
-      const elasticProfile = new ElasticProfile("invalid id", "pluginId", new Configurations([]));
-      expect(elasticProfile.isValid()).toBe(false);
-      expect(elasticProfile.errors().count()).toBe(1);
-      expect(elasticProfile.errors().keys()).toEqual(["id"]);
-      expect(elasticProfile.errors().errors("id"))
-        .toEqual(["Invalid Id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period)."]);
+    describe("Serialization and Deserialization", () => {
+      it("should serialize elastic profile", () => {
+        const elasticProfile = new ElasticProfile(
+          "docker1",
+          "cd.go.docker",
+          "prod-cluster",
+          new Configurations([
+                               new Configuration("image", new PlainTextValue("gocd/server")),
+                               new Configuration("secret", new EncryptedValue("alskdad"))
+                             ]));
+
+        expect(JSON.parse(JSON.stringify(elasticProfile.toJSON()))).toEqual({
+                                                                              id: "docker1",
+                                                                              plugin_id: "cd.go.docker",
+                                                                              cluster_profile_id: "prod-cluster",
+                                                                              properties: [{
+                                                                                key: "image",
+                                                                                value: "gocd/server"
+                                                                              },
+                                                                                {
+                                                                                  key: "secret",
+                                                                                  encrypted_value: "alskdad"
+                                                                                }
+                                                                              ]
+                                                                            });
+      });
+
+      it("should deserialize elastic profile", () => {
+        const elasticProfile = ElasticProfile.fromJSON({
+                                                         id: "docker1",
+                                                         plugin_id: "cd.go.docker",
+                                                         cluster_profile_id: "prod-cluster",
+                                                         properties: [{
+                                                           key: "image",
+                                                           value: "gocd/server",
+                                                           encrypted_value: null
+                                                         },
+                                                           {
+                                                             key: "memory",
+                                                             value: "10M",
+                                                             encrypted_value: null
+                                                           }
+                                                         ]
+                                                       });
+
+        expect(elasticProfile.id()).toEqual("docker1");
+        expect(elasticProfile.pluginId()).toEqual("cd.go.docker");
+        expect(elasticProfile.clusterProfileId()).toEqual("prod-cluster");
+        expect(elasticProfile.properties().count()).toBe(2);
+        expect(elasticProfile.properties().valueFor("image")).toEqual("gocd/server");
+        expect(elasticProfile.properties().valueFor("memory")).toEqual("10M");
+      });
+
+      it("should serialize encrypted value as value when updated", () => {
+        const elasticProfile = new ElasticProfile(
+          "docker1",
+          "cd.go.docker",
+          "prod-cluster",
+          new Configurations([
+                               new Configuration("image", new PlainTextValue("gocd/server")),
+                               new Configuration("secret", new EncryptedValue("alskdad"))
+                             ]));
+
+        elasticProfile.properties().setConfiguration("secret", "foo");
+
+        expect(JSON.parse(JSON.stringify(elasticProfile.toJSON()))).toEqual({
+                                                                              id: "docker1",
+                                                                              plugin_id: "cd.go.docker",
+                                                                              cluster_profile_id: "prod-cluster",
+                                                                              properties: [{
+                                                                                key: "image",
+                                                                                value: "gocd/server"
+                                                                              },
+                                                                                {
+                                                                                  key: "secret",
+                                                                                  value: "foo"
+                                                                                }
+                                                                              ]
+                                                                            });
+
+      });
     });
   });
 
-  describe("Serialization and Deserialization", () => {
-    it("should serialize elastic profile", () => {
-      const elasticProfile = new ElasticProfile(
-        "docker1",
-        "cd.go.docker",
-        new Configurations([
-                             new Configuration("image", new PlainTextValue("gocd/server")),
-                             new Configuration("secret", new EncryptedValue("alskdad"))
-                           ]));
+  describe("Cluster Profiles", () => {
+    describe("Validation", () => {
+      it("should validate cluster profile", () => {
+        const clusterProfile = new ClusterProfile("", "", new Configurations([]));
+        expect(clusterProfile.isValid()).toBe(false);
+        expect(clusterProfile.errors().count()).toBe(2);
+        expect(clusterProfile.errors().keys().sort()).toEqual(["id", "pluginId"]);
+      });
 
-      expect(JSON.parse(JSON.stringify(elasticProfile.toJSON()))).toEqual({
-                                                id: "docker1",
-                                                plugin_id: "cd.go.docker",
-                                                properties: [{
-                                                  key: "image",
-                                                  value: "gocd/server"
-                                                },
-                                                  {
-                                                    key: "secret",
-                                                    encrypted_value: "alskdad"
-                                                  }
-                                                ]
-                                              });
+      it("should validate cluster profile id format", () => {
+        const clusterProfile = new ClusterProfile("invalid id", "pluginId", new Configurations([]));
+        expect(clusterProfile.isValid()).toBe(false);
+        expect(clusterProfile.errors().count()).toBe(1);
+        expect(clusterProfile.errors().keys()).toEqual(["id"]);
+        expect(clusterProfile.errors().errors("id"))
+          .toEqual(["Invalid Id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period)."]);
+      });
     });
 
-    it("should deserialize elastic profile", () => {
-      const elasticProfile = ElasticProfile.fromJSON({
-                                                       id: "docker1",
-                                                       plugin_id: "cd.go.docker",
-                                                       properties: [{
-                                                         key: "image",
-                                                         value: "gocd/server",
-                                                         encrypted_value: null
-                                                       },
-                                                         {
-                                                           key: "memory",
-                                                           value: "10M",
+    describe("Serialization and Deserialization", () => {
+      it("should serialize cluster profile", () => {
+        const clusterProfile = new ClusterProfile(
+          "docker1",
+          "cd.go.docker",
+          new Configurations([
+                               new Configuration("image", new PlainTextValue("gocd/server")),
+                               new Configuration("secret", new EncryptedValue("alskdad"))
+                             ]));
+
+        expect(JSON.parse(JSON.stringify(clusterProfile.toJSON()))).toEqual({
+                                                                              id: "docker1",
+                                                                              plugin_id: "cd.go.docker",
+                                                                              properties: [{
+                                                                                key: "image",
+                                                                                value: "gocd/server"
+                                                                              },
+                                                                                {
+                                                                                  key: "secret",
+                                                                                  encrypted_value: "alskdad"
+                                                                                }
+                                                                              ]
+                                                                            });
+      });
+
+      it("should deserialize cluster profile", () => {
+        const clusterProfile = ClusterProfile.fromJSON({
+                                                         id: "docker1",
+                                                         plugin_id: "cd.go.docker",
+                                                         properties: [{
+                                                           key: "image",
+                                                           value: "gocd/server",
                                                            encrypted_value: null
-                                                         }
-                                                       ]
-                                                     });
+                                                         },
+                                                           {
+                                                             key: "memory",
+                                                             value: "10M",
+                                                             encrypted_value: null
+                                                           }
+                                                         ]
+                                                       });
 
-      expect(elasticProfile.id()).toEqual("docker1");
-      expect(elasticProfile.pluginId()).toEqual("cd.go.docker");
-      expect(elasticProfile.properties().count()).toBe(2);
-      expect(elasticProfile.properties().valueFor("image")).toEqual("gocd/server");
-      expect(elasticProfile.properties().valueFor("memory")).toEqual("10M");
-    });
+        expect(clusterProfile.id()).toEqual("docker1");
+        expect(clusterProfile.pluginId()).toEqual("cd.go.docker");
+        expect(clusterProfile.properties().count()).toBe(2);
+        expect(clusterProfile.properties().valueFor("image")).toEqual("gocd/server");
+        expect(clusterProfile.properties().valueFor("memory")).toEqual("10M");
+      });
 
-    it("should serialize encrypted value as value when updated", () => {
-      const elasticProfile = new ElasticProfile(
-        "docker1",
-        "cd.go.docker",
-        new Configurations([
-                             new Configuration("image", new PlainTextValue("gocd/server")),
-                             new Configuration("secret", new EncryptedValue("alskdad"))
-                           ]));
+      it("should serialize encrypted value as value when updated", () => {
+        const clusterProfile = new ClusterProfile(
+          "docker1",
+          "cd.go.docker",
+          new Configurations([
+                               new Configuration("image", new PlainTextValue("gocd/server")),
+                               new Configuration("secret", new EncryptedValue("alskdad"))
+                             ]));
 
-      elasticProfile.properties().setConfiguration("secret", "foo");
+        clusterProfile.properties().setConfiguration("secret", "foo");
 
-      expect(JSON.parse(JSON.stringify(elasticProfile.toJSON()))).toEqual({
-                                                id: "docker1",
-                                                plugin_id: "cd.go.docker",
-                                                properties: [{
-                                                  key: "image",
-                                                  value: "gocd/server"
-                                                },
-                                                  {
-                                                    key: "secret",
-                                                    value: "foo"
-                                                  }
-                                                ]
-                                              });
+        expect(JSON.parse(JSON.stringify(clusterProfile.toJSON()))).toEqual({
+                                                                              id: "docker1",
+                                                                              plugin_id: "cd.go.docker",
+                                                                              properties: [{
+                                                                                key: "image",
+                                                                                value: "gocd/server"
+                                                                              },
+                                                                                {
+                                                                                  key: "secret",
+                                                                                  value: "foo"
+                                                                                }
+                                                                              ]
+                                                                            });
 
+      });
     });
   });
 });

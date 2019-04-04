@@ -39,9 +39,8 @@ describe("New Elastic Profile Widget", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should render elastic profile id", () => {
-    const profileHeader = helper.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
-    expect(profileHeader).toContainText("Profile Id");
-    expect(profileHeader).toContainText(TestData.DockerElasticProfile().id);
+    expect(helper.findByDataTestId("elastic-profile-id").get(0)).toContainText("Profile Id");
+    expect(helper.findByDataTestId("elastic-profile-id").get(0)).toContainText(TestData.DockerElasticProfile().id);
   });
 
   it("should render edit, delete, clone buttons", () => {
@@ -51,7 +50,7 @@ describe("New Elastic Profile Widget", () => {
   });
 
   it("should render properties of elastic profile", () => {
-    const profileHeader = helper.find(`.${keyValuePairStyles.keyValuePair}`).get(1);
+    const profileHeader = helper.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
 
     expect(profileHeader).toContainText("Image");
     expect(profileHeader).toContainText("docker-image122345");

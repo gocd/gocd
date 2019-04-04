@@ -142,6 +142,10 @@ export default class {
     return `/go/api/internal/elastic/profiles/${profileId}/usages`;
   }
 
+  static clusterProfilesListPath(): string {
+    return "/go/api/admin/elastic/cluster_profiles";
+  }
+
   static agentsPath(uuid?: string): string {
     if (uuid) {
       return `/go/api/agents/${uuid}`;

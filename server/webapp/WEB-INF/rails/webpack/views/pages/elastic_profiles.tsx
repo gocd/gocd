@@ -18,8 +18,9 @@ import {ErrorResponse} from "helpers/api_request_builder";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
 import {ElasticProfilesCRUD} from "models/elastic_profiles/elastic_profiles_crud";
-import {ElasticProfile, ElasticProfiles} from "models/elastic_profiles/types";
+import {ClusterProfiles, ElasticProfile, ElasticProfiles} from "models/elastic_profiles/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -50,11 +51,13 @@ export interface RequiresPluginInfos {
 export interface State extends RequiresPluginInfos, SaveOperation, EditOperation<ElasticProfile>, CloneOperation<ElasticProfile>, DeleteOperation<string>, AddOperation<void> {
   onShowUsages: (profileId: string, event: MouseEvent) => void;
   elasticProfiles: ElasticProfiles;
+  clusterProfiles: ClusterProfiles;
 }
 
 export class ElasticProfilesPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.pluginInfos     = stream();
+    vnode.state.clusterProfiles = new ClusterProfiles([]);
     vnode.state.elasticProfiles = new ElasticProfiles([]);
 
     this.fetchData(vnode);
@@ -76,14 +79,18 @@ export class ElasticProfilesPage extends Page<null, State> {
       e.stopPropagation();
       this.flashMessage.clear();
 
-      new NewElasticProfileModal(vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
+      new NewElasticProfileModal(vnode.state.pluginInfos(),
+                                 vnode.state.clusterProfiles,
+                                 vnode.state.onSuccessfulSave).render();
     };
 
     vnode.state.onClone = (elasticProfile: ElasticProfile, event: MouseEvent) => {
       event.stopPropagation();
       this.flashMessage.clear();
 
-      new CloneElasticProfileModal(elasticProfile.id(), vnode.state.pluginInfos(),
+      new CloneElasticProfileModal(elasticProfile.id(),
+                                   vnode.state.pluginInfos(),
+                                   vnode.state.clusterProfiles,
                                    vnode.state.onSuccessfulSave).render();
     };
 
@@ -93,6 +100,7 @@ export class ElasticProfilesPage extends Page<null, State> {
 
       new EditElasticProfileModal(elasticProfile.id(),
                                   vnode.state.pluginInfos(),
+                                  vnode.state.clusterProfiles,
                                   vnode.state.onSuccessfulSave).render();
     };
 
@@ -145,14 +153,13 @@ export class ElasticProfilesPage extends Page<null, State> {
   componentToDisplay(vnode: m.Vnode<null, State>) {
     return <div>
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-      <ElasticProfilesWidget
-        elasticProfiles={vnode.state.elasticProfiles}
-        pluginInfos={vnode.state.pluginInfos}
-        onEdit={vnode.state.onEdit.bind(vnode.state)}
-        onClone={vnode.state.onClone.bind(vnode.state)}
-        onDelete={vnode.state.onDelete.bind(vnode.state)}
-        onShowUsages={vnode.state.onShowUsages.bind(vnode.state)}
-        isUserAnAdmin={ElasticProfilesPage.isUserAnAdmin()}/>
+      <ElasticProfilesWidget elasticProfiles={vnode.state.elasticProfiles}
+                             pluginInfos={vnode.state.pluginInfos}
+                             onEdit={vnode.state.onEdit.bind(vnode.state)}
+                             onClone={vnode.state.onClone.bind(vnode.state)}
+                             onDelete={vnode.state.onDelete.bind(vnode.state)}
+                             onShowUsages={vnode.state.onShowUsages.bind(vnode.state)}
+                             isUserAnAdmin={ElasticProfilesPage.isUserAnAdmin()}/>
     </div>;
   }
 
@@ -169,7 +176,8 @@ export class ElasticProfilesPage extends Page<null, State> {
   fetchData(vnode: m.Vnode<null, State>) {
     return Promise.all([
                          PluginInfoCRUD.all({type: ExtensionType.ELASTIC_AGENTS}),
-                         ElasticProfilesCRUD.all()
+                         ElasticProfilesCRUD.all(),
+                         ClusterProfilesCRUD.all()
                        ]).then((results) => {
       results[0].do(
         (successResponse) => {
@@ -179,9 +187,16 @@ export class ElasticProfilesPage extends Page<null, State> {
         () => this.setErrorState()
       );
       results[1].do(
-        (successReponse) => {
+        (successResponse) => {
           this.pageState              = PageState.OK;
-          vnode.state.elasticProfiles = successReponse.body;
+          vnode.state.elasticProfiles = successResponse.body;
+        },
+        () => this.setErrorState()
+      );
+      results[2].do(
+        (successResponse) => {
+          this.pageState              = PageState.OK;
+          vnode.state.clusterProfiles = successResponse.body;
         },
         () => this.setErrorState()
       );

@@ -22,6 +22,25 @@ import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configurations, PropertyJSON} from "models/shared/configuration";
 
+export class ClusterProfiles {
+  private readonly profiles: Stream<ClusterProfile[]>;
+
+  constructor(profiles: ClusterProfile[]) {
+    this.profiles = stream(profiles);
+  }
+
+  static fromJSON(profilesJson: ClusterProfileJSON[]): ClusterProfiles {
+    const profiles = profilesJson.map((profile: ClusterProfileJSON) => {
+      return ClusterProfile.fromJSON(profile);
+    });
+    return new ClusterProfiles(profiles);
+  }
+
+  all(): ClusterProfile[] {
+    return this.profiles();
+  }
+}
+
 export class ElasticProfiles {
   private readonly profiles: Stream<ElasticProfile[]>;
 
@@ -98,6 +117,14 @@ export class ProfileUsage {
 export interface ElasticProfileJSON {
   id: string;
   plugin_id: string;
+  cluster_profile_id?: string;
+  properties: PropertyJSON[];
+  errors?: { [key: string]: string[] };
+}
+
+export interface ClusterProfileJSON {
+  id: string;
+  plugin_id: string;
   properties: PropertyJSON[];
   errors?: { [key: string]: string[] };
 }
@@ -107,6 +134,53 @@ export interface ElasticProfile extends ValidatableMixin {
 }
 
 export class ElasticProfile implements ValidatableMixin {
+  id: Stream<string>;
+  pluginId: Stream<string>;
+  clusterProfileId: Stream<string>;
+  properties: Stream<Configurations>;
+
+  constructor(id?: string, pluginId?: string, clusterProfileId?: string, properties?: Configurations) {
+    this.id               = stream(id);
+    this.pluginId         = stream(pluginId);
+    this.clusterProfileId = stream(clusterProfileId);
+    this.properties       = stream(properties);
+
+    ValidatableMixin.call(this);
+    this.validatePresenceOf("pluginId");
+    this.validatePresenceOf("id");
+    this.validateFormatOf("id",
+                          new RegExp("^[-a-zA-Z0-9_][-a-zA-Z0-9_.]*$"),
+                          {message: "Invalid Id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period)."});
+    this.validateMaxLength("id", 255, {message: "The maximum allowed length is 255 characters."});
+  }
+
+  static fromJSON(profileJson: ElasticProfileJSON): ElasticProfile {
+    const profile = new ElasticProfile(profileJson.id,
+                                       profileJson.plugin_id,
+                                       profileJson.cluster_profile_id,
+                                       Configurations.fromJSON(profileJson.properties));
+
+    profile.errors(new Errors(profileJson.errors));
+    return profile;
+  }
+
+  toJSON(): object {
+    return {
+      id: this.id,
+      plugin_id: this.pluginId,
+      cluster_profile_id: this.clusterProfileId,
+      properties: this.properties
+    };
+  }
+}
+
+applyMixins(ElasticProfile, ValidatableMixin);
+
+//tslint:disable-next-line
+export interface ClusterProfile extends ValidatableMixin {
+}
+
+export class ClusterProfile implements ValidatableMixin {
   id: Stream<string>;
   pluginId: Stream<string>;
   properties: Stream<Configurations>;
@@ -125,8 +199,8 @@ export class ElasticProfile implements ValidatableMixin {
     this.validateMaxLength("id", 255, {message: "The maximum allowed length is 255 characters."});
   }
 
-  static fromJSON(profileJson: ElasticProfileJSON): ElasticProfile {
-    const profile = new ElasticProfile(profileJson.id,
+  static fromJSON(profileJson: ClusterProfileJSON): ClusterProfile {
+    const profile = new ClusterProfile(profileJson.id,
                                        profileJson.plugin_id,
                                        Configurations.fromJSON(profileJson.properties));
 
@@ -136,11 +210,11 @@ export class ElasticProfile implements ValidatableMixin {
 
   toJSON(): object {
     return {
-      id: this.id,
-      plugin_id: this.pluginId,
-      properties: this.properties
+      id: this.id(),
+      plugin_id: this.pluginId(),
+      properties: this.properties()
     };
   }
 }
 
-applyMixins(ElasticProfile, ValidatableMixin);
+applyMixins(ClusterProfile, ValidatableMixin);

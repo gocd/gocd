@@ -57,17 +57,17 @@ public class SecretConfigService extends RuleAwarePluginProfileService<SecretCon
 
     public void create(Username currentUser, SecretConfig secretConfig, LocalizedOperationResult result) {
         SecretConfigCreateCommand command = new SecretConfigCreateCommand(goConfigService, secretConfig, secretsExtension, currentUser, result);
-        update(currentUser, secretConfig, result, command);
+        update(currentUser, secretConfig, result, command, true);
     }
 
     public void update(Username currentUser, String md5, SecretConfig secretConfig, LocalizedOperationResult result) {
         SecretConfigUpdateCommand command = new SecretConfigUpdateCommand(goConfigService, secretConfig, secretsExtension, currentUser, result, hashingService, md5);
-        update(currentUser, secretConfig, result, command);
+        update(currentUser, secretConfig, result, command, true);
     }
 
     public void delete(Username currentUser, SecretConfig secretConfig, LocalizedOperationResult result) {
         SecretConfigDeleteCommand command = new SecretConfigDeleteCommand(goConfigService, secretConfig, getUsageInformation(secretConfig.getId()), secretsExtension, currentUser, result);
-        update(currentUser, secretConfig, result, command);
+        update(currentUser, secretConfig, result, command, false);
         if (result.isSuccessful()) {
             result.setMessage(EntityType.SecretConfig.deleteSuccessful(secretConfig.getId()));
         }

@@ -74,9 +74,11 @@ public abstract class RuleAwarePluginProfileService<M extends RuleAwarePluginPro
         }
     }
 
-    protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, NewPluginProfileCommand cmd) {
+    protected void update(Username currentUser, M pluginProfile, LocalizedOperationResult result, RuleAwarePluginProfileCommand cmd, boolean validatePluginProperties) {
         try {
-            validatePluginProperties(cmd, pluginProfile);
+            if (validatePluginProperties) {
+                validatePluginProperties(cmd, pluginProfile);
+            }
             goConfigService.updateConfig(cmd, currentUser);
         } catch (Exception e) {
             if (e instanceof GoConfigInvalidException) {

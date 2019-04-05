@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.parts.XmlPartialConfigProvider;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
+import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoMetadataStore;
 import com.thoughtworks.go.security.GoCipher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -60,6 +61,6 @@ public class GoConfigPluginService {
     }
 
     public boolean supportsPipelineExport(String pluginId) {
-        return crExtension.getCapabilities(pluginId).isSupportsPipelineExport();
+        return ConfigRepoMetadataStore.instance().getPluginInfo(pluginId).getCapabilities().isSupportsPipelineExport();
     }
 }

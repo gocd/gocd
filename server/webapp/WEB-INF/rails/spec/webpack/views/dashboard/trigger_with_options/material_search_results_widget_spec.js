@@ -115,6 +115,7 @@ describe("Dashboard Material Search Results Widget", () => {
   ];
 
   function mount() {
+    jasmine.Ajax.install();
     helper.mount(() => m(MaterialSearchResultsWidget, {
       material
     }));
@@ -122,5 +123,6 @@ describe("Dashboard Material Search Results Widget", () => {
 
   function unmount() {
     helper.unmount();
+    jasmine.Ajax.uninstall();
   }
 });

@@ -47,6 +47,10 @@ public class JobStatusMessage implements GoMessage {
         return jobIdentifier.getStageIdentifier();
     }
 
+    public String getAgentUuid() {
+        return agentUuid;
+    }
+
     public boolean equals(Object o) {
         if (this == o) {
             return true;

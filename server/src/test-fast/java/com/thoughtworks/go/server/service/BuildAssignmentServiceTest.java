@@ -21,27 +21,35 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
+import com.thoughtworks.go.server.messaging.JobStatusMessage;
+import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -72,8 +80,14 @@ class BuildAssignmentServiceTest {
     private EnvironmentConfigService environmentConfigService;
     @Mock
     private AgentService agentService;
-    private BuildAssignmentService buildAssignmentService;
     @Mock
+    private SecretParamResolver secretParamResolver;
+    @Mock
+    private JobStatusTopic jobStatusTopic;
+    @Mock
+    private ConsoleService consoleService;
+
+    private BuildAssignmentService buildAssignmentService;
     private TransactionTemplate transactionTemplate;
     private SchedulingContext schedulingContext;
     private ArrayList<JobPlan> jobPlans;
@@ -88,7 +102,11 @@ class BuildAssignmentServiceTest {
     @BeforeEach
     void setUp() throws Exception {
         initMocks(this);
-        buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, null);
+        transactionTemplate = dummy();
+        buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService,
+                environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory,
+                agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver,
+                jobStatusTopic, consoleService);
         elasticProfileId1 = "elastic.profile.id.1";
         elasticProfileId2 = "elastic.profile.id.2";
         elasticAgent = AgentMother.elasticAgent();
@@ -251,68 +269,93 @@ class BuildAssignmentServiceTest {
         assertThat(jobPlans.get(0)).isEqualTo(jobPlan3);
     }
 
-    @Test
-    void shouldResolveSecretParamsInEnvironmentVariableContext() {
-        final EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
-        environmentVariableContext.setProperty("Foo", "{{SECRET:[secret_config_id][lookup_password]}}", true);
-        environmentVariableContext.setProperty("Bar", "some-value", false);
+    @Nested
+    class assignWorkToAgent {
+        @Test
+        void shouldResolveSecretParamsInEnvironmentVariableContext() {
+            final EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+            environmentVariableContext.setProperty("Foo", "{{SECRET:[secret_config_id][lookup_password]}}", true);
+            environmentVariableContext.setProperty("Bar", "some-value", false);
 
-        final TransactionTemplate transactionTemplate = dummy();
-        final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-        pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
-        final AgentInstance agentInstance = mock(AgentInstance.class);
-        final Pipeline pipeline = mock(Pipeline.class);
-        final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
-        final SecretParamResolver secretParamResolver = mock(SecretParamResolver.class);
-        when(agentInstance.isRegistered()).thenReturn(true);
-        when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
-        when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
-        when(pipeline.getBuildCause()).thenReturn(BuildCause.createNeverRun());
-        when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
-        when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
-        when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
-        when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
-        when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(environmentVariableContext);
+            final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+            pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+            final AgentInstance agentInstance = mock(AgentInstance.class);
+            final Pipeline pipeline = mock(Pipeline.class);
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
 
-        BuildWork work = (BuildWork) new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService,
-                agentService, environmentConfigService, transactionTemplate,
-                scheduledPipelineLoader, pipelineService, builderFactory,
-                agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver)
-                .assignWorkToAgent(agentInstance);
+            when(agentInstance.isRegistered()).thenReturn(true);
+            when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
+            when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
+            when(pipeline.getBuildCause()).thenReturn(BuildCause.createNeverRun());
+            when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
+            when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
+            when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
+            when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
+            when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(environmentVariableContext);
 
-        verify(secretParamResolver).resolve(work.getAssignment().initialEnvironmentVariableContext().getSecretParams());
-    }
+            BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agentInstance);
 
-    @Test
-    void shouldResolveSecretParamsInMaterials() {
-        final SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com");
-        final Modification modification = new Modification("user", null, null, null, "rev1");
-        final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(svnMaterial, modification));
-        final TransactionTemplate transactionTemplate = dummy();
-        final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
-        pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
-        final AgentInstance agentInstance = mock(AgentInstance.class);
-        final Pipeline pipeline = mock(Pipeline.class);
-        final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
-        final SecretParamResolver secretParamResolver = mock(SecretParamResolver.class);
+            verify(secretParamResolver).resolve(work.getAssignment().initialEnvironmentVariableContext().getSecretParams());
+        }
 
-        when(agentInstance.isRegistered()).thenReturn(true);
-        when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
-        when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
-        when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
-        when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
-        when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
-        when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
-        when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
-        when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(new EnvironmentVariableContext());
+        @Test
+        void shouldResolveSecretParamsInMaterials() {
+            final SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com");
+            final Modification modification = new Modification("user", null, null, null, "rev1");
+            final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(svnMaterial, modification));
+            final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+            pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+            final AgentInstance agentInstance = mock(AgentInstance.class);
+            final Pipeline pipeline = mock(Pipeline.class);
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
 
-        new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService,
-                agentService, environmentConfigService, transactionTemplate,
-                scheduledPipelineLoader, pipelineService, builderFactory,
-                agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver)
-                .assignWorkToAgent(agentInstance);
+            when(agentInstance.isRegistered()).thenReturn(true);
+            when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
+            when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
+            when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
+            when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
+            when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
+            when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
+            when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
+            when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(new EnvironmentVariableContext());
 
-        verify(secretParamResolver).resolve(svnMaterial.getSecretParams());
+            buildAssignmentService.assignWorkToAgent(agentInstance);
+
+            verify(secretParamResolver).resolve(svnMaterial.getSecretParams());
+            verify(scheduleService, never()).failJob(any());
+            verifyZeroInteractions(consoleService);
+            verifyZeroInteractions(jobStatusTopic);
+        }
+
+        @Test
+        void shouldFailJobIfSecretsResolutionFails() throws Exception {
+            final MaterialRevisions materialRevisions = new MaterialRevisions();
+            final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+            pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+            final AgentInstance agentInstance = mock(AgentInstance.class);
+            final Pipeline pipeline = mock(Pipeline.class);
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
+            JobInstance jobInstance = mock(JobInstance.class);
+
+            when(agentInstance.isRegistered()).thenReturn(true);
+            when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
+            when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
+            when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
+            when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
+            when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(new EnvironmentVariableContext());
+            doThrow(new SecretResolutionFailureException("Failed resolving params for keys: 'key1'")).when(secretParamResolver).resolve(any());
+            when(jobInstanceService.buildById(jobPlan1.getJobId())).thenReturn(jobInstance);
+            when(agentInstance.getUuid()).thenReturn("agent_uuid");
+            when(jobInstance.getState()).thenReturn(JobState.Completed);
+
+            assertThatCode(() -> buildAssignmentService.assignWorkToAgent(agentInstance))
+                    .isInstanceOf(SecretResolutionFailureException.class);
+
+            InOrder inOrder = inOrder(scheduleService, jobStatusTopic, consoleService);
+            inOrder.verify(consoleService, times(2)).appendToConsoleLog(eq(jobPlan1.getIdentifier()), anyString());
+            inOrder.verify(scheduleService).failJob(jobInstance);
+            inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan1.getIdentifier(), JobState.Completed, "agent_uuid"));
+        }
     }
 
     private JobPlan getJobPlan(CaseInsensitiveString pipelineName, CaseInsensitiveString stageName, JobConfig job) {

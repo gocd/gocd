@@ -400,6 +400,7 @@ public class CommandLine {
     }
 
     public ConsoleResult runOrBomb(boolean failOnNonZeroReturn, String processTag, String... input) {
+        LOG.debug("Running {}", this);
         addInput(input);
         InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
         ProcessWrapper process = execute(output, new EnvironmentVariableContext(), processTag);

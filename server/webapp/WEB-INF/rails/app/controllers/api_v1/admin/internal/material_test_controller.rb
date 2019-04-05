@@ -74,7 +74,7 @@ module ApiV1
           begin
             secret_param_resolver.resolve(material.getSecretParams()) if material.is_a?(ScmMaterial)
             material.checkConnection(subprocess_execution_context)
-          rescue com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException => e
+          rescue com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException, com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException => e
             com.thoughtworks.go.domain.materials.ValidationBean.notValid(e.message);
           end
         end

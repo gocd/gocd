@@ -87,6 +87,14 @@ class BuildDockerImageTask extends DefaultTask {
         workingDir = project.rootProject.projectDir
         commandLine = ["docker", "rmi", imageNameWithTag]
       }
+
+      if (System.getenv('GO_SERVER_URL')) {
+        // delete the parent image, to save space
+        project.exec {
+          workingDir = project.rootProject.projectDir
+          commandLine = ["docker", "rmi", "${distro.name()}:${distroVersion.releaseName}"]
+        }
+      }
     }
 
     project.delete("${gitRepoDirectory}/${artifactZip.name}")

@@ -28,6 +28,7 @@ import java.util.*;
 public class CRPipeline extends CRBase {
     private String group;
     private String name;
+    private int display_order_weight = -1;
     private String label_template;
     private String lock_behavior;
     private CRTrackingTool tracking_tool;
@@ -38,7 +39,6 @@ public class CRPipeline extends CRBase {
     private Collection<CRMaterial> materials = new ArrayList<>();
     private List<CRStage> stages = new ArrayList<>();
     private String template;
-    private int display_order_weight = -1;
 
     public CRPipeline(){}
     public CRPipeline(String name, String groupName, CRMaterial material, String template, CRStage... stages)

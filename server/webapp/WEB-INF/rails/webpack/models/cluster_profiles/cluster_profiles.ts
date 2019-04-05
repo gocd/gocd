@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 
+import * as _ from "lodash";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {Configuration, Configurations, PropertyJSON} from "models/shared/configuration";
@@ -59,5 +60,11 @@ export class ClusterProfiles extends Array<ClusterProfile> {
       clusterProfile));
 
     return new ClusterProfiles(...clusterProfiles);
+  }
+
+  groupByPlugin() {
+    return _.groupBy(this, (profile) => {
+      return profile.pluginId;
+    });
   }
 }

@@ -558,4 +558,8 @@ public class Routes {
     public class Support {
         public static final String BASE = "/api/support";
     }
+
+    public class ClusterProfiles {
+        public static final String SPA_BASE = "/admin/cluster_profiles";
+    }
 }

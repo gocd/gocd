@@ -16,28 +16,27 @@
 
 package com.thoughtworks.go.agent.statusapi;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class IsConnectedToServerV1Test {
+class IsConnectedToServerV1Test {
 
     @Test
-    public void shouldReturnFalseIfAgentHasLostContact() throws Exception {
+    void shouldReturnFalseIfAgentHasLostContact() {
         AgentHealthHolder mock = mock(AgentHealthHolder.class);
         when(mock.hasLostContact()).thenReturn(true);
         IsConnectedToServerV1 handler = new IsConnectedToServerV1(mock);
-        assertFalse(handler.isPassed());
+        assertThat(handler.isPassed()).isFalse();
     }
 
     @Test
-    public void shouldReturnTrueIfAgentHasNotLostContact() throws Exception {
+    void shouldReturnTrueIfAgentHasNotLostContact() {
         AgentHealthHolder mock = mock(AgentHealthHolder.class);
         when(mock.hasLostContact()).thenReturn(false);
         IsConnectedToServerV1 handler = new IsConnectedToServerV1(mock);
-        assertTrue(handler.isPassed());
+        assertThat(handler.isPassed()).isTrue();
     }
 }

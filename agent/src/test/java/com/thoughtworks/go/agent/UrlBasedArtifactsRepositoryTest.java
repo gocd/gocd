@@ -22,29 +22,28 @@ import com.thoughtworks.go.util.CachedDigestUtils;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
 
-import static com.thoughtworks.go.matchers.ConsoleOutMatcher.printedUploadingFailure;
+import static com.thoughtworks.go.matchers.ConsoleOutMatcherJunit5.assertConsoleOut;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(MockitoJUnitRunner.class)
-public class UrlBasedArtifactsRepositoryTest {
+@EnableRuleMigrationSupport
+class UrlBasedArtifactsRepositoryTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -55,8 +54,9 @@ public class UrlBasedArtifactsRepositoryTest {
     private ArtifactsRepository artifactsRepository;
     private TestStreamConsumer console;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
+        initMocks(this);
         artifactFolder = temporaryFolder.newFolder("artifact_folder");
         tempFile = temporaryFolder.newFile("artifact_folder/file.txt");
         FileUtils.writeStringToFile(tempFile, "some-random-junk", UTF_8);
@@ -65,7 +65,7 @@ public class UrlBasedArtifactsRepositoryTest {
     }
 
     @Test
-    public void shouldBombWithErrorWhenStatusCodeReturnedIsRequestEntityTooLarge() throws IOException, InterruptedException {
+    void shouldBombWithErrorWhenStatusCodeReturnedIsRequestEntityTooLarge() throws IOException, InterruptedException {
         when(httpService.upload(any(String.class), eq(tempFile.length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
 
         try {
@@ -73,13 +73,13 @@ public class UrlBasedArtifactsRepositoryTest {
             fail("should have thrown request entity too large error");
         } catch (RuntimeException e) {
             String expectedMessage = "Artifact upload for file " + tempFile.getAbsolutePath() + " (Size: " + tempFile.length() + ") was denied by the server. This usually happens when server runs out of disk space.";
-            assertThat(e.getMessage(), is("java.lang.RuntimeException: " + expectedMessage + ".  HTTP return code is 413"));
-            assertThat(console.output().contains(expectedMessage), is(true));
+            assertThat(e.getMessage()).isEqualTo("java.lang.RuntimeException: " + expectedMessage + ".  HTTP return code is 413");
+            assertThat(console.output().contains(expectedMessage)).isTrue();
         }
     }
 
     @Test
-    public void uploadShouldBeGivenFileSize() throws IOException {
+    void uploadShouldBeGivenFileSize() throws IOException {
         when(httpService.upload(any(String.class), eq(tempFile.length()), any(File.class), any(Properties.class))).thenReturn(HttpServletResponse.SC_REQUEST_ENTITY_TOO_LARGE);
         try {
             artifactsRepository.upload(console, tempFile, "dest", "build42");
@@ -90,7 +90,7 @@ public class UrlBasedArtifactsRepositoryTest {
     }
 
     @Test
-    public void shouldRetryUponUploadFailure() throws IOException {
+    void shouldRetryUponUploadFailure() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
         FileUtils.writeStringToFile(tempFile, data, UTF_8);
@@ -104,7 +104,7 @@ public class UrlBasedArtifactsRepositoryTest {
     }
 
     @Test
-    public void shouldPrintFailureMessageToConsoleWhenUploadFailed() throws IOException {
+    void shouldPrintFailureMessageToConsoleWhenUploadFailed() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
         FileUtils.writeStringToFile(tempFile, data, UTF_8);
@@ -119,13 +119,13 @@ public class UrlBasedArtifactsRepositoryTest {
             artifactsRepository.upload(console, tempFile, "dest/path", "build42");
             fail("should have thrown request entity too large error");
         } catch (RuntimeException e) {
-            assertThat(console.output(), printedUploadingFailure(tempFile));
+            assertConsoleOut(console.output()).printedUploadingFailure(tempFile);
         }
     }
 
 
     @Test
-    public void shouldUploadArtifactChecksumAlongWithArtifact() throws IOException {
+    void shouldUploadArtifactChecksumAlongWithArtifact() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
         FileUtils.writeStringToFile(tempFile, data, UTF_8);
@@ -138,7 +138,7 @@ public class UrlBasedArtifactsRepositoryTest {
     }
 
     @Test
-    public void shouldUploadArtifactChecksumWithRightPathWhenArtifactDestinationPathIsEmpty() throws IOException {
+    void shouldUploadArtifactChecksumWithRightPathWhenArtifactDestinationPathIsEmpty() throws IOException {
         String data = "Some text whose checksum can be asserted";
         final String md5 = CachedDigestUtils.md5Hex(data);
         FileUtils.writeStringToFile(tempFile, data, UTF_8);
@@ -151,7 +151,7 @@ public class UrlBasedArtifactsRepositoryTest {
     }
 
     @Test
-    public void shouldUploadArtifactChecksumForADirectory() throws IOException {
+    void shouldUploadArtifactChecksumForADirectory() throws IOException {
         String data = "Some text whose checksum can be asserted";
         String secondData = "some more";
 
@@ -166,14 +166,14 @@ public class UrlBasedArtifactsRepositoryTest {
     }
 
     @Test
-    public void setRemoteBuildPropertyShouldEncodePropertyName() throws IOException {
+    void setRemoteBuildPropertyShouldEncodePropertyName() throws IOException {
         ArgumentCaptor<String> url = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<String> value = ArgumentCaptor.forClass(String.class);
 
         artifactsRepository.setProperty(new Property("fo,o", "bar"));
         verify(httpService).postProperty(url.capture(), value.capture());
-        assertThat(value.getValue(), is("bar"));
-        assertThat(url.getValue(), is("http://baseurl/properties/fo%2Co"));
+        assertThat(value.getValue()).isEqualTo("bar");
+        assertThat(url.getValue()).isEqualTo("http://baseurl/properties/fo%2Co");
     }
 
     private Properties expectedProperties(String data, String secondData) {

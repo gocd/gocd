@@ -36,24 +36,23 @@ import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(MockitoJUnitRunner.class)
+@EnableRuleMigrationSupport
 public class AgentHTTPClientControllerTest {
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
@@ -89,24 +88,25 @@ public class AgentHTTPClientControllerTest {
     private AgentIdentifier agentIdentifier;
     private AgentHTTPClientController agentController;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
+        initMocks(this);
         agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         new GuidService().delete();
     }
 
     @Test
-    public void shouldSetPluginManagerReference() throws Exception {
+    void shouldSetPluginManagerReference() {
         agentController = createAgentController();
-        assertThat(PluginManagerReference.reference().getPluginManager(), is(pluginManager));
+        assertThat(PluginManagerReference.reference().getPluginManager()).isEqualTo(pluginManager);
     }
 
     @Test
-    public void shouldRetrieveWorkFromServerAndDoIt() throws Exception {
+    void shouldRetrieveWorkFromServerAndDoIt() throws Exception {
         when(loopServer.getWork(any(AgentRuntimeInfo.class))).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         when(pluginJarLocationMonitor.hasRunAtLeastOnce()).thenReturn(true);
@@ -119,7 +119,7 @@ public class AgentHTTPClientControllerTest {
     }
 
     @Test
-    public void shouldNotRetrieveWorkIfPluginMonitorHasNotRun() throws IOException {
+    void shouldNotRetrieveWorkIfPluginMonitorHasNotRun() throws IOException {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         when(pluginJarLocationMonitor.hasRunAtLeastOnce()).thenReturn(false);
         agentController = createAgentController();
@@ -130,7 +130,7 @@ public class AgentHTTPClientControllerTest {
     }
 
     @Test
-    public void shouldRetrieveCookieIfNotPresent() throws Exception {
+    void shouldRetrieveCookieIfNotPresent() throws Exception {
         agentController = createAgentController();
         agentController.init();
 
@@ -144,7 +144,7 @@ public class AgentHTTPClientControllerTest {
     }
 
     @Test
-    public void shouldNotTellServerWorkIsCompletedWhenThereIsNoWork() throws Exception {
+    void shouldNotTellServerWorkIsCompletedWhenThereIsNoWork() throws Exception {
         when(loopServer.getWork(any(AgentRuntimeInfo.class))).thenReturn(work);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         agentController = createAgentController();
@@ -155,7 +155,7 @@ public class AgentHTTPClientControllerTest {
     }
 
     @Test
-    public void shouldRegisterSubprocessLoggerAtExit() throws Exception {
+    void shouldRegisterSubprocessLoggerAtExit() throws Exception {
         SslInfrastructureService sslInfrastructureService = mock(SslInfrastructureService.class);
         AgentRegistry agentRegistry = mock(AgentRegistry.class);
         agentController = new AgentHTTPClientController(loopServer, artifactsManipulator, sslInfrastructureService,
@@ -166,7 +166,7 @@ public class AgentHTTPClientControllerTest {
     }
 
     @Test
-    public void shouldNotPingIfNotRegisteredYet() throws Exception {
+    void shouldNotPingIfNotRegisteredYet() throws Exception {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         when(sslInfrastructureService.isRegistered()).thenReturn(false);
 
@@ -177,7 +177,7 @@ public class AgentHTTPClientControllerTest {
     }
 
     @Test
-    public void shouldPingIfAfterRegistered() throws Exception {
+    void shouldPingIfAfterRegistered() throws Exception {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
         agentController = createAgentController();

@@ -21,21 +21,19 @@ import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.junit.Assert.fail;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(MockitoJUnitRunner.class)
-public class AgentPluginsInitializerTest {
+class AgentPluginsInitializerTest {
     @Mock
     private ZipUtil zipUtil;
     @Mock
@@ -47,20 +45,21 @@ public class AgentPluginsInitializerTest {
 
     private AgentPluginsInitializer agentPluginsInitializer;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
+        initMocks(this);
         agentPluginsInitializer = new AgentPluginsInitializer(pluginManager, pluginJarLocationMonitor, zipUtil, systemEnvironment);
         when(systemEnvironment.get(SystemEnvironment.AGENT_PLUGINS_PATH)).thenReturn(SystemEnvironment.PLUGINS_PATH);
     }
 
     @Test
-    public void shouldExtractPluginZip() throws Exception {
+    void shouldExtractPluginZip() throws Exception {
         agentPluginsInitializer.onApplicationEvent(null);
         verify(zipUtil).unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), new File(SystemEnvironment.PLUGINS_PATH));
     }
 
     @Test
-    public void shouldInitializePluginJarLocationMonitorAndStartPluginInfrastructureAfterPluginZipExtracted() throws Exception {
+    void shouldInitializePluginJarLocationMonitorAndStartPluginInfrastructureAfterPluginZipExtracted() throws Exception {
         InOrder inOrder = inOrder(zipUtil, pluginManager, pluginJarLocationMonitor);
         agentPluginsInitializer.onApplicationEvent(null);
         inOrder.verify(zipUtil).unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), new File(SystemEnvironment.PLUGINS_PATH));
@@ -69,7 +68,7 @@ public class AgentPluginsInitializerTest {
     }
 
     @Test
-    public void shouldHandleIOExceptionQuietly() throws Exception {
+    void shouldHandleIOExceptionQuietly() throws Exception {
         doThrow(new IOException()).when(zipUtil).unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), new File(SystemEnvironment.PLUGINS_PATH));
         try {
             agentPluginsInitializer.onApplicationEvent(null);
@@ -79,7 +78,7 @@ public class AgentPluginsInitializerTest {
     }
 
     @Test
-    public void shouldAllExceptionsExceptionQuietly() throws Exception {
+    void shouldAllExceptionsExceptionQuietly() throws Exception {
         doThrow(new IOException()).when(zipUtil).unzip(DownloadableFile.AGENT_PLUGINS.getLocalFile(), new File(SystemEnvironment.PLUGINS_PATH));
         try {
             doThrow(new RuntimeException("message")).when(pluginJarLocationMonitor).initialize();

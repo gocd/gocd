@@ -42,7 +42,7 @@ idea {
       def node = it.asNode()
       def content = node.component.find { it.'@name' == 'NewModuleRootManager' }.content[0]
       content.sourceFolder.each { sourceFolder ->
-        if(sourceFolder.@url?.endsWith('/resources')) {
+        if (sourceFolder.@url?.endsWith('/resources')) {
           sourceFolder.attributes().with {
             boolean isTestSource = (remove('isTestSource') == 'true')
             put('type', isTestSource ? 'java-test-resource' : 'java-resource')
@@ -65,7 +65,7 @@ dependencies {
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   compile group: 'org.apache.commons', name: 'commons-configuration2', version: project.versions.commonsConfiguration
-  compile(group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty){
+  compile(group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty) {
     exclude module: 'jetty-xml'
   }
 
@@ -79,6 +79,7 @@ dependencies {
   testRuntimeOnly group: 'org.junit.vintage', name: 'junit-vintage-engine', version: project.versions.junit5
   testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
   testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+  testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-migrationsupport', version: project.versions.junit5
 
   extractedAtTopLevel project(':agent-process-launcher')
   extractedAtTopLevel project(':jar-class-loader')

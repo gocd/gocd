@@ -34,10 +34,11 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -56,6 +57,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+@EnableRuleMigrationSupport
 public class SslInfrastructureServiceTest {
     private SslInfrastructureService sslInfrastructureService;
     @Rule
@@ -74,8 +76,8 @@ public class SslInfrastructureServiceTest {
     @Mock
     private URLService urlService;
 
-    @Before
-    public void setup() throws Exception {
+    @BeforeEach
+    void setup() throws Exception {
         temporaryFolder.create();
         initMocks(this);
 
@@ -87,8 +89,8 @@ public class SslInfrastructureServiceTest {
         guidService.store("uuid");
     }
 
-    @After
-    public void teardown() throws Exception {
+    @AfterEach
+    void teardown() throws Exception {
         temporaryFolder.delete();
         guidService.delete();
         tokenService.delete();
@@ -96,7 +98,7 @@ public class SslInfrastructureServiceTest {
     }
 
     @Test
-    public void shouldInvalidateKeystore() throws Exception {
+    void shouldInvalidateKeystore() throws Exception {
         temporaryFolder.create();
         File configFile = temporaryFolder.newFile();
         when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), 200, null));
@@ -121,7 +123,7 @@ public class SslInfrastructureServiceTest {
     }
 
     @Test
-    public void shouldGetTokenFromServerIfOneNotExist() throws Exception {
+    void shouldGetTokenFromServerIfOneNotExist() throws Exception {
         final ArgumentCaptor<HttpRequestBase> httpRequestBaseArgumentCaptor = ArgumentCaptor.forClass(HttpRequestBase.class);
         tokenService.delete();
         when(agentRegistry.uuid()).thenReturn("some-uuid");
@@ -139,7 +141,7 @@ public class SslInfrastructureServiceTest {
     }
 
     @Test
-    public void shouldPassUUIDAndTokenDuringAgentRegistration() throws Exception {
+    void shouldPassUUIDAndTokenDuringAgentRegistration() throws Exception {
         final ArgumentCaptor<HttpEntityEnclosingRequestBase> httpRequestBaseArgumentCaptor = ArgumentCaptor.forClass(HttpEntityEnclosingRequestBase.class);
 
         when(agentRegistry.uuid()).thenReturn("some-uuid");
@@ -162,7 +164,7 @@ public class SslInfrastructureServiceTest {
     }
 
     @Test
-    public void shouldDeleteTokenFromDiskWhenServerRejectsTheRegistrationRequestWithForbiddenErrorCode() throws Exception {
+    void shouldDeleteTokenFromDiskWhenServerRejectsTheRegistrationRequestWithForbiddenErrorCode() throws Exception {
         final CloseableHttpResponse httpResponseForbidden = mock(CloseableHttpResponse.class);
         final ProtocolVersion protocolVersion = new ProtocolVersion("https", 1, 2);
         when(agentRegistry.uuid()).thenReturn("some-uuid");

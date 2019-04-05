@@ -16,16 +16,10 @@
 
 package com.thoughtworks.go.agent;
 
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.builder.Builder;
-import com.thoughtworks.go.helper.BuilderMother;
-import com.thoughtworks.go.helper.JobInstanceMother;
+import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.Property;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.AgentInstruction;
-import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.GoArtifactsManipulatorStub;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
@@ -33,17 +27,15 @@ import com.thoughtworks.go.server.service.UpstreamPipelineResolver;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.work.FakeWork;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -83,8 +75,8 @@ public class JobRunnerTest {
                 + "</cruise>";
     }
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         runner = new JobRunner();
         work = new FakeWork();
         consoleOut = new ArrayList<>();
@@ -96,33 +88,33 @@ public class JobRunnerTest {
         resolver = mock(UpstreamPipelineResolver.class);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         verifyNoMoreInteractions(resolver);
     }
 
     @Test
-    public void shouldDoNothingWhenJobIsNotCancelled() {
+    void shouldDoNothingWhenJobIsNotCancelled() {
         runner.setWork(work);
         runner.handleInstruction(new AgentInstruction(false), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
-        assertThat(work.getCallCount(), is(0));
+        assertThat(work.getCallCount()).isEqualTo(0);
     }
 
     @Test
-    public void shouldCancelOncePerJob() {
+    void shouldCancelOncePerJob() {
         runner.setWork(work);
         runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
-        assertThat(work.getCallCount(), is(1));
+        assertThat(work.getCallCount()).isEqualTo(1);
 
         runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
-        assertThat(work.getCallCount(), is(1));
+        assertThat(work.getCallCount()).isEqualTo(1);
     }
 
     @Test
-    public void shouldReturnTrueOnGetJobIsCancelledWhenJobIsCancelled() {
-        assertThat(runner.isJobCancelled(), is(false));
+    void shouldReturnTrueOnGetJobIsCancelledWhenJobIsCancelled() {
+        assertThat(runner.isJobCancelled()).isFalse();
         runner.handleInstruction(new AgentInstruction(true), new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
-        assertThat(runner.isJobCancelled(), is(true));
+        assertThat(runner.isJobCancelled()).isTrue();
     }
 
     private GoArtifactsManipulatorStub stubPublisher(final List<Property> properties,

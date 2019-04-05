@@ -32,10 +32,11 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatcher;
 import org.springframework.http.HttpStatus;
@@ -44,14 +45,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
 
+@EnableRuleMigrationSupport
 public class RemoteRegistrationRequesterTest {
 
     @Rule
@@ -59,19 +59,19 @@ public class RemoteRegistrationRequesterTest {
 
     private TokenService tokenService;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         tokenService = new TokenService();
         tokenService.store("token-from-server");
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() {
         tokenService.delete();
     }
 
     @Test
-    public void shouldPassAllParametersToPostForRegistrationOfNonElasticAgent() throws IOException, ClassNotFoundException {
+    void shouldPassAllParametersToPostForRegistrationOfNonElasticAgent() throws IOException, ClassNotFoundException {
         String url = "http://cruise.com/go";
         GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
         final CloseableHttpResponse response = mock(CloseableHttpResponse.class);
@@ -91,7 +91,7 @@ public class RemoteRegistrationRequesterTest {
     }
 
     @Test
-    public void shouldPassAllParametersToPostForRegistrationOfElasticAgent() throws IOException, ClassNotFoundException {
+    void shouldPassAllParametersToPostForRegistrationOfElasticAgent() throws IOException, ClassNotFoundException {
         String url = "http://cruise.com/go";
         GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
         final CloseableHttpResponse response = mock(CloseableHttpResponse.class);

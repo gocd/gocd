@@ -22,7 +22,6 @@ import com.thoughtworks.go.buildsession.BuildSessionBasedTestCase;
 import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.config.GuidService;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.matchers.RegexMatcher;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -41,25 +40,24 @@ import com.thoughtworks.go.work.SleepWork;
 import org.apache.http.HttpVersion;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.message.BasicStatusLine;
-import org.junit.After;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static com.thoughtworks.go.matchers.ConsoleOutMatcherJunit5.assertConsoleOut;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(MockitoJUnitRunner.class)
+@EnableRuleMigrationSupport
 public class AgentWebSocketClientControllerTest {
     private static final int MAX_WAIT_IN_TEST = 10000;
 
@@ -100,14 +98,18 @@ public class AgentWebSocketClientControllerTest {
     private WebSocketSessionHandler webSocketSessionHandler;
     private String agentUuid = "uuid";
 
+    @BeforeEach
+    void setUp() {
+        initMocks(this);
+    }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         new GuidService().delete();
     }
 
     @Test
-    public void shouldSendAgentRuntimeInfoWhenWorkIsCalled() throws Exception {
+    void shouldSendAgentRuntimeInfoWhenWorkIsCalled() throws Exception {
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
         when(webSocketSessionHandler.isNotRunning()).thenReturn(false);
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
@@ -120,13 +122,13 @@ public class AgentWebSocketClientControllerTest {
         verify(webSocketSessionHandler).sendAndWaitForAcknowledgement(argumentCaptor.capture());
 
         Message message = argumentCaptor.getValue();
-        assertThat(message.getAcknowledgementId(), notNullValue());
-        assertThat(message.getAction(), is(Action.ping));
-        assertThat(message.getData(), is(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
+        assertThat(message.getAcknowledgementId()).isNotNull();
+        assertThat(message.getAction()).isEqualTo(Action.ping);
+        assertThat(message.getData()).isEqualTo(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo()));
     }
 
     @Test
-    public void shouldHandleSecurityErrorWhenOpeningWebSocketFails() throws Exception {
+    void shouldHandleSecurityErrorWhenOpeningWebSocketFails() throws Exception {
         when(sslInfrastructureService.isRegistered()).thenReturn(true);
 
         agentController = createAgentController();
@@ -143,34 +145,34 @@ public class AgentWebSocketClientControllerTest {
     }
 
     @Test
-    public void processSetCookieAction() throws IOException, InterruptedException {
+    void processSetCookieAction() throws IOException, InterruptedException {
         agentController = createAgentController();
         agentController.init();
 
         agentController.process(new Message(Action.setCookie, MessageEncoding.encodeData("cookie")));
 
-        assertThat(agentController.getAgentRuntimeInfo().getCookie(), is("cookie"));
+        assertThat(agentController.getAgentRuntimeInfo().getCookie()).isEqualTo("cookie");
     }
 
     @Test
-    public void processAssignWorkAction() throws IOException, InterruptedException {
+    void processAssignWorkAction() throws IOException, InterruptedException {
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
         agentController = createAgentController();
         agentController.init();
         agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(new SleepWork("work1", 0))));
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus()).isEqualTo(AgentRuntimeStatus.Idle);
 
         verify(webSocketSessionHandler, times(1)).sendAndWaitForAcknowledgement(argumentCaptor.capture());
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
 
         Message message = argumentCaptor.getAllValues().get(0);
-        assertThat(message.getAcknowledgementId(), notNullValue());
-        assertThat(message.getAction(), is(Action.ping));
-        assertThat(message.getData(), is(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
+        assertThat(message.getAcknowledgementId()).isNotNull();
+        assertThat(message.getAction()).isEqualTo(Action.ping);
+        assertThat(message.getData()).isEqualTo(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo()));
     }
 
     @Test
-    public void processAssignWorkActionWithConsoleLogsThroughWebSockets() throws IOException, InterruptedException {
+    void processAssignWorkActionWithConsoleLogsThroughWebSockets() throws IOException, InterruptedException {
         SystemEnvironment env = new SystemEnvironment();
         env.set(SystemEnvironment.WEBSOCKET_ENABLED, true);
         env.set(SystemEnvironment.CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED, true);
@@ -178,27 +180,27 @@ public class AgentWebSocketClientControllerTest {
         agentController = createAgentController();
         agentController.init();
         agentController.process(new Message(Action.assignWork, MessageEncoding.encodeWork(new SleepWork("work1", 0))));
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus()).isEqualTo(AgentRuntimeStatus.Idle);
 
         verify(webSocketSessionHandler, times(2)).sendAndWaitForAcknowledgement(argumentCaptor.capture());
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done"));
 
         Message message = argumentCaptor.getAllValues().get(1);
-        assertThat(message.getAcknowledgementId(), notNullValue());
-        assertThat(message.getAction(), is(Action.ping));
-        assertThat(message.getData(), is(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo())));
+        assertThat(message.getAcknowledgementId()).isNotNull();
+        assertThat(message.getAction()).isEqualTo(Action.ping);
+        assertThat(message.getData()).isEqualTo(MessageEncoding.encodeData(agentController.getAgentRuntimeInfo()));
 
         Message message2 = argumentCaptor.getAllValues().get(0);
-        assertThat(message2.getAcknowledgementId(), notNullValue());
-        assertThat(message2.getAction(), is(Action.consoleOut));
+        assertThat(message2.getAcknowledgementId()).isNotNull();
+        assertThat(message2.getAction()).isEqualTo(Action.consoleOut);
         ConsoleTransmission ct = MessageEncoding.decodeData(message2.getData(), ConsoleTransmission.class);
-        assertThat(ct.getLine(), RegexMatcher.matches("Sleeping for 0 milliseconds"));
+        assertConsoleOut(ct.getLine()).matchUsingRegex("Sleeping for 0 milliseconds");
         env.set(SystemEnvironment.WEBSOCKET_ENABLED, false);
         env.set(SystemEnvironment.CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED, false);
     }
 
     @Test
-    public void processBuildCommandWithConsoleLogsThroughWebSockets() throws Exception {
+    void processBuildCommandWithConsoleLogsThroughWebSockets() throws Exception {
         ArgumentCaptor<Message> currentStatusMessageCaptor = ArgumentCaptor.forClass(Message.class);
         when(systemEnvironment.isConsoleLogsThroughWebsocketEnabled()).thenReturn(true);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
@@ -218,7 +220,7 @@ public class AgentWebSocketClientControllerTest {
 
         agentController.process(new Message(Action.build, MessageEncoding.encodeData(build)));
 
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus()).isEqualTo(AgentRuntimeStatus.Idle);
 
         AgentRuntimeInfo agentRuntimeInfo = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
@@ -226,25 +228,25 @@ public class AgentWebSocketClientControllerTest {
         verify(webSocketSessionHandler, times(3)).sendAndWaitForAcknowledgement(currentStatusMessageCaptor.capture());
 
         Message consoleOutMsg = currentStatusMessageCaptor.getAllValues().get(0);
-        assertThat(consoleOutMsg.getAcknowledgementId(), notNullValue());
-        assertThat(consoleOutMsg.getAction(), is(Action.consoleOut));
+        assertThat(consoleOutMsg.getAcknowledgementId()).isNotNull();
+        assertThat(consoleOutMsg.getAction()).isEqualTo(Action.consoleOut);
         ConsoleTransmission ct = MessageEncoding.decodeData(consoleOutMsg.getData(), ConsoleTransmission.class);
-        assertThat(ct.getLine(), RegexMatcher.matches("building"));
-        assertEquals(ct.getBuildId(), "b001");
+        assertConsoleOut(ct.getLine()).matchUsingRegex("building");
+        assertThat("b001").isEqualTo(ct.getBuildId());
 
         Message message = currentStatusMessageCaptor.getAllValues().get(1);
-        assertThat(message.getAcknowledgementId(), notNullValue());
-        assertThat(message.getAction(), is(Action.reportCurrentStatus));
-        assertThat(message.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
+        assertThat(message.getAcknowledgementId()).isNotNull();
+        assertThat(message.getAction()).isEqualTo(Action.reportCurrentStatus);
+        assertThat(message.getData()).isEqualTo(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null)));
 
         Message jobCompletedMessage = currentStatusMessageCaptor.getAllValues().get(2);
-        assertThat(jobCompletedMessage.getAcknowledgementId(), notNullValue());
-        assertThat(jobCompletedMessage.getAction(), is(Action.reportCompleted));
-        assertThat(jobCompletedMessage.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
+        assertThat(jobCompletedMessage.getAcknowledgementId()).isNotNull();
+        assertThat(jobCompletedMessage.getAction()).isEqualTo(Action.reportCompleted);
+        assertThat(jobCompletedMessage.getData()).isEqualTo(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed)));
     }
 
     @Test
-    public void processBuildCommand() throws Exception {
+    void processBuildCommand() throws Exception {
         ArgumentCaptor<Message> currentStatusMessageCaptor = ArgumentCaptor.forClass(Message.class);
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
@@ -266,7 +268,7 @@ public class AgentWebSocketClientControllerTest {
 
         agentController.process(new Message(Action.build, MessageEncoding.encodeData(build)));
 
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus()).isEqualTo(AgentRuntimeStatus.Idle);
 
         AgentRuntimeInfo agentRuntimeInfo = cloneAgentRuntimeInfo(agentController.getAgentRuntimeInfo());
         agentRuntimeInfo.busy(new AgentBuildingInfo("build1ForDisplay", "build1"));
@@ -274,14 +276,14 @@ public class AgentWebSocketClientControllerTest {
         verify(webSocketSessionHandler, times(2)).sendAndWaitForAcknowledgement(currentStatusMessageCaptor.capture());
 
         Message message = currentStatusMessageCaptor.getAllValues().get(0);
-        assertThat(message.getAcknowledgementId(), notNullValue());
-        assertThat(message.getAction(), is(Action.reportCurrentStatus));
-        assertThat(message.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null))));
+        assertThat(message.getAcknowledgementId()).isNotNull();
+        assertThat(message.getAction()).isEqualTo(Action.reportCurrentStatus);
+        assertThat(message.getData()).isEqualTo(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", JobState.Building, null)));
 
         Message jobCompletedMessage = currentStatusMessageCaptor.getAllValues().get(1);
-        assertThat(jobCompletedMessage.getAcknowledgementId(), notNullValue());
-        assertThat(jobCompletedMessage.getAction(), is(Action.reportCompleted));
-        assertThat(jobCompletedMessage.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed))));
+        assertThat(jobCompletedMessage.getAcknowledgementId()).isNotNull();
+        assertThat(jobCompletedMessage.getAction()).isEqualTo(Action.reportCompleted);
+        assertThat(jobCompletedMessage.getData()).isEqualTo(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Passed)));
     }
 
     private AgentRuntimeInfo cloneAgentRuntimeInfo(AgentRuntimeInfo agentRuntimeInfo) {
@@ -289,7 +291,7 @@ public class AgentWebSocketClientControllerTest {
     }
 
     @Test
-    public void processCancelBuildCommandBuild() throws IOException, InterruptedException {
+    void processCancelBuildCommandBuild() throws IOException, InterruptedException {
         ArgumentCaptor<Message> argumentCaptor = ArgumentCaptor.forClass(Message.class);
 
         agentController = createAgentController();
@@ -331,16 +333,16 @@ public class AgentWebSocketClientControllerTest {
 
         verify(webSocketSessionHandler).sendAndWaitForAcknowledgement(argumentCaptor.capture());
 
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus()).isEqualTo(AgentRuntimeStatus.Idle);
 
         Message message = argumentCaptor.getValue();
-        assertThat(message.getAcknowledgementId(), notNullValue());
-        assertThat(message.getAction(), is(Action.reportCompleted));
-        assertThat(message.getData(), is(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Cancelled))));
+        assertThat(message.getAcknowledgementId()).isNotNull();
+        assertThat(message.getAction()).isEqualTo(Action.reportCompleted);
+        assertThat(message.getData()).isEqualTo(MessageEncoding.encodeData(new Report(agentRuntimeInfo, "b001", null, JobResult.Cancelled)));
     }
 
     @Test
-    public void processCancelJobAction() throws IOException, InterruptedException {
+    void processCancelJobAction() throws IOException, InterruptedException {
         agentController = createAgentController();
         agentController.init();
         final SleepWork sleep1secWork = new SleepWork("work1", MAX_WAIT_IN_TEST);
@@ -362,7 +364,7 @@ public class AgentWebSocketClientControllerTest {
         agentController.process(new Message(Action.cancelBuild));
         buildingThread.join(MAX_WAIT_IN_TEST);
 
-        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus(), is(AgentRuntimeStatus.Idle));
+        assertThat(agentController.getAgentRuntimeInfo().getRuntimeStatus()).isEqualTo(AgentRuntimeStatus.Idle);
         verify(artifactsManipulator).setProperty(null, new Property("work1_result", "done_canceled"));
     }
 
@@ -380,7 +382,7 @@ public class AgentWebSocketClientControllerTest {
     }
 
     @Test
-    public void processReregisterAction() throws IOException, InterruptedException {
+    void processReregisterAction() throws IOException, InterruptedException {
         when(agentRegistry.uuid()).thenReturn(agentUuid);
         agentController = createAgentController();
         agentController.init();
@@ -391,7 +393,7 @@ public class AgentWebSocketClientControllerTest {
     }
 
     @Test
-    public void shouldCancelPreviousRunningJobIfANewAssignWorkMessageIsReceived() throws IOException, InterruptedException {
+    void shouldCancelPreviousRunningJobIfANewAssignWorkMessageIsReceived() throws IOException, InterruptedException {
         agentController = createAgentController();
         agentController.init();
         final SleepWork work1 = new SleepWork("work1", MAX_WAIT_IN_TEST);

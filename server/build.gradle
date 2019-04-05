@@ -15,6 +15,7 @@
  */
 
 
+import com.github.jk1.license.ReportTask
 import com.thoughtworks.go.build.ExecuteUnderRailsTask
 import com.thoughtworks.go.build.LicenseReport
 import com.thoughtworks.go.build.VerifyJarTask
@@ -174,15 +175,15 @@ project.ext.rails.testExternalPluginsDir = project.file("${project.rails.testPlu
 project.ext.rails.testPluginsWorkDir = project.file("${project.rails.testPluginsDir}/work")
 
 project.ext.railsSystemProperties = [
-  'always.reload.config.file'     : true,
-  'cruise.i18n.cache.life'        : 0,
-  'cruise.config.dir'             : project.rails.testConfigDir,
-  'cruise.database.dir'           : project.rails.testH2DbDir,
-  'plugins.go.provided.path'      : project.rails.testBundledPluginsDir,
-  'plugins.external.provided.path': project.rails.testExternalPluginsDir,
-  'plugins.work.path'             : project.rails.testPluginsWorkDir,
-  'rails.use.compressed.js'       : false,
-  'go.enforce.server.immutability': 'N',
+  'always.reload.config.file'                    : true,
+  'cruise.i18n.cache.life'                       : 0,
+  'cruise.config.dir'                            : project.rails.testConfigDir,
+  'cruise.database.dir'                          : project.rails.testH2DbDir,
+  'plugins.go.provided.path'                     : project.rails.testBundledPluginsDir,
+  'plugins.external.provided.path'               : project.rails.testExternalPluginsDir,
+  'plugins.work.path'                            : project.rails.testPluginsWorkDir,
+  'rails.use.compressed.js'                      : false,
+  'go.enforce.server.immutability'               : 'N',
   'jdk.net.URLClassPath.disableClassPathURLCheck': true
 ]
 
@@ -949,10 +950,11 @@ task verifyWar(type: VerifyJarTask) {
 
 task licenseReportAggregate {
   if (!project.hasProperty('fastBuild')) {
-    rootProject.subprojects.each {
-      if (it.plugins.hasPlugin(com.hierynomus.gradle.license.LicenseReportingPlugin)) {
-        licenseReportAggregate.dependsOn "${it.path}:generateLicenseReport"
-        licenseReportAggregate.inputs.dir(it.licenseReport.outputDir)
+    rootProject.subprojects.each { eachProject ->
+      def reportTasks = eachProject.tasks.withType(ReportTask)
+      if (!reportTasks.isEmpty()) {
+        licenseReportAggregate.dependsOn reportTasks
+        licenseReportAggregate.inputs.dir(eachProject.licenseReport.outputDir)
       }
     }
     dependsOn generateLicenseReport

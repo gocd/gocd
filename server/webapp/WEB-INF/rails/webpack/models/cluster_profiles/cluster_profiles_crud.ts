@@ -41,10 +41,10 @@ export class ClusterProfilesCRUD {
                             .then(this.extractObjectWithEtag());
   }
 
-  static create(profile: ClusterProfile) {
+  static create(clusterProfile: ClusterProfile) {
     return ApiRequestBuilder.POST(SparkRoutes.apiAdminAccessClusterProfilesPath(),
                                   this.API_VERSION_HEADER,
-                                  {payload: profile}).then(this.extractObjectWithEtag());
+                                  {payload: clusterProfile.toJSON()}).then(this.extractObjectWithEtag());
   }
 
   static delete(id: string) {

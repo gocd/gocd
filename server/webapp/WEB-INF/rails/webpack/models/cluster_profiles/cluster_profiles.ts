@@ -17,6 +17,8 @@
 import * as _ from "lodash";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {Errors} from "models/mixins/errors";
+import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Configuration, Configurations, PropertyJSON} from "models/shared/configuration";
 
 interface EmbeddedJSON {
@@ -27,25 +29,43 @@ export interface ClusterProfileJSON {
   id: string;
   plugin_id: string;
   properties: PropertyJSON[];
+  errors?: { [key: string]: string[] };
 }
 
 interface ClusterProfilesJSON {
   _embedded: EmbeddedJSON;
 }
 
-export class ClusterProfile {
+export class ClusterProfile extends ValidatableMixin {
   id: Stream<string>;
   pluginId: Stream<string>;
   properties: Stream<Configurations>;
 
   constructor(json: ClusterProfileJSON) {
+    super();
+    ValidatableMixin.call(this);
+
     this.id         = stream(json.id);
     this.pluginId   = stream(json.plugin_id);
     this.properties = stream(new Configurations(json.properties.map((property) => Configuration.fromJSON(property))));
+
+    this.validatePresenceOf("id");
+    this.validateIdFormat("id");
+    this.validatePresenceOf("pluginId");
   }
 
   static fromJSON(json: ClusterProfileJSON) {
-    return new ClusterProfile(json);
+    const profile = new ClusterProfile(json);
+    profile.errors(new Errors(json.errors));
+    return profile;
+  }
+
+  toJSON() {
+    return {
+      id: this.id(),
+      plugin_id: this.pluginId(),
+      properties: this.properties.toJSON()
+    };
   }
 }
 

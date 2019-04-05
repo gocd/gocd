@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {ClusterProfiles} from "models/cluster_profiles/cluster_profiles";
@@ -25,66 +26,86 @@ import {ClusterProfilesWidget} from "views/pages/cluster_profiles/cluster_profil
 import {DockerClusterProfile, K8SClusterProfile} from "views/pages/cluster_profiles/spec/test_data";
 import {TestData} from "views/pages/elastic_profiles/spec/test_data";
 
-describe("list all cluster profiles", () => {
-  const helper        = new TestHelper();
-  const simulateEvent = require("simulate-event");
-
+describe("ClusterProfilesWidget", () => {
+  const helper      = new TestHelper();
   const pluginInfos = [
     PluginInfo.fromJSON(TestData.DockerPluginJSON(), TestData.DockerPluginJSON()._links),
     PluginInfo.fromJSON(TestData.KubernatesPluginJSON(), TestData.KubernatesPluginJSON()._links)
   ];
 
-  const clusterProfiles = ClusterProfiles.fromJSON({
-                                                     _embedded: {
-                                                       cluster_profiles: [
-                                                         DockerClusterProfile(),
-                                                         K8SClusterProfile()
-                                                       ]
-                                                     }
-                                                   });
-
-  beforeEach(() => {
-    mount(pluginInfos, clusterProfiles);
-  });
-
   afterEach(helper.unmount.bind(helper));
 
-  it("should render all cluster profile panels", () => {
-    expect(helper.findByDataTestId("cluster-profile-list").get(0).children).toHaveLength(2);
+  describe("list all cluster profiles", () => {
+    const simulateEvent = require("simulate-event");
+
+    const clusterProfiles = ClusterProfiles.fromJSON({
+                                                       _embedded: {
+                                                         cluster_profiles: [
+                                                           DockerClusterProfile(),
+                                                           K8SClusterProfile()
+                                                         ]
+                                                       }
+                                                     });
+
+    beforeEach(() => {
+      mount(pluginInfos, clusterProfiles);
+    });
+
+    it("should render all cluster profile panels", () => {
+      expect(helper.findByDataTestId("cluster-profile-list").get(0).children).toHaveLength(2);
+    });
+
+    it("should render cluster id, plugin name and image", () => {
+      expect(helper.findByDataTestId("cluster-profile-list").get(0).children).toHaveLength(2);
+
+      expect(helper.findByDataTestId("plugin-name").get(0)).toContainText(TestData.DockerPluginJSON().about.name);
+      expect(helper.findByDataTestId("plugin-icon").get(0))
+        .toHaveAttr("src", TestData.DockerPluginJSON()._links.image.href);
+
+      expect(helper.findByDataTestId("plugin-name").get(1)).toContainText(TestData.KubernatesPluginJSON().about.name);
+      expect(helper.findByDataTestId("plugin-icon").get(1))
+        .toHaveAttr("src", TestData.KubernatesPluginJSON()._links.image.href);
+    });
+
+    it("should toggle between expanded and collapsed state on click of header", () => {
+      const clusterProfileListHeader = helper.findByDataTestId("collapse-header").get(1);
+
+      expect(clusterProfileListHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
+
+      //expand cluster profile info
+      simulateEvent.simulate(clusterProfileListHeader, "click");
+      m.redraw();
+
+      expect(clusterProfileListHeader).toHaveClass(collapsiblePanelStyles.expanded);
+
+      //collapse cluster profile info
+      simulateEvent.simulate(clusterProfileListHeader, "click");
+      m.redraw();
+
+      expect(clusterProfileListHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
+    });
   });
 
-  it("should render cluster id, plugin name and image", () => {
-    expect(helper.findByDataTestId("cluster-profile-list").get(0).children).toHaveLength(2);
-
-    expect(helper.findByDataTestId("plugin-name").get(0)).toContainText(TestData.DockerPluginJSON().about.name);
-    expect(helper.findByDataTestId("plugin-icon").get(0))
-      .toHaveAttr("src", TestData.DockerPluginJSON()._links.image.href);
-
-    expect(helper.findByDataTestId("plugin-name").get(1)).toContainText(TestData.KubernatesPluginJSON().about.name);
-    expect(helper.findByDataTestId("plugin-icon").get(1))
-      .toHaveAttr("src", TestData.KubernatesPluginJSON()._links.image.href);
+  it("should display info message if there are no cluster profiles created", () => {
+    mount(pluginInfos, new ClusterProfiles());
+    expect(helper.findByDataTestId("flash-message-info")).toBeInDOM();
+    expect(helper.findByDataTestId("flash-message-info"))
+      .toHaveText("Click on 'Add' button to create new cluster profile.");
+    helper.unmount.bind(helper);
   });
 
-  it("should toggle between expanded and collapsed state on click of header", () => {
-    const clusterProfileListHeader = helper.findByDataTestId("collapse-header").get(1);
-
-    expect(clusterProfileListHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
-
-    //expand cluster profile info
-    simulateEvent.simulate(clusterProfileListHeader, "click");
-    m.redraw();
-
-    expect(clusterProfileListHeader).toHaveClass(collapsiblePanelStyles.expanded);
-
-    //collapse cluster profile info
-    simulateEvent.simulate(clusterProfileListHeader, "click");
-    m.redraw();
-
-    expect(clusterProfileListHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
+  it("should display info message if there are no plugins installed", () => {
+    mount([], new ClusterProfiles());
+    expect(helper.findByDataTestId("flash-message-info")).toBeInDOM();
+    expect(helper.findByDataTestId("flash-message-info")).toHaveText("No elastic agent plugin installed.");
+    helper.unmount.bind(helper);
   });
 
   function mount(pluginInfos: Array<PluginInfo<Extension>>, clusterProfiles: ClusterProfiles) {
+    const noop = _.noop;
     helper.mount(() => <ClusterProfilesWidget pluginInfos={stream(pluginInfos)}
-                                              clusterProfiles={clusterProfiles}/>);
+                                              clusterProfiles={clusterProfiles}
+                                              onEdit={noop}
+                                              onDelete={noop}/>);
   }
 });

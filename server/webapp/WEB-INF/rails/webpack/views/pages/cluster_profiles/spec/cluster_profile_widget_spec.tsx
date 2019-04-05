@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import * as _ from "lodash";
 import * as m from "mithril";
 import {ClusterProfile} from "models/cluster_profiles/cluster_profiles";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
@@ -74,7 +75,11 @@ describe("Cluster Profile Widget", () => {
   });
 
   function mount(clusterProfile: ClusterProfile) {
-    helper.mount(() => <ClusterProfileWidget clusterProfile={clusterProfile}/>);
+    const noop = _.noop;
+    helper.mount(() =>
+                   <ClusterProfileWidget clusterProfile={clusterProfile}
+                                         onEdit={noop}
+                                         onDelete={noop}/>);
   }
 
   function find(id: string) {

@@ -69,3 +69,39 @@ describe("ClusterProfiles", () => {
     expect(groupedClusterProfiles.plugin_2[0].id()).toEqual("cluster_2");
   });
 });
+
+describe("Cluster Profile Validations", () => {
+  it("should validate presence of id", () => {
+    const clusterProfileJson = clusterProfileTestData("cluster_1", "plugin_1");
+    delete clusterProfileJson.id;
+    const clusterProfile = ClusterProfile.fromJSON(clusterProfileJson);
+    clusterProfile.isValid();
+
+    const errors = clusterProfile.errors();
+    expect(errors.hasErrors()).toBeTruthy();
+    expect(errors.errorsForDisplay("id")).toEqual("Id must be present.");
+  });
+
+  it("should validate format of id", () => {
+    const clusterProfile = ClusterProfile.fromJSON(clusterProfileTestData("cluster id with spaces not allowed", "plugin_1"));
+
+    clusterProfile.isValid();
+
+    const errors = clusterProfile.errors();
+    expect(errors.hasErrors()).toBeTruthy();
+    expect(errors.errorsForDisplay("id"))
+      .toEqual(
+        "Invalid id. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+  });
+
+  it("should validate presence of plugin id", () => {
+    const clusterProfileJson = clusterProfileTestData("cluster_1", "plugin_1");
+    delete clusterProfileJson.plugin_id;
+    const clusterProfile = ClusterProfile.fromJSON(clusterProfileJson);
+    clusterProfile.isValid();
+
+    const errors = clusterProfile.errors();
+    expect(errors.hasErrors()).toBeTruthy();
+    expect(errors.errorsForDisplay("pluginId")).toEqual("Plugin id must be present.");
+  });
+});

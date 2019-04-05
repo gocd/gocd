@@ -26,3 +26,7 @@
     font-size: 15px;
   }
 }
+
+.spinner-wrapper {
+  @include spinner-for-modal;
+}

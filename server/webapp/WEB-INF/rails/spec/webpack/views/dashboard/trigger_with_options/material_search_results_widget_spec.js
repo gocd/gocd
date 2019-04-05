@@ -72,7 +72,7 @@ describe("Dashboard Material Search Results Widget", () => {
     expect(helper.find('.commits')).not.toBeInDOM();
   });
 
-  it("should select searched revision onclick", () => {
+  it("should select searched revision onclick", (done) => {
     material.searchText('implemented');
     material.searchResults(json);
 
@@ -82,6 +82,9 @@ describe("Dashboard Material Search Results Widget", () => {
 
     expect(material.selection()).toEqual(json[1].revision);
     expect(material.searchText()).toEqual(json[1].revision);
+
+    //timeout is required to wait for the debounced search
+    setTimeout(done, 250);
   });
 
   const json = [
@@ -112,6 +115,7 @@ describe("Dashboard Material Search Results Widget", () => {
   ];
 
   function mount() {
+    jasmine.Ajax.install();
     helper.mount(() => m(MaterialSearchResultsWidget, {
       material
     }));
@@ -119,5 +123,6 @@ describe("Dashboard Material Search Results Widget", () => {
 
   function unmount() {
     helper.unmount();
+    jasmine.Ajax.uninstall();
   }
 });

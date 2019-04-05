@@ -96,20 +96,40 @@ class SecretConfigsControllerV1Test implements SecurityServiceTrait, ControllerT
       }
 
       @Test
-      void 'should list all secrets configs'() {
+      void 'should list all secrets configs with etag header'() {
         def expectedConfigs = new SecretConfigs(new SecretConfig("ForDeploy", "file",
           ConfigurationPropertyMother.create("username", false, "Jane"),
           ConfigurationPropertyMother.create("password", true, "Doe")
         ))
 
         when(secretConfigService.getAllSecretConfigs()).thenReturn(expectedConfigs)
+        when(entityHashingService.md5ForEntity(expectedConfigs)).thenReturn("ffff")
 
         getWithApiHeader(controller.controllerPath())
 
         assertThatResponse()
           .isOk()
+          .hasEtag('"ffff"')
           .hasContentType(controller.mimeType)
           .hasBodyWithJsonObject(expectedConfigs, SecretConfigsRepresenter)
+      }
+
+      @Test
+      void 'should return 304 if secret configs are not modified since last request'() {
+        def expectedConfigs = new SecretConfigs(new SecretConfig("ForDeploy", "file",
+          ConfigurationPropertyMother.create("username", false, "Jane"),
+          ConfigurationPropertyMother.create("password", true, "Doe")
+        ))
+
+        when(secretConfigService.getAllSecretConfigs()).thenReturn(expectedConfigs)
+        when(entityHashingService.md5ForEntity(expectedConfigs)).thenReturn("ffff")
+
+        getWithApiHeader(controller.controllerPath(), ['if-none-match': '"ffff"'])
+
+        assertThatResponse()
+          .isNotModified()
+          .hasContentType(controller.mimeType)
+          .hasNoBody()
       }
 
       @Test

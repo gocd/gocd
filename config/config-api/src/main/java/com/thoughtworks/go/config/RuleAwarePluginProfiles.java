@@ -21,17 +21,17 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.*;
 
-public abstract class NewPluginProfiles<T extends NewPluginProfile> extends BaseCollection<T> implements Validatable {
+public abstract class RuleAwarePluginProfiles<T extends RuleAwarePluginProfile> extends BaseCollection<T> implements Validatable {
     private final ConfigErrors errors = new ConfigErrors();
 
-    public NewPluginProfiles() {
+    public RuleAwarePluginProfiles() {
     }
 
-    public NewPluginProfiles(T... profiles) {
+    public RuleAwarePluginProfiles(T... profiles) {
         super(Arrays.asList(profiles));
     }
 
-    public NewPluginProfiles(List<T> profiles) {
+    public RuleAwarePluginProfiles(List<T> profiles) {
         super(profiles);
     }
 
@@ -70,8 +70,8 @@ public abstract class NewPluginProfiles<T extends NewPluginProfile> extends Base
     }
 
     private void validateIdUniqueness() {
-        Map<String, NewPluginProfile> profiles = new HashMap<>();
-        for (NewPluginProfile pluginProfile : this) {
+        Map<String, RuleAwarePluginProfile> profiles = new HashMap<>();
+        for (RuleAwarePluginProfile pluginProfile : this) {
             pluginProfile.validateIdUniqueness(profiles);
         }
     }

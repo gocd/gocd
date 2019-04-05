@@ -18,7 +18,7 @@ package com.thoughtworks.go.config;
 
 @ConfigTag("secretConfigs")
 @ConfigCollection(SecretConfig.class)
-public class SecretConfigs extends NewPluginProfiles<SecretConfig> {
+public class SecretConfigs extends RuleAwarePluginProfiles<SecretConfig> {
     public SecretConfigs() {}
 
     public SecretConfigs(SecretConfig... secretConfig) {

@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class SecretConfigTest extends NewPluginProfileTest {
+public class SecretConfigTest extends RuleAwarePluginProfileTest {
     private SecretsMetadataStore store = SecretsMetadataStore.instance();
 
     @AfterEach
@@ -196,7 +196,7 @@ public class SecretConfigTest extends NewPluginProfileTest {
     }
 
     @Override
-    protected NewPluginProfile newPluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties) {
+    protected RuleAwarePluginProfile newPluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties) {
         return new SecretConfig(id, pluginId, configurationProperties);
     }
 

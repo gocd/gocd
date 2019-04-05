@@ -44,7 +44,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class NewPluginProfileCommandTest {
+public class RuleAwarePluginProfileCommandTest {
     private Username currentUser;
     private GoConfigService goConfigService;
     private BasicCruiseConfig cruiseConfig;
@@ -65,7 +65,7 @@ public class NewPluginProfileCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        NewPluginProfileCommand command = new StubSecretConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
+        RuleAwarePluginProfileCommand command = new StubSecretConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("foo"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
@@ -78,7 +78,7 @@ public class NewPluginProfileCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        NewPluginProfileCommand command = new StubSecretConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
+        RuleAwarePluginProfileCommand command = new StubSecretConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(true));
@@ -91,7 +91,7 @@ public class NewPluginProfileCommandTest {
         SecretConfig securityAuthConfig = new SecretConfig(null, "some-plugin", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
         cruiseConfig.getSecretConfigs().add(securityAuthConfig);
 
-        NewPluginProfileCommand command = new StubSecretConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
+        RuleAwarePluginProfileCommand command = new StubSecretConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
         thrown.expectMessage(EntityType.ElasticProfile.idCannotBeBlank());
         command.isValid(cruiseConfig);
     }
@@ -103,13 +103,13 @@ public class NewPluginProfileCommandTest {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        NewPluginProfileCommand command = new StubSecretConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
+        RuleAwarePluginProfileCommand command = new StubSecretConfigCommand(goConfigService, securityAuthConfig, currentUser, result);
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(true));
     }
 
-    private class StubSecretConfigCommand extends NewPluginProfileCommand<SecretConfig, SecretConfigs> {
+    private class StubSecretConfigCommand extends RuleAwarePluginProfileCommand<SecretConfig, SecretConfigs> {
 
         public StubSecretConfigCommand(GoConfigService goConfigService, SecretConfig profile, Username currentUser, LocalizedOperationResult result) {
             super(goConfigService, profile, currentUser, result);

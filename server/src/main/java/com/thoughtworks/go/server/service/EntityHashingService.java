@@ -258,6 +258,14 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
     }
 
+    public String md5ForEntity(SecretConfigs secretConfigs) {
+        List<String> md5s = new ArrayList<>();
+        for(SecretConfig secretConfig: secretConfigs) {
+            md5s.add(md5ForEntity(secretConfig));
+        }
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+    }
+
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
         @Override
         public void onEntityConfigChange(PipelineConfig pipelineConfig) {

@@ -177,7 +177,7 @@ public class PipelineConfigMother {
             job.setVariables(
                     new EnvironmentVariablesConfig(
                             asList(
-                                    new EnvironmentVariableConfig(new GoCipher(), secretParam.getKey(), secretParam.placeholder(), true)
+                                    new EnvironmentVariableConfig(new GoCipher(), secretParam.getKey(), secretParam.asString(), true)
                             )
                     )
             );
@@ -207,7 +207,7 @@ public class PipelineConfigMother {
             job.setVariables(
                     new EnvironmentVariablesConfig(
                             asList(
-                                    new EnvironmentVariableConfig(new GoCipher(), secretParam.getKey(), secretParam.placeholder(), true)
+                                    new EnvironmentVariableConfig(new GoCipher(), secretParam.getKey(), secretParam.asString(), true)
                             )
                     )
             );

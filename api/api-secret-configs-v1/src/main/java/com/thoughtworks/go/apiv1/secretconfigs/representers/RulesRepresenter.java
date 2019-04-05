@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv1.secretconfigs.representers;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.thoughtworks.go.Deny;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
@@ -48,14 +49,14 @@ public class RulesRepresenter {
         Rules rules = new Rules();
 
         jsonArray.forEach(directiveJSON -> {
-            GsonTransformer gsonTransformer = GsonTransformer.getInstance();
-            rules.add(getDirective(gsonTransformer.jsonReaderFrom(directiveJSON.toString())));
+            rules.add(getDirective(directiveJSON));
         });
 
         return rules;
     }
 
-    private static Directive getDirective(JsonReader reader) {
+    private static Directive getDirective(JsonElement directiveJson) {
+        JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(directiveJson.toString());
         String directive = reader.getString("directive");
         String action = reader.getString("action");
         String type = reader.getString("type");
@@ -64,7 +65,7 @@ public class RulesRepresenter {
         Optional<DirectiveType> directiveType = fromString(directive);
 
         if (!directiveType.isPresent()) {
-            HaltApiResponses.haltBecauseOfReason("Directive '%s' is not recognized as a valid directive in json '%s'", directive, reader.toString());
+            HaltApiResponses.haltBecauseOfReason("Invalid rule directive '%s' in JSON payload '%s'.", directive, directiveJson.toString());
         }
 
         switch (directiveType.get()) {
@@ -73,7 +74,7 @@ public class RulesRepresenter {
             case DENY:
                 return new Deny(action, type, resource);
             default:
-                // it will never reach here
+                HaltApiResponses.haltBecauseOfReason("Invalid rule directive '%s' in JSON payload '%s'.", directive, directiveJson.toString());
                 break;
         }
         return null;

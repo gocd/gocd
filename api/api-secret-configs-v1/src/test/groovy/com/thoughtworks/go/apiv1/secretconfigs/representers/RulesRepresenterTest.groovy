@@ -22,12 +22,13 @@ import com.thoughtworks.go.Deny
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.Allow
 import com.thoughtworks.go.config.Rules
-import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
+import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
+import static org.junit.jupiter.api.Assertions.assertThrows
 
 class RulesRepresenterTest {
 
@@ -43,7 +44,7 @@ class RulesRepresenterTest {
 
       def json = toArrayString({ RulesRepresenter.toJSON(it, rules) })
 
-      JsonFluentAssert.assertThatJson(json).isEqualTo(
+      assertThatJson(json).isEqualTo(
         [
           [
             directive: "allow",
@@ -77,7 +78,7 @@ class RulesRepresenterTest {
     void shouldSerializeEmptyRules() {
       def json = toArrayString({ RulesRepresenter.toJSON(it, new Rules()) })
 
-      JsonFluentAssert.assertThatJson(json).isEqualTo("[]")
+      assertThatJson(json).isEqualTo("[]")
     }
 
   }
@@ -128,6 +129,31 @@ class RulesRepresenterTest {
         new Deny("view", "Environment", "TestEnvironment"),
         new Deny("view", "Environment", "TestEnvironment")
       )
+    }
+
+    @Test
+    void shouldReturn422WhenInvalidDirectiveIsSpecifiedInJson() {
+      def request = [
+        "rules": [
+          [
+            directive: "foobar",
+            action   : "refer",
+            type     : "PipelineGroup",
+            resource : "DeployPipelines"
+          ]
+        ]
+      ]
+
+      def jsonRequest = new Gson().toJson(request).toString()
+      def jsonObject = GsonTransformer.instance.jsonReaderFrom(jsonRequest)
+
+      def error = (spark.HaltException) assertThrows(spark.HaltException.class, {
+        RulesRepresenter.fromJSON(jsonObject.optJsonArray("rules").get())
+      })
+
+      assertThatJson(error.body()).isEqualTo([
+        "message" : "Invalid rule directive 'foobar' in JSON payload '{\"directive\":\"foobar\",\"action\":\"refer\",\"type\":\"PipelineGroup\",\"resource\":\"DeployPipelines\"}'."
+      ])
     }
 
     @Test

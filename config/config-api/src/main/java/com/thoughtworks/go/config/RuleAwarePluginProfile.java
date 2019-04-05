@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.plugin.access.secrets.SecretsMetadataStore;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -30,7 +29,7 @@ import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-public abstract class NewPluginProfile implements Validatable {
+public abstract class RuleAwarePluginProfile implements Validatable {
     public static final String ID = "id";
     public static final String PLUGIN_ID = "pluginId";
 
@@ -43,13 +42,19 @@ public abstract class NewPluginProfile implements Validatable {
     @ConfigSubtag
     private Configuration configuration;
 
+    @ConfigSubtag
+    private Rules rules = new Rules();
 
-    public NewPluginProfile() {
+    @ConfigSubtag
+    private Description description = new Description();
+
+
+    public RuleAwarePluginProfile() {
         configuration = new Configuration();
     }
     private final ConfigErrors errors = new ConfigErrors();
 
-    public NewPluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties) {
+    public RuleAwarePluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties) {
         this.id = id;
         this.pluginId = pluginId;
         configuration = new Configuration(configurationProperties);
@@ -85,6 +90,20 @@ public abstract class NewPluginProfile implements Validatable {
         @ConfigValue
         private String text;
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Description that = (Description) o;
+
+            return text != null ? text.equals(that.text) : that.text == null;
+        }
+
+        @Override
+        public int hashCode() {
+            return text != null ? text.hashCode() : 0;
+        }
     }
 
     @Override
@@ -92,22 +111,25 @@ public abstract class NewPluginProfile implements Validatable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        NewPluginProfile that = (NewPluginProfile) o;
+        RuleAwarePluginProfile that = (RuleAwarePluginProfile) o;
 
         if (id != null ? !id.equals(that.id) : that.id != null) return false;
         if (pluginId != null ? !pluginId.equals(that.pluginId) : that.pluginId != null) return false;
         if (configuration != null ? !configuration.equals(that.configuration) : that.configuration != null)
             return false;
-        return errors != null ? errors.equals(that.errors) : that.errors == null;
+        if (rules != null ? !rules.equals(that.rules) : that.rules != null) return false;
+        return description != null ? description.equals(that.description) : that.description == null;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id.hashCode(), pluginId.hashCode(), configuration.hashCode());
-    }
-
-    private SecretsMetadataStore metadataStore() {
-        return SecretsMetadataStore.instance();
+        return Objects.hash(
+                id.hashCode(),
+                pluginId.hashCode(),
+                configuration.hashCode(),
+                (rules != null ? rules.hashCode() : 0),
+                (description != null ? description.hashCode() : 0)
+        );
     }
 
     @PostConstruct
@@ -155,6 +177,22 @@ public abstract class NewPluginProfile implements Validatable {
         }
     }
 
+    public String getDescription() {
+        return description.text;
+    }
+
+    public void setDescription(String description) {
+        this.description.text = description;
+    }
+
+    public Rules getRules() {
+        return rules;
+    }
+
+    public void setRules(Rules rules) {
+        this.rules = rules;
+    }
+
     protected abstract String getObjectDescription();
 
     protected abstract boolean isSecure(String key);
@@ -162,8 +200,8 @@ public abstract class NewPluginProfile implements Validatable {
     protected abstract boolean hasPluginInfo();
 
 
-    void validateIdUniqueness(Map<String, NewPluginProfile> profiles) {
-        NewPluginProfile profileWithSameId = profiles.get(id);
+    void validateIdUniqueness(Map<String, RuleAwarePluginProfile> profiles) {
+        RuleAwarePluginProfile profileWithSameId = profiles.get(id);
         if (profileWithSameId == null) {
             profiles.put(id, this);
         } else {

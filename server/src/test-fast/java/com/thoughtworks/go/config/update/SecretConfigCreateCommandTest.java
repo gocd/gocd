@@ -70,7 +70,7 @@ public class SecretConfigCreateCommandTest {
 
         SecretConfig newSecretConfig = new SecretConfig("foo", "file", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
 
-        NewPluginProfileCommand command = new SecretConfigCreateCommand(mock(GoConfigService.class), newSecretConfig, extension, null, new HttpLocalizedOperationResult());
+        RuleAwarePluginProfileCommand command = new SecretConfigCreateCommand(mock(GoConfigService.class), newSecretConfig, extension, null, new HttpLocalizedOperationResult());
 
         when(extension.validateSecretsConfig(eq("file"), anyMap())).thenReturn(validationResult);
 

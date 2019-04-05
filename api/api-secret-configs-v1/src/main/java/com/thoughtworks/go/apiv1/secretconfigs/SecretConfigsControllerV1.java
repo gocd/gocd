@@ -65,7 +65,7 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
 
     @Override
     public String controllerBasePath() {
-        return Routes.SecretConfigsAPI.BASE; // to be implemented
+        return Routes.SecretConfigsAPI.BASE;
     }
 
     @Override
@@ -89,6 +89,14 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
 
     public String index(Request request, Response response) throws IOException {
         SecretConfigs allSecretConfigs = configService.getAllSecretConfigs();
+
+        String etag = etagFor(allSecretConfigs);
+
+        if (fresh(request, etag)) {
+            return notModified(response);
+        }
+        setEtagHeader(response, etag);
+
         return writerForTopLevelObject(request, response, writer -> SecretConfigsRepresenter.toJSON(writer, allSecretConfigs));
     }
 
@@ -103,7 +111,7 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
         return writerForTopLevelObject(request, response, writer -> SecretConfigRepresenter.toJSON(writer, secretConfig));
     }
 
-    public String create(Request request, Response response)throws IOException {
+    public String create(Request request, Response response) {
         final SecretConfig secretConfigToCreate = buildEntityFromRequestBody(request);
         haltIfEntityWithSameIdExists(secretConfigToCreate);
 
@@ -113,7 +121,7 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
         return handleCreateOrUpdateResponse(request, response, secretConfigToCreate, operationResult);
     }
 
-    public String update(Request request, Response response)throws IOException {
+    public String update(Request request, Response response) {
         String configId = request.params(CONFIG_ID_PARAM);
         SecretConfig oldSecretConfig = fetchEntityFromConfig(configId);
         SecretConfig newSecretConfig = buildEntityFromRequestBody(request);
@@ -176,5 +184,9 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
         }
         secretConfig.addError("id", String.format("Secret Configuration ids should be unique. Secret Configuration with id '%s' already exists.", secretConfig.getId()));
         throw haltBecauseEntityAlreadyExists(jsonWriter(secretConfig), "secretConfig", secretConfig.getId());
+    }
+
+    private String etagFor(SecretConfigs allSecretConfigs) {
+        return entityHashingService.md5ForEntity(allSecretConfigs);
     }
 }

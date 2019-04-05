@@ -24,14 +24,14 @@ import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public abstract class NewPluginProfileTest {
+public abstract class RuleAwarePluginProfileTest {
 
-    protected abstract NewPluginProfile newPluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties);
+    protected abstract RuleAwarePluginProfile newPluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties);
     protected abstract String getObjectDescription();
 
     @Test
     public void shouldNotAllowNullPluginIdOrProfileId() throws Exception {
-        NewPluginProfile profile = newPluginProfile(null, null);
+        RuleAwarePluginProfile profile = newPluginProfile(null, null);
 
         profile.validate(null);
         assertThat(profile.errors().size(), is(2));
@@ -41,7 +41,7 @@ public abstract class NewPluginProfileTest {
 
     @Test
     public void shouldValidatePluginIdPattern() throws Exception {
-        NewPluginProfile profile = newPluginProfile("!123", "docker");
+        RuleAwarePluginProfile profile = newPluginProfile("!123", "docker");
         profile.validate(null);
         assertThat(profile.errors().size(), is(1));
         assertThat(profile.errors().on("id"), is("Invalid id '!123'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
@@ -51,7 +51,7 @@ public abstract class NewPluginProfileTest {
     public void shouldValidateConfigPropertyNameUniqueness() throws Exception {
         ConfigurationProperty prop1 = ConfigurationPropertyMother.create("USERNAME");
         ConfigurationProperty prop2 = ConfigurationPropertyMother.create("USERNAME");
-        NewPluginProfile profile = newPluginProfile("docker.unit-test", "cd.go.elastic-agent.docker", prop1, prop2);
+        RuleAwarePluginProfile profile = newPluginProfile("docker.unit-test", "cd.go.elastic-agent.docker", prop1, prop2);
 
         profile.validate(null);
 

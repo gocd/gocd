@@ -31,14 +31,14 @@ import java.util.Map;
 import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
-public abstract class NewPluginProfileCommand<T extends NewPluginProfile, M extends NewPluginProfiles<T>> implements EntityConfigUpdateCommand<T> {
+public abstract class RuleAwarePluginProfileCommand<T extends RuleAwarePluginProfile, M extends RuleAwarePluginProfiles<T>> implements EntityConfigUpdateCommand<T> {
     protected final GoConfigService goConfigService;
     protected final T profile;
     protected final Username currentUser;
     protected final LocalizedOperationResult result;
     protected T preprocessedProfile;
 
-    public NewPluginProfileCommand(GoConfigService goConfigService, T profile, Username currentUser, LocalizedOperationResult result) {
+    public RuleAwarePluginProfileCommand(GoConfigService goConfigService, T profile, Username currentUser, LocalizedOperationResult result) {
         this.goConfigService = goConfigService;
         this.profile = profile;
         this.currentUser = currentUser;

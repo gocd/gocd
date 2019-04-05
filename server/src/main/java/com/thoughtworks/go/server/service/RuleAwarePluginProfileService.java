@@ -18,11 +18,11 @@ package com.thoughtworks.go.server.service;
 
 
 import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.NewPluginProfile;
-import com.thoughtworks.go.config.NewPluginProfiles;
+import com.thoughtworks.go.config.RuleAwarePluginProfile;
+import com.thoughtworks.go.config.RuleAwarePluginProfiles;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.config.update.NewPluginProfileCommand;
+import com.thoughtworks.go.config.update.RuleAwarePluginProfileCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.server.domain.Username;
@@ -30,37 +30,26 @@ import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
-public abstract class NewPluginProfilesService<M extends NewPluginProfile> {
+public abstract class RuleAwarePluginProfileService<M extends RuleAwarePluginProfile> {
     protected final GoConfigService goConfigService;
     protected final EntityHashingService hashingService;
     protected Logger LOGGER = LoggerFactory.getLogger(getClass());
 
-    public NewPluginProfilesService(GoConfigService goConfigService, EntityHashingService hashingService) {
+    public RuleAwarePluginProfileService(GoConfigService goConfigService, EntityHashingService hashingService) {
         this.goConfigService = goConfigService;
         this.hashingService = hashingService;
     }
 
-    protected abstract NewPluginProfiles<M> getPluginProfiles();
+    protected abstract RuleAwarePluginProfiles<M> getPluginProfiles();
 
     public M findProfile(String id) {
         return getPluginProfiles().find(id);
     }
 
-    public Map<String, M> listAll() {
-        Map<String, M> result = new LinkedHashMap<>();
-        for (M profile : getPluginProfiles()) {
-            result.put(profile.getId(), profile);
-        }
-        return result;
-    }
-
-    private void validatePluginProperties(NewPluginProfileCommand command, NewPluginProfile newPluginProfile) {
+    private void validatePluginProperties(RuleAwarePluginProfileCommand command, RuleAwarePluginProfile newPluginProfile) {
         try {
             ValidationResult result = command.validateUsingExtension(newPluginProfile.getPluginId(), newPluginProfile.getConfiguration().getConfigurationAsMap(true));
             addErrorsToConfiguration(result, newPluginProfile);
@@ -71,7 +60,7 @@ public abstract class NewPluginProfilesService<M extends NewPluginProfile> {
         }
     }
 
-    private void addErrorsToConfiguration(ValidationResult result, NewPluginProfile newSecurityAuthConfig) {
+    private void addErrorsToConfiguration(ValidationResult result, RuleAwarePluginProfile newSecurityAuthConfig) {
         if (!result.isSuccessful()) {
             for (com.thoughtworks.go.plugin.api.response.validation.ValidationError validationError : result.getErrors()) {
                 ConfigurationProperty property = newSecurityAuthConfig.getConfiguration().getProperty(validationError.getKey());

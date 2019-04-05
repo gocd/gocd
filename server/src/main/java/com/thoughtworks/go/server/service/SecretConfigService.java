@@ -37,7 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Component
-public class SecretConfigService extends NewPluginProfilesService<SecretConfig> {
+public class SecretConfigService extends RuleAwarePluginProfileService<SecretConfig> {
     private final SecretsExtension secretsExtension;
 
     @Autowired
@@ -47,7 +47,7 @@ public class SecretConfigService extends NewPluginProfilesService<SecretConfig> 
     }
 
     @Override
-    protected NewPluginProfiles<SecretConfig> getPluginProfiles() {
+    protected RuleAwarePluginProfiles<SecretConfig> getPluginProfiles() {
         return goConfigService.cruiseConfig().getSecretConfigs();
     }
 
@@ -105,11 +105,11 @@ public class SecretConfigService extends NewPluginProfilesService<SecretConfig> 
 
     private SecretConfigUsage createSecretConfigUsage(PipelineConfig pipelineConfig, StageConfig stageConfig, JobConfig jobConfig) {
         return new SecretConfigUsage(
-                getOrigin(pipelineConfig),
+                pipelineConfig.getOrigin() instanceof FileConfigOrigin ? "gocd" : "config_repo",
                 pipelineConfig.getName().toString(),
                 stageConfig == null? null : stageConfig.name().toString(),
                 jobConfig == null ? null : jobConfig.name().toString(),
-                getTemplateName(pipelineConfig)
+                pipelineConfig.getTemplateName() == null? null : pipelineConfig.getTemplateName().toString()
         );
     }
 
@@ -156,17 +156,4 @@ public class SecretConfigService extends NewPluginProfilesService<SecretConfig> 
                 .filter(var -> var.getSecretParams().hasSecretParams())
                 .anyMatch(var -> var.getSecretParams().findFirstByConfigId(configId).isPresent());
     }
-
-    private String getTemplateName(PipelineConfig pipelineConfig) {
-        String templateName = null;
-        if (pipelineConfig.getTemplateName() != null) {
-            templateName = pipelineConfig.getTemplateName().toString();
-        }
-        return templateName;
-    }
-
-    private String getOrigin(PipelineConfig pipelineConfig) {
-        return pipelineConfig.getOrigin() instanceof FileConfigOrigin ? "gocd" : "config_repo";
-    }
-
 }

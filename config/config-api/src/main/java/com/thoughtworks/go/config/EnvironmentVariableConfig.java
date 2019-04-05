@@ -29,7 +29,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -193,7 +195,15 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
 
     public void validate(ValidationContext validationContext) {
         try {
-            getValue();
+            final List<String> missingSecretConfigs = SecretParams.parse(getValue()).stream()
+                    .filter(secretParam -> validationContext.getCruiseConfig().getSecretConfigs().find(secretParam.getSecretConfigId()) == null)
+                    .map(SecretParam::getSecretConfigId)
+                    .collect(Collectors.toList());
+
+            if (!missingSecretConfigs.isEmpty()) {
+                addError(VALUE, String.format("Secret config with ids `%s` does not exist.", String.join(", ", missingSecretConfigs)));
+            }
+
         } catch (Exception e) {
             errors().add(VALUE, String.format("Encrypted value for variable named '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.", getName()));
         }
@@ -305,7 +315,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         }
 
         if (encryptedValue != null) {
-           setEncryptedValue(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedValue));
+            setEncryptedValue(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedValue));
         }
 
         if (isSecure) {

@@ -328,7 +328,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
                 .collect(Collectors.toList());
 
         if (!missingSecretConfigs.isEmpty()) {
-            addError(key, String.format("Secret configs %s does not exist", String.join(", ", missingSecretConfigs)));
+            addError(key, String.format("Secret config with ids `%s` does not exist.", String.join(", ", missingSecretConfigs)));
         }
     }
 }

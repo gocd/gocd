@@ -216,6 +216,25 @@ describe ApiV1::Admin::Internal::MaterialTestController do
         expect(response).to have_api_message_response(422, "SecretParam 'token' is used before it is resolved.")
       end
 
+      it 'should handle secret resolution failure exception and return the error message' do
+        allow(@material_config_converter).to receive(:toMaterial).and_return(@svn_material)
+        expect(@svn_material).to receive(:checkConnection).with(an_instance_of(CheckConnectionSubprocessExecutionContext)).
+          and_raise(com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException.new('some-error'))
+
+        expect_any_instance_of(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig).
+          to receive(:ensureEncrypted)
+
+        post_with_api_header :test, params: {
+          type: 'svn',
+          attributes: {
+            url: 'https://example.com/git/FooBarWidgets.git',
+            password: 'password'
+          }
+        }
+
+        expect(response).to have_api_message_response(422, "some-error")
+      end
+
       it 'should not call resolve secret params if material is not ScmMaterial' do
         @non_scm_material = double(com.thoughtworks.go.config.materials.PackageMaterial)
         allow(@non_scm_material).to receive(:is_a?).with(ScmMaterial).and_return(false)

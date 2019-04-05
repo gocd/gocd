@@ -28,19 +28,18 @@ import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
 import com.thoughtworks.go.remote.work.Work;
-import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TestingClock;
 import org.apache.http.client.HttpClient;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
 import org.mockito.InOrder;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -48,11 +47,11 @@ import java.util.Date;
 
 import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
 import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
+import static org.mockito.MockitoAnnotations.initMocks;
 
-@RunWith(MockitoJUnitRunner.class)
+@EnableRuleMigrationSupport
 public class AgentControllerTest {
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
@@ -94,28 +93,29 @@ public class AgentControllerTest {
 
     private AgentIdentifier agentIdentifier;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
+        initMocks(this);
         agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
     }
 
     @Test
-    public void shouldReturnTrueIfCausedBySecurity() throws Exception {
+    void shouldReturnTrueIfCausedBySecurity() {
         Exception exception = new Exception(new RuntimeException(new GeneralSecurityException()));
 
         agentController = createAgentController();
-        assertTrue(agentController.isCausedBySecurity(exception));
+        assertThat(agentController.isCausedBySecurity(exception)).isTrue();
     }
 
     @Test
-    public void shouldReturnFalseIfNotCausedBySecurity() throws Exception {
+    void shouldReturnFalseIfNotCausedBySecurity() {
         Exception exception = new Exception(new IOException());
         agentController = createAgentController();
-        assertFalse(agentController.isCausedBySecurity(exception));
+        assertThat(agentController.isCausedBySecurity(exception)).isFalse();
     }
 
     @Test
-    public void shouldUpgradeAgentBeforeAgentRegistration() throws Exception {
+    void shouldUpgradeAgentBeforeAgentRegistration() throws Exception {
         agentController = createAgentController();
         InOrder inOrder = inOrder(agentUpgradeService, sslInfrastructureService);
         agentController.loop();
@@ -124,18 +124,18 @@ public class AgentControllerTest {
     }
 
     @Test
-    public void remembersLastPingTime() throws Exception {
+    void remembersLastPingTime() throws Exception {
         // initial time
         Date now = new Date(42);
         clock.setTime(now);
         agentController = createAgentController();
         agentController.pingSuccess();
 
-        assertFalse(agentHealthHolder.hasLostContact());
+        assertThat(agentHealthHolder.hasLostContact()).isFalse();
         clock.addMillis(pingInterval);
-        assertFalse(agentHealthHolder.hasLostContact());
+        assertThat(agentHealthHolder.hasLostContact()).isFalse();
         clock.addMillis(pingInterval);
-        assertTrue(agentHealthHolder.hasLostContact());
+        assertThat(agentHealthHolder.hasLostContact()).isTrue();
     }
 
     private AgentController createAgentController() {

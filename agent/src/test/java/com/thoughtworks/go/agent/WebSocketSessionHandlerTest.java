@@ -23,84 +23,73 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.extensions.OutgoingFrames;
 import org.eclipse.jetty.websocket.common.LogicalConnection;
 import org.eclipse.jetty.websocket.common.WebSocketRemoteEndpoint;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.Future;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class WebSocketSessionHandlerTest {
+class WebSocketSessionHandlerTest {
 
     private WebSocketSessionHandler handler;
     private Session session;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         handler = new WebSocketSessionHandler(new SystemEnvironment());
         session = mock(Session.class);
         handler.setSession(session);
     }
 
     @Test
-    public void shouldWaitForAcknowledgementWhileSendingMessages() throws Exception {
+    void shouldWaitForAcknowledgementWhileSendingMessages() throws Exception {
         final Message message = new Message(Action.reportCurrentStatus);
 
-        when(session.getRemote()).thenReturn(new FakeWebSocketEndpoint(new Runnable() {
-            @Override
-            public void run() {
-                handler.acknowledge(new Message(Action.acknowledge, message.getAcknowledgementId()));
-            }
-        }));
+        when(session.getRemote()).thenReturn(new FakeWebSocketEndpoint(() -> handler.acknowledge(new Message(Action.acknowledge, message.getAcknowledgementId()))));
 
-        Thread sendThread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                handler.sendAndWaitForAcknowledgement(message);
-            }
-        });
+        Thread sendThread = new Thread(() -> handler.sendAndWaitForAcknowledgement(message));
         sendThread.start();
-        assertThat(sendThread.isAlive(), is(true));
+        assertThat(sendThread.isAlive()).isTrue();
 
         sendThread.join();
-        assertThat(sendThread.isAlive(), is(false));
+        assertThat(sendThread.isAlive()).isFalse();
     }
 
     @Test
-    public void shouldReturnTrueIfNotRunning() throws Exception {
-        assertThat(handler.isNotRunning(), is(true));
+    void shouldReturnTrueIfNotRunning() throws Exception {
+        assertThat(handler.isNotRunning()).isTrue();
     }
 
     @Test
-    public void shouldReturnFalseIfRunning() throws Exception {
+    void shouldReturnFalseIfRunning() throws Exception {
         when(session.isOpen()).thenReturn(true);
-        assertThat(handler.isNotRunning(), is(false));
+        assertThat(handler.isNotRunning()).isFalse();
     }
 
     @Test
-    public void shouldSetSessionNameToNoSessionWhenStopped() throws Exception {
+    void shouldSetSessionNameToNoSessionWhenStopped() throws Exception {
         when(session.isOpen()).thenReturn(true);
         when(session.getRemoteAddress()).thenReturn(null);
         handler.stop();
-        assertThat(handler.getSessionName(), is("[No Session]"));
+        assertThat(handler.getSessionName()).isEqualTo("[No Session]");
     }
 
     @Test
-    public void shouldSetSessionToNullWhenStopped() throws Exception {
+    void shouldSetSessionToNullWhenStopped() throws Exception {
         when(session.isOpen()).thenReturn(true);
         when(session.getRemoteAddress()).thenReturn(null);
         handler.stop();
         verify(session).close();
-        assertThat(handler.isNotRunning(), is(true));
+        assertThat(handler.isNotRunning()).isTrue();
     }
 
     class FakeWebSocketEndpoint extends WebSocketRemoteEndpoint {
         private Runnable runnable;
 
-        public FakeWebSocketEndpoint(Runnable runnable) {
+        FakeWebSocketEndpoint(Runnable runnable) {
             super(mock(LogicalConnection.class), mock(OutgoingFrames.class));
             this.runnable = runnable;
         }

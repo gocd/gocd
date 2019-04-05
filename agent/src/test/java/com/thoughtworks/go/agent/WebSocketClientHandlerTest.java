@@ -35,8 +35,8 @@ import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.client.ClientUpgradeRequest;
 import org.eclipse.jetty.websocket.client.WebSocketClient;
 import org.eclipse.jetty.websocket.client.io.UpgradeListener;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;
@@ -44,15 +44,15 @@ import java.util.concurrent.Future;
 
 import static org.mockito.Mockito.*;
 
-public class WebSocketClientHandlerTest {
+class WebSocketClientHandlerTest {
 
     private WebSocketClientHandler webSocketClientHandler;
     private GoAgentServerWebSocketClientBuilder builder;
     private URLService urlService;
     private Future session;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         builder = mock(GoAgentServerWebSocketClientBuilder.class);
         when(builder.build()).thenReturn(new WebSocketClientStub());
 
@@ -64,14 +64,14 @@ public class WebSocketClientHandlerTest {
     }
 
     @Test
-    public void shouldVerifyThatWebSocketClientIsStarted() throws Exception {
+    void shouldVerifyThatWebSocketClientIsStarted() throws Exception {
         webSocketClientHandler.connect(createAgentController());
         verify(builder).build();
         verify(session).get();
     }
 
     @Test
-    public void shouldVerifyThatWebSocketClientIsNotStartedIfAlreadyRunning() throws Exception {
+    void shouldVerifyThatWebSocketClientIsNotStartedIfAlreadyRunning() throws Exception {
         webSocketClientHandler.connect(createAgentController());
         webSocketClientHandler.connect(createAgentController());
         verify(builder, times(1)).build();

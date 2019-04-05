@@ -24,10 +24,11 @@ import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicStatusLine;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.contrib.java.lang.system.RestoreSystemProperties;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TestRule;
 
 import java.util.Map;
@@ -36,11 +37,12 @@ import java.util.Map.Entry;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.stream.Collectors.toMap;
 import static org.apache.commons.codec.binary.Base64.encodeBase64String;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+@EnableRuleMigrationSupport
 public class AgentUpgradeServiceTest {
     @Rule
     public final TestRule restoreSystemProperties = new RestoreSystemProperties();
@@ -50,8 +52,8 @@ public class AgentUpgradeServiceTest {
     private CloseableHttpResponse closeableHttpResponse;
     private AgentUpgradeService.JvmExitter jvmExitter;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         systemEnvironment = mock(SystemEnvironment.class);
         URLService urlService = mock(URLService.class);
         GoAgentServerHttpClient httpClient = mock(GoAgentServerHttpClient.class);
@@ -66,7 +68,7 @@ public class AgentUpgradeServiceTest {
     }
 
     @Test
-    public void checkForUpgradeShouldNotKillAgentIfAllDownloadsAreCompatible() throws Exception {
+    void checkForUpgradeShouldNotKillAgentIfAllDownloadsAreCompatible() throws Exception {
         setupForNoChangesToMD5();
 
         agentUpgradeService.checkForUpgradeAndExtraProperties();
@@ -75,7 +77,7 @@ public class AgentUpgradeServiceTest {
     }
 
     @Test
-    public void checkForUpgradeShouldKillAgentIfAgentMD5doesNotMatch() {
+    void checkForUpgradeShouldKillAgentIfAgentMD5doesNotMatch() {
         when(systemEnvironment.getAgentMd5()).thenReturn("old-agent-md5");
         expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "new-agent-md5");
 
@@ -86,14 +88,14 @@ public class AgentUpgradeServiceTest {
             agentUpgradeService.checkForUpgradeAndExtraProperties();
             fail("should have done jvm exit");
         } catch (Exception e) {
-            assertSame(e, toBeThrown);
+            assertThat(toBeThrown).isSameAs(e);
         }
 
         verify(jvmExitter).jvmExit("itself", "old-agent-md5", "new-agent-md5");
     }
 
     @Test
-    public void checkForUpgradeShouldKillAgentIfLauncherMD5doesNotMatch() {
+    void checkForUpgradeShouldKillAgentIfLauncherMD5doesNotMatch() {
         when(systemEnvironment.getAgentMd5()).thenReturn("not-changing");
         expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "not-changing");
 
@@ -107,14 +109,14 @@ public class AgentUpgradeServiceTest {
             agentUpgradeService.checkForUpgradeAndExtraProperties();
             fail("should have done jvm exit");
         } catch (Exception e) {
-            assertSame(e, toBeThrown);
+            assertThat(toBeThrown).isSameAs(e);
         }
 
         verify(jvmExitter).jvmExit("launcher", "old-launcher-md5", "new-launcher-md5");
     }
 
     @Test
-    public void checkForUpgradeShouldKillAgentIfPluginZipMd5doesNotMatch() {
+    void checkForUpgradeShouldKillAgentIfPluginZipMd5doesNotMatch() {
         when(systemEnvironment.getAgentMd5()).thenReturn("not-changing");
         expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "not-changing");
 
@@ -131,14 +133,14 @@ public class AgentUpgradeServiceTest {
             agentUpgradeService.checkForUpgradeAndExtraProperties();
             fail("should have done jvm exit");
         } catch (Exception e) {
-            assertSame(e, toBeThrown);
+            assertThat(toBeThrown).isSameAs(e);
         }
 
         verify(jvmExitter).jvmExit("plugins", "old-plugins-md5", "new-plugins-md5");
     }
 
     @Test
-    public void checkForUpgradeShouldKillAgentIfTfsMd5doesNotMatch() {
+    void checkForUpgradeShouldKillAgentIfTfsMd5doesNotMatch() {
         when(systemEnvironment.getAgentMd5()).thenReturn("not-changing");
         expectHeaderValue(SystemEnvironment.AGENT_CONTENT_MD5_HEADER, "not-changing");
 
@@ -158,25 +160,25 @@ public class AgentUpgradeServiceTest {
             agentUpgradeService.checkForUpgradeAndExtraProperties();
             fail("should have done jvm exit");
         } catch (Exception e) {
-            assertSame(e, toBeThrown);
+            assertThat(toBeThrown).isSameAs(e);
         }
 
         verify(jvmExitter).jvmExit("tfs-impl jar", "old-tfs-md5", "new-tfs-md5");
     }
 
     @Test
-    public void shouldSetAnyExtraPropertiesSentByTheServer() throws Exception {
+    void shouldSetAnyExtraPropertiesSentByTheServer() throws Exception {
         setupForNoChangesToMD5();
 
         expectHeaderValue(SystemEnvironment.AGENT_EXTRA_PROPERTIES_HEADER, encodeBase64String("abc=def%20ghi  jkl%20mno=pqr%20stu".getBytes(UTF_8)));
         agentUpgradeService.checkForUpgradeAndExtraProperties();
 
-        assertThat(System.getProperty("abc"), is("def ghi"));
-        assertThat(System.getProperty("jkl mno"), is("pqr stu"));
+        assertThat(System.getProperty("abc")).isEqualTo("def ghi");
+        assertThat(System.getProperty("jkl mno")).isEqualTo("pqr stu");
     }
 
     @Test
-    public void shouldFailQuietlyWhenExtraPropertiesHeaderValueIsInvalid() throws Exception {
+    void shouldFailQuietlyWhenExtraPropertiesHeaderValueIsInvalid() throws Exception {
         setupForNoChangesToMD5();
 
         final Map<Object, Object> before = System.getProperties().entrySet().stream().collect(toMap(Entry::getKey, Entry::getValue));
@@ -186,7 +188,7 @@ public class AgentUpgradeServiceTest {
 
         final Map<Object, Object> after = System.getProperties().entrySet().stream().collect(toMap(Entry::getKey, Entry::getValue));
 
-        assertThat(after, is(before));
+        assertThat(after).isEqualTo(before);
     }
 
     private void setupForNoChangesToMD5() {

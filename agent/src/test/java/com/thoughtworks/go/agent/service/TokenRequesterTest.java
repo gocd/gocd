@@ -25,44 +25,38 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.message.BasicStatusLine;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.function.Predicate;
 
 import static org.apache.http.HttpStatus.SC_OK;
 import static org.apache.http.HttpStatus.SC_UNPROCESSABLE_ENTITY;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
-public class TokenRequesterTest {
+class TokenRequesterTest {
     @Mock
     private AgentRegistry agentRegistry;
     @Mock
     private GoAgentServerHttpClient httpClient;
     private TokenRequester tokenRequester;
 
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         initMocks(this);
 
         tokenRequester = new TokenRequester("toke-url", agentRegistry, httpClient);
     }
 
     @Test
-    public void shouldGetTokenFromServer() throws Exception {
+    void shouldGetTokenFromServer() throws Exception {
         final ArgumentCaptor<HttpRequestBase> argumentCaptor = ArgumentCaptor.forClass(HttpRequestBase.class);
         final CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
 
@@ -78,13 +72,12 @@ public class TokenRequesterTest {
         final HttpRequestBase requestBase = argumentCaptor.getValue();
         final List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(requestBase.getURI(), StandardCharsets.UTF_8.name());
 
-        assertThat(token, is("token-from-server"));
-        assertThat(findParam(nameValuePairs, "uuid").getValue(), is("agent-uuid"));
+        assertThat(token).isEqualTo("token-from-server");
+        assertThat(findParam(nameValuePairs, "uuid").getValue()).isEqualTo("agent-uuid");
     }
 
     @Test
-    public void shouldErrorOutIfServerRejectTheRequest() throws Exception {
-        final ArgumentCaptor<HttpRequestBase> argumentCaptor = ArgumentCaptor.forClass(HttpRequestBase.class);
+    void shouldErrorOutIfServerRejectTheRequest() throws Exception {
         final CloseableHttpResponse httpResponse = mock(CloseableHttpResponse.class);
 
         when(agentRegistry.uuid()).thenReturn("agent-uuid");
@@ -92,18 +85,12 @@ public class TokenRequesterTest {
         when(httpResponse.getEntity()).thenReturn(new StringEntity("A token has already been issued for this agent."));
         when(httpResponse.getStatusLine()).thenReturn(new BasicStatusLine(new ProtocolVersion("https", 1, 2), SC_UNPROCESSABLE_ENTITY, null));
 
-        thrown.expect(RuntimeException.class);
-        thrown.expectMessage("A token has already been issued for this agent.");
-
-        tokenRequester.getToken();
+        assertThatCode(() -> tokenRequester.getToken())
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("A token has already been issued for this agent.");
     }
 
     private NameValuePair findParam(List<NameValuePair> nameValuePairs, final String paramName) {
-        return nameValuePairs.stream().filter(new Predicate<NameValuePair>() {
-            @Override
-            public boolean test(NameValuePair nameValuePair) {
-                return nameValuePair.getName().equals(paramName);
-            }
-        }).findFirst().orElse(null);
+        return nameValuePairs.stream().filter(nameValuePair -> nameValuePair.getName().equals(paramName)).findFirst().orElse(null);
     }
 }

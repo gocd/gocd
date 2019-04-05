@@ -114,7 +114,7 @@ def setupInstaller(DefaultTask task, String appName, String packageName, String 
         icon: 'gocd.icns',
         workingdirectory: "\${HOME}/Library/Application Support/${appName}",
         copyright: "${appName} ${project.fullVersion}.${project.distVersion}. Copyright ThoughtWorks Inc., (c) 2000-${project.copyrightYear}",
-        jvmversion: "${project.targetCompatibility}+",
+        jvmversion: "${project.compilerOptions.targetCompatibility}+",
       ) {
         javaproperty(name: 'jar-class-loader.main.class', value: mainClass)
       }

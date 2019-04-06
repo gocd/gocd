@@ -114,9 +114,10 @@ module Admin
         assert_load(:all_pipelines, go_config_service.getCurrentConfig().getAllPipelineNames())
         load_pause_info
         load_autocomplete_suggestions
-        set_save_redirect_url(pipeline_edit_path(:pipeline_name => @pipeline.name(), :stage_parent=>"pipelines", :current_tab => "general")) if @update_result.isSuccessful()
+        set_save_redirect_url(pipeline_dashboard_path(:new_pipeline_name => @pipeline.name())) if @update_result.isSuccessful()
+        # set_save_redirect_url(pipeline_edit_path(:pipeline_name => @pipeline.name(), :stage_parent=>"pipelines", :current_tab => "general")) if @update_result.isSuccessful()
 
-        pipeline_pause_service.pause(@pipeline.name().to_s, "Under construction", current_user) if @update_result.isSuccessful() #The if check is important now as we want consistency across config and db save. If config save fails, we do not want to insert it in the DB.
+        # pipeline_pause_service.pause(@pipeline.name().to_s, "Under construction", current_user) if @update_result.isSuccessful() #The if check is important now as we want consistency across config and db save. If config save fails, we do not want to insert it in the DB.
 
         if @update_result.isSuccessful()
           pipeline_selections_service.update(cookies[:selected_pipelines], current_user_entity_id, @pipeline.name())

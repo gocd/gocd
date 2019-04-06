@@ -3,7 +3,7 @@
         <button id="<%= "next_to_#{scope[:current_tab_name]}" -%>" class="right primary next submit"><span>Next</span></button>
     <% end %>
     <% if scope[:needs_finish] %>
-        <%= submit_button('Finish', :class => 'primary finish') %>
+        <%= submit_button('Save and Run Pipeline', :class => 'primary finish') %>
     <% end %>
     <% if scope[:needs_prev] %>
         <button id="<%= "prev_to_#{scope[:current_tab_name]}" -%>" class="right primary prev submit"><span>Previous</span></button>

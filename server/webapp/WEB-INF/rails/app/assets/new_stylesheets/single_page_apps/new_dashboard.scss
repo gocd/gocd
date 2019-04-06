@@ -953,3 +953,51 @@ $commits-width: 635px;
     font-size: rem-calc(15px);
   }
 }
+
+.trial-first-created {
+  position: relative;
+}
+
+@-webkit-keyframes fadeOutUp {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    -webkit-transform: translate3d(0, -100%, 0);
+    transform: translate3d(0, -100%, 0);
+  }
+}
+
+@keyframes fadeOutUp {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+    -webkit-transform: translate3d(0, -100%, 0);
+    transform: translate3d(0, -100%, 0);
+  }
+}
+
+.trial-first-created::before {
+  content:"";
+  position: absolute;
+  z-index: 10;
+  width: 128px;
+  height: 128px;
+  background: transparent url(https://files.gamebanana.com/img/ico/sprays/1upspray_copy4.png);
+  background-size: cover;
+  right: 0;
+  top: 50%;
+  margin-top: -64px;
+
+  -webkit-animation-duration: 1s;
+  animation-duration: 1s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+  -webkit-animation-name: fadeOutUp;
+  animation-name: fadeOutUp;
+}

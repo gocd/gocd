@@ -21,6 +21,15 @@ const PipelineInstanceWidget = require('views/dashboard/pipeline_instance_widget
 const PipelineHeaderWidget   = require('views/dashboard/pipeline_header_widget');
 
 const PipelineWidget = {
+  oncreate: (vnode) => {
+    const pipeline = vnode.attrs.pipeline;
+    const query = m.parseQueryString(window.location.search);
+    if (!localStorage.getItem("gocd.reward.addPipeline") && query.new_pipeline_name === pipeline.name) {
+      vnode.dom.classList.add("trial-first-created");
+      localStorage.setItem("gocd.reward.addPipeline", true);
+      vnode.dom.addEventListener("animationend", () => { vnode.dom.classList.remove("trial-first-created"); });
+    }
+  },
   view: (vnode) => {
     const pipeline = vnode.attrs.pipeline;
     let pipelineInstances;

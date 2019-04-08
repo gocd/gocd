@@ -25,44 +25,10 @@ if not defined JAVA_CMD set JAVA_CMD=%GO_SERVER_JAVA_HOME%\bin\java.exe
 if not defined GO_SERVER_SYSTEM_PROPERTIES set GO_SERVER_SYSTEM_PROPERTIES=
 set JAVA_HOME=%GO_SERVER_JAVA_HOME%
 
-if defined GC_LOG (
-  set GC_LOG=-verbose:gc -Xloggc:go-server-gc.log -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+PrintGCDetails -XX:+PrintGC
-) else (
-  set GC_LOG=
-)
-
-if defined JVM_DEBUG (
-  set JVM_DEBUG=-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=5005
-) else (
-  set JVM_DEBUG=
-)
-
-if not defined YOURKIT_PATH (
-  if exist C:\yjpagent.dll (
-    set YOURKIT_PATH=C:\yjpagent.dll
-  )
-)
-
 if not exist "%SERVER_DIR%\tmp" (
     mkdir "%SERVER_DIR%\tmp"
 )
 
-if defined YOURKIT_PATH (
-    set YOURKIT=-agentpath:%YOURKIT_PATH%=port=6133
-) else (
-    set YOURKIT=
-)
-
 if not exist "%JAVA_CMD%" set JAVA_CMD=java.exe
 
-javac.exe 2>NUL
-if ERRORLEVEL 3 goto :jre
-set OPTION=-server
-goto :done
-
-:jre
-set OPTION=-client
-
-:done
-
-"%JAVA_CMD%" %OPTION% %YOURKIT% -Xms%SERVER_MEM% -Xmx%SERVER_MAX_MEM% -XX:MaxMetaspaceSize=%SERVER_MAX_PERM_GEN% %JVM_DEBUG% %GC_LOG% %GO_SERVER_SYSTEM_PROPERTIES% -Duser.language=en -DJAVA_SYS_MON_TEMP_DIR="%SERVER_DIR%\tmp" -Dorg.eclipse.jetty.server.Request.maxFormContentSize=30000000 -Djruby.rack.request.size.threshold.bytes=30000000 -Duser.country=US -Dcruise.config.dir="%SERVER_DIR%\config" -Dcruise.config.file="%SERVER_DIR%\config\cruise-config.xml" -Dcruise.server.port=%GO_SERVER_PORT% -Dcruise.server.ssl.port=%GO_SERVER_SSL_PORT% -jar "%SERVER_DIR%\go.jar"
+"%JAVA_CMD%" -Xms%SERVER_MEM% -Xmx%SERVER_MAX_MEM% -XX:MaxMetaspaceSize=%SERVER_MAX_PERM_GEN% %GO_SERVER_SYSTEM_PROPERTIES% -Duser.language=en -DJAVA_SYS_MON_TEMP_DIR="%SERVER_DIR%\tmp" -Djruby.rack.request.size.threshold.bytes=30000000 -Duser.country=US -Dcruise.config.dir="%SERVER_DIR%\config" -Dcruise.config.file="%SERVER_DIR%\config\cruise-config.xml" -Dcruise.server.port=%GO_SERVER_PORT% -Dcruise.server.ssl.port=%GO_SERVER_SSL_PORT% -jar "%SERVER_DIR%\go.jar"

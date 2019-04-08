@@ -1,6 +1,6 @@
 #!/bin/bash
 ##########################################################################
-# Copyright 2016 ThoughtWorks, Inc.
+# Copyright 2019 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -73,16 +73,8 @@ function stringToArgsArray() {
 function autoDetectGoServerUrl() {
   local url
 
-  if [[ ! -z "${GO_SERVER}" || ! -z "${GO_SERVER_PORT}" ]]; then
-    yell "The environment variable GO_SERVER and GO_SERVER_PORT has been deprecated in favor of GO_SERVER_URL. Please set GO_SERVER_URL instead to a https url (https://example.com:8154/go)"
-  fi
-
   if [ -z "${GO_SERVER_URL}" ]; then
-    if [ -z "${GO_SERVER}" ]; then
       url="https://127.0.0.1:8154/go"
-    else
-      url="https://${GO_SERVER}:8154/go"
-    fi
   else
     url="${GO_SERVER_URL}"
   fi

@@ -16,7 +16,7 @@
 
 module Api
   module WebHooks
-    class GitLabController < WebHookController
+    class GitLabController < GuessUrlWebHookController
       before_action :verify_content_origin
       before_action :allow_only_push_event
       before_action :verify_payload

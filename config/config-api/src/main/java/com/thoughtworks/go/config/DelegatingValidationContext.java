@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -103,6 +104,11 @@ public abstract class DelegatingValidationContext implements ValidationContext {
 
     public boolean isValidProfileId(String profileId) {
         return validationContext.isValidProfileId(profileId);
+    }
+
+    @Override
+    public ClusterProfiles getClusterProfiles() {
+        return validationContext.getClusterProfiles();
     }
 
     @Override

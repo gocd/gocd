@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
@@ -256,6 +257,11 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     @Override
     public boolean isValidProfileId(String profileId) {
         return this.cruiseConfig.getElasticConfig().getProfiles().find(profileId) != null;
+    }
+
+    @Override
+    public ClusterProfiles getClusterProfiles() {
+        return this.cruiseConfig.getElasticConfig().getClusterProfiles();
     }
 
     @Override

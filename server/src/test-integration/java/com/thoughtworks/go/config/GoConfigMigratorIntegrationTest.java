@@ -1270,29 +1270,6 @@ public class GoConfigMigratorIntegrationTest {
     }
 
     @Test
-    public void shouldAllowSpecifyingClusterProfileIdAttributeOnProfilesAsPartMigration118() throws Exception {
-        String configContent =  " <elastic>\n" +
-                "    <profiles>\n" +
-                "      <profile clusterProfileId=\"foo\" id=\"profile1\" pluginId=\"cd.go.contrib.elastic-agent.docker\">\n" +
-                "        <property>\n" +
-                "          <key>Image</key>\n" +
-                "          <value>asdf</value>\n" +
-                "        </property>\n" +
-                "      </profile>" +
-                "    </profiles>" +
-                "  </elastic>";
-
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion=\"118\">\n"
-                + configContent
-                + "</cruise>";
-
-        CruiseConfig config = loadConfigFileWithContent(configXml);
-        ElasticProfile elasticProfile = config.getElasticConfig().getProfiles().find("profile1");
-        assertThat(elasticProfile.getClusterProfileId()).isEqualTo("foo");
-    }
-
-    @Test
     public void shouldDefineNoOpClustersAsPartOfMigration119() throws Exception {
         String configContent =  " <elastic>\n" +
                 "    <profiles>\n" +

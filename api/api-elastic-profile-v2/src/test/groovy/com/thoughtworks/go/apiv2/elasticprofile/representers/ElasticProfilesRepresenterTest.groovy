@@ -59,7 +59,7 @@ class ElasticProfilesRepresenterTest {
           ],
           id                : 'ecs',
           plugin_id         : 'cd.go.ecs',
-          cluster_profile_id: null,
+          cluster_profile_id: "bar",
           "properties"      : [
             [
               "key"            : "ACCESS_KEY",
@@ -75,7 +75,7 @@ class ElasticProfilesRepresenterTest {
   void 'should serialize elastic profiles to json'() {
     def elasticProfiles = new ElasticProfiles(
       new ElasticProfile("docker", "cd.go.docker", 'foo', create("docker-uri", false, "unix:///var/run/docker")),
-      new ElasticProfile("ecs", "cd.go.ecs", null, create("ACCESS_KEY", true, "encrypted-key"))
+      new ElasticProfile("ecs", "cd.go.ecs", "bar", create("ACCESS_KEY", true, "encrypted-key"))
     )
 
     def actualJson = toObjectString({ ElasticProfilesRepresenter.toJSON(it, elasticProfiles) })

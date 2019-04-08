@@ -20,12 +20,10 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfileRepresenter
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfilesRepresenter
-import com.thoughtworks.go.config.elastic.ClusterProfile
 import com.thoughtworks.go.config.elastic.ElasticProfile
 import com.thoughtworks.go.config.elastic.ElasticProfiles
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.Username
-import com.thoughtworks.go.server.service.ClusterProfilesService
 import com.thoughtworks.go.server.service.ElasticProfileService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -41,7 +39,8 @@ import org.mockito.Mock
 import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 
-import static com.thoughtworks.go.api.util.HaltApiMessages.*
+import static com.thoughtworks.go.api.util.HaltApiMessages.etagDoesNotMatch
+import static com.thoughtworks.go.api.util.HaltApiMessages.renameOfEntityIsNotSupportedMessage
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
@@ -54,9 +53,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
   private ElasticProfileService elasticProfileService
 
   @Mock
-  private ClusterProfilesService clusterProfilesService
-
-  @Mock
   private EntityHashingService entityHashingService
 
   @BeforeEach
@@ -66,7 +62,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
   @Override
   ElasticProfileControllerV2 createControllerInstance() {
-    return new ElasticProfileControllerV2(elasticProfileService, clusterProfilesService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
+    return new ElasticProfileControllerV2(elasticProfileService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
   }
 
   @Nested
@@ -218,39 +214,14 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
       void setUp() {
         enableSecurity()
         loginAsGroupAdmin()
-
-        when(clusterProfilesService.findProfile(any())).thenReturn(new ClusterProfile("clusterId", "cd.go.docker"))
       }
 
       @Test
       void 'should create elastic profile from given json payload'() {
         def jsonPayload = [
-          id        : 'docker',
-          plugin_id : 'cd.go.docker',
-          properties: [
-            [
-              "key"  : "DockerURI",
-              "value": "http://foo"
-            ]
-          ]]
-
-        when(entityHashingService.md5ForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-md5')
-
-        postWithApiHeader(controller.controllerPath(), jsonPayload)
-
-        assertThatResponse()
-          .isOk()
-          .hasEtag('"some-md5"')
-          .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new ElasticProfile("docker", "cd.go.docker", create("DockerURI", false, "http://foo")), ElasticProfileRepresenter)
-      }
-
-      @Test
-      void 'should create elastic profile from given json payload when no cluster profile id is specified'() {
-        def jsonPayload = [
           id                : 'docker',
           plugin_id         : 'cd.go.docker',
-          cluster_profile_id: null,
+          cluster_profile_id: "prod-cluster",
           properties        : [
             [
               "key"  : "DockerURI",
@@ -266,61 +237,17 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           .isOk()
           .hasEtag('"some-md5"')
           .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new ElasticProfile("docker", "cd.go.docker", create("DockerURI", false, "http://foo")), ElasticProfileRepresenter)
+          .hasBodyWithJsonObject(new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo")), ElasticProfileRepresenter)
       }
 
-      @Test
-      void 'should not create elastic profile from given json payload when non existing cluster profile id is specified'() {
-        def jsonPayload = [
-          id                : 'docker',
-          plugin_id         : 'cd.go.docker',
-          cluster_profile_id: 'foo',
-          properties        : [
-            [
-              "key"  : "DockerURI",
-              "value": "http://foo"
-            ]
-          ]]
-
-        when(entityHashingService.md5ForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-md5')
-        when(clusterProfilesService.findProfile('foo')).thenReturn(null)
-
-        postWithApiHeader(controller.controllerPath(), jsonPayload)
-
-        assertThatResponse()
-          .isUnprocessableEntity()
-          .hasJsonMessage("No Cluster Profile exists with the specified cluster_profile_id 'foo'.")
-      }
-
-      @Test
-      void 'should not create elastic profile from given json payload when cluster profile id belongs to a different plugin'() {
-        def jsonPayload = [
-          id                : 'docker',
-          plugin_id         : 'cd.go.docker',
-          cluster_profile_id: 'foo',
-          properties        : [
-            [
-              "key"  : "DockerURI",
-              "value": "http://foo"
-            ]
-          ]]
-
-        when(entityHashingService.md5ForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-md5')
-        when(clusterProfilesService.findProfile('foo')).thenReturn(new ClusterProfile("foo", "cd.go.ecs"))
-
-        postWithApiHeader(controller.controllerPath(), jsonPayload)
-
-        assertThatResponse()
-          .isUnprocessableEntity()
-          .hasJsonMessage("Referenced Cluster Profile and Elastic Agent Profile should belong to same plugin. Specified cluster profile 'foo' belongs to 'cd.go.ecs' plugin, whereas, elastic agent profile belongs to 'cd.go.docker' plugin.")
-      }
 
       @Test
       void 'should not create elastic profile in case of validation error and return the profile with errors'() {
         def jsonPayload = [
-          id        : 'docker',
-          plugin_id : 'cd.go.docker',
-          properties: [
+          id                : 'docker',
+          plugin_id         : 'cd.go.docker',
+          cluster_profile_id: "prod-cluster",
+          properties        : [
             [
               "key"  : "DockerURI",
               "value": "http://foo"
@@ -342,7 +269,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           data   : [
             id                : "docker",
             plugin_id         : "cd.go.docker",
-            cluster_profile_id: null,
+            cluster_profile_id: "prod-cluster",
             properties        : [[key: "DockerURI", value: "http://foo"]],
             errors            : [plugin_id: ["Plugin not installed."]]
           ]
@@ -352,16 +279,16 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           .isUnprocessableEntity()
           .hasContentType(controller.mimeType)
           .hasJsonBody(new JsonBuilder(expectedResponseBody).toString())
-
       }
 
       @Test
       void 'should not create elastic profile if one already exist with same id'() {
         def existingElasticProfile = new ElasticProfile("docker", "cd.go.docker", 'foo', create("DockerURI", false, "http://foo"))
         def jsonPayload = [
-          id        : 'docker',
-          plugin_id : 'cd.go.docker',
-          properties: [
+          id                : 'docker',
+          plugin_id         : 'cd.go.docker',
+          cluster_profile_id: "prod-cluster",
+          properties        : [
             [
               "key"  : "DockerURI",
               "value": "http://foo"
@@ -379,7 +306,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           data   : [
             id                : "docker",
             plugin_id         : "cd.go.docker",
-            cluster_profile_id: null,
+            cluster_profile_id: "prod-cluster",
             properties        : [[key: "DockerURI", value: "http://foo"]],
             errors            : [id: ["Elastic profile ids should be unique. Elastic profile with id 'docker' already exists."]]
           ]
@@ -416,18 +343,17 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
       void setUp() {
         enableSecurity()
         loginAsGroupAdmin()
-
-        when(clusterProfilesService.findProfile(any())).thenReturn(new ClusterProfile("clusterId", "cd.go.docker"))
       }
 
       @Test
       void 'should update elastic profile if etag matches'() {
-        def existingProfile = new ElasticProfile("docker", "cd.go.docker", create("DockerURI", false, "http://foo"))
-        def updatedProfile = new ElasticProfile("docker", "cd.go.docker", create("DockerURI", false, "http://new-uri"))
+        def existingProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo"))
+        def updatedProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://new-uri"))
         def jsonPayload = [
-          id        : 'docker',
-          plugin_id : 'cd.go.docker',
-          properties: [
+          id                : 'docker',
+          plugin_id         : 'cd.go.docker',
+          cluster_profile_id: "prod-cluster",
+          properties        : [
             [
               "key"  : "DockerURI",
               "value": "http://new-uri"
@@ -448,62 +374,13 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
       }
 
       @Test
-      void 'should not update elastic profile if non existing cluster profile id is specified'() {
-        def existingProfile = new ElasticProfile("docker", "cd.go.docker", create("DockerURI", false, "http://foo"))
-
-        def jsonPayload = [
-          id                : 'docker',
-          plugin_id         : 'cd.go.docker',
-          cluster_profile_id: 'foo',
-          properties        : [
-            [
-              "key"  : "DockerURI",
-              "value": "http://new-uri"
-            ]
-          ]]
-
-        when(elasticProfileService.findProfile("docker")).thenReturn(existingProfile)
-        when(clusterProfilesService.findProfile('foo')).thenReturn(null)
-
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-md5'], jsonPayload)
-
-        assertThatResponse()
-          .isUnprocessableEntity()
-          .hasJsonMessage('No Cluster Profile exists with the specified cluster_profile_id \'foo\'.')
-      }
-
-      @Test
-      void 'should not update elastic profile from given json payload when cluster profile id belongs to a different plugin'() {
-        def existingProfile = new ElasticProfile("docker", "cd.go.docker", create("DockerURI", false, "http://foo"))
-
-        def jsonPayload = [
-          id                : 'docker',
-          plugin_id         : 'cd.go.docker',
-          cluster_profile_id: 'foo',
-          properties        : [
-            [
-              "key"  : "DockerURI",
-              "value": "http://new-uri"
-            ]
-          ]]
-
-        when(elasticProfileService.findProfile("docker")).thenReturn(existingProfile)
-        when(clusterProfilesService.findProfile('foo')).thenReturn(new ClusterProfile("foo", "cd.go.ecs"))
-
-        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-md5'], jsonPayload)
-
-        assertThatResponse()
-          .isUnprocessableEntity()
-          .hasJsonMessage("Referenced Cluster Profile and Elastic Agent Profile should belong to same plugin. Specified cluster profile 'foo' belongs to 'cd.go.ecs' plugin, whereas, elastic agent profile belongs to 'cd.go.docker' plugin.")
-      }
-
-      @Test
       void 'should not update elastic profile if etag does not match'() {
-        def existingProfile = new ElasticProfile("docker", "cd.go.docker", create("DockerURI", false, "http://foo"))
+        def existingProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo"))
         def jsonPayload = [
-          id        : 'docker',
-          plugin_id : 'cd.go.docker',
-          properties: [
+          id                : 'docker',
+          plugin_id         : 'cd.go.docker',
+          cluster_profile_id: "prod-cluster",
+          properties        : [
             [
               "key"  : "DockerURI",
               "value": "http://new-uri"
@@ -534,11 +411,12 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should return 422 if attempted rename'() {
-        def existingProfile = new ElasticProfile("docker", "cd.go.docker", create("DockerURI", false, "http://foo"))
+        def existingProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo"))
         def jsonPayload = [
-          id        : 'docker-new',
-          plugin_id : 'cd.go.docker',
-          properties: [
+          id                : 'docker-new',
+          plugin_id         : 'cd.go.docker',
+          cluster_profile_id: "prod-cluster",
+          properties        : [
             [
               "key"  : "DockerURI",
               "value": "http://new-uri"
@@ -558,11 +436,12 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should return 422 for validation error'() {
-        def existingProfile = new ElasticProfile("docker", "cd.go.docker", create("DockerURI", false, "http://foo"))
+        def existingProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo"))
         def jsonPayload = [
-          id        : 'docker',
-          plugin_id : 'cd.go.docker',
-          properties: [
+          id                : 'docker',
+          plugin_id         : 'cd.go.docker',
+          cluster_profile_id: "prod-cluster",
+          properties        : [
             [
               "key"  : "DockerURI",
               "value": "http://foo"
@@ -587,7 +466,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           data   : [
             id                : "docker",
             plugin_id         : "cd.go.docker",
-            cluster_profile_id: null,
+            cluster_profile_id: "prod-cluster",
             properties        : [[key: "DockerURI", value: "http://foo"]],
             errors            : [plugin_id: ["Plugin not installed."]]
           ]

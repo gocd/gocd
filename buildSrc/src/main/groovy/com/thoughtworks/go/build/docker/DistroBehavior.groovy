@@ -26,10 +26,10 @@ trait DistroBehavior {
     return []
   }
 
-  DistroVersion getVersion(String version) {
-    return supportedVersions.find { supportedVersion ->
-      supportedVersion.version == version
-    }
+  DistroVersion getVersion(String versionOrReleaseName) {
+    return supportedVersions.stream().filter({ supportedVersion ->
+      supportedVersion.version == versionOrReleaseName || supportedVersion.releaseName == versionOrReleaseName
+    }).findFirst().orElseThrow({ new IllegalArgumentException("Unknown version " + versionOrReleaseName) })
   }
 
   List<String> getCreateUserAndGroupCommands() {

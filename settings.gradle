@@ -112,7 +112,7 @@ include ':util'
 
 Distro.values().each { Distro distro ->
   distro.supportedVersions.each { DistroVersion version ->
-    include ":docker:gocd-agent:${distro.projectName(version)}"
+    include ":docker:gocd-agent:${distro.name()}:${version.releaseName}"
   }
 }
 

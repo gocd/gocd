@@ -225,7 +225,7 @@ export class ApiRequestBuilder {
       headers = _.assign({}, options.headers);
     }
 
-    if (apiVersion !== null || apiVersion !== undefined) {
+    if (apiVersion !== undefined) {
       headers.Accept              = this.versionHeader(apiVersion as ApiVersion);
       headers["X-Requested-With"] = "XMLHttpRequest";
     }

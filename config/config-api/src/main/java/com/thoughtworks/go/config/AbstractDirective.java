@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go;
+package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.Objects;
 
-@ConfigTag("deny")
-public class Deny implements Directive {
+public abstract class AbstractDirective implements Directive {
     @ConfigAttribute(value = "action", optional = false)
     protected String action;
 
@@ -32,10 +30,10 @@ public class Deny implements Directive {
     @ConfigValue
     private String resource;
 
-    public Deny() {
+    public AbstractDirective() {
     }
 
-    public Deny (String action, String type, String resource) {
+    public AbstractDirective(String action, String type, String resource) {
         this.action = action;
         this.type = type;
         this.resource = resource;
@@ -43,7 +41,6 @@ public class Deny implements Directive {
 
     @Override
     public void validate(ValidationContext validationContext) {
-
     }
 
     @Override
@@ -53,17 +50,16 @@ public class Deny implements Directive {
 
     @Override
     public void addError(String fieldName, String message) {
-
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Deny deny = (Deny) o;
-        return Objects.equals(action, deny.action) &&
-                Objects.equals(type, deny.type) &&
-                Objects.equals(resource, deny.resource);
+        AbstractDirective directive = (AbstractDirective) o;
+        return Objects.equals(action, directive.action) &&
+                Objects.equals(type, directive.type) &&
+                Objects.equals(resource, directive.resource);
     }
 
     @Override

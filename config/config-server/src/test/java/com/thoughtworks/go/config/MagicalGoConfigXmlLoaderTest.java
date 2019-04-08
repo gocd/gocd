@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config;
 
 import com.googlecode.junit.ext.RunIf;
-import com.thoughtworks.go.Deny;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.*;

@@ -16,17 +16,13 @@
 
 package com.thoughtworks.go.config;
 
-@ConfigTag("allow")
-public class Allow extends AbstractDirective {
-    public Allow() {
+@ConfigTag("deny")
+public class Deny extends AbstractDirective {
+    public Deny() {
         super();
     }
 
-    public Allow(String action, String type, String resource) {
+    public Deny(String action, String type, String resource) {
         super(action, type, resource);
     }
-
 }
-
-
-

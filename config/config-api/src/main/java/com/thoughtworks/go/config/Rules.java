@@ -37,20 +37,6 @@ public class Rules extends BaseCollection<Directive> implements Validatable {
         super(directives);
     }
 
-    static Rules rules(Directive... directives) {
-        Rules rules = new Rules();
-        Arrays.stream(directives).forEach(directive -> rules.add(directive));
-
-        return rules;
-    }
-
-    static Rules rules(Collection<Directive> directives) {
-        Rules rules = new Rules();
-        directives.forEach(directive -> rules.add(directive));
-
-        return rules;
-    }
-
     @Override
     public void validate(ValidationContext validationContext) {
 

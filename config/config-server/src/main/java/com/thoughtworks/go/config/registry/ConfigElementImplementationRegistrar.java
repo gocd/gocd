@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.config.registry;
 
-import com.thoughtworks.go.Deny;
+import com.thoughtworks.go.config.Deny;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
@@ -27,7 +27,6 @@ import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
-import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.domain.Task;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.domain.materials.MaterialConfig;

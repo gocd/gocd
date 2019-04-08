@@ -3,6 +3,7 @@
 export const backupContainer: string;
 export const content: string;
 export const availableDiskSpace: string;
+export const backupLocation: string;
 export const performBackupContainer: string;
 export const performBackupSection: string;
 export const backupInfo: string;

@@ -26,6 +26,7 @@ interface Attrs {
   lastBackupTime: Date | null | undefined;
   lastBackupUser: string | null | undefined;
   availableDiskSpace: string;
+  backupLocation: string;
   backupProgressMessages: string[];
   backupStatus: BackupStatus;
   onPerformBackup: () => void;
@@ -40,7 +41,7 @@ export class BackupWidget extends MithrilComponent<Attrs> {
                                          failed={vnode.attrs.backupStatus === BackupStatus.ERROR}/>;
     }
     return <div class={styles.backupContainer}>
-      {this.backupConfigHelp()}
+      {this.backupConfigHelp(vnode)}
       <div class={styles.content}>
         <div class={styles.performBackupContainer}>
           <div class={styles.performBackupSection}>
@@ -104,9 +105,9 @@ export class BackupWidget extends MithrilComponent<Attrs> {
     vnode.attrs.onPerformBackup();
   }
 
-  private backupConfigHelp() {
+  private backupConfigHelp(vnode: m.Vnode<Attrs>) {
     return <div class={styles.backupConfigHelp}>
-      <p>Backups are stored in <strong>/go-working-dir/artifacts/serverBackups</strong></p>
+      <p>Backups are stored in <strong class={styles.backupLocation}>{vnode.attrs.backupLocation}</strong></p>
       <p>To configure backups, please see <a target="_blank" href={docsUrl("advanced_usage/cron_backup.html")}>backup
         configuration documentation</a></p>
     </div>;

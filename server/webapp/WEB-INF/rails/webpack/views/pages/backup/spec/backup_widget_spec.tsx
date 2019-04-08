@@ -43,7 +43,7 @@ describe("AuthorizationConfigurationWidget", () => {
     expect(helper.findByClass(styles.backupHelp)).toContainText("On performing a backup, Go will create a backup of:");
     expect(helper.findByClass(styles.backupHelp)).toContainText("Go Version - A flat file named version.txt containing the version of Go that the backup was taken against.");
     expect(helper.findByClass(styles.backupHelp)).toContainText("Database - The database is archived to a file which could be used to restore Go's database.");
-    expect(helper.findByClass(styles.backupConfigHelp)).toContainText("Backups are stored in /go-working-dir/artifacts/serverBackups");
+    expect(helper.findByClass(styles.backupConfigHelp)).toContainText("Backups are stored in /path/to/backup/directory");
   });
 
   it("should render progress messages when backup in progress", () => {
@@ -66,12 +66,13 @@ describe("AuthorizationConfigurationWidget", () => {
   function mount(availableDiskSpace: string, status: BackupStatus, progressMsgs: string[], lastBackupTime?: Date | null, lastBackupUser?: string | null) {
     helper.mount(() => {
         return <BackupWidget lastBackupTime={lastBackupTime}
-                                  lastBackupUser={lastBackupUser}
-                                  availableDiskSpace={availableDiskSpace}
-                                  backupProgressMessages={progressMsgs}
-                                  displayProgressConsole={true}
-                                  backupStatus={status}
-                                  onPerformBackup={performBackup}/>
+                             lastBackupUser={lastBackupUser}
+                             availableDiskSpace={availableDiskSpace}
+                             backupLocation={"/path/to/backup/directory"}
+                             backupProgressMessages={progressMsgs}
+                             displayProgressConsole={true}
+                             backupStatus={status}
+                             onPerformBackup={performBackup}/>
           ;
       });
   }

@@ -58,17 +58,18 @@ public class BackupsController implements SparkController {
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Backup");
-            put("meta", lastBackupData());
+            put("meta", meta());
         }};
 
         return new ModelAndView(object, null);
     }
 
-    private HashMap<String, String> lastBackupData() {
-        HashMap<String, String> lastBackupData = new HashMap<>();
-        lastBackupData.put("lastBackupTime", new DateTime(backupService.lastBackupTime()).toString());
-        lastBackupData.put("lastBackupUser", backupService.lastBackupUser());
-        lastBackupData.put("availableDiskSpace", backupService.availableDiskSpace());
-        return lastBackupData;
+    private HashMap<String, String> meta() {
+        HashMap<String, String> meta = new HashMap<>();
+        meta.put("lastBackupTime", new DateTime(backupService.lastBackupTime()).toString());
+        meta.put("lastBackupUser", backupService.lastBackupUser());
+        meta.put("availableDiskSpace", backupService.availableDiskSpace());
+        meta.put("backupLocation", backupService.backupLocation());
+        return meta;
     }
 }

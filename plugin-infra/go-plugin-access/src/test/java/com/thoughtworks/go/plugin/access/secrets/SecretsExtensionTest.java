@@ -19,21 +19,25 @@ package com.thoughtworks.go.plugin.access.secrets;
 import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.plugin.access.secrets.v1.SecretsExtensionV1;
+import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.ReflectionUtil;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static com.thoughtworks.go.plugin.access.secrets.SecretsExtension.SUPPORTED_VERSIONS;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SECRETS_EXTENSION;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
 public class SecretsExtensionTest {
@@ -43,8 +47,8 @@ public class SecretsExtensionTest {
     protected GoPluginDescriptor descriptor;
     protected SecretsExtension extension;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         pluginManager = mock(PluginManager.class);
         extensionsRegistry = mock(ExtensionsRegistry.class);
         descriptor = mock(GoPluginDescriptor.class);
@@ -56,7 +60,7 @@ public class SecretsExtensionTest {
     }
 
     @Test
-    public void shouldHaveVersionedSecretsExtensionForAllSupportedVersions() {
+    void shouldHaveVersionedSecretsExtensionForAllSupportedVersions() {
         for (String supportedVersion : SUPPORTED_VERSIONS) {
             final String message = String.format("Must define versioned extension class for %s extension with version %s", SECRETS_EXTENSION, supportedVersion);
 
@@ -64,13 +68,13 @@ public class SecretsExtensionTest {
 
             final VersionedSecretsExtension extension = this.extension.getVersionedSecretsExtension(PLUGIN_ID);
 
-            assertNotNull(message, extension);
-            assertThat(ReflectionUtil.getField(extension, "VERSION"), is(supportedVersion));
+            assertThat(extension).as(message).isNotNull();
+            assertThat(ReflectionUtil.getField(extension, "VERSION")).isEqualTo(supportedVersion);
         }
     }
 
     @Test
-    public void getIcon_shouldDelegateToVersionedExtension() {
+    void getIcon_shouldDelegateToVersionedExtension() {
         SecretsExtensionV1 secretsExtensionV1 = mock(SecretsExtensionV1.class);
         Map<String, VersionedSecretsExtension> secretsExtensionMap = singletonMap("1.0", secretsExtensionV1);
         extension = new SecretsExtension(pluginManager, extensionsRegistry, secretsExtensionMap);
@@ -83,7 +87,7 @@ public class SecretsExtensionTest {
     }
 
     @Test
-    public void getSecretsConfigMetadata_shouldDelegateToVersionedExtension() {
+    void getSecretsConfigMetadata_shouldDelegateToVersionedExtension() {
         SecretsExtensionV1 secretsExtensionV1 = mock(SecretsExtensionV1.class);
         Map<String, VersionedSecretsExtension> secretsExtensionMap = singletonMap("1.0", secretsExtensionV1);
         extension = new SecretsExtension(pluginManager, extensionsRegistry, secretsExtensionMap);
@@ -96,7 +100,7 @@ public class SecretsExtensionTest {
     }
 
     @Test
-    public void getSecretsConfigView_shouldDelegateToVersionedExtension() {
+    void getSecretsConfigView_shouldDelegateToVersionedExtension() {
         SecretsExtensionV1 secretsExtensionV1 = mock(SecretsExtensionV1.class);
         Map<String, VersionedSecretsExtension> secretsExtensionMap = singletonMap("1.0", secretsExtensionV1);
         extension = new SecretsExtension(pluginManager, extensionsRegistry, secretsExtensionMap);
@@ -109,7 +113,7 @@ public class SecretsExtensionTest {
     }
 
     @Test
-    public void validateSecretsConfig_shouldDelegateToVersionedExtension() {
+    void validateSecretsConfig_shouldDelegateToVersionedExtension() {
         SecretsExtensionV1 secretsExtensionV1 = mock(SecretsExtensionV1.class);
         Map<String, VersionedSecretsExtension> secretsExtensionMap = singletonMap("1.0", secretsExtensionV1);
         extension = new SecretsExtension(pluginManager, extensionsRegistry, secretsExtensionMap);
@@ -122,22 +126,65 @@ public class SecretsExtensionTest {
         verify(secretsExtensionV1).validateSecretsConfig(PLUGIN_ID, configuration);
     }
 
-    @Test
-    public void lookupSecrets_shouldDelegateToVersionedExtension() {
-        SecretsExtensionV1 secretsExtensionV1 = mock(SecretsExtensionV1.class);
-        Map<String, VersionedSecretsExtension> secretsExtensionMap = singletonMap("1.0", secretsExtensionV1);
-        extension = new SecretsExtension(pluginManager, extensionsRegistry, secretsExtensionMap);
-        Set<String> keys = new HashSet<>(asList("key1", "key2"));
+    @Nested
+    class lookupSecrets {
+        @Test
+        void shouldDelegateToVersionedExtension() {
+            SecretsExtensionV1 secretsExtensionV1 = mock(SecretsExtensionV1.class);
+            Map<String, VersionedSecretsExtension> secretsExtensionMap = singletonMap("1.0", secretsExtensionV1);
+            extension = new SecretsExtension(pluginManager, extensionsRegistry, secretsExtensionMap);
+            Set<String> keys = new HashSet<>(asList("key1", "key2"));
 
-        when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SECRETS_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(SecretsExtensionV1.VERSION);
+            when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SECRETS_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(SecretsExtensionV1.VERSION);
+            when(secretsExtensionV1.lookupSecrets(PLUGIN_ID, new SecretConfig(), keys)).thenReturn(Arrays.asList(
+                    new Secret("key1", "value-1"),
+                    new Secret("key2", "value-2")
+            ));
 
-        this.extension.lookupSecrets(PLUGIN_ID, new SecretConfig(), keys);
+            final List<Secret> secrets = extension.lookupSecrets(PLUGIN_ID, new SecretConfig(), keys);
 
-        verify(secretsExtensionV1).lookupSecrets(PLUGIN_ID, new SecretConfig(), keys);
+            assertThat(secrets).hasSize(2)
+                    .contains(new Secret("key1", "value-1"), new Secret("key2", "value-2"));
+            verify(secretsExtensionV1).lookupSecrets(PLUGIN_ID, new SecretConfig(), keys);
+        }
+
+        @Test
+        void shouldBombIfResolvedSecretContainsAdditionalSecrets() {
+            SecretsExtensionV1 secretsExtensionV1 = mock(SecretsExtensionV1.class);
+            Map<String, VersionedSecretsExtension> secretsExtensionMap = singletonMap("1.0", secretsExtensionV1);
+            extension = new SecretsExtension(pluginManager, extensionsRegistry, secretsExtensionMap);
+            final Set<String> secretsToLookup = new HashSet<>(asList("key1", "key2"));
+
+            when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SECRETS_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(SecretsExtensionV1.VERSION);
+            when(secretsExtensionV1.lookupSecrets(PLUGIN_ID, new SecretConfig(), secretsToLookup)).thenReturn(Arrays.asList(
+                    new Secret("key1", "value-1"),
+                    new Secret("key2", "value-2"),
+                    new Secret("key3", "value-3")
+            ));
+
+            assertThatCode(() -> extension.lookupSecrets(PLUGIN_ID, new SecretConfig(), secretsToLookup))
+                    .isInstanceOf(SecretResolutionFailureException.class)
+                    .hasMessage("Expected plugin to resolve secret(s) `key1, key2` but plugin sent addition secret param(s) `key3`.");
+        }
+
+        @Test
+        void shouldBombWhenPluginReturnsPartiallyResolvedSecretParams() {
+            SecretsExtensionV1 secretsExtensionV1 = mock(SecretsExtensionV1.class);
+            Map<String, VersionedSecretsExtension> secretsExtensionMap = singletonMap("1.0", secretsExtensionV1);
+            extension = new SecretsExtension(pluginManager, extensionsRegistry, secretsExtensionMap);
+            final Set<String> secretsToLookup = new HashSet<>(asList("key1", "key2", "key3"));
+
+            when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SECRETS_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(SecretsExtensionV1.VERSION);
+            when(secretsExtensionV1.lookupSecrets(PLUGIN_ID, new SecretConfig(), secretsToLookup)).thenReturn(singletonList(new Secret("key1", "value-1")));
+
+            assertThatCode(() -> extension.lookupSecrets(PLUGIN_ID, new SecretConfig(), secretsToLookup))
+                    .isInstanceOf(SecretResolutionFailureException.class)
+                    .hasMessage("Expected plugin to resolve secret(s) `key1, key2, key3` but plugin failed resolve secret param(s) `key2, key3`. Please make sure that secret with same name exist in your secret management tool.");
+        }
     }
 
     @Test
-    public void shouldExtendAbstractExtension() {
-        assertTrue(new SecretsExtension(pluginManager, extensionsRegistry) instanceof AbstractExtension);
+    void shouldExtendAbstractExtension() {
+        assertThat(new SecretsExtension(pluginManager, extensionsRegistry) instanceof AbstractExtension).isTrue();
     }
 }

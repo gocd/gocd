@@ -20,16 +20,19 @@ import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.common.AbstractExtension;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.plugin.access.secrets.v1.SecretsExtensionV1;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
 import com.thoughtworks.go.plugin.domain.common.Image;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.SECRETS_EXTENSION;
 
@@ -73,7 +76,20 @@ public class SecretsExtension extends AbstractExtension {
     }
 
     public List<Secret> lookupSecrets(String pluginId, SecretConfig secretConfig, Set<String> keys) {
-        return getVersionedSecretsExtension(pluginId).lookupSecrets(pluginId, secretConfig, keys);
+        final List<Secret> secrets = getVersionedSecretsExtension(pluginId).lookupSecrets(pluginId, secretConfig, keys);
+        final Set<String> resolvedSecrets = secrets.stream().map(Secret::getKey).collect(Collectors.toSet());
+
+        final Set<String> additionalSecretsInResponse = SetUtils.difference(resolvedSecrets, keys).toSet();
+        if (!additionalSecretsInResponse.isEmpty()) {
+            throw SecretResolutionFailureException.withUnwantedSecretParams(keys, additionalSecretsInResponse);
+        }
+
+        if (resolvedSecrets.containsAll(keys)) {
+            return secrets;
+        }
+
+        final Set<String> missingSecrets = SetUtils.disjunction(resolvedSecrets, keys).toSet();
+        throw SecretResolutionFailureException.withMissingSecretParams(keys, missingSecrets);
     }
 
     protected VersionedSecretsExtension getVersionedSecretsExtension(String pluginId) {

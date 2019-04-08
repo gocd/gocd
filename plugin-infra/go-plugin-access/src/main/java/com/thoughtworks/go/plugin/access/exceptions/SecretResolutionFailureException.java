@@ -16,8 +16,25 @@
 
 package com.thoughtworks.go.plugin.access.exceptions;
 
+import java.util.Set;
+
+import static java.lang.String.format;
+
 public class SecretResolutionFailureException extends RuntimeException {
     public SecretResolutionFailureException(String message) {
         super(message);
+    }
+
+    public static SecretResolutionFailureException withMissingSecretParams(Set<String> secretsToResolve, Set<String> missingSecrets) {
+        return new SecretResolutionFailureException(format("Expected plugin to resolve secret(s) `%s` but plugin failed resolve secret param(s) `%s`. Please make sure that secret with same name exist in your secret management tool.", csv(secretsToResolve), csv(missingSecrets)));
+    }
+
+
+    public static SecretResolutionFailureException withUnwantedSecretParams(Set<String> secretsToResolve, Set<String> unwantedSecrets) {
+        return new SecretResolutionFailureException(format("Expected plugin to resolve secret(s) `%s` but plugin sent addition secret param(s) `%s`.", csv(secretsToResolve), csv(unwantedSecrets)));
+    }
+
+    private static String csv(Set<String> secretsToResolve) {
+        return String.join(", ", secretsToResolve);
     }
 }

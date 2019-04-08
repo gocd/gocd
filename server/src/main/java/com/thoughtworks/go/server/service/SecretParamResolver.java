@@ -64,7 +64,6 @@ public class SecretParamResolver {
             List<Secret> resolvedSecrets = secretsExtension.lookupSecrets(secretConfig.getPluginId(), secretConfig, secretParamMap.keySet());
             LOGGER.debug("Resolved secret size '{}'", resolvedSecrets.size());
 
-
             LOGGER.debug("Updating secret params '{}' with values.", secretParamMap.keySet());
             resolvedSecrets.forEach(assignValue(secretParamMap));
             LOGGER.debug("Secret params '{}' updated with values.", secretParamMap.keySet());

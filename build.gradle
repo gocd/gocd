@@ -596,12 +596,16 @@ task prepare(dependsOn: compileAll)
 task gitRelatedTests { thisTask ->
   group LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all Git related tests"
-  forAllTask { Test eachTestTask ->
-    eachTestTask.filter({ TestFilter testFilter ->
-      testFilter.setFailOnNoMatchingTests(false)
-      testFilter.setIncludePatterns("*Git*Test*")
-    })
-    thisTask.dependsOn eachTestTask
+  [':common', ':domain'].each { String projectName ->
+    project(projectName).afterEvaluate { Project project ->
+      project.tasks.withType(Test).each { Test eachTestTask ->
+        eachTestTask.filter({ TestFilter testFilter ->
+          testFilter.setFailOnNoMatchingTests(false)
+          testFilter.setIncludePatterns("*Git*Test*")
+        })
+        thisTask.dependsOn eachTestTask
+      }
+    }
   }
   finalizedBy 'gitRelatedTestsJunitHtmlReport'
 }

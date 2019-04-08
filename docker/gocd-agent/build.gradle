@@ -2,6 +2,7 @@ import com.thoughtworks.go.build.docker.BuildDockerImageTask
 import com.thoughtworks.go.build.docker.Distro
 import com.thoughtworks.go.build.docker.DistroVersion
 import com.thoughtworks.go.build.docker.ImageType
+import groovy.json.JsonOutput
 
 /*
  * Copyright 2019 ThoughtWorks, Inc.
@@ -37,7 +38,7 @@ subprojects {
   def distroVersionOnProject = project.name.replaceFirst("${distro.name()}-", "")
   DistroVersion distroVersion = distro.getVersion(distroVersionOnProject)
 
-  project.tasks.create("dockerfile", BuildDockerImageTask.class) { BuildDockerImageTask task ->
+  project.tasks.create("docker", BuildDockerImageTask.class) { BuildDockerImageTask task ->
     assemble.dependsOn(task)
 
     if (project.hasProperty('dockerBuildLocalZip')) {
@@ -96,4 +97,24 @@ subprojects {
   //create a task for git push - depends on dockerfile
 }
 
+task generateManifest() {
+  doLast {
+    def meta = []
+    subprojects.tasks*.getByName('docker').forEach { BuildDockerImageTask dockerTask ->
+      meta << [
+        file     : "${dockerTask.imageTarFile.name}.gz",
+        imageName: dockerTask.dockerImageName,
+        tag      : dockerTask.imageTag
+      ]
+    }
+
+    def jsonFile = project.file("${project.buildDir}/docker/manifest.json")
+    project.mkdir(jsonFile.parentFile)
+    jsonFile.withWriter("utf-8") { Writer out ->
+      out << JsonOutput.toJson(meta)
+    }
+  }
+}
+
 assemble.dependsOn(subprojects.tasks*.getByName('assemble'))
+assemble.dependsOn(generateManifest)

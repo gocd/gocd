@@ -119,11 +119,11 @@ class BuildDockerImageTask extends DefaultTask {
     "${dockerImageName}:${imageTag}"
   }
 
-  protected GString getImageTag() {
+  GString getImageTag() {
     "v${project.fullVersion}"
   }
 
-  protected File getImageTarFile() {
+  File getImageTarFile() {
     project.file("${outputDir}/gocd-${imageType.name()}-${dockerImageName}-v${project.fullVersion}.tar")
   }
 
@@ -180,7 +180,7 @@ class BuildDockerImageTask extends DefaultTask {
     }
   }
 
-  protected String getDockerImageName() {
+  String getDockerImageName() {
     if (imageType == ImageType.agent) {
       if (distro == Distro.docker) {
         return "gocd-agent-${distro.name()}-dind"

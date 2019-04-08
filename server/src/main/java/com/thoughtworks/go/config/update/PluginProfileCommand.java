@@ -68,7 +68,7 @@ public abstract class PluginProfileCommand<T extends PluginProfile, M extends Pl
 
     protected boolean isValidForCreateOrUpdate(CruiseConfig preprocessedConfig) {
         preprocessedProfile = findExistingProfile(preprocessedConfig);
-        preprocessedProfile.validateTree(null);
+        preprocessedProfile.validateTree(new ConfigSaveValidationContext(preprocessedConfig));
 
         if (preprocessedProfile.getAllErrors().isEmpty()) {
             getPluginProfiles(preprocessedConfig).validate(null);

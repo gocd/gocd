@@ -25,11 +25,9 @@ import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfileRepresenter;
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfilesRepresenter;
 import com.thoughtworks.go.config.PluginProfiles;
-import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
-import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -53,15 +51,13 @@ import static spark.Spark.*;
 public class ElasticProfileControllerV2 extends ApiController implements SparkSpringController, CrudController<ElasticProfile> {
     private static final String PROFILE_ID_PARAM = "profile_id";
     private final ElasticProfileService elasticProfileService;
-    private ClusterProfilesService clusterProfilesService;
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final EntityHashingService entityHashingService;
 
     @Autowired
-    public ElasticProfileControllerV2(ElasticProfileService elasticProfileService, ClusterProfilesService clusterProfilesService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
+    public ElasticProfileControllerV2(ElasticProfileService elasticProfileService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService) {
         super(ApiVersion.v2);
         this.elasticProfileService = elasticProfileService;
-        this.clusterProfilesService = clusterProfilesService;
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.entityHashingService = entityHashingService;
     }
@@ -110,7 +106,6 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
     public String create(Request request, Response response) {
         final ElasticProfile elasticProfileToCreate = buildEntityFromRequestBody(request);
         haltIfEntityWithSameIdExists(elasticProfileToCreate);
-        validateClusterProfileId(elasticProfileToCreate);
 
         final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         elasticProfileService.create(currentUsername(), elasticProfileToCreate, operationResult);
@@ -126,8 +121,6 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
         if (isRenameAttempt(profileId, newElasticProfile.getId())) {
             throw haltBecauseRenameOfEntityIsNotSupported("elasticProfile");
         }
-
-        validateClusterProfileId(newElasticProfile);
 
         if (isPutRequestStale(request, existingElasticProfile)) {
             throw haltBecauseEtagDoesNotMatch("elasticProfile", existingElasticProfile.getId());
@@ -177,48 +170,13 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
         return writer -> ElasticProfileRepresenter.toJSON(writer, elasticProfile);
     }
 
+    //this is done in command as well, keeping it here for early return instead of failing later during config update command.
     private void haltIfEntityWithSameIdExists(ElasticProfile elasticProfile) {
         if (elasticProfileService.findProfile(elasticProfile.getId()) == null) {
             return;
         }
+
         elasticProfile.addError("id", format("Elastic profile ids should be unique. Elastic profile with id '%s' already exists.", elasticProfile.getId()));
         throw haltBecauseEntityAlreadyExists(jsonWriter(elasticProfile), "elasticProfile", elasticProfile.getId());
-    }
-
-    private void validateClusterProfileId(ElasticProfile elasticProfile) {
-        if (elasticProfile.getClusterProfileId() == null) {
-            return;
-        }
-
-        haltIfSpecifiedClusterProfileDoesntExists(elasticProfile);
-        haltIfSpecifiedClusterProfileBelongsToADifferentPlugin(elasticProfile);
-    }
-
-    private void haltIfSpecifiedClusterProfileBelongsToADifferentPlugin(ElasticProfile elasticProfile) {
-        ClusterProfile clusterProfile = clusterProfilesService.findProfile(elasticProfile.getClusterProfileId());
-        if (clusterProfile.getPluginId().equals(elasticProfile.getPluginId())) {
-            return;
-        }
-
-        String errorMsg = format("Referenced Cluster Profile and Elastic Agent Profile should belong to same plugin. " +
-                        "Specified cluster profile '%s' belongs to '%s' plugin, whereas, elastic agent profile belongs to '%s' plugin.",
-                elasticProfile.getClusterProfileId(),
-                clusterProfile.getPluginId(),
-                elasticProfile.getPluginId());
-
-        elasticProfile.addError("cluster_profile_id", errorMsg);
-
-        throw haltBecauseOfReason(errorMsg);
-    }
-
-    private void haltIfSpecifiedClusterProfileDoesntExists(ElasticProfile elasticProfile) {
-        if (clusterProfilesService.findProfile(elasticProfile.getClusterProfileId()) != null) {
-            return;
-        }
-
-        String errorMsg = format("No Cluster Profile exists with the specified cluster_profile_id '%s'.", elasticProfile.getClusterProfileId());
-        elasticProfile.addError("cluster_profile_id", errorMsg);
-
-        throw haltBecauseOfReason(errorMsg);
     }
 }

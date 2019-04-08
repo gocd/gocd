@@ -16,16 +16,15 @@
 
 package com.thoughtworks.go.config.elastic;
 
-import com.thoughtworks.go.config.ConfigAttribute;
-import com.thoughtworks.go.config.ConfigCollection;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.PluginProfile;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 
 import java.util.Collection;
 import java.util.Objects;
+
+import static java.lang.String.format;
 
 @ConfigTag("profile")
 @ConfigCollection(value = ConfigurationProperty.class)
@@ -108,5 +107,29 @@ public class ElasticProfile extends PluginProfile {
                 ", clusterProfileId='" + clusterProfileId + '\'' +
                 ", properties='" + super.getConfigurationAsMap(false) + '\'' +
                 '}';
+    }
+
+    @Override
+    public void validate(ValidationContext validationContext) {
+        super.validate(validationContext);
+        if (this.errors().isEmpty() && !super.hasErrors()) {
+            ClusterProfiles clusterProfiles = validationContext.getClusterProfiles();
+            ClusterProfile associatedClusterProfile = clusterProfiles.find(this.clusterProfileId);
+            if (associatedClusterProfile == null) {
+                this.errors().add("clusterProfileId", String.format("No Cluster Profile exists with the specified cluster_profile_id '%s'.", this.clusterProfileId));
+                return;
+            }
+
+            if (!associatedClusterProfile.getPluginId().equals(this.getPluginId())) {
+                String errorMsg = format("Referenced Cluster Profile and Elastic Agent Profile should belong to same plugin. " +
+                                "Specified cluster profile '%s' belongs to '%s' plugin, whereas, elastic agent profile belongs to '%s' plugin.",
+                        this.getClusterProfileId(),
+                        associatedClusterProfile.getPluginId(),
+                        this.getPluginId());
+
+                this.errors().add("clusterProfileId", errorMsg);
+                return;
+            }
+        }
     }
 }

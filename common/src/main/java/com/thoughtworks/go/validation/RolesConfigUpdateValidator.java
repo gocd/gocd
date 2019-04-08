@@ -17,6 +17,7 @@
 package com.thoughtworks.go.validation;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
@@ -141,6 +142,11 @@ public class RolesConfigUpdateValidator implements ConfigUpdateValidator {
             @Override
             public boolean isValidProfileId(String profileId) {
                 return false;
+            }
+
+            @Override
+            public ClusterProfiles getClusterProfiles() {
+                return null;
             }
 
             @Override

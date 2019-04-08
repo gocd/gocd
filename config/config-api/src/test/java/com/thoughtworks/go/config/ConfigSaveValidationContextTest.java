@@ -16,9 +16,7 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.elastic.ElasticConfig;
-import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.config.elastic.ElasticProfiles;
+import com.thoughtworks.go.config.elastic.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.domain.PipelineGroups;
@@ -147,6 +145,18 @@ public class ConfigSaveValidationContextTest {
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
         assertTrue(context.isValidProfileId("docker.unit-test"));
+    }
+
+    @Test
+    public void shouldGetAllClusterProfiles() {
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        ElasticConfig elasticConfig = new ElasticConfig();
+        ClusterProfiles clusterProfiles = new ClusterProfiles(new ClusterProfile("cluster1", "docker"));
+        elasticConfig.setClusterProfiles(clusterProfiles);
+        cruiseConfig.setElasticConfig(elasticConfig);
+        ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
+
+        assertThat(context.getClusterProfiles(), is(clusterProfiles));
     }
 
     @Test

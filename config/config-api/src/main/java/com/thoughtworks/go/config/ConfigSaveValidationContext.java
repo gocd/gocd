@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -216,6 +217,11 @@ public class ConfigSaveValidationContext implements ValidationContext {
     @Override
     public boolean isValidProfileId(String profileId) {
         return this.getCruiseConfig().getElasticConfig().getProfiles().find(profileId) != null;
+    }
+
+    @Override
+    public ClusterProfiles getClusterProfiles() {
+        return this.getCruiseConfig().getElasticConfig().getClusterProfiles();
     }
 
     @Override

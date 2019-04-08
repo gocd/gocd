@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.config.elastic;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -33,8 +35,8 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
 public class ElasticProfileTest {
@@ -79,6 +81,36 @@ public class ElasticProfileTest {
 
         assertThat(prop1.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'"));
         assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'"));
+    }
+
+    @Test
+    public void shouldValidateWhetherReferencedClusterProfileIdExists() {
+        ElasticProfile profile = new ElasticProfile("docker.unit-test", "cd.go.elastic-agent.docker", "prod-cluster");
+        profile.validate(new ConfigSaveValidationContext(new BasicCruiseConfig()));
+
+        assertThat(profile.errors().size(), is(1));
+        assertThat(profile.errors().get("clusterProfileId"), is(Arrays.asList("No Cluster Profile exists with the specified cluster_profile_id 'prod-cluster'.")));
+    }
+
+    @Test
+    public void shouldValidateWhetherReferencedClusterProfileIdBelongsToTheSamePlugin() {
+        ElasticProfile profile = new ElasticProfile("docker.unit-test", "cd.go.elastic-agent.docker", "prod-cluster");
+        BasicCruiseConfig config = new BasicCruiseConfig();
+        config.getElasticConfig().setClusterProfiles(new ClusterProfiles(new ClusterProfile("prod-cluster", "cd.go.elastic-agent.docker-swarm")));
+        profile.validate(new ConfigSaveValidationContext(config));
+
+        assertThat(profile.errors().size(), is(1));
+        assertThat(profile.errors().get("clusterProfileId"), is(Arrays.asList("Referenced Cluster Profile and Elastic Agent Profile should belong to same plugin. Specified cluster profile 'prod-cluster' belongs to 'cd.go.elastic-agent.docker-swarm' plugin, whereas, elastic agent profile belongs to 'cd.go.elastic-agent.docker' plugin.")));
+    }
+
+    @Test
+    public void shouldNotAddAnyErrorsForAValidClusterProfileReference() {
+        ElasticProfile profile = new ElasticProfile("docker.unit-test", "cd.go.elastic-agent.docker", "prod-cluster");
+        BasicCruiseConfig config = new BasicCruiseConfig();
+        config.getElasticConfig().setClusterProfiles(new ClusterProfiles(new ClusterProfile("prod-cluster", "cd.go.elastic-agent.docker")));
+        profile.validate(new ConfigSaveValidationContext(config));
+
+        assertThat(profile.errors().size(), is(0));
     }
 
     @Test

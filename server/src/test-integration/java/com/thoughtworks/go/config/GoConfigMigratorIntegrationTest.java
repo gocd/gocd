@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -765,7 +767,7 @@ public class GoConfigMigratorIntegrationTest {
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size()).isEqualTo(1);
 
-        ElasticProfile expectedProfile = new ElasticProfile(jobConfig.getElasticProfileId(), "docker",
+        ElasticProfile expectedProfile = new ElasticProfile(jobConfig.getElasticProfileId(), "docker", "no-op-cluster-for-docker",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
 
         ElasticProfile elasticProfile = profiles.get(0);
@@ -821,11 +823,11 @@ public class GoConfigMigratorIntegrationTest {
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size()).isEqualTo(2);
 
-        ElasticProfile expectedDockerProfile = new ElasticProfile(jobs.get(0).getElasticProfileId(), "docker",
+        ElasticProfile expectedDockerProfile = new ElasticProfile(jobs.get(0).getElasticProfileId(), "docker", "no-op-cluster-for-docker",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(0)).isEqualTo(expectedDockerProfile);
 
-        ElasticProfile expectedAWSProfile = new ElasticProfile(jobs.get(1).getElasticProfileId(), "aws",
+        ElasticProfile expectedAWSProfile = new ElasticProfile(jobs.get(1).getElasticProfileId(), "aws", "no-op-cluster-for-aws",
                 new ConfigurationProperty(new ConfigurationKey("ami"), new ConfigurationValue("some.ami")),
                 new ConfigurationProperty(new ConfigurationKey("ram"), new ConfigurationValue("1024")),
                 new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
@@ -894,17 +896,17 @@ public class GoConfigMigratorIntegrationTest {
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size()).isEqualTo(3);
 
-        ElasticProfile expectedDockerProfile = new ElasticProfile(buildJobs.get(0).getElasticProfileId(), "docker",
+        ElasticProfile expectedDockerProfile = new ElasticProfile(buildJobs.get(0).getElasticProfileId(), "docker", "no-op-cluster-for-docker",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(0)).isEqualTo(expectedDockerProfile);
 
-        ElasticProfile expectedAWSProfile = new ElasticProfile(buildJobs.get(1).getElasticProfileId(), "aws",
+        ElasticProfile expectedAWSProfile = new ElasticProfile(buildJobs.get(1).getElasticProfileId(), "aws", "no-op-cluster-for-aws",
                 new ConfigurationProperty(new ConfigurationKey("ami"), new ConfigurationValue("some.ami")),
                 new ConfigurationProperty(new ConfigurationKey("ram"), new ConfigurationValue("1024")),
                 new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
         assertThat(profiles.get(1)).isEqualTo(expectedAWSProfile);
 
-        ElasticProfile expectedSecondDockerProfile = new ElasticProfile(distJobs.get(0).getElasticProfileId(), "docker",
+        ElasticProfile expectedSecondDockerProfile = new ElasticProfile(distJobs.get(0).getElasticProfileId(), "docker","no-op-cluster-for-docker",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(2)).isEqualTo(expectedSecondDockerProfile);
     }
@@ -969,11 +971,11 @@ public class GoConfigMigratorIntegrationTest {
         ElasticProfiles profiles = migratedConfig.getElasticConfig().getProfiles();
         assertThat(profiles.size()).isEqualTo(2);
 
-        ElasticProfile expectedDockerProfile = new ElasticProfile(up42Jobs.get(0).getElasticProfileId(), "docker",
+        ElasticProfile expectedDockerProfile = new ElasticProfile(up42Jobs.get(0).getElasticProfileId(), "docker", "no-op-cluster-for-docker",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(0)).isEqualTo(expectedDockerProfile);
 
-        ElasticProfile expectedAWSProfile = new ElasticProfile(up43Jobs.get(0).getElasticProfileId(), "aws",
+        ElasticProfile expectedAWSProfile = new ElasticProfile(up43Jobs.get(0).getElasticProfileId(), "aws", "no-op-cluster-for-aws",
                 new ConfigurationProperty(new ConfigurationKey("ami"), new ConfigurationValue("some.ami")),
                 new ConfigurationProperty(new ConfigurationKey("ram"), new ConfigurationValue("1024")),
                 new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
@@ -1054,7 +1056,7 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(cruiseConfig.server().getCommandRepositoryLocation()).isEqualTo("default");
         assertThat(cruiseConfig.server().artifactsDir()).isEqualTo("artifactsDir");
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).hasSize(1);
-        assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0)).isEqualTo(new ElasticProfile("dev-build", "cd.go.contrib.elastic-agent.docker-swarm",
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0)).isEqualTo(new ElasticProfile("dev-build", "cd.go.contrib.elastic-agent.docker-swarm", "no-op-cluster-for-cd.go.contrib.elastic-agent.docker-swarm",
                 ConfigurationPropertyMother.create("Image", false, "bar"),
                 ConfigurationPropertyMother.create("ReservedMemory", false, "3GB"),
                 ConfigurationPropertyMother.create("MaxMemory", false, "3GB")
@@ -1125,7 +1127,7 @@ public class GoConfigMigratorIntegrationTest {
                 "</cruise>";
 
         final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
-        assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0)).isEqualTo(new ElasticProfile("dev-build", "cd.go.contrib.elastic-agent.docker-swarm",
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().get(0)).isEqualTo(new ElasticProfile("dev-build", "cd.go.contrib.elastic-agent.docker-swarm", "no-op-cluster-for-cd.go.contrib.elastic-agent.docker-swarm",
                 ConfigurationPropertyMother.create("Image", false, "#bar")
         ));
     }
@@ -1288,6 +1290,75 @@ public class GoConfigMigratorIntegrationTest {
         CruiseConfig config = loadConfigFileWithContent(configXml);
         ElasticProfile elasticProfile = config.getElasticConfig().getProfiles().find("profile1");
         assertThat(elasticProfile.getClusterProfileId()).isEqualTo("foo");
+    }
+
+    @Test
+    public void shouldDefineNoOpClustersAsPartOfMigration119() throws Exception {
+        String configContent =  " <elastic>\n" +
+                "    <profiles>\n" +
+                "      <profile id=\"profile1\" pluginId=\"cd.go.contrib.elastic-agent.docker\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>alpine:latest</value>\n" +
+                "        </property>\n" +
+                "      </profile>" +
+                "      <profile id=\"profile2\" pluginId=\"cd.go.contrib.elasticagent.kubernetes\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>alpine:latest</value>\n" +
+                "        </property>\n" +
+                "      </profile>" +
+                "      <profile id=\"profile3\" pluginId=\"cd.go.contrib.elastic-agent.docker\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>alpine:latest</value>\n" +
+                "        </property>\n" +
+                "      </profile>" +
+                "      <profile id=\"profile4\" pluginId=\"com.thoughtworks.gocd.elastic-agent.azure\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>alpine:latest</value>\n" +
+                "        </property>\n" +
+                "      </profile>" +
+                "      <profile id=\"profile5\" pluginId=\"com.thoughtworks.gocd.elastic-agent.azure\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>alpine:latest</value>\n" +
+                "        </property>\n" +
+                "      </profile>" +
+                "    </profiles>" +
+                "  </elastic>";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"118\">\n"
+                + configContent
+                + "</cruise>";
+
+        ClusterProfile azureProfile = new ClusterProfile("no-op-cluster-for-com.thoughtworks.gocd.elastic-agent.azure", "com.thoughtworks.gocd.elastic-agent.azure");
+        ClusterProfile dockerProfile = new ClusterProfile("no-op-cluster-for-cd.go.contrib.elastic-agent.docker", "cd.go.contrib.elastic-agent.docker");
+        ClusterProfile kubernetesProfile = new ClusterProfile("no-op-cluster-for-cd.go.contrib.elasticagent.kubernetes", "cd.go.contrib.elasticagent.kubernetes");
+
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
+        ClusterProfiles newlyDefinedClusters = migratedConfig.getElasticConfig().getClusterProfiles();
+        ElasticProfiles migratedElasticAgentProfiles = migratedConfig.getElasticConfig().getProfiles();
+
+        assertThat(newlyDefinedClusters).hasSize(3);
+        assertThat(newlyDefinedClusters.find("no-op-cluster-for-com.thoughtworks.gocd.elastic-agent.azure")).isEqualTo(azureProfile);
+        assertThat(newlyDefinedClusters.find("no-op-cluster-for-cd.go.contrib.elastic-agent.docker")).isEqualTo(dockerProfile);
+        assertThat(newlyDefinedClusters.find("no-op-cluster-for-cd.go.contrib.elasticagent.kubernetes")).isEqualTo(kubernetesProfile);
+
+
+        ElasticProfile profile1 = new ElasticProfile("profile1", "cd.go.contrib.elastic-agent.docker", "no-op-cluster-for-cd.go.contrib.elastic-agent.docker", new ConfigurationProperty(new ConfigurationKey("Image"), new ConfigurationValue("alpine:latest")));
+        ElasticProfile profile2 = new ElasticProfile("profile2", "cd.go.contrib.elasticagent.kubernetes", "no-op-cluster-for-cd.go.contrib.elasticagent.kubernetes", new ConfigurationProperty(new ConfigurationKey("Image"), new ConfigurationValue("alpine:latest")));
+        ElasticProfile profile3 = new ElasticProfile("profile3", "cd.go.contrib.elastic-agent.docker", "no-op-cluster-for-cd.go.contrib.elastic-agent.docker", new ConfigurationProperty(new ConfigurationKey("Image"), new ConfigurationValue("alpine:latest")));
+        ElasticProfile profile4 = new ElasticProfile("profile4", "com.thoughtworks.gocd.elastic-agent.azure", "no-op-cluster-for-com.thoughtworks.gocd.elastic-agent.azure", new ConfigurationProperty(new ConfigurationKey("Image"), new ConfigurationValue("alpine:latest")));
+        ElasticProfile profile5 = new ElasticProfile("profile5", "com.thoughtworks.gocd.elastic-agent.azure", "no-op-cluster-for-com.thoughtworks.gocd.elastic-agent.azure", new ConfigurationProperty(new ConfigurationKey("Image"), new ConfigurationValue("alpine:latest")));
+
+        assertThat(migratedElasticAgentProfiles.find("profile1")).isEqualTo(profile1);
+        assertThat(migratedElasticAgentProfiles.find("profile2")).isEqualTo(profile2);
+        assertThat(migratedElasticAgentProfiles.find("profile3")).isEqualTo(profile3);
+        assertThat(migratedElasticAgentProfiles.find("profile4")).isEqualTo(profile4);
+        assertThat(migratedElasticAgentProfiles.find("profile5")).isEqualTo(profile5);
     }
 
     private TimerConfig createTimerConfigWithAttribute(String valueForOnChangesInTimer) throws Exception {

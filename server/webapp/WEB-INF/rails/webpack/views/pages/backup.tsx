@@ -24,6 +24,7 @@ import {Page} from "./page";
 interface State {
   lastBackupTime: Date | null | undefined;
   lastBackupUser: string | null | undefined;
+  backupLocation: string;
   progressMessages: string[];
   availableDiskSpace: string;
   backupStatus: BackupStatus;
@@ -39,6 +40,7 @@ export class BackupPage extends Page<null, State> {
     vnode.state.availableDiskSpace = this.getMeta().availableDiskSpace;
     vnode.state.lastBackupUser = this.getMeta().lastBackupUser;
     vnode.state.lastBackupTime = new Date(this.getMeta().lastBackupTime);
+    vnode.state.backupLocation = this.getMeta().backupLocation;
     vnode.state.backupInProgress = false;
     vnode.state.displayProgressConsole = false;
     vnode.state.progressMessages = [];
@@ -75,6 +77,7 @@ export class BackupPage extends Page<null, State> {
       lastBackupTime={vnode.state.lastBackupTime}
       lastBackupUser={vnode.state.lastBackupUser}
       availableDiskSpace={vnode.state.availableDiskSpace}
+      backupLocation={vnode.state.backupLocation}
       backupProgressMessages={vnode.state.progressMessages}
       backupStatus={vnode.state.backupStatus}
       onPerformBackup={vnode.state.onPerformBackup}

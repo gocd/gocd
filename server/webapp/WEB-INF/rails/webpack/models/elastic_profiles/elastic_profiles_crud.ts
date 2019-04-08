@@ -19,7 +19,9 @@ import SparkRoutes from "helpers/spark_routes";
 import {ElasticProfile, ElasticProfileJSON, ElasticProfiles, ProfileUsage, ProfileUsageJSON} from "./types";
 
 export class ElasticProfilesCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v2;
+  private static USAGES_API_VERSION_HEADER = ApiVersion.v1;
+  private static API_VERSION_HEADER        = ApiVersion.v2;
+
   static all() {
     return ApiRequestBuilder.GET(SparkRoutes.elasticProfileListPath(), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => {
@@ -34,7 +36,7 @@ export class ElasticProfilesCRUD {
   }
 
   static usage(id: string) {
-    return ApiRequestBuilder.GET(SparkRoutes.elasticProfileUsagePath(id), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.elasticProfileUsagePath(id), this.USAGES_API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((response) => {
                               const usages = JSON.parse(response) as ProfileUsageJSON[];
                               return usages.map((usage: ProfileUsageJSON) => ProfileUsage.fromJSON(usage));

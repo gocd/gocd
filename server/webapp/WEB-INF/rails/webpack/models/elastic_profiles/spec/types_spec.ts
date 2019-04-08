@@ -24,8 +24,8 @@ describe("Types", () => {
       it("should validate elastic profile", () => {
         const elasticProfile = new ElasticProfile("", "", "", new Configurations([]));
         expect(elasticProfile.isValid()).toBe(false);
-        expect(elasticProfile.errors().count()).toBe(2);
-        expect(elasticProfile.errors().keys().sort()).toEqual(["id", "pluginId"]);
+        expect(elasticProfile.errors().count()).toBe(3);
+        expect(elasticProfile.errors().keys().sort()).toEqual(["clusterProfileId", "id", "pluginId"]);
       });
 
       it("should validate elastic profile id format", () => {
@@ -35,6 +35,15 @@ describe("Types", () => {
         expect(elasticProfile.errors().keys()).toEqual(["id"]);
         expect(elasticProfile.errors().errors("id"))
           .toEqual(["Invalid Id. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period)."]);
+      });
+
+      it("should validate existence of cluster profile id", () => {
+        const elasticProfile = new ElasticProfile("id", "pluginId", undefined, new Configurations([]));
+        expect(elasticProfile.isValid()).toBe(false);
+        expect(elasticProfile.errors().count()).toBe(1);
+        expect(elasticProfile.errors().keys()).toEqual(["clusterProfileId"]);
+        expect(elasticProfile.errors().errors("clusterProfileId"))
+          .toEqual(["Cluster profile id must be present"]);
       });
     });
 

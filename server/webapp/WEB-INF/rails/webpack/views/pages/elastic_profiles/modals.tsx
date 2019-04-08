@@ -46,7 +46,6 @@ enum ModalType {
 abstract class BaseElasticProfileModal extends Modal {
   protected elasticProfile: Stream<ElasticProfile>;
   private readonly pluginInfo: Stream<PluginInfo<Extension>>;
-  private readonly selectedClusterProfile: Stream<ClusterProfile>;
   private readonly pluginInfos: Array<PluginInfo<Extension>>;
   private readonly modalType: ModalType;
   private errorMessage: string | undefined;
@@ -58,12 +57,11 @@ abstract class BaseElasticProfileModal extends Modal {
                         clusterProfiles: ClusterProfiles,
                         elasticProfile?: ElasticProfile) {
     super(Size.extraLargeHackForEaProfiles);
-    this.clusterProfiles        = clusterProfiles;
-    this.elasticProfile         = stream(elasticProfile);
-    this.pluginInfos            = pluginInfos;
-    this.pluginInfo             = stream();
-    this.modalType              = type;
-    this.selectedClusterProfile = stream();
+    this.clusterProfiles = clusterProfiles;
+    this.elasticProfile  = stream(elasticProfile);
+    this.pluginInfos     = pluginInfos;
+    this.pluginInfo      = stream();
+    this.modalType       = type;
   }
 
   abstract performSave(): void;
@@ -104,38 +102,27 @@ abstract class BaseElasticProfileModal extends Modal {
       return pluginInfo.id === this.elasticProfile().pluginId();
     }) || this.pluginInfos[0]);
 
-    const doesPluginSupportsClusterProfiles = this.pluginInfo().extensions.some((extension) => {
-      return ((extension.type === ExtensionType.ELASTIC_AGENTS) && (extension as ElasticAgentSettings).supportsClusterProfiles);
-    });
+    // const doesPluginSupportsClusterProfiles = this.pluginInfo().extensions.some((extension) => {
+    //   return ((extension.type === ExtensionType.ELASTIC_AGENTS) && (extension as ElasticAgentSettings).supportsClusterProfiles);
+    // });
 
     const selectedPluginId = this.pluginInfo().id;
 
-    let optionalClusterProfilesDropdown: JSX.Element | undefined;
-    this.noClusterProfileError = undefined;
-    if (doesPluginSupportsClusterProfiles) {
-      const clustersBelongingToPlugin = this.clusterProfiles.all().filter((cluster: ClusterProfile) => {
-        return cluster.pluginId() === selectedPluginId;
-      });
+    this.noClusterProfileError      = undefined;
+    const clustersBelongingToPlugin = this.clusterProfiles.all().filter((cluster: ClusterProfile) => {
+      return cluster.pluginId() === selectedPluginId;
+    });
 
-      if (clustersBelongingToPlugin.length === 0) {
-        this.noClusterProfileError = `Can not create Elastic Agent Profile for plugin '${selectedPluginId}'. The plugin requires a Cluster Profile to be configured first in order to define an Elastic Agent Profile.`;
-      } else {
-        this.selectedClusterProfile(this.selectedClusterProfile() || clustersBelongingToPlugin[0]);
-
-        const clustersList              = _.map(clustersBelongingToPlugin, (clusterProfile: ClusterProfile) => {
-          return {id: clusterProfile.id(), text: clusterProfile.id()};
-        });
-        optionalClusterProfilesDropdown = (
-          <SelectField label="Cluster Profile ID"
-                       property={this.clusterProfileIdProxy.bind(this)}
-                       required={true}
-                       errorText={this.elasticProfile().errors().errorsForDisplay("pluginId")}>
-            <SelectFieldOptions selected={this.elasticProfile().clusterProfileId()}
-                                items={clustersList}/>
-          </SelectField>
-        );
-      }
+    if (clustersBelongingToPlugin.length === 0) {
+      this.noClusterProfileError = `Can not create Elastic Agent Profile for plugin '${selectedPluginId}'. A Cluster Profile must be configured first in order to define a new Elastic Agent Profile.`;
+    } else {
+      this.elasticProfile()
+          .clusterProfileId(this.elasticProfile().clusterProfileId() || clustersBelongingToPlugin[0].id());
     }
+
+    const clustersList = _.map(clustersBelongingToPlugin, (clusterProfile: ClusterProfile) => {
+      return {id: clusterProfile.id(), text: clusterProfile.id()};
+    }) || [];
 
     const pluginList = _.map(this.pluginInfos, (pluginInfo: PluginInfo<any>) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
@@ -163,7 +150,13 @@ abstract class BaseElasticProfileModal extends Modal {
                 <SelectFieldOptions selected={this.elasticProfile().pluginId()}
                                     items={pluginList}/>
               </SelectField>
-              {optionalClusterProfilesDropdown}
+              <SelectField label="Cluster Profile ID"
+                           property={this.clusterProfileIdProxy.bind(this)}
+                           required={true}
+                           errorText={this.elasticProfile().errors().errorsForDisplay("pluginId")}>
+                <SelectFieldOptions selected={this.elasticProfile().clusterProfileId()}
+                                    items={clustersList}/>
+              </SelectField>
             </Form>
           </FormHeader>
 
@@ -190,18 +183,15 @@ abstract class BaseElasticProfileModal extends Modal {
 
   private clusterProfileIdProxy(newValue ?: string) {
     if (newValue) {
-      if (this.selectedClusterProfile().id() !== newValue) {
-        const clusterProfile = _.find(this.clusterProfiles.all(), (p) => p.id() === newValue);
-        this.selectedClusterProfile(clusterProfile!);
-
+      if (this.elasticProfile().id() !== newValue) {
         this.elasticProfile(new ElasticProfile(this.elasticProfile().id(),
                                                this.elasticProfile().pluginId(),
                                                newValue,
-                                               new Configurations([])));
+                                               this.elasticProfile().properties()));
       }
     }
 
-    return this.selectedClusterProfile().id();
+    return this.elasticProfile().clusterProfileId();
   }
 
   private pluginIdProxy(newValue ?: string) {
@@ -211,7 +201,7 @@ abstract class BaseElasticProfileModal extends Modal {
         this.pluginInfo(pluginInfo!);
         this.elasticProfile(new ElasticProfile(this.elasticProfile().id(),
                                                pluginInfo!.id,
-                                               this.elasticProfile().clusterProfileId(),
+                                               undefined,
                                                new Configurations([])));
       }
     }

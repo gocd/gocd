@@ -146,6 +146,7 @@ export class ElasticProfile implements ValidatableMixin {
     this.properties       = stream(properties);
 
     ValidatableMixin.call(this);
+    this.validatePresenceOf("clusterProfileId");
     this.validatePresenceOf("pluginId");
     this.validatePresenceOf("id");
     this.validateFormatOf("id",

@@ -17,6 +17,11 @@
 package com.thoughtworks.go.server.service.support;
 
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -26,8 +31,10 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static java.util.Collections.singletonMap;
+import static java.util.stream.Collectors.toSet;
 
 @Component
 public class ConfigInfoProvider implements ServerInfoProvider {
@@ -60,11 +67,20 @@ public class ConfigInfoProvider implements ServerInfoProvider {
         validConfig.put("Number of environments", currentConfig.getEnvironments().size());
         validConfig.put("Number of unique materials", currentConfig.getAllUniqueMaterials().size());
         validConfig.put("Number of schedulable materials", goConfigService.getSchedulableMaterials().size());
+        validConfig.put("Number of unique materials with secret params", materialWithSecretParams(currentConfig).size());
 
         json.put("Valid Config", validConfig);
         json.put("Security", securityInformation());
 
         return json;
+    }
+
+    private Set<Material> materialWithSecretParams(CruiseConfig currentConfig) {
+        final MaterialConfigs materialConfigs = new MaterialConfigs(currentConfig.getAllUniqueMaterials().toArray(new MaterialConfig[0]));
+        return new Materials(materialConfigs).parallelStream()
+                .filter(material -> material instanceof ScmMaterial)
+                .filter(material -> ((ScmMaterial) material).hasSecretParams())
+                .collect(toSet());
     }
 
     private LinkedHashMap<String, Object> securityInformation() {

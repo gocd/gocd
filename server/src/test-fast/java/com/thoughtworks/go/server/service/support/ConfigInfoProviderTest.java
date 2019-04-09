@@ -18,41 +18,65 @@ package com.thoughtworks.go.server.service.support;
 
 import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import static java.util.Collections.*;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThat;
+import static java.util.stream.Collectors.toSet;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@EnableRuleMigrationSupport
 public class ConfigInfoProviderTest {
     private AuthorizationMetadataStore authorizationMetadataStore;
     @Rule
     public final ClearSingleton clearSingleton = new ClearSingleton();
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         authorizationMetadataStore = AuthorizationMetadataStore.instance();
     }
 
     @Test
-    public void shouldProvideSecurityInformationWhenNoAuthorizationPluginIsConfigured() throws Exception {
+    void shouldAddMaterialCountForMaterialDefinedUsingSecretParams() {
+        final GoConfigService goConfigService = goConfigService();
+        final CruiseConfig currentConfig = goConfigService.getCurrentConfig();
+        final Set<MaterialConfig> uniqueMaterials = Stream.of(
+                new GitMaterialConfig("https://{{SECRET:[id][token]}}@gocd.org/foo"),
+                new GitMaterialConfig("https://gocd.org/bar"),
+                new SvnMaterialConfig("svn://gocd.org/bar", "bob", "{{SECRET:[id][password]}}", false))
+                .collect(toSet());
+
+        when(currentConfig.getAllUniqueMaterials()).thenReturn(uniqueMaterials);
+
+        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore).asJson();
+
+        final Map<String, Object> validConfig = (Map<String, Object>) map.get("Valid Config");
+        assertThat(validConfig)
+                .containsEntry("Number of unique materials", 3)
+                .containsEntry("Number of unique materials with secret params", 2);
+    }
+
+    @Test
+    void shouldProvideSecurityInformationWhenNoAuthorizationPluginIsConfigured() {
         final GoConfigService goConfigService = goConfigService();
         final AuthorizationPluginInfo passwordFile = pluginInfo("cd.go.authentication.passwordfile", "Password File Authentication Plugin for GoCD");
         final AuthorizationPluginInfo ldap = pluginInfo("cd.go.authentication.ldap", "LDAP Authentication Plugin for GoCD");
@@ -63,13 +87,13 @@ public class ConfigInfoProviderTest {
         final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore).asJson();
 
         final Map<String, Object> security = (Map<String, Object>) map.get("Security");
-        assertNotNull(security);
-        assertThat(security, hasEntry("Enabled", false));
-        assertThat(security, hasEntry("Plugins", new ArrayList<>()));
+        assertThat(security).isNotNull();
+        assertThat(security).containsEntry("Enabled", false);
+        assertThat(security).containsEntry("Plugins", new ArrayList<>());
     }
 
     @Test
-    public void shouldProvideSecurityInformationWhenAuthorizationPluginsConfigured() throws Exception {
+    void shouldProvideSecurityInformationWhenAuthorizationPluginsConfigured() {
         final GoConfigService goConfigService = goConfigService();
         final AuthorizationPluginInfo passwordFile = pluginInfo("cd.go.authentication.passwordfile", "Password File Authentication Plugin for GoCD");
         final AuthorizationPluginInfo ldap = pluginInfo("cd.go.authentication.ldap", "LDAP Authentication Plugin for GoCD");
@@ -81,14 +105,11 @@ public class ConfigInfoProviderTest {
         final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore).asJson();
 
         final Map<String, Object> security = (Map<String, Object>) map.get("Security");
-        assertNotNull(security);
-        assertThat(security, hasEntry("Enabled", true));
+        assertThat(security).isNotNull();
+        assertThat(security).containsEntry("Enabled", true);
 
         final List<Map<String, Boolean>> plugins = (List<Map<String, Boolean>>) security.get("Plugins");
-        assertThat(plugins, containsInAnyOrder(
-                singletonMap("Password File Authentication Plugin for GoCD", true),
-                singletonMap("LDAP Authentication Plugin for GoCD", false)
-        ));
+        assertThat(plugins).contains(singletonMap("Password File Authentication Plugin for GoCD", true), singletonMap("LDAP Authentication Plugin for GoCD", false));
     }
 
     private AuthorizationPluginInfo pluginInfo(String pluginId, String pluginName) {

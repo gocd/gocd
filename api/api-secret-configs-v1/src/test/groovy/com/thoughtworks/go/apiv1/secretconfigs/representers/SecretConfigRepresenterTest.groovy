@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.Allow
 import com.thoughtworks.go.config.Rules
 import com.thoughtworks.go.config.SecretConfig
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
+import com.thoughtworks.go.security.GoCipher
 import net.javacrumbs.jsonunit.fluent.JsonFluentAssert
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
@@ -44,7 +45,7 @@ class SecretConfigRepresenterTest {
     void setup() {
       secretConfig = new SecretConfig("id", "plugin-id")
       secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("key1", false, "value1"))
-      secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("key2", "secret", "AES:lzcCuNSe4vUx+CsWgN11Uw==:YotExzWbFv5w/7/HmpYp3g=="))
+      secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("key2", "secret", new GoCipher().encrypt("secret")))
 
       secretConfig.setRules(new Rules([
         new Allow("refer", "PipelineGroup", "DeployPipelines"),
@@ -79,7 +80,7 @@ class SecretConfigRepresenterTest {
           ],
           [
             "key"            : "key2",
-            "encrypted_value": "AES:lzcCuNSe4vUx+CsWgN11Uw==:YotExzWbFv5w/7/HmpYp3g=="
+            "encrypted_value": new GoCipher().encrypt("secret")
           ]
         ],
         "rules"     : [
@@ -146,7 +147,7 @@ class SecretConfigRepresenterTest {
           ],
           [
             "key"            : "key2",
-            "encrypted_value": "AES:lzcCuNSe4vUx+CsWgN11Uw==:YotExzWbFv5w/7/HmpYp3g=="
+            "encrypted_value": new GoCipher().encrypt("secret")
           ]
         ]
       ])
@@ -167,7 +168,7 @@ class SecretConfigRepresenterTest {
           ],
           [
             "key"            : "key2",
-            "encrypted_value": "AES:lzcCuNSe4vUx+CsWgN11Uw==:YotExzWbFv5w/7/HmpYp3g=="
+            "encrypted_value": new GoCipher().encrypt("secret")
           ]
         ],
         "rules"     : [

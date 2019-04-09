@@ -145,7 +145,7 @@ public class SecretsExtensionV1Test {
             when(pluginManager.submitTo(eq(PLUGIN_ID), eq(SECRETS_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.error(responseBody));
 
             final SecretConfig secretConfig = new SecretConfig();
-            secretConfig.add(ConfigurationPropertyMother.create("AWS_ACCESS_KEY", false, "some-access-key"));
+            secretConfig.getConfiguration().add(ConfigurationPropertyMother.create("AWS_ACCESS_KEY", false, "some-access-key"));
 
             assertThatCode(() -> secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, new HashSet<>(asList("key1", "key2"))))
                     .isInstanceOf(SecretResolutionFailureException.class)

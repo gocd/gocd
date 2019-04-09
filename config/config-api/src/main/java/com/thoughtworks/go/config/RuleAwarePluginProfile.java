@@ -54,10 +54,14 @@ public abstract class RuleAwarePluginProfile implements Validatable {
     }
     private final ConfigErrors errors = new ConfigErrors();
 
-    public RuleAwarePluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties) {
+    public RuleAwarePluginProfile(String id, String pluginId, Rules rules, ConfigurationProperty... configurationProperties) {
         this.id = id;
         this.pluginId = pluginId;
-        configuration = new Configuration(configurationProperties);
+        this.configuration = new Configuration(configurationProperties);
+
+        if (rules != null) {
+            this.rules = rules;
+        }
     }
 
     public Configuration getConfiguration() {
@@ -83,10 +87,21 @@ public abstract class RuleAwarePluginProfile implements Validatable {
         return pluginId;
     }
 
+    public String getDescription() {
+        return this.description.text;
+    }
+
+    public void setDescription(String description) {
+        this.description.text = description;
+    }
+
+    public Rules getRules() {
+        return this.rules;
+    }
+
 
     @ConfigTag("description")
     public static class Description {
-
         @ConfigValue
         private String text;
 
@@ -175,18 +190,8 @@ public abstract class RuleAwarePluginProfile implements Validatable {
         if (new NameTypeValidator().isNameInvalid(id)) {
             addError(ID, String.format("Invalid id '%s'. %s", id, NameTypeValidator.ERROR_MESSAGE));
         }
-    }
 
-    public String getDescription() {
-        return description.text;
-    }
-
-    public void setDescription(String description) {
-        this.description.text = description;
-    }
-
-    public Rules getRules() {
-        return rules;
+        rules.validate(new RulesValidationContext(validationContext, this.getAllowedActions(), this.getAllowedTypes()));
     }
 
     public void setRules(Rules rules) {
@@ -198,6 +203,10 @@ public abstract class RuleAwarePluginProfile implements Validatable {
     protected abstract boolean isSecure(String key);
 
     protected abstract boolean hasPluginInfo();
+
+    protected abstract List<String> getAllowedActions();
+
+    protected abstract List<String> getAllowedTypes();
 
 
     void validateIdUniqueness(Map<String, RuleAwarePluginProfile> profiles) {

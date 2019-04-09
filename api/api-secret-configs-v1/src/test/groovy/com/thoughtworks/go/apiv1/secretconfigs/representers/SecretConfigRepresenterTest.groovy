@@ -16,9 +16,9 @@
 
 package com.thoughtworks.go.apiv1.secretconfigs.representers
 
-import com.thoughtworks.go.Deny
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.Allow
+import com.thoughtworks.go.config.Deny
 import com.thoughtworks.go.config.Rules
 import com.thoughtworks.go.config.SecretConfig
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import spark.HaltException
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigRepresenter.fromJSON
 import static com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigRepresenter.toJSON
@@ -62,7 +63,7 @@ class SecretConfigRepresenterTest {
       JsonFluentAssert.assertThatJson(json).isEqualTo([
         "_links"    : [
           "doc" : [
-            "href": "https://api.gocd.org/19.3.0/#secret_configs"
+            "href": apiDocsUrl('#secret-configs')
           ],
           "find": [
             "href": "http://test.host/go/api/admin/secret_configs/:config_id"
@@ -123,13 +124,13 @@ class SecretConfigRepresenterTest {
 
     @Test
     void shouldNotRenderRulesIfEmpty() {
-      secretConfig.setRules(null)
+      secretConfig.setRules(new Rules())
       def json = toObjectString({ toJSON(it, secretConfig) })
 
       JsonFluentAssert.assertThatJson(json).isEqualTo([
         "_links"    : [
           "doc" : [
-            "href": "https://api.gocd.org/19.3.0/#secret_configs"
+            "href": apiDocsUrl('#secret-configs')
           ],
           "find": [
             "href": "http://test.host/go/api/admin/secret_configs/:config_id"

@@ -353,7 +353,7 @@ public class Routes {
     public static class SecretConfigsAPI {
         public static final String BASE = "/api/admin/secret_configs";
         public static final String ID = "/:config_id";
-        public static final String DOC = apiDocsUrl("#secret_configs");
+        public static final String DOC = apiDocsUrl("#secret-configs");
 
         public static String find() {
             return BASE + ID;

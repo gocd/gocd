@@ -16,16 +16,12 @@
 
 package com.thoughtworks.go.apiv1.secretconfigs
 
-import com.thoughtworks.go.Deny
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigRepresenter
 import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigsRepresenter
-import com.thoughtworks.go.config.Allow
-import com.thoughtworks.go.config.Rules
-import com.thoughtworks.go.config.SecretConfig
-import com.thoughtworks.go.config.SecretConfigs
+import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.i18n.LocalizedMessage

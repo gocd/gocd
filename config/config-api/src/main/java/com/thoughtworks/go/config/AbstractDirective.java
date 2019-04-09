@@ -36,10 +36,14 @@ public abstract class AbstractDirective implements Directive {
 
     private final ConfigErrors configErrors = new ConfigErrors();
 
-    public AbstractDirective() {
+    private DirectiveType directiveType;
+
+    public AbstractDirective(DirectiveType allow) {
+        this.directiveType = allow;
     }
 
-    public AbstractDirective(String action, String type, String resource) {
+    public AbstractDirective(DirectiveType allow, String action, String type, String resource) {
+        this.directiveType = allow;
         this.action = action;
         this.type = type;
         this.resource = resource;
@@ -87,6 +91,21 @@ public abstract class AbstractDirective implements Directive {
     }
 
     @Override
+    public String action() {
+        return this.action;
+    }
+
+    @Override
+    public String type() {
+        return this.type;
+    }
+
+    @Override
+    public String resource() {
+        return this.resource;
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(action, type, resource);
     }
@@ -94,5 +113,10 @@ public abstract class AbstractDirective implements Directive {
     @Override
     public boolean hasErrors() {
         return !this.configErrors.isEmpty();
+    }
+
+    @Override
+    public DirectiveType getDirectiveType() {
+        return this.directiveType;
     }
 }

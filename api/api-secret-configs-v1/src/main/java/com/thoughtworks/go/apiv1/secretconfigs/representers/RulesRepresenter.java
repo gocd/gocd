@@ -18,19 +18,19 @@ package com.thoughtworks.go.apiv1.secretconfigs.representers;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.thoughtworks.go.Deny;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.config.Allow;
+import com.thoughtworks.go.config.Deny;
 import com.thoughtworks.go.config.Directive;
 import com.thoughtworks.go.config.Directive.DirectiveType;
 import com.thoughtworks.go.config.Rules;
 
 import java.util.Optional;
 
-import static com.thoughtworks.go.config.Directive.DirectiveType.*;
+import static com.thoughtworks.go.config.Directive.DirectiveType.fromString;
 
 public class RulesRepresenter {
     public static void toJSON(OutputListWriter listWriter, Rules rules) {

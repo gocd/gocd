@@ -19,11 +19,11 @@ package com.thoughtworks.go.config;
 @ConfigTag("allow")
 public class Allow extends AbstractDirective {
     public Allow() {
-        super();
+        super(DirectiveType.ALLOW);
     }
 
     public Allow(String action, String type, String resource) {
-        super(action, type, resource);
+        super(DirectiveType.ALLOW, action, type, resource);
     }
 }
 

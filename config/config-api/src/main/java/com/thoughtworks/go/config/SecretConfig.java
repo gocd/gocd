@@ -17,32 +17,20 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.builder.ConfigurationPropertyBuilder;
-import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.secrets.SecretsMetadataStore;
 import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 
 import java.util.List;
-import java.util.Objects;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.isNull;
 
 @ConfigTag("secretConfig")
 @ConfigCollection(value = ConfigurationProperty.class)
-public class SecretConfig extends NewPluginProfile {
-    @ConfigSubtag
-    private Configuration configuration = new Configuration();
-
-    @ConfigSubtag
-    private Rules rules = new Rules();
-
-    @ConfigSubtag
-    private Description description = new Description();
-
-    private static final List<String> allowedActions = unmodifiableList(asList("refer"));
-    private static final List<String> allowedTypes = unmodifiableList(asList("pipeline_group"));
+public class SecretConfig extends RuleAwarePluginProfile {
+    private List<String> allowedActions = asList("refer");
+    private List<String> allowedTypes = asList("pipeline_group");
 
     public SecretConfig() {
         super();
@@ -53,45 +41,7 @@ public class SecretConfig extends NewPluginProfile {
     }
 
     public SecretConfig(String id, String pluginId, Rules rules, ConfigurationProperty... configurationProperties) {
-        super(id, pluginId, configurationProperties);
-        if (rules != null) {
-            this.rules = rules;
-        }
-    }
-
-    public Configuration getConfiguration() {
-        return this.configuration;
-    }
-
-    public String getDescription() {
-        return this.description.text;
-    }
-
-    public void setDescription(String description) {
-        this.description.text = description;
-    }
-
-    public Rules getRules() {
-        return this.rules;
-    }
-
-    @Override
-    public void validate(ValidationContext validationContext) {
-        super.validate(validationContext);
-    }
-
-    public void validateTree(ValidationContext validationContext) {
-        validate(validationContext);
-        rules.validateTree(new DelegatingValidationContext(validationContext) {
-            @Override
-            public RulesValidationContext getRulesValidationContext() {
-                return new RulesValidationContext(allowedActions, allowedTypes);
-            }
-        });
-    }
-
-    public void setRules(Rules rules) {
-        this.rules = rules;
+        super(id, pluginId, rules, configurationProperties);
     }
 
     @Override
@@ -116,7 +66,7 @@ public class SecretConfig extends NewPluginProfile {
     public void addConfigurations(List<ConfigurationProperty> configurations) {
         ConfigurationPropertyBuilder builder = new ConfigurationPropertyBuilder();
         for (ConfigurationProperty property : configurations) {
-            configuration.add(builder.create(property.getConfigKeyName(),
+            this.getConfiguration().add(builder.create(property.getConfigKeyName(),
                     property.getConfigValue(),
                     property.getEncryptedValue(),
                     isSecure(property.getConfigKeyName())));
@@ -128,8 +78,10 @@ public class SecretConfig extends NewPluginProfile {
         return !isNull(this.metadataStore().getPluginInfo(getPluginId()));
     }
 
-    private SecretsMetadataStore metadataStore() {
-        return SecretsMetadataStore.instance();
+    @ConfigTag("description")
+    public static class Description {
+        @ConfigValue
+        private String text;
     }
 
     @Override
@@ -142,30 +94,7 @@ public class SecretConfig extends NewPluginProfile {
         return allowedTypes;
     }
 
-    @ConfigTag("description")
-    public static class Description {
-        @ConfigValue
-        private String text;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SecretConfig)) return false;
-        if (!super.equals(o)) return false;
-        SecretConfig that = (SecretConfig) o;
-        return Objects.equals(configuration, that.configuration) &&
-                Objects.equals(rules, that.rules) &&
-                Objects.equals(description, that.description);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), configuration, rules, description);
-    }
-
-    @Override
-    public boolean hasErrors() {
-        return super.hasErrors() || rules.hasErrors() || configuration.hasErrors();
+    private SecretsMetadataStore metadataStore() {
+        return SecretsMetadataStore.instance();
     }
 }

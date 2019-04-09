@@ -19,10 +19,10 @@ package com.thoughtworks.go.config;
 @ConfigTag("deny")
 public class Deny extends AbstractDirective {
     public Deny() {
-        super();
+        super(DirectiveType.DENY);
     }
 
     public Deny(String action, String type, String resource) {
-        super(action, type, resource);
+        super(DirectiveType.DENY, action, type, resource);
     }
 }

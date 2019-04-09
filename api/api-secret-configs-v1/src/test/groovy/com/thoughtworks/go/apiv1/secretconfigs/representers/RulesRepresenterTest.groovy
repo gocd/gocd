@@ -18,9 +18,9 @@ package com.thoughtworks.go.apiv1.secretconfigs.representers
 
 import com.google.gson.Gson
 import com.google.gson.JsonArray
-import com.thoughtworks.go.Deny
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.Allow
+import com.thoughtworks.go.config.Deny
 import com.thoughtworks.go.config.Rules
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test

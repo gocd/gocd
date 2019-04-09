@@ -16,14 +16,11 @@
 
 package com.thoughtworks.go.apiv1.secretconfigs.representers
 
-import com.thoughtworks.go.Deny
-import com.thoughtworks.go.config.Allow
-import com.thoughtworks.go.config.Rules
-import com.thoughtworks.go.config.SecretConfig
-import com.thoughtworks.go.config.SecretConfigs
+import com.thoughtworks.go.config.*
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigsRepresenter.toJSON
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
@@ -53,7 +50,7 @@ class SecretConfigsRepresenterTest {
           [
             "_links"    : [
               "doc" : [
-                "href": "https://api.gocd.org/19.3.0/#secret_configs"
+                "href": apiDocsUrl('#secret-configs')
               ],
               "find": [
                 "href": "http://test.host/go/api/admin/secret_configs/:config_id"
@@ -106,7 +103,7 @@ class SecretConfigsRepresenterTest {
       ],
       "_links"   : [
         "doc" : [
-          "href": "https://api.gocd.org/19.3.0/#secret_configs"
+          "href": apiDocsUrl('#secret-configs')
         ],
         "find": [
           "href": "http://test.host/go/api/admin/secret_configs/:config_id"
@@ -128,7 +125,7 @@ class SecretConfigsRepresenterTest {
     assertThatJson(json).isEqualTo([
       "_links"   : [
         "doc" : [
-          "href": "https://api.gocd.org/19.3.0/#secret_configs"
+          "href": apiDocsUrl('#secret-configs')
         ],
         "find": [
           "href": "http://test.host/go/api/admin/secret_configs/:config_id"

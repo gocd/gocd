@@ -25,13 +25,12 @@ public class SecretResolutionFailureException extends RuntimeException {
         super(message);
     }
 
-    public static SecretResolutionFailureException withMissingSecretParams(Set<String> secretsToResolve, Set<String> missingSecrets) {
-        return new SecretResolutionFailureException(format("Expected plugin to resolve secret(s) `%s` but plugin failed resolve secret param(s) `%s`. Please make sure that secret with same name exist in your secret management tool.", csv(secretsToResolve), csv(missingSecrets)));
+    public static SecretResolutionFailureException withMissingSecretParams(String secretConfigId, Set<String> secretsToResolve, Set<String> missingSecrets) {
+        return new SecretResolutionFailureException(format("Expected plugin to resolve secret param(s) `%s` using secret config `%s` but plugin failed to resolve secret param(s) `%s`. Please make sure that secret(s) with the same name exists in your secret management tool.", csv(secretsToResolve), secretConfigId, csv(missingSecrets)));
     }
 
-
-    public static SecretResolutionFailureException withUnwantedSecretParams(Set<String> secretsToResolve, Set<String> unwantedSecrets) {
-        return new SecretResolutionFailureException(format("Expected plugin to resolve secret(s) `%s` but plugin sent addition secret param(s) `%s`.", csv(secretsToResolve), csv(unwantedSecrets)));
+    public static SecretResolutionFailureException withUnwantedSecretParams(String secretConfigId, Set<String> secretsToResolve, Set<String> unwantedSecrets) {
+        return new SecretResolutionFailureException(format("Expected plugin to resolve secret param(s) `%s` using secret config `%s` but plugin sent additional secret param(s) `%s`.", csv(secretsToResolve), secretConfigId, csv(unwantedSecrets)));
     }
 
     private static String csv(Set<String> secretsToResolve) {

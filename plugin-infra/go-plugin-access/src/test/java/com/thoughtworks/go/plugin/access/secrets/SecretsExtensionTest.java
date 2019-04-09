@@ -130,22 +130,23 @@ public class SecretsExtensionTest {
     class lookupSecrets {
         @Test
         void shouldDelegateToVersionedExtension() {
+            final SecretConfig secretConfig = new SecretConfig("file", "cd.go.secret.file");
             SecretsExtensionV1 secretsExtensionV1 = mock(SecretsExtensionV1.class);
             Map<String, VersionedSecretsExtension> secretsExtensionMap = singletonMap("1.0", secretsExtensionV1);
             extension = new SecretsExtension(pluginManager, extensionsRegistry, secretsExtensionMap);
             Set<String> keys = new HashSet<>(asList("key1", "key2"));
 
             when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SECRETS_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(SecretsExtensionV1.VERSION);
-            when(secretsExtensionV1.lookupSecrets(PLUGIN_ID, new SecretConfig(), keys)).thenReturn(Arrays.asList(
+            when(secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, keys)).thenReturn(Arrays.asList(
                     new Secret("key1", "value-1"),
                     new Secret("key2", "value-2")
             ));
 
-            final List<Secret> secrets = extension.lookupSecrets(PLUGIN_ID, new SecretConfig(), keys);
+            final List<Secret> secrets = extension.lookupSecrets(PLUGIN_ID, secretConfig, keys);
 
             assertThat(secrets).hasSize(2)
                     .contains(new Secret("key1", "value-1"), new Secret("key2", "value-2"));
-            verify(secretsExtensionV1).lookupSecrets(PLUGIN_ID, new SecretConfig(), keys);
+            verify(secretsExtensionV1).lookupSecrets(PLUGIN_ID, secretConfig, keys);
         }
 
         @Test
@@ -154,17 +155,18 @@ public class SecretsExtensionTest {
             Map<String, VersionedSecretsExtension> secretsExtensionMap = singletonMap("1.0", secretsExtensionV1);
             extension = new SecretsExtension(pluginManager, extensionsRegistry, secretsExtensionMap);
             final Set<String> secretsToLookup = new HashSet<>(asList("key1", "key2"));
+            final SecretConfig secretConfig = new SecretConfig("file", "cd.go.secret.file");
 
             when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SECRETS_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(SecretsExtensionV1.VERSION);
-            when(secretsExtensionV1.lookupSecrets(PLUGIN_ID, new SecretConfig(), secretsToLookup)).thenReturn(Arrays.asList(
+            when(secretsExtensionV1.lookupSecrets(PLUGIN_ID, secretConfig, secretsToLookup)).thenReturn(Arrays.asList(
                     new Secret("key1", "value-1"),
                     new Secret("key2", "value-2"),
                     new Secret("key3", "value-3")
             ));
 
-            assertThatCode(() -> extension.lookupSecrets(PLUGIN_ID, new SecretConfig(), secretsToLookup))
+            assertThatCode(() -> extension.lookupSecrets(PLUGIN_ID, secretConfig, secretsToLookup))
                     .isInstanceOf(SecretResolutionFailureException.class)
-                    .hasMessage("Expected plugin to resolve secret(s) `key1, key2` but plugin sent addition secret param(s) `key3`.");
+                    .hasMessage("Expected plugin to resolve secret param(s) `key1, key2` using secret config `file` but plugin sent additional secret param(s) `key3`.");
         }
 
         @Test
@@ -177,9 +179,9 @@ public class SecretsExtensionTest {
             when(pluginManager.resolveExtensionVersion(PLUGIN_ID, SECRETS_EXTENSION, SUPPORTED_VERSIONS)).thenReturn(SecretsExtensionV1.VERSION);
             when(secretsExtensionV1.lookupSecrets(PLUGIN_ID, new SecretConfig(), secretsToLookup)).thenReturn(singletonList(new Secret("key1", "value-1")));
 
-            assertThatCode(() -> extension.lookupSecrets(PLUGIN_ID, new SecretConfig(), secretsToLookup))
+            assertThatCode(() -> extension.lookupSecrets(PLUGIN_ID, new SecretConfig("file", "cd.go.secret.file"), secretsToLookup))
                     .isInstanceOf(SecretResolutionFailureException.class)
-                    .hasMessage("Expected plugin to resolve secret(s) `key1, key2, key3` but plugin failed resolve secret param(s) `key2, key3`. Please make sure that secret with same name exist in your secret management tool.");
+                    .hasMessage("Expected plugin to resolve secret param(s) `key1, key2, key3` using secret config `file` but plugin failed to resolve secret param(s) `key1, key2, key3`. Please make sure that secret(s) with the same name exists in your secret management tool.");
         }
     }
 

@@ -312,6 +312,13 @@ public class ElasticAgentExtensionV4Test {
     }
 
     @Test
+    public void shouldVerifyPluginApiRequestNamesOfElasticAgentProfile() {
+        assertThat(REQUEST_GET_PROFILE_METADATA, is(String.format("%s.get-profile-metadata", REQUEST_PREFIX)));
+        assertThat(REQUEST_GET_PROFILE_VIEW, is(String.format("%s.get-profile-view", REQUEST_PREFIX)));
+        assertThat(REQUEST_VALIDATE_PROFILE, is(String.format("%s.validate-profile", REQUEST_PREFIX)));
+    }
+
+    @Test
     public void allRequestMustHaveRequestPrefix() {
         assertThat(REQUEST_PREFIX, is("cd.go.elastic-agent"));
 

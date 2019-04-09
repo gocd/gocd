@@ -63,7 +63,7 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
 
     @Override
     public List<PluginConfiguration> getElasticProfileMetadata(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ELASTIC_AGENT_PROFILE_METADATA, new DefaultPluginInteractionCallback<List<PluginConfiguration>>() {
             @Override
             public List<PluginConfiguration> onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV5.getElasticProfileMetadataResponseFromBody(responseBody);
@@ -73,7 +73,7 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
 
     @Override
     public String getElasticProfileView(String pluginId) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_PROFILE_VIEW, new DefaultPluginInteractionCallback<String>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_GET_ELASTIC_AGENT_PROFILE_VIEW, new DefaultPluginInteractionCallback<String>() {
             @Override
             public String onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV5.getProfileViewResponseFromBody(responseBody);
@@ -88,7 +88,7 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
 
     @Override
     public ValidationResult validateElasticProfile(final String pluginId, final Map<String, String> configuration) {
-        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_PROFILE, new DefaultPluginInteractionCallback<ValidationResult>() {
+        return pluginRequestHelper.submitRequest(pluginId, REQUEST_VALIDATE_ELASTIC_AGENT_PROFILE, new DefaultPluginInteractionCallback<ValidationResult>() {
             @Override
             public String requestBody(String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV5.validateElasticProfileRequestBody(configuration);

@@ -23,9 +23,9 @@ public interface ElasticAgentPluginConstantsV5 {
     String REQUEST_SERVER_PING = REQUEST_PREFIX + ".server-ping";
     String REQUEST_SHOULD_ASSIGN_WORK = REQUEST_PREFIX + ".should-assign-work";
 
-    String REQUEST_GET_PROFILE_METADATA = REQUEST_PREFIX + ".get-profile-metadata";
-    String REQUEST_GET_PROFILE_VIEW = REQUEST_PREFIX + ".get-profile-view";
-    String REQUEST_VALIDATE_PROFILE = REQUEST_PREFIX + ".validate-profile";
+    String REQUEST_GET_ELASTIC_AGENT_PROFILE_METADATA = REQUEST_PREFIX + ".get-elastic-agent-profile-metadata";
+    String REQUEST_GET_ELASTIC_AGENT_PROFILE_VIEW = REQUEST_PREFIX + ".get-elastic-agent-profile-view";
+    String REQUEST_VALIDATE_ELASTIC_AGENT_PROFILE = REQUEST_PREFIX + ".validate-elastic-agent-profile";
     String REQUEST_GET_PLUGIN_SETTINGS_ICON = REQUEST_PREFIX + ".get-icon";
 
     String REQUEST_GET_CLUSTER_PROFILE_METADATA = REQUEST_PREFIX + ".get-cluster-profile-metadata";

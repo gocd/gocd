@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-
 describe("PipelineExport", function () {
   var c = crel, panel, link;
   var TEST_URL = "http://export.me";
+  var testPluginInfos = [createPluginInfo("pos.test.id", "active", true),
+  createPluginInfo("invalid.id", "invalid", true),
+  createPluginInfo("not.support.id", "active", false),
+  createPluginInfo("neither.id", "invalid", false)]
 
   beforeEach(function setup() {
     panel = c("div"), link = c("a", {href: TEST_URL}, "click me");
@@ -39,6 +42,14 @@ describe("PipelineExport", function () {
     expect(choices[1].textContent).toBe("plugin 2");
     expect(choices[1].getAttribute("data-plugin-id")).toBe("plug.2");
   });
+
+  it("filterPlugins() returns only active plugins that support pipeline export", function() {
+    var plugins = PipelineExport.filterPlugins(testPluginInfos)
+
+    expect(plugins.length).toBe(1);
+    expect(plugins[0].id).toBe("pos.test.id");
+  });
+
 
   it("clicking on a plugin link causes a download", function(done) {
     if ("function" !== typeof Promise) {
@@ -71,4 +82,12 @@ describe("PipelineExport", function () {
       choice.click();
     });
   });
+
+  function createPluginInfo(pluginId, stat, supportsExport) {
+    return {
+      id: pluginId,
+      status: { state: stat },
+      extensions: [{ type: "configrepo", capabilities: { supports_pipeline_export: supportsExport }}]
+    }
+  }
 });

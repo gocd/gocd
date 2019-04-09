@@ -27,11 +27,10 @@ public class ConfigRepoExtensionRepresenter extends ExtensionRepresenter {
 
         ConfigRepoPluginInfo configRepoPluginInfo = (ConfigRepoPluginInfo) extension;
 
-        if (configRepoPluginInfo.getCapabilities() != null) {
-            extensionWriter.addChild("capabilities", capabilitiesWriter ->
-                    capabilitiesWriter.add("supports_pipeline_export", configRepoPluginInfo.getCapabilities().isSupportsPipelineExport())
-                            .add("supports_parse_content", configRepoPluginInfo.getCapabilities().isSupportsParseContent()));
-        }
+        extensionWriter.addChild("capabilities", capabilitiesWriter ->
+                capabilitiesWriter.add("supports_pipeline_export", configRepoPluginInfo.getCapabilities().isSupportsPipelineExport())
+                        .add("supports_parse_content", configRepoPluginInfo.getCapabilities().isSupportsParseContent()));
+
     }
 
 }

@@ -81,7 +81,7 @@ public class SecretsExtension extends AbstractExtension {
 
         final Set<String> additionalSecretsInResponse = SetUtils.difference(resolvedSecrets, keys).toSet();
         if (!additionalSecretsInResponse.isEmpty()) {
-            throw SecretResolutionFailureException.withUnwantedSecretParams(keys, additionalSecretsInResponse);
+            throw SecretResolutionFailureException.withUnwantedSecretParams(secretConfig.getId(), keys, additionalSecretsInResponse);
         }
 
         if (resolvedSecrets.containsAll(keys)) {
@@ -89,7 +89,7 @@ public class SecretsExtension extends AbstractExtension {
         }
 
         final Set<String> missingSecrets = SetUtils.disjunction(resolvedSecrets, keys).toSet();
-        throw SecretResolutionFailureException.withMissingSecretParams(keys, missingSecrets);
+        throw SecretResolutionFailureException.withMissingSecretParams(secretConfig.getId(), keys, missingSecrets);
     }
 
     protected VersionedSecretsExtension getVersionedSecretsExtension(String pluginId) {

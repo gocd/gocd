@@ -245,4 +245,11 @@ export default class {
   static apiAdminAccessTokenRevokePath(id: number) {
     return `${this.apiAdminAccessTokensBasePath()}/${id}/revoke`;
   }
+
+  static apiAdminAccessClusterProfilesPath(id?: string) {
+    if (id) {
+      return `/go/api/admin/elastic/cluster_profiles/${id}`;
+    }
+    return `/go/api/admin/elastic/cluster_profiles`;
+  }
 }

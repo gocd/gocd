@@ -120,7 +120,7 @@ public class ElasticAgentExtensionV5Test {
                 new PluginConfiguration("Password", new Metadata(true, true))
         ));
 
-        assertExtensionRequest("5.0", REQUEST_GET_PROFILE_METADATA, null);
+        assertExtensionRequest("5.0", REQUEST_GET_ELASTIC_AGENT_PROFILE_METADATA, null);
     }
 
     @Test
@@ -132,7 +132,7 @@ public class ElasticAgentExtensionV5Test {
 
         assertThat(view, is("<div>This is profile view snippet</div>"));
 
-        assertExtensionRequest("5.0", REQUEST_GET_PROFILE_VIEW, null);
+        assertExtensionRequest("5.0", REQUEST_GET_ELASTIC_AGENT_PROFILE_VIEW, null);
     }
 
     @Test
@@ -148,7 +148,7 @@ public class ElasticAgentExtensionV5Test {
                 new ValidationError("SearchBase", "SearchBase must not be blank.")
         ));
 
-        assertExtensionRequest("5.0", REQUEST_VALIDATE_PROFILE, "{}");
+        assertExtensionRequest("5.0", REQUEST_VALIDATE_ELASTIC_AGENT_PROFILE, "{}");
     }
 
 
@@ -405,6 +405,20 @@ public class ElasticAgentExtensionV5Test {
     }
 
     @Test
+    public void shouldVerifyPluginApiRequestNamesOfElasticAgentProfile() {
+        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_METADATA, is(String.format("%s.get-elastic-agent-profile-metadata", REQUEST_PREFIX)));
+        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_VIEW, is(String.format("%s.get-elastic-agent-profile-view", REQUEST_PREFIX)));
+        assertThat(REQUEST_VALIDATE_ELASTIC_AGENT_PROFILE, is(String.format("%s.validate-elastic-agent-profile", REQUEST_PREFIX)));
+    }
+
+    @Test
+    public void shouldVerifyPluginApiRequestNamesOfClusterProfile() {
+        assertThat(REQUEST_GET_CLUSTER_PROFILE_METADATA, is(String.format("%s.get-cluster-profile-metadata", REQUEST_PREFIX)));
+        assertThat(REQUEST_GET_CLUSTER_PROFILE_VIEW, is(String.format("%s.get-cluster-profile-view", REQUEST_PREFIX)));
+        assertThat(REQUEST_VALIDATE_CLUSTER_PROFILE, is(String.format("%s.validate-cluster-profile", REQUEST_PREFIX)));
+    }
+
+    @Test
     public void allRequestMustHaveRequestPrefix() {
         assertThat(REQUEST_PREFIX, is("cd.go.elastic-agent"));
 
@@ -412,9 +426,9 @@ public class ElasticAgentExtensionV5Test {
         assertThat(REQUEST_SERVER_PING, Matchers.startsWith(REQUEST_PREFIX));
         assertThat(REQUEST_SHOULD_ASSIGN_WORK, Matchers.startsWith(REQUEST_PREFIX));
 
-        assertThat(REQUEST_GET_PROFILE_METADATA, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_GET_PROFILE_VIEW, Matchers.startsWith(REQUEST_PREFIX));
-        assertThat(REQUEST_VALIDATE_PROFILE, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_METADATA, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_GET_ELASTIC_AGENT_PROFILE_VIEW, Matchers.startsWith(REQUEST_PREFIX));
+        assertThat(REQUEST_VALIDATE_ELASTIC_AGENT_PROFILE, Matchers.startsWith(REQUEST_PREFIX));
         assertThat(REQUEST_GET_PLUGIN_SETTINGS_ICON, Matchers.startsWith(REQUEST_PREFIX));
     }
 

@@ -131,6 +131,10 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
                 elasticAgentInformationMigrator.migrate(pluginDescriptor);
             }
 
+            if (pluginDescriptor.isInvalid()) {
+                return bundle;
+            }
+
             IterableUtils.forEach(pluginChangeListeners, notifyPluginLoadedEvent(pluginDescriptor));
             return bundle;
         } catch (Exception e) {

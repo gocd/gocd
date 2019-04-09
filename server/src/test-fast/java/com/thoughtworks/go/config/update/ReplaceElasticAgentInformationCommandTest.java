@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.*;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
@@ -70,7 +71,7 @@ class ReplaceElasticAgentInformationCommandTest {
         elasticProfiles = new ElasticProfiles();
         elasticProfiles.add(new ElasticProfile("profile-id", pluginId));
 
-        replaceElasticAgentInformationCommand = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, goConfigService, pluginDescriptor, pluginSettings);
+        replaceElasticAgentInformationCommand = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, pluginDescriptor, pluginSettings);
 
         when(pluginDescriptor.id()).thenReturn(pluginId);
         when(clusterProfilesService.getPluginProfiles()).thenReturn(clusterProfiles);
@@ -88,7 +89,7 @@ class ReplaceElasticAgentInformationCommandTest {
 
     @Test
     void shouldMakeCallToElasticAgentExtensionToMigrateElasticAgentRelatedConfig_WhenNoPluginSettingsAreConfigured() throws Exception {
-        replaceElasticAgentInformationCommand = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, goConfigService, pluginDescriptor, new HashMap<>());
+        replaceElasticAgentInformationCommand = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, pluginDescriptor, new HashMap<>());
 
         replaceElasticAgentInformationCommand.update(basicCruiseConfig);
 
@@ -103,7 +104,7 @@ class ReplaceElasticAgentInformationCommandTest {
         assertThat(elasticConfig.getProfiles()).hasSize(0);
         assertThat(elasticConfig.getClusterProfiles()).hasSize(0);
 
-        replaceElasticAgentInformationCommand.update(basicCruiseConfig);
+        CruiseConfig basicCruiseConfig = replaceElasticAgentInformationCommand.update(this.basicCruiseConfig);
 
         verify(elasticAgentExtension).migrateConfig(pluginId, new ElasticAgentInformation(Collections.emptyMap(), clusterProfiles, elasticProfiles));
 
@@ -111,19 +112,5 @@ class ReplaceElasticAgentInformationCommandTest {
         assertThat(basicCruiseConfig.getElasticConfig().getProfiles()).isEqualTo(elasticProfiles);
         assertThat(basicCruiseConfig.getElasticConfig().getClusterProfiles()).hasSize(1);
         assertThat(basicCruiseConfig.getElasticConfig().getClusterProfiles()).isEqualTo(clusterProfiles);
-    }
-
-    @Test
-    void shouldGetPreprocessedConfig() throws Exception {
-        replaceElasticAgentInformationCommand.update(basicCruiseConfig);
-
-        ElasticAgentInformation preprocessedEntityConfig = replaceElasticAgentInformationCommand.getPreprocessedEntityConfig();
-
-        assertThat(preprocessedEntityConfig).isEqualTo(new ElasticAgentInformation(Collections.emptyMap(), clusterProfiles, elasticProfiles));
-    }
-
-    @Test
-    void shouldAlwaysAllowTheReplaceElasticAgentInformationCommandToProceed() {
-        assertThat(replaceElasticAgentInformationCommand.canContinue(basicCruiseConfig)).isTrue();
     }
 }

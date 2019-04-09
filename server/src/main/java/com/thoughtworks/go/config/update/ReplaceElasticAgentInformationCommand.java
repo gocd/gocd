@@ -17,7 +17,7 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
@@ -25,40 +25,35 @@ import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.ElasticProfileService;
-import com.thoughtworks.go.server.service.GoConfigService;
 
 import java.util.HashMap;
 import java.util.List;
 
-public class ReplaceElasticAgentInformationCommand implements EntityConfigUpdateCommand<ElasticAgentInformation> {
-
+public class ReplaceElasticAgentInformationCommand implements UpdateConfigCommand {
     private final ClusterProfilesService clusterProfilesService;
     private final ElasticProfileService elasticProfileService;
     private final ElasticAgentExtension elasticAgentExtension;
-    private final GoConfigService goConfigService;
     private final GoPluginDescriptor pluginDescriptor;
     private final HashMap<String, String> pluginSettings;
-    private ElasticAgentInformation migratedElasticAgentInformation;
 
-    public ReplaceElasticAgentInformationCommand(ClusterProfilesService clusterProfilesService, ElasticProfileService elasticProfileService, ElasticAgentExtension elasticAgentExtension, GoConfigService goConfigService, GoPluginDescriptor pluginDescriptor, HashMap<String, String> pluginSettings) {
+    public ReplaceElasticAgentInformationCommand(ClusterProfilesService clusterProfilesService, ElasticProfileService elasticProfileService, ElasticAgentExtension elasticAgentExtension, GoPluginDescriptor pluginDescriptor, HashMap<String, String> pluginSettings) {
         this.clusterProfilesService = clusterProfilesService;
         this.elasticProfileService = elasticProfileService;
         this.elasticAgentExtension = elasticAgentExtension;
-        this.goConfigService = goConfigService;
         this.pluginDescriptor = pluginDescriptor;
         this.pluginSettings = pluginSettings;
     }
 
-
     @Override
-    public void update(CruiseConfig preprocessedConfig) throws Exception {
+    public CruiseConfig update(CruiseConfig preprocessedConfig) throws Exception {
         String pluginId = pluginDescriptor.id();
 
         List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId);
         List<ElasticProfile> elasticAgentProfiles = elasticProfileService.getPluginProfiles().findByPluginId(pluginId);
 
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
-        migratedElasticAgentInformation = elasticAgentExtension.migrateConfig(pluginId, elasticAgentInformation);
+
+        ElasticAgentInformation migratedElasticAgentInformation = elasticAgentExtension.migrateConfig(pluginId, elasticAgentInformation);
 
         List<ClusterProfile> migratedClusterProfiles = migratedElasticAgentInformation.getClusterProfiles();
         List<ElasticProfile> migratedElasticAgentProfiles = migratedElasticAgentInformation.getElasticAgentProfiles();
@@ -68,25 +63,7 @@ public class ReplaceElasticAgentInformationCommand implements EntityConfigUpdate
 
         preprocessedConfig.getElasticConfig().getProfiles().removeAll(elasticAgentProfiles);
         preprocessedConfig.getElasticConfig().getProfiles().addAll(migratedElasticAgentProfiles);
-    }
 
-    @Override
-    public boolean isValid(CruiseConfig preprocessedConfig) {
-        //todo: Add validation to check if plugin returns valid config
-        return true;
-    }
-
-    @Override
-    public void clearErrors() {
-    }
-
-    @Override
-    public ElasticAgentInformation getPreprocessedEntityConfig() {
-        return migratedElasticAgentInformation;
-    }
-
-    @Override
-    public boolean canContinue(CruiseConfig cruiseConfig) {
-        return true;
+        return preprocessedConfig;
     }
 }

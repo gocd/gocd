@@ -22,7 +22,6 @@ import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -32,6 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -80,7 +80,7 @@ class ElasticAgentInformationMigratorImplTest {
 
         elasticAgentInformationMigrator.migrate(goPluginDescriptor);
 
-        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class), any(Username.class));
+        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
     }
 
     @Test
@@ -90,6 +90,22 @@ class ElasticAgentInformationMigratorImplTest {
 
         elasticAgentInformationMigrator.migrate(goPluginDescriptor);
 
-        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class), any(Username.class));
+        verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
+    }
+
+    @Test
+    void shouldMarkPluginDescriptorInvalidIncaseOfErrors() {
+        when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
+        when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
+        when(goConfigService.updateConfig(any())).thenThrow(new RuntimeException("Boom!"));
+
+        assertThat(goPluginDescriptor.isInvalid()).isFalse();
+
+        elasticAgentInformationMigrator.migrate(goPluginDescriptor);
+
+        String expectedErrorMessage = "Plugin 'plugin-id' failed to perform 'cd.go.elastic-agent.migrate-config' call. Plugin sent an invalid config. Reason: Boom!.\n Please fix the errors and restart GoCD server.";
+
+        assertThat(goPluginDescriptor.isInvalid()).isTrue();
+        assertThat(goPluginDescriptor.getStatus().getMessages().get(0)).isEqualTo(expectedErrorMessage);
     }
 }

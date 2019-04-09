@@ -388,6 +388,75 @@ class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
+    void shouldMigrateElasticAgentInformationAsPartOfGetBundleCall() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
+        when(pluginDescriptor.bundle()).thenReturn(bundle);
+        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
+        when(pluginDescriptor.isInvalid()).thenReturn(false);
+        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
+        when(pluginExtensionsAndVersionValidator.validate(pluginDescriptor)).thenReturn(result);
+        when(result.hasError()).thenReturn(false);
+
+        ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);
+        spy.setElasticAgentInformationMigrator(migrator);
+
+        PluginChangeListener listener1 = mock(PluginChangeListener.class);
+        PluginChangeListener listener2 = mock(PluginChangeListener.class);
+        PluginChangeListener listener3 = mock(PluginChangeListener.class);
+
+        spy.addPluginChangeListener(listener1);
+        spy.addPluginChangeListener(listener2);
+        spy.addPluginChangeListener(listener3);
+        spy.start();
+
+        spy.loadPlugin(pluginDescriptor);
+
+        verify(listener1, times(1)).pluginLoaded(pluginDescriptor);
+        verify(listener2, times(1)).pluginLoaded(pluginDescriptor);
+        verify(listener3, times(1)).pluginLoaded(pluginDescriptor);
+
+        verify(migrator, times(1)).migrate(pluginDescriptor);
+
+        verify(bundle, times(1)).start();
+    }
+
+    @Test
+    void shouldNotCallListenerWhenMigrateElasticAgentInformationMarksPluginInvalid() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
+        when(pluginDescriptor.bundle()).thenReturn(bundle);
+        when(pluginDescriptor.isInvalid()).thenReturn(false).thenReturn(true);
+        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
+        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
+        when(pluginExtensionsAndVersionValidator.validate(pluginDescriptor)).thenReturn(result);
+        when(result.hasError()).thenReturn(false);
+
+        ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);
+
+        spy.setElasticAgentInformationMigrator(migrator);
+
+        PluginChangeListener listener1 = mock(PluginChangeListener.class);
+        PluginChangeListener listener2 = mock(PluginChangeListener.class);
+        PluginChangeListener listener3 = mock(PluginChangeListener.class);
+
+        spy.addPluginChangeListener(listener1);
+        spy.addPluginChangeListener(listener2);
+        spy.addPluginChangeListener(listener3);
+        spy.start();
+
+        spy.loadPlugin(pluginDescriptor);
+
+        verifyNoMoreInteractions(listener1);
+        verifyNoMoreInteractions(listener2);
+        verifyNoMoreInteractions(listener3);
+
+        verify(migrator, times(1)).migrate(pluginDescriptor);
+
+        verify(bundle, times(1)).start();
+    }
+
+    @Test
     void shouldSkipUninstallIfPluginIsPreviouslyUninstalled() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         when(pluginDescriptor.bundle()).thenReturn(bundle);

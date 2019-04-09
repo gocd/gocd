@@ -58,4 +58,34 @@ class AnalyticsPluginInfoRepresenterTest {
 
     assertThatJson(actualJson).isEqualTo(expectedJSON)
   }
+
+  @Test
+  void 'should serialize analytics plugin info without capabilities for supported analytics to json'() {
+    def actualJson = toObjectString({
+      new AnalyticsPluginInfoRepresenter().toJSON(it, PluginInfoMother.createAnalyticsPluginWithoutSupportedAnalytics())
+    })
+
+    def expectedJSON = [
+      type           : "analytics",
+      plugin_settings: [
+        configurations: [
+          [
+            key     : "key1",
+            metadata: [required: true, secure: false]
+          ],
+          [
+            key     : "key2",
+            metadata: [required: true, secure: false]
+          ]
+        ],
+        view          : [template: "Template"],
+      ],
+      capabilities   : [
+        supported_analytics: []
+      ]
+    ]
+
+    assertThatJson(actualJson).isEqualTo(expectedJSON)
+  }
+
 }

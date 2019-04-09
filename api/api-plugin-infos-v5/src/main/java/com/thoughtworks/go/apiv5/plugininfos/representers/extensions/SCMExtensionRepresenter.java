@@ -28,13 +28,7 @@ public class SCMExtensionRepresenter extends ExtensionRepresenter {
 
         SCMPluginInfo scmPluginInfo = (SCMPluginInfo) extension;
 
-        extensionWriter.add("display_name", scmPluginInfo.getDisplayName());
-
-        if (scmPluginInfo.getScmSettings() != null) {
-            extensionWriter.addChild("scm_settings", scmSettingsWriter -> PluggableInstanceSettingsRepresenter.toJSON(scmSettingsWriter, scmPluginInfo.getScmSettings()));
-
-        }
-
+        extensionWriter.add("display_name", scmPluginInfo.getDisplayName())
+                .addChild("scm_settings", scmSettingsWriter -> PluggableInstanceSettingsRepresenter.toJSON(scmSettingsWriter, scmPluginInfo.getScmSettings()));
     }
-
 }

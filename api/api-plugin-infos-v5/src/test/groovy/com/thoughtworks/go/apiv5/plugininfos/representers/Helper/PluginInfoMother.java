@@ -36,40 +36,44 @@ import java.util.List;
 
 public class PluginInfoMother {
     public static AuthorizationPluginInfo createAuthorizationPluginInfo() {
-        ArrayList<String> targetOperatingSystems = new ArrayList<>();
-        targetOperatingSystems.add("os");
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
         Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, true, true);
+        return new AuthorizationPluginInfo(getGoPluginDescriptor(), getPluggableSettings(), getPluggableSettings(), new Image("content_type", "data", "hash"), capabilities);
+    }
 
-        return new AuthorizationPluginInfo(descriptor, getPluggableSettings(), getPluggableSettings(), new Image("content_type", "data", "hash"), capabilities);
+    public static AuthorizationPluginInfo createAuthorizationPluginInfoWithoutAbout() {
+        Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, true, true);
+        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", null, "/home/pluginjar/", null, true);
+        return new AuthorizationPluginInfo(descriptor, getPluggableSettings(), null, new Image("content_type", "data", "hash"), capabilities);
+    }
+
+    public static AuthorizationPluginInfo createAuthorizationPluginInfoWithoutImage() {
+        Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, true, true);
+        return new AuthorizationPluginInfo(getGoPluginDescriptor(), getPluggableSettings(), null, null, capabilities);
+    }
+
+    public static AuthorizationPluginInfo createAuthorizationPluginInfoWithoutRoleSettings() {
+        Capabilities capabilities = new Capabilities(SupportedAuthType.Password, true, true, true);
+        return new AuthorizationPluginInfo(getGoPluginDescriptor(), getPluggableSettings(), null, new Image("content_type", "data", "hash"), capabilities);
     }
 
     public static SCMPluginInfo createSCMPluginInfo() {
-        ArrayList<String> targetOperatingSystems = new ArrayList<>();
-        targetOperatingSystems.add("os");
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
 
         ArrayList<PluginConfiguration> configurations = new ArrayList<>();
         PluginConfiguration pluginConfiguration1 = new PluginConfiguration("key1", new MetadataWithPartOfIdentity(true, false, true));
         configurations.add(pluginConfiguration1);
-
-        return new SCMPluginInfo(descriptor, "SCM", new PluggableInstanceSettings(configurations, new PluginView("Template")), null);
+        return new SCMPluginInfo(getGoPluginDescriptor(), "SCM", new PluggableInstanceSettings(configurations, new PluginView("Template")), null);
     }
 
     public static ConfigRepoPluginInfo createConfigRepoPluginInfo() {
-        ArrayList<String> targetOperatingSystems = new ArrayList<>();
-        targetOperatingSystems.add("os");
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
+        return new ConfigRepoPluginInfo(getGoPluginDescriptor(), null, getPluggableSettings());
+    }
 
-        return new ConfigRepoPluginInfo(descriptor, null, getPluggableSettings());
+    public static ConfigRepoPluginInfo createConfigRepoPluginInfoWithoutPluginSettings() {
+        return new ConfigRepoPluginInfo(getGoPluginDescriptor(), null, null);
     }
 
     public static ElasticAgentPluginInfo createElasticAgentPluginInfoForV4() {
-        ArrayList<String> targetOperatingSystems = new ArrayList<>();
-        targetOperatingSystems.add("os");
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
-
-        return new ElasticAgentPluginInfo(descriptor, getPluggableSettings(), null, null, getPluggableSettings(), new com.thoughtworks.go.plugin.domain.elastic.Capabilities(true, false));
+        return new ElasticAgentPluginInfo(getGoPluginDescriptor(), getPluggableSettings(), null, null, getPluggableSettings(), new com.thoughtworks.go.plugin.domain.elastic.Capabilities(true, false));
     }
 
     public static ElasticAgentPluginInfo createElasticAgentPluginInfoForV5() {
@@ -101,11 +105,8 @@ public class PluginInfoMother {
     }
 
     public static PluggableTaskPluginInfo createTaskPluginInfo() {
-        ArrayList<String> targetOperatingSystems = new ArrayList<>();
-        targetOperatingSystems.add("os");
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
 
-        return new PluggableTaskPluginInfo(descriptor, "Task", getPluggableSettings());
+        return new PluggableTaskPluginInfo(getGoPluginDescriptor(), "Task", getPluggableSettings());
     }
 
     public static PackageMaterialPluginInfo createPackageMaterialPluginInfo() {
@@ -118,37 +119,41 @@ public class PluginInfoMother {
         packageSettings.add(settings);
         PluggableInstanceSettings pluggablePackageSettings = new PluggableInstanceSettings(packageSettings, new PluginView("Template"));
 
+        return new PackageMaterialPluginInfo(getGoPluginDescriptor(), pluggableRepositorySettings, pluggablePackageSettings, null);
+    }
+
+    private static GoPluginDescriptor getGoPluginDescriptor() {
         ArrayList<String> targetOperatingSystems = new ArrayList<>();
         targetOperatingSystems.add("os");
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
-
-
-        return new PackageMaterialPluginInfo(descriptor, pluggableRepositorySettings, pluggablePackageSettings, null);
+        return new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
     }
 
     public static NotificationPluginInfo createNotificationPluginInfo() {
-        ArrayList<String> targetOperatingSystems = new ArrayList<>();
-        targetOperatingSystems.add("os");
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
+        return new NotificationPluginInfo(getGoPluginDescriptor(), getPluggableSettings());
+    }
 
-        return new NotificationPluginInfo(descriptor, getPluggableSettings());
+    public static NotificationPluginInfo createNotificationPluginInfoWithoutPluginSettings() {
+        return new NotificationPluginInfo(getGoPluginDescriptor(), null);
     }
 
     public static AnalyticsPluginInfo createAnalyticsPluginInfo() {
-        ArrayList<String> targetOperatingSystems = new ArrayList<>();
         List<SupportedAnalytics> supportedAnalytics = new ArrayList<>();
-        targetOperatingSystems.add("os");
         supportedAnalytics.add(new SupportedAnalytics("Type 1", "Id 1", "Title 1"));
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
+        return new AnalyticsPluginInfo(getGoPluginDescriptor(), null, new com.thoughtworks.go.plugin.domain.analytics.Capabilities(supportedAnalytics), getPluggableSettings());
+    }
 
-        return new AnalyticsPluginInfo(descriptor, null, new com.thoughtworks.go.plugin.domain.analytics.Capabilities(supportedAnalytics), getPluggableSettings());
+    public static AnalyticsPluginInfo createAnalyticsPluginInfoWithoutPluginSettings() {
+        List<SupportedAnalytics> supportedAnalytics = new ArrayList<>();
+        supportedAnalytics.add(new SupportedAnalytics("Type 1", "Id 1", "Title 1"));
+        return new AnalyticsPluginInfo(getGoPluginDescriptor(), null, new com.thoughtworks.go.plugin.domain.analytics.Capabilities(supportedAnalytics), null);
+    }
+
+    public static AnalyticsPluginInfo createAnalyticsPluginWithoutSupportedAnalytics() {
+        List<SupportedAnalytics> supportedAnalytics = new ArrayList<>();
+        return new AnalyticsPluginInfo(getGoPluginDescriptor(), null, new com.thoughtworks.go.plugin.domain.analytics.Capabilities(supportedAnalytics), getPluggableSettings());
     }
 
     public static ArtifactPluginInfo createArtifactExtension() {
-        ArrayList<String> targetOperatingSystems = new ArrayList<>();
-        targetOperatingSystems.add("os");
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
-
-        return new ArtifactPluginInfo(descriptor, getPluggableSettings(), getPluggableSettings(), getPluggableSettings(), null, null);
+        return new ArtifactPluginInfo(getGoPluginDescriptor(), getPluggableSettings(), getPluggableSettings(), getPluggableSettings(), null, null);
     }
 }

@@ -25,8 +25,6 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 class PackageMaterialExtensionRepresenterTest {
   @Test
   void 'should serialize package material extension info to JSON'() {
-
-
     def actualJson = toObjectString({
       new PackageMaterialExtensionRepresenter().toJSON(it, PluginInfoMother.createPackageMaterialPluginInfo())
     })

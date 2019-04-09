@@ -67,4 +67,35 @@ class AuthorizationExtensionRepresenterTest {
     ]
     assertThatJson(actualJson).isEqualTo(expectedJSON)
   }
+
+  @Test
+  void 'should serialize authorization extension info without role settings to JSON'() {
+
+    def actualJson = toObjectString({
+      new AuthorizationExtensionRepresenter().toJSON(it, PluginInfoMother.createAuthorizationPluginInfoWithoutRoleSettings())
+    })
+
+    def expectedJSON = [
+      type                : "authorization",
+      auth_config_settings: [
+        configurations: [
+          [
+            key     : "key1",
+            metadata: [required: true, secure: false]
+          ],
+          [
+            key     : "key2",
+            metadata: [required: true, secure: false]
+          ]
+        ],
+        view          : [template: "Template"]
+      ],
+      capabilities        : [
+        can_authorize      : true,
+        can_search         : true,
+        supported_auth_type: "Password"
+      ]
+    ]
+    assertThatJson(actualJson).isEqualTo(expectedJSON)
+  }
 }

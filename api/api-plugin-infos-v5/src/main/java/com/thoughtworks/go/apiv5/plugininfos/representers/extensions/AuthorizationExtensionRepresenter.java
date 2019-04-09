@@ -32,20 +32,16 @@ public class AuthorizationExtensionRepresenter extends ExtensionRepresenter {
         PluggableInstanceSettings authConfigSettings = authorizationExtension.getAuthConfigSettings();
         PluggableInstanceSettings roleConfigSettings = authorizationExtension.getRoleSettings();
 
-        if (authConfigSettings != null) {
-            extensionWriter.addChild("auth_config_settings", authConfigWriter -> PluggableInstanceSettingsRepresenter.toJSON(authConfigWriter, authConfigSettings));
-        }
+        extensionWriter.addChild("auth_config_settings", authConfigWriter -> PluggableInstanceSettingsRepresenter.toJSON(authConfigWriter, authConfigSettings));
 
         if (roleConfigSettings != null) {
             extensionWriter.addChild("role_settings", roleConfigWriter -> PluggableInstanceSettingsRepresenter.toJSON(roleConfigWriter, roleConfigSettings));
         }
 
-        if (authorizationExtension.getCapabilities() != null) {
-            extensionWriter.addChild("capabilities", capabilitiesWriter ->
-                    capabilitiesWriter.add("can_search", authorizationExtension.getCapabilities().canSearch())
-                            .add("supported_auth_type", authorizationExtension.getCapabilities().getSupportedAuthType().toString())
-                            .add("can_authorize", authorizationExtension.getCapabilities().canAuthorize())
-            );
-        }
+        extensionWriter.addChild("capabilities", capabilitiesWriter ->
+                capabilitiesWriter.add("can_search", authorizationExtension.getCapabilities().canSearch())
+                        .add("supported_auth_type", authorizationExtension.getCapabilities().getSupportedAuthType().toString())
+                        .add("can_authorize", authorizationExtension.getCapabilities().canAuthorize())
+        );
     }
 }

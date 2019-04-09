@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.config.update.ReplaceElasticAgentInformationCommand;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
@@ -24,11 +24,11 @@ import com.thoughtworks.go.plugin.infra.ElasticAgentInformationMigrator;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.json.JsonHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.HashMap;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
@@ -64,17 +64,21 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
         Plugin plugin = pluginSqlMapDao.findPlugin(pluginId);
         String pluginConfiguration = plugin.getConfiguration();
         HashMap<String, String> pluginSettings = (pluginConfiguration == null) ? new HashMap<>() : JsonHelper.fromJson(pluginConfiguration, HashMap.class);
-        ReplaceElasticAgentInformationCommand command = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, goConfigService, pluginDescriptor, pluginSettings);
+        ReplaceElasticAgentInformationCommand command = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, pluginDescriptor, pluginSettings);
 
-        update(command);
+        update(command, pluginDescriptor);
     }
 
-    private void update(EntityConfigUpdateCommand command) {
+    private void update(UpdateConfigCommand command, GoPluginDescriptor pluginDescriptor) {
         try {
-            goConfigService.updateConfig(command, new Username("GoCD"));
+            goConfigService.updateConfig(command);
         } catch (Exception e) {
-            //todo: mark plugin invalid if migration fails
-//            e.getMessage()
+            String pluginId = pluginDescriptor.id();
+            String pluginAPIRequest = "cd.go.elastic-agent.migrate-config";
+            String reason = e.getMessage();
+            String errorMessage = String.format("Plugin '%s' failed to perform '%s' call. Plugin sent an invalid config. Reason: %s.\n Please fix the errors and restart GoCD server.", pluginId, pluginAPIRequest, reason);
+
+            pluginDescriptor.markAsInvalid(Collections.singletonList(errorMessage), e);
         }
     }
 }

@@ -23,8 +23,7 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 
 public abstract class DelegatingValidationContext implements ValidationContext {
-
-    private ValidationContext validationContext;
+    protected ValidationContext validationContext;
 
     protected DelegatingValidationContext(ValidationContext validationContext) {
         this.validationContext = validationContext;

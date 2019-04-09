@@ -19,5 +19,6 @@ package com.thoughtworks.go.config;
 import java.io.Serializable;
 
 @ConfigInterface
-public interface Directive extends Validatable, Serializable {
+public interface Directive extends Validatable<RulesValidationContext>, Serializable {
+    boolean hasErrors();
 }

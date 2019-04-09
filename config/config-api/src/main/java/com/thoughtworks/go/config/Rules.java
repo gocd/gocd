@@ -19,13 +19,11 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 @ConfigTag("rules")
 @ConfigCollection(Directive.class)
-public class Rules extends BaseCollection<Directive> implements Validatable {
-
+public class Rules extends BaseCollection<Directive> implements Validatable<RulesValidationContext> {
     public Rules() {
     }
 
@@ -37,32 +35,26 @@ public class Rules extends BaseCollection<Directive> implements Validatable {
         super(directives);
     }
 
-    static Rules rules(Directive... directives) {
-        Rules rules = new Rules();
-        Arrays.stream(directives).forEach(directive -> rules.add(directive));
-
-        return rules;
-    }
-
-    static Rules rules(Collection<Directive> directives) {
-        Rules rules = new Rules();
-        directives.forEach(directive -> rules.add(directive));
-
-        return rules;
-    }
-
     @Override
-    public void validate(ValidationContext validationContext) {
+    public void validate(RulesValidationContext validationContext) {
+        if (this.isEmpty()) {
+            return;
+        }
 
+        this.forEach(directive -> directive.validate(validationContext));
     }
 
     @Override
     public ConfigErrors errors() {
-        return new ConfigErrors();
+        throw new UnsupportedOperationException("Rules cannot have errors.");
+    }
+
+    public boolean hasErrors() {
+        return this.stream().anyMatch(Directive::hasErrors);
     }
 
     @Override
     public void addError(String fieldName, String message) {
-
+        throw new UnsupportedOperationException("Rules cannot have errors. Errors can be added to the directives.");
     }
 }

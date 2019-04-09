@@ -21,8 +21,10 @@ import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.access.secrets.SecretsMetadataStore;
 import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 
+import java.util.List;
 import java.util.Objects;
 
+import static java.util.Arrays.asList;
 import static java.util.Objects.isNull;
 
 @ConfigTag("secretConfig")
@@ -37,23 +39,39 @@ public class SecretConfig extends PluginProfile {
     @ConfigSubtag
     private Description description;
 
+    private List<String> allowedActions = asList("refer");
+    private List<String> allowedTypes = asList("pipeline_group");
+
     public SecretConfig() {
     }
 
     public SecretConfig(String id, String pluginId, ConfigurationProperty... configurationProperties) {
+        this(id, pluginId, null, configurationProperties);
+    }
+
+    public SecretConfig(String id, String pluginId, Rules rules, ConfigurationProperty... configurationProperties) {
         super(id, pluginId, configurationProperties);
+        if (rules != null) {
+            this.rules = rules;
+        }
     }
 
     public Configuration getConfiguration() {
-        return configuration;
+        return this.configuration;
     }
 
     public String getDescription() {
-        return description.text;
+        return this.description.text;
     }
 
     public Rules getRules() {
-        return rules;
+        return this.rules;
+    }
+
+    @Override
+    public void validate(ValidationContext validationContext) {
+        super.validate(validationContext);
+        rules.validate(new RulesValidationContext(validationContext, this.allowedActions, this.allowedTypes));
     }
 
     @Override
@@ -87,7 +105,6 @@ public class SecretConfig extends PluginProfile {
     public static class Description {
         @ConfigValue
         private String text;
-
     }
 
     @Override
@@ -104,5 +121,10 @@ public class SecretConfig extends PluginProfile {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), configuration, rules, description);
+    }
+
+    @Override
+    public boolean hasErrors() {
+        return super.hasErrors() || rules.hasErrors() || configuration.hasErrors();
     }
 }

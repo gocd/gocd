@@ -16,57 +16,16 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.domain.ConfigErrors;
-
-import java.util.Objects;
-
 @ConfigTag("allow")
-public class Allow implements Directive {
-    @ConfigAttribute(value = "action", optional = false)
-    protected String action;
-
-    @ConfigAttribute(value = "type", optional = false)
-    protected String type;
-
-    @ConfigValue
-    private String resource;
-
+public class Allow extends AbstractDirective {
     public Allow() {
+        super();
     }
 
     public Allow(String action, String type, String resource) {
-        this.action = action;
-        this.type = type;
-        this.resource = resource;
+        super(action, type, resource);
     }
 
-    @Override
-    public void validate(ValidationContext validationContext) {
-    }
-
-    @Override
-    public ConfigErrors errors() {
-        return new ConfigErrors();
-    }
-
-    @Override
-    public void addError(String fieldName, String message) {
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Allow allow = (Allow) o;
-        return Objects.equals(action, allow.action) &&
-                Objects.equals(type, allow.type) &&
-                Objects.equals(resource, allow.resource);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(action, type, resource);
-    }
 }
 
 

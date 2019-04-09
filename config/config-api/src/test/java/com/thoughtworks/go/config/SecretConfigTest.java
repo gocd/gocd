@@ -29,11 +29,16 @@ import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 
+import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class SecretConfigTest extends PluginProfileTest {
     private SecretsMetadataStore store = SecretsMetadataStore.instance();
@@ -100,7 +105,7 @@ public class SecretConfigTest extends PluginProfileTest {
     class postConstruct {
         @Test
         void shouldEncryptSecureConfigurations() {
-            PluggableInstanceSettings secretsConfigSettings = new PluggableInstanceSettings(asList(new PluginConfiguration("password", new Metadata(true, true))));
+            PluggableInstanceSettings secretsConfigSettings = new PluggableInstanceSettings(singletonList(new PluginConfiguration("password", new Metadata(true, true))));
             SecretsPluginInfo pluginInfo = new SecretsPluginInfo(pluginDescriptor("plugin_id"), secretsConfigSettings, null);
 
             store.setPluginInfo(pluginInfo);
@@ -124,6 +129,67 @@ public class SecretConfigTest extends PluginProfileTest {
         }
     }
 
+    @Nested
+    class validate {
+        @Test
+        void shouldValidateRulesConfig() {
+            final Rules rules = mock(Rules.class);
+            final SecretConfig secretConfig = new SecretConfig("some-id", "cd.go.secret.file", rules);
+
+            secretConfig.validate(null);
+
+            final ArgumentCaptor<RulesValidationContext> argumentCaptor = ArgumentCaptor.forClass(RulesValidationContext.class);
+            verify(rules).validate(argumentCaptor.capture());
+
+            final RulesValidationContext rulesValidationContext = argumentCaptor.getValue();
+            assertThat(rulesValidationContext.getAllowedActions())
+                    .hasSize(1)
+                    .contains("refer");
+
+            assertThat(rulesValidationContext.getAllowedTypes())
+                    .hasSize(1)
+                    .contains("pipeline_group");
+        }
+
+        @Test
+        void shouldPassOriginalValidationContextInRulesValidationContextToValidateRulesConfig() {
+            final Rules rules = mock(Rules.class);
+            final ValidationContext originalValidationContext = mock(ValidationContext.class);
+            final SecretConfig secretConfig = new SecretConfig("some-id", "cd.go.secret.file", rules);
+
+            secretConfig.validate(originalValidationContext);
+
+            final ArgumentCaptor<RulesValidationContext> argumentCaptor = ArgumentCaptor.forClass(RulesValidationContext.class);
+            verify(rules).validate(argumentCaptor.capture());
+
+            assertThat(argumentCaptor.getValue()).isNotNull();
+            assertThat(argumentCaptor.getValue().getOriginalValidationContext()).isEqualTo(originalValidationContext);
+        }
+
+        @Test
+        void shouldBeInvalidIfRulesHasErrors() {
+            final SecretConfig secretConfig = new SecretConfig("some-id", "cd.go.secret.file");
+            final Allow invalidRuleConfig = new Allow(null, "pipeline_group", null);
+            secretConfig.getRules().add(invalidRuleConfig);
+
+            secretConfig.validate(null);
+
+            assertThat(secretConfig.hasErrors()).isTrue();
+        }
+
+        @Test
+        void shouldBeInvalidIfConfigurationsHasErrors() {
+            final ConfigurationProperty configurationPropertyWithError = create("test", false, "some-value");
+            configurationPropertyWithError.errors().add("test", "some-validation-error");
+
+            final SecretConfig secretConfig = new SecretConfig("some-id", "cd.go.secret.file", configurationPropertyWithError);
+
+            secretConfig.validate(null);
+
+            assertThat(secretConfig.hasErrors()).isTrue();
+        }
+    }
+    
     private PluginDescriptor pluginDescriptor(String pluginId) {
         return new PluginDescriptor() {
             @Override

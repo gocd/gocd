@@ -18,7 +18,11 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
 
+import java.util.List;
 import java.util.Objects;
+
+import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public abstract class AbstractDirective implements Directive {
     @ConfigAttribute(value = "action", optional = false)
@@ -30,6 +34,8 @@ public abstract class AbstractDirective implements Directive {
     @ConfigValue
     private String resource;
 
+    private final ConfigErrors configErrors = new ConfigErrors();
+
     public AbstractDirective() {
     }
 
@@ -40,16 +46,32 @@ public abstract class AbstractDirective implements Directive {
     }
 
     @Override
-    public void validate(ValidationContext validationContext) {
+    public void validate(RulesValidationContext validationContext) {
+        if (isInvalid(action, validationContext.getAllowedActions())) {
+            this.addError("action", format("Invalid action, must be one of %s.", validationContext.getAllowedActions()));
+        }
+
+        if (isInvalid(type, validationContext.getAllowedTypes())) {
+            this.addError("type", format("Invalid type, must be one of %s.", validationContext.getAllowedTypes()));
+        }
+    }
+
+    private boolean isInvalid(String actionOrType, List<String> allowedActions) {
+        if ("*".equals(actionOrType)) {
+            return false;
+        }
+
+        return allowedActions.stream().noneMatch(it -> equalsIgnoreCase(it, actionOrType));
     }
 
     @Override
     public ConfigErrors errors() {
-        return new ConfigErrors();
+        return this.configErrors;
     }
 
     @Override
     public void addError(String fieldName, String message) {
+        this.configErrors.add(fieldName, message);
     }
 
     @Override
@@ -65,5 +87,10 @@ public abstract class AbstractDirective implements Directive {
     @Override
     public int hashCode() {
         return Objects.hash(action, type, resource);
+    }
+
+    @Override
+    public boolean hasErrors() {
+        return !this.configErrors.isEmpty();
     }
 }

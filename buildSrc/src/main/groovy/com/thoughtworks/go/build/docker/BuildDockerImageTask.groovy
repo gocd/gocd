@@ -24,6 +24,11 @@ import freemarker.template.TemplateExceptionHandler
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
+enum ImageType {
+  server,
+  agent
+}
+
 class BuildDockerImageTask extends DefaultTask {
   Distro distro
   DistroVersion distroVersion

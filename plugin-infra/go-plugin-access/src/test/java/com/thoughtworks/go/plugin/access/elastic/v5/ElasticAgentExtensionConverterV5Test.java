@@ -19,6 +19,7 @@ package com.thoughtworks.go.plugin.access.elastic.v5;
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.config.*;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
@@ -455,23 +456,72 @@ public class ElasticAgentExtensionConverterV5Test {
         clusterProfileConfigurations.add(clusterProfile1);
         clusterProfileConfigurations.add(clusterProfile1);
 
-        new ElasticAgentExtensionConverterV5().getPluginStatusReportRequestBody(clusterProfileConfigurations);
-
         String json = new ElasticAgentExtensionConverterV5().getPluginStatusReportRequestBody(clusterProfileConfigurations);
 
-        assertThatJson(json).isEqualTo(
-                "{\"all_cluster_profiles_properties\":[" +
-                "   {" +
+        assertThatJson(json).isEqualTo("{" +
+                "  \"all_cluster_profiles_properties\":[" +
+                "    {" +
                 "      \"key1\":\"value1\"," +
                 "      \"key2\":\"value2\"" +
-                "   }," +
-                "   {" +
+                "    }," +
+                "    {" +
                 "      \"key1\":\"value1\"," +
                 "      \"key2\":\"value2\"" +
-                "   }" +
-                "]}");
+                "    }" +
+                "  ]" +
+                "}");
     }
 
+    @Test
+    public void shouldGetClusterProfilesChangedRequestBodyWhenClusterProfileIsCreated() {
+        ClusterProfilesChangedStatus status = ClusterProfilesChangedStatus.CREATED;
+        Map<String, String> oldClusterProfile = null;
+        Map<String, String> newClusterProfile = Collections.singletonMap("key1", "key2");
+
+        String json = new ElasticAgentExtensionConverterV5().getClusterProfileChangedRequestBody(status, oldClusterProfile, newClusterProfile);
+
+        assertThatJson(json).isEqualTo("{" +
+                "  \"status\":\"created\"," +
+                "  \"cluster_profiles_properties\":{" +
+                "    \"key1\":\"key2\"" +
+                "  }" +
+                "}");
+    }
+
+    @Test
+    public void shouldGetClusterProfilesChangedRequestBodyWhenClusterProfileIsUpdated() {
+        ClusterProfilesChangedStatus status = ClusterProfilesChangedStatus.UPDATED;
+        Map<String, String> oldClusterProfile = Collections.singletonMap("old_key1", "old_key2");
+        Map<String, String> newClusterProfile = Collections.singletonMap("key1", "key2");
+
+        String json = new ElasticAgentExtensionConverterV5().getClusterProfileChangedRequestBody(status, oldClusterProfile, newClusterProfile);
+
+        assertThatJson(json).isEqualTo("{" +
+                "  \"status\":\"updated\"," +
+                "  \"old_cluster_profiles_properties\":{" +
+                "    \"old_key1\":\"old_key2\"" +
+                "  }," +
+                "  \"cluster_profiles_properties\":{" +
+                "    \"key1\":\"key2\"" +
+                "  }" +
+                "}");
+    }
+
+    @Test
+    public void shouldGetClusterProfilesChangedRequestBodyWhenClusterProfileIsDeleted() {
+        ClusterProfilesChangedStatus status = ClusterProfilesChangedStatus.DELETED;
+        Map<String, String> oldClusterProfile = Collections.singletonMap("key1", "key2");
+        Map<String, String> newClusterProfile = null;
+
+        String json = new ElasticAgentExtensionConverterV5().getClusterProfileChangedRequestBody(status, oldClusterProfile, newClusterProfile);
+
+        assertThatJson(json).isEqualTo("{" +
+                "  \"status\":\"deleted\"," +
+                "  \"cluster_profiles_properties\":{" +
+                "    \"key1\":\"key2\"" +
+                "  }" +
+                "}");
+    }
 
     private AgentMetadata elasticAgent() {
         return new AgentMetadata("52", "Idle", "Idle", "Enabled");

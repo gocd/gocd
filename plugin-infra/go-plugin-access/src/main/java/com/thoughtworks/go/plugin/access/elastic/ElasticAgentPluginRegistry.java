@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.AbstractPluginRegistry;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
@@ -89,4 +90,15 @@ public class ElasticAgentPluginRegistry extends AbstractPluginRegistry<ElasticAg
         extension.reportJobCompletion(pluginId, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
         LOGGER.debug("Done processing report job completion for plugin: {} for elasticAgentId: {} for job: {} with configuration: {} in cluster: {}", pluginId, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
     }
+
+    public void notifyPluginAboutClusterProfileChanged(String pluginId, ClusterProfilesChangedStatus status, Map<String, String> oldClusterProfile, Map<String, String> newClusterProfile) {
+        try {
+            LOGGER.debug("Processing report cluster profile changed for plugin: {} with status: {} with old cluster: {} and new cluster: {} ", pluginId, status, oldClusterProfile, newClusterProfile);
+            extension.clusterProfileChanged(pluginId, status, oldClusterProfile, newClusterProfile);
+            LOGGER.debug("Done processing report cluster profile changed for plugin: {} with status: {} with old cluster: {} and new cluster: {} ", pluginId, status, oldClusterProfile, newClusterProfile);
+        } catch (Exception e) {
+            LOGGER.error("An error occurred while processing report cluster profile changed for plugin: {} with status: {} with old cluster: {} and new cluster: {}. Error: {}", pluginId, status, oldClusterProfile, newClusterProfile, e);
+        }
+    }
+
 }

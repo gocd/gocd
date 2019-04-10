@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
-import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.ExtensionsRegistry;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
@@ -104,8 +104,8 @@ public class ElasticAgentExtension extends AbstractExtension {
         return getVersionedElasticAgentExtension(pluginId).getAgentStatusReport(pluginId, identifier, elasticAgentId, clusterProfile);
     }
 
-    public String getClusterStatusReport(String pluginId, Map<String,String> clusterProfile) {
-        return getVersionedElasticAgentExtension(pluginId).getClusterStatusReport(pluginId,clusterProfile);
+    public String getClusterStatusReport(String pluginId, Map<String, String> clusterProfile) {
+        return getVersionedElasticAgentExtension(pluginId).getClusterStatusReport(pluginId, clusterProfile);
     }
 
     public Capabilities getCapabilities(String pluginId) {
@@ -132,5 +132,9 @@ public class ElasticAgentExtension extends AbstractExtension {
 
     public ElasticAgentInformation migrateConfig(String pluginId, ElasticAgentInformation elasticAgentInformation) {
         return getVersionedElasticAgentExtension(pluginId).migrateConfig(pluginId, elasticAgentInformation);
+    }
+
+    public void clusterProfileChanged(String pluginId, ClusterProfilesChangedStatus status, Map<String, String> oldClusterProfile, Map<String, String> newClusterProfile) {
+        getVersionedElasticAgentExtension(pluginId).clusterProfilesChanged(pluginId, status, oldClusterProfile, newClusterProfile);
     }
 }

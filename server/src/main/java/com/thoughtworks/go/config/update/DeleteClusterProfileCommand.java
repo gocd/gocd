@@ -42,8 +42,8 @@ public class DeleteClusterProfileCommand extends ClusterProfileCommand {
     public void update(CruiseConfig preprocessedConfig) throws Exception {
         ClusterProfiles clusterProfiles = getPluginProfiles(preprocessedConfig);
         clusterProfiles.remove(profile);
-
         preprocessedConfig.getElasticConfig().setClusterProfiles(clusterProfiles);
+        this.preprocessedProfile = profile;
     }
 
     @Override

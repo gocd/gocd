@@ -20,6 +20,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.common.handler.JSONResultMessageHandler;
 import com.thoughtworks.go.plugin.access.common.models.ImageDeserializer;
@@ -184,6 +185,47 @@ class ElasticAgentExtensionConverterV5 {
     public String getPluginStatusReportRequestBody(List<Map<String, String>> clusterProfiles) {
         JsonObject jsonObject = new JsonObject();
         jsonObject.add("all_cluster_profiles_properties", mapToJsonArray(clusterProfiles));
+        return GSON.toJson(jsonObject);
+    }
+
+    public String getClusterProfileChangedRequestBody(ClusterProfilesChangedStatus status, Map<String, String> oldClusterProfile, Map<String, String> newClusterProfile) {
+        switch (status) {
+            case CREATED:
+                return getClusterCreatedRequestBody(newClusterProfile);
+            case UPDATED:
+                return getClusterUpdatedRequestBody(oldClusterProfile, newClusterProfile);
+            case DELETED:
+                return getClusterDeletedRequestBody(oldClusterProfile);
+            default:
+                throw new RuntimeException("Invalid status specified for cluster profiles changed. Can not construct request body.");
+        }
+    }
+
+    private String getClusterCreatedRequestBody(Map<String, String> clusterProfile) {
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("status", ClusterProfilesChangedStatus.CREATED.getStatus());
+        jsonObject.add("cluster_profiles_properties", mapToJsonObject(clusterProfile));
+
+        return GSON.toJson(jsonObject);
+    }
+
+    private String getClusterDeletedRequestBody(Map<String, String> clusterProfile) {
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("status", ClusterProfilesChangedStatus.DELETED.getStatus());
+        jsonObject.add("cluster_profiles_properties", mapToJsonObject(clusterProfile));
+
+        return GSON.toJson(jsonObject);
+    }
+
+    private String getClusterUpdatedRequestBody(Map<String, String> oldClusterProfile, Map<String, String> newClusterProfile) {
+        JsonObject jsonObject = new JsonObject();
+
+        jsonObject.addProperty("status", ClusterProfilesChangedStatus.UPDATED.getStatus());
+        jsonObject.add("old_cluster_profiles_properties", mapToJsonObject(oldClusterProfile));
+        jsonObject.add("cluster_profiles_properties", mapToJsonObject(newClusterProfile));
+
         return GSON.toJson(jsonObject);
     }
 }

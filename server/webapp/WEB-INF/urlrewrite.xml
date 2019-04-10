@@ -25,12 +25,6 @@
 
 <urlrewrite>
   <rule>
-    <name>cluster_profiles UI</name>
-    <from>^/admin/cluster_profiles(/?)$</from>
-    <to last="true">/spark/admin/cluster_profiles</to>
-  </rule>
-
-  <rule>
     <name>Login page</name>
     <from>^/auth/login(/?)$</from>
     <to last="true">/spark/auth/login</to>

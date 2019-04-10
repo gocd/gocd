@@ -26,22 +26,28 @@ export class ServerBackupAPI {
                onError: (error: string) => void) {
 
     ApiRequestBuilder.POST(SparkRoutes.apiCreateServerBackupPath(), this.API_VERSION_HEADER)
-                            .then((result: ApiResult<string>) => {
-                              const retryInterval = result.getRetryAfterIntervalInMillis();
-                              const onProgressWithRetry = (serverBackup: ServerBackup) => {
-                                onProgress(serverBackup);
-                                setTimeout(() => {
-                                  ServerBackupAPI.checkBackupProgress(result.getRedirectUrl(),
-                                                                      onProgressWithRetry,
-                                                                      onCompletion,
-                                                                      onError);
-                                }, retryInterval);
-                              };
-                              this.checkBackupProgress(result.getRedirectUrl(),
-                                                       onProgressWithRetry,
-                                                       onCompletion,
-                                                       onError);
-                            });
+                     .then((result: ApiResult<string>) => {
+                       this.startPolling(result.getRedirectUrl(), result.getRetryAfterIntervalInMillis(), onProgress, onCompletion, onError);
+                     });
+  }
+
+  static startPolling(pollingUrl: string,
+                      retryIntervalMillis: number,
+                      onProgress: (serverBackup: ServerBackup) => void,
+                      onCompletion: (serverBackup: ServerBackup) => void,
+                      onError: (error: string) => void) {
+
+    const onProgressWithRetry = (serverBackup: ServerBackup) => {
+      onProgress(serverBackup);
+      setTimeout(() => {
+        ServerBackupAPI.checkBackupProgress(pollingUrl, onProgressWithRetry, onCompletion, onError);
+      }, retryIntervalMillis);
+    };
+    this.checkBackupProgress(pollingUrl, onProgressWithRetry, onCompletion, onError);
+  }
+
+  static getRunningBackups() {
+    return this.get(SparkRoutes.apiRunningServerBackupsPath());
   }
 
   static get(backupUrl: string) {

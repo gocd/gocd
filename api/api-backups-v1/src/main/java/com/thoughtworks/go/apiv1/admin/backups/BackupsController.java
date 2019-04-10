@@ -24,7 +24,6 @@ import com.thoughtworks.go.apiv1.admin.backups.representers.BackupRepresenter;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.security.HeaderConstraint;
 import com.thoughtworks.go.server.service.BackupService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import com.thoughtworks.go.util.SystemEnvironment;

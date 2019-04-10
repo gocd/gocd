@@ -43,6 +43,7 @@ import static spark.Spark.*;
 public class BackupsControllerV2 extends ApiController implements SparkSpringController {
 
     private static final String RETRY_INTERVAL_IN_SECONDS = "5";
+    private static final String RUNNING = "running";
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private BackupService backupService;
@@ -88,7 +89,13 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
 
     public String show(Request request, Response response) throws IOException {
         String backupId = request.params("id");
-        Optional<ServerBackup> backup = backupService.getServerBackup(backupId);
+        Optional<ServerBackup> backup;
+        if (RUNNING.equals(backupId)) {
+            backup = backupService.runningBackup();
+        } else {
+            backup = backupService.getServerBackup(backupId);
+        }
+
         if (!backup.isPresent()) {
             throw new RecordNotFoundException(EntityType.Backup, backupId);
         }

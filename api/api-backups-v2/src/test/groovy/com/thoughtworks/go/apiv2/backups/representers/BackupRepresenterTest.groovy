@@ -31,21 +31,22 @@ import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 class BackupRepresenterTest {
   @Test
   void 'should serialize'() {
-    def backup = new ServerBackup("/foo/bar", new Date(42), "bob", BackupStatus.IN_PROGRESS, "exporting config", 99)
-    backup.setProgressStatus(BackupProgressStatus.STARTING)
+    def backup = new ServerBackup("/foo/bar", new Date(42), "bob", BackupStatus.IN_PROGRESS, "", 99)
+    backup.setProgressStatus(BackupProgressStatus.BACKUP_CONFIG)
 
     def actualJson = toObjectString({ BackupRepresenter.toJSON(it, backup) })
 
     Map<String, Object> expectedJson = [
-      _links         : [
-        doc: [href: apiDocsUrl('#backups')]
+      _links           : [
+        doc : [href: apiDocsUrl('#backups')],
+        self: [href: "http://test.host/go/api/backups/99"]
       ],
-      time           : jsonDate(new Date(42)),
-      path           : "/foo/bar",
-      user           : toObject({ UserSummaryRepresenter.toJSON(it, "bob") }),
-      status         : 'IN_PROGRESS',
-      "progress_step": 'STARTING',
-      message        : 'exporting config'
+      time             : jsonDate(new Date(42)),
+      path             : "/foo/bar",
+      user             : toObject({ UserSummaryRepresenter.toJSON(it, "bob") }),
+      status           : 'IN_PROGRESS',
+      "progress_status": 'BACKUP_CONFIG',
+      message          : 'Backing up Config'
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)
@@ -58,14 +59,15 @@ class BackupRepresenterTest {
     def actualJson = toObjectString({ BackupRepresenter.toJSON(it, backup) })
 
     Map<String, Object> expectedJson = [
-      _links         : [
-        doc: [href: apiDocsUrl('#backups')]
+      _links : [
+        doc : [href: apiDocsUrl('#backups')],
+        self: [href: "http://test.host/go/api/backups/99"],
       ],
-      time           : jsonDate(new Date(42)),
-      path           : "/foo/bar",
-      user           : toObject({ UserSummaryRepresenter.toJSON(it, "bob") }),
-      status         : 'COMPLETED',
-      message        : 'exporting config'
+      time   : jsonDate(new Date(42)),
+      path   : "/foo/bar",
+      user   : toObject({ UserSummaryRepresenter.toJSON(it, "bob") }),
+      status : 'COMPLETED',
+      message: 'exporting config'
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)

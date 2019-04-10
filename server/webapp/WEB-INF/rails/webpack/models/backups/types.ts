@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {Links} from "models/shared/links";
 import {UserJSON} from "../users/users";
 
 export interface ServerBackupJson {
@@ -20,6 +21,7 @@ export interface ServerBackupJson {
   message: string;
   time: Date;
   user: UserJSON;
+  _links: any;
 }
 
 export enum BackupStatus {
@@ -34,17 +36,20 @@ export class ServerBackup {
   readonly message: string;
   readonly time: Date;
   readonly username: string;
+  readonly links: Links;
 
-  constructor(status: BackupStatus, message: string, time: Date, username: string) {
+  constructor(status: BackupStatus, message: string, time: Date, username: string, links: Links) {
     this.status = status;
     this.message = message;
     this.time = time;
     this.username = username;
+    this.links = links;
   }
 
   static fromJSON(serverBackupJson: ServerBackupJson): ServerBackup {
     // @ts-ignore
-    return new ServerBackup(BackupStatus[serverBackupJson.status], serverBackupJson.message, new Date(serverBackupJson.time), serverBackupJson.user.login_name);
+    return new ServerBackup(BackupStatus[serverBackupJson.status], serverBackupJson.message,
+                            new Date(serverBackupJson.time), serverBackupJson.user.login_name, Links.fromJSON(serverBackupJson._links));
   }
 
   isInProgress(): boolean {

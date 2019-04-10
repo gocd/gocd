@@ -26,7 +26,10 @@ public class BackupRepresenter {
 
     public static void toJSON(OutputWriter jsonOutputWriter, ServerBackup backup) {
         jsonOutputWriter
-            .addLinks(outputLinkWriter -> outputLinkWriter.addAbsoluteLink("doc", Routes.Backups.DOC))
+            .addLinks(outputLinkWriter -> {
+                outputLinkWriter.addAbsoluteLink("doc", Routes.Backups.DOC);
+                outputLinkWriter.addLink("self", Routes.Backups.serverBackup(String.valueOf(backup.getId())));
+            })
             .add("time", backup.getTime())
             .add("path", backup.getPath())
             .add("status", backup.getStatus().name())

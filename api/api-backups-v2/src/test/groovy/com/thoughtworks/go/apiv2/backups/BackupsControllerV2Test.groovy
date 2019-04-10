@@ -142,6 +142,19 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
           .hasBodyWithJsonObject(backup, BackupRepresenter.class)
           .hasContentType(controller.mimeType)
       }
+
+      @Test
+      void 'should get running backup'() {
+        def backup = new ServerBackup("/foo/bar", new Date(), currentUserLoginName().toString(), BackupStatus.IN_PROGRESS, "", BACKUP_ID)
+        doReturn(Optional.of(backup)).when(backupService).runningBackup()
+
+        getWithApiHeader(controller.controllerPath("running"))
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJsonObject(backup, BackupRepresenter.class)
+          .hasContentType(controller.mimeType)
+      }
     }
   }
 

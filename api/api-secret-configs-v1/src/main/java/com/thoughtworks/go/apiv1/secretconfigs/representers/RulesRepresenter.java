@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.secretconfigs.representers;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.thoughtworks.go.api.base.OutputListWriter;
+import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
@@ -28,6 +29,7 @@ import com.thoughtworks.go.config.Directive;
 import com.thoughtworks.go.config.Directive.DirectiveType;
 import com.thoughtworks.go.config.Rules;
 
+import java.util.HashMap;
 import java.util.Optional;
 
 import static com.thoughtworks.go.config.Directive.DirectiveType.fromString;
@@ -36,6 +38,12 @@ public class RulesRepresenter {
     public static void toJSON(OutputListWriter listWriter, Rules rules) {
         rules.forEach(directive -> {
             listWriter.addChild(directiveWriter -> {
+                if (directive.hasErrors()) {
+                    directiveWriter.addChild("errors", errorWriter -> {
+                        new ErrorGetter(new HashMap<>()).toJSON(directiveWriter, directive);
+                    });
+                }
+
                 directiveWriter.add("directive", directive.getDirectiveType().type());
                 directiveWriter.add("action", directive.action());
                 directiveWriter.add("type", directive.type());

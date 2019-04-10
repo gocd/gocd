@@ -24,13 +24,13 @@ import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.isNull;
 
 @ConfigTag("secretConfig")
-@ConfigCollection(value = ConfigurationProperty.class)
 public class SecretConfig extends RuleAwarePluginProfile {
-    private List<String> allowedActions = asList("refer");
-    private List<String> allowedTypes = asList("pipeline_group");
+    private List<String> allowedActions = unmodifiableList(asList("refer"));
+    private List<String> allowedTypes = unmodifiableList(asList("pipeline_group"));
 
     public SecretConfig() {
         super();
@@ -76,12 +76,6 @@ public class SecretConfig extends RuleAwarePluginProfile {
     @Override
     protected boolean hasPluginInfo() {
         return !isNull(this.metadataStore().getPluginInfo(getPluginId()));
-    }
-
-    @ConfigTag("description")
-    public static class Description {
-        @ConfigValue
-        private String text;
     }
 
     @Override

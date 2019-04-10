@@ -29,7 +29,7 @@ import java.util.Objects;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
-public abstract class RuleAwarePluginProfile implements Validatable {
+public abstract class RuleAwarePluginProfile implements Validatable, RulesAware {
     public static final String ID = "id";
     public static final String PLUGIN_ID = "pluginId";
 
@@ -166,14 +166,23 @@ public abstract class RuleAwarePluginProfile implements Validatable {
         errors().add(fieldName, message);
     }
 
+
     public boolean hasErrors() {
-        return configuration.hasErrors() || !errors().isEmpty();
+        return (!this.errors().isEmpty()) || rules.hasErrors() || configuration.hasErrors();
     }
 
     public void validateTree(ValidationContext validationContext) {
         validate(validationContext);
         configuration.validateTree();
+        rules.validateTree(new DelegatingValidationContext(validationContext) {
+            @Override
+            public RulesValidationContext getRulesValidationContext() {
+                return new RulesValidationContext(allowedActions(), allowedTypes());
+            }
+        });
     }
+
+
 
     @Override
     public void validate(ValidationContext validationContext) {
@@ -190,8 +199,6 @@ public abstract class RuleAwarePluginProfile implements Validatable {
         if (new NameTypeValidator().isNameInvalid(id)) {
             addError(ID, String.format("Invalid id '%s'. %s", id, NameTypeValidator.ERROR_MESSAGE));
         }
-
-        rules.validate(new RulesValidationContext(validationContext, this.getAllowedActions(), this.getAllowedTypes()));
     }
 
     public void setRules(Rules rules) {
@@ -203,11 +210,6 @@ public abstract class RuleAwarePluginProfile implements Validatable {
     protected abstract boolean isSecure(String key);
 
     protected abstract boolean hasPluginInfo();
-
-    protected abstract List<String> getAllowedActions();
-
-    protected abstract List<String> getAllowedTypes();
-
 
     void validateIdUniqueness(Map<String, RuleAwarePluginProfile> profiles) {
         RuleAwarePluginProfile profileWithSameId = profiles.get(id);

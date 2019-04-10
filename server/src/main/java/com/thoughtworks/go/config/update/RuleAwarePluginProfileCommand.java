@@ -68,12 +68,12 @@ public abstract class RuleAwarePluginProfileCommand<T extends RuleAwarePluginPro
 
     protected boolean isValidForCreateOrUpdate(CruiseConfig preprocessedConfig) {
         preprocessedProfile = findExistingProfile(preprocessedConfig);
-        preprocessedProfile.validateTree(null);
+        preprocessedProfile.validateTree(new ConfigSaveValidationContext(preprocessedConfig));
 
-        if (preprocessedProfile.getAllErrors().isEmpty()) {
+        if (!preprocessedProfile.hasErrors()) {
             getPluginProfiles(preprocessedConfig).validate(null);
             BasicCruiseConfig.copyErrors(preprocessedProfile, profile);
-            return preprocessedProfile.getAllErrors().isEmpty();
+            return !preprocessedProfile.hasErrors();
         }
 
         BasicCruiseConfig.copyErrors(preprocessedProfile, profile);

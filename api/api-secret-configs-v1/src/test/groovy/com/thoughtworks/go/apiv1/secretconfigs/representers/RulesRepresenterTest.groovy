@@ -75,6 +75,30 @@ class RulesRepresenterTest {
     }
 
     @Test
+    void shouldSerializeRulesWithErrors() {
+      def allow = new Allow("refer", "PipelineGroup", "DeployPipelines")
+      allow.addError("type", "Type must be one of [pipeline_group]")
+
+      Rules rules = new Rules(allow)
+
+      def json = toArrayString({ RulesRepresenter.toJSON(it, rules) })
+
+      assertThatJson(json).isEqualTo(
+        [
+          [
+            "errors" : [
+              "type": ["Type must be one of [pipeline_group]"]
+            ],
+            directive: "allow",
+            action   : "refer",
+            type     : "PipelineGroup",
+            resource : "DeployPipelines"
+          ]
+        ]
+      )
+    }
+
+    @Test
     void shouldSerializeEmptyRules() {
       def json = toArrayString({ RulesRepresenter.toJSON(it, new Rules()) })
 

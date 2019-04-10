@@ -177,7 +177,6 @@ $selected-table-row: #e2f7fa;
 .flex-table {
   background:    $white;
   border-radius: $global-border-radius $global-border-radius 0 0;
-  margin-top:    50px;
 }
 
 .table-header {
@@ -302,8 +301,13 @@ $selected-table-row: #e2f7fa;
   }
 }
 
-.deleted-users {
+.to-be-deleted-users {
   font-weight: 600;
   margin-top:  10px;
   display:     block;
 }
+
+.flash-message-wrapper-container {
+  margin-top: 25px;
+}
+

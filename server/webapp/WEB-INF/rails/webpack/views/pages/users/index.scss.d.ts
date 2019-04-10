@@ -39,4 +39,5 @@ export const systemAdminCell: string;
 export const iconCheck: string;
 export const iconError: string;
 export const alertError: string;
-export const deletedUsers: string;
+export const toBeDeletedUsers: string;
+export const flashMessageWrapperContainer: string;

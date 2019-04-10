@@ -32,10 +32,10 @@ import {Page, PageState} from "views/pages/page";
 import {AddOperation} from "views/pages/page_operations";
 import {UserSearchModal} from "views/pages/users/add_user_modal";
 import {DeleteUserConfirmModal} from "views/pages/users/delete_user_confirmation_modal";
-import {State as UserActionsState} from "views/pages/users/user_actions_widget";
+import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
-import {Attrs as UsersWidgetState} from "views/pages/users/users_widget";
-import {UsersWidget} from "views/pages/users/users_widget";
+import {Attrs as UsersWidgetState, UsersTableWidget} from "views/pages/users/users_widget";
+import * as styles from "./users/index.scss";
 
 interface State extends UserActionsState, AddOperation<Users>, UsersWidgetState {
   initialUsers: Stream<Users>;
@@ -160,7 +160,10 @@ export class UsersPage extends Page<null, State> {
     return (
       <div>
         {bannerToDisplay}
-        <UsersWidget {...vnode.state} flashMessage={this.flashMessage}/>
+        <div className={styles.flashMessageWrapperContainer}>
+          <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type} dismissible={false}/>
+        </div>
+        <UsersTableWidget {...vnode.state}/>
       </div>
     );
   }
@@ -173,7 +176,11 @@ export class UsersPage extends Page<null, State> {
     const headerButtons = [];
     headerButtons.push(<Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Import User</Buttons.Primary>);
 
-    return <HeaderPanel title="Users Management" buttons={headerButtons}/>;
+    return <div>
+      <HeaderPanel title="Users Management" buttons={headerButtons}/>;
+      <UsersActionsWidget {...vnode.state} />
+    </div>;
+
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {

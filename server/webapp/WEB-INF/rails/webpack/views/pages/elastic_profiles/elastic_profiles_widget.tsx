@@ -14,60 +14,28 @@
  * limitations under the License.
  */
 
-import * as Routes from "gen/ts-routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import {ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
-import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
-import {ElasticAgentSettings, Extension} from "models/shared/plugin_infos_new/extensions";
+import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import * as Buttons from "views/components/buttons";
-import {ButtonIcon} from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {HeaderIcon} from "views/components/header_icon";
 import * as Icons from "views/components/icons";
 import {IconGroup} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
-import * as styles from "views/pages/elastic_profiles/index.scss";
-import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
+import {AddOperation, CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 
-interface Attrs extends EditOperation<ElasticAgentProfile>, DeleteOperation<string>, CloneOperation<ElasticAgentProfile> {
+export type ElasticAgentOperations = EditOperation<ElasticAgentProfile> & DeleteOperation<string> & CloneOperation<ElasticAgentProfile> & AddOperation<void>;
+
+export interface Attrs {
   pluginInfos: Stream<Array<PluginInfo<Extension>>>;
   elasticProfiles: ElasticAgentProfiles;
   isUserAnAdmin: boolean;
-
   onShowUsages: (profileId: string, event: MouseEvent) => void;
-}
-
-interface HeaderAttrs {
-  pluginName: string | undefined;
-  pluginId: string;
-  image: m.Children;
-}
-
-class ElasticProfilesHeaderWidget extends MithrilComponent<HeaderAttrs> {
-  view(vnode: m.Vnode<HeaderAttrs, {}>) {
-    return [
-      (
-        <KeyValueTitle title={ElasticProfilesHeaderWidget.createPluginNameElement(vnode.attrs.pluginName)}
-                       image={vnode.attrs.image}/>
-      ),
-      (<KeyValuePair inline={true} data={new Map([
-                                                   ["Plugin Id", vnode.attrs.pluginId]
-                                                 ])}/>)
-    ];
-  }
-
-  private static createPluginNameElement(pluginName: string | undefined) {
-    if (pluginName) {
-      return (<div data-test-id="plugin-name" className={styles.pluginName}>{pluginName}</div>);
-    }
-
-    return (<div className={styles.pluginNotInstalled}>Plugin is not installed</div>);
-  }
+  elasticAgentOperations: ElasticAgentOperations;
 }
 
 export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
@@ -80,49 +48,33 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
     }
 
     if ((!noPluginInstalledMessage) && ElasticProfilesWidget.noElasticProfileConfigured(vnode)) {
-      return <FlashMessage type={MessageType.info} message="Click on 'Add' button to create new elastic profile."/>;
+      return <FlashMessage type={MessageType.info} message="Click on 'Add' button to create new elastic agent profile."/>;
     }
 
     return (
       <div data-test-id="elastic-profile-list-parent">
-        <FlashMessage type={MessageType.info} message={noPluginInstalledMessage}/>
         <div data-test-id="elastic-profile-list">
           {
-            _.entries(vnode.attrs.elasticProfiles.groupByPlugin()).map(([pluginId, profiles], index) => {
-              const pluginInfo           = ElasticProfilesWidget.findPluginInfoByPluginId(vnode.attrs.pluginInfos(),
-                                                                                          pluginId);
-              const pluginName           = pluginInfo ? pluginInfo.about.name : undefined;
-              const pluginImageTag       = ElasticProfilesWidget.createImageTag(pluginInfo);
-              const elasticProfileHeader = <ElasticProfilesHeaderWidget image={pluginImageTag}
-                                                                        pluginId={pluginId}
-                                                                        pluginName={pluginName}/>;
-              let statusReportButton;
-              if (pluginInfo && ElasticProfilesWidget.supportsStatusReport(pluginInfo)) {
-                statusReportButton = this.createStatusReportButton(pluginId, vnode.attrs.isUserAnAdmin);
-              }
-
-              return (
-                <CollapsiblePanel key={pluginId} header={elasticProfileHeader} expanded={index === 0}
-                                  actions={statusReportButton}>
-                  {
-                    profiles.map((profile: ElasticAgentProfile) =>
-                                   <ElasticProfileWidget key={profile.id()} elasticProfile={profile}
-                                                         pluginInfo={pluginInfo}
-                                                         onEdit={vnode.attrs.onEdit.bind(vnode.attrs, profile)}
-                                                         onClone={vnode.attrs.onClone.bind(vnode.attrs, profile)}
-                                                         onDelete={vnode.attrs.onDelete.bind(vnode.attrs, profile.id())}
-                                                         onShowUsage={vnode.attrs.onShowUsages.bind(vnode.attrs,
-                                                                                                    profile.id())}
-
-                                   />
-                    )
-                  }
-                </CollapsiblePanel>);
+            _.entries(vnode.attrs.elasticProfiles.groupByPlugin()).map(([pluginId, profiles]) => {
+              const pluginInfo = ElasticProfilesWidget.findPluginInfoByPluginId(vnode.attrs.pluginInfos(), pluginId);
+              return profiles.map((profile: ElasticAgentProfile) =>
+                                    <ElasticProfileWidget key={profile.id()} elasticProfile={profile}
+                                                          pluginInfo={pluginInfo}
+                                                          onEdit={vnode.attrs.elasticAgentOperations.onEdit.bind(vnode.attrs, profile)}
+                                                          onClone={vnode.attrs.elasticAgentOperations.onClone.bind(vnode.attrs, profile)}
+                                                          onDelete={vnode.attrs.elasticAgentOperations.onDelete.bind(vnode.attrs, profile.id())}
+                                                          onShowUsage={vnode.attrs.onShowUsages.bind(vnode.attrs, profile.id())}
+                                    />
+              );
             })
           }
         </div>
       </div>
     );
+  }
+
+  private static findPluginInfoByPluginId(pluginInfos: Array<PluginInfo<Extension>>, pluginId: string) {
+    return _.find(pluginInfos, ["id", pluginId]);
   }
 
   private static noElasticAgentPluginInstalled(vnode: m.Vnode<Attrs, {}>) {
@@ -131,46 +83,6 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
 
   private static noElasticProfileConfigured(vnode: m.Vnode<Attrs, {}>) {
     return vnode.attrs.elasticProfiles == null || vnode.attrs.elasticProfiles.empty();
-  }
-
-  private static findPluginInfoByPluginId(pluginInfos: Array<PluginInfo<Extension>>,
-                                          pluginId: string) {
-    return _.find(pluginInfos, ["id", pluginId]);
-  }
-
-  private static supportsStatusReport(pluginInfo: PluginInfo<Extension> | undefined) {
-    if (!pluginInfo) {
-      return false;
-    }
-
-    const extension = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS) as ElasticAgentSettings;
-    if (extension && extension.capabilities) {
-      return extension.capabilities.supportsPluginStatusReport;
-    }
-    return false;
-  }
-
-  private static goToStatusReportPage(statusReportHref: string, event: Event) {
-    event.stopPropagation();
-    window.location.href = statusReportHref;
-  }
-
-  private static createImageTag(pluginInfo: PluginInfo<any> | undefined) {
-    if (pluginInfo && pluginInfo.imageUrl) {
-      return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
-    }
-    return <HeaderIcon/>;
-  }
-
-  private createStatusReportButton(pluginId: string, isUserAnAdmin: boolean) {
-    const statusReportPath: string = Routes.adminStatusReportPath(pluginId);
-    return (
-      <Buttons.Secondary onclick={ElasticProfilesWidget.goToStatusReportPage.bind(this, statusReportPath)}
-                         data-test-id="status-report-link"
-                         icon={ButtonIcon.DOC}
-                         disabled={!isUserAnAdmin}>Status Report
-      </Buttons.Secondary>
-    );
   }
 }
 
@@ -185,36 +97,24 @@ export interface ProfileAttrs {
 
 export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
 
-  static profileHeader(profileId: string, clusterProfileId: string) {
-    let optionalClusterProfileId;
-    if (clusterProfileId) {
-      optionalClusterProfileId = (
-        <KeyValuePair inline={true} data={new Map([["Cluster Profile Id", clusterProfileId]])}/>
-      );
-    }
-
-    return [
-      <KeyValueTitle image={null} titleTestId="elastic-profile-id" title={`Profile Id: ${profileId}`}/>,
-      optionalClusterProfileId
-    ];
+  static profileHeader(profileId: string) {
+    return <KeyValueTitle image={null} titleTestId="elastic-profile-id" title={profileId}/>;
   }
 
   view(vnode: m.Vnode<ProfileAttrs, {}>) {
     const elasticProfile = vnode.attrs.elasticProfile;
     const actions        = [
       <IconGroup>
-        <Icons.Edit data-test-id="edit-elastic-profile" onclick={vnode.attrs.onEdit}
-                    disabled={!vnode.attrs.pluginInfo}/>
-        <Icons.Clone data-test-id="clone-elastic-profile" onclick={vnode.attrs.onClone}
-                     disabled={!vnode.attrs.pluginInfo}/>
+        <Icons.Edit data-test-id="edit-elastic-profile" onclick={vnode.attrs.onEdit} disabled={!vnode.attrs.pluginInfo}/>
+        <Icons.Clone data-test-id="clone-elastic-profile" onclick={vnode.attrs.onClone} disabled={!vnode.attrs.pluginInfo}/>
         <Icons.Delete data-test-id="delete-elastic-profile" onclick={vnode.attrs.onDelete}/>
         <Icons.Usage data-test-id="show-usage-elastic-profile" onclick={vnode.attrs.onShowUsage}/>
       </IconGroup>
     ];
-    return (<CollapsiblePanel header={ElasticProfileWidget.profileHeader(elasticProfile.id(), elasticProfile.clusterProfileId())}
-                              actions={actions}
-                              dataTestId={"elastic-profile"}>
-      <KeyValuePair data={elasticProfile.properties().asMap()}/>
-    </CollapsiblePanel>);
+    return (
+      <CollapsiblePanel header={ElasticProfileWidget.profileHeader(elasticProfile.id())} actions={actions} dataTestId={"elastic-profile"}>
+        <KeyValuePair data={new Map(elasticProfile.properties() != null ? elasticProfile.properties().asMap() : [])}/>
+      </CollapsiblePanel>
+    );
   }
 }

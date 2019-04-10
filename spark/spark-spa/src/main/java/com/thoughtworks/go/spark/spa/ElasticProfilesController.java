@@ -53,7 +53,7 @@ public class ElasticProfilesController implements SparkController {
 
     public ModelAndView index(Request request, Response response) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
-            put("viewTitle", "Elastic Agent Profiles");
+            put("viewTitle", "Elastic Profiles");
         }};
 
         return new ModelAndView(object, null);

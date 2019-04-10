@@ -244,7 +244,7 @@ export class EditElasticProfileModal extends BaseElasticProfileModal {
           () => {
             this.onSuccessfulSave(
               <span>
-                      The elastic profile <em>{this.elasticProfile().id()}</em> was updated successfully!
+                      The elastic agent profile <em>{this.elasticProfile().id()}</em> was updated successfully!
                      </span>
             );
             this.close();
@@ -257,7 +257,7 @@ export class EditElasticProfileModal extends BaseElasticProfileModal {
   }
 
   modalTitle() {
-    return "Edit profile " + this.elasticProfileId;
+    return "Edit elastic agent profile " + this.elasticProfileId;
   }
 }
 
@@ -295,7 +295,7 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
           () => {
             this.onSuccessfulSave(
               <span>
-                      The elastic profile <em>{this.elasticProfile().id()}</em> was created successfully!
+                      The elastic agent profile <em>{this.elasticProfile().id()}</em> was created successfully!
                      </span>
             );
             this.close();
@@ -308,7 +308,7 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
   }
 
   modalTitle() {
-    return "Clone profile " + this.sourceProfileId;
+    return "Clone elastic agent profile " + this.sourceProfileId;
   }
 }
 
@@ -329,7 +329,7 @@ export class NewElasticProfileModal extends BaseElasticProfileModal {
       .then((result) => {
         result.do(
           () => {
-            this.onSuccessfulSave(<span>The elastic profile <em>{this.elasticProfile().id()}</em> was created successfully!</span>);
+            this.onSuccessfulSave(<span>The elastic agent profile <em>{this.elasticProfile().id()}</em> was created successfully!</span>);
             this.close();
           },
           (errorResponse) => {
@@ -340,7 +340,7 @@ export class NewElasticProfileModal extends BaseElasticProfileModal {
   }
 
   modalTitle() {
-    return "Add a new profile";
+    return "Add a new elastic agent profile";
   }
 }
 

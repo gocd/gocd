@@ -25,72 +25,31 @@ import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {TestData} from "views/pages/elastic_profiles/spec/test_data";
 import {ElasticProfilesWidget} from "../elastic_profiles_widget";
 
-describe("New Elastic Profiles Widget", () => {
+describe("Elastic Agent Profiles Widget", () => {
   const helper        = new TestHelper();
   const simulateEvent = require("simulate-event");
 
   const pluginInfos = [
-    PluginInfo.fromJSON(TestData.DockerPluginJSON(), TestData.DockerPluginJSON()._links),
-    PluginInfo.fromJSON(TestData.DockerSwarmPluginJSON(), TestData.DockerSwarmPluginJSON()._links),
-    PluginInfo.fromJSON(TestData.KubernatesPluginJSON(), TestData.KubernatesPluginJSON()._links)
+    PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links),
+    PluginInfo.fromJSON(TestData.dockerSwarmPluginJSON(), TestData.dockerSwarmPluginJSON()._links),
+    PluginInfo.fromJSON(TestData.kubernetesPluginJSON(), TestData.kubernetesPluginJSON()._links)
   ];
 
   const elasticProfiles = ElasticAgentProfiles.fromJSON([
-                                                     TestData.DockerElasticProfile(),
-                                                     TestData.DockerSwarmElasticProfile(),
-                                                     TestData.K8SElasticProfile()
-                                                   ]);
-
-  afterEach(helper.unmount.bind(helper));
-
-  describe("no elastic agent plugin loaded", () => {
-    beforeEach(() => {
-      mount([], elasticProfiles);
-    });
-
-    it("should list existing profiles in absence of elastic plugin", () => {
-      expect(helper.findByDataTestId("flash-message-info").text()).toEqual("No elastic agent plugin installed.");
-      expect(helper.findByDataTestId("key-value-value-plugin-id").eq(0)).toContainText(TestData.DockerPluginJSON().id);
-      expect(helper.findByDataTestId("key-value-value-plugin-id").eq(1))
-        .toContainText(TestData.DockerSwarmPluginJSON().id);
-      expect(helper.findByDataTestId("key-value-value-plugin-id").eq(2))
-        .toContainText(TestData.KubernatesPluginJSON().id);
-    });
-
-  });
+                                                          TestData.dockerElasticProfile(),
+                                                          TestData.dockerSwarmElasticProfile(),
+                                                          TestData.kubernetesElasticProfile()
+                                                        ]);
 
   describe("list all profiles", () => {
     beforeEach(() => {
       mount(pluginInfos, elasticProfiles);
     });
 
-    it("should render all elastic profile info panels", () => {
+    afterEach(helper.unmount.bind(helper));
+
+    it("should render all elastic agent profile info panels", () => {
       expect(helper.findByDataTestId("elastic-profile-list").get(0).children).toHaveLength(3);
-    });
-
-    it("should always render first profile info panel expanded", () => {
-      expect(helper.findByDataTestId("collapse-header").get(0)).toHaveClass(collapsiblePanelStyles.expanded);
-      expect(helper.findByDataTestId("collapse-header").get(1)).not.toHaveClass(collapsiblePanelStyles.expanded);
-      expect(helper.findByDataTestId("collapse-header").get(2)).not.toHaveClass(collapsiblePanelStyles.expanded);
-    });
-
-    it("should render plugin name, image and status report button", () => {
-      expect(helper.findByDataTestId("elastic-profile-list").get(0).children).toHaveLength(3);
-
-      expect(helper.findByDataTestId("plugin-name").get(0)).toContainText(TestData.DockerPluginJSON().about.name);
-      expect(helper.findByDataTestId("plugin-icon").get(0))
-        .toHaveAttr("src", TestData.DockerPluginJSON()._links.image.href);
-      expect(helper.findByDataTestId("status-report-link").get(0)).toBeVisible();
-
-      expect(helper.findByDataTestId("plugin-name").get(1)).toContainText(TestData.DockerSwarmPluginJSON().about.name);
-      expect(helper.findByDataTestId("plugin-icon").get(1))
-        .toHaveAttr("src", TestData.DockerSwarmPluginJSON()._links.image.href);
-      expect(helper.findByDataTestId("status-report-link").get(1)).toBeVisible();
-
-      expect(helper.findByDataTestId("plugin-name").get(2)).toContainText(TestData.KubernatesPluginJSON().about.name);
-      expect(helper.findByDataTestId("plugin-icon").get(2))
-        .toHaveAttr("src", TestData.KubernatesPluginJSON()._links.image.href);
-      expect(helper.findByDataTestId("status-report-link").get(2)).toBeVisible();
     });
 
     it("should toggle between expanded and collapsed state on click of header", () => {
@@ -98,13 +57,13 @@ describe("New Elastic Profiles Widget", () => {
 
       expect(elasticProfileListHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
 
-      //expand elastic profile info
+      //expand elastic agent profile info
       simulateEvent.simulate(elasticProfileListHeader, "click");
       m.redraw();
 
       expect(elasticProfileListHeader).toHaveClass(collapsiblePanelStyles.expanded);
 
-      //collapse elastic profile info
+      //collapse elastic agent profile info
       simulateEvent.simulate(elasticProfileListHeader, "click");
       m.redraw();
 
@@ -112,16 +71,12 @@ describe("New Elastic Profiles Widget", () => {
     });
   });
 
-  describe("StatusReport", () => {
-    it("should disable status report button when user is not an super admin", () => {
-      mount(pluginInfos, elasticProfiles, false);
-      expect(helper.findByDataTestId("status-report-link").get(0)).toBeDisabled();
-    });
+  it("should display message to add new elastic agent profiles if no elastic agent profiles defined", () => {
+    mount(pluginInfos, new ElasticAgentProfiles([]));
 
-    it("should not disable status report button when user is a super admin", () => {
-      mount(pluginInfos, elasticProfiles, true);
-      expect(helper.findByDataTestId("status-report-link").get(0)).not.toBeDisabled();
-    });
+    expect(helper.findByDataTestId("flash-message-info")).toHaveText("Click on 'Add' button to create new elastic agent profile.");
+
+    helper.unmount();
   });
 
   function mount(pluginInfos: Array<PluginInfo<Extension>>,
@@ -130,9 +85,12 @@ describe("New Elastic Profiles Widget", () => {
     const noop = _.noop;
     helper.mount(() => <ElasticProfilesWidget pluginInfos={stream(pluginInfos)}
                                               elasticProfiles={elasticProfiles}
-                                              onEdit={noop}
-                                              onClone={noop}
-                                              onDelete={noop}
+                                              elasticAgentOperations={{
+                                                onEdit: noop,
+                                                onClone: noop,
+                                                onDelete: noop,
+                                                onAdd: noop
+                                              }}
                                               onShowUsages={noop}
                                               isUserAnAdmin={isUserAnAdmin}/>);
   }

@@ -72,6 +72,10 @@ export class ElasticAgentProfiles {
       return profile.pluginId;
     });
   }
+
+  filterByClusterProfile(clusterProfileId: string) {
+    return this.profiles().filter((elasticAgentProfile) => elasticAgentProfile.clusterProfileId() === clusterProfileId);
+  }
 }
 
 export interface ProfileUsageJSON {
@@ -129,7 +133,7 @@ export interface ClusterProfileJSON {
   errors?: { [key: string]: string[] };
 }
 
-// tslint:disable-next-line
+//tslint:disable-next-line
 export interface ElasticAgentProfile extends ValidatableMixin {
 }
 
@@ -156,10 +160,7 @@ export class ElasticAgentProfile implements ValidatableMixin {
   }
 
   static fromJSON(profileJson: ElasticProfileJSON): ElasticAgentProfile {
-    const profile = new ElasticAgentProfile(profileJson.id,
-                                            profileJson.plugin_id,
-                                            profileJson.cluster_profile_id,
-                                            Configurations.fromJSON(profileJson.properties));
+    const profile = new ElasticAgentProfile(profileJson.id, profileJson.plugin_id, profileJson.cluster_profile_id, Configurations.fromJSON(profileJson.properties));
 
     profile.errors(new Errors(profileJson.errors));
     return profile;

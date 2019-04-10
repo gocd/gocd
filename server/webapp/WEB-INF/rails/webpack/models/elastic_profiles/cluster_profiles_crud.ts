@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
-import {ClusterProfileJSON, ClusterProfiles} from "./types";
+import {ClusterProfile, ClusterProfileJSON, ClusterProfiles} from "./types";
 
 export class ClusterProfilesCRUD {
   private static API_VERSION_HEADER = ApiVersion.v1;
@@ -27,5 +27,40 @@ export class ClusterProfilesCRUD {
                               const data = JSON.parse(body)._embedded.cluster_profiles as ClusterProfileJSON[];
                               return ClusterProfiles.fromJSON(data);
                             }));
+  }
+
+  static get(id: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.apiAdminAccessClusterProfilesPath(id), this.API_VERSION_HEADER)
+                            .then(this.extractObjectWithEtag());
+  }
+
+  static update(updatedProfile: ClusterProfile, etag: string) {
+    return ApiRequestBuilder.PUT(SparkRoutes.apiAdminAccessClusterProfilesPath(updatedProfile.id()),
+                                 this.API_VERSION_HEADER,
+                                 {payload: updatedProfile, etag})
+                            .then(this.extractObjectWithEtag());
+  }
+
+  static create(clusterProfile: ClusterProfile) {
+    return ApiRequestBuilder.POST(SparkRoutes.apiAdminAccessClusterProfilesPath(),
+                                  this.API_VERSION_HEADER,
+                                  {payload: clusterProfile.toJSON()}).then(this.extractObjectWithEtag());
+  }
+
+  static delete(id: string) {
+    return ApiRequestBuilder.DELETE(SparkRoutes.apiAdminAccessClusterProfilesPath(id), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => result.map((body) => JSON.parse(body)));
+  }
+
+  private static extractObjectWithEtag() {
+    return (result: ApiResult<string>) => {
+      return result.map((body) => {
+        const profileJSON = JSON.parse(body) as ClusterProfileJSON;
+        return {
+          object: ClusterProfile.fromJSON(profileJSON),
+          etag: result.getEtag()
+        } as ObjectWithEtag<ClusterProfile>;
+      });
+    };
   }
 }

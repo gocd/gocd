@@ -16,12 +16,13 @@
 
 import {ApiResult, SuccessResponse} from "helpers/api_request_builder";
 import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
-import {ClusterProfiles} from "models/elastic_profiles/types";
+import {ClusterProfile, ClusterProfiles} from "models/elastic_profiles/types";
 
 describe("ClusterProfileCRUD", () => {
   beforeEach(() => jasmine.Ajax.install());
   afterEach(() => jasmine.Ajax.uninstall());
   const ALL_CLUSTER_PROFILES_PATH = "/go/api/admin/elastic/cluster_profiles";
+  const GET_CLUSTER_PROFILE_PATH  = `${ALL_CLUSTER_PROFILES_PATH}/cluster_1`;
 
   it("should get all cluster profiles", (done) => {
     jasmine.Ajax.stubRequest(ALL_CLUSTER_PROFILES_PATH).andReturn(clusterProfilesResponse());
@@ -41,6 +42,80 @@ describe("ClusterProfileCRUD", () => {
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
   });
 
+  it("should get a cluster profile", (done) => {
+    jasmine.Ajax.stubRequest(GET_CLUSTER_PROFILE_PATH).andReturn(clusterProfileResponse());
+
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const responseJSON = response.unwrap() as SuccessResponse<any>;
+      expect(responseJSON.body.object.id()).toEqual("cluster_1");
+      expect(responseJSON.body.object.pluginId()).toEqual("plugin_1");
+      expect(response.getEtag()).toEqual("some-etag");
+      done();
+    });
+
+    ClusterProfilesCRUD.get("cluster_1").then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(GET_CLUSTER_PROFILE_PATH);
+    expect(request.method).toEqual("GET");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+  });
+
+  it("should create a cluster profile", (done) => {
+    jasmine.Ajax.stubRequest(ALL_CLUSTER_PROFILES_PATH).andReturn(clusterProfileResponse());
+
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const responseJSON = response.unwrap() as SuccessResponse<any>;
+      expect(responseJSON.body.object.id()).toEqual("cluster_1");
+      expect(responseJSON.body.object.pluginId()).toEqual("plugin_1");
+      expect(response.getEtag()).toEqual("some-etag");
+      done();
+    });
+
+    ClusterProfilesCRUD.create(ClusterProfile.fromJSON(clusterProfileTestData("cluster_1", "plugin_1")))
+                       .then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(ALL_CLUSTER_PROFILES_PATH);
+    expect(request.method).toEqual("POST");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+  });
+
+  it("should update a cluster profile", (done) => {
+    jasmine.Ajax.stubRequest(GET_CLUSTER_PROFILE_PATH).andReturn(clusterProfileResponse());
+
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      const responseJSON = response.unwrap() as SuccessResponse<any>;
+      expect(responseJSON.body.object.id()).toEqual("cluster_1");
+      expect(responseJSON.body.object.pluginId()).toEqual("plugin_1");
+      expect(response.getEtag()).toEqual("some-etag");
+      done();
+    });
+
+    ClusterProfilesCRUD.update(ClusterProfile.fromJSON(clusterProfileTestData("cluster_1", "plugin_2")), "old_etag")
+                       .then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(GET_CLUSTER_PROFILE_PATH);
+    expect(request.method).toEqual("PUT");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+  });
+
+  it("should delete a cluster profile", (done) => {
+    jasmine.Ajax.stubRequest(GET_CLUSTER_PROFILE_PATH).andReturn(clusterProfileResponse());
+
+    const onResponse = jasmine.createSpy().and.callFake((response: ApiResult<any>) => {
+      done();
+    });
+
+    ClusterProfilesCRUD.delete("cluster_1").then(onResponse);
+
+    const request = jasmine.Ajax.requests.mostRecent();
+    expect(request.url).toEqual(GET_CLUSTER_PROFILE_PATH);
+    expect(request.method).toEqual("DELETE");
+    expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v1+json");
+  });
+
   function clusterProfilesResponse() {
     return {
       status: 200,
@@ -51,19 +126,34 @@ describe("ClusterProfileCRUD", () => {
       responseText: JSON.stringify({
                                      _embedded: {
                                        cluster_profiles: [
-                                         {
-                                           id: "dev1",
-                                           plugin_id: "cd.go.contrib.elastic-agent.docker",
-                                           properties: [
-                                             {
-                                               key: "docker_uri",
-                                               value: "unix:///var/run/docker.sock"
-                                             }
-                                           ]
-                                         }
+                                         clusterProfileTestData("dev1", "cd.go.contrib.elastic-agent.docker")
                                        ]
                                      }
                                    })
+    };
+  }
+
+  function clusterProfileResponse() {
+    return {
+      status: 200,
+      responseHeaders: {
+        "Content-Type": "application/vnd.go.cd.v1+json; charset=utf-8",
+        "ETag": "some-etag"
+      },
+      responseText: JSON.stringify(clusterProfileTestData("cluster_1", "plugin_1"))
+    };
+  }
+
+  function clusterProfileTestData(id: string, pluginID: string) {
+    return {
+      id,
+      plugin_id: pluginID,
+      properties: [
+        {
+          key: "docker_uri",
+          value: "unix:///var/run/docker.sock"
+        }
+      ]
     };
   }
 });

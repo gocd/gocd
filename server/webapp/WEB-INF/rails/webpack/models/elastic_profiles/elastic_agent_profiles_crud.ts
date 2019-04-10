@@ -16,7 +16,7 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
-import {ElasticAgentProfile, ElasticProfileJSON, ElasticAgentProfiles, ProfileUsage, ProfileUsageJSON} from "./types";
+import {ElasticAgentProfile, ElasticAgentProfiles, ElasticProfileJSON, ProfileUsage, ProfileUsageJSON} from "./types";
 
 export class ElasticAgentProfilesCRUD {
   private static USAGES_API_VERSION_HEADER = ApiVersion.v1;

@@ -18,8 +18,8 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
 
-public interface Validatable<T extends ValidationContext> {
-    void validate(T validationContext);
+public interface Validatable {
+    void validate(ValidationContext validationContext);
 
     ConfigErrors errors();
 

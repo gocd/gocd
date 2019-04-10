@@ -23,6 +23,8 @@ import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.SystemEnvironment;
 
+import java.util.List;
+
 public interface ValidationContext {
     ConfigReposConfig getConfigRepos();
 
@@ -73,5 +75,7 @@ public interface ValidationContext {
     ArtifactStores artifactStores();
 
     CruiseConfig getCruiseConfig();
+
+    RulesValidationContext getRulesValidationContext();
 }
 

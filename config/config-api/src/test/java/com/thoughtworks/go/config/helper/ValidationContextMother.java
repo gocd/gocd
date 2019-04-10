@@ -23,6 +23,8 @@ import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 
+import java.util.List;
+
 public class ValidationContextMother {
 
     public static ValidationContext validationContext(SecurityConfig securityConfig) {
@@ -156,6 +158,11 @@ public class ValidationContextMother {
 
         @Override
         public CruiseConfig getCruiseConfig() {
+            return null;
+        }
+
+        @Override
+        public RulesValidationContext getRulesValidationContext() {
             return null;
         }
     }

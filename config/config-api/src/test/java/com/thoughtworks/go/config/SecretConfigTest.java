@@ -130,18 +130,19 @@ public class SecretConfigTest extends PluginProfileTest {
     }
 
     @Nested
-    class validate {
+    class validateTree {
         @Test
         void shouldValidateRulesConfig() {
             final Rules rules = mock(Rules.class);
             final SecretConfig secretConfig = new SecretConfig("some-id", "cd.go.secret.file", rules);
 
-            secretConfig.validate(null);
+            secretConfig.validateTree(null);
 
-            final ArgumentCaptor<RulesValidationContext> argumentCaptor = ArgumentCaptor.forClass(RulesValidationContext.class);
-            verify(rules).validate(argumentCaptor.capture());
+            final ArgumentCaptor<ValidationContext> argumentCaptor = ArgumentCaptor.forClass(ValidationContext.class);
+            verify(rules).validateTree(argumentCaptor.capture());
 
-            final RulesValidationContext rulesValidationContext = argumentCaptor.getValue();
+            final ValidationContext validationContext = argumentCaptor.getValue();
+            RulesValidationContext rulesValidationContext = validationContext.getRulesValidationContext();
             assertThat(rulesValidationContext.getAllowedActions())
                     .hasSize(1)
                     .contains("refer");
@@ -152,27 +153,12 @@ public class SecretConfigTest extends PluginProfileTest {
         }
 
         @Test
-        void shouldPassOriginalValidationContextInRulesValidationContextToValidateRulesConfig() {
-            final Rules rules = mock(Rules.class);
-            final ValidationContext originalValidationContext = mock(ValidationContext.class);
-            final SecretConfig secretConfig = new SecretConfig("some-id", "cd.go.secret.file", rules);
-
-            secretConfig.validate(originalValidationContext);
-
-            final ArgumentCaptor<RulesValidationContext> argumentCaptor = ArgumentCaptor.forClass(RulesValidationContext.class);
-            verify(rules).validate(argumentCaptor.capture());
-
-            assertThat(argumentCaptor.getValue()).isNotNull();
-            assertThat(argumentCaptor.getValue().getOriginalValidationContext()).isEqualTo(originalValidationContext);
-        }
-
-        @Test
         void shouldBeInvalidIfRulesHasErrors() {
             final SecretConfig secretConfig = new SecretConfig("some-id", "cd.go.secret.file");
             final Allow invalidRuleConfig = new Allow(null, "pipeline_group", null);
             secretConfig.getRules().add(invalidRuleConfig);
 
-            secretConfig.validate(null);
+            secretConfig.validateTree(null);
 
             assertThat(secretConfig.hasErrors()).isTrue();
         }
@@ -184,7 +170,7 @@ public class SecretConfigTest extends PluginProfileTest {
 
             final SecretConfig secretConfig = new SecretConfig("some-id", "cd.go.secret.file", configurationPropertyWithError);
 
-            secretConfig.validate(null);
+            secretConfig.validateTree(null);
 
             assertThat(secretConfig.hasErrors()).isTrue();
         }

@@ -46,13 +46,15 @@ public abstract class AbstractDirective implements Directive {
     }
 
     @Override
-    public void validate(RulesValidationContext validationContext) {
-        if (isInvalid(action, validationContext.getAllowedActions())) {
-            this.addError("action", format("Invalid action, must be one of %s.", validationContext.getAllowedActions()));
+    public void validate(ValidationContext validationContext) {
+        RulesValidationContext rulesValidationContext = validationContext.getRulesValidationContext();
+
+        if (isInvalid(action, rulesValidationContext.getAllowedActions())) {
+            this.addError("action", format("Invalid action, must be one of %s.", rulesValidationContext.getAllowedActions()));
         }
 
-        if (isInvalid(type, validationContext.getAllowedTypes())) {
-            this.addError("type", format("Invalid type, must be one of %s.", validationContext.getAllowedTypes()));
+        if (isInvalid(type, rulesValidationContext.getAllowedTypes())) {
+            this.addError("type", format("Invalid type, must be one of %s.", rulesValidationContext.getAllowedTypes()));
         }
     }
 

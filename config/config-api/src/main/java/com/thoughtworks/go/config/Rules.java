@@ -23,7 +23,7 @@ import java.util.Collection;
 
 @ConfigTag("rules")
 @ConfigCollection(Directive.class)
-public class Rules extends BaseCollection<Directive> implements Validatable<RulesValidationContext> {
+public class Rules extends BaseCollection<Directive> implements Validatable {
     public Rules() {
     }
 
@@ -36,17 +36,16 @@ public class Rules extends BaseCollection<Directive> implements Validatable<Rule
     }
 
     @Override
-    public void validate(RulesValidationContext validationContext) {
-        if (this.isEmpty()) {
-            return;
-        }
+    public void validate(ValidationContext validationContext) {
+    }
 
-        this.forEach(directive -> directive.validate(validationContext));
+    public void validateTree(ValidationContext validationContext) {
+        stream().forEach(directive -> directive.validate(validationContext));
     }
 
     @Override
     public ConfigErrors errors() {
-        throw new UnsupportedOperationException("Rules cannot have errors.");
+        return new ConfigErrors();
     }
 
     public boolean hasErrors() {
@@ -55,6 +54,6 @@ public class Rules extends BaseCollection<Directive> implements Validatable<Rule
 
     @Override
     public void addError(String fieldName, String message) {
-        throw new UnsupportedOperationException("Rules cannot have errors. Errors can be added to the directives.");
+
     }
 }

@@ -18,20 +18,8 @@ package com.thoughtworks.go.config;
 
 import java.util.List;
 
-public class RulesValidationContext  {
-    private final List<String> allowedActions;
-    private final List<String> allowedTypes;
+public interface RulesAware {
+    List<String> allowedActions();
 
-    protected RulesValidationContext(List<String> allowedActions, List<String> allowedTypes) {
-        this.allowedActions = allowedActions;
-        this.allowedTypes = allowedTypes;
-    }
-
-    public List<String> getAllowedActions() {
-        return allowedActions;
-    }
-
-    public List<String> getAllowedTypes() {
-        return allowedTypes;
-    }
+    List<String> allowedTypes();
 }

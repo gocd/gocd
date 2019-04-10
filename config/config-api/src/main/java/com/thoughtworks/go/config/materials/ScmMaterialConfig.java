@@ -17,8 +17,10 @@
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.util.FilenameUtil;
 import com.thoughtworks.go.util.command.UrlArgument;

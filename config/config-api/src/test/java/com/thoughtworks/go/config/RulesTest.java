@@ -19,23 +19,24 @@ package com.thoughtworks.go.config;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 class RulesTest {
     @Nested
-    class validate {
+    class validateTree {
         @Test
         void shouldCallValidateOfEachRule() {
-            RulesValidationContext validationContext = mock(RulesValidationContext.class);
+            ValidationContext validationContext = mock(ValidationContext.class);
             Allow allow = mock(Allow.class);
             Deny deny = mock(Deny.class);
             Rules rules = new Rules(allow, deny);
 
-            rules.validate(validationContext);
+            rules.validateTree(validationContext);
 
             verify(allow).validate(validationContext);
             verify(deny).validate(validationContext);
@@ -46,7 +47,7 @@ class RulesTest {
             final Allow invalidDirective = new Allow(null, "pipeline_group", null);
             final Rules rules = new Rules(invalidDirective);
 
-            rules.validate(new RulesValidationContext(null, singletonList("refer"), singletonList("pipeline_group")));
+            rules.validateTree(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
 
             assertThat(rules.hasErrors()).isTrue();
         }
@@ -57,29 +58,18 @@ class RulesTest {
                     new Allow("refer", "pipeline_group", "env1"),
                     new Deny("refer", "pipeline_group", "env2"));
 
-            rules.validate(new RulesValidationContext(null, singletonList("refer"), singletonList("pipeline_group")));
+            rules.validateTree(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
 
             assertThat(rules.hasErrors()).isFalse();
         }
     }
 
-    @Nested
-    class errors {
-        @Test
-        void shouldErrorOutSinceRulesCannotHaveErrors() {
-            assertThatCode(() -> new Rules().errors())
-                    .isInstanceOf(UnsupportedOperationException.class)
-                    .hasMessage("Rules cannot have errors.");
-        }
-    }
-
-    @Nested
-    class addError {
-        @Test
-        void shouldErrorOutSinceRulesCannotHaveErrors() {
-            assertThatCode(() -> new Rules().addError("key", "message"))
-                    .isInstanceOf(UnsupportedOperationException.class)
-                    .hasMessage("Rules cannot have errors. Errors can be added to the directives.");
-        }
+    private ValidationContext rulesValidationContext(List<String> allowedAction, List<String> allowedType) {
+        return new DelegatingValidationContext(null) {
+            @Override
+            public RulesValidationContext getRulesValidationContext() {
+                return new RulesValidationContext(allowedAction, allowedType);
+            }
+        };
     }
 }

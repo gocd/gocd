@@ -58,7 +58,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
       plugin_metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
       plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', plugin_metadata)], plugin_view)
 
-      plugin_info = CombinedPluginInfo.new(ConfigRepoPluginInfo.new(descriptor, nil, plugin_settings))
+      plugin_info = CombinedPluginInfo.new(ConfigRepoPluginInfo.new(descriptor, nil, plugin_settings, nil))
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info).to_hash(url_builder: UrlBuilder.new)
 
       expect(actual_json).to have_links(:self, :doc, :find)
@@ -395,7 +395,7 @@ describe ApiV4::Plugin::PluginInfoRepresenter do
       notification_plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', notification_plugin_metadata)], notification_plugin_view)
       notification_plugin_info = NotificationPluginInfo.new(descriptor, notification_plugin_settings)
 
-      config_repo_plugin_info = ConfigRepoPluginInfo.new(descriptor, nil, nil)
+      config_repo_plugin_info = ConfigRepoPluginInfo.new(descriptor, nil, nil, nil)
 
       plugin_info_with_multiple_extensions = CombinedPluginInfo.new([notification_plugin_info, task_plugin_info, config_repo_plugin_info])
       actual_json = ApiV4::Plugin::PluginInfoRepresenter.new(plugin_info_with_multiple_extensions).to_hash(url_builder: UrlBuilder.new)

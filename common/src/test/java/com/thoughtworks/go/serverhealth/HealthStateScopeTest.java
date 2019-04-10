@@ -46,6 +46,14 @@ public class HealthStateScopeTest {
         assertThat(scope1, not(scope2));
     }
 
+    @Test public void shouldHaveDifferentScopeWhenAutoUpdateHasChanged() throws Exception {
+        SvnMaterial mat = MaterialsMother.svnMaterial("url1");
+        HealthStateScope scope1 = HealthStateScope.forMaterial(mat);
+        mat.setAutoUpdate(false);
+        HealthStateScope scope2 = HealthStateScope.forMaterial(mat);
+        assertThat(scope1, not(scope2));
+    }
+
     @Test public void shouldHaveUniqueScopeForStages() throws Exception {
         HealthStateScope scope1 = HealthStateScope.forStage("blahPipeline","blahStage");
         HealthStateScope scope2 = HealthStateScope.forStage("blahPipeline","blahStage");

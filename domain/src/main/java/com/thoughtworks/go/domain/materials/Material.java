@@ -59,6 +59,8 @@ public interface Material extends Serializable {
 
     Map<String, Object> getSqlCriteria();
 
+    Map<String, Object> getAttributesForScope();
+
     MaterialInstance createMaterialInstance();
 
     String getDescription();

@@ -60,7 +60,6 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
         return escapeEnvironmentVariable(getName().toUpper());
     }
 
-
     public final Map<String, Object> getSqlCriteria() {
         if (sqlCriteria == null) {
             Map<String, Object> map = new LinkedHashMap<>();
@@ -69,6 +68,14 @@ public abstract class AbstractMaterial extends PersistentObject implements Mater
             sqlCriteria = Collections.unmodifiableMap(map);
         }
         return sqlCriteria;
+    }
+
+    public final Map<String, Object> getAttributesForScope() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("type", type);
+        map.put("autoUpdate", isAutoUpdate());
+        appendCriteria(map);
+        return Collections.unmodifiableMap(map);
     }
 
     public final Map<String, Object> getAttributesForXml() {

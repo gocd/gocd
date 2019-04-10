@@ -42,6 +42,8 @@ public interface MaterialConfig extends Serializable, Validatable {
 
     Map<String, Object> getSqlCriteria();
 
+    Map<String, Object> getAttributesForScope();
+
     String getDescription();
 
     String getFingerprint();

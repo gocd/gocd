@@ -58,7 +58,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
     }
 
     public static HealthStateScope forMaterial(Material material) {
-        return new HealthStateScope(ScopeType.MATERIAL, material.getSqlCriteria().toString());
+        return new HealthStateScope(ScopeType.MATERIAL, material.getAttributesForScope().toString());
     }
 
     public static HealthStateScope forMaterialUpdate(Material material) {
@@ -66,7 +66,7 @@ public class HealthStateScope implements Comparable<HealthStateScope> {
     }
 
     public static HealthStateScope forMaterialConfig(MaterialConfig materialConfig) {
-        return new HealthStateScope(ScopeType.MATERIAL, materialConfig.getSqlCriteria().toString());
+        return new HealthStateScope(ScopeType.MATERIAL, materialConfig.getAttributesForScope().toString());
     }
 
     public static HealthStateScope forMaterialConfigUpdate(MaterialConfig materialConfig) {

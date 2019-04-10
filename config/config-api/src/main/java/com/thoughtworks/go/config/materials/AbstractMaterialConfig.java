@@ -84,6 +84,15 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
     }
 
     @Override
+    public final Map<String, Object> getAttributesForScope() {
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("type", type);
+        map.put("autoUpdate", isAutoUpdate());
+        appendCriteria(map);
+        return Collections.unmodifiableMap(map);
+    }
+
+    @Override
     public String getFingerprint() {
         if (fingerprint == null) {
             fingerprint = generateFingerprintFromCriteria(getSqlCriteria());

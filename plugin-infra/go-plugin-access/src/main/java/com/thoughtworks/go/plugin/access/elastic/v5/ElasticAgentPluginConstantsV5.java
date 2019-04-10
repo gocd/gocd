@@ -40,4 +40,6 @@ public interface ElasticAgentPluginConstantsV5 {
     String REQUEST_JOB_COMPLETION = REQUEST_PREFIX + ".job-completion";
 
     String REQUEST_MIGRATE_CONFIGURATION = REQUEST_PREFIX + ".migrate-config";
+
+    String REQUEST_CLUSTER_PROFILE_CHANGED = REQUEST_PREFIX + ".cluster-profile-changed";
 }

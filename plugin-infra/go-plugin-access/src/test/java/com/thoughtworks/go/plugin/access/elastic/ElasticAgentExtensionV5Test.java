@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
@@ -257,6 +258,26 @@ public class ElasticAgentExtensionV5Test {
                 "}";
 
         assertExtensionRequest("5.0", REQUEST_JOB_COMPLETION, expectedRequestBody);
+    }
+
+    @Test
+    public void shouldMakeClusterProfileChangedCall() {
+        ClusterProfilesChangedStatus status = ClusterProfilesChangedStatus.CREATED;
+        Map<String, String> oldClusterProfile = null;
+        Map<String, String> newClusterProfile = Collections.singletonMap("key1", "key2");
+
+        when(pluginManager.submitTo(eq(PLUGIN_ID), eq(ELASTIC_AGENT_EXTENSION), requestArgumentCaptor.capture())).thenReturn(DefaultGoPluginApiResponse.success(null));
+
+        extensionV5.clusterProfilesChanged(PLUGIN_ID, status, oldClusterProfile, newClusterProfile);
+
+        String expectedRequestBody = "{" +
+                "  \"status\":\"created\"," +
+                "  \"cluster_profiles_properties\":{" +
+                "    \"key1\":\"key2\"" +
+                "  }" +
+                "}";
+
+        assertExtensionRequest("5.0", REQUEST_CLUSTER_PROFILE_CHANGED, expectedRequestBody);
     }
 
     @Test

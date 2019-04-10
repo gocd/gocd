@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic.v5;
 
+import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
@@ -237,6 +238,16 @@ public class ElasticAgentExtensionV5 implements VersionedElasticAgentExtension {
             @Override
             public ElasticAgentInformation onSuccess(String responseBody, Map<String, String> responseHeaders, String resolvedExtensionVersion) {
                 return elasticAgentExtensionConverterV5.getElasticAgentInformationFromResponseBody(responseBody);
+            }
+        });
+    }
+
+    @Override
+    public void clusterProfilesChanged(String pluginId, ClusterProfilesChangedStatus status, Map<String, String> oldClusterProfile, Map<String, String> newClusterProfile) {
+        pluginRequestHelper.submitRequest(pluginId, REQUEST_CLUSTER_PROFILE_CHANGED, new DefaultPluginInteractionCallback<String>() {
+            @Override
+            public String requestBody(String resolvedExtensionVersion) {
+                return elasticAgentExtensionConverterV5.getClusterProfileChangedRequestBody(status, oldClusterProfile, newClusterProfile);
             }
         });
     }

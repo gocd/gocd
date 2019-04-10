@@ -312,6 +312,14 @@ public class ElasticAgentExtensionV4Test {
     }
 
     @Test
+    public void shouldNotSupportClusterProfileChangedCall() {
+        thrown.expect(UnsupportedOperationException.class);
+        thrown.expectMessage(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", PLUGIN_ID));
+
+        extensionV4.clusterProfilesChanged(PLUGIN_ID, null, null, null);
+    }
+
+    @Test
     public void shouldVerifyPluginApiRequestNamesOfElasticAgentProfile() {
         assertThat(REQUEST_GET_PROFILE_METADATA, is(String.format("%s.get-profile-metadata", REQUEST_PREFIX)));
         assertThat(REQUEST_GET_PROFILE_VIEW, is(String.format("%s.get-profile-view", REQUEST_PREFIX)));

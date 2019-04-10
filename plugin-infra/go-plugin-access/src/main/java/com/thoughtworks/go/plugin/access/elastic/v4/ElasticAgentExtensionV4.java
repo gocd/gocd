@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic.v4;
 
+import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.DefaultPluginInteractionCallback;
 import com.thoughtworks.go.plugin.access.PluginRequestHelper;
@@ -192,5 +193,10 @@ public class ElasticAgentExtensionV4 implements VersionedElasticAgentExtension {
     @Override
     public ElasticAgentInformation migrateConfig(String pluginId, ElasticAgentInformation elasticAgentInformation) {
         return elasticAgentInformation;
+    }
+
+    @Override
+    public void clusterProfilesChanged(String pluginId, ClusterProfilesChangedStatus status, Map<String, String> oldClusterProfile, Map<String, String> newClusterProfile) {
+        throw new UnsupportedOperationException(String.format("Plugin: '%s' uses elastic agent extension v4 and cluster profile extension calls are not supported by elastic agent V4", pluginId));
     }
 }

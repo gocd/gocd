@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.access.elastic;
 
+import com.thoughtworks.go.domain.ClusterProfilesChangedStatus;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
 import com.thoughtworks.go.plugin.infra.PluginManager;
@@ -131,6 +132,26 @@ public class ElasticAgentPluginRegistryTest {
         elasticAgentPluginRegistry.reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
 
         verify(elasticAgentExtension, times(1)).reportJobCompletion(PLUGIN_ID, elasticAgentId, jobIdentifier, elasticProfileConfiguration, clusterProfileConfiguration);
+        verifyNoMoreInteractions(elasticAgentExtension);
+    }
+
+    @Test
+    public void shouldTalkToExtensionToNotifyClusterProfileHasChanged() {
+        final Map<String, String> newClusterProfileConfigurations = Collections.singletonMap("Image", "alpine:latest");
+        elasticAgentPluginRegistry.notifyPluginAboutClusterProfileChanged(PLUGIN_ID, ClusterProfilesChangedStatus.CREATED, null, newClusterProfileConfigurations);
+
+        verify(elasticAgentExtension, times(1)).clusterProfileChanged(PLUGIN_ID, ClusterProfilesChangedStatus.CREATED, null, newClusterProfileConfigurations);
+        verifyNoMoreInteractions(elasticAgentExtension);
+    }
+
+    @Test
+    public void shouldNotFailEvenWhenExtensionFailsToHandleClusterProfileChangedCall() {
+        final Map<String, String> newClusterProfileConfigurations = Collections.singletonMap("Image", "alpine:latest");
+        doThrow(new RuntimeException("Boom!")).when(elasticAgentExtension).clusterProfileChanged(any(), any(), any(), any());
+
+        elasticAgentPluginRegistry.notifyPluginAboutClusterProfileChanged(PLUGIN_ID, ClusterProfilesChangedStatus.CREATED, null, newClusterProfileConfigurations);
+
+        verify(elasticAgentExtension, times(1)).clusterProfileChanged(PLUGIN_ID, ClusterProfilesChangedStatus.CREATED, null, newClusterProfileConfigurations);
         verifyNoMoreInteractions(elasticAgentExtension);
     }
 }

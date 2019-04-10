@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -72,6 +73,13 @@ class DeleteClusterProfileCommandTest {
 
         boolean canContinue = command.canContinue(config);
         assertThat(canContinue).isFalse();
+    }
+
+    @Test
+    void shouldSetPreprocessedEntityAsPartOfUpdate() throws Exception {
+        assertNull(command.getPreprocessedEntityConfig());
+        command.update(config);
+        assertThat(command.getPreprocessedEntityConfig()).isEqualTo(clusterProfile);
     }
 
     @Test

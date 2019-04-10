@@ -27,10 +27,7 @@ import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.util.Node;
 import org.apache.commons.lang3.NotImplementedException;
 
-import java.util.ArrayList;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class PipelineConfigSaveValidationContext implements ValidationContext {
@@ -277,5 +274,10 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     @Override
     public CruiseConfig getCruiseConfig() {
         return this.cruiseConfig;
+    }
+
+    @Override
+    public RulesValidationContext getRulesValidationContext() {
+        return null;
     }
 }

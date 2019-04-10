@@ -25,11 +25,12 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.isNull;
 
 @ConfigTag("secretConfig")
 @ConfigCollection(value = ConfigurationProperty.class)
-public class SecretConfig extends PluginProfile {
+public class SecretConfig extends PluginProfile implements RulesAware {
     @ConfigSubtag
     private Configuration configuration = new Configuration();
 
@@ -39,8 +40,8 @@ public class SecretConfig extends PluginProfile {
     @ConfigSubtag
     private Description description;
 
-    private List<String> allowedActions = asList("refer");
-    private List<String> allowedTypes = asList("pipeline_group");
+    private static final List<String> allowedActions = unmodifiableList(asList("refer"));
+    private static final List<String> allowedTypes = unmodifiableList(asList("pipeline_group"));
 
     public SecretConfig() {
     }
@@ -71,7 +72,16 @@ public class SecretConfig extends PluginProfile {
     @Override
     public void validate(ValidationContext validationContext) {
         super.validate(validationContext);
-        rules.validate(new RulesValidationContext(validationContext, this.allowedActions, this.allowedTypes));
+    }
+
+    public void validateTree(ValidationContext validationContext) {
+        validate(validationContext);
+        rules.validateTree(new DelegatingValidationContext(validationContext) {
+            @Override
+            public RulesValidationContext getRulesValidationContext() {
+                return new RulesValidationContext(allowedActions, allowedTypes);
+            }
+        });
     }
 
     @Override
@@ -99,6 +109,16 @@ public class SecretConfig extends PluginProfile {
 
     private SecretsMetadataStore metadataStore() {
         return SecretsMetadataStore.instance();
+    }
+
+    @Override
+    public List<String> allowedActions() {
+        return allowedActions;
+    }
+
+    @Override
+    public List<String> allowedTypes() {
+        return allowedTypes;
     }
 
     @ConfigTag("description")

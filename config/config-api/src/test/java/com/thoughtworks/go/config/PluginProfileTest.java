@@ -18,7 +18,8 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import org.junit.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
@@ -29,38 +30,45 @@ public abstract class PluginProfileTest {
     protected abstract PluginProfile pluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties);
     protected abstract String getObjectDescription();
 
-    @Test
-    public void shouldNotAllowNullPluginIdOrProfileId() throws Exception {
-        PluginProfile profile = pluginProfile(null, null);
+    @Nested
+    class validate {
+        @Test
+        void shouldNotAllowNullPluginIdOrProfileId() {
+            PluginProfile profile = pluginProfile(null, null);
 
-        profile.validate(null);
-        assertThat(profile.errors().size(), is(2));
-        assertThat(profile.errors().on("pluginId"), is(format("%s cannot have a blank plugin id.", getObjectDescription())));
-        assertThat(profile.errors().on("id"), is(format("%s cannot have a blank id.", getObjectDescription())));
-    }
+            profile.validate(null);
 
-    @Test
-    public void shouldValidatePluginIdPattern() throws Exception {
-        PluginProfile profile = pluginProfile("!123", "docker");
-        profile.validate(null);
-        assertThat(profile.errors().size(), is(1));
-        assertThat(profile.errors().on("id"), is("Invalid id '!123'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
-    }
+            assertThat(profile.errors().size(), is(2));
+            assertThat(profile.errors().on("pluginId"), is(format("%s cannot have a blank plugin id.", getObjectDescription())));
+            assertThat(profile.errors().on("id"), is(format("%s cannot have a blank id.", getObjectDescription())));
+        }
 
-    @Test
-    public void shouldValidateConfigPropertyNameUniqueness() throws Exception {
-        ConfigurationProperty prop1 = ConfigurationPropertyMother.create("USERNAME");
-        ConfigurationProperty prop2 = ConfigurationPropertyMother.create("USERNAME");
-        PluginProfile profile = pluginProfile("docker.unit-test", "cd.go.elastic-agent.docker", prop1, prop2);
+        @Test
+        void shouldValidatePluginIdPattern() throws Exception {
+            PluginProfile profile = pluginProfile("!123", "docker");
 
-        profile.validate(null);
+            profile.validate(null);
 
-        assertThat(profile.errors().size(), is(0));
+            assertThat(profile.errors().size(), is(1));
+            assertThat(profile.errors().on("id"), is("Invalid id '!123'. This must be alphanumeric and " +
+                    "can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."));
+        }
 
-        assertThat(prop1.errors().size(), is(1));
-        assertThat(prop2.errors().size(), is(1));
+        @Test
+        void shouldValidateConfigPropertyNameUniqueness() throws Exception {
+            ConfigurationProperty prop1 = ConfigurationPropertyMother.create("USERNAME");
+            ConfigurationProperty prop2 = ConfigurationPropertyMother.create("USERNAME");
+            PluginProfile profile = pluginProfile("docker.unit-test", "cd.go.elastic-agent.docker", prop1, prop2);
 
-        assertThat(prop1.errors().on("configurationKey"), is(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription())));
-        assertThat(prop2.errors().on("configurationKey"), is(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription())));
+            profile.validate(null);
+
+            assertThat(profile.errors().size(), is(0));
+
+            assertThat(prop1.errors().size(), is(1));
+            assertThat(prop2.errors().size(), is(1));
+
+            assertThat(prop1.errors().on("configurationKey"), is(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription())));
+            assertThat(prop2.errors().on("configurationKey"), is(format("Duplicate key 'USERNAME' found for %s 'docker.unit-test'", getObjectDescription())));
+        }
     }
 }

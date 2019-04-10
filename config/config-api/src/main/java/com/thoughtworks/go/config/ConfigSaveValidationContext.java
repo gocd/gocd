@@ -83,6 +83,14 @@ public class ConfigSaveValidationContext implements ValidationContext {
     }
 
     @Override
+    public RulesValidationContext getRulesValidationContext() {
+        RulesAware rulesAware = loadFirstOfType(RulesAware.class);
+
+        return new RulesValidationContext(rulesAware.allowedActions(), rulesAware.allowedTypes());
+    }
+
+
+    @Override
     public ConfigReposConfig getConfigRepos() {
         return getCruiseConfig().getConfigRepos();
     }

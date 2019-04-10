@@ -163,6 +163,11 @@ public class RolesConfigUpdateValidator implements ConfigUpdateValidator {
             public CruiseConfig getCruiseConfig() {
                 return null;
             }
+
+            @Override
+            public RulesValidationContext getRulesValidationContext() {
+                return null;
+            }
         };
     }
 }

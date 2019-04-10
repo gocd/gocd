@@ -22,6 +22,8 @@ import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 
+import java.util.List;
+
 public abstract class DelegatingValidationContext implements ValidationContext {
     protected ValidationContext validationContext;
 
@@ -123,5 +125,10 @@ public abstract class DelegatingValidationContext implements ValidationContext {
     @Override
     public CruiseConfig getCruiseConfig() {
         return validationContext.getCruiseConfig();
+    }
+
+    @Override
+    public RulesValidationContext getRulesValidationContext() {
+        return null;
     }
 }

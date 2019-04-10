@@ -28,36 +28,34 @@ import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
-import org.hamcrest.MatcherAssert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+
 
 import static junit.framework.TestCase.assertTrue;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigSaveValidationContextTest {
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
     }
 
     @Test
-    public void testShouldReturnTrueIfTemplatesIsAnAncestor() {
+    void testShouldReturnTrueIfTemplatesIsAnAncestor() {
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new TemplatesConfig(), new PipelineTemplateConfig());
-        assertThat(context.isWithinTemplates(), is(true));
+        assertThat(context.isWithinTemplates()).isTrue();
     }
 
     @Test
-    public void testShouldReturnFalseIfTemplatesIsNotAnAncestor() {
+    void testShouldReturnFalseIfTemplatesIsNotAnAncestor() {
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new PipelineGroups(), new BasicPipelineConfigs(), new PipelineConfig());
-        assertThat(context.isWithinTemplates(), is(false));
+        assertThat(context.isWithinTemplates()).isFalse();
     }
 
     @Test
-    public void shouldReturnAllMaterialsMatchingTheFingerprint() {
+    void shouldReturnAllMaterialsMatchingTheFingerprint() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         HgMaterialConfig hg = new HgMaterialConfig("url", null);
         for (int i = 0; i < 10; i++) {
@@ -66,78 +64,77 @@ public class ConfigSaveValidationContextTest {
         }
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
-        assertThat(context.getAllMaterialsByFingerPrint(hg.getFingerprint()).size(), is(10));
+        assertThat(context.getAllMaterialsByFingerPrint(hg.getFingerprint()).size()).isEqualTo(10);
     }
 
     @Test
-    public void shouldReturnEmptyListWhenNoMaterialsMatch() {
+    void shouldReturnEmptyListWhenNoMaterialsMatch() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
-        assertThat(context.getAllMaterialsByFingerPrint("something").isEmpty(), is(true));
+        assertThat(context.getAllMaterialsByFingerPrint("something").isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldGetPipelineConfigByName() {
+    void shouldGetPipelineConfigByName() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
-        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("p1")), is(cruiseConfig.allPipelines().get(0)));
-        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("does_not_exist")), is(nullValue()));
+        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("p1"))).isEqualTo(cruiseConfig.allPipelines().get(0));
+        assertThat(context.getPipelineConfigByName(new CaseInsensitiveString("does_not_exist"))).isNull();
     }
 
     @Test
-    public void shouldGetServerSecurityConfig() {
+    void shouldGetServerSecurityConfig() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
         GoConfigMother.enableSecurityWithPasswordFilePlugin(cruiseConfig);
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
-        assertThat(context.getServerSecurityConfig(), is(cruiseConfig.server().security()));
+        assertThat(context.getServerSecurityConfig()).isEqualTo(cruiseConfig.server().security());
     }
 
     @Test
-    public void shouldReturnIfTheContextBelongsToPipeline() {
+    void shouldReturnIfTheContextBelongsToPipeline() {
         ValidationContext context = ConfigSaveValidationContext.forChain(new BasicPipelineConfigs());
-        assertThat(context.isWithinPipelines(), is(true));
-        assertThat(context.isWithinTemplates(), is(false));
+        assertThat(context.isWithinPipelines()).isTrue();
+        assertThat(context.isWithinTemplates()).isFalse();
     }
 
     @Test
-    public void shouldReturnIfTheContextBelongsToTemplate() {
+    void shouldReturnIfTheContextBelongsToTemplate() {
         ValidationContext context = ConfigSaveValidationContext.forChain(new TemplatesConfig());
-        assertThat(context.isWithinPipelines(), is(false));
-        assertThat(context.isWithinTemplates(), is(true));
+        assertThat(context.isWithinPipelines()).isFalse();
+        assertThat(context.isWithinTemplates()).isTrue();
     }
 
     @Test
-    public void shouldCheckForExistenceOfTemplate() {
+    void shouldCheckForExistenceOfTemplate() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.addTemplate(new PipelineTemplateConfig(new CaseInsensitiveString("t1")));
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
-        MatcherAssert.assertThat(context.doesTemplateExist(new CaseInsensitiveString("t1")), is(true));
-        MatcherAssert.assertThat(context.doesTemplateExist(new CaseInsensitiveString("t2")), is(false));
+        assertThat(context.doesTemplateExist(new CaseInsensitiveString("t1"))).isTrue();
+        assertThat(context.doesTemplateExist(new CaseInsensitiveString("t2"))).isFalse();
     }
 
     @Test
-    public void shouldCheckForExistenceOfSCMS() throws Exception {
+    void shouldCheckForExistenceOfSCMS() throws Exception {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(new SCMs(SCMMother.create("scm-id")));
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
-        MatcherAssert.assertThat(context.findScmById("scm-id").getId(), is("scm-id"));
-
+        assertThat(context.findScmById("scm-id").getId()).isEqualTo("scm-id");
     }
 
     @Test
-    public void shouldCheckForExistenceOfPackage() throws Exception {
+    void shouldCheckForExistenceOfPackage() throws Exception {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setPackageRepositories(new PackageRepositories(PackageRepositoryMother.create("repo-id")));
         cruiseConfig.getPackageRepositories().find("repo-id").setPackages(new Packages(PackageDefinitionMother.create("package-id")));
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
-        MatcherAssert.assertThat(context.findPackageById("package-id").getId(), is("repo-id"));
+        assertThat(context.findPackageById("package-id").getId()).isEqualTo("repo-id");
     }
 
     @Test
-    public void isValidProfileIdShouldBeValidInPresenceOfElasticProfile() {
+    void isValidProfileIdShouldBeValidInPresenceOfElasticProfile() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         ElasticConfig elasticConfig = new ElasticConfig();
         elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker")));
@@ -148,7 +145,7 @@ public class ConfigSaveValidationContextTest {
     }
 
     @Test
-    public void shouldGetAllClusterProfiles() {
+    void shouldGetAllClusterProfiles() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         ElasticConfig elasticConfig = new ElasticConfig();
         ClusterProfiles clusterProfiles = new ClusterProfiles(new ClusterProfile("cluster1", "docker"));
@@ -156,25 +153,39 @@ public class ConfigSaveValidationContextTest {
         cruiseConfig.setElasticConfig(elasticConfig);
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
-        assertThat(context.getClusterProfiles(), is(clusterProfiles));
+        assertThat(context.getClusterProfiles()).isEqualTo(clusterProfiles);
     }
 
     @Test
-    public void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfileForTheGivenId() {
+    void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfileForTheGivenId() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         ElasticConfig elasticConfig = new ElasticConfig();
         elasticConfig.setProfiles(new ElasticProfiles(new ElasticProfile("docker.unit-test", "docker")));
         cruiseConfig.setElasticConfig(elasticConfig);
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
-        assertFalse(context.isValidProfileId("invalid.profile-id"));
+        assertThat(context.isValidProfileId("invalid.profile-id")).isFalse();
     }
 
     @Test
-    public void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfiles() {
+    void isValidProfileIdShouldBeInValidInAbsenceOfElasticProfiles() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         ValidationContext context = ConfigSaveValidationContext.forChain(cruiseConfig);
 
-        assertFalse(context.isValidProfileId("docker.unit-test"));
+        assertThat(context.isValidProfileId("docker.unit-test")).isFalse();
+    }
+
+    @Nested
+    class rulesValidationContext {
+        @Test
+        void shouldBuildRulesValidationContext() {
+            SecretConfig secretConfig = new SecretConfig();
+            ConfigSaveValidationContext configSaveValidationContext = ConfigSaveValidationContext.forChain(secretConfig);
+
+            RulesValidationContext rulesValidationContext = configSaveValidationContext.getRulesValidationContext();
+
+            assertThat(rulesValidationContext.getAllowedActions()).isEqualTo(secretConfig.allowedActions());
+            assertThat(rulesValidationContext.getAllowedTypes()).isEqualTo(secretConfig.allowedTypes());
+        }
     }
 }

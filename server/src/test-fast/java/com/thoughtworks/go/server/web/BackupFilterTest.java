@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.Mockito.*;
@@ -45,8 +46,8 @@ public class BackupFilterTest {
 
     private HttpServletResponse res;
     private BackupFilter backupFilter;
-    private static final String BACKUP_STARTED_AT = "Some old date";
-    private static final String BACKUP_STARTED_BY = "admin";
+    private static final Optional<String> BACKUP_STARTED_AT = Optional.of("Some old date");
+    private static final Optional<String> BACKUP_STARTED_BY = Optional.of("admin");
     private FilterChain chain;
     private FilterConfig filterConfig;
     private BackupService backupService;

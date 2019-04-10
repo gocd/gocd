@@ -21,8 +21,8 @@ class Admin::BackupController < ApplicationController
   def index
     @tab_name = "backup"
     @backup_location = backup_service.backupLocation()
-    @last_backup_time = backup_service.lastBackupTime()
-    @last_backup_user = backup_service.lastBackupUser()
+    @last_backup_time = backup_service.lastBackupTime().orElse(nil)
+    @last_backup_user = backup_service.lastBackupUser().orElse(nil)
     @available_disk_space_on_artifacts_directory = backup_service.availableDiskSpace()
   end
 

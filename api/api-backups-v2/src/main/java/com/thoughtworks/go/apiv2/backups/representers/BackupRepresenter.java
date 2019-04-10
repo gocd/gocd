@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv2.backups.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.apiv1.user.representers.UserSummaryRepresenter;
+import com.thoughtworks.go.server.domain.BackupProgressStatus;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.spark.Routes;
 
@@ -29,6 +30,7 @@ public class BackupRepresenter {
             .add("time", backup.getTime())
             .add("path", backup.getPath())
             .add("status", backup.getStatus().name())
+            .addIfNotNull("progress_status", backup.getBackupProgressStatus().map(BackupProgressStatus::name).orElse(null))
             .add("message", backup.getMessage())
             .addChild("user", userWriter -> UserSummaryRepresenter.toJSON(userWriter, backup.getUsername()));
     }

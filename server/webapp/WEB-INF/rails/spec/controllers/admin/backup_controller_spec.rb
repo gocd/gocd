@@ -40,10 +40,10 @@ describe Admin::BackupController do
   describe "index" do
 
     before :each do
-      expect(@backup_service).to receive(:lastBackupTime).and_return(@time = java.util.Date.new)
+      expect(@backup_service).to receive(:lastBackupTime).and_return(@time = java.util.Optional.of(java.util.Date.new))
       expect(@backup_service).to receive(:backupLocation).and_return(@location = "/var/lib/go-server/logs/server-backups")
       expect(@backup_service).to receive(:availableDiskSpace).and_return(@space = "424242")
-      expect(@backup_service).to receive(:lastBackupUser).and_return(@user = "loser")
+      expect(@backup_service).to receive(:lastBackupUser).and_return(@user = java.util.Optional.of("loser"))
     end
 
     it "should populate the tab name" do
@@ -62,13 +62,13 @@ describe Admin::BackupController do
     it "should populate the last backup time" do
       get :index
 
-      expect(assigns[:last_backup_time]).to eq(@time)
+      expect(assigns[:last_backup_time]).to eq(@time.get())
     end
 
     it "should populate the user that triggered the last backup" do
       get :index
 
-      expect(assigns[:last_backup_user]).to eq(@user)
+      expect(assigns[:last_backup_user]).to eq(@user.get())
     end
 
     it "should populate available disk space on artifact directory" do

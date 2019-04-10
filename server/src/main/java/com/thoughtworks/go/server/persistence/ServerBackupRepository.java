@@ -30,6 +30,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ServerBackupRepository extends HibernateDaoSupport {
@@ -40,7 +41,7 @@ public class ServerBackupRepository extends HibernateDaoSupport {
         setSessionFactory(sessionFactory);
     }
 
-    public ServerBackup lastSuccessfulBackup() {
+    public Optional<ServerBackup> lastSuccessfulBackup() {
         List results = (List) getHibernateTemplate().execute((HibernateCallback) session -> {
             Criteria criteria = session.createCriteria(ServerBackup.class);
             criteria.add(Restrictions.eq("status", BackupStatus.COMPLETED));
@@ -49,7 +50,7 @@ public class ServerBackupRepository extends HibernateDaoSupport {
             return criteria.list();
         });
 
-        return results.isEmpty() ? null : (ServerBackup) results.get(0);
+        return results.isEmpty() ? Optional.empty() : Optional.of((ServerBackup) results.get(0));
     }
 
     public ServerBackup save(ServerBackup serverBackup) {
@@ -71,15 +72,15 @@ public class ServerBackupRepository extends HibernateDaoSupport {
         });
     }
 
-    public ServerBackup getBackup(String id) {
+    public Optional<ServerBackup> getBackup(String id) {
         if (StringUtils.isEmpty(id)) {
-            return null;
+            return Optional.empty();
         }
         return getBackup(Long.parseLong(id));
     }
 
-    public ServerBackup getBackup(long id) {
-        return getHibernateTemplate().get(ServerBackup.class, id);
+    public Optional<ServerBackup> getBackup(long id) {
+        return Optional.ofNullable(getHibernateTemplate().get(ServerBackup.class, id));
     }
 
     public void update(ServerBackup serverBackup) {

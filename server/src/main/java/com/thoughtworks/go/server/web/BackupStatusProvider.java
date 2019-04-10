@@ -16,10 +16,12 @@
 
 package com.thoughtworks.go.server.web;
 
+import java.util.Optional;
+
 public interface BackupStatusProvider {
     boolean isBackingUp();
 
-    String backupRunningSinceISO8601();
+    Optional<String> backupRunningSinceISO8601();
 
-    String backupStartedBy();
+    Optional<String> backupStartedBy();
 }

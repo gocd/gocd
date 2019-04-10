@@ -17,6 +17,7 @@
 package com.thoughtworks.go.apiv2.backups.representers
 
 import com.thoughtworks.go.apiv1.user.representers.UserSummaryRepresenter
+import com.thoughtworks.go.server.domain.BackupProgressStatus
 import com.thoughtworks.go.server.domain.BackupStatus
 import com.thoughtworks.go.server.domain.ServerBackup
 import org.junit.jupiter.api.Test
@@ -31,18 +32,40 @@ class BackupRepresenterTest {
   @Test
   void 'should serialize'() {
     def backup = new ServerBackup("/foo/bar", new Date(42), "bob", BackupStatus.IN_PROGRESS, "exporting config", 99)
+    backup.setProgressStatus(BackupProgressStatus.STARTING)
 
     def actualJson = toObjectString({ BackupRepresenter.toJSON(it, backup) })
 
     Map<String, Object> expectedJson = [
-      _links: [
+      _links         : [
         doc: [href: apiDocsUrl('#backups')]
       ],
-      time  : jsonDate(new Date(42)),
-      path  : "/foo/bar",
-      user  : toObject({ UserSummaryRepresenter.toJSON(it, "bob") }),
-      status : 'IN_PROGRESS',
-      message : 'exporting config'
+      time           : jsonDate(new Date(42)),
+      path           : "/foo/bar",
+      user           : toObject({ UserSummaryRepresenter.toJSON(it, "bob") }),
+      status         : 'IN_PROGRESS',
+      "progress_step": 'STARTING',
+      message        : 'exporting config'
+    ]
+
+    assertThatJson(actualJson).isEqualTo(expectedJson)
+  }
+
+  @Test
+  void 'should not serialize progress status when not present'() {
+    def backup = new ServerBackup("/foo/bar", new Date(42), "bob", BackupStatus.COMPLETED, "exporting config", 99)
+
+    def actualJson = toObjectString({ BackupRepresenter.toJSON(it, backup) })
+
+    Map<String, Object> expectedJson = [
+      _links         : [
+        doc: [href: apiDocsUrl('#backups')]
+      ],
+      time           : jsonDate(new Date(42)),
+      path           : "/foo/bar",
+      user           : toObject({ UserSummaryRepresenter.toJSON(it, "bob") }),
+      status         : 'COMPLETED',
+      message        : 'exporting config'
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)

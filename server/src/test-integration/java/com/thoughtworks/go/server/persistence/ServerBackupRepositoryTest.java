@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.persistence;
 
 import java.util.Date;
+import java.util.Optional;
 
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.BackupStatus;
@@ -29,11 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -69,9 +67,9 @@ public class ServerBackupRepositoryTest {
         ServerBackup inProgressBackup = new ServerBackup("file_path", inProgressBackupTime, "user", "in progress backup", BackupStatus.IN_PROGRESS);
         repository.save(inProgressBackup);
 
-        ServerBackup actualBackup = repository.lastSuccessfulBackup();
+        Optional<ServerBackup> actualBackup = repository.lastSuccessfulBackup();
 
-        assertEquals(completedBackup, actualBackup);
+        assertThat(actualBackup).hasValue(completedBackup);
     }
 
     @Test
@@ -80,19 +78,19 @@ public class ServerBackupRepositoryTest {
         repository.save(new ServerBackup("file_path", time, "loser", "", BackupStatus.COMPLETED));
         repository.save(new ServerBackup("file_path", time, "new_loser", ""));
 
-        assertEquals(new ServerBackup("file_path", time, "loser", "", BackupStatus.COMPLETED), repository.lastSuccessfulBackup());
+        assertThat(new ServerBackup("file_path", time, "loser", "", BackupStatus.COMPLETED)).isEqualTo(repository.lastSuccessfulBackup());
     }
 
     @Test
     public void shouldReturnNullWhenIdIsNull() {
-        assertNull(repository.getBackup(null));
+        assertThat(repository.getBackup(null)).isNull();
     }
 
     @Test
     public void shouldReturnServerBackById() {
         ServerBackup serverBackup = repository.save(new ServerBackup("file_path", new Date(), "loser", ""));
 
-        assertEquals(serverBackup, repository.getBackup(serverBackup.getId()));
+        assertThat(serverBackup).isEqualTo(repository.getBackup(serverBackup.getId()));
     }
 
     @Test
@@ -102,7 +100,7 @@ public class ServerBackupRepositoryTest {
         serverBackup.setMessage("new message");
         repository.update(serverBackup);
 
-        assertEquals("new message", repository.getBackup(serverBackup.getId()).getMessage());
+        assertThat(repository.getBackup(serverBackup.getId()).get().getMessage()).isEqualTo("new message");
     }
 
     @Test
@@ -114,14 +112,14 @@ public class ServerBackupRepositoryTest {
 
         repository.markInProgressBackupsAsAborted("Backup was aborted.");
 
-        ServerBackup abortedBackup = repository.getBackup(inProgressBackup.getId());
-        assertEquals(BackupStatus.ABORTED, abortedBackup.getStatus());
-        assertEquals("Backup was aborted.", abortedBackup.getMessage());
-        assertEquals(completedBackup, repository.getBackup(completedBackup.getId()));
+        ServerBackup abortedBackup = repository.getBackup(inProgressBackup.getId()).get();
+        assertThat(abortedBackup.getStatus()).isEqualTo(BackupStatus.ABORTED);
+        assertThat(abortedBackup.getMessage()).isEqualTo("Backup was aborted.");
+        assertThat(repository.getBackup(completedBackup.getId())).isEqualTo(completedBackup);
     }
 
     @Test
     public void shouldReturnNullWhenThereAreNoEntries() {
-        assertThat(repository.lastSuccessfulBackup(), is(nullValue()));
+        assertThat(repository.lastSuccessfulBackup()).isNull();
     }
 }

@@ -27,6 +27,7 @@ import spark.Response;
 import spark.TemplateEngine;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 import static spark.Spark.*;
 
@@ -66,8 +67,9 @@ public class BackupsController implements SparkController {
 
     private HashMap<String, String> meta() {
         HashMap<String, String> meta = new HashMap<>();
-        meta.put("lastBackupTime", new DateTime(backupService.lastBackupTime()).toString());
-        meta.put("lastBackupUser", backupService.lastBackupUser());
+        Optional<DateTime> dateTime = backupService.lastBackupTime().map(DateTime::new);
+        meta.put("lastBackupTime", dateTime.map(Object::toString).orElse(null));
+        meta.put("lastBackupUser", backupService.lastBackupUser().orElse(null));
         meta.put("availableDiskSpace", backupService.availableDiskSpace());
         meta.put("backupLocation", backupService.backupLocation());
         return meta;

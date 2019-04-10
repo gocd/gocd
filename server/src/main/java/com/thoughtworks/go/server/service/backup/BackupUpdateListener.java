@@ -16,8 +16,10 @@
 
 package com.thoughtworks.go.server.service.backup;
 
+import com.thoughtworks.go.server.domain.BackupProgressStatus;
+
 public interface BackupUpdateListener {
-    void updateStep(String message);
+    void updateStep(BackupProgressStatus status);
 
     void error(String message);
 

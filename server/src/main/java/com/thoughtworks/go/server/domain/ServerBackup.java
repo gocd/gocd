@@ -19,22 +19,25 @@ package com.thoughtworks.go.server.domain;
 import com.thoughtworks.go.domain.PersistentObject;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * @understands A single backup of the server
  */
-public class ServerBackup extends PersistentObject{
+public class ServerBackup extends PersistentObject {
     private Date time;
     private String path;
     private String username;
     private BackupStatus status;
     private String message;
+    private BackupProgressStatus backupProgressStatus;
 
     private ServerBackup() {
     }
 
     public ServerBackup(String path, Date time, String username, String message) {
         this(path, time, username, message, BackupStatus.IN_PROGRESS);
+        this.backupProgressStatus = BackupProgressStatus.STARTING;
     }
 
     public ServerBackup(String path, Date time, String username, String message, BackupStatus status) {
@@ -114,6 +117,10 @@ public class ServerBackup extends PersistentObject{
         return status;
     }
 
+    public Optional<BackupProgressStatus> getBackupProgressStatus() {
+        return Optional.ofNullable(backupProgressStatus);
+    }
+
     public String getMessage() {
         return message;
     }
@@ -126,13 +133,20 @@ public class ServerBackup extends PersistentObject{
         this.message = message;
     }
 
+    public void setProgressStatus(BackupProgressStatus status) {
+        this.backupProgressStatus = status;
+        this.message = status.getMessage();
+    }
+
     public void markCompleted() {
         this.status = BackupStatus.COMPLETED;
+        this.backupProgressStatus = null;
     }
 
     public void markError(String message) {
         this.status = BackupStatus.ERROR;
         this.message = message;
+        this.backupProgressStatus = null;
     }
 
     public Boolean hasFailed() {

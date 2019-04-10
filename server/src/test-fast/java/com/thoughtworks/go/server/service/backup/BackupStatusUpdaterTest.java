@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.backup;
 
+import com.thoughtworks.go.server.domain.BackupProgressStatus;
 import com.thoughtworks.go.server.domain.BackupStatus;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
@@ -25,8 +26,7 @@ import org.mockito.Mock;
 
 import java.util.Date;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -45,10 +45,11 @@ public class BackupStatusUpdaterTest {
         ServerBackup serverBackup = new ServerBackup("path", new Date(), "admin", "a message");
         BackupStatusUpdater backupStatusUpdater = new BackupStatusUpdater(serverBackup, serverBackupRepository);
 
-        backupStatusUpdater.updateStep("new message");
+        backupStatusUpdater.updateStep(BackupProgressStatus.BACKUP_DATABASE);
 
         verify(serverBackupRepository).update(serverBackup);
-        assertThat(serverBackup.getMessage(), is("new message"));
+        assertThat(serverBackup.getStatus()).isEqualTo(BackupProgressStatus.BACKUP_DATABASE);
+        assertThat(serverBackup.getMessage()).isEqualTo(BackupProgressStatus.BACKUP_DATABASE.getMessage());
     }
 
     @Test
@@ -59,8 +60,8 @@ public class BackupStatusUpdaterTest {
         backupStatusUpdater.error("boom");
 
         verify(serverBackupRepository).update(serverBackup);
-        assertThat(serverBackup.getMessage(), is("boom"));
-        assertThat(serverBackup.getStatus(), is(BackupStatus.ERROR));
+        assertThat(serverBackup.getMessage()).isEqualTo("boom");
+        assertThat(serverBackup.getStatus()).isEqualTo(BackupStatus.ERROR);
     }
 
     @Test
@@ -71,7 +72,7 @@ public class BackupStatusUpdaterTest {
         backupStatusUpdater.completed();
 
         verify(serverBackupRepository).update(serverBackup);
-        assertThat(serverBackup.getMessage(), is("Backup was generated successfully."));
-        assertThat(serverBackup.isSuccessful(), is(true));
+        assertThat(serverBackup.getMessage()).isEqualTo("Backup was generated successfully.");
+        assertThat(serverBackup.isSuccessful()).isTrue();
     }
 }

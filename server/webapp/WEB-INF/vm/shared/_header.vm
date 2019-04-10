@@ -42,7 +42,7 @@
       <script src="${js}"></script>
     #end
     #foreach( $css in ${webpackAssetsService.getCSSAssetPathsFor("single_page_apps/header_footer_shim")})
-      <link rel="stylesheet" type="text/css" href="${css}"
+      <link rel="stylesheet" type="text/css" href="${css}" />
     #end
 
   <title>

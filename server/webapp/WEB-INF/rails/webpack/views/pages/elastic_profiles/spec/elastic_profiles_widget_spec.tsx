@@ -17,7 +17,7 @@
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
-import {ElasticProfiles} from "models/elastic_profiles/types";
+import {ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
@@ -35,7 +35,7 @@ describe("New Elastic Profiles Widget", () => {
     PluginInfo.fromJSON(TestData.KubernatesPluginJSON(), TestData.KubernatesPluginJSON()._links)
   ];
 
-  const elasticProfiles = ElasticProfiles.fromJSON([
+  const elasticProfiles = ElasticAgentProfiles.fromJSON([
                                                      TestData.DockerElasticProfile(),
                                                      TestData.DockerSwarmElasticProfile(),
                                                      TestData.K8SElasticProfile()
@@ -125,7 +125,7 @@ describe("New Elastic Profiles Widget", () => {
   });
 
   function mount(pluginInfos: Array<PluginInfo<Extension>>,
-                 elasticProfiles: ElasticProfiles, isUserAnAdmin = true) {
+                 elasticProfiles: ElasticAgentProfiles, isUserAnAdmin = true) {
 
     const noop = _.noop;
     helper.mount(() => <ElasticProfilesWidget pluginInfos={stream(pluginInfos)}

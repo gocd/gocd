@@ -19,8 +19,8 @@ import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
-import {ElasticProfilesCRUD} from "models/elastic_profiles/elastic_profiles_crud";
-import {ClusterProfiles, ElasticProfile, ElasticProfiles} from "models/elastic_profiles/types";
+import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
+import {ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -48,9 +48,9 @@ export interface RequiresPluginInfos {
   pluginInfos: Stream<Array<PluginInfo<Extension>>>;
 }
 
-export interface State extends RequiresPluginInfos, SaveOperation, EditOperation<ElasticProfile>, CloneOperation<ElasticProfile>, DeleteOperation<string>, AddOperation<void> {
+export interface State extends RequiresPluginInfos, SaveOperation, EditOperation<ElasticAgentProfile>, CloneOperation<ElasticAgentProfile>, DeleteOperation<string>, AddOperation<void> {
   onShowUsages: (profileId: string, event: MouseEvent) => void;
-  elasticProfiles: ElasticProfiles;
+  elasticProfiles: ElasticAgentProfiles;
   clusterProfiles: ClusterProfiles;
 }
 
@@ -58,7 +58,7 @@ export class ElasticProfilesPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.pluginInfos     = stream();
     vnode.state.clusterProfiles = new ClusterProfiles([]);
-    vnode.state.elasticProfiles = new ElasticProfiles([]);
+    vnode.state.elasticProfiles = new ElasticAgentProfiles([]);
 
     this.fetchData(vnode);
 
@@ -84,7 +84,7 @@ export class ElasticProfilesPage extends Page<null, State> {
                                  vnode.state.onSuccessfulSave).render();
     };
 
-    vnode.state.onClone = (elasticProfile: ElasticProfile, event: MouseEvent) => {
+    vnode.state.onClone = (elasticProfile: ElasticAgentProfile, event: MouseEvent) => {
       event.stopPropagation();
       this.flashMessage.clear();
 
@@ -94,7 +94,7 @@ export class ElasticProfilesPage extends Page<null, State> {
                                    vnode.state.onSuccessfulSave).render();
     };
 
-    vnode.state.onEdit = (elasticProfile: ElasticProfile, event: MouseEvent) => {
+    vnode.state.onEdit = (elasticProfile: ElasticAgentProfile, event: MouseEvent) => {
       event.stopPropagation();
       this.flashMessage.clear();
 
@@ -117,8 +117,8 @@ export class ElasticProfilesPage extends Page<null, State> {
       const modal = new DeleteConfirmModal(
         deleteConfirmMsg,
         () => {
-          ElasticProfilesCRUD.delete(id)
-                             .then((result) => {
+          ElasticAgentProfilesCRUD.delete(id)
+                                  .then((result) => {
                                result.do(
                                  () => vnode.state.onSuccessfulSave(
                                    <span>The elastic profile <em>{id}</em> was deleted successfully!</span>
@@ -126,7 +126,7 @@ export class ElasticProfilesPage extends Page<null, State> {
                                  onOperationError
                                );
                              })
-                             .finally(modal.close.bind(modal));
+                                  .finally(modal.close.bind(modal));
         });
       modal.render();
     };
@@ -135,7 +135,7 @@ export class ElasticProfilesPage extends Page<null, State> {
       event.stopPropagation();
       this.flashMessage.clear();
 
-      ElasticProfilesCRUD.usage(id).then((result) => {
+      ElasticAgentProfilesCRUD.usage(id).then((result) => {
         result.do(
           (successResponse) => {
             new UsageElasticProfileModal(id, successResponse.body).render();
@@ -176,7 +176,7 @@ export class ElasticProfilesPage extends Page<null, State> {
   fetchData(vnode: m.Vnode<null, State>) {
     return Promise.all([
                          PluginInfoCRUD.all({type: ExtensionType.ELASTIC_AGENTS}),
-                         ElasticProfilesCRUD.all(),
+                         ElasticAgentProfilesCRUD.all(),
                          ClusterProfilesCRUD.all()
                        ]).then((results) => {
       results[0].do(

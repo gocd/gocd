@@ -19,8 +19,8 @@ import {ApiResult, ErrorResponse, ObjectWithEtag} from "helpers/api_request_buil
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
-import {ElasticProfilesCRUD} from "models/elastic_profiles/elastic_profiles_crud";
-import {ClusterProfile, ClusterProfiles, ElasticProfile, ProfileUsage} from "models/elastic_profiles/types";
+import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
+import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ProfileUsage} from "models/elastic_profiles/types";
 import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ElasticAgentSettings, Extension} from "models/shared/plugin_infos_new/extensions";
@@ -44,7 +44,7 @@ enum ModalType {
 }
 
 abstract class BaseElasticProfileModal extends Modal {
-  protected elasticProfile: Stream<ElasticProfile>;
+  protected elasticProfile: Stream<ElasticAgentProfile>;
   private readonly pluginInfo: Stream<PluginInfo<Extension>>;
   private readonly pluginInfos: Array<PluginInfo<Extension>>;
   private readonly modalType: ModalType;
@@ -55,7 +55,7 @@ abstract class BaseElasticProfileModal extends Modal {
   protected constructor(pluginInfos: Array<PluginInfo<Extension>>,
                         type: ModalType,
                         clusterProfiles: ClusterProfiles,
-                        elasticProfile?: ElasticProfile) {
+                        elasticProfile?: ElasticAgentProfile) {
     super(Size.extraLargeHackForEaProfiles);
     this.clusterProfiles = clusterProfiles;
     this.elasticProfile  = stream(elasticProfile);
@@ -75,9 +75,9 @@ abstract class BaseElasticProfileModal extends Modal {
     this.performSave();
   }
 
-  showErrors(apiResult: ApiResult<ObjectWithEtag<ElasticProfile>>, errorResponse: ErrorResponse) {
+  showErrors(apiResult: ApiResult<ObjectWithEtag<ElasticAgentProfile>>, errorResponse: ErrorResponse) {
     if (apiResult.getStatusCode() === 422 && errorResponse.body) {
-      const profile = ElasticProfile.fromJSON(JSON.parse(errorResponse.body).data);
+      const profile = ElasticAgentProfile.fromJSON(JSON.parse(errorResponse.body).data);
       this.elasticProfile(profile);
     }
   }
@@ -184,10 +184,10 @@ abstract class BaseElasticProfileModal extends Modal {
   private clusterProfileIdProxy(newValue ?: string) {
     if (newValue) {
       if (this.elasticProfile().id() !== newValue) {
-        this.elasticProfile(new ElasticProfile(this.elasticProfile().id(),
-                                               this.elasticProfile().pluginId(),
-                                               newValue,
-                                               this.elasticProfile().properties()));
+        this.elasticProfile(new ElasticAgentProfile(this.elasticProfile().id(),
+                                                    this.elasticProfile().pluginId(),
+                                                    newValue,
+                                                    this.elasticProfile().properties()));
       }
     }
 
@@ -199,10 +199,10 @@ abstract class BaseElasticProfileModal extends Modal {
       if (this.pluginInfo().id !== newValue) {
         const pluginInfo = _.find(this.pluginInfos, (p) => p.id === newValue);
         this.pluginInfo(pluginInfo!);
-        this.elasticProfile(new ElasticProfile(this.elasticProfile().id(),
-                                               pluginInfo!.id,
-                                               undefined,
-                                               new Configurations([])));
+        this.elasticProfile(new ElasticAgentProfile(this.elasticProfile().id(),
+                                                    pluginInfo!.id,
+                                                    undefined,
+                                                    new Configurations([])));
       }
     }
     return this.pluginInfo().id;
@@ -223,7 +223,7 @@ export class EditElasticProfileModal extends BaseElasticProfileModal {
     this.elasticProfileId = elasticProfileId;
     this.onSuccessfulSave = onSuccessfulSave;
 
-    ElasticProfilesCRUD
+    ElasticAgentProfilesCRUD
       .get(elasticProfileId)
       .then((result) => {
         result.do(
@@ -237,7 +237,7 @@ export class EditElasticProfileModal extends BaseElasticProfileModal {
   }
 
   performSave() {
-    ElasticProfilesCRUD
+    ElasticAgentProfilesCRUD
       .update(this.elasticProfile(), this.etag!)
       .then((result) => {
         result.do(
@@ -273,7 +273,7 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
     this.sourceProfileId  = elasticProfileId;
     this.onSuccessfulSave = onSuccessfulSave;
 
-    ElasticProfilesCRUD
+    ElasticAgentProfilesCRUD
       .get(elasticProfileId)
       .then((result) => {
         result.do(
@@ -288,7 +288,7 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
   }
 
   performSave() {
-    ElasticProfilesCRUD
+    ElasticAgentProfilesCRUD
       .create(this.elasticProfile())
       .then((result) => {
         result.do(
@@ -318,13 +318,13 @@ export class NewElasticProfileModal extends BaseElasticProfileModal {
   constructor(pluginInfos: Array<PluginInfo<Extension>>,
               clusterProfiles: ClusterProfiles,
               onSuccessfulSave: (msg: m.Children) => any) {
-    const elasticProfile = new ElasticProfile("", pluginInfos[0].id, undefined, new Configurations([]));
+    const elasticProfile = new ElasticAgentProfile("", pluginInfos[0].id, undefined, new Configurations([]));
     super(pluginInfos, ModalType.create, clusterProfiles, elasticProfile);
     this.onSuccessfulSave = onSuccessfulSave;
   }
 
   performSave() {
-    ElasticProfilesCRUD
+    ElasticAgentProfilesCRUD
       .create(this.elasticProfile())
       .then((result) => {
         result.do(

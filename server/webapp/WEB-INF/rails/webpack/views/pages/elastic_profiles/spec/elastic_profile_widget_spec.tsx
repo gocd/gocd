@@ -16,7 +16,7 @@
 
 import * as _ from "lodash";
 import * as m from "mithril";
-import {ElasticProfile} from "models/elastic_profiles/types";
+import {ElasticAgentProfile} from "models/elastic_profiles/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 
@@ -30,7 +30,7 @@ import {ElasticProfileWidget} from "../elastic_profiles_widget";
 describe("New Elastic Profile Widget", () => {
   const simulateEvent  = require("simulate-event");
   const pluginInfo     = PluginInfo.fromJSON(TestData.DockerPluginJSON(), TestData.DockerPluginJSON()._links);
-  const elasticProfile = ElasticProfile.fromJSON(TestData.DockerElasticProfile());
+  const elasticProfile = ElasticAgentProfile.fromJSON(TestData.DockerElasticProfile());
   const helper         = new TestHelper();
 
   beforeEach(() => {
@@ -84,7 +84,7 @@ describe("New Elastic Profile Widget", () => {
   });
 
   function mount(pluginInfo: PluginInfo<Extension>,
-                 elasticProfile: ElasticProfile) {
+                 elasticProfile: ElasticAgentProfile) {
     const noop = _.noop;
     helper.mount(() => <ElasticProfileWidget pluginInfo={pluginInfo}
                                              elasticProfile={elasticProfile}

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ClusterProfile, ElasticProfile} from "models/elastic_profiles/types";
+import {ClusterProfile, ElasticAgentProfile} from "models/elastic_profiles/types";
 import {EncryptedValue, PlainTextValue} from "models/shared/config_value";
 import {Configuration, Configurations} from "models/shared/configuration";
 
@@ -22,14 +22,14 @@ describe("Types", () => {
   describe("Elastic Profiles", () => {
     describe("Validation", () => {
       it("should validate elastic profile", () => {
-        const elasticProfile = new ElasticProfile("", "", "", new Configurations([]));
+        const elasticProfile = new ElasticAgentProfile("", "", "", new Configurations([]));
         expect(elasticProfile.isValid()).toBe(false);
         expect(elasticProfile.errors().count()).toBe(3);
         expect(elasticProfile.errors().keys().sort()).toEqual(["clusterProfileId", "id", "pluginId"]);
       });
 
       it("should validate elastic profile id format", () => {
-        const elasticProfile = new ElasticProfile("invalid id", "pluginId", "foo", new Configurations([]));
+        const elasticProfile = new ElasticAgentProfile("invalid id", "pluginId", "foo", new Configurations([]));
         expect(elasticProfile.isValid()).toBe(false);
         expect(elasticProfile.errors().count()).toBe(1);
         expect(elasticProfile.errors().keys()).toEqual(["id"]);
@@ -38,7 +38,7 @@ describe("Types", () => {
       });
 
       it("should validate existence of cluster profile id", () => {
-        const elasticProfile = new ElasticProfile("id", "pluginId", undefined, new Configurations([]));
+        const elasticProfile = new ElasticAgentProfile("id", "pluginId", undefined, new Configurations([]));
         expect(elasticProfile.isValid()).toBe(false);
         expect(elasticProfile.errors().count()).toBe(1);
         expect(elasticProfile.errors().keys()).toEqual(["clusterProfileId"]);
@@ -49,7 +49,7 @@ describe("Types", () => {
 
     describe("Serialization and Deserialization", () => {
       it("should serialize elastic profile", () => {
-        const elasticProfile = new ElasticProfile(
+        const elasticProfile = new ElasticAgentProfile(
           "docker1",
           "cd.go.docker",
           "prod-cluster",
@@ -75,7 +75,7 @@ describe("Types", () => {
       });
 
       it("should deserialize elastic profile", () => {
-        const elasticProfile = ElasticProfile.fromJSON({
+        const elasticProfile = ElasticAgentProfile.fromJSON({
                                                          id: "docker1",
                                                          plugin_id: "cd.go.docker",
                                                          cluster_profile_id: "prod-cluster",
@@ -101,7 +101,7 @@ describe("Types", () => {
       });
 
       it("should serialize encrypted value as value when updated", () => {
-        const elasticProfile = new ElasticProfile(
+        const elasticProfile = new ElasticAgentProfile(
           "docker1",
           "cd.go.docker",
           "prod-cluster",

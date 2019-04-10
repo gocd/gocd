@@ -19,7 +19,7 @@ import {MithrilComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {ElasticProfile, ElasticProfiles} from "models/elastic_profiles/types";
+import {ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ElasticAgentSettings, Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -34,9 +34,9 @@ import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
 import * as styles from "views/pages/elastic_profiles/index.scss";
 import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 
-interface Attrs extends EditOperation<ElasticProfile>, DeleteOperation<string>, CloneOperation<ElasticProfile> {
+interface Attrs extends EditOperation<ElasticAgentProfile>, DeleteOperation<string>, CloneOperation<ElasticAgentProfile> {
   pluginInfos: Stream<Array<PluginInfo<Extension>>>;
-  elasticProfiles: ElasticProfiles;
+  elasticProfiles: ElasticAgentProfiles;
   isUserAnAdmin: boolean;
 
   onShowUsages: (profileId: string, event: MouseEvent) => void;
@@ -105,7 +105,7 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
                 <CollapsiblePanel key={pluginId} header={elasticProfileHeader} expanded={index === 0}
                                   actions={statusReportButton}>
                   {
-                    profiles.map((profile: ElasticProfile) =>
+                    profiles.map((profile: ElasticAgentProfile) =>
                                    <ElasticProfileWidget key={profile.id()} elasticProfile={profile}
                                                          pluginInfo={pluginInfo}
                                                          onEdit={vnode.attrs.onEdit.bind(vnode.attrs, profile)}
@@ -176,7 +176,7 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
 
 export interface ProfileAttrs {
   pluginInfo: PluginInfo<Extension> | undefined;
-  elasticProfile: ElasticProfile;
+  elasticProfile: ElasticAgentProfile;
   onEdit: (e: MouseEvent) => void;
   onClone: (e: MouseEvent) => void;
   onDelete: (e: MouseEvent) => void;

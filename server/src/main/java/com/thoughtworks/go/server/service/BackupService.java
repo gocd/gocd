@@ -175,6 +175,7 @@ public class BackupService implements BackupStatusProvider {
                 if (passed) {
                     sendBackupSuccessEmail(backup.getUsername(), mailSender, destDir);
                     notifyCompletionToListeners(backupUpdateListeners);
+                    LOGGER.debug("Backup Completed Successfully");
                 }
             } catch (Exception e) {
                 FileUtils.deleteQuietly(destDir);
@@ -209,10 +210,12 @@ public class BackupService implements BackupStatusProvider {
     }
 
     private void notifyUpdateToListeners(List<BackupUpdateListener> listeners, BackupProgressStatus status) {
+        LOGGER.debug(status.getMessage());
         listeners.forEach(backupUpdateListener -> backupUpdateListener.updateStep(status));
     }
 
     private void notifyErrorToListeners(List<BackupUpdateListener> listeners, String message) {
+        LOGGER.debug(message);
         listeners.forEach(backupUpdateListener -> backupUpdateListener.error(message));
     }
 
@@ -226,12 +229,14 @@ public class BackupService implements BackupStatusProvider {
 
     private void sendBackupFailedEmail(GoMailSender mailSender, Exception e) {
         if (emailOnFailure()) {
+            LOGGER.debug("Backup failed. Sending email...");
             mailSender.send(EmailMessageDrafter.backupFailedMessage(e.getMessage(), goConfigService.adminEmail()));
         }
     }
 
     private void sendBackupSuccessEmail(String username, GoMailSender mailSender, File destDir) {
         if (emailOnSuccess()) {
+            LOGGER.debug("Backup successful. Sending email...");
             mailSender.send(EmailMessageDrafter.backupSuccessfullyCompletedMessage(destDir.getAbsolutePath(), goConfigService.adminEmail(), username));
         }
     }

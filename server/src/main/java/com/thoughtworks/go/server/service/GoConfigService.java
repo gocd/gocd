@@ -65,6 +65,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.StringReader;
 import java.util.*;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.config.validation.GoConfigValidity.invalid;
 import static com.thoughtworks.go.i18n.LocalizedMessage.*;
@@ -662,6 +663,15 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         }
         LOGGER.error("material with fingerprint [{}] not found in pipeline [{}]", pipelineUniqueFingerprint, pipeline);
         return null;
+    }
+
+    public List<CaseInsensitiveString> pipelinesWithMaterial(String fingerprint) {
+        ArrayList<CaseInsensitiveString> pipelineNames = new ArrayList<>();
+        getAllPipelineConfigs().forEach(pipeline -> {
+            pipeline.materialConfigs().stream().filter(materialConfig -> materialConfig.getFingerprint().equals(fingerprint)).findFirst().ifPresent(expectedMaterialConfig -> pipelineNames.add(pipeline.name()));
+
+        });
+        return pipelineNames;
     }
 
     public List<PackageDefinition> getPackages() {

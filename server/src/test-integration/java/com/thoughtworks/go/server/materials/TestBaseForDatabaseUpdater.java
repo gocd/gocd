@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
@@ -64,13 +65,14 @@ public abstract class TestBaseForDatabaseUpdater {
     @Autowired private DependencyMaterialUpdater dependencyMaterialUpdater;
     @Autowired private ScmMaterialUpdater scmMaterialUpdater;
     @Autowired private MaterialExpansionService materialExpansionService;
+    @Autowired private GoConfigService goConfigService;
 
     protected MaterialDatabaseUpdater updater;
     protected Material material;
 
     @Before public void setUp() throws Exception {
         dbHelper.onSetUp();
-        updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService);
+        updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService, goConfigService);
         testRepo = repo();
         material = material();
         testRepo.onSetup();

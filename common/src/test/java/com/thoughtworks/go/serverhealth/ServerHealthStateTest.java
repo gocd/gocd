@@ -165,4 +165,12 @@ public class ServerHealthStateTest {
         assertThat(warningStateWithTime.getMessage(), is("\"<message1 & message2>\""));
         assertThat(warningStateWithTime.getDescription(), is("\"<message1 & message2>\""));
     }
+
+    @Test
+    public void shouldPreserveHtmlInErrorMessageAndDescription() {
+        ServerHealthState error = ServerHealthState.errorWithHtml("\"<message1 & message2>\"", "\"<message1 & message2>\"", HealthStateType.general(HealthStateScope.forPipeline("foo")));
+
+        assertThat(error.getMessage(), is("\"<message1 & message2>\""));
+        assertThat(error.getDescription(), is("\"<message1 & message2>\""));
+    }
 }

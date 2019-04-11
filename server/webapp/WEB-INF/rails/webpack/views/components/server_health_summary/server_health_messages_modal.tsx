@@ -58,7 +58,7 @@ export class ServerHealthMessagesModal extends Modal {
     return <li data-test-id={messageId}
                data-test-message-level={message.level.toLowerCase()}
                className={classnames(styles.serverHealthStatus, message.level.toLowerCase())}>
-      <span data-test-class="server-health-message_message" className={styles.message}>{message.message}</span>
+      <span data-test-class="server-health-message_message" className={styles.message}>{m.trust(message.message)}</span>
       <span data-test-class="server-health-message_timestamp"
             className={styles.timestamp}>{TimeFormatter.format(message.time)}</span>
       <p data-test-class="server-health-message_detail" className={styles.detail}>{m.trust(message.detail)}</p>

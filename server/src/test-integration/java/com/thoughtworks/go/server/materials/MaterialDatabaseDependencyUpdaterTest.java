@@ -34,6 +34,7 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.DependencyMaterialSourceDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.service.MaterialService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -75,6 +76,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
     @Autowired private LegacyMaterialChecker legacyMaterialChecker;
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
     @Autowired private MaterialExpansionService materialExpansionService;
+    @Autowired private GoConfigService goConfigService;
 
     protected MaterialDatabaseUpdater updater;
     protected Material material;
@@ -91,7 +93,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
         healthService = Mockito.mock(ServerHealthService.class);
         dependencyMaterialUpdater = new DependencyMaterialUpdater(dependencyMaterialSourceDao, materialRepository);
         scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, legacyMaterialChecker, subprocessExecutionContext, materialService);
-        updater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService);
+        updater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater, null, null, materialExpansionService, goConfigService);
     }
 
     @After
@@ -131,7 +133,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
         }
 
         HealthStateType scope = HealthStateType.general(HealthStateScope.forMaterial(dependencyMaterial));
-        ServerHealthState state = ServerHealthState.error("Modification check failed for material: pipeline-name", "Description of error", scope);
+        ServerHealthState state = ServerHealthState.errorWithHtml("Modification check failed for material: pipeline-name <br/> Affected pipelines: []", "Description of error", scope);
         Mockito.verify(healthService).update(state);
     }
 

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.materials;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.PackageMaterial;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterial;
@@ -25,6 +26,7 @@ import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modifications;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionCallback;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -39,6 +41,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.TransactionStatus;
 
 import java.io.File;
+import java.util.List;
+
+import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
 
 /**
  * @understands how to update materials on the database from the real SCMs
@@ -55,13 +60,14 @@ public class MaterialDatabaseUpdater {
     private final DependencyMaterialUpdater dependencyMaterialUpdater;
     private final ScmMaterialUpdater scmMaterialUpdater;
     private MaterialExpansionService materialExpansionService;
+    private GoConfigService goConfigService;
     private PackageMaterialUpdater packageMaterialUpdater;
     private PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater;
 
     @Autowired
     public MaterialDatabaseUpdater(MaterialRepository materialRepository, ServerHealthService healthService, TransactionTemplate transactionTemplate,
                                    DependencyMaterialUpdater dependencyMaterialUpdater, ScmMaterialUpdater scmMaterialUpdater, PackageMaterialUpdater packageMaterialUpdater,
-                                   PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater, MaterialExpansionService materialExpansionService) {
+                                   PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater, MaterialExpansionService materialExpansionService, GoConfigService goConfigService) {
         this.materialRepository = materialRepository;
         this.healthService = healthService;
         this.transactionTemplate = transactionTemplate;
@@ -70,6 +76,7 @@ public class MaterialDatabaseUpdater {
         this.packageMaterialUpdater = packageMaterialUpdater;
         this.pluggableSCMMaterialUpdater = pluggableSCMMaterialUpdater;
         this.materialExpansionService = materialExpansionService;
+        this.goConfigService = goConfigService;
     }
 
     public void updateMaterial(final Material material) throws Exception {
@@ -106,9 +113,12 @@ public class MaterialDatabaseUpdater {
             }
             healthService.removeByScope(scope);
         } catch (Exception e) {
-            String message = "Modification check failed for material: " + material.getLongDescription();
-            String errorDescription = e.getMessage() == null ? "Unknown error" : e.getMessage();
-            healthService.update(ServerHealthState.error(message, errorDescription, HealthStateType.general(scope)));
+            List<CaseInsensitiveString> pipelineNames = goConfigService.pipelinesWithMaterial(material.config().getFingerprint());
+            String message = escapeHtml4("Modification check failed for material: " + material.getLongDescription());
+            String pipelinesWithMaterial = (" <br/> Affected pipelines: " + pipelineNames);
+            String finalMessage = message + pipelinesWithMaterial;
+            String errorDescription = e.getMessage() == null ? "Unknown error" : escapeHtml4(e.getMessage());
+            healthService.update(ServerHealthState.errorWithHtml(finalMessage, errorDescription, HealthStateType.general(scope)));
             LOGGER.warn("[Material Update] {}", message, e);
             throw e;
         }

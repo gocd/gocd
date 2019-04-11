@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -46,6 +47,7 @@ public class MaterialDatabaseUpdaterTest {
     @Mock private PackageMaterialUpdater packageMaterialUpdater;
     @Mock private PluggableSCMMaterialUpdater pluggableSCMMaterialUpdater;
     @Mock private MaterialExpansionService materialExpansionService;
+    @Mock private GoConfigService goConfigService;
 
     private MaterialDatabaseUpdater materialDatabaseUpdater;
 
@@ -53,7 +55,7 @@ public class MaterialDatabaseUpdaterTest {
     public void setUp() throws Exception {
         initMocks(this);
         materialDatabaseUpdater = new MaterialDatabaseUpdater(materialRepository, healthService, transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
-                packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);
+                packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, goConfigService);
     }
 
     @Test

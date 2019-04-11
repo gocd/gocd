@@ -24,7 +24,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.joda.time.DateTime;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static org.apache.commons.lang3.StringEscapeUtils.escapeHtml4;
@@ -87,6 +90,10 @@ public class ServerHealthState {
 
     public static ServerHealthState error(String message, String description, HealthStateType type) {
         return new ServerHealthState(HealthStateLevel.ERROR, type, escapeHtml4(message), escapeHtml4(description));
+    }
+
+    public static ServerHealthState errorWithHtml(String message, String description, HealthStateType type) {
+        return new ServerHealthState(HealthStateLevel.ERROR, type, message, description);
     }
 
     public static ServerHealthState warning(String message, String description, HealthStateType healthStateType, Timeout timeout) {

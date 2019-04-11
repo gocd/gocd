@@ -20,6 +20,7 @@ import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.messaging.GoMessageListener;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.server.service.MaterialExpansionService;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
@@ -57,6 +58,7 @@ public class MaterialUpdateListenerFactoryTest {
     @Mock private DependencyMaterialUpdateQueue dependencyMaterialQueue;
     @Mock private MaintenanceModeService maintenanceModeService;
     @Mock ConfigMaterialPostUpdateQueue configMaterialPostUpdateQueue;
+    @Mock private GoConfigService goConfigService;
 
     @Before
     public void setUp() throws Exception {
@@ -71,7 +73,7 @@ public class MaterialUpdateListenerFactoryTest {
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
                 transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
-                dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue);
+                dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue, goConfigService);
         factory.init();
 
         verify(queue, new Times(NUMBER_OF_CONSUMERS)).addListener(any(GoMessageListener.class));
@@ -85,7 +87,7 @@ public class MaterialUpdateListenerFactoryTest {
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
                 transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
-                dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue);
+                dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue, goConfigService);
         factory.init();
 
         verify(configQueue, new Times(NUMBER_OF_CONFIG_CONSUMERS)).addListener(any(GoMessageListener.class));
@@ -101,7 +103,7 @@ public class MaterialUpdateListenerFactoryTest {
                 materialRepository, systemEnvironment, healthService, diskSpaceMonitor,
                 transactionTemplate, dependencyMaterialUpdater, scmMaterialUpdater,
                 packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, mduPerformanceLogger,
-                dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue);
+                dependencyMaterialQueue, maintenanceModeService, configMaterialPostUpdateQueue, goConfigService);
         factory.init();
 
         verify(dependencyMaterialQueue, new Times(noOfDependencyMaterialCheckListeners)).addListener(any(GoMessageListener.class));

@@ -69,6 +69,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
     @Autowired private PackageRepositoryExtension packageRepositoryExtension;
     @Autowired private SCMExtension scmExtension;
     @Autowired private SecretParamResolver secretParamResolver;
+
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -86,7 +87,7 @@ public class MaterialDatabaseUpdaterIntegrationTest {
         ScmMaterialUpdater scmMaterialUpdater = new ScmMaterialUpdater(materialRepository, materialChecker, subprocessExecutionContext, slowMaterialService);
         transactionTemplateWithInvocationCount = new TransactionTemplateWithInvocationCount(transactionTemplate);
         updater = new MaterialDatabaseUpdater(materialRepository, serverHealthService, transactionTemplateWithInvocationCount, dependencyMaterialUpdater,
-                scmMaterialUpdater, packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService);
+                scmMaterialUpdater, packageMaterialUpdater, pluggableSCMMaterialUpdater, materialExpansionService, goConfigService);
     }
 
     @After

@@ -21,8 +21,11 @@ import com.thoughtworks.go.config.exceptions.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
@@ -81,7 +84,6 @@ public class GoConfigServiceTest {
     private Clock clock;
     private GoCache goCache;
     private ConfigRepository configRepo;
-    private UserDao userDao;
     private InstanceFactory instanceFactory;
     private SystemEnvironment systemEnvironment;
 
@@ -99,7 +101,7 @@ public class GoConfigServiceTest {
         this.clock = mock(Clock.class);
         goCache = mock(GoCache.class);
         instanceFactory = mock(InstanceFactory.class);
-        userDao = mock(UserDao.class);
+        UserDao userDao = mock(UserDao.class);
 
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         goConfigService = new GoConfigService(goConfigDao, pipelineRepository, this.clock, new GoConfigMigration(new TimeProvider(),
@@ -1078,6 +1080,44 @@ public class GoConfigServiceTest {
         when(cruiseConfig.isAdministrator("admin_user")).thenReturn(true);
 
         assertFalse(goConfigService.canEditPipeline("pipeline1", new Username("admin_user")));
+    }
+
+    @Test
+    public void shouldIncludeAllLocalPipelinesWithSpecificFingerprint() throws Exception {
+        cruiseConfig = new BasicCruiseConfig();
+        expectLoad(cruiseConfig);
+        PipelineConfig pipelineConfig = new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group", "pipeline_name", "stage_name", "job_name");
+
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("https://foo");
+        MaterialConfigs materialConfigs = new MaterialConfigs(gitMaterialConfig);
+        pipelineConfig.setMaterialConfigs(materialConfigs);
+
+        List<CaseInsensitiveString> pipelineNames = goConfigService.pipelinesWithMaterial(gitMaterialConfig.getFingerprint());
+
+        assertThat(pipelineNames, contains(new CaseInsensitiveString("pipeline_name")));
+    }
+
+    @Test
+    public void shouldIncludeAllRemotePipelinesWithSpecificFingerprint() throws Exception {
+        cruiseConfig = new BasicCruiseConfig();
+        expectLoad(cruiseConfig);
+        PipelineConfig pipelineConfig = new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group", "pipeline_name", "stage_name", "job_name");
+
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("https://foo");
+        MaterialConfigs materialConfigs = new MaterialConfigs(gitMaterialConfig);
+        pipelineConfig.setMaterialConfigs(materialConfigs);
+        pipelineConfig.setOrigin(new RepoConfigOrigin());
+
+        List<CaseInsensitiveString> pipelineNames = goConfigService.pipelinesWithMaterial(gitMaterialConfig.getFingerprint());
+
+        assertThat(pipelineNames, contains(new CaseInsensitiveString("pipeline_name")));
+    }
+
+    @Test
+    public void shouldReturnEmptyWhenThereAreNoPipelinesWithGivenFingerprint() {
+        List<CaseInsensitiveString> pipelineNames = goConfigService.pipelinesWithMaterial("fingerprint");
+
+        assertThat(pipelineNames.isEmpty(), is(true));
     }
 
     @Test

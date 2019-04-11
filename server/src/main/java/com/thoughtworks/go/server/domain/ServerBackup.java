@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.domain;
 
 import com.thoughtworks.go.domain.PersistentObject;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
 import java.util.Optional;
@@ -24,6 +25,7 @@ import java.util.Optional;
 /**
  * @understands A single backup of the server
  */
+@EqualsAndHashCode(callSuper = true, exclude = "backupProgressStatus")
 public class ServerBackup extends PersistentObject {
     private Date time;
     private String path;
@@ -71,46 +73,6 @@ public class ServerBackup extends PersistentObject {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        ServerBackup that = (ServerBackup) o;
-
-        if (path != null ? !path.equals(that.path) : that.path != null) {
-            return false;
-        }
-        if (time != null ? !time.equals(that.time) : that.time != null) {
-            return false;
-        }
-        if (status != null ? !status.equals(that.status) : that.status != null) {
-            return false;
-        }
-        if (message != null ? !message.equals(that.message) : that.message != null) {
-            return false;
-        }
-        if (username != null ? !username.equals(that.username) : that.username != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = time != null ? time.hashCode() : 0;
-        result = 31 * result + (path != null ? path.hashCode() : 0);
-        result = 31 * result + (username != null ? username.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (message != null ? message.hashCode() : 0);
-        return result;
     }
 
     public BackupStatus getStatus() {

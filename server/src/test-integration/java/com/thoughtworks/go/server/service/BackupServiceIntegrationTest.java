@@ -425,7 +425,7 @@ public class BackupServiceIntegrationTest {
 
         backupThd.start();
         waitForBackupToComplete.acquire();
-        assertThat(backupUpdateListener.getMessages().contains("Post backup script executed successfully."), is(true));
+        assertThat(backupUpdateListener.getMessages().contains("Post backup script executed successfully"), is(true));
         backupThd.join();
     }
 

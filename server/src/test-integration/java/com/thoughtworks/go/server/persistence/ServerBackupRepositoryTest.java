@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.persistence;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.Optional;
 
@@ -58,12 +59,12 @@ public class ServerBackupRepositoryTest {
     @Test
     public void shouldReturnTheLastSuccessfulBackupTime() {
         Date time = new Date();
-        Date completedBackupTime = new Date(time.getTime() + 10000);
+        Timestamp completedBackupTime = new Timestamp(time.getTime() + 10000);
 
         ServerBackup completedBackup = new ServerBackup("file_path", completedBackupTime, "user", "", BackupStatus.COMPLETED);
         repository.save(completedBackup);
 
-        Date inProgressBackupTime = new Date(time.getTime() + 20000);
+        Timestamp inProgressBackupTime = new Timestamp(time.getTime() + 20000);
         ServerBackup inProgressBackup = new ServerBackup("file_path", inProgressBackupTime, "user", "in progress backup", BackupStatus.IN_PROGRESS);
         repository.save(inProgressBackup);
 
@@ -74,23 +75,23 @@ public class ServerBackupRepositoryTest {
 
     @Test
     public void shouldReturnTheUserNameWhichTriggeredTheLastBackup() {
-        Date time = new Date();
-        repository.save(new ServerBackup("file_path", time, "loser", "", BackupStatus.COMPLETED));
+        Timestamp time = getTime();
+        ServerBackup completedBackup = repository.save(new ServerBackup("file_path", time, "loser", "", BackupStatus.COMPLETED));
         repository.save(new ServerBackup("file_path", time, "new_loser", ""));
 
-        assertThat(new ServerBackup("file_path", time, "loser", "", BackupStatus.COMPLETED)).isEqualTo(repository.lastSuccessfulBackup());
+        assertThat(repository.lastSuccessfulBackup()).hasValue(completedBackup);
     }
 
     @Test
-    public void shouldReturnNullWhenIdIsNull() {
-        assertThat(repository.getBackup(null)).isNull();
+    public void shouldReturnEmptyWhenIdIsNull() {
+        assertThat(repository.getBackup(null)).isEmpty();
     }
 
     @Test
     public void shouldReturnServerBackById() {
-        ServerBackup serverBackup = repository.save(new ServerBackup("file_path", new Date(), "loser", ""));
+        ServerBackup serverBackup = repository.save(new ServerBackup("file_path", getTime(), "loser", ""));
 
-        assertThat(serverBackup).isEqualTo(repository.getBackup(serverBackup.getId()));
+        assertThat(repository.getBackup(serverBackup.getId())).hasValue(serverBackup);
     }
 
     @Test
@@ -105,8 +106,8 @@ public class ServerBackupRepositoryTest {
 
     @Test
     public void shouldMarkIncompleteServerBackupsAsAborted() {
-        ServerBackup inProgressBackup = new ServerBackup("file_path1", new Date(), "loser", "", BackupStatus.IN_PROGRESS);
-        ServerBackup completedBackup = new ServerBackup("file_path3", new Date(), "loser", "", BackupStatus.COMPLETED);
+        ServerBackup inProgressBackup = new ServerBackup("file_path1", getTime(), "loser", "", BackupStatus.IN_PROGRESS);
+        ServerBackup completedBackup = new ServerBackup("file_path3", getTime(), "loser", "", BackupStatus.COMPLETED);
         repository.save(inProgressBackup);
         repository.save(completedBackup);
 
@@ -115,11 +116,15 @@ public class ServerBackupRepositoryTest {
         ServerBackup abortedBackup = repository.getBackup(inProgressBackup.getId()).get();
         assertThat(abortedBackup.getStatus()).isEqualTo(BackupStatus.ABORTED);
         assertThat(abortedBackup.getMessage()).isEqualTo("Backup was aborted.");
-        assertThat(repository.getBackup(completedBackup.getId())).isEqualTo(completedBackup);
+        assertThat(repository.getBackup(completedBackup.getId())).hasValue(completedBackup);
     }
 
     @Test
     public void shouldReturnNullWhenThereAreNoEntries() {
-        assertThat(repository.lastSuccessfulBackup()).isNull();
+        assertThat(repository.lastSuccessfulBackup()).isEmpty();
+    }
+
+    private Timestamp getTime() {
+        return new Timestamp(new Date().getTime());
     }
 }

@@ -39,6 +39,13 @@ $selected-table-row: #e2f7fa;
   display:         flex;
   justify-content: space-between;
   margin-bottom:   10px;
+  position:        fixed;
+  left:            30px;
+  right:           30px;
+  background:      $body-bg;
+  top:             90px;
+  padding:         15px 0;
+  z-index:         map-get($zindex, user-management-header);
 }
 
 .user-actions-and-counts {
@@ -194,6 +201,10 @@ $selected-table-row: #e2f7fa;
 
 }
 
+.table-body {
+  height: 1500px;
+}
+
 .table-header, .table-row {
   display:     flex;
   align-items: center;
@@ -289,3 +300,14 @@ $selected-table-row: #e2f7fa;
     margin: 0;
   }
 }
+
+.to-be-deleted-users {
+  font-weight: 600;
+  margin-top:  10px;
+  display:     block;
+}
+
+.flash-message-wrapper-container {
+  margin-top: 25px;
+}
+

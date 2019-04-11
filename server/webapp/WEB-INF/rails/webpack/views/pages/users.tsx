@@ -23,7 +23,7 @@ import {RolesCRUD} from "models/roles/roles_crud";
 import {TriStateCheckbox, TristateState} from "models/tri_state_checkbox";
 import {computeBulkUpdateRolesJSON, computeRolesSelection} from "models/users/role_selection";
 import {UserFilters} from "models/users/user_filters";
-import {BulkUserOperationJSON, BulkUserUpdateJSON, User, Users} from "models/users/users";
+import {BulkUserUpdateJSON, User, Users} from "models/users/users";
 import {UsersCRUD} from "models/users/users_crud";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -31,10 +31,11 @@ import {HeaderPanel} from "views/components/header_panel";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation} from "views/pages/page_operations";
 import {UserSearchModal} from "views/pages/users/add_user_modal";
-import {State as UserActionsState} from "views/pages/users/user_actions_widget";
+import {DeleteUserConfirmModal} from "views/pages/users/delete_user_confirmation_modal";
+import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
-import {Attrs as UsersWidgetState} from "views/pages/users/users_widget";
-import {UsersWidget} from "views/pages/users/users_widget";
+import {Attrs as UsersWidgetState, UsersTableWidget} from "views/pages/users/users_widget";
+import * as styles from "./users/index.scss";
 
 interface State extends UserActionsState, AddOperation<Users>, UsersWidgetState {
   initialUsers: Stream<Users>;
@@ -94,7 +95,19 @@ export class UsersPage extends Page<null, State> {
         users: usersToDelete.userNamesOfSelectedUsers()
       };
 
-      this.bulkUserDelete(vnode, json);
+      new DeleteUserConfirmModal(json,
+                                 (msg) => {
+                                   this.pageState = PageState.OK;
+                                   this.flashMessage.setMessage(MessageType.success, msg);
+                                   this.fetchData(vnode);
+                                   this.scrollToTop();
+                                 },
+                                 (errorResponse) => {
+                                   this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
+                                   this.fetchData(vnode);
+                                   this.scrollToTop();
+                                 })
+        .render();
     };
 
     vnode.state.onToggleAdmin = (e: MouseEvent, user: User) => {
@@ -147,8 +160,10 @@ export class UsersPage extends Page<null, State> {
     return (
       <div>
         {bannerToDisplay}
-        <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-        <UsersWidget {...vnode.state}/>
+        <div className={styles.flashMessageWrapperContainer}>
+          <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type} dismissible={false}/>
+        </div>
+        <UsersTableWidget {...vnode.state}/>
       </div>
     );
   }
@@ -161,7 +176,11 @@ export class UsersPage extends Page<null, State> {
     const headerButtons = [];
     headerButtons.push(<Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Import User</Buttons.Primary>);
 
-    return <HeaderPanel title="Users Management" buttons={headerButtons}/>;
+    return <div>
+      <HeaderPanel title="Users Management" buttons={headerButtons}/>;
+      <UsersActionsWidget {...vnode.state} />
+    </div>;
+
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
@@ -207,25 +226,12 @@ export class UsersPage extends Page<null, State> {
                               this.flashMessage.setMessage(MessageType.success,
                                                            `Users were ${json.operations.enable ? "enabled" : "disabled"} successfully!`);
                               this.fetchData(vnode);
+                              this.scrollToTop();
                             },
                             (errorResponse) => {
                               this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
                               this.fetchData(vnode);
-                            });
-             });
-  }
-
-  private bulkUserDelete(vnode: m.Vnode<null, State>, json: BulkUserOperationJSON): void {
-    UsersCRUD.bulkUserDelete(json)
-             .then((apiResult) => {
-               apiResult.do((successResponse) => {
-                              this.pageState = PageState.OK;
-                              this.flashMessage.setMessage(MessageType.success, "Users were deleted successfully!");
-                              this.fetchData(vnode);
-                            },
-                            (errorResponse) => {
-                              this.flashMessage.setMessage(MessageType.alert, errorResponse.message);
-                              this.fetchData(vnode);
+                              this.scrollToTop();
                             });
              });
   }

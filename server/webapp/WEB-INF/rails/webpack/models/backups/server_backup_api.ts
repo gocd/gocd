@@ -27,11 +27,15 @@ export class ServerBackupAPI {
 
     ApiRequestBuilder.POST(SparkRoutes.apiCreateServerBackupPath(), this.API_VERSION_HEADER)
                      .then((result: ApiResult<string>) => {
-                       this.startPolling(result.getRedirectUrl(),
-                                         result.getRetryAfterIntervalInMillis(),
-                                         onProgress,
-                                         onCompletion,
-                                         onError);
+                       result.do(() => {
+                         this.startPolling(result.getRedirectUrl(),
+                                           result.getRetryAfterIntervalInMillis(),
+                                           onProgress,
+                                           onCompletion,
+                                           onError);
+                       }, (errorResponse) => {
+                         onError(errorResponse.message);
+                       });
                      });
   }
 

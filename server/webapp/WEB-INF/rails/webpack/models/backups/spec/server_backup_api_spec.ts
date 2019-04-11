@@ -42,6 +42,27 @@ describe("ServerBackupAPI", () => {
     expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
   });
 
+  it("should call onError when backup fails to start", (done) => {
+    jasmine.Ajax.stubRequest("/go/api/backups").andReturn(getApiErrorResponse());
+
+    const onProgress = jasmine.createSpy();
+    const onCompletion = jasmine.createSpy();
+    const onError = jasmine.createSpy();
+    ServerBackupAPI.start(onProgress, onCompletion, onError);
+
+    setTimeout(() => {
+      const request = jasmine.Ajax.requests.mostRecent();
+      expect(request.url).toEqual("/go/api/backups");
+      expect(request.method).toEqual("POST");
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+      expect(onProgress.calls.count()).toEqual(0);
+      expect(onCompletion.calls.count()).toEqual(0);
+      expect(onError.calls.count()).toEqual(1);
+      done();
+
+    }, 200);
+  });
+
   it("should call onComplete when backup complete", (done) => {
     jasmine.Ajax.stubRequest("/go/api/backups/12").andReturn(getCompletedServerBackupResponse());
 

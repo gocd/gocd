@@ -19,6 +19,7 @@ import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {BackupProgressStatus, BackupStatus} from "models/backups/types";
 import * as Buttons from "views/components/buttons";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import * as styles from "./index.scss";
 import {ProgressIndicator} from "./progress_indicator";
 
@@ -43,6 +44,7 @@ export class BackupWidget extends MithrilComponent<Attrs> {
                                              message={vnode.attrs.message}/>;
     }
     return <div class={styles.backupContainer}>
+      {this.topLevelError(vnode)}
       <div class={styles.content}>
         <div class={styles.performBackupContainer}>
           <div class={styles.performBackupSection}>
@@ -113,5 +115,12 @@ export class BackupWidget extends MithrilComponent<Attrs> {
       <p>To configure backups, please see <a target="_blank" href={docsUrl("advanced_usage/cron_backup.html")}>backup
         configuration documentation</a></p>
     </div>;
+  }
+
+  private topLevelError(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.backupStatus === BackupStatus.ERROR
+      && (vnode.attrs.backupProgressStatus === undefined || vnode.attrs.backupProgressStatus < 1)) {
+      return <FlashMessage type={MessageType.alert} message={vnode.attrs.message}/>;
+    }
   }
 }

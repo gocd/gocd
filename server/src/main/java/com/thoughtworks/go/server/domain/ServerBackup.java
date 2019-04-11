@@ -102,13 +102,11 @@ public class ServerBackup extends PersistentObject {
 
     public void markCompleted() {
         this.status = BackupStatus.COMPLETED;
-        this.backupProgressStatus = null;
     }
 
     public void markError(String message) {
         this.status = BackupStatus.ERROR;
         this.message = message;
-        this.backupProgressStatus = null;
     }
 
     public Boolean hasFailed() {

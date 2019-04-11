@@ -25,6 +25,7 @@ const classnames = bind(styles);
 export interface Attrs {
   status: BackupStatus;
   progressStatus?: BackupProgressStatus;
+  message: string;
 }
 
 export class ProgressIndicator extends MithrilViewComponent<Attrs> {
@@ -38,21 +39,27 @@ export class ProgressIndicator extends MithrilViewComponent<Attrs> {
       <div class={styles.stepsContainer}>
         {backupInProgress}
         <BackupStep id={BackupProgressStatus.CREATING_DIR}
+                    error={vnode.attrs.message}
                     status={this.getStatus(BackupProgressStatus.CREATING_DIR, currentStatus, status)}>Creating
           backup directory</BackupStep>
         <BackupStep id={BackupProgressStatus.BACKUP_VERSION_FILE}
+                    error={vnode.attrs.message}
                     status={this.getStatus(BackupProgressStatus.BACKUP_VERSION_FILE, currentStatus, status)}>
           Backing up version file</BackupStep>
         <BackupStep id={BackupProgressStatus.BACKUP_CONFIG}
+                    error={vnode.attrs.message}
                     status={this.getStatus(BackupProgressStatus.BACKUP_CONFIG, currentStatus, status)}>
           Backing up Config</BackupStep>
         <BackupStep id={BackupProgressStatus.BACKUP_CONFIG_REPO}
+                    error={vnode.attrs.message}
                     status={this.getStatus(BackupProgressStatus.BACKUP_CONFIG_REPO, currentStatus, status)}>
           Backing up config repo</BackupStep>
         <BackupStep id={BackupProgressStatus.BACKUP_DATABASE}
+                    error={vnode.attrs.message}
                     status={this.getStatus(BackupProgressStatus.BACKUP_DATABASE, currentStatus, status)}>
           Backing up Database</BackupStep>
         <BackupStep id={BackupProgressStatus.POST_BACKUP_SCRIPT_START}
+                    error={vnode.attrs.message}
                     status={this.getStatus(BackupProgressStatus.POST_BACKUP_SCRIPT_START, currentStatus, status)}>
           Executing Post backup script</BackupStep>
         {backupComplete}
@@ -60,15 +67,15 @@ export class ProgressIndicator extends MithrilViewComponent<Attrs> {
     );
   }
 
-  private getStatus(progressStatus: BackupProgressStatus, currentStatus: BackupProgressStatus, status: BackupStatus) {
+  private getStatus(step: BackupProgressStatus, currentStatus: BackupProgressStatus, status: BackupStatus) {
     if (status === BackupStatus.COMPLETED) {
       return StepStatus.PASSED;
     }
-    if (currentStatus > progressStatus) {
+    if (currentStatus > step) {
       return StepStatus.PASSED;
-    } else if (progressStatus === currentStatus && status === BackupStatus.ERROR) {
+    } else if (step === currentStatus && status === BackupStatus.ERROR) {
       return StepStatus.FAILED;
-    } else if (progressStatus === currentStatus) {
+    } else if (step === currentStatus) {
       return StepStatus.RUNNING;
     } else {
       return StepStatus.NOT_RUN;
@@ -83,10 +90,19 @@ enum StepStatus {
 interface StepAttrs {
   id: BackupProgressStatus;
   status: StepStatus;
+  error: string;
 }
 
 class BackupStep extends MithrilViewComponent<StepAttrs> {
   view(vnode: m.Vnode<StepAttrs>) {
-    return <div><span data-test-id={`step-${vnode.attrs.id}`} class={classnames(styles.indicator, styles[vnode.attrs.status])}/>{vnode.children}</div>;
+    let error;
+    if (vnode.attrs.status === StepStatus.FAILED) {
+      error = <p class={styles.errorMessage}>{vnode.attrs.error}</p>;
+    }
+    return <div>
+      <span data-test-id={`step-${vnode.attrs.id}`}
+            class={classnames(styles.indicator, styles[vnode.attrs.status])}/>{vnode.children}
+      {error}
+    </div>;
   }
 }

@@ -63,8 +63,29 @@ describe("ServerBackupAPI", () => {
     }, 200);
   });
 
-  it("should call onError when backup errors", (done) => {
+  it("should call onComplete when backup fails with error", (done) => {
     jasmine.Ajax.stubRequest("/go/api/backups/12").andReturn(getErrorServerBackupResponse());
+
+    const onProgress = jasmine.createSpy();
+    const onCompletion = jasmine.createSpy();
+    const onError = jasmine.createSpy();
+    ServerBackupAPI.checkBackupProgress("/go/api/backups/12", onProgress, onCompletion, onError);
+
+    setTimeout(() => {
+      const request = jasmine.Ajax.requests.mostRecent();
+      expect(request.url).toEqual("/go/api/backups/12");
+      expect(request.method).toEqual("GET");
+      expect(request.requestHeaders.Accept).toEqual("application/vnd.go.cd.v2+json");
+      expect(onProgress.calls.count()).toEqual(0);
+      expect(onCompletion.calls.count()).toEqual(1);
+      expect(onError.calls.count()).toEqual(0);
+      done();
+
+    }, 200);
+  });
+
+  it("should call onError when api returns an unknown error", (done) => {
+    jasmine.Ajax.stubRequest("/go/api/backups/12").andReturn(getApiErrorResponse());
 
     const onProgress = jasmine.createSpy();
     const onCompletion = jasmine.createSpy();
@@ -115,6 +136,16 @@ describe("ServerBackupAPI", () => {
 
   function getInProgressServerBackupResponse() {
     return getServerBackupResponse("IN_PROGRESS");
+  }
+
+  function getApiErrorResponse() {
+    return {
+      status: 500,
+      responseHeaders: {
+        "Content-Type": "application/vnd.go.cd.v2+json; charset=utf-8"
+      },
+      responseText: JSON.stringify({message : "An unknown error occurred on the server"})
+    };
   }
 
   function getServerBackupResponse(status: string) {

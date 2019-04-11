@@ -97,7 +97,6 @@ export class BackupPage extends Page<null, State> {
       vnode.state.displayProgressIndicator = false;
       vnode.state.message                  = "";
       vnode.state.backupStatus             = BackupStatus.NOT_STARTED;
-      vnode.state.backupProgressStatus     = undefined;
     };
 
     return ServerBackupAPI.getRunningBackups()
@@ -118,8 +117,10 @@ export class BackupPage extends Page<null, State> {
       vnode.state.message              = backup.message;
       vnode.state.backupStatus         = backup.status;
       vnode.state.backupProgressStatus = backup.progressStatus;
-      vnode.state.lastBackupUser       = backup.username;
-      vnode.state.lastBackupTime       = backup.time;
+      if (backup.status !== BackupStatus.ERROR) {
+        vnode.state.lastBackupUser = backup.username;
+        vnode.state.lastBackupTime = backup.time;
+      }
     };
   }
 

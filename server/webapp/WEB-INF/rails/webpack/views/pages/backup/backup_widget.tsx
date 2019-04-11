@@ -39,7 +39,8 @@ export class BackupWidget extends MithrilComponent<Attrs> {
     let progressIndicator;
     if (vnode.attrs.displayProgressIndicator) {
       progressIndicator = <ProgressIndicator progressStatus={vnode.attrs.backupProgressStatus}
-                                             status={vnode.attrs.backupStatus}/>;
+                                             status={vnode.attrs.backupStatus}
+                                             message={vnode.attrs.message}/>;
     }
     return <div class={styles.backupContainer}>
       <div class={styles.content}>

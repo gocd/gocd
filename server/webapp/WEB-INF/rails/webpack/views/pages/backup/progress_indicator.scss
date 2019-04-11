@@ -20,6 +20,10 @@
   padding: 20px;
 }
 
+.error-message {
+  color: $failed;
+}
+
 .indicator {
   border-radius: 50%;
   padding:       8px;

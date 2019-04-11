@@ -27,7 +27,11 @@ export class ServerBackupAPI {
 
     ApiRequestBuilder.POST(SparkRoutes.apiCreateServerBackupPath(), this.API_VERSION_HEADER)
                      .then((result: ApiResult<string>) => {
-                       this.startPolling(result.getRedirectUrl(), result.getRetryAfterIntervalInMillis(), onProgress, onCompletion, onError);
+                       this.startPolling(result.getRedirectUrl(),
+                                         result.getRetryAfterIntervalInMillis(),
+                                         onProgress,
+                                         onCompletion,
+                                         onError);
                      });
   }
 
@@ -64,10 +68,8 @@ export class ServerBackupAPI {
         const serverBackup = successResponse.body;
         if (serverBackup.isInProgress()) {
           onProgress(serverBackup);
-        } else if (serverBackup.isComplete()) {
-          onCompletion(serverBackup);
         } else {
-          onError(serverBackup.message);
+          onCompletion(serverBackup);
         }
       }, (errorResponse) => {
         onError(`Failed to poll for serverBackup. Reason: ${errorResponse.message}`);

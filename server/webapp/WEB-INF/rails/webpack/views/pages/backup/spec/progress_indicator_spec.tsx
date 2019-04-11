@@ -27,17 +27,18 @@ describe("Backup Progress Indicator Widget", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("should render not-run status before backup starts", () => {
-    mount(BackupStatus.NOT_STARTED, BackupProgressStatus.STARTING);
+    mount(BackupStatus.NOT_STARTED, "", BackupProgressStatus.STARTING);
 
     for (let key = BackupProgressStatus.CREATING_DIR; key < BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE; key++) {
       expect(helper.findByDataTestId(`step-${key}`)).toHaveClass(styles.notRun);
     }
     expect(helper.findByClass(styles.stepsContainer)).not.toContainText("Backup in progress...");
     expect(helper.findByClass(styles.stepsContainer)).not.toContainText("Backup Completed");
+    expect(helper.findByClass(styles.errorMessage)).not.toBeInDOM();
   });
 
   it("should render status while backup is running", () => {
-    mount(BackupStatus.IN_PROGRESS, BackupProgressStatus.BACKUP_VERSION_FILE);
+    mount(BackupStatus.IN_PROGRESS, "Backing up version file", BackupProgressStatus.BACKUP_VERSION_FILE);
 
     expect(helper.findByDataTestId(`step-${BackupProgressStatus.BACKUP_VERSION_FILE}`)).toHaveClass(styles.running);
     expect(helper.findByDataTestId(`step-${BackupProgressStatus.CREATING_DIR}`)).toHaveClass(styles.passed);
@@ -46,30 +47,35 @@ describe("Backup Progress Indicator Widget", () => {
     }
     expect(helper.findByClass(styles.stepsContainer)).toContainText("Backup in progress...");
     expect(helper.findByClass(styles.stepsContainer)).not.toContainText("Backup Completed");
+    expect(helper.findByClass(styles.errorMessage)).not.toBeInDOM();
   });
 
   it("should render status after backup is complete", () => {
-    mount(BackupStatus.COMPLETED, BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE);
+    mount(BackupStatus.COMPLETED, "", BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE);
 
     for (let key = BackupProgressStatus.CREATING_DIR; key < BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE; key++) {
       expect(helper.findByDataTestId(`step-${key}`)).toHaveClass(styles.passed);
     }
     expect(helper.findByClass(styles.stepsContainer)).not.toContainText("Backup in progress...");
     expect(helper.findByClass(styles.stepsContainer)).toContainText("Backup Completed");
+    expect(helper.findByClass(styles.errorMessage)).not.toBeInDOM();
   });
 
   it("should render failed status", () => {
-    mount(BackupStatus.ERROR, BackupProgressStatus.BACKUP_DATABASE);
+    mount(BackupStatus.ERROR, "Backup failed for some reason", BackupProgressStatus.BACKUP_DATABASE);
     for (let key = BackupProgressStatus.CREATING_DIR; key < BackupProgressStatus.BACKUP_DATABASE; key++) {
       expect(helper.findByDataTestId(`step-${key}`)).toHaveClass(styles.passed);
     }
     expect(helper.findByDataTestId(`step-${BackupProgressStatus.BACKUP_DATABASE}`)).toHaveClass(styles.failed);
+    expect(helper.findByClass(styles.errorMessage)).toHaveText("Backup failed for some reason");
+    expect(helper.findByDataTestId(`step-${BackupProgressStatus.POST_BACKUP_SCRIPT_START}`)).toHaveClass(styles.notRun);
   });
 
   function mount(status: BackupStatus,
+                 message: string,
                  progressStatus?: BackupProgressStatus) {
     helper.mount(() => {
-      return <ProgressIndicator status={status} progressStatus={progressStatus}/>;
+      return <ProgressIndicator status={status} progressStatus={progressStatus} message={message}/>;
     });
   }
 

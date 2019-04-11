@@ -34,10 +34,10 @@
 }
 
 .perform-backup-container {
-  width:         60%;
-  padding-right: 20px;
-  box-sizing:    border-box;
-
+  width:        60%;
+  margin-right: 20px;
+  box-sizing:   border-box;
+  border:       1px solid $border-color;
 }
 
 .perform-backup-section {
@@ -45,6 +45,7 @@
   display:     flex;
   align-items: center;
   border:      1px solid $border-color;
+  background:  $secondary-bg;
 }
 
 .backup-info {
@@ -73,9 +74,11 @@
   list-style-type: none;
   margin:          0;
   padding:         0;
+
   li {
     margin-bottom: 10px;
   }
+
   strong {
     font-weight: 600;
   }
@@ -99,6 +102,7 @@
 }
 
 .backup-config-help {
+  padding:     20px;
   p {
     margin: 5px;
   }

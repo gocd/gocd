@@ -22,6 +22,7 @@ export interface ServerBackupJson {
   time: Date;
   user: UserJSON;
   _links: any;
+  progress_status?: BackupProgressStatus;
 }
 
 export enum BackupStatus {
@@ -31,25 +32,51 @@ export enum BackupStatus {
   NOT_STARTED
 }
 
+export enum BackupProgressStatus {
+  STARTING,
+  CREATING_DIR,
+  BACKUP_VERSION_FILE,
+  BACKUP_CONFIG,
+  BACKUP_CONFIG_REPO,
+  BACKUP_DATABASE,
+  POST_BACKUP_SCRIPT_START,
+  POST_BACKUP_SCRIPT_COMPLETE
+}
+
 export class ServerBackup {
   readonly status: BackupStatus;
   readonly message: string;
   readonly time: Date;
   readonly username: string;
   readonly links: Links;
+  readonly progressStatus?: BackupProgressStatus;
 
-  constructor(status: BackupStatus, message: string, time: Date, username: string, links: Links) {
-    this.status = status;
-    this.message = message;
-    this.time = time;
-    this.username = username;
-    this.links = links;
+  constructor(status: BackupStatus,
+              message: string,
+              time: Date,
+              username: string,
+              links: Links,
+              progressStatus?: BackupProgressStatus) {
+    this.status         = status;
+    this.message        = message;
+    this.time           = time;
+    this.username       = username;
+    this.links          = links;
+    this.progressStatus = progressStatus;
   }
 
   static fromJSON(serverBackupJson: ServerBackupJson): ServerBackup {
+    let progressStatus;
+    if (serverBackupJson.progress_status) {
+      progressStatus = BackupProgressStatus[serverBackupJson.progress_status];
+    }
     // @ts-ignore
-    return new ServerBackup(BackupStatus[serverBackupJson.status], serverBackupJson.message,
-                            new Date(serverBackupJson.time), serverBackupJson.user.login_name, Links.fromJSON(serverBackupJson._links));
+    return new ServerBackup(BackupStatus[serverBackupJson.status],
+                            serverBackupJson.message,
+                            new Date(serverBackupJson.time),
+                            serverBackupJson.user.login_name,
+                            Links.fromJSON(serverBackupJson._links),
+                            progressStatus);
   }
 
   isInProgress(): boolean {

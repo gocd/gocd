@@ -17,31 +17,31 @@
 import {docsUrl} from "gen/gocd_version";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {BackupStatus} from "models/backups/types";
+import {BackupProgressStatus, BackupStatus} from "models/backups/types";
 import * as Buttons from "views/components/buttons";
-import {ProgressConsole} from "views/components/progress_console";
 import * as styles from "./index.scss";
+import {ProgressIndicator} from "./progress_indicator";
 
 interface Attrs {
   lastBackupTime: Date | null | undefined;
   lastBackupUser: string | null | undefined;
   availableDiskSpace: string;
   backupLocation: string;
-  backupProgressMessages: string[];
+  message: string;
   backupStatus: BackupStatus;
+  backupProgressStatus?: BackupProgressStatus;
   onPerformBackup: () => void;
-  displayProgressConsole: boolean;
+  displayProgressIndicator: boolean;
 }
 
 export class BackupWidget extends MithrilComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    let progressConsole;
-    if (vnode.attrs.displayProgressConsole) {
-      progressConsole = <ProgressConsole messages={vnode.attrs.backupProgressMessages}
-                                         failed={vnode.attrs.backupStatus === BackupStatus.ERROR}/>;
+    let progressIndicator;
+    if (vnode.attrs.displayProgressIndicator) {
+      progressIndicator = <ProgressIndicator progressStatus={vnode.attrs.backupProgressStatus}
+                                             status={vnode.attrs.backupStatus}/>;
     }
     return <div class={styles.backupContainer}>
-      {this.backupConfigHelp(vnode)}
       <div class={styles.content}>
         <div class={styles.performBackupContainer}>
           <div class={styles.performBackupSection}>
@@ -58,7 +58,8 @@ export class BackupWidget extends MithrilComponent<Attrs> {
               {this.lastBackupDetails(vnode)}
             </div>
           </div>
-          {progressConsole}
+          {progressIndicator}
+          {this.backupConfigHelp(vnode)}
         </div>
         {this.backupHelp()}
       </div>

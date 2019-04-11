@@ -132,12 +132,8 @@ public class ConfigSaveValidationContext implements ValidationContext {
             // added because of higher hierarchy of configuration types.
             // now there are interfaces with more than one implementation
             // so when asking for CruiseConfig there are 2 matching classes - BasicCruiseConfig and MergeCruiseConfig
-            Class<?>[] interfacesOfCandidate = immediateParent.getClass().getInterfaces();
-            for (Class<?> inter : interfacesOfCandidate) {
-                if (inter.equals(klass)) {
-                    // candidate implements interface whose instances we are looking for
-                    return (T) immediateParent;
-                }
+            if (klass.isAssignableFrom(immediateParent.getClass())) {
+                return (T) immediateParent;
             }
         }
 

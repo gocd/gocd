@@ -25,7 +25,7 @@ import java.util.Optional;
 /**
  * @understands A single backup of the server
  */
-@EqualsAndHashCode(callSuper = true, exclude = "backupProgressStatus")
+@EqualsAndHashCode(callSuper = true)
 public class ServerBackup extends PersistentObject {
     private Date time;
     private String path;

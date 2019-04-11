@@ -20,6 +20,7 @@ import com.beust.jcommander.Parameter;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import java.util.Properties;
 
 public class AgentBootstrapperArgs {
@@ -65,6 +66,13 @@ public class AgentBootstrapperArgs {
         return properties;
     }
 
+    public static AgentBootstrapperArgs fromProperties(Map<?, ?> properties) {
+        Properties props = new Properties();
+        props.putAll(properties);
+
+        return fromProperties(props);
+    }
+
     public static AgentBootstrapperArgs fromProperties(Properties properties) {
         try {
             URL serverUrl = new URL(properties.getProperty(SERVER_URL));
@@ -99,7 +107,8 @@ public class AgentBootstrapperArgs {
         AgentBootstrapperArgs that = (AgentBootstrapperArgs) o;
 
         if (serverUrl != null ? !serverUrl.equals(that.serverUrl) : that.serverUrl != null) return false;
-        if (rootCertFile != null ? !rootCertFile.getAbsoluteFile().equals(that.rootCertFile.getAbsoluteFile()) : that.rootCertFile != null) return false;
+        if (rootCertFile != null ? !rootCertFile.getAbsoluteFile().equals(that.rootCertFile.getAbsoluteFile()) : that.rootCertFile != null)
+            return false;
         return sslVerificationMode == that.sslVerificationMode;
     }
 

@@ -19,7 +19,8 @@ import com.thoughtworks.cruise.agent.common.launcher.AgentLaunchDescriptor;
 import com.thoughtworks.cruise.agent.common.launcher.AgentLauncher;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.agent.ServerUrlGenerator;
-import com.thoughtworks.go.agent.common.AgentBootstrapperBackwardCompatibility;
+import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
+import com.thoughtworks.go.agent.common.UrlConstructor;
 import com.thoughtworks.go.agent.common.launcher.AgentProcessParent;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.common.util.JarUtil;
@@ -80,10 +81,10 @@ public class AgentLauncherImpl implements AgentLauncher {
 
             Map context = descriptor.context();
 
-            AgentBootstrapperBackwardCompatibility backwardCompatibility = backwardCompatibility(context);
-            ServerUrlGenerator urlGenerator = backwardCompatibility.getUrlGenerator();
-            File rootCertFile = backwardCompatibility.rootCertFile();
-            SslVerificationMode sslVerificationMode = backwardCompatibility.sslVerificationMode();
+            AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
+            ServerUrlGenerator urlGenerator = new UrlConstructor(bootstrapperArgs.getServerUrl().toExternalForm());
+            File rootCertFile = bootstrapperArgs.getRootCertFile();
+            SslVerificationMode sslVerificationMode = SslVerificationMode.valueOf(bootstrapperArgs.getSslMode().name());
 
             ServerBinaryDownloader launcherDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
             if (launcherDownloader.downloadIfNecessary(DownloadableFile.LAUNCHER)) {
@@ -110,10 +111,6 @@ public class AgentLauncherImpl implements AgentLauncher {
             removeShutDownHook(shutdownHook);
             lockFile.delete();
         }
-    }
-
-    private AgentBootstrapperBackwardCompatibility backwardCompatibility(Map context) {
-        return new AgentBootstrapperBackwardCompatibility(context);
     }
 
     private void removeShutDownHook(Thread shutdownHook) {

@@ -97,11 +97,11 @@ public class AgentProcessParentImplTest {
                 "-jar",
                 "agent.jar",
                 "-serverUrl",
-                "https://localhost:" + server.getSecurePort() + "/go/",
+                "http://localhost:" + server.getPort() + "/go/",
                 "-sslVerificationMode",
                 "NONE",
                 "-rootCertFile",
-                "/path/to/cert.pem"
+                new File("/path/to/cert.pem").getAbsolutePath()
         }));
     }
 
@@ -128,11 +128,11 @@ public class AgentProcessParentImplTest {
                 "-jar",
                 "agent.jar",
                 "-serverUrl",
-                "https://localhost:" + server.getSecurePort() + "/go/",
+                "http://localhost:" + server.getPort() + "/go/",
                 "-sslVerificationMode",
                 "NONE",
                 "-rootCertFile",
-                "/path/to/cert.pem"
+                new File("/path/to/cert.pem").getAbsolutePath()
         }));
     }
 
@@ -172,11 +172,11 @@ public class AgentProcessParentImplTest {
                 "-jar",
                 "agent.jar",
                 "-serverUrl",
-                "https://localhost:" + server.getSecurePort() +"/go/",
+                "http://localhost:" + server.getPort() +"/go/",
                 "-sslVerificationMode",
                 "NONE",
                 "-rootCertFile",
-                "/path/to/cert.pem"
+                new File("/path/to/cert.pem").getAbsolutePath()
         }));
     }
 

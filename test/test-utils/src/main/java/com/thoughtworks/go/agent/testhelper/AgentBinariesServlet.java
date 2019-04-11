@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.agent.testhelper;
 
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.binary.Base64;
 
 import javax.servlet.ServletException;
@@ -41,7 +40,6 @@ public class AgentBinariesServlet extends HttpServlet {
     protected void doHead(HttpServletRequest request, HttpServletResponse response) {
         try {
             response.setHeader("Content-MD5", resource.getMd5());
-            response.setHeader("Cruise-Server-Ssl-Port", String.valueOf(fakeGoServer.getSecurePort()));
 
             final String extraPropertiesHeaderValue = fakeGoServer.getExtraPropertiesHeaderValue();
             if (extraPropertiesHeaderValue != null) {

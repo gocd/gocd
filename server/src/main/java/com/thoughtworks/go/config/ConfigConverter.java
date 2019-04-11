@@ -487,24 +487,7 @@ public class ConfigConverter {
     }
 
     public JobConfig toJobConfig(CRJob crJob) {
-        JobConfig jobConfig = new JobConfig(crJob.getName());
-        if (crJob.getEnvironmentVariables() != null)
-            for (CREnvironmentVariable crEnvironmentVariable : crJob.getEnvironmentVariables()) {
-                jobConfig.getVariables().add(toEnvironmentVariableConfig(crEnvironmentVariable));
-            }
-
-        List<CRTask> crTasks = crJob.getTasks();
-        Tasks tasks = jobConfig.getTasks();
-        if (crTasks != null)
-            for (CRTask crTask : crTasks) {
-                tasks.add(toAbstractTask(crTask));
-            }
-
-        Tabs tabs = jobConfig.getTabs();
-        if (crJob.getTabs() != null)
-            for (CRTab crTab : crJob.getTabs()) {
-                tabs.add(toTab(crTab));
-            }
+        JobConfig jobConfig = getJobConfig(crJob);
 
         ResourceConfigs resourceConfigs = jobConfig.resourceConfigs();
         if (crJob.getResources() != null)
@@ -541,6 +524,29 @@ public class ConfigConverter {
         if (crJob.getTimeout() != null)
             jobConfig.setTimeout(Integer.toString(crJob.getTimeout()));
         //else null - means default server-wide timeout
+
+        return jobConfig;
+    }
+
+    private JobConfig getJobConfig(CRJob crJob) {
+        JobConfig jobConfig = new JobConfig(crJob.getName());
+        if (crJob.getEnvironmentVariables() != null)
+            for (CREnvironmentVariable crEnvironmentVariable : crJob.getEnvironmentVariables()) {
+                jobConfig.getVariables().add(toEnvironmentVariableConfig(crEnvironmentVariable));
+            }
+
+        List<CRTask> crTasks = crJob.getTasks();
+        Tasks tasks = jobConfig.getTasks();
+        if (crTasks != null)
+            for (CRTask crTask : crTasks) {
+                tasks.add(toAbstractTask(crTask));
+            }
+
+        Tabs tabs = jobConfig.getTabs();
+        if (crJob.getTabs() != null)
+            for (CRTab crTab : crJob.getTabs()) {
+                tabs.add(toTab(crTab));
+            }
 
         return jobConfig;
     }

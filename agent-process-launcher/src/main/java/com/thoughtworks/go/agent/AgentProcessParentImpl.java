@@ -17,7 +17,7 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.agent.common.AgentBootstrapperBackwardCompatibility;
+import com.thoughtworks.go.agent.common.AgentBootstrapperArgs;
 import com.thoughtworks.go.agent.common.launcher.AgentProcessParent;
 import com.thoughtworks.go.agent.common.util.Downloader;
 import com.thoughtworks.go.agent.launcher.DownloadableFile;
@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.join;
@@ -53,9 +52,9 @@ public class AgentProcessParentImpl implements AgentProcessParent {
         String command[] = new String[]{};
 
         try {
-            AgentBootstrapperBackwardCompatibility backwardCompatibility = backwardCompatibility(context);
-            File rootCertFile = backwardCompatibility.rootCertFile();
-            SslVerificationMode sslVerificationMode = backwardCompatibility.sslVerificationMode();
+            AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
+            File rootCertFile = bootstrapperArgs.getRootCertFile();
+            SslVerificationMode sslVerificationMode = SslVerificationMode.valueOf(bootstrapperArgs.getSslMode().name());
 
             ServerBinaryDownloader agentDownloader = new ServerBinaryDownloader(urlGenerator, rootCertFile, sslVerificationMode);
             agentDownloader.downloadIfNecessary(DownloadableFile.AGENT);
@@ -67,7 +66,7 @@ public class AgentProcessParentImpl implements AgentProcessParent {
             tfsImplDownloader.downloadIfNecessary(DownloadableFile.TFS_IMPL);
 
             command = agentInvocationCommand(agentDownloader.getMd5(), launcherMd5, pluginZipDownloader.getMd5(), tfsImplDownloader.getMd5(),
-                    env, context, agentDownloader.getSslPort(), agentDownloader.getExtraProperties());
+                    env, context, agentDownloader.getExtraProperties());
             LOG.info("Launching Agent with command: {}", join(command, " "));
 
             Process agent = invoke(command);
@@ -107,10 +106,6 @@ public class AgentProcessParentImpl implements AgentProcessParent {
         return exitValue;
     }
 
-    private AgentBootstrapperBackwardCompatibility backwardCompatibility(Map context) {
-        return new AgentBootstrapperBackwardCompatibility(context);
-    }
-
     private void removeShutdownHook(Shutdown shutdownHook) {
         try {
             Runtime.getRuntime().removeShutdownHook(shutdownHook);
@@ -119,9 +114,9 @@ public class AgentProcessParentImpl implements AgentProcessParent {
     }
 
     private String[] agentInvocationCommand(String agentMD5, String launcherMd5, String agentPluginsZipMd5, String tfsImplMd5, Map<String, String> env, Map context,
-                                            @Deprecated String sslPort, // the port is kept for backward compatibility to ensure that old bootstrappers are able to launch new agents
+                                            // the port is kept for backward compatibility to ensure that old bootstrappers are able to launch new agents
                                             Map<String, String> extraProperties) {
-        AgentBootstrapperBackwardCompatibility backwardCompatibility = backwardCompatibility(context);
+        AgentBootstrapperArgs bootstrapperArgs = AgentBootstrapperArgs.fromProperties(context);
 
         String startupArgsString = env.get(AGENT_STARTUP_ARGS);
         List<String> commandSnippets = new ArrayList<>();
@@ -147,16 +142,16 @@ public class AgentProcessParentImpl implements AgentProcessParent {
         commandSnippets.add(Downloader.AGENT_BINARY);
 
         commandSnippets.add("-serverUrl");
-        commandSnippets.add(backwardCompatibility.sslServerUrl(sslPort));
+        commandSnippets.add(bootstrapperArgs.getServerUrl().toString());
 
-        if (backwardCompatibility.sslVerificationMode() != null) {
+        if (bootstrapperArgs.getSslMode() != null) {
             commandSnippets.add("-sslVerificationMode");
-            commandSnippets.add(backwardCompatibility.sslVerificationMode().toString());
+            commandSnippets.add(bootstrapperArgs.getSslMode().toString());
         }
 
-        if (backwardCompatibility.rootCertFileAsString() != null) {
+        if (bootstrapperArgs.getRootCertFile() != null) {
             commandSnippets.add("-rootCertFile");
-            commandSnippets.add(backwardCompatibility.rootCertFileAsString());
+            commandSnippets.add(bootstrapperArgs.getRootCertFile().getAbsolutePath());
         }
 
         return commandSnippets.toArray(new String[]{});

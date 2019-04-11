@@ -74,7 +74,6 @@ public class ServerBinaryDownloaderTest {
             }
             assertThat(downloader.getMd5(), is(Hex.encodeHexString(digester.digest()).toLowerCase()));
         }
-        assertThat(downloader.getSslPort(), is(String.valueOf(server.getSecurePort())));
     }
 
     @Test
@@ -143,7 +142,7 @@ public class ServerBinaryDownloaderTest {
     @Test
     public void shouldFailIfMD5HeadersAreMissing() throws Exception {
         exception.expect(Exception.class);
-        exception.expectMessage("Missing required headers 'Content-MD5' and 'Cruise-Server-Ssl-Port' in response.");
+        exception.expectMessage("Missing required headers 'Content-MD5' in response.");
 
         ServerBinaryDownloader downloader = new ServerBinaryDownloader(ServerUrlGeneratorMother.generatorWithoutSubPathFor("https://localhost:" + server.getSecurePort() + "/go/hello"), null,
                 SslVerificationMode.NONE);

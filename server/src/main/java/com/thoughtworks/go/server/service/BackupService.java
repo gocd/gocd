@@ -124,8 +124,8 @@ public class BackupService implements BackupStatusProvider {
         return Optional.ofNullable(runningBackup);
     }
 
-    public Optional<ServerBackup> getServerBackup(String id) {
-        if (runningBackup != null && id.equals(String.valueOf(runningBackup.getId()))) {
+    public Optional<ServerBackup> getServerBackup(long id) {
+        if (runningBackup != null && runningBackup.getId() == id) {
             return Optional.of(runningBackup);
         }
         return serverBackupRepository.getBackup(id);

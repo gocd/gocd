@@ -65,11 +65,11 @@ public class PluginInfoMother {
     }
 
     public static ConfigRepoPluginInfo createConfigRepoPluginInfo() {
-        return new ConfigRepoPluginInfo(getGoPluginDescriptor(), null, getPluggableSettings());
+        return new ConfigRepoPluginInfo(getGoPluginDescriptor(), null, getPluggableSettings(), new com.thoughtworks.go.plugin.domain.configrepo.Capabilities(true, true));
     }
 
     public static ConfigRepoPluginInfo createConfigRepoPluginInfoWithoutPluginSettings() {
-        return new ConfigRepoPluginInfo(getGoPluginDescriptor(), null, null);
+        return new ConfigRepoPluginInfo(getGoPluginDescriptor(), null, null, new com.thoughtworks.go.plugin.domain.configrepo.Capabilities(true, true));
     }
 
     public static ElasticAgentPluginInfo createElasticAgentPluginInfoForV4() {

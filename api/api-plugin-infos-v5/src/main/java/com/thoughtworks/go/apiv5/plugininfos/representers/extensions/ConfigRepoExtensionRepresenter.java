@@ -16,5 +16,21 @@
 
 package com.thoughtworks.go.apiv5.plugininfos.representers.extensions;
 
+import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.plugin.domain.common.PluginInfo;
+import com.thoughtworks.go.plugin.domain.configrepo.ConfigRepoPluginInfo;
+
 public class ConfigRepoExtensionRepresenter extends ExtensionRepresenter {
+    @Override
+    public void toJSON(OutputWriter extensionWriter, PluginInfo extension) {
+        super.toJSON(extensionWriter, extension);
+
+        ConfigRepoPluginInfo configRepoPluginInfo = (ConfigRepoPluginInfo) extension;
+
+        extensionWriter.addChild("capabilities", capabilitiesWriter ->
+                capabilitiesWriter.add("supports_pipeline_export", configRepoPluginInfo.getCapabilities().isSupportsPipelineExport())
+                        .add("supports_parse_content", configRepoPluginInfo.getCapabilities().isSupportsParseContent()));
+
+    }
+
 }

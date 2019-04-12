@@ -42,6 +42,10 @@ class ConfigRepoExtensionRepresenterTest {
           ]
         ],
         view          : [template: "Template"]
+      ],
+      capabilities   : [
+        supports_pipeline_export: true,
+        supports_parse_content: true
       ]
     ]
     assertThatJson(actualJson).isEqualTo(expectedJSON)

@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.RuleAwarePluginProfileCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.infra.GoPluginFrameworkException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.slf4j.Logger;
@@ -55,6 +56,8 @@ public abstract class RuleAwarePluginProfileService<M extends RuleAwarePluginPro
             addErrorsToConfiguration(result, newPluginProfile);
         }catch (RecordNotFoundException e) {
             newPluginProfile.addError("pluginId", String.format("Plugin with id `%s` is not found.", newPluginProfile.getPluginId()));
+        } catch (GoPluginFrameworkException e) {
+            newPluginProfile.addError("pluginId", e.getMessage());
         }catch (Exception e) {
             //Ignore - it will be the invalid cipher text exception for an encrypted value. This will be validated later during entity update
         }

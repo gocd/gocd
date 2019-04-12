@@ -51,14 +51,14 @@ describe("Backup Widget", () => {
       .toContainText("Backups are stored in /path/to/backup/directory");
   });
 
-  it("should not render progress spinner when backup not in progress", () => {
+  it("should not disable button when backup not in progress", () => {
     mount("2000 GB", BackupStatus.NOT_STARTED, "");
-    expect(helper.findByClass(styles.backupInProgress)).toHaveLength(0);
+    expect(helper.findByDataTestId("perform-backup")).not.toBeDisabled();
   });
 
-  it("should render progress spinner only when backup in progress", () => {
+  it("should disable the button only when backup in progress", () => {
     mount("200 GB", BackupStatus.IN_PROGRESS, "");
-    expect(helper.findByClass(styles.backupInProgress)).toHaveLength(1);
+    expect(helper.findByDataTestId("perform-backup")).toBeDisabled();
   });
 
   it("should render top level error if backup fails to start", () => {

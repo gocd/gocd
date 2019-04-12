@@ -15,43 +15,97 @@
  */
 @import "../../global/common";
 
+.backup-message {
+  font-style: italic;
+  font-size:  16px;
+}
+
+.backup-steps {
+  list-style-type: none;
+  margin:          0 0 0 15px;
+  padding:         0;
+  position:        relative;
+
+  &:before {
+    position:    absolute;
+    left:        0;
+    top:         30px;
+    bottom:      30px;
+    content:     "";
+    border-left: 2px dashed darken($line-color, 20%);
+  }
+
+  li {
+    padding:   20px 0 20px 40px;
+    position:  relative;
+    font-size: 16px;
+
+    &:before {
+      position:      absolute;
+      left:          -10px;
+      top:           50%;
+      content:       "";
+      width:         24px;
+      height:        24px;
+      border-radius: 50%;
+      background:    darken($line-color, 10%);
+      transform:     translateY(-50%);
+    }
+
+    &.backing-up {
+      &:before {
+        background: $white;
+        width:      35px;
+        height:     35px;
+        left:       -20px
+      }
+    }
+
+    &.backed-up {
+      @include icon-before($type: $fa-var-check, $color: $white);
+
+      &:before {
+        background:  $go-green;
+        text-align:  center;
+        line-height: 23px;
+        margin:      0;
+      }
+    }
+
+    &.failed {
+      &:before {
+        background: $go-danger;
+      }
+    }
+  }
+
+  .spinner {
+    @include icon-before($type: $fa-var-spinner);
+    position: absolute;
+    left:     -14px;
+
+    &:before {
+      animation: spin 1500ms linear infinite;
+      font-size: 20px;
+    }
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+}
+
 .steps-container {
-  display: block;
-  padding: 20px;
-}
-
-.step-container {
-  margin: 20px;
-}
-
-.step-text {
-  margin-left: 10px;
+  padding:      20px 30px;
+  border-left:  1px solid $border-color;
+  border-right: 1px solid $border-color;
 }
 
 .error-container {
-  margin-top: 5px;
-}
-
-.indicator {
-  border-radius: 50%;
-  padding:       8px;
-  text-align:    center;
-  display:       inline-block;
-  vertical-align: middle;
-}
-
-.not-run {
-  background: $secondary-bg;
-}
-
-.running {
-  background: $building;
-}
-
-.passed {
-  background: $go-green;
-}
-
-.failed {
-  background: $failed;
+  margin: 5px 0 -10px 0;
 }

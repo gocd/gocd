@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {BackupProgressStatus, BackupStatus} from "models/backups/types";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import * as styles from "./progress_indicator.scss";
-
-const classnames = bind(styles);
 
 export interface Attrs {
   status: BackupStatus;
@@ -32,38 +29,38 @@ export interface Attrs {
 export class ProgressIndicator extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
-    const backupInProgress = vnode.attrs.status === BackupStatus.IN_PROGRESS ? "Backup in progress..." : undefined;
-    const backupComplete   = vnode.attrs.status === BackupStatus.COMPLETED ? "Backup Completed" : undefined;
-    const currentStatus    = vnode.attrs.progressStatus || BackupProgressStatus.STARTING;
-    const status           = vnode.attrs.status;
+    const currentStatus = vnode.attrs.progressStatus || BackupProgressStatus.STARTING;
+    const status        = vnode.attrs.status;
     return (
       <div class={styles.stepsContainer}>
-        {backupInProgress}
-        <BackupStep id={BackupProgressStatus.CREATING_DIR}
-                    error={vnode.attrs.message}
-                    status={this.getStatus(BackupProgressStatus.CREATING_DIR, currentStatus, status)}>Creating
-          backup directory</BackupStep>
-        <BackupStep id={BackupProgressStatus.BACKUP_VERSION_FILE}
-                    error={vnode.attrs.message}
-                    status={this.getStatus(BackupProgressStatus.BACKUP_VERSION_FILE, currentStatus, status)}>
-          Backing up version file</BackupStep>
-        <BackupStep id={BackupProgressStatus.BACKUP_CONFIG}
-                    error={vnode.attrs.message}
-                    status={this.getStatus(BackupProgressStatus.BACKUP_CONFIG, currentStatus, status)}>
-          Backing up Config</BackupStep>
-        <BackupStep id={BackupProgressStatus.BACKUP_CONFIG_REPO}
-                    error={vnode.attrs.message}
-                    status={this.getStatus(BackupProgressStatus.BACKUP_CONFIG_REPO, currentStatus, status)}>
-          Backing up config repo</BackupStep>
-        <BackupStep id={BackupProgressStatus.BACKUP_DATABASE}
-                    error={vnode.attrs.message}
-                    status={this.getStatus(BackupProgressStatus.BACKUP_DATABASE, currentStatus, status)}>
-          Backing up Database</BackupStep>
-        <BackupStep id={BackupProgressStatus.POST_BACKUP_SCRIPT_START}
-                    error={vnode.attrs.message}
-                    status={this.getStatus(BackupProgressStatus.POST_BACKUP_SCRIPT_START, currentStatus, status)}>
-          Executing Post backup script</BackupStep>
-        {backupComplete}
+        {this.backupInProgress(status)}
+        <ul class={styles.backupSteps}>
+          <BackupStep id={BackupProgressStatus.CREATING_DIR}
+                      error={vnode.attrs.message}
+                      status={this.getStatus(BackupProgressStatus.CREATING_DIR, currentStatus, status)}>Creating
+            backup directory</BackupStep>
+          <BackupStep id={BackupProgressStatus.BACKUP_VERSION_FILE}
+                      error={vnode.attrs.message}
+                      status={this.getStatus(BackupProgressStatus.BACKUP_VERSION_FILE, currentStatus, status)}>
+            Backing up version file</BackupStep>
+          <BackupStep id={BackupProgressStatus.BACKUP_CONFIG}
+                      error={vnode.attrs.message}
+                      status={this.getStatus(BackupProgressStatus.BACKUP_CONFIG, currentStatus, status)}>
+            Backing up Config</BackupStep>
+          <BackupStep id={BackupProgressStatus.BACKUP_CONFIG_REPO}
+                      error={vnode.attrs.message}
+                      status={this.getStatus(BackupProgressStatus.BACKUP_CONFIG_REPO, currentStatus, status)}>
+            Backing up config repo</BackupStep>
+          <BackupStep id={BackupProgressStatus.BACKUP_DATABASE}
+                      error={vnode.attrs.message}
+                      status={this.getStatus(BackupProgressStatus.BACKUP_DATABASE, currentStatus, status)}>
+            Backing up Database</BackupStep>
+          <BackupStep id={BackupProgressStatus.POST_BACKUP_SCRIPT_START}
+                      error={vnode.attrs.message}
+                      status={this.getStatus(BackupProgressStatus.POST_BACKUP_SCRIPT_START, currentStatus, status)}>
+            Executing Post backup script</BackupStep>
+        </ul>
+        {this.backupComplete(status)}
       </div>
     );
   }
@@ -82,10 +79,22 @@ export class ProgressIndicator extends MithrilViewComponent<Attrs> {
       return StepStatus.NOT_RUN;
     }
   }
+
+  private backupInProgress(backupStatus: BackupStatus) {
+    if (backupStatus === BackupStatus.IN_PROGRESS) {
+      return <p class={styles.backupMessage}>Backup in progress...</p>;
+    }
+  }
+
+  private backupComplete(backupStatus: BackupStatus) {
+    if (backupStatus === BackupStatus.COMPLETED) {
+      return <p class={styles.backupMessage}>Backup Completed</p>;
+    }
+  }
 }
 
 enum StepStatus {
-  NOT_RUN = "notRun", RUNNING = "running", PASSED = "passed", FAILED = "failed"
+  NOT_RUN, RUNNING, PASSED, FAILED
 }
 
 interface StepAttrs {
@@ -96,17 +105,40 @@ interface StepAttrs {
 
 class BackupStep extends MithrilViewComponent<StepAttrs> {
   view(vnode: m.Vnode<StepAttrs>) {
+    return <li data-test-id={`step-${vnode.attrs.id}`}
+               class={this.indicatorClass(vnode.attrs.status)}>
+      {this.maybeSpinner(vnode)}{vnode.children}{this.maybeError(vnode)}
+    </li>;
+  }
+
+  private maybeSpinner(vnode: m.Vnode<StepAttrs>) {
+    let maybeSpinner;
+    if (vnode.attrs.status === StepStatus.RUNNING) {
+      maybeSpinner = <span class={styles.spinner}/>;
+    }
+    return maybeSpinner;
+  }
+
+  private maybeError(vnode: m.Vnode<StepAttrs>) {
     let error;
     if (vnode.attrs.status === StepStatus.FAILED) {
       error = <div class={styles.errorContainer}>
         <FlashMessage type={MessageType.alert}>{vnode.attrs.error}</FlashMessage>
       </div>;
     }
-    return <div class={styles.stepContainer}>
-      <span data-test-id={`step-${vnode.attrs.id}`}
-            class={classnames(styles.indicator, styles[vnode.attrs.status])}/>
-      <span class={styles.stepText}>{vnode.children}</span>
-      {error}
-    </div>;
+    return error;
+  }
+
+  private indicatorClass(stepStatus: StepStatus) {
+    if (stepStatus === StepStatus.RUNNING) {
+      return styles.backingUp;
+    }
+    if (stepStatus === StepStatus.PASSED) {
+      return styles.backedUp;
+    }
+    if (stepStatus === StepStatus.FAILED) {
+      return styles.failed;
+    }
+    return "";
   }
 }

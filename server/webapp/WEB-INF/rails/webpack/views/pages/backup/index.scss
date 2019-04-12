@@ -37,7 +37,6 @@
   width:        60%;
   margin-right: 20px;
   box-sizing:   border-box;
-  border:       1px solid $border-color;
 }
 
 .perform-backup-section {
@@ -84,25 +83,9 @@
   }
 }
 
-.backup-in-progress {
-  @include icon-before($type: $fa-var-spinner) {
-    animation: rotate 0.8s linear infinite;
-    @keyframes rotate {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(359deg);
-      }
-    }
-  }
-  margin-left:  -10px;
-  margin-right: 10px;
-}
-
 .backup-config-help {
   padding:     20px;
+  border:       1px solid $border-color;
   p {
     margin: 5px;
   }

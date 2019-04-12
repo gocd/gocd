@@ -49,8 +49,8 @@ export class BackupWidget extends MithrilComponent<Attrs> {
         <div class={styles.performBackupContainer}>
           <div class={styles.performBackupSection}>
             <div class={styles.performBackupButtonContainer}>
-              <Buttons.Primary onclick={this.startBackup.bind(this, vnode)}>
-                <span className={vnode.attrs.backupStatus === BackupStatus.IN_PROGRESS ? styles.backupInProgress : ""}/>
+              <Buttons.Primary data-test-id="perform-backup" onclick={this.startBackup.bind(this, vnode)}
+                               disabled={vnode.attrs.backupStatus === BackupStatus.IN_PROGRESS}>
                 Perform Backup
               </Buttons.Primary>
             </div>

@@ -11,6 +11,4 @@ export const performBackupButtonContainer: string;
 export const backupHelp: string;
 export const helpHeading: string;
 export const helpItem: string;
-export const backupInProgress: string;
-export const rotate: string;
 export const backupConfigHelp: string;

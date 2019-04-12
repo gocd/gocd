@@ -119,7 +119,7 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
 
       @Test
       void 'should get 404 when id does not exist'() {
-        doReturn(null).when(backupService).getServerBackup(BACKUP_ID.toString())
+        doReturn(Optional.empty()).when(backupService).getServerBackup(BACKUP_ID.toString())
 
         getWithApiHeader(controller.controllerPath(BACKUP_ID))
 
@@ -133,9 +133,22 @@ class BackupsControllerV2Test implements SecurityServiceTrait, ControllerTrait<B
       void 'should get serverBackup json'() {
         def backup = new ServerBackup("/foo/bar", new Date(), currentUserLoginName().toString(), BackupStatus.IN_PROGRESS, "", BACKUP_ID)
 
-        doReturn(backup).when(backupService).getServerBackup(BACKUP_ID.toString())
+        doReturn(Optional.of(backup)).when(backupService).getServerBackup(BACKUP_ID.toString())
 
         getWithApiHeader(controller.controllerPath(BACKUP_ID))
+
+        assertThatResponse()
+          .isOk()
+          .hasBodyWithJsonObject(backup, BackupRepresenter.class)
+          .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void 'should get running backup'() {
+        def backup = new ServerBackup("/foo/bar", new Date(), currentUserLoginName().toString(), BackupStatus.IN_PROGRESS, "", BACKUP_ID)
+        doReturn(Optional.of(backup)).when(backupService).runningBackup()
+
+        getWithApiHeader(controller.controllerPath("running"))
 
         assertThatResponse()
           .isOk()

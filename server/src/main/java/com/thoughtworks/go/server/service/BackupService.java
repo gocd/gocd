@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.GoMailSender;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.security.AESCipherProvider;
 import com.thoughtworks.go.security.DESCipherProvider;
+import com.thoughtworks.go.server.domain.BackupProgressStatus;
 import com.thoughtworks.go.server.domain.PostBackupScript;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.domain.Username;
@@ -70,6 +71,7 @@ public class BackupService implements BackupStatusProvider {
         TIMER,
         USER
     }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(BackupService.class);
     static final String BACKUP = "backup_";
 
@@ -89,6 +91,7 @@ public class BackupService implements BackupStatusProvider {
     private static final String VERSION_BACKUP_FILE = "version.txt";
 
     private static final Object BACKUP_MUTEX = new Object();
+
     @Autowired
     public BackupService(ArtifactsDirHolder artifactsDirHolder,
                          GoConfigService goConfigService,
@@ -117,17 +120,25 @@ public class BackupService implements BackupStatusProvider {
         return serverBackup;
     }
 
-    public ServerBackup getServerBackup(String id) {
+    public Optional<ServerBackup> runningBackup() {
+        return Optional.ofNullable(runningBackup);
+    }
+
+    public Optional<ServerBackup> getServerBackup(String id) {
+        if (runningBackup != null && id.equals(String.valueOf(runningBackup.getId()))) {
+            return Optional.of(runningBackup);
+        }
         return serverBackupRepository.getBackup(id);
     }
 
-    public ServerBackup startBackupWithId(long id) {
-        ServerBackup backup = serverBackupRepository.getBackup(id);
-        if (backup == null) {
+    public Optional<ServerBackup> startBackupWithId(long id) {
+        Optional<ServerBackup> backup = serverBackupRepository.getBackup(id);
+        if (!backup.isPresent()) {
             LOGGER.error("Cannot find backup with id: {}. Skipping backup generation", id);
-            return null;
+            return Optional.empty();
         }
-        return performBackup(backup, singletonList(new BackupStatusUpdater(backup, serverBackupRepository)), BackupInitiator.USER);
+        ServerBackup serverBackup = performBackup(backup.get(), singletonList(new BackupStatusUpdater(backup.get(), serverBackupRepository)), BackupInitiator.USER);
+        return Optional.of(serverBackup);
     }
 
     ServerBackup backupViaTimer() {
@@ -151,7 +162,7 @@ public class BackupService implements BackupStatusProvider {
         synchronized (BACKUP_MUTEX) {
             try {
                 runningBackup = backup;
-                notifyUpdateToListeners(backupUpdateListeners, "Creating backup directory");
+                notifyUpdateToListeners(backupUpdateListeners, BackupProgressStatus.CREATING_DIR);
                 if (!destDir.mkdirs()) {
                     notifyErrorToListeners(backupUpdateListeners, "Failed to perform backup. Reason: Could not create the backup directory.");
                     return backup;
@@ -185,7 +196,7 @@ public class BackupService implements BackupStatusProvider {
     }
 
     private void backupConfigRepo(List<BackupUpdateListener> backupUpdateListeners, File destDir) throws IOException {
-        notifyUpdateToListeners(backupUpdateListeners, "Backing up config repo");
+        notifyUpdateToListeners(backupUpdateListeners, BackupProgressStatus.BACKUP_CONFIG_REPO);
         configRepository.doLocked(new VoidThrowingFn<IOException>() {
             @Override
             public void run() throws IOException {
@@ -196,8 +207,9 @@ public class BackupService implements BackupStatusProvider {
             }
         });
     }
-    private void notifyUpdateToListeners(List<BackupUpdateListener> listeners, String message) {
-        listeners.forEach(backupUpdateListener -> backupUpdateListener.updateStep(message));
+
+    private void notifyUpdateToListeners(List<BackupUpdateListener> listeners, BackupProgressStatus status) {
+        listeners.forEach(backupUpdateListener -> backupUpdateListener.updateStep(status));
     }
 
     private void notifyErrorToListeners(List<BackupUpdateListener> listeners, String message) {
@@ -205,7 +217,7 @@ public class BackupService implements BackupStatusProvider {
     }
 
     private void notifyCompletionToListeners(List<BackupUpdateListener> listeners) {
-        listeners.forEach(backupUpdateListener -> backupUpdateListener.completed());
+        listeners.forEach(BackupUpdateListener::completed);
     }
 
     private File getBackupDir(DateTime backupTime) {
@@ -227,10 +239,10 @@ public class BackupService implements BackupStatusProvider {
     private boolean executePostBackupScript(String username, BackupInitiator initiatedBy, ServerBackup serverBackup, List<BackupUpdateListener> notifyUpdateToListeners) {
         String postBackupScriptFile = postBackupScriptFile();
         if (isNotBlank(postBackupScriptFile)) {
-            notifyUpdateToListeners(notifyUpdateToListeners, "Executing Post backup script");
+            notifyUpdateToListeners(notifyUpdateToListeners, BackupProgressStatus.POST_BACKUP_SCRIPT_START);
             PostBackupScript postBackupScript = new PostBackupScript(postBackupScriptFile, initiatedBy, username, serverBackup, backupLocation(), serverBackup.getTime());
             if (postBackupScript.execute()) {
-                notifyUpdateToListeners(notifyUpdateToListeners, "Post backup script executed successfully.");
+                notifyUpdateToListeners(notifyUpdateToListeners, BackupProgressStatus.POST_BACKUP_SCRIPT_COMPLETE);
                 return true;
             } else {
                 notifyErrorToListeners(notifyUpdateToListeners, "Post backup script exited with an error, check the server log for details.");
@@ -265,13 +277,13 @@ public class BackupService implements BackupStatusProvider {
     }
 
     private void backupVersion(File backupDir, List<BackupUpdateListener> backupUpdateListeners) throws IOException {
-        notifyUpdateToListeners(backupUpdateListeners, "Backing up version file.");
+        notifyUpdateToListeners(backupUpdateListeners, BackupProgressStatus.BACKUP_VERSION_FILE);
         File versionFile = new File(backupDir, VERSION_BACKUP_FILE);
         FileUtils.writeStringToFile(versionFile, CurrentGoCDVersion.getInstance().formatted(), UTF_8);
     }
 
     private void backupConfig(File backupDir, List<BackupUpdateListener> backupUpdateListeners) throws IOException {
-        notifyUpdateToListeners(backupUpdateListeners, "Backing up Config.");
+        notifyUpdateToListeners(backupUpdateListeners, BackupProgressStatus.BACKUP_CONFIG);
         String configDirectory = systemEnvironment.getConfigDir();
         try (ZipOutputStream configZip = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(new File(backupDir, CONFIG_BACKUP_ZIP))))) {
             File cruiseConfigFile = new File(systemEnvironment.getCruiseConfigFile());
@@ -293,7 +305,7 @@ public class BackupService implements BackupStatusProvider {
     }
 
     private void backupDb(File backupDir, List<BackupUpdateListener> backupUpdateListener) {
-        notifyUpdateToListeners(backupUpdateListener, "Backing up Database.");
+        notifyUpdateToListeners(backupUpdateListener, BackupProgressStatus.BACKUP_DATABASE);
         databaseStrategy.backup(backupDir);
     }
 
@@ -301,14 +313,12 @@ public class BackupService implements BackupStatusProvider {
         return artifactsDirHolder.getBackupsDir().getAbsolutePath();
     }
 
-    public Date lastBackupTime() {
-        ServerBackup serverBackup = serverBackupRepository.lastSuccessfulBackup();
-        return serverBackup == null ? null : serverBackup.getTime();
+    public Optional<Date> lastBackupTime() {
+        return serverBackupRepository.lastSuccessfulBackup().map((ServerBackup::getTime));
     }
 
-    public String lastBackupUser() {
-        ServerBackup serverBackup = serverBackupRepository.lastSuccessfulBackup();
-        return serverBackup == null ? null : serverBackup.getUsername();
+    public Optional<String> lastBackupUser() {
+        return serverBackupRepository.lastSuccessfulBackup().map((ServerBackup::getUsername));
     }
 
     public void deleteAll() {
@@ -319,12 +329,18 @@ public class BackupService implements BackupStatusProvider {
         return runningBackup != null;
     }
 
-    public String backupRunningSinceISO8601() {
-        return !(runningBackup == null) ? new DateTime(runningBackup.getTime()).toString() : null;
+    public Optional<String> backupRunningSinceISO8601() {
+        if (runningBackup != null) {
+            return Optional.of(new DateTime(runningBackup.getTime()).toString());
+        }
+        return Optional.empty();
     }
 
-    public String backupStartedBy() {
-        return !(runningBackup == null) ? runningBackup.getUsername() : null;
+    public Optional<String> backupStartedBy() {
+        if (runningBackup != null) {
+            return Optional.of(runningBackup.getUsername());
+        }
+        return Optional.empty();
     }
 
     public String availableDiskSpace() {

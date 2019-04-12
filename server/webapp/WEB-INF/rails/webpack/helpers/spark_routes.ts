@@ -218,6 +218,10 @@ export default class {
     return `/go/api/backups`;
   }
 
+  static apiRunningServerBackupsPath() {
+    return `/go/api/backups/running`;
+  }
+
   static apiCurrentAccessTokenPath(id: number) {
     return `/go/api/current_user/access_tokens/${id}`;
   }

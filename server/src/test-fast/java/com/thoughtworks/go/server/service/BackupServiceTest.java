@@ -41,6 +41,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.io.File;
 import java.util.Date;
+import java.util.Optional;
 
 import static com.thoughtworks.go.server.service.BackupService.ABORTED_BACKUPS_MESSAGE;
 import static org.hamcrest.Matchers.is;
@@ -96,11 +97,11 @@ public class BackupServiceTest {
     public void shouldReturnTheLatestBackupTime() {
         ServerBackupRepository repo = mock(ServerBackupRepository.class);
         Date serverBackupTime = new Date();
-        when(repo.lastSuccessfulBackup()).thenReturn(new ServerBackup("file_path", serverBackupTime, "user", ""));
+        when(repo.lastSuccessfulBackup()).thenReturn(Optional.of(new ServerBackup("file_path", serverBackupTime, "user", "")));
         BackupService backupService = new BackupService(null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy, null);
 
-        Date date = backupService.lastBackupTime();
-        assertThat(date, is(serverBackupTime));
+        Optional<Date> date = backupService.lastBackupTime();
+        assertThat(date.get(), is(serverBackupTime));
     }
 
     @Test
@@ -114,11 +115,11 @@ public class BackupServiceTest {
     @Test
     public void shouldReturnTheUserThatTriggeredTheLastBackup() {
         ServerBackupRepository repo = mock(ServerBackupRepository.class);
-        when(repo.lastSuccessfulBackup()).thenReturn(new ServerBackup("file_path", new Date(), "loser", ""));
+        when(repo.lastSuccessfulBackup()).thenReturn(Optional.of(new ServerBackup("file_path", new Date(), "loser", "")));
         BackupService backupService = new BackupService(null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy, null);
 
-        String username = backupService.lastBackupUser();
-        assertThat(username, is("loser"));
+        Optional<String> username = backupService.lastBackupUser();
+        assertThat(username.get(), is("loser"));
     }
 
     @Test

@@ -138,7 +138,7 @@ public class BackupServiceH2IntegrationTest {
         File backup = new File(backupsDirectory, BackupService.BACKUP + now.toString("YYYYMMdd-HHmmss"));
         assertThat(backup.exists(), is(true));
         assertThat(new File(backup, "db.zip").exists(), is(true));
-        assertEquals(serverBackup, backupInfoRepository.lastSuccessfulBackup());
+        assertEquals(serverBackup, backupInfoRepository.lastSuccessfulBackup().get());
     }
 
     @Test

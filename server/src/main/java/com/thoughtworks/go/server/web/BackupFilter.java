@@ -51,8 +51,10 @@ public class BackupFilter implements Filter {
     private final static Logger LOGGER = LoggerFactory.getLogger(BackupFilter.class);
 
     private static final OrRequestMatcher REQUESTS_ALLOWED_WHILE_BACKUP_RUNNING_MATCHER = new OrRequestMatcher(
-            new RegexRequestMatcher("/api/backups/\\d+", "GET", true),
-            new RegexRequestMatcher("/api/v1/health", "GET", true)
+            new RegexRequestMatcher("/api/backups/(\\d+|running)", "GET", true),
+            new RegexRequestMatcher("/api/v1/health", "GET", true),
+            new RegexRequestMatcher("/admin/backup", "GET", true),
+            new RegexRequestMatcher("/assets/.*", "GET", true)
     );
 
     // For the Test
@@ -101,8 +103,8 @@ public class BackupFilter implements Filter {
     }
 
     String replaceStringLiterals(String content) {
-        content = content.replaceAll("%backup_initiated_by%", HtmlUtils.htmlEscape(backupService.backupRunningSinceISO8601()));
-        content = content.replaceAll("%backup_started_by%", HtmlUtils.htmlEscape(backupService.backupStartedBy()));
+        content = content.replaceAll("%backup_initiated_by%", HtmlUtils.htmlEscape(backupService.backupRunningSinceISO8601().orElse("")));
+        content = content.replaceAll("%backup_started_by%", HtmlUtils.htmlEscape(backupService.backupStartedBy().orElse("")));
         return content;
     }
 

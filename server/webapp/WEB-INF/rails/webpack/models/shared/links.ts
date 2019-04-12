@@ -14,14 +14,20 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.server.service.backup;
+export class Links {
+  readonly self?: string;
+  readonly doc?: string;
 
-import com.thoughtworks.go.server.domain.BackupProgressStatus;
+  constructor(self?: string, doc?: string) {
+    this.self = self;
+    this.doc  = doc;
+  }
 
-public interface BackupUpdateListener {
-    void updateStep(BackupProgressStatus status);
+  static fromJSON(links: any) {
+    return new Links(Links.href(links.self), Links.href(links.doc));
+  }
 
-    void error(String message);
-
-    void completed();
+  private static href(link: any) {
+    return link ? link.href : undefined;
+  }
 }

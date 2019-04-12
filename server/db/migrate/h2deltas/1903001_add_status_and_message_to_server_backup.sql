@@ -20,5 +20,5 @@ UPDATE serverBackups set status='COMPLETED' WHERE status IS NULL;
 ALTER TABLE serverBackups ALTER COLUMN status SET NOT NULL;
 
 --//@UNDO
-ALTER TABLE agents DROP COLUMN status;
-ALTER TABLE agents DROP COLUMN message;
+ALTER TABLE serverBackups DROP COLUMN status;
+ALTER TABLE serverBackups DROP COLUMN message;

@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.Optional;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.mockito.Mockito.*;
@@ -45,8 +46,8 @@ public class BackupFilterTest {
 
     private HttpServletResponse res;
     private BackupFilter backupFilter;
-    private static final String BACKUP_STARTED_AT = "Some old date";
-    private static final String BACKUP_STARTED_BY = "admin";
+    private static final Optional<String> BACKUP_STARTED_AT = Optional.of("Some old date");
+    private static final Optional<String> BACKUP_STARTED_BY = Optional.of("admin");
     private FilterChain chain;
     private FilterConfig filterConfig;
     private BackupService backupService;
@@ -89,6 +90,16 @@ public class BackupFilterTest {
     }
 
     @Test
+    public void shouldPassBackupPageSPARequestWhenBackupIsBeingTaken() throws Exception {
+        when(backupService.isBackingUp()).thenReturn(true);
+        Request request = request(HttpMethod.GET, "", "/admin/backup");
+        backupFilter.doFilter(request, res, chain);
+        verify(res, times(0)).setContentType("text/html");
+        verify(writer, times(0)).print("some test data for my input stream");
+        verify(res, never()).setStatus(anyInt());
+    }
+
+    @Test
     public void shouldWriteToResponseWhenBackupIsBeingTaken() throws Exception {
         when(backupService.isBackingUp()).thenReturn(true);
         when(backupService.backupRunningSinceISO8601()).thenReturn(BACKUP_STARTED_AT);
@@ -118,6 +129,27 @@ public class BackupFilterTest {
         verify(res, never()).setStatus(anyInt());
     }
 
+    @Test
+    public void shouldGetRunningServerBackupWhenBackupIsBeingTaken() throws Exception {
+        when(backupService.isBackingUp()).thenReturn(true);
+        Request request = request(HttpMethod.GET, "", "/api/backups/running");
+        backupFilter.doFilter(request, res, chain);
+
+        verify(res, times(0)).setContentType("text/html");
+        verify(writer, times(0)).print("some test data for my input stream");
+        verify(res, never()).setStatus(anyInt());
+    }
+
+    @Test
+    public void shouldGetStaticAssetsWhenBackupIsBeingTaken() throws IOException, ServletException {
+        when(backupService.isBackingUp()).thenReturn(true);
+        Request request = request(HttpMethod.GET, "", "/assets/foo.js");
+        backupFilter.doFilter(request, res, chain);
+
+        verify(res, times(0)).setContentType("text/html");
+        verify(writer, times(0)).print("some test data for my input stream");
+        verify(res, never()).setStatus(anyInt());
+    }
 
     @Test
     public void shouldReturnJsonResponseWhenBackupIsFinishedJsonAPIIsBeingCalled() throws Exception {

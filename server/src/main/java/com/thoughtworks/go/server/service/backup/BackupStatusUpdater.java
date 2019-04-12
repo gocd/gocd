@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service.backup;
 
+import com.thoughtworks.go.server.domain.BackupProgressStatus;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.persistence.ServerBackupRepository;
 
@@ -29,8 +30,8 @@ public class BackupStatusUpdater implements BackupUpdateListener {
     }
 
     @Override
-    public void updateStep(String message) {
-        serverBackup.setMessage(message);
+    public void updateStep(BackupProgressStatus status) {
+        serverBackup.setProgressStatus(status);
         this.serverBackupRepository.update(serverBackup);
     }
 

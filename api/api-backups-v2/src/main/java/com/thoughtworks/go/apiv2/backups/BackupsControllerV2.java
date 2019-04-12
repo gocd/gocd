@@ -34,6 +34,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
+import java.util.Optional;
 
 import static com.thoughtworks.go.spark.Routes.Backups.ID_PATH;
 import static spark.Spark.*;
@@ -42,6 +43,7 @@ import static spark.Spark.*;
 public class BackupsControllerV2 extends ApiController implements SparkSpringController {
 
     private static final String RETRY_INTERVAL_IN_SECONDS = "5";
+    private static final String RUNNING = "running";
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private BackupService backupService;
@@ -87,10 +89,16 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
 
     public String show(Request request, Response response) throws IOException {
         String backupId = request.params("id");
-        ServerBackup backup = backupService.getServerBackup(backupId);
-        if (null == backup) {
+        Optional<ServerBackup> backup;
+        if (RUNNING.equals(backupId)) {
+            backup = backupService.runningBackup();
+        } else {
+            backup = backupService.getServerBackup(backupId);
+        }
+
+        if (!backup.isPresent()) {
             throw new RecordNotFoundException(EntityType.Backup, backupId);
         }
-        return writerForTopLevelObject(request, response, outputWriter -> BackupRepresenter.toJSON(outputWriter, backup));
+        return writerForTopLevelObject(request, response, outputWriter -> BackupRepresenter.toJSON(outputWriter, backup.get()));
     }
 }

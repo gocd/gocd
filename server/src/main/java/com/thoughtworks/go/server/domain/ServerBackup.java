@@ -17,24 +17,29 @@
 package com.thoughtworks.go.server.domain;
 
 import com.thoughtworks.go.domain.PersistentObject;
+import lombok.EqualsAndHashCode;
 
 import java.util.Date;
+import java.util.Optional;
 
 /**
  * @understands A single backup of the server
  */
-public class ServerBackup extends PersistentObject{
+@EqualsAndHashCode(callSuper = true, exclude = "backupProgressStatus")
+public class ServerBackup extends PersistentObject {
     private Date time;
     private String path;
     private String username;
     private BackupStatus status;
     private String message;
+    private BackupProgressStatus backupProgressStatus;
 
     private ServerBackup() {
     }
 
     public ServerBackup(String path, Date time, String username, String message) {
         this(path, time, username, message, BackupStatus.IN_PROGRESS);
+        this.backupProgressStatus = BackupProgressStatus.STARTING;
     }
 
     public ServerBackup(String path, Date time, String username, String message, BackupStatus status) {
@@ -70,48 +75,12 @@ public class ServerBackup extends PersistentObject{
         this.username = username;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        ServerBackup that = (ServerBackup) o;
-
-        if (path != null ? !path.equals(that.path) : that.path != null) {
-            return false;
-        }
-        if (time != null ? !time.equals(that.time) : that.time != null) {
-            return false;
-        }
-        if (status != null ? !status.equals(that.status) : that.status != null) {
-            return false;
-        }
-        if (message != null ? !message.equals(that.message) : that.message != null) {
-            return false;
-        }
-        if (username != null ? !username.equals(that.username) : that.username != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = time != null ? time.hashCode() : 0;
-        result = 31 * result + (path != null ? path.hashCode() : 0);
-        result = 31 * result + (username != null ? username.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (message != null ? message.hashCode() : 0);
-        return result;
-    }
-
     public BackupStatus getStatus() {
         return status;
+    }
+
+    public Optional<BackupProgressStatus> getBackupProgressStatus() {
+        return Optional.ofNullable(backupProgressStatus);
     }
 
     public String getMessage() {
@@ -126,13 +95,20 @@ public class ServerBackup extends PersistentObject{
         this.message = message;
     }
 
+    public void setProgressStatus(BackupProgressStatus status) {
+        this.backupProgressStatus = status;
+        this.message = status.getMessage();
+    }
+
     public void markCompleted() {
         this.status = BackupStatus.COMPLETED;
+        this.backupProgressStatus = null;
     }
 
     public void markError(String message) {
         this.status = BackupStatus.ERROR;
         this.message = message;
+        this.backupProgressStatus = null;
     }
 
     public Boolean hasFailed() {

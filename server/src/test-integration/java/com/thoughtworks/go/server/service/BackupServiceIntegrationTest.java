@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.security.AESCipherProvider;
 import com.thoughtworks.go.security.DESCipherProvider;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.domain.BackupProgressStatus;
 import com.thoughtworks.go.server.domain.ServerBackup;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.SendEmailMessage;
@@ -59,6 +60,7 @@ import javax.sql.DataSource;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Semaphore;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -311,14 +313,14 @@ public class BackupServiceIntegrationTest {
 
     @Test
     public void shouldReturnBackupRunningSinceValue_inISO8601_format() throws InterruptedException {
-        assertThat(backupService.backupRunningSinceISO8601(), is(nullValue()));
+        assertThat(backupService.backupRunningSinceISO8601(), is(Optional.empty()));
 
         final Semaphore waitForBackupToStart = new Semaphore(1);
         final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);
         final BackupUpdateListener backupUpdateListener = new BackupUpdateListener() {
             private boolean backupStarted = false;
             @Override
-            public void updateStep(String message) {
+            public void updateStep(BackupProgressStatus step) {
                 if (!backupStarted) {
                     backupStarted = true;
                     waitForBackupToStart.release();
@@ -345,7 +347,7 @@ public class BackupServiceIntegrationTest {
 
         backupThd.start();
         waitForBackupToStart.acquire();
-        String backupStartedTimeString = backupService.backupRunningSinceISO8601();
+        String backupStartedTimeString = backupService.backupRunningSinceISO8601().get();
         DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTime();
         DateTime backupTime = dateTimeFormatter.parseDateTime(backupStartedTimeString);
 
@@ -357,14 +359,14 @@ public class BackupServiceIntegrationTest {
 
     @Test
     public void shouldReturnBackupStartedBy() throws InterruptedException {
-        assertThat(backupService.backupStartedBy(), is(nullValue()));
+        assertThat(backupService.backupStartedBy(), is(Optional.empty()));
 
         final Semaphore waitForBackupToStart = new Semaphore(1);
         final Semaphore waitForAssertionToCompleteWhileBackupIsOn = new Semaphore(1);
         final BackupUpdateListener backupUpdateListener = new BackupUpdateListener() {
             private boolean backupStarted = false;
             @Override
-            public void updateStep(String message) {
+            public void updateStep(BackupProgressStatus step) {
                 if (!backupStarted) {
                     backupStarted = true;
                     waitForBackupToStart.release();
@@ -391,7 +393,7 @@ public class BackupServiceIntegrationTest {
 
         backupThd.start();
         waitForBackupToStart.acquire();
-        String backupStartedBy = backupService.backupStartedBy();
+        String backupStartedBy = backupService.backupStartedBy().get();
         ServerBackup runningBackup = (ServerBackup) ReflectionUtil.getField(backupService, "runningBackup");
 
         assertThat(runningBackup.getUsername(), is(backupStartedBy));
@@ -423,7 +425,7 @@ public class BackupServiceIntegrationTest {
 
         backupThd.start();
         waitForBackupToComplete.acquire();
-        assertThat(backupUpdateListener.getMessages().contains("Post backup script executed successfully."), is(true));
+        assertThat(backupUpdateListener.getMessages().contains("Post backup script executed successfully"), is(true));
         backupThd.join();
     }
 
@@ -533,7 +535,7 @@ public class BackupServiceIntegrationTest {
         FileUtils.deleteQuietly(artifactsDirHolder.getArtifactsDir());
     }
 
-    class MessageCollectingBackupUpdateListener implements BackupUpdateListener{
+    class MessageCollectingBackupUpdateListener implements BackupUpdateListener {
 
         private final List<String> messages;
 
@@ -545,8 +547,8 @@ public class BackupServiceIntegrationTest {
         }
 
         @Override
-        public void updateStep(String message) {
-            messages.add(message);
+        public void updateStep(BackupProgressStatus step) {
+            messages.add(step.getMessage());
         }
 
         public List<String> getMessages() {

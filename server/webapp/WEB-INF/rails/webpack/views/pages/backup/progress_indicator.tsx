@@ -18,6 +18,7 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {BackupProgressStatus, BackupStatus} from "models/backups/types";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import * as styles from "./progress_indicator.scss";
 
 const classnames = bind(styles);
@@ -97,11 +98,14 @@ class BackupStep extends MithrilViewComponent<StepAttrs> {
   view(vnode: m.Vnode<StepAttrs>) {
     let error;
     if (vnode.attrs.status === StepStatus.FAILED) {
-      error = <p class={styles.errorMessage}>{vnode.attrs.error}</p>;
+      error = <div class={styles.errorContainer}>
+        <FlashMessage type={MessageType.alert}>{vnode.attrs.error}</FlashMessage>
+      </div>;
     }
-    return <div>
+    return <div class={styles.stepContainer}>
       <span data-test-id={`step-${vnode.attrs.id}`}
-            class={classnames(styles.indicator, styles[vnode.attrs.status])}/>{vnode.children}
+            class={classnames(styles.indicator, styles[vnode.attrs.status])}/>
+      <span class={styles.stepText}>{vnode.children}</span>
       {error}
     </div>;
   }

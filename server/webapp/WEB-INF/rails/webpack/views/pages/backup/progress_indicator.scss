@@ -20,16 +20,24 @@
   padding: 20px;
 }
 
-.error-message {
-  color: $failed;
+.step-container {
+  margin: 20px;
+}
+
+.step-text {
+  margin-left: 10px;
+}
+
+.error-container {
+  margin-top: 5px;
 }
 
 .indicator {
   border-radius: 50%;
   padding:       8px;
-  border:        2px solid $border-color;
   text-align:    center;
   display:       inline-block;
+  vertical-align: middle;
 }
 
 .not-run {

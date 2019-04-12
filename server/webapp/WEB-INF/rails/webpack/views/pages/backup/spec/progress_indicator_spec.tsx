@@ -34,7 +34,7 @@ describe("Backup Progress Indicator Widget", () => {
     }
     expect(helper.findByClass(styles.stepsContainer)).not.toContainText("Backup in progress...");
     expect(helper.findByClass(styles.stepsContainer)).not.toContainText("Backup Completed");
-    expect(helper.findByClass(styles.errorMessage)).not.toBeInDOM();
+    expect(helper.findByClass(styles.errorContainer)).not.toBeInDOM();
   });
 
   it("should render status while backup is running", () => {
@@ -47,7 +47,7 @@ describe("Backup Progress Indicator Widget", () => {
     }
     expect(helper.findByClass(styles.stepsContainer)).toContainText("Backup in progress...");
     expect(helper.findByClass(styles.stepsContainer)).not.toContainText("Backup Completed");
-    expect(helper.findByClass(styles.errorMessage)).not.toBeInDOM();
+    expect(helper.findByClass(styles.errorContainer)).not.toBeInDOM();
   });
 
   it("should render status after backup is complete", () => {
@@ -58,7 +58,7 @@ describe("Backup Progress Indicator Widget", () => {
     }
     expect(helper.findByClass(styles.stepsContainer)).not.toContainText("Backup in progress...");
     expect(helper.findByClass(styles.stepsContainer)).toContainText("Backup Completed");
-    expect(helper.findByClass(styles.errorMessage)).not.toBeInDOM();
+    expect(helper.findByClass(styles.errorContainer)).not.toBeInDOM();
   });
 
   it("should render failed status", () => {
@@ -67,7 +67,7 @@ describe("Backup Progress Indicator Widget", () => {
       expect(helper.findByDataTestId(`step-${key}`)).toHaveClass(styles.passed);
     }
     expect(helper.findByDataTestId(`step-${BackupProgressStatus.BACKUP_DATABASE}`)).toHaveClass(styles.failed);
-    expect(helper.findByClass(styles.errorMessage)).toHaveText("Backup failed for some reason");
+    expect(helper.findByClass(styles.errorContainer)).toHaveText("Backup failed for some reason");
     expect(helper.findByDataTestId(`step-${BackupProgressStatus.POST_BACKUP_SCRIPT_START}`)).toHaveClass(styles.notRun);
   });
 

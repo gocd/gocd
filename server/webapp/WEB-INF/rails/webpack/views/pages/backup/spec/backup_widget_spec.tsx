@@ -63,12 +63,12 @@ describe("Backup Widget", () => {
 
   it("should render top level error if backup fails to start", () => {
     mount("200 GB", BackupStatus.ERROR, "Something went wrong");
-    expect(helper.findByDataTestId(`flash-message-alert`)).toHaveText("Something went wrong");
+    expect(helper.findByDataTestId(`top-level-error`)).toHaveText("Something went wrong");
   });
 
   it("should not render top level error if backup has already started", () => {
     mount("200 GB", BackupStatus.ERROR, "Something went wrong", BackupProgressStatus.BACKUP_VERSION_FILE);
-    expect(helper.findByDataTestId(`flash-message-alert`)).not.toBeInDOM();
+    expect(helper.findByDataTestId(`top-level-error`)).not.toBeInDOM();
   });
 
   function mount(availableDiskSpace: string,

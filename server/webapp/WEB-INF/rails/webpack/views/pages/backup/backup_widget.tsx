@@ -120,7 +120,7 @@ export class BackupWidget extends MithrilComponent<Attrs> {
   private topLevelError(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.backupStatus === BackupStatus.ERROR
       && (vnode.attrs.backupProgressStatus === undefined || vnode.attrs.backupProgressStatus < 1)) {
-      return <FlashMessage type={MessageType.alert} message={vnode.attrs.message}/>;
+      return <FlashMessage dataTestId="top-level-error" type={MessageType.alert} message={vnode.attrs.message}/>;
     }
   }
 }

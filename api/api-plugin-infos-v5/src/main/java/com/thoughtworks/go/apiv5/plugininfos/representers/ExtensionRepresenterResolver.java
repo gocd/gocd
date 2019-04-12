@@ -35,7 +35,7 @@ public class ExtensionRepresenterResolver {
         extensionRepresenter.put("notification", new NotificationPluginInfoRepresenter());
         extensionRepresenter.put("analytics", new AnalyticsPluginInfoRepresenter());
         extensionRepresenter.put("artifact", new ArtifactPluginInfoRepresenter());
-
+        extensionRepresenter.put("secrets", new SecretsExtensionRepresenter());
     }
 
     static ExtensionRepresenter resolveRepresenterFor(PluginInfo extension) {

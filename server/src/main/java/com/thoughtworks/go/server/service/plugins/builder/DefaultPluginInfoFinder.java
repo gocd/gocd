@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.access.notification.NotificationMetadataStore;
 import com.thoughtworks.go.plugin.access.packagematerial.PackageMaterialMetadataStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskMetadataStore;
 import com.thoughtworks.go.plugin.access.scm.NewSCMMetadataStore;
+import com.thoughtworks.go.plugin.access.secrets.SecretsMetadataStore;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.domain.common.PluginInfo;
@@ -59,6 +60,7 @@ public class DefaultPluginInfoFinder {
         builders.put(ANALYTICS_EXTENSION, AnalyticsMetadataStore.instance());
         builders.put(CONFIG_REPO_EXTENSION, ConfigRepoMetadataStore.instance());
         builders.put(ARTIFACT_EXTENSION, ArtifactMetadataStore.instance());
+        builders.put(SECRETS_EXTENSION, SecretsMetadataStore.instance());
     }
 
     public CombinedPluginInfo pluginInfoFor(String pluginId) {

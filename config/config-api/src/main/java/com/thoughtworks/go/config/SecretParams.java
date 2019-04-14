@@ -116,6 +116,12 @@ public class SecretParams extends ArrayList<SecretParam> implements Serializable
                 .findFirst();
     }
 
+    public Optional<SecretParam> findFirstByConfigId(String configId) {
+        return this.stream()
+                .filter(secretParam -> secretParam.getSecretConfigId().equals(configId))
+                .findFirst();
+    }
+
     public String mask(String originalValue) {
         return this.stream()
                 .map(this::maskFunction)

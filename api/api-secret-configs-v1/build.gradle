@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+apply plugin: 'jacoco'
+apply plugin: 'groovy'
 
-@ConfigTag("deny")
-public class Deny extends AbstractDirective {
-    public Deny() {
-        super(DirectiveType.DENY);
-    }
+dependencies {
+  compile project(':api:api-base')
 
-    public Deny(String action, String type, String resource) {
-        super(DirectiveType.DENY, action, type, resource);
-    }
+  testCompile project(path: ':api:api-base', configuration: 'testOutput')
+
+  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
+  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
 }

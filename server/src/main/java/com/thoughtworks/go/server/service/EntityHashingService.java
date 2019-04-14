@@ -72,6 +72,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new EnvironmentConfigListener());
         goConfigService.register(new PackageRepositoryChangeListener());
         goConfigService.register(new ElasticAgentProfileConfigListener());
+        goConfigService.register(new SecretConfigListener());
         goConfigService.register(new PackageListener());
         goConfigService.register(new SecurityAuthConfigListener());
         goConfigService.register(new ConfigRepoListener());
@@ -121,6 +122,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     }
 
     public String md5ForEntity(ElasticProfile config) {
+        String cacheKey = cacheKey(config, config.getId());
+        return getDomainEntityMd5FromCache(config, cacheKey);
+    }
+
+    public String md5ForEntity(SecretConfig config) {
         String cacheKey = cacheKey(config, config.getId());
         return getDomainEntityMd5FromCache(config, cacheKey);
     }
@@ -252,6 +258,14 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
     }
 
+    public String md5ForEntity(SecretConfigs secretConfigs) {
+        List<String> md5s = new ArrayList<>();
+        for(SecretConfig secretConfig: secretConfigs) {
+            md5s.add(md5ForEntity(secretConfig));
+        }
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+    }
+
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
         @Override
         public void onEntityConfigChange(PipelineConfig pipelineConfig) {
@@ -291,6 +305,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(ElasticProfile profile) {
             removeFromCache(profile, profile.getId());
+        }
+    }
+
+    class SecretConfigListener extends EntityConfigChangedListener<SecretConfig> {
+        @Override
+        public void onEntityConfigChange(SecretConfig config) {
+            removeFromCache(config, config.getId());
         }
     }
 

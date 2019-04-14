@@ -22,8 +22,14 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.domain.label.PipelineLabel;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.security.GoCipher;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
+import static java.util.Arrays.asList;
 
 public class PipelineConfigMother {
     public static PipelineConfigs studiosAndEvolve() {
@@ -103,7 +109,7 @@ public class PipelineConfigMother {
     }
 
     public static PipelineConfig pipelineConfigWithTimer(String name, String timerSpec, boolean timerShouldTriggerOnlyOnMaterialChanges) {
-        List<StageConfig> stages = Arrays.asList(new StageConfig(new CaseInsensitiveString("mingle"), new JobConfigs()));
+        List<StageConfig> stages = asList(new StageConfig(new CaseInsensitiveString("mingle"), new JobConfigs()));
         return new PipelineConfig(new CaseInsensitiveString(name), PipelineLabel.COUNT_TEMPLATE, timerSpec, timerShouldTriggerOnlyOnMaterialChanges, MaterialConfigsMother.defaultMaterialConfigs(), stages);
     }
 
@@ -163,10 +169,48 @@ public class PipelineConfigMother {
         return pipelineConfig;
     }
 
+    public static PipelineConfig pipelineWithSecretParams(SecretParam secretParam, String pipelineName, String stageName, String... jobNames) {
+        final PipelineConfig pipelineConfig = createPipelineConfig(pipelineName, stageName, jobNames);
+        final StageConfig stage = pipelineConfig.getStage(stageName);
+
+        for (JobConfig job : stage.getJobs()) {
+            job.setVariables(
+                    new EnvironmentVariablesConfig(
+                            asList(
+                                    new EnvironmentVariableConfig(new GoCipher(), secretParam.getKey(), secretParam.asString(), true)
+                            )
+                    )
+            );
+        }
+
+        return pipelineConfig;
+    }
+
     public static PipelineConfig templateBasedPipelineWithElasticJobs(String templateName, String elasticProfileId, String pipelineName, String stageName, String... jobNames) {
         final StageConfig stageConfig = new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs(jobNames));
         for (JobConfig job : stageConfig.getJobs()) {
             job.setElasticProfileId(elasticProfileId);
+        }
+
+        final PipelineConfig pipelineConfig = new PipelineConfig();
+        pipelineConfig.setName(pipelineName);
+        pipelineConfig.setTemplateName(new CaseInsensitiveString(templateName));
+        pipelineConfig.usingTemplate(new PipelineTemplateConfig(new CaseInsensitiveString(templateName), stageConfig));
+        pipelineConfig.setOrigin(new FileConfigOrigin());
+
+        return pipelineConfig;
+    }
+
+    public static PipelineConfig templateBasedPipelineWithSecretParams(String templateName, SecretParam secretParam, String pipelineName, String stageName, String... jobNames) {
+        final StageConfig stageConfig = new StageConfig(new CaseInsensitiveString(stageName), BuildPlanMother.jobConfigs(jobNames));
+        for (JobConfig job : stageConfig.getJobs()) {
+            job.setVariables(
+                    new EnvironmentVariablesConfig(
+                            asList(
+                                    new EnvironmentVariableConfig(new GoCipher(), secretParam.getKey(), secretParam.asString(), true)
+                            )
+                    )
+            );
         }
 
         final PipelineConfig pipelineConfig = new PipelineConfig();

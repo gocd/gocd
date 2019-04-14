@@ -145,6 +145,20 @@
   </rule>
 
   <rule>
+    <name>Spark Secret Configs Index API</name>
+    <from>^/api/admin/secret_configs$</from>
+    <to last="true">/spark/api/admin/secret_configs</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
+    <name>Spark Secret Configs API</name>
+    <from>^/api/admin/secret_configs/(.*)$</from>
+    <to last="true">/spark/api/admin/secret_configs/${escape:$1}</to>
+    <set name="rails_bound">true</set>
+  </rule>
+
+  <rule>
     <name>Spark Elastic Profile Index API</name>
     <from>^/api/elastic/profiles$</from>
     <to last="true">/spark/api/elastic/profiles</to>

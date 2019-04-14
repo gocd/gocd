@@ -42,7 +42,8 @@ public enum EntityType {
     ConfigRepo("config repo", id),
     SCM("SCM", id),
     ClusterProfile("cluster profile", id),
-    Backup("backup", id)
+    Backup("backup", id),
+    SecretConfig("secret config", id)
     ;
 
     private final String entityType;

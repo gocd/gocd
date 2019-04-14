@@ -16,9 +16,48 @@
 
 package com.thoughtworks.go.config;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
+import java.util.Optional;
 
 @ConfigInterface
 public interface Directive extends Validatable, Serializable {
+    enum DirectiveType {
+        ALLOW("allow"), DENY("deny");
+
+        private final String type;
+
+        DirectiveType(String type) {
+            this.type = type;
+        }
+
+        public String type() {
+            return type;
+        }
+
+        public static Optional<DirectiveType> fromString(String directive) {
+            if (StringUtils.isBlank(directive)) {
+                Optional.empty();
+            }
+
+            switch (directive) {
+                case "allow":
+                    return Optional.of(ALLOW);
+                case "deny":
+                    return Optional.of(DENY);
+                default:
+                    return Optional.empty();
+            }
+        }
+    }
     boolean hasErrors();
+
+    String action();
+
+    String type();
+
+    String resource();
+
+    DirectiveType getDirectiveType();
 }

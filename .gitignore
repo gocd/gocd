@@ -369,3 +369,7 @@ api/api-plugin-infos-v5/logs/
 api/api-secret-configs-v1/out/
 api/api-secret-configs-v1/target/
 api/api-secret-configs-v1/logs/
+api/api-pipeline-config-v7/out/
+api/api-pipeline-config-v7/target/
+api/api-pipeline-config-v7/logs/
+api/api-pipeline-config-v7/config

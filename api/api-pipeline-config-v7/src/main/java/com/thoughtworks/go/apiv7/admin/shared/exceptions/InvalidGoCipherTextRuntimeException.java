@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.api;
+package com.thoughtworks.go.apiv7.admin.shared.exceptions;
 
-public enum ApiVersion {
-    v1(),
-    v2(),
-    v3(),
-    v4(),
-    v5(),
-    v6(),
-    v7();
+public class InvalidGoCipherTextRuntimeException extends RuntimeException {
 
-    private final String mimeType;
-
-    ApiVersion() {
-        this.mimeType = "application/vnd.go.cd." + this.name() + "+json";
+    public InvalidGoCipherTextRuntimeException(String message, Throwable throwable) {
+        super(message, throwable);
     }
 
-    public String mimeType() {
-        return this.mimeType;
-    }
 }

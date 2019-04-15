@@ -27,6 +27,7 @@
 
   <context:annotation-config/>
 
+  <context:component-scan base-package="com.thoughtworks.go.apiv7.pipelineconfig"/>
   <context:component-scan base-package="com.thoughtworks.go.api.support"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv5.plugininfos"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.secretconfigs"/>

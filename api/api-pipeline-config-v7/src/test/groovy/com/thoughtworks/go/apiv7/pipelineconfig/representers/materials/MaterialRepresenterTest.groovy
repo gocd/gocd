@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv7.pipelineconfig.representers.materials
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialRepresenter
+import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialsRepresenter
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -28,23 +28,23 @@ trait MaterialRepresenterTest {
 
   @Test
   void 'should render material with hal representation'() {
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, existingMaterial()) })
+    def actualJson = toObjectString({ MaterialsRepresenter.toJSON(it, existingMaterial()) })
 
     assertThatJson(actualJson).isEqualTo(materialHash)
   }
 
   @Test
   void "should render errors"() {
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, existingMaterialWithErrors()) })
+    def actualJson = toObjectString({ MaterialsRepresenter.toJSON(it, existingMaterialWithErrors()) })
 
     assertThatJson(actualJson).isEqualTo(expectedMaterialHashWithErrors)
   }
 
   @Test
   void 'should convert hash to Material'() {
-    def json = toObjectString({ MaterialRepresenter.toJSON(it, existingMaterial()) })
+    def json = toObjectString({ MaterialsRepresenter.toJSON(it, existingMaterial()) })
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(json)
-    def newMaterial = MaterialRepresenter.fromJSON(jsonReader, getOptions())
+    def newMaterial = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
 
     assertEquals(existingMaterial().isAutoUpdate(), newMaterial.isAutoUpdate())
     assertEquals(existingMaterial().getName(), newMaterial.getName())

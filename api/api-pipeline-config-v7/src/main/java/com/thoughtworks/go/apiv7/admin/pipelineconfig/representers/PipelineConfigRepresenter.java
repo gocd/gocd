@@ -19,7 +19,7 @@ package com.thoughtworks.go.apiv7.admin.pipelineconfig.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialRepresenter;
+import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialsRepresenter;
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.trackingtool.TrackingToolRepresenter;
 import com.thoughtworks.go.apiv7.admin.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.apiv7.admin.shared.representers.configorigin.ConfigRepoOriginRepresenter;
@@ -65,7 +65,7 @@ public class PipelineConfigRepresenter {
         writeOrigin(jsonWriter, pipelineConfig.getOrigin());
         jsonWriter.addChildList("parameters", paramsWriter -> ParamRepresenter.toJSONArray(paramsWriter, pipelineConfig.getParams()));
         jsonWriter.addChildList("environment_variables", envVarsWriter -> EnvironmentVariableRepresenter.toJSON(envVarsWriter, pipelineConfig.getVariables()));
-        jsonWriter.addChildList("materials", materialsWriter -> MaterialRepresenter.toJSONArray(materialsWriter, pipelineConfig.materialConfigs()));
+        jsonWriter.addChildList("materials", materialsWriter -> MaterialsRepresenter.toJSONArray(materialsWriter, pipelineConfig.materialConfigs()));
         writeStages(jsonWriter, pipelineConfig);
         writeTrackingTool(jsonWriter, pipelineConfig);
         writeTimer(jsonWriter, pipelineConfig.getTimer());
@@ -113,7 +113,7 @@ public class PipelineConfigRepresenter {
         pipelineConfig.setOrigin(new FileConfigOrigin());
         pipelineConfig.setParams(ParamRepresenter.fromJSONArray(jsonReader));
         pipelineConfig.setVariables(EnvironmentVariableRepresenter.fromJSONArray(jsonReader));
-        pipelineConfig.setMaterialConfigs(MaterialRepresenter.fromJSONArray(jsonReader, options));
+        pipelineConfig.setMaterialConfigs(MaterialsRepresenter.fromJSONArray(jsonReader, options));
         setStages(jsonReader, pipelineConfig);
         setTrackingTool(jsonReader, pipelineConfig);
         jsonReader.optJsonObject("timer").ifPresent(timerJsonReader -> {

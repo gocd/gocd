@@ -22,13 +22,15 @@ import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOp
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 
-public class PackageMaterialRepresenter {
+public class PackageMaterialRepresenter implements MaterialRepresenter<PackageMaterialConfig> {
 
-    public static void toJSON(OutputWriter jsonWriter, PackageMaterialConfig packageMaterialConfig) {
+    @Override
+    public void toJSON(OutputWriter jsonWriter, PackageMaterialConfig packageMaterialConfig) {
         jsonWriter.add("ref", packageMaterialConfig.getPackageId());
     }
 
-    public static PackageMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    @Override
+    public PackageMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig();
         // Pass along options or the cruise config object.
         CruiseConfig cruiseConfig = options.getCruiseConfig();

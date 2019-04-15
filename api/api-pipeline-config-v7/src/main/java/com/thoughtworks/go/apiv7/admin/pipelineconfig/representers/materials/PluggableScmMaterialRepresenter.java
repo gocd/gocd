@@ -22,9 +22,10 @@ import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOp
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 
-public class PluggableScmMaterialRepresenter {
+public class PluggableScmMaterialRepresenter implements MaterialRepresenter<PluggableSCMMaterialConfig> {
 
-    public static void toJSON(OutputWriter jsonWriter, PluggableSCMMaterialConfig pluggableSCMMaterialConfig) {
+    @Override
+    public void toJSON(OutputWriter jsonWriter, PluggableSCMMaterialConfig pluggableSCMMaterialConfig) {
         jsonWriter.add("ref", pluggableSCMMaterialConfig.getScmId());
         if (pluggableSCMMaterialConfig.filter().isEmpty()) {
             jsonWriter.renderNull("filter");
@@ -34,7 +35,8 @@ public class PluggableScmMaterialRepresenter {
         jsonWriter.add("destination", pluggableSCMMaterialConfig.getFolder());
     }
 
-    public static PluggableSCMMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    @Override
+    public PluggableSCMMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig();
         CruiseConfig cruiseConfig = options.getCruiseConfig();
         if (cruiseConfig != null) {

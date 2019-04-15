@@ -20,7 +20,7 @@ import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.ParamRepresenter
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.PipelineConfigRepresenter
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.TimerRepresenter
-import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialRepresenter
+import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialsRepresenter
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.trackingtool.TrackingToolRepresenter
 import com.thoughtworks.go.apiv7.admin.shared.representers.EnvironmentVariableRepresenter
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions
@@ -108,7 +108,7 @@ class PipelineConfigRepresenterTest {
         environment_variables: [],
         materials            : pipelineWithTemplate().materialConfigs().collect { eachItem ->
           toObject({
-            MaterialRepresenter.toJSON(it, eachItem)
+            MaterialsRepresenter.toJSON(it, eachItem)
           })
         },
         stages               : null,
@@ -662,7 +662,7 @@ class PipelineConfigRepresenterTest {
       },
       materials            : getPipelineConfig().materialConfigs().collect { eachItem ->
         toObject({
-          MaterialRepresenter.toJSON(it, eachItem)
+          MaterialsRepresenter.toJSON(it, eachItem)
         })
       },
       stages               : getPipelineConfig().getStages().collect { eachItem ->

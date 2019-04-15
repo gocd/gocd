@@ -22,9 +22,10 @@ import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOp
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 
-public class PerforceMaterialRepresenter {
+public class PerforceMaterialRepresenter implements MaterialRepresenter<P4MaterialConfig> {
 
-    public static void toJSON(OutputWriter jsonWriter, P4MaterialConfig p4MaterialConfig) {
+    @Override
+    public void toJSON(OutputWriter jsonWriter, P4MaterialConfig p4MaterialConfig) {
         // The ScmMaterialRepresenter tries to do getUrl, but p4 material doesn't have a url.
         ScmMaterialRepresenter.toJSON(jsonWriter, p4MaterialConfig);
         jsonWriter.add("port", p4MaterialConfig.getServerAndPort());
@@ -34,7 +35,8 @@ public class PerforceMaterialRepresenter {
         jsonWriter.add("view", p4MaterialConfig.getView());
     }
 
-    public static P4MaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    @Override
+    public P4MaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, p4MaterialConfig);
         jsonReader.readStringIfPresent("port", p4MaterialConfig::setServerAndPort);

@@ -61,7 +61,8 @@ class PluginSettings {
   }
 
   hasView() {
-    return this.viewTemplate !== undefined && this.viewTemplate() !== undefined && this.viewTemplate().trim().length > 0;
+    return this.viewTemplate !== undefined && this.viewTemplate() !== undefined && this.viewTemplate()
+                                                                                       .trim().length > 0;
   }
 
   hasConfigurations() {
@@ -99,6 +100,8 @@ export abstract class Extension {
         return ScmSettings.fromJSON(data);
       case ExtensionType.TASK:
         return TaskSettings.fromJSON(data);
+      case ExtensionType.SECRETS:
+        return SecretSettings.fromJSON(data);
     }
   }
 
@@ -164,9 +167,9 @@ export class ElasticAgentSettings extends Extension {
               clusterProfileSettings?: PluginSettings) {
     super(ExtensionType.ELASTIC_AGENTS, pluginSettings);
     this.supportsClusterProfiles = supportsClusterProfiles;
-    this.profileSettings        = profileSettings;
-    this.clusterProfileSettings = clusterProfileSettings;
-    this.capabilities           = capabilities;
+    this.profileSettings         = profileSettings;
+    this.clusterProfileSettings  = clusterProfileSettings;
+    this.capabilities            = capabilities;
   }
 
   static fromJSON(data: any) {
@@ -282,5 +285,19 @@ class AnalyticsSettings extends Extension {
 
   static fromJSON(data: any) {
     return new AnalyticsSettings(AnalyticsCapabilities.fromJSON(data.capabilities), PluginSettings.tryParsing(data));
+  }
+}
+
+export class SecretSettings extends Extension {
+  readonly secretConfigSettings: PluginSettings;
+
+  constructor(secretConfigSettings: PluginSettings,
+              pluginSettings?: PluginSettings) {
+    super(ExtensionType.SECRETS, pluginSettings);
+    this.secretConfigSettings = secretConfigSettings;
+  }
+
+  static fromJSON(data: any) {
+    return new SecretSettings(PluginSettings.fromJSON(data.secret_config_settings), PluginSettings.tryParsing(data));
   }
 }

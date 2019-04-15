@@ -193,6 +193,12 @@ PluginInfos.PluginInfo.Extensions['task'] = (extensionData = {}) => {
   };
 };
 
+PluginInfos.PluginInfo.Extensions['secrets'] = (extensionData = {}) => {
+  return {
+    secretConfigSettings: Stream(PluggableInstanceSettings.fromJSON(extensionData.secret_config_settings))
+  };
+};
+
 
 PluginInfos.PluginInfo.Status = function ({state, messages}) {
   this.state    = Stream(state);

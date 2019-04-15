@@ -303,3 +303,51 @@ export class AuthorizationPluginInfo {
     };
   }
 }
+
+export class SecretPluginInfo {
+  static file() {
+    return {
+      id: "cd.go.secrets.file",
+      status: {
+        state: "active"
+      },
+      about: {
+        name: "File based secrets plugin",
+        version: "0.0.1",
+        target_go_version: "19.3.0",
+        description: "Some description about the plugin",
+        target_operating_systems: [],
+        vendor: {
+          name: "GoCD Contributors",
+          url: "https://foo/bar"
+        }
+      },
+      extensions: [
+        {
+          type: "secrets",
+          secret_config_settings: {
+            configurations: [
+              {
+                key: "Url",
+                metadata: {
+                  secure: false,
+                  required: true
+                }
+              },
+              {
+                key: "Token",
+                metadata: {
+                  secure: true,
+                  required: true
+                }
+              }
+            ],
+            view: {
+              template: "<div class=\"form_item_block\">This is secret config view.</div>"
+            }
+          }
+        }
+      ]
+    };
+  }
+}

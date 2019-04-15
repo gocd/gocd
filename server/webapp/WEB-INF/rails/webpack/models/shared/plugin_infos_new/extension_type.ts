@@ -15,15 +15,14 @@
  */
 
 export enum ExtensionType {
-
-  CONFIG_REPO = 'configrepo',
-  ELASTIC_AGENTS = 'elastic-agent',
-  AUTHORIZATION = 'authorization',
-  SCM = 'scm',
-  TASK = 'task',
-  PACKAGE_REPO = 'package-repository',
-  NOTIFICATION = 'notification',
-  ANALYTICS = 'analytics',
-  ARTIFACT = 'artifact'
-
+  CONFIG_REPO    = "configrepo",
+  ELASTIC_AGENTS = "elastic-agent",
+  AUTHORIZATION  = "authorization",
+  SCM            = "scm",
+  TASK           = "task",
+  PACKAGE_REPO   = "package-repository",
+  NOTIFICATION   = "notification",
+  ANALYTICS      = "analytics",
+  ARTIFACT       = "artifact",
+  SECRETS        = "secrets"
 }

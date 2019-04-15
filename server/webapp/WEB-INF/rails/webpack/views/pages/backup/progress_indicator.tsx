@@ -38,19 +38,19 @@ export class ProgressIndicator extends MithrilViewComponent<Attrs> {
           <BackupStep id={BackupProgressStatus.CREATING_DIR}
                       error={vnode.attrs.message}
                       status={this.getStatus(BackupProgressStatus.CREATING_DIR, currentStatus, status)}>Creating
-            backup directory</BackupStep>
+            Backup Directory</BackupStep>
           <BackupStep id={BackupProgressStatus.BACKUP_VERSION_FILE}
                       error={vnode.attrs.message}
                       status={this.getStatus(BackupProgressStatus.BACKUP_VERSION_FILE, currentStatus, status)}>
-            Backing up version file</BackupStep>
+            Backing up Version File</BackupStep>
           <BackupStep id={BackupProgressStatus.BACKUP_CONFIG}
                       error={vnode.attrs.message}
                       status={this.getStatus(BackupProgressStatus.BACKUP_CONFIG, currentStatus, status)}>
-            Backing up Config</BackupStep>
+            Backing up Configuration</BackupStep>
           <BackupStep id={BackupProgressStatus.BACKUP_CONFIG_REPO}
                       error={vnode.attrs.message}
                       status={this.getStatus(BackupProgressStatus.BACKUP_CONFIG_REPO, currentStatus, status)}>
-            Backing up config repo</BackupStep>
+            Backing up Configuration History</BackupStep>
           <BackupStep id={BackupProgressStatus.BACKUP_DATABASE}
                       error={vnode.attrs.message}
                       status={this.getStatus(BackupProgressStatus.BACKUP_DATABASE, currentStatus, status)}>
@@ -58,7 +58,7 @@ export class ProgressIndicator extends MithrilViewComponent<Attrs> {
           <BackupStep id={BackupProgressStatus.POST_BACKUP_SCRIPT_START}
                       error={vnode.attrs.message}
                       status={this.getStatus(BackupProgressStatus.POST_BACKUP_SCRIPT_START, currentStatus, status)}>
-            Executing Post backup script</BackupStep>
+            Executing Post Backup Script</BackupStep>
         </ul>
         {this.backupComplete(status)}
       </div>

@@ -19,13 +19,13 @@ package com.thoughtworks.go.server.domain;
 public enum BackupProgressStatus {
 
     STARTING("Starting Backup"),
-    CREATING_DIR("Creating backup directory"),
-    BACKUP_VERSION_FILE("Backing up version file"),
-    BACKUP_CONFIG("Backing up Config"),
-    BACKUP_CONFIG_REPO("Backing up config repo"),
+    CREATING_DIR("Creating Backup Directory"),
+    BACKUP_VERSION_FILE("Backing up Version File"),
+    BACKUP_CONFIG("Backing up Configuration"),
+    BACKUP_CONFIG_REPO("Backing up Configuration History"),
     BACKUP_DATABASE("Backing up Database"),
-    POST_BACKUP_SCRIPT_START("Executing Post backup script"),
-    POST_BACKUP_SCRIPT_COMPLETE("Post backup script executed successfully");
+    POST_BACKUP_SCRIPT_START("Executing Post Backup Script"),
+    POST_BACKUP_SCRIPT_COMPLETE("Post Backup Script executed successfully");
 
     private final String message;
 

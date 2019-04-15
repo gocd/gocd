@@ -41,12 +41,12 @@ describe("Backup Widget", () => {
 
   it("should render backup help", () => {
     mount("2000 GB", BackupStatus.NOT_STARTED, "");
-    expect(helper.findByClass(styles.backupHelp)).toContainText("On performing a backup, Go will create a backup of:");
+    expect(helper.findByClass(styles.backupHelp)).toContainText("On performing a backup, GoCD will create a backup of:");
     expect(helper.findByClass(styles.backupHelp))
       .toContainText(
-        "Go Version - A flat file named version.txt containing the version of Go that the backup was taken against.");
+        "Go Version - A flat file named version.txt containing the version of GoCD that the backup was taken against.");
     expect(helper.findByClass(styles.backupHelp))
-      .toContainText("Database - The database is archived to a file which could be used to restore Go's database.");
+      .toContainText("Database - The database is archived to a file which could be used to restore GoCD's database.");
     expect(helper.findByClass(styles.backupConfigHelp))
       .toContainText("Backups are stored in /path/to/backup/directory");
   });

@@ -79,23 +79,21 @@ export class BackupWidget extends MithrilComponent<Attrs> {
 
   private backupHelp() {
     return <div class={styles.backupHelp}>
-      <h3 class={styles.helpHeading}>On performing a backup, Go will create a backup of:</h3>
+      <h3 class={styles.helpHeading}>On performing a backup, GoCD will create a backup of:</h3>
       <ul class={styles.helpItem}>
         <li>
           <strong>Configuration</strong> - An archive named config-dir.zip containing XML configuration, Jetty server
-          configuration,
-          keystores and other Go internal configurations.
+          configuration, keystores and other GoCD internal configurations.
         </li>
         <li>
-          <strong>Database</strong> - The database is archived to a file which could be used to restore Go's database.
+          <strong>Database</strong> - The database is archived to a file which could be used to restore GoCD's database.
         </li>
         <li>
-          <strong>XML Configuration Version Repository</strong> - An archive named config-repo.zip containing a Git
-          repository of the XML
-          configuration file.
+          <strong>Configuration History</strong> - An archive named config-repo.zip containing a Git repository of the
+          XML configuration file.
         </li>
         <li>
-          <strong>Go Version</strong> - A flat file named version.txt containing the version of Go that the backup was
+          <strong>Go Version</strong> - A flat file named version.txt containing the version of GoCD that the backup was
           taken against.
         </li>
       </ul>

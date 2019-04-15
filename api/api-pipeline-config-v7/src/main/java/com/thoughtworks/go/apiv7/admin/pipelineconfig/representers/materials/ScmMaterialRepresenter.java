@@ -37,6 +37,8 @@ public class ScmMaterialRepresenter {
         jsonWriter.add("invert_filter", scmMaterialConfig.isInvertFilter());
         jsonWriter.add("name", scmMaterialConfig.getName());
         jsonWriter.add("auto_update", scmMaterialConfig.isAutoUpdate());
+        jsonWriter.addIfNotNull("username", scmMaterialConfig.getUserName());
+        jsonWriter.addIfNotNull("encrypted_password", scmMaterialConfig.getEncryptedPassword());
     }
 
     public static void fromJSON(JsonReader jsonReader, ScmMaterialConfig scmMaterialConfig) {

@@ -29,8 +29,6 @@ public class PerforceMaterialRepresenter implements MaterialRepresenter<P4Materi
         // The ScmMaterialRepresenter tries to do getUrl, but p4 material doesn't have a url.
         ScmMaterialRepresenter.toJSON(jsonWriter, p4MaterialConfig);
         jsonWriter.add("port", p4MaterialConfig.getServerAndPort());
-        jsonWriter.add("username", p4MaterialConfig.getUserName());
-        jsonWriter.add("encrypted_password", p4MaterialConfig.getEncryptedPassword());
         jsonWriter.add("use_tickets", p4MaterialConfig.getUseTickets());
         jsonWriter.add("view", p4MaterialConfig.getView());
     }

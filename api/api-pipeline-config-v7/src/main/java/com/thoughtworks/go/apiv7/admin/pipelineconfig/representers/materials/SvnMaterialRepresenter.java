@@ -28,8 +28,6 @@ public class SvnMaterialRepresenter implements MaterialRepresenter<SvnMaterialCo
     public void toJSON(OutputWriter jsonWriter, SvnMaterialConfig svnMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, svnMaterialConfig);
         jsonWriter.add("check_externals", svnMaterialConfig.isCheckExternals());
-        jsonWriter.add("username", svnMaterialConfig.getUserName());
-        jsonWriter.addIfNotNull("encrypted_password", svnMaterialConfig.getEncryptedPassword());
     }
 
     @Override

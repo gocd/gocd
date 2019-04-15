@@ -71,6 +71,22 @@ public class MaterialUpdateServiceIntegrationTest {
         assertThat(serverHealthService, ServerHealthMatcher.containsState(HealthStateType.general(goodScope)));
     }
 
+    @Test public void shouldClearServerHealthLogsForMaterialWhereAutoUpdateChanged() throws Exception {
+        SvnMaterialConfig material = new SvnMaterialConfig("non-existent-url!", "user", "pwd2", false);
+        HealthStateScope scope = HealthStateScope.forMaterialConfig(material);
+        serverHealthService.update(ServerHealthState.error("where's the material!", "fubar", HealthStateType.general(scope)));
+
+        material.setAutoUpdate(false);
+
+        MaterialUpdateService materialUpdateService = new MaterialUpdateService(null,null, mock(MaterialUpdateCompletedTopic.class),
+                mock(GoConfigWatchList.class),mock(GoConfigService.class),
+                systemEnvironment, serverHealthService, null, mock(MDUPerformanceLogger.class), materialConfigConverter, null, maintenanceModeService, null);
+
+        materialUpdateService.onConfigChange(configWithMaterial(material));
+
+        assertThat(serverHealthService, ServerHealthMatcher.doesNotContainState(HealthStateType.general(scope)));
+    }
+
     private CruiseConfig configWithMaterial(SvnMaterialConfig goodMaterial) {
         CruiseConfig config = new BasicCruiseConfig();
         new GoConfigMother().addPipeline(config, "good-pipeline", "first-stage", new MaterialConfigs(goodMaterial));

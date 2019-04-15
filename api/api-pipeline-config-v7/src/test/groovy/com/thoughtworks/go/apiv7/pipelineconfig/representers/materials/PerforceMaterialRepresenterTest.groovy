@@ -82,8 +82,7 @@ class PerforceMaterialRepresenterTest implements MaterialRepresenterTest {
       port: "",
       username: "",
       use_tickets: false,
-      view: "",
-      encrypted_password: null
+      view: ""
     ],
     errors: [
       view: ["P4 view cannot be empty."],

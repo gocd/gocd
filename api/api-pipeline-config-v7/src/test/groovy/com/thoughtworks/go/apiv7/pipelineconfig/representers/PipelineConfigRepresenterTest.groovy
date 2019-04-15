@@ -570,7 +570,7 @@ class PipelineConfigRepresenterTest {
       environment_variables: [[secure: false, name: '', value: '', errors: [name: ["Environment Variable cannot have an empty name for pipeline 'wunderbar'."]]]],
       materials            : [
         [
-          type: 'svn', attributes: [url: 'http://some/svn/url', destination: 'svnDir', filter: null, invert_filter: false, name: 'http___some_svn_url', auto_update: true, check_externals: false, username: null]
+          type: 'svn', attributes: [url: 'http://some/svn/url', destination: 'svnDir', filter: null, invert_filter: false, name: 'http___some_svn_url', auto_update: true, check_externals: false]
         ],
         [
           type  : 'git', attributes: [url: null, destination: null, filter: null, invert_filter: false, name: null, auto_update: true, branch: 'master', submodule_folder: null, shallow_clone: false],

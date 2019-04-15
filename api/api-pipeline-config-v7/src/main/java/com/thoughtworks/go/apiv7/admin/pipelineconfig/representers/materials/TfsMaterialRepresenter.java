@@ -28,8 +28,6 @@ public class TfsMaterialRepresenter implements MaterialRepresenter<TfsMaterialCo
     public void toJSON(OutputWriter jsonWriter, TfsMaterialConfig tfsMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, tfsMaterialConfig);
         jsonWriter.add("domain", tfsMaterialConfig.getDomain());
-        jsonWriter.add("username", tfsMaterialConfig.getUserName());
-        jsonWriter.addIfNotNull("encrypted_password", tfsMaterialConfig.getEncryptedPassword());
         jsonWriter.add("project_path", tfsMaterialConfig.getProjectPath());
     }
 

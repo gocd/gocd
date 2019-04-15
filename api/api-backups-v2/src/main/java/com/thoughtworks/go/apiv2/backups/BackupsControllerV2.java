@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv2.backups.representers.BackupRepresenter;
+import com.thoughtworks.go.config.exceptions.BadRequestException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -93,7 +94,11 @@ public class BackupsControllerV2 extends ApiController implements SparkSpringCon
         if (RUNNING.equals(backupId)) {
             backup = backupService.runningBackup();
         } else {
-            backup = backupService.getServerBackup(backupId);
+            try {
+                backup = backupService.getServerBackup(Long.parseLong(backupId));
+            } catch (NumberFormatException e) {
+                throw new BadRequestException("The `id` parameter should be a number, or the keyword `running`");
+            }
         }
 
         if (!backup.isPresent()) {

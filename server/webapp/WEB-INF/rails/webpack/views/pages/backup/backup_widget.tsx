@@ -17,37 +17,40 @@
 import {docsUrl} from "gen/gocd_version";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {BackupStatus} from "models/backups/types";
+import {BackupProgressStatus, BackupStatus} from "models/backups/types";
 import * as Buttons from "views/components/buttons";
-import {ProgressConsole} from "views/components/progress_console";
+import {FlashMessage, MessageType} from "views/components/flash_message";
 import * as styles from "./index.scss";
+import {ProgressIndicator} from "./progress_indicator";
 
 interface Attrs {
   lastBackupTime: Date | null | undefined;
   lastBackupUser: string | null | undefined;
   availableDiskSpace: string;
   backupLocation: string;
-  backupProgressMessages: string[];
+  message: string;
   backupStatus: BackupStatus;
+  backupProgressStatus?: BackupProgressStatus;
   onPerformBackup: () => void;
-  displayProgressConsole: boolean;
+  displayProgressIndicator: boolean;
 }
 
 export class BackupWidget extends MithrilComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    let progressConsole;
-    if (vnode.attrs.displayProgressConsole) {
-      progressConsole = <ProgressConsole messages={vnode.attrs.backupProgressMessages}
-                                         failed={vnode.attrs.backupStatus === BackupStatus.ERROR}/>;
+    let progressIndicator;
+    if (vnode.attrs.displayProgressIndicator) {
+      progressIndicator = <ProgressIndicator progressStatus={vnode.attrs.backupProgressStatus}
+                                             status={vnode.attrs.backupStatus}
+                                             message={vnode.attrs.message}/>;
     }
     return <div class={styles.backupContainer}>
-      {this.backupConfigHelp(vnode)}
+      {this.topLevelError(vnode)}
       <div class={styles.content}>
         <div class={styles.performBackupContainer}>
           <div class={styles.performBackupSection}>
             <div class={styles.performBackupButtonContainer}>
-              <Buttons.Primary onclick={this.startBackup.bind(this, vnode)}>
-                <span className={vnode.attrs.backupStatus === BackupStatus.IN_PROGRESS ? styles.backupInProgress : ""}/>
+              <Buttons.Primary data-test-id="perform-backup" onclick={this.startBackup.bind(this, vnode)}
+                               disabled={vnode.attrs.backupStatus === BackupStatus.IN_PROGRESS}>
                 Perform Backup
               </Buttons.Primary>
             </div>
@@ -58,7 +61,8 @@ export class BackupWidget extends MithrilComponent<Attrs> {
               {this.lastBackupDetails(vnode)}
             </div>
           </div>
-          {progressConsole}
+          {progressIndicator}
+          {this.backupConfigHelp(vnode)}
         </div>
         {this.backupHelp()}
       </div>
@@ -75,23 +79,21 @@ export class BackupWidget extends MithrilComponent<Attrs> {
 
   private backupHelp() {
     return <div class={styles.backupHelp}>
-      <h3 class={styles.helpHeading}>On performing a backup, Go will create a backup of:</h3>
+      <h3 class={styles.helpHeading}>On performing a backup, GoCD will create a backup of:</h3>
       <ul class={styles.helpItem}>
         <li>
           <strong>Configuration</strong> - An archive named config-dir.zip containing XML configuration, Jetty server
-          configuration,
-          keystores and other Go internal configurations.
+          configuration, keystores and other GoCD internal configurations.
         </li>
         <li>
-          <strong>Database</strong> - The database is archived to a file which could be used to restore Go's database.
+          <strong>Database</strong> - The database is archived to a file which could be used to restore GoCD's database.
         </li>
         <li>
-          <strong>XML Configuration Version Repository</strong> - An archive named config-repo.zip containing a Git
-          repository of the XML
-          configuration file.
+          <strong>Configuration History</strong> - An archive named config-repo.zip containing a Git repository of the
+          XML configuration file.
         </li>
         <li>
-          <strong>Go Version</strong> - A flat file named version.txt containing the version of Go that the backup was
+          <strong>Go Version</strong> - A flat file named version.txt containing the version of GoCD that the backup was
           taken against.
         </li>
       </ul>
@@ -111,5 +113,12 @@ export class BackupWidget extends MithrilComponent<Attrs> {
       <p>To configure backups, please see <a target="_blank" href={docsUrl("advanced_usage/cron_backup.html")}>backup
         configuration documentation</a></p>
     </div>;
+  }
+
+  private topLevelError(vnode: m.Vnode<Attrs>) {
+    if (vnode.attrs.backupStatus === BackupStatus.ERROR
+      && (vnode.attrs.backupProgressStatus === undefined || vnode.attrs.backupProgressStatus < 1)) {
+      return <FlashMessage dataTestId="top-level-error" type={MessageType.alert} message={vnode.attrs.message}/>;
+    }
   }
 }

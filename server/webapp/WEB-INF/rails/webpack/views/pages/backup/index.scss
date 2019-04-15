@@ -34,10 +34,9 @@
 }
 
 .perform-backup-container {
-  width:         60%;
-  padding-right: 20px;
-  box-sizing:    border-box;
-
+  width:        60%;
+  margin-right: 20px;
+  box-sizing:   border-box;
 }
 
 .perform-backup-section {
@@ -45,6 +44,7 @@
   display:     flex;
   align-items: center;
   border:      1px solid $border-color;
+  background:  $secondary-bg;
 }
 
 .backup-info {
@@ -73,32 +73,19 @@
   list-style-type: none;
   margin:          0;
   padding:         0;
+
   li {
     margin-bottom: 10px;
   }
+
   strong {
     font-weight: 600;
   }
 }
 
-.backup-in-progress {
-  @include icon-before($type: $fa-var-spinner) {
-    animation: rotate 0.8s linear infinite;
-    @keyframes rotate {
-      from {
-        transform: rotate(0deg);
-      }
-
-      to {
-        transform: rotate(359deg);
-      }
-    }
-  }
-  margin-left:  -10px;
-  margin-right: 10px;
-}
-
 .backup-config-help {
+  padding:     20px;
+  border:       1px solid $border-color;
   p {
     margin: 5px;
   }

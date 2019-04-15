@@ -105,12 +105,12 @@ public class BackupServiceTest {
     }
 
     @Test
-    public void shouldReturnNullWhenTheLatestBackupTimeIsNotAvailable() {
+    public void shouldReturnEmptyWhenTheLatestBackupTimeIsNotAvailable() {
         ServerBackupRepository repo = mock(ServerBackupRepository.class);
-        when(repo.lastSuccessfulBackup()).thenReturn(null);
+        when(repo.lastSuccessfulBackup()).thenReturn(Optional.empty());
         BackupService backupService = new BackupService(null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy, null);
 
-        assertThat(backupService.lastBackupTime(), is(nullValue()));
+        assertThat(backupService.lastBackupTime().isPresent(), is(false));
     }
     @Test
     public void shouldReturnTheUserThatTriggeredTheLastBackup() {
@@ -123,12 +123,12 @@ public class BackupServiceTest {
     }
 
     @Test
-    public void shouldReturnNullWhenTheLatestBackupUserIsNotAvailable() {
+    public void shouldReturnEmptyWhenTheLatestBackupUserIsNotAvailable() {
         ServerBackupRepository repo = mock(ServerBackupRepository.class);
-        when(repo.lastSuccessfulBackup()).thenReturn(null);
+        when(repo.lastSuccessfulBackup()).thenReturn(Optional.empty());
         BackupService backupService = new BackupService(null, mock(GoConfigService.class), null, repo, systemEnvironment, configRepo, databaseStrategy, null);
 
-        assertThat(backupService.lastBackupUser(), is(nullValue()));
+        assertThat(backupService.lastBackupUser().isPresent(), is(false));
     }
 
     @Test

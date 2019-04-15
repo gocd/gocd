@@ -35,6 +35,7 @@ export interface Attrs {
   type: MessageType;
   message?: m.Children;
   dismissible?: boolean;
+  dataTestId?: string;
 }
 
 export interface State {
@@ -76,8 +77,10 @@ export class FlashMessage extends MithrilComponent<Attrs, State> {
 
     const message = vnode.attrs.message ? <p>{vnode.attrs.message}</p> : undefined;
 
+    const dataTestId = vnode.attrs.dataTestId ? vnode.attrs.dataTestId : `flash-message-${typeElement}`;
+
     return (
-      <div data-test-id={`flash-message-${typeElement}`} className={classnames(styles.callout, style)}>
+      <div data-test-id={dataTestId} className={classnames(styles.callout, style)}>
         {message}
         {vnode.children}
         {closeButton}

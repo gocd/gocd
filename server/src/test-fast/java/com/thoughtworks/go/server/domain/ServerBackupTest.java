@@ -39,7 +39,6 @@ public class ServerBackupTest {
         backup.markCompleted();
         assertThat(backup.getStatus()).isEqualTo(BackupStatus.COMPLETED);
         assertThat(backup.getMessage()).isEmpty();
-        assertThat(backup.getBackupProgressStatus()).isNotPresent();
     }
 
     @Test
@@ -53,7 +52,6 @@ public class ServerBackupTest {
         assertThat(backup.getStatus()).isEqualTo(BackupStatus.ERROR);
         assertThat(backup.getMessage()).isEqualTo("boom");
         assertThat(backup.hasFailed()).isTrue();
-        assertThat(backup.getBackupProgressStatus()).isNotPresent();
     }
 
     @Test

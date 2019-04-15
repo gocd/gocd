@@ -25,7 +25,7 @@ import java.util.Optional;
 /**
  * @understands A single backup of the server
  */
-@EqualsAndHashCode(callSuper = true, exclude = "backupProgressStatus")
+@EqualsAndHashCode(callSuper = true)
 public class ServerBackup extends PersistentObject {
     private Date time;
     private String path;
@@ -102,13 +102,11 @@ public class ServerBackup extends PersistentObject {
 
     public void markCompleted() {
         this.status = BackupStatus.COMPLETED;
-        this.backupProgressStatus = null;
     }
 
     public void markError(String message) {
         this.status = BackupStatus.ERROR;
         this.message = message;
-        this.backupProgressStatus = null;
     }
 
     public Boolean hasFailed() {

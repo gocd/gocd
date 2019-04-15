@@ -15,65 +15,78 @@
  */
 
 import * as m from "mithril";
-import {BackupStatus} from "models/backups/types";
+import {BackupProgressStatus, BackupStatus} from "models/backups/types";
 import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {BackupWidget} from "views/pages/backup/backup_widget";
-import * as progressConsoleStyles from "../../../components/progress_console/index.scss";
 import * as styles from "../index.scss";
 
-describe("AuthorizationConfigurationWidget", () => {
+describe("Backup Widget", () => {
   const performBackup = jasmine.createSpy("onPerformBackup");
-  const helper         = new TestHelper();
+  const helper        = new TestHelper();
 
   afterEach(helper.unmount.bind(helper));
 
   it("should render available disk space and last backup details", () => {
-    mount("2000 GB", BackupStatus.NOT_STARTED, [],  new Date("2019-02-27T00:15:00"), "admin-person");
-    expect(helper.findByClass(styles.availableDiskSpace)).toContainText("Available disk space in backup directory: 2000 GB");
-    expect(helper.findByClass(styles.backupInfo)).toContainText(`Last backup was taken by 'admin-person' at ${new Date("2019-02-27T00:15:00").toLocaleString()}`);
+    mount("2000 GB", BackupStatus.NOT_STARTED, "", undefined, new Date("2019-02-27T00:15:00"), "admin-person");
+    expect(helper.findByClass(styles.availableDiskSpace))
+      .toContainText("Available disk space in backup directory: 2000 GB");
+    expect(helper.findByClass(styles.backupInfo))
+      .toContainText(`Last backup was taken by 'admin-person' at ${new Date("2019-02-27T00:15:00").toLocaleString()}`);
   });
 
   it("should not render last backup details if not set", () => {
-    mount("2000 GB", BackupStatus.NOT_STARTED, []);
+    mount("2000 GB", BackupStatus.NOT_STARTED, "");
     expect(helper.findByClass(styles.backupInfo)).not.toContainText("Last backup was taken");
   });
 
   it("should render backup help", () => {
-    mount("2000 GB", BackupStatus.NOT_STARTED, []);
-    expect(helper.findByClass(styles.backupHelp)).toContainText("On performing a backup, Go will create a backup of:");
-    expect(helper.findByClass(styles.backupHelp)).toContainText("Go Version - A flat file named version.txt containing the version of Go that the backup was taken against.");
-    expect(helper.findByClass(styles.backupHelp)).toContainText("Database - The database is archived to a file which could be used to restore Go's database.");
-    expect(helper.findByClass(styles.backupConfigHelp)).toContainText("Backups are stored in /path/to/backup/directory");
+    mount("2000 GB", BackupStatus.NOT_STARTED, "");
+    expect(helper.findByClass(styles.backupHelp)).toContainText("On performing a backup, GoCD will create a backup of:");
+    expect(helper.findByClass(styles.backupHelp))
+      .toContainText(
+        "Go Version - A flat file named version.txt containing the version of GoCD that the backup was taken against.");
+    expect(helper.findByClass(styles.backupHelp))
+      .toContainText("Database - The database is archived to a file which could be used to restore GoCD's database.");
+    expect(helper.findByClass(styles.backupConfigHelp))
+      .toContainText("Backups are stored in /path/to/backup/directory");
   });
 
-  it("should render progress messages when backup in progress", () => {
-    mount("2000 GB", BackupStatus.NOT_STARTED, ["first message", "second message"]);
-    expect(helper.findByClass(progressConsoleStyles.message)).toHaveLength(2);
-    expect(helper.findByClass(progressConsoleStyles.message).get(0)).toContainText("first message");
-    expect(helper.findByClass(progressConsoleStyles.message).get(1)).toContainText("second message");
+  it("should not disable button when backup not in progress", () => {
+    mount("2000 GB", BackupStatus.NOT_STARTED, "");
+    expect(helper.findByDataTestId("perform-backup")).not.toBeDisabled();
   });
 
-  it("should not render progress spinner when backup not in progress", () => {
-    mount("2000 GB", BackupStatus.NOT_STARTED, []);
-    expect(helper.findByClass(styles.backupInProgress)).toHaveLength(0);
+  it("should disable the button only when backup in progress", () => {
+    mount("200 GB", BackupStatus.IN_PROGRESS, "");
+    expect(helper.findByDataTestId("perform-backup")).toBeDisabled();
   });
 
-  it("should render progress spinner only when backup in progress", () => {
-    mount("200 GB", BackupStatus.IN_PROGRESS, []);
-    expect(helper.findByClass(styles.backupInProgress)).toHaveLength(1);
+  it("should render top level error if backup fails to start", () => {
+    mount("200 GB", BackupStatus.ERROR, "Something went wrong");
+    expect(helper.findByDataTestId(`top-level-error`)).toHaveText("Something went wrong");
   });
 
-  function mount(availableDiskSpace: string, status: BackupStatus, progressMsgs: string[], lastBackupTime?: Date | null, lastBackupUser?: string | null) {
+  it("should not render top level error if backup has already started", () => {
+    mount("200 GB", BackupStatus.ERROR, "Something went wrong", BackupProgressStatus.BACKUP_VERSION_FILE);
+    expect(helper.findByDataTestId(`top-level-error`)).not.toBeInDOM();
+  });
+
+  function mount(availableDiskSpace: string,
+                 status: BackupStatus,
+                 message: string,
+                 backupProgressStatus?: BackupProgressStatus,
+                 lastBackupTime?: Date | null,
+                 lastBackupUser?: string | null) {
     helper.mount(() => {
-        return <BackupWidget lastBackupTime={lastBackupTime}
-                             lastBackupUser={lastBackupUser}
-                             availableDiskSpace={availableDiskSpace}
-                             backupLocation={"/path/to/backup/directory"}
-                             backupProgressMessages={progressMsgs}
-                             displayProgressConsole={true}
-                             backupStatus={status}
-                             onPerformBackup={performBackup}/>
-          ;
-      });
+      return <BackupWidget lastBackupTime={lastBackupTime}
+                           lastBackupUser={lastBackupUser}
+                           availableDiskSpace={availableDiskSpace}
+                           message={message}
+                           backupStatus={status}
+                           displayProgressIndicator={true}
+                           backupProgressStatus={backupProgressStatus}
+                           backupLocation={"/path/to/backup/directory"}
+                           onPerformBackup={performBackup}/>;
+    });
   }
 });

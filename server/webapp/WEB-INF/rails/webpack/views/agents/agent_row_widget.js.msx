@@ -34,7 +34,7 @@ const agentJobHistoryPath = function (uuid) {
 };
 
 const agentStatusReportPath = function (elasticPluginId, elasticAgentId) {
-  return `/go/admin/status_reports/${elasticPluginId}/${elasticAgentId}`;
+  return `/go/admin/status_reports/${elasticPluginId}/agent/${elasticAgentId}`;
 };
 
 const createBuildDetailsDropDown = function (agent, args) {

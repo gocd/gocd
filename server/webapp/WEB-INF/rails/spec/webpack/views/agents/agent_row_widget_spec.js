@@ -106,7 +106,7 @@ describe("Agent Row Widget", () => {
     const hostname    = $(information[2]).find('.content');
 
     expect(hostname).toHaveText('elastic-agent-hostname');
-    expect(hostname.find('a')[0].href).toContain(`/go/admin/status_reports/${allAgents.lastAgent().elasticPluginId()}/${allAgents.lastAgent().elasticAgentId()}`);
+    expect(hostname.find('a')[0].href).toContain(`/go/admin/status_reports/${allAgents.lastAgent().elasticPluginId()}/agent/${allAgents.lastAgent().elasticAgentId()}`);
   });
 
   it('should contain link to job run history page for elastic agents when elastic agent plugin is missing', () => {

@@ -152,9 +152,6 @@ api/api-server-maintenance-mode-v1/logs/
 api/api-server-maintenance-mode-v1/out/
 api/api-server-maintenance-mode-v1/target/
 api/api-server-maintenance-mode-v1/config/
-api/api-elastic-profile-v1/out/
-api/api-elastic-profile-v1/logs/
-api/api-elastic-profile-v1/target/
 api/api-elastic-profile-v2/out/
 api/api-elastic-profile-v2/logs/
 api/api-elastic-profile-v2/target/

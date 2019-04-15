@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv7.pipelineconfig.representers.materials
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialRepresenter
+import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialsRepresenter
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
@@ -44,7 +44,7 @@ class PackageMaterialRepresenterTest {
 
   @Test
   void "should represent a package material"() {
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, MaterialConfigsMother.packageMaterialConfig()) })
+    def actualJson = toObjectString({ MaterialsRepresenter.toJSON(it, MaterialConfigsMother.packageMaterialConfig()) })
 
     assertThatJson(actualJson).isEqualTo(packageMaterialHash())
   }
@@ -57,7 +57,7 @@ class PackageMaterialRepresenterTest {
 
     def options = new ConfigHelperOptions(goConfig, mock(PasswordDeserializer.class))
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(packageMaterialHash('package-name'))
-    def packageMaterialConfig = (PackageMaterialConfig) MaterialRepresenter.fromJSON(jsonReader, options)
+    def packageMaterialConfig = (PackageMaterialConfig) MaterialsRepresenter.fromJSON(jsonReader, options)
 
     assertEquals('package-name', packageMaterialConfig.getPackageId())
     assertEquals(repo.findPackage('package-name'), packageMaterialConfig.getPackageDefinition())
@@ -67,7 +67,7 @@ class PackageMaterialRepresenterTest {
   void "should set packageId during deserialisation if matching package definition is not present in config"() {
     def options = new ConfigHelperOptions(new BasicCruiseConfig(), mock(PasswordDeserializer.class))
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(packageMaterialHash('package-name'))
-    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, options)
+    def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, options)
 
     assertEquals("package-name", ((PackageMaterialConfig) deserializedObject).getPackageId())
     assertNull(((PackageMaterialConfig)deserializedObject).getPackageDefinition())
@@ -79,7 +79,7 @@ class PackageMaterialRepresenterTest {
     def material_configs = new MaterialConfigs(package_config);
     material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
 
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, material_configs.first()) })
+    def actualJson = toObjectString({ MaterialsRepresenter.toJSON(it, material_configs.first()) })
 
     assertThatJson(actualJson).isEqualTo(expectedMaterialHashWithErrors)
   }

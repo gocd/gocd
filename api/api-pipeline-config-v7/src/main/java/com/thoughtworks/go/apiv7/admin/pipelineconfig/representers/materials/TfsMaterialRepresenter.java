@@ -22,9 +22,10 @@ import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOp
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 
-public class TfsMaterialRepresenter {
+public class TfsMaterialRepresenter implements MaterialRepresenter<TfsMaterialConfig> {
 
-    public static void toJSON(OutputWriter jsonWriter, TfsMaterialConfig tfsMaterialConfig) {
+    @Override
+    public void toJSON(OutputWriter jsonWriter, TfsMaterialConfig tfsMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, tfsMaterialConfig);
         jsonWriter.add("domain", tfsMaterialConfig.getDomain());
         jsonWriter.add("username", tfsMaterialConfig.getUserName());
@@ -32,7 +33,8 @@ public class TfsMaterialRepresenter {
         jsonWriter.add("project_path", tfsMaterialConfig.getProjectPath());
     }
 
-    public static TfsMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    @Override
+    public TfsMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, tfsMaterialConfig);
         jsonReader.readStringIfPresent("domain", tfsMaterialConfig::setDomain);

@@ -18,18 +18,21 @@ package com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 
-public class DependencyMaterialRepresenter {
+public class DependencyMaterialRepresenter implements MaterialRepresenter<DependencyMaterialConfig> {
 
-    public static void toJSON(OutputWriter jsonWriter, DependencyMaterialConfig dependencyMaterialConfig) {
+    @Override
+    public void toJSON(OutputWriter jsonWriter, DependencyMaterialConfig dependencyMaterialConfig) {
         jsonWriter.add("pipeline", dependencyMaterialConfig.getPipelineName());
         jsonWriter.add("stage", dependencyMaterialConfig.getStageName());
         jsonWriter.add("name", dependencyMaterialConfig.getName());
         jsonWriter.add("auto_update", dependencyMaterialConfig.isAutoUpdate());
     }
 
-    public static DependencyMaterialConfig fromJSON(JsonReader jsonReader) {
+    @Override
+    public DependencyMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig();
         jsonReader.readCaseInsensitiveStringIfPresent("pipeline", dependencyMaterialConfig::setPipelineName);
         jsonReader.readCaseInsensitiveStringIfPresent("stage", dependencyMaterialConfig::setStageName);

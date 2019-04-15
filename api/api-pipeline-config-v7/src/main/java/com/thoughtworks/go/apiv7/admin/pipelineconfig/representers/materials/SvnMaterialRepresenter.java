@@ -22,16 +22,18 @@ import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOp
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 
-public class SvnMaterialRepresenter {
+public class SvnMaterialRepresenter implements MaterialRepresenter<SvnMaterialConfig> {
 
-    public static void toJSON(OutputWriter jsonWriter, SvnMaterialConfig svnMaterialConfig) {
+    @Override
+    public void toJSON(OutputWriter jsonWriter, SvnMaterialConfig svnMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, svnMaterialConfig);
         jsonWriter.add("check_externals", svnMaterialConfig.isCheckExternals());
         jsonWriter.add("username", svnMaterialConfig.getUserName());
         jsonWriter.addIfNotNull("encrypted_password", svnMaterialConfig.getEncryptedPassword());
     }
 
-    public static SvnMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+    @Override
+    public SvnMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, svnMaterialConfig);
         jsonReader.optBoolean("check_externals").ifPresent(svnMaterialConfig::setCheckExternals);

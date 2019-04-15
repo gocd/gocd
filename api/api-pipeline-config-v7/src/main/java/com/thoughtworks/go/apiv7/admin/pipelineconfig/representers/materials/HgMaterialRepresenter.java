@@ -18,15 +18,18 @@ package com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 
-public class HgMaterialRepresenter {
+public class HgMaterialRepresenter implements MaterialRepresenter<HgMaterialConfig> {
 
-    public static void toJSON(OutputWriter jsonWriter, HgMaterialConfig hgMaterialConfig) {
+    @Override
+    public void toJSON(OutputWriter jsonWriter, HgMaterialConfig hgMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, hgMaterialConfig);
     }
 
-    public static HgMaterialConfig fromJSON(JsonReader jsonReader) {
+    @Override
+    public HgMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions configHelperOptions) {
         HgMaterialConfig hgMaterialConfig = new HgMaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, hgMaterialConfig);
         return hgMaterialConfig;

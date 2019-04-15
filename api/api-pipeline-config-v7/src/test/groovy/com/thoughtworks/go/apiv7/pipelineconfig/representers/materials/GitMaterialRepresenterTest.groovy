@@ -17,7 +17,7 @@
 package com.thoughtworks.go.apiv7.pipelineconfig.representers.materials
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialRepresenter
+import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialsRepresenter
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
@@ -59,14 +59,14 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTest {
 
   @Test
   void "should serialize material without name"() {
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, new GitMaterialConfig("http://user:password@funk.com/blank")) })
+    def actualJson = toObjectString({ MaterialsRepresenter.toJSON(it, new GitMaterialConfig("http://user:password@funk.com/blank")) })
 
     assertThatJson(actualJson).isEqualTo(gitMaterialBasicHash)
   }
 
   @Test
   void "should serialize material with blank branch" () {
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, new GitMaterialConfig("http://user:password@funk.com/blank", "")) })
+    def actualJson = toObjectString({ MaterialsRepresenter.toJSON(it, new GitMaterialConfig("http://user:password@funk.com/blank", "")) })
 
     assertThatJson(actualJson).isEqualTo(gitMaterialBasicHash)
   }
@@ -84,7 +84,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTest {
       ]
     ])
 
-    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
+    def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
     def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
 
     assertEquals(expected.isAutoUpdate(), deserializedObject.isAutoUpdate())
@@ -105,7 +105,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTest {
         invert_filter: null
       ]
     ])
-    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
+    def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
     def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
 
     assertEquals(expected.isInvertFilter(), deserializedObject.isInvertFilter())
@@ -125,7 +125,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTest {
         invert_filter: true
       ]
     ])
-    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
+    def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
     def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
     expected.setInvertFilter(true)
 
@@ -145,7 +145,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTest {
         name: null
       ]
     ])
-    def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
+    def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
     assertEquals("master", ((GitMaterialConfig) deserializedObject).getBranch().toString())
   }
 

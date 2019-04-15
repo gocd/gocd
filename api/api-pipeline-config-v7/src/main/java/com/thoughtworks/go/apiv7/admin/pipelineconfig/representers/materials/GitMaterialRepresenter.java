@@ -18,19 +18,21 @@ package com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import org.apache.commons.lang3.StringUtils;
 
-public class GitMaterialRepresenter {
-
-    public static void toJSON(OutputWriter jsonWriter, GitMaterialConfig gitMaterialConfig) {
+public class GitMaterialRepresenter implements MaterialRepresenter<GitMaterialConfig> {
+    @Override
+    public void toJSON(OutputWriter jsonWriter, GitMaterialConfig gitMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, gitMaterialConfig);
         jsonWriter.addWithDefaultIfBlank("branch", gitMaterialConfig.getBranch(), "master");
         jsonWriter.add("submodule_folder", gitMaterialConfig.getSubmoduleFolder());
         jsonWriter.add("shallow_clone", gitMaterialConfig.isShallowClone());
     }
 
-    public static GitMaterialConfig fromJSON(JsonReader jsonReader) {
+    @Override
+    public GitMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions configHelperOptions) {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, gitMaterialConfig);
         jsonReader.optString("branch").ifPresent(branch -> {

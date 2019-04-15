@@ -18,15 +18,16 @@ import {PluginInfo} from "../plugin_info";
 import {ExtensionType} from "../extension_type";
 import {AnalyticsCapability} from "../analytics_plugin_capabilities";
 import * as _ from "lodash";
+import {SecretPluginInfo} from "./test_data";
 
 describe('PluginInfos New', () => {
 
   const pluginInfoWithElasticAgentExtensionV4 = {
-    "id":               "cd.go.contrib.elastic-agent.docker",
-    "status":           {
+    "id":         "cd.go.contrib.elastic-agent.docker",
+    "status":     {
       "state": "active"
     },
-    "about":            {
+    "about":      {
       "name":                     "Docker Elastic Agent Plugin",
       "version":                  "0.6.1",
       "target_go_version":        "16.12.0",
@@ -39,18 +40,18 @@ describe('PluginInfos New', () => {
     },
     "extensions": [
       {
-        "type": "elastic-agent",
-        "plugin_settings": {
+        "type":                           "elastic-agent",
+        "plugin_settings":                {
           "configurations": [
             {
-              "key": "instance_type",
+              "key":      "instance_type",
               "metadata": {
-                "secure": false,
+                "secure":   false,
                 "required": true
               }
             }
           ],
-          "view": {
+          "view":           {
             "template": "elastic agent plugin settings view"
           }
         },
@@ -82,22 +83,22 @@ describe('PluginInfos New', () => {
             "template": '<!--\n  ~ Copyright 2016 ThoughtWorks, Inc.\n  ~\n  ~ Licensed under the Apache License, Version 2.0 (the "License");\n  ~ you may not use this file except in compliance with the License.\n  ~ You may obtain a copy of the License at\n  ~\n  ~     http://www.apache.org/licenses/LICENSE-2.0\n  ~\n  ~ Unless required by applicable law or agreed to in writing, software\n  ~ distributed under the License is distributed on an "AS IS" BASIS,\n  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n  ~ See the License for the specific language governing permissions and\n  ~ limitations under the License.\n  -->\n\n<div class="form_item_block">\n    <label ng-class="{\'is-invalid-label\': GOINPUTNAME[Image].$error.server}">Docker image:<span class=\'asterix\'>*</span></label>\n    <input ng-class="{\'is-invalid-input\': GOINPUTNAME[Image].$error.server}" type="text" ng-model="Image" ng-required="true" placeholder="alpine:latest"/>\n    <span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[Image].$error.server}" ng-show="GOINPUTNAME[Image].$error.server">{{GOINPUTNAME[Image].$error.server}}</span>\n</div>\n\n<div class="form_item_block">\n    <label ng-class="{\'is-invalid-label\': GOINPUTNAME[Command].$error.server}">Docker Command: <small>(Enter one parameter per line)</small></label>\n    <textarea ng-class="{\'is-invalid-input\': GOINPUTNAME[Command].$error.server}" type="text" ng-model="Command" ng-required="true" rows="7" placeholder="ls&#x000A;-al&#x000A;/usr/bin"></textarea>\n    <span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[Command].$error.server}" ng-show="GOINPUTNAME[Command].$error.server">{{GOINPUTNAME[Command].$error.server}}</span>\n</div>\n\n<div class="form_item_block">\n    <label ng-class="{\'is-invalid-label\': GOINPUTNAME[Environment].$error.server}">Environment Variables <small>(Enter one variable per line)</small></label>\n    <textarea ng-class="{\'is-invalid-input\': GOINPUTNAME[Environment].$error.server}" type="text" ng-model="Environment" ng-required="true" rows="7" placeholder="JAVA_HOME=/opt/java&#x000A;MAVEN_HOME=/opt/maven"></textarea>\n    <span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[Environment].$error.server}" ng-show="GOINPUTNAME[Environment].$error.server">{{GOINPUTNAME[Environment].$error.server}}</span>\n</div>\n'
           }
         },
-        "capabilities":     {
-          "supports_plugin_status_report": true,
+        "capabilities":                   {
+          "supports_plugin_status_report":  true,
           "supports_cluster_status_report": true,
-          "supports_agent_status_report": true
+          "supports_agent_status_report":   true
         },
-        "supports_cluster_profiles": false
+        "supports_cluster_profiles":      false
       }
     ]
   };
 
   const pluginInfoWithElasticAgentExtensionV5 = {
-    "id":               "cd.go.contrib.elastic-agent.docker",
-    "status":           {
+    "id":         "cd.go.contrib.elastic-agent.docker",
+    "status":     {
       "state": "active"
     },
-    "about":            {
+    "about":      {
       "name":                     "Docker Elastic Agent Plugin",
       "version":                  "0.6.1",
       "target_go_version":        "16.12.0",
@@ -110,18 +111,18 @@ describe('PluginInfos New', () => {
     },
     "extensions": [
       {
-        "type": "elastic-agent",
-        "cluster_profile_settings": {
+        "type":                           "elastic-agent",
+        "cluster_profile_settings":       {
           "configurations": [
             {
-              "key": "instance_type",
+              "key":      "instance_type",
               "metadata": {
-                "secure": false,
+                "secure":   false,
                 "required": true
               }
             }
           ],
-          "view": {
+          "view":           {
             "template": "elastic agent plugin settings view"
           }
         },
@@ -153,22 +154,22 @@ describe('PluginInfos New', () => {
             "template": '<!--\n  ~ Copyright 2016 ThoughtWorks, Inc.\n  ~\n  ~ Licensed under the Apache License, Version 2.0 (the "License");\n  ~ you may not use this file except in compliance with the License.\n  ~ You may obtain a copy of the License at\n  ~\n  ~     http://www.apache.org/licenses/LICENSE-2.0\n  ~\n  ~ Unless required by applicable law or agreed to in writing, software\n  ~ distributed under the License is distributed on an "AS IS" BASIS,\n  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n  ~ See the License for the specific language governing permissions and\n  ~ limitations under the License.\n  -->\n\n<div class="form_item_block">\n    <label ng-class="{\'is-invalid-label\': GOINPUTNAME[Image].$error.server}">Docker image:<span class=\'asterix\'>*</span></label>\n    <input ng-class="{\'is-invalid-input\': GOINPUTNAME[Image].$error.server}" type="text" ng-model="Image" ng-required="true" placeholder="alpine:latest"/>\n    <span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[Image].$error.server}" ng-show="GOINPUTNAME[Image].$error.server">{{GOINPUTNAME[Image].$error.server}}</span>\n</div>\n\n<div class="form_item_block">\n    <label ng-class="{\'is-invalid-label\': GOINPUTNAME[Command].$error.server}">Docker Command: <small>(Enter one parameter per line)</small></label>\n    <textarea ng-class="{\'is-invalid-input\': GOINPUTNAME[Command].$error.server}" type="text" ng-model="Command" ng-required="true" rows="7" placeholder="ls&#x000A;-al&#x000A;/usr/bin"></textarea>\n    <span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[Command].$error.server}" ng-show="GOINPUTNAME[Command].$error.server">{{GOINPUTNAME[Command].$error.server}}</span>\n</div>\n\n<div class="form_item_block">\n    <label ng-class="{\'is-invalid-label\': GOINPUTNAME[Environment].$error.server}">Environment Variables <small>(Enter one variable per line)</small></label>\n    <textarea ng-class="{\'is-invalid-input\': GOINPUTNAME[Environment].$error.server}" type="text" ng-model="Environment" ng-required="true" rows="7" placeholder="JAVA_HOME=/opt/java&#x000A;MAVEN_HOME=/opt/maven"></textarea>\n    <span class="form_error form-error" ng-class="{\'is-visible\': GOINPUTNAME[Environment].$error.server}" ng-show="GOINPUTNAME[Environment].$error.server">{{GOINPUTNAME[Environment].$error.server}}</span>\n</div>\n'
           }
         },
-        "capabilities":     {
-          "supports_plugin_status_report": true,
+        "capabilities":                   {
+          "supports_plugin_status_report":  true,
           "supports_cluster_status_report": true,
-          "supports_agent_status_report": true
+          "supports_agent_status_report":   true
         },
-        "supports_cluster_profiles": true
+        "supports_cluster_profiles":      true
       }
     ]
   };
 
   const pluginInfoWithNotificationExtension = {
-    "id":      "github.pr.status",
-    "status":  {
+    "id":         "github.pr.status",
+    "status":     {
       "state": "active"
     },
-    "about":   {
+    "about":      {
       "name":                     "GitHub Pull Requests status notifier",
       "version":                  "1.2",
       "target_go_version":        "15.1.0",
@@ -181,18 +182,18 @@ describe('PluginInfos New', () => {
     },
     "extensions": [
       {
-        "type": "notification",
+        "type":            "notification",
         "plugin_settings": {
           "configurations": [
             {
-              "key": "hostname",
+              "key":      "hostname",
               "metadata": {
-                "secure": false,
+                "secure":   false,
                 "required": true
               }
             }
           ],
-          "view": {
+          "view":           {
             "template": "notification plugin view"
           }
         }
@@ -201,11 +202,11 @@ describe('PluginInfos New', () => {
   };
 
   const pluginInfoWithPackageRepositoryExtension = {
-    "id":                  "nuget",
-    "status":              {
+    "id":         "nuget",
+    "status":     {
       "state": "active"
     },
-    "about":               {
+    "about":      {
       "name":                     "Nuget plugin",
       "version":                  "1.0.0",
       "target_go_version":        "15.3.0",
@@ -218,7 +219,7 @@ describe('PluginInfos New', () => {
     },
     "extensions": [
       {
-        "type": "package-repository",
+        "type":                "package-repository",
         "package_settings":    {
           "configurations": [
             {
@@ -297,7 +298,7 @@ describe('PluginInfos New', () => {
             }
           ]
         },
-        "plugin_settings": {
+        "plugin_settings":     {
           "configurations": [
             {
               "key":      "another-property",
@@ -316,11 +317,11 @@ describe('PluginInfos New', () => {
   };
 
   const pluginInfoWithTaskExtension = {
-    "id":            "docker-task",
-    "status":        {
+    "id":         "docker-task",
+    "status":     {
       "state": "active"
     },
-    "about":         {
+    "about":      {
       "name":                     "Docker Task",
       "version":                  "0.1.27",
       "target_go_version":        "14.4.0",
@@ -336,7 +337,7 @@ describe('PluginInfos New', () => {
     },
     "extensions": [
       {
-        "type": "task",
+        "type":          "task",
         "display_name":  "Docker Task",
         "task_settings": {
           "configurations": [
@@ -378,11 +379,11 @@ describe('PluginInfos New', () => {
   };
 
   const pluginInfoWithSCMExtension = {
-    "id":           "github.pr",
-    "status":       {
+    "id":         "github.pr",
+    "status":     {
       "state": "active"
     },
-    "about":        {
+    "about":      {
       "name":                     "Github Pull Requests Builder",
       "version":                  "1.3.0-RC2",
       "target_go_version":        "15.1.0",
@@ -395,9 +396,9 @@ describe('PluginInfos New', () => {
     },
     "extensions": [
       {
-        "type": "scm",
-        "display_name": "GitHub",
-        "scm_settings": {
+        "type":            "scm",
+        "display_name":    "GitHub",
+        "scm_settings":    {
           "configurations": [
             {
               "key":      "url",
@@ -431,14 +432,14 @@ describe('PluginInfos New', () => {
         "plugin_settings": {
           "configurations": [
             {
-              "key": "another-property",
+              "key":      "another-property",
               "metadata": {
-                "secure": false,
+                "secure":   false,
                 "required": true
               }
             }
           ],
-          "view": {
+          "view":           {
             "template": "Plugin Settings View for scm plugin GitHub PR builder"
           }
         }
@@ -447,11 +448,11 @@ describe('PluginInfos New', () => {
   };
 
   const pluginInfoWithAuthorizationExtension = {
-    "id":                   "cd.go.authorization.ldap",
-    "status":               {
+    "id":         "cd.go.authorization.ldap",
+    "status":     {
       "state": "active"
     },
-    "about":                {
+    "about":      {
       "name":                     "LDAP Authorization Plugin for GoCD",
       "version":                  "0.0.1",
       "target_go_version":        "16.12.0",
@@ -464,7 +465,7 @@ describe('PluginInfos New', () => {
     },
     "extensions": [
       {
-        "type": "authorization",
+        "type":                 "authorization",
         "auth_config_settings": {
           "configurations": [
             {
@@ -545,11 +546,11 @@ describe('PluginInfos New', () => {
   };
 
   const pluginInfoWithArtifactExtension = {
-    "id":                   "cd.go.artifact.s3",
-    "status":               {
+    "id":         "cd.go.artifact.s3",
+    "status":     {
       "state": "active"
     },
-    "about":                {
+    "about":      {
       "name":                     "Example Artifact Plugin for GoCD",
       "version":                  "0.0.1",
       "target_go_version":        "18.1.0",
@@ -562,8 +563,8 @@ describe('PluginInfos New', () => {
     },
     "extensions": [
       {
-        "type": "artifact",
-        "store_config_settings": {
+        "type":                     "artifact",
+        "store_config_settings":    {
           "configurations": [
             {
               "key":      "S3_BUCKET",
@@ -591,7 +592,7 @@ describe('PluginInfos New', () => {
             "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[DummyField].$error.server}\">Dummy Field:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[DummyField].$error.server}\" type=\"text\" ng-model=\"DummyField\" ng-required=\"true\" placeholder=\"value\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[DummyField].$error.server}\" ng-show=\"GOINPUTNAME[DummyField].$error.server\">{{GOINPUTNAME[DummyField].$error.server}}</span>\n</div>"
           }
         },
-        "artifact_config_settings":        {
+        "artifact_config_settings": {
           "configurations": [
             {
               "key":      "Filename",
@@ -605,7 +606,7 @@ describe('PluginInfos New', () => {
             "template": "<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[filename].$error.server}\">Filename:<span class='asterix'>*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[filename].$error.server}\" type=\"text\" ng-model=\"filename\" ng-required=\"true\" placeholder=\"value\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[filename].$error.server}\" ng-show=\"GOINPUTNAME[filename].$error.server\">{{GOINPUTNAME[filename].$error.server}}</span>\n</div>"
           }
         },
-        "fetch_artifact_settings":        {
+        "fetch_artifact_settings":  {
           "configurations": [
             {
               "key":      "Destination",
@@ -624,11 +625,11 @@ describe('PluginInfos New', () => {
   };
 
   const pluginInfoWithConfigRepoExtension = {
-    "id":      "json.config.plugin",
-    "status":  {
+    "id":         "json.config.plugin",
+    "status":     {
       "state": "active"
     },
-    "about":   {
+    "about":      {
       "name":                     "JSON Configuration Plugin",
       "version":                  "0.2",
       "target_go_version":        "16.1.0",
@@ -641,18 +642,18 @@ describe('PluginInfos New', () => {
     },
     "extensions": [
       {
-        "type": "configrepo",
+        "type":            "configrepo",
         "plugin_settings": {
           "configurations": [
             {
-              "key": "pipeline_pattern",
+              "key":      "pipeline_pattern",
               "metadata": {
                 "required": false,
-                "secure": false
+                "secure":   false
               }
             }
           ],
-          "view": {
+          "view":           {
             "template": "config repo plugin view"
           }
         }
@@ -661,11 +662,11 @@ describe('PluginInfos New', () => {
   };
 
   const pluginInfoWithAnalyticsExtension = {
-    "id":      "gocd.analytics.plugin",
-    "status":  {
+    "id":         "gocd.analytics.plugin",
+    "status":     {
       "state": "active"
     },
-    "about":   {
+    "about":      {
       "name":                     "GoCD Analytics Plugin",
       "version":                  "1.0",
       "target_go_version":        "18.1.0",
@@ -678,22 +679,22 @@ describe('PluginInfos New', () => {
     },
     "extensions": [
       {
-        "type": "analytics",
+        "type":            "analytics",
         "plugin_settings": {
           "configurations": [
             {
-              "key": "username",
+              "key":      "username",
               "metadata": {
-                "secure": false,
+                "secure":   false,
                 "required": true
               }
             }
           ],
-          "view": {
+          "view":           {
             "template": "analytics plugin view"
           }
         },
-        "capabilities":     {
+        "capabilities":    {
           "supported_analytics": [
             {type: "agent", id: "bar"},
             {type: "pipeline", id: "rawr"},
@@ -744,8 +745,7 @@ describe('PluginInfos New', () => {
           "url":  "https://github.com/ashwanthkumar/gocd-build-github-pull-requests"
         }
       },
-      "extensions": [
-      ]
+      "extensions": []
     };
 
     const withoutPluginSettingsView = {
@@ -822,7 +822,7 @@ describe('PluginInfos New', () => {
 
     const pluginInfoWithoutPluginSettingsConfiguration = PluginInfo.fromJSON(withoutPluginSettingsConfiguration);
     expect(pluginInfoWithoutPluginSettingsConfiguration.supportsPluginSettings()).toBe(false);
-});
+  });
 
   describe("ElasticAgent", () => {
     it("should deserialize plugin info of v4 extension", () => {
@@ -1071,6 +1071,28 @@ describe('PluginInfos New', () => {
     });
   });
 
+  describe("Secrets", () => {
+    it("should deserialize", () => {
+      const secretConfigPluginInfoJson = SecretPluginInfo.file();
+      const pluginInfo                 = PluginInfo.fromJSON(secretConfigPluginInfoJson);
+      verifyBasicProperties(pluginInfo, secretConfigPluginInfoJson);
+      const extension = pluginInfo.extensionOfType(ExtensionType.SECRETS);
+
+      expect(extension.secretConfigSettings.viewTemplate()).toEqual(secretConfigPluginInfoJson.extensions[0].secret_config_settings.view.template);
+      expect(extension.secretConfigSettings.configurations().length).toEqual(2);
+      expect(extension.secretConfigSettings.configurations().map((config) => config.key)).toEqual(['Url', 'Token']);
+      expect(extension.secretConfigSettings.configurations()[0].metadata).toEqual({
+        secure:   false,
+        required: true
+      });
+
+      expect(extension.secretConfigSettings.configurations()[1].metadata).toEqual({
+        secure:   true,
+        required: true
+      });
+    });
+  });
+
   describe("Reading images", () => {
     const json = {
       "_links": {
@@ -1163,66 +1185,62 @@ describe('PluginInfos New', () => {
     let pluginInfoWithErrors, pluginInfoWithoutAboutInfo;
 
     beforeEach(() => {
-      pluginInfoWithErrors =   {
-        "_links": {
+      pluginInfoWithErrors = {
+        "_links":               {
           "self": {
             "href": "http://localhost:8153/go/api/admin/plugin_info/test-plugin-xml"
           },
-          "doc": {
+          "doc":  {
             "href": "https://api.gocd.org/#plugin-info"
           },
           "find": {
             "href": "http://localhost:8153/go/api/admin/plugin_info/:plugin_id"
           }
         },
-        "id": "test-plugin-xml",
-        "status": {
-          "state": "invalid",
+        "id":                   "test-plugin-xml",
+        "status":               {
+          "state":    "invalid",
           "messages": [
             "Plugin with ID (test-plugin-xml) is not valid: Incompatible with current operating system 'Mac OS X'. Valid operating systems are: [Windows]."
           ]
         },
         "plugin_file_location": "/Users/ganeshp/projects/gocd/gocd/server/plugins/external/test-with-some-plugin-xml-values.jar",
-        "bundled_plugin": false,
-        "about": {
-          "version": "1.0.0",
-          "description": "Plugin that has only some fields in its plugin.xml",
+        "bundled_plugin":       false,
+        "about":                {
+          "version":                  "1.0.0",
+          "description":              "Plugin that has only some fields in its plugin.xml",
           "target_operating_systems": [
             "Windows"
           ],
-          "vendor": {
+          "vendor":                   {
             "url": "www.mdaliejaz.com"
           }
         },
-        "extensions": [
-
-        ]
+        "extensions":           []
       };
 
       pluginInfoWithoutAboutInfo = {
-        "_links": {
+        "_links":               {
           "self": {
             "href": "http://localhost:8153/go/api/admin/plugin_info/plugin-common.jar"
           },
-          "doc": {
+          "doc":  {
             "href": "https://api.gocd.org/#plugin-info"
           },
           "find": {
             "href": "http://localhost:8153/go/api/admin/plugin_info/:plugin_id"
           }
         },
-        "id": "plugin-common.jar",
-        "status": {
-          "state": "invalid",
+        "id":                   "plugin-common.jar",
+        "status":               {
+          "state":    "invalid",
           "messages": [
             "No extensions found in this plugin.Please check for @Extension annotations"
           ]
         },
         "plugin_file_location": "/Users/ganeshp/projects/gocd/gocd/server/plugins/external/plugin-common.jar",
-        "bundled_plugin": false,
-        "extensions": [
-
-        ]
+        "bundled_plugin":       false,
+        "extensions":           []
       };
     });
 

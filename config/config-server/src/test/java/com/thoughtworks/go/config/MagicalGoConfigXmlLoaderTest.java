@@ -4293,7 +4293,6 @@ public class MagicalGoConfigXmlLoaderTest {
                         "       </property>\n" +
                         "    </configuration>" +
                         "    <rules>\n" +
-                        "        <allow action=\"refer\" type=\"environment\">env_*</allow>\n" +
                         "        <deny action=\"refer\" type=\"pipeline_group\">my_group</deny>\n" +
                         "        <allow action=\"refer\" type=\"pipeline_group\">other_group</allow>  \n" +
                         "    </rules>\n" +
@@ -4314,8 +4313,8 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(configuration.getProperty("PasswordFilePath").getValue()).isEqualTo("/godata/config/password.properties");
 
         Rules rules = secretConfig.getRules();
-        assertThat(rules.size()).isEqualTo(3);
-        assertThat(rules).containsExactly(new Allow("refer", "environment", "env_*"), new Deny("refer", "pipeline_group", "my_group"), new Allow("refer", "pipeline_group", "other_group"));
+        assertThat(rules.size()).isEqualTo(2);
+        assertThat(rules).containsExactly(new Deny("refer", "pipeline_group", "my_group"), new Allow("refer", "pipeline_group", "other_group"));
 
     }
 

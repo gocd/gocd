@@ -3523,6 +3523,9 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "        </property>\n"
                         + "      </profile>\n"
                         + "    </profiles>\n"
+                        + "    <clusterProfiles>"
+                        + "      <clusterProfile id=\"blah\" pluginId=\"aws\"/>"
+                        + "    </clusterProfiles>\n"
                         + "  </elastic>\n"
                         + "<pipelines group=\"first\">\n"
                         + "<pipeline name=\"pipeline\">\n"
@@ -3559,6 +3562,9 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "          </property>\n"
                         + "      </profile>\n"
                         + "    </profiles>\n"
+                        + "    <clusterProfiles>"
+                        + "      <clusterProfile id=\"blah\" pluginId=\"docker\"/>"
+                        + "    </clusterProfiles>\n"
                         + "  </elastic>\n"
                         + "</cruise>\n";
 

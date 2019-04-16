@@ -52,6 +52,7 @@ public class ClusterProfile extends PluginProfile {
 
         if (pluginInfo == null
                 || pluginInfo.getClusterProfileSettings() == null
+                || pluginInfo.getClusterProfileSettings().getConfigurations() == null
                 || pluginInfo.getClusterProfileSettings().getConfiguration(key) == null) {
             return false;
         }

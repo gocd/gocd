@@ -16,12 +16,10 @@
 
 import * as m from "mithril";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {TestHelper} from "views/pages/spec/test_helper";
-import {PluginsWidget} from "../plugins_widget";
-
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as headerIconStyles from "views/components/header_icon/index.scss";
-import * as keyValuePairStyles from "views/components/key_value_pair/index.scss";
+import {TestHelper} from "views/pages/spec/test_helper";
+import {PluginsWidget} from "../plugins_widget";
 
 describe("New Plugins Widget", () => {
   const simulateEvent = require("simulate-event");
@@ -29,7 +27,8 @@ describe("New Plugins Widget", () => {
   const pluginInfos = [PluginInfo.fromJSON(getEAPluginInfo(), getEAPluginInfo()._links),
     PluginInfo.fromJSON(getNotificationPluginInfo(), undefined),
     PluginInfo.fromJSON(getYumPluginInfo(), undefined),
-    PluginInfo.fromJSON(getInvalidPluginInfo(), undefined)
+    PluginInfo.fromJSON(getInvalidPluginInfo(), undefined),
+    PluginInfo.fromJSON(getEAPluginInfoSupportingClusterProfile(), undefined)
   ];
 
   const helper = new TestHelper();
@@ -40,39 +39,39 @@ describe("New Plugins Widget", () => {
   });
 
   it("should render all plugin infos", () => {
-    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(5);
   });
 
   it("should render plugin name and image", () => {
-    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(5);
 
     expect(helper.findByDataTestId("plugin-name").get(0)).toContainText(getEAPluginInfo().about.name);
     expect(helper.find(`.${headerIconStyles.headerIcon} img`).get(0)).toHaveAttr("src", getEAPluginInfo()._links.image.href);
-    expect(helper.findByDataTestId("plugin-name").get(1)).toContainText(getNotificationPluginInfo().about.name);
+    expect(helper.findByDataTestId("plugin-name").get(2)).toContainText(getNotificationPluginInfo().about.name);
   });
 
   it("should render plugin version", () => {
-    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(5);
 
-    const EAPluginHeader           = helper.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
-    const notificationPluginHeader = helper.find(`.${keyValuePairStyles.keyValuePair}`).get(2);
+    const EAPluginHeader           = helper.findByDataTestId("collapse-header").get(0);
+    const notificationPluginHeader = helper.findByDataTestId("collapse-header").get(2);
 
-    expect(EAPluginHeader).toContainText("Version");
-    expect(EAPluginHeader).toContainText(getEAPluginInfo().about.version);
+    expect(helper.findIn(EAPluginHeader, "key-value-key-version")).toContainText("Version");
+    expect(helper.findIn(EAPluginHeader, "key-value-value-version")).toContainText(getEAPluginInfo().about.version);
 
-    expect(EAPluginHeader).toContainText("Version");
-    expect(notificationPluginHeader).toContainText(getNotificationPluginInfo().about.version);
+    expect(helper.findIn(notificationPluginHeader, "key-value-key-version")).toContainText("Version");
+    expect(helper.findIn(notificationPluginHeader, "key-value-value-version")).toContainText(getNotificationPluginInfo().about.version);
   });
 
   it("should render all invalid plugin infos expanded", () => {
-    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(5);
 
-    const invalidPluginInfo = helper.find(`.${collapsiblePanelStyles.collapse}`).get(2);
+    const invalidPluginInfo = helper.find(`.${collapsiblePanelStyles.collapse}`).get(3);
     expect(invalidPluginInfo).toHaveClass(collapsiblePanelStyles.expanded);
   });
 
   it("should toggle expanded state of plugin infos on click", () => {
-    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(5);
 
     const EAPluginInfoHeader           = helper.findByDataTestId("collapse-header").get(0);
     const NotificationPluginInfoHeader = helper.findByDataTestId("collapse-header").get(1);
@@ -104,10 +103,10 @@ describe("New Plugins Widget", () => {
   });
 
   it("should render plugin infos information in collapsed body", () => {
-    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(4);
+    expect(helper.findByDataTestId("plugins-list").get(0).children).toHaveLength(5);
 
     const EAPluginInfoHeader           = helper.findByDataTestId("collapse-header").get(0);
-    const NotificationPluginInfoHeader = helper.findByDataTestId("collapse-header").get(1);
+    const NotificationPluginInfoHeader = helper.findByDataTestId("collapse-header").get(2);
     simulateEvent.simulate(EAPluginInfoHeader, "click");
     simulateEvent.simulate(NotificationPluginInfoHeader, "click");
 
@@ -131,7 +130,7 @@ describe("New Plugins Widget", () => {
     expect(EAPluginInfoBody).toContainText("Target GoCD Version");
     expect(EAPluginInfoBody).toContainText("16.12.0");
 
-    const NotificationPluginInfoBody = helper.findByDataTestId("collapse-body").get(1);
+    const NotificationPluginInfoBody = helper.findByDataTestId("collapse-body").get(2);
 
     expect(NotificationPluginInfoBody).toContainText("Description");
     expect(NotificationPluginInfoBody).toContainText(getNotificationPluginInfo().about.description);
@@ -157,14 +156,34 @@ describe("New Plugins Widget", () => {
 
   it("should render status report link for ea plugins supporting status report", () => {
     expect(helper.findByDataTestId("status-report-link").get(0)).toBeInDOM();
-    expect(helper.findByDataTestId("status-report-link")).toHaveLength(1);
+    expect(helper.findByDataTestId("status-report-link")).toHaveLength(2);
   });
 
   it("should render error messages for plugins in invalid/error state", () => {
-    const yumPluginInfoBody = helper.findByDataTestId("collapse-body").get(3);
+    const yumPluginInfoBody = helper.findByDataTestId("collapse-body").get(4);
     expect(yumPluginInfoBody).toContainText("There were errors loading the plugin");
     expect(yumPluginInfoBody).toContainText("Plugin with ID (yum) is not valid: Incompatible with current operating system 'Mac OS X'. Valid operating systems are: [Linux].");
     expect(helper.find(`.${collapsiblePanelStyles.collapse}`).get(3)).toHaveClass(collapsiblePanelStyles.error);
+  });
+
+  it("should display deprecation message for elastic agent plugins not supporting cluster profile", () => {
+    expect(helper.findByDataTestId("collapse-header").get(0)).toContainText(getEAPluginInfo().about.name);
+    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(0), "deprecation-warning-icon")).toBeInDOM();
+    expect(helper.findByDataTestId("collapse-header").get(0)).toHaveClass(collapsiblePanelStyles.warning);
+    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(0), "deprecation-warning-tooltip-content"))
+      .toHaveText("Version 0.6.1 of plugin is deprecated as it does not support ClusterProfiles. This version of plugin will stop working in upcoming release of GoCD, update to latest version of the plugin.");
+  });
+
+  it("should not display deprecation message for elastic agent plugins supporting cluster profile", () => {
+    expect(helper.findByDataTestId("collapse-header").get(1)).toContainText(getEAPluginInfoSupportingClusterProfile().about.name);
+    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(1), "deprecation-warning-icon")).not.toBeInDOM();
+    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(1), "deprecation-warning-tooltip-content")).not.toBeInDOM();
+  });
+
+  it("should not display deprecation message for plugins not using elastic agent extension", () => {
+    expect(helper.findByDataTestId("collapse-header").get(4)).toContainText(getYumPluginInfo().about.name);
+    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(4), "deprecation-warning-icon")).not.toBeInDOM();
+    expect(helper.findIn(helper.findByDataTestId("collapse-header").get(4), "deprecation-warning-tooltip-content")).not.toBeInDOM();
   });
 
   function getEAPluginInfo() {
@@ -337,4 +356,81 @@ describe("New Plugins Widget", () => {
     };
   }
 
+  function getEAPluginInfoSupportingClusterProfile() {
+    return {
+      _links: {
+        image: {
+          href: "some-image-link"
+        }
+      },
+      id: "cd.go.contrib.elasticagent.kubernetes",
+      status: {
+        state: "active"
+      },
+      about: {
+        name: "Kubernetes Elastic Agent Plugin",
+        version: "2.0.0-113",
+        target_go_version: "18.10.0",
+        description: "Kubernetes Based Elastic Agent Plugins for GoCD",
+        target_operating_systems: [],
+        vendor: {
+          name: "GoCD Contributors",
+          url: "https://github.com/gocd-contrib/kubernetes-elastic-agent"
+        }
+      },
+      extensions: [
+        {
+          type: "elastic-agent",
+          supports_cluster_profiles: true,
+          cluster_profile_settings: {
+            configurations: [
+              {
+                key: "instance_type",
+                metadata: {
+                  secure: false,
+                  required: true
+                }
+              }
+            ],
+            view: {
+              template: "elastic agent plugin settings view"
+            }
+          },
+          elastic_agent_profile_settings: {
+            configurations: [
+              {
+                key: "Image",
+                metadata: {
+                  secure: false,
+                  required: true
+                }
+              },
+              {
+                key: "Command",
+                metadata: {
+                  secure: false,
+                  required: false
+                }
+              },
+              {
+                key: "Environment",
+                metadata: {
+                  secure: false,
+                  required: false
+                }
+              }
+            ],
+            view: {
+              template: `<!--\n  ~ Copyright 2016 ThoughtWorks, Inc.\n  ~\n  ~ Licensed under the Apache License, Version 2.0 (the \"License\");\n  ~ you may not use this file except in compliance with the License.\n  ~ You may obtain a copy of the License at\n  ~\n  ~     http://www.apache.org/licenses/LICENSE-2.0\n  ~\n  ~ Unless required by applicable law or agreed to in writing, software\n  ~ distributed under the License is distributed on an \"AS IS\" BASIS,\n  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n  ~ See the License for the specific language governing permissions and\n  ~ limitations under the License.\n  -->\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[Image].$error.server}\">Docker image:<span class="asterix">*</span></label>\n    <input ng-class=\"{'is-invalid-input': GOINPUTNAME[Image].$error.server}\" type=\"text\" ng-model=\"Image\" ng-required=\"true\" placeholder=\"alpine:latest\"/>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[Image].$error.server}\" ng-show=\"GOINPUTNAME[Image].$error.server\">{{GOINPUTNAME[Image].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[Command].$error.server}\">Docker Command: <small>(Enter one parameter per line)</small></label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[Command].$error.server}\" type=\"text\" ng-model=\"Command\" ng-required=\"true\" rows=\"7\" placeholder=\"ls&#x000A;-al&#x000A;/usr/bin\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[Command].$error.server}\" ng-show=\"GOINPUTNAME[Command].$error.server\">{{GOINPUTNAME[Command].$error.server}}</span>\n</div>\n\n<div class=\"form_item_block\">\n    <label ng-class=\"{'is-invalid-label': GOINPUTNAME[Environment].$error.server}\">Environment Variables <small>(Enter one variable per line)</small></label>\n    <textarea ng-class=\"{'is-invalid-input': GOINPUTNAME[Environment].$error.server}\" type=\"text\" ng-model=\"Environment\" ng-required=\"true\" rows=\"7\" placeholder=\"JAVA_HOME=/opt/java&#x000A;MAVEN_HOME=/opt/maven\"></textarea>\n    <span class=\"form_error form-error\" ng-class=\"{'is-visible': GOINPUTNAME[Environment].$error.server}\" ng-show=\"GOINPUTNAME[Environment].$error.server\">{{GOINPUTNAME[Environment].$error.server}}</span>\n</div>\n`
+            }
+          },
+          capabilities: {
+            supports_plugin_status_report: true,
+            supports_cluster_status_report: true,
+            supports_agent_status_report: true
+          }
+        }
+      ]
+    };
+  }
 });

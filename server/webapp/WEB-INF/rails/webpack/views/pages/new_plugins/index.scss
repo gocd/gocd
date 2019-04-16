@@ -26,11 +26,13 @@ $collapse-icon-size: 25px;
   display:        none;
   vertical-align: middle;
   margin:         0 15px 0 -15px;
+
   img {
     width:          $collapse-icon-size;
     height:         $collapse-icon-size;
     vertical-align: middle;
   }
+
   @media (min-width: $screen-md) {
     display:     flex;
     align-items: center;
@@ -66,4 +68,55 @@ $collapse-icon-size: 25px;
 
 .spinner-wrapper {
   @include spinner-for-modal;
+}
+
+.deprecation-warning-tooltip-wrapper {
+  position: static;
+  display:  inline-block;
+
+  &:hover {
+    .deprecation-warning-tooltip-content {
+      display: block;
+    }
+  }
+}
+
+.deprecation-warning-icon {
+  @include icon-before($type: $fa-var-info-circle, $color: darken($warning, 30%));
+
+  &:before {
+    font-size: 20px;
+    padding:   2px;
+  }
+}
+
+.deprecation-warning-tooltip-content {
+  display:       none;
+  background:    $white;
+  line-height:   18px;
+  font-size:     12px;
+  position:      absolute;
+  margin-left:   -8px;
+  margin-top:    3px;
+  font-weight:   400;
+  border-radius: $global-border-radius;
+  padding:       10px 20px 0;
+  box-shadow:    0 2px 4px $box-shadow-color;
+  z-index:       map_get($zindex, submenu);
+
+  &:before {
+    content:          "";
+    position:         absolute;
+    width:            0;
+    height:           0;
+    margin-left:      -0.5em;
+    top:              0;
+    left:             17px;
+    box-sizing:       border-box;
+    border:           6px solid $black;
+    border-color:     $white $white transparent transparent;
+    transform-origin: 0 0;
+    transform:        rotate(-45deg);
+    box-shadow:       1px -1px 1px 0 $box-shadow-color;
+  }
 }

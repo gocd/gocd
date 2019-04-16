@@ -22,6 +22,7 @@ import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
 
 import java.security.SecureRandom
+import java.util.stream.Collectors
 
 buildscript {
   repositories {
@@ -282,7 +283,7 @@ idea {
   }
 }
 
-subprojects {
+subprojects { current ->
   if (!project.childProjects.isEmpty()) {
     return
   }
@@ -469,6 +470,7 @@ subprojects {
 //    outputs.upToDateWhen { false }
 
     testTask.useJUnitPlatform()
+    def allTestClasses
 
     maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1
 
@@ -480,6 +482,7 @@ subprojects {
     doFirst {
       // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40
       classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
+      allTestClasses = getTestClassesForTask(current, testTask)
     }
 
     defaultCharacterEncoding = "UTF-8"
@@ -516,9 +519,17 @@ subprojects {
       }
     }
 
+    beforeTest { TestDescriptor test ->
+      allTestClasses.remove(test.parent.name)
+    }
+
     doLast {
       project.logger.info("Deleting tmpdir ${tmpDir}")
       project.delete(tmpDir)
+
+      if (!allTestClasses.empty) {
+        throw new GradleException("Missed the following classes to test: $allTestClasses")
+      }
     }
 
     testLogging {
@@ -695,6 +706,21 @@ task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
 
 static def toCamelCase(String input) {
   return input.split("[^a-zA-Z0-9]").collect { it.capitalize() }.join("")
+}
+
+def static getTestClassesForTask(subProject, testTask) {
+  def testDirRoot = "/${testTask.name}/java/"
+  return (subProject.sourceSets[testTask.name].allSource as List)
+    .stream()
+    .filter { source -> source.absolutePath.contains(testDirRoot) }
+    .map { source ->
+      def path = source.absolutePath
+      path = path.substring(path.indexOf(testDirRoot) + testDirRoot.length()).replace("/", ".")
+      return path.substring(0, path.lastIndexOf("."))
+    }
+  // This is done to ignore the TestHelpers and Mother classes in test Dirs
+    .filter { source -> source.endsWith("Test") }
+    .collect(Collectors.toList())
 }
 
 task newSPA {

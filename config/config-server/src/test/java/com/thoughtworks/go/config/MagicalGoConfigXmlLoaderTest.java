@@ -3514,7 +3514,7 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldSerializeJobElasticProfileId() throws Exception {
         String configWithJobElasticProfileId =
                 "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                        + "  <elastic jobStarvationTimeout=\"10\">\n"
+                        + "  <elastic clusterProfileId='blah' jobStarvationTimeout=\"10\">\n"
                         + "    <profiles>\n"
                         + "      <profile id='unit-test' pluginId='aws'>\n"
                         + "        <property>\n"
@@ -3550,7 +3550,7 @@ public class MagicalGoConfigXmlLoaderTest {
     public void shouldSerializeElasticAgentProfiles() throws Exception {
         String configWithElasticProfile =
                 "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                        + "  <elastic jobStarvationTimeout=\"2\">\n"
+                        + "  <elastic clusterProfileId='blah' jobStarvationTimeout=\"2\">\n"
                         + "    <profiles>\n"
                         + "      <profile id=\"foo\" pluginId=\"docker\">\n"
                         + "          <property>\n"

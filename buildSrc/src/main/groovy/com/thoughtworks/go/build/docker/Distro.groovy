@@ -76,7 +76,7 @@ enum Distro implements DistroBehavior {
 
     @Override
     Map<String, String> getEnvironmentVariables() {
-      return [
+      return super.getEnvironmentVariables() + [
         BASH_ENV      : '/opt/rh/rh-git29/enable',
         ENV           : '/opt/rh/rh-git29/enable'
       ]

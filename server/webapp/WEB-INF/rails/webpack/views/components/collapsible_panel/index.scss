@@ -35,6 +35,10 @@ $collapsible-header-height: 50px;
   &.error {
     border-top: 1px solid $failed;
   }
+
+  &.warning {
+    border-top: 1px solid darken($warning, 30%);
+  }
 }
 
 .collapse-header {

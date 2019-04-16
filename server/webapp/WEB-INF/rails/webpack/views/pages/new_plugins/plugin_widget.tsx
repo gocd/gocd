@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
+import {docsUrl} from "gen/gocd_version";
 import * as Routes from "gen/ts-routes";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
+import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
+import {ElasticAgentSettings, Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {ButtonIcon} from "views/components/buttons";
 import * as Buttons from "views/components/buttons";
+import {ButtonIcon} from "views/components/buttons";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {HeaderIcon} from "views/components/header_icon";
 import * as Icons from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
+import * as styles from "./index.scss";
 
 interface PluginHeaderAttrs {
   image: m.Children;
@@ -35,8 +39,8 @@ interface PluginHeaderAttrs {
 class PluginHeaderWidget extends MithrilViewComponent<PluginHeaderAttrs> {
   view(vnode: m.Vnode<PluginHeaderAttrs>) {
     const data = new Map([
-      ["Version", vnode.attrs.pluginVersion],
-    ]);
+                           ["Version", vnode.attrs.pluginVersion],
+                         ]);
     return [
       (
         <KeyValueTitle image={vnode.attrs.image} titleTestId="plugin-name" title={vnode.attrs.pluginName}/>
@@ -63,6 +67,7 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
 
     let statusReportButton: OptionalElement;
     let settingsButton: OptionalElement;
+    let deprecationWarningButton: OptionalElement;
 
     if (pluginInfo.supportsStatusReport()) {
       const statusReportPath: string = Routes.adminStatusReportPath(pluginInfo.id);
@@ -82,15 +87,20 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
                                        onclick={vnode.attrs.onEdit.bind(vnode.attrs)}/>;
     }
 
+    if (this.deprecatedPluginInfo(pluginInfo)) {
+      const content            = <p>Version {pluginInfo.about.version} of plugin is deprecated as it does not support <a onclick={(e) => this.goToClusterProfileDocs(e)} href={"#"}>ClusterProfiles</a>. This version of plugin will stop working in upcoming release of GoCD, update to latest version of the plugin.</p>;
+      deprecationWarningButton = <PluginDeprecationWarning content={content}/>;
+    }
+
     let pluginData = new Map<string, string | m.Children>([
-      ["Id", pluginInfo.id],
-      ["Description", pluginInfo.about.description],
-      ["Author", this.getAuthorInfo(pluginInfo)],
-      ["Supported operating systems", pluginInfo.about.targetOperatingSystemsDisplayValue()],
-      ["Plugin file location", pluginInfo.pluginFileLocation],
-      ["Bundled", pluginInfo.bundledPlugin ? "Yes" : "No"],
-      ["Target GoCD Version", pluginInfo.about.targetGoVersion],
-    ]);
+                                                            ["Id", pluginInfo.id],
+                                                            ["Description", pluginInfo.about.description],
+                                                            ["Author", this.getAuthorInfo(pluginInfo)],
+                                                            ["Supported operating systems", pluginInfo.about.targetOperatingSystemsDisplayValue()],
+                                                            ["Plugin file location", pluginInfo.pluginFileLocation],
+                                                            ["Bundled", pluginInfo.bundledPlugin ? "Yes" : "No"],
+                                                            ["Target GoCD Version", pluginInfo.about.targetGoVersion],
+                                                          ]);
     if (pluginInfo.hasErrors()) {
       pluginData = pluginData.set("There were errors loading the plugin", pluginInfo.getErrors());
     }
@@ -101,8 +111,9 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
                                                     pluginName={pluginInfo.about.name}
                                                     pluginVersion={pluginInfo.about.version}
                                                     pluginId={pluginInfo.id}/>}
-                        actions={[statusReportButton, settingsButton]}
+                        actions={[deprecationWarningButton, statusReportButton, settingsButton]}
                         error={pluginInfo.hasErrors()}
+                        warning={this.hasWarnings(pluginInfo)}
                         expanded={pluginInfo.status.isInvalid()}>
         <KeyValuePair data={pluginData}/>
       </CollapsiblePanel>
@@ -120,5 +131,35 @@ export class PluginWidget extends MithrilViewComponent<Attrs> {
   private goToStatusReportPage(statusReportHref: string, event: Event): void {
     event.stopPropagation();
     window.location.href = statusReportHref;
+  }
+
+  private deprecatedPluginInfo(pluginInfo: PluginInfo<Extension>) {
+    const elasticAgentExtension = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS) as ElasticAgentSettings;
+    return elasticAgentExtension && !elasticAgentExtension.supportsClusterProfiles;
+  }
+
+  private goToClusterProfileDocs(event: Event): void {
+    event.stopPropagation();
+    window.open(docsUrl("configuration/elastic_agents.html"), "_blank");
+  }
+
+  private hasWarnings(pluginInfo: PluginInfo<Extension>): boolean {
+    return this.deprecatedPluginInfo(pluginInfo);
+  }
+}
+
+interface PluginDeprecationWarningAttrs {
+  content: m.Children;
+}
+
+class PluginDeprecationWarning extends MithrilViewComponent<PluginDeprecationWarningAttrs> {
+  view(vnode: m.Vnode<PluginDeprecationWarningAttrs>) {
+    return (
+      <div data-test-id="deprecation-warning-tooltip-wrapper" className={styles.deprecationWarningTooltipWrapper}>
+        <i data-test-id={"deprecation-warning-icon"} className={styles.deprecationWarningIcon}/>
+        <div data-test-id="deprecation-warning-tooltip-content" className={styles.deprecationWarningTooltipContent}>
+          {vnode.attrs.content}
+        </div>
+      </div>);
   }
 }

@@ -8,3 +8,6 @@ export const pluginsPage: string;
 export const keyValuePairInline: string;
 export const pluginsList: string;
 export const spinnerWrapper: string;
+export const deprecationWarningTooltipWrapper: string;
+export const deprecationWarningTooltipContent: string;
+export const deprecationWarningIcon: string;

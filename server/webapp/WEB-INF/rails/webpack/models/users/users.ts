@@ -168,7 +168,7 @@ export class Users extends Array<User> {
     }
   }
 
-  private enabledUsers() {
+  enabledUsers() {
     return new Users(..._.filter(this, (user) => user.enabled()));
   }
 

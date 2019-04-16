@@ -91,6 +91,15 @@ export class UsersPage extends Page<null, State> {
     };
 
     vnode.state.onDelete = (usersToDelete, e) => {
+      let enabledUsers = usersToDelete.selectedUsers().enabledUsers();
+      if (enabledUsers.length > 0) {
+        const s       = enabledUsers.length == 1 ? `is` : `are`;
+        const message = `'${enabledUsers.userNamesOfSelectedUsers()
+                                        .join(",")}' ${s} enabled. Can't perform the requested opertaion.`;
+        this.flashMessage.setMessage(MessageType.alert,
+                                     message);
+        return;
+      }
       const json = {
         users: usersToDelete.userNamesOfSelectedUsers()
       };

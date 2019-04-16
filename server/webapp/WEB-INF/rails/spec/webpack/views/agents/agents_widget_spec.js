@@ -15,7 +15,7 @@
  */
 
 import SparkRoutes from "helpers/spark_routes";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Agents Widget", () => {
 

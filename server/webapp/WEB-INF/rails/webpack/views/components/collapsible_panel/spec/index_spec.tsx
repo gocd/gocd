@@ -15,7 +15,7 @@
  */
 
 import * as m from "mithril";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {CollapsiblePanel} from "../index";
 import * as styles from "../index.scss";
 

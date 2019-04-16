@@ -17,7 +17,7 @@
 import * as m from "mithril";
 import {GoCDRole, Role} from "models/roles/roles";
 import * as simulateEvent from "simulate-event";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {GoCDRoleModalBodyWidget} from "views/pages/roles/role_modal_body_widget";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 import * as styles from "../index.scss";

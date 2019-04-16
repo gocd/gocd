@@ -19,7 +19,7 @@ import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import * as simulateEvent from "simulate-event";
 import {Ellipsize} from "views/components/ellipsize/index";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import * as styles from "../index.scss";
 
 describe("EllipsizeComponent", () => {

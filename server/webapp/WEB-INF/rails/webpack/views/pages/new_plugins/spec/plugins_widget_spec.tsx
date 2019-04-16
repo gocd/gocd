@@ -16,7 +16,7 @@
 
 import * as m from "mithril";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {PluginsWidget} from "../plugins_widget";
 
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";

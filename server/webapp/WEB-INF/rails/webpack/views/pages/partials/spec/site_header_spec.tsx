@@ -15,7 +15,7 @@
  */
 
 import * as m from "mithril";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {Attrs, SiteHeader} from "views/pages/partials/site_header";
 import * as styles from "../site_header.scss";
 

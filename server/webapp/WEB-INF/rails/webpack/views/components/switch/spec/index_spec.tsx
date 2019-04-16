@@ -16,7 +16,7 @@
 
 import * as m from "mithril";
 import * as stream from "mithril/stream";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {SwitchBtn} from "../index";
 import * as styles from "../index.scss";
 

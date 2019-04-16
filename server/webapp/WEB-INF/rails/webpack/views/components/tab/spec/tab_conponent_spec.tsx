@@ -17,7 +17,7 @@
 import * as m from "mithril";
 import * as simulateEvent from "simulate-event";
 import {Tabs} from "views/components/tab/index";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import * as styles from "../index.scss";
 
 describe("TabComponent", () => {

@@ -16,7 +16,7 @@
 
 import {docsUrl} from "gen/gocd_version";
 import * as m from "mithril";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {MaintenanceModeWidget} from "views/pages/maintenance_mode/maintenance_mode_widget";
 import {TestData} from "views/pages/maintenance_mode/spec/test_data";
 

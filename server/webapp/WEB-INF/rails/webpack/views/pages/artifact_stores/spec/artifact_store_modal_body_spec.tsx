@@ -20,7 +20,7 @@ import {Configurations} from "models/shared/configuration";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {ArtifactPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import {ArtifactStoreModalBody} from "views/pages/artifact_stores/artifact_store_modal_body";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ArtifactModalBodyWidget", () => {
   const helper        = new TestHelper();

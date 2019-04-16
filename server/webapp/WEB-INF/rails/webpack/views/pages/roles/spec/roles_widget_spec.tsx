@@ -22,7 +22,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import * as s from "underscore.string";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {RolesWidget} from "views/pages/roles/roles_widget";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 

@@ -22,7 +22,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {ArtifactPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
 import {ArtifactStoresWidget} from "views/pages/artifact_stores/artifact_stores_widget";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ArtifactStoresModal", () => {
   const helper              = new TestHelper();

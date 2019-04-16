@@ -16,7 +16,7 @@
 
 import {UsageData} from "models/shared/data_sharing/usage_data";
 import {DataSharingSettings} from "models/shared/data_sharing/data_sharing_settings";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Data Sharing Settings Widget", () => {
   const $             = require("jquery");

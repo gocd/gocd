@@ -17,7 +17,7 @@
 import * as m from "mithril";
 import SiteMenu, {Attrs} from "views/components/site_menu/index";
 import * as styles from "views/components/site_menu/index.scss";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Site Menu", () => {
 

@@ -19,7 +19,7 @@ import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import {User} from "models/users/users";
 import "views/components/table/spec/table_matchers";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {SuperAdminPrivilegeSwitch} from "views/pages/users/super_admin_toggle_widget";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
 

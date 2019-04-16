@@ -16,7 +16,7 @@
 
 //for skipped tests, jasmine isnt calling afterEach,
 // so skipped the test suit to make sure randomize doesnt cause any problem
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Agent Table Header Widget", () => {
 

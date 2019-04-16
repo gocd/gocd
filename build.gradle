@@ -595,38 +595,6 @@ task compileAll { compileAllTask ->
 
 task prepare(dependsOn: compileAll)
 
-task gitRelatedTests { thisTask ->
-  group LifecycleBasePlugin.VERIFICATION_GROUP
-  description = "Run all Git related tests"
-  [':common', ':domain'].each { String projectName ->
-    project(projectName).afterEvaluate { Project project ->
-      project.tasks.withType(Test).each { Test eachTestTask ->
-        eachTestTask.filter({ TestFilter testFilter ->
-          testFilter.setFailOnNoMatchingTests(false)
-          testFilter.setIncludePatterns("*Git*Test*")
-        })
-        thisTask.dependsOn eachTestTask
-      }
-    }
-  }
-  finalizedBy 'gitRelatedTestsJunitHtmlReport'
-}
-
-task gitRelatedTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
-  group LifecycleBasePlugin.VERIFICATION_GROUP
-  description = "Run all Git related tests"
-
-  forAllTask { Test eachTestTask ->
-    eachTestTask.filter({ TestFilter testFilter ->
-      testFilter.setFailOnNoMatchingTests(false)
-      testFilter.setIncludePatterns("*Git*Test*")
-    })
-    thisTask.reportOn eachTestTask.binResultsDir
-    eachTestTask.finalizedBy(thisTask)
-  }
-  destinationDir = file("${project.buildDir}/reports/tests/gitRelatedTests")
-}
-
 task sparkTest { thisTask ->
   group LifecycleBasePlugin.VERIFICATION_GROUP
   description = "Run all api tests"

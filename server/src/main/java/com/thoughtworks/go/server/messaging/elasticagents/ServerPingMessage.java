@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.messaging.elasticagents;
 
-import com.thoughtworks.go.config.elastic.ClusterProfiles;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.server.messaging.PluginAwareMessage;
 
 import java.util.List;
@@ -26,9 +26,9 @@ import java.util.stream.Collectors;
 
 public class ServerPingMessage implements PluginAwareMessage {
     private final String pluginId;
-    private ClusterProfiles clusterProfiles;
+    private List<ClusterProfile> clusterProfiles;
 
-    public ServerPingMessage(String pluginId, ClusterProfiles clusterProfiles) {
+    public ServerPingMessage(String pluginId, List<ClusterProfile> clusterProfiles) {
         this.pluginId = pluginId;
         this.clusterProfiles = clusterProfiles;
     }
@@ -53,5 +53,13 @@ public class ServerPingMessage implements PluginAwareMessage {
     @Override
     public int hashCode() {
         return Objects.hash(pluginId, clusterProfiles);
+    }
+
+    @Override
+    public String toString() {
+        return "ServerPingMessage{" +
+                "pluginId='" + pluginId + '\'' +
+                ", clusterProfiles=" + clusterProfiles +
+                '}';
     }
 }

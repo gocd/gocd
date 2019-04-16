@@ -15,17 +15,17 @@
  */
 
 import * as m from "mithril";
-import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as simulateEvent from "simulate-event";
 import * as uuid from "uuid/v4";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as headerIconStyles from "views/components/header_icon/index.scss";
-import {TestHelper} from "views/pages/spec/test_helper";
 import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import * as styles from "views/pages/config_repos/index.scss";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ConfigReposWidget", () => {
   let attrs: Attrs<ConfigRepo>;

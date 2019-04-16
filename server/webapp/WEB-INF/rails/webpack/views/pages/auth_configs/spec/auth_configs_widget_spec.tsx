@@ -21,8 +21,8 @@ import {TestData} from "models/auth_configs/spec/test_data";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
-import {TestHelper} from "views/pages/spec/test_helper";
 import {AuthConfigsWidget} from "views/pages/auth_configs/auth_configs_widget";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("AuthorizationConfigurationWidget", () => {
   const onEdit   = jasmine.createSpy("onEdit");

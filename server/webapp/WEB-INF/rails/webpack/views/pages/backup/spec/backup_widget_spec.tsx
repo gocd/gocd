@@ -16,8 +16,8 @@
 
 import * as m from "mithril";
 import {BackupProgressStatus, BackupStatus} from "models/backups/types";
-import {TestHelper} from "views/pages/spec/test_helper";
 import {BackupWidget} from "views/pages/backup/backup_widget";
+import {TestHelper} from "views/pages/spec/test_helper";
 import * as styles from "../index.scss";
 
 describe("Backup Widget", () => {

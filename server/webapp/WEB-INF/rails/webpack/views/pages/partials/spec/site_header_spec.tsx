@@ -15,8 +15,8 @@
  */
 
 import * as m from "mithril";
-import {TestHelper} from "views/pages/spec/test_helper";
 import {Attrs, SiteHeader} from "views/pages/partials/site_header";
+import {TestHelper} from "views/pages/spec/test_helper";
 import * as styles from "../site_header.scss";
 
 describe("Site Header", () => {

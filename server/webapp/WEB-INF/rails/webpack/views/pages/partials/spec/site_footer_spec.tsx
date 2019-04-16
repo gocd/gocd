@@ -16,8 +16,8 @@
 
 import {GoCDVersion} from "gen/gocd_version";
 import * as m from "mithril";
-import {TestHelper} from "views/pages/spec/test_helper";
 import {Attrs, SiteFooter} from "views/pages/partials/site_footer";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("SiteFooter", () => {
   const helper = new TestHelper();

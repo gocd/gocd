@@ -20,10 +20,10 @@ import {ClusterProfiles} from "models/cluster_profiles/cluster_profiles";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
-import {TestHelper} from "views/pages/spec/test_helper";
 import {ClusterProfilesWidget} from "views/pages/cluster_profiles/cluster_profiles_widget";
 import {DockerClusterProfile, K8SClusterProfile} from "views/pages/cluster_profiles/spec/test_data";
 import {TestData} from "views/pages/elastic_profiles/spec/test_data";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("list all cluster profiles", () => {
   const helper        = new TestHelper();

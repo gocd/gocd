@@ -16,8 +16,8 @@
 
 import * as m from "mithril";
 import {BackupProgressStatus, BackupStatus} from "models/backups/types";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {ProgressIndicator} from "views/pages/backup/progress_indicator";
+import {TestHelper} from "views/pages/spec/test_helper";
 import * as styles from "../progress_indicator.scss";
 
 describe("Backup Progress Indicator Widget", () => {

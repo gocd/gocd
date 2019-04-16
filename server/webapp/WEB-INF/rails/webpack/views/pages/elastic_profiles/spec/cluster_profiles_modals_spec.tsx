@@ -19,10 +19,10 @@ import {Errors} from "models/mixins/errors";
 import {Configurations} from "models/shared/configuration";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
 import {ModalType} from "views/pages/elastic_profiles/cluster_profiles_modals";
 import {TestClusterProfile} from "views/pages/elastic_profiles/spec/test_cluster_profiles_modal";
 import {TestData} from "views/pages/elastic_profiles/spec/test_data";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ClusterProfileModal", () => {
   let pluginInfos: Array<PluginInfo<Extension>>, helper: TestHelper, modal: TestClusterProfile;

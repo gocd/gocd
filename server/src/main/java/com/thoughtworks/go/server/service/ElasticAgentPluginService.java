@@ -120,7 +120,7 @@ public class ElasticAgentPluginService {
         long pingMessageTimeToLive = elasticPluginHeartBeatInterval - 10000L;
 
         for (PluginDescriptor descriptor : elasticAgentPluginRegistry.getPlugins()) {
-            ClusterProfiles clusterProfiles = (ClusterProfiles) clusterProfilesService.getPluginProfiles();
+            List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(descriptor.id());
             serverPingQueue.post(new ServerPingMessage(descriptor.id(), clusterProfiles), pingMessageTimeToLive);
             elasticAgentsOfMissingPlugins.remove(descriptor.id());
             serverHealthService.removeByScope(scope(descriptor.id()));

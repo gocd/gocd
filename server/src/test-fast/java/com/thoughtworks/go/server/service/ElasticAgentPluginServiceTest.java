@@ -113,9 +113,18 @@ class ElasticAgentPluginServiceTest {
 
     @Test
     void shouldSendServerHeartbeatToAllElasticPlugins() {
-        ClusterProfiles clusterProfiles = new ClusterProfiles();
-        clusterProfiles.add(new ClusterProfile("id", "pluginId"));
-        when(clusterProfilesService.getPluginProfiles()).thenReturn(clusterProfiles);
+        ClusterProfiles allClusterProfiles = new ClusterProfiles();
+        allClusterProfiles.add(new ClusterProfile("id1", "p1"));
+        allClusterProfiles.add(new ClusterProfile("id2", "p2"));
+        allClusterProfiles.add(new ClusterProfile("id3", "docker"));
+        when(clusterProfilesService.getPluginProfiles()).thenReturn(allClusterProfiles);
+
+        ClusterProfiles p1ClusterProfiles = new ClusterProfiles();
+        p1ClusterProfiles.add(new ClusterProfile("id1", "p1"));
+        ClusterProfiles p2ClusterProfiles = new ClusterProfiles();
+        p2ClusterProfiles.add(new ClusterProfile("id2", "p2"));
+        ClusterProfiles dockerClusterProfiles = new ClusterProfiles();
+        dockerClusterProfiles.add(new ClusterProfile("id3", "docker"));
 
         service.heartbeat();
 
@@ -125,14 +134,15 @@ class ElasticAgentPluginServiceTest {
         List<ServerPingMessage> messages = captor.getAllValues();
         assertThat(messages).hasSize(3)
                 .contains(
-                        new ServerPingMessage("p1", clusterProfiles),
-                        new ServerPingMessage("p2", clusterProfiles),
-                        new ServerPingMessage("docker", clusterProfiles)
+                        new ServerPingMessage("p1", p1ClusterProfiles),
+                        new ServerPingMessage("p2", p2ClusterProfiles),
+                        new ServerPingMessage("docker", dockerClusterProfiles)
                 );
     }
 
     @Test
     void shouldSendServerHeartBeatMessageWithTimeToLive() {
+        when(clusterProfilesService.getPluginProfiles()).thenReturn(new ClusterProfiles());
         service.setElasticPluginHeartBeatInterval(60000L);
         ArgumentCaptor<ServerPingMessage> captor = ArgumentCaptor.forClass(ServerPingMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
@@ -341,7 +351,7 @@ class ElasticAgentPluginServiceTest {
     }
 
     @Test
-    void shouldRaiseExceptionIfJobPlanIsNull(){
+    void shouldRaiseExceptionIfJobPlanIsNull() {
         final Capabilities capabilities = new Capabilities(false, true);
         final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
         elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));

@@ -48,7 +48,8 @@ public class BackupStatusUpdaterTest {
         backupStatusUpdater.updateStep(BackupProgressStatus.BACKUP_DATABASE);
 
         verify(serverBackupRepository).update(serverBackup);
-        assertThat(serverBackup.getStatus()).isEqualTo(BackupProgressStatus.BACKUP_DATABASE);
+        assertThat(serverBackup.getStatus()).isEqualTo(BackupStatus.IN_PROGRESS);
+        assertThat(serverBackup.getBackupProgressStatus()).hasValue(BackupProgressStatus.BACKUP_DATABASE);
         assertThat(serverBackup.getMessage()).isEqualTo(BackupProgressStatus.BACKUP_DATABASE.getMessage());
     }
 

@@ -46,7 +46,7 @@ class BackupRepresenterTest {
       user             : toObject({ UserSummaryRepresenter.toJSON(it, "bob") }),
       status           : 'IN_PROGRESS',
       "progress_status": 'BACKUP_CONFIG',
-      message          : 'Backing up Config'
+      message          : 'Backing up Configuration'
     ]
 
     assertThatJson(actualJson).isEqualTo(expectedJson)

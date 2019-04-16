@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-import {ClusterProfile, ElasticProfile} from "models/elastic_profiles/types";
+import {ClusterProfile, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {EncryptedValue, PlainTextValue} from "models/shared/config_value";
 import {Configuration, Configurations} from "models/shared/configuration";
 
 describe("Types", () => {
-  describe("Elastic Profiles", () => {
+  describe("Elastic Agent Profiles", () => {
     describe("Validation", () => {
-      it("should validate elastic profile", () => {
-        const elasticProfile = new ElasticProfile("", "", "", new Configurations([]));
+      it("should validate elastic agent profile", () => {
+        const elasticProfile = new ElasticAgentProfile("", "", "", new Configurations([]));
         expect(elasticProfile.isValid()).toBe(false);
         expect(elasticProfile.errors().count()).toBe(3);
         expect(elasticProfile.errors().keys().sort()).toEqual(["clusterProfileId", "id", "pluginId"]);
       });
 
-      it("should validate elastic profile id format", () => {
-        const elasticProfile = new ElasticProfile("invalid id", "pluginId", "foo", new Configurations([]));
+      it("should validate elastic agent profile id format", () => {
+        const elasticProfile = new ElasticAgentProfile("invalid id", "pluginId", "foo", new Configurations([]));
         expect(elasticProfile.isValid()).toBe(false);
         expect(elasticProfile.errors().count()).toBe(1);
         expect(elasticProfile.errors().keys()).toEqual(["id"]);
@@ -38,7 +38,7 @@ describe("Types", () => {
       });
 
       it("should validate existence of cluster profile id", () => {
-        const elasticProfile = new ElasticProfile("id", "pluginId", undefined, new Configurations([]));
+        const elasticProfile = new ElasticAgentProfile("id", "pluginId", undefined, new Configurations([]));
         expect(elasticProfile.isValid()).toBe(false);
         expect(elasticProfile.errors().count()).toBe(1);
         expect(elasticProfile.errors().keys()).toEqual(["clusterProfileId"]);
@@ -48,8 +48,8 @@ describe("Types", () => {
     });
 
     describe("Serialization and Deserialization", () => {
-      it("should serialize elastic profile", () => {
-        const elasticProfile = new ElasticProfile(
+      it("should serialize elastic agent profile", () => {
+        const elasticProfile = new ElasticAgentProfile(
           "docker1",
           "cd.go.docker",
           "prod-cluster",
@@ -74,23 +74,23 @@ describe("Types", () => {
                                                                             });
       });
 
-      it("should deserialize elastic profile", () => {
-        const elasticProfile = ElasticProfile.fromJSON({
-                                                         id: "docker1",
-                                                         plugin_id: "cd.go.docker",
-                                                         cluster_profile_id: "prod-cluster",
-                                                         properties: [{
-                                                           key: "image",
-                                                           value: "gocd/server",
-                                                           encrypted_value: null
-                                                         },
-                                                           {
-                                                             key: "memory",
-                                                             value: "10M",
-                                                             encrypted_value: null
-                                                           }
-                                                         ]
-                                                       });
+      it("should deserialize elastic agent profile", () => {
+        const elasticProfile = ElasticAgentProfile.fromJSON({
+                                                              id: "docker1",
+                                                              plugin_id: "cd.go.docker",
+                                                              cluster_profile_id: "prod-cluster",
+                                                              properties: [{
+                                                                key: "image",
+                                                                value: "gocd/server",
+                                                                encrypted_value: null
+                                                              },
+                                                                {
+                                                                  key: "memory",
+                                                                  value: "10M",
+                                                                  encrypted_value: null
+                                                                }
+                                                              ]
+                                                            });
 
         expect(elasticProfile.id()).toEqual("docker1");
         expect(elasticProfile.pluginId()).toEqual("cd.go.docker");
@@ -101,7 +101,7 @@ describe("Types", () => {
       });
 
       it("should serialize encrypted value as value when updated", () => {
-        const elasticProfile = new ElasticProfile(
+        const elasticProfile = new ElasticAgentProfile(
           "docker1",
           "cd.go.docker",
           "prod-cluster",
@@ -127,6 +127,12 @@ describe("Types", () => {
                                                                               ]
                                                                             });
 
+      });
+
+      it("should filter the elastic agent profiles by cluster profile", () => {
+        const elasticAgentProfiles = new ElasticAgentProfiles([new ElasticAgentProfile("profile_1", "plugin_id", "cluster1")]);
+        expect(elasticAgentProfiles.filterByClusterProfile("cluster1").length).toEqual(1);
+        expect(elasticAgentProfiles.filterByClusterProfile("cluster2").length).toEqual(0);
       });
     });
   });

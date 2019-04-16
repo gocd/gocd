@@ -42,7 +42,7 @@ $disabled-text-color: #999;
   }
 }
 
-.plugin-name {
+.plugin-name, .cluster-profile-name {
   font-weight:  600;
   font-size:    13px;
   margin-right: 50px;
@@ -110,4 +110,8 @@ $disabled-text-color: #999;
 
 .spinner-wrapper {
   @include spinner-for-modal;
+}
+
+.cluster-profile-crud-actions {
+  margin-left: 20px;
 }

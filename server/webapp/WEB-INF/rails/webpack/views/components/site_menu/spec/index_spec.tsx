@@ -47,7 +47,7 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/config_repos")).toHaveText("Config Repositories");
     expect(findMenuItem("/go/admin/environments")).toHaveText("Environments");
     expect(findMenuItem("/go/admin/templates")).toHaveText("Templates");
-    expect(findMenuItem("/go/admin/elastic_profiles")).toHaveText("Elastic Agent Profiles");
+    expect(findMenuItem("/go/admin/elastic_profiles")).toHaveText("Elastic Profiles");
     expect(findMenuItem("/go/admin/config_xml")).toHaveText("Config XML");
     expect(findMenuItem("/go/admin/artifact_stores")).toHaveText("Artifact Stores");
     expect(findMenuItem("/go/admin/data_sharing/settings")).toHaveText("Data Sharing");

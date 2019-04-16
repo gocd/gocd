@@ -16,7 +16,7 @@
 
 import * as _ from "lodash";
 import * as m from "mithril";
-import {ElasticProfile} from "models/elastic_profiles/types";
+import {ElasticAgentProfile} from "models/elastic_profiles/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 
@@ -27,29 +27,33 @@ import {TestData} from "views/pages/elastic_profiles/spec/test_data";
 
 import {ElasticProfileWidget} from "../elastic_profiles_widget";
 
-describe("New Elastic Profile Widget", () => {
+describe("New Elastic Agent Profile Widget", () => {
   const simulateEvent  = require("simulate-event");
-  const pluginInfo     = PluginInfo.fromJSON(TestData.DockerPluginJSON(), TestData.DockerPluginJSON()._links);
-  const elasticProfile = ElasticProfile.fromJSON(TestData.DockerElasticProfile());
+  const pluginInfo     = PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links);
+  const elasticProfile = ElasticAgentProfile.fromJSON(TestData.dockerElasticProfile());
   const helper         = new TestHelper();
 
-  beforeEach(() => {
+  it("should render elastic agent profile id", () => {
     mount(pluginInfo, elasticProfile);
-  });
-  afterEach(helper.unmount.bind(helper));
 
-  it("should render elastic profile id", () => {
-    expect(helper.findByDataTestId("elastic-profile-id").get(0)).toContainText("Profile Id");
-    expect(helper.findByDataTestId("elastic-profile-id").get(0)).toContainText(TestData.DockerElasticProfile().id);
+    expect(helper.findByDataTestId("elastic-profile-id").get(0)).toContainText(TestData.dockerElasticProfile().id);
+
+    helper.unmount();
   });
 
   it("should render edit, delete, clone buttons", () => {
+    mount(pluginInfo, elasticProfile);
+
     expect(find("edit-elastic-profile")).toBeVisible();
     expect(find("clone-elastic-profile")).toBeVisible();
     expect(find("delete-elastic-profile")).toBeVisible();
+
+    helper.unmount();
   });
 
-  it("should render properties of elastic profile", () => {
+  it("should render properties of elastic agent profile", () => {
+    mount(pluginInfo, elasticProfile);
+
     const profileHeader = helper.find(`.${keyValuePairStyles.keyValuePair}`).get(0);
 
     expect(profileHeader).toContainText("Image");
@@ -63,28 +67,42 @@ describe("New Elastic Profile Widget", () => {
 
     expect(profileHeader).toContainText("Hosts");
     expect(profileHeader).toContainText("(Not specified)");
+
+    helper.unmount();
   });
 
   it("should toggle between expanded and collapsed state on click of header", () => {
+    mount(pluginInfo, elasticProfile);
     const elasticProfileHeader = find("collapse-header").get(0);
 
     expect(elasticProfileHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
 
-    //expand elastic profile info
+    //expand elastic agent profile info
     simulateEvent.simulate(elasticProfileHeader, "click");
     helper.redraw();
 
     expect(elasticProfileHeader).toHaveClass(collapsiblePanelStyles.expanded);
 
-    //collapse elastic profile info
+    //collapse elastic agent profile info
     simulateEvent.simulate(elasticProfileHeader, "click");
     helper.redraw();
 
     expect(elasticProfileHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
+
+    helper.unmount();
   });
 
-  function mount(pluginInfo: PluginInfo<Extension>,
-                 elasticProfile: ElasticProfile) {
+  it("should disable action buttons if no elastic agent plugin installed", () => {
+    mount(undefined, ElasticAgentProfile.fromJSON(TestData.dockerElasticProfile()));
+
+    expect(helper.findIn(helper.findByDataTestId("elastic-profile")[0], "edit-elastic-profile")).toBeDisabled();
+    expect(helper.findIn(helper.findByDataTestId("elastic-profile")[0], "clone-elastic-profile")).toBeDisabled();
+    expect(helper.findIn(helper.findByDataTestId("elastic-profile")[0], "delete-elastic-profile")).not.toBeDisabled();
+
+    helper.unmount();
+  });
+
+  function mount(pluginInfo: PluginInfo<Extension> | undefined, elasticProfile: ElasticAgentProfile) {
     const noop = _.noop;
     helper.mount(() => <ElasticProfileWidget pluginInfo={pluginInfo}
                                              elasticProfile={elasticProfile}

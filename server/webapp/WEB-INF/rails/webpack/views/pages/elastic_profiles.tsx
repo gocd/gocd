@@ -19,8 +19,8 @@ import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {ClusterProfilesCRUD} from "models/elastic_profiles/cluster_profiles_crud";
-import {ElasticProfilesCRUD} from "models/elastic_profiles/elastic_profiles_crud";
-import {ClusterProfiles, ElasticProfile, ElasticProfiles} from "models/elastic_profiles/types";
+import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
+import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -29,28 +29,20 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {ElasticProfilesWidget} from "views/pages/elastic_profiles/elastic_profiles_widget";
-import {
-  CloneElasticProfileModal,
-  EditElasticProfileModal,
-  NewElasticProfileModal, UsageElasticProfileModal
-} from "views/pages/elastic_profiles/modals";
-import {
-  AddOperation,
-  CloneOperation,
-  DeleteOperation,
-  EditOperation,
-  SaveOperation
-} from "views/pages/page_operations";
+import {CloneClusterProfileModal, EditClusterProfileModal, NewClusterProfileModal} from "views/pages/elastic_profiles/cluster_profiles_modals";
+import {ClusterProfilesWidget, ClusterProfilesWidgetAttrs} from "views/pages/elastic_profiles/cluster_profiles_widget";
+import {CloneElasticProfileModal, EditElasticProfileModal, NewElasticProfileModal, UsageElasticProfileModal} from "views/pages/elastic_profiles/elastic_agent_profiles_modals";
+import {SaveOperation} from "views/pages/page_operations";
+
 import {Page, PageState} from "./page";
 
 export interface RequiresPluginInfos {
   pluginInfos: Stream<Array<PluginInfo<Extension>>>;
 }
 
-export interface State extends RequiresPluginInfos, SaveOperation, EditOperation<ElasticProfile>, CloneOperation<ElasticProfile>, DeleteOperation<string>, AddOperation<void> {
+export interface State extends RequiresPluginInfos, ClusterProfilesWidgetAttrs, SaveOperation {
   onShowUsages: (profileId: string, event: MouseEvent) => void;
-  elasticProfiles: ElasticProfiles;
+  elasticProfiles: ElasticAgentProfiles;
   clusterProfiles: ClusterProfiles;
 }
 
@@ -58,9 +50,113 @@ export class ElasticProfilesPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.pluginInfos     = stream();
     vnode.state.clusterProfiles = new ClusterProfiles([]);
-    vnode.state.elasticProfiles = new ElasticProfiles([]);
+    vnode.state.elasticProfiles = new ElasticAgentProfiles([]);
 
     this.fetchData(vnode);
+
+    vnode.state.elasticAgentOperations = {
+      onClone: (elasticProfile: ElasticAgentProfile, event: MouseEvent) => {
+        event.stopPropagation();
+        this.flashMessage.clear();
+
+        new CloneElasticProfileModal(elasticProfile.id(), vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
+      },
+
+      onEdit: (elasticProfile: ElasticAgentProfile, event: MouseEvent) => {
+        event.stopPropagation();
+        this.flashMessage.clear();
+
+        new EditElasticProfileModal(elasticProfile.id(), vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
+      },
+
+      onDelete: (id: string, event: MouseEvent) => {
+        event.stopPropagation();
+        this.flashMessage.clear();
+
+        const deleteConfirmMsg = (
+          <span>
+          Are you sure you want to delete the elastic agent profile <strong>{id}</strong>?
+        </span>
+        );
+
+        const modal = new DeleteConfirmModal(
+          deleteConfirmMsg,
+          () => {
+            ElasticAgentProfilesCRUD.delete(id)
+                                    .then((result) => {
+                                      result.do(
+                                        () => vnode.state.onSuccessfulSave(
+                                          <span>The elastic agent profile <em>{id}</em> was deleted successfully!</span>
+                                        ),
+                                        onOperationError
+                                      );
+                                    })
+                                    .finally(modal.close.bind(modal));
+          });
+        modal.render();
+      },
+
+      onAdd: (e: MouseEvent) => {
+        e.stopPropagation();
+        this.flashMessage.clear();
+
+        new NewElasticProfileModal(vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
+      }
+    };
+
+    vnode.state.clusterProfileOperations = {
+      onEdit: (clusterProfile: ClusterProfile, event: MouseEvent) => {
+        event.stopPropagation();
+        this.flashMessage.clear();
+
+        new EditClusterProfileModal(clusterProfile.id(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
+      },
+
+      onDelete: (clusterProfileId: string, event: MouseEvent) => {
+        event.stopPropagation();
+        this.flashMessage.clear();
+
+        const deleteConfirmMsg = (
+          <span>
+          Are you sure you want to delete the cluster profile <strong>{clusterProfileId}</strong>?
+        </span>
+        );
+
+        const modal = new DeleteConfirmModal(
+          deleteConfirmMsg,
+          () => {
+            ClusterProfilesCRUD.delete(clusterProfileId)
+                               .then((result) => {
+                                 result.do(
+                                   () => vnode.state.onSuccessfulSave(
+                                     <span>The cluster profile <em>{clusterProfileId}</em> was deleted successfully!</span>
+                                   ),
+                                   onOperationError
+                                 );
+                               })
+                               .finally(modal.close.bind(modal));
+          });
+        modal.render();
+      },
+
+      onAdd: (e: MouseEvent) => {
+        e.stopPropagation();
+        this.flashMessage.clear();
+
+        new NewClusterProfileModal(vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
+      },
+
+      onClone: (clusterProfile: ClusterProfile, event: MouseEvent) => {
+        event.stopPropagation();
+        this.flashMessage.clear();
+
+        new CloneClusterProfileModal(clusterProfile.id(), vnode.state.pluginInfos(), vnode.state.onSuccessfulSave).render();
+      },
+    };
+
+    vnode.state.onError = (msg: m.Children) => {
+      this.flashMessage.setMessage(MessageType.alert, msg);
+    };
 
     const onOperationError = (errorResponse: ErrorResponse) => {
       vnode.state.onError(errorResponse.message);
@@ -71,71 +167,11 @@ export class ElasticProfilesPage extends Page<null, State> {
       this.fetchData(vnode);
     };
 
-    vnode.state.onError = (msg: m.Children) => {
-      this.flashMessage.setMessage(MessageType.alert, msg);
-    };
-
-    vnode.state.onAdd = (e: MouseEvent) => {
-      e.stopPropagation();
-      this.flashMessage.clear();
-
-      new NewElasticProfileModal(vnode.state.pluginInfos(),
-                                 vnode.state.clusterProfiles,
-                                 vnode.state.onSuccessfulSave).render();
-    };
-
-    vnode.state.onClone = (elasticProfile: ElasticProfile, event: MouseEvent) => {
-      event.stopPropagation();
-      this.flashMessage.clear();
-
-      new CloneElasticProfileModal(elasticProfile.id(),
-                                   vnode.state.pluginInfos(),
-                                   vnode.state.clusterProfiles,
-                                   vnode.state.onSuccessfulSave).render();
-    };
-
-    vnode.state.onEdit = (elasticProfile: ElasticProfile, event: MouseEvent) => {
-      event.stopPropagation();
-      this.flashMessage.clear();
-
-      new EditElasticProfileModal(elasticProfile.id(),
-                                  vnode.state.pluginInfos(),
-                                  vnode.state.clusterProfiles,
-                                  vnode.state.onSuccessfulSave).render();
-    };
-
-    vnode.state.onDelete = (id: string, event: MouseEvent) => {
-      event.stopPropagation();
-      this.flashMessage.clear();
-
-      const deleteConfirmMsg = (
-        <span>
-          Are you sure you want to delete the elastic profile <strong>{id}</strong>?
-        </span>
-      );
-
-      const modal = new DeleteConfirmModal(
-        deleteConfirmMsg,
-        () => {
-          ElasticProfilesCRUD.delete(id)
-                             .then((result) => {
-                               result.do(
-                                 () => vnode.state.onSuccessfulSave(
-                                   <span>The elastic profile <em>{id}</em> was deleted successfully!</span>
-                                 ),
-                                 onOperationError
-                               );
-                             })
-                             .finally(modal.close.bind(modal));
-        });
-      modal.render();
-    };
-
     vnode.state.onShowUsages = (id: string, event: MouseEvent) => {
       event.stopPropagation();
       this.flashMessage.clear();
 
-      ElasticProfilesCRUD.usage(id).then((result) => {
+      ElasticAgentProfilesCRUD.usage(id).then((result) => {
         result.do(
           (successResponse) => {
             new UsageElasticProfileModal(id, successResponse.body).render();
@@ -153,11 +189,11 @@ export class ElasticProfilesPage extends Page<null, State> {
   componentToDisplay(vnode: m.Vnode<null, State>) {
     return <div>
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-      <ElasticProfilesWidget elasticProfiles={vnode.state.elasticProfiles}
+      <ClusterProfilesWidget elasticProfiles={vnode.state.elasticProfiles}
+                             clusterProfiles={vnode.state.clusterProfiles}
                              pluginInfos={vnode.state.pluginInfos}
-                             onEdit={vnode.state.onEdit.bind(vnode.state)}
-                             onClone={vnode.state.onClone.bind(vnode.state)}
-                             onDelete={vnode.state.onDelete.bind(vnode.state)}
+                             elasticAgentOperations={vnode.state.elasticAgentOperations}
+                             clusterProfileOperations={vnode.state.clusterProfileOperations}
                              onShowUsages={vnode.state.onShowUsages.bind(vnode.state)}
                              isUserAnAdmin={ElasticProfilesPage.isUserAnAdmin()}/>
     </div>;
@@ -166,8 +202,8 @@ export class ElasticProfilesPage extends Page<null, State> {
   headerPanel(vnode: m.Vnode<null, State>) {
     const headerButtons = [];
     const hasPlugins    = vnode.state.pluginInfos() && vnode.state.pluginInfos().length > 0;
-    headerButtons.push(<Buttons.Primary disabled={!hasPlugins} onclick={vnode.state.onAdd.bind(vnode.state)}>
-      <span title={!hasPlugins ? "Install some elastic agent plugins to add an elastic profile." : undefined}>Add</span>
+    headerButtons.push(<Buttons.Primary disabled={!hasPlugins} onclick={vnode.state.clusterProfileOperations.onAdd.bind(vnode.state)}>
+      <span title={!hasPlugins ? "Install some elastic agent plugins to add a cluster profile." : undefined}>Add Cluster Profile</span>
     </Buttons.Primary>);
 
     return <HeaderPanel title="Elastic Profiles" buttons={headerButtons}/>;
@@ -176,7 +212,7 @@ export class ElasticProfilesPage extends Page<null, State> {
   fetchData(vnode: m.Vnode<null, State>) {
     return Promise.all([
                          PluginInfoCRUD.all({type: ExtensionType.ELASTIC_AGENTS}),
-                         ElasticProfilesCRUD.all(),
+                         ElasticAgentProfilesCRUD.all(),
                          ClusterProfilesCRUD.all()
                        ]).then((results) => {
       results[0].do(

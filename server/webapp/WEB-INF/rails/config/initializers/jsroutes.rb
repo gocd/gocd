@@ -8,6 +8,7 @@ JsRoutes.setup do |config|
     /^apiv\d/,
     /^admin_elastic_profile/,
     /^admin_status_report/,
+    /^admin_cluster_status_report/,
     /^pipeline_groups/,
     /^environments/,
     /^environment/,

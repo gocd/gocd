@@ -16,9 +16,9 @@
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
-import {ElasticProfile, ElasticProfileJSON, ElasticProfiles, ProfileUsage, ProfileUsageJSON} from "./types";
+import {ElasticAgentProfile, ElasticAgentProfiles, ElasticProfileJSON, ProfileUsage, ProfileUsageJSON} from "./types";
 
-export class ElasticProfilesCRUD {
+export class ElasticAgentProfilesCRUD {
   private static USAGES_API_VERSION_HEADER = ApiVersion.v1;
   private static API_VERSION_HEADER        = ApiVersion.v2;
 
@@ -26,7 +26,7 @@ export class ElasticProfilesCRUD {
     return ApiRequestBuilder.GET(SparkRoutes.elasticProfileListPath(), this.API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => result.map((body) => {
                               const data = JSON.parse(body)._embedded.profiles as ElasticProfileJSON[];
-                              return ElasticProfiles.fromJSON(data);
+                              return ElasticAgentProfiles.fromJSON(data);
                             }));
   }
 
@@ -43,14 +43,14 @@ export class ElasticProfilesCRUD {
                             }));
   }
 
-  static update(updatedProfile: ElasticProfile, etag: string) {
+  static update(updatedProfile: ElasticAgentProfile, etag: string) {
     return ApiRequestBuilder.PUT(SparkRoutes.elasticProfilePath(updatedProfile.id()),
                                  this.API_VERSION_HEADER,
                                  {payload: updatedProfile, etag})
                             .then(this.extractObjectWithEtag());
   }
 
-  static create(profile: ElasticProfile) {
+  static create(profile: ElasticAgentProfile) {
     return ApiRequestBuilder.POST(SparkRoutes.elasticProfileListPath(),
                                   this.API_VERSION_HEADER,
                                   {payload: profile}).then(this.extractObjectWithEtag());
@@ -66,9 +66,9 @@ export class ElasticProfilesCRUD {
       return result.map((body) => {
         const profileJSON = JSON.parse(body) as ElasticProfileJSON;
         return {
-          object: ElasticProfile.fromJSON(profileJSON),
+          object: ElasticAgentProfile.fromJSON(profileJSON),
           etag: result.getEtag()
-        } as ObjectWithEtag<ElasticProfile>;
+        } as ObjectWithEtag<ElasticAgentProfile>;
       });
     };
   }

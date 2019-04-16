@@ -1,0 +1,139 @@
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import {ClusterProfile} from "models/elastic_profiles/types";
+import {Errors} from "models/mixins/errors";
+import {Configurations} from "models/shared/configuration";
+import {Extension} from "models/shared/plugin_infos_new/extensions";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {ModalType} from "views/pages/elastic_profiles/cluster_profiles_modals";
+import {TestClusterProfile} from "views/pages/elastic_profiles/spec/test_cluster_profiles_modal";
+import {TestData} from "views/pages/elastic_profiles/spec/test_data";
+
+describe("ClusterProfileModal", () => {
+  let pluginInfos: Array<PluginInfo<Extension>>, helper: TestHelper, modal: TestClusterProfile;
+  beforeEach(() => {
+    pluginInfos = [
+      PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links),
+      PluginInfo.fromJSON(TestData.kubernetesPluginJSON(), TestData.kubernetesPluginJSON()._links)
+    ];
+
+    helper = new TestHelper();
+  });
+
+  describe("EditModalType", () => {
+    beforeEach(() => {
+      modal = new TestClusterProfile(pluginInfos, ModalType.edit, ClusterProfile.fromJSON(TestData.dockerClusterProfile()));
+      helper.mount(modal.body.bind(modal));
+    });
+
+    afterEach(() => {
+      helper.unmount();
+    });
+
+    it("id field should be disabled for edit modal type", () => {
+      expect(find("form-field-input-id")).toBeDisabled();
+    });
+  });
+
+  describe("CreateModalType", () => {
+    it("id field should not be disabled for new modal type", () => {
+      const clusterProfile = new ClusterProfile("", "cd.go.contrib.elastic-agent.docker", new Configurations([]));
+      modal                = new TestClusterProfile(pluginInfos, ModalType.create, clusterProfile);
+      helper.mount(modal.body.bind(modal));
+
+      expect(find("form-field-input-id")).toBeInDOM();
+      expect(find("form-field-input-id")).not.toBeDisabled();
+
+      helper.unmount();
+    });
+
+    it("should display cluster profile properties form if selected plugin supports cluster profile", () => {
+      const clusterProfile = new ClusterProfile("", "cd.go.contrib.elastic-agent.docker", new Configurations([]));
+      modal                = new TestClusterProfile(pluginInfos, ModalType.create, clusterProfile);
+      helper.mount(modal.body.bind(modal));
+
+      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-alert")).not.toBeInDOM();
+      expect(helper.findByDataTestId("cluster-profile-properties-form")).not.toBeEmpty();
+
+      helper.unmount();
+    });
+
+    it("should display message if selected plugin do not support cluster profile", () => {
+      const clusterProfile = new ClusterProfile("", "cd.go.contrib.elasticagent.kubernetes");
+      modal                = new TestClusterProfile(pluginInfos, ModalType.create, clusterProfile);
+      helper.mount(modal.body.bind(modal));
+
+      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-alert")).toBeInDOM();
+      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-alert")).toHaveText("Can not define Cluster profiles for 'cd.go.contrib.elasticagent.kubernetes' plugin as it does not support cluster profiles.");
+      expect(helper.findByDataTestId("cluster-profile-properties-form")).toBeEmpty();
+
+      helper.unmount();
+    });
+  });
+
+  it("should have modal title and fields", () => {
+    modal = new TestClusterProfile(pluginInfos, ModalType.create, ClusterProfile.fromJSON(TestData.dockerClusterProfile()));
+    helper.mount(modal.body.bind(modal));
+
+    expect(modal.title()).toEqual("Modal title");
+    expect(find("form-field-label-id")).toBeInDOM();
+    expect(find("form-field-label-plugin-id")).toBeInDOM();
+
+    expect(find("form-field-input-plugin-id")).toBeInDOM();
+    expect(find("form-field-input-plugin-id").get(0).children[0]).toContainText("Docker Elastic Agent Plugin");
+    expect(find("form-field-input-plugin-id").get(0).children[1]).toContainText("Kubernetes Elastic Agent Plugin");
+
+    helper.unmount();
+  });
+
+  it("should display error message if there is error on a field", () => {
+    const clusterProfile = ClusterProfile.fromJSON(TestData.dockerClusterProfile());
+    clusterProfile.errors(new Errors({id: ["should be unique"]}));
+    modal = new TestClusterProfile(pluginInfos, ModalType.edit, clusterProfile);
+    helper.mount(modal.body.bind(modal));
+
+    expect(find("form-field-input-id").parent()).toContainText("should be unique");
+
+    helper.unmount();
+  });
+
+  it("should display error message", () => {
+    const clusterProfile = ClusterProfile.fromJSON(TestData.dockerClusterProfile());
+    modal                = new TestClusterProfile(pluginInfos, ModalType.edit, clusterProfile);
+    modal.setErrorMessageForTest("some error message");
+    helper.mount(modal.body.bind(modal));
+
+    expect(find("flash-message-alert")).toBeInDOM();
+    expect(find("flash-message-alert")).toContainText("some error message");
+
+    helper.unmount();
+  });
+
+  it("should display spinner if no cluster profile specified", () => {
+    modal = new TestClusterProfile(pluginInfos, ModalType.edit);
+    helper.mount(modal.body.bind(modal));
+
+    expect(find("spinner-wrapper").parent()).toBeInDOM();
+
+    helper.unmount();
+  });
+
+  function find(id: string) {
+    return helper.findByDataTestId(id);
+  }
+});

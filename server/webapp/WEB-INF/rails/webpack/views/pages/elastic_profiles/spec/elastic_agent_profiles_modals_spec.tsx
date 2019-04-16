@@ -20,15 +20,15 @@ import {ElasticAgentSettings} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 
 import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
-import {NewElasticProfileModal} from "views/pages/elastic_profiles/modals";
+import {NewElasticProfileModal} from "views/pages/elastic_profiles/elastic_agent_profiles_modals";
 import {TestData} from "views/pages/elastic_profiles/spec/test_data";
 
-describe("New Elastic Profile Modals Spec", () => {
+describe("New Elastic Agent Profile Modals Spec", () => {
   let pluginInfo: PluginInfo<any>, clusterProfiles: ClusterProfile[] = [], helper: TestHelper;
 
   beforeEach(() => {
     clusterProfiles = [];
-    pluginInfo      = PluginInfo.fromJSON(TestData.DockerPluginJSON(), TestData.DockerPluginJSON()._links);
+    pluginInfo      = PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links);
     helper          = new TestHelper();
   });
 
@@ -51,10 +51,10 @@ describe("New Elastic Profile Modals Spec", () => {
         //do nothing
       });
 
-    expect(modal.title()).toEqual("Add a new profile");
+    expect(modal.title()).toEqual("Add a new elastic agent profile");
   });
 
-  it("it should not render cluster profiles dropdown when plugin infos does not support cluster profiles", () => {
+  xit("it should not render cluster profiles dropdown when plugin infos does not support cluster profiles", () => {
     mountModal();
     const extension = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS);
     expect(!!(extension as ElasticAgentSettings).supportsClusterProfiles).toEqual(false);
@@ -67,10 +67,10 @@ describe("New Elastic Profile Modals Spec", () => {
 
   it("it should render an error message when plugin infos supports cluster profiles and no cluster profiles are defined",
      () => {
-       const data                                   = TestData.DockerPluginJSON();
+       const data                                   = TestData.dockerPluginJSON();
        data.extensions[0].supports_cluster_profiles = true;
 
-       pluginInfo = PluginInfo.fromJSON(data, TestData.DockerPluginJSON()._links);
+       pluginInfo = PluginInfo.fromJSON(data, TestData.dockerPluginJSON()._links);
 
        mountModal();
 
@@ -88,11 +88,11 @@ describe("New Elastic Profile Modals Spec", () => {
      });
 
   it("should render cluster profiles dropdown", () => {
-    const data = TestData.DockerPluginJSON();
+    const data = TestData.dockerPluginJSON();
 
     data.extensions[0].supports_cluster_profiles = true;
 
-    pluginInfo      = PluginInfo.fromJSON(data, TestData.DockerPluginJSON()._links);
+    pluginInfo      = PluginInfo.fromJSON(data, TestData.dockerPluginJSON()._links);
     clusterProfiles = [
       new ClusterProfile("cluster1", pluginInfo.id),
       new ClusterProfile("cluster2", pluginInfo.id),
@@ -113,11 +113,11 @@ describe("New Elastic Profile Modals Spec", () => {
   });
 
   it("should render cluster profiles belonging to the selected plugin", () => {
-    const data = TestData.DockerPluginJSON();
+    const data = TestData.dockerPluginJSON();
 
     data.extensions[0].supports_cluster_profiles = true;
 
-    pluginInfo      = PluginInfo.fromJSON(data, TestData.DockerPluginJSON()._links);
+    pluginInfo      = PluginInfo.fromJSON(data, TestData.dockerPluginJSON()._links);
     clusterProfiles = [
       new ClusterProfile("cluster1", pluginInfo.id),
       new ClusterProfile("cluster3", "random.foo.plugin"),

@@ -41,21 +41,21 @@ export class ClusterProfiles {
   }
 }
 
-export class ElasticProfiles {
-  private readonly profiles: Stream<ElasticProfile[]>;
+export class ElasticAgentProfiles {
+  private readonly profiles: Stream<ElasticAgentProfile[]>;
 
-  constructor(profiles: ElasticProfile[]) {
+  constructor(profiles: ElasticAgentProfile[]) {
     this.profiles = stream(profiles);
   }
 
-  static fromJSON(profilesJson: ElasticProfileJSON[]): ElasticProfiles {
+  static fromJSON(profilesJson: ElasticProfileJSON[]): ElasticAgentProfiles {
     const profiles = profilesJson.map((profile: ElasticProfileJSON) => {
-      return ElasticProfile.fromJSON(profile);
+      return ElasticAgentProfile.fromJSON(profile);
     });
-    return new ElasticProfiles(profiles);
+    return new ElasticAgentProfiles(profiles);
   }
 
-  all(): Stream<ElasticProfile[]> {
+  all(): Stream<ElasticAgentProfile[]> {
     return this.profiles;
   }
 
@@ -71,6 +71,10 @@ export class ElasticProfiles {
     return _.groupBy(this.profiles(), (profile) => {
       return profile.pluginId;
     });
+  }
+
+  filterByClusterProfile(clusterProfileId: string) {
+    return this.profiles().filter((elasticAgentProfile) => elasticAgentProfile.clusterProfileId() === clusterProfileId);
   }
 }
 
@@ -130,10 +134,10 @@ export interface ClusterProfileJSON {
 }
 
 //tslint:disable-next-line
-export interface ElasticProfile extends ValidatableMixin {
+export interface ElasticAgentProfile extends ValidatableMixin {
 }
 
-export class ElasticProfile implements ValidatableMixin {
+export class ElasticAgentProfile implements ValidatableMixin {
   id: Stream<string>;
   pluginId: Stream<string>;
   clusterProfileId: Stream<string>;
@@ -155,11 +159,8 @@ export class ElasticProfile implements ValidatableMixin {
     this.validateMaxLength("id", 255, {message: "The maximum allowed length is 255 characters."});
   }
 
-  static fromJSON(profileJson: ElasticProfileJSON): ElasticProfile {
-    const profile = new ElasticProfile(profileJson.id,
-                                       profileJson.plugin_id,
-                                       profileJson.cluster_profile_id,
-                                       Configurations.fromJSON(profileJson.properties));
+  static fromJSON(profileJson: ElasticProfileJSON): ElasticAgentProfile {
+    const profile = new ElasticAgentProfile(profileJson.id, profileJson.plugin_id, profileJson.cluster_profile_id, Configurations.fromJSON(profileJson.properties));
 
     profile.errors(new Errors(profileJson.errors));
     return profile;
@@ -175,7 +176,7 @@ export class ElasticProfile implements ValidatableMixin {
   }
 }
 
-applyMixins(ElasticProfile, ValidatableMixin);
+applyMixins(ElasticAgentProfile, ValidatableMixin);
 
 //tslint:disable-next-line
 export interface ClusterProfile extends ValidatableMixin {

@@ -30,8 +30,8 @@ describe("list all cluster profiles", () => {
   const simulateEvent = require("simulate-event");
 
   const pluginInfos = [
-    PluginInfo.fromJSON(TestData.DockerPluginJSON(), TestData.DockerPluginJSON()._links),
-    PluginInfo.fromJSON(TestData.KubernatesPluginJSON(), TestData.KubernatesPluginJSON()._links)
+    PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links),
+    PluginInfo.fromJSON(TestData.kubernetesPluginJSON(), TestData.kubernetesPluginJSON()._links)
   ];
 
   const clusterProfiles = ClusterProfiles.fromJSON({
@@ -56,13 +56,13 @@ describe("list all cluster profiles", () => {
   it("should render cluster id, plugin name and image", () => {
     expect(helper.findByDataTestId("cluster-profile-list").get(0).children).toHaveLength(2);
 
-    expect(helper.findByDataTestId("plugin-name").get(0)).toContainText(TestData.DockerPluginJSON().about.name);
+    expect(helper.findByDataTestId("plugin-name").get(0)).toContainText(TestData.dockerPluginJSON().about.name);
     expect(helper.findByDataTestId("plugin-icon").get(0))
-      .toHaveAttr("src", TestData.DockerPluginJSON()._links.image.href);
+      .toHaveAttr("src", TestData.dockerPluginJSON()._links.image.href);
 
-    expect(helper.findByDataTestId("plugin-name").get(1)).toContainText(TestData.KubernatesPluginJSON().about.name);
+    expect(helper.findByDataTestId("plugin-name").get(1)).toContainText(TestData.kubernetesPluginJSON().about.name);
     expect(helper.findByDataTestId("plugin-icon").get(1))
-      .toHaveAttr("src", TestData.KubernatesPluginJSON()._links.image.href);
+      .toHaveAttr("src", TestData.kubernetesPluginJSON()._links.image.href);
   });
 
   it("should toggle between expanded and collapsed state on click of header", () => {

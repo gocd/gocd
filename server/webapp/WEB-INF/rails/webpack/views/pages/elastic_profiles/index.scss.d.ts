@@ -2,6 +2,7 @@
 // Please do not change this file!
 export const pluginIcon: string;
 export const pluginName: string;
+export const clusterProfileName: string;
 export const pluginNotInstalled: string;
 export const keyValuePair: string;
 export const pluginInfoSelect: string;
@@ -11,3 +12,4 @@ export const jobSettingsLink: string;
 export const disabled: string;
 export const note: string;
 export const spinnerWrapper: string;
+export const clusterProfileCrudActions: string;

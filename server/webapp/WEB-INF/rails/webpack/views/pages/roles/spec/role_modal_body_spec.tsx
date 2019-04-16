@@ -22,7 +22,7 @@ import {Role, RoleType} from "models/roles/roles";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {AuthorizationPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
 import * as simulateEvent from "simulate-event";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {Action, RoleModalBody} from "views/pages/roles/role_modal_body";
 import {RolesTestData} from "views/pages/roles/spec/test_data";
 

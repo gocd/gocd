@@ -16,7 +16,7 @@
 
 import * as m from "mithril";
 import {BackupProgressStatus, BackupStatus} from "models/backups/types";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {BackupWidget} from "views/pages/backup/backup_widget";
 import * as styles from "../index.scss";
 

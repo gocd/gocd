@@ -16,7 +16,7 @@
 
 import * as m from "mithril";
 import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {LoginPageWidget} from "views/pages/login_page/login_page_widget";
 import * as styles from "../login_page_widget.scss";
 

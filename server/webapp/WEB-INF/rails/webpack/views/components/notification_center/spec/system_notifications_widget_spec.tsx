@@ -18,7 +18,7 @@ import * as m from "mithril";
 import * as Stream from "mithril/stream";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";
 import {SystemNotificationsWidget} from "views/components/notification_center/system_notifications_widget";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("SystemNotificationsWidget", () => {
   const simulateEvent = require("simulate-event");

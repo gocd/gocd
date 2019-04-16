@@ -25,7 +25,7 @@ import {
   formatTimeInformation,
   getLastUsedInformation, getRevokedBy
 } from "views/pages/access_tokens/access_tokens_widget";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("AccessTokensWidgetForCurrentUserSpec", () => {
   const helper          = new TestHelper();

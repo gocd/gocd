@@ -16,7 +16,7 @@
 
 import * as m from "mithril";
 import {MaintenanceModeInfo} from "models/maintenance_mode/types";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {DisabledSubsystemsWidget} from "views/pages/maintenance_mode/disabled_susbsystems_widget";
 import {TestData} from "views/pages/maintenance_mode/spec/test_data";
 

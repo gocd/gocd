@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("Dashboard Material Search Results Widget", () => {
   const m                           = require("mithril");

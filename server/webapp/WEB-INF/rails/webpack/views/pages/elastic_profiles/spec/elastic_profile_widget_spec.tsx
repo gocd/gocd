@@ -22,7 +22,7 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as keyValuePairStyles from "views/components/key_value_pair/index.scss";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {TestData} from "views/pages/elastic_profiles/spec/test_data";
 
 import {ElasticProfileWidget} from "../elastic_profiles_widget";

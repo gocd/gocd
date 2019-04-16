@@ -18,7 +18,7 @@ import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import * as simulateEvent from "simulate-event";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {Table, TableSortHandler} from "../index";
 import * as styles from "../index.scss";
 

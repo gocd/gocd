@@ -17,7 +17,7 @@
 import * as m from "mithril";
 import {AccessTokens} from "models/access_tokens/types";
 import {AccessTokensPage} from "views/pages/access_tokens";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {PageState} from "views/pages/page";
 
 describe("AccessTokenPage", () => {

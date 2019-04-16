@@ -15,7 +15,7 @@
  */
 
 import SparkRoutes from "helpers/spark_routes";
-import {TestHelper} from "../../../../../webpack/views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "../../../../../webpack/views/pages/spec/test_helper";
 
 describe("Dashboard Pipeline Trigger With Options Modal Body", () => {
   const m                           = require("mithril");

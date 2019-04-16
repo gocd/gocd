@@ -21,7 +21,7 @@ import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
 import {Attrs, UsersWidget} from "views/pages/users/users_widget";
 

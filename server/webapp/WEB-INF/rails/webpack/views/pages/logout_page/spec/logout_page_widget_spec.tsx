@@ -16,7 +16,7 @@
 
 import * as m from "mithril";
 import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {LogoutPageWidget} from "views/pages/logout_page/logout_page_widget";
 
 describe("LogoutPageWidget", () => {

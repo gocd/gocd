@@ -15,7 +15,7 @@
  */
 
 import {HeaderPanel} from "../index";
-import {TestHelper} from "../../../pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "../../../pages/spec/test_helper";
 
 const m = require("mithril");
 

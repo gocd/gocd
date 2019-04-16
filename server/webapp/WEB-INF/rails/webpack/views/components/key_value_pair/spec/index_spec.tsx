@@ -16,7 +16,7 @@
 
 import * as m from "mithril";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair/index";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import * as styles from "../index.scss";
 
 describe("KeyValuePair", () => {

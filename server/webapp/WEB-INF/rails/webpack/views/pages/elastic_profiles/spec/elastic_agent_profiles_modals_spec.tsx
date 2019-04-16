@@ -19,7 +19,7 @@ import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ElasticAgentSettings} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {NewElasticProfileModal} from "views/pages/elastic_profiles/elastic_agent_profiles_modals";
 import {TestData} from "views/pages/elastic_profiles/spec/test_data";
 

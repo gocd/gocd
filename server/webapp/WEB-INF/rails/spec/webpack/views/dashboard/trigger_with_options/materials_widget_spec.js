@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {TestHelper} from "../../../../../webpack/views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "../../../../../webpack/views/pages/spec/test_helper";
 
 describe("Dashboard Trigger With Options Material Widget", () => {
   const _      = require("lodash");

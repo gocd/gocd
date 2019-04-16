@@ -22,7 +22,7 @@ import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
 import {User, Users} from "models/users/users";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 
 describe("User Actions Widget", () => {

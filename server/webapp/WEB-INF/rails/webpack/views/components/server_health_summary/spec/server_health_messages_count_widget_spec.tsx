@@ -21,7 +21,7 @@ import {ServerHealthMessages} from "models/shared/server_health_messages/server_
 import * as s from "underscore.string";
 import {ModalManager} from "views/components/modal/modal_manager";
 import {ServerHealthMessagesCountWidget} from "views/components/server_health_summary/server_health_messages_count_widget";
-import {TestHelper} from "views/pages/artifact_stores/spec/test_helper";
+import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ServerHealthMessagesCountWidget", () => {
   const TimeFormatter = require("helpers/time_formatter");

@@ -57,7 +57,11 @@ class ConfigRepoExtensionRepresenterTest {
       new ConfigRepoExtensionRepresenter().toJSON(it, PluginInfoMother.createConfigRepoPluginInfoWithoutPluginSettings())
     })
     def expectedJSON = [
-      type: "configrepo"
+      type: "configrepo",
+      capabilities: [
+        supports_pipeline_export: true,
+        supports_parse_content: true
+      ]
     ]
     assertThatJson(actualJson).isEqualTo(expectedJSON)
   }

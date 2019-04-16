@@ -47,7 +47,7 @@ enum Type {
     [
       AGENT_STARTUP_ARGS: '-Xms128m -Xmx256m'
     ],
-    []),
+    [], true),
 
   sever("Go Server", "go-server", "go.jar", "go-server-wrapper.log",
     [:],
@@ -57,7 +57,7 @@ enum Type {
       '-XX:MaxMetaspaceSize=400m',
       '-Duser.language=en',
       '-Duser.country=US',
-    ])
+    ], false)
 
   final String appName
   final String baseName
@@ -65,21 +65,22 @@ enum Type {
   final String logFileName
   final Map<String, String> additionalEnvVars
   final List<String> jvmArgs
-
+  final boolean allowPassthrough
 
   Type(String appName,
        String baseName,
        String jarFileName,
        String logFileName,
        Map<String, String> additionalEnvVars,
-       List<String> jvmArgs) {
-
+       List<String> jvmArgs,
+       boolean allowPassthrough) {
     this.jvmArgs = jvmArgs
     this.additionalEnvVars = additionalEnvVars
     this.logFileName = logFileName
     this.jarFileName = jarFileName
     this.baseName = baseName
     this.appName = appName
+    this.allowPassthrough = allowPassthrough
   }
 }
 
@@ -118,7 +119,7 @@ def configureOSXZip(Zip zipTask,
           eachLine = 'PIDDIR="../run"'
         }
 
-        if (eachLine == '#PASS_THROUGH=true') {
+        if (eachLine == '#PASS_THROUGH=true' && type.allowPassthrough) {
           eachLine = 'PASS_THROUGH=true'
         }
 

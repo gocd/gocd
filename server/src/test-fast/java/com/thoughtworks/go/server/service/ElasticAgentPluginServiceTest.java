@@ -22,6 +22,9 @@ import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
@@ -303,6 +306,26 @@ class ElasticAgentPluginServiceTest {
 
         when(clusterProfilesService.getPluginProfiles()).thenReturn(new ClusterProfiles());
         when(registry.getPluginStatusReport(eq("cd.go.example.plugin"), anyList())).thenReturn("<div>This is a plugin status report snippet.</div>");
+
+        final String pluginStatusReport = service.getPluginStatusReport("cd.go.example.plugin");
+
+        assertThat(pluginStatusReport).isEqualTo("<div>This is a plugin status report snippet.</div>");
+    }
+
+    @Test
+    void shouldPassAlongAllClusterProfilesBelongingToThePluginWhileGettingPluginStatusReport() {
+        final Capabilities capabilities = new Capabilities(true);
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
+
+        ClusterProfiles allClusterProfiles = new ClusterProfiles();
+        ClusterProfile cluster1 = new ClusterProfile("id1", "cd.go.example.plugin", new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1")));
+        ClusterProfile cluster2 = new ClusterProfile("id2", "cd.go.example.plugin2", new ConfigurationProperty(new ConfigurationKey("key2"), new ConfigurationValue("value2")));
+        allClusterProfiles.add(cluster1);
+        allClusterProfiles.add(cluster2);
+
+        when(clusterProfilesService.getPluginProfiles()).thenReturn(allClusterProfiles);
+        when(registry.getPluginStatusReport("cd.go.example.plugin", Arrays.asList(cluster1.getConfigurationAsMap(true)))).thenReturn("<div>This is a plugin status report snippet.</div>");
 
         final String pluginStatusReport = service.getPluginStatusReport("cd.go.example.plugin");
 

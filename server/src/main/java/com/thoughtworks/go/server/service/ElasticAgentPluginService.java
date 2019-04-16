@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
-import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -206,7 +205,7 @@ public class ElasticAgentPluginService {
     public String getPluginStatusReport(String pluginId) {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
         if (pluginInfo.getCapabilities().supportsPluginStatusReport()) {
-            List<Map<String, String>> clusterProfiles = clusterProfilesService.getPluginProfiles().stream().map(profile -> profile.getConfigurationAsMap(true)).collect(Collectors.toList());
+            List<Map<String, String>> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId).stream().map(profile -> profile.getConfigurationAsMap(true)).collect(Collectors.toList());
             return elasticAgentPluginRegistry.getPluginStatusReport(pluginId, clusterProfiles);
         }
 

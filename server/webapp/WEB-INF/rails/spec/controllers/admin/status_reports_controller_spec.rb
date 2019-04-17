@@ -286,21 +286,14 @@ describe Admin::StatusReportsController do
       expect(response.response_code).to eq(422)
     end
 
-    it 'should return the status report for an available plugin' do
-      elastic_agent_id = 'elastic_agent_1'
-
-      elastic_agent_plugin_service = instance_double('com.thoughtworks.go.server.service.ElasticAgentPluginService')
-      allow(elastic_agent_plugin_service).to receive(:getAgentStatusReport).with(elastic_plugin_id, nil, elastic_agent_id).and_return('status_report')
-      allow(controller).to receive(:elastic_agent_plugin_service).and_return(elastic_agent_plugin_service)
-
+    it 'should be unprocessable entity when job id is not provided' do
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(true)
       pluginDescriptor = GoPluginDescriptor.new(elastic_plugin_id, nil, nil, nil, nil, nil)
       ElasticAgentMetadataStore.instance().setPluginInfo(com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo.new(pluginDescriptor, nil, nil, nil, nil, capabilities))
 
-      get :agent_status, params: {:plugin_id => elastic_plugin_id, :elastic_agent_id => elastic_agent_id}
+      get :agent_status, params: {:plugin_id => elastic_plugin_id, :elastic_agent_id => '20'}
 
-      expect(response).to be_ok
-      expect(assigns[:agent_status_report]).to eq('status_report')
+      expect(response.response_code).to eq(422)
     end
 
     it 'should be not found if plugin does not support status_report endpoint' do
@@ -389,7 +382,7 @@ describe Admin::StatusReportsController do
 
     it 'should be not found if plugin does not support cluster status_report endpoint' do
       elastic_agent_plugin_service = instance_double('com.thoughtworks.go.server.service.ElasticAgentPluginService')
-      allow(elastic_agent_plugin_service).to receive(:getClusterStatusReport).with(elastic_plugin_id,cluster_profile_id).and_raise(java.lang.UnsupportedOperationException.new)
+      allow(elastic_agent_plugin_service).to receive(:getClusterStatusReport).with(elastic_plugin_id, cluster_profile_id).and_raise(java.lang.UnsupportedOperationException.new)
       allow(controller).to receive(:elastic_agent_plugin_service).and_return(elastic_agent_plugin_service)
 
       capabilities = com.thoughtworks.go.plugin.domain.elastic.Capabilities.new(false, false, false)

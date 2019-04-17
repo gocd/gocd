@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
@@ -420,6 +421,20 @@ class ElasticAgentPluginServiceTest {
         assertThat(exception.getMessage()).isEqualTo("Plugin does not support cluster status report.");
 
 
+    }
+
+    @Test
+    void shouldErrorOutWhenClusterProfileNotFound() {
+        final Capabilities capabilities = new Capabilities(true, true, false);
+        final GoPluginDescriptor descriptor = new GoPluginDescriptor("cd.go.example.plugin", null, null, null, null, false);
+        elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, capabilities));
+        ClusterProfile clusterProfile = new ClusterProfile("cluster-profile-id", "cd.go.example.plugin");
+        clusterProfile.addNewConfigurationWithValue("go-server-url", "server-url", false);
+        PluginProfiles<ClusterProfile> clusterProfiles = new ClusterProfiles(clusterProfile);
+        when(clusterProfilesService.getPluginProfiles()).thenReturn(clusterProfiles);
+
+        final RecordNotFoundException exception = assertThrows(RecordNotFoundException.class, () -> service.getClusterStatusReport("cd.go.example.plugin", "test"));
+        assertThat(exception.getMessage()).isEqualTo("Cluster profile with id: 'test' is not found.");
     }
 
     @Nested

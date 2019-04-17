@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
@@ -231,6 +232,9 @@ public class ElasticAgentPluginService {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
         if (pluginInfo.getCapabilities().supportsClusterStatusReport()) {
             ClusterProfile clusterProfile = clusterProfilesService.getPluginProfiles().findByPluginIdAndProfileId(pluginId, clusterProfileId);
+            if (clusterProfile == null) {
+                throw new RecordNotFoundException(String.format("Cluster profile with id: '%s' is not found.", clusterProfileId));
+            }
             return elasticAgentPluginRegistry.getClusterStatusReport(pluginId, clusterProfile.getConfigurationAsMap(true));
         }
 

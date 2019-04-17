@@ -16,6 +16,31 @@
 
 description = 'GoCD Release Scripts'
 
+task updateBuildMap {
+  outputs.upToDateWhen { false }
+  def checkoutDir = "${project.buildDir}/build-map"
+  String username = System.getenv('BUILD_MAP_USER')
+  String password = System.getenv('BUILD_MAP_PASSWORD')
+
+  onlyIf { username && password }
+  doFirst {
+    project.delete(checkoutDir)
+
+    exec {
+      commandLine = ['git', 'clone', '--quiet', "https://github.com/gocd/build_map", checkoutDir]
+      standardOutput = System.out
+      errorOutput = System.err
+    }
+
+    exec {
+      commandLine = ['./build_go_cd_commit_to_package.rb']
+      workingDir = checkoutDir
+      standardOutput = System.out
+      errorOutput = System.err
+    }
+  }
+}
+
 task bumpCommandRepoVersion {
   outputs.upToDateWhen { false }
   onlyIf { System.getenv().containsKey("BUMP_COMMAND_REPO_VERSION") }

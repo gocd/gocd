@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.config.elastic;
 
-import com.thoughtworks.go.config.ConfigCollection;
-import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.PluginProfiles;
-import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.Arrays;
@@ -36,4 +33,7 @@ public class ElasticProfiles extends PluginProfiles<ElasticProfile> implements V
         super(Arrays.asList(profiles));
     }
 
+    public void validateTree(ValidationContext validationContext) {
+        super.forEach(profile -> profile.validateTree(validationContext));
+    }
 }

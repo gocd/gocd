@@ -16,13 +16,20 @@
 
 package com.thoughtworks.go.config.update;
 
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
+import com.thoughtworks.go.config.elastic.ElasticProfiles;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+
+import java.util.List;
 
 public class UpdateClusterProfileCommand extends ClusterProfileCommand {
     public UpdateClusterProfileCommand(ElasticAgentExtension extension, GoConfigService goConfigService, ClusterProfile clusterProfile, Username username, HttpLocalizedOperationResult result) {
@@ -39,6 +46,13 @@ public class UpdateClusterProfileCommand extends ClusterProfileCommand {
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
+        ElasticProfiles allElasticAgentProfiles = preprocessedConfig.getElasticConfig().getProfiles();
+        allElasticAgentProfiles.validateTree(new ConfigSaveValidationContext(preprocessedConfig));
+        List<ConfigErrors> allErrors = ErrorCollector.getAllErrors(allElasticAgentProfiles);
+        if (!allErrors.isEmpty()) {
+            throw new GoConfigInvalidException(preprocessedConfig, allErrors.get(0).firstError());
+        }
+
         return isValidForCreateOrUpdate(preprocessedConfig);
     }
 }

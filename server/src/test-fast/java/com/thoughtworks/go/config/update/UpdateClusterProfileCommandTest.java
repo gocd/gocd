@@ -19,7 +19,10 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticConfig;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -31,6 +34,7 @@ import org.mockito.Mock;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -91,6 +95,17 @@ class UpdateClusterProfileCommandTest {
     @Test
     void shouldSpecifyClusterProfileObjectDescriptor() {
         assertThat(command.getObjectDescriptor()).isEqualTo(EntityType.ClusterProfile);
+    }
+
+    @Test
+    void shouldValidateElasticAgentProfilesAsPartOfUpdateClusterProfile() {
+        ElasticConfig elasticConfig = new ElasticConfig();
+        elasticConfig.getClusterProfiles().add(new ClusterProfile("cluster1", "ecs"));
+        elasticConfig.getProfiles().add(new ElasticProfile("profile1", "docker", "cluster1"));
+        config.setElasticConfig(elasticConfig);
+
+        GoConfigInvalidException exception = assertThrows(GoConfigInvalidException.class, () -> command.isValid(config));
+        assertThat(exception.getMessage()).isEqualTo("Referenced Cluster Profile and Elastic Agent Profile should belong to same plugin. Specified cluster profile 'cluster1' belongs to 'ecs' plugin, whereas, elastic agent profile belongs to 'docker' plugin.");
     }
 
     @Test

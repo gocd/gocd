@@ -20,11 +20,10 @@ import * as m from "mithril";
 import {AuthPluginInfo} from "models/authentication/auth_plugin_info";
 import * as s from "underscore.string";
 import * as uuid from "uuid/v4";
-import {Primary} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import * as styles from "./login_page_widget.scss";
 
-const gocdLogo = require("./gocd_login.svg");
+const gocdLogo = require("./gocd_logo.svg");
 
 class LoginFormWidget extends MithrilViewComponent<AuthPluginInfo> {
   private readonly formID = `login-form-${uuid()}`;
@@ -58,9 +57,11 @@ class LoginFormWidget extends MithrilViewComponent<AuthPluginInfo> {
             /></li>
 
             <li>
-              <Primary onclick={() => {
+              <button className={styles.loginButton} onclick={() => {
                 (document.querySelector(`[data-test-id='${this.formID}']`)! as HTMLFormElement).submit();
-              }}>Sign in</Primary></li>
+              }}>Sign in
+              </button>
+            </li>
           </ul>
         </form>
       </div>
@@ -70,9 +71,10 @@ class LoginFormWidget extends MithrilViewComponent<AuthPluginInfo> {
 
 class ShowAllWebBasedPluginLinks extends MithrilViewComponent<AuthPluginInfo> {
   view(vnode: m.Vnode<AuthPluginInfo, this>): m.Children | void | null {
+    const loginWithMessage = vnode.attrs.hasPasswordPlugins ? <p>Or login using:</p> : <p>Login using:</p>;
     return (
       <div className={styles.otherLoginMethods}>
-        <p>Login using one of the login methods:</p>
+        {loginWithMessage}
         <div className={styles.loginOptions}>
           {vnode.attrs.webBasedPlugins.map((eachPlugin) => {
             return (
@@ -83,11 +85,10 @@ class ShowAllWebBasedPluginLinks extends MithrilViewComponent<AuthPluginInfo> {
                 href={eachPlugin.redirectUrl}>
                 <img
                   data-test-id={s.slugify(`image for ${eachPlugin.pluginName}`)}
-                  width="75px"
-                  height="75px"
+                  width="32px"
+                  height="32px"
                   alt={`Login using ${eachPlugin.pluginName}`}
                   src={eachPlugin.imageUrl}/>
-
               </a>
             );
           })}
@@ -113,9 +114,7 @@ class ShowRedirectToDefaultPlugin extends MithrilComponent<AuthPluginInfo> {
 
     return (
       <div className={styles.redirect}>
-        <p>You will be automatically redirected to login using the
-          plugin
-        </p>
+        <p>You will be automatically redirected to login using</p>
         <a
           className={styles.webLoginLink}
           data-test-id={s.slugify(`link to login using ${defaultWebBasedPlugin.pluginName}`)}
@@ -123,12 +122,11 @@ class ShowRedirectToDefaultPlugin extends MithrilComponent<AuthPluginInfo> {
           href={defaultWebBasedPlugin.redirectUrl}>
           <img
             data-test-id={s.slugify(`image for ${defaultWebBasedPlugin.pluginName}`)}
-            width="75px"
-            height="75px"
+            width="32px"
+            height="32px"
             alt={`Login using ${defaultWebBasedPlugin.pluginName}`}
             src={defaultWebBasedPlugin.imageUrl}/>
         </a>
-
       </div>
     );
   }
@@ -137,20 +135,22 @@ class ShowRedirectToDefaultPlugin extends MithrilComponent<AuthPluginInfo> {
 export class LoginPageWidget extends MithrilViewComponent<AuthPluginInfo> {
   view(vnode: m.Vnode<AuthPluginInfo, this>) {
     return (
-      <div>
+      <span>
+      <div className={styles.errorBox}>
+        {this.maybeLoginError(vnode)}
+      </div>
         <div className={styles.loginForm}>
+          <div className={styles.loginContainer}>
+          <div className={styles.loginGraphics}>
+            <img src={gocdLogo}/>
+          </div>
           <div className={styles.loginMethods}>
             {this.maybeShowLoginFormWidget(vnode)}
             {this.maybeShowLoginIcons(vnode)}
           </div>
-          <div className={styles.loginGraphics}>
-            <img src={gocdLogo}/>
-          </div>
-        </div>
-        <div className={styles.errorBox}>
-          {this.maybeLoginError(vnode)}
         </div>
       </div>
+      </span>
 
     );
   }

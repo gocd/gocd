@@ -39,7 +39,7 @@ describe("LoginPageWidget", () => {
     expect(helper.findByDataTestId("form-field-input-username")).toBeInDOM();
     expect(helper.findByDataTestId("form-field-input-password")).toBeInDOM();
 
-    expect($(helper.root!)).toContainText("Login using one of the login methods:");
+    expect($(helper.root!)).toContainText("Or login using:");
     expect(helper.findByDataTestId("link-to-login-using-my-plugin")).toBeInDOM();
     expect(helper.findByDataTestId("link-to-login-using-my-plugin")).toHaveAttr("href", "/some-redirect-url");
     expect(helper.findByDataTestId("image-for-my-plugin")).toBeInDOM();

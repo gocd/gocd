@@ -76,7 +76,7 @@ $title-element-width: 360px;
 
 .key-value-item {
   display:        flex;
-  padding:        5px;
+  padding:        5px 5px 5px 0;
   border-bottom:  1px dashed $border-color;
   align-content:  center;
   flex-direction: column;

@@ -13,3 +13,8 @@ export const disabled: string;
 export const note: string;
 export const spinnerWrapper: string;
 export const clusterProfileCrudActions: string;
+export const clusterProfileDetailsHeader: string;
+export const expanded: string;
+export const clusterProfileDetailsContainer: string;
+export const clusterProfileDetails: string;
+export const addIcon: string;

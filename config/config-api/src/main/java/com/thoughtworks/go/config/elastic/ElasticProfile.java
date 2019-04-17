@@ -110,6 +110,11 @@ public class ElasticProfile extends PluginProfile {
     }
 
     @Override
+    public void validateTree(ValidationContext validationContext) {
+        super.validateTree(validationContext);
+    }
+
+    @Override
     public void validate(ValidationContext validationContext) {
         super.validate(validationContext);
         if (this.errors().isEmpty() && !super.hasErrors()) {

@@ -24,7 +24,7 @@ import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public abstract class RuleAwarePluginProfileTest {
+public abstract class AbstractRuleAwarePluginProfileTest {
 
     protected abstract RuleAwarePluginProfile newPluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties);
     protected abstract String getObjectDescription();

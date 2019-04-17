@@ -40,7 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class SecretConfigTest extends RuleAwarePluginProfileTest {
+public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
     private SecretsMetadataStore store = SecretsMetadataStore.instance();
 
     @AfterEach

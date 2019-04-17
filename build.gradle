@@ -283,7 +283,7 @@ idea {
   }
 }
 
-subprojects { current ->
+subprojects {
   if (!project.childProjects.isEmpty()) {
     return
   }
@@ -482,7 +482,6 @@ subprojects { current ->
     doFirst {
       // workaround for https://github.com/unbroken-dome/gradle-testsets-plugin/issues/40
       classpath += rootProject.findProject(':test:test-utils').files("resource-include-in-all-projects")
-      allTestClasses = getTestClassesForTask(current, testTask)
     }
 
     defaultCharacterEncoding = "UTF-8"
@@ -509,6 +508,7 @@ subprojects { current ->
       files = files.unique()
 
       List testsToRun = partitionFiles(files)
+      allTestClasses = getTestClassesForTask(testsToRun)
       List testsToIgnore = files - testsToRun
 
       testsToIgnore.each { f ->
@@ -520,7 +520,11 @@ subprojects { current ->
     }
 
     beforeTest { TestDescriptor test ->
-      allTestClasses.remove(test.parent.name.contains('$') ? test.parent.name.substring(0, test.parent.name.indexOf('$')) : test.parent.name)
+      allTestClasses.remove(test.className)
+    }
+
+    beforeSuite { TestDescriptor test ->
+      allTestClasses.remove(test.className)
     }
 
     doLast {
@@ -528,7 +532,7 @@ subprojects { current ->
       project.delete(tmpDir)
 
       if (!allTestClasses.empty) {
-        throw new GradleException("Missed the following classes to test: $allTestClasses")
+        throw new GradleException("Missed the following classes to test: ${allTestClasses}".toString())
       }
     }
 
@@ -708,20 +712,11 @@ static def toCamelCase(String input) {
   return input.split("[^a-zA-Z0-9]").collect { it.capitalize() }.join("")
 }
 
-def static getTestClassesForTask(subProject, testTask) {
-  def testDirRoot = "/${testTask.name}/java/"
-  return (subProject.sourceSets[testTask.name].allSource as List)
-    .stream()
-    .filter { source -> source.absolutePath.contains(testDirRoot) }
-  //Ignore abstract classes
-    .filter { source -> !source.text.contains("abstract class ${source.name.take(source.name.lastIndexOf('.'))}") }
-    .map { source ->
-      def path = source.absolutePath
-      path = path.substring(path.indexOf(testDirRoot) + testDirRoot.length()).replace("/", ".")
-      return path.take(path.lastIndexOf("."))
-    }
-  // This is done to ignore the TestHelpers and Mother classes in test Dirs
-    .filter { source -> source.endsWith("Test") }
+static List<String> getTestClassesForTask(List<String> testsToRun) {
+  return testsToRun.stream()
+    .filter { testToRun -> !testToRun.matches(".*/.*Abstract.*Test.*") }
+    .filter { testToRun -> testToRun.endsWith("Test.*") }
+    .map { testToRun -> testToRun.replaceAll(".\\*", "").replaceAll("/", ".") }
     .collect(Collectors.toList())
 }
 

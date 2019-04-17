@@ -25,7 +25,7 @@ import static java.lang.String.format;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public abstract class PluginProfileTest {
+public abstract class AbstractPluginProfileTest {
 
     protected abstract PluginProfile pluginProfile(String id, String pluginId, ConfigurationProperty... configurationProperties);
     protected abstract String getObjectDescription();

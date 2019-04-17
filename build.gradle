@@ -520,7 +520,7 @@ subprojects { current ->
     }
 
     beforeTest { TestDescriptor test ->
-      allTestClasses.remove(test.parent.name)
+      allTestClasses.remove(test.parent.name.contains('$') ? test.parent.name.substring(0, test.parent.name.indexOf('$')) : test.parent.name)
     }
 
     doLast {
@@ -713,10 +713,12 @@ def static getTestClassesForTask(subProject, testTask) {
   return (subProject.sourceSets[testTask.name].allSource as List)
     .stream()
     .filter { source -> source.absolutePath.contains(testDirRoot) }
+  //Ignore abstract classes
+    .filter { source -> !source.text.contains("abstract class ${source.name.take(source.name.lastIndexOf('.'))}") }
     .map { source ->
       def path = source.absolutePath
       path = path.substring(path.indexOf(testDirRoot) + testDirRoot.length()).replace("/", ".")
-      return path.substring(0, path.lastIndexOf("."))
+      return path.take(path.lastIndexOf("."))
     }
   // This is done to ignore the TestHelpers and Mother classes in test Dirs
     .filter { source -> source.endsWith("Test") }

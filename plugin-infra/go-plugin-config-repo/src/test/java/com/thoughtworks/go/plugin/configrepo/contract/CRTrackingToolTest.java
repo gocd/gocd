@@ -24,7 +24,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CRTrackingToolTest extends CRBaseTest<CRTrackingTool> {
+public class CRTrackingToolTest extends AbstractCRTest<CRTrackingTool> {
 
     private final CRTrackingTool tracking;
     private final CRTrackingTool invalidNoLink;

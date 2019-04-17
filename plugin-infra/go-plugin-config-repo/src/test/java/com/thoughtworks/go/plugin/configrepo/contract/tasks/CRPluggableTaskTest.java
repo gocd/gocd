@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugin.configrepo.contract.tasks;
 
 import com.google.gson.JsonObject;
-import com.thoughtworks.go.plugin.configrepo.contract.CRBaseTest;
+import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import org.junit.Test;
 
@@ -25,7 +25,7 @@ import java.util.Map;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class CRPluggableTaskTest extends CRBaseTest<CRPluggableTask> {
+public class CRPluggableTaskTest extends AbstractCRTest<CRPluggableTask> {
 
     private final CRPluggableTask curl;
     private final CRPluggableTask example;

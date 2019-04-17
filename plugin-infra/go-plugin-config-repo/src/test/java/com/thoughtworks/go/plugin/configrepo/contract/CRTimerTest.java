@@ -24,7 +24,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CRTimerTest extends CRBaseTest<CRTimer> {
+public class CRTimerTest extends AbstractCRTest<CRTimer> {
 
     private final CRTimer timer;
     private final CRTimer invalidNoTimerSpec;

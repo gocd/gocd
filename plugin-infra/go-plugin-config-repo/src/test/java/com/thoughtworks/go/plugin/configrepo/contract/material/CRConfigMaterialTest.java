@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugin.configrepo.contract.material;
 
 import com.google.gson.JsonObject;
-import com.thoughtworks.go.plugin.configrepo.contract.CRBaseTest;
+import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ import java.util.Map;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class CRConfigMaterialTest extends CRBaseTest<CRConfigMaterial> {
+public class CRConfigMaterialTest extends AbstractCRTest<CRConfigMaterial> {
     private final CRConfigMaterial named;
     private final CRConfigMaterial namedDest;
     private final CRConfigMaterial blacklist;

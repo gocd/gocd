@@ -24,7 +24,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CRTabTest extends CRBaseTest<CRTab> {
+public class CRTabTest extends AbstractCRTest<CRTab> {
 
     private final CRTab tab;
     private final CRTab invalidTabNoName;

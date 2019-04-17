@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class RakeTaskRepresenterTest implements TaskRepresenterTest {
+class RakeTaskRepresenterTest implements TaskRepresenterTrait {
   def existingTask() {
     def task = new RakeTask()
     task.setBuildFile("build.xml")

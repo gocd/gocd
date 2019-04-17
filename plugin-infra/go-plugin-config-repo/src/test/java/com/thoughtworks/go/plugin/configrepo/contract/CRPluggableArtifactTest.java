@@ -26,7 +26,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 
-public class CRPluggableArtifactTest extends CRBaseTest<CRPluggableArtifact> {
+public class CRPluggableArtifactTest extends AbstractCRTest<CRPluggableArtifact> {
     private CRPluggableArtifact validArtifactWithNoConfiguration;
     private CRPluggableArtifact validArtifactWithConfiguration;
     private CRPluggableArtifact invalidArtifactWithNoId;

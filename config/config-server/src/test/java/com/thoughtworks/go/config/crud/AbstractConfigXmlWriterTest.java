@@ -24,7 +24,7 @@ import org.junit.Before;
 
 import java.io.ByteArrayOutputStream;
 
-public abstract class BaseConfigXmlWriterTest {
+public abstract class AbstractConfigXmlWriterTest {
     ByteArrayOutputStream output;
     MagicalGoConfigXmlWriter xmlWriter;
     SystemEnvironment systemEnvironment;

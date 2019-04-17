@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugin.configrepo.contract.material;
 
 import com.google.gson.JsonObject;
-import com.thoughtworks.go.plugin.configrepo.contract.CRBaseTest;
+import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.Test;
 
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.Map;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class CRPackageMaterialTest extends CRBaseTest<CRPackageMaterial> {
+public class CRPackageMaterialTest extends AbstractCRTest<CRPackageMaterial> {
 
     private CRPackageMaterial packageMaterial = new CRPackageMaterial("apt-package-plugin-id");
     private CRPackageMaterial namedPackageMaterial = new CRPackageMaterial("myapt","apt-repo-id");

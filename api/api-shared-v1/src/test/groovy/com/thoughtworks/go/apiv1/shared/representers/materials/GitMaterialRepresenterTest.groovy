@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNull
 import static org.mockito.Mockito.mock
 
-class GitMaterialRepresenterTest implements MaterialRepresenterTest {
+class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   static def existingMaterial() {
     return MaterialConfigsMother.gitMaterialConfig()

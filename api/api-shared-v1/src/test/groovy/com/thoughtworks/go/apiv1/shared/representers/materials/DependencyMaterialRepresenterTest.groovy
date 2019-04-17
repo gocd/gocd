@@ -29,7 +29,7 @@ import com.thoughtworks.go.helper.MaterialConfigsMother
 
 import static org.mockito.Mockito.mock
 
-class DependencyMaterialRepresenterTest implements MaterialRepresenterTest {
+class DependencyMaterialRepresenterTest implements MaterialRepresenterTrait {
 
 
   def existingMaterial() {

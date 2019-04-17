@@ -26,7 +26,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CRApprovalTest extends CRBaseTest<CRApproval> {
+public class CRApprovalTest extends AbstractCRTest<CRApproval> {
 
     private final CRApproval manual;
     private final CRApproval success;

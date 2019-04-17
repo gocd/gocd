@@ -24,7 +24,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CRMingleTest extends CRBaseTest<CRMingle> {
+public class CRMingleTest extends AbstractCRTest<CRMingle> {
 
     private final CRMingle mingle;
     private final CRMingle invalidNoUrl;

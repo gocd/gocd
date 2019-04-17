@@ -17,7 +17,7 @@ package com.thoughtworks.go.plugin.configrepo.contract;
 
 import java.util.Map;
 
-public class CREnvironmentVariableTest extends CRBaseTest<CREnvironmentVariable> {
+public class CREnvironmentVariableTest extends AbstractCRTest<CREnvironmentVariable> {
 
     private CREnvironmentVariable key1;
 

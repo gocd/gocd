@@ -22,7 +22,7 @@ import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.After;
 import org.junit.Before;
 
-public abstract class BaseConfigXmlLoaderTest {
+public abstract class AbstractConfigXmlLoaderTest {
     MagicalGoConfigXmlLoader xmlLoader;
     ConfigCache configCache = new ConfigCache();
 

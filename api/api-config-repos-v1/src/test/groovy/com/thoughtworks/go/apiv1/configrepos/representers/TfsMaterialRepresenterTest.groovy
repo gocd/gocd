@@ -18,25 +18,15 @@ package com.thoughtworks.go.apiv1.configrepos.representers
 
 import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.config.materials.AbstractMaterialConfig
-import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig
-import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.util.command.UrlArgument
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
-import static org.mockito.MockitoAnnotations.initMocks
 
 class TfsMaterialRepresenterTest {
   private static final UrlArgument REPO_URL = new UrlArgument("https://microsoft.com/chewbacca")

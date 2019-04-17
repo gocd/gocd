@@ -24,7 +24,7 @@ import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
-public class CRPropertyGeneratorTest extends CRBaseTest<CRPropertyGenerator> {
+public class CRPropertyGeneratorTest extends AbstractCRTest<CRPropertyGenerator> {
 
     private final CRPropertyGenerator invalidNoXPath;
     private final CRPropertyGenerator invalidNoSrc;

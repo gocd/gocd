@@ -24,7 +24,7 @@ import java.util.Map;
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static org.junit.Assert.assertThat;
 
-public class CRStageTest extends CRBaseTest<CRStage> {
+public class CRStageTest extends AbstractCRTest<CRStage> {
 
     private final CRStage stage;
     private final CRStage stageWith2Jobs;

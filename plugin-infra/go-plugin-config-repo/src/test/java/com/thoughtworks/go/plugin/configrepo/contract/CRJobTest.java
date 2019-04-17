@@ -25,7 +25,7 @@ import java.util.Map;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class CRJobTest extends CRBaseTest<CRJob> {
+public class CRJobTest extends AbstractCRTest<CRJob> {
 
     private final CRBuildTask rakeTask = CRBuildTask.rake();
     private final CRBuildTask antTask = CRBuildTask.ant();

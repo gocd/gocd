@@ -17,7 +17,7 @@
 package com.thoughtworks.go.plugin.configrepo.contract.material;
 
 import com.google.gson.JsonObject;
-import com.thoughtworks.go.plugin.configrepo.contract.CRBaseTest;
+import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.Test;
 
 import java.util.Map;
@@ -25,7 +25,7 @@ import java.util.Map;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class CRDependencyMaterialTest extends CRBaseTest<CRDependencyMaterial> {
+public class CRDependencyMaterialTest extends AbstractCRTest<CRDependencyMaterial> {
 
     private final CRDependencyMaterial namedDependsOnPipeline;
     private final CRDependencyMaterial invalidNoPipeline;

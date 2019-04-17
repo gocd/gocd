@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract.tasks;
 
-import com.thoughtworks.go.plugin.configrepo.contract.CRBaseTest;
+import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import org.junit.Test;
 
@@ -26,7 +26,7 @@ import static junit.framework.TestCase.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class CRFetchPluggableArtifactTaskTest extends CRBaseTest<CRFetchPluggableArtifactTask> {
+public class CRFetchPluggableArtifactTaskTest extends AbstractCRTest<CRFetchPluggableArtifactTask> {
 
     private final CRFetchPluggableArtifactTask fetch;
     private final CRFetchPluggableArtifactTask fetchFromPipe;

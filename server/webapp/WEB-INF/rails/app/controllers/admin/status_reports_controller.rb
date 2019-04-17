@@ -37,7 +37,7 @@ module Admin
       @page_header = 'Agent Status Report'
 
       unless valid_params?
-        return render_error_template 'Provide either elastic_agent_id or job_id for Status Report.', 422
+        return render_error_template 'Please provide job_id for Agent Status Report.', 422
       end
 
       @agent_status_report = elastic_agent_plugin_service.getAgentStatusReport(params[:plugin_id], job_identifier, elastic_agent_id)
@@ -50,11 +50,6 @@ module Admin
     def cluster_status
       @view_title = 'Cluster Status Report'
       @page_header = 'Cluster Status Report'
-
-      unless valid_params?
-        return render_error_template 'Provide cluster profile id for Status Report.', 422
-      end
-
       @cluster_status_report = elastic_agent_plugin_service.getClusterStatusReport(params[:plugin_id], params[:cluster_profile_id])
     rescue org.springframework.dao.DataRetrievalFailureException, java.lang.UnsupportedOperationException
       render_error_template "Status Report for plugin with id: #{params[:plugin_id]} for cluster #{params[:cluster_profile_id]} is not found.", 404
@@ -76,7 +71,7 @@ module Admin
     end
 
     def valid_params?
-      !(params[:elastic_agent_id].eql? 'unassigned' and params[:job_id].blank?)
+      !params[:job_id].blank?
     end
 
     def load_plugin_info

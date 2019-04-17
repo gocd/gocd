@@ -33,24 +33,20 @@ interface ClusterProfilesWidgetAttrs {
 
 interface ClusterProfileWidgetAttrs {
   clusterProfile: ClusterProfile;
+  pluginInfo: PluginInfo<Extension> | undefined;
 }
 
 interface HeaderAttrs {
   pluginName: string | undefined;
-  pluginId: string;
+  pluginId: string | undefined;
   image: m.Children;
 }
 
-class ClusterProfilesHeaderWidget extends MithrilComponent<HeaderAttrs> {
+class ClusterProfileHeaderWidget extends MithrilComponent<HeaderAttrs> {
   view(vnode: m.Vnode<HeaderAttrs, {}>) {
     return [
-      (
-        <KeyValueTitle title={ClusterProfilesHeaderWidget.createPluginNameElement(vnode.attrs.pluginName)}
-                       image={vnode.attrs.image}/>
-      ),
-      (<KeyValuePair inline={true} data={new Map([
-                                                   ["Plugin Id", vnode.attrs.pluginId]
-                                                 ])}/>)
+      <KeyValueTitle title={ClusterProfileHeaderWidget.createPluginNameElement(vnode.attrs.pluginName)} image={vnode.attrs.image}/>,
+      <KeyValuePair inline={true} data={new Map([["Plugin Id", vnode.attrs.pluginId]])}/>
     ];
   }
 
@@ -68,10 +64,28 @@ export class ClusterProfileWidget extends MithrilViewComponent<ClusterProfileWid
 
   view(vnode: m.Vnode<ClusterProfileWidgetAttrs, {}>) {
     const clusterProfile = vnode.attrs.clusterProfile;
-    return (<CollapsiblePanel header={ClusterProfileWidget.profileHeader(clusterProfile.id())}
-                              dataTestId={"cluster-profile"}>
-      <KeyValuePair data={clusterProfile.properties().asMap()}/>
-    </CollapsiblePanel>);
+    const pluginName     = vnode.attrs.pluginInfo ? vnode.attrs.pluginInfo.about.name : undefined;
+    const pluginImageTag = ClusterProfileWidget.createImageTag(vnode.attrs.pluginInfo);
+    const pluginId       = vnode.attrs.pluginInfo ? vnode.attrs.pluginInfo.id : undefined;
+
+    const clusterProfileHeader = <ClusterProfileHeaderWidget image={pluginImageTag}
+                                                             pluginId={pluginId}
+                                                             pluginName={pluginName}/>;
+
+    return (
+      <CollapsiblePanel key={pluginId} header={clusterProfileHeader}>
+        <CollapsiblePanel header={ClusterProfileWidget.profileHeader(clusterProfile.id())}
+                          dataTestId={"cluster-profile"}>
+          <KeyValuePair data={clusterProfile.properties().asMap()}/>
+        </CollapsiblePanel>
+      </CollapsiblePanel>);
+  }
+
+  private static createImageTag(pluginInfo: PluginInfo<Extension> | undefined) {
+    if (pluginInfo && pluginInfo.imageUrl) {
+      return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
+    }
+    return <HeaderIcon/>;
   }
 }
 
@@ -82,33 +96,13 @@ export class ClusterProfilesWidget extends MithrilViewComponent<ClusterProfilesW
         <div data-test-id="cluster-profile-list">
           {
             _.entries(vnode.attrs.clusterProfiles.groupByPlugin()).map(([pluginId, profiles]) => {
-              const pluginInfo     = ClusterProfilesWidget.findPluginInfoByPluginId(vnode.attrs.pluginInfos(),
-                                                                                    pluginId);
-              const pluginName     = pluginInfo ? pluginInfo.about.name : undefined;
-              const pluginImageTag = ClusterProfilesWidget.createImageTag(pluginInfo);
-
-              const clusterProfileHeader = <ClusterProfilesHeaderWidget image={pluginImageTag}
-                                                                        pluginId={pluginId}
-                                                                        pluginName={pluginName}/>;
-              return (
-                <CollapsiblePanel key={pluginId} header={clusterProfileHeader}>
-                  {
-                    profiles.map((clusterProfile: ClusterProfile) => <ClusterProfileWidget
-                      clusterProfile={clusterProfile}/>)
-                  }
-                </CollapsiblePanel>);
+              return profiles.map((clusterProfile: ClusterProfile) => <ClusterProfileWidget
+                clusterProfile={clusterProfile} pluginInfo={ClusterProfilesWidget.findPluginInfoByPluginId(vnode.attrs.pluginInfos(), pluginId)}/>);
             })
           }
         </div>
       </div>
     );
-  }
-
-  private static createImageTag(pluginInfo: PluginInfo<any> | undefined) {
-    if (pluginInfo && pluginInfo.imageUrl) {
-      return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
-    }
-    return <HeaderIcon/>;
   }
 
   private static findPluginInfoByPluginId(pluginInfos: Array<PluginInfo<Extension>>, pluginId: any) {

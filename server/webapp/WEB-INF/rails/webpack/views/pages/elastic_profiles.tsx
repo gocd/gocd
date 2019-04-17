@@ -100,7 +100,7 @@ export class ElasticProfilesPage extends Page<null, State> {
         e.stopPropagation();
         this.flashMessage.clear();
 
-        new NewElasticProfileModal(vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
+        new NewElasticProfileModal(this.attrs.clusterProfile().id, vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
       }
     };
 

@@ -315,10 +315,13 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
 export class NewElasticProfileModal extends BaseElasticProfileModal {
   private readonly onSuccessfulSave: (msg: m.Children) => any;
 
-  constructor(pluginInfos: Array<PluginInfo<Extension>>,
+  constructor(clusterProfileId: string | undefined,
+              pluginInfos: Array<PluginInfo<Extension>>,
               clusterProfiles: ClusterProfiles,
               onSuccessfulSave: (msg: m.Children) => any) {
-    const elasticProfile = new ElasticAgentProfile("", pluginInfos[0].id, undefined, new Configurations([]));
+    const clusterProfile = clusterProfiles.all().find((clusterProfile: ClusterProfile) => clusterProfile.id() === clusterProfileId);
+    const pluginId       = clusterProfile ? clusterProfile.pluginId() : pluginInfos[0].id;
+    const elasticProfile = new ElasticAgentProfile("", pluginId, clusterProfileId, new Configurations([]));
     super(pluginInfos, ModalType.create, clusterProfiles, elasticProfile);
     this.onSuccessfulSave = onSuccessfulSave;
   }

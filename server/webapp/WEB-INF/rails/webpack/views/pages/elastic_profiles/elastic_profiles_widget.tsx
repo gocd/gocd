@@ -28,11 +28,11 @@ import {IconGroup} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
 import {AddOperation, CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 
-export type ElasticAgentOperations = EditOperation<ElasticAgentProfile> & DeleteOperation<string> & CloneOperation<ElasticAgentProfile> & AddOperation<void>;
+export type ElasticAgentOperations = EditOperation<ElasticAgentProfile> & DeleteOperation<string> & CloneOperation<ElasticAgentProfile> & AddOperation<string>;
 
 export interface Attrs {
   pluginInfos: Stream<Array<PluginInfo<Extension>>>;
-  elasticProfiles: ElasticAgentProfiles;
+  elasticAgentProfiles: ElasticAgentProfiles;
   isUserAnAdmin: boolean;
   onShowUsages: (profileId: string, event: MouseEvent) => void;
   elasticAgentOperations: ElasticAgentOperations;
@@ -55,7 +55,7 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
       <div data-test-id="elastic-profile-list-parent">
         <div data-test-id="elastic-profile-list">
           {
-            _.entries(vnode.attrs.elasticProfiles.groupByPlugin()).map(([pluginId, profiles]) => {
+            _.entries(vnode.attrs.elasticAgentProfiles.groupByPlugin()).map(([pluginId, profiles]) => {
               const pluginInfo = ElasticProfilesWidget.findPluginInfoByPluginId(vnode.attrs.pluginInfos(), pluginId);
               return profiles.map((profile: ElasticAgentProfile) =>
                                     <ElasticProfileWidget key={profile.id()} elasticProfile={profile}
@@ -82,7 +82,7 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
   }
 
   private static noElasticProfileConfigured(vnode: m.Vnode<Attrs, {}>) {
-    return vnode.attrs.elasticProfiles == null || vnode.attrs.elasticProfiles.empty();
+    return vnode.attrs.elasticAgentProfiles == null || vnode.attrs.elasticAgentProfiles.empty();
   }
 }
 

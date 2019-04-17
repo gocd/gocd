@@ -154,11 +154,6 @@ public class UrlRewriterIntegrationTest {
     public static ResponseAssertion MATERIALS_VALUE_STREAM_MAP = new ResponseAssertion(HTTP_URL + "/go/materials/value_stream_map/fingerprint/revision", HTTP_URL + "/go/rails/materials/value_stream_map/fingerprint/revision", METHOD.GET);
 
     @DataPoint
-    public static ResponseAssertion USERS_INDEX_API = new ResponseAssertion(HTTP_URL + "/go/api/users", HTTP_URL + "/go/rails/api/users", METHOD.GET);
-    @DataPoint
-    public static ResponseAssertion USERS_SHOW_API = new ResponseAssertion(HTTP_URL + "/go/api/users/some.one", HTTP_URL + "/go/rails/api/users/some.one", METHOD.GET);
-
-    @DataPoint
     public static ResponseAssertion DATA_SHARING_SETTINGS = new ResponseAssertion(HTTP_URL + "/go/api/data_sharing/settings", HTTP_URL + "/go/spark/api/data_sharing/settings", true);
 
     @DataPoint

@@ -266,6 +266,8 @@ Rails.application.routes.draw do
         put 'environments/:name', to: 'environments#put', constraints: {:name => ENVIRONMENT_NAME_FORMAT}
       end
 
+
+      # These user routes are intentionally left behind for url helpers. These will actually be pointing to v3 in spark.
       resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/}
       delete 'users', controller: 'users', action: 'bulk_delete'
       patch 'users/:login_name', to: 'users#update', constraints: {login_name: /(.*?)/}

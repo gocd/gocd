@@ -716,7 +716,7 @@ static List<String> getTestClassesForTask(List<String> testsToRun) {
   return testsToRun.stream()
     .filter { testToRun -> !testToRun.matches(".*/.*Abstract.*Test.*") }
     .filter { testToRun -> testToRun.endsWith("Test.*") }
-    .map { testToRun -> testToRun.replaceAll(".\\*", "").replaceAll("/", ".") }
+    .map { testToRun -> testToRun.replaceAll(".\\*", "").replaceAll(File.separator, ".") }
     .collect(Collectors.toList())
 }
 

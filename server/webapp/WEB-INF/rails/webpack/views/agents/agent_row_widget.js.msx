@@ -33,10 +33,6 @@ const agentJobHistoryPath = function (uuid) {
   return `/go/agents/${uuid}/job_run_history`;
 };
 
-const agentStatusReportPath = function (elasticPluginId, elasticAgentId) {
-  return `/go/admin/status_reports/${elasticPluginId}/agent/${elasticAgentId}`;
-};
-
 const createBuildDetailsDropDown = function (agent, args) {
   return (
     <BuildDetailsWidget agent={agent}
@@ -44,32 +40,12 @@ const createBuildDetailsDropDown = function (agent, args) {
   );
 };
 
-const supportsAgentStatusReport = function (pluginInfos, pluginId) {
-  if (!pluginInfos || !pluginInfos()) {
-    return false;
-  }
-
-  const pluginInfo = pluginInfos().findById(pluginId);
-  if (pluginInfo) {
-    return pluginInfo.extensions()['elastic-agent'].capabilities().supportsAgentStatusReport();
-  }
-
-  return false;
-};
-
-const getHostnameLink = function (isUserAdmin, agent, pluginInfos) {
+const getHostnameLink = function (isUserAdmin, agent) {
   if (!isUserAdmin) {
     return (<span>{agent.hostname()}</span>);
   }
-  if (!agent.isElasticAgent()) {
-    return (<a href={agentJobHistoryPath(agent.uuid())}>{agent.hostname()}</a>);
-  }
 
-  if (supportsAgentStatusReport(pluginInfos, agent.elasticPluginId())) {
-    return (<a href={agentStatusReportPath(agent.elasticPluginId(), agent.elasticAgentId())}>{agent.hostname()}</a>);
-  } else {
-    return (<a href={agentJobHistoryPath(agent.uuid())}>{agent.hostname()}</a>);
-  }
+  return <a href={agentJobHistoryPath(agent.uuid())}>{agent.hostname()}</a>;
 };
 
 const AgentRowWidget = {
@@ -109,16 +85,16 @@ const AgentRowWidget = {
     const ctrl = vnode.state;
     const args = vnode.attrs;
 
-    const agent           = args.agent;
-    const resources       = joinOrNoneSpecified(agent.resources());
-    const environmentNames    = joinOrNoneSpecified(agent.environmentNames());
-    let agentStatus       = agent.status();
-    const isBuildingAgent = !agent.buildDetails().isEmpty();
-    const isElasticAgent  = agent.isElasticAgent();
-    const pluginInfos     = args.pluginInfos;
+    const agent            = args.agent;
+    const resources        = joinOrNoneSpecified(agent.resources());
+    const environmentNames = joinOrNoneSpecified(agent.environmentNames());
+    let agentStatus        = agent.status();
+    const isBuildingAgent  = !agent.buildDetails().isEmpty();
+    const isElasticAgent   = agent.isElasticAgent();
+    const pluginInfos      = args.pluginInfos;
     let selectAgentCheckbox;
     let elasticAgentIcon;
-    const hostnameLink    = getHostnameLink(args.isUserAdmin, agent, pluginInfos);
+    const hostnameLink     = getHostnameLink(args.isUserAdmin, agent, pluginInfos);
 
     if (isBuildingAgent) {
       agentStatus = <f.link onclick={ctrl.buildDetailsClicked.bind(ctrl, agent.uuid())}

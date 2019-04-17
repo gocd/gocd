@@ -96,7 +96,7 @@ describe("Agent Row Widget", () => {
     expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.firstAgent().uuid()}/job_run_history`);
   });
 
-  it('should contain link to agent status report page for elastic agents', () => {
+  it('should contain link to job run history page for elastic agents', () => {
     agents(allAgents);
     const model = Stream(true);
     mount(agents().lastAgent(), model, true, true);
@@ -106,7 +106,7 @@ describe("Agent Row Widget", () => {
     const hostname    = $(information[2]).find('.content');
 
     expect(hostname).toHaveText('elastic-agent-hostname');
-    expect(hostname.find('a')[0].href).toContain(`/go/admin/status_reports/${allAgents.lastAgent().elasticPluginId()}/agent/${allAgents.lastAgent().elasticAgentId()}`);
+    expect(hostname.find('a')[0].href).toContain(`/go/agents/${allAgents.lastAgent().uuid()}/job_run_history`);
   });
 
   it('should contain link to job run history page for elastic agents when elastic agent plugin is missing', () => {
@@ -273,9 +273,9 @@ describe("Agent Row Widget", () => {
       "resources":          [
         "firefox"
       ],
-      "environments": [
+      "environments":       [
         {
-          "name": "Dev",
+          "name":   "Dev",
           "origin": {
             "type":   "gocd",
             "_links": {
@@ -338,9 +338,9 @@ describe("Agent Row Widget", () => {
       "resources":          [
         "linux", "java"
       ],
-      "environments": [
+      "environments":       [
         {
-          "name": "staging",
+          "name":   "staging",
           "origin": {
             "type":   "gocd",
             "_links": {
@@ -354,7 +354,7 @@ describe("Agent Row Widget", () => {
           }
         },
         {
-          "name": "perf",
+          "name":   "perf",
           "origin": {
             "type":   "gocd",
             "_links": {
@@ -468,9 +468,9 @@ describe("Agent Row Widget", () => {
           }
         },
         "capabilities":     {
-          "supports_plugin_status_report": true,
+          "supports_plugin_status_report":  true,
           "supports_cluster_status_report": true,
-          "supports_agent_status_report": true
+          "supports_agent_status_report":   true
         }
       }
     ]

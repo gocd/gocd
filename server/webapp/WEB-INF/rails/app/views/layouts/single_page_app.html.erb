@@ -24,6 +24,7 @@
 </head>
 
 <body data-controller-name="<%= controller_name %>"
+      data-current-gocd-version="<%= com.thoughtworks.go.CurrentGoCDVersion.getInstance().getGocdDistVersion() %>"
       data-action-name="<%= action_name %>"
       id="<%= controller_name %>-page" <%= render "shared/body_data_attrs" %>>
 <div class="page-wrap">

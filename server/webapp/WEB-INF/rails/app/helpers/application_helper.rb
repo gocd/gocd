@@ -244,6 +244,10 @@ module ApplicationHelper
     security_service.isAuthorizedToViewTemplates(current_user)
   end
 
+  def current_gocd_version
+    com.thoughtworks.go.CurrentGoCDVersion.getInstance().getGocdDistVersion()
+  end
+
   def is_pipeline_editable? pipeline_name
     go_config_service.isPipelineEditable(pipeline_name.to_s)
   end

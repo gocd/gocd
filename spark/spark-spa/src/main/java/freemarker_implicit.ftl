@@ -1,6 +1,7 @@
 [#ftl]
 [#-- @implicitly included --]
 [#-- @ftlvariable name="enableAdminAccessTokensSPA" type="boolean" --]
+[#-- @ftlvariable name="currentGoCDVersion" type="java.lang.String" --]
 [#-- @ftlvariable name="controllerName" type="java.lang.String" --]
 [#-- @ftlvariable name="currentUser" type="com.thoughtworks.go.server.domain.Username" --]
 [#-- @ftlvariable name="currentVersion" type="com.thoughtworks.go.CurrentGoCDVersion" --]

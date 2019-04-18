@@ -113,9 +113,13 @@ export class SystemNotifications {
     const existingArrayPrototype = (Array.prototype as any).toJSON;
     delete (Array.prototype as any).toJSON;
 
-    localStorage.setItem("system_notifications", JSON.stringify(systemNotifications.toJSON()));
+    SystemNotifications.setNotifications(systemNotifications);
 
     (Array.prototype as any).toJSON = existingArrayPrototype;
+  }
+
+  static setNotifications(notifications: SystemNotifications) {
+    localStorage.setItem("system_notifications", JSON.stringify(notifications.toJSON()));
   }
 
   //model_mixin method

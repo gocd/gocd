@@ -317,9 +317,9 @@ export class NewElasticProfileModal extends BaseElasticProfileModal {
 
   constructor(pluginInfos: Array<PluginInfo<Extension>>,
               clusterProfiles: ClusterProfiles,
+              elasticAgentProfile: ElasticAgentProfile,
               onSuccessfulSave: (msg: m.Children) => any) {
-    const elasticProfile = new ElasticAgentProfile("", pluginInfos[0].id, undefined, new Configurations([]));
-    super(pluginInfos, ModalType.create, clusterProfiles, elasticProfile);
+    super(pluginInfos, ModalType.create, clusterProfiles, elasticAgentProfile);
     this.onSuccessfulSave = onSuccessfulSave;
   }
 

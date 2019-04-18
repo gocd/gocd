@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-import {ClusterProfile, ClusterProfiles} from "models/elastic_profiles/types";
+import * as _ from "lodash";
+import {ClusterProfile, ClusterProfiles, ElasticAgentProfile} from "models/elastic_profiles/types";
+import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ElasticAgentSettings} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-
 import {NewElasticProfileModal} from "views/pages/elastic_profiles/elastic_agent_profiles_modals";
 import {TestData} from "views/pages/elastic_profiles/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
@@ -36,9 +37,7 @@ describe("New Elastic Agent Profile Modals Spec", () => {
     const modal = new NewElasticProfileModal(
       [pluginInfo],
       new ClusterProfiles(clusterProfiles),
-      () => {
-        //do nothing
-      });
+      new ElasticAgentProfile(undefined, undefined, undefined, new Configurations([])), _.noop);
 
     helper.mount(modal.body.bind(modal));
   }
@@ -47,17 +46,20 @@ describe("New Elastic Agent Profile Modals Spec", () => {
     const modal = new NewElasticProfileModal(
       [pluginInfo],
       new ClusterProfiles(clusterProfiles),
-      () => {
-        //do nothing
-      });
+      new ElasticAgentProfile(undefined, undefined, undefined, new Configurations([])), _.noop);
 
     expect(modal.title()).toEqual("Add a new elastic agent profile");
   });
 
-  xit("it should not render cluster profiles dropdown when plugin infos does not support cluster profiles", () => {
+  it("it should render an error message when plugin infos supports cluster profiles and no cluster profiles are defined", () => {
     mountModal();
+
     const extension = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS);
-    expect(!!(extension as ElasticAgentSettings).supportsClusterProfiles).toEqual(false);
+    expect(!!(extension as ElasticAgentSettings).supportsClusterProfiles).toEqual(true);
+
+    const expectedErrorMessage = "Can not create Elastic Agent Profile for plugin 'cd.go.contrib.elastic-agent.docker'. A Cluster Profile must be configured first in order to define a new Elastic Agent Profile.";
+
+    expect(find("flash-message-alert")).toContainText(expectedErrorMessage);
 
     expect(find("form-field-label-cluster-profile-id")).toBeInDOM();
     expect(find("form-field-input-cluster-profile-id")).toBeInDOM();
@@ -65,37 +67,10 @@ describe("New Elastic Agent Profile Modals Spec", () => {
     helper.unmount();
   });
 
-  it("it should render an error message when plugin infos supports cluster profiles and no cluster profiles are defined",
-     () => {
-       const data                                   = TestData.dockerPluginJSON();
-       data.extensions[0].supports_cluster_profiles = true;
-
-       pluginInfo = PluginInfo.fromJSON(data, TestData.dockerPluginJSON()._links);
-
-       mountModal();
-
-       const extension = pluginInfo.extensionOfType(ExtensionType.ELASTIC_AGENTS);
-       expect(!!(extension as ElasticAgentSettings).supportsClusterProfiles).toEqual(true);
-
-       const expectedErrorMessage = "Can not create Elastic Agent Profile for plugin 'cd.go.contrib.elastic-agent.docker'. A Cluster Profile must be configured first in order to define a new Elastic Agent Profile.";
-
-       expect(find("flash-message-alert")).toContainText(expectedErrorMessage);
-
-       expect(find("form-field-label-cluster-profile-id")).toBeInDOM();
-       expect(find("form-field-input-cluster-profile-id")).toBeInDOM();
-
-       helper.unmount();
-     });
-
   it("should render cluster profiles dropdown", () => {
-    const data = TestData.dockerPluginJSON();
-
-    data.extensions[0].supports_cluster_profiles = true;
-
-    pluginInfo      = PluginInfo.fromJSON(data, TestData.dockerPluginJSON()._links);
     clusterProfiles = [
-      new ClusterProfile("cluster1", pluginInfo.id),
-      new ClusterProfile("cluster2", pluginInfo.id),
+      new ClusterProfile("cluster1", TestData.dockerPluginJSON().id),
+      new ClusterProfile("cluster2", TestData.dockerPluginJSON().id),
     ];
 
     mountModal();
@@ -113,11 +88,6 @@ describe("New Elastic Agent Profile Modals Spec", () => {
   });
 
   it("should render cluster profiles belonging to the selected plugin", () => {
-    const data = TestData.dockerPluginJSON();
-
-    data.extensions[0].supports_cluster_profiles = true;
-
-    pluginInfo      = PluginInfo.fromJSON(data, TestData.dockerPluginJSON()._links);
     clusterProfiles = [
       new ClusterProfile("cluster1", pluginInfo.id),
       new ClusterProfile("cluster3", "random.foo.plugin"),
@@ -137,6 +107,46 @@ describe("New Elastic Agent Profile Modals Spec", () => {
 
     expect(find("form-field-input-cluster-profile-id").get(0).children[0]).toContainText("cluster1");
     expect(find("form-field-input-cluster-profile-id").get(0).children[1]).toContainText("cluster2");
+
+    helper.unmount();
+  });
+
+  it("should show referenced cluster profile and plugin selected", () => {
+    const data = TestData.kubernetesPluginJSON();
+
+    data.extensions[0].supports_cluster_profiles = true;
+
+    const pluginInfos = [PluginInfo.fromJSON(TestData.dockerPluginJSON()), PluginInfo.fromJSON(data)];
+    clusterProfiles   = [new ClusterProfile("cluster1", pluginInfo.id), new ClusterProfile("cluster2", data.id)];
+
+    const elasticAgentProfile = new ElasticAgentProfile("", data.id, "cluster2", new Configurations([]));
+
+    const modal = new NewElasticProfileModal(pluginInfos, new ClusterProfiles(clusterProfiles), elasticAgentProfile, _.noop);
+
+    helper.mount(modal.body.bind(modal));
+
+    expect(find("form-field-input-cluster-profile-id").get(0)).toHaveValue("cluster2");
+    expect(find("form-field-input-plugin-id").get(0).children[1]).toHaveValue(data.id);
+
+    helper.unmount();
+  });
+
+  it("should show first cluster profile selected if no cluster profile and plugin referenced", () => {
+    const data = TestData.kubernetesPluginJSON();
+
+    data.extensions[0].supports_cluster_profiles = true;
+
+    const pluginInfos = [PluginInfo.fromJSON(TestData.dockerPluginJSON()), PluginInfo.fromJSON(data)];
+    clusterProfiles   = [new ClusterProfile("cluster1", pluginInfo.id), new ClusterProfile("cluster2", pluginInfo.id)];
+
+    const elasticAgentProfile = new ElasticAgentProfile("", "", "", new Configurations([]));
+
+    const modal = new NewElasticProfileModal(pluginInfos, new ClusterProfiles(clusterProfiles), elasticAgentProfile, _.noop);
+
+    helper.mount(modal.body.bind(modal));
+
+    expect(find("form-field-input-cluster-profile-id").get(0)).toHaveValue("cluster1");
+    expect(find("form-field-input-plugin-id").get(0).children[0]).toHaveValue(pluginInfo.id);
 
     helper.unmount();
   });

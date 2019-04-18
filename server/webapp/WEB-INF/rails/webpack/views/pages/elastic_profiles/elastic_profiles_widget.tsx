@@ -26,9 +26,13 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import * as Icons from "views/components/icons";
 import {IconGroup} from "views/components/icons";
 import {KeyValuePair, KeyValueTitle} from "views/components/key_value_pair";
-import {AddOperation, CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
+import {CloneOperation, DeleteOperation, EditOperation} from "views/pages/page_operations";
 
-export type ElasticAgentOperations = EditOperation<ElasticAgentProfile> & DeleteOperation<string> & CloneOperation<ElasticAgentProfile> & AddOperation<void>;
+interface ElasticAgentProfileAddOperation {
+  onAdd: (elasticAgentProfile: ElasticAgentProfile, e: MouseEvent) => void;
+}
+
+export type ElasticAgentOperations = EditOperation<ElasticAgentProfile> & DeleteOperation<string> & CloneOperation<ElasticAgentProfile> & ElasticAgentProfileAddOperation;
 
 export interface Attrs {
   pluginInfos: Stream<Array<PluginInfo<Extension>>>;

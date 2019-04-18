@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {SystemNotifications} from "models/notifications/system_notifications";
+import {Notification} from "models/notifications/system_notifications";
 import {VersionUpdater} from "models/shared/version_updater";
 
 require("jasmine-ajax");
@@ -62,6 +64,81 @@ describe("VersionUpdater", () => {
         VersionUpdater.update();
 
         expect(jasmine.Ajax.requests.count()).toBe(0);
+      });
+    });
+
+    //prior to 19.3.0 current_gocd_version wasnt stored in the local storage
+    it("update_check should remove older update system notification on upgrading to 19.3.0", (done) => {
+      jasmine.Ajax.withMock(() => {
+        const twentyNineMinutesBack = new Date(Date.now() - 29 * 60 * 1000);
+        localStorage.setItem("versionCheckInfo", JSON.stringify({last_updated_at: twentyNineMinutesBack}));
+
+        document.body.setAttribute("data-current-gocd-version", "19.3.0-1234");
+        const systemNotifications = new SystemNotifications();
+        systemNotifications.add(new Notification(updateNotificationJSON));
+        SystemNotifications.setNotifications(systemNotifications);
+
+        expect(JSON.parse(localStorage.getItem("system_notifications") as string)).toHaveLength(1);
+        (VersionUpdater.update() as Promise<any>).then(() => {
+          expect(JSON.parse(localStorage.getItem("system_notifications") as string)).toHaveLength(0);
+          expect(localStorage.getItem(VersionUpdater.CURRENT_GOCD_VERSION_KEY) as string).toBe("19.3.0-1234");
+          done();
+        });
+      });
+    });
+
+    it("update_check should remove older update system notification on upgrading from 19.3.0 to 19.4.0", (done) => {
+      jasmine.Ajax.withMock(() => {
+        const twentyNineMinutesBack = new Date(Date.now() - 29 * 60 * 1000);
+        localStorage.setItem("versionCheckInfo", JSON.stringify({last_updated_at: twentyNineMinutesBack}));
+
+        document.body.setAttribute("data-current-gocd-version", "19.4.0-1234");
+        localStorage.setItem(VersionUpdater.CURRENT_GOCD_VERSION_KEY, "19.3.0-1234");
+        const systemNotifications = new SystemNotifications();
+        systemNotifications.add(new Notification(updateNotificationJSON));
+        SystemNotifications.setNotifications(systemNotifications);
+
+        expect(JSON.parse(localStorage.getItem("system_notifications") as string)).toHaveLength(1);
+        (VersionUpdater.update() as Promise<any>).then(() => {
+          expect(JSON.parse(localStorage.getItem("system_notifications") as string)).toHaveLength(0);
+          done();
+        });
+      });
+    });
+
+    it("update_check should remove update system notification on downgrading from 19.3.0 to 19.1.0", (done) => {
+      jasmine.Ajax.withMock(() => {
+        const twentyNineMinutesBack = new Date(Date.now() - 29 * 60 * 1000);
+        localStorage.setItem("versionCheckInfo", JSON.stringify({last_updated_at: twentyNineMinutesBack}));
+
+        document.body.setAttribute("data-current-gocd-version", "19.1.0-1234");
+        localStorage.setItem(VersionUpdater.CURRENT_GOCD_VERSION_KEY, "19.3.0-1234");
+        const systemNotifications = new SystemNotifications();
+        systemNotifications.add(new Notification(updateNotificationJSON));
+        SystemNotifications.setNotifications(systemNotifications);
+
+        expect(JSON.parse(localStorage.getItem("system_notifications") as string)).toHaveLength(1);
+        (VersionUpdater.update() as Promise<any>).then(() => {
+          expect(JSON.parse(localStorage.getItem("system_notifications") as string)).toHaveLength(0);
+          done();
+        });
+      });
+    });
+
+    it("update_check should not remove update system notification on for same gocd version", () => {
+      jasmine.Ajax.withMock(() => {
+        const twentyNineMinutesBack = new Date(Date.now() - 29 * 60 * 1000);
+        localStorage.setItem("versionCheckInfo", JSON.stringify({last_updated_at: twentyNineMinutesBack}));
+
+        document.body.setAttribute("data-current-gocd-version", "19.3.0-1234");
+        localStorage.setItem(VersionUpdater.CURRENT_GOCD_VERSION_KEY, "19.3.0-1234");
+        const systemNotifications = new SystemNotifications();
+        systemNotifications.add(new Notification(updateNotificationJSON));
+        SystemNotifications.setNotifications(systemNotifications);
+
+        expect(JSON.parse(localStorage.getItem("system_notifications") as string)).toHaveLength(1);
+        VersionUpdater.update();
+        expect(JSON.parse(localStorage.getItem("system_notifications") as string)).toHaveLength(1);
       });
     });
 
@@ -201,4 +278,13 @@ describe("VersionUpdater", () => {
       });
     });
   });
+
+  const updateNotificationJSON = {
+    id: "some-uuid",
+    read: false,
+    message: "A new version of GoCD - 19.3.0-1234 is available",
+    type: "UpdateCheck",
+    link: "/link/to/nowhere",
+    linkText: "Click here to go nowhere"
+  };
 });

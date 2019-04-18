@@ -44,12 +44,27 @@ interface LatestVersion {
 }
 
 export class VersionUpdater {
+  public static readonly CURRENT_GOCD_VERSION_KEY: string = "current-gocd-version";
+
   static update() {
+    const gocdVersionFromLocalStorage  = localStorage.getItem(this.CURRENT_GOCD_VERSION_KEY);
+    const installedGoCDVersion: string = document.body.getAttribute("data-current-gocd-version")!;
+
+    if (gocdVersionFromLocalStorage !== installedGoCDVersion) {
+      localStorage.setItem(VersionUpdater.CURRENT_GOCD_VERSION_KEY, installedGoCDVersion);
+      SystemNotifications.all().then((notifications: SystemNotifications) => {
+        notifications.remove((notification) => (notification.type === "UpdateCheck"));
+        SystemNotifications.setNotifications(notifications);
+      });
+    }
+
     if (VersionUpdater.canUpdateVersion()) {
       VersionUpdater.fetchStaleVersionInfo().then((data: StaleVersionInfo | {}) => {
         _.isEmpty(data) ? VersionUpdater.markUpdateDoneAndNotify() : VersionUpdater.fetchLatestVersion(data as StaleVersionInfo);
       });
     }
+
+    return Promise.resolve();
   }
 
   private static fetchStaleVersionInfo() {

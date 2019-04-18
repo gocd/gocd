@@ -59,6 +59,7 @@ public class InitialContextProvider {
 
     public Map<String, Object> getContext(Map<String, Object> modelMap, Class<? extends SparkController> controller, String viewName) {
         HashMap<String, Object> context = new HashMap<>(modelMap);
+        context.put("currentGoCDVersion", CurrentGoCDVersion.getInstance().getGocdDistVersion());
         context.put("railsAssetsService", railsAssetsService);
         context.put("webpackAssetsService", webpackAssetsService);
         context.put("securityService", securityService);

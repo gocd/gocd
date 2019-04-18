@@ -58,6 +58,7 @@
     #end
 <body
   data-is-user-admin="$userHasAdministratorRights"
+  data-current-gocd-version="$currentGoCDVersion.getGocdDistVersion()"
   data-can-user-view-admin="$userHasViewAdministratorRights"
   data-is-user-group-admin="$userHasGroupAdministratorRights"
   data-can-user-view-templates="$userHasTemplateViewUserRights"

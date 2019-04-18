@@ -38,6 +38,7 @@
 
 <body id="${controllerName}-page" class="component-layout-body"
       data-controller-name="${controllerName}"
+      data-current-gocd-version="${currentGoCDVersion}"
       data-is-user-admin="${securityService.isUserAdmin(currentUser)?c}"
       data-can-user-view-admin="${securityService.canViewAdminPage(currentUser)?c}"
       data-is-user-group-admin="${securityService.isUserGroupAdmin(currentUser)?c}"

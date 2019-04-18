@@ -99,7 +99,7 @@ $opacity: 0.5;
 
 .login-graphics {
   width:  100px;
-  margin: 0 auto 20px;
+  margin: 0 auto 30px;
 }
 
 .login-methods {
@@ -137,7 +137,7 @@ $opacity: 0.5;
   }
 
   > li {
-    margin-bottom: 20px;
+    margin-bottom: 30px;
   }
 }
 
@@ -146,7 +146,7 @@ $opacity: 0.5;
   border-bottom: 1px solid $border-color;
   width:         300px;
   height:        35px;
-  padding:       0 20px 0 0;
+  padding:       0 10px;
   box-sizing:    border-box;
 
   &::placeholder {
@@ -178,12 +178,19 @@ $opacity: 0.5;
   border-radius: $global-border-radius;
   padding:       15px;
   margin:        0 5px;
+  width:         64px;
+  height:        64px;
+  box-sizing:    border-box;
 }
 
 .redirect {
-  text-align: center;
-  width:      250px;
-  margin:     0 auto;
+  text-align:      center;
+  display:         flex;
+  flex-direction:  column;
+  justify-content: center;
+  margin:          0 auto;
+  width:           200px;
+  align-items:     center;
 }
 
 .logged-out {

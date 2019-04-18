@@ -26,6 +26,10 @@ export default class {
     return `/go/api/admin/pipelines/${pipelineName}`;
   }
 
+  static newCreatePipelinePath(): string {
+    return `/go/admin/pipelines/create`;
+  }
+
   static pipelinePausePath(pipelineName: string): string {
     return `/go/api/pipelines/${pipelineName}/pause`;
   }

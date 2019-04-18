@@ -5,15 +5,15 @@
   <h1>
     Pipelines
     <span class="title_secondary_info">
-			<% if @groups.size() == 0 %>
-                <%= link_to 'Create a new pipeline', pipeline_new_path(:group => com.thoughtworks.go.config.PipelineConfigs::DEFAULT_GROUP), :class => "link_as_button primary add_pipeline_to_group" -%>
-		    <% end %>
+      <% if @groups.size() == 0 %>
+        <%= link_to 'Create a new pipeline', pipeline_new_path(:group => com.thoughtworks.go.config.PipelineConfigs::DEFAULT_GROUP), :class => "link_as_button primary add_pipeline_to_group" -%>
+      <% end %>
       <% if is_user_an_admin? %>
-		            <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= pipeline_group_new_path -%>', {overlayClose: false,title: 'Add New Pipeline Group'})">
-		                Add New Pipeline Group
-		            </a>
-		    <% end %>
-		</span>
+        <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= pipeline_group_new_path -%>', {overlayClose: false,title: 'Add New Pipeline Group'})">
+          Add New Pipeline Group
+        </a>
+      <% end %>
+    </span>
   </h1>
   <div id="shared_micro_dropdown" class="hidden enhanced_dropdown">
     <div class="resources_selector scrollable_panel" id="shared_micro_dropdown_content">
@@ -140,7 +140,11 @@
               <% end %>
               </tbody>
             </table>
-            <%= link_to 'Create a new pipeline within this group', pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
+            <% if use_new_add_pipeline_flow? %>
+              <%= link_to 'Create a new pipeline within this group', new_pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
+            <% else %>
+              <%= link_to 'Create a new pipeline within this group', pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
+            <% end %>
         <% end %>
       </div>
   <% end %>

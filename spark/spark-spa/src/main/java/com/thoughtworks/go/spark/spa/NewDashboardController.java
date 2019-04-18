@@ -19,6 +19,7 @@ package com.thoughtworks.go.spark.spa;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.SecurityService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
@@ -71,6 +72,7 @@ public class NewDashboardController implements SparkController {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Dashboard");
             put("shouldShowAnalyticsIcon", showAnalyticsIcon());
+            put("useNewAddPipelineFlow", Toggles.isToggleOn(Toggles.NEW_ADD_PIPELINE_FLOW));
         }};
         return new ModelAndView(object, "new_dashboard/index.ftlh");
     }

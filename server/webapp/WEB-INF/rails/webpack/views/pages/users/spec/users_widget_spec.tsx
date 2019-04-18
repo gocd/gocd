@@ -48,7 +48,8 @@ describe("UsersWidget", () => {
       roleNameToAdd: stream(),
       onRolesAdd: _.noop,
       onToggleAdmin: _.noop,
-      userViewHelper: stream(new UserViewHelper())
+      userViewHelper: stream(new UserViewHelper()),
+      hasMessage: false
     };
 
     attrs.userViewHelper().systemAdmins().users([bob().loginName()]);

@@ -19,7 +19,8 @@ import {MithrilComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
-import {ClusterProfile, ClusterProfiles, ElasticAgentProfiles} from "models/elastic_profiles/types";
+import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
+import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -150,9 +151,9 @@ export class ClusterProfilesWidget extends MithrilComponent<ClusterProfilesWidge
     }
 
     actionButtons.push(
-      <Buttons.Default onclick={vnode.attrs.elasticAgentOperations.onAdd.bind(vnode.state)}
-                       data-test-id={"new-elastic-agent-profile-button"}
-                       disabled={!pluginInfo}>
+      <Buttons.Default onclick={(e) => {
+        vnode.attrs.elasticAgentOperations.onAdd(new ElasticAgentProfile("", clusterProfile.pluginId(), clusterProfile.id(), new Configurations([])), e);
+      }} data-test-id={"new-elastic-agent-profile-button"} disabled={!pluginInfo}>
         + New Elastic Agent Profile
       </Buttons.Default>);
 

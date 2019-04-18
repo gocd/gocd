@@ -96,11 +96,11 @@ export class ElasticProfilesPage extends Page<null, State> {
         modal.render();
       },
 
-      onAdd: (e: MouseEvent) => {
+      onAdd: (elasticAgentProfile: ElasticAgentProfile, e: MouseEvent) => {
         e.stopPropagation();
         this.flashMessage.clear();
 
-        new NewElasticProfileModal(vnode.state.pluginInfos(), vnode.state.clusterProfiles, vnode.state.onSuccessfulSave).render();
+        new NewElasticProfileModal(vnode.state.pluginInfos(), vnode.state.clusterProfiles, elasticAgentProfile, vnode.state.onSuccessfulSave).render();
       }
     };
 

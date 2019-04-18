@@ -17,16 +17,12 @@
 package com.thoughtworks.go.apiv6.shared.representers.stages.tasks
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions
-import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.RakeTask
-import com.thoughtworks.go.config.materials.PasswordDeserializer
 import org.junit.jupiter.api.Test
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.mockito.Mockito.mock
 
-class RakeTaskRepresenterTest implements TaskRepresenterTest {
+class RakeTaskRepresenterTest implements TaskRepresenterTrait {
   def existingTask() {
     def task = new RakeTask()
     task.setBuildFile("build.xml")

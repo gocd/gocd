@@ -22,6 +22,7 @@ import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
 
 import java.security.SecureRandom
+import java.util.stream.Collectors
 
 buildscript {
   repositories {
@@ -469,6 +470,7 @@ subprojects {
 //    outputs.upToDateWhen { false }
 
     testTask.useJUnitPlatform()
+    def allTestClasses
 
     maxParallelForks = project.hasProperty('maxParallelForks') ? project.maxParallelForks as int : 1
 
@@ -506,6 +508,7 @@ subprojects {
       files = files.unique()
 
       List testsToRun = partitionFiles(files)
+      allTestClasses = getTestClassesForTask(testsToRun)
       List testsToIgnore = files - testsToRun
 
       testsToIgnore.each { f ->
@@ -516,9 +519,21 @@ subprojects {
       }
     }
 
+    beforeTest { TestDescriptor test ->
+      allTestClasses.remove(test.className)
+    }
+
+    beforeSuite { TestDescriptor test ->
+      allTestClasses.remove(test.className)
+    }
+
     doLast {
       project.logger.info("Deleting tmpdir ${tmpDir}")
       project.delete(tmpDir)
+
+      if (!allTestClasses.empty) {
+        throw new GradleException("Missed the following classes to test: ${allTestClasses}".toString())
+      }
     }
 
     testLogging {
@@ -695,6 +710,14 @@ task allTestsJunitHtmlReport(type: TestReport) { TestReport thisTask ->
 
 static def toCamelCase(String input) {
   return input.split("[^a-zA-Z0-9]").collect { it.capitalize() }.join("")
+}
+
+static List<String> getTestClassesForTask(List<String> testsToRun) {
+  return testsToRun.stream()
+    .filter { testToRun -> !testToRun.matches(".*[/|\\\\].*Abstract.*Test.*") }
+    .filter { testToRun -> testToRun.endsWith("Test.*") }
+    .map { testToRun -> testToRun.replaceAll(".\\*", "").replaceAll("[^\\w.*]", ".") }
+    .collect(Collectors.toList())
 }
 
 task newSPA {

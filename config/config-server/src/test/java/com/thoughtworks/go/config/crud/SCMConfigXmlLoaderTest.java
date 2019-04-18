@@ -38,7 +38,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class SCMConfigXmlLoaderTest extends BaseConfigXmlLoaderTest {
+public class SCMConfigXmlLoaderTest extends AbstractConfigXmlLoaderTest {
     final static String VALID_SCM = " <scm id='scm-id' name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration></scm>";
     final static String VALID_SCM_WITH_ID_NAME = " <scm id='%s' name='%s'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration></scm>";
     final static String SCM_WITH_MISSING_ID = " <scm name='name1'><pluginConfiguration id='id' version='1.0'/><configuration><property><key>url</key><value>http://go</value></property></configuration></scm>";

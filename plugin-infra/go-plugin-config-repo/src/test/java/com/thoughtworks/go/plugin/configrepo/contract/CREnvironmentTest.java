@@ -17,7 +17,7 @@ package com.thoughtworks.go.plugin.configrepo.contract;
 
 import java.util.Map;
 
-public class CREnvironmentTest extends CRBaseTest<CREnvironment> {
+public class CREnvironmentTest extends AbstractCRTest<CREnvironment> {
 
     private CREnvironment empty;
 

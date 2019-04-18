@@ -19,7 +19,7 @@ package com.thoughtworks.go.apiv6.shared.representers.stages.tasks
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.FetchTask
 
-class FetchTaskRepresenterTest implements TaskRepresenterTest {
+class FetchTaskRepresenterTest implements TaskRepresenterTrait {
   def existingTask() {
     def task = new FetchTask()
     task.setPipelineName(new CaseInsensitiveString('pipeline'))

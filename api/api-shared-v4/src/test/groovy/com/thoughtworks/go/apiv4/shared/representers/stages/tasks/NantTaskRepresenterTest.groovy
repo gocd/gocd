@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class NantTaskRepresenterTest implements TaskRepresenterTest {
+class NantTaskRepresenterTest implements TaskRepresenterTrait {
   def existingTask() {
     def task = new NantTask()
     task.setBuildFile("build.xml")

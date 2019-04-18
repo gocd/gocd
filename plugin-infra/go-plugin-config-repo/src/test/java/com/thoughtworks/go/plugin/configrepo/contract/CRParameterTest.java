@@ -24,7 +24,7 @@ import java.util.Map;
 import static org.junit.Assert.assertThat;
 import static com.thoughtworks.go.util.TestUtils.contains;
 
-public class CRParameterTest extends CRBaseTest<CRParameter> {
+public class CRParameterTest extends AbstractCRTest<CRParameter> {
     private CRParameter validParam1;
     private CRParameter validParam2;
 

@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
-class SvnMaterialRepresenterTest implements MaterialRepresenterTest {
+class SvnMaterialRepresenterTest implements MaterialRepresenterTrait {
 
 
   def existingMaterial() {

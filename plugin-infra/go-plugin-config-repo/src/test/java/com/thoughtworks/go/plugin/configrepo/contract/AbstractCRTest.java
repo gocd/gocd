@@ -33,7 +33,7 @@ import static junit.framework.TestCase.fail;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public abstract class CRBaseTest<T extends CRBase> {
+public abstract class AbstractCRTest<T extends CRBase> {
 
     private boolean printExamples = false;
     protected Gson gson;

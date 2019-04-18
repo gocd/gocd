@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugin.configrepo.contract.material;
 
 import com.google.gson.JsonObject;
-import com.thoughtworks.go.plugin.configrepo.contract.CRBaseTest;
+import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.Test;
 
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.Map;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class CRGitMaterialTest extends CRBaseTest<CRGitMaterial> {
+public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
     private String url1 = "http://my.git.repository.com";
     private String url2 = "http://other.git.repository.com";
 

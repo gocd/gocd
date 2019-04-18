@@ -14,22 +14,19 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv6.shared.representers.stages.tasks
+package com.thoughtworks.go.apiv4.shared.representers.stages.tasks
 
 import com.thoughtworks.go.api.util.GsonTransformer
-import com.thoughtworks.go.apiv6.shared.representers.stages.ConfigHelperOptions
+import com.thoughtworks.go.apiv4.shared.representers.stages.tasks.TaskRepresenter
 import com.thoughtworks.go.config.AntTask
-import com.thoughtworks.go.config.BasicCruiseConfig
 import com.thoughtworks.go.config.RunIfConfig
-import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.domain.RunIfConfigs
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.mockito.Mockito.mock
 
-trait TaskRepresenterTest {
+trait TaskRepresenterTrait {
 
   @Test
   void 'should render task json'() {

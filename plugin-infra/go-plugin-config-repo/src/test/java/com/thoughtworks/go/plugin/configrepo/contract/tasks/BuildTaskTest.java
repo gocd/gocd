@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugin.configrepo.contract.tasks;
 
 import com.google.gson.JsonObject;
-import com.thoughtworks.go.plugin.configrepo.contract.CRBaseTest;
+import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.Test;
 
 import java.util.Map;
@@ -24,7 +24,7 @@ import java.util.Map;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class BuildTaskTest extends CRBaseTest<CRBuildTask> {
+public class BuildTaskTest extends AbstractCRTest<CRBuildTask> {
 
     private final CRBuildTask rakeTask;
     private final CRBuildTask rakeCompileTask;

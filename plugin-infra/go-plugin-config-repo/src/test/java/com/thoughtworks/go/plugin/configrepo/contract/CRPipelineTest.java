@@ -32,7 +32,7 @@ import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class CRPipelineTest extends CRBaseTest<CRPipeline> {
+public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
     private final CRPipeline pipe1;
     private final CRPipeline customPipeline;

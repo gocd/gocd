@@ -29,7 +29,7 @@ import com.thoughtworks.go.util.command.HgUrlArgument
 
 import static org.mockito.Mockito.mock
 
-class HgMaterialRepresenterTest implements MaterialRepresenterTest {
+class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   static def existingMaterial() {
     return MaterialConfigsMother.hgMaterialConfigFull()

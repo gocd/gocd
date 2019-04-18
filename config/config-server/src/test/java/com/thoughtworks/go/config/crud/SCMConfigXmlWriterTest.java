@@ -35,7 +35,7 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
-public class SCMConfigXmlWriterTest extends BaseConfigXmlWriterTest {
+public class SCMConfigXmlWriterTest extends AbstractConfigXmlWriterTest {
     @Test
     public void shouldWriteSCMConfiguration() throws Exception {
         CruiseConfig configToSave = new BasicCruiseConfig();

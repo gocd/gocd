@@ -17,7 +17,7 @@ package com.thoughtworks.go.plugin.configrepo.contract;
 
 import java.util.Map;
 
-public class CRPluginConfigurationPropertyTest extends CRBaseTest<CRPluginConfiguration> {
+public class CRPluginConfigurationPropertyTest extends AbstractCRTest<CRPluginConfiguration> {
 
     private final CRPluginConfiguration pluginConfig;
     private final CRPluginConfiguration invalidPluginConfigNoId;

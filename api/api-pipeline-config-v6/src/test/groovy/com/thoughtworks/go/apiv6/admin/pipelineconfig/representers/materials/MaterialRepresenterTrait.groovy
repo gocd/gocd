@@ -23,7 +23,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 
-trait MaterialRepresenterTest {
+trait MaterialRepresenterTrait {
 
   @Test
   void 'should render material with hal representation'() {

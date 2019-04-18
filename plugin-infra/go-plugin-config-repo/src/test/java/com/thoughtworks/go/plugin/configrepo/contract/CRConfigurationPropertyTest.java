@@ -17,7 +17,7 @@ package com.thoughtworks.go.plugin.configrepo.contract;
 
 import java.util.Map;
 
-public class CRConfigurationPropertyTest extends CRBaseTest<CRConfigurationProperty> {
+public class CRConfigurationPropertyTest extends AbstractCRTest<CRConfigurationProperty> {
 
     private final CRConfigurationProperty configProperty;
     private final CRConfigurationProperty configPropertyEncrypted;

@@ -69,23 +69,6 @@ class Api::StagesController < Api::ApiController
     end
   end
 
-  def instance_by_counter
-    pipeline_name = params[:pipeline_name]
-    pipeline_counter = params[:pipeline_counter].to_i
-    stage_name = params[:stage_name]
-    stage_counter = params[:stage_counter]
-    result = HttpOperationResult.new
-
-    stage_model = stage_service.findStageWithIdentifier(pipeline_name, pipeline_counter, stage_name, stage_counter, CaseInsensitiveString.str(current_user.getUsername()), result)
-
-    if result.canContinue()
-      stage_api_model = StageAPIModel.new(stage_model)
-      render json: stage_api_model
-    else
-      render_error_response(result.detailedMessage(), result.httpCode(), true)
-    end
-  end
-
   private
   def render_not_found()
     render plain: "Not Found!", status: 404

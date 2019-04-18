@@ -247,9 +247,6 @@ Rails.application.routes.draw do
         resources :scms, param: :material_name, controller: :pluggable_scms, only: [:index, :show, :create, :update], constraints: {material_name: ALLOW_DOTS}
       end
 
-      get 'stages/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter' => 'stages#show', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, pipeline_counter: PIPELINE_COUNTER_FORMAT, stage_name: STAGE_NAME_FORMAT, stage_counter: STAGE_COUNTER_FORMAT}, as: :stage_instance_by_counter_api
-      get 'stages/:pipeline_name/:stage_name' => 'stages#history', constraints: {pipeline_name: PIPELINE_NAME_FORMAT, stage_name: STAGE_NAME_FORMAT}, as: :stage_history_api
-
       get 'version_infos/stale', controller: :version_infos, action: :stale, as: :stale_version_info
       get 'version_infos/latest_version', controller: :version_infos, action: :latest_version, as: :latest_version_info
       patch 'version_infos/go_server', controller: :version_infos, action: :update_server, as: :update_server_version_info

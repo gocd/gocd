@@ -168,11 +168,11 @@ export class UsersPage extends Page<null, State> {
 
     return (
       <div>
-        {bannerToDisplay}
         <div className={styles.flashMessageWrapperContainer}>
+          {bannerToDisplay}
           <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type} dismissible={false}/>
         </div>
-        <UsersTableWidget {...vnode.state} hasMessage={this.flashMessage.hasMessage()}/>
+        <UsersTableWidget {...vnode.state}/>
       </div>
     );
   }

@@ -31,7 +31,7 @@ import * as styles from "./index.scss";
 const classnames = bind(styles);
 
 export interface Attrs extends UserActionsState, SuperAdminPrivilegeSwitchAttrs, RequiresUserViewHelper {
-  hasMessage: boolean;
+
 }
 
 export class UsersTableWidget extends MithrilViewComponent<Attrs> {
@@ -58,8 +58,7 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
     return (
-      <div className={classnames(styles.flexTable,
-                                 {[styles.hasMessage]: vnode.attrs.hasMessage})} data-test-id="users-table">
+      <div className={styles.flexTable} data-test-id="users-table">
         <div className={styles.tableHeader} data-test-id="users-header">
           {
             _.map(UsersTableWidget.headers(vnode.attrs.users() as Users), (header) => {

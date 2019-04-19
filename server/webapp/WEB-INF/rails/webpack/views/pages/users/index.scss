@@ -182,7 +182,7 @@ $selected-table-row: #e2f7fa;
 .table-header {
   background:    $secondary-bg;
   border-radius: $global-border-radius $global-border-radius 0 0;
-  position:      fixed;
+  position:      static;
   left:          30px;
   right:         30px;
   display:       flex;
@@ -223,7 +223,6 @@ $selected-table-row: #e2f7fa;
 
 .table-body {
   height:      calc(100vh - 321px);
-  padding-top: 40px;
   overflow-y:  auto;
 
   .has-message & {

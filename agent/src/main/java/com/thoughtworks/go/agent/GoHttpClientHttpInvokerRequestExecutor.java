@@ -17,6 +17,9 @@
 package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.config.DefaultAgentRegistry;
+import com.thoughtworks.go.config.GuidService;
+import com.thoughtworks.go.config.TokenService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -45,10 +48,12 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
 
     private final GoAgentServerHttpClient goAgentServerHttpClient;
     private final SystemEnvironment environment;
+    private DefaultAgentRegistry defaultAgentRegistry;
 
-    public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient, SystemEnvironment environment) {
+    public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient, SystemEnvironment environment, DefaultAgentRegistry defaultAgentRegistry) {
         this.goAgentServerHttpClient = goAgentServerHttpClient;
         this.environment = environment;
+        this.defaultAgentRegistry = defaultAgentRegistry;
     }
 
     @Override
@@ -61,9 +66,14 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
 
         BasicHttpContext context = null;
 
-        if (environment.useSslContext()) {
-            context = new BasicHttpContext();
-            context.setAttribute(HttpClientContext.USER_TOKEN, goAgentServerHttpClient.principal());
+        if (useMutualTLS()) {
+            if (environment.useSslContext()) {
+                context = new BasicHttpContext();
+                context.setAttribute(HttpClientContext.USER_TOKEN, goAgentServerHttpClient.principal());
+            }
+        } else {
+            postMethod.setHeader("X-Agent-GUID", defaultAgentRegistry.uuid());
+            postMethod.setHeader("Authorization", defaultAgentRegistry.token());
         }
 
         try (CloseableHttpResponse response = goAgentServerHttpClient.execute(postMethod, context)) {
@@ -71,6 +81,10 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
             InputStream responseBody = getResponseBody(response);
             return readRemoteInvocationResult(responseBody, config.getCodebaseUrl());
         }
+    }
+
+    private boolean useMutualTLS() {
+        return !"true".equalsIgnoreCase(System.getenv("GO_USE_TOKEN_AUTH"));
     }
 
     private InputStream getResponseBody(HttpResponse httpResponse) throws IOException {

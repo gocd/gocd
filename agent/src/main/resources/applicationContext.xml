@@ -44,10 +44,7 @@
   <bean id="buildLoopServer" class="com.thoughtworks.go.agent.service.HttpInvokerProxyFactoryWrapper"
         p:serviceInterface="com.thoughtworks.go.remote.BuildRepositoryRemote">
     <property name="httpInvokerRequestExecutor">
-      <bean class="com.thoughtworks.go.agent.GoHttpClientHttpInvokerRequestExecutor">
-        <constructor-arg ref="httpClient"/>
-        <constructor-arg ref="systemEnvironment"/>
-      </bean>
+      <bean class="com.thoughtworks.go.agent.GoHttpClientHttpInvokerRequestExecutor" autowire="constructor" />
     </property>
   </bean>
 

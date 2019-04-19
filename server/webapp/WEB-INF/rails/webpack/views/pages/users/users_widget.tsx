@@ -31,6 +31,7 @@ import * as styles from "./index.scss";
 const classnames = bind(styles);
 
 export interface Attrs extends UserActionsState, SuperAdminPrivilegeSwitchAttrs, RequiresUserViewHelper {
+
 }
 
 export class UsersTableWidget extends MithrilViewComponent<Attrs> {
@@ -65,7 +66,7 @@ export class UsersTableWidget extends MithrilViewComponent<Attrs> {
             })
           }
         </div>
-        <div className="table-body">
+        <div className={styles.tableBody}>
           {
             vnode.attrs.users().map((user: User) => {
               const className   = (user.enabled() ? "" : styles.disabled);

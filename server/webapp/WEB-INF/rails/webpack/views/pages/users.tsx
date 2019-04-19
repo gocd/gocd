@@ -91,6 +91,15 @@ export class UsersPage extends Page<null, State> {
     };
 
     vnode.state.onDelete = (usersToDelete, e) => {
+      const enabledUsers = usersToDelete.selectedUsers().enabledUsers();
+      if (enabledUsers.length > 0) {
+        const verbPhrase = enabledUsers.length === 1 ? `is` : `are`;
+        const message    = `'${enabledUsers.userNamesOfSelectedUsers()
+                                           .join(",")}' ${verbPhrase} enabled. Can't perform the requested opertaion.`;
+        this.flashMessage.setMessage(MessageType.alert,
+                                     message);
+        return;
+      }
       const json = {
         users: usersToDelete.userNamesOfSelectedUsers()
       };
@@ -159,8 +168,8 @@ export class UsersPage extends Page<null, State> {
 
     return (
       <div>
-        {bannerToDisplay}
         <div className={styles.flashMessageWrapperContainer}>
+          {bannerToDisplay}
           <FlashMessage message={this.flashMessage.message} type={this.flashMessage.type} dismissible={false}/>
         </div>
         <UsersTableWidget {...vnode.state}/>
@@ -177,7 +186,7 @@ export class UsersPage extends Page<null, State> {
     headerButtons.push(<Buttons.Primary onclick={vnode.state.onAdd.bind(vnode.state)}>Import User</Buttons.Primary>);
 
     return <div>
-      <HeaderPanel title="Users Management" buttons={headerButtons}/>;
+      <HeaderPanel title="Users Management" buttons={headerButtons}/>
       <UsersActionsWidget {...vnode.state} />
     </div>;
 

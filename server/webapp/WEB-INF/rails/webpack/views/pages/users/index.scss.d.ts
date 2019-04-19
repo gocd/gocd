@@ -28,6 +28,7 @@ export const adminSwitchWrapper: string;
 export const isAdminText: string;
 export const flexTable: string;
 export const tableHeader: string;
+export const hasMessage: string;
 export const tableHead: string;
 export const tableRow: string;
 export const selected: string;

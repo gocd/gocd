@@ -23,12 +23,14 @@ import * as stream from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {
   ConfigRepo,
+  humanizedMaterialAttributeName, humanizedMaterialNameForMaterialType,
+} from "models/config_repos/types";
+import {
   GitMaterialAttributes,
   HgMaterialAttributes,
-  humanizedMaterialAttributeName, humanizedMaterialNameForMaterialType,
   Material, P4MaterialAttributes,
-  SvnMaterialAttributes, TfsMaterialAttributes
-} from "models/config_repos/types";
+  SvnMaterialAttributes, TfsMaterialAttributes,
+} from "models/materials/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
@@ -135,7 +137,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
   private testConnection(material: Material) {
     this.testConnectionInProgress();
 
-    ConfigReposCRUD.checkConnection(material).then((result: ApiResult<any>) => {
+    material.checkConnection().then((result: ApiResult<any>) => {
       result.do(() => {
         this.testConnectionSuccessful();
       }, (err: ErrorResponse) => {

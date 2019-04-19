@@ -15,20 +15,14 @@
  */
 
 import {ApiRequestBuilder, ApiResult, ApiVersion, ObjectWithEtag} from "helpers/api_request_builder";
+import JsonUtils from "helpers/json_utils";
 import SparkRoutes from "helpers/spark_routes";
 import {ConfigRepoJSON, ConfigReposJSON} from "models/config_repos/serialization";
-import {ConfigRepo, ConfigRepos, Material} from "models/config_repos/types";
-
-const s = require("helpers/string-plus");
-
-function toSnakeCaseJSON(o: object) {
-  const text           = JSON.stringify(o, s.snakeCaser);
-  return JSON.parse(text);
-}
+import {ConfigRepo, ConfigRepos} from "models/config_repos/types";
 
 export function configRepoToSnakeCaseJSON(o: ConfigRepo) {
   const configurations = o.createConfigurationsFromText();
-  const json           = toSnakeCaseJSON(o);
+  const json           = JsonUtils.toSnakeCasedObject(o);
   json.configuration   = configurations.map((config) => config.toJSON());
   return json;
 }
@@ -71,11 +65,6 @@ export class ConfigReposCRUD {
 
   static triggerUpdate(id: string) {
     return ApiRequestBuilder.POST(SparkRoutes.configRepoTriggerUpdatePath(id), this.API_VERSION_HEADER);
-  }
-
-  static checkConnection(material: Material) {
-    return ApiRequestBuilder
-      .POST(SparkRoutes.configRepoCheckConnection(), this.API_VERSION_HEADER, {payload: toSnakeCaseJSON(material)});
   }
 
   private static extractObjectWithEtag() {

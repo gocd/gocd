@@ -21,7 +21,6 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {ElasticAgentProfilesCRUD} from "models/elastic_profiles/elastic_agent_profiles_crud";
 import {ClusterProfile, ClusterProfiles, ElasticAgentProfile, ProfileUsage} from "models/elastic_profiles/types";
-import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {ElasticAgentSettings, Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -121,13 +120,8 @@ abstract class BaseElasticProfileModal extends Modal {
     }
 
     const clustersList = _.map(clustersBelongingToPlugin, (clusterProfile: ClusterProfile) => {
-      return {id: clusterProfile.id(), text: clusterProfile.id()};
+      return {id: clusterProfile.id(), text: `${clusterProfile.id()} (${this.pluginInfo().about.name})`};
     }) || [];
-
-    const pluginList = _.map(this.pluginInfos, (pluginInfo: PluginInfo<any>) => {
-      return {id: pluginInfo.id, text: pluginInfo.about.name};
-    });
-
     const elasticAgentExtension        = this.pluginInfo().extensionOfType(ExtensionType.ELASTIC_AGENTS);
     const elasticProfileConfigurations = (elasticAgentExtension as ElasticAgentSettings).profileSettings;
 
@@ -142,14 +136,6 @@ abstract class BaseElasticProfileModal extends Modal {
                          property={this.elasticProfile().id}
                          errorText={this.elasticProfile().errors().errorsForDisplay("id")}
                          required={true}/>
-
-              <SelectField label="Plugin ID"
-                           property={this.pluginIdProxy.bind(this)}
-                           required={true}
-                           errorText={this.elasticProfile().errors().errorsForDisplay("pluginId")}>
-                <SelectFieldOptions selected={this.elasticProfile().pluginId()}
-                                    items={pluginList}/>
-              </SelectField>
               <SelectField label="Cluster Profile ID"
                            property={this.clusterProfileIdProxy.bind(this)}
                            required={true}
@@ -192,20 +178,6 @@ abstract class BaseElasticProfileModal extends Modal {
     }
 
     return this.elasticProfile().clusterProfileId();
-  }
-
-  private pluginIdProxy(newValue ?: string) {
-    if (newValue) {
-      if (this.pluginInfo().id !== newValue) {
-        const pluginInfo = _.find(this.pluginInfos, (p) => p.id === newValue);
-        this.pluginInfo(pluginInfo!);
-        this.elasticProfile(new ElasticAgentProfile(this.elasticProfile().id(),
-                                                    pluginInfo!.id,
-                                                    undefined,
-                                                    new Configurations([])));
-      }
-    }
-    return this.pluginInfo().id;
   }
 }
 

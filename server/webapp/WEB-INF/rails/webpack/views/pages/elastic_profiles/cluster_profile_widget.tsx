@@ -40,7 +40,7 @@ import * as styles from ".//index.scss";
 const classnames = bind(styles);
 export type ClusterProfileOperations = EditOperation<ClusterProfile> & DeleteOperation<string> & AddOperation<void> & CloneOperation<ClusterProfile>;
 
-export interface Attrs extends ElasticProfilesWidgetAttrs{
+export interface Attrs extends ElasticProfilesWidgetAttrs {
   pluginInfos: Stream<Array<PluginInfo<Extension>>>;
   elasticProfiles: ElasticAgentProfiles;
   isUserAnAdmin: boolean;
@@ -164,7 +164,7 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
                                              ]);
     return (
       <div className={styles.clusterProfileDetailsContainer}>
-        <h5 className={classnames(styles.clusterProfileDetailsHeader, {[styles.expanded]: vnode.state.clusterProfileDetailsExpanded()})} onclick={this.toggle.bind(this, vnode)} data-test-id="cluster-profile-details-header">Cluster info </h5>
+        <h5 className={classnames(styles.clusterProfileDetailsHeader, {[styles.expanded]: vnode.state.clusterProfileDetailsExpanded()})} onclick={this.toggle.bind(this, vnode)} data-test-id="cluster-profile-details-header">Cluster configuration</h5>
         <div className={classnames(styles.clusterProfileDetails, {[styles.expanded]: vnode.state.clusterProfileDetailsExpanded()})} data-test-id="cluster-profile-details">
           <KeyValuePair data={clusterProfileDetails}/>
         </div>

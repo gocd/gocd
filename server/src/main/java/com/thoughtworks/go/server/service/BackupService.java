@@ -111,7 +111,11 @@ public class BackupService implements BackupStatusProvider {
     }
 
     public void initialize() {
-        serverBackupRepository.markInProgressBackupsAsAborted(ABORTED_BACKUPS_MESSAGE);
+        if (systemEnvironment.isServerInStandbyMode()) {
+            LOGGER.info("GoCD server in 'standby' mode, not changing 'in-progress' backups to 'aborted'.");
+        } else {
+            serverBackupRepository.markInProgressBackupsAsAborted(ABORTED_BACKUPS_MESSAGE);
+        }
     }
 
     public ServerBackup scheduleBackup(Username username) {

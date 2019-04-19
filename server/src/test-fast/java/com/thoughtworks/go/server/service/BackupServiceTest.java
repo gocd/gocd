@@ -176,4 +176,14 @@ public class BackupServiceTest {
 
         verify(serverBackupRepository).markInProgressBackupsAsAborted(ABORTED_BACKUPS_MESSAGE);
     }
+
+    @Test
+    public void shouldNotMarkInProgressBackupsAsAbortedIfServerIsInStandbyMode() {
+        when(systemEnvironment.isServerInStandbyMode()).thenReturn(true);
+        BackupService backupService = new BackupService(artifactsDirHolder, mock(GoConfigService.class), null, serverBackupRepository, systemEnvironment, configRepo, databaseStrategy, null);
+
+        backupService.initialize();
+
+        verifyZeroInteractions(serverBackupRepository);
+    }
 }

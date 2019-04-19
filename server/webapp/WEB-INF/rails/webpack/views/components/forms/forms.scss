@@ -150,6 +150,9 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
   margin:          0 0 20px;
   padding:         0;
 
+  &.last {
+    margin-bottom: 0;
+  }
 }
 
 .form-responsive {

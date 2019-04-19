@@ -24,6 +24,7 @@ const classnames = bind(styles);
 interface Attrs {
   dataTestId?: string;
   compactForm?: boolean;
+  last?: boolean;
 }
 
 function dataTestIdAttrs(attrs: Attrs) {
@@ -38,7 +39,7 @@ function dataTestIdAttrs(attrs: Attrs) {
 
 export class Form extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
-    return <ul className={classnames(styles.form, (vnode.attrs.compactForm ? styles.formCompact : styles.formResponsive))} {...dataTestIdAttrs(vnode.attrs)}>
+    return <ul className={classnames(styles.form, (vnode.attrs.compactForm ? styles.formCompact : styles.formResponsive), {[styles.last]: vnode.attrs.last})} {...dataTestIdAttrs(vnode.attrs)}>
       {vnode.children}
     </ul>;
   }

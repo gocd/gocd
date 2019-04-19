@@ -14,6 +14,7 @@ export const formHelp: string;
 export const formErrorText: string;
 export const formHasError: string;
 export const form: string;
+export const last: string;
 export const formResponsive: string;
 export const searchBoxWrapper: string;
 export const searchBoxInput: string;

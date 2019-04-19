@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import SparkRoutes from "helpers/spark_routes";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
@@ -29,5 +31,25 @@ export class PipelineConfig extends ValidatableMixin {
     ValidatableMixin.call(this);
     this.name = stream(name);
     this.validatePresenceOf("name");
+    this.validatePresenceOf("group");
+  }
+
+  create() {
+    return ApiRequestBuilder.POST(SparkRoutes.pipelineConfigCreatePath(), ApiVersion.v6, {
+      payload: this.toJSON()
+    });
+  }
+
+  pause() {
+    return ApiRequestBuilder.POST(SparkRoutes.pipelinePausePath(this.name()), ApiVersion.v1);
+  }
+
+  toJSON() {
+    return {
+      group: this.group(),
+      pipeline: {
+        name: this.name()
+      }
+    };
   }
 }

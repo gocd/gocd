@@ -26,6 +26,17 @@
   justify-content: space-between;
 }
 
+.actions {
+  .save-btns {
+    white-space: nowrap;
+  }
+
+  .error-response {
+    margin-right: 2ex;
+    color: $go-danger;
+  }
+}
+
 .section-heading {
   font-size: 30px;
   font-weight: 500;

@@ -91,7 +91,7 @@ export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetA
       {this.getClusterProfileDetails(vnode)}
       <h4>Elastic Agent Profiles</h4>
       <ElasticProfilesWidget elasticProfiles={new ElasticAgentProfiles(filteredElasticAgentProfiles)}
-                             pluginInfos={vnode.attrs.pluginInfos}
+                             pluginInfo={pluginInfo}
                              elasticAgentOperations={vnode.attrs.elasticAgentOperations}
                              onShowUsages={vnode.attrs.onShowUsages.bind(vnode.attrs)}
                              isUserAnAdmin={vnode.attrs.isUserAnAdmin}/>

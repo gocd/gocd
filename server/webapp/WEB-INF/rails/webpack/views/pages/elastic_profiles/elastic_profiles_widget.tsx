@@ -17,7 +17,6 @@
 import {MithrilComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
-import {Stream} from "mithril/stream";
 import {ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -35,23 +34,20 @@ interface ElasticAgentProfileAddOperation {
 export type ElasticAgentOperations = EditOperation<ElasticAgentProfile> & DeleteOperation<string> & CloneOperation<ElasticAgentProfile> & ElasticAgentProfileAddOperation;
 
 export interface Attrs {
-  pluginInfos: Stream<Array<PluginInfo<Extension>>>;
   elasticProfiles: ElasticAgentProfiles;
   isUserAnAdmin: boolean;
   onShowUsages: (profileId: string, event: MouseEvent) => void;
   elasticAgentOperations: ElasticAgentOperations;
 }
 
-export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
+interface PluginInfoAttrs {
+  pluginInfo: PluginInfo<Extension> | undefined;
+}
 
-  view(vnode: m.Vnode<Attrs, {}>) {
-    let noPluginInstalledMessage;
+export class ElasticProfilesWidget extends MithrilComponent<Attrs & PluginInfoAttrs, {}> {
 
-    if (ElasticProfilesWidget.noElasticAgentPluginInstalled(vnode)) {
-      noPluginInstalledMessage = "No elastic agent plugin installed.";
-    }
-
-    if ((!noPluginInstalledMessage) && ElasticProfilesWidget.noElasticProfileConfigured(vnode)) {
+  view(vnode: m.Vnode<Attrs & PluginInfoAttrs, {}>) {
+    if (vnode.attrs.pluginInfo !== undefined && ElasticProfilesWidget.noElasticProfileConfigured(vnode)) {
       return <FlashMessage type={MessageType.info} message="Click on 'Add' button to create new elastic agent profile."/>;
     }
 
@@ -60,10 +56,9 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
         <div data-test-id="elastic-profile-list">
           {
             _.entries(vnode.attrs.elasticProfiles.groupByPlugin()).map(([pluginId, profiles]) => {
-              const pluginInfo = ElasticProfilesWidget.findPluginInfoByPluginId(vnode.attrs.pluginInfos(), pluginId);
               return profiles.map((profile: ElasticAgentProfile) =>
                                     <ElasticProfileWidget key={profile.id()} elasticProfile={profile}
-                                                          pluginInfo={pluginInfo}
+                                                          pluginInfo={vnode.attrs.pluginInfo}
                                                           onEdit={vnode.attrs.elasticAgentOperations.onEdit.bind(vnode.attrs, profile)}
                                                           onClone={vnode.attrs.elasticAgentOperations.onClone.bind(vnode.attrs, profile)}
                                                           onDelete={vnode.attrs.elasticAgentOperations.onDelete.bind(vnode.attrs, profile.id())}
@@ -77,15 +72,7 @@ export class ElasticProfilesWidget extends MithrilComponent<Attrs, {}> {
     );
   }
 
-  private static findPluginInfoByPluginId(pluginInfos: Array<PluginInfo<Extension>>, pluginId: string) {
-    return _.find(pluginInfos, ["id", pluginId]);
-  }
-
-  private static noElasticAgentPluginInstalled(vnode: m.Vnode<Attrs, {}>) {
-    return vnode.attrs.pluginInfos() == null || vnode.attrs.pluginInfos().length === 0;
-  }
-
-  private static noElasticProfileConfigured(vnode: m.Vnode<Attrs, {}>) {
+  private static noElasticProfileConfigured(vnode: m.Vnode<Attrs & PluginInfoAttrs, {}>) {
     return vnode.attrs.elasticProfiles == null || vnode.attrs.elasticProfiles.empty();
   }
 }

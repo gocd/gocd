@@ -16,7 +16,6 @@
 
 import * as _ from "lodash";
 import * as m from "mithril";
-import * as stream from "mithril/stream";
 import {ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -29,11 +28,7 @@ describe("Elastic Agent Profiles Widget", () => {
   const helper        = new TestHelper();
   const simulateEvent = require("simulate-event");
 
-  const pluginInfos = [
-    PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links),
-    PluginInfo.fromJSON(TestData.dockerSwarmPluginJSON(), TestData.dockerSwarmPluginJSON()._links),
-    PluginInfo.fromJSON(TestData.kubernetesPluginJSON(), TestData.kubernetesPluginJSON()._links)
-  ];
+  const pluginInfo = PluginInfo.fromJSON(TestData.dockerPluginJSON(), TestData.dockerPluginJSON()._links);
 
   const elasticProfiles = ElasticAgentProfiles.fromJSON([
                                                           TestData.dockerElasticProfile(),
@@ -43,7 +38,7 @@ describe("Elastic Agent Profiles Widget", () => {
 
   describe("list all profiles", () => {
     beforeEach(() => {
-      mount(pluginInfos, elasticProfiles);
+      mount(pluginInfo, elasticProfiles);
     });
 
     afterEach(helper.unmount.bind(helper));
@@ -72,18 +67,52 @@ describe("Elastic Agent Profiles Widget", () => {
   });
 
   it("should display message to add new elastic agent profiles if no elastic agent profiles defined", () => {
-    mount(pluginInfos, new ElasticAgentProfiles([]));
+    mount(pluginInfo, new ElasticAgentProfiles([]));
 
     expect(helper.findByDataTestId("flash-message-info")).toHaveText("Click on 'Add' button to create new elastic agent profile.");
 
     helper.unmount();
   });
 
-  function mount(pluginInfos: Array<PluginInfo<Extension>>,
+  it("should not display message to add new elastic agent profiles if no elastic agent profiles defined", () => {
+    mount(undefined, new ElasticAgentProfiles([]));
+
+    expect(helper.findByDataTestId("flash-message-info")).not.toBeInDOM();
+
+    helper.unmount();
+  });
+
+  it("should disable action buttons if no elastic agent plugin installed", () => {
+    mount(undefined, elasticProfiles, true);
+
+    const elasticAgentProfilePanel = helper.findByDataTestId("elastic-profile")[0];
+
+    expect(helper.findIn(elasticAgentProfilePanel, "edit-elastic-profile")).toBeDisabled();
+    expect(helper.findIn(elasticAgentProfilePanel, "clone-elastic-profile")).toBeDisabled();
+    expect(helper.findIn(elasticAgentProfilePanel, "delete-elastic-profile")).not.toBeDisabled();
+    expect(helper.findIn(elasticAgentProfilePanel, "show-usage-elastic-profile")).not.toBeDisabled();
+
+    helper.unmount();
+  });
+
+  it("should not disable action buttons if elastic agent plugin installed", () => {
+    mount(pluginInfo, elasticProfiles, true);
+
+    const elasticAgentProfilePanel = helper.findByDataTestId("elastic-profile")[0];
+
+    expect(helper.findIn(elasticAgentProfilePanel, "edit-elastic-profile")).not.toBeDisabled();
+    expect(helper.findIn(elasticAgentProfilePanel, "clone-elastic-profile")).not.toBeDisabled();
+    expect(helper.findIn(elasticAgentProfilePanel, "delete-elastic-profile")).not.toBeDisabled();
+    expect(helper.findIn(elasticAgentProfilePanel, "show-usage-elastic-profile")).not.toBeDisabled();
+
+    helper.unmount();
+  });
+
+  function mount(pluginInfo: PluginInfo<Extension> | undefined,
                  elasticProfiles: ElasticAgentProfiles, isUserAnAdmin = true) {
 
     const noop = _.noop;
-    helper.mount(() => <ElasticProfilesWidget pluginInfos={stream(pluginInfos)}
+    helper.mount(() => <ElasticProfilesWidget pluginInfo={pluginInfo}
                                               elasticProfiles={elasticProfiles}
                                               elasticAgentOperations={{
                                                 onEdit: noop,

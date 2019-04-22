@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.UpdateConfigCommand;
+import com.thoughtworks.go.config.update.AddAgentCommand;
 import com.thoughtworks.go.config.update.AgentsUpdateCommand;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
@@ -54,7 +55,7 @@ public class AgentConfigServiceTest {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", agentId), AgentRuntimeStatus.Unknown, "cookie", false);
         AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
         agentConfigService.enableAgents(Username.ANONYMOUS, instance);
-        shouldPerformCommand(new GoConfigDao.CompositeConfigCommand(new AgentConfigService.AddAgentCommand(agentConfig)));
+        shouldPerformCommand(new GoConfigDao.CompositeConfigCommand(new AddAgentCommand(agentConfig)));
     }
 
     private void shouldPerformCommand(UpdateConfigCommand command) {
@@ -78,7 +79,7 @@ public class AgentConfigServiceTest {
         agentConfigService.enableAgents(Username.ANONYMOUS, pending, fromConfigFile);
 
         GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand(
-                new AgentConfigService.AddAgentCommand(pending.agentConfig()),
+                new AddAgentCommand(pending.agentConfig()),
                 new AgentConfigService.UpdateAgentApprovalStatus("UUID2", false));
         ArgumentCaptor<AgentsUpdateCommand> captor = ArgumentCaptor.forClass(AgentsUpdateCommand.class);
         verify(goConfigService).updateConfig(captor.capture(), eq(Username.ANONYMOUS));

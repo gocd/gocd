@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.BasicEnvironmentConfig
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.EnvironmentConfig
 import com.thoughtworks.go.config.EnvironmentVariableConfig
+import com.thoughtworks.go.config.EnvironmentsConfig
 import com.thoughtworks.go.domain.ConfigElementForEdit
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.server.service.EntityHashingService
@@ -523,20 +524,20 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
 
         assertThatResponse()
           .hasJsonBody([
-          "data": [
+          "data"   : [
             "environment_variables": [
               [
                 "encrypted_value": new GoCipher().encrypt("/bin/java"),
-                "errors": [
+                "errors"         : [
                   "encrypted_value": [
                     "You may only specify `value` or `encrypted_value`, not both!"
                   ],
-                  "value": [
+                  "value"          : [
                     "You may only specify `value` or `encrypted_value`, not both!"
                   ]
                 ],
-                "name": "JAVA_HOME",
-                "secure": true
+                "name"           : "JAVA_HOME",
+                "secure"         : true
               ]
             ]
           ],
@@ -706,15 +707,13 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
         def devEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"))
         def qaEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("qa"))
 
-        def listOfEnvironmentConfigs = new HashSet([qaEnv, devEnv, prodEnv])
+        def environmentConfigs = new EnvironmentsConfig(devEnv, qaEnv)
 
-        when(environmentConfigService.getEnvironments()).thenReturn(listOfEnvironmentConfigs)
+        when(environmentConfigService.getEnvironments()).thenReturn(environmentConfigs)
 
         getWithApiHeader(controller.controllerBasePath())
 
-        def environmentsConfigSortedByName = new LinkedHashSet([devEnv, prodEnv, qaEnv])
-        assertThatResponse()
-          .hasBodyWithJsonObject(environmentsConfigSortedByName, EnvironmentsRepresenter)
+        assertThatResponse().hasBodyWithJsonObject(environmentConfigs, EnvironmentsRepresenter)
       }
 
 
@@ -734,7 +733,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
           ]
         ]
 
-        when(environmentConfigService.getEnvironments()).thenReturn(new HashSet<>([]))
+        when(environmentConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig())
 
         getWithApiHeader(controller.controllerBasePath())
 

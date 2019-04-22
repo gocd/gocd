@@ -170,7 +170,7 @@ public class JobController {
         String pipelineName = current.getIdentifier().getPipelineName();
         String stageName = current.getIdentifier().getStageName();
         JobInstances recent25 = jobInstanceService.latestCompletedJobs(pipelineName, stageName, current.getName());
-        AgentConfig agentConfig = goConfigService.agentByUuid(current.getAgentUuid());
+        AgentConfig agentConfig = agentService.registeredAgentByUUID(current.getAgentUuid());
         Pipeline pipelineWithOneBuild = pipelineService.wrapBuildDetails(current);
         Tabs customizedTabs = goConfigService.getCustomizedTabs(pipelineWithOneBuild.getName(),
                 pipelineWithOneBuild.getFirstStage().getName(), current.getName());
@@ -192,7 +192,7 @@ public class JobController {
         data.put("websocketEnabled", Toggles.isToggleOn(Toggles.BROWSER_CONSOLE_LOG_WS));
         data.put("useIframeSandbox", systemEnvironment.useIframeSandbox());
         data.put("isEditableViaUI", goConfigService.isPipelineEditable(jobDetail.getPipelineName()));
-        data.put("isAgentAlive", goConfigService.hasAgent(jobDetail.getAgentUuid()));
+        data.put("isAgentAlive", agentService.hasRegisteredAgent(jobDetail.getAgentUuid()));
         addElasticAgentInfo(jobDetail, data);
         return new ModelAndView("build_detail/build_detail_page", data);
     }
@@ -211,7 +211,7 @@ public class JobController {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
 
         if (pluginInfo != null && pluginInfo.getCapabilities().supportsAgentStatusReport()) {
-            final AgentConfig agentConfig = goConfigService.agentByUuid(jobInstance.getAgentUuid());
+            final AgentConfig agentConfig = agentService.registeredAgentByUUID(jobInstance.getAgentUuid());
 
             if (agentConfig != null && agentConfig.isElastic()) {
                 data.put("elasticAgentPluginId", agentConfig.getElasticPluginId());

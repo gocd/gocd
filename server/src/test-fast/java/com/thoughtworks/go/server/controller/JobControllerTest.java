@@ -49,7 +49,7 @@ public class JobControllerTest {
     private JobController jobController;
     private JobInstanceService jobInstanceService;
     private JobInstanceDao jobInstanceDao;
-    private GoConfigService jobConfigService;
+    private GoConfigService goConfigService;
     private AgentService agentService;
     private StageService stageService;
     private PipelineService pipelineService;
@@ -62,7 +62,7 @@ public class JobControllerTest {
     public void setUp() throws Exception {
         jobInstanceService = mock(JobInstanceService.class);
         jobInstanceDao = mock(JobInstanceDao.class);
-        jobConfigService = mock(GoConfigService.class);
+        goConfigService = mock(GoConfigService.class);
         agentService = mock(AgentService.class);
         stageService = mock(StageService.class);
         response = new MockHttpServletResponse();
@@ -70,7 +70,7 @@ public class JobControllerTest {
         pipelineService = mock(PipelineService.class);
         restfulService = mock(RestfulService.class);
         propertiesService = mock(PropertiesService.class);
-        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, jobConfigService, pipelineService, restfulService, null, propertiesService, stageService, null, systemEnvironment);
+        jobController = new JobController(jobInstanceService, agentService, jobInstanceDao, goConfigService, pipelineService, restfulService, null, propertiesService, stageService, null, systemEnvironment);
     }
 
     @Test
@@ -166,14 +166,14 @@ public class JobControllerTest {
             jobInstance.setState(JobState.Unknown);
 
             when(jobInstanceService.latestCompletedJobs("p1", "s1", jobInstance.getName())).thenReturn(new JobInstances());
-            when(jobConfigService.agentByUuid(anyString())).thenReturn(new AgentConfig());
+            when(agentService.registeredAgentByUUID(anyString())).thenReturn(new AgentConfig());
             when(pipelineService.wrapBuildDetails(jobInstance)).thenReturn(pipeline);
             when(pipelineService.resolvePipelineCounter(eq("p1"), anyString())).thenReturn(Optional.of(1));
             when(restfulService.translateStageCounter(any(PipelineIdentifier.class), eq("s1"), anyString())).thenReturn(stageIdentifier);
             when(pipelineService.findPipelineByNameAndCounter("p1", 1)).thenReturn(pipeline);
             when(jobInstanceDao.mostRecentJobWithTransitions(jobIdentifier)).thenReturn(jobInstance);
             when(jobInstanceDao.mostRecentJobWithTransitions(any(JobIdentifier.class))).thenReturn(jobInstance);
-            when(jobConfigService.pipelineConfigNamed(any(CaseInsensitiveString.class))).thenReturn(PipelineConfigMother.pipelineConfig("p1"));
+            when(goConfigService.pipelineConfigNamed(any(CaseInsensitiveString.class))).thenReturn(PipelineConfigMother.pipelineConfig("p1"));
             when(propertiesService.getPropertiesForJob(any(Long.class))).thenReturn(new Properties());
             when(stageService.getStageByBuild(jobInstance)).thenReturn(StageMother.passedStageInstance("s1", "plan1", "p1"));
 

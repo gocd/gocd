@@ -23,8 +23,9 @@ import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 import com.thoughtworks.go.plugin.domain.authorization.Capabilities;
 import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
+import com.thoughtworks.go.server.domain.AgentInstances;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,6 +47,7 @@ public class ConfigInfoProviderTest {
     @Rule
     public final ClearSingleton clearSingleton = new ClearSingleton();
 
+
     @Before
     public void setUp() throws Exception {
         authorizationMetadataStore = AuthorizationMetadataStore.instance();
@@ -54,13 +56,15 @@ public class ConfigInfoProviderTest {
     @Test
     public void shouldProvideSecurityInformationWhenNoAuthorizationPluginIsConfigured() throws Exception {
         final GoConfigService goConfigService = goConfigService();
+        AgentService agentService = mock(AgentService.class);
+        when(agentService.agents()).thenReturn(new AgentInstances(null));
         final AuthorizationPluginInfo passwordFile = pluginInfo("cd.go.authentication.passwordfile", "Password File Authentication Plugin for GoCD");
         final AuthorizationPluginInfo ldap = pluginInfo("cd.go.authentication.ldap", "LDAP Authentication Plugin for GoCD");
 
         authorizationMetadataStore.setPluginInfo(passwordFile);
         authorizationMetadataStore.setPluginInfo(ldap);
 
-        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore).asJson();
+        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore, agentService).asJson();
 
         final Map<String, Object> security = (Map<String, Object>) map.get("Security");
         assertNotNull(security);
@@ -71,6 +75,8 @@ public class ConfigInfoProviderTest {
     @Test
     public void shouldProvideSecurityInformationWhenAuthorizationPluginsConfigured() throws Exception {
         final GoConfigService goConfigService = goConfigService();
+        AgentService agentService = mock(AgentService.class);
+        when(agentService.agents()).thenReturn(new AgentInstances(null));
         final AuthorizationPluginInfo passwordFile = pluginInfo("cd.go.authentication.passwordfile", "Password File Authentication Plugin for GoCD");
         final AuthorizationPluginInfo ldap = pluginInfo("cd.go.authentication.ldap", "LDAP Authentication Plugin for GoCD");
 
@@ -78,7 +84,7 @@ public class ConfigInfoProviderTest {
         authorizationMetadataStore.setPluginInfo(ldap);
         goConfigService.security().securityAuthConfigs().add(new SecurityAuthConfig("file", "cd.go.authentication.passwordfile"));
 
-        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore).asJson();
+        final Map<String, Object> map = new ConfigInfoProvider(goConfigService, authorizationMetadataStore, agentService).asJson();
 
         final Map<String, Object> security = (Map<String, Object>) map.get("Security");
         assertNotNull(security);
@@ -108,11 +114,12 @@ public class ConfigInfoProviderTest {
 
     private GoConfigService goConfigService() {
         final GoConfigService goConfigService = mock(GoConfigService.class);
+        AgentService agentService = mock(AgentService.class);
         final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(emptyList());
-        when(goConfigService.agents()).thenReturn(new Agents());
+        when(agentService.registeredAgentConfigs()).thenReturn(new Agents());
         when(cruiseConfig.getEnvironments()).thenReturn(new EnvironmentsConfig());
         when(cruiseConfig.getAllUniqueMaterials()).thenReturn(emptySet());
         when(goConfigService.getSchedulableMaterials()).thenReturn(emptySet());

@@ -235,10 +235,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return goConfigDao.load();
     }
 
-    public AgentConfig agentByUuid(String uuid) {
-        return agents().getAgentByUuid(uuid);
-    }
-
     public StageConfig stageConfigNamed(String pipelineName, String stageName) {
         return getCurrentConfig().stageConfigByName(new CaseInsensitiveString(pipelineName), new CaseInsensitiveString(stageName));
     }

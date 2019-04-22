@@ -24,7 +24,6 @@ import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
-import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
 import org.junit.Before;
 import org.junit.Test;
@@ -35,16 +34,12 @@ import java.util.Arrays;
 
 import static com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentProcessorRequestsV1.*;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ElasticAgentRequestProcessorV1Test {
     @Mock
     private AgentService agentService;
-    @Mock
-    private AgentConfigService agentConfigService;
     @Mock
     private GoPluginDescriptor pluginDescriptor;
     @Mock
@@ -58,7 +53,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
         when(pluginDescriptor.id()).thenReturn("cd.go.example.plugin");
 
-        processor = new ElasticAgentRequestProcessorV1(agentService, agentConfigService);
+        processor = new ElasticAgentRequestProcessorV1(agentService);
     }
 
     @Test
@@ -85,7 +80,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
         processor.process(pluginDescriptor, request);
 
-        verify(agentConfigService).disableAgents(processor.usernameFor(pluginDescriptor.id()), agentInstance);
+        verify(agentService).disableAgents(processor.usernameFor(pluginDescriptor.id()), agentInstance);
     }
 
     @Test
@@ -96,7 +91,8 @@ public class ElasticAgentRequestProcessorV1Test {
 
         processor.process(pluginDescriptor, request);
 
-        verifyZeroInteractions(agentConfigService);
+        verify(agentService).findElasticAgent("foo", "cd.go.example.plugin");
+        verifyNoMoreInteractions(agentService);
     }
 
     @Test
@@ -109,7 +105,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
         processor.process(pluginDescriptor, request);
 
-        verify(agentConfigService).deleteAgents(processor.usernameFor(pluginDescriptor.id()), agentInstance);
+        verify(agentService).deleteAgents(processor.usernameFor(pluginDescriptor.id()), agentInstance);
     }
 
     @Test
@@ -120,6 +116,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
         processor.process(pluginDescriptor, request);
 
-        verifyZeroInteractions(agentConfigService);
+        verify(agentService).findElasticAgent("foo", "cd.go.example.plugin");
+        verifyNoMoreInteractions(agentService);
     }
 }

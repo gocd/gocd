@@ -88,7 +88,7 @@ public class AgentRegistrationControllerIntegrationTest {
         String uuid = UUID.randomUUID().toString();
         MockHttpServletRequest request = new MockHttpServletRequest();
         final ResponseEntity responseEntity = controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, token(uuid, goConfigService.serverConfig().getTokenGenerationKey()), request);
-        AgentConfig agentConfig = goConfigService.agentByUuid(uuid);
+        AgentConfig agentConfig = agentService.registeredAgentByUUID(uuid);
 
         assertThat(agentConfig.getHostname(), is("hostname"));
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
@@ -116,7 +116,7 @@ public class AgentRegistrationControllerIntegrationTest {
                 false,
                 token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
                 request);
-        AgentConfig agentConfig = goConfigService.agentByUuid(uuid);
+        AgentConfig agentConfig = agentService.registeredAgentByUUID(uuid);
 
         assertTrue(agentConfig.isElastic());
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
@@ -145,7 +145,7 @@ public class AgentRegistrationControllerIntegrationTest {
                 false,
                 token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
                 request);
-        AgentConfig agentConfig = goConfigService.agentByUuid(uuid);
+        AgentConfig agentConfig = agentService.registeredAgentByUUID(uuid);
         assertTrue(agentConfig.isElastic());
 
         final ResponseEntity responseEntity = controller.agentRequest("elastic-agent-hostname",
@@ -198,9 +198,9 @@ public class AgentRegistrationControllerIntegrationTest {
     @Test
     public void shouldNotRegisterAgentWhenValidationFails() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        int totalAgentsBeforeRegistrationRequest = goConfigService.agents().size();
+        int totalAgentsBeforeRegistrationRequest = agentService.registeredAgentConfigs().size();
         final ResponseEntity responseEntity = controller.agentRequest("hostname", "", "sandbox", "100", null, null, null, null, null, null, null, false, token("", goConfigService.serverConfig().getTokenGenerationKey()), request);
-        int totalAgentsAfterRegistrationRequest = goConfigService.agents().size();
+        int totalAgentsAfterRegistrationRequest = agentService.registeredAgentConfigs().size();
         assertThat(totalAgentsBeforeRegistrationRequest, is(totalAgentsAfterRegistrationRequest));
 
         assertThat(responseEntity.getStatusCode(), is(UNPROCESSABLE_ENTITY));

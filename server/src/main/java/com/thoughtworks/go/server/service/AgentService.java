@@ -16,10 +16,9 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -343,6 +342,18 @@ public class AgentService {
         return agentInstances.findAgent(uuid);
     }
 
+    public AgentConfig registeredAgentByUUID(String uuid) {
+        return agentConfigService.agents().getAgentByUuid(uuid);
+    }
+
+    public Agents registeredAgentConfigs() {
+        return agentConfigService.agents();
+    }
+
+    public boolean hasRegisteredAgent(String uuid) {
+        return agentConfigService.agents().hasAgent(uuid);
+    }
+
     public void clearAll() {
         agentInstances.clearAll();
     }
@@ -401,5 +412,17 @@ public class AgentService {
 
     public AgentInstances findDisabledAgents() {
         return agentInstances.findDisabledAgents();
+    }
+
+    public void deleteAgents(Username username, AgentInstance... agentInstances) {
+        agentConfigService.deleteAgents(username, agentInstances);
+    }
+
+    public void disableAgents(Username username, AgentInstance... agentInstances) {
+        agentConfigService.disableAgents(username, agentInstances);
+    }
+
+    public AgentConfig updateAgent(UpdateConfigCommand compositeConfigCommand, String uuid, HttpOperationResult result, Username agentUsername) {
+        return agentConfigService.updateAgent(compositeConfigCommand, uuid, result, agentUsername);
     }
 }

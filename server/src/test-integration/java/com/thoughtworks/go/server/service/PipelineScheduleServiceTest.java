@@ -80,9 +80,8 @@ public class PipelineScheduleServiceTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private PipelineLockService pipelineLockService;
     @Autowired private GoCache goCache;
-    @Autowired private EnvironmentConfigService environmentConfigService;
     @Autowired private MaterialRepository materialRepository;
-    @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired private TransactionTemplate  transactionTemplate;
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
     @Autowired private InstanceFactory instanceFactory;
     @Rule
@@ -190,7 +189,7 @@ public class PipelineScheduleServiceTest {
         BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
         dbHelper.saveMaterials(buildCause.getMaterialRevisions());
 
-        Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY, environmentConfigService.agentsForPipeline(evolveConfig.name())), md5,
+        Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY, scheduleService.agentsForPipeline(evolveConfig.name())), md5,
                 new TimeProvider());
         pipelineService.save(pipeline);
 
@@ -215,7 +214,7 @@ public class PipelineScheduleServiceTest {
 		BuildCause buildCause = BuildCause.createWithModifications(revisions, "");
 		dbHelper.saveMaterials(buildCause.getMaterialRevisions());
 
-		Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY, environmentConfigService.agentsForPipeline(evolveConfig.name())), md5, new TimeProvider());
+		Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, buildCause, new DefaultSchedulingContext(DEFAULT_APPROVED_BY, scheduleService.agentsForPipeline(evolveConfig.name())), md5, new TimeProvider());
 		pipelineService.save(pipeline);
 
 		Stage instance = scheduleService.scheduleStage(pipeline, STAGE_NAME, "anyone", new ScheduleService.NewStageInstanceCreator(goConfigService), new ScheduleService.ExceptioningErrorHandler());

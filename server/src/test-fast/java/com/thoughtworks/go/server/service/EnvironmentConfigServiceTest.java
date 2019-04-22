@@ -176,35 +176,6 @@ public class EnvironmentConfigServiceTest {
     }
 
     @Test
-    public void shouldFindAgentsForPipelineUnderEnvironment() throws Exception {
-        environmentConfigService.sync(environments("uat", "prod"));
-        AgentConfig agentUnderEnv = new AgentConfig("uat-agent", "localhost", "127.0.0.1");
-        AgentConfig omnipresentAgent = new AgentConfig(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2");
-
-        Mockito.when(mockGoConfigService.agentByUuid("uat-agent")).thenReturn(agentUnderEnv);
-        Mockito.when(mockGoConfigService.agentByUuid(EnvironmentConfigMother.OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
-
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).size(), is(2));
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")), hasItem(agentUnderEnv));
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")), hasItem(omnipresentAgent));
-    }
-
-    @Test
-    public void shouldFindAgentsForPipelineUnderNoEnvironment() throws Exception {
-        environmentConfigService.sync(environments("uat", "prod"));
-        AgentConfig noEnvAgent = new AgentConfig("no-env-agent", "localhost", "127.0.0.1");
-
-        Agents agents = new Agents();
-        agents.add(noEnvAgent);
-        agents.add(new AgentConfig(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2"));
-        Mockito.when(mockGoConfigService.agents()).thenReturn(agents);
-
-
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")).size(), is(1));
-        assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")), hasItem(noEnvAgent));
-    }
-
-    @Test
     public void shouldListEnvironmentVariablesDefinedForAnEnvironment() throws Exception {
         EnvironmentsConfig environmentConfigs = new EnvironmentsConfig();
         BasicEnvironmentConfig environment = environment("uat");

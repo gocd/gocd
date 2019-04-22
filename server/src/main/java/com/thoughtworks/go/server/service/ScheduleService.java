@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.StageNotFoundException;
@@ -31,6 +28,7 @@ import com.thoughtworks.go.remote.work.InvalidAgentException;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
@@ -239,12 +237,32 @@ public class ScheduleService {
     }
 
     private SchedulingContext schedulingContext(String username, PipelineConfig pipelineConfig, StageConfig stageConfig) {
-        Agents availableAgents = environmentConfigService.agentsForPipeline(pipelineConfig.name());
+        Agents availableAgents = agentsForPipeline(pipelineConfig.name());
         SchedulingContext context = new DefaultSchedulingContext(username, availableAgents, elasticProfileService.listAll(), clusterProfilesService.listAll());
         context = context.overrideEnvironmentVariables(pipelineConfig.getVariables());
         context = context.overrideEnvironmentVariables(stageConfig.getVariables());
         return context;
     }
+
+    Agents agentsForPipeline(final CaseInsensitiveString pipelineName) {
+        Agents configs = new Agents();
+        EnvironmentsConfig environments = environmentConfigService.getEnvironments();
+        if (environments.isPipelineAssociatedWithAnyEnvironment(pipelineName)) {
+            EnvironmentConfig environmentForPipeline = environments.findEnvironmentForPipeline(pipelineName);
+            for (EnvironmentAgentConfig environmentAgentConfig : environmentForPipeline.getAgents()) {
+                configs.add(agentService.registeredAgentByUUID(environmentAgentConfig.getUuid()));
+            }
+
+        } else {
+            for (AgentConfig agentConfig : agentService.registeredAgentConfigs()) {
+                if (!environments.isAgentUnderEnvironment(agentConfig.getUuid())) {
+                    configs.add(agentConfig);
+                }
+            }
+        }
+        return configs;
+    }
+
 
     private boolean canSchedule(PipelineConfig pipelineConfig) {
         return schedulingChecker.canAutoTriggerConsumer(pipelineConfig);

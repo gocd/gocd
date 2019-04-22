@@ -21,7 +21,6 @@ import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.plugins.processor.elasticagent.AbstractVersionableElasticAgentProcessor;
 import com.thoughtworks.go.server.service.plugins.processor.elasticagent.ElasticAgentProcessorConverter;
@@ -34,12 +33,12 @@ public class ElasticAgentRequestProcessorV1 extends AbstractVersionableElasticAg
     public static final String VERSION = "1.0";
     private ElasticAgentProcessorConverter elasticAgentProcessorConverterV1;
 
-    public ElasticAgentRequestProcessorV1(AgentService agentService, AgentConfigService agentConfigService) {
-        this(agentService, agentConfigService, new ElasticAgentProcessorConverterV1());
+    public ElasticAgentRequestProcessorV1(AgentService agentService) {
+        this(agentService, new ElasticAgentProcessorConverterV1());
     }
 
-    ElasticAgentRequestProcessorV1(AgentService agentService, AgentConfigService agentConfigService, ElasticAgentProcessorConverterV1 converterV1) {
-        super(agentService, agentConfigService);
+    ElasticAgentRequestProcessorV1(AgentService agentService, ElasticAgentProcessorConverterV1 converterV1) {
+        super(agentService);
         elasticAgentProcessorConverterV1 = converterV1;
     }
 

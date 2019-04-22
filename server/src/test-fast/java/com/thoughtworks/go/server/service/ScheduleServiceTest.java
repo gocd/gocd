@@ -25,6 +25,7 @@ import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.StageDao;
+import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.perf.SchedulingPerformanceLogger;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -37,14 +38,17 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.HashMap;
 
 import static com.thoughtworks.go.domain.JobResult.*;
 import static com.thoughtworks.go.domain.JobState.Building;
 import static com.thoughtworks.go.domain.JobState.Completed;
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.environments;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 import static org.apache.http.HttpStatus.SC_FORBIDDEN;
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -71,6 +75,7 @@ public class ScheduleServiceTest {
     private ClusterProfilesService clusterProfileService;
     private StageOrderService stageOrderService;
     private PipelineLockService pipelineLockService;
+    private AgentService agentService;
 
     @Before
     public void setup() {
@@ -180,8 +185,9 @@ public class ScheduleServiceTest {
     @Test
     public void shouldSetServerHealthMessageWhenStageScheduleFailsWithCannotScheduleException() {
         final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline-quux");
+        when(environmentConfigService.getEnvironments()).thenReturn(environments());
+        when(agentService.registeredAgentConfigs()).thenReturn(new Agents());
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-quux"))).thenReturn(pipelineConfig);
-        when(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("pipeline-quux"))).thenReturn(new Agents());
         when(goConfigService.scheduleStage("pipeline-quux", "mingle", new DefaultSchedulingContext("loser", new Agents()))).thenThrow(new CannotScheduleException("foo", "stage-baz"));
         try {
             Pipeline pipeline = PipelineMother.pipeline("pipeline-quux", StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name"));
@@ -198,8 +204,9 @@ public class ScheduleServiceTest {
     @Test
     public void shouldClearServerHealthMessageWhenStageScheduleCompletesSuccessfully() {
         final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline-quux");
+        when(environmentConfigService.getEnvironments()).thenReturn(environments());
+        when(agentService.registeredAgentConfigs()).thenReturn(new Agents());
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-quux"))).thenReturn(pipelineConfig);
-        when(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("pipeline-quux"))).thenReturn(new Agents());
         when(goConfigService.scheduleStage("pipeline-quux", "mingle", new DefaultSchedulingContext("loser", new Agents()))).thenReturn(new Stage());
         Stage stageConfig = StageMother.passedStageInstance("mingle", "job-bar", "pipeline-name");
         service.scheduleStage(PipelineMother.pipeline("pipeline-quux", stageConfig), "mingle", "loser",
@@ -213,6 +220,8 @@ public class ScheduleServiceTest {
         when(goConfigService.pipelineConfigNamed(new CaseInsensitiveString("pipeline-quux"))).thenReturn(pipelineConfig);
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         when(cruiseConfig.getMd5()).thenReturn("md5-test");
+        when(environmentConfigService.getEnvironments()).thenReturn(environments());
+        when(agentService.registeredAgentConfigs()).thenReturn(new Agents());
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenThrow(
@@ -235,6 +244,8 @@ public class ScheduleServiceTest {
         CruiseConfig cruiseConfig = mock(BasicCruiseConfig.class);
         when(cruiseConfig.getMd5()).thenReturn("md5-test");
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
+        when(environmentConfigService.getEnvironments()).thenReturn(environments());
+        when(agentService.registeredAgentConfigs()).thenReturn(new Agents());
         when(schedulingChecker.canAutoTriggerConsumer(pipelineConfig)).thenReturn(true);
         when(pipelineScheduleQueue.createPipeline(any(BuildCause.class), eq(pipelineConfig), any(SchedulingContext.class), eq("md5-test"), eq(timeProvider))).thenReturn(PipelineMother.schedule(pipelineConfig,
                 BuildCause.createManualForced(new MaterialRevisions(new MaterialRevision(new MaterialConfigConverter().toMaterial(materialConfig), ModificationsMother.aCheckIn("123", "foo.c"))), new Username(new CaseInsensitiveString("loser")))));
@@ -280,6 +291,36 @@ public class ScheduleServiceTest {
         assertUnlockPipeline("don't unlock when stage has not completed and pipeline is unlockable", Building, Unknown, false, true, true, false);
     }
 
+
+    @Test
+    public void shouldFindAgentsForPipelineUnderEnvironment() throws Exception {
+        when(environmentConfigService.getEnvironments()).thenReturn(environments("uat", "prod"));
+        AgentConfig agentUnderEnv = new AgentConfig("uat-agent", "localhost", "127.0.0.1");
+        AgentConfig omnipresentAgent = new AgentConfig(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2");
+
+        Mockito.when(agentService.registeredAgentByUUID("uat-agent")).thenReturn(agentUnderEnv);
+        Mockito.when(agentService.registeredAgentByUUID(EnvironmentConfigMother.OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
+
+        assertThat(service.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).size(), is(2));
+        assertThat(service.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")), hasItem(agentUnderEnv));
+        assertThat(service.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")), hasItem(omnipresentAgent));
+    }
+
+    @Test
+    public void shouldFindAgentsForPipelineUnderNoEnvironment() throws Exception {
+        when(environmentConfigService.getEnvironments()).thenReturn(environments("uat", "prod"));
+        AgentConfig noEnvAgent = new AgentConfig("no-env-agent", "localhost", "127.0.0.1");
+
+        Agents agents = new Agents();
+        agents.add(noEnvAgent);
+        agents.add(new AgentConfig(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2"));
+        when(agentService.registeredAgentConfigs()).thenReturn(agents);
+
+
+        assertThat(service.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")).size(), is(1));
+        assertThat(service.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")), hasItem(noEnvAgent));
+    }
+
     private void assertUnlockPipeline(String message, JobState state, JobResult result, boolean isLastStage, boolean isNextStageManual, boolean isUnlockablePipeline, boolean shouldUnlock) {
         createMocks();
 
@@ -314,9 +355,10 @@ public class ScheduleServiceTest {
         stageOrderService = mock(StageOrderService.class);
         pipelineLockService = mock(PipelineLockService.class);
         clusterProfileService = mock(ClusterProfilesService.class);
+        agentService = mock(AgentService.class);
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineDao.class), mock(StageDao.class), stageOrderService, securityService, pipelineScheduleQueue,
                 jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class), environmentConfigService, pipelineLockService, serverHealthService,
                 new TestTransactionTemplate(synchronizationManager),
-                mock(AgentService.class), synchronizationManager, timeProvider, consoleActivityMonitor, pipelinePauseService, instanceFactory, schedulingPerformanceLogger, elasticProfileService, clusterProfileService);
+                agentService, synchronizationManager, timeProvider, consoleActivityMonitor, pipelinePauseService, instanceFactory, schedulingPerformanceLogger, elasticProfileService, clusterProfileService);
     }
 }

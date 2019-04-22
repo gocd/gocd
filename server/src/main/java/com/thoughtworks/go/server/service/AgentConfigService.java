@@ -20,6 +20,7 @@ import com.google.common.collect.Sets;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.update.AddAgentCommand;
 import com.thoughtworks.go.config.update.AgentsEntityConfigUpdateCommand;
 import com.thoughtworks.go.config.update.AgentsUpdateCommand;
 import com.thoughtworks.go.config.update.ModifyEnvironmentCommand;
@@ -313,53 +314,6 @@ public class AgentConfigService {
         } else {
             updateAgent(new AddAgentCommand(agentInstance.agentConfig()), agentInstance.getUuid(), new HttpOperationResult(), Username.ANONYMOUS);
         }
-    }
-
-    /**
-     * @understands how to add an agent to the config file
-     */
-    public static class AddAgentCommand implements UpdateConfigCommand {
-        private final AgentConfig agentConfig;
-
-        public AddAgentCommand(AgentConfig agentConfig) {
-            this.agentConfig = agentConfig;
-        }
-
-        public CruiseConfig update(CruiseConfig cruiseConfig) {
-            cruiseConfig.agents().add(agentConfig);
-            return cruiseConfig;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-
-            AddAgentCommand that = (AddAgentCommand) o;
-
-            if (agentConfig != null ? !agentConfig.equals(that.agentConfig) : that.agentConfig != null) {
-                return false;
-            }
-
-            return true;
-        }
-
-        @Override
-        public int hashCode() {
-            return agentConfig != null ? agentConfig.hashCode() : 0;
-        }
-
-        @Override
-        public String toString() {
-            return "AddAgentcommand{" +
-                    "agentConfig=" + agentConfig +
-                    '}';
-        }
-
     }
 
     @Deprecated

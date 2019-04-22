@@ -42,6 +42,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.concurrent.Semaphore;
 
+import static com.thoughtworks.go.helper.EnvironmentConfigMother.environments;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static org.hamcrest.Matchers.is;
@@ -68,6 +69,7 @@ public class JobRerunScheduleServiceTest {
     private SchedulingPerformanceLogger schedulingPerformanceLogger;
     private ElasticProfileService elasticProfileService;
     private ClusterProfilesService clusterProfileService;
+    private AgentService agentService;
 
     @Before
     public void setup() {
@@ -88,10 +90,11 @@ public class JobRerunScheduleServiceTest {
         schedulingPerformanceLogger = mock(SchedulingPerformanceLogger.class);
         elasticProfileService = mock(ElasticProfileService.class);
         clusterProfileService = mock(ClusterProfilesService.class);
+        agentService = mock(AgentService.class);
 
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
-                environmentConfigService, lockService, serverHealthService, txnTemplate, mock(AgentService.class), synchronizationManager, timeProvider, null, null, instanceFactory,
+                environmentConfigService, lockService, serverHealthService, txnTemplate, agentService, synchronizationManager, timeProvider, null, null, instanceFactory,
                 schedulingPerformanceLogger, elasticProfileService, clusterProfileService);
     }
 
@@ -109,6 +112,8 @@ public class JobRerunScheduleServiceTest {
 
         when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(a("unit")), any(SchedulingContext.class), eq(mingleConfig.first()), eq(timeProvider), eq("latest-md5")))
                 .thenReturn(expectedStageToBeCreated);
+        when(environmentConfigService.getEnvironments()).thenReturn(environments());
+        when(agentService.registeredAgentConfigs()).thenReturn(new Agents());
 
         Stage stage = service.rerunJobs(firstStage, a("unit"), new HttpOperationResult());
 
@@ -202,6 +207,8 @@ public class JobRerunScheduleServiceTest {
 
         when(instanceFactory.createStageForRerunOfJobs(eq(firstStage), eq(a("unit")), any(SchedulingContext.class), eq(stageConfig), eq(timeProvider), eq(latestMd5)))
                 .thenThrow(new CannotScheduleException("Could not find matching agents to run job [unit] of stage [build].", "build"));
+        when(environmentConfigService.getEnvironments()).thenReturn(environments());
+        when(agentService.registeredAgentConfigs()).thenReturn(new Agents());
 
         assertScheduleFailure("unit", firstStage, "Could not find matching agents to run job [unit] of stage [build].", 409);
     }
@@ -259,7 +266,7 @@ public class JobRerunScheduleServiceTest {
         };
         service = new ScheduleService(goConfigService, pipelineService, stageService, schedulingChecker, mock(PipelineDao.class),
                 mock(StageDao.class), mock(StageOrderService.class), securityService, pipelineScheduleQueue, jobInstanceService, mock(JobInstanceDao.class), mock(AgentAssignment.class),
-                environmentConfigService, lockService, serverHealthService, template, mock(AgentService.class), null, timeProvider, null, null, mock(InstanceFactory.class),
+                environmentConfigService, lockService, serverHealthService, template, agentService, null, timeProvider, null, null, mock(InstanceFactory.class),
                 schedulingPerformanceLogger, elasticProfileService, clusterProfileService) {
             @Override
             public Stage scheduleStage(Pipeline pipeline, String stageName, String username, StageInstanceCreator creator,
@@ -271,6 +278,9 @@ public class JobRerunScheduleServiceTest {
                 return stage;
             }
         };
+
+        when(environmentConfigService.getEnvironments()).thenReturn(environments());
+        when(agentService.registeredAgentConfigs()).thenReturn(new Agents());
 
         Thread firstReq = new Thread(new Runnable() {
             public void run() {

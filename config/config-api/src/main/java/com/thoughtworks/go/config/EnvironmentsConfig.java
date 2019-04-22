@@ -38,6 +38,10 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
     public EnvironmentsConfig() {
     }
 
+    public EnvironmentsConfig(EnvironmentConfig... configs) {
+        super(configs);
+    }
+
     public void validate(ValidationContext validationContext) {
         List<CaseInsensitiveString> allPipelineNames = validationContext.getCruiseConfig().getAllPipelineNames();
         List<CaseInsensitiveString> allEnvironmentNames = new ArrayList<>();

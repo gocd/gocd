@@ -119,24 +119,6 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return null;
     }
 
-    public Agents agentsForPipeline(final CaseInsensitiveString pipelineName) {
-        Agents configs = new Agents();
-        if (environments.isPipelineAssociatedWithAnyEnvironment(pipelineName)) {
-            EnvironmentConfig forPipeline = environments.findEnvironmentForPipeline(pipelineName);
-            for (EnvironmentAgentConfig environmentAgentConfig : forPipeline.getAgents()) {
-                configs.add(goConfigService.agentByUuid(environmentAgentConfig.getUuid()));
-            }
-
-        } else {
-            for (AgentConfig agentConfig : goConfigService.agents()) {
-                if (!environments.isAgentUnderEnvironment(agentConfig.getUuid())) {
-                    configs.add(agentConfig);
-                }
-            }
-        }
-        return configs;
-    }
-
     public List<CaseInsensitiveString> pipelinesFor(final CaseInsensitiveString environmentName) {
         return environments.named(environmentName).getPipelineNames();
     }
@@ -145,10 +127,8 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return environments.names();
     }
 
-    public Set<EnvironmentConfig> getEnvironments() {
-        Set<EnvironmentConfig> environmentConfigs = new HashSet<>();
-        environmentConfigs.addAll(environments);
-        return environmentConfigs;
+    public EnvironmentsConfig getEnvironments() {
+        return environments;
     }
 
     public Set<String> environmentsFor(String uuid) {

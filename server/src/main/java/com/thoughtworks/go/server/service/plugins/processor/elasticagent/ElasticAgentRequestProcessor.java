@@ -21,7 +21,6 @@ import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1.ElasticAgentRequestProcessorV1;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,9 +36,9 @@ public class ElasticAgentRequestProcessor implements GoPluginApiRequestProcessor
     private Map<String, VersionableElasticAgentProcessor> versionableProcessorMap = new HashMap<>();
 
     @Autowired
-    public ElasticAgentRequestProcessor(PluginRequestProcessorRegistry registry, AgentService agentService, AgentConfigService agentConfigService) {
+    public ElasticAgentRequestProcessor(PluginRequestProcessorRegistry registry, AgentService agentService) {
         this(registry, new HashMap<String, VersionableElasticAgentProcessor>() {{
-            put("1.0", new ElasticAgentRequestProcessorV1(agentService, agentConfigService));
+            put("1.0", new ElasticAgentRequestProcessorV1(agentService));
         }});
     }
 

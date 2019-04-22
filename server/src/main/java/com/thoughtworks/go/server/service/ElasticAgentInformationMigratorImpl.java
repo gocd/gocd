@@ -53,12 +53,12 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
     }
 
     @Override
-    public void migrate(GoPluginDescriptor pluginDescriptor) {
+    public boolean migrate(GoPluginDescriptor pluginDescriptor) {
         String pluginId = pluginDescriptor.id();
         boolean isElasticAgentPlugin = pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, pluginId);
 
         if (!isElasticAgentPlugin) {
-            return;
+            return true;
         }
 
         Plugin plugin = pluginSqlMapDao.findPlugin(pluginId);
@@ -66,12 +66,13 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
         HashMap<String, String> pluginSettings = (pluginConfiguration == null) ? new HashMap<>() : JsonHelper.fromJson(pluginConfiguration, HashMap.class);
         ReplaceElasticAgentInformationCommand command = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, pluginDescriptor, pluginSettings);
 
-        update(command, pluginDescriptor);
+        return update(command, pluginDescriptor);
     }
 
-    private void update(UpdateConfigCommand command, GoPluginDescriptor pluginDescriptor) {
+    private boolean update(UpdateConfigCommand command, GoPluginDescriptor pluginDescriptor) {
         try {
             goConfigService.updateConfig(command);
+            return true;
         } catch (Exception e) {
             String pluginId = pluginDescriptor.id();
             String pluginAPIRequest = "cd.go.elastic-agent.migrate-config";
@@ -79,6 +80,7 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
             String errorMessage = String.format("Plugin '%s' failed to perform '%s' call. Plugin sent an invalid config. Reason: %s.\n Please fix the errors and restart GoCD server.", pluginId, pluginAPIRequest, reason);
 
             pluginDescriptor.markAsInvalid(Collections.singletonList(errorMessage), e);
+            return false;
         }
     }
 }

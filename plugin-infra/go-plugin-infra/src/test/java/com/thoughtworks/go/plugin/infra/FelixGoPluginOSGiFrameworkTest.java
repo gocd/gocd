@@ -388,72 +388,38 @@ class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    void shouldMigrateElasticAgentInformationAsPartOfGetBundleCall() throws BundleException {
+    void shouldMigrateElasticAgentInformationAsPartOfMigrateConfigurationCall() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
-        when(pluginDescriptor.bundle()).thenReturn(bundle);
-        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
-        when(pluginDescriptor.isInvalid()).thenReturn(false);
-        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
-        when(pluginExtensionsAndVersionValidator.validate(pluginDescriptor)).thenReturn(result);
-        when(result.hasError()).thenReturn(false);
-
         ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);
+        when(migrator.migrate(any())).thenReturn(true);
         spy.setElasticAgentInformationMigrator(migrator);
 
-        PluginChangeListener listener1 = mock(PluginChangeListener.class);
-        PluginChangeListener listener2 = mock(PluginChangeListener.class);
-        PluginChangeListener listener3 = mock(PluginChangeListener.class);
+        boolean migratedSuccessfully = spy.migrateConfig(pluginDescriptor);
 
-        spy.addPluginChangeListener(listener1);
-        spy.addPluginChangeListener(listener2);
-        spy.addPluginChangeListener(listener3);
-        spy.start();
-
-        spy.loadPlugin(pluginDescriptor);
-
-        verify(listener1, times(1)).pluginLoaded(pluginDescriptor);
-        verify(listener2, times(1)).pluginLoaded(pluginDescriptor);
-        verify(listener3, times(1)).pluginLoaded(pluginDescriptor);
-
+        assertThat(migratedSuccessfully).isTrue();
         verify(migrator, times(1)).migrate(pluginDescriptor);
-
-        verify(bundle, times(1)).start();
     }
 
     @Test
-    void shouldNotCallListenerWhenMigrateElasticAgentInformationMarksPluginInvalid() throws BundleException {
+    void shouldReturnWhetherMigrationSuccessStatus() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
-        when(pluginDescriptor.bundle()).thenReturn(bundle);
-        when(pluginDescriptor.isInvalid()).thenReturn(false).thenReturn(true);
-        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
-        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
-        when(pluginExtensionsAndVersionValidator.validate(pluginDescriptor)).thenReturn(result);
-        when(result.hasError()).thenReturn(false);
-
         ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);
-
+        when(migrator.migrate(any())).thenReturn(false);
         spy.setElasticAgentInformationMigrator(migrator);
 
-        PluginChangeListener listener1 = mock(PluginChangeListener.class);
-        PluginChangeListener listener2 = mock(PluginChangeListener.class);
-        PluginChangeListener listener3 = mock(PluginChangeListener.class);
+        boolean migratedSuccessfully = spy.migrateConfig(pluginDescriptor);
 
-        spy.addPluginChangeListener(listener1);
-        spy.addPluginChangeListener(listener2);
-        spy.addPluginChangeListener(listener3);
-        spy.start();
-
-        spy.loadPlugin(pluginDescriptor);
-
-        verifyNoMoreInteractions(listener1);
-        verifyNoMoreInteractions(listener2);
-        verifyNoMoreInteractions(listener3);
-
+        assertThat(migratedSuccessfully).isFalse();
         verify(migrator, times(1)).migrate(pluginDescriptor);
+    }
 
-        verify(bundle, times(1)).start();
+    @Test
+    void shouldNotMigrateElasticAgentInformationWhenNoMigratorIsSpecified() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);
+        boolean migratedSuccessfully = spy.migrateConfig(pluginDescriptor);
+        assertThat(migratedSuccessfully).isTrue();
+        verifyNoMoreInteractions(migrator);
     }
 
     @Test

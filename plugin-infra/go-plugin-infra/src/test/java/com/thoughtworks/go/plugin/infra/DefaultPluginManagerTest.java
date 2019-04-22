@@ -404,6 +404,11 @@ public class DefaultPluginManagerTest {
         }
 
         @Override
+        public boolean migrateConfig(GoPluginDescriptor descriptor) {
+            return true;
+        }
+
+        @Override
         public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, String extensionType, ActionWithReturn<T, R> action) {
             return action.execute((T) serviceReferenceInstance, mock(GoPluginDescriptor.class));
         }

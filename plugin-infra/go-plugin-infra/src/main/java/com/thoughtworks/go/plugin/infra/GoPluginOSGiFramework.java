@@ -43,4 +43,6 @@ public interface GoPluginOSGiFramework {
     <T extends GoPlugin> Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId);
 
     void setElasticAgentInformationMigrator(ElasticAgentInformationMigrator elasticAgentInformationMigrator);
+
+    boolean migrateConfig(GoPluginDescriptor descriptor);
 }

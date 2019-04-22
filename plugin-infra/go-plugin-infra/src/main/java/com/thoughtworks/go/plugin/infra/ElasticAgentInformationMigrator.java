@@ -19,5 +19,5 @@ package com.thoughtworks.go.plugin.infra;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
 public interface ElasticAgentInformationMigrator {
-    void migrate(GoPluginDescriptor pluginDescriptor);
+    boolean migrate(GoPluginDescriptor pluginDescriptor);
 }

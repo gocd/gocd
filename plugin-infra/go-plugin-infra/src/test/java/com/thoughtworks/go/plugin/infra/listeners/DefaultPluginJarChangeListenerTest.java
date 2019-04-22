@@ -101,6 +101,47 @@ public class DefaultPluginJarChangeListenerTest {
     }
 
     @Test
+    public void shouldPerformConfigMigrationWhenAPluginIsAdded() throws Exception {
+        String pluginId = "testplugin.descriptorValidator";
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File expectedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
+
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId(pluginId, pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true);
+        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(registry.getPluginByIdOrFileName(pluginId, PLUGIN_JAR_FILE_NAME)).thenReturn(null);
+        when(osgiFramework.migrateConfig(any())).thenReturn(true);
+        doNothing().when(registry).loadPlugin(descriptor);
+
+        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+
+        verify(osgiFramework).loadPlugin(descriptor);
+        verify(osgiFramework).migrateConfig(descriptor);
+        verifyNoMoreInteractions(osgiFramework);
+    }
+
+    @Test
+    public void shouldUnloadPluginIfConfigMigrationIsNotSuccessfulWhenAPluginIsAdded() throws Exception {
+        String pluginId = "testplugin.descriptorValidator";
+        File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
+        File expectedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
+
+        copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
+        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId(pluginId, pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true);
+        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(registry.getPluginByIdOrFileName(pluginId, PLUGIN_JAR_FILE_NAME)).thenReturn(null);
+        when(osgiFramework.migrateConfig(any())).thenReturn(false);
+        doNothing().when(registry).loadPlugin(descriptor);
+
+        listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
+
+        verify(osgiFramework).loadPlugin(descriptor);
+        verify(osgiFramework).migrateConfig(descriptor);
+        verify(osgiFramework).unloadPlugin(descriptor);
+        verifyNoMoreInteractions(osgiFramework);
+    }
+
+    @Test
     public void shouldOverwriteAFileCalledGoPluginActivatorInLibWithOurOwnGoPluginActivatorEvenIfItExists() throws Exception {
         File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
         File expectedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);

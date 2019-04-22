@@ -27,6 +27,11 @@
       "value": false
     },
     {
+      "key": "use_old_pluggable_scms_api",
+      "description": "Switch to using rails based pluggable scms API.",
+      "value": false
+    },
+    {
       "key": "show_secret_config_spa",
       "description": "Show Secret Config SPA in menu for admin. Default: true",
       "value": true

@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.domain.config.PluginConfiguration;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -177,11 +178,11 @@ public class PluggableScmServiceTest {
 
     @Test
     public void shouldReturnAListOfAllScmsInTheConfig() {
-        ArrayList<SCM> list = new ArrayList<>();
+        SCMs list = new SCMs();
         list.add(new SCM());
         when(goConfigService.getSCMs()).thenReturn(list);
 
-        ArrayList<SCM> scms = pluggableScmService.listAllScms();
+        SCMs scms = pluggableScmService.listAllScms();
 
         assertThat(scms, is(list));
     }
@@ -191,7 +192,7 @@ public class PluggableScmServiceTest {
         SCM scm = new SCM("1", null, null);
         scm.setName("foo");
 
-        ArrayList<SCM> list = new ArrayList<>();
+        SCMs list = new SCMs();
         list.add(scm);
         when(goConfigService.getSCMs()).thenReturn(list);
 
@@ -200,7 +201,7 @@ public class PluggableScmServiceTest {
 
     @Test
     public void shouldReturnNullIfPluggableScmMaterialDoesNotExist() {
-        ArrayList<SCM> scms = new ArrayList<>();
+        SCMs scms = new SCMs();
         when(goConfigService.getSCMs()).thenReturn(scms);
 
         assertNull(pluggableScmService.findPluggableScmMaterial("bar"));

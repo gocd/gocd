@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service.support.toggle;
 public class Toggles {
     public static String PIPELINE_COMMENT_FEATURE_TOGGLE_KEY = "pipeline_comment_feature_toggle_key";
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
+    public static String USE_OLD_PLUGGABLE_SCMS_API = "use_old_pluggable_scms_api";
     public static String NEW_ADD_PIPELINE_FLOW = "new_add_pipeline_flow";
     public static String ADD_PIPELINE_BUTTON_STYLING = "add_pipeline_button_styling";
     public static String ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD = "allow_empty_pipeline_groups_dashboard";

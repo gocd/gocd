@@ -32,7 +32,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.BaseUrlChangeListener;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -1023,7 +1023,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return origin == null || origin.isLocal();
     }
 
-    public ArrayList<SCM> getSCMs() {
+    public SCMs getSCMs() {
         return cruiseConfig().getSCMs();
     }
 

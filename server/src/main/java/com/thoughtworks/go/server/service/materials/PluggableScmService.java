@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.update.CreateSCMConfigCommand;
 import com.thoughtworks.go.config.update.UpdateSCMConfigCommand;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.plugin.access.scm.*;
 import com.thoughtworks.go.plugin.api.config.Property;
 import com.thoughtworks.go.plugin.api.response.Result;
@@ -33,8 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
@@ -102,12 +101,12 @@ public class PluggableScmService {
     }
 
 
-    public ArrayList<SCM> listAllScms() {
+    public SCMs listAllScms() {
         return goConfigService.getSCMs();
     }
 
     public SCM findPluggableScmMaterial(String materialName) {
-        ArrayList<SCM> scms = listAllScms();
+        SCMs scms = listAllScms();
         for(SCM scm : scms){
             if(materialName.equals(scm.getName()))  {
                 return scm;
@@ -136,10 +135,8 @@ public class PluggableScmService {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
-            if (!result.hasMessage()) {
-                result.internalServerError(saveFailedWithReason("An error occurred while saving the material config. Please check the logs for more information."));
-                LOGGER.error(e.getMessage(), e);
-            }
+            LOGGER.error(e.getMessage(), e);
+            result.unprocessableEntity(saveFailedWithReason(e.getMessage()));
         }
     }
 

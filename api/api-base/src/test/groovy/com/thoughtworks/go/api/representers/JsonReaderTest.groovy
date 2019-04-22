@@ -111,7 +111,7 @@ class JsonReaderTest {
   }
 
   @Nested
-  class GetBoolean {
+  class Boolean {
     @Test
     void 'should retrieve boolean value'() {
       def reader = GsonTransformer.instance.jsonReaderFrom([
@@ -133,6 +133,20 @@ class JsonReaderTest {
 
       assertThatExceptionOfType(HaltException.class)
         .isThrownBy({reader.getBoolean("foo")})
+    }
+
+    @Test
+    void 'should retrieve default if value is not present'() {
+      def reader = GsonTransformer.instance.jsonReaderFrom([
+        "existing-property1" : true,
+        "existing-property2" : false,
+      ])
+
+      assertThat(reader.getBooleanOrDefault("existing-property1", false)).isTrue()
+      assertThat(reader.getBooleanOrDefault("existing-property2", true)).isFalse()
+
+      assertThat(reader.getBooleanOrDefault("non-existing-property", true)).isTrue()
+      assertThat(reader.getBooleanOrDefault("non-existing-property", false)).isFalse()
     }
   }
 }

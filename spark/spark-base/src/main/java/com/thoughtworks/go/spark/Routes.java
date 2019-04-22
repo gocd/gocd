@@ -155,6 +155,20 @@ public class Routes {
         }
     }
 
+    public static class SCM {
+        public static final String DOC = apiDocsUrl("#scms");
+        public static final String BASE = "/api/admin/scms";
+        public static final String ID = "/:material_name";
+
+        public static String find() {
+            return BASE + ID;
+        }
+
+        public static String name(String name) {
+            return find().replaceAll(":material_name", name);
+        }
+    }
+
     public static class EnvironmentConfig {
         public static final String DOC = apiDocsUrl("#environment-config");
         static final String NAME = "/api/admin/environments/:name";

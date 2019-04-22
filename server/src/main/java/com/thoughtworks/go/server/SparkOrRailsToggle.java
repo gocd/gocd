@@ -29,6 +29,10 @@ public class SparkOrRailsToggle {
         basedOnToggle(Toggles.PLUGIN_SETTINGS_API_USING_RAILS, request);
     }
 
+    public void pluggableScmsUsingRails(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.USE_OLD_PLUGGABLE_SCMS_API, request);
+    }
+
     private void basedOnToggle(String toggle, HttpServletRequest request) {
         if (Toggles.isToggleOn(toggle)) {
             request.setAttribute("sparkOrRails", "rails");

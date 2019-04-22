@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
+import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
@@ -79,6 +80,7 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         goConfigService.register(new ArtifactStoreListener());
         goConfigService.register(new AdminsConfigListener());
         goConfigService.register(new ClusterProfileListener());
+        goConfigService.register(new SCMChangeListener());
     }
 
     @Override
@@ -265,6 +267,14 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
     }
 
+    public String md5ForEntity(SCMs scms) {
+        List<String> md5s = new ArrayList<>();
+        for(SCM scm : scms) {
+            md5s.add(md5ForEntity(scm));
+        }
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+    }
+
     class PipelineConfigChangedListener extends EntityConfigChangedListener<PipelineConfig> {
         @Override
         public void onEntityConfigChange(PipelineConfig pipelineConfig) {
@@ -311,6 +321,13 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         @Override
         public void onEntityConfigChange(SecretConfig config) {
             removeFromCache(config, config.getId());
+        }
+    }
+
+    class SCMChangeListener extends EntityConfigChangedListener<SCM> {
+        @Override
+        public void onEntityConfigChange(SCM scm) {
+            removeFromCache(scm, scm.getId());
         }
     }
 

@@ -1266,6 +1266,77 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(migratedContent).contains(configContent);
     }
 
+    @Test
+    public void shouldRenameProfilesToAgentProfilesAsPartOfMigration120() throws Exception {
+        String configContent = "<elastic jobStarvationTimeout=\"1\">\n" +
+                "    <profiles>\n" +
+                "      <profile clusterProfileId=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" id=\"ecs-gocd-dev-build-dind\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>docker.gocd.io/gocddev/gocd-dev-build:centos-7-v2.0.67</value>\n" +
+                "        </property>\n" +
+                "      </profile>\n" +
+                "      <profile clusterProfileId=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" id=\"ecs-gocd-dev-build-dind-docker-compose\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>docker.gocd.io/gocddev/gocd-dev-build:centos-7-v2.0.67</value>\n" +
+                "        </property>\n" +
+                "      </profile>\n" +
+                "    </profiles>\n" +
+                "    <clusterProfiles>\n" +
+                "      <clusterProfile id=\"no-op-cluster-for-cd.go.contrib.elasticagent.kubernetes\" pluginId=\"cd.go.contrib.elasticagent.kubernetes\"/>\n" +
+                "      <clusterProfile id=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
+                "        <property>\n" +
+                "          <key>GoServerUrl</key>\n" +
+                "          <value>https://build.gocd.io:8154/go</value>\n" +
+                "        </property>\n" +
+                "      </clusterProfile>\n" +
+                "    </clusterProfiles>\n" +
+                "  </elastic>";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"119\">\n"
+                + configContent
+                + "</cruise>";
+
+        String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"120\">\n"
+                + "<elastic jobStarvationTimeout=\"1\">\n" +
+                "    <agentProfiles>\n" +
+                "      <agentProfile clusterProfileId=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" id=\"ecs-gocd-dev-build-dind\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>docker.gocd.io/gocddev/gocd-dev-build:centos-7-v2.0.67</value>\n" +
+                "        </property>\n" +
+                "      </agentProfile>\n" +
+                "      <agentProfile clusterProfileId=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" id=\"ecs-gocd-dev-build-dind-docker-compose\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
+                "        <property>\n" +
+                "          <key>Image</key>\n" +
+                "          <value>docker.gocd.io/gocddev/gocd-dev-build:centos-7-v2.0.67</value>\n" +
+                "        </property>\n" +
+                "      </agentProfile>\n" +
+                "    </agentProfiles>\n" +
+                "    <clusterProfiles>\n" +
+                "      <clusterProfile id=\"no-op-cluster-for-cd.go.contrib.elasticagent.kubernetes\" pluginId=\"cd.go.contrib.elasticagent.kubernetes\"/>\n" +
+                "      <clusterProfile id=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
+                "        <property>\n" +
+                "          <key>GoServerUrl</key>\n" +
+                "          <value>https://build.gocd.io:8154/go</value>\n" +
+                "        </property>\n" +
+                "      </clusterProfile>\n" +
+                "    </clusterProfiles>\n" +
+                "  </elastic>"
+                + "</cruise>";
+
+        String migratedContent = migrateXmlString(configXml, 119, 120);
+        org.xmlunit.assertj.XmlAssert.assertThat(migratedContent).isEqualTo(expected);
+
+        CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
+        assertThat(cruiseConfig.getElasticConfig().getProfiles()).hasSize(2);
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind")).isNotNull();
+        assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind-docker-compose")).isNotNull();
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertThat(actual.replaceAll("\\r", "")).isEqualTo(expected.replaceAll("\\r", ""));
     }
@@ -1287,7 +1358,7 @@ public class GoConfigMigrationIntegrationTest {
         JobConfig plan = cruiseConfig.jobConfigByName("pipeline", "stage", "job", true);
         assertThat(plan.artifactConfigs().getBuiltInArtifactConfigs().get(0).getSource()).isEqualTo("*");
     }
-    
+
     private void assertStringContainsIgnoringCarriageReturn(String actual, String substring) {
         assertThat(actual.replaceAll("\\r", "")).contains(substring.replaceAll("\\r", ""));
     }

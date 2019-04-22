@@ -26,7 +26,7 @@ import java.util.Objects;
 
 import static java.lang.String.format;
 
-@ConfigTag("profile")
+@ConfigTag("agentProfile")
 @ConfigCollection(value = ConfigurationProperty.class)
 public class ElasticProfile extends PluginProfile {
 

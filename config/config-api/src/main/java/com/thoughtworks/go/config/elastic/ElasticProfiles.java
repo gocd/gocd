@@ -21,7 +21,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.Arrays;
 
-@ConfigTag("profiles")
+@ConfigTag("agentProfiles")
 @ConfigCollection(ElasticProfile.class)
 public class ElasticProfiles extends PluginProfiles<ElasticProfile> implements Validatable {
     private final ConfigErrors errors = new ConfigErrors();

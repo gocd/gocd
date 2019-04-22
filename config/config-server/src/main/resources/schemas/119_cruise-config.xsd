@@ -89,7 +89,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="120"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="119"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -318,9 +318,9 @@
           <!-- Unique clusterProfile id -->
         </xsd:unique>
       </xsd:element>
-      <xsd:element name="agentProfiles" type="elasticAgentProfilesType" minOccurs="0" maxOccurs="1">
+      <xsd:element name="profiles" type="elasticAgentProfilesType" minOccurs="0" maxOccurs="1">
         <xsd:unique name="uniqueProfileId">
-          <xsd:selector xpath="agentProfile"/>
+          <xsd:selector xpath="profile"/>
           <xsd:field xpath="@id"/>
           <!-- Unique profile id -->
         </xsd:unique>
@@ -330,7 +330,7 @@
   </xsd:complexType>
   <xsd:complexType name="elasticAgentProfilesType">
     <xsd:sequence>
-      <xsd:element minOccurs="0" maxOccurs="unbounded" name="agentProfile" type="elasticAgentProfile"/>
+      <xsd:element minOccurs="0" maxOccurs="unbounded" name="profile" type="elasticAgentProfile"/>
     </xsd:sequence>
   </xsd:complexType>
   <xsd:complexType name="elasticAgentClusterProfilesType">

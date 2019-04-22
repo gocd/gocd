@@ -126,7 +126,7 @@ describe("New Elastic Agent Profile Modals Spec", () => {
     helper.mount(modal.body.bind(modal));
 
     expect(find("form-field-input-cluster-profile-id").get(0)).toHaveValue("cluster2");
-    expect(find("form-field-input-plugin-id").get(0).children[1]).toHaveValue(data.id);
+    expect(find("form-field-input-cluster-profile-id").get(0)).toContainText(`cluster2 (${pluginInfos[1].about.name})`);
 
     helper.unmount();
   });
@@ -146,7 +146,7 @@ describe("New Elastic Agent Profile Modals Spec", () => {
     helper.mount(modal.body.bind(modal));
 
     expect(find("form-field-input-cluster-profile-id").get(0)).toHaveValue("cluster1");
-    expect(find("form-field-input-plugin-id").get(0).children[0]).toHaveValue(pluginInfo.id);
+    expect(find("form-field-input-cluster-profile-id").get(0)).toContainText(`cluster1 (${pluginInfos[0].about.name})`);
 
     helper.unmount();
   });

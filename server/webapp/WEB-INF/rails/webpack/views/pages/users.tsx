@@ -93,9 +93,8 @@ export class UsersPage extends Page<null, State> {
     vnode.state.onDelete = (usersToDelete, e) => {
       const enabledUsers = usersToDelete.selectedUsers().enabledUsers();
       if (enabledUsers.length > 0) {
-        const verbPhrase = enabledUsers.length === 1 ? `is` : `are`;
-        const message    = `'${enabledUsers.userNamesOfSelectedUsers()
-                                           .join(",")}' ${verbPhrase} enabled. Can't perform the requested opertaion.`;
+        const message = `Failed to delete enabled user(s) "${enabledUsers.userNamesOfSelectedUsers()
+                                                                         .join(",")}". Disable the user(s) and try again.`;
         this.flashMessage.setMessage(MessageType.alert,
                                      message);
         return;

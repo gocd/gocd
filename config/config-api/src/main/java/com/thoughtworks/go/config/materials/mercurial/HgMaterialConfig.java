@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.materials.mercurial;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 
@@ -38,38 +39,28 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     public HgMaterialConfig(String url, String folder) {
         this();
-        this.url = new HgUrlArgument(url);
+        setUrl(UrlDenormalizerXSLTMigration121.urlWithoutCredentials(url));
+        setUserName(UrlDenormalizerXSLTMigration121.getUsername(url));
+        setPassword(UrlDenormalizerXSLTMigration121.getPassword(url));
         this.folder = folder;
     }
 
     public HgMaterialConfig(HgUrlArgument url, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
         super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
-        this.url = url;
+        setUrl(UrlDenormalizerXSLTMigration121.urlWithoutCredentials(url.forCommandLine()));
+        setUserName(UrlDenormalizerXSLTMigration121.getUsername(url.forCommandLine()));
+        setPassword(UrlDenormalizerXSLTMigration121.getPassword(url.forCommandLine()));
     }
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
+        String urlWithCredentials = UrlDenormalizerXSLTMigration121.urlWithCredentials(this.url.originalArgument(), getUserName(), getPassword());
+        parameters.put(ScmMaterialConfig.URL, urlWithCredentials);
     }
 
     @Override
     protected void appendAttributes(Map<String, Object> parameters) {
         parameters.put("url", url);
-    }
-
-    @Override
-    public String getUserName() {
-        return null;
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String getEncryptedPassword() {
-        return null;
     }
 
     @Override
@@ -169,6 +160,13 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         Map map = (Map) attributes;
         if (map.containsKey(URL)) {
             this.url = new HgUrlArgument((String) map.get(URL));
+        }
+        if (map.containsKey("userName")) {
+            this.userName = (String) map.get("userName");
+        }
+        if (map.containsKey(PASSWORD_CHANGED) && "1".equals(map.get(PASSWORD_CHANGED))) {
+            String passwordToSet = (String) map.get(PASSWORD);
+            resetPassword(passwordToSet);
         }
     }
 }

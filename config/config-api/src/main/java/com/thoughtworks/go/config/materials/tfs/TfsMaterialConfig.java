@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,13 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import javax.annotation.PostConstruct;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -42,23 +39,11 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @ConfigAttribute(value = "url")
     private UrlArgument url;
 
-    @ConfigAttribute(value = "username")
-    private String userName;
-
     @ConfigAttribute(value = "domain", optional = true)
     private String domain = "";
 
-    @SkipParameterResolution
-    @ConfigAttribute(value = "password", allowNull = true)
-    private String password;
-
-    @ConfigAttribute(value = "encryptedPassword", allowNull = true)
-    private String encryptedPassword;
-
     @ConfigAttribute(value = "projectPath")
     private String projectPath;
-
-    private final GoCipher goCipher;
 
     public static final String PROJECT_PATH = "projectPath";
     public static final String DOMAIN = "domain";
@@ -68,8 +53,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     public TfsMaterialConfig(GoCipher goCipher) {
-        super(TYPE);
-        this.goCipher = goCipher;
+        super(TYPE, goCipher);
     }
 
     public TfsMaterialConfig(GoCipher goCipher, UrlArgument url, String userName, String domain, String projectPath) {
@@ -106,38 +90,6 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         this.url = urlArgument;
         this.password = password;
         this.encryptedPassword = encryptedPassword;
-    }
-
-    public GoCipher getGoCipher() {
-        return goCipher;
-    }
-
-    @Override
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    @Override
-    public void setPassword(String password) {
-        resetPassword(password);
-    }
-
-    @Override
-    public String getPassword() {
-        try {
-            return isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
-        } catch (CryptoException e) {
-            throw new RuntimeException("Could not decrypt the password to get the real password", e);
-        }
-    }
-
-    @Override
-    public String getEncryptedPassword() {
-        return encryptedPassword;
     }
 
     @Override
@@ -204,43 +156,9 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         return "Tfs";
     }
 
-    @PostConstruct
-    @Override
-    public void ensureEncrypted() {
-        this.userName = StringUtils.stripToNull(this.userName);
-        setPasswordIfNotBlank(password);
-
-        if (encryptedPassword != null) {
-            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
-        }
-    }
-
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.DEFAULT_STYLE, true);
-    }
-
-    private void resetPassword(String passwordToSet) {
-        if (StringUtils.isBlank(passwordToSet)) {
-            encryptedPassword = null;
-        }
-
-        setPasswordIfNotBlank(passwordToSet);
-    }
-
-    private void setPasswordIfNotBlank(String password) {
-        this.password = StringUtils.stripToNull(password);
-        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
-
-        if (this.password == null) {
-            return;
-        }
-        try {
-            this.encryptedPassword = this.goCipher.encrypt(password);
-        } catch (Exception e) {
-            bomb("Password encryption failed. Please verify your cipher key.", e);
-        }
-        this.password = null;
     }
 
     public String getProjectPath() {
@@ -257,15 +175,6 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     public void setDomain(String domain) {
         this.domain = domain;
-    }
-
-    public void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
-    }
-
-    /* Needed although there is a getUserName above */
-    public String getUsername() {
-        return userName;
     }
 
     @Override
@@ -288,9 +197,6 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         if (url != null ? !url.equals(material.url) : material.url != null) {
             return false;
         }
-        if (userName != null ? !userName.equals(material.userName) : material.userName != null) {
-            return false;
-        }
         if (domain != null ? !domain.equals(material.domain) : material.domain != null) {
             return false;
         }
@@ -301,7 +207,6 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (url != null ? url.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (domain != null ? domain.hashCode() : 0);
         result = 31 * result + (projectPath != null ? projectPath.hashCode() : 0);
         return result;

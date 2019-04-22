@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,15 +20,12 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
 
-import javax.annotation.PostConstruct;
 import java.util.Map;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.*;
@@ -38,23 +35,12 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @ConfigAttribute(value = ScmMaterialConfig.URL)
     private UrlArgument url;
 
-    @ConfigAttribute(value = ScmMaterialConfig.USERNAME, allowNull = true)
-    private String userName;
-
-    @SkipParameterResolution
-    @ConfigAttribute(value = "password", allowNull = true)
-    private String password;
-
-    @ConfigAttribute(value = "encryptedPassword", allowNull = true)
-    private String encryptedPassword;
-
     @ConfigAttribute(value = "checkexternals", allowNull = true, label = "Check externals")
     private boolean checkExternals;
 
     public static final String URL = ScmMaterialConfig.URL;
     public static final String USERNAME = "userName";
     public static final String CHECK_EXTERNALS = "checkExternals";
-    private final GoCipher goCipher;
     public static final String TYPE = "SvnMaterial";
 
     public SvnMaterialConfig() {
@@ -62,8 +48,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     }
 
     private SvnMaterialConfig(GoCipher goCipher) {
-        super(TYPE);
-        this.goCipher = goCipher;
+        super(TYPE, goCipher);
     }
 
     public SvnMaterialConfig(String url, boolean checkExternals) {
@@ -101,49 +86,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         this.url = url;
         this.userName = userName;
         this.checkExternals = checkExternals;
-        this.goCipher = goCipher;
         this.setPassword(password);
-    }
-
-    public GoCipher getGoCipher() {
-        return goCipher;
-    }
-
-    @Override
-    public void setPassword(String password) {
-        resetPassword(password);
-    }
-
-    private void resetPassword(String passwordToSet) {
-        if (isBlank(passwordToSet)) {
-            encryptedPassword = null;
-        }
-        setPasswordIfNotBlank(passwordToSet);
-    }
-
-    private void setPasswordIfNotBlank(String password) {
-        this.password = stripToNull(password);
-        this.encryptedPassword = stripToNull(encryptedPassword);
-
-        if (this.password == null) {
-            return;
-        }
-        try {
-            this.encryptedPassword = this.goCipher.encrypt(password);
-        } catch (Exception e) {
-            bomb("Password encryption failed. Please verify your cipher key.", e);
-        }
-        this.password = null;
-    }
-
-    @Override
-    public String getUserName() {
-        return userName;
-    }
-
-    @Override
-    public String getPassword() {
-        return currentPassword();
     }
 
     @Override
@@ -151,33 +94,6 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         return checkExternals;
     }
 
-    public String currentPassword() {
-        try {
-            return isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
-        } catch (Exception e) {
-            throw new RuntimeException("Could not decrypt the password to get the real password", e);
-        }
-    }
-
-    @Override
-    public String getEncryptedPassword() {
-        return encryptedPassword;
-    }
-
-    public void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
-    }
-
-    @PostConstruct
-    @Override
-    public void ensureEncrypted() {
-        this.userName = stripToNull(this.userName);
-        setPasswordIfNotBlank(password);
-
-        if (encryptedPassword != null) {
-            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
-        }
-    }
 
     @Override
     public String getUrl() {
@@ -263,10 +179,6 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         if (url != null ? !url.equals(that.url) : that.url != null) {
             return false;
         }
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
-
         return true;
     }
 
@@ -274,7 +186,6 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (url != null ? url.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (checkExternals ? 1 : 0);
         return result;
     }
@@ -303,9 +214,6 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         this.checkExternals = checkExternals;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
 
     @Override
     public String toString() {

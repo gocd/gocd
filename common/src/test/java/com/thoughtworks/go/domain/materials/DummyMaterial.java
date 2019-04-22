@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 
@@ -36,7 +37,7 @@ public final class DummyMaterial extends ScmMaterial {
     private String url;
 
     public DummyMaterial() {
-        super("DummyMaterial");
+        super("DummyMaterial", new GoCipher());
     }
 
     public String getUrl() {
@@ -98,26 +99,6 @@ public final class DummyMaterial extends ScmMaterial {
         throw unsupported();
     }
 
-    public String getUserName() {
-        throw unsupported();
-    }
-
-    @Override
-    public String getPassword() {
-        throw unsupported();
-    }
-
-    @Override
-    public String passwordForCommandLine() {
-        throw unsupported();
-    }
-
-    @Override
-    public String getEncryptedPassword() {
-        throw unsupported();
-    }
-
-
     public boolean isCheckExternals() {
         throw unsupported();
     }
@@ -134,13 +115,4 @@ public final class DummyMaterial extends ScmMaterial {
         throw unsupported();
     }
 
-    @Override
-    public boolean hasSecretParams() {
-        return false;
-    }
-
-    @Override
-    public SecretParams getSecretParams() {
-        return new SecretParams();
-    }
 }

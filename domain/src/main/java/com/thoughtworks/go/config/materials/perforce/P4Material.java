@@ -26,7 +26,6 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.perforce.P4Client;
 import com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance;
-import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConstants;
@@ -37,9 +36,7 @@ import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -53,13 +50,9 @@ import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMem
 import static java.lang.Long.parseLong;
 import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class P4Material extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial {
     private String serverAndPort;
-    private String userName;
-    private String password;
-    private String encryptedPassword;
     private Boolean useTickets = false;
     private P4MaterialView view;
 
@@ -67,12 +60,8 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     //TODO: use iBatis to set the type for us, and we can get rid of this field.
     public static final String TYPE = "P4Material";
 
-    private final GoCipher goCipher;
-    private SecretParams secretParamsForPassword;
-
     private P4Material(GoCipher goCipher) {
-        super(TYPE);
-        this.goCipher = goCipher;
+        super(TYPE, goCipher);
     }
 
     public P4Material(String serverAndPort, String view, GoCipher goCipher) {
@@ -212,24 +201,6 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         return format("URL: %s, View: %s, Username: %s", serverAndPort, view.getValue(), userName);
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
-    @Override
-    public String getPassword() {
-        return currentPassword();
-    }
-
-    @Override
-    public String passwordForCommandLine() {
-        return this.secretParamsForPassword.isEmpty() ? this.getPassword() : this.secretParamsForPassword.substitute(getPassword());
-    }
-
-    public void setPassword(String password) {
-        resetPassword(password);
-    }
-
     P4Client p4(File baseDir, ConsoleOutputStreamConsumer consumer) throws Exception {
         return _p4(baseDir, consumer, true);
     }
@@ -287,9 +258,6 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         if (useTickets != null ? !useTickets.equals(that.useTickets) : that.useTickets != null) {
             return false;
         }
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
         if (view != null ? !view.equals(that.view) : that.view != null) {
             return false;
         }
@@ -301,7 +269,6 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (serverAndPort != null ? serverAndPort.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (useTickets != null ? useTickets.hashCode() : 0);
         result = 31 * result + (view != null ? view.hashCode() : 0);
         return result;
@@ -383,61 +350,4 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
         this.view = new P4MaterialView(viewStr);
     }
 
-    private void resetPassword(String password) {
-        if (StringUtils.isBlank(password)) {
-            this.encryptedPassword = null;
-        }
-        setPasswordIfNotBlank(password);
-    }
-
-    private void setPasswordIfNotBlank(String password) {
-        this.password = StringUtils.stripToNull(password);
-        this.secretParamsForPassword = SecretParams.parse(password);
-        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
-
-        if (this.password == null) {
-            return;
-        }
-        try {
-            this.encryptedPassword = this.goCipher.encrypt(password);
-        } catch (Exception e) {
-            bomb("Password encryption failed. Please verify your cipher key.", e);
-        }
-        this.password = null;
-    }
-
-    @PostConstruct
-    public void ensureEncrypted() {
-        this.userName = StringUtils.stripToNull(this.userName);
-        setPasswordIfNotBlank(password);
-        if (encryptedPassword != null) {
-            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
-        }
-    }
-
-    private void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
-    }
-
-    public String currentPassword() {
-        try {
-            return isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
-        } catch (CryptoException e) {
-            throw new RuntimeException("Could not decrypt the password to get the real password", e);
-        }
-    }
-
-    public String getEncryptedPassword() {
-        return encryptedPassword;
-    }
-
-    @Override
-    public boolean hasSecretParams() {
-        return this.secretParamsForPassword != null && !this.secretParamsForPassword.isEmpty();
-    }
-
-    @Override
-    public SecretParams getSecretParams() {
-        return this.secretParamsForPassword;
-    }
 }

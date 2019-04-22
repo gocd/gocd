@@ -19,16 +19,25 @@ module ApiV1
     module Pipelines
       module Materials
         class GitMaterialRepresenter < ScmMaterialRepresenter
+          include EncryptedPasswordSupport
+
           property :branch,
-                   getter: lambda { |args|
+                   getter: lambda {|args|
                      branch = self.getBranch
                      branch.blank? ? 'master' : branch
                    },
-                   setter: lambda { |value, options|
+                   setter: lambda {|value, options|
                      value.blank? ? self.setBranch('master') : self.setBranch(value)
                    }
           property :submodule_folder
           property :shallow_clone
+          property :user_name, as: :username
+          property :password,
+                   skip_render: true,
+                   skip_nil: true,
+                   skip_parse: true
+
+          property :encrypted_password, skip_nil: true, skip_parse: true
         end
       end
     end

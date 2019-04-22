@@ -19,19 +19,25 @@ package com.thoughtworks.go.config.materials;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.SecretParamAware;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.*;
+import com.thoughtworks.go.security.CryptoException;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import com.thoughtworks.go.util.command.ProcessOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.command.EnvironmentVariableContext.escapeEnvironmentVariable;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 
 /**
@@ -42,14 +48,20 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     public static final String GO_REVISION = "GO_REVISION";
     public static final String GO_TO_REVISION = "GO_TO_REVISION";
     public static final String GO_FROM_REVISION = "GO_FROM_REVISION";
+    protected final GoCipher goCipher;
 
     protected Filter filter;
     protected String folder;
     protected boolean autoUpdate = true;
     protected boolean invertFilter = false;
+    protected String userName;
+    protected String password;
+    protected String encryptedPassword;
+    private SecretParams secretParamsForPassword;
 
-    public ScmMaterial(String typeName) {
+    public ScmMaterial(String typeName, GoCipher goCipher) {
         super(typeName);
+        this.goCipher = goCipher;
     }
 
     @Override
@@ -93,13 +105,85 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         this.updateTo(output, baseDir, new RevisionContext(revision), execCtx);
     }
 
-    public abstract String getUserName();
+    public final String getUserName() {
+        return this.userName;
+    }
 
-    public abstract String getPassword();
+    /* Needed although there is a getUserName above */
+    public String getUsername() {
+        return userName;
+    }
 
-    public abstract String passwordForCommandLine();
+    public final void setPassword(String password) {
+        resetPassword(password);
+    }
 
-    public abstract String getEncryptedPassword();
+    private void resetPassword(String passwordToSet) {
+        if (StringUtils.isBlank(passwordToSet)) {
+            encryptedPassword = null;
+        }
+        setPasswordIfNotBlank(passwordToSet);
+    }
+
+    private void setPasswordIfNotBlank(String password) {
+        this.password = StringUtils.stripToNull(password);
+        this.secretParamsForPassword = SecretParams.parse(password);
+        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
+
+        if (this.password == null) {
+            return;
+        }
+        try {
+            this.encryptedPassword = this.goCipher.encrypt(password);
+        } catch (Exception e) {
+            bomb("Password encryption failed. Please verify your cipher key.", e);
+        }
+        this.password = null;
+    }
+
+    @PostConstruct
+    public void ensureEncrypted() {
+        this.userName = StringUtils.stripToNull(this.userName);
+        setPasswordIfNotBlank(password);
+        if (encryptedPassword != null) {
+            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
+        }
+    }
+
+    public final void setEncryptedPassword(String encryptedPassword) {
+        this.encryptedPassword = encryptedPassword;
+    }
+
+    public final String getEncryptedPassword() {
+        return encryptedPassword;
+    }
+
+    public final String getPassword() {
+        return currentPassword();
+    }
+
+    public final String passwordForCommandLine() {
+        return secretParamsForPassword.isEmpty() ? getPassword() : secretParamsForPassword.substitute(getPassword());
+    }
+
+    @Override
+    public final boolean hasSecretParams() {
+        return (getUrlArgument() != null && this.getUrlArgument().hasSecretParams())
+                || (this.secretParamsForPassword != null && !this.secretParamsForPassword.isEmpty());
+    }
+
+    @Override
+    public final SecretParams getSecretParams() {
+        return SecretParams.union(getUrlArgument().getSecretParams(), secretParamsForPassword);
+    }
+
+    public final String currentPassword() {
+        try {
+            return isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+        } catch (CryptoException e) {
+            throw new RuntimeException("Could not decrypt the password to get the real password", e);
+        }
+    }
 
     public abstract boolean isCheckExternals();
 
@@ -217,6 +301,10 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
             return false;
         }
 
+        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+            return false;
+        }
+
         return true;
     }
 
@@ -224,6 +312,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (folder != null ? folder.hashCode() : 0);
+        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         return result;
     }
 

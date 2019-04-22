@@ -42,10 +42,10 @@ $disabled-text-color: #999;
   }
 }
 
-.plugin-name, .cluster-profile-name {
-  font-weight:  600;
-  font-size:    13px;
-  margin-right: 50px;
+.plugin-name {
+  font-weight: 600;
+  font-size:   13px;
+
   @media (min-width: $screen-md) {
     font-size: 12px;
   }
@@ -53,6 +53,12 @@ $disabled-text-color: #999;
     font-size: 15px;
   }
 
+}
+
+.cluster-profile-name {
+  overflow:      hidden;
+  text-overflow: ellipsis;
+  white-space:   nowrap;
 }
 
 .plugin-not-installed {
@@ -114,4 +120,45 @@ $disabled-text-color: #999;
 
 .cluster-profile-crud-actions {
   margin-left: 20px;
+}
+
+.cluster-profile-details-header {
+  @include icon-before($type: $fa-var-angle-right, $size: 16px);
+  position:     relative;
+  padding-left: 17px;
+  cursor:       pointer;
+  margin:       0 0 20px 0;
+
+  &:before {
+    position:   absolute;
+    left:       1px;
+    top:        1px;
+    margin:     0;
+    transition: $transition;
+  }
+
+  &.expanded {
+    &:before {
+      transform:  rotate(90deg);
+      transition: $transition;
+      left:       3px;
+      top:        2px;
+    }
+  }
+}
+
+.cluster-profile-details-container {
+  display: block;
+}
+
+.cluster-profile-details {
+  display: none;
+
+  &.expanded {
+    display: block;
+  }
+}
+
+.add-icon {
+  @include icon-before($type: $fa-var-plus);
 }

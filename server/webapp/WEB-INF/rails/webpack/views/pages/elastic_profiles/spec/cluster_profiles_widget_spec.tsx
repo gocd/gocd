@@ -22,6 +22,7 @@ import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import {ClusterProfilesWidget} from "views/pages/elastic_profiles/cluster_profiles_widget";
+import * as elasticProfilePageStyles from "views/pages/elastic_profiles/index.scss";
 import {TestData} from "views/pages/elastic_profiles/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -68,7 +69,7 @@ describe("ClusterProfilesWidget", () => {
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
     expect(helper.findByDataTestId("new-elastic-agent-profile-button")).toBeInDOM();
-    expect(helper.findByDataTestId("new-elastic-agent-profile-button")).toHaveText("+ New Elastic Agent Profile");
+    expect(helper.findByDataTestId("new-elastic-agent-profile-button")).toHaveText("Elastic Agent Profile");
 
     helper.unmount();
   });
@@ -88,8 +89,8 @@ describe("ClusterProfilesWidget", () => {
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
     expect(helper.findIn(helper.findByDataTestId("collapse-header")[0], "cluster-profile-name")).toHaveText("cluster_3");
-    expect(helper.findIn(helper.findByDataTestId("collapse-header")[0], "key-value-key-pluginid")).toHaveText("PluginId");
-    expect(helper.findIn(helper.findByDataTestId("collapse-header")[0], "key-value-value-pluginid")).toHaveText("cd.go.contrib.elastic-agent.docker");
+    expect(helper.findIn(helper.findByDataTestId("collapse-header")[0], "key-value-key-plugin")).toHaveText("Plugin");
+    expect(helper.findIn(helper.findByDataTestId("collapse-header")[0], "key-value-value-plugin")).toHaveText("Docker Elastic Agent Plugin");
 
     helper.unmount();
   });
@@ -222,13 +223,15 @@ describe("ClusterProfilesWidget", () => {
     it("should toggle expanded state of cluster profile show details on click", () => {
       simulateEvent.simulate(clusterProfilePanelHeader, "click");
 
-      const clusterProfileInfoHeader = helper.findIn(helper.findByDataTestId("cluster-profile-info-panel")[0], "collapse-header")[0];
+      const clusterProfileInfoHeader = helper.findIn(helper.findByDataTestId("cluster-profile-panel"), "cluster-profile-details-header")[0];
 
-      expect(clusterProfileInfoHeader).not.toHaveClass(collapsiblePanelStyles.expanded);
+      expect(clusterProfileInfoHeader).not.toHaveClass(elasticProfilePageStyles.expanded);
+      expect(helper.findIn(helper.findByDataTestId("cluster-profile-panel"), "cluster-profile-details")[0]).not.toHaveClass(elasticProfilePageStyles.expanded);
 
       simulateEvent.simulate(clusterProfileInfoHeader, "click");
 
-      expect(clusterProfileInfoHeader).toHaveClass(collapsiblePanelStyles.expanded);
+      expect(clusterProfileInfoHeader).toHaveClass(elasticProfilePageStyles.expanded);
+      expect(helper.findIn(helper.findByDataTestId("cluster-profile-panel"), "cluster-profile-details")[0]).toHaveClass(elasticProfilePageStyles.expanded);
     });
 
     it("should toggle expanded state of elastic agent profile show details on click", () => {

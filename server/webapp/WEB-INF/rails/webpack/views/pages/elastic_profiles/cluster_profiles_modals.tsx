@@ -106,7 +106,8 @@ export abstract class BaseClusterProfileModal extends Modal {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });
 
-    this.elasticAgentPluginInfo(this.pluginInfo() || this.pluginInfos[0]);
+    const extensionPluginInfo = this.pluginInfo();
+    this.elasticAgentPluginInfo(extensionPluginInfo || this.pluginInfos[0]);
 
     const elasticAgentSettings = this.elasticAgentPluginInfo().extensionOfType(ExtensionType.ELASTIC_AGENTS) as ElasticAgentSettings;
 
@@ -117,7 +118,12 @@ export abstract class BaseClusterProfileModal extends Modal {
                                              configuration={this.clusterProfile().properties()}
                                              key={this.elasticAgentPluginInfo().id}/>;
     } else {
-      alertMessage = <FlashMessage type={MessageType.alert} message={`Can not define Cluster profiles for '${this.clusterProfile().pluginId()}' plugin as it does not support cluster profiles.`}/>;
+      const pluginName = extensionPluginInfo ? extensionPluginInfo.about.name : "";
+      if (this.modalType === ModalType.create) {
+        alertMessage = <FlashMessage type={MessageType.alert} message={`Can not define Cluster profiles for '${pluginName}' plugin as it does not support cluster profiles.`}/>;
+      } else {
+        alertMessage = <FlashMessage type={MessageType.warning} message={`Can not edit Cluster profile for '${pluginName}' plugin as it does not support cluster profiles.`}/>;
+      }
     }
 
     return (
@@ -239,6 +245,7 @@ export class EditClusterProfileModal extends BaseClusterProfileModal {
             this.close();
           },
           (errorResponse) => {
+            this.onError(errorResponse.message);
             this.showErrors(result, errorResponse);
           }
         );
@@ -280,6 +287,7 @@ export class CloneClusterProfileModal extends BaseClusterProfileModal {
                              this.close();
                            },
                            (errorResponse) => {
+                             this.onError(errorResponse.message);
                              this.showErrors(result, errorResponse);
                            }
                          );

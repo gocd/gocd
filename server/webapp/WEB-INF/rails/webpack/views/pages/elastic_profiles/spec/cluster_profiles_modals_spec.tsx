@@ -36,17 +36,25 @@ describe("ClusterProfileModal", () => {
   });
 
   describe("EditModalType", () => {
-    beforeEach(() => {
+    it("id field should be disabled for edit modal type", () => {
       modal = new TestClusterProfile(pluginInfos, ModalType.edit, ClusterProfile.fromJSON(TestData.dockerClusterProfile()));
       helper.mount(modal.body.bind(modal));
-    });
 
-    afterEach(() => {
+      expect(find("form-field-input-id")).toBeDisabled();
+
       helper.unmount();
     });
 
-    it("id field should be disabled for edit modal type", () => {
-      expect(find("form-field-input-id")).toBeDisabled();
+    it("should display warning message if selected plugin do not support cluster profile", () => {
+      const clusterProfile = new ClusterProfile("", "cd.go.contrib.elasticagent.kubernetes");
+      modal                = new TestClusterProfile(pluginInfos, ModalType.edit, clusterProfile);
+      helper.mount(modal.body.bind(modal));
+
+      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-warning")).toBeInDOM();
+      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-warning")).toHaveText("Can not edit Cluster profile for 'Kubernetes Elastic Agent Plugin' plugin as it does not support cluster profiles.");
+      expect(helper.findByDataTestId("cluster-profile-properties-form")).toBeEmpty();
+
+      helper.unmount();
     });
   });
 
@@ -79,7 +87,7 @@ describe("ClusterProfileModal", () => {
       helper.mount(modal.body.bind(modal));
 
       expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-alert")).toBeInDOM();
-      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-alert")).toHaveText("Can not define Cluster profiles for 'cd.go.contrib.elasticagent.kubernetes' plugin as it does not support cluster profiles.");
+      expect(helper.findIn(find("cluster-profile-form-header"), "flash-message-alert")).toHaveText("Can not define Cluster profiles for 'Kubernetes Elastic Agent Plugin' plugin as it does not support cluster profiles.");
       expect(helper.findByDataTestId("cluster-profile-properties-form")).toBeEmpty();
 
       helper.unmount();

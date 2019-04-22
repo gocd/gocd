@@ -101,7 +101,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     public Bundle loadPlugin(GoPluginDescriptor pluginDescriptor) {
         File bundleLocation = pluginDescriptor.bundleLocation();
         return getBundle(pluginDescriptor, bundleLocation);
-
     }
 
     private Bundle getBundle(GoPluginDescriptor pluginDescriptor, File bundleLocation) {
@@ -125,10 +124,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
 
                     return bundle;
                 }
-            }
-
-            if (elasticAgentInformationMigrator != null) {
-                elasticAgentInformationMigrator.migrate(pluginDescriptor);
             }
 
             if (pluginDescriptor.isInvalid()) {
@@ -193,6 +188,15 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public void setElasticAgentInformationMigrator(ElasticAgentInformationMigrator elasticAgentInformationMigrator) {
         this.elasticAgentInformationMigrator = elasticAgentInformationMigrator;
+    }
+
+    @Override
+    public boolean migrateConfig(GoPluginDescriptor descriptor) {
+        if (elasticAgentInformationMigrator != null) {
+            return elasticAgentInformationMigrator.migrate(descriptor);
+        }
+
+        return true;
     }
 
     private void registerInternalServices(BundleContext bundleContext) {

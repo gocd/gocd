@@ -149,6 +149,10 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         if (!descriptor.isInvalid()) {
             osgiManifestGenerator.updateManifestOf(descriptor);
             goPluginOSGiFramework.loadPlugin(descriptor);
+            boolean migratedSuccessfully = goPluginOSGiFramework.migrateConfig(descriptor);
+            if (!migratedSuccessfully) {
+                goPluginOSGiFramework.unloadPlugin(descriptor);
+            }
         }
     }
 

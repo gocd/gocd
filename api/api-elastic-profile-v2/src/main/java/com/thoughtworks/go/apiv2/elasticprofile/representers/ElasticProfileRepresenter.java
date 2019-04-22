@@ -34,7 +34,6 @@ public class ElasticProfileRepresenter {
                         .addAbsoluteLink("doc", Routes.ElasticProfileAPI.DOC)
                         .addLink("find", Routes.ElasticProfileAPI.find()))
                 .add("id", elasticProfile.getId())
-                .add("plugin_id", elasticProfile.getPluginId())
                 .add("cluster_profile_id", elasticProfile.getClusterProfileId())
                 .addChildList("properties", listWriter ->
                         elasticProfile.forEach(property ->
@@ -49,7 +48,7 @@ public class ElasticProfileRepresenter {
     public static ElasticProfile fromJSON(JsonReader jsonReader) {
         ElasticProfile elasticProfile = new ElasticProfile(
                 jsonReader.getString("id"),
-                jsonReader.getString("plugin_id"),
+                null,
                 jsonReader.getString("cluster_profile_id"));
         elasticProfile.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "properties"));
         return elasticProfile;

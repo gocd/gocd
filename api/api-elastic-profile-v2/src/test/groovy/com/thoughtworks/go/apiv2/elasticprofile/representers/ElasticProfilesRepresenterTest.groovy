@@ -42,7 +42,6 @@ class ElasticProfilesRepresenterTest {
             find: [href: 'http://test.host/go/api/elastic/profiles/:profile_id'],
           ],
           id                : 'docker',
-          plugin_id         : 'cd.go.docker',
           cluster_profile_id: 'foo',
           "properties"      : [
             [
@@ -58,7 +57,6 @@ class ElasticProfilesRepresenterTest {
             find: [href: 'http://test.host/go/api/elastic/profiles/:profile_id'],
           ],
           id                : 'ecs',
-          plugin_id         : 'cd.go.ecs',
           cluster_profile_id: "bar",
           "properties"      : [
             [

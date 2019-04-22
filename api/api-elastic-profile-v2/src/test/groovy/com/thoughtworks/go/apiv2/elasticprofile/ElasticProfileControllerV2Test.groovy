@@ -20,10 +20,12 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfileRepresenter
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfilesRepresenter
+import com.thoughtworks.go.config.elastic.ClusterProfile
 import com.thoughtworks.go.config.elastic.ElasticProfile
 import com.thoughtworks.go.config.elastic.ElasticProfiles
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.Username
+import com.thoughtworks.go.server.service.ClusterProfilesService
 import com.thoughtworks.go.server.service.ElasticProfileService
 import com.thoughtworks.go.server.service.EntityHashingService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
@@ -55,6 +57,9 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
   @Mock
   private EntityHashingService entityHashingService
 
+  @Mock
+  private ClusterProfilesService clusterProfileService
+
   @BeforeEach
   void setup() {
     initMocks(this)
@@ -62,7 +67,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
   @Override
   ElasticProfileControllerV2 createControllerInstance() {
-    return new ElasticProfileControllerV2(elasticProfileService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService)
+    return new ElasticProfileControllerV2(elasticProfileService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, clusterProfileService)
   }
 
   @Nested
@@ -220,7 +225,30 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
       void 'should create elastic profile from given json payload'() {
         def jsonPayload = [
           id                : 'docker',
-          plugin_id         : 'cd.go.docker',
+          cluster_profile_id: "prod-cluster",
+          properties        : [
+            [
+              "key"  : "DockerURI",
+              "value": "http://foo"
+            ]
+          ]]
+
+        when(clusterProfileService.findProfile("prod-cluster")).thenReturn(new ClusterProfile("prod-cluster", "cd.go.docker"))
+        when(entityHashingService.md5ForEntity(Mockito.any() as ElasticProfile)).thenReturn('some-md5')
+
+        postWithApiHeader(controller.controllerPath(), jsonPayload)
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"some-md5"')
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo")), ElasticProfileRepresenter)
+      }
+
+      @Test
+      void 'should not create elastic profile from given json payload when specified cluster profile does not exists'() {
+        def jsonPayload = [
+          id                : 'docker',
           cluster_profile_id: "prod-cluster",
           properties        : [
             [
@@ -234,18 +262,14 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
         assertThatResponse()
-          .isOk()
-          .hasEtag('"some-md5"')
-          .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo")), ElasticProfileRepresenter)
+          .isUnprocessableEntity()
+          .hasJsonMessage("No Cluster Profile exists with the specified cluster_profile_id 'prod-cluster'.")
       }
-
 
       @Test
       void 'should not create elastic profile in case of validation error and return the profile with errors'() {
         def jsonPayload = [
           id                : 'docker',
-          plugin_id         : 'cd.go.docker',
           cluster_profile_id: "prod-cluster",
           properties        : [
             [
@@ -254,6 +278,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
             ]
           ]]
 
+        when(clusterProfileService.findProfile("prod-cluster")).thenReturn(new ClusterProfile("prod-cluster", "cd.go.docker"))
         when(elasticProfileService.create(Mockito.any() as Username, Mockito.any() as ElasticProfile, Mockito.any() as LocalizedOperationResult))
           .then({ InvocationOnMock invocation ->
           ElasticProfile elasticProfile = invocation.getArguments()[1]
@@ -268,7 +293,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           message: "validation failed",
           data   : [
             id                : "docker",
-            plugin_id         : "cd.go.docker",
             cluster_profile_id: "prod-cluster",
             properties        : [[key: "DockerURI", value: "http://foo"]],
             errors            : [plugin_id: ["Plugin not installed."]]
@@ -286,7 +310,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         def existingElasticProfile = new ElasticProfile("docker", "cd.go.docker", 'foo', create("DockerURI", false, "http://foo"))
         def jsonPayload = [
           id                : 'docker',
-          plugin_id         : 'cd.go.docker',
           cluster_profile_id: "prod-cluster",
           properties        : [
             [
@@ -300,12 +323,10 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
         postWithApiHeader(controller.controllerPath(), jsonPayload)
 
-
         def expectedResponseBody = [
           message: "Failed to add elasticProfile 'docker'. Another elasticProfile with the same name already exists.",
           data   : [
             id                : "docker",
-            plugin_id         : "cd.go.docker",
             cluster_profile_id: "prod-cluster",
             properties        : [[key: "DockerURI", value: "http://foo"]],
             errors            : [id: ["Elastic profile ids should be unique. Elastic profile with id 'docker' already exists."]]
@@ -351,7 +372,34 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         def updatedProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://new-uri"))
         def jsonPayload = [
           id                : 'docker',
-          plugin_id         : 'cd.go.docker',
+          cluster_profile_id: "prod-cluster",
+          properties        : [
+            [
+              "key"  : "DockerURI",
+              "value": "http://new-uri"
+            ]
+          ]]
+
+        when(clusterProfileService.findProfile("prod-cluster")).thenReturn(new ClusterProfile("prod-cluster", "cd.go.docker"))
+        when(entityHashingService.md5ForEntity(existingProfile)).thenReturn('some-md5')
+        when(entityHashingService.md5ForEntity(updatedProfile)).thenReturn('new-md5')
+        when(elasticProfileService.findProfile("docker")).thenReturn(existingProfile)
+
+        putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-md5'], jsonPayload)
+
+        assertThatResponse()
+          .isOk()
+          .hasEtag('"new-md5"')
+          .hasContentType(controller.mimeType)
+          .hasBodyWithJsonObject(updatedProfile, ElasticProfileRepresenter)
+      }
+
+      @Test
+      void 'should not update elastic profile when specified cluster profile does not exists'() {
+        def existingProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo"))
+        def updatedProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://new-uri"))
+        def jsonPayload = [
+          id                : 'docker',
           cluster_profile_id: "prod-cluster",
           properties        : [
             [
@@ -367,10 +415,8 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         putWithApiHeader(controller.controllerPath("/docker"), ['if-match': 'some-md5'], jsonPayload)
 
         assertThatResponse()
-          .isOk()
-          .hasEtag('"new-md5"')
-          .hasContentType(controller.mimeType)
-          .hasBodyWithJsonObject(updatedProfile, ElasticProfileRepresenter)
+          .isUnprocessableEntity()
+          .hasJsonMessage("No Cluster Profile exists with the specified cluster_profile_id 'prod-cluster'.")
       }
 
       @Test
@@ -378,7 +424,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         def existingProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo"))
         def jsonPayload = [
           id                : 'docker',
-          plugin_id         : 'cd.go.docker',
           cluster_profile_id: "prod-cluster",
           properties        : [
             [
@@ -414,7 +459,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         def existingProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo"))
         def jsonPayload = [
           id                : 'docker-new',
-          plugin_id         : 'cd.go.docker',
           cluster_profile_id: "prod-cluster",
           properties        : [
             [
@@ -439,7 +483,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
         def existingProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo"))
         def jsonPayload = [
           id                : 'docker',
-          plugin_id         : 'cd.go.docker',
           cluster_profile_id: "prod-cluster",
           properties        : [
             [
@@ -448,6 +491,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
             ]
           ]]
 
+        when(clusterProfileService.findProfile("prod-cluster")).thenReturn(new ClusterProfile("prod-cluster", "cd.go.docker"))
         when(entityHashingService.md5ForEntity(existingProfile)).thenReturn('some-md5')
         when(elasticProfileService.findProfile("docker")).thenReturn(existingProfile)
 
@@ -465,7 +509,6 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
           message: "validation failed",
           data   : [
             id                : "docker",
-            plugin_id         : "cd.go.docker",
             cluster_profile_id: "prod-cluster",
             properties        : [[key: "DockerURI", value: "http://foo"]],
             errors            : [plugin_id: ["Plugin not installed."]]

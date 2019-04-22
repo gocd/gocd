@@ -18,12 +18,7 @@ package com.thoughtworks.go.apiv2.elasticprofile.representers
 
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.elastic.ElasticProfile
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor
-import com.thoughtworks.go.plugin.domain.common.Metadata
-import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings
-import com.thoughtworks.go.plugin.domain.common.PluginConfiguration
-import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import spark.HaltException
@@ -44,7 +39,6 @@ class ElasticProfileRepresenterTest {
     void shouldCreateObjectFromJson() {
       def elasticProfile = [
         id                : 'docker',
-        plugin_id         : 'cd.go.docker',
         cluster_profile_id: 'foo',
         properties        : [
           [
@@ -54,7 +48,7 @@ class ElasticProfileRepresenterTest {
         ]
       ]
 
-      def expectedObject = new ElasticProfile('docker', 'cd.go.docker', 'foo', create('DockerURI', false, 'http://foo'))
+      def expectedObject = new ElasticProfile('docker', null, 'foo', create('DockerURI', false, 'http://foo'))
 
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(elasticProfile)
       def object = ElasticProfileRepresenter.fromJSON(jsonReader)
@@ -64,7 +58,7 @@ class ElasticProfileRepresenterTest {
 
     @Test
     void shouldAddErrorsToJson() {
-      def elasticProfile = new ElasticProfile('docker', 'cd.go.docker', 'foo', create('DockerURI', false, 'http://foo'))
+      def elasticProfile = new ElasticProfile('docker', null, 'foo', create('DockerURI', false, 'http://foo'))
       elasticProfile.addError("pluginId", "Invalid Plugin Id")
 
       def expectedJson = [
@@ -74,7 +68,6 @@ class ElasticProfileRepresenterTest {
           find: [href: 'http://test.host/go/api/elastic/profiles/:profile_id'],
         ],
         id                : 'docker',
-        plugin_id         : 'cd.go.docker',
         cluster_profile_id: 'foo',
         properties        : [
           [
@@ -92,66 +85,41 @@ class ElasticProfileRepresenterTest {
       assertThatJson(json).isEqualTo(expectedJson)
     }
 
-    @Test
-    void shouldEncryptSecureValues() {
-      def elasticProfile = [
-        id                : 'docker',
-        plugin_id         : 'cd.go.docker',
-        cluster_profile_id: 'foo',
-        properties        : [
-          [
-            "key"  : "Password",
-            "value": "passw0rd1"
+    @Nested
+    class WithoutClusterProfileId {
+      @Test
+      void shouldThrowHaltExceptionForNotSpecifyingClusterProfileId() {
+        def elasticProfile = [
+          id        : 'docker',
+          properties: [
+            [
+              "key"  : "DockerURI",
+              "value": "http://foo"
+            ]
           ]
         ]
-      ]
-      def elasticAgentMetadataStore = ElasticAgentMetadataStore.instance()
-      PluggableInstanceSettings pluggableInstanceSettings = new PluggableInstanceSettings(Arrays.asList(
-        new PluginConfiguration("Password", new Metadata(true, true))))
-      elasticAgentMetadataStore.setPluginInfo(new ElasticAgentPluginInfo(pluginDescriptor(), pluggableInstanceSettings, pluggableInstanceSettings, null, null, null))
-      def jsonReader = GsonTransformer.instance.jsonReaderFrom(elasticProfile)
 
-      def object = ElasticProfileRepresenter.fromJSON(jsonReader)
-
-      assertThat(object.getProperty("Password").isSecure()).isTrue()
-    }
-  }
-
-  @Nested
-  class WithoutClusterProfileId {
-    @Test
-    void shouldThrowHaltExceptionForNotSpecifyingClusterProfileId() {
-      def elasticProfile = [
-        id        : 'docker',
-        plugin_id : 'cd.go.docker',
-        properties: [
-          [
-            "key"  : "DockerURI",
-            "value": "http://foo"
-          ]
-        ]
-      ]
-
-      def jsonReader = GsonTransformer.instance.jsonReaderFrom(elasticProfile)
-      assertThrows(HaltException.class, { ElasticProfileRepresenter.fromJSON(jsonReader) })
-    }
-  }
-
-  private static PluginDescriptor pluginDescriptor() {
-    return new PluginDescriptor() {
-      @Override
-      String id() {
-        return "cd.go.docker"
+        def jsonReader = GsonTransformer.instance.jsonReaderFrom(elasticProfile)
+        assertThrows(HaltException.class, { ElasticProfileRepresenter.fromJSON(jsonReader) })
       }
+    }
 
-      @Override
-      String version() {
-        return null
-      }
+    private static PluginDescriptor pluginDescriptor() {
+      return new PluginDescriptor() {
+        @Override
+        String id() {
+          return "cd.go.docker"
+        }
 
-      @Override
-      PluginDescriptor.About about() {
-        return null
+        @Override
+        String version() {
+          return null
+        }
+
+        @Override
+        PluginDescriptor.About about() {
+          return null
+        }
       }
     }
   }

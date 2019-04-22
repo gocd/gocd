@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -63,6 +65,36 @@ class HgMaterialConfigTest {
         assertThat(hgMaterialConfig.isAutoUpdate()).isFalse();
         assertThat(hgMaterialConfig.filter()).isEqualTo(new Filter(new IgnoredFiles("/root"), new IgnoredFiles("/**/*.help")));
     }
+
+    @Test
+    void setConfigAttributes_shouldUpdatePasswordWhenPasswordChangedBooleanChanged() throws Exception {
+        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig();
+        Map<String, String> map = new HashMap<>();
+        map.put(HgMaterialConfig.PASSWORD, "secret");
+        map.put(HgMaterialConfig.PASSWORD_CHANGED, "1");
+
+        hgMaterialConfig.setConfigAttributes(map);
+        assertThat(ReflectionUtil.getField(hgMaterialConfig, "password")).isNull();
+        assertThat(hgMaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(hgMaterialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
+
+        //Dont change
+        map.put(HgMaterialConfig.PASSWORD, "Hehehe");
+        map.put(HgMaterialConfig.PASSWORD_CHANGED, "0");
+        hgMaterialConfig.setConfigAttributes(map);
+
+        assertThat(ReflectionUtil.getField(hgMaterialConfig, "password")).isNull();
+        assertThat(hgMaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(hgMaterialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
+
+        map.put(HgMaterialConfig.PASSWORD, "");
+        map.put(HgMaterialConfig.PASSWORD_CHANGED, "1");
+        hgMaterialConfig.setConfigAttributes(map);
+
+        assertThat(hgMaterialConfig.getPassword()).isNull();
+        assertThat(hgMaterialConfig.getEncryptedPassword()).isNull();
+    }
+
 
     @Test
     void validate_shouldEnsureUrlIsNotBlank() {
@@ -185,5 +217,57 @@ class HgMaterialConfigTest {
         when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
         when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(secretConfigs));
         return validationContext;
+    }
+
+    @Nested
+    class FingerPrintShouldNotChangeBecauseOfUrlDenormalize {
+        @Test
+        void shouldNotChangeFingerprintForHttpUrlWithCredentials() {
+            HgMaterialConfig migratedConfig = new HgMaterialConfig("http://github.com/gocd/gocd", "my-branch");
+            migratedConfig.setUserName("bobfoo@example.com");
+            migratedConfig.setPassword("p@ssw&rd:");
+            assertThat(migratedConfig.getFingerprint()).isEqualTo("ff407f3ab9623d2a87c7c7037388863e30711ccda837fee54685ae490cea9b1b");
+
+        }
+
+        @Test
+        void shouldNotChangeFingerprintForHttpsUrlWithCredentials() {
+            HgMaterialConfig migratedConfig = new HgMaterialConfig("https://github.com/gocd/gocd", "my-branch");
+            migratedConfig.setUserName("bobfoo@example.com");
+            migratedConfig.setPassword("p@ssw&rd:");
+            assertThat(migratedConfig.getFingerprint()).isEqualTo("0128b4baa42f594edebf0aa8b03accb775437f87e24c091df43f7089d9273379");
+
+        }
+
+        @Test
+        void shouldNotChangeFingerprintForHttpUrlWithUsername() {
+            HgMaterialConfig migratedConfig = new HgMaterialConfig("https://github.com/gocd/gocd", "my-branch");
+            migratedConfig.setUserName("some-hex-key");
+
+            assertThat(migratedConfig.getFingerprint()).isEqualTo("740752da427d67093b8e41d2484d0408caa7a6e6aa39df670789a35d36a1c4fd");
+        }
+
+        @Test
+        void shouldChangeFingerprintForHttpUrlWithUsernameAndColonWithNoPassword() {
+            HgMaterialConfig config = new HgMaterialConfig("https://some-hex-key:@github.com/gocd/gocd", "my-branch");
+            assertThat(config.getFingerprint()).isNotEqualTo("2a8d3901b89ab34c75b5a5a0ce2fccaf1deef76e30e9534c9770e123534813ba");
+            assertThat(config.getFingerprint()).isEqualTo("740752da427d67093b8e41d2484d0408caa7a6e6aa39df670789a35d36a1c4fd");
+
+            HgMaterialConfig migratedConfig = new HgMaterialConfig("https://github.com/gocd/gocd", "my-branch");
+            migratedConfig.setUserName("some-hex-key");
+
+            assertThat(config.getFingerprint()).isEqualTo(migratedConfig.getFingerprint());
+        }
+
+        @Test
+        void shouldNotChangeFingerprintForHttpUrlWithPassword() {
+            HgMaterialConfig config = new HgMaterialConfig("https://:some-hex-key@github.com/gocd/gocd", "my-branch");
+            assertThat(config.getFingerprint()).isEqualTo("a8fa1c0729bd9687f31493e97281339cc8987779264e1f59d741be264c738f53");
+
+            HgMaterialConfig migratedConfig = new HgMaterialConfig("https://github.com/gocd/gocd", "my-branch");
+            migratedConfig.setPassword("some-hex-key");
+
+            assertThat(config.getFingerprint()).isEqualTo(migratedConfig.getFingerprint());
+        }
     }
 }

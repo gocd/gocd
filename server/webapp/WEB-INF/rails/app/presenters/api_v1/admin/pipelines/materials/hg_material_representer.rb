@@ -19,6 +19,15 @@ module ApiV1
     module Pipelines
       module Materials
         class HgMaterialRepresenter < ScmMaterialRepresenter
+          include EncryptedPasswordSupport
+          
+          property :user_name, as: :username
+          property :password,
+                   skip_render: true,
+                   skip_nil: true,
+                   skip_parse: true
+
+          property :encrypted_password, skip_nil: true, skip_parse: true
         end
       end
     end

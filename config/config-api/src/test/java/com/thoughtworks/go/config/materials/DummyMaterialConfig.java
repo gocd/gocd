@@ -27,21 +27,6 @@ public class DummyMaterialConfig extends ScmMaterialConfig {
     }
 
     @Override
-    public String getUserName() {
-        return null;
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String getEncryptedPassword() {
-        return null;
-    }
-
-    @Override
     public boolean isCheckExternals() {
         return false;
     }

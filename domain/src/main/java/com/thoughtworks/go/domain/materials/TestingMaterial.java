@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.joda.time.DateTime;
@@ -41,7 +42,7 @@ public class TestingMaterial extends ScmMaterial {
     private String url;
 
     public TestingMaterial() {
-        super(TYPE);
+        super(TYPE, new GoCipher());
     }
 
     public TestingMaterial(TestingMaterialConfig config) {
@@ -87,25 +88,6 @@ public class TestingMaterial extends ScmMaterial {
 
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    public String getUserName() {
-        return null;
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String passwordForCommandLine() {
-        return null;
-    }
-
-    @Override
-    public String getEncryptedPassword() {
-        return null;
     }
 
     public boolean isCheckExternals() {
@@ -157,13 +139,4 @@ public class TestingMaterial extends ScmMaterial {
         return new TestingMaterialConfig(url);
     }
 
-    @Override
-    public boolean hasSecretParams() {
-        return false;
-    }
-
-    @Override
-    public SecretParams getSecretParams() {
-        return new SecretParams();
-    }
 }

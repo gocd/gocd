@@ -16,16 +16,17 @@
 
 package com.thoughtworks.go.config.materials.git;
 
-import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
+import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitVersion;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
@@ -57,7 +58,6 @@ public class GitMaterial extends ScmMaterial {
     public static final int UNSHALLOW_TRYOUT_STEP = 100;
     public static final int DEFAULT_SHALLOW_CLONE_DEPTH = 2;
 
-
     private UrlArgument url;
     private String branch = GitMaterialConfig.DEFAULT_BRANCH;
     private boolean shallowClone = false;
@@ -67,10 +67,9 @@ public class GitMaterial extends ScmMaterial {
     public static final String TYPE = "GitMaterial";
     private static final String ERR_GIT_NOT_FOUND = "Failed to find 'git' on your PATH. Please ensure 'git' is executable by the Go Server and on the Go Agents where this material will be used.";
     public static final String ERR_GIT_OLD_VERSION = "Please install Git-core 1.6 or above. ";
-    private boolean parsed = false;
 
     public GitMaterial(String url) {
-        super(TYPE);
+        super(TYPE, new GoCipher());
         this.url = new UrlArgument(url);
     }
 
@@ -99,12 +98,16 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public GitMaterial(GitMaterialConfig config) {
-        this(config.getUrl(), config.getBranch(), config.getFolder(), config.isShallowClone());
+        this(toURLArgument(config.getUrl(), config.getUserName(), config.getPassword()), config.getBranch(), config.getFolder(), config.isShallowClone());
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
         this.name = config.getName();
         this.submoduleFolder = config.getSubmoduleFolder();
         this.invertFilter = config.getInvertFilter();
+    }
+
+    private static String toURLArgument(String url, String userName, String password) {
+        return UrlDenormalizerXSLTMigration121.urlWithCredentials(url, userName, password);
     }
 
     @Override
@@ -353,25 +356,6 @@ public class GitMaterial extends ScmMaterial {
         this.submoduleFolder = submoduleFolder;
     }
 
-    public String getUserName() {
-        return null;
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String passwordForCommandLine() {
-        return null;
-    }
-
-    @Override
-    public String getEncryptedPassword() {
-        return null;
-    }
-
     public boolean isCheckExternals() {
         return false;
     }
@@ -423,15 +407,6 @@ public class GitMaterial extends ScmMaterial {
         this.shallowClone = ((GitMaterialConfig) materialConfig).isShallowClone();
     }
 
-    @Override
-    public boolean hasSecretParams() {
-        return this.url != null && this.url.hasSecretParams();
-    }
-
-    @Override
-    public SecretParams getSecretParams() {
-        return url.getSecretParams();
-    }
 
     public GitMaterial withShallowClone(boolean value) {
         GitMaterialConfig config = (GitMaterialConfig) config();

@@ -16,16 +16,17 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
-import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
+import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance;
 import com.thoughtworks.go.domain.materials.mercurial.HgVersion;
 import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
@@ -62,7 +63,7 @@ public class HgMaterial extends ScmMaterial {
     private final String HG_DEFAULT_BRANCH = "default";
 
     private HgMaterial() {
-        super(TYPE);
+        super(TYPE, new GoCipher());
     }
 
     public HgMaterial(String url, String folder) {
@@ -72,7 +73,8 @@ public class HgMaterial extends ScmMaterial {
     }
 
     public HgMaterial(HgMaterialConfig config) {
-        this(config.getUrl(), config.getFolder());
+        this(UrlDenormalizerXSLTMigration121.urlWithCredentials(config.getUrl(), config.getUserName(), config.getPassword()), config.getFolder());
+        this.userName = config.getUserName();
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
         this.invertFilter = config.getInvertFilter();
@@ -221,25 +223,6 @@ public class HgMaterial extends ScmMaterial {
         return !MaterialUrl.sameUrl(url.defaultRemoteUrl(), new HgUrlArgument(result.outputAsString()).defaultRemoteUrl());
     }
 
-    public String getUserName() {
-        return null;
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String passwordForCommandLine() {
-        return null;
-    }
-
-    @Override
-    public String getEncryptedPassword() {
-        return null;
-    }
-
     public boolean isCheckExternals() {
         return false;
     }
@@ -346,13 +329,4 @@ public class HgMaterial extends ScmMaterial {
         return HG_DEFAULT_BRANCH;
     }
 
-    @Override
-    public boolean hasSecretParams() {
-        return this.url != null && url.hasSecretParams();
-    }
-
-    @Override
-    public SecretParams getSecretParams() {
-        return this.url.getSecretParams();
-    }
 }

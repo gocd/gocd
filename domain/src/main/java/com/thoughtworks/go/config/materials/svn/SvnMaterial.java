@@ -25,17 +25,14 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.svn.*;
-import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -43,7 +40,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
 import static java.lang.String.format;
@@ -54,19 +50,13 @@ import static java.lang.String.format;
 public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, PasswordAwareMaterial {
     private static final Logger LOGGER = LoggerFactory.getLogger(SvnMaterial.class);
     private UrlArgument url;
-    private String userName;
-    private String password;
-    private String encryptedPassword;
     private boolean checkExternals;
     private transient Subversion svnLazyLoaded;
 
-    private final GoCipher goCipher;
     public static final String TYPE = "SvnMaterial";
-    private SecretParams secretParamsForPassword;
 
     private SvnMaterial(GoCipher goCipher) {
-        super("SvnMaterial");
-        this.goCipher = goCipher;
+        super("SvnMaterial", goCipher);
     }
 
     public SvnMaterial(String url, String userName, String password, boolean checkExternals) {
@@ -93,8 +83,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public SvnMaterial(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
-        super("SvnMaterial");
-        this.goCipher = goCipher;
+        super("SvnMaterial",goCipher);
         bombIfNull(url, "null url");
         setUrl(url);
         this.userName = userName;
@@ -212,9 +201,6 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         if (url != null ? !url.equals(that.url) : that.url != null) {
             return false;
         }
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
 
         return true;
     }
@@ -223,7 +209,6 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (url != null ? url.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (checkExternals ? 1 : 0);
         return result;
     }
@@ -280,16 +265,8 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return String.format("URL: %s, Username: %s, CheckExternals: %s", url.forDisplay(), userName, checkExternals);
     }
 
-    public String getUserName() {
-        return userName;
-    }
-
     public void setUrl(String url) {
         this.url = new UrlArgument(url);
-    }
-
-    public void setPassword(String password) {
-        resetPassword(password);
     }
 
     public boolean isCheckExternals() {
@@ -332,68 +309,4 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
         return new SvnMaterial(svn);
     }
 
-    private void resetPassword(String passwordToSet) {
-        if (StringUtils.isBlank(passwordToSet)) {
-            encryptedPassword = null;
-        }
-        setPasswordIfNotBlank(passwordToSet);
-    }
-
-    private void setPasswordIfNotBlank(String password) {
-        this.password = StringUtils.stripToNull(password);
-        this.secretParamsForPassword = SecretParams.parse(password);
-        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
-
-        if (this.password == null) {
-            return;
-        }
-        try {
-            this.encryptedPassword = this.goCipher.encrypt(password);
-        } catch (Exception e) {
-            bomb("Password encryption failed. Please verify your cipher key.", e);
-        }
-        this.password = null;
-    }
-
-    public String getEncryptedPassword() {
-        return encryptedPassword;
-    }
-
-    @PostConstruct
-    public void ensureEncrypted() {
-        this.userName = StringUtils.stripToNull(this.userName);
-        setPasswordIfNotBlank(password);
-        if (encryptedPassword != null) {
-            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
-        }
-    }
-
-    private void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
-    }
-
-    @Override
-    public String getPassword() {
-        try {
-            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
-        } catch (CryptoException e) {
-            throw new RuntimeException("Could not decrypt the password to get the real password", e);
-        }
-    }
-
-    @Override
-    public String passwordForCommandLine() {
-        return secretParamsForPassword.isEmpty() ? getPassword() : secretParamsForPassword.substitute(getPassword());
-    }
-
-    @Override
-    public boolean hasSecretParams() {
-        return (this.url != null && this.url.hasSecretParams())
-                || (this.secretParamsForPassword != null && !this.secretParamsForPassword.isEmpty());
-    }
-
-    @Override
-    public SecretParams getSecretParams() {
-        return SecretParams.union(url.getSecretParams(), secretParamsForPassword);
-    }
 }

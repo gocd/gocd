@@ -18,7 +18,7 @@
 <xsd:schema elementFormDefault="qualified" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <xsd:annotation>
     <xsd:documentation xml:lang="en">
-      Configuration schema for Go. Copyright (c) 2017 ThoughtWorks, Inc.
+      Configuration schema for Go. Copyright (c) 2019 ThoughtWorks, Inc.
       www.thoughtworks.com. All rights reserved.
     </xsd:documentation>
   </xsd:annotation>
@@ -220,11 +220,17 @@
   </xsd:complexType>
   <xsd:complexType name="configRepoGitType">
     <xsd:attribute name="url" type="xsd:string" use="required"/>
+    <xsd:attribute name="username" type="xsd:string"/>
+    <xsd:attribute name="password" type="xsd:string"/>
+    <xsd:attribute name="encryptedPassword" type="xsd:string"/>
     <xsd:attribute name="branch" type="xsd:string" use="optional"/>
     <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
   </xsd:complexType>
   <xsd:complexType name="configRepoHgType">
     <xsd:attribute name="url" type="xsd:string" use="required"/>
+    <xsd:attribute name="username" type="xsd:string"/>
+    <xsd:attribute name="password" type="xsd:string"/>
+    <xsd:attribute name="encryptedPassword" type="xsd:string"/>
     <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
   </xsd:complexType>
   <xsd:complexType name="configRepoTfsType">
@@ -543,6 +549,9 @@
       <xsd:element name="filter" type="filterType" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
     <xsd:attribute name="url" type="xsd:string" use="required"/>
+    <xsd:attribute name="username" type="xsd:string"/>
+    <xsd:attribute name="password" type="xsd:string"/>
+    <xsd:attribute name="encryptedPassword" type="xsd:string"/>
     <xsd:attribute name="dest" type="filePathType" use="optional"/>
     <xsd:attribute name="branch" type="xsd:string" use="optional"/>
     <xsd:attribute name="shallowClone" type="xsd:boolean" use="optional"/>
@@ -555,6 +564,9 @@
       <xsd:element name="filter" type="filterType" minOccurs="0" maxOccurs="1"/>
     </xsd:sequence>
     <xsd:attribute name="url" type="xsd:string" use="required"/>
+    <xsd:attribute name="username" type="xsd:string"/>
+    <xsd:attribute name="password" type="xsd:string"/>
+    <xsd:attribute name="encryptedPassword" type="xsd:string"/>
     <xsd:attribute name="dest" type="filePathType" use="optional"/>
     <xsd:attribute name="materialName" type="nameType" use="optional"/>
     <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>

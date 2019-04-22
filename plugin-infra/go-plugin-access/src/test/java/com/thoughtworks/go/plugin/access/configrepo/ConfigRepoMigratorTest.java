@@ -20,7 +20,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ConfigRepoMigratorTest {
     private ConfigRepoMigrator migrator;
@@ -126,6 +125,19 @@ public class ConfigRepoMigratorTest {
         String newJSON = documentMother.v4ComprehensiveWithDisplayOrderWeightsOf10AndMinusOne();
 
         String transformedJSON = migrator.migrate(oldJSON, 4);
+
+        assertThatJson(newJSON).isEqualTo(transformedJSON);
+    }
+
+
+    @Test
+    public void migrateV4ToV5_shouldNormalizeMaterialUrlsForGit() {
+        ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+
+        String oldJSON = documentMother.v4GitMaterialWithCredentialInUrl();
+        String newJSON = documentMother.v5GitMaterialWithCredentialNotInUrl();
+
+        String transformedJSON = migrator.migrate(oldJSON, 5);
 
         assertThatJson(newJSON).isEqualTo(transformedJSON);
     }

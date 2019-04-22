@@ -27,27 +27,22 @@ import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommand;
 import com.thoughtworks.go.domain.materials.tfs.TfsCommandFactory;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
-import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, PasswordEncrypter {
     private static final Logger LOGGER = LoggerFactory.getLogger(TfsMaterial.class);
@@ -55,17 +50,11 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     public static final String TYPE = "TfsMaterial";
 
     private UrlArgument url;
-    private String userName;
     private String domain = "";
-    private String password;
-    private String encryptedPassword;
     private String projectPath;
-    private final GoCipher goCipher;
-    private SecretParams secretParamsForPassword;
 
     public TfsMaterial(GoCipher goCipher) {
-        super(TYPE);
-        this.goCipher = goCipher;
+        super(TYPE, goCipher);
     }
 
     public TfsMaterial(GoCipher goCipher, UrlArgument url, String userName, String domain, String password, String projectPath) {
@@ -93,34 +82,6 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     public String getDomain() {
         return domain;
-    }
-
-    @Override
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setPassword(String password) {
-        resetPassword(password);
-    }
-
-    @Override
-    public String getPassword() {
-        try {
-            return isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
-        } catch (CryptoException e) {
-            throw new RuntimeException("Could not decrypt the password to get the real password", e);
-        }
-    }
-
-    @Override
-    public String passwordForCommandLine() {
-        return this.secretParamsForPassword.isEmpty() ? getPassword() : this.secretParamsForPassword.substitute(getPassword());
-    }
-
-    @Override
-    public String getEncryptedPassword() {
-        return encryptedPassword;
     }
 
     public String getProjectPath() {
@@ -253,9 +214,6 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         if (url != null ? !url.equals(material.url) : material.url != null) {
             return false;
         }
-        if (userName != null ? !userName.equals(material.userName) : material.userName != null) {
-            return false;
-        }
         if (domain != null ? !domain.equals(material.domain) : material.domain != null) {
             return false;
         }
@@ -266,7 +224,6 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (url != null ? url.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (domain != null ? domain.hashCode() : 0);
         result = 31 * result + (projectPath != null ? projectPath.hashCode() : 0);
         return result;
@@ -275,60 +232,5 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.DEFAULT_STYLE, true);
-    }
-
-    @PostConstruct
-    public void ensureEncrypted() {
-        this.userName = StringUtils.stripToNull(this.userName);
-        setPasswordIfNotBlank(password);
-
-        if (encryptedPassword != null) {
-            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
-        }
-    }
-
-    private void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
-    }
-
-    private void resetPassword(String passwordToSet) {
-        if (StringUtils.isBlank(passwordToSet)) {
-            encryptedPassword = null;
-        }
-
-        setPasswordIfNotBlank(passwordToSet);
-    }
-
-    private void setPasswordIfNotBlank(String password) {
-        this.password = StringUtils.stripToNull(password);
-        this.secretParamsForPassword = SecretParams.parse(password);
-        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
-
-        if (this.password == null) {
-            return;
-        }
-        try {
-            this.encryptedPassword = this.goCipher.encrypt(password);
-        } catch (Exception e) {
-            bomb("Password encryption failed. Please verify your cipher key.", e);
-        }
-        this.password = null;
-    }
-
-    /* Needed although there is a getUserName above */
-    public String getUsername() {
-        return userName;
-    }
-
-    @Override
-    public boolean hasSecretParams() {
-        return (this.url != null && this.url.hasSecretParams())
-                || (this.secretParamsForPassword != null && !this.secretParamsForPassword.isEmpty());
-
-    }
-
-    @Override
-    public SecretParams getSecretParams() {
-        return SecretParams.union(url.getSecretParams(), this.secretParamsForPassword);
     }
 }

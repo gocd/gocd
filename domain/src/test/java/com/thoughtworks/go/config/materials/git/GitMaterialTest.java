@@ -559,7 +559,7 @@ public class GitMaterialTest {
     }
 
     @Nested
-    class getSecretParams {
+    class GetSecretParams {
         @Test
         void shouldReturnAListOfSecretParams() {
             GitMaterial git = new GitMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com");

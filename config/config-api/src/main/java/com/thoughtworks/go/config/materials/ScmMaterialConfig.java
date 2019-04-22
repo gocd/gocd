@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,22 @@
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.FilenameUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isNotEmpty;
@@ -42,6 +44,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     public static final String URL = "url";
     public static final String USERNAME = "username";
+    protected GoCipher goCipher;
 
     @ConfigSubtag
     private Filter filter;
@@ -55,6 +58,16 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     @ConfigAttribute(value = "autoUpdate", optional = true)
     private boolean autoUpdate = true;
 
+    @ConfigAttribute(value = "username", allowNull = true)
+    protected String userName;
+
+    @SkipParameterResolution
+    @ConfigAttribute(value = "password", allowNull = true)
+    protected String password;
+
+    @ConfigAttribute(value = "encryptedPassword", allowNull = true)
+    protected String encryptedPassword;
+
     public static final String PASSWORD = "password";
     public static final String ENCRYPTED_PASSWORD = "encryptedPassword";
     public static final String PASSWORD_CHANGED = "passwordChanged";
@@ -65,11 +78,17 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     public static final String INVERT_FILTER = "invertFilter";
 
     public ScmMaterialConfig(String typeName) {
+        this(typeName, new GoCipher());
+    }
+
+    public ScmMaterialConfig(String typeName, GoCipher goCipher) {
         super(typeName);
+        this.goCipher = goCipher;
     }
 
     public ScmMaterialConfig(CaseInsensitiveString name, Filter filter, boolean invertFilter, String folder, boolean autoUpdate, String typeName, ConfigErrors errors) {
         super(typeName, name, errors);
+        this.goCipher = new GoCipher();
         this.filter = filter;
         this.invertFilter = invertFilter;
         this.folder = folder;
@@ -97,11 +116,84 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         return name.matches(regex);
     }
 
-    public abstract String getUserName();
+    public final GoCipher getGoCipher() {
+        return goCipher;
+    }
 
-    public abstract String getPassword();
+    public final void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-    public abstract String getEncryptedPassword();
+    public final String getUserName() {
+        return userName;
+    }
+
+    /* Needed by rails! */
+
+    /**
+     * @deprecated "Use `getUserName` instead"
+     */
+    @Deprecated
+    public String getUsername() {
+        return getUserName();
+    }
+
+    public final String getPassword() {
+        return currentPassword();
+    }
+
+    public final void setPassword(String password) {
+        resetPassword(password);
+    }
+
+    protected void resetPassword(String passwordToSet) {
+        if (StringUtils.isBlank(passwordToSet)) {
+            encryptedPassword = null;
+        }
+
+        setPasswordIfNotBlank(passwordToSet);
+    }
+
+    @PostConstruct
+    public final void ensureEncrypted() {
+        this.userName = StringUtils.stripToNull(this.userName);
+        setPasswordIfNotBlank(password);
+
+        if (encryptedPassword != null) {
+            setEncryptedPassword(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword));
+        }
+    }
+
+    private void setPasswordIfNotBlank(String password) {
+        this.password = StringUtils.stripToNull(password);
+        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
+
+        if (this.password == null) {
+            return;
+        }
+        try {
+            this.encryptedPassword = this.goCipher.encrypt(password);
+        } catch (Exception e) {
+            bomb("Password encryption failed. Please verify your cipher key.", e);
+        }
+        this.password = null;
+    }
+
+    public final String currentPassword() {
+        try {
+            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+        } catch (Exception e) {
+            throw new RuntimeException("Could not decrypt the password to get the real password", e);
+        }
+    }
+
+    public final void setEncryptedPassword(String encryptedPassword) {
+        this.encryptedPassword = encryptedPassword;
+    }
+
+    public final String getEncryptedPassword() {
+        return encryptedPassword;
+    }
 
     public abstract boolean isCheckExternals();
 
@@ -185,7 +277,9 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         if (folder != null ? !folder.equals(that.folder) : that.folder != null) {
             return false;
         }
-
+        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+            return false;
+        }
         return super.equals(that);
     }
 
@@ -193,6 +287,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (folder != null ? folder.hashCode() : 0);
+        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         return result;
     }
 

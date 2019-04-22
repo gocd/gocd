@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
@@ -54,7 +55,9 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     public GitMaterialConfig(String url) {
         super(TYPE);
-        setUrl(url);
+        setUrl(UrlDenormalizerXSLTMigration121.urlWithoutCredentials(url));
+        setUserName(UrlDenormalizerXSLTMigration121.getUsername(url));
+        setPassword(UrlDenormalizerXSLTMigration121.getPassword(url));
     }
 
     public GitMaterialConfig(String url, String branch) {
@@ -71,7 +74,9 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name, Boolean shallowClone) {
         super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
-        this.url = url;
+        setUrl(UrlDenormalizerXSLTMigration121.urlWithoutCredentials(url.forCommandLine()));
+        setUserName(UrlDenormalizerXSLTMigration121.getUsername(url.forCommandLine()));
+        setPassword(UrlDenormalizerXSLTMigration121.getPassword(url.forCommandLine()));
         if (branch != null) {
             this.branch = branch;
         }
@@ -81,7 +86,8 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
+        String urlWithCredentials = UrlDenormalizerXSLTMigration121.urlWithCredentials(this.url.originalArgument(), getUserName(), getPassword());
+        parameters.put(ScmMaterialConfig.URL, urlWithCredentials);
         parameters.put("branch", branch);
     }
 
@@ -182,21 +188,6 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     }
 
     @Override
-    public String getUserName() {
-        return null;
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String getEncryptedPassword() {
-        return null;
-    }
-
-    @Override
     public boolean isCheckExternals() {
         return false;
     }
@@ -228,6 +219,13 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         if (map.containsKey(BRANCH)) {
             String branchName = (String) map.get(BRANCH);
             this.branch = StringUtils.isBlank(branchName) ? DEFAULT_BRANCH : branchName;
+        }
+        if (map.containsKey("userName")) {
+            this.userName = (String) map.get("userName");
+        }
+        if (map.containsKey(PASSWORD_CHANGED) && "1".equals(map.get(PASSWORD_CHANGED))) {
+            String passwordToSet = (String) map.get(PASSWORD);
+            resetPassword(passwordToSet);
         }
         if (map.containsKey(URL)) {
             this.url = new UrlArgument((String) map.get(URL));

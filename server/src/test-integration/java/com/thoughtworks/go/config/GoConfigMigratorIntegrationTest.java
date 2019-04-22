@@ -32,14 +32,13 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.helper.ConfigFileFixture;
+import com.thoughtworks.go.security.CryptoException;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
-import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.TimeProvider;
+import com.thoughtworks.go.util.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -55,6 +54,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.xmlunit.assertj.SingleNodeAssert;
 import org.xmlunit.assertj.XmlAssert;
 
 import java.io.File;
@@ -906,7 +908,7 @@ public class GoConfigMigratorIntegrationTest {
                 new ConfigurationProperty(new ConfigurationKey("diskSpace"), new ConfigurationValue("10G")));
         assertThat(profiles.get(1)).isEqualTo(expectedAWSProfile);
 
-        ElasticProfile expectedSecondDockerProfile = new ElasticProfile(distJobs.get(0).getElasticProfileId(), "docker","no-op-cluster-for-docker",
+        ElasticProfile expectedSecondDockerProfile = new ElasticProfile(distJobs.get(0).getElasticProfileId(), "docker", "no-op-cluster-for-docker",
                 new ConfigurationProperty(new ConfigurationKey("instance-type"), new ConfigurationValue("m1.small")));
         assertThat(profiles.get(2)).isEqualTo(expectedSecondDockerProfile);
     }
@@ -1007,7 +1009,7 @@ public class GoConfigMigratorIntegrationTest {
 
             final CruiseConfig cruiseConfig = migrateConfigAndLoadTheNewConfig(configXml);
             assertThat(StringUtils.isNotBlank(cruiseConfig.server().getTokenGenerationKey())).isTrue();
-        } catch (Exception e){
+        } catch (Exception e) {
             System.err.println("jyoti singh: " + e.getMessage());
         }
     }
@@ -1271,7 +1273,7 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldDefineNoOpClustersAsPartOfMigration119() throws Exception {
-        String configContent =  " <elastic>\n" +
+        String configContent = " <elastic>\n" +
                 "    <profiles>\n" +
                 "      <profile id=\"profile1\" pluginId=\"cd.go.contrib.elastic-agent.docker\">\n" +
                 "        <property>\n" +
@@ -1338,6 +1340,148 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(migratedElasticAgentProfiles.find("profile5")).isEqualTo(profile5);
     }
 
+    @Test
+    public void shouldStripCredentialsFromGitMaterialUrlsAsPartOfMigration121() throws Exception {
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion='120'>" +
+                        "  <pipelines group='first'>" +
+                        "    <pipeline name='Test' template='test_template'>" +
+                        "      <materials>" +
+                        "          <git url='https://example.com/xxx' dest='dest_dir1'/>" +
+                        "          <git url='https://example.com:8443/xxx' dest='dest_dir2' />" +
+                        "          <git url='https://foo@example.com/yyy' dest='dest_dir3' />" +
+                        "          <git url='https://foo:@example.com/yyy' dest='dest_dir4' />" +
+                        "          <git url='https://:bar@example.com/yyy' dest='dest_dir5' />" +
+                        "          <git url='https://foo:bar@example.com/yyy' dest='dest_dir6' />" +
+                        "          <git url='https://foo@example.com:8154/aaa' dest='dest_dir7' />" +
+                        "          <git url='https://foo:@example.com:8154/vbb' dest='dest_dir8' />" +
+                        "          <git url='https://:bar@example.com:8154/ccc' dest='dest_dir9' />" +
+                        "          <git url='https://foo:bar@example.com:8154/eee' dest='dest_dir10' />" +
+                        "          <git url='git@example.com/ddd' dest='dest_dir11' />" +
+                        "          <git url='git@example.com:8154/ddd' dest='dest_dir12' />" +
+                        " <!-- bad urls, but valid as per XSD --> "+
+                        "          <git url='https://' dest='dest_dir13' />" +
+                        "          <git url='http://' dest='dest_dir14' />" +
+                        "      </materials>" +
+                        "     </pipeline>" +
+                        "  </pipelines>" +
+                        "  <templates>" +
+                        "    <pipeline name='test_template'>" +
+                        "      <stage name='Functional'>" +
+                        "        <jobs>" +
+                        "          <job name='Functional'>" +
+                        "            <tasks>" +
+                        "              <exec command='echo' args='Hello World!!!' />" +
+                        "            </tasks>" +
+                        "           </job>" +
+                        "        </jobs>" +
+                        "      </stage>" +
+                        "    </pipeline>" +
+                        "  </templates>" +
+                        "</cruise>";
+        migrateConfigAndLoadTheNewConfig(configXml);
+
+        assertMaterial(1, "git", "https://example.com/xxx", null, null);
+        assertMaterial(2, "git", "https://example.com:8443/xxx", null, null);
+        assertMaterial(3, "git", "https://example.com/yyy", "foo", null);
+        assertMaterial(4, "git", "https://example.com/yyy", "foo", null);
+        assertMaterial(5, "git", "https://example.com/yyy", null, "bar");
+        assertMaterial(6, "git", "https://example.com/yyy", "foo", "bar");
+        assertMaterial(7, "git", "https://example.com:8154/aaa", "foo", null);
+        assertMaterial(8, "git", "https://example.com:8154/vbb", "foo", null);
+        assertMaterial(9, "git", "https://example.com:8154/ccc", null, "bar");
+        assertMaterial(10, "git", "https://example.com:8154/eee", "foo", "bar");
+        assertMaterial(11, "git", "git@example.com/ddd", null, null);
+        assertMaterial(12, "git", "git@example.com:8154/ddd", null, null);
+        assertMaterial(13, "git", "https://", null, null);
+        assertMaterial(14, "git", "http://", null, null);
+    }
+
+    @Test
+    public void shouldStripCredentialsFromHgMaterialUrlsAsPartOfMigration121() throws Exception {
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion='120'>" +
+                        "  <pipelines group='first'>" +
+                        "    <pipeline name='Test' template='test_template'>" +
+                        "      <materials>" +
+                        "          <hg url='https://example.com/xxx' dest='dest_dir1'/>" +
+                        "          <hg url='https://example.com:8443/xxx' dest='dest_dir2' />" +
+                        "          <hg url='https://foo@example.com/yyy' dest='dest_dir3' />" +
+                        "          <hg url='https://foo:@example.com/yyy' dest='dest_dir4' />" +
+                        "          <hg url='https://:bar@example.com/yyy' dest='dest_dir5' />" +
+                        "          <hg url='https://foo:bar@example.com/yyy' dest='dest_dir6' />" +
+                        "          <hg url='https://foo@example.com:8154/aaa' dest='dest_dir7' />" +
+                        "          <hg url='https://foo:@example.com:8154/vbb' dest='dest_dir8' />" +
+                        "          <hg url='https://:bar@example.com:8154/ccc' dest='dest_dir9' />" +
+                        "          <hg url='https://foo:bar@example.com:8154/eee' dest='dest_dir10' />" +
+                        "          <hg url='hg@example.com/ddd' dest='dest_dir11' />" +
+                        "          <hg url='hg@example.com:8154/ddd' dest='dest_dir12' />" +
+                        "      </materials>" +
+                        "     </pipeline>" +
+                        "  </pipelines>" +
+                        "  <templates>" +
+                        "    <pipeline name='test_template'>" +
+                        "      <stage name='Functional'>" +
+                        "        <jobs>" +
+                        "          <job name='Functional'>" +
+                        "            <tasks>" +
+                        "              <exec command='echo' args='Hello World!!!' />" +
+                        "            </tasks>" +
+                        "           </job>" +
+                        "        </jobs>" +
+                        "      </stage>" +
+                        "    </pipeline>" +
+                        "  </templates>" +
+                        "</cruise>";
+        migrateConfigAndLoadTheNewConfig(configXml);
+
+
+        assertMaterial(1, "hg", "https://example.com/xxx", null, null);
+        assertMaterial(2, "hg", "https://example.com:8443/xxx", null, null);
+        assertMaterial(3, "hg", "https://example.com/yyy", "foo", null);
+        assertMaterial(4, "hg", "https://example.com/yyy", "foo", null);
+        assertMaterial(5, "hg", "https://example.com/yyy", null, "bar");
+        assertMaterial(6, "hg", "https://example.com/yyy", "foo", "bar");
+        assertMaterial(7, "hg", "https://example.com:8154/aaa", "foo", null);
+        assertMaterial(8, "hg", "https://example.com:8154/vbb", "foo", null);
+        assertMaterial(9, "hg", "https://example.com:8154/ccc", null, "bar");
+        assertMaterial(10, "hg", "https://example.com:8154/eee", "foo", "bar");
+        assertMaterial(11, "hg", "hg@example.com/ddd", null, null);
+        assertMaterial(12, "hg", "hg@example.com:8154/ddd", null, null);
+    }
+
+    private void assertMaterial(int index, String tag, String url, String username, String password) throws IOException {
+        String migratedConfigString = FileUtils.readFileToString(configFile, UTF_8);
+
+        SingleNodeAssert assertion = XmlAssert.assertThat(migratedConfigString).nodesByXPath("(//cruise/pipelines/pipeline/materials/" + tag + ")[" + index + "]")
+                .hasSize(1)
+                .first();
+
+        assertion
+                .hasAttribute("url", url)
+                .doesNotHaveAttribute("password");
+
+        if (username == null) {
+            assertion.doesNotHaveAttribute("username");
+        } else {
+            assertion.hasAttribute("username", username);
+        }
+
+        if (password == null) {
+            assertion.doesNotHaveAttribute("encryptedPassword");
+        } else {
+            assertion.hasAttribute("encryptedPassword").matches((Node node) -> {
+                try {
+                    return new GoCipher().decrypt(((Element) node).getAttribute("encryptedPassword")).equals(password);
+                } catch (CryptoException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+        }
+    }
+
     private TimerConfig createTimerConfigWithAttribute(String valueForOnChangesInTimer) throws Exception {
         final String content = configWithTimerBasedPipeline(valueForOnChangesInTimer);
         CruiseConfig configAfterMigration = migrateConfigAndLoadTheNewConfig(content);
@@ -1348,16 +1492,16 @@ public class GoConfigMigratorIntegrationTest {
 
     private String configWithTimerBasedPipeline(String valueForOnChangesInTimer) {
         return ConfigFileFixture.configWithPipeline("<pipeline name='old-timer'>"
-                    + "  <timer " + valueForOnChangesInTimer + ">0 0 1 * * ?</timer>"
-                    + "  <materials>"
-                    + "    <git url='/tmp/git' />"
-                    + "  </materials>"
-                    + "  <stage name='dist'>"
-                    + "    <jobs>"
-                    + "      <job name='test' />"
-                    + "    </jobs>"
-                    + "  </stage>"
-                    + "</pipeline>", 63);
+                + "  <timer " + valueForOnChangesInTimer + ">0 0 1 * * ?</timer>"
+                + "  <materials>"
+                + "    <git url='/tmp/git' />"
+                + "  </materials>"
+                + "  <stage name='dist'>"
+                + "    <jobs>"
+                + "      <job name='test' />"
+                + "    </jobs>"
+                + "  </stage>"
+                + "</pipeline>", 63);
     }
 
     private CruiseConfig migrateConfigAndLoadTheNewConfig(String content) throws Exception {

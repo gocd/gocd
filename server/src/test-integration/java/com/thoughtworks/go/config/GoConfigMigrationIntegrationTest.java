@@ -1299,39 +1299,15 @@ public class GoConfigMigrationIntegrationTest {
                 + configContent
                 + "</cruise>";
 
-        String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion=\"120\">\n"
-                + "<elastic jobStarvationTimeout=\"1\">\n" +
-                "    <agentProfiles>\n" +
-                "      <agentProfile clusterProfileId=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" id=\"ecs-gocd-dev-build-dind\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
-                "        <property>\n" +
-                "          <key>Image</key>\n" +
-                "          <value>docker.gocd.io/gocddev/gocd-dev-build:centos-7-v2.0.67</value>\n" +
-                "        </property>\n" +
-                "      </agentProfile>\n" +
-                "      <agentProfile clusterProfileId=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" id=\"ecs-gocd-dev-build-dind-docker-compose\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
-                "        <property>\n" +
-                "          <key>Image</key>\n" +
-                "          <value>docker.gocd.io/gocddev/gocd-dev-build:centos-7-v2.0.67</value>\n" +
-                "        </property>\n" +
-                "      </agentProfile>\n" +
-                "    </agentProfiles>\n" +
-                "    <clusterProfiles>\n" +
-                "      <clusterProfile id=\"no-op-cluster-for-cd.go.contrib.elasticagent.kubernetes\" pluginId=\"cd.go.contrib.elasticagent.kubernetes\"/>\n" +
-                "      <clusterProfile id=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
-                "        <property>\n" +
-                "          <key>GoServerUrl</key>\n" +
-                "          <value>https://build.gocd.io:8154/go</value>\n" +
-                "        </property>\n" +
-                "      </clusterProfile>\n" +
-                "    </clusterProfiles>\n" +
-                "  </elastic>"
-                + "</cruise>";
-
         String migratedContent = migrateXmlString(configXml, 119, 120);
-        org.xmlunit.assertj.XmlAssert.assertThat(migratedContent).isEqualTo(expected);
+
+        assertThat(migratedContent).doesNotContain("<profiles");
+        assertThat(migratedContent).doesNotContain("<profile");
+        assertThat(migratedContent).contains("<agentProfiles");
+        assertThat(migratedContent).contains("<agentProfiles");
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
+        assertThat(cruiseConfig.getElasticConfig().getJobStarvationTimeout()).isEqualTo(1 * 60 * 1000);
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).hasSize(2);
         assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind")).isNotNull();
         assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind-docker-compose")).isNotNull();

@@ -31,7 +31,7 @@ public class GitMaterialRepresenter {
     }
 
     public static GitMaterialConfig fromJSON(JsonReader jsonReader) {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig(jsonReader.optString("url").get());
         ScmMaterialRepresenter.fromJSON(jsonReader, gitMaterialConfig);
         jsonReader.optString("branch").ifPresent(branch -> {
             if (StringUtils.isNotBlank(branch)) {

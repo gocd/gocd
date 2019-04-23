@@ -35,6 +35,7 @@ public class TfsMaterialRepresenter {
     public static TfsMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, tfsMaterialConfig);
+        jsonReader.readStringIfPresent("url", tfsMaterialConfig::setUrl);
         jsonReader.readStringIfPresent("domain", tfsMaterialConfig::setDomain);
         jsonReader.readStringIfPresent("username", tfsMaterialConfig::setUserName);
         jsonReader.readStringIfPresent("project_path", tfsMaterialConfig::setProjectPath);

@@ -34,6 +34,7 @@ public class SvnMaterialRepresenter {
     public static SvnMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, svnMaterialConfig);
+        jsonReader.readStringIfPresent("url", svnMaterialConfig::setUrl);
         jsonReader.optBoolean("check_externals").ifPresent(svnMaterialConfig::setCheckExternals);
         jsonReader.readStringIfPresent("username", svnMaterialConfig::setUserName);
         String password = null, encryptedPassword = null;

@@ -17,8 +17,11 @@
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import SparkRoutes from "helpers/spark_routes";
+import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 
 export class PipelineConfig extends ValidatableMixin {
+  group: Stream<string> = stream("defaultGroup");
   name: Stream<string>;
 
   constructor(name: string) {

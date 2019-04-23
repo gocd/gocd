@@ -16,11 +16,13 @@
 
 import * as m from "mithril";
 import {GitMaterialAttributes, Material} from "models/materials/types";
+import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TestConnection} from "views/components/materials/test_connection";
 import {Page, PageState} from "views/pages/page";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import {ConceptDiagram} from "views/pages/pipelines/concept_diagram";
 import {FillableSection} from "views/pages/pipelines/fillable_section";
+import {PipelineInfoEditor} from "views/pages/pipelines/pipeline_info_editor";
 import {UserInputPane} from "views/pages/pipelines/user_input_pane";
 
 const materialImg = require("../../../app/assets/images/concept_diagrams/concept_material.svg");
@@ -30,12 +32,18 @@ const jobImg      = require("../../../app/assets/images/concept_diagrams/concept
 const dummyMaterial = new Material("git", new GitMaterialAttributes("SomeRepo", false, "https://github.com/gocd/gocd", "master"));
 
 export class PipelineCreatePage extends Page {
+  private model: PipelineConfig = new PipelineConfig("");
+
   pageName(): string {
     return "Add a New Pipeline";
   }
 
   oninit(vnode: m.Vnode) {
     this.pageState = PageState.OK;
+    const group = m.parseQueryString(window.location.search).group;
+    if ("" !== String(group || "").trim()) {
+      this.model.group(group);
+    }
   }
 
   componentToDisplay(vnode: m.Vnode): m.Children {
@@ -56,10 +64,7 @@ export class PipelineCreatePage extends Page {
 
       <FillableSection>
         <UserInputPane heading="Part 2: Pipeline Name">
-          <p>Form fields go here</p>
-          <AdvancedSettings>
-            More to come...
-          </AdvancedSettings>
+          <PipelineInfoEditor pipelineConfig={this.model}/>
         </UserInputPane>
         <ConceptDiagram image={pipelineImg}>
           In GoCD, a <strong>pipeline</strong> is a representation of a <strong>workflow</strong>.

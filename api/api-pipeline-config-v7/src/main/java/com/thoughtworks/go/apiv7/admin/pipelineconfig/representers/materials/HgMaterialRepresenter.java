@@ -21,17 +21,18 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 
-public class HgMaterialRepresenter implements MaterialRepresenter<HgMaterialConfig> {
+public class HgMaterialRepresenter extends ScmMaterialRepresenter<HgMaterialConfig> {
 
     @Override
     public void toJSON(OutputWriter jsonWriter, HgMaterialConfig hgMaterialConfig) {
-        ScmMaterialRepresenter.toJSON(jsonWriter, hgMaterialConfig);
+        super.toJSON(jsonWriter, hgMaterialConfig);
     }
 
     @Override
-    public HgMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions configHelperOptions) {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig();
-        ScmMaterialRepresenter.fromJSON(jsonReader, hgMaterialConfig);
+    public HgMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig(jsonReader.optString("url").get(), null);
+        super.fromJSON(jsonReader, hgMaterialConfig, options);
+        validateCredentials(jsonReader, hgMaterialConfig);
         return hgMaterialConfig;
     }
 }

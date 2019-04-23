@@ -18,12 +18,19 @@ package com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions;
+import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
+import org.apache.commons.lang3.StringUtils;
 
-public class ScmMaterialRepresenter {
+import java.util.Optional;
 
-    public static void toJSON(OutputWriter jsonWriter, ScmMaterialConfig scmMaterialConfig) {
+import static com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121.urlWithoutCredentials;
+
+public abstract class ScmMaterialRepresenter<T extends ScmMaterialConfig> implements MaterialRepresenter<T> {
+    @Override
+    public void toJSON(OutputWriter jsonWriter, T scmMaterialConfig) {
         if (!(scmMaterialConfig instanceof P4MaterialConfig)) {
             jsonWriter.add("url", scmMaterialConfig.getUrl());
         }
@@ -41,8 +48,7 @@ public class ScmMaterialRepresenter {
         jsonWriter.addIfNotNull("encrypted_password", scmMaterialConfig.getEncryptedPassword());
     }
 
-    public static void fromJSON(JsonReader jsonReader, ScmMaterialConfig scmMaterialConfig) {
-        jsonReader.readStringIfPresent("url", scmMaterialConfig::setUrl);
+    public void fromJSON(JsonReader jsonReader, ScmMaterialConfig scmMaterialConfig, ConfigHelperOptions options) {
         jsonReader.readStringIfPresent("destination", scmMaterialConfig::setFolder);
         jsonReader.optBoolean("invert_filter").ifPresent(scmMaterialConfig::setInvertFilter);
         jsonReader.optJsonObject("filter").ifPresent(filterReader -> {
@@ -50,5 +56,47 @@ public class ScmMaterialRepresenter {
         });
         jsonReader.readCaseInsensitiveStringIfPresent("name", scmMaterialConfig::setName);
         jsonReader.optBoolean("auto_update").ifPresent(scmMaterialConfig::setAutoUpdate);
+
+        jsonReader.readStringIfPresent("username", scmMaterialConfig::setUserName);
+        String password = null, encryptedPassword = null;
+        if (jsonReader.hasJsonObject("password")) {
+            password = jsonReader.getString("password");
+        }
+        if (jsonReader.hasJsonObject("encrypted_password")) {
+            encryptedPassword = jsonReader.getString("encrypted_password");
+        }
+
+        PasswordDeserializer passwordDeserializer = options.getPasswordDeserializer();
+        String encryptedPasswordValue = passwordDeserializer.deserialize(password, encryptedPassword, scmMaterialConfig);
+        scmMaterialConfig.setEncryptedPassword(encryptedPasswordValue);
+    }
+
+    void validateCredentials(JsonReader jsonReader, ScmMaterialConfig scmMaterialConfig) {
+        final Optional<String> url = jsonReader.optString("url");
+
+        if (!url.isPresent()) {
+            return;
+        }
+
+        if (!hasCredentials(url.get())) {
+            return;
+        }
+
+        final Optional<String> username = jsonReader.optString("username");
+        final Optional<String> password = jsonReader.optString("password");
+        final Optional<String> encryptedPassword = jsonReader.optString("encrypted_password");
+
+        if (username.isPresent() || password.isPresent() || encryptedPassword.isPresent()) {
+            final String errorMessage = "You may only specify credentials in `url` or attributes, not both!";
+            scmMaterialConfig.errors().add("url", errorMessage);
+
+            username.ifPresent((u) -> scmMaterialConfig.errors().add("username", errorMessage));
+            password.ifPresent((p) -> scmMaterialConfig.errors().add("password", errorMessage));
+            encryptedPassword.ifPresent((p) -> scmMaterialConfig.errors().add("encrypted_password", errorMessage));
+        }
+    }
+
+    private boolean hasCredentials(String url) {
+        return !StringUtils.equals(urlWithoutCredentials(url), url);
     }
 }

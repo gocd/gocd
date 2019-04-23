@@ -22,19 +22,21 @@ import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOp
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import org.apache.commons.lang3.StringUtils;
 
-public class GitMaterialRepresenter implements MaterialRepresenter<GitMaterialConfig> {
+public class GitMaterialRepresenter extends ScmMaterialRepresenter<GitMaterialConfig> {
     @Override
     public void toJSON(OutputWriter jsonWriter, GitMaterialConfig gitMaterialConfig) {
-        ScmMaterialRepresenter.toJSON(jsonWriter, gitMaterialConfig);
+        super.toJSON(jsonWriter, gitMaterialConfig);
         jsonWriter.addWithDefaultIfBlank("branch", gitMaterialConfig.getBranch(), "master");
         jsonWriter.add("submodule_folder", gitMaterialConfig.getSubmoduleFolder());
         jsonWriter.add("shallow_clone", gitMaterialConfig.isShallowClone());
     }
 
     @Override
-    public GitMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions configHelperOptions) {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
-        ScmMaterialRepresenter.fromJSON(jsonReader, gitMaterialConfig);
+    public GitMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig(jsonReader.optString("url").get());
+        super.fromJSON(jsonReader, gitMaterialConfig, options);
+        validateCredentials(jsonReader, gitMaterialConfig);
+
         jsonReader.optString("branch").ifPresent(branch -> {
             if (StringUtils.isNotBlank(branch)) {
                 gitMaterialConfig.setBranch(branch);

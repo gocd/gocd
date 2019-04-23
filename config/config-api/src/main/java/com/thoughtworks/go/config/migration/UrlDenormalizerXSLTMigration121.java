@@ -16,8 +16,6 @@
 
 package com.thoughtworks.go.config.migration;
 
-import org.apache.http.client.utils.URIBuilder;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 

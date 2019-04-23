@@ -19,14 +19,13 @@ package com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions;
-import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 
-public class TfsMaterialRepresenter implements MaterialRepresenter<TfsMaterialConfig> {
+public class TfsMaterialRepresenter extends ScmMaterialRepresenter<TfsMaterialConfig> {
 
     @Override
     public void toJSON(OutputWriter jsonWriter, TfsMaterialConfig tfsMaterialConfig) {
-        ScmMaterialRepresenter.toJSON(jsonWriter, tfsMaterialConfig);
+        super.toJSON(jsonWriter, tfsMaterialConfig);
         jsonWriter.add("domain", tfsMaterialConfig.getDomain());
         jsonWriter.add("project_path", tfsMaterialConfig.getProjectPath());
     }
@@ -34,20 +33,10 @@ public class TfsMaterialRepresenter implements MaterialRepresenter<TfsMaterialCo
     @Override
     public TfsMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
-        ScmMaterialRepresenter.fromJSON(jsonReader, tfsMaterialConfig);
+        super.fromJSON(jsonReader, tfsMaterialConfig, options);
+        jsonReader.readStringIfPresent("url", tfsMaterialConfig::setUrl);
         jsonReader.readStringIfPresent("domain", tfsMaterialConfig::setDomain);
-        jsonReader.readStringIfPresent("username", tfsMaterialConfig::setUserName);
         jsonReader.readStringIfPresent("project_path", tfsMaterialConfig::setProjectPath);
-        String password = null, encryptedPassword = null;
-        if (jsonReader.hasJsonObject("password")) {
-            password = jsonReader.getString("password");
-        }
-        if (jsonReader.hasJsonObject("encrypted_password")) {
-            encryptedPassword = jsonReader.getString("encrypted_password");
-        }
-        PasswordDeserializer passwordDeserializer = options.getPasswordDeserializer();
-        String encryptedPasswordValue = passwordDeserializer.deserialize(password, encryptedPassword, tfsMaterialConfig);
-        tfsMaterialConfig.setEncryptedPassword(encryptedPasswordValue);
         return tfsMaterialConfig;
     }
 }

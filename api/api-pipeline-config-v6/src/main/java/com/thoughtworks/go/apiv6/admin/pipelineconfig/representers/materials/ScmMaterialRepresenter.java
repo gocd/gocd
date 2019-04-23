@@ -18,16 +18,21 @@ package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
-import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 
 public class ScmMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, ScmMaterialConfig scmMaterialConfig) {
         if (!(scmMaterialConfig instanceof P4MaterialConfig)) {
-            jsonWriter.add("url", scmMaterialConfig.getUrl());
+            if (scmMaterialConfig instanceof GitMaterialConfig || scmMaterialConfig instanceof HgMaterialConfig) {
+                jsonWriter.add("url", UrlDenormalizerXSLTMigration121.urlWithCredentials(scmMaterialConfig.getUrl(), scmMaterialConfig.getUserName(), scmMaterialConfig.getPassword()));
+            } else {
+                jsonWriter.add("url", scmMaterialConfig.getUrl());
+            }
         }
         jsonWriter.add("destination", scmMaterialConfig.getFolder());
 
@@ -42,7 +47,6 @@ public class ScmMaterialRepresenter {
     }
 
     public static void fromJSON(JsonReader jsonReader, ScmMaterialConfig scmMaterialConfig) {
-        jsonReader.readStringIfPresent("url", scmMaterialConfig::setUrl);
         jsonReader.readStringIfPresent("destination", scmMaterialConfig::setFolder);
         jsonReader.optBoolean("invert_filter").ifPresent(scmMaterialConfig::setInvertFilter);
         jsonReader.optJsonObject("filter").ifPresent(filterReader -> {

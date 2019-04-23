@@ -27,7 +27,7 @@ public class HgMaterialRepresenter {
     }
 
     public static HgMaterialConfig fromJSON(JsonReader jsonReader) {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig();
+        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig(jsonReader.optString("url").get(), null);
         ScmMaterialRepresenter.fromJSON(jsonReader, hgMaterialConfig);
         return hgMaterialConfig;
     }

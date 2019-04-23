@@ -34,7 +34,6 @@ import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import static java.util.Arrays.stream;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
@@ -59,21 +58,8 @@ public class MaterialsRepresenter {
         }
     }
 
-    private static Map<Class<? extends MaterialConfig>, String> classToTypeMap = new HashMap<Class<? extends MaterialConfig>, String>() {{
-        put(GitMaterialConfig.class, "git");
-        put(HgMaterialConfig.class, "hg");
-        put(SvnMaterialConfig.class, "svn");
-        put(P4MaterialConfig.class, "p4");
-        put(TfsMaterialConfig.class, "tfs");
-        put(DependencyMaterialConfig.class, "dependency");
-        put(PackageMaterialConfig.class, "package");
-        put(PluggableSCMMaterialConfig.class, "plugin");
-    }};
-
     public static void toJSONArray(OutputListWriter materialsWriter, MaterialConfigs materialConfigs) {
-        materialConfigs.forEach(materialConfig -> {
-            materialsWriter.addChild(materialWriter -> toJSON(materialWriter, materialConfig));
-        });
+        materialConfigs.forEach(materialConfig -> materialsWriter.addChild(materialWriter -> toJSON(materialWriter, materialConfig)));
     }
 
     public static void toJSON(OutputWriter jsonWriter, MaterialConfig materialConfig) {
@@ -99,21 +85,21 @@ public class MaterialsRepresenter {
             });
 
         }
-        jsonWriter.add("type", classToTypeMap.get(materialConfig.getClass()));
 
         stream(Materials.values())
                 .filter(material -> material.type == materialConfig.getClass())
                 .findFirst()
-                .ifPresent(material -> jsonWriter.addChild("attributes", attributeWriter -> material.representer.toJSON(attributeWriter, materialConfig)));
+                .ifPresent(material -> {
+                    jsonWriter.add("type", material.name().toLowerCase());
+                    jsonWriter.addChild("attributes", attributeWriter -> material.representer.toJSON(attributeWriter, materialConfig));
+                });
 
     }
 
     public static MaterialConfigs fromJSONArray(JsonReader jsonReader, ConfigHelperOptions options) {
         MaterialConfigs materialConfigs = new MaterialConfigs();
         jsonReader.readArrayIfPresent("materials", materials -> {
-            materials.forEach(material -> {
-                materialConfigs.add(MaterialsRepresenter.fromJSON(new JsonReader(material.getAsJsonObject()), options));
-            });
+            materials.forEach(material -> materialConfigs.add(MaterialsRepresenter.fromJSON(new JsonReader(material.getAsJsonObject()), options)));
         });
         return materialConfigs;
     }

@@ -66,11 +66,7 @@ interface HeaderAttrs {
 class ClusterProfileHeaderWidget extends MithrilComponent<HeaderAttrs> {
   view(vnode: m.Vnode<HeaderAttrs, State>) {
     const title = <div data-test-id="cluster-profile-name" className={styles.clusterProfileName}><span>{vnode.attrs.clusterProfileId}</span></div>;
-
-    return [
-      <KeyValueTitle title={title} image={vnode.attrs.image}/>,
-      <KeyValuePair inline={true} data={new Map([["Plugin", vnode.attrs.pluginName]])}/>
-    ];
+    return (<KeyValueTitle title={title} image={vnode.attrs.image}/>);
   }
 }
 

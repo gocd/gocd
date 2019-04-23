@@ -187,6 +187,7 @@ export class EditElasticProfileModal extends BaseElasticProfileModal {
   private readonly elasticProfileId: string;
 
   constructor(elasticProfileId: string,
+              pluginId: string,
               pluginInfos: Array<PluginInfo<Extension>>,
               clusterProfiles: ClusterProfiles,
               onSuccessfulSave: (msg: m.Children) => any
@@ -201,6 +202,7 @@ export class EditElasticProfileModal extends BaseElasticProfileModal {
         result.do(
           (successResponse) => {
             this.elasticProfile(successResponse.body.object);
+            this.elasticProfile().pluginId(pluginId);
             this.etag = successResponse.body.etag;
           },
           ((errorResponse) => this.onError(errorResponse.message))
@@ -238,6 +240,7 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
   private readonly sourceProfileId: string;
 
   constructor(elasticProfileId: string,
+              pluginId: string,
               pluginInfos: Array<PluginInfo<Extension>>,
               clusterProfiles: ClusterProfiles,
               onSuccessfulSave: (msg: m.Children) => any) {
@@ -252,6 +255,7 @@ export class CloneElasticProfileModal extends BaseElasticProfileModal {
           (successResponse) => {
             const elasticProfile = successResponse.body.object;
             elasticProfile.id("");
+            elasticProfile.pluginId(pluginId);
             this.elasticProfile(elasticProfile);
           },
           (errorResponse) => this.onError(errorResponse.message)

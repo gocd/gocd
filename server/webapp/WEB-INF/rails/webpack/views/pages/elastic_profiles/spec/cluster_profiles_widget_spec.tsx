@@ -89,8 +89,6 @@ describe("ClusterProfilesWidget", () => {
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([]));
 
     expect(helper.findIn(helper.findByDataTestId("collapse-header")[0], "cluster-profile-name")).toHaveText("cluster_3");
-    expect(helper.findIn(helper.findByDataTestId("collapse-header")[0], "key-value-key-plugin")).toHaveText("Plugin");
-    expect(helper.findIn(helper.findByDataTestId("collapse-header")[0], "key-value-value-plugin")).toHaveText("Docker Elastic Agent Plugin");
 
     helper.unmount();
   });

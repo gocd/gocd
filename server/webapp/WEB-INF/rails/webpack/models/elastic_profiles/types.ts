@@ -36,6 +36,10 @@ export class ClusterProfiles {
     return new ClusterProfiles(profiles);
   }
 
+  findCluster(clusterId: string): ClusterProfile {
+    return (this.profiles().find((profile) => profile.id() === clusterId))!;
+  }
+
   all(): ClusterProfile[] {
     return this.profiles();
   }
@@ -57,6 +61,15 @@ export class ElasticAgentProfiles {
 
   all(): Stream<ElasticAgentProfile[]> {
     return this.profiles;
+  }
+
+  //todo: remove this hack, instead always rely upon clusterProfile for plugin id
+  inferPluginIdFromReferencedCluster(clusterProfiles: ClusterProfiles): void {
+    const profilesWithoutPluginId = this.profiles();
+    this.profiles(profilesWithoutPluginId.map((profile) => {
+      profile.pluginId(clusterProfiles.findCluster(profile.clusterProfileId()).pluginId());
+      return profile;
+    }));
   }
 
   size(): number {
@@ -160,7 +173,10 @@ export class ElasticAgentProfile implements ValidatableMixin {
   }
 
   static fromJSON(profileJson: ElasticProfileJSON): ElasticAgentProfile {
-    const profile = new ElasticAgentProfile(profileJson.id, profileJson.plugin_id, profileJson.cluster_profile_id, Configurations.fromJSON(profileJson.properties));
+    const profile = new ElasticAgentProfile(profileJson.id,
+                                            profileJson.plugin_id,
+                                            profileJson.cluster_profile_id,
+                                            Configurations.fromJSON(profileJson.properties));
 
     profile.errors(new Errors(profileJson.errors));
     return profile;

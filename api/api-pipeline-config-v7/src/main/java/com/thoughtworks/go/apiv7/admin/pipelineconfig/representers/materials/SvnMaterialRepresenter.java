@@ -19,33 +19,21 @@ package com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions;
-import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 
-public class SvnMaterialRepresenter implements MaterialRepresenter<SvnMaterialConfig> {
-
+public class SvnMaterialRepresenter extends ScmMaterialRepresenter<SvnMaterialConfig> {
     @Override
     public void toJSON(OutputWriter jsonWriter, SvnMaterialConfig svnMaterialConfig) {
-        ScmMaterialRepresenter.toJSON(jsonWriter, svnMaterialConfig);
+        super.toJSON(jsonWriter, svnMaterialConfig);
         jsonWriter.add("check_externals", svnMaterialConfig.isCheckExternals());
     }
 
     @Override
     public SvnMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
-        ScmMaterialRepresenter.fromJSON(jsonReader, svnMaterialConfig);
+        super.fromJSON(jsonReader, svnMaterialConfig, options);
+        jsonReader.readStringIfPresent("url", svnMaterialConfig::setUrl);
         jsonReader.optBoolean("check_externals").ifPresent(svnMaterialConfig::setCheckExternals);
-        jsonReader.readStringIfPresent("username", svnMaterialConfig::setUserName);
-        String password = null, encryptedPassword = null;
-        if (jsonReader.hasJsonObject("password")) {
-            password = jsonReader.getString("password");
-        }
-        if (jsonReader.hasJsonObject("encrypted_password")) {
-            encryptedPassword = jsonReader.getString("encrypted_password");
-        }
-        PasswordDeserializer passwordDeserializer = options.getPasswordDeserializer();
-        String encryptedPasswordValue = passwordDeserializer.deserialize(password, encryptedPassword, svnMaterialConfig);
-        svnMaterialConfig.setEncryptedPassword(encryptedPasswordValue);
         return svnMaterialConfig;
     }
 }

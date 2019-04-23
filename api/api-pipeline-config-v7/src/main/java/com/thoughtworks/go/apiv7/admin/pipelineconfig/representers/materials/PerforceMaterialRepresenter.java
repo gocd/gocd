@@ -19,15 +19,14 @@ package com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions;
-import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 
-public class PerforceMaterialRepresenter implements MaterialRepresenter<P4MaterialConfig> {
+public class PerforceMaterialRepresenter extends ScmMaterialRepresenter<P4MaterialConfig> {
 
     @Override
     public void toJSON(OutputWriter jsonWriter, P4MaterialConfig p4MaterialConfig) {
         // The ScmMaterialRepresenter tries to do getUrl, but p4 material doesn't have a url.
-        ScmMaterialRepresenter.toJSON(jsonWriter, p4MaterialConfig);
+        super.toJSON(jsonWriter, p4MaterialConfig);
         jsonWriter.add("port", p4MaterialConfig.getServerAndPort());
         jsonWriter.add("use_tickets", p4MaterialConfig.getUseTickets());
         jsonWriter.add("view", p4MaterialConfig.getView());
@@ -36,22 +35,10 @@ public class PerforceMaterialRepresenter implements MaterialRepresenter<P4Materi
     @Override
     public P4MaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig();
-        ScmMaterialRepresenter.fromJSON(jsonReader, p4MaterialConfig);
+        super.fromJSON(jsonReader, p4MaterialConfig, options);
         jsonReader.readStringIfPresent("port", p4MaterialConfig::setServerAndPort);
-        jsonReader.readStringIfPresent("username", p4MaterialConfig::setUserName);
         jsonReader.optBoolean("use_tickets").ifPresent(p4MaterialConfig::setUseTickets);
         jsonReader.readStringIfPresent("view", p4MaterialConfig::setView);
-        String password = null, encryptedPassword = null;
-        if (jsonReader.hasJsonObject("password")) {
-            password = jsonReader.getString("password");
-        }
-        if (jsonReader.hasJsonObject("encrypted_password")) {
-            encryptedPassword = jsonReader.getString("encrypted_password");
-        }
-
-        PasswordDeserializer passwordDeserializer = options.getPasswordDeserializer();
-        String encryptedPasswordValue = passwordDeserializer.deserialize(password, encryptedPassword, p4MaterialConfig);
-        p4MaterialConfig.setEncryptedPassword(encryptedPasswordValue);
         return p4MaterialConfig;
     }
 }

@@ -130,6 +130,10 @@ $diagram-width: 485px;
   border-bottom: 1px solid darken($line-color, 20%);;
   border-top: 1px solid darken($line-color, 20%);;
 
+  .approval-type-selectors .approval-type-selector {
+    margin: 0 5px;
+  }
+
   .summary {
     @include icon-before($type: $fa-var-play, $color: lighten($text-color, 30%), $size: 16px, $line-height: 25px, $margin: 0 5px);
 

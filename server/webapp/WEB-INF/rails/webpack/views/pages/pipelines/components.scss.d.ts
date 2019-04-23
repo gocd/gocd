@@ -14,6 +14,8 @@ export const conceptDiagram: string;
 export const autocompletePane: string;
 export const autocompleteItem: string;
 export const advancedSettings: string;
+export const approvalTypeSelectors: string;
+export const approvalTypeSelector: string;
 export const summary: string;
 export const details: string;
 export const open: string;

@@ -16,36 +16,37 @@
 
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {Stage} from "models/pipeline_configs/stage";
 
 describe("PipelineConfig model", () => {
   const defaultMaterials = [new Material("git", new GitMaterialAttributes(undefined, true, "https://github.com/gocd/gocd"))];
 
   it("should include a name", () => {
-    let pip = new PipelineConfig("name", defaultMaterials);
+    let pip = new PipelineConfig("name", defaultMaterials, [new Stage("stage1")]);
     expect(pip.isValid()).toBe(true);
     expect(pip.errors().count()).toBe(0);
 
-    pip = new PipelineConfig("", defaultMaterials);
+    pip = new PipelineConfig("", defaultMaterials, [new Stage("stage1")]);
     expect(pip.isValid()).toBe(false);
     expect(pip.errors().count()).toBe(1);
   });
 
   it("should include a material", () => {
-    let pip = new PipelineConfig("name", defaultMaterials);
+    let pip = new PipelineConfig("name", defaultMaterials, [new Stage("stage1")]);
     expect(pip.isValid()).toBe(true);
     expect(pip.errors().count()).toBe(0);
 
-    pip = new PipelineConfig("name", []);
+    pip = new PipelineConfig("name", [], [new Stage("stage1")]);
     expect(pip.isValid()).toBe(false);
     expect(pip.errors().count()).toBe(1);
   });
 
-  xit("should include a stage", () => {
-    let pip = new PipelineConfig("name", defaultMaterials /*, [new Stage("stage1")]*/);
+  it("should include a stage", () => {
+    let pip = new PipelineConfig("name", defaultMaterials, [new Stage("stage1")]);
     expect(pip.isValid()).toBe(true);
     expect(pip.errors().count()).toBe(0);
 
-    pip = new PipelineConfig("name", defaultMaterials /*, []*/);
+    pip = new PipelineConfig("name", defaultMaterials, []);
     expect(pip.isValid()).toBe(false);
     expect(pip.errors().count()).toBe(1);
   });

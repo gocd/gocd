@@ -17,6 +17,7 @@
 import * as m from "mithril";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {Stage} from "models/pipeline_configs/stage";
 import {Page, PageState} from "views/pages/page";
 import {PipelineActions} from "views/pages/pipelines/actions";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
@@ -24,6 +25,7 @@ import {ConceptDiagram} from "views/pages/pipelines/concept_diagram";
 import {FillableSection} from "views/pages/pipelines/fillable_section";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
 import {PipelineInfoEditor} from "views/pages/pipelines/pipeline_info_editor";
+import {StageEditor} from "views/pages/pipelines/stage_editor";
 import {UserInputPane} from "views/pages/pipelines/user_input_pane";
 
 const materialImg = require("../../../app/assets/images/concept_diagrams/concept_material.svg");
@@ -33,7 +35,8 @@ const jobImg      = require("../../../app/assets/images/concept_diagrams/concept
 
 export class PipelineCreatePage extends Page {
   private material: Material = new Material("git", new GitMaterialAttributes());
-  private model: PipelineConfig = new PipelineConfig("", [this.material]);
+  private stage: Stage = new Stage();
+  private model: PipelineConfig = new PipelineConfig("", [this.material], [this.stage]);
 
   pageName(): string {
     return "Add a New Pipeline";
@@ -71,10 +74,7 @@ export class PipelineCreatePage extends Page {
 
       <FillableSection>
         <UserInputPane heading="Part 3: Stage Details">
-          <p>Form fields go here</p>
-          <AdvancedSettings>
-            More to come...
-          </AdvancedSettings>
+          <StageEditor stage={this.stage} />
         </UserInputPane>
         <ConceptDiagram image={stageImg}>
           A <strong>stage</strong> is a group of jobs, and a <strong>job</strong> is a

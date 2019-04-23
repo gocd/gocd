@@ -22,13 +22,15 @@ import * as stream from "mithril/stream";
 import {Material} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {NameableSet, NonEmptyCollectionValidator} from "./nameable_set";
+import {Stage} from "./stage";
 
 export class PipelineConfig extends ValidatableMixin {
   group: Stream<string> = stream("defaultGroup");
   name: Stream<string>;
   materials: Stream<NameableSet<Material>>;
+  stages: Stream<NameableSet<Stage>>;
 
-  constructor(name: string, materials: Material[]) {
+  constructor(name: string, materials: Material[], stages: Stage[]) {
     super();
 
     ValidatableMixin.call(this);
@@ -39,6 +41,10 @@ export class PipelineConfig extends ValidatableMixin {
     this.materials = stream(new NameableSet(materials));
     this.validateWith(new NonEmptyCollectionValidator({message: `A pipeline must have at least one material.`}), "materials");
     this.validateAssociated("materials");
+
+    this.stages = stream(new NameableSet(stages));
+    this.validateWith(new NonEmptyCollectionValidator({message: `A pipeline must have at least one stage.`}), "stages");
+    this.validateAssociated("stages");
   }
 
   create() {

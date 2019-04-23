@@ -67,6 +67,10 @@ export default class {
     return `/go/api/internal/material_search?${queryString}`;
   }
 
+  static internalDependencyMaterialSuggestionsPath(): string {
+    return `/go/api/internal/dependency_material/autocomplete_suggestions`;
+  }
+
   static pipelineSelectionPath(): string {
     return "/go/api/internal/pipeline_selection";
   }

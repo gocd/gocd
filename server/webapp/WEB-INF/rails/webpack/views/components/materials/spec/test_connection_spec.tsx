@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import SparkRoutes from "helpers/spark_routes";
 import * as m from "mithril";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import * as simulateEvent from "simulate-event";
@@ -23,7 +24,7 @@ import * as styles from "../test_connection.scss";
 
 describe("Materials: TestConnection", () => {
   const helper = new TestHelper();
-  const TEST_CONNECTION_URL = "/go/api/admin/internal/material_test";
+  const TEST_CONNECTION_URL = SparkRoutes.materialConnectionCheck();
   const invalidMaterial = new Material("git", new GitMaterialAttributes());
   const validMaterial = new Material("git", new GitMaterialAttributes("SomeRepo", false, "https://github.com/gocd/gocd", "master"));
 
@@ -90,6 +91,6 @@ describe("Materials: TestConnection", () => {
   }
 
   function payload(material: Material): string {
-    return JSON.stringify(material.toPayload());
+    return JSON.stringify(material.toApiPayload());
   }
 });

@@ -35,7 +35,7 @@ export class Errors {
   }
 
   clear(attrName?: string) {
-    attrName ? delete this._errors[attrName] : this._errors = {};
+    "undefined" !== typeof attrName ? delete this._errors[attrName] : this._errors = {};
   }
 
   errors(attrName?: string) {

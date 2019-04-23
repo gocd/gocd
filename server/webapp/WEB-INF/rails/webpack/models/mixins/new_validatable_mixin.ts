@@ -130,12 +130,18 @@ class UrlPatternValidator extends Validator {
   }
 }
 
-export class ValidatableMixin {
+export interface Validatable {
+  errors: (container?: Errors) => Errors;
+  isValid: () => boolean;
+  validate: (attr?: string) => Errors;
+}
+
+export class ValidatableMixin implements Validatable {
   private __errors                           = stream(new Errors());
   private __attrToValidators: any            = {};
   private __associationsToValidate: string[] = [];
 
-  errors(newVal?: Errors) {
+  errors(newVal?: Errors): Errors {
     if (arguments.length > 0) {
       this.__errors(newVal as Errors);
     }

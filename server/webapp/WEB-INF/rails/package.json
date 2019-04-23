@@ -20,6 +20,7 @@
     "@shopify/draggable": "^1.0.0-beta.8",
     "@types/classnames": "^2.2.6",
     "angular": "file:node-vendor/angular",
+    "awesomplete": "^1.1.4",
     "babel-polyfill": "^6.26.0",
     "bourbon": "^5.1.0",
     "classnames": "^2.2.6",
@@ -39,9 +40,11 @@
     "normalize-scss": "^7.0.1",
     "opensans": "file:vendor/assets/fonts/opensans",
     "underscore.string": "^3.3.5",
+    "url-parse": "^1.4.7",
     "uuid": "^3.2.1"
   },
   "devDependencies": {
+    "@types/awesomplete": "^1.1.9",
     "@types/jasmine": "^2.8.11",
     "@types/jasmine-ajax": "^3.1.39",
     "@types/jasmine-jquery": "^1.5.33",

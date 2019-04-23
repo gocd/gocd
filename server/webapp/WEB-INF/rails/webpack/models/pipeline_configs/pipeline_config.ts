@@ -15,28 +15,35 @@
  */
 
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import JsonUtils from "helpers/json_utils";
 import SparkRoutes from "helpers/spark_routes";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {Material} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import SparkRoutes from "helpers/spark_routes";
-import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import {NameableSet, NonEmptyCollectionValidator} from "./nameable_set";
 
 export class PipelineConfig extends ValidatableMixin {
   group: Stream<string> = stream("defaultGroup");
   name: Stream<string>;
+  materials: Stream<NameableSet<Material>>;
 
-  constructor(name: string) {
+  constructor(name: string, materials: Material[]) {
     super();
+
     ValidatableMixin.call(this);
     this.name = stream(name);
     this.validatePresenceOf("name");
     this.validatePresenceOf("group");
+
+    this.materials = stream(new NameableSet(materials));
+    this.validateWith(new NonEmptyCollectionValidator({message: `A pipeline must have at least one material.`}), "materials");
+    this.validateAssociated("materials");
   }
 
   create() {
-    return ApiRequestBuilder.POST(SparkRoutes.pipelineConfigCreatePath(), ApiVersion.v6, {
-      payload: this.toJSON()
+    return ApiRequestBuilder.POST(SparkRoutes.pipelineConfigCreatePath(), ApiVersion.v7, {
+      payload: this.toApiPayload()
     });
   }
 
@@ -44,12 +51,14 @@ export class PipelineConfig extends ValidatableMixin {
     return ApiRequestBuilder.POST(SparkRoutes.pipelinePausePath(this.name()), ApiVersion.v1);
   }
 
-  toJSON() {
-    return {
-      group: this.group(),
-      pipeline: {
-        name: this.name()
-      }
-    };
+  toApiPayload(): any {
+    const raw = JsonUtils.toSnakeCasedObject(this);
+    const group = raw.group;
+    delete raw.group;
+    return { group, pipeline: raw };
+  }
+
+  modelType(): string {
+    return "PipelineConfig";
   }
 }

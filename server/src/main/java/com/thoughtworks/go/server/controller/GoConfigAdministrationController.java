@@ -147,10 +147,11 @@ public class GoConfigAdministrationController {
         if (configValidity.isValid()) {
             return JsonAction.jsonFound(JsonView.getSimpleAjaxResult("result", successMessage));
         } else {
+            GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) configValidity;
             Map<String, Object> jsonMap = new LinkedHashMap<>();
-            jsonMap.put("result", configValidity.errorMessage());
+            jsonMap.put("result", invalidGoConfig.errorMessage());
             jsonMap.put("originalContent", xmlPartial);
-            return jsonByValidity(jsonMap, configValidity);
+            return jsonByValidity(jsonMap, invalidGoConfig);
         }
     }
 

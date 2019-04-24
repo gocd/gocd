@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.update.PartialConfigUpdateCommand;
-import com.thoughtworks.go.config.validation.GoConfigValidity;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
@@ -103,7 +102,7 @@ public class GoPartialConfig implements PartialConfigUpdateCompletedListener, Ch
             return true;
         } catch (Exception e) {
             if (repoConfig != null) {
-                String description = String.format("%s- For Config Repo: %s", GoConfigValidity.invalid(e).errorMessage(), newPart.getOrigin().displayName());
+                String description = String.format("%s- For Config Repo: %s", e.getMessage(), newPart.getOrigin().displayName());
                 ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_MERGE, description, HealthStateType.general(HealthStateScope.forPartialConfigRepo(repoConfig)));
                 serverHealthService.update(state);
             }

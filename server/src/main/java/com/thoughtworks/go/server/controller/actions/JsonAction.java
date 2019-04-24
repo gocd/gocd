@@ -87,7 +87,7 @@ public class JsonAction implements RestfulAction {
         return new JsonAction(SC_CONFLICT, json);
     }
 
-    public static JsonAction jsonByValidity(Object json, GoConfigValidity configValidity) {
+    public static JsonAction jsonByValidity(Object json, GoConfigValidity.InvalidGoConfig configValidity) {
         return (configValidity.isType(GoConfigValidity.VT_CONFLICT) ||
                 configValidity.isType(GoConfigValidity.VT_MERGE_OPERATION_ERROR) ||
                 configValidity.isType(GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR) ||

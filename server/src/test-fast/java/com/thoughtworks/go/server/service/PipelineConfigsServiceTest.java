@@ -244,7 +244,7 @@ public class PipelineConfigsServiceTest {
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenReturn(true);
         when(goConfigService.configFileMd5()).thenReturn("old-md5");
         when(goConfigService.groupSaver(groupName)).thenReturn(groupSaver);
-        when(groupSaver.saveXml(null, "md5")).thenReturn(GoConfigValidity.invalid("some error").mergeConflict());
+        when(groupSaver.saveXml(null, "md5")).thenReturn(GoConfigValidity.mergeConflict("some error"));
 
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, null, "md5", validUser, result);
         PipelineConfigs configElement = actual.getConfigElement();
@@ -252,8 +252,10 @@ public class PipelineConfigsServiceTest {
 
         assertThat(configElement, is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
-        assertThat(validity.isValid(), is(false));
-        assertThat(validity.isMergeConflict(), is(true));
+
+        GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
+        assertThat(invalidGoConfig.isValid(), is(false));
+        assertThat(invalidGoConfig.isMergeConflict(), is(true));
         assertThat(result.message(), is("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry."));
     }
 
@@ -264,7 +266,7 @@ public class PipelineConfigsServiceTest {
         when(securityService.isUserAdminOfGroup(validUser.getUsername(), groupName)).thenReturn(true);
         when(goConfigService.configFileMd5()).thenReturn("old-md5");
         when(goConfigService.groupSaver(groupName)).thenReturn(groupSaver);
-        when(groupSaver.saveXml(null, "md5")).thenReturn(GoConfigValidity.invalid("some error").mergePostValidationError());
+        when(groupSaver.saveXml(null, "md5")).thenReturn(GoConfigValidity.mergePostValidationError("some error"));
 
         GoConfigOperationalResponse<PipelineConfigs> actual = service.updateXml(groupName, null, "md5", validUser, result);
         PipelineConfigs configElement = actual.getConfigElement();
@@ -273,7 +275,9 @@ public class PipelineConfigsServiceTest {
         assertThat(configElement, is(nullValue()));
         assertThat(result.isSuccessful(), is(false));
         assertThat(validity.isValid(), is(false));
-        assertThat(validity.isPostValidationError(), is(true));
+
+        GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
+        assertThat(invalidGoConfig.isPostValidationError(), is(true));
         assertThat(result.message(), is("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry."));
     }
 

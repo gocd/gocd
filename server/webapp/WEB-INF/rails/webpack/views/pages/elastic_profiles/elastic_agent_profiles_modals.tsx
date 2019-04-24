@@ -77,6 +77,7 @@ abstract class BaseElasticProfileModal extends Modal {
   showErrors(apiResult: ApiResult<ObjectWithEtag<ElasticAgentProfile>>, errorResponse: ErrorResponse) {
     if (apiResult.getStatusCode() === 422 && errorResponse.body) {
       const profile = ElasticAgentProfile.fromJSON(JSON.parse(errorResponse.body).data);
+      profile.pluginId(this.clusterProfiles.findCluster(profile.clusterProfileId()).pluginId());
       this.elasticProfile(profile);
     }
   }

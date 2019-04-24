@@ -16,7 +16,6 @@
 @import "../../global/common";
 
 $key-value-pair-width: 200px;
-$title-element-width-xl: 280px;
 $title-element-width: 360px;
 
 .key-value-pair {
@@ -121,11 +120,7 @@ $title-element-width: 360px;
     font-size: 12px;
 
   }
-  @media (min-width: $screen-xl) {
-    font-size: 15px;
-    width:     $title-element-width-xl;
-  }
-  @media (min-width: $screen-xxl) {
+  @media (min-width: $screen-lg) {
     font-size: 15px;
     width:     $title-element-width;
   }

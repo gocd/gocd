@@ -23,9 +23,7 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
-import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
@@ -52,7 +50,6 @@ import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.hamcrest.Matchers;
-import org.jdom2.input.JDOMParseException;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -280,15 +277,14 @@ public class GoConfigServiceTest {
     public void shouldRememberValidityWhenCruiseConfigLoaderHasInvalidConfigFile() throws Exception {
         GoConfigService service = goConfigServiceWithInvalidStatus();
         assertThat(service.checkConfigFileValid().isValid(), is(false));
-        assertThat(service.checkConfigFileValid().errorMessage(), is("JDom exception"));
+        assertThat(((GoConfigValidity.InvalidGoConfig) service.checkConfigFileValid()).errorMessage(), is("JDom exception"));
     }
 
     @Test
-    public void shouldNotHaveErrorMessageWhenConfigFileValid() throws Exception {
+    public void shouldNotHaveErrorMessageWhenConfigFileValid() {
         when(goConfigDao.checkConfigFileValid()).thenReturn(GoConfigValidity.valid());
         GoConfigValidity configValidity = goConfigService.checkConfigFileValid();
         assertThat(configValidity.isValid(), is(true));
-        assertThat(configValidity.errorMessage(), is(""));
     }
 
     private CruiseConfig configWithPipeline() {
@@ -307,7 +303,7 @@ public class GoConfigServiceTest {
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"14\">\n"
                 + "<server artifactsdir='artifactsDir'/><unknown/></cruise>";
         GoConfigValidity validity = goConfigService.fileSaver(true).saveXml(configContent, "md5");
-        assertThat(validity.errorMessage(), is("Cruise config file with version 14 is invalid. Unable to upgrade."));
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), is("Cruise config file with version 14 is invalid. Unable to upgrade."));
     }
 
     @Test
@@ -318,7 +314,7 @@ public class GoConfigServiceTest {
                 + "<cruise xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:noNamespaceSchemaLocation=\"cruise-config.xsd\" schemaVersion=\"" + GoConstants.CONFIG_SCHEMA_VERSION + "\">\n"
                 + "<server artifactsdir='artifactsDir'/><unknown/></cruise>";
         GoConfigValidity validity = goConfigService.fileSaver(false).saveXml(configContent, "md5");
-        assertThat(validity.errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
     }
 
     @Test
@@ -366,7 +362,7 @@ public class GoConfigServiceTest {
         GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(true);
         GoConfigValidity validity = saver.saveXml("some_junk", "junk_md5");
         assertThat(validity.isValid(), is(false));
-        assertThat(validity.errorMessage(), is("Error on line 1: Content is not allowed in prolog."));
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), is("Error on line 1: Content is not allowed in prolog."));
     }
 
     @Test
@@ -378,7 +374,7 @@ public class GoConfigServiceTest {
                 + "<server artifactsdir='artifactsDir></cruise>";
         GoConfigValidity validity = saver.saveXml(configContent, "junk_md5");
         assertThat(validity.isValid(), is(false));
-        assertThat(validity.errorMessage(),
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(),
                 is("Invalid Configuration - Error on line 3: The value of attribute \"artifactsdir\" associated with an element type \"server\" must not contain the '<' character."));
     }
 
@@ -753,7 +749,6 @@ public class GoConfigServiceTest {
         String renamedGroupName = "renamed_group_name";
         GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
         assertThat(validity.isValid(), Matchers.is(true));
-        assertThat(validity.errorMessage(), Matchers.is(""));
 
         ArgumentCaptor<FullConfigUpdateCommand> commandArgCaptor = ArgumentCaptor.forClass(FullConfigUpdateCommand.class);
         verify(goConfigDao).updateFullConfig(commandArgCaptor.capture());
@@ -812,7 +807,6 @@ public class GoConfigServiceTest {
         GoConfigValidity validity = partialSaver.saveXml(groupXml(renamedGroupName), md5);
 
         assertThat(validity.isValid(), Matchers.is(true));
-        assertThat(validity.errorMessage(), Matchers.is(""));
         CruiseConfig updatedConfig = commandArgumentCaptor.getValue().configForEdit();
 
         PipelineConfigs group = updatedConfig.findGroup(renamedGroupName);
@@ -836,7 +830,7 @@ public class GoConfigServiceTest {
         String pipelineGroupContent = groupXmlWithInvalidElement(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
         assertThat(validity.isValid(), Matchers.is(false));
-        assertThat(validity.errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), containsString("Invalid content was found starting with element 'unknown'"));
         verify(goConfigDao, never()).updateConfig(any(UpdateConfigCommand.class));
     }
 
@@ -853,7 +847,7 @@ public class GoConfigServiceTest {
         String pipelineGroupContent = groupXmlWithInvalidAttributeValue(groupName);
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml(pipelineGroupContent, "md5");
         assertThat(validity.isValid(), Matchers.is(false));
-        assertThat(validity.errorMessage(), containsString("Name is invalid. \"pipeline@$^\""));
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), containsString("Name is invalid. \"pipeline@$^\""));
         verify(goConfigDao, never()).updateConfig(any(UpdateConfigCommand.class));
     }
 
@@ -869,7 +863,7 @@ public class GoConfigServiceTest {
 
         GoConfigValidity validity = goConfigService.groupSaver(groupName).saveXml("<foobar>", "md5");
         assertThat(validity.isValid(), Matchers.is(false));
-        assertThat(validity.errorMessage(), containsString("XML document structures must start and end within the same entity"));
+        assertThat(((GoConfigValidity.InvalidGoConfig) validity).errorMessage(), containsString("XML document structures must start and end within the same entity"));
         verify(goConfigDao, never()).updateConfig(any(UpdateConfigCommand.class));
     }
 
@@ -1184,9 +1178,9 @@ public class GoConfigServiceTest {
         return jobConfigs;
     }
 
-    private GoConfigService goConfigServiceWithInvalidStatus() throws Exception {
+    private GoConfigService goConfigServiceWithInvalidStatus() {
         goConfigDao = mock(GoConfigDao.class, "badCruiseConfigManager");
-        when(goConfigDao.checkConfigFileValid()).thenReturn(GoConfigValidity.invalid(new JDOMParseException("JDom exception", new RuntimeException())));
+        when(goConfigDao.checkConfigFileValid()).thenReturn(GoConfigValidity.invalid("JDom exception"));
         return new GoConfigService(goConfigDao, pipelineRepository, new SystemTimeClock(), mock(GoConfigMigration.class), goCache, null,
                 ConfigElementImplementationRegistryMother.withNoPlugins(), instanceFactory, null, null);
     }

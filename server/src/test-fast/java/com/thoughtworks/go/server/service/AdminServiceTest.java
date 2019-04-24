@@ -24,8 +24,8 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -93,8 +93,9 @@ public class AdminServiceTest {
         GoConfigValidity actual = adminService.updateConfig(attributes, result);
 
         assertThat(result.isSuccessful(), is(false));
-        assertThat(actual.isValid(), is(false));
-        assertThat(actual.errorMessage(), is("Wrong config xml"));
+        GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) actual;
+        assertThat(invalidGoConfig.isValid(), is(false));
+        assertThat(invalidGoConfig.errorMessage(), is("Wrong config xml"));
 
         verify(fileSaver).saveXml(content, md5);
         verify(goConfigService).fileSaver(false);

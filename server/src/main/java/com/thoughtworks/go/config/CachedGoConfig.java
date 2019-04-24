@@ -111,7 +111,7 @@ public class CachedGoConfig {
 
     private synchronized void saveConfigError(Exception e) {
         this.lastException = e;
-        ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_XML, GoConfigValidity.invalid(e).errorMessage(), HealthStateType.invalidConfig());
+        ServerHealthState state = ServerHealthState.error(INVALID_CRUISE_CONFIG_XML, e.getMessage(), HealthStateType.invalidConfig());
         serverHealthService.update(state);
     }
 
@@ -211,7 +211,7 @@ public class CachedGoConfig {
     public GoConfigValidity checkConfigFileValid() {
         Exception ex = lastException;
         if (ex != null) {
-            return GoConfigValidity.invalid(ex);
+            return GoConfigValidity.invalid(ex.getMessage());
         }
         return GoConfigValidity.valid();
     }

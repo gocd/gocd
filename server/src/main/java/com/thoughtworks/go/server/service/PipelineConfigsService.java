@@ -41,7 +41,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.thoughtworks.go.i18n.LocalizedMessage.*;
+import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbiddenForGroup;
 
 @Service
@@ -69,11 +70,11 @@ public class PipelineConfigsService {
         }
         GoConfigValidity goConfigValidity = goConfigService.groupSaver(groupName).saveXml(xmlPartial, md5);
         if (!goConfigValidity.isValid()) {
-            handleError(groupName, goConfigValidity, result);
+            handleError(groupName, (GoConfigValidity.InvalidGoConfig) goConfigValidity, result);
             return new GoConfigOperationalResponse<>(goConfigValidity, null);
         }
         String savedSuccessMessage = "Saved configuration successfully.";
-        String localizableMessage = goConfigValidity.wasMerged() ? LocalizedMessage.composite(savedSuccessMessage, "The configuration was modified by someone else, but your changes were merged successfully.") : savedSuccessMessage;
+        String localizableMessage = ((GoConfigValidity.ValidGoConfig) goConfigValidity).wasMerged() ? LocalizedMessage.composite(savedSuccessMessage, "The configuration was modified by someone else, but your changes were merged successfully.") : savedSuccessMessage;
         result.setMessage(localizableMessage);
         PipelineConfigs pipelineConfigs = magicalGoConfigXmlLoader.fromXmlPartial(xmlPartial, BasicPipelineConfigs.class);
         return new GoConfigOperationalResponse<>(goConfigValidity, pipelineConfigs);
@@ -86,7 +87,7 @@ public class PipelineConfigsService {
         return new MagicalGoConfigXmlWriter(configCache, registry).toXmlPartial(getConfig(groupName));
     }
 
-    private void handleError(String groupName, GoConfigValidity goConfigValidity, HttpLocalizedOperationResult result) {
+    private void handleError(String groupName, GoConfigValidity.InvalidGoConfig goConfigValidity, HttpLocalizedOperationResult result) {
         if (goConfigValidity.isMergeConflict() || goConfigValidity.isPostValidationError()) {
             result.badRequest("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.");
         } else {
@@ -99,15 +100,15 @@ public class PipelineConfigsService {
         return cruiseConfig.getGroups().findGroup(groupName);
     }
 
-	public List<PipelineConfigs> getGroupsForUser(String userName) {
-		List<PipelineConfigs> pipelineGroups = new ArrayList<>();
-		for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
-			if (securityService.hasViewPermissionForGroup(userName, pipelineGroup.getGroup())) {
-				pipelineGroups.add(pipelineGroup);
-			}
-		}
-		return pipelineGroups;
-	}
+    public List<PipelineConfigs> getGroupsForUser(String userName) {
+        List<PipelineConfigs> pipelineGroups = new ArrayList<>();
+        for (PipelineConfigs pipelineGroup : goConfigService.groups()) {
+            if (securityService.hasViewPermissionForGroup(userName, pipelineGroup.getGroup())) {
+                pipelineGroups.add(pipelineGroup);
+            }
+        }
+        return pipelineGroups;
+    }
 
     private void update(Username currentUser, PipelineConfigs pipelineConfigs, LocalizedOperationResult result, EntityConfigUpdateCommand command) {
         try {

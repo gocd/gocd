@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ConfigUtil;
 import org.jdom2.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;
@@ -37,6 +39,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class GoConfigClassLoader<T> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoConfigClassLoader.class);
     private final ConfigUtil configUtil = new ConfigUtil("magic");
     private final Element e;
     private final Class<T> aClass;
@@ -90,6 +93,7 @@ public class GoConfigClassLoader<T> {
                 try {
                     method.invoke(o);
                 } catch (Exception e) {
+                    LOGGER.error("Failed to save config: ", e);
                     throw bomb(e);
                 }
             }

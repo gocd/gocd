@@ -72,10 +72,14 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class GoConfigServiceIntegrationTest {
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private CachedGoConfig cachedGoConfig;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private CachedGoConfig cachedGoConfig;
 
     private GoConfigFileHelper configHelper;
     @Autowired
@@ -346,7 +350,8 @@ public class GoConfigServiceIntegrationTest {
         configHelper.addPipeline("pipeline", "stage");
         String md5 = goConfigService.getConfigForEditing().getMd5();
         UpdateConfigFromUI pipelineAndStageRename = new PipelineStageRenamingCommand() {
-            @Override public void update(Validatable pipelineNode) {
+            @Override
+            public void update(Validatable pipelineNode) {
                 throw new RuntimeException("Oh no!");
             }
         };
@@ -605,8 +610,9 @@ public class GoConfigServiceIntegrationTest {
         GoConfigValidity validity = saver.saveXml(os.toString(), user1SeeingMd5);
 
         assertThat(validity.isValid(), is(false));
-        assertThat(validity.isType(GoConfigValidity.VT_MERGE_OPERATION_ERROR), is(true));
-        assertThat(validity.errorMessage(), is("Configuration file has been modified by someone else."));
+        GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
+        assertThat(invalidGoConfig.isType(GoConfigValidity.VT_MERGE_OPERATION_ERROR), is(true));
+        assertThat(invalidGoConfig.errorMessage(), is("Configuration file has been modified by someone else."));
     }
 
     @Test
@@ -633,9 +639,10 @@ public class GoConfigServiceIntegrationTest {
         GoConfigValidity validity = saver.saveXml(xml, user1SeeingMd5);
 
         assertThat(validity.isValid(), is(false));
+        GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
         // Pre throws VT_CONFLICT as user submitted xml is validated before attempting to save
-        assertThat(validity.isType(GoConfigValidity.VT_CONFLICT), is(true));
-        assertThat(validity.errorMessage(), containsString("Name is invalid. \"user1 pipeline\""));
+        assertThat(invalidGoConfig.isType(GoConfigValidity.VT_CONFLICT), is(true));
+        assertThat(invalidGoConfig.errorMessage(), containsString("Name is invalid. \"user1 pipeline\""));
     }
 
     @Test
@@ -662,8 +669,9 @@ public class GoConfigServiceIntegrationTest {
         GoConfigValidity validity = saver.saveXml(xml, user1SeeingMd5);
 
         assertThat(validity.isValid(), is(false));
-        assertThat(validity.toString(), validity.isType(GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR), is(true));
-        assertThat(validity.errorMessage(), is("Pipeline \"up_pipeline\" does not exist. It is used from pipeline \"down_pipeline\"."));
+        GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
+        assertThat(validity.toString(), invalidGoConfig.isType(GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR), is(true));
+        assertThat(invalidGoConfig.errorMessage(), is("Pipeline \"up_pipeline\" does not exist. It is used from pipeline \"down_pipeline\"."));
     }
 
     @Test
@@ -686,8 +694,9 @@ public class GoConfigServiceIntegrationTest {
         GoConfigValidity validity = saver.saveXml(xml, user1SeeingMd5);
 
         assertThat(validity.isValid(), is(false));
-        assertThat(validity.isType(GoConfigValidity.VT_CONFLICT), is(true));
-        assertThat(validity.errorMessage(), containsString("Name is invalid. \"user1 pipeline\""));
+        GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) validity;
+        assertThat(invalidGoConfig.isType(GoConfigValidity.VT_CONFLICT), is(true));
+        assertThat(invalidGoConfig.errorMessage(), containsString("Name is invalid. \"user1 pipeline\""));
     }
 
     @Test
@@ -773,7 +782,7 @@ public class GoConfigServiceIntegrationTest {
         GoConfigService.XmlPartialSaver saver = goConfigService.fileSaver(false);
         GoConfigValidity validity = saver.saveXml(os.toString(), user1SeeingMd5);
 
-        assertThat(validity.errorMessage(), validity.isValid(), is(true));
+        assertThat(validity.isValid(), is(true));
     }
 
     @Test
@@ -807,7 +816,7 @@ public class GoConfigServiceIntegrationTest {
 
         String md5 = goConfigService.getConfigForEditing().getMd5();
         goConfigService.updateConfigFromUI(new CommandToUpdatePluggablePublishArtifactProperties("ancestor",
-                "defaultStage", "defaultJob", "NEW_SECRET"), md5,
+                        "defaultStage", "defaultJob", "NEW_SECRET"), md5,
                 Username.ANONYMOUS, new HttpLocalizedOperationResult());
 
         Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = goConfigDao.loadConfigHolder()
@@ -826,7 +835,7 @@ public class GoConfigServiceIntegrationTest {
 
         String md5 = goConfigService.getConfigForEditing().getMd5();
         goConfigService.updateConfigFromUI(new CommandToUpdatePluggableFetchArtifactTaskProperties("child",
-                "defaultStage", "defaultJob", "NEW_SECRET"),
+                        "defaultStage", "defaultJob", "NEW_SECRET"),
                 md5, Username.ANONYMOUS, new HttpLocalizedOperationResult());
 
         PipelineConfig child = goConfigDao.loadConfigHolder().configForEdit.pipelineConfigByName(new CaseInsensitiveString("child"));
@@ -907,6 +916,7 @@ public class GoConfigServiceIntegrationTest {
             return updatedNode;
         }
     }
+
     private class CommandToUpdatePluggableFetchArtifactTaskProperties implements UpdateConfigFromUI {
         private final String pipeline;
         private final String stageName;

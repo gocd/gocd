@@ -17,42 +17,91 @@
 package com.thoughtworks.go.config.validation;
 
 import com.thoughtworks.go.config.ConfigSaveState;
-import org.junit.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static com.thoughtworks.go.config.validation.GoConfigValidity.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class GoConfigValidityTest {
+class GoConfigValidityTest {
 
-    @Test
-    public void shouldIndicateMergedBasedOnConfigSaveState(){
-        assertThat(GoConfigValidity.valid(ConfigSaveState.UPDATED).wasMerged(), is(false));
-        assertThat(GoConfigValidity.valid(ConfigSaveState.MERGED).wasMerged(), is(true));
-        assertThat(GoConfigValidity.invalid("error!").wasMerged(), is(false));
+    @Nested
+    class ValidGoConfig {
+        @Test
+        void shouldReturnValidConfigResult() {
+            assertThat(valid())
+                    .isNotNull()
+                    .isInstanceOf(GoConfigValidity.class)
+                    .isInstanceOf(GoConfigValidity.ValidGoConfig.class);
+
+            assertThat(valid().isValid()).isTrue();
+        }
+
+        @Test
+        void shouldReturnValidConfigResultWithConfigState() {
+            final GoConfigValidity.ValidGoConfig validity = valid(ConfigSaveState.UPDATED);
+
+            assertThat(validity.isValid()).isTrue();
+            assertThat(validity.wasMerged()).isFalse();
+        }
+
     }
 
-    @Test
-    public void shouldReturnTrueWhenMergeConflictIsEncountered() throws Exception {
-        GoConfigValidity validity = GoConfigValidity.invalid("error").mergeConflict();
-        assertThat(validity.isMergeConflict(), is(true));
-    }
+    @Nested
+    class Invalid {
+        @Test
+        void shouldReturnInvalidConfigResultForGivenErrorMessage() {
+            final InvalidGoConfig invalidGoConfig = invalid("some error");
 
-    @Test
-    public void shouldReturnFalseWhenMergeConflictIsEncounteredButIsValid() throws Exception {
-        GoConfigValidity validity = GoConfigValidity.valid().mergeConflict();
-        assertThat(validity.isMergeConflict(), is(false));
-    }
+            assertThat(invalidGoConfig)
+                    .isNotNull()
+                    .isInstanceOf(GoConfigValidity.class)
+                    .isInstanceOf(InvalidGoConfig.class);
+            assertThat(invalidGoConfig.isValid()).isFalse();
+            assertThat(invalidGoConfig.errorMessage()).isEqualTo("some error");
 
-    @Test
-    public void shouldReturnTrueWhenPostValidationErrorIsEncountered() throws Exception {
-        GoConfigValidity validity = GoConfigValidity.invalid("error").mergePostValidationError();
-        assertThat(validity.isPostValidationError(), is(true));
-    }
+        }
 
-    @Test
-    public void shouldReturnFalseWhenPostValidationErrorIsEncounteredButIsValid() throws Exception {
-        GoConfigValidity validity = GoConfigValidity.valid().mergePostValidationError();
-        assertThat(validity.isPostValidationError(), is(false));
-    }
+        @Test
+        void shouldReturnInvalidConfigResultForGivenException() {
+            final InvalidGoConfig invalidGoConfig = invalid("some-error");
 
+            assertThat(invalidGoConfig)
+                    .isNotNull()
+                    .isInstanceOf(GoConfigValidity.class)
+                    .isInstanceOf(InvalidGoConfig.class);
+            assertThat(invalidGoConfig.isValid()).isFalse();
+            assertThat(invalidGoConfig.errorMessage()).isEqualTo("some-error");
+        }
+
+        @Test
+        void shouldAllowToSetConflicts() {
+            final InvalidGoConfig configValidity = fromConflict("error message");
+
+            assertThat(configValidity.isType(VT_CONFLICT)).isTrue();
+            assertThat(configValidity.isValid()).isFalse();
+        }
+
+        @Test
+        void shouldAllowToSetMergeConflict() {
+            final InvalidGoConfig configValidity = mergeConflict("error message");
+
+            assertThat(configValidity.isMergeConflict()).isTrue();
+            assertThat(configValidity.isValid()).isFalse();
+        }
+
+        @Test
+        void shouldAllowToSetMergePreValidationError() {
+            final InvalidGoConfig configValidity = mergePreValidationError("error message");
+
+            assertThat(configValidity.isType(VT_MERGE_PRE_VALIDATION_ERROR)).isTrue();
+        }
+
+        @Test
+        void shouldAllowToSetMergePostValidationError() {
+            final InvalidGoConfig configValidity = mergePostValidationError("error message");
+
+            assertThat(configValidity.isPostValidationError()).isTrue();
+        }
+    }
 }

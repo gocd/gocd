@@ -25,23 +25,21 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import static javax.servlet.http.HttpServletResponse.SC_CONFLICT;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class JsonActionTest {
 
     private JsonAware jsonAware;
-    private GoConfigValidity configValidity;
+    private GoConfigValidity.InvalidGoConfig configValidity;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         jsonAware = mock(JsonAware.class);
-        configValidity = mock(GoConfigValidity.class);
+        configValidity = mock(GoConfigValidity.InvalidGoConfig.class);
     }
 
     @Test
-    public void shouldReturnJsonConflictInNormalConflict() throws Exception {
+    public void shouldReturnJsonConflictInNormalConflict() {
         when(configValidity.isType(GoConfigValidity.VT_CONFLICT)).thenReturn(true);
         JsonAction action = JsonAction.jsonByValidity(jsonAware, configValidity);
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -51,7 +49,7 @@ public class JsonActionTest {
     }
 
     @Test
-    public void shouldReturnJsonConflictInCaseOfConfigMergeConflict() throws Exception {
+    public void shouldReturnJsonConflictInCaseOfConfigMergeConflict() {
         when(configValidity.isType(GoConfigValidity.VT_MERGE_OPERATION_ERROR)).thenReturn(true);
         JsonAction action = JsonAction.jsonByValidity(jsonAware, configValidity);
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -61,7 +59,7 @@ public class JsonActionTest {
     }
 
     @Test
-    public void shouldReturnJsonConflictInCaseOfPostMergeValidationError() throws Exception {
+    public void shouldReturnJsonConflictInCaseOfPostMergeValidationError() {
         when(configValidity.isType(GoConfigValidity.VT_MERGE_POST_VALIDATION_ERROR)).thenReturn(true);
         JsonAction action = JsonAction.jsonByValidity(jsonAware, configValidity);
         MockHttpServletResponse response = new MockHttpServletResponse();
@@ -71,7 +69,7 @@ public class JsonActionTest {
     }
 
     @Test
-    public void shouldReturnJsonConflictInCaseOfPreMergeValidationError() throws Exception {
+    public void shouldReturnJsonConflictInCaseOfPreMergeValidationError() {
         when(configValidity.isType(GoConfigValidity.VT_MERGE_PRE_VALIDATION_ERROR)).thenReturn(true);
         JsonAction action = JsonAction.jsonByValidity(jsonAware, configValidity);
         MockHttpServletResponse response = new MockHttpServletResponse();

@@ -449,7 +449,7 @@ public class GoConfigMigratorIntegrationTest {
         GoConfigService.XmlPartialSaver fileSaver = goConfigService.fileSaver(true);
         GoConfigValidity configValidity = fileSaver.saveXml("<cruise schemaVersion='" + 53 + "'>\n"
                 + "</cruise>", goConfigService.configFileMd5());
-        assertThat(configValidity.isValid()).as("Has error: " + configValidity.errorMessage()).isTrue();
+        assertThat(configValidity.isValid()).as("Has no error").isTrue();
 
         CruiseConfig config = goConfigService.getCurrentConfig();
         ServerConfig server = config.server();
@@ -464,7 +464,7 @@ public class GoConfigMigratorIntegrationTest {
                 + "<server artifactsdir=\"logs\" siteUrl=\"http://go-server-site-url:8153\" secureSiteUrl=\"https://go-server-site-url:8154\" jobTimeout=\"60\">\n"
                 + "  </server>"
                 + "</cruise>", goConfigService.configFileMd5());
-        assertThat(configValidity.isValid()).as("Has error: " + configValidity.errorMessage()).isTrue();
+        assertThat(configValidity.isValid()).as("Has no error").isTrue();
 
         CruiseConfig config = goConfigService.getCurrentConfig();
         ServerConfig server = config.server();

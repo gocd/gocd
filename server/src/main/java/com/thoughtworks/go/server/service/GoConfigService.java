@@ -65,10 +65,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.StringReader;
 import java.util.*;
-import java.util.stream.Stream;
 
-import static com.thoughtworks.go.config.validation.GoConfigValidity.invalid;
-import static com.thoughtworks.go.i18n.LocalizedMessage.*;
+import static com.thoughtworks.go.config.validation.GoConfigValidity.*;
+import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditPipeline;
+import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
 import static com.thoughtworks.go.serverhealth.HealthStateType.*;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -1158,17 +1158,17 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             try {
                 return GoConfigValidity.valid(updatePartial(xmlPartial, expectedMd5));
             } catch (JDOMParseException jsonException) {
-                return GoConfigValidity.invalid(String.format("%s - %s", INVALID_CRUISE_CONFIG_XML, jsonException.getMessage())).fromConflict();
+                return fromConflict(String.format("%s - %s", INVALID_CRUISE_CONFIG_XML, jsonException.getMessage()));
             } catch (ConfigMergePreValidationException e) {
-                return invalid(e).mergePreValidationError();
+                return mergePreValidationError(e.getMessage());
             } catch (Exception e) {
                 if (e.getCause() instanceof ConfigMergePostValidationException) {
-                    return GoConfigValidity.invalid(e.getCause().getMessage()).mergePostValidationError();
+                    return mergePostValidationError(e.getCause().getMessage());
                 }
                 if (e.getCause() instanceof ConfigMergeException) {
-                    return GoConfigValidity.invalid(e.getCause().getMessage()).mergeConflict();
+                    return mergeConflict(e.getCause().getMessage());
                 }
-                return GoConfigValidity.invalid(e).fromConflict();
+                return fromConflict(e.getMessage());
             }
         }
 
@@ -1177,7 +1177,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
                 valid();
                 return GoConfigValidity.valid();
             } catch (Exception e) {
-                return GoConfigValidity.invalid(e);
+                return invalid(e.getMessage());
             }
         }
 

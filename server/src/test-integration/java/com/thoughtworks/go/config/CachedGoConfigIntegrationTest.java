@@ -619,7 +619,8 @@ public class CachedGoConfigIntegrationTest {
 
         GoConfigValidity configValidity = cachedGoConfig.checkConfigFileValid();
         assertThat(configValidity.isValid()).isEqualTo(false);
-        assertThat(configValidity.errorMessage()).contains("Environment Variable name 'GO_WORKING_DIR' is not unique for pipeline 'dev'");
+        GoConfigValidity.InvalidGoConfig invalidGoConfig = (GoConfigValidity.InvalidGoConfig) configValidity;
+        assertThat(invalidGoConfig.errorMessage()).contains("Environment Variable name 'GO_WORKING_DIR' is not unique for pipeline 'dev'");
     }
 
     @Test

@@ -162,11 +162,22 @@ export class ValidatableMixin {
 
   isValid(): boolean {
     this.validate();
-    return _.isEmpty(this.errors().errors()) &&
-      _.every(this.__associationsToValidate, (association: string) => {
-        const property = (this as any)[association];
-        return property ? property().isValid() : true;
-      });
+    // run these before composing with && because we DON'T want to guard
+    // the association validations if there are attribute errors; we want to
+    // run ALL validations up front.
+    const attributeErrors = _.isEmpty(this.errors().errors());
+    const descendantErrors = this.allAssociationsValid();
+
+    return attributeErrors && descendantErrors;
+  }
+
+  allAssociationsValid(): boolean {
+    // internally use _.map() to ensure we run ALL validations, instead of stopping on
+    // the first failure, then wrap with _.every() to output the result
+    return _.every(_.map(this.__associationsToValidate, (association: string) => {
+      const property = (this as any)[association];
+      return (property && property()) ? property().isValid() : true;
+    }), Boolean);
   }
 
   validateWith<T extends Validator>(validator: T, attr: string): void {

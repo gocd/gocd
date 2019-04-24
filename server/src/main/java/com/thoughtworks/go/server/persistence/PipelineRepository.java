@@ -251,7 +251,6 @@ public class PipelineRepository extends HibernateDaoSupport {
             pipelineSelections = getHibernateTemplate().get(PipelineSelections.class, id);
 
             if (null != pipelineSelections) {
-                getHibernateTemplate().saveOrUpdate(pipelineSelections);
                 goCache.put(key, pipelineSelections);
             }
 
@@ -284,8 +283,6 @@ public class PipelineRepository extends HibernateDaoSupport {
                 pipelineSelections = null;
             } else {
                 pipelineSelections = (PipelineSelections) list.get(0);
-
-                getHibernateTemplate().saveOrUpdate(pipelineSelections);
             }
 
             goCache.put(key, pipelineSelections);

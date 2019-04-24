@@ -16,11 +16,13 @@
 @import "../../global/common";
 
 $boxshadow: rgba(0, 0, 0, 0.15);
-$opacity: 0.5;
+$opacity: 0.2;
 
 .login-container {
-  padding:    20px 30px;
+  padding:    20px 30px 30px 20px;
   background: $white;
+  min-width:  410px;
+  min-height: 300px;
 
   &:before {
     background:    lighten($go-primary, 10%);
@@ -73,7 +75,7 @@ $opacity: 0.5;
     width:         30px;
     height:        30px;
     border-radius: 50%;
-    opacity:       0.5;
+    opacity:       $opacity;
     position:      absolute;
     left:          -36px;
     top:           115px;
@@ -107,6 +109,7 @@ $opacity: 0.5;
   flex-direction:  column;
   justify-content: center;
   align-items:     center;
+  font-size:       16px;
 }
 
 .login-user {
@@ -161,6 +164,7 @@ $opacity: 0.5;
 
 .other-login-methods {
   text-align: center;
+
 }
 
 .login-options {
@@ -178,9 +182,15 @@ $opacity: 0.5;
   border-radius: $global-border-radius;
   padding:       15px;
   margin:        0 5px;
-  width:         64px;
-  height:        64px;
+  width:         94px;
+  height:        94px;
   box-sizing:    border-box;
+  transition:    all 0.4s ease-in-out;
+
+  &:hover {
+    box-shadow: 0 2px 4px $box-shadow-color;
+    transition: all 0.4s ease-in-out;
+  }
 }
 
 .redirect {

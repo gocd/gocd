@@ -85,8 +85,8 @@ class ShowAllWebBasedPluginLinks extends MithrilViewComponent<AuthPluginInfo> {
                 href={eachPlugin.redirectUrl}>
                 <img
                   data-test-id={s.slugify(`image for ${eachPlugin.pluginName}`)}
-                  width="32px"
-                  height="32px"
+                  width="64px"
+                  height="64px"
                   alt={`Login using ${eachPlugin.pluginName}`}
                   src={eachPlugin.imageUrl}/>
               </a>
@@ -122,8 +122,8 @@ class ShowRedirectToDefaultPlugin extends MithrilComponent<AuthPluginInfo> {
           href={defaultWebBasedPlugin.redirectUrl}>
           <img
             data-test-id={s.slugify(`image for ${defaultWebBasedPlugin.pluginName}`)}
-            width="32px"
-            height="32px"
+            width="64px"
+            height="64px"
             alt={`Login using ${defaultWebBasedPlugin.pluginName}`}
             src={defaultWebBasedPlugin.imageUrl}/>
         </a>

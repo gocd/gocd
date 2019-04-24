@@ -18,6 +18,7 @@ class StagesController < ApplicationController
   helper :all
   include ApplicationHelper
   include StagesHelper
+  include AuthenticationHelper
 
   STAGE_DETAIL_ACTIONS = [:overview, :pipeline, :materials, :jobs, :rerun_jobs, :stats, :stage_config]
   BASE_TIME = Time.parse("00:00:00")
@@ -27,6 +28,7 @@ class StagesController < ApplicationController
   before_action :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline, :stats]
   before_action :load_current_config_version, :only => STAGE_DETAIL_ACTIONS << :history
   before_action :load_pipeline_instance, :only => :redirect_to_first_stage
+  before_action :check_admin_user_and_403, only: [:config_change]
 
   STAGE_HISTORY_PAGE_SIZE = 10
 

@@ -71,8 +71,8 @@ $collapse-icon-size: 25px;
 }
 
 .deprecation-warning-tooltip-wrapper {
-  position: static;
-  display:  inline-block;
+
+  display:      inline-block;
 
   &:hover {
     .deprecation-warning-tooltip-content {

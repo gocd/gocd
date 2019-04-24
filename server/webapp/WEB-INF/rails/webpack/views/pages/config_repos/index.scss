@@ -99,7 +99,9 @@ code {
 .config-repo-update-in-progress {
   @include test-connection-button-icon($type: $fa-var-spinner, $colors: $icon-color, $size: 15px) {
     animation: rotate 0.8s linear infinite;
+    margin-right: 0;
   }
+  margin-top: 4px;
 
   @keyframes rotate {
     from {

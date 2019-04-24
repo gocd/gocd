@@ -29,6 +29,7 @@ $btn-group-border-radius: $global-border-radius;
   color:         $icon-color;
   transition:    $transition;
   background:    $icon-bg;
+  margin-left:   20px;
 
   &:hover {
     color:      lighten($icon-color, 100%);
@@ -127,11 +128,13 @@ $btn-group-border-radius: $global-border-radius;
   border:        1px solid $border-color;
   border-radius: $btn-group-border-radius;
   display:       inline-flex;
+  margin-left:   20px;
 
   .btn-icon {
     border:        none;
     border-left:   1px solid $border-color;
     border-radius: 0;
+    margin-left:   0;
 
     &:first-child {
       border-left:   none;

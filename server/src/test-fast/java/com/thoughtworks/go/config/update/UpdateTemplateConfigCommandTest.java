@@ -200,14 +200,9 @@ public class UpdateTemplateConfigCommandTest {
 
     @Test
     public void updateTemplateConfigShouldValidateAllExternalArtifacts() {
-        PluggableArtifactConfig s3 = mock(PluggableArtifactConfig.class);
-        PluggableArtifactConfig docker = mock(PluggableArtifactConfig.class);
-        when(s3.getStoreId()).thenReturn("s3");
-        when(docker.getStoreId()).thenReturn("docker");
+        PluggableArtifactConfig s3 = new PluggableArtifactConfig("id1", "s3");
+        PluggableArtifactConfig docker = new PluggableArtifactConfig("id2", "docker");
 
-        ConfigErrors configErrors = new ConfigErrors();
-        when(s3.errors()).thenReturn(configErrors);
-        when(docker.errors()).thenReturn(configErrors);
         JobConfig job1 = JobConfigMother.jobWithNoResourceRequirement();
         JobConfig job2 = JobConfigMother.jobWithNoResourceRequirement();
 

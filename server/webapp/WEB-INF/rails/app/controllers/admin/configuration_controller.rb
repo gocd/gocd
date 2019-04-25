@@ -15,10 +15,12 @@
 ##########################GO-LICENSE-END##################################
 
 class Admin::ConfigurationController < AdminController
-  before_action :fetch_config , :only => [:show, :edit]
+  before_action :fetch_config , :only => [:edit]
   before_action :tab_name, :page_title
 
   def show
+    config_map = admin_service.populateModel(HashMap.new)
+    @go_config = GoConfig.new(config_map)
     fetch_cruise_config_revision @go_config.md5
   end
 
@@ -38,12 +40,10 @@ class Admin::ConfigurationController < AdminController
         @flash_help_link = "<a class='' href='#{CurrentGoCDVersion.docs_url('configuration/configuration_reference.html')}' target='_blank'>Help Topic: Configuration</a>"
         @conflicted_config = GoConfig.new(params[:go_config])
         fetch_cruise_config_revision @go_config.md5
-        @render_config_via_ajax = true
         render :split_pane and return
       else
         @go_config = GoConfig.new(params[:go_config].merge(:location => @go_config.location))
         fetch_cruise_config_revision @go_config.md5
-        @render_config_via_ajax = false
         render :edit and return
       end
     end
@@ -53,8 +53,8 @@ class Admin::ConfigurationController < AdminController
 
   private
   def fetch_config
-    config = go_config_service.getConfigAtVersion('current')
-    @go_config = GoConfig.new({location: go_config_service.fileLocation, md5: config.getMd5, content: config.getContent})
+    config_map = admin_service.configurationMapForSourceXml()
+    @go_config = GoConfig.new(config_map)
   end
 
   def fetch_cruise_config_revision md5

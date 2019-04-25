@@ -52,6 +52,7 @@ describe Admin::PipelinesSnippetController do
   describe "actions" do
     before :each do
       expect(controller).to receive(:populate_config_validity).and_return(true)
+      expect(controller).to receive(:load_context)
       @result = double(HttpLocalizedOperationResult)
       allow(HttpLocalizedOperationResult).to receive(:new).and_return(@result)
     end

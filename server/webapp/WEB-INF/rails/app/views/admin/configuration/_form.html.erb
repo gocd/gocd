@@ -17,58 +17,14 @@
             <%= form.submit('SAVE', :class => "link_as_button primary" , :id => "save_config", :disabled => 'disabled') -%>
         </div>
     </div>
-    <% if @render_config_via_ajax %>
-      <div id="content_area" style="height: 400px;">
-        <div class="spinner-container" style="
-          position:      relative;
-          top:           30%;
-          left:          50%;
-          border:        16px solid #f3f3f3;
-          border-top:    16px solid #963fb7;
-          border-radius: 50%;
-          width:         100px;
-          height:        100px;
-          margin:        -50px 0 0 -50px;
-          animation:     spin 2s linear infinite;
-        "></div>
-          <%= form.text_area html_escape(:content), value: nil, :size => '100%x100%', :class => "code" ,:id => "content", :autocomplete => 'off', :autocorrect => 'off', :autocapitalize => 'off', :spellcheck => "false", 'data-config-url' => "/go/api/admin/config/#{@go_config.md5}.xml" , style: 'visibility: hidden; display: none;'%>
-      </div>
-      <script type="text/javascript">
-        jQuery(function () {
-          var httpRequest = new XMLHttpRequest();
-          var textArea = document.querySelector('#content_area textarea.code');
-          httpRequest.open('GET', textArea.getAttribute('data-config-url'), true);
-          httpRequest.send();
-          httpRequest.onreadystatechange = function () {
-            if (httpRequest.readyState === XMLHttpRequest.DONE) {
-              if (httpRequest.status === 200) {
-                jQuery("input#save_config").removeAttr("disabled");
-                textArea.value = httpRequest.responseText;
-              } else {
-                textArea.value = "There was an error fetching the config xml. Please try again in some time. If the error persists, contact the GoCD server administrator for help.";
-              }
-
-              // finally remove the style on the text area to make it visible.
-              document.querySelector('#content_area .spinner-container').remove();
-              document.querySelector('#content_area').removeAttribute('style');
-              textArea.removeAttribute('style');
-            }
-          };
-        });
-      </script>
-    <% else %>
-      <div id="content_area">
-        <%= form.text_area html_escape(:content), :size => '100%x100%', :class => "code" ,:id => "content", :autocomplete => 'off', :autocorrect => 'off', :autocapitalize => 'off', :spellcheck => "false", 'data-config-url' => "/go/api/admin/config/#{@go_config.md5}.xml" %>
-      </div>
-      <script type="text/javascript">
-        jQuery(document).ready(function() {
-          jQuery("input#save_config").removeAttr("disabled");
-        });
-      </script>
-    <% end %>
-
-    <%= form.hidden_field :md5 %>
-
+    <div id="content_area">
+        <%= form.text_area html_escape(:content), :class => "code" ,:id => "content", :spellcheck => "false" %>
+        <%= form.hidden_field :md5 %>
+    </div>
 <% end %>
 
-
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+       jQuery("input#save_config").removeAttr("disabled");
+    });
+</script>

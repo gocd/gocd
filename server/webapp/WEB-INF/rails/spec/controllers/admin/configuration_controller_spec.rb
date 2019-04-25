@@ -22,27 +22,25 @@ describe Admin::ConfigurationController do
   before(:each) do
     @admin_service = double("admin_service")
     @config_repository = double("config_repository")
-    @go_config_service = double('go config service')
-    allow(@go_config_service).to receive(:checkConfigFileValid).and_return(GoConfigValidity.valid())
     allow(controller).to receive(:admin_service).and_return(@admin_service)
     allow(controller).to receive(:config_repository).and_return(@config_repository)
-    allow(controller).to receive(:go_config_service).and_return(@go_config_service)
   end
 
   describe "tab_name" do
     before :each do
-      cruise_config_revision = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-      expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-      expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(cruise_config_revision)
-      expect(@config_repository).to receive(:getRevision).with('md5').and_return(cruise_config_revision)
+      @config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
+      cruise_config_revision = double('cruise config revision')
+      expect(@config_repository).to receive(:getRevision).with(@config['md5']).and_return(cruise_config_revision)
     end
 
     it "should set tab name for show" do
+      expect(@admin_service).to receive(:populateModel).with(anything).and_return(@config)
       get :show
       expect(assigns[:tab_name]).to eq('configuration-xml')
     end
 
     it "should set tab name for edit" do
+      expect(@admin_service).to receive(:configurationMapForSourceXml).and_return(@config)
       get :edit
       expect(assigns[:tab_name]).to eq('configuration-xml')
     end
@@ -50,13 +48,13 @@ describe Admin::ConfigurationController do
 
   describe "view_title" do
     before :each do
-      cruise_config_revision = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-      expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-      expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(cruise_config_revision)
-      expect(@config_repository).to receive(:getRevision).with('md5').and_return(cruise_config_revision)
+      @config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
+      cruise_config_revision = double('cruise config revision')
+      expect(@config_repository).to receive(:getRevision).with(@config['md5']).and_return(cruise_config_revision)
     end
 
     it "should set tab name for show" do
+      expect(@admin_service).to receive(:populateModel).with(anything).and_return(@config)
 
       get :show
 
@@ -65,6 +63,8 @@ describe Admin::ConfigurationController do
     end
 
     it "should set tab name for edit" do
+      expect(@admin_service).to receive(:configurationMapForSourceXml).and_return(@config)
+
       get :edit
 
       expect(assigns[:view_title]).to eq('Administration')
@@ -91,10 +91,11 @@ describe Admin::ConfigurationController do
 
   describe "show" do
     it "should render view with config" do
-      cruise_config_revision = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-      expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-      expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(cruise_config_revision)
-      expect(@config_repository).to receive(:getRevision).with('md5').and_return(cruise_config_revision)
+      config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
+      expect(@admin_service).to receive(:populateModel).with(anything).and_return(config)
+      cruise_config_revision = double('cruise config revision')
+      expect(@config_repository).to receive(:getRevision).with(config['md5']).and_return(cruise_config_revision)
+
       get :show
 
       expect(response).to render_template "show"
@@ -107,10 +108,11 @@ describe Admin::ConfigurationController do
 
   describe "edit" do
     it "should render edit" do
-      cruise_config_revision = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-      expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-      expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(cruise_config_revision)
-      expect(@config_repository).to receive(:getRevision).with('md5').and_return(cruise_config_revision)
+      config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
+      expect(@admin_service).to receive(:configurationMapForSourceXml).and_return(config)
+      cruise_config_revision = double('cruise config revision')
+      expect(@config_repository).to receive(:getRevision).with(config['md5']).and_return(cruise_config_revision)
+
       get :edit
 
       expect(response).to render_template "edit"
@@ -133,16 +135,13 @@ describe Admin::ConfigurationController do
     end
 
     it "should render edit page when config save fails" do
-      expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-
-      current_config = GoConfigRevision.new("config-content", "current-md5", "loser", "2.3.0", TimeProvider.new)
-      expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(current_config)
-
+      current_config = {"content" => "config-content", "md5" => "current-md5", "location" => "/foo/bar"}
       submitted_copy = {"content" => "edited-content", "md5" => "md5"}
       config_validity = double('config validity')
       expect(config_validity).to receive(:isValid).and_return(false)
       expect(config_validity).to receive(:errorMessage).and_return('Wrong config xml')
       allow(controller).to receive(:switch_to_split_pane?).once.with(config_validity).and_return(false)
+      expect(@admin_service).to receive(:configurationMapForSourceXml).and_return(current_config)
       expect(@admin_service).to receive(:updateConfig).with(submitted_copy, an_instance_of(HttpLocalizedOperationResult)).and_return(config_validity)
       cruise_config_revision = double('cruise config revision')
       expect(@config_repository).to receive(:getRevision).with(submitted_copy['md5']).and_return(cruise_config_revision)
@@ -159,21 +158,18 @@ describe Admin::ConfigurationController do
     end
 
     it "should render split pane when config save fails because of merge conflict" do
-      expect(@go_config_service).to receive(:fileLocation).and_return('/foo/bar')
-
-      current_config = GoConfigRevision.new("config-content", "md5", "loser", "2.3.0", TimeProvider.new)
-      expect(@go_config_service).to receive(:getConfigAtVersion).with('current').and_return(current_config)
-      expect(@config_repository).to receive(:getRevision).with('md5').and_return(current_config)
-
+      current_config = {"content" => "config-content", "md5" => "md5", "location" => "/foo/bar"}
       submitted_copy = {"content" => "content-which-caused-conflict", "md5" => "md5"}
-
+      expect(@admin_service).to receive(:configurationMapForSourceXml).and_return(current_config)
       config_validity = double('config validity')
       expect(config_validity).to receive(:isValid).and_return(false)
       expect(config_validity).to receive(:errorMessage).and_return('Conflict in merging')
       allow(controller).to receive(:switch_to_split_pane?).once.with(config_validity).and_return(true)
       expect(@admin_service).to receive(:updateConfig).with(submitted_copy, an_instance_of(HttpLocalizedOperationResult)).and_return(config_validity)
+      cruise_config_revision = double('cruise config revision')
+      expect(@config_repository).to receive(:getRevision).with(current_config['md5']).and_return(cruise_config_revision)
 
-      put :update, params: {:go_config => submitted_copy}
+      put :update, params:{:go_config => submitted_copy}
 
       expect(response).to render_template "split_pane"
       expect(flash.now[:error]).to eq("Someone has modified the configuration and your changes are in conflict. Please review, amend and retry.")
@@ -182,10 +178,10 @@ describe Admin::ConfigurationController do
       expect(assigns[:conflicted_config].content).to eq(submitted_copy['content'])
       expect(assigns[:conflicted_config].md5).to eq(submitted_copy['md5'])
       expect(assigns[:conflicted_config].location).to eq(submitted_copy['location'])
-      expect(assigns[:go_config].content).to eq(current_config.getContent)
-      expect(assigns[:go_config].md5).to eq(current_config.getMd5)
-      expect(assigns[:go_config].location).to eq('/foo/bar')
-      expect(assigns[:go_config_revision]).to eq(current_config)
+      expect(assigns[:go_config].content).to eq(current_config['content'])
+      expect(assigns[:go_config].md5).to eq(current_config['md5'])
+      expect(assigns[:go_config].location).to eq(current_config['location'])
+      expect(assigns[:go_config_revision]).to eq(cruise_config_revision)
     end
 
     it "should render display configuration merged successfully when a merge happens" do

@@ -21,6 +21,7 @@ class AdminController < ApplicationController
   layout "admin"
   prepend_before_action :default_as_empty_list, :only => [:update]
   before_action :enable_admin_error_template
+  before_action :load_context
 
   GO_CONFIG_ERROR_HEADER = 'Go-Config-Error'
 
@@ -138,4 +139,7 @@ class AdminController < ApplicationController
     self.error_template_for_request = 'shared/config_error'
   end
 
+  def load_context
+    assert_load :config_context, create_config_context(go_config_service.registry)
+  end
 end

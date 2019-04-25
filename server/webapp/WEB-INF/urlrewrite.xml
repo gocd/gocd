@@ -335,6 +335,12 @@
   </rule>
 
   <rule>
+    <name>Pipeline Dependency Material Autocomplete API</name>
+    <from>^/api/internal/dependency_material/autocomplete_suggestions(/?)$</from>
+    <to last="true">/spark/api/internal/dependency_material/autocomplete_suggestions</to>
+  </rule>
+
+  <rule>
     <name>Material Search API</name>
     <from>^/api/internal/material_search(/?)$</from>
     <to last="true">/spark/api/internal/material_search</to>

@@ -415,6 +415,10 @@ public class Routes {
         public static final String BASE = "/api/internal/material_search";
     }
 
+    public class DependencyMaterialAutocomplete {
+        public static final String BASE = "/api/internal/dependency_material/autocomplete_suggestions";
+    }
+
     public class RolesSPA {
         public static final String BASE = "/admin/security/roles";
     }

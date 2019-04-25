@@ -20,8 +20,10 @@ module Admin
     helper AdminHelper
     helper FlashMessagesHelper
     helper TaskHelper
+    include AuthenticationHelper
 
-    load_pipeline_except_for :create, :update, :destroy, :increment_index, :decrement_index
+    before_action :check_admin_user_and_403, only: [:config_change]
+    load_pipeline_except_for :create, :update, :destroy, :increment_index, :decrement_index, :config_change
 
     layout "application", :except => [:new, :create, :update]
 
@@ -132,6 +134,11 @@ module Admin
       end.new(params, current_user.getUsername(), security_service)) do
         load_for_listing
       end
+    end
+
+    def config_change
+      @changes = go_config_service.configChangesFor(params[:later_md5], params[:earlier_md5], result = HttpLocalizedOperationResult.new)
+      @config_change_error_message = result.isSuccessful ? ('This is the first entry in the config versioning. Please refer config tab to view complete configuration during this run.' if @changes == nil) : result.message()
     end
 
     private

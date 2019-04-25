@@ -56,7 +56,7 @@ describe "layouts/pipelines.html.eb" do
     allow(view).to receive(:stage_detail_tab_path_for).with(:pipeline_name=>"pipeline-name", :pipeline_counter=>1, :stage_name=>"stage-1", :stage_counter=>"1").and_return("url_to_pipeline")
     allow(view).to receive(:stage_history_path).and_return("historical_stage_page_number")
     allow(view).to receive(:is_user_an_admin?).and_return(true)
-    allow(view).to receive(:config_change_path)
+    allow(view).to receive(:admin_config_change_path)
   end
 
   describe "stage configuration out of sync notification" do

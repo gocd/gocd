@@ -128,7 +128,7 @@ public class UrlRewriterIntegrationTest {
     @DataPoint
     public static ResponseAssertion PLUGGABLE_SCM = new ResponseAssertion(HTTP_URL + "/go/admin/materials/pluggable_scm/check_connection/plugin_id", HTTP_URL + "/go/rails/admin/materials/pluggable_scm/check_connection/plugin_id", true);
     @DataPoint
-    public static ResponseAssertion CONFIG_CHANGE = new ResponseAssertion(HTTP_URL + "/go/config_change/md5_value", HTTP_URL + "/go/rails/config_change/md5_value", true);
+    public static ResponseAssertion CONFIG_CHANGE = new ResponseAssertion(HTTP_URL + "/go/admin/config_change/md5_value", HTTP_URL + "/go/rails/admin/config_change/md5_value", true);
     @DataPoint
     public static ResponseAssertion CONFIG_XML_VIEW = new ResponseAssertion(HTTP_URL + "/go/admin/config_xml", HTTP_URL + "/go/rails/admin/config_xml", METHOD.GET, true);
     @DataPoint

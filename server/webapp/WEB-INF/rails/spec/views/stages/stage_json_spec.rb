@@ -23,7 +23,7 @@ describe 'stages/stage.json.erb' do
 
   before do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
-    allow(view).to receive(:config_change_path)
+    allow(view).to receive(:admin_config_change_path)
     assign :pipeline,  pipeline_model("pipeline_name", "blah_label", false, false, "working with agent", false).getLatestPipelineInstance()
     assign :stage_history_page, stage_history_page(10)
   end

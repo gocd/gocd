@@ -70,7 +70,7 @@ export abstract class BaseClusterProfileModal extends Modal {
 
   buttons() {
     if (this.supportsClusterProfile()) {
-      return [<Buttons.Primary onclick={this.performSave.bind(this)}>Save</Buttons.Primary>];
+      return [<Buttons.Primary onclick={this.performSave.bind(this)} data-test-id={"cluster-profile-save-btn"}>Save</Buttons.Primary>];
     }
     return [];
   }

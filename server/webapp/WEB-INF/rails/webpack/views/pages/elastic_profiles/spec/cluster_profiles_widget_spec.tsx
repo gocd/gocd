@@ -149,14 +149,14 @@ describe("ClusterProfilesWidget", () => {
     const clusterProfiles = new ClusterProfiles([ClusterProfile.fromJSON(TestData.dockerClusterProfile()), ClusterProfile.fromJSON(TestData.kubernetesClusterProfile())]);
     mount(pluginInfos, clusterProfiles, new ElasticAgentProfiles([dockerElasticProfile, kubernetesElasticProfile]));
 
-    const dockerElasticProfilePanel = helper.findByDataTestId("elastic-profile")[0];
+    const dockerElasticProfilePanel = helper.findByDataTestId("elastic-profile-header")[0];
     expect(helper.findIn(dockerElasticProfilePanel, "elastic-profile-id")).toHaveText("Profile2");
     expect(helper.findIn(dockerElasticProfilePanel, "key-value-value-image")).toHaveText("docker-image122345");
     expect(helper.findIn(dockerElasticProfilePanel, "key-value-value-command")).toHaveText("ls\n-alh");
     expect(helper.findIn(dockerElasticProfilePanel, "key-value-value-environment")).toHaveText("JAVA_HOME=/bin/java");
     expect(helper.findIn(dockerElasticProfilePanel, "key-value-value-hosts")).toHaveText("(Not specified)");
 
-    const kubernetesElasticProfilePanel = helper.findByDataTestId("elastic-profile")[1];
+    const kubernetesElasticProfilePanel = helper.findByDataTestId("elastic-profile-header")[1];
     expect(helper.findIn(kubernetesElasticProfilePanel, "elastic-profile-id")).toHaveText("Kuber1");
     expect(helper.findIn(kubernetesElasticProfilePanel, "key-value-value-image")).toHaveText("Image1");
     expect(helper.findIn(kubernetesElasticProfilePanel, "key-value-value-maxmemory")).toHaveText("(Not specified)");
@@ -235,7 +235,7 @@ describe("ClusterProfilesWidget", () => {
     it("should toggle expanded state of elastic agent profile show details on click", () => {
       simulateEvent.simulate(clusterProfilePanelHeader, "click");
 
-      const elasticAgentProfileInfoHeader = helper.findIn(helper.findByDataTestId("elastic-profile")[0], "collapse-header")[0];
+      const elasticAgentProfileInfoHeader = helper.findIn(helper.findByDataTestId("elastic-profile-header")[0], "collapse-header")[0];
 
       simulateEvent.simulate(elasticAgentProfileInfoHeader, "click");
 

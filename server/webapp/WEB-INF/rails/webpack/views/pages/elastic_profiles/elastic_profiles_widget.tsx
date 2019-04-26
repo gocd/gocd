@@ -89,7 +89,8 @@ export interface ProfileAttrs {
 export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
 
   static profileHeader(profileId: string) {
-    return <KeyValueTitle image={null} titleTestId="elastic-profile-id" title={profileId}/>;
+    const title = <div data-test-id="elastic-profile-id"><span>{profileId}</span></div>;
+    return <KeyValueTitle image={null} title={title}/>;
   }
 
   view(vnode: m.Vnode<ProfileAttrs, {}>) {
@@ -103,7 +104,7 @@ export class ElasticProfileWidget extends MithrilComponent<ProfileAttrs> {
       </IconGroup>
     ];
     return (
-      <CollapsiblePanel header={ElasticProfileWidget.profileHeader(elasticProfile.id())} actions={actions} dataTestId={"elastic-profile"}>
+      <CollapsiblePanel header={ElasticProfileWidget.profileHeader(elasticProfile.id())} actions={actions} dataTestId={"elastic-profile-header"}>
         <KeyValuePair data={new Map(elasticProfile.properties() != null ? elasticProfile.properties().asMap() : [])}/>
       </CollapsiblePanel>
     );

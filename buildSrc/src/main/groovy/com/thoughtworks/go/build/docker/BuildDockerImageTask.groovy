@@ -47,7 +47,7 @@ class BuildDockerImageTask extends DefaultTask {
   @TaskAction
   def perform() {
     project.delete(gitRepoDirectory)
-    credentials = "${System.getenv("GIT_USER")}:${System.getenv("GIT_PASSWORD")}"
+    def credentials = "${System.getenv("GIT_USER")}:${System.getenv("GIT_PASSWORD")}"
     project.exec {
       workingDir = project.rootProject.projectDir
       commandLine = ["git", "clone", "--depth=1", "--quiet", "https://${credentials}@github.com/gocd/${gitHubRepoName}", gitRepoDirectory]

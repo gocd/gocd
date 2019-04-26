@@ -80,7 +80,6 @@ public class GoCipher implements Serializable {
         return passwordEquals(password1, password2);
     }
 
-
     public boolean passwordEquals(EncryptedVariableValueConfig p1, EncryptedVariableValueConfig p2) {
         if (p1 == null && p2 == null) {
             return true;

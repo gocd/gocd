@@ -60,9 +60,8 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.helper.FilterMother.filterFor;
 import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Theories.class)
@@ -84,14 +83,14 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     @DataPoint public static MaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("name1"), cis("pipeline1"), cis("stage1"));
 
     static {
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(GitMaterialConfig.class, new String[]{"filter"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(HgMaterialConfig.class, new String[]{"filter"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(SvnMaterialConfig.class, new String[]{"filter", "encryptedPassword", "goCipher"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(P4MaterialConfig.class, new String[]{"filter", "encryptedPassword", "goCipher"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(TfsMaterialConfig.class, new String[]{"filter", "encryptedPassword", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(GitMaterialConfig.class, new String[]{"filter", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(HgMaterialConfig.class, new String[]{"filter", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(SvnMaterialConfig.class, new String[]{"filter", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(P4MaterialConfig.class, new String[]{"filter", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(TfsMaterialConfig.class, new String[]{"filter", "goCipher"});
         fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(PackageMaterialConfig.class, new String[]{"filter", "packageId", "packageDefinition", "fingerprint"});
         fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(PluggableSCMMaterialConfig.class, new String[]{"filter", "scmId", "scmConfig", "fingerprint"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(DependencyMaterialConfig.class, new String[]{"filter", "encryptedPassword", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(DependencyMaterialConfig.class, new String[]{"filter", "goCipher"});
     }
 
     @Theory
@@ -101,7 +100,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
 
         assertThat(materialConfigConvertedBackFromMaterial, is(materialConfig));
         assertTrue(message("Material <-> MaterialConfig conversion failed.", materialConfigConvertedBackFromMaterial, materialConfig),
-                reflectionEquals(materialConfigConvertedBackFromMaterial, materialConfig));
+                reflectionEquals(materialConfigConvertedBackFromMaterial, materialConfig, fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.get(materialConfig.getClass())));
 
         assertThat(materialFromConfig.getFingerprint(), is(materialConfig.getFingerprint()));
         assertThat(materialFromConfig.isAutoUpdate(), is(materialConfig.isAutoUpdate()));

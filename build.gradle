@@ -528,7 +528,12 @@ subprojects {
       project.logger.info("Deleting tmpdir ${tmpDir}")
       project.delete(tmpDir)
 
-      if (!allTestClasses.empty) {
+      def allowTestsToBeSkipped = false
+      if (project.hasProperty("allowTestsToBeSkipped")) {
+        allowTestsToBeSkipped = Boolean.parseBoolean(project.property("allowTestsToBeSkipped"))
+      }
+
+      if (!allTestClasses.empty && !allowTestsToBeSkipped) {
         throw new GradleException("Missed the following classes to test: ${allTestClasses}".toString())
       }
     }

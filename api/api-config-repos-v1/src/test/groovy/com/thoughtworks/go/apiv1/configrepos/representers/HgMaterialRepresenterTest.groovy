@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.domain.materials.MaterialConfig
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
@@ -41,15 +42,41 @@ class HgMaterialRepresenterTest {
     ])
   }
 
-  @Test
-  void fromJSON() {
-    JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
-      name      : null,
-      url       : REPO_URL,
-      auto_upate: true
-    ])
+  @Nested
+  class fromJSON {
+    @Test
+    void shouldConvertToMaterialObject() {
+      JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
+        name      : null,
+        url       : REPO_URL,
+        auto_upate: true
+      ])
 
-    MaterialConfig expected = new HgMaterialConfig(REPO_URL, null)
-    assertEquals(expected, HgMaterialRepresenter.fromJSON(json))
+      MaterialConfig expected = new HgMaterialConfig(REPO_URL, null)
+      assertEquals(expected, HgMaterialRepresenter.fromJSON(json))
+    }
+
+    @Test
+    void shouldHandleNullMaterialUrl() {
+      JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
+        name      : null,
+        url       : null,
+        auto_upate: true
+      ])
+
+      MaterialConfig expected = new HgMaterialConfig()
+      assertEquals(expected, HgMaterialRepresenter.fromJSON(json))
+    }
+
+    @Test
+    void shouldHandleIfUrlFieldIsMissingInJson() {
+      JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
+        name      : null,
+        auto_upate: true
+      ])
+
+      MaterialConfig expected = new HgMaterialConfig()
+      assertEquals(expected, HgMaterialRepresenter.fromJSON(json))
+    }
   }
 }

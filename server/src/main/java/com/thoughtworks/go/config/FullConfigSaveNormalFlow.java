@@ -56,11 +56,11 @@ public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
 
         CruiseConfig configForEdit = configForEditWithPartials(updatingCommand, partials);
 
+        CruiseConfig preProcessedConfig = preprocessAndValidate(configForEdit);
+
         String configForEditXmlString = toXmlString(configForEdit);
 
         postValidationUpdates(configForEdit, configForEditXmlString);
-
-        CruiseConfig preProcessedConfig = preprocessAndValidate(configForEdit);
 
         checkinToConfigRepo(currentUser, configForEdit, configForEditXmlString);
 

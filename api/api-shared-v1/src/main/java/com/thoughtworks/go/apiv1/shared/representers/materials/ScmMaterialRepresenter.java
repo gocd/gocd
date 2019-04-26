@@ -19,14 +19,10 @@ package com.thoughtworks.go.apiv1.shared.representers.materials;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 
 public class ScmMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, ScmMaterialConfig scmMaterialConfig) {
-        if (!(scmMaterialConfig instanceof P4MaterialConfig)) {
-            jsonWriter.add("url", scmMaterialConfig.getUrl());
-        }
         jsonWriter.add("destination", scmMaterialConfig.getFolder());
 
         if (scmMaterialConfig.filter().isEmpty()) {
@@ -40,7 +36,6 @@ public class ScmMaterialRepresenter {
     }
 
     public static void fromJSON(JsonReader jsonReader, ScmMaterialConfig scmMaterialConfig) {
-        jsonReader.readStringIfPresent("url", scmMaterialConfig::setUrl);
         jsonReader.readStringIfPresent("destination", scmMaterialConfig::setFolder);
         jsonReader.optBoolean("invert_filter").ifPresent(scmMaterialConfig::setInvertFilter);
         jsonReader.optJsonObject("filter").ifPresent(filterReader -> {

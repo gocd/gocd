@@ -25,6 +25,7 @@ public class SvnMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, SvnMaterialConfig svnMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, svnMaterialConfig);
+        jsonWriter.add("url", svnMaterialConfig.getUrl());
         jsonWriter.add("check_externals", svnMaterialConfig.isCheckExternals());
         jsonWriter.add("username", svnMaterialConfig.getUserName());
         jsonWriter.addIfNotNull("encrypted_password", svnMaterialConfig.getEncryptedPassword());
@@ -33,6 +34,7 @@ public class SvnMaterialRepresenter {
     public static SvnMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, svnMaterialConfig);
+        jsonReader.readStringIfPresent("url", svnMaterialConfig::setUrl);
         jsonReader.optBoolean("check_externals").ifPresent(svnMaterialConfig::setCheckExternals);
         jsonReader.readStringIfPresent("username", svnMaterialConfig::setUserName);
         String password = null, encryptedPassword = null;

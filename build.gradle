@@ -936,7 +936,7 @@ task newApi {
     String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
     String entityClassName = toCamelCase(apiName)
     String controllerClassName = "${entityClassName}Controller${project.apiVersion.capitalize()}"
-    String[] ignoredFiles = ["api/${newProjectName}/out/", "api/${newProjectName}/target/", "api/${newProjectName}/logs/"]
+    String[] ignoredFiles = ["api/${newProjectName}/out/", "api/${newProjectName}/target/", "api/${newProjectName}/logs/", "api/${newProjectName}/config/"]
 
     project.delete(moduleDir)
     project.mkdir(moduleDir)

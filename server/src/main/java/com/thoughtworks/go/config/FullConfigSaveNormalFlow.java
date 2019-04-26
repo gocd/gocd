@@ -56,11 +56,13 @@ public class FullConfigSaveNormalFlow extends FullConfigSaveFlow {
 
         CruiseConfig configForEdit = configForEditWithPartials(updatingCommand, partials);
 
+        CruiseConfig preProcessedConfig = preprocessAndValidate(configForEdit);
+
         String configForEditXmlString = toXmlString(configForEdit);
 
         postValidationUpdates(configForEdit, configForEditXmlString);
 
-        CruiseConfig preProcessedConfig = preprocessAndValidate(configForEdit);
+        MagicalGoConfigXmlLoader.setMd5(preProcessedConfig, configForEdit.getMd5());
 
         checkinToConfigRepo(currentUser, configForEdit, configForEditXmlString);
 

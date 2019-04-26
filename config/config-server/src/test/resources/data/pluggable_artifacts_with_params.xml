@@ -60,7 +60,7 @@
                                     </property>
                                     <property>
                                         <key>Image</key>
-                                        <value>SECRET</value>
+                                        <value>IMAGE_SECRET</value>
                                     </property>
                                     <property>
                                         <key>Tag</key>
@@ -96,7 +96,7 @@
                                     </property>
                                     <property>
                                         <key>Image</key>
-                                        <value>SECRET</value>
+                                        <value>IMAGE_SECRET</value>
                                     </property>
                                     <property>
                                         <key>Tag</key>

@@ -4270,10 +4270,10 @@ public class MagicalGoConfigXmlLoaderTest {
         Configuration childFetchArtifactFromParentConfig = ((FetchPluggableArtifactTask) child.get(0).getJobs().first().tasks().get(1)).getConfiguration();
         ArtifactStore dockerhubStore = config.getArtifactStores().first();
 
-        assertConfigProperty(ancestorPublishArtifactConfig, "Image", "SECRET", true);
+        assertConfigProperty(ancestorPublishArtifactConfig, "Image", "IMAGE_SECRET", true);
         assertConfigProperty(ancestorPublishArtifactConfig, "Tag", "ancestor_tag_${GO_PIPELINE_COUNTER}", false);
 
-        assertConfigProperty(parentPublishArtifactConfig, "Image", "SECRET", true);
+        assertConfigProperty(parentPublishArtifactConfig, "Image", "IMAGE_SECRET", true);
         assertConfigProperty(parentPublishArtifactConfig, "Tag", "parent_tag_${GO_PIPELINE_COUNTER}", false);
 
 

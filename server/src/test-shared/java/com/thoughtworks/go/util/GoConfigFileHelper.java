@@ -177,6 +177,9 @@ public class GoConfigFileHelper {
         new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, this.configFile.getAbsolutePath());
     }
 
+    public String getCurrentXml() throws IOException {
+        return FileUtils.readFileToString(this.configFile, UTF_8);
+    }
 
     public void saveFullConfig(String configFileContent, boolean shouldMigrate) throws Exception {
         if (shouldMigrate) {

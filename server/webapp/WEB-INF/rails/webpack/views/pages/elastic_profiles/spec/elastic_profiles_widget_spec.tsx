@@ -85,7 +85,7 @@ describe("Elastic Agent Profiles Widget", () => {
   it("should disable action buttons if no elastic agent plugin installed", () => {
     mount(undefined, elasticProfiles, true);
 
-    const elasticAgentProfilePanel = helper.findByDataTestId("elastic-profile")[0];
+    const elasticAgentProfilePanel = helper.findByDataTestId("elastic-profile-header")[0];
 
     expect(helper.findIn(elasticAgentProfilePanel, "edit-elastic-profile")).toBeDisabled();
     expect(helper.findIn(elasticAgentProfilePanel, "clone-elastic-profile")).toBeDisabled();

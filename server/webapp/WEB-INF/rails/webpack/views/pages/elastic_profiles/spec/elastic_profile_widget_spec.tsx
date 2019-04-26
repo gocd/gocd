@@ -95,9 +95,9 @@ describe("New Elastic Agent Profile Widget", () => {
   it("should disable action buttons if no elastic agent plugin installed", () => {
     mount(undefined, ElasticAgentProfile.fromJSON(TestData.dockerElasticProfile()));
 
-    expect(helper.findIn(helper.findByDataTestId("elastic-profile")[0], "edit-elastic-profile")).toBeDisabled();
-    expect(helper.findIn(helper.findByDataTestId("elastic-profile")[0], "clone-elastic-profile")).toBeDisabled();
-    expect(helper.findIn(helper.findByDataTestId("elastic-profile")[0], "delete-elastic-profile")).not.toBeDisabled();
+    expect(helper.findIn(helper.findByDataTestId("elastic-profile-header")[0], "edit-elastic-profile")).toBeDisabled();
+    expect(helper.findIn(helper.findByDataTestId("elastic-profile-header")[0], "clone-elastic-profile")).toBeDisabled();
+    expect(helper.findIn(helper.findByDataTestId("elastic-profile-header")[0], "delete-elastic-profile")).not.toBeDisabled();
 
     helper.unmount();
   });

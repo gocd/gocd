@@ -21,13 +21,12 @@ import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.tfs.TfsMaterialUpdater;
 import com.thoughtworks.go.helper.MaterialsMother;
+import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.File;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -54,16 +53,7 @@ class TFSMaterialUpdaterTest {
     }
 
     void mockTfsMaterial() {
-        File workingDir = mock(File.class);
-        when(workingDir.getPath()).thenReturn("someDir");
-
-        tfsMaterial = mock(TfsMaterial.class);
-        when(tfsMaterial.workingdir(any(File.class))).thenReturn(workingDir);
-        when(tfsMaterial.passwordForCommandLine()).thenReturn("password");
-        when(tfsMaterial.getUserName()).thenReturn("username");
-        when(tfsMaterial.getDomain()).thenReturn("domain");
-        when(tfsMaterial.getProjectPath()).thenReturn("projectpath");
-        when(tfsMaterial.urlForCommandLine()).thenReturn("url");
+        tfsMaterial = new TfsMaterial(new GoCipher(), new UrlArgument("url"), "username", "domain", "password", "projectpath");
     }
 
     @Test

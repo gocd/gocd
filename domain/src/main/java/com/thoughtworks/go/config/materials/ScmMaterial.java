@@ -105,7 +105,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         this.updateTo(output, baseDir, new RevisionContext(revision), execCtx);
     }
 
-    public final String getUserName() {
+    public String getUserName() {
         return this.userName;
     }
 
@@ -158,22 +158,22 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         return encryptedPassword;
     }
 
-    public final String getPassword() {
+    public String getPassword() {
         return currentPassword();
     }
 
-    public final String passwordForCommandLine() {
+    public String passwordForCommandLine() {
         return secretParamsForPassword.isEmpty() ? getPassword() : secretParamsForPassword.substitute(getPassword());
     }
 
     @Override
-    public final boolean hasSecretParams() {
+    public boolean hasSecretParams() {
         return (getUrlArgument() != null && this.getUrlArgument().hasSecretParams())
                 || (this.secretParamsForPassword != null && !this.secretParamsForPassword.isEmpty());
     }
 
     @Override
-    public final SecretParams getSecretParams() {
+    public SecretParams getSecretParams() {
         return SecretParams.union(getUrlArgument().getSecretParams(), secretParamsForPassword);
     }
 

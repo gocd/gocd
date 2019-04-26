@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-trait TaskRepresenterTest {
+trait TaskRepresenterTrait {
 
   @Test
   void 'should render task json'() {

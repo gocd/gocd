@@ -21,7 +21,7 @@ import com.thoughtworks.go.config.FetchPluggableArtifactTask
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 
-class FetchExternalTaskRepresenterTest implements TaskRepresenterTest {
+class FetchExternalTaskRepresenterTest implements TaskRepresenterTrait {
 
   def existingTask() {
     def task = new FetchPluggableArtifactTask()

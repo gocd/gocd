@@ -23,7 +23,7 @@ import org.junit.jupiter.api.Test
 
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class ExecTaskRepresenterTest implements TaskRepresenterTest {
+class ExecTaskRepresenterTest implements TaskRepresenterTrait {
   def existingTask() {
     def task = new ExecTask()
     task.setCommand("sleep")

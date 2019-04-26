@@ -29,7 +29,7 @@ import org.junit.jupiter.api.BeforeEach
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create
 
-class PluggableTaskRepresenterTest implements TaskRepresenterTest {
+class PluggableTaskRepresenterTest implements TaskRepresenterTrait {
   @BeforeEach
   void setUpPlugin() {
     def simpleProperty = new TaskConfigProperty('simple_key', 'value')

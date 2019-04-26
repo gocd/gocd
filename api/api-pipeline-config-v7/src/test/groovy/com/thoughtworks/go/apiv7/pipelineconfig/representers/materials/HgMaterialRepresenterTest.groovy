@@ -36,7 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNull
 import static org.mockito.Mockito.mock
 
-class HgMaterialRepresenterTest implements MaterialRepresenterTest {
+class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   static def existingMaterial() {
     return MaterialConfigsMother.hgMaterialConfigFull()

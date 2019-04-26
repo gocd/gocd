@@ -31,7 +31,7 @@ import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
-class PerforceMaterialRepresenterTest implements MaterialRepresenterTest {
+class PerforceMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   def existingMaterial() {
     MaterialConfigsMother.p4MaterialConfigFull()

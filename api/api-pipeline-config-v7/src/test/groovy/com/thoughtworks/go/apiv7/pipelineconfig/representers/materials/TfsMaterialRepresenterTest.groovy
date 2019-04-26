@@ -31,7 +31,7 @@ import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
 
-class TfsMaterialRepresenterTest implements MaterialRepresenterTest {
+class TfsMaterialRepresenterTest implements MaterialRepresenterTrait {
   def existingMaterial() {
     MaterialConfigsMother.tfsMaterialConfig()
   }

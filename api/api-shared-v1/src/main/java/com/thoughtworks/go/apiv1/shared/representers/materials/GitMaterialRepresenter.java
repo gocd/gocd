@@ -21,17 +21,20 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import org.apache.commons.lang3.StringUtils;
 
+import static com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121.urlWithCredentials;
+
 public class GitMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, GitMaterialConfig gitMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, gitMaterialConfig);
+        jsonWriter.add("url", urlWithCredentials(gitMaterialConfig.getUrl(), gitMaterialConfig.getUserName(), gitMaterialConfig.getPassword() != null ? "******" : null));
         jsonWriter.addWithDefaultIfBlank("branch", gitMaterialConfig.getBranch(), "master");
         jsonWriter.add("submodule_folder", gitMaterialConfig.getSubmoduleFolder());
         jsonWriter.add("shallow_clone", gitMaterialConfig.isShallowClone());
     }
 
     public static GitMaterialConfig fromJSON(JsonReader jsonReader) {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig(jsonReader.optString("url").orElse(null));
         ScmMaterialRepresenter.fromJSON(jsonReader, gitMaterialConfig);
         jsonReader.optString("branch").ifPresent(branch -> {
             if (StringUtils.isNotBlank(branch)) {

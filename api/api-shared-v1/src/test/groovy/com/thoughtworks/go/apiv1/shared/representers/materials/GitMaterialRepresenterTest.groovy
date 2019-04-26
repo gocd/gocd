@@ -151,7 +151,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
   [
     type: 'git',
     attributes: [
-      url: "http://user:password@funk.com/blank",
+      url: "http://user:******@funk.com/blank",
       destination: "destination",
       filter: [
         ignore: ['**/*.html','**/foobar/']
@@ -169,7 +169,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
   [
     type: 'git',
     attributes: [
-      url: "http://user:password@funk.com/blank",
+      url: "http://user:******@funk.com/blank",
       destination: null,
       filter: null,
       invert_filter: false,

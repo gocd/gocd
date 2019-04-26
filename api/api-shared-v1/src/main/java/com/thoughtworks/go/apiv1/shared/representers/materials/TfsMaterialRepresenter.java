@@ -25,6 +25,7 @@ public class TfsMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, TfsMaterialConfig tfsMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, tfsMaterialConfig);
+        jsonWriter.add("url", tfsMaterialConfig.getUrl());
         jsonWriter.add("domain", tfsMaterialConfig.getDomain());
         jsonWriter.add("username", tfsMaterialConfig.getUserName());
         jsonWriter.addIfNotNull("encrypted_password", tfsMaterialConfig.getEncryptedPassword());
@@ -34,6 +35,7 @@ public class TfsMaterialRepresenter {
     public static TfsMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
         ScmMaterialRepresenter.fromJSON(jsonReader, tfsMaterialConfig);
+        jsonReader.readStringIfPresent("url", tfsMaterialConfig::setUrl);
         jsonReader.readStringIfPresent("domain", tfsMaterialConfig::setDomain);
         jsonReader.readStringIfPresent("username", tfsMaterialConfig::setUserName);
         jsonReader.readStringIfPresent("project_path", tfsMaterialConfig::setProjectPath);

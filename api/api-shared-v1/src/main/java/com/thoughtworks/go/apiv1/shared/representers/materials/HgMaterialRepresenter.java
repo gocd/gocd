@@ -20,14 +20,17 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 
+import static com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121.urlWithCredentials;
+
 public class HgMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, HgMaterialConfig hgMaterialConfig) {
         ScmMaterialRepresenter.toJSON(jsonWriter, hgMaterialConfig);
+        jsonWriter.add("url", urlWithCredentials(hgMaterialConfig.getUrl(), hgMaterialConfig.getUserName(), hgMaterialConfig.getPassword() != null ? "******" : null));
     }
 
     public static HgMaterialConfig fromJSON(JsonReader jsonReader) {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig();
+        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig(jsonReader.optString("url").orElse(null), null);
         ScmMaterialRepresenter.fromJSON(jsonReader, hgMaterialConfig);
         return hgMaterialConfig;
     }

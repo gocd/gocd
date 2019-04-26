@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.view.velocity;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.JobInstances;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -36,7 +37,6 @@ import static com.thoughtworks.go.config.TrackingTool.createTrackingTool;
 import static com.thoughtworks.go.domain.buildcause.BuildCause.createWithModifications;
 import static com.thoughtworks.go.helper.JobInstanceMother.building;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.gitMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialsMother.gitMaterial;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static com.thoughtworks.go.helper.PipelineMother.schedule;
 import static org.hamcrest.Matchers.containsString;
@@ -110,7 +110,7 @@ public class BuildDetailPageVelocityTemplateTest {
         GitMaterialConfig gitMaterialConfig = gitMaterialConfig();
 
         MaterialRevisions materialRevisions = new MaterialRevisions();
-        materialRevisions.addRevision(gitMaterial(gitMaterialConfig.getUrl(), gitMaterialConfig.getSubmoduleFolder(), gitMaterialConfig.getBranch()),
+        materialRevisions.addRevision(new GitMaterial(gitMaterialConfig),
                 new Modification("Ernest Hemingway <oldman@sea.com>", "comment", "email", new Date(), "12", ""));
 
         Pipeline pipeline = schedule(pipelineConfig("pipeline", new MaterialConfigs(gitMaterialConfig)), createWithModifications(materialRevisions, ""));

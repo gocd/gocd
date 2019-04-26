@@ -167,19 +167,12 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig) {
-        if (hasTemplate() || doesNotHavePublishAndFetchExternalConfig()) {
+        if (hasTemplate()) {
             return;
         }
         for (StageConfig stageConfig : getStages()) {
             stageConfig.encryptSecureProperties(preprocessedConfig, preprocessedPipelineConfig, preprocessedPipelineConfig.getStage(stageConfig.name()));
         }
-    }
-
-    private boolean doesNotHavePublishAndFetchExternalConfig() {
-        if (externalArtifactConfigs == null || fetchExternalArtifactTasks == null) {
-            cachePublishAndFetchExternalConfig();
-        }
-        return externalArtifactConfigs.isEmpty() && fetchExternalArtifactTasks.isEmpty();
     }
 
     private void cachePublishAndFetchExternalConfig() {

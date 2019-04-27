@@ -15,7 +15,8 @@
  */
 
 import {configRepoToSnakeCaseJSON} from "models/config_repos/config_repos_crud";
-import {ConfigRepo, GitMaterialAttributes, Material} from "models/config_repos/types";
+import {ConfigRepo} from "models/config_repos/types";
+import {GitMaterialAttributes, Material} from "models/materials/types";
 import {Configuration, PlainTextValue} from "models/shared/plugin_infos_new/plugin_settings/plugin_settings";
 
 describe("Config Repo Serialization", () => {

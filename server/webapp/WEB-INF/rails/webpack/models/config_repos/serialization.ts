@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {MaterialJSON} from "models/materials/serialization";
 import {ErrorsJSON} from "models/mixins/errors";
 
 export interface ConfigReposJSON {
@@ -47,58 +48,3 @@ export interface ParseInfoJSON {
   good_modification?: MaterialModificationJSON;
   error?: string;
 }
-
-export interface MaterialJSON {
-  type: string;
-  attributes: MaterialAttributesJSON;
-}
-
-export interface ScmAttributesJSON {
-  name: string;
-  auto_update: boolean;
-}
-
-export interface GitMaterialAttributesJSON extends ScmAttributesJSON {
-  url: string;
-  branch: string;
-  errors?: ErrorsJSON;
-}
-
-export interface UsernamePasswordJSON {
-  username?: string;
-  password?: string;
-  encrypted_password?: string;
-  errors?: ErrorsJSON;
-}
-
-export interface SvnMaterialAttributesJSON extends ScmAttributesJSON, UsernamePasswordJSON {
-  url: string;
-  check_externals: boolean;
-  errors: ErrorsJSON;
-}
-
-export interface HgMaterialAttributesJSON extends ScmAttributesJSON {
-  url: string;
-  errors?: ErrorsJSON;
-}
-
-export interface P4MaterialAttributesJSON extends ScmAttributesJSON, UsernamePasswordJSON {
-  port: string;
-  use_tickets: boolean;
-  view: string;
-  errors?: ErrorsJSON;
-}
-
-export interface TfsMaterialAttributesJSON extends ScmAttributesJSON, UsernamePasswordJSON {
-  url: string;
-  domain: string;
-  project_path: string;
-  errors?: ErrorsJSON;
-}
-
-export type MaterialAttributesJSON =
-  GitMaterialAttributesJSON
-  | SvnMaterialAttributesJSON
-  | HgMaterialAttributesJSON
-  | P4MaterialAttributesJSON
-  | TfsMaterialAttributesJSON;

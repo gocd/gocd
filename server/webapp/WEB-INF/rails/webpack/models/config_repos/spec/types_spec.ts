@@ -16,10 +16,17 @@
 
 import {
   ConfigRepo,
-  GitMaterialAttributes, HgMaterialAttributes,
-  Material, MaterialModification, P4MaterialAttributes, ParseInfo,
-  SvnMaterialAttributes, TfsMaterialAttributes
+  MaterialModification, ParseInfo,
 } from "models/config_repos/types";
+
+import {
+  GitMaterialAttributes,
+  HgMaterialAttributes,
+  Material,
+  P4MaterialAttributes,
+  SvnMaterialAttributes,
+  TfsMaterialAttributes
+} from "models/materials/types";
 
 describe("Config Repo Types", () => {
 

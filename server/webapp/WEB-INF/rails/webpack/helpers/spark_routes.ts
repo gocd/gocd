@@ -122,7 +122,7 @@ export default class {
     return `/go/api/internal/config_repos/${id}/trigger_update`;
   }
 
-  static configRepoCheckConnection(): string {
+  static materialConnectionCheck(): string {
     return `/go/api/admin/internal/material_test`;
   }
 

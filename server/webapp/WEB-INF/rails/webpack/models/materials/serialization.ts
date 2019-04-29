@@ -24,6 +24,10 @@ export interface MaterialJSON {
 export interface ScmAttributesJSON {
   name: string;
   auto_update: boolean;
+
+  username?: string;
+  password?: string;
+  encrypted_password?: string;
 }
 
 export interface GitMaterialAttributesJSON extends ScmAttributesJSON {
@@ -32,14 +36,7 @@ export interface GitMaterialAttributesJSON extends ScmAttributesJSON {
   errors?: ErrorsJSON;
 }
 
-export interface UsernamePasswordJSON {
-  username?: string;
-  password?: string;
-  encrypted_password?: string;
-  errors?: ErrorsJSON;
-}
-
-export interface SvnMaterialAttributesJSON extends ScmAttributesJSON, UsernamePasswordJSON {
+export interface SvnMaterialAttributesJSON extends ScmAttributesJSON {
   url: string;
   check_externals: boolean;
   errors: ErrorsJSON;
@@ -50,14 +47,14 @@ export interface HgMaterialAttributesJSON extends ScmAttributesJSON {
   errors?: ErrorsJSON;
 }
 
-export interface P4MaterialAttributesJSON extends ScmAttributesJSON, UsernamePasswordJSON {
+export interface P4MaterialAttributesJSON extends ScmAttributesJSON {
   port: string;
   use_tickets: boolean;
   view: string;
   errors?: ErrorsJSON;
 }
 
-export interface TfsMaterialAttributesJSON extends ScmAttributesJSON, UsernamePasswordJSON {
+export interface TfsMaterialAttributesJSON extends ScmAttributesJSON {
   url: string;
   domain: string;
   project_path: string;

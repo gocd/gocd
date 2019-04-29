@@ -87,7 +87,9 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {
-                                                    url: "http://user:password@funk.com/blank",
+                                                    url: "http://funk.com/blank",
+                                                    username: 'user',
+                                                    encrypted_password: GoCipher.new.encrypt('password'),
                                                     branch: "master",
                                                     auto_update: true,
                                                     name: nil
@@ -104,7 +106,9 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {
-                                                    url: "http://user:password@funk.com/blank",
+                                                    url: "http://funk.com/blank",
+                                                    username: 'user',
+                                                    encrypted_password: GoCipher.new.encrypt('password'),
                                                     branch: "master",
                                                     auto_update: true,
                                                     name: nil,
@@ -121,7 +125,9 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {
-                                                    url: "http://user:password@funk.com/blank",
+                                                    url: "http://funk.com/blank",
+                                                    username: 'user',
+                                                    encrypted_password: GoCipher.new.encrypt('password'),
                                                     branch: "master",
                                                     auto_update: true,
                                                     name: nil,
@@ -139,7 +145,9 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {
-                                                    url: "http://user:password@funk.com/blank",
+                                                    url: "http://funk.com/blank",
+                                                    username: 'user',
+                                                    encrypted_password: GoCipher.new.encrypt('password'),
                                                     branch: "",
                                                     auto_update: true,
                                                     name: nil
@@ -152,7 +160,9 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
       {
         type: 'git',
         attributes: {
-          url: "http://user:password@funk.com/blank",
+          url: "http://funk.com/blank",
+          username: 'user',
+          encrypted_password: GoCipher.new.encrypt('password'),
           destination: "destination",
           filter: {
             ignore: %w(**/*.html **/foobar/)
@@ -171,7 +181,9 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
       {
         type: 'git',
         attributes: {
-          url: "http://user:password@funk.com/blank",
+          url: "http://funk.com/blank",
+          username: 'user',
+          encrypted_password: GoCipher.new.encrypt('password'),
           destination: nil,
           filter: nil,
           invert_filter: false,
@@ -196,7 +208,8 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
           auto_update: true,
           branch: "master",
           submodule_folder: "",
-          shallow_clone: false
+          shallow_clone: false,
+          username: nil
         },
         errors: {
           name: ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
@@ -272,7 +285,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     it_should_behave_like 'materials'
 
     def existing_material
-      MaterialConfigsMother.hgMaterialConfigFull
+      MaterialConfigsMother.hgMaterialConfigFull 'http://user:pass@domain/path'
     end
 
     def material_type
@@ -290,7 +303,9 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
       {
         type: 'hg',
         attributes: {
-          url: "http://user:pass@domain/path##branch",
+          url: "http://domain/path",
+          username: 'user',
+          encrypted_password: GoCipher.new.encrypt('pass'),
           destination: "dest-folder",
           filter: {
             ignore: %w(**/*.html **/foobar/)
@@ -311,7 +326,8 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
           filter: nil,
           invert_filter: false,
           name: "!nV@l!d",
-          auto_update: true
+          auto_update: true,
+          username: nil
         },
         errors: {
           name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
@@ -571,7 +587,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should deserialize" do
-      scm= SCMMother.create("scm-id")
+      scm = SCMMother.create("scm-id")
       @go_config.getSCMs().add(scm)
 
       presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(PluggableSCMMaterialConfig.new)

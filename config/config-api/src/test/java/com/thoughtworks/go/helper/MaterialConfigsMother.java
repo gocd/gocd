@@ -29,11 +29,7 @@ import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.security.GoCipher;
@@ -105,6 +101,11 @@ public class MaterialConfigsMother {
     public static HgMaterialConfig hgMaterialConfigFull() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
         return new HgMaterialConfig(new HgUrlArgument("http://user:pass@domain/path##branch"),true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material") );
+    }
+
+    public static HgMaterialConfig hgMaterialConfigFull(String url) {
+        Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
+        return new HgMaterialConfig(new HgUrlArgument(url),true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material") );
     }
 
     public static HgMaterialConfig hgMaterialConfig() {

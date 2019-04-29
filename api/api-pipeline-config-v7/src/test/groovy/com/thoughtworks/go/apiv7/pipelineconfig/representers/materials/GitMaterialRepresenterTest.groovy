@@ -63,25 +63,25 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
   @Test
   void "should serialize material without name"() {
     def actualJson = toObjectString({
-      MaterialsRepresenter.toJSON(it, new GitMaterialConfig("http://user:password@funk.com/blank"))
+      MaterialsRepresenter.toJSON(it, new GitMaterialConfig("http://funk.com/blank"))
     })
 
-    assertThatJson(actualJson).isEqualTo(gitMaterialBasicHash)
+    assertThatJson(actualJson).isEqualTo(gitMaterialBasicHashWithoutCredentials)
   }
 
   @Test
   void "should serialize material with blank branch"() {
     def actualJson = toObjectString({
-      MaterialsRepresenter.toJSON(it, new GitMaterialConfig("http://user:password@funk.com/blank", ""))
+      MaterialsRepresenter.toJSON(it, new GitMaterialConfig("http://funk.com/blank", ""))
     })
 
-    assertThatJson(actualJson).isEqualTo(gitMaterialBasicHash)
+    assertThatJson(actualJson).isEqualTo(gitMaterialBasicHashWithoutCredentials)
   }
 
   @Nested
   class Credentials {
     @Test
-    void "should deserialize material with credentials in URL"() {
+    void "should add error on deserialization of material with credentials in URL"() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         type      : 'git',
         attributes:
@@ -92,11 +92,9 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
       ])
 
       def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-      def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
-
-      assertEquals(expected.isAutoUpdate(), deserializedObject.isAutoUpdate())
-      assertNull(deserializedObject.getName())
-      assertEquals(expected, deserializedObject)
+      assertThat(deserializedObject.errors().get("url"))
+        .hasSize(1)
+        .contains("You may specify credentials only in attributes, not in url!")
     }
 
     @Test
@@ -118,30 +116,6 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
       assertEquals(expected.isAutoUpdate(), deserializedObject.isAutoUpdate())
       assertNull(deserializedObject.getName())
       assertEquals(expected, deserializedObject)
-    }
-
-    @Test
-    void "should add errors on deserialize where material has ambiguous credentials"() {
-      def jsonReader = GsonTransformer.instance.jsonReaderFrom([
-        type      : 'git',
-        attributes:
-          [
-            url     : "http://user1:password1@funk.com/blank",
-            branch  : "master",
-            username: "user2",
-            encrypted_password: new GoCipher().encrypt("password2")
-          ]
-      ])
-
-      def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-
-      assertThat(deserializedObject.errors().get("url"))
-        .contains("You may only specify credentials in `url` or attributes, not both!".toString())
-      assertThat(deserializedObject.errors().get("username"))
-        .contains("You may only specify credentials in `url` or attributes, not both!".toString())
-      assertThat(deserializedObject.errors().get("encrypted_password"))
-        .contains("You may only specify credentials in `url` or attributes, not both!".toString())
-      assertThat(deserializedObject.errors().get("password")).isNull()
     }
   }
 
@@ -231,6 +205,41 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     assertEquals("master", ((GitMaterialConfig) deserializedObject).getBranch().toString())
   }
 
+  @Test
+  void "should deserialize material with null url"() {
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom([
+      type      : 'git',
+      attributes:
+        [
+          url               : null,
+          branch            : "master",
+          auto_update       : true,
+          name              : null,
+          username          : 'user',
+          encrypted_password: new GoCipher().encrypt("password")
+        ]
+    ])
+    def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
+    assertThat(((GitMaterialConfig) deserializedObject).getUrl()).isNull()
+  }
+
+  @Test
+  void "should deserialize material without url attribute"() {
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom([
+      type      : 'git',
+      attributes:
+        [
+          branch            : "master",
+          auto_update       : true,
+          name              : null,
+          username          : 'user',
+          encrypted_password: new GoCipher().encrypt("password")
+        ]
+    ])
+    def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
+    assertThat(((GitMaterialConfig) deserializedObject).getUrl()).isNull()
+  }
+
   def materialHash =
     [
       type      : 'git',
@@ -251,21 +260,19 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
       ]
     ]
 
-  def gitMaterialBasicHash =
+  def gitMaterialBasicHashWithoutCredentials =
     [
       type      : 'git',
       attributes: [
-        url               : "http://funk.com/blank",
-        destination       : null,
-        filter            : null,
-        invert_filter     : false,
-        name              : null,
-        auto_update       : true,
-        branch            : "master",
-        submodule_folder  : null,
-        shallow_clone     : false,
-        username          : 'user',
-        encrypted_password: new GoCipher().encrypt("password")
+        url             : "http://funk.com/blank",
+        destination     : null,
+        filter          : null,
+        invert_filter   : false,
+        name            : null,
+        auto_update     : true,
+        branch          : "master",
+        submodule_folder: null,
+        shallow_clone   : false
       ]
     ]
 

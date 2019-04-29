@@ -57,7 +57,7 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
   @Nested
   class Credentials {
     @Test
-    void "should deserialize material with credentials in URL"() {
+    void "should add error on deserialization of material with credentials in URL"() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         type      : 'hg',
         attributes:
@@ -68,11 +68,9 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
       ])
 
       def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-      def expected = new HgMaterialConfig("http://user:password@funk.com/blank", null)
-
-      assertEquals(expected.isAutoUpdate(), deserializedObject.isAutoUpdate())
-      assertNull(deserializedObject.getName())
-      assertEquals(expected, deserializedObject)
+      assertThat(deserializedObject.errors().get("url"))
+      .hasSize(1)
+      .contains("You may specify credentials only in attributes, not in url!")
     }
 
     @Test
@@ -95,30 +93,41 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
       assertNull(deserializedObject.getName())
       assertEquals(expected, deserializedObject)
     }
+  }
 
-    @Test
-    void "should add errors on deserialize where material has ambiguous credentials"() {
-      def jsonReader = GsonTransformer.instance.jsonReaderFrom([
-        type      : 'hg',
-        attributes:
-          [
-            url     : "http://user1:password1@funk.com/blank",
-            branch  : "master",
-            username: "user2",
-            password: "password2"
-          ]
-      ])
+  @Test
+  void "should deserialize material with null url"() {
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom([
+      type      : 'hg',
+      attributes:
+        [
+          url     : null,
+          branch  : "master",
+          username: "user",
+          password: "password"
+        ]
+    ])
 
-      def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
+    def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
 
-      assertThat(deserializedObject.errors().get("url"))
-        .contains("You may only specify credentials in `url` or attributes, not both!".toString())
-      assertThat(deserializedObject.errors().get("username"))
-        .contains("You may only specify credentials in `url` or attributes, not both!".toString())
-      assertThat(deserializedObject.errors().get("password"))
-        .contains("You may only specify credentials in `url` or attributes, not both!".toString())
-      assertThat(deserializedObject.errors().get("encrypted_password")).isNull()
-    }
+    assertThat(((HgMaterialConfig)deserializedObject).getUrl()).isNull()
+  }
+
+  @Test
+  void "should deserialize material without url attribute"() {
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom([
+      type      : 'hg',
+      attributes:
+        [
+          branch  : "master",
+          username: "user",
+          password: "password"
+        ]
+    ])
+
+    def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
+
+    assertThat(((HgMaterialConfig)deserializedObject).getUrl()).isNull()
   }
 
   def materialHash =

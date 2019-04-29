@@ -195,8 +195,7 @@ h2#pipeline_activity_header,
 }
 
 #new-pipeline-history .building-stage {
-    background: none;
-    background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
+    background: transparent image_url('building.svg') repeat-x 50% 50%;
     background-repeat: repeat-x;
     background-color: #ffc11b;
     text-align: center;

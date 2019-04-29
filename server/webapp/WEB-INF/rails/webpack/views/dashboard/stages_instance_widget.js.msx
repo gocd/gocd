@@ -28,7 +28,7 @@ const StagesInstanceWidget = {
         return (<a href={stage.stageDetailTabPath}
                    class={`pipeline_stage ${stage.status.toLowerCase()}`}
                    title={stageStatus} aria-label={stageStatus}>
-          <span><span></span></span>
+
         </a>);
       }
 

@@ -510,7 +510,7 @@ Graph_Renderer = function (container) {
                   if(_.toInteger(instance.stages[i].duration) > 0){
                     stageTitle += ' (took ' + moment.duration(instance.stages[i].duration, 's').humanizeForGoCD() + ')';
                   }
-                  gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + stageTitle + '"><span><span></span></span><a href="' + instance.stages[i].locator + '"></a></li>'
+                  gui += '" style="width:' + ((stagesWidth - (stagesCount * 4)) / stagesCount) + 'px" title="' + stageTitle + '"><a href="' + instance.stages[i].locator + '"></a></li>'
                 }
             }
             gui += '</ul>';

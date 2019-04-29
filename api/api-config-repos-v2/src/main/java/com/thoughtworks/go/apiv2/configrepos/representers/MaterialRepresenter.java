@@ -19,13 +19,7 @@ package com.thoughtworks.go.apiv2.configrepos.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Optional;
-
-import static com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121.urlWithoutCredentials;
 
 public interface MaterialRepresenter<T extends MaterialConfig> {
     PasswordDeserializer PASSWORD_DESERIALIZER = new PasswordDeserializer();
@@ -33,21 +27,4 @@ public interface MaterialRepresenter<T extends MaterialConfig> {
     void toJSON(OutputWriter jsonWriter, T gitMaterialConfig);
 
     T fromJSON(JsonReader jsonReader);
-
-
-    default void validateUrlForCredentials(JsonReader jsonReader, ScmMaterialConfig scmMaterialConfig) {
-        final Optional<String> url = jsonReader.optString("url");
-
-        if (!url.isPresent()) {
-            return;
-        }
-
-        if (hasCredentials(url.get())) {
-            scmMaterialConfig.errors().add("url", "You may specify credentials only in attributes, not in url!");
-        }
-    }
-
-    default boolean hasCredentials(String url) {
-        return !StringUtils.equals(urlWithoutCredentials(url), url);
-    }
 }

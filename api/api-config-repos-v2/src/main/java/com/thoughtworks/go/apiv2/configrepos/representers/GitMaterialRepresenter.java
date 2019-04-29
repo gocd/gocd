@@ -19,7 +19,6 @@ package com.thoughtworks.go.apiv2.configrepos.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 
 class GitMaterialRepresenter implements MaterialRepresenter<GitMaterialConfig> {
 
@@ -27,7 +26,7 @@ class GitMaterialRepresenter implements MaterialRepresenter<GitMaterialConfig> {
     public void toJSON(OutputWriter json, GitMaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
-        json.add("url", UrlDenormalizerXSLTMigration121.urlWithoutCredentials(material.getUrl()));
+        json.add("url", material.getUrl());
         json.addIfNotNull("username", material.getUserName());
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
         json.addWithDefaultIfBlank("branch", material.getBranch(), "master");
@@ -36,8 +35,6 @@ class GitMaterialRepresenter implements MaterialRepresenter<GitMaterialConfig> {
     @Override
     public GitMaterialConfig fromJSON(JsonReader json) {
         GitMaterialConfig materialConfig = new GitMaterialConfig();
-        validateUrlForCredentials(json, materialConfig);
-
         json.readStringIfPresent("name", materialConfig::setName);
         json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
         json.readStringIfPresent("branch", materialConfig::setBranch);

@@ -72,21 +72,5 @@ class GitMaterialRepresenterTest {
       assertThat(materialConfig.getPassword()).isEqualTo("some-pass")
       assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("some-pass"))
     }
-
-    @Test
-    void shouldAddErrorIfUrlContainsCredentials() {
-      JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
-        name      : null,
-        url       : "https://bob:some-pass@guthib.com/chewbacca",
-        branch    : BRANCH,
-        auto_upate: true
-      ])
-
-      def material = new GitMaterialRepresenter().fromJSON(json)
-
-      assertThat(material.errors().get("url"))
-        .hasSize(1)
-        .contains("You may specify credentials only in attributes, not in url!")
-    }
   }
 }

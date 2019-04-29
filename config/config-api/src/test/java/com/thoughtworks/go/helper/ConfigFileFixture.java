@@ -1113,7 +1113,7 @@ public final class ConfigFileFixture {
                     + "    </pipeline>"
                     + "    <pipeline name='pipeline2'>"
                     + "      <materials>"
-                    + "        <hg url='http://username:password@hgUrl.com' />"
+                    + "        <hg url='http://hgUrl.com' username='username' password='password' />"
                     + "      </materials>"
                     + "      <stage name='stage1'>"
                     + "        <jobs>"

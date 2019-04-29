@@ -378,3 +378,4 @@ api/api-pipeline-config-v7/config
 api/api-config-repos-v2/out/
 api/api-config-repos-v2/target/
 api/api-config-repos-v2/logs/
+api/api-config-repos-v2/config/

@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv2.configrepos.representers;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 
 class GitMaterialRepresenter implements MaterialRepresenter<GitMaterialConfig> {
 
@@ -26,18 +27,26 @@ class GitMaterialRepresenter implements MaterialRepresenter<GitMaterialConfig> {
     public void toJSON(OutputWriter json, GitMaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
-        json.add("url", material.getUriForDisplay());
+        json.add("url", UrlDenormalizerXSLTMigration121.urlWithoutCredentials(material.getUrl()));
+        json.addIfNotNull("username", material.getUserName());
+        json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
         json.addWithDefaultIfBlank("branch", material.getBranch(), "master");
     }
 
     @Override
     public GitMaterialConfig fromJSON(JsonReader json) {
         GitMaterialConfig materialConfig = new GitMaterialConfig();
+        validateUrlForCredentials(json, materialConfig);
 
         json.readStringIfPresent("name", materialConfig::setName);
         json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
-        json.readStringIfPresent("url", materialConfig::setUrl);
         json.readStringIfPresent("branch", materialConfig::setBranch);
+        json.readStringIfPresent("username", materialConfig::setUserName);
+        json.readStringIfPresent("url", materialConfig::setUrl);
+
+        String password = json.getStringOrDefault("password", null);
+        String encryptedPassword = json.getStringOrDefault("encrypted_password", null);
+        materialConfig.setEncryptedPassword(PASSWORD_DESERIALIZER.deserialize(password, encryptedPassword, materialConfig));
 
         return materialConfig;
     }

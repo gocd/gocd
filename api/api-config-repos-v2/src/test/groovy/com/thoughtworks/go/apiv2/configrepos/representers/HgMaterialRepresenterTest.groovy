@@ -18,38 +18,70 @@ package com.thoughtworks.go.apiv2.configrepos.representers
 
 import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
+import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
-import com.thoughtworks.go.domain.materials.MaterialConfig
+import com.thoughtworks.go.security.GoCipher
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.junit.jupiter.api.Assertions.assertEquals
+import static org.assertj.core.api.Assertions.assertThat
 
 class HgMaterialRepresenterTest {
-  private static final String REPO_URL = "http://username:password@mydomain.com/myproject"
+  private static final String REPO_URL = "http://mydomain.com/myproject"
 
-  @Test
-  void toJSON() {
-    HgMaterialConfig config = new HgMaterialConfig(REPO_URL, null)
-    String json = toObjectString({ w -> new HgMaterialRepresenter().toJSON(w, config) })
+  @Nested
+  class ToJSON {
+    @Test
+    void shouldSerializeObjectToJson() {
+      HgMaterialConfig config = new HgMaterialConfig("http://bob:password@mydomain.com/myproject", null)
+      String json = toObjectString({ w -> new HgMaterialRepresenter().toJSON(w, config) })
 
-    assertThatJson(json).isEqualTo([
-      name       : null,
-      url        : REPO_URL.replace('password', '******'),
-      auto_update: true
-    ])
+      assertThatJson(json).isEqualTo([
+        name              : null,
+        url               : REPO_URL,
+        username          : "bob",
+        encrypted_password: new GoCipher().encrypt("password"),
+        auto_update       : true
+      ])
+    }
   }
-  
-  @Test
-  void fromJSON() {
-    JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
-      name      : null,
-      url       : REPO_URL,
-      auto_upate: true
-    ])
 
-    MaterialConfig expected = new HgMaterialConfig(REPO_URL, null)
-    assertEquals(expected, new HgMaterialRepresenter().fromJSON(json))
+  @Nested
+  class FromJson {
+    @Test
+    void shouldDeserializeJsonToObject() {
+      JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
+        name      : "Test",
+        url       : REPO_URL,
+        auto_upate: true,
+        username  : "bob",
+        password  : "some-pass"
+      ])
+
+      def materialConfig = new HgMaterialRepresenter().fromJSON(json)
+      assertThat(materialConfig.getName()).isEqualTo(new CaseInsensitiveString("Test"))
+      assertThat(materialConfig.getUrl()).isEqualTo(REPO_URL)
+      assertThat(materialConfig.getAutoUpdate()).isTrue()
+      assertThat(materialConfig.getUserName()).isEqualTo("bob")
+      assertThat(materialConfig.getPassword()).isEqualTo("some-pass")
+      assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("some-pass"))
+    }
+
+    @Test
+    void shouldAddErrorIfUrlContainsCredentials() {
+      JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
+        name      : null,
+        url       : "http://username:password@mydomain.com/myproject",
+        auto_upate: true
+      ])
+
+      def material = new HgMaterialRepresenter().fromJSON(json)
+
+      assertThat(material.errors().get("url"))
+        .hasSize(1)
+        .contains("You may specify credentials only in attributes, not in url!")
+    }
   }
 }

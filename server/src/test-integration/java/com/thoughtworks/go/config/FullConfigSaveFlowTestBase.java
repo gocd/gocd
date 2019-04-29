@@ -42,7 +42,9 @@ import java.util.ArrayList;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.startsWith;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -89,23 +91,17 @@ public abstract class FullConfigSaveFlowTestBase {
         Configuration ancestorPluggablePublishAftifactConfigBeforeEncryption = cruiseConfig
                 .pipelineConfigByName(new CaseInsensitiveString("ancestor"))
                 .getExternalArtifactConfigs().get(0).getConfiguration();
-        assertThat(ancestorPluggablePublishAftifactConfigBeforeEncryption.getProperty("Image").getValue(), is("IMAGE_SECRET"));
+        assertThat(ancestorPluggablePublishAftifactConfigBeforeEncryption.getProperty("Image").getValue(), is("SECRET"));
         assertThat(ancestorPluggablePublishAftifactConfigBeforeEncryption.getProperty("Image").getEncryptedValue(), is(nullValue()));
-        assertThat(ancestorPluggablePublishAftifactConfigBeforeEncryption.getProperty("Image").getConfigValue(), is("IMAGE_SECRET"));
+        assertThat(ancestorPluggablePublishAftifactConfigBeforeEncryption.getProperty("Image").getConfigValue(), is("SECRET"));
 
         GoConfigHolder configHolder = getImplementer().execute(new FullConfigUpdateCommand(cruiseConfig, goConfigService.configFileMd5()), new ArrayList<>(), "Upgrade");
         Configuration ancestorPluggablePublishAftifactConfigAfterEncryption = configHolder.configForEdit
                 .pipelineConfigByName(new CaseInsensitiveString("ancestor"))
                 .getExternalArtifactConfigs().get(0).getConfiguration();
-
-        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue(), is("IMAGE_SECRET"));
+        assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getValue(), is("SECRET"));
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue(), startsWith("AES:"));
         assertThat(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getConfigValue(), is(nullValue()));
-
-        //verify xml on disk contains encrypted Image plugin property
-        assertThat(configHelper.getCurrentXml(), containsString(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()));
-        //verify xml from GoConfigHolder contains encrypted Image plugin property
-        assertThat(getImplementer().toXmlString(configHolder.configForEdit), containsString(ancestorPluggablePublishAftifactConfigAfterEncryption.getProperty("Image").getEncryptedValue()));
     }
 
     @Test

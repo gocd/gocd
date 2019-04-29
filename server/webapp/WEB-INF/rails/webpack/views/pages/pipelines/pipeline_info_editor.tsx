@@ -16,19 +16,42 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
+import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {DefaultCache, PipelineGroupsCache} from "models/pipeline_configs/pipeline_groups_cache";
 import {Form, FormBody} from "views/components/forms/form";
-import {TextField} from "views/components/forms/input_fields";
+import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
+  cache?: PipelineGroupsCache<Option>;
 }
 
 export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
+  private pipelineGroups: Stream<Option[]> = stream();
+  private cache: PipelineGroupsCache<Option> = new DefaultCache();
+
+  oninit(vnode: m.Vnode<Attrs, {}>) {
+    if (vnode.attrs.cache) {
+      this.cache = vnode.attrs.cache;
+    }
+
+    this.cache.prime(() => {
+      this.pipelineGroups(this.cache.pipelineGroups());
+    });
+  }
+
   view(vnode: m.Vnode<Attrs>) {
     return <FormBody>
       <Form last={true} compactForm={true}>
         <TextField label="Pipeline Name" placeholder="e.g., My-New-Pipeline" required={true} property={vnode.attrs.pipelineConfig.name} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("name")}/>
+      <div style="display:none;"><AdvancedSettings>
+        <SelectField label="Pipeline Group" property={vnode.attrs.pipelineConfig.group} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("group")} required={true}>
+          <SelectFieldOptions selected={vnode.attrs.pipelineConfig.group()} items={this.pipelineGroups()}/>
+        </SelectField>
+      </AdvancedSettings></div>
       </Form>
     </FormBody>;
 

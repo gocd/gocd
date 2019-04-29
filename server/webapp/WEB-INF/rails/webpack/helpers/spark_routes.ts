@@ -22,6 +22,10 @@ export default class {
     return `/go/api/server_health_messages`;
   }
 
+  static pipelineGroupsListPath() {
+    return `/go/api/admin/pipeline_groups`;
+  }
+
   static adminPipelineConfigPath(pipelineName: string): string {
     return `/go/api/admin/pipelines/${pipelineName}`;
   }

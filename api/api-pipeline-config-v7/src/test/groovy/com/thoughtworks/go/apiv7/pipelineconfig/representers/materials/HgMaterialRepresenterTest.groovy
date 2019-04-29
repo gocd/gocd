@@ -27,6 +27,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
+import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.util.command.HgUrlArgument
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -39,7 +40,7 @@ import static org.mockito.Mockito.mock
 class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   static def existingMaterial() {
-    return MaterialConfigsMother.hgMaterialConfigFull()
+    return MaterialConfigsMother.hgMaterialConfigFull("http://user:pass@domain/path")
   }
 
   def getOptions() {
@@ -93,7 +94,7 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
 
     def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
 
-    assertThat(((HgMaterialConfig)deserializedObject).getUrl()).isNull()
+    assertThat(((HgMaterialConfig) deserializedObject).getUrl()).isNull()
   }
 
   @Test
@@ -110,21 +111,23 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
 
     def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
 
-    assertThat(((HgMaterialConfig)deserializedObject).getUrl()).isNull()
+    assertThat(((HgMaterialConfig) deserializedObject).getUrl()).isNull()
   }
 
   def materialHash =
     [
       type      : 'hg',
       attributes: [
-        url          : "http://user:pass@domain/path##branch",
-        destination  : "dest-folder",
-        filter       : [
+        url               : "http://domain/path",
+        destination       : "dest-folder",
+        username          : "user",
+        encrypted_password: new GoCipher().encrypt("pass"),
+        filter            : [
           ignore: ['**/*.html', '**/foobar/']
         ],
-        invert_filter: false,
-        name         : "hg-material",
-        auto_update  : true
+        invert_filter     : false,
+        name              : "hg-material",
+        auto_update       : true
       ]
     ]
 

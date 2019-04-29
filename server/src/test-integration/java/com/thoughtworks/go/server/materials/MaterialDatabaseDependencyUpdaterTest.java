@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -133,7 +133,7 @@ public class MaterialDatabaseDependencyUpdaterTest {
         }
 
         HealthStateType scope = HealthStateType.general(HealthStateScope.forMaterial(dependencyMaterial));
-        ServerHealthState state = ServerHealthState.errorWithHtml("Modification check failed for material: pipeline-name <br/> Affected pipelines: []", "Description of error", scope);
+        ServerHealthState state = ServerHealthState.errorWithHtml("Modification check failed for material: pipeline-name <br/> No pipelines are affected by this material, perhaps this material is unused.", "Description of error", scope);
         Mockito.verify(healthService).update(state);
     }
 

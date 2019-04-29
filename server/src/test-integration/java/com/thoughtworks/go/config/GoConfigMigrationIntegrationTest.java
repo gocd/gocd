@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.IOUtils;
@@ -46,12 +47,13 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.xmlunit.assertj.XmlAssert;
 
 import java.io.File;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import com.thoughtworks.go.util.GoConfigFileHelper;
+
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWithArtifactSourceAs;
@@ -1299,12 +1301,12 @@ public class GoConfigMigrationIntegrationTest {
                 + configContent
                 + "</cruise>";
 
-        String migratedContent = migrateXmlString(configXml, 119, 120);
+        String migratedContent = migrateXmlString(configXml, 119);
 
         assertThat(migratedContent).doesNotContain("<profiles");
         assertThat(migratedContent).doesNotContain("<profile");
         assertThat(migratedContent).contains("<agentProfiles");
-        assertThat(migratedContent).contains("<agentProfiles");
+        assertThat(migratedContent).contains("<agentProfile");
 
         CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
         assertThat(cruiseConfig.getElasticConfig().getJobStarvationTimeout()).isEqualTo(1 * 60 * 1000);

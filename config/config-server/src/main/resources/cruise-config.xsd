@@ -983,7 +983,7 @@
   </xsd:element>
   <xsd:simpleType name="filePathType">
     <xsd:restriction base="xsd:string" xml:space="default">
-      <xsd:pattern value="(([.]\\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"/>
+      <xsd:pattern value="(([.]\/)?[.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ])"/>
     </xsd:restriction>
   </xsd:simpleType>
   <xsd:complexType name="timerType">

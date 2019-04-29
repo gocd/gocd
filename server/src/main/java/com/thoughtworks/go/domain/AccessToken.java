@@ -50,11 +50,7 @@ public class AccessToken extends PersistentObject implements Validatable {
     private static SecureRandom SECURE_RANDOM;
 
     static {
-        try {
-            SECURE_RANDOM = SecureRandom.getInstanceStrong();
-        } catch (NoSuchAlgorithmException e) {
-            SECURE_RANDOM = new SecureRandom();
-        }
+        SECURE_RANDOM = new SecureRandom();
     }
 
     //this is the hashed token value

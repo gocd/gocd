@@ -34,6 +34,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -115,8 +116,13 @@ public class MaterialDatabaseUpdater {
         } catch (Exception e) {
             List<CaseInsensitiveString> pipelineNames = goConfigService.pipelinesWithMaterial(material.config().getFingerprint());
             String message = escapeHtml4("Modification check failed for material: " + material.getLongDescription());
-            String pipelinesWithMaterial = (" <br/> Affected pipelines: " + pipelineNames);
-            String finalMessage = message + pipelinesWithMaterial;
+            String affectedPipelinesMessage = "";
+            if (pipelineNames.isEmpty()) {
+                affectedPipelinesMessage = (" <br/> No pipelines are affected by this material, perhaps this material is unused.");
+            } else {
+                affectedPipelinesMessage = (" <br/> Affected pipelines are " + StringUtils.join(pipelineNames, ", ") + ".");
+            }
+            String finalMessage = message + affectedPipelinesMessage;
             String errorDescription = e.getMessage() == null ? "Unknown error" : escapeHtml4(e.getMessage());
             healthService.update(ServerHealthState.errorWithHtml(finalMessage, errorDescription, HealthStateType.general(scope)));
             LOGGER.warn("[Material Update] {}", message, e);

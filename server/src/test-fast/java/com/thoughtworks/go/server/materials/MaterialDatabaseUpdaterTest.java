@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.materials;
 
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.helper.MaterialsMother;
@@ -30,6 +31,8 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import java.util.Collections;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -62,8 +65,9 @@ public class MaterialDatabaseUpdaterTest {
     public void shouldThrowExceptionWithLongDescriptionOfMaterialWhenUpdateFails() throws Exception {
         Material material = new GitMaterial("url", "branch");
         Exception exception = new RuntimeException("failed");
-        String message = "Modification check failed for material: " + material.getLongDescription();
-        ServerHealthState error = ServerHealthState.error(message, exception.getMessage(), HealthStateType.general(HealthStateScope.forMaterial(material)));
+        String message = "Modification check failed for material: " + material.getLongDescription() + " <br/> Affected pipelines are blah.";
+        when(goConfigService.pipelinesWithMaterial(material.config().getFingerprint())).thenReturn(Collections.singletonList(new CaseInsensitiveString("blah")));
+        ServerHealthState error = ServerHealthState.errorWithHtml(message, exception.getMessage(), HealthStateType.general(HealthStateScope.forMaterial(material)));
         when(materialRepository.findMaterialInstance(material)).thenThrow(exception);
         try {
             materialDatabaseUpdater.updateMaterial(material);
@@ -86,7 +90,8 @@ public class MaterialDatabaseUpdaterTest {
     public void shouldFailWithAReasonableMessageWhenExceptionMessageIsNull() throws Exception {
         Material material = new GitMaterial("url", "branch");
         Exception exceptionWithNullMessage = new RuntimeException(null, new RuntimeException("Inner exception has non-null message"));
-        String message = "Modification check failed for material: " + material.getLongDescription();
+        String message = "Modification check failed for material: " + material.getLongDescription() + " <br/> No pipelines are affected by this material, perhaps this material is unused.";
+        when(goConfigService.pipelinesWithMaterial(material.config().getFingerprint())).thenReturn(Collections.emptyList());
 
         when(materialRepository.findMaterialInstance(material)).thenThrow(exceptionWithNullMessage);
 
@@ -97,6 +102,6 @@ public class MaterialDatabaseUpdaterTest {
             assertThat(e, is(exceptionWithNullMessage));
         }
 
-        verify(healthService).update(ServerHealthState.error(message, "Unknown error", HealthStateType.general(HealthStateScope.forMaterial(material))));
+        verify(healthService).update(ServerHealthState.errorWithHtml(message, "Unknown error", HealthStateType.general(HealthStateScope.forMaterial(material))));
     }
 }

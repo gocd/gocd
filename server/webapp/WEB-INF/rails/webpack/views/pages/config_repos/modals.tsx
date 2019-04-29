@@ -154,6 +154,11 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
                      placeholder="master"
                      property={materialAttributes.branch}/>
 
+          <TextField label={humanizedMaterialAttributeName("username")}
+                     property={materialAttributes.username}/>
+
+          <PasswordField label={humanizedMaterialAttributeName("password")}
+                         property={materialAttributes.password}/>
         </MaterialEditWidget>
       );
     }
@@ -193,6 +198,12 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
                      property={materialAttributes.url}
                      required={true}
                      errorText={materialAttributes.errors().errorsForDisplay("url")}/>
+
+          <TextField label={humanizedMaterialAttributeName("username")}
+                     property={materialAttributes.username}/>
+
+          <PasswordField label={humanizedMaterialAttributeName("password")}
+                         property={materialAttributes.password}/>
         </MaterialEditWidget>
       );
     }

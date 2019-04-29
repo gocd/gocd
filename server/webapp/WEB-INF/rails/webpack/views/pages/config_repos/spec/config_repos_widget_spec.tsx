@@ -78,10 +78,16 @@ describe("ConfigReposWidget", () => {
       expect(title).toHaveText("Material");
       expect(keyValuePair[0]).toContainText("Type");
       expect(keyValuePair[0]).toContainText("git");
-      expect(keyValuePair[1]).toContainText("URL");
-      expect(keyValuePair[1]).toContainText("https://example.com/git");
-      expect(keyValuePair[2]).toContainText("Branch");
-      expect(keyValuePair[2]).toContainText("master");
+      expect(keyValuePair[1]).toContainText("Username");
+      expect(keyValuePair[1]).toContainText("bob");
+
+      expect(keyValuePair[2]).toContainText("Password");
+      expect(keyValuePair[2]).toContainText("*******");
+
+      expect(keyValuePair[3]).toContainText("URL");
+      expect(keyValuePair[3]).toContainText("https://example.com/git");
+      expect(keyValuePair[4]).toContainText("Branch");
+      expect(keyValuePair[4]).toContainText("master");
     });
 
     it("should render config repository configuration details section", () => {
@@ -317,6 +323,8 @@ describe("ConfigReposWidget", () => {
                                    attributes: {
                                      url: "https://example.com/git/" + (parameters.repoId),
                                      name: "foo",
+                                     username: 'bob',
+                                     encrypted_password: 'AES:foo:bar',
                                      auto_update: true,
                                      branch: "master"
                                    }

@@ -118,11 +118,18 @@ export class Material implements ValidatableMixin {
 applyMixins(Material, ValidatableMixin);
 
 export abstract class MaterialAttributes implements ValidatableMixin {
-
+  username: Stream<string>;
+  password: Stream<EncryptedValue>;
   autoUpdate: Stream<boolean>;
 
-  protected constructor(name?: string, autoUpdate?: boolean) {
+  protected constructor(name?: string,
+                        autoUpdate?: boolean,
+                        username?: string,
+                        password?: string,
+                        encryptedPassword?: string) {
     this.autoUpdate = stream(autoUpdate);
+    this.username   = stream(username);
+    this.password   = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
     ValidatableMixin.call(this);
   }
 
@@ -169,15 +176,27 @@ export class GitMaterialAttributes extends MaterialAttributes {
   url: Stream<string>;
   branch: Stream<string>;
 
-  constructor(name?: string, autoUpdate?: boolean, url?: string, branch?: string) {
-    super(name, autoUpdate);
+  constructor(name?: string,
+              autoUpdate?: boolean,
+              url?: string,
+              branch?: string,
+              username?: string,
+              password?: string,
+              encryptedPassword?: string) {
+    super(name, autoUpdate, username, password, encryptedPassword);
     this.url    = stream(url);
     this.branch = stream(branch);
     this.validatePresenceOf("url");
   }
 
   static fromJSON(json: GitMaterialAttributesJSON) {
-    const gitMaterialAttributes = new GitMaterialAttributes(json.name, json.auto_update, json.url, json.branch);
+    const gitMaterialAttributes = new GitMaterialAttributes(json.name,
+                                                            json.auto_update,
+                                                            json.url,
+                                                            json.branch,
+                                                            json.username,
+                                                            json.password,
+                                                            json.encrypted_password);
     gitMaterialAttributes.errors(new Errors(json.errors));
     return gitMaterialAttributes;
   }
@@ -201,8 +220,6 @@ function plainOrCipherValue(passwordLike: PasswordLike) {
 export class SvnMaterialAttributes extends MaterialAttributes implements ValidatableMixin {
   url: Stream<string>;
   checkExternals: Stream<boolean>;
-  username: Stream<string>;
-  password: Stream<EncryptedValue>;
 
   constructor(name?: string,
               autoUpdate?: boolean,
@@ -211,11 +228,9 @@ export class SvnMaterialAttributes extends MaterialAttributes implements Validat
               username?: string,
               password?: string,
               encryptedPassword?: string) {
-    super(name, autoUpdate);
+    super(name, autoUpdate, username, password, encryptedPassword);
     this.url            = stream(url);
     this.checkExternals = stream(checkExternals);
-    this.username       = stream(username);
-    this.password       = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
     this.validatePresenceOf("url");
   }
 
@@ -237,14 +252,24 @@ applyMixins(SvnMaterialAttributes, ValidatableMixin);
 export class HgMaterialAttributes extends MaterialAttributes {
   url: Stream<string>;
 
-  constructor(name?: string, autoUpdate?: boolean, url?: string) {
-    super(name, autoUpdate);
+  constructor(name?: string,
+              autoUpdate?: boolean,
+              url?: string,
+              username?: string,
+              password?: string,
+              encryptedPassword?: string) {
+    super(name, autoUpdate, username, password, encryptedPassword);
     this.url = stream(url);
     this.validatePresenceOf("url");
   }
 
   static fromJSON(json: HgMaterialAttributesJSON) {
-    const hgMaterialAttributes = new HgMaterialAttributes(json.name, json.auto_update, json.url);
+    const hgMaterialAttributes = new HgMaterialAttributes(json.name,
+                                                          json.auto_update,
+                                                          json.url,
+                                                          json.username,
+                                                          json.password,
+                                                          json.encrypted_password);
     hgMaterialAttributes.errors(new Errors(json.errors));
     return hgMaterialAttributes;
   }
@@ -256,8 +281,6 @@ export class P4MaterialAttributes extends MaterialAttributes {
   port: Stream<string>;
   useTickets: Stream<boolean>;
   view: Stream<string>;
-  username: Stream<string>;
-  password: Stream<EncryptedValue>;
 
   constructor(name?: string,
               autoUpdate?: boolean,
@@ -267,7 +290,7 @@ export class P4MaterialAttributes extends MaterialAttributes {
               username?: string,
               password?: string,
               encryptedPassword?: string) {
-    super(name, autoUpdate);
+    super(name, autoUpdate, username, password, encryptedPassword);
     this.port       = stream(port);
     this.useTickets = stream(useTickets);
     this.view       = stream(view);
@@ -297,8 +320,6 @@ export class TfsMaterialAttributes extends MaterialAttributes {
   url: Stream<string>;
   domain: Stream<string>;
   projectPath: Stream<string>;
-  username: Stream<string>;
-  password: Stream<EncryptedValue>;
 
   constructor(name?: string,
               autoUpdate?: boolean,
@@ -308,7 +329,7 @@ export class TfsMaterialAttributes extends MaterialAttributes {
               username?: string,
               password?: string,
               encryptedPassword?: string) {
-    super(name, autoUpdate);
+    super(name, autoUpdate, username, password, encryptedPassword);
     this.url         = stream(url);
     this.domain      = stream(domain);
     this.projectPath = stream(projectPath);

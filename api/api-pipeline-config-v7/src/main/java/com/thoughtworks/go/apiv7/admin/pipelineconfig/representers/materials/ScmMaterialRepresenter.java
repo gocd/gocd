@@ -78,21 +78,8 @@ public abstract class ScmMaterialRepresenter<T extends ScmMaterialConfig> implem
             return;
         }
 
-        if (!hasCredentials(url.get())) {
-            return;
-        }
-
-        final Optional<String> username = jsonReader.optString("username");
-        final Optional<String> password = jsonReader.optString("password");
-        final Optional<String> encryptedPassword = jsonReader.optString("encrypted_password");
-
-        if (username.isPresent() || password.isPresent() || encryptedPassword.isPresent()) {
-            final String errorMessage = "You may only specify credentials in `url` or attributes, not both!";
-            scmMaterialConfig.errors().add("url", errorMessage);
-
-            username.ifPresent((u) -> scmMaterialConfig.errors().add("username", errorMessage));
-            password.ifPresent((p) -> scmMaterialConfig.errors().add("password", errorMessage));
-            encryptedPassword.ifPresent((p) -> scmMaterialConfig.errors().add("encrypted_password", errorMessage));
+        if (hasCredentials(url.get())) {
+            scmMaterialConfig.errors().add("url", "You may specify credentials only in attributes, not in url!");
         }
     }
 

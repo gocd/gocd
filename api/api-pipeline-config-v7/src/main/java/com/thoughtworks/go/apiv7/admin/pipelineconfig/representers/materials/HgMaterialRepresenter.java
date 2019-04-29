@@ -30,7 +30,7 @@ public class HgMaterialRepresenter extends ScmMaterialRepresenter<HgMaterialConf
 
     @Override
     public HgMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig(jsonReader.optString("url").get(), null);
+        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig(jsonReader.optString("url").orElse(null), null);
         super.fromJSON(jsonReader, hgMaterialConfig, options);
         validateCredentials(jsonReader, hgMaterialConfig);
         return hgMaterialConfig;

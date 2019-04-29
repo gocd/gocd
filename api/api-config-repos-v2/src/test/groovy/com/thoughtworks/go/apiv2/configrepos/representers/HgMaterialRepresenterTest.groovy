@@ -68,20 +68,5 @@ class HgMaterialRepresenterTest {
       assertThat(materialConfig.getPassword()).isEqualTo("some-pass")
       assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("some-pass"))
     }
-
-    @Test
-    void shouldAddErrorIfUrlContainsCredentials() {
-      JsonReader json = GsonTransformer.getInstance().jsonReaderFrom([
-        name      : null,
-        url       : "http://username:password@mydomain.com/myproject",
-        auto_upate: true
-      ])
-
-      def material = new HgMaterialRepresenter().fromJSON(json)
-
-      assertThat(material.errors().get("url"))
-        .hasSize(1)
-        .contains("You may specify credentials only in attributes, not in url!")
-    }
   }
 }

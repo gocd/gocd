@@ -22,8 +22,11 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.HgUrlArgument;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
+
+import static com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121.urlWithoutCredentials;
 
 @ConfigTag(value = "hg", label = "Mercurial")
 public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware {
@@ -116,6 +119,17 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
         validateMaterialUrl(this.url, validationContext);
+        validateCredentialsInMaterialUrl();
+    }
+
+    private void validateCredentialsInMaterialUrl() {
+        if (this.url == null) {
+            return;
+        }
+
+        if (!StringUtils.equals(this.url.originalArgument(), urlWithoutCredentials(this.url.originalArgument()))) {
+            errors().add("url", "You may specify credentials only in attributes, not in url");
+        }
     }
 
     @Override

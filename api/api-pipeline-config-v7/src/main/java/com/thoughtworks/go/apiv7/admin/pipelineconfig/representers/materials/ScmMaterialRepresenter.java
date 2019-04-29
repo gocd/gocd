@@ -22,11 +22,6 @@ import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOp
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
-import org.apache.commons.lang3.StringUtils;
-
-import java.util.Optional;
-
-import static com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121.urlWithoutCredentials;
 
 public abstract class ScmMaterialRepresenter<T extends ScmMaterialConfig> implements MaterialRepresenter<T> {
     @Override
@@ -69,21 +64,5 @@ public abstract class ScmMaterialRepresenter<T extends ScmMaterialConfig> implem
         PasswordDeserializer passwordDeserializer = options.getPasswordDeserializer();
         String encryptedPasswordValue = passwordDeserializer.deserialize(password, encryptedPassword, scmMaterialConfig);
         scmMaterialConfig.setEncryptedPassword(encryptedPasswordValue);
-    }
-
-    void validateCredentials(JsonReader jsonReader, ScmMaterialConfig scmMaterialConfig) {
-        final Optional<String> url = jsonReader.optString("url");
-
-        if (!url.isPresent()) {
-            return;
-        }
-
-        if (hasCredentials(url.get())) {
-            scmMaterialConfig.errors().add("url", "You may specify credentials only in attributes, not in url!");
-        }
-    }
-
-    private boolean hasCredentials(String url) {
-        return !StringUtils.equals(urlWithoutCredentials(url), url);
     }
 }

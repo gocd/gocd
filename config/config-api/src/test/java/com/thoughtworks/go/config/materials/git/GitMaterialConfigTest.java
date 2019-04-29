@@ -270,4 +270,15 @@ class GitMaterialConfigTest {
         }
     }
 
+    @Test
+    void shouldNotAllowCredentialsInUrl() {
+        GitMaterialConfig config = new GitMaterialConfig();
+        config.setUrl("https://bob:password@github.com/gocd/gocd");
+
+        config.validate(null);
+
+        assertThat(config.errors().get("url"))
+                .hasSize(1)
+                .contains("You may specify credentials only in attributes, not in url");
+    }
 }

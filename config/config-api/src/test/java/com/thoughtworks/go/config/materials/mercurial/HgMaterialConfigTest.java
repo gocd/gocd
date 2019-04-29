@@ -270,4 +270,16 @@ class HgMaterialConfigTest {
             assertThat(config.getFingerprint()).isEqualTo(migratedConfig.getFingerprint());
         }
     }
+
+    @Test
+    void shouldNotAllowCredentialsInUrl() {
+        HgMaterialConfig config = new HgMaterialConfig();
+        config.setUrl("https://bob:password@github.com/gocd/gocd");
+
+        config.validate(null);
+
+        assertThat(config.errors().get("url"))
+                .hasSize(1)
+                .contains("You may specify credentials only in attributes, not in url");
+    }
 }

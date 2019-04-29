@@ -57,23 +57,6 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
   @Nested
   class Credentials {
     @Test
-    void "should add error on deserialization of material with credentials in URL"() {
-      def jsonReader = GsonTransformer.instance.jsonReaderFrom([
-        type      : 'hg',
-        attributes:
-          [
-            url   : "http://user:password@funk.com/blank",
-            branch: "master"
-          ]
-      ])
-
-      def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-      assertThat(deserializedObject.errors().get("url"))
-      .hasSize(1)
-      .contains("You may specify credentials only in attributes, not in url!")
-    }
-
-    @Test
     void "should deserialize material with credentials in attributes"() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         type      : 'hg',

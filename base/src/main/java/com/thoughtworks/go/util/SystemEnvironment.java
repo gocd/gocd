@@ -664,7 +664,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
 
     public static final ThreadLocal<Boolean> enforceServerImmutability = ThreadLocal.withInitial(() -> false);
 
-    public int getMaxEncryptionAPIRequestsPerMinute() {
+    public static int getMaxEncryptionAPIRequestsPerMinute() {
         return GO_ENCRYPTION_API_MAX_REQUESTS.getValue();
     }
 

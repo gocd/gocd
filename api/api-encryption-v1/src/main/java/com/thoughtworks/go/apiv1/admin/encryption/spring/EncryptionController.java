@@ -21,12 +21,13 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.apiv1.admin.encryption.EncryptionControllerDelegate;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class EncryptionController implements SparkSpringController {
-    private static final int DEFAULT_REQUESTS_PER_MINUTE = 60;
+    private static final int DEFAULT_REQUESTS_PER_MINUTE = SystemEnvironment.getMaxEncryptionAPIRequestsPerMinute();
     private final EncryptionControllerDelegate delegate;
 
     @Autowired

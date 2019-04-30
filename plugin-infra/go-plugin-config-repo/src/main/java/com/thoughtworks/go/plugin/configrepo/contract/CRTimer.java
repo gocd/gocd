@@ -16,68 +16,44 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRTimer extends CRBase {
+    @SerializedName("spec")
+    @Expose
     private String spec;
-    private Boolean only_on_changes;
+    @SerializedName("only_on_changes")
+    @Expose
+    private boolean onlyOnChanges;
 
-    public CRTimer() {}
-    public CRTimer(String timerSpec)
-    {
-        this.spec = timerSpec;
-    }
-    public CRTimer(String timerSpec, Boolean onlyOnChanges) {
-        this.spec = timerSpec;
-        this.only_on_changes = onlyOnChanges;
+    public CRTimer() {
     }
 
-    public String getTimerSpec() {
-        return spec;
-    }
-
-    public void setTimerSpec(String timerSpec) {
+    public CRTimer(String timerSpec) {
         this.spec = timerSpec;
     }
 
-    public Boolean isOnlyOnChanges() {
-        return only_on_changes;
-    }
-
-    public void setOnlyOnChanges(boolean onlyOnChanges) {
-        this.only_on_changes = onlyOnChanges;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        CRTimer that = (CRTimer) o;
-
-        if (spec != null ? !spec.equals(that.spec) : that.spec != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        return spec != null ? spec.hashCode() : 0;
+    public CRTimer(String timerSpec, boolean onlyOnChanges) {
+        this.spec = timerSpec;
+        this.onlyOnChanges = onlyOnChanges;
     }
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = this.getLocation(parentLocation);
-        errors.checkMissing(location,"spec",spec);
+        errors.checkMissing(location, "spec", spec);
     }
 
     @Override
     public String getLocation(String parent) {
         String myLocation = getLocation() == null ? parent : getLocation();
-        return String.format("%s; Timer",myLocation);
+        return String.format("%s; Timer", myLocation);
     }
 }

@@ -38,7 +38,7 @@ public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
     {
         fetch = new CRFetchArtifactTask("build","buildjob","bin");
         fetchFromPipe = new CRFetchArtifactTask("build","buildjob","bin");
-        fetchFromPipe.setPipelineName("pipeline1");
+        fetchFromPipe.setPipeline("pipeline1");
 
         fetchToDest = new CRFetchArtifactTask("build","buildjob","bin");
         fetchToDest.setDestination("lib");
@@ -87,7 +87,7 @@ public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
                 "            }";
         CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask)gson.fromJson(json,CRTask.class);
 
-        assertThat(deserializedValue.getPipelineName(),is("pip"));
+        assertThat(deserializedValue.getPipeline(),is("pip"));
         assertThat(deserializedValue.getJob(),is("build"));
         assertThat(deserializedValue.getStage(),is("build1"));
         assertThat(deserializedValue.getSource(),is("bin"));
@@ -110,7 +110,7 @@ public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
                 "            }";
         CRFetchArtifactTask deserializedValue = (CRFetchArtifactTask)gson.fromJson(json,CRTask.class);
 
-        assertThat(deserializedValue.getPipelineName(),is("pip"));
+        assertThat(deserializedValue.getPipeline(),is("pip"));
         assertThat(deserializedValue.getJob(),is("build"));
         assertThat(deserializedValue.getStage(),is("build1"));
         assertThat(deserializedValue.getSource(),is("bin"));

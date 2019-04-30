@@ -16,7 +16,12 @@
 
 package com.thoughtworks.go.plugin.access.configrepo.v2.messages;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class PipelineExportResponseMessage {
+    @Expose
+    @SerializedName("pipeline")
     private String pipeline;
 
     public String getPipeline() {

@@ -18,6 +18,8 @@ description = 'GoCD Model Contract for (de)Serializing GoCD data structures'
 
 dependencies {
   compile project(':domain')
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
   testCompileOnly group: 'junit', name: 'junit', version: project.versions.junit
   testCompile group: 'org.hamcrest', name: 'hamcrest-core', version: project.versions.hamcrest
   testCompile group: 'org.hamcrest', name: 'hamcrest-library', version: project.versions.hamcrest

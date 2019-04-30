@@ -16,56 +16,37 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract.material;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRHgMaterial extends CRScmMaterial {
     public static final String TYPE_NAME = "hg";
 
+    @SerializedName("url")
+    @Expose
     private String url;
 
-    public CRHgMaterial()
-    {
+    public CRHgMaterial() {
         type = TYPE_NAME;
     }
 
-    public CRHgMaterial(String materialName, String folder, boolean autoUpdate,String url, boolean whitelist,String... filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate,whitelist, filters);
+    public CRHgMaterial(String materialName, String folder, boolean autoUpdate, String url, boolean whitelist, String... filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
         this.url = url;
     }
 
-    public CRHgMaterial(String name, String folder, boolean autoUpdate,boolean whitelist, List<String> filter, String url) {
+    public CRHgMaterial(String name, String folder, boolean autoUpdate, boolean whitelist, List<String> filter, String url) {
         super(TYPE_NAME, name, folder, autoUpdate, whitelist, filter);
         this.url = url;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        CRHgMaterial that = (CRHgMaterial)o;
-        if(that == null)
-            return  false;
-
-        if(!super.equals(that))
-            return false;
-
-        if (url != null ? !url.equals(that.url) : that.url != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (url != null ? url.hashCode() : 0);
-        return result;
     }
 
     @Override
@@ -73,19 +54,11 @@ public class CRHgMaterial extends CRScmMaterial {
         return TYPE_NAME;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
-        getCommonErrors(errors,location);
-        errors.checkMissing(location,"url",url);
+        getCommonErrors(errors, location);
+        errors.checkMissing(location, "url", url);
     }
 
     @Override
@@ -93,6 +66,6 @@ public class CRHgMaterial extends CRScmMaterial {
         String myLocation = getLocation() == null ? parent : getLocation();
         String name = getName() == null ? "" : getName();
         String url = getUrl() != null ? getUrl() : "unknown";
-        return String.format("%s; Hg material %s URL: %s",myLocation,name,url);
+        return String.format("%s; Hg material %s URL: %s", myLocation, name, url);
     }
 }

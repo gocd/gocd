@@ -16,8 +16,21 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRBuiltInArtifact extends CRArtifact {
+    @SerializedName("source")
+    @Expose
     private String source;
+    @SerializedName("destination")
+    @Expose
     private String destination;
 
     public CRBuiltInArtifact() {
@@ -33,42 +46,6 @@ public class CRBuiltInArtifact extends CRArtifact {
         super(CRArtifactType.build);
         this.source = src;
         this.destination = dest;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String src) {
-        this.source = src;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        CRBuiltInArtifact that = (CRBuiltInArtifact) o;
-
-        if (source != null ? !source.equals(that.source) : that.source != null) return false;
-        return destination != null ? destination.equals(that.destination) : that.destination == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (source != null ? source.hashCode() : 0);
-        result = 31 * result + (destination != null ? destination.hashCode() : 0);
-        return result;
     }
 
     @Override

@@ -41,7 +41,7 @@ public class CRFetchPluggableArtifactTaskTest extends AbstractCRTest<CRFetchPlug
 
         fetch = new CRFetchPluggableArtifactTask("build", "buildjob", "storeId", crConfigurationProperty);
         fetchFromPipe = new CRFetchPluggableArtifactTask("build", "buildjob", "storeId", crConfigurationProperty);
-        fetchFromPipe.setPipelineName("pipeline1");
+        fetchFromPipe.setPipeline("pipeline1");
 
         invalidFetchNoStoreId = new CRFetchPluggableArtifactTask("build", "buildjob", null);
         invalidFetchNoJob = new CRFetchPluggableArtifactTask("build", null, "storeId");
@@ -77,7 +77,7 @@ public class CRFetchPluggableArtifactTaskTest extends AbstractCRTest<CRFetchPlug
                 "            }";
         CRFetchPluggableArtifactTask deserializedValue = (CRFetchPluggableArtifactTask)gson.fromJson(json, CRTask.class);
 
-        assertThat(deserializedValue.getPipelineName(),is("pip"));
+        assertThat(deserializedValue.getPipeline(),is("pip"));
         assertThat(deserializedValue.getJob(),is("build"));
         assertThat(deserializedValue.getStage(),is("build1"));
         assertThat(deserializedValue.getArtifactId(),is("s3"));

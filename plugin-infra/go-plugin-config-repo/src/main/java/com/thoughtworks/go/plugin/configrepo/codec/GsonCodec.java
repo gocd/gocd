@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.plugin.configrepo.codec;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.thoughtworks.go.plugin.configrepo.contract.CRArtifact;
 import com.thoughtworks.go.plugin.configrepo.contract.material.CRMaterial;
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.CRTask;
@@ -34,6 +35,7 @@ public class GsonCodec {
         builder.registerTypeAdapter(CRMaterial.class, new MaterialTypeAdapter());
         builder.registerTypeAdapter(CRTask.class, new TaskTypeAdapter());
         builder.registerTypeAdapter(CRArtifact.class, new ArtifactTypeAdapter());
+        builder.excludeFieldsWithoutExposeAnnotation();
 
         gson = builder.create();
     }

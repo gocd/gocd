@@ -54,7 +54,7 @@ public class CRStageTest extends AbstractCRTest<CRStage> {
         stageWithEnv.addEnvironmentVariable("TEST_NUM","1");
 
         CRApproval manualWithAuth = new CRApproval(CRApprovalCondition.manual);
-        manualWithAuth.setAuthorizedRoles(Arrays.asList("manager"));
+        manualWithAuth.setRoles(Arrays.asList("manager"));
         stageWithApproval = new CRStage("deploy",buildRake);
         stageWithApproval.setApproval(manualWithAuth);
 

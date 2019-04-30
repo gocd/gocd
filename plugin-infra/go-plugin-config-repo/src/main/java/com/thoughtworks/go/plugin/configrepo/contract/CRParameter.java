@@ -16,15 +16,28 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.config.validation.NameTypeValidator;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashSet;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRParameter extends CRBase {
+    @SerializedName("name")
+    @Expose
     private String name;
+    @SerializedName("value")
+    @Expose
     private String value;
 
-    public CRParameter() {}
+    public CRParameter() {
+    }
 
     public CRParameter(String name) {
         this.name = name;
@@ -36,42 +49,6 @@ public class CRParameter extends CRBase {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        CRParameter that = (CRParameter) o;
-
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        return value != null ? value.equals(that.value) : that.value == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name.hashCode();
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        return result;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    @Override
     public String getLocation(String parent) {
         String myLocation = getLocation() == null ? parent : getLocation();
         String key = this.name == null ? "unknown name" : this.name;
@@ -79,8 +56,8 @@ public class CRParameter extends CRBase {
     }
 
     public String validateNameUniqueness(HashSet<String> keys) {
-        if(keys.contains(this.getName()))
-            return String.format("Param name '%s' is not unique.",this.getName());
+        if (keys.contains(this.getName()))
+            return String.format("Param name '%s' is not unique.", this.getName());
         else
             keys.add(this.getName());
         return null;

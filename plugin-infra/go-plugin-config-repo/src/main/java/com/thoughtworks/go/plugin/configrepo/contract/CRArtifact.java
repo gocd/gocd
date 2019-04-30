@@ -16,36 +16,26 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public abstract class CRArtifact extends CRBase {
+    @Setter(AccessLevel.NONE)
+    @SerializedName("type")
+    @Expose
     private CRArtifactType type;
 
     public CRArtifact() {
     }
 
     public CRArtifact(CRArtifactType type) {
-        this.type = type;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        CRArtifact that = (CRArtifact) o;
-
-        return type == that.type;
-    }
-
-    @Override
-    public int hashCode() {
-        return type != null ? type.hashCode() : 0;
-    }
-
-    public CRArtifactType getType() {
-        return type;
-    }
-
-    public void setType(CRArtifactType type) {
         this.type = type;
     }
 

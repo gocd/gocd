@@ -16,18 +16,30 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract.tasks;
 
-import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
+import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
     public static final String ARTIFACT_ORIGIN = "external";
 
-    private String artifact_id;
+    @SerializedName("artifact_id")
+    @Expose
+    private String artifactId;
+    @SerializedName("configuration")
+    @Expose
     private Collection<CRConfigurationProperty> configuration;
 
     public CRFetchPluggableArtifactTask() {
@@ -39,7 +51,7 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
                                         String artifactId,
                                         CRConfigurationProperty... crConfigurationProperties) {
         super(stage, job, TYPE_NAME, ArtifactOrigin.external);
-        this.artifact_id = artifactId;
+        this.artifactId = artifactId;
         configuration = Arrays.asList(crConfigurationProperties);
     }
 
@@ -48,7 +60,7 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
                                         String artifactId,
                                         List<CRConfigurationProperty> crConfigurationProperties) {
         super(stage, job, TYPE_NAME, ArtifactOrigin.external);
-        this.artifact_id = artifactId;
+        this.artifactId = artifactId;
         configuration = crConfigurationProperties;
     }
 
@@ -59,22 +71,14 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
         this.pipeline = pipelineName;
         this.stage = stage;
         this.job = job;
-        this.artifact_id = artifactId;
+        this.artifactId = artifactId;
         configuration = Arrays.asList(crConfigurationProperties);
-    }
-
-    public String getArtifactId() {
-        return artifact_id;
-    }
-
-    public Collection<CRConfigurationProperty> getConfiguration() {
-        return configuration;
     }
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
-        errors.checkMissing(location, "artifact_id", artifact_id);
+        errors.checkMissing(location, "artifact_id", artifactId);
         errors.checkMissing(location, "stage", stage);
         errors.checkMissing(location, "job", job);
 
@@ -99,25 +103,4 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        CRFetchPluggableArtifactTask that = (CRFetchPluggableArtifactTask) o;
-
-        if (artifact_id != null ? !artifact_id.equals(that.artifact_id) : that.artifact_id != null) {
-            return false;
-        }
-        return configuration != null ? configuration.equals(that.configuration) : that.configuration == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (artifact_id != null ? artifact_id.hashCode() : 0);
-        result = 31 * result + (configuration != null ? configuration.hashCode() : 0);
-        return result;
-    }
 }

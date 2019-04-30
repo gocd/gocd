@@ -17,14 +17,27 @@
 package com.thoughtworks.go.plugin.configrepo.contract.tasks;
 
 import com.google.gson.JsonParseException;
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Arrays;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public abstract class CRAbstractFetchTask extends CRTask {
     public static final String TYPE_NAME = "fetch";
+    @SerializedName("pipeline")
+    @Expose
     protected String pipeline;
+    @SerializedName("stage")
+    @Expose
     protected String stage;
+    @SerializedName("job")
+    @Expose
     protected String job;
     @SerializedName("artifact_origin")
     protected ArtifactOrigin artifactOrigin;
@@ -56,66 +69,10 @@ public abstract class CRAbstractFetchTask extends CRTask {
         super(runIf, onCancel);
     }
 
-    public String getPipelineName() {
-        return pipeline;
-    }
-
-    public void setPipelineName(String pipeline) {
-        this.pipeline = pipeline;
-    }
-
-    public String getStage() {
-        return stage;
-    }
-
-    public void setStage(String stage) {
-        this.stage = stage;
-    }
-
-    public String getJob() {
-        return job;
-    }
-
-    public void setJob(String job) {
-        this.job = job;
-    }
-
-    public ArtifactOrigin getArtifactOrigin() {
-        return artifactOrigin;
-    }
-
-    public void setArtifactOrigin(ArtifactOrigin artifactOrigin) {
-        this.artifactOrigin = artifactOrigin;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof CRAbstractFetchTask)) return false;
-        if (!super.equals(o)) return false;
-
-        CRAbstractFetchTask that = (CRAbstractFetchTask) o;
-
-        if (pipeline != null ? !pipeline.equals(that.pipeline) : that.pipeline != null) return false;
-        if (stage != null ? !stage.equals(that.stage) : that.stage != null) return false;
-        if (job != null ? !job.equals(that.job) : that.job != null) return false;
-        return artifactOrigin != null ? artifactOrigin.equals(that.artifactOrigin) : that.artifactOrigin == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (pipeline != null ? pipeline.hashCode() : 0);
-        result = 31 * result + (stage != null ? stage.hashCode() : 0);
-        result = 31 * result + (job != null ? job.hashCode() : 0);
-        result = 31 * result + (artifactOrigin != null ? artifactOrigin.hashCode() : 0);
-        return result;
-    }
-
     @Override
     public String getLocation(String parent) {
         String myLocation = getLocation() == null ? parent : getLocation();
-        String pipe = getPipelineName() != null ? getPipelineName() : "unknown pipeline";
+        String pipe = getPipeline() != null ? getPipeline() : "unknown pipeline";
         String stage = getStage() != null ? getStage() : "unknown stage";
         String job = getJob() != null ? getJob() : "unknown job";
 

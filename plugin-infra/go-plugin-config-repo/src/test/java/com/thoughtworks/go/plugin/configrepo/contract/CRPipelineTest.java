@@ -63,19 +63,19 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
         invalidNoName = new CRPipeline(null,"group1",veryCustomGit, "template", buildStage);
         invalidNoMaterial = new CRPipeline();
         invalidNoMaterial.setName("pipe4");
-        invalidNoMaterial.setGroupName("g1");
+        invalidNoMaterial.setGroup("g1");
         invalidNoMaterial.addStage(buildStage);
 
         invalidNoGroup = new CRPipeline("name",null,veryCustomGit, null, buildStage);
 
         invalidNoStages = new CRPipeline();
         invalidNoStages.setName("pipe4");
-        invalidNoStages.setGroupName("g1");
+        invalidNoStages.setGroup("g1");
         invalidNoStages.addMaterial(veryCustomGit);
 
         invalidNoNamedMaterials = new CRPipeline("pipe2","group1",veryCustomGit, null, buildStage);
         invalidNoNamedMaterials.addMaterial(new CRDependencyMaterial("pipe1","build"));
-        invalidNoNamedMaterials.setGroupName("g1");
+        invalidNoNamedMaterials.setGroup("g1");
     }
 
     @Test

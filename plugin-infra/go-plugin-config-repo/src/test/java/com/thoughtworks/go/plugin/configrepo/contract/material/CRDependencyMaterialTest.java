@@ -38,10 +38,10 @@ public class CRDependencyMaterialTest extends AbstractCRTest<CRDependencyMateria
         dependsOnPipeline = new CRDependencyMaterial("pipeline2","build");
 
         invalidNoPipeline = new CRDependencyMaterial();
-        invalidNoPipeline.setStageName("build");
+        invalidNoPipeline.setStage("build");
 
         invalidNoStage = new CRDependencyMaterial();
-        invalidNoStage.setPipelineName("pipeline1");
+        invalidNoStage.setPipeline("pipeline1");
     }
 
     @Override

@@ -15,28 +15,23 @@
  */
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class CRError {
+    @SerializedName("location")
+    @Expose
     private String location;
+    @SerializedName("message")
+    @Expose
     private String message;
 
     public CRError(String location, String message) {
         this.location = location;
-        this.message = message;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
         this.message = message;
     }
 }

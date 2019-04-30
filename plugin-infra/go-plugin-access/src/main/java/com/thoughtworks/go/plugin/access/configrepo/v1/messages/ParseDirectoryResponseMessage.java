@@ -15,19 +15,31 @@
  */
 package com.thoughtworks.go.plugin.access.configrepo.v1.messages;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 import com.thoughtworks.go.plugin.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.configrepo.contract.CRError;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
+import jdk.nashorn.internal.objects.annotations.Getter;
+import jdk.nashorn.internal.objects.annotations.Setter;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class ParseDirectoryResponseMessage {
-    private String target_version;
+    @Expose
+    @SerializedName("target_version")
+    private String targetVersion;
+    @Expose
+    @SerializedName("environments")
     private Collection<CREnvironment> environments = new ArrayList<>();
+    @Expose
+    @SerializedName("pipelines")
     private Collection<CRPipeline> pipelines = new ArrayList<>();
+    @Expose
+    @SerializedName("errors")
     private List<CRError> errors = new ArrayList<>();
 
     public boolean hasErrors() {
@@ -35,23 +47,21 @@ public class ParseDirectoryResponseMessage {
     }
 
     public String getTargetVersion() {
-        return target_version;
+        return targetVersion;
     }
 
-    public void setTargetVersion(String target_version) {
-        this.target_version = target_version;
+    public void setTargetVersion(String targetVersion) {
+        this.targetVersion = targetVersion;
     }
 
     public void validateResponse(ErrorCollection errors) {
         String location = "Plugin response message";
-        errors.checkMissing(location,"target_version",target_version);
-        for(CRPipeline pipeline : pipelines)
-        {
-            pipeline.getErrors(errors,location);
+        errors.checkMissing(location, "target_version", targetVersion);
+        for (CRPipeline pipeline : pipelines) {
+            pipeline.getErrors(errors, location);
         }
-        for(CREnvironment environment : environments)
-        {
-            environment.getErrors(errors,location);
+        for (CREnvironment environment : environments) {
+            environment.getErrors(errors, location);
         }
     }
 

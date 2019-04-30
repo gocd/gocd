@@ -39,7 +39,7 @@ public class CRApprovalTest extends AbstractCRTest<CRApproval> {
         success = new CRApproval(CRApprovalCondition.success);
 
         manualWithAuth = new CRApproval(CRApprovalCondition.manual);
-        manualWithAuth.setAuthorizedRoles(Arrays.asList("manager"));
+        manualWithAuth.setRoles(Arrays.asList("manager"));
 
         badType = new CRApproval();
     }
@@ -72,8 +72,8 @@ public class CRApprovalTest extends AbstractCRTest<CRApproval> {
         CRApproval deserializedValue = gson.fromJson(json,CRApproval.class);
 
         assertThat(deserializedValue.getType(),is(CRApprovalCondition.manual));
-        assertThat(deserializedValue.getAuthorizedUsers().isEmpty(),is(false));
-        assertThat(deserializedValue.getAuthorizedRoles().isEmpty(),is(true));
+        assertThat(deserializedValue.getUsers().isEmpty(),is(false));
+        assertThat(deserializedValue.getRoles().isEmpty(),is(true));
 
         ErrorCollection errors = deserializedValue.getErrors();
         TestCase.assertTrue(errors.isEmpty());

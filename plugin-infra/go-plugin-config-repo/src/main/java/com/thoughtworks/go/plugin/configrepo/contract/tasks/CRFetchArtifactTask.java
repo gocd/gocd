@@ -15,13 +15,27 @@
  */
 package com.thoughtworks.go.plugin.configrepo.contract.tasks;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRFetchArtifactTask extends CRAbstractFetchTask {
     public static final String ARTIFACT_ORIGIN = "gocd";
 
+    @SerializedName("source")
+    @Expose
     private String source;
-    private boolean is_source_a_file;
+    @SerializedName("is_source_a_file")
+    @Expose
+    private boolean isSourceAFile;
+    @SerializedName("destination")
+    @Expose
     private String destination;
 
     public CRFetchArtifactTask() {
@@ -41,59 +55,16 @@ public class CRFetchArtifactTask extends CRAbstractFetchTask {
         this.stage = stage;
         this.job = job;
         this.source = source;
-        this.is_source_a_file = !sourceIsDir;
+        this.isSourceAFile = !sourceIsDir;
         this.destination = destination;
     }
 
-    public String getDestination() {
-        return destination;
-    }
-
-    public void setDestination(String dest) {
-        this.destination = dest;
-    }
-
-    public String getSource() {
-        return source;
-    }
-
-    public void setSource(String src) {
-        this.source = src;
-    }
-
     public boolean sourceIsDirectory() {
-        return !is_source_a_file;
+        return !isSourceAFile;
     }
 
     public void setSourceIsDirectory(boolean srcIsDirectory) {
-        this.is_source_a_file = !srcIsDirectory;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        CRFetchArtifactTask fetchTask = (CRFetchArtifactTask) o;
-
-        if (is_source_a_file != fetchTask.is_source_a_file) {
-            return false;
-        }
-        if (getSource() != null ? !getSource().equals(fetchTask.getSource()) : fetchTask.getSource() != null) {
-            return false;
-        }
-        return getDestination() != null ? getDestination().equals(fetchTask.getDestination()) : fetchTask.getDestination() == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (getSource() != null ? getSource().hashCode() : 0);
-        result = 31 * result + (is_source_a_file ? 1 : 0);
-        result = 31 * result + (getDestination() != null ? getDestination().hashCode() : 0);
-        return result;
+        this.isSourceAFile = !srcIsDirectory;
     }
 
     @Override

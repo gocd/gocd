@@ -55,7 +55,7 @@ public class CRTimerTest extends AbstractCRTest<CRTimer> {
                 "  }";
         CRTimer deserializedValue = gson.fromJson(json,CRTimer.class);
 
-        assertThat(deserializedValue.getTimerSpec(),is("0 0 22 ? * MON-FRI"));
+        assertThat(deserializedValue.getSpec(),is("0 0 22 ? * MON-FRI"));
         assertThat(deserializedValue.isOnlyOnChanges(),is(true));
 
         ErrorCollection errors = deserializedValue.getErrors();

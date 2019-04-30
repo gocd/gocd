@@ -15,19 +15,35 @@
  */
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.HashSet;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CREnvironmentVariable extends CRBase {
+    @SerializedName("name")
+    @Expose
     private String name;
+    @SerializedName("value")
+    @Expose
     private String value;
-    private String encrypted_value;
+    @SerializedName("encrypted_value")
+    @Expose
+    private String encryptedValue;
 
-    public CREnvironmentVariable(){}
-    public CREnvironmentVariable(String name){
+    public CREnvironmentVariable() {
+    }
+
+    public CREnvironmentVariable(String name) {
         this.name = name;
     }
 
@@ -36,76 +52,21 @@ public class CREnvironmentVariable extends CRBase {
         this.name = key;
         this.value = value;
     }
+
     public CREnvironmentVariable(String name, String value, String encryptedValue) {
         this.name = name;
         this.value = value;
-        this.encrypted_value = encryptedValue;
+        this.encryptedValue = encryptedValue;
     }
 
-
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        CREnvironmentVariable that = (CREnvironmentVariable) o;
-
-        if (encrypted_value != null ? !encrypted_value.equals(that.encrypted_value) : that.encrypted_value != null) {
-            return false;
-        }
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (value != null ? !value.equals(that.value) : that.value != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (value != null ? value.hashCode() : 0);
-        result = 31 * result + (encrypted_value != null ? encrypted_value.hashCode() : 0);
-        return result;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getEncryptedValue() {
-        return encrypted_value;
-    }
-
-    public void setEncryptedValue(String encryptedValue) {
-        this.encrypted_value = encryptedValue;
-    }
-
     public String validateNameUniqueness(HashSet<String> keys) {
-        if(keys.contains(this.getName()))
-            return String.format("Environment variable %s defined more than once",this.getName());
+        if (keys.contains(this.getName()))
+            return String.format("Environment variable %s defined more than once", this.getName());
         else
             keys.add(this.getName());
         return null;
@@ -114,26 +75,26 @@ public class CREnvironmentVariable extends CRBase {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = this.getLocation(parentLocation);
-        errors.checkMissing(location,"name",name);
-        this.validateValue(errors,location);
+        errors.checkMissing(location, "name", name);
+        this.validateValue(errors, location);
     }
 
     @Override
     public String getLocation(String parent) {
         String myLocation = getLocation() == null ? parent : getLocation();
         String key = this.name == null ? "unknown name" : this.name;
-        return String.format("%s; Environment variable (%s)",myLocation,key);
+        return String.format("%s; Environment variable (%s)", myLocation, key);
     }
 
     private void validateValue(ErrorCollection errors, String location) {
-        if(StringUtils.isBlank(value) && StringUtils.isBlank(encrypted_value))
-            errors.addError(location,"Environment variable value not set");
-        if(!StringUtils.isBlank(value) && !StringUtils.isBlank(encrypted_value))
-            errors.addError(location,"Environment variable value and encrypted_value is set. Only one field can be assigned.");
+        if (StringUtils.isBlank(value) && StringUtils.isBlank(encryptedValue))
+            errors.addError(location, "Environment variable value not set");
+        if (!StringUtils.isBlank(value) && !StringUtils.isBlank(encryptedValue))
+            errors.addError(location, "Environment variable value and encrypted_value is set. Only one field can be assigned.");
     }
 
     public boolean hasEncryptedValue() {
-        return !StringUtils.isBlank(encrypted_value);
+        return !StringUtils.isBlank(encryptedValue);
     }
 
     public boolean hasValue() {

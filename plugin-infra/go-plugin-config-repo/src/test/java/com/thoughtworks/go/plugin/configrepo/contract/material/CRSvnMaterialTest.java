@@ -39,7 +39,7 @@ public class CRSvnMaterialTest extends AbstractCRTest<CRSvnMaterial> {
 
         simpleSvnAuth = new CRSvnMaterial();
         simpleSvnAuth.setUrl("http://myprivaterepo");
-        simpleSvnAuth.setUserName("john");
+        simpleSvnAuth.setUsername("john");
         simpleSvnAuth.setPassword("pa$sw0rd");
 
         customSvn = new CRSvnMaterial("svnMaterial1","destDir1", false,

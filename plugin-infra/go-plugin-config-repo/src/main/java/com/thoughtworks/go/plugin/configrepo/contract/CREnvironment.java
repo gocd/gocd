@@ -15,155 +15,97 @@
  */
 package com.thoughtworks.go.plugin.configrepo.contract;
 
-import org.apache.commons.collections4.CollectionUtils;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CREnvironment extends CRBase {
+    @SerializedName("name")
+    @Expose
     private String name;
-    private Collection<CREnvironmentVariable> environment_variables;
+    @SerializedName("environment_variables")
+    @Expose
+    private Collection<CREnvironmentVariable> environmentVariables;
+    @SerializedName("agents")
+    @Expose
     private Collection<String> agents;
+    @SerializedName("pipelines")
+    @Expose
     private Collection<String> pipelines;
 
-    public CREnvironment(String name)
-    {
+    public CREnvironment(String name) {
         this();
         this.name = name;
     }
-    public CREnvironment()
-    {
-        environment_variables = new ArrayList<>();
+
+    public CREnvironment() {
+        environmentVariables = new ArrayList<>();
         agents = new ArrayList<>();
         pipelines = new ArrayList<>();
     }
+
     public CREnvironment(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<String> agents, Collection<String> pipelines) {
         this.name = name;
-        this.environment_variables = environmentVariables;
+        this.environmentVariables = environmentVariables;
         this.agents = agents;
         this.pipelines = pipelines;
     }
 
-    public void addEnvironmentVariable(String key,String value){
+    public void addEnvironmentVariable(String key, String value) {
         CREnvironmentVariable variable = new CREnvironmentVariable(key);
         variable.setValue(value);
-        this.environment_variables.add(variable);
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Collection<CREnvironmentVariable> getEnvironmentVariables() {
-        return environment_variables;
-    }
-
-    public void setEnvironmentVariables(Collection<CREnvironmentVariable> environmentVariables) {
-        this.environment_variables = environmentVariables;
-    }
-
-    public Collection<String> getAgents() {
-        return agents;
-    }
-
-    public void setAgents(Collection<String> agents) {
-        this.agents = agents;
-    }
-
-    public Collection<String> getPipelines() {
-        return pipelines;
-    }
-
-    public void setPipelines(Collection<String> pipelines) {
-        this.pipelines = pipelines;
+        this.environmentVariables.add(variable);
     }
 
     @Override
-    public void getErrors(ErrorCollection errors,String parentLocation) {
+    public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = this.getLocation(parentLocation);
-        validateEnvironmentVariableUniqueness(errors,location);
-        validateAgentUniqueness(errors,location);
-        validatePipelineUniqueness(errors,location);
+        validateEnvironmentVariableUniqueness(errors, location);
+        validateAgentUniqueness(errors, location);
+        validatePipelineUniqueness(errors, location);
     }
 
     private void validateEnvironmentVariableUniqueness(ErrorCollection errors, String location) {
         HashSet<String> keys = new HashSet<>();
-        for(CREnvironmentVariable var : environment_variables)
-        {
+        for (CREnvironmentVariable var : environmentVariables) {
             String error = var.validateNameUniqueness(keys);
-            if(error != null)
-                errors.addError(location,error);
+            if (error != null)
+                errors.addError(location, error);
         }
     }
+
     private void validateAgentUniqueness(ErrorCollection errors, String location) {
         HashSet<String> keys = new HashSet<>();
-        for(String agent : agents)
-        {
+        for (String agent : agents) {
             String lowerCase = agent.toLowerCase();
-            if(keys.contains(lowerCase))
-                errors.addError(location,String.format(
-                        "Agent %s is defined more than once",agent));
+            if (keys.contains(lowerCase))
+                errors.addError(location, String.format(
+                        "Agent %s is defined more than once", agent));
             else
                 keys.add(lowerCase);
         }
     }
+
     private void validatePipelineUniqueness(ErrorCollection errors, String location) {
         HashSet<String> keys = new HashSet<>();
-        for(String pipeline : pipelines)
-        {
+        for (String pipeline : pipelines) {
             String lowerCase = pipeline.toLowerCase();
-            if(keys.contains(lowerCase))
-                errors.addError(location,String.format(
-                        "Pipeline %s is defined more than once",pipeline));
+            if (keys.contains(lowerCase))
+                errors.addError(location, String.format(
+                        "Pipeline %s is defined more than once", pipeline));
             else
                 keys.add(lowerCase);
         }
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        CREnvironment that = (CREnvironment)o;
-        if(that == null)
-            return  false;
-
-        if (name != null ? !name.equals(that.getName()) : that.getName() != null) {
-            return false;
-        }
-
-        if (agents != null ? !CollectionUtils.isEqualCollection(this.getAgents(), that.getAgents()) : that.getAgents() != null) {
-            return false;
-        }
-
-        if (pipelines != null ? !CollectionUtils.isEqualCollection(this.getPipelines(), that.getPipelines()) : that.getPipelines() != null) {
-            return false;
-        }
-        if (environment_variables != null ?
-                !CollectionUtils.isEqualCollection(this.getEnvironmentVariables(),that.getEnvironmentVariables()) :
-                that.getEnvironmentVariables() != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = (name != null ? name.hashCode() : 0);
-        result = 31 * result + (agents != null ? agents.size() : 0);
-        result = 31 * result + (pipelines != null ? pipelines.size() : 0);
-        result = 31 * result + (environment_variables != null ? environment_variables.size() : 0);
-        return result;
     }
 
     public void addAgent(String agentUuid) {
@@ -175,8 +117,8 @@ public class CREnvironment extends CRBase {
     }
 
     public String validateNameUniqueness(HashSet<String> keys) {
-        if(keys.contains(this.getName()))
-            return String.format("Environment %s is defined more than once",this.getName());
+        if (keys.contains(this.getName()))
+            return String.format("Environment %s is defined more than once", this.getName());
         else
             keys.add(this.getName());
         return null;
@@ -185,7 +127,7 @@ public class CREnvironment extends CRBase {
     @Override
     public String getLocation(String parent) {
         return StringUtils.isBlank(location) ?
-                StringUtils.isBlank(name) ? String.format("Environment in %s",parent) :
-                        String.format("Environment %s",name) : String.format("%s; Environment %s",location,name);
+                StringUtils.isBlank(name) ? String.format("Environment in %s", parent) :
+                        String.format("Environment %s", name) : String.format("%s; Environment %s", location, name);
     }
 }

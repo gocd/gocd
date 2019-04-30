@@ -16,76 +16,59 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract.material;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPluginConfiguration;
 import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMaterial {
     public static final String TYPE_NAME = "plugin";
 
-    private String scm_id;
+    @SerializedName("scm_id")
+    @Expose
+    private String scmId;
+    @SerializedName("destination")
+    @Expose
     protected String destination;
+    @SerializedName("filter")
+    @Expose
     private CRFilter filter;
 
-    private CRPluginConfiguration plugin_configuration;
+    @SerializedName("plugin_configuration")
+    @Expose
+    private CRPluginConfiguration pluginConfiguration;
+    @SerializedName("configuration")
+    @Expose
     private Collection<CRConfigurationProperty> configuration = new ArrayList<>();
 
-    public CRPluggableScmMaterial(){
+    public CRPluggableScmMaterial() {
         type = TYPE_NAME;
     }
-    public CRPluggableScmMaterial(String materialName,String scmId,String folder,String... filters)
-    {
-        super(TYPE_NAME,materialName);
-        this.scm_id = scmId;
+
+    public CRPluggableScmMaterial(String materialName, String scmId, String folder, String... filters) {
+        super(TYPE_NAME, materialName);
+        this.scmId = scmId;
         this.destination = folder;
-        this.filter = new CRFilter(Arrays.asList(filters),false/*not supported in 16.6*/);
+        this.filter = new CRFilter(Arrays.asList(filters), false/*not supported in 16.6*/);
     }
+
     public CRPluggableScmMaterial(String name, String scmId, String directory, List<String> filter) {
-        super(TYPE_NAME,name);
-        this.scm_id = scmId;
+        super(TYPE_NAME, name);
+        this.scmId = scmId;
         this.destination = directory;
-        this.filter = new CRFilter(filter,false);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        CRPluggableScmMaterial that = (CRPluggableScmMaterial)o;
-        if(that == null)
-            return  false;
-
-        if(!super.equals(that))
-            return false;
-
-        if (scm_id != null ? !scm_id.equals(that.scm_id) : that.scm_id != null) {
-            return false;
-        }
-        if (destination != null ? !destination.equals(that.destination) : that.destination != null) {
-            return false;
-        }
-        if (filter != null ? !filter.equals(that.filter) : that.filter != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = (this.getName() != null ? this.getName().hashCode() : 0);
-        result = 31 * result + (scm_id != null ? scm_id.hashCode() : 0);
-        result = 31 * result + (destination != null ? destination.hashCode() : 0);
-        result = 31 * result + (filter != null ? filter.hashCode() : 0);
-        return result;
+        this.filter = new CRFilter(filter, false);
     }
 
     @Override
@@ -93,16 +76,8 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
         return TYPE_NAME;
     }
 
-    public String getScmId() {
-        return scm_id;
-    }
-
-    public void setScmId(String scmId) {
-        this.scm_id = scmId;
-    }
-
     public List<String> getFilterList() {
-        if(filter == null)
+        if (filter == null)
             return null;
         return filter.getList();
     }
@@ -111,14 +86,10 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
         this.filter.setIgnore(filter);
     }
 
-    public String getDirectory() {
-        return destination;
-    }
-
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
-        if (getScmId() == null && plugin_configuration == null) {
+        if (getScmId() == null && pluginConfiguration == null) {
             errors.addError(location, "Either the scm_id or the plugin_configuration must be set");
         }
     }
@@ -128,27 +99,6 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
         String myLocation = getLocation() == null ? parent : getLocation();
         String name = getName() == null ? "" : getName();
         String url = getScmId() != null ? getScmId() : "unknown";
-        return String.format("%s; Pluggable SCM material %s ID: %s",myLocation,name,url);
-    }
-
-    @Override
-    public String getDestination() {
-        return destination;
-    }
-
-    public CRPluginConfiguration getPluginConfiguration() {
-        return plugin_configuration;
-    }
-
-    public void setPluginConfiguration(CRPluginConfiguration pluginConfiguration) {
-        this.plugin_configuration = pluginConfiguration;
-    }
-
-    public Collection<CRConfigurationProperty> getConfiguration() {
-        return configuration;
-    }
-
-    public void setConfiguration(Collection<CRConfigurationProperty> configuration) {
-        this.configuration = configuration;
+        return String.format("%s; Pluggable SCM material %s ID: %s", myLocation, name, url);
     }
 }

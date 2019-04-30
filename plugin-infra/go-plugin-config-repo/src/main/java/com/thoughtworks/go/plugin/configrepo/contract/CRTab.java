@@ -16,8 +16,21 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRTab extends CRBase {
+    @SerializedName("name")
+    @Expose
     private String name;
+    @SerializedName("path")
+    @Expose
     private String path;
 
     public CRTab(String name, String path) {
@@ -25,59 +38,16 @@ public class CRTab extends CRBase {
         this.path = path;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    public void setPath(String path) {
-        this.path = path;
-    }
-
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        CRTab tab = (CRTab) o;
-
-        if (name != null ? !name.equals(tab.name) : tab.name != null) {
-            return false;
-        }
-        if (path != null ? !path.equals(tab.path) : tab.path != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = (name != null ? name.hashCode() : 0);
-        result = 31 * result + (path != null ? path.hashCode() : 0);
-        return result;
-    }
-
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = this.getLocation(parentLocation);
-        errors.checkMissing(location,"name",name);
-        errors.checkMissing(location,"path",path);
+        errors.checkMissing(location, "name", name);
+        errors.checkMissing(location, "path", path);
     }
 
     @Override
     public String getLocation(String parent) {
         String myLocation = getLocation() == null ? parent : getLocation();
-        return String.format("%s; Tab",myLocation);
+        return String.format("%s; Tab", myLocation);
     }
 }

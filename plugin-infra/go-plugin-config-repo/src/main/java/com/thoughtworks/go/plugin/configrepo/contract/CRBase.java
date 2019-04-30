@@ -15,12 +15,19 @@
  */
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+
+@EqualsAndHashCode
 public abstract class CRBase implements Locatable {
     // plugin can optionally assign location on any configuration element
+    @SerializedName("location")
+    @Expose
     protected String location;
 
     //TODO rename to collectErrors
-    public abstract void getErrors(ErrorCollection errors,String parentLocation);
+    public abstract void getErrors(ErrorCollection errors, String parentLocation);
 
     public String getLocation() {
         return location;
@@ -34,7 +41,7 @@ public abstract class CRBase implements Locatable {
     public ErrorCollection getErrors() // shorthand for tests
     {
         ErrorCollection errors = new ErrorCollection();
-        getErrors(errors,"Unknown");
+        getErrors(errors, "Unknown");
         return errors;
     }
 }

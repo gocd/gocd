@@ -16,19 +16,30 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract.material;
 
-import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.configrepo.contract.CRBase;
-import org.apache.commons.collections4.CollectionUtils;
+import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRFilter extends CRBase {
-    private List<String> ignore  = new ArrayList<>();
-    private List<String> whitelist  = new ArrayList<>();
+    @SerializedName("ignore")
+    @Expose
+    private List<String> ignore = new ArrayList<>();
+    @SerializedName("whitelist")
+    @Expose
+    private List<String> whitelist = new ArrayList<>();
 
-    public CRFilter(List<String> list,boolean whitelist) {
-        if(whitelist)
+    public CRFilter(List<String> list, boolean whitelist) {
+        if (whitelist)
             this.whitelist = list;
         else
             this.ignore = list;
@@ -44,17 +55,19 @@ public class CRFilter extends CRBase {
     @Override
     public String getLocation(String parent) {
         String myLocation = getLocation() == null ? parent : getLocation();
-        return String.format("%s; Filter",myLocation);
+        return String.format("%s; Filter", myLocation);
     }
 
-    public boolean isEmpty() { return (whitelist == null || whitelist.isEmpty()) && (ignore == null || ignore.isEmpty()); }
+    public boolean isEmpty() {
+        return (whitelist == null || whitelist.isEmpty()) && (ignore == null || ignore.isEmpty());
+    }
 
     public boolean isWhitelist() {
         return whitelist != null && whitelist.size() > 0;
     }
 
     public List<String> getList() {
-        if(isBlacklist())
+        if (isBlacklist())
             return ignore;
         else
             return whitelist;
@@ -76,34 +89,6 @@ public class CRFilter extends CRBase {
 
     public void setWhitelistNoCheck(List<String> list) {
         this.whitelist = list;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        CRFilter that = (CRFilter)o;
-        if(that == null)
-            return  false;
-
-        if (ignore != null ? !CollectionUtils.isEqualCollection(this.ignore, that.ignore) : that.ignore != null) {
-            return false;
-        }
-        if (whitelist != null ? !CollectionUtils.isEqualCollection(this.whitelist, that.whitelist) : that.whitelist != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 32;
-        result = 31 * result + (ignore != null ? ignore.size() : 0);
-        result = 31 * result + (whitelist != null ? whitelist.size() : 0);
-        return result;
     }
 
 }

@@ -16,47 +16,54 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract.material;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRGitMaterial extends CRScmMaterial {
     public static final String TYPE_NAME = "git";
 
+    @SerializedName("url")
+    @Expose
     private String url;
+    @SerializedName("branch")
+    @Expose
     private String branch;
-    private Boolean shallow_clone;
+    @SerializedName("shallow_clone")
+    @Expose
+    private boolean shallowClone;
 
-    public CRGitMaterial()
-    {
+    public CRGitMaterial() {
         type = TYPE_NAME;
     }
 
-    public CRGitMaterial(String materialName, String folder, boolean autoUpdate,Boolean shallow_clone,String url,String branch,boolean whitelist, String... filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate,whitelist, filters);
+    public CRGitMaterial(String materialName, String folder, boolean autoUpdate, boolean shallowClone, String url, String branch, boolean whitelist, String... filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
         this.url = url;
         this.branch = branch;
-        this.shallow_clone = shallow_clone;
+        this.shallowClone = shallowClone;
     }
 
-    public CRGitMaterial(String materialName, String folder, boolean autoUpdate,Boolean shallow_clone,String url,String branch,boolean whitelist, List<String> filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate,whitelist, filters);
+    public CRGitMaterial(String materialName, String folder, boolean autoUpdate, boolean shallowClone, String url, String branch, boolean whitelist, List<String> filters) {
+        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
         this.url = url;
         this.branch = branch;
-        this.shallow_clone = shallow_clone;
+        this.shallowClone = shallowClone;
     }
 
-    public CRGitMaterial(String name, String folder, boolean autoUpdate,Boolean shallow_clone, List<String> filter,String url,String branch,boolean whitelist) {
-        super(name, folder, autoUpdate,whitelist, filter);
+    public CRGitMaterial(String name, String folder, boolean autoUpdate, boolean shallowClone, List<String> filter, String url, String branch, boolean whitelist) {
+        super(name, folder, autoUpdate, whitelist, filter);
         this.url = url;
         this.branch = branch;
-        this.shallow_clone = shallow_clone;
-    }
-
-    public boolean shallowClone() {
-        if(shallow_clone == null)
-            return false;//when nothing was specified then no shallow clone
-        return shallow_clone;
+        this.shallowClone = shallowClone;
     }
 
     @Override
@@ -64,59 +71,11 @@ public class CRGitMaterial extends CRScmMaterial {
         return TYPE_NAME;
     }
 
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getBranch() {
-        return branch;
-    }
-
-    public void setBranch(String branch) {
-        this.branch = branch;
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        CRGitMaterial that = (CRGitMaterial)o;
-        if(that == null)
-            return  false;
-
-        if(!super.equals(that))
-            return false;
-
-        if (url != null ? !url.equals(that.url) : that.url != null) {
-            return false;
-        }
-        if (branch != null ? !branch.equals(that.branch) : that.branch != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (url != null ? url.hashCode() : 0);
-        result = 31 * result + (branch != null ? branch.hashCode() : 0);
-        return result;
-    }
-
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
-        getCommonErrors(errors,location);
-        errors.checkMissing(location,"url",url);
+        getCommonErrors(errors, location);
+        errors.checkMissing(location, "url", url);
     }
 
     @Override
@@ -124,7 +83,7 @@ public class CRGitMaterial extends CRScmMaterial {
         String myLocation = getLocation() == null ? parent : getLocation();
         String name = getName() == null ? "" : getName();
         String url = getUrl() != null ? getUrl() : "unknown";
-        return String.format("%s; Git material %s URL: %s",myLocation,name,url);
+        return String.format("%s; Git material %s URL: %s", myLocation, name, url);
     }
 
 }

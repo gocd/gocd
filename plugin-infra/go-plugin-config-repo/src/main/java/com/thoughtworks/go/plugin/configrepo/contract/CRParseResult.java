@@ -16,46 +16,37 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.ArrayList;
 import java.util.Collection;
 
+@Getter
+@Setter
 public class CRParseResult {
+    @SerializedName("environments")
+    @Expose
     private Collection<CREnvironment> environments = new ArrayList<>();
+    @SerializedName("pipelines")
+    @Expose
     private Collection<CRPipeline> pipelines = new ArrayList<>();
+    @SerializedName("errors")
+    @Expose
     private ErrorCollection errors;
 
-    public CRParseResult(){}
-    public CRParseResult(Collection<CREnvironment> environments,Collection<CRPipeline> pipelines,ErrorCollection errors){
+    public CRParseResult() {
+    }
+
+    public CRParseResult(Collection<CREnvironment> environments, Collection<CRPipeline> pipelines, ErrorCollection errors) {
         this.environments = environments;
         this.pipelines = pipelines;
         this.errors = errors;
     }
 
     public CRParseResult(ErrorCollection errors) {
-        this.errors = errors;
-    }
-
-    public Collection<CREnvironment> getEnvironments() {
-        return environments;
-    }
-
-    public void setEnvironments(Collection<CREnvironment> environments) {
-        this.environments = environments;
-    }
-
-    public Collection<CRPipeline> getPipelines() {
-        return pipelines;
-    }
-
-    public void setPipelines(Collection<CRPipeline> pipelines) {
-        this.pipelines = pipelines;
-    }
-
-    public ErrorCollection getErrors() {
-        return errors;
-    }
-
-    public void setErrors(ErrorCollection errors) {
         this.errors = errors;
     }
 

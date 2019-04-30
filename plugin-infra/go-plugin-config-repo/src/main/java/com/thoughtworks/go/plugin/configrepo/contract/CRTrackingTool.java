@@ -16,11 +16,26 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRTrackingTool extends CRBase {
+    @SerializedName("link")
+    @Expose
     private String link;
+    @SerializedName("regex")
+    @Expose
     private String regex;
 
-    public CRTrackingTool(){}
+    public CRTrackingTool() {
+    }
+
     public CRTrackingTool(String link, String regex) {
         this.link = link;
         this.regex = regex;
@@ -31,57 +46,18 @@ public class CRTrackingTool extends CRBase {
             errors.addError(location, "Link must be a URL containing '${ID}'. Go will replace the string '${ID}' with the first matched group from the regex at run-time.");
         }
     }
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        CRTrackingTool that = (CRTrackingTool) o;
-        if (link != null ? !link.equals(that.link) : that.link != null) {
-            return false;
-        }
-        return !(regex != null ? !regex.equals(that.regex) : that.regex != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = link != null ? link.hashCode() : 0;
-        result = 31 * result + (regex != null ? regex.hashCode() : 0);
-        return result;
-    }
-
-    public String getLink() {
-        return link;
-    }
-
-    public void setLink(String link) {
-        this.link = link;
-    }
-
-    public String getRegex() {
-        return regex;
-    }
-
-    public void setRegex(String regex) {
-        this.regex = regex;
-    }
-
 
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
-        errors.checkMissing(location,"link",link);
-        errors.checkMissing(location,"regex",regex);
-        validateLink(errors,location);
+        errors.checkMissing(location, "link", link);
+        errors.checkMissing(location, "regex", regex);
+        validateLink(errors, location);
     }
 
     @Override
     public String getLocation(String parent) {
         String myLocation = getLocation() == null ? parent : getLocation();
-        return String.format("%s; Tracking tool",myLocation);
+        return String.format("%s; Tracking tool", myLocation);
     }
 }

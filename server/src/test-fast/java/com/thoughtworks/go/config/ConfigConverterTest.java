@@ -434,7 +434,7 @@ public class ConfigConverterTest {
                 (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
 
         assertNull(crGitMaterial.getName());
-        assertNull(crGitMaterial.getDirectory());
+        assertNull(crGitMaterial.getDestination());
         assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
         assertThat(gitMaterialConfig.isShallowClone(), is(false));
         assertThat(gitMaterialConfig.filter(), is(new Filter()));
@@ -1167,7 +1167,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertCRTimerWhenNullOnChanges() {
-        CRTimer timer = new CRTimer("0 15 * * 6", null);
+        CRTimer timer = new CRTimer("0 15 * * 6", false);
         TimerConfig result = configConverter.toTimerConfig(timer);
         assertThat(result.getTimerSpec(), is("0 15 * * 6"));
         assertThat(result.getOnlyOnChanges(), is(false));
@@ -1242,13 +1242,13 @@ public class ConfigConverterTest {
 
         CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipeline, "group1");
         assertThat(crPipeline.getName(), is("p1"));
-        assertThat(crPipeline.getGroupName(), is("group1"));
+        assertThat(crPipeline.getGroup(), is("group1"));
         assertThat(crPipeline.getMaterialByName("mat") instanceof CRSvnMaterial, is(true));
         assertThat(crPipeline.getLabelTemplate(), is(PipelineLabel.COUNT_TEMPLATE));
         assertThat(crPipeline.getMaterials().size(), is(1));
         assertThat(crPipeline.hasEnvironmentVariable("testing"), is(true));
         assertThat(crPipeline.getTrackingTool().getLink(), is("link"));
-        assertThat(crPipeline.getTimer().getTimerSpec(), is("timer"));
+        assertThat(crPipeline.getTimer().getSpec(), is("timer"));
         assertThat(crPipeline.getStages().get(0).getName(), is("build"));
         assertThat(crPipeline.getStages().get(0).getJobs().size(), is(1));
         assertNull(crPipeline.getMingle());
@@ -1278,11 +1278,11 @@ public class ConfigConverterTest {
         CRStage crStage = configConverter.stageToCRStage(stage);
 
         assertThat(crStage.getName(), is("stageName"));
-        assertThat(crStage.getApproval().getAuthorizedRoles(), hasItem("a_role"));
-        assertThat(crStage.getApproval().getAuthorizedUsers(), hasItem("a_user"));
+        assertThat(crStage.getApproval().getRoles(), hasItem("a_role"));
+        assertThat(crStage.getApproval().getUsers(), hasItem("a_user"));
         assertThat(crStage.isFetchMaterials(), is(true));
-        assertThat(crStage.isCleanWorkingDir(), is(true));
-        assertThat(crStage.isArtifactCleanupProhibited(), is(true));
+        assertThat(crStage.isCleanWorkingDirectory(), is(true));
+        assertThat(crStage.isNeverCleanupArtifacts(), is(true));
         assertThat(crStage.hasEnvironmentVariable("testing"), is(true));
         assertThat(crStage.getJobs().size(), is(1));
     }
@@ -1307,7 +1307,7 @@ public class ConfigConverterTest {
         assertThat(job.getTabs().contains(new CRTab("tabname", "path")), is(true));
         assertThat(job.getResources().contains("resource1"),  is(true));
         assertThat(job.getArtifacts().contains(new CRBuiltInArtifact("src", "dest")), is(true));
-        assertThat(job.getArtifactPropertiesGenerators().contains(new CRPropertyGenerator("name", "src", "path")), is(true));
+        assertThat(job.getProperties().contains(new CRPropertyGenerator("name", "src", "path")), is(true));
         assertThat(job.isRunOnAllAgents(), is(false));
         assertThat(job.getRunInstanceCount(), is(5));
         assertThat(job.getTimeout(), is(120));
@@ -1335,8 +1335,8 @@ public class ConfigConverterTest {
                 (CRDependencyMaterial) configConverter.materialToCRMaterial(dependencyMaterialConfig);
 
         assertThat(crDependencyMaterial.getName(), is("name"));
-        assertThat(crDependencyMaterial.getPipelineName(), is("pipe"));
-        assertThat(crDependencyMaterial.getStageName(), is("stage"));
+        assertThat(crDependencyMaterial.getPipeline(), is("pipe"));
+        assertThat(crDependencyMaterial.getStage(), is("stage"));
     }
 
     @Test
@@ -1352,13 +1352,13 @@ public class ConfigConverterTest {
                 (CRGitMaterial) configConverter.materialToCRMaterial(gitMaterialConfig);
 
         assertThat(crGitMaterial.getName(), is("name"));
-        assertThat(crGitMaterial.getDirectory(), is("folder"));
+        assertThat(crGitMaterial.getDestination(), is("folder"));
         assertThat(crGitMaterial.isAutoUpdate(), is(true));
         assertThat(crGitMaterial.isWhitelist(), is(false));
         assertThat(crGitMaterial.getFilterList(), hasItem("filter"));
         assertThat(crGitMaterial.getUrl(), is("url"));
         assertThat(crGitMaterial.getBranch(), is("branch"));
-        assertThat(crGitMaterial.shallowClone(), is(true));
+        assertThat(crGitMaterial.isShallowClone(), is(true));
     }
 
     @Test
@@ -1370,9 +1370,9 @@ public class ConfigConverterTest {
                 (CRGitMaterial) configConverter.materialToCRMaterial(gitMaterialConfig);
 
         assertNull(crGitMaterial.getName());
-        assertNull(crGitMaterial.getDirectory());
+        assertNull(crGitMaterial.getDestination());
         assertThat(crGitMaterial.isAutoUpdate(), is(true));
-        assertThat(crGitMaterial.shallowClone(), is(false));
+        assertThat(crGitMaterial.isShallowClone(), is(false));
         assertThat(crGitMaterial.getUrl(), is("url"));
         assertThat(crGitMaterial.getBranch(), is("master"));
     }
@@ -1388,7 +1388,7 @@ public class ConfigConverterTest {
                 (CRHgMaterial) configConverter.materialToCRMaterial(hgMaterialConfig);
 
         assertThat(crHgMaterial.getName(), is("name"));
-        assertThat(crHgMaterial.getDirectory(), is("folder"));
+        assertThat(crHgMaterial.getDestination(), is("folder"));
         assertThat(crHgMaterial.isAutoUpdate(), is(true));
         assertThat(crHgMaterial.getFilterList(), hasItem("filter"));
         assertThat(crHgMaterial.getUrl(), is("url"));
@@ -1404,7 +1404,7 @@ public class ConfigConverterTest {
                 (CRHgMaterial) configConverter.materialToCRMaterial(hgMaterialConfig);
 
         assertNull(crHgMaterial.getName());
-        assertThat(crHgMaterial.getDirectory(), is("folder"));
+        assertThat(crHgMaterial.getDestination(), is("folder"));
         assertThat(crHgMaterial.isAutoUpdate(), is(true));
         assertThat(crHgMaterial.getFilterList(), hasItem("filter"));
         assertThat(crHgMaterial.getUrl(), is("url"));
@@ -1425,11 +1425,11 @@ public class ConfigConverterTest {
                 (CRP4Material) configConverter.materialToCRMaterial(p4MaterialConfig);
 
         assertThat(crp4Material.getName(), is("name"));
-        assertThat(crp4Material.getDirectory(), is("folder"));
+        assertThat(crp4Material.getDestination(), is("folder"));
         assertThat(crp4Material.isAutoUpdate(), is(false));
         assertThat(crp4Material.getFilterList(), hasItem("filter"));
-        assertThat(crp4Material.getServerAndPort(), is("server:port"));
-        assertThat(crp4Material.getUserName(), is("user"));
+        assertThat(crp4Material.getPort(), is("server:port"));
+        assertThat(crp4Material.getUsername(), is("user"));
         assertThat(crp4Material.getEncryptedPassword(), is("encryptedvalue"));
         assertNull(crp4Material.getPassword());
         assertThat(crp4Material.getUseTickets(), is(true));
@@ -1451,11 +1451,11 @@ public class ConfigConverterTest {
                 (CRP4Material) configConverter.materialToCRMaterial(p4MaterialConfig);
 
         assertThat(crp4Material.getName(), is("name"));
-        assertThat(crp4Material.getDirectory(), is("folder"));
+        assertThat(crp4Material.getDestination(), is("folder"));
         assertThat(crp4Material.isAutoUpdate(), is(false));
         assertThat(crp4Material.getFilterList(), hasItem("filter"));
-        assertThat(crp4Material.getServerAndPort(), is("server:port"));
-        assertThat(crp4Material.getUserName(), is("user"));
+        assertThat(crp4Material.getPort(), is("server:port"));
+        assertThat(crp4Material.getUsername(), is("user"));
         assertThat(crp4Material.getUseTickets(), is(false));
         assertThat(crp4Material.getView(), is("view"));
     }
@@ -1473,11 +1473,11 @@ public class ConfigConverterTest {
                 (CRSvnMaterial) configConverter.materialToCRMaterial(svnMaterialConfig);
 
         assertThat(crSvnMaterial.getName(), is("name"));
-        assertThat(crSvnMaterial.getDirectory(), is("folder"));
+        assertThat(crSvnMaterial.getDestination(), is("folder"));
         assertThat(crSvnMaterial.isAutoUpdate(), is(true));
         assertThat(crSvnMaterial.getFilterList(), hasItem("filter"));
         assertThat(crSvnMaterial.getUrl(), is("url"));
-        assertThat(crSvnMaterial.getUserName(), is("username"));
+        assertThat(crSvnMaterial.getUsername(), is("username"));
         assertThat(crSvnMaterial.getEncryptedPassword(), is("encryptedvalue"));
         assertNull(crSvnMaterial.getPassword());
         assertThat(crSvnMaterial.isCheckExternals(), is(true));
@@ -1496,11 +1496,11 @@ public class ConfigConverterTest {
                 (CRSvnMaterial) configConverter.materialToCRMaterial(svnMaterialConfig);
 
         assertThat(crSvnMaterial.getName(), is("name"));
-        assertThat(crSvnMaterial.getDirectory(), is("folder"));
+        assertThat(crSvnMaterial.getDestination(), is("folder"));
         assertThat(crSvnMaterial.isAutoUpdate(), is(true));
         assertThat(crSvnMaterial.getFilterList(), hasItem("filter"));
         assertThat(crSvnMaterial.getUrl(), is("url"));
-        assertThat(crSvnMaterial.getUserName(), is("username"));
+        assertThat(crSvnMaterial.getUsername(), is("username"));
         assertNull(crSvnMaterial.getPassword());
         assertThat(crSvnMaterial.isCheckExternals(), is(true));
     }
@@ -1522,14 +1522,14 @@ public class ConfigConverterTest {
                 (CRTfsMaterial) configConverter.materialToCRMaterial(tfsMaterialConfig);
 
         assertThat(crTfsMaterial.getName(), is("name"));
-        assertThat(crTfsMaterial.getDirectory(), is("folder"));
+        assertThat(crTfsMaterial.getDestination(), is("folder"));
         assertThat(crTfsMaterial.isAutoUpdate(), is(false));
         assertThat(crTfsMaterial.getFilterList(), hasItem("filter"));
         assertThat(crTfsMaterial.getUrl(), is("url"));
-        assertThat(crTfsMaterial.getUserName(), is("user"));
+        assertThat(crTfsMaterial.getUsername(), is("user"));
         assertNull(crTfsMaterial.getPassword());
         assertThat(crTfsMaterial.getDomain(), is("domain"));
-        assertThat(crTfsMaterial.getProjectPath(), is("project"));
+        assertThat(crTfsMaterial.getProject(), is("project"));
     }
 
     @Test
@@ -1549,15 +1549,15 @@ public class ConfigConverterTest {
                 (CRTfsMaterial) configConverter.materialToCRMaterial(tfsMaterialConfig);
 
         assertThat(crTfsMaterial.getName(), is("name"));
-        assertThat(crTfsMaterial.getDirectory(), is("folder"));
+        assertThat(crTfsMaterial.getDestination(), is("folder"));
         assertThat(crTfsMaterial.isAutoUpdate(), is(false));
         assertThat(crTfsMaterial.getFilterList(), hasItem("filter"));
         assertThat(crTfsMaterial.getUrl(), is("url"));
-        assertThat(crTfsMaterial.getUserName(), is("user"));
+        assertThat(crTfsMaterial.getUsername(), is("user"));
         assertThat(crTfsMaterial.getEncryptedPassword(), is("encryptedvalue"));
         assertNull(crTfsMaterial.getPassword());
         assertThat(crTfsMaterial.getDomain(), is("domain"));
-        assertThat(crTfsMaterial.getProjectPath(), is("project"));
+        assertThat(crTfsMaterial.getProject(), is("project"));
     }
 
     @Test
@@ -1576,7 +1576,7 @@ public class ConfigConverterTest {
 
         assertThat(crPluggableScmMaterial.getName(), is("name"));
         assertThat(crPluggableScmMaterial.getScmId(), is("scmid"));
-        assertThat(crPluggableScmMaterial.getDirectory(), is("directory"));
+        assertThat(crPluggableScmMaterial.getDestination(), is("directory"));
         assertThat(crPluggableScmMaterial.getFilterList(), hasItem("filter"));
     }
 
@@ -1727,8 +1727,8 @@ public class ConfigConverterTest {
 
         assertThat(result.getRunIf(), is(CRRunIf.failed));
         assertThat(result.getCommand(), is("bash"));
-        assertThat(result.getArgs(), hasItem("1"));
-        assertThat(result.getArgs(), hasItem("2"));
+        assertThat(result.getArguments(), hasItem("1"));
+        assertThat(result.getArguments(), hasItem("2"));
         assertThat(result.getWorkingDirectory(), is("work"));
         assertThat(result.getTimeout(), is(120L));
         assertNull(result.getOnCancel());
@@ -1745,9 +1745,9 @@ public class ConfigConverterTest {
 
         assertThat(result.getRunIf(), is(CRRunIf.failed));
         assertThat(result.getCommand(), is("bash"));
-        assertThat(result.getArgs(), hasItem("1"));
-        assertThat(result.getArgs(), hasItem("2"));
-        assertThat(result.getArgs(), hasItem("file name"));
+        assertThat(result.getArguments(), hasItem("1"));
+        assertThat(result.getArguments(), hasItem("2"));
+        assertThat(result.getArguments(), hasItem("file name"));
         assertThat(result.getWorkingDirectory(), is("work"));
         assertThat(result.getTimeout(), is(120L));
         assertNull(result.getOnCancel());
@@ -1769,8 +1769,8 @@ public class ConfigConverterTest {
 
         assertThat(result.getRunIf(), is(CRRunIf.failed));
         assertThat(result.getCommand(), is("bash"));
-        assertThat(result.getArgs(), hasItem("1"));
-        assertThat(result.getArgs(), hasItem("2"));
+        assertThat(result.getArguments(), hasItem("1"));
+        assertThat(result.getArguments(), hasItem("2"));
         assertThat(result.getWorkingDirectory(), is("work"));
         assertThat(result.getTimeout(), is(120L));
         assertThat(crOnCancel.getCommand(), is("kill"));
@@ -1793,7 +1793,7 @@ public class ConfigConverterTest {
         assertThat(result.getRunIf(), is(CRRunIf.failed));
         assertThat(result.getDestination(), is("dest"));
         assertThat(result.getJob(), is("job"));
-        assertThat(result.getPipelineName(), is("upstream"));
+        assertThat(result.getPipeline(), is("upstream"));
         assertThat(result.getSource(), is("src"));
         assertThat(result.sourceIsDirectory(), is(true));
     }
@@ -1814,7 +1814,7 @@ public class ConfigConverterTest {
         assertThat(result.getRunIf(), is(CRRunIf.failed));
         assertThat(result.getDestination(), is("dest"));
         assertThat(result.getJob(), is("job"));
-        assertThat(result.getPipelineName(), is("upstream"));
+        assertThat(result.getPipeline(), is("upstream"));
         assertThat(result.getSource(), is("src"));
         assertThat(result.sourceIsDirectory(), is(false));
     }
@@ -1832,7 +1832,7 @@ public class ConfigConverterTest {
 
         assertThat(result.getRunIf(), is(CRRunIf.passed));
         assertThat(result.getJob(), is("job"));
-        assertThat(result.getPipelineName(), is("upstream"));
+        assertThat(result.getPipeline(), is("upstream"));
         assertThat(result.getStage(), is("stage"));
         assertThat(result.getArtifactId(), is("artifactId")); assertThat(result.getConfiguration().isEmpty(), is(true));
     }

@@ -15,22 +15,49 @@
  */
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.CRTask;
-import org.apache.commons.collections4.CollectionUtils;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRJob extends CRBase {
+    @SerializedName("name")
+    @Expose
     private String name;
-    private Collection<CREnvironmentVariable> environment_variables = new ArrayList<>();
+    @SerializedName("environment_variables")
+    @Expose
+    private Collection<CREnvironmentVariable> environmentVariables = new ArrayList<>();
+    @SerializedName("tabs")
+    @Expose
     private Collection<CRTab> tabs = new ArrayList<>();
+    @SerializedName("resources")
+    @Expose
     private Collection<String> resources = new ArrayList<>();
+    @SerializedName("artifacts")
+    @Expose
     private Collection<CRArtifact> artifacts = new ArrayList<>();
+    @SerializedName("properties")
+    @Expose
     private Collection<CRPropertyGenerator> properties = new ArrayList<>();
-    private String elastic_profile_id;
-    private String run_instance_count;
-    private Integer timeout = 0;
+    @SerializedName("elastic_profile_id")
+    @Expose
+    private String elasticProfileId;
+    @SerializedName("run_instance_count")
+    @Expose
+    private String runInstanceCount;
+    @SerializedName("timeout")
+    @Expose
+    private int timeout = 0;
 
+    @SerializedName("tasks")
+    @Expose
     private List<CRTask> tasks = new ArrayList<>();
 
     public CRJob() {
@@ -46,13 +73,13 @@ public class CRJob extends CRBase {
                  Collection<CRPropertyGenerator> artifactPropertiesGenerators,
                  String runInstanceCount, int timeout, List<CRTask> tasks) {
         this.name = name;
-        this.elastic_profile_id = elasticProfileId;
-        this.environment_variables = environmentVariables;
+        this.elasticProfileId = elasticProfileId;
+        this.environmentVariables = environmentVariables;
         this.tabs = tabs;
         this.resources = resources;
         this.artifacts = artifacts;
         this.properties = artifactPropertiesGenerators;
-        this.run_instance_count = runInstanceCount;
+        this.runInstanceCount = runInstanceCount;
         this.timeout = timeout;
         this.tasks = tasks;
     }
@@ -62,13 +89,13 @@ public class CRJob extends CRBase {
                  Collection<CRPropertyGenerator> artifactPropertiesGenerators,
                  boolean runOnAllAgents, int runInstanceCount, int timeout, List<CRTask> tasks) {
         this.name = name;
-        this.elastic_profile_id = elasticProfileId;
-        this.environment_variables = environmentVariables;
+        this.elasticProfileId = elasticProfileId;
+        this.environmentVariables = environmentVariables;
         this.tabs = tabs;
         this.resources = resources;
         this.artifacts = artifacts;
         this.properties = artifactPropertiesGenerators;
-        this.run_instance_count = Integer.toString(runInstanceCount);
+        this.runInstanceCount = Integer.toString(runInstanceCount);
         this.timeout = timeout;
         this.tasks = tasks;
         if (runOnAllAgents)
@@ -88,7 +115,7 @@ public class CRJob extends CRBase {
     }
 
     private void validateElasticProfile(ErrorCollection errors, String location) {
-        if (elastic_profile_id != null) {
+        if (elasticProfileId != null) {
             if (this.resources != null && this.resources.size() > 0) {
                 errors.addError(location, "elastic_profile_id cannot be specified together with resources");
             }
@@ -128,71 +155,11 @@ public class CRJob extends CRBase {
 
     private void validateEnvironmentVariableUniqueness(ErrorCollection errors, String location) {
         HashSet<String> keys = new HashSet<>();
-        for (CREnvironmentVariable var : environment_variables) {
+        for (CREnvironmentVariable var : environmentVariables) {
             String error = var.validateNameUniqueness(keys);
             if (error != null)
                 errors.addError(location, error);
         }
-    }
-
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        CRJob that = (CRJob) o;
-        if (that == null)
-            return false;
-
-        if (name != null ? !name.equals(that.getName()) : that.getName() != null) {
-            return false;
-        }
-        if (elastic_profile_id != null ? !elastic_profile_id.equals(that.elastic_profile_id) : that.elastic_profile_id != null) {
-            return false;
-        }
-        if (environment_variables != null ? !CollectionUtils.isEqualCollection(this.environment_variables, that.environment_variables) : that.environment_variables != null) {
-            return false;
-        }
-        if (tabs != null ? !CollectionUtils.isEqualCollection(this.tabs, that.tabs) : that.tabs != null) {
-            return false;
-        }
-        if (resources != null ? !CollectionUtils.isEqualCollection(this.resources, that.resources) : that.resources != null) {
-            return false;
-        }
-        if (artifacts != null ? !CollectionUtils.isEqualCollection(this.artifacts, that.artifacts) : that.artifacts != null) {
-            return false;
-        }
-        if (tasks != null ? this.tasks.size() != that.tasks.size() : that.tasks != null) {
-            return false;
-        }
-        for (int i = 0; i < this.tasks.size(); i++) {
-            if (!tasks.get(i).equals(that.tasks.get(i)))
-                return false;
-        }
-        if (run_instance_count != null ? !run_instance_count.equals(that.run_instance_count) : that.run_instance_count != null) {
-            return false;
-        }
-        if (this.timeout != that.timeout)
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (environment_variables != null ? environment_variables.hashCode() : 0);
-        result = 31 * result + (tabs != null ? tabs.hashCode() : 0);
-        result = 31 * result + (resources != null ? resources.hashCode() : 0);
-        result = 31 * result + (artifacts != null ? artifacts.hashCode() : 0);
-        result = 31 * result + (properties != null ? properties.hashCode() : 0);
-        result = 31 * result + (elastic_profile_id != null ? elastic_profile_id.hashCode() : 0);
-        result = 31 * result + (run_instance_count != null ? run_instance_count.hashCode() : 0);
-        result = 31 * result + (timeout != null ? timeout.hashCode() : 0);
-        result = 31 * result + (tasks != null ? tasks.hashCode() : 0);
-        return result;
     }
 
     public void addTask(CRTask task) {
@@ -202,15 +169,15 @@ public class CRJob extends CRBase {
     public void addEnvironmentVariable(String key, String value) {
         CREnvironmentVariable variable = new CREnvironmentVariable(key);
         variable.setValue(value);
-        this.environment_variables.add(variable);
+        this.environmentVariables.add(variable);
     }
 
-    public void addEnvironmentVariable(CREnvironmentVariable variable){
-        this.environment_variables.add(variable);
+    public void addEnvironmentVariable(CREnvironmentVariable variable) {
+        this.environmentVariables.add(variable);
     }
 
     public boolean hasEnvironmentVariable(String key) {
-        for (CREnvironmentVariable var: environment_variables) {
+        for (CREnvironmentVariable var : environmentVariables) {
             if (var.getName().equals(key)) {
                 return true;
             }
@@ -218,93 +185,29 @@ public class CRJob extends CRBase {
         return false;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Collection<CREnvironmentVariable> getEnvironmentVariables() {
-        return environment_variables;
-    }
-
-    public void setEnvironmentVariables(Collection<CREnvironmentVariable> environmentVariables) {
-        this.environment_variables = environmentVariables;
-    }
-
-    public Collection<CRTab> getTabs() {
-        return tabs;
-    }
-
-    public void setTabs(Collection<CRTab> tabs) {
-        this.tabs = tabs;
-    }
-
-    public Collection<String> getResources() {
-        return resources;
-    }
-
-    public void setResources(Collection<String> resources) {
-        this.resources = resources;
-    }
-
-    public Collection<CRArtifact> getArtifacts() {
-        return artifacts;
-    }
-
-    public void setArtifacts(Collection<CRArtifact> artifacts) {
-        this.artifacts = artifacts;
-    }
-
     public void addArtifact(CRArtifact artifact) {
         this.artifacts.add(artifact);
     }
 
-    public Collection<CRPropertyGenerator> getArtifactPropertiesGenerators() {
-        return properties;
-    }
-
-    public void setArtifactPropertiesGenerators(Collection<CRPropertyGenerator> artifactPropertiesGenerators) {
-        this.properties = artifactPropertiesGenerators;
-    }
-
     public boolean isRunOnAllAgents() {
-        return run_instance_count != null && run_instance_count.equalsIgnoreCase("all");
+        return runInstanceCount != null && runInstanceCount.equalsIgnoreCase("all");
     }
 
     public void setRunOnAllAgents(boolean runOnAllAgents) {
         if (runOnAllAgents)
-            this.run_instance_count = "all";
+            this.runInstanceCount = "all";
         else
-            this.run_instance_count = null;
+            this.runInstanceCount = null;
     }
 
     public Integer getRunInstanceCount() {
-        if (run_instance_count == null)
+        if (runInstanceCount == null)
             return null;
-        return Integer.parseInt(run_instance_count);
+        return Integer.parseInt(runInstanceCount);
     }
 
     public void setRunInstanceCount(int runInstanceCount) {
-        this.run_instance_count = Integer.toString(runInstanceCount);
-    }
-
-    public Integer getTimeout() {
-        return timeout;
-    }
-
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
-
-    public List<CRTask> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(List<CRTask> tasks) {
-        this.tasks = tasks;
+        this.runInstanceCount = Integer.toString(runInstanceCount);
     }
 
     public void addResource(String resource) {
@@ -334,11 +237,4 @@ public class CRJob extends CRBase {
         return String.format("%s; Job (%s)", myLocation, stage);
     }
 
-    public String getElasticProfileId() {
-        return elastic_profile_id;
-    }
-
-    public void setElasticProfileId(String elastic_profile_id) {
-        this.elastic_profile_id = elastic_profile_id;
-    }
 }

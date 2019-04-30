@@ -64,7 +64,7 @@ public class CRPropertyGeneratorTest extends AbstractCRTest<CRPropertyGenerator>
         CRPropertyGenerator deserializedValue = gson.fromJson(json,CRPropertyGenerator.class);
 
         assertThat(deserializedValue.getName(),is("coverage.class"));
-        assertThat(deserializedValue.getSrc(),is("target/emma/coverage.xml"));
+        assertThat(deserializedValue.getSource(),is("target/emma/coverage.xml"));
         assertThat(deserializedValue.getXpath(),is("substring-before(//report/data/all/coverage[starts-with(@type,'class')]/@value, '%')"));
 
         ErrorCollection errors = deserializedValue.getErrors();

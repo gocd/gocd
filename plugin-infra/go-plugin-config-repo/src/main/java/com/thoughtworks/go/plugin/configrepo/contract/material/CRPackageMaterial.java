@@ -16,51 +16,35 @@
 package com.thoughtworks.go.plugin.configrepo.contract.material;
 
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class CRPackageMaterial extends CRMaterial {
     public static final String TYPE_NAME = "package";
 
-    private String package_id;
+    @SerializedName("package_id")
+    @Expose
+    private String packageId;
 
     public CRPackageMaterial() {
         type = TYPE_NAME;
     }
-    public CRPackageMaterial(String packageId)
-    {
+
+    public CRPackageMaterial(String packageId) {
         type = TYPE_NAME;
-        this.package_id = packageId;
-    }
-    public CRPackageMaterial(String material,String packageId)
-    {
-        super(TYPE_NAME,material);
-        this.package_id = packageId;
+        this.packageId = packageId;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        CRPackageMaterial that = (CRPackageMaterial) o;
-        if(!super.equals(that))
-            return false;
-
-        if (package_id != null ? !package_id.equals(that.package_id) : that.package_id != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (package_id != null ? package_id.hashCode() : 0);
-        return result;
+    public CRPackageMaterial(String material, String packageId) {
+        super(TYPE_NAME, material);
+        this.packageId = packageId;
     }
 
     @Override
@@ -68,19 +52,10 @@ public class CRPackageMaterial extends CRMaterial {
         return TYPE_NAME;
     }
 
-
-    public String getPackageId() {
-        return package_id;
-    }
-
-    public void setPackageId(String packageId) {
-        this.package_id = packageId;
-    }
-
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
-        errors.checkMissing(location,"package_id",package_id);
+        errors.checkMissing(location, "package_id", packageId);
     }
 
     @Override
@@ -88,6 +63,6 @@ public class CRPackageMaterial extends CRMaterial {
         String myLocation = getLocation() == null ? parent : getLocation();
         String name = getName() == null ? "" : getName();
         String url = getPackageId() != null ? getPackageId() : "unknown";
-        return String.format("%s; Package material %s ID: %s",myLocation,name,url);
+        return String.format("%s; Package material %s ID: %s", myLocation, name, url);
     }
 }

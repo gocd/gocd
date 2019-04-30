@@ -16,13 +16,19 @@
 
 package com.thoughtworks.go.plugin.access.configrepo.v1.messages;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 
 import java.util.ArrayList;
 import java.util.Collection;
 
 public class ParseDirectoryMessage {
+    @Expose
+    @SerializedName("directory")
     private String directory;
+    @Expose
+    @SerializedName("configurations")
     private Collection<CRConfigurationProperty> configurations;
 
     public ParseDirectoryMessage(String destinationFolder) {

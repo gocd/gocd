@@ -16,10 +16,15 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.*;
 
 public class ErrorCollection {
     // key is location (file path or object description); values are errors detected
+    @SerializedName("errors")
+    @Expose
     private Map<String, List<String>> errors = new HashMap<>();
 
     @Override

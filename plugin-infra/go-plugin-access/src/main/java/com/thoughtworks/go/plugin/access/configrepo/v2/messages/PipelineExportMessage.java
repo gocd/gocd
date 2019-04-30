@@ -16,9 +16,11 @@
 
 package com.thoughtworks.go.plugin.access.configrepo.v2.messages;
 
+import com.google.gson.annotations.Expose;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
 
 public class PipelineExportMessage {
+    @Expose
     private CRPipeline pipeline;
 
     public PipelineExportMessage(CRPipeline pipeline) {

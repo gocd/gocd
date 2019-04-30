@@ -26,7 +26,7 @@ import java.io.IOException;
  * Set the following before running the main method:
  * Working directory: <project-path>/agent
  * VM arguments: -Djava.awt.headless=true
- * classpath: Use classpath of 'development-agent'.
+ * classpath: Use classpath of 'gocd.development-utility.development-agent.main'.
  */
 
 public class DevelopmentAgent {

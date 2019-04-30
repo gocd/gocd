@@ -21,8 +21,8 @@ import org.junit.Test;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public class CRExecTaskTest extends AbstractCRTest<CRExecTask> {
     private final CRExecTask simpleExecWithArgs;
@@ -32,18 +32,18 @@ public class CRExecTaskTest extends AbstractCRTest<CRExecTask> {
     private final CRExecTask invalidNoCommand;
     private CRExecTask simpleExec;
 
-    public CRExecTaskTest()
-    {
-        simpleExec = new CRExecTask("/usr/local/bin/ruby");
-        simpleExecWithArgs = new CRExecTask("/usr/local/bin/ruby");
+    public CRExecTaskTest() {
+        simpleExec = new CRExecTask(null, null, "/usr/local/bin/ruby", null, 0);
+        simpleExecWithArgs = new CRExecTask(null, null, "/usr/local/bin/ruby", null, 0);
         simpleExecWithArgs.addArgument("backup.rb");
 
-        simpleExecRunIf = new CRExecTask("/usr/local/bin/ruby");
-        simpleExecRunIf.setRunIf(CRRunIf.failed);
+        simpleExecRunIf = new CRExecTask(CRRunIf.failed, null, "/usr/local/bin/ruby", null, 0);
 
-        customExec = new CRExecTask("rake","dir",120L, CRRunIf.any,simpleExec,"-f","Rakefile.rb");
+        customExec = new CRExecTask(CRRunIf.any, simpleExec, "rake", "dir", 120L);
+        customExec.addArgument("-f");
+        customExec.addArgument("Rakefile.rb");
 
-        execInDir = new CRExecTask("/usr/local/bin/rake");
+        execInDir = new CRExecTask(null, null, "/usr/local/bin/rake", null, 0);
         execInDir.setWorkingDirectory("myProjectDir");
 
         invalidNoCommand = new CRExecTask();
@@ -51,34 +51,33 @@ public class CRExecTaskTest extends AbstractCRTest<CRExecTask> {
 
     @Override
     public void addGoodExamples(Map<String, CRExecTask> examples) {
-        examples.put("simpleExec",simpleExec);
-        examples.put("simpleExecWithArgs",simpleExecWithArgs);
-        examples.put("execInDir",execInDir);
-        examples.put("simpleExecRunIf",simpleExecRunIf);
-        examples.put("customExec",customExec);
+        examples.put("simpleExec", simpleExec);
+        examples.put("simpleExecWithArgs", simpleExecWithArgs);
+        examples.put("execInDir", execInDir);
+        examples.put("simpleExecRunIf", simpleExecRunIf);
+        examples.put("customExec", customExec);
     }
 
     @Override
     public void addBadExamples(Map<String, CRExecTask> examples) {
-        examples.put("invalidNoCommand",invalidNoCommand);
+        examples.put("invalidNoCommand", invalidNoCommand);
     }
 
 
     @Test
-    public void shouldAppendTypeFieldWhenSerializingTasks()
-    {
+    public void shouldAppendTypeFieldWhenSerializingTasks() {
         CRTask value = simpleExecWithArgs;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is(CRExecTask.TYPE_NAME));
     }
+
     @Test
-    public void shouldHandlePolymorphismWhenDeserializing()
-    {
+    public void shouldHandlePolymorphismWhenDeserializing() {
         CRTask value = simpleExecWithArgs;
         String json = gson.toJson(value);
 
-        CRExecTask deserializedValue = (CRExecTask)gson.fromJson(json,CRTask.class);
+        CRExecTask deserializedValue = (CRExecTask) gson.fromJson(json, CRTask.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+                deserializedValue, is(value));
     }
 }

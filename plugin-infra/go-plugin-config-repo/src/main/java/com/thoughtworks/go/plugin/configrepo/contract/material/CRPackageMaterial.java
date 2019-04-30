@@ -34,12 +34,7 @@ public class CRPackageMaterial extends CRMaterial {
     private String packageId;
 
     public CRPackageMaterial() {
-        type = TYPE_NAME;
-    }
-
-    public CRPackageMaterial(String packageId) {
-        type = TYPE_NAME;
-        this.packageId = packageId;
+        this(null, null);
     }
 
     public CRPackageMaterial(String material, String packageId) {

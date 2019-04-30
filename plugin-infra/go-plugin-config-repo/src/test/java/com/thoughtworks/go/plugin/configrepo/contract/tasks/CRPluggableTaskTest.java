@@ -18,8 +18,11 @@ package com.thoughtworks.go.plugin.configrepo.contract.tasks;
 import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
+import com.thoughtworks.go.plugin.configrepo.contract.CRPluginConfiguration;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertThat;
@@ -32,51 +35,53 @@ public class CRPluggableTaskTest extends AbstractCRTest<CRPluggableTask> {
     private final CRPluggableTask invalidNoPlugin;
     private final CRPluggableTask invalidDuplicatedKeys;
 
-    public CRPluggableTaskTest()
-    {
-        curl = new CRPluggableTask("curl.task.plugin","1",
-                new CRConfigurationProperty("Url","http://www.google.com"),
-                new CRConfigurationProperty("SecureConnection","no"),
-                new CRConfigurationProperty("RequestType","no")
-                );
-        example = new CRPluggableTask("example.task.plugin","1");
-
-        invalidNoPlugin = new CRPluggableTask();
-        invalidDuplicatedKeys = new CRPluggableTask("curl.task.plugin","1",
-                new CRConfigurationProperty("Url","http://www.google.com"),
-                new CRConfigurationProperty("Url","http://www.gg.com")
+    public CRPluggableTaskTest() {
+        CRPluginConfiguration crPluginConfiguration = new CRPluginConfiguration("curl.task.plugin", "1");
+        List<CRConfigurationProperty> properties = Arrays.asList(
+                new CRConfigurationProperty("Url", "http://www.google.com"),
+                new CRConfigurationProperty("SecureConnection", "no"),
+                new CRConfigurationProperty("RequestType", "no")
         );
+
+        curl = new CRPluggableTask(null, null, crPluginConfiguration, properties);
+        CRPluginConfiguration examplePluginConfiguration = new CRPluginConfiguration("example.task.plugin", "1");
+        example = new CRPluggableTask(null, null, examplePluginConfiguration, null);
+
+        List<CRConfigurationProperty> invalidProperties = Arrays.asList(
+                new CRConfigurationProperty("Url", "http://www.google.com"),
+                new CRConfigurationProperty("Url", "http://www.gg.com")
+        );
+        invalidNoPlugin = new CRPluggableTask();
+        invalidDuplicatedKeys = new CRPluggableTask(null, null, crPluginConfiguration, invalidProperties);
     }
 
     @Override
     public void addGoodExamples(Map<String, CRPluggableTask> examples) {
-        examples.put("curl",curl);
-        examples.put("example",example);
+        examples.put("curl", curl);
+        examples.put("example", example);
     }
 
     @Override
     public void addBadExamples(Map<String, CRPluggableTask> examples) {
-        examples.put("invalidNoPlugin",invalidNoPlugin);
-        examples.put("invalidDuplicatedKeys",invalidDuplicatedKeys);
+        examples.put("invalidNoPlugin", invalidNoPlugin);
+        examples.put("invalidDuplicatedKeys", invalidDuplicatedKeys);
     }
 
 
     @Test
-    public void shouldAppendTypeFieldWhenSerializingTask()
-    {
+    public void shouldAppendTypeFieldWhenSerializingTask() {
         CRTask value = curl;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is(CRPluggableTask.TYPE_NAME));
     }
 
     @Test
-    public void shouldHandlePolymorphismWhenDeserializingTask()
-    {
+    public void shouldHandlePolymorphismWhenDeserializingTask() {
         CRTask value = curl;
         String json = gson.toJson(value);
 
-        CRPluggableTask deserializedValue = (CRPluggableTask)gson.fromJson(json,CRTask.class);
+        CRPluggableTask deserializedValue = (CRPluggableTask) gson.fromJson(json, CRTask.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+                deserializedValue, is(value));
     }
 }

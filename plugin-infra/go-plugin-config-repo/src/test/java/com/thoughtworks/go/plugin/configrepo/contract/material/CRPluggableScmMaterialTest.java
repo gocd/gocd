@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.junit.Assert.assertThat;
@@ -36,9 +37,9 @@ public class CRPluggableScmMaterialTest extends AbstractCRTest<CRPluggableScmMat
 
     public CRPluggableScmMaterialTest()
     {
-        pluggableGit = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir");
-        pluggableGitWithFilter = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir","mydir");
-        pluggableGitWith2Filters = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir","dir1","dir2");
+        pluggableGit = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", null);
+        pluggableGitWithFilter = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", Arrays.asList("mydir"));
+        pluggableGitWith2Filters = new CRPluggableScmMaterial("myPluggableGit","someScmGitRepositoryId","destinationDir", Arrays.asList("dir1", "dir2"));
 
         simplePluggableGit = new CRPluggableScmMaterial();
         simplePluggableGit.setScmId("mygit-id");

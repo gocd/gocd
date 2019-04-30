@@ -63,43 +63,8 @@ public class CRJob extends CRBase {
     public CRJob() {
     }
 
-    public CRJob(String name, CRTask... tasks) {
+    public CRJob(String name) {
         this.name = name;
-        this.tasks = Arrays.asList(tasks);
-    }
-
-    public CRJob(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<CRTab> tabs,
-                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts,
-                 Collection<CRPropertyGenerator> artifactPropertiesGenerators,
-                 String runInstanceCount, int timeout, List<CRTask> tasks) {
-        this.name = name;
-        this.elasticProfileId = elasticProfileId;
-        this.environmentVariables = environmentVariables;
-        this.tabs = tabs;
-        this.resources = resources;
-        this.artifacts = artifacts;
-        this.properties = artifactPropertiesGenerators;
-        this.runInstanceCount = runInstanceCount;
-        this.timeout = timeout;
-        this.tasks = tasks;
-    }
-
-    public CRJob(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<CRTab> tabs,
-                 Collection<String> resources, String elasticProfileId, Collection<CRArtifact> artifacts,
-                 Collection<CRPropertyGenerator> artifactPropertiesGenerators,
-                 boolean runOnAllAgents, int runInstanceCount, int timeout, List<CRTask> tasks) {
-        this.name = name;
-        this.elasticProfileId = elasticProfileId;
-        this.environmentVariables = environmentVariables;
-        this.tabs = tabs;
-        this.resources = resources;
-        this.artifacts = artifacts;
-        this.properties = artifactPropertiesGenerators;
-        this.runInstanceCount = Integer.toString(runInstanceCount);
-        this.timeout = timeout;
-        this.tasks = tasks;
-        if (runOnAllAgents)
-            this.setRunOnAllAgents(runOnAllAgents);
     }
 
     @Override

@@ -33,49 +33,10 @@ public class CRP4Material extends CRScmMaterial {
 
     public static final String TYPE_NAME = "p4";
 
-    public static CRP4Material withPlainPassword(
-            String name, String folder, boolean autoUpdate, boolean whitelist, List<String> filter,
-            String serverAndPort, String userName, String password, boolean useTickets, String view) {
-        return new CRP4Material(
-                name,
-                folder,
-                autoUpdate,
-                whitelist,
-                filter,
-                serverAndPort,
-                userName,
-                password,
-                null,
-                useTickets,
-                view);
-    }
-
-    public static CRP4Material withEncryptedPassword(
-            String name, String folder, boolean autoUpdate, boolean whitelist, List<String> filter,
-            String serverAndPort, String userName, String encryptedPassword, boolean useTickets, String view) {
-        return new CRP4Material(
-                name,
-                folder,
-                autoUpdate,
-                whitelist,
-                filter,
-                serverAndPort,
-                userName,
-                null,
-                encryptedPassword,
-                useTickets,
-                view);
-    }
-
-    private CRP4Material(String name, String folder, boolean autoUpdate, boolean whitelist, List<String> filter,
-                         String serverAndPort, String userName, String password, String encryptedPassword, boolean useTickets, String view) {
-        super(TYPE_NAME, name, folder, autoUpdate, whitelist, filter);
-        this.port = serverAndPort;
-        this.username = userName;
-        this.password = password;
-        this.encryptedPassword = encryptedPassword;
-        this.useTickets = useTickets;
-        this.view = view;
+    public static CRP4Material withEncryptedPassword(String name, String folder, boolean autoUpdate, boolean whitelist, List<String> filter, String serverAndPort, String userName, String encryptedPassword, boolean useTickets, String view) {
+        CRP4Material crp4Material = new CRP4Material(name, folder, autoUpdate, serverAndPort, view, userName, null, useTickets, whitelist, filter);
+        crp4Material.setEncryptedPassword(encryptedPassword);
+        return crp4Material;
     }
 
     @SerializedName("port")
@@ -97,28 +58,7 @@ public class CRP4Material extends CRScmMaterial {
     @Expose
     private String view;
 
-    public CRP4Material() {
-        type = TYPE_NAME;
-    }
-
-    public CRP4Material(String serverAndPort, String view) {
-        type = TYPE_NAME;
-        this.port = serverAndPort;
-        this.view = view;
-    }
-
-    public CRP4Material(String materialName, String folder, boolean autoUpdate, String serverAndPort, String view, String userName, String password,
-                        boolean useTickets, boolean whitelist, String... filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
-        this.port = serverAndPort;
-        this.username = userName;
-        this.password = password;
-        this.useTickets = useTickets;
-        this.view = view;
-    }
-
-    public CRP4Material(String materialName, String folder, boolean autoUpdate, String serverAndPort, String view, String userName, String password,
-                        boolean useTickets, boolean whitelist, List<String> filters) {
+    public CRP4Material(String materialName, String folder, boolean autoUpdate, String serverAndPort, String view, String userName, String password, boolean useTickets, boolean whitelist, List<String> filters) {
         super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
         this.port = serverAndPort;
         this.username = userName;

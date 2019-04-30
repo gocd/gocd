@@ -31,7 +31,7 @@ public class CRTimerTest extends AbstractCRTest<CRTimer> {
 
     public CRTimerTest()
     {
-        timer = new CRTimer("0 15 10 * * ? *");
+        timer = new CRTimer("0 15 10 * * ? *", false);
 
         invalidNoTimerSpec = new CRTimer();
     }

@@ -39,10 +39,6 @@ public class CRParameter extends CRBase {
     public CRParameter() {
     }
 
-    public CRParameter(String name) {
-        this.name = name;
-    }
-
     public CRParameter(String name, String value) {
         this.name = name;
         this.value = value;

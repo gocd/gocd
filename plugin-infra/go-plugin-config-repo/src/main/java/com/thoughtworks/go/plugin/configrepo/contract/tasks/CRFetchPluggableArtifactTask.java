@@ -25,7 +25,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,36 +42,14 @@ public class CRFetchPluggableArtifactTask extends CRAbstractFetchTask {
     private Collection<CRConfigurationProperty> configuration;
 
     public CRFetchPluggableArtifactTask() {
-        super(TYPE_NAME, ArtifactOrigin.external);
+        super(null, null, ArtifactOrigin.external, null, null);
     }
 
-    public CRFetchPluggableArtifactTask(String stage,
-                                        String job,
-                                        String artifactId,
-                                        CRConfigurationProperty... crConfigurationProperties) {
-        super(stage, job, TYPE_NAME, ArtifactOrigin.external);
+    public CRFetchPluggableArtifactTask(CRRunIf runIf, CRTask onCancel, String pipelineName, String stage, String job, String artifactId, List<CRConfigurationProperty> crConfigurationProperties) {
+        super(stage, job, ArtifactOrigin.external, runIf, onCancel);
         this.artifactId = artifactId;
-        configuration = Arrays.asList(crConfigurationProperties);
-    }
-
-    public CRFetchPluggableArtifactTask(String stage,
-                                        String job,
-                                        String artifactId,
-                                        List<CRConfigurationProperty> crConfigurationProperties) {
-        super(stage, job, TYPE_NAME, ArtifactOrigin.external);
-        this.artifactId = artifactId;
-        configuration = crConfigurationProperties;
-    }
-
-    public CRFetchPluggableArtifactTask(CRRunIf runIf, CRTask onCancel,
-                                        String pipelineName, String stage, String job,
-                                        String artifactId, CRConfigurationProperty... crConfigurationProperties) {
-        super(runIf, onCancel);
         this.pipeline = pipelineName;
-        this.stage = stage;
-        this.job = job;
-        this.artifactId = artifactId;
-        configuration = Arrays.asList(crConfigurationProperties);
+        this.configuration = crConfigurationProperties;
     }
 
     @Override

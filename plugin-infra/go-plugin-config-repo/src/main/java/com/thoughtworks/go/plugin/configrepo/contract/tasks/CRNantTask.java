@@ -29,13 +29,8 @@ public class CRNantTask extends CRBuildTask {
     @Expose
     private String nantPath;
 
-    public CRNantTask(String type, String buildFile, String target, String workingDirectory, String nantPath) {
-        super(type, buildFile, target, workingDirectory);
-        this.nantPath = nantPath;
-    }
-
     public CRNantTask(CRRunIf runIf, CRTask onCancel, String buildFile, String target, String workingDirectory, String nantPath) {
-        super(runIf, onCancel, buildFile, target, workingDirectory, CRBuildFramework.nant);
+        super(CRBuildFramework.nant, runIf, onCancel, buildFile, target, workingDirectory);
         this.nantPath = nantPath;
     }
 

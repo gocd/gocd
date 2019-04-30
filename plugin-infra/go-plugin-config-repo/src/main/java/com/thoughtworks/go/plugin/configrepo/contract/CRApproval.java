@@ -45,12 +45,6 @@ public class CRApproval extends CRBase {
         this.type = type;
     }
 
-    public CRApproval(CRApprovalCondition type, Collection<String> authorizedRoles, Collection<String> authorizedUsers) {
-        this.type = type;
-        this.users = authorizedUsers;
-        this.roles = authorizedRoles;
-    }
-
     public void addAuthorizedUser(String user) {
         this.users.add(user);
     }

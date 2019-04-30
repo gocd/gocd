@@ -36,7 +36,7 @@ public class CRConfigMaterial extends CRMaterial {
     private String destination;
 
     public CRConfigMaterial() {
-        type = TYPE_NAME;
+        this(null, null, null);
     }
 
     public CRConfigMaterial(String name, String destination, CRFilter filter) {

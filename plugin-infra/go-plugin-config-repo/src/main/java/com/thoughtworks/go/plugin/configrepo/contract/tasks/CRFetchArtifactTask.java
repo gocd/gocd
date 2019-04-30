@@ -39,21 +39,12 @@ public class CRFetchArtifactTask extends CRAbstractFetchTask {
     private String destination;
 
     public CRFetchArtifactTask() {
-        super(TYPE_NAME, ArtifactOrigin.gocd);
+        this(null, null, null, null, null, null, null, true);
     }
 
-    public CRFetchArtifactTask(String stage, String job, String source) {
-        super(stage, job, TYPE_NAME, ArtifactOrigin.gocd);
-        this.source = source;
-    }
-
-    public CRFetchArtifactTask(CRRunIf runIf, CRTask onCancel,
-                               String pipelineName, String stage, String job,
-                               String source, String destination, boolean sourceIsDir) {
-        super(runIf, onCancel);
+    public CRFetchArtifactTask(CRRunIf runIf, CRTask onCancel, String pipelineName, String stage, String job, String source, String destination, boolean sourceIsDir) {
+        super(stage, job, ArtifactOrigin.gocd, runIf, onCancel);
         this.pipeline = pipelineName;
-        this.stage = stage;
-        this.job = job;
         this.source = source;
         this.isSourceAFile = !sourceIsDir;
         this.destination = destination;

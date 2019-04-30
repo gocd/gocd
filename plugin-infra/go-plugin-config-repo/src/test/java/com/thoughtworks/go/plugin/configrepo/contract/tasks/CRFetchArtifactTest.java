@@ -36,16 +36,16 @@ public class CRFetchArtifactTest extends AbstractCRTest<CRFetchArtifactTask> {
 
     public CRFetchArtifactTest()
     {
-        fetch = new CRFetchArtifactTask("build","buildjob","bin");
-        fetchFromPipe = new CRFetchArtifactTask("build","buildjob","bin");
+        fetch = new CRFetchArtifactTask(null, null, null, "build", "buildjob", "bin", null, false);
+        fetchFromPipe = new CRFetchArtifactTask(null, null, null, "build", "buildjob", "bin", null, false);
         fetchFromPipe.setPipeline("pipeline1");
 
-        fetchToDest = new CRFetchArtifactTask("build","buildjob","bin");
+        fetchToDest = new CRFetchArtifactTask(null, null, null, "build", "buildjob", "bin", null, false);
         fetchToDest.setDestination("lib");
 
-        invalidFetchNoSource = new CRFetchArtifactTask("build","buildjob",null);
-        invalidFetchNoJob = new CRFetchArtifactTask("build",null,"bin");
-        invalidFetchNoStage = new CRFetchArtifactTask(null,"buildjob","bin");
+        invalidFetchNoSource = new CRFetchArtifactTask(null, null, null, "build", "buildjob", null, null, false);
+        invalidFetchNoJob = new CRFetchArtifactTask(null, null, null, "build", null, "bin", null, false);
+        invalidFetchNoStage = new CRFetchArtifactTask(null, null, null, null, "buildjob", "bin", null, false);
     }
 
     @Override

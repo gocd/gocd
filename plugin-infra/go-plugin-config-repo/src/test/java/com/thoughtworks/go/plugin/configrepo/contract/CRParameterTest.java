@@ -32,15 +32,15 @@ public class CRParameterTest extends AbstractCRTest<CRParameter> {
     private CRParameter invalidName;
 
     public CRParameterTest() {
-        validParam1 = new CRParameter("param1");
+        validParam1 = new CRParameter("param1", null);
         validParam1.setValue("value");
 
-        validParam2 = new CRParameter("param2");
+        validParam2 = new CRParameter("param2", null);
 
         invalidNameNotSet = new CRParameter();
         invalidNameNotSet.setValue("nameNotSet");
 
-        invalidName = new CRParameter("@E%^^");
+        invalidName = new CRParameter("@E%^^", null);
         invalidName.setValue("invalidName");
     }
 
@@ -69,7 +69,7 @@ public class CRParameterTest extends AbstractCRTest<CRParameter> {
 
     @Test
     public void shouldAddAnErrorIfParameterNameIsInvalid() throws Exception {
-        CRParameter crParameter = new CRParameter("#$$%@");
+        CRParameter crParameter = new CRParameter("#$$%@", null);
         ErrorCollection errorCollection = new ErrorCollection();
         crParameter.getErrors(errorCollection, "TEST");
 

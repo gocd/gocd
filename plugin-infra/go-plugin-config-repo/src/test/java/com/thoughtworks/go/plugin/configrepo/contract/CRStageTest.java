@@ -35,66 +35,83 @@ public class CRStageTest extends AbstractCRTest<CRStage> {
     private final CRStage invalidSameEnvironmentVariableTwice;
     private final CRStage invalidSameJobNameTwice;
 
-    public CRStageTest()
-    {
+    public CRStageTest() {
         CRBuildTask rakeTask = CRBuildTask.rake();
         CRBuildTask antTask = CRBuildTask.ant();
-        CRJob buildRake = new CRJob("build", rakeTask);
-        CRJob build2Rakes = new CRJob("build", rakeTask, CRBuildTask.rake("Rakefile.rb", "compile"));
+        CRJob buildRake = new CRJob("build");
+        buildRake.addTask(rakeTask);
 
-        CRJob jobWithVar = new CRJob("build", rakeTask);
-        jobWithVar.addEnvironmentVariable("key1","value1");
+        CRJob build2Rakes = new CRJob("build");
+        build2Rakes.addTask(rakeTask);
+        build2Rakes.addTask(CRBuildTask.rake("Rakefile.rb", "compile"));
 
-        CRJob jobWithResource = new CRJob("test", antTask);
+        CRJob jobWithVar = new CRJob("build");
+        jobWithVar.addTask(rakeTask);
+        jobWithVar.addEnvironmentVariable("key1", "value1");
+
+        CRJob jobWithResource = new CRJob("test");
+        jobWithResource.addTask(antTask);
         jobWithResource.addResource("linux");
 
-        stage = new CRStage("build",buildRake);
-        stageWith2Jobs = new CRStage("build",build2Rakes,jobWithResource);
-        stageWithEnv = new CRStage("test",jobWithResource);
-        stageWithEnv.addEnvironmentVariable("TEST_NUM","1");
+        stage = new CRStage("build");
+        stage.addJob(buildRake);
+
+        stageWith2Jobs = new CRStage("build");
+        stageWith2Jobs.addJob(build2Rakes);
+        stageWith2Jobs.addJob(jobWithResource);
+
+        stageWithEnv = new CRStage("test");
+        stageWithEnv.addEnvironmentVariable("TEST_NUM", "1");
+        stageWithEnv.addJob(jobWithResource);
 
         CRApproval manualWithAuth = new CRApproval(CRApprovalCondition.manual);
         manualWithAuth.setRoles(Arrays.asList("manager"));
-        stageWithApproval = new CRStage("deploy",buildRake);
+        stageWithApproval = new CRStage("deploy");
         stageWithApproval.setApproval(manualWithAuth);
+        stageWithApproval.addJob(buildRake);
 
-        invalidNoName = new CRStage(null,jobWithResource);
+        invalidNoName = new CRStage();
+        invalidNoName.addJob(jobWithResource);
+
         invalidNoJobs = new CRStage("build");
 
-        invalidSameEnvironmentVariableTwice = new CRStage("build",buildRake);
-        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key","value1");
-        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key","value2");
+        invalidSameEnvironmentVariableTwice = new CRStage("build");
+        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key", "value1");
+        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key", "value2");
+        invalidSameEnvironmentVariableTwice.addJob(buildRake);
 
-        invalidSameJobNameTwice = new CRStage("build",buildRake,build2Rakes);
+        invalidSameJobNameTwice = new CRStage("build");
+        invalidSameJobNameTwice.addJob(buildRake);
+        invalidSameJobNameTwice.addJob(build2Rakes);
     }
 
     @Override
     public void addGoodExamples(Map<String, CRStage> examples) {
-        examples.put("stage",stage);
-        examples.put("stageWith2Jobs",stageWith2Jobs);
-        examples.put("stageWithEnv",stageWithEnv);
-        examples.put("stageWithApproval",stageWithApproval);
+        examples.put("stage", stage);
+        examples.put("stageWith2Jobs", stageWith2Jobs);
+        examples.put("stageWithEnv", stageWithEnv);
+        examples.put("stageWithApproval", stageWithApproval);
     }
 
     @Override
     public void addBadExamples(Map<String, CRStage> examples) {
-        examples.put("invalidNoName",invalidNoName);
-        examples.put("invalidNoJobs",invalidNoJobs);
-        examples.put("invalidSameEnvironmentVariableTwice",invalidSameEnvironmentVariableTwice);
-        examples.put("invalidSameJobNameTwice",invalidSameJobNameTwice);
+        examples.put("invalidNoName", invalidNoName);
+        examples.put("invalidNoJobs", invalidNoJobs);
+        examples.put("invalidSameEnvironmentVariableTwice", invalidSameEnvironmentVariableTwice);
+        examples.put("invalidSameJobNameTwice", invalidSameJobNameTwice);
     }
 
     @Test
-    public void shouldCheckErrorsInJobs()
-    {
-        CRStage withNamelessJob = new CRStage("build",new CRJob());
+    public void shouldCheckErrorsInJobs() {
+        CRStage withNamelessJob = new CRStage("build");
+        withNamelessJob.addJob(new CRJob());
 
         ErrorCollection errors = new ErrorCollection();
-        withNamelessJob.getErrors(errors,"TEST");
+        withNamelessJob.getErrors(errors, "TEST");
 
         String fullError = errors.getErrorsAsText();
 
-        assertThat(fullError,contains("TEST; Stage (build)"));
-        assertThat(fullError,contains("Missing field 'name'."));
+        assertThat(fullError, contains("TEST; Stage (build)"));
+        assertThat(fullError, contains("Missing field 'name'."));
     }
 }

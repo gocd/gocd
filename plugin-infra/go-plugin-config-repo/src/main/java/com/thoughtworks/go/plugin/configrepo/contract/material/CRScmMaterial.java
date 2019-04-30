@@ -44,22 +44,8 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
     public CRScmMaterial() {
     }
 
-    public CRScmMaterial(String type, String materialName, String folder, boolean autoUpdate, boolean whitelist, String... filters) {
-        super(type, materialName);
-        this.destination = folder;
-        this.filter = new CRFilter(Arrays.asList(filters), whitelist);
-        this.autoUpdate = autoUpdate;
-    }
-
     public CRScmMaterial(String type, String materialName, String folder, boolean autoUpdate, boolean whitelist, List<String> filter) {
         super(type, materialName);
-        this.destination = folder;
-        this.filter = new CRFilter(filter, whitelist);
-        this.autoUpdate = autoUpdate;
-    }
-
-    public CRScmMaterial(String name, String folder, boolean autoUpdate, boolean whitelist, List<String> filter) {
-        super(name);
         this.destination = folder;
         this.filter = new CRFilter(filter, whitelist);
         this.autoUpdate = autoUpdate;

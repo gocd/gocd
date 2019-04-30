@@ -42,31 +42,11 @@ public abstract class CRAbstractFetchTask extends CRTask {
     @SerializedName("artifact_origin")
     protected ArtifactOrigin artifactOrigin;
 
-    public CRAbstractFetchTask(String type,
-                               ArtifactOrigin artifactOrigin) {
-        super(type);
-        this.artifactOrigin = artifactOrigin;
-    }
-
-    protected CRAbstractFetchTask(String pipeline, String stage, String job, String type) {
-        super(type);
-        this.pipeline = pipeline;
-        this.stage = stage;
-        this.job = job;
-    }
-
-    protected CRAbstractFetchTask(String stage,
-                                  String job,
-                                  String type,
-                                  ArtifactOrigin artifactOrigin) {
-        super(type);
+    protected CRAbstractFetchTask(String stage, String job, ArtifactOrigin artifactOrigin, CRRunIf runIf, CRTask onCancel) {
+        super(TYPE_NAME, runIf, onCancel);
         this.stage = stage;
         this.job = job;
         this.artifactOrigin = artifactOrigin;
-    }
-
-    public CRAbstractFetchTask(CRRunIf runIf, CRTask onCancel) {
-        super(runIf, onCancel);
     }
 
     @Override

@@ -24,6 +24,7 @@ import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
@@ -44,43 +45,54 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
     private final CRStage buildStage;
     private final CRPipeline invalidNoGroup;
 
-    public CRPipelineTest()
-    {
+    public CRPipelineTest() {
         CRBuildTask rakeTask = CRBuildTask.rake();
-        CRJob buildRake = new CRJob("build", rakeTask);
-        veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false,true, "gitrepo", "feature12", false, "externals", "tools");
+        CRJob buildRake = new CRJob("build");
+        buildRake.addTask(rakeTask);
+        final String[] strings = new String[]{"externals", "tools"};
+        final java.util.List<String> strings1 = asList(strings);
+        veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false, true, "gitrepo", "feature12", false, strings1);
 
-        buildStage = new CRStage("build", buildRake);
-        pipe1 = new CRPipeline("pipe1","group1",veryCustomGit, null, buildStage);
+        buildStage = new CRStage("build");
+        buildStage.addJob(buildRake);
+        pipe1 = new CRPipeline("pipe1", "group1");
+        pipe1.addStage(buildStage);
+        pipe1.addMaterial(veryCustomGit);
 
 
-        customPipeline = new CRPipeline("pipe2","group1",veryCustomGit, null, buildStage);
-        customPipeline.addMaterial(new CRDependencyMaterial("pipe1","pipe1","build"));
+        customPipeline = new CRPipeline("pipe2", "group1");
+        customPipeline.addStage(buildStage);
+        customPipeline.addMaterial(new CRDependencyMaterial("pipe1", "pipe1", "build"));
         customPipeline.setLabelTemplate("foo-1.0-${COUNT}");
-        customPipeline.setMingle( new CRMingle("http://mingle.example.com","my_project"));
-        customPipeline.setTimer(new CRTimer("0 15 10 * * ? *"));
+        customPipeline.setMingle(new CRMingle("http://mingle.example.com", "my_project"));
+        customPipeline.setTimer(new CRTimer("0 15 10 * * ? *", false));
 
-        invalidNoName = new CRPipeline(null,"group1",veryCustomGit, "template", buildStage);
+        invalidNoName = new CRPipeline(null, "group1");
+        invalidNoName.addStage(buildStage);
+        invalidNoName.addMaterial(veryCustomGit);
+
         invalidNoMaterial = new CRPipeline();
         invalidNoMaterial.setName("pipe4");
         invalidNoMaterial.setGroup("g1");
         invalidNoMaterial.addStage(buildStage);
 
-        invalidNoGroup = new CRPipeline("name",null,veryCustomGit, null, buildStage);
+        invalidNoGroup = new CRPipeline("name", null);
+        invalidNoGroup.addMaterial(veryCustomGit);
+        invalidNoGroup.addStage(buildStage);
 
         invalidNoStages = new CRPipeline();
         invalidNoStages.setName("pipe4");
         invalidNoStages.setGroup("g1");
-        invalidNoStages.addMaterial(veryCustomGit);
 
-        invalidNoNamedMaterials = new CRPipeline("pipe2","group1",veryCustomGit, null, buildStage);
-        invalidNoNamedMaterials.addMaterial(new CRDependencyMaterial("pipe1","build"));
+        invalidNoNamedMaterials = new CRPipeline("pipe2", "group1");
+        invalidNoNamedMaterials.addMaterial(veryCustomGit);
+        invalidNoNamedMaterials.addMaterial(new CRDependencyMaterial("pipe1", "build"));
+        invalidNoNamedMaterials.addStage(buildStage);
         invalidNoNamedMaterials.setGroup("g1");
     }
 
     @Test
-    public void shouldAppendPrettyLocationInErrors_WhenPipelineHasExplicitLocationField()
-    {
+    public void shouldAppendPrettyLocationInErrors_WhenPipelineHasExplicitLocationField() {
         CRPipeline p = new CRPipeline();
         p.setName("pipe4");
         p.addMaterial(veryCustomGit);
@@ -88,37 +100,38 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
         p.setLocation("pipe4.json");
 
         ErrorCollection errors = new ErrorCollection();
-        p.getErrors(errors,"TEST");
+        p.getErrors(errors, "TEST");
 
         String fullError = errors.getErrorsAsText();
 
-        assertThat(fullError,contains("pipe4.json; Pipeline pipe4"));
-        assertThat(fullError,contains("Missing field 'group'."));
-        assertThat(fullError,contains("Pipeline has no stages."));
+        assertThat(fullError, contains("pipe4.json; Pipeline pipe4"));
+        assertThat(fullError, contains("Missing field 'group'."));
+        assertThat(fullError, contains("Pipeline has no stages."));
     }
 
     @Test
-    public void shouldCheckErrorsInMaterials()
-    {
+    public void shouldCheckErrorsInMaterials() {
         CRPipeline p = new CRPipeline();
         p.setName("pipe4");
 
-        CRGitMaterial invalidGit = new CRGitMaterial("gitMaterial1", "dir1", false,true, null, "feature12",false, "externals", "tools");
+        final String[] strings = new String[]{"externals", "tools"};
+        final java.util.List<String> strings1 = asList(strings);
+        CRGitMaterial invalidGit = new CRGitMaterial("gitMaterial1", "dir1", false, true, null, "feature12", false, strings1);
         p.addMaterial(invalidGit);
         // plugin may voluntarily set this
         p.setLocation("pipe4.json");
 
         ErrorCollection errors = new ErrorCollection();
-        p.getErrors(errors,"TEST");
+        p.getErrors(errors, "TEST");
 
         String fullError = errors.getErrorsAsText();
 
-        assertThat(fullError,contains("Pipeline pipe4; Git material"));
-        assertThat(fullError,contains("Missing field 'url'."));
+        assertThat(fullError, contains("Pipeline pipe4; Git material"));
+        assertThat(fullError, contains("Missing field 'url'."));
     }
+
     @Test
-    public void shouldCheckMissingDestinationDirectoryWhenManySCMs()
-    {
+    public void shouldCheckMissingDestinationDirectoryWhenManySCMs() {
         CRPipeline p = new CRPipeline();
         p.setName("pipe4");
 
@@ -131,41 +144,44 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
         p.addMaterial(simpleGit2);
 
         ErrorCollection errors = new ErrorCollection();
-        p.getErrors(errors,"TEST");
+        p.getErrors(errors, "TEST");
 
         String fullError = errors.getErrorsAsText();
 
-        assertThat(fullError,contains("Pipeline pipe4; Git material"));
-        assertThat(fullError,contains("Material must have destination directory when there are many SCM materials"));
+        assertThat(fullError, contains("Pipeline pipe4; Git material"));
+        assertThat(fullError, contains("Material must have destination directory when there are many SCM materials"));
     }
 
     @Test
-    public void shouldCheckErrorsInStages()
-    {
+    public void shouldCheckErrorsInStages() {
         CRPipeline p = new CRPipeline();
         p.setName("pipe4");
         // plugin may voluntarily set this
         p.setLocation("pipe4.json");
 
         CRStage invalidSameEnvironmentVariableTwice = new CRStage("bla");
-        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key","value1");
-        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key","value2");
+        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key", "value1");
+        invalidSameEnvironmentVariableTwice.addEnvironmentVariable("key", "value2");
         p.addStage(invalidSameEnvironmentVariableTwice);
 
         ErrorCollection errors = new ErrorCollection();
-        p.getErrors(errors,"TEST");
+        p.getErrors(errors, "TEST");
 
         String fullError = errors.getErrorsAsText();
 
-        assertThat(fullError,contains("Pipeline pipe4; Stage (bla)"));
-        assertThat(fullError,contains("Stage has no jobs"));
-        assertThat(fullError,contains("Environment variable key defined more than once"));
+        assertThat(fullError, contains("Pipeline pipe4; Stage (bla)"));
+        assertThat(fullError, contains("Stage has no jobs"));
+        assertThat(fullError, contains("Environment variable key defined more than once"));
     }
 
     @Test
     public void shouldAddAnErrorWhenBothTemplateAndStagesAreDefined() throws Exception {
-        CRPipeline crPipeline = new CRPipeline("p1", "g1", veryCustomGit, "template", buildStage);
+        CRPipeline crPipeline = new CRPipeline("p1", "g1");
+        crPipeline.addMaterial(veryCustomGit);
+        crPipeline.addStage(buildStage);
+        crPipeline.setTemplate("Template");
         ErrorCollection errorCollection = new ErrorCollection();
+
         crPipeline.getErrors(errorCollection, "TEST");
 
         MatcherAssert.assertThat(errorCollection.getErrorCount(), is(1));
@@ -174,10 +190,10 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
     @Test
     public void shouldAddAnErrorIfNeitherTemplateOrStagesAreDefined() throws Exception {
-        ArrayList<CRMaterial> materials = new ArrayList<>();
-        materials.add(veryCustomGit);
-        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE, null, null, null, new ArrayList<>(), materials, new ArrayList<>(), null, new ArrayList<>());
         ErrorCollection errorCollection = new ErrorCollection();
+        CRPipeline crPipeline = new CRPipeline("p1", "g1");
+        crPipeline.setLockBehavior(PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE);
+        crPipeline.addMaterial(veryCustomGit);
         crPipeline.getErrors(errorCollection, "TEST");
 
         MatcherAssert.assertThat(errorCollection.getErrorsAsText(), contains("Pipeline has to define stages or template."));
@@ -185,14 +201,13 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
     @Test
     public void shouldAddAnErrorForDuplicateParameterNames() throws Exception {
-        ArrayList<CRMaterial> materials = new ArrayList<>();
-        materials.add(veryCustomGit);
-
-        ArrayList<CRParameter> crParameters = new ArrayList<>();
-        crParameters.add(new CRParameter("param1", "value1"));
-        crParameters.add(new CRParameter("param1", "value2"));
-        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE, null, null, null, new ArrayList<>(), materials, null, "t1", crParameters);
+        CRPipeline crPipeline = new CRPipeline("p1", "g1");
+        crPipeline.setLockBehavior(PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE);
+        crPipeline.addParameter(new CRParameter("param1", "value1"));
+        crPipeline.addParameter(new CRParameter("param1", "value1"));
+        crPipeline.addMaterial(veryCustomGit);
         ErrorCollection errors = new ErrorCollection();
+
         crPipeline.getErrors(errors, "TEST");
 
         MatcherAssert.assertThat(errors.getErrorsAsText(), contains("Param name 'param1' is not unique."));
@@ -200,14 +215,13 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
     @Test
     public void shouldAddAnErrorForDuplicateEnvironmentVariables() throws Exception {
-        ArrayList<CRMaterial> materials = new ArrayList<>();
-        materials.add(veryCustomGit);
-
-        ArrayList<CREnvironmentVariable> crEnvironmentVariables = new ArrayList<>();
-        crEnvironmentVariables.add(new CREnvironmentVariable("env1", "value1"));
-        crEnvironmentVariables.add(new CREnvironmentVariable("env1", "value2"));
-        CRPipeline crPipeline = new CRPipeline("p1", "g1", "label", PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE, null, null, null, crEnvironmentVariables, materials, null, "t1", new ArrayList<>());
+        CRPipeline crPipeline = new CRPipeline("p1", "g1");
+        crPipeline.setLockBehavior(PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE);
+        crPipeline.addMaterial(veryCustomGit);
+        crPipeline.addEnvironmentVariable("env1", "value1");
+        crPipeline.addEnvironmentVariable("env1", "value2");
         ErrorCollection errors = new ErrorCollection();
+
         crPipeline.getErrors(errors, "TEST");
 
         MatcherAssert.assertThat(errors.getErrorsAsText(), contains("Environment variable env1 defined more than once"));
@@ -215,35 +229,36 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
 
     @Override
     public void addGoodExamples(Map<String, CRPipeline> examples) {
-        examples.put("pipe1",pipe1);
-        examples.put("customPipeline",customPipeline);
+        examples.put("pipe1", pipe1);
+        examples.put("customPipeline", customPipeline);
     }
 
     @Override
     public void addBadExamples(Map<String, CRPipeline> examples) {
-        examples.put("invalidNoName",invalidNoName);
-        examples.put("invalidNoMaterial",invalidNoMaterial);
-        examples.put("invalidNoStages",invalidNoStages);
-        examples.put("invalidNoNamedMaterials",invalidNoNamedMaterials);
-        examples.put("invalidNoGroup",invalidNoGroup);
+        examples.put("invalidNoName", invalidNoName);
+        examples.put("invalidNoMaterial", invalidNoMaterial);
+        examples.put("invalidNoStages", invalidNoStages);
+        examples.put("invalidNoNamedMaterials", invalidNoNamedMaterials);
+        examples.put("invalidNoGroup", invalidNoGroup);
     }
 
     @Test
-    public void shouldHandlePolymorphismWhenDeserializingJobs()
-    {
+    public void shouldHandlePolymorphismWhenDeserializingJobs() {
         String json = gson.toJson(pipe1);
 
-        CRPipeline deserializedValue = gson.fromJson(json,CRPipeline.class);
+        CRPipeline deserializedValue = gson.fromJson(json, CRPipeline.class);
 
         CRMaterial git = deserializedValue.getMaterialByName("gitMaterial1");
-        assertThat(git instanceof CRGitMaterial,is(true));
-        assertThat(((CRGitMaterial)git).getBranch(),is("feature12"));
+        assertThat(git instanceof CRGitMaterial, is(true));
+        assertThat(((CRGitMaterial) git).getBranch(), is("feature12"));
     }
 
     @Test
     public void shouldAddAnErrorIfLockBehaviorValueIsInvalid() throws Exception {
-        CRPipeline validPipelineWithInvalidLockBehaviorOnly = new CRPipeline("pipe1", "group1", null,
-                "INVALID_LOCK_VALUE", null, null, null, emptyList(), asList(veryCustomGit), asList(buildStage), null, emptyList());
+        CRPipeline validPipelineWithInvalidLockBehaviorOnly = new CRPipeline("p1", "g1");
+        validPipelineWithInvalidLockBehaviorOnly.addMaterial(veryCustomGit);
+        validPipelineWithInvalidLockBehaviorOnly.addStage(buildStage);
+        validPipelineWithInvalidLockBehaviorOnly.setLockBehavior("INVALID_LOCK_VALUE");
 
         ErrorCollection errorCollection = new ErrorCollection();
         validPipelineWithInvalidLockBehaviorOnly.getErrors(errorCollection, "TEST");

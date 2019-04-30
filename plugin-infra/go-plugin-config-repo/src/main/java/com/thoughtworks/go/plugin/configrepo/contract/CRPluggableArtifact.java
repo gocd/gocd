@@ -22,7 +22,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -39,13 +38,6 @@ public class CRPluggableArtifact extends CRArtifact {
     @SerializedName("configuration")
     @Expose
     private Collection<CRConfigurationProperty> configuration;
-
-    public CRPluggableArtifact(String id, String storeId, CRConfigurationProperty... configurationProperties) {
-        super(CRArtifactType.external);
-        this.id = id;
-        this.storeId = storeId;
-        this.configuration = Arrays.asList(configurationProperties);
-    }
 
     public CRPluggableArtifact(String id, String storeId, List<CRConfigurationProperty> configurationProperties) {
         super(CRArtifactType.external);

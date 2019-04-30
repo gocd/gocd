@@ -23,7 +23,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -46,29 +45,14 @@ public class CRExecTask extends CRTask {
     private List<String> arguments = new ArrayList<>();
 
     public CRExecTask() {
-        super(TYPE_NAME);
+        this(null, null, null, null, 0);
     }
 
-    public CRExecTask(String command) {
-        super(TYPE_NAME);
-        this.command = command;
-    }
-
-    public CRExecTask(String command, String workingDirectory, long timeout, CRRunIf runIf, CRTask onCancel, String... args) {
+    public CRExecTask(CRRunIf runIf, CRTask onCancel, String command, String workingDirectory, long timeout) {
         super(TYPE_NAME, runIf, onCancel);
         this.command = command;
         this.workingDirectory = workingDirectory;
         this.timeout = timeout;
-        this.arguments = Arrays.asList(args);
-    }
-
-    public CRExecTask(CRRunIf runIf, CRTask onCancel,
-                      String command, String workingDirectory, long timeout, List<String> args) {
-        super(runIf, onCancel);
-        this.command = command;
-        this.workingDirectory = workingDirectory;
-        this.timeout = timeout;
-        this.arguments = args;
     }
 
     public void addArgument(String arg) {

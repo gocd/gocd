@@ -54,14 +54,7 @@ public class CRPluggableScmMaterial extends CRMaterial implements SourceCodeMate
     private Collection<CRConfigurationProperty> configuration = new ArrayList<>();
 
     public CRPluggableScmMaterial() {
-        type = TYPE_NAME;
-    }
-
-    public CRPluggableScmMaterial(String materialName, String scmId, String folder, String... filters) {
-        super(TYPE_NAME, materialName);
-        this.scmId = scmId;
-        this.destination = folder;
-        this.filter = new CRFilter(Arrays.asList(filters), false/*not supported in 16.6*/);
+        this(null, null, null, null);
     }
 
     public CRPluggableScmMaterial(String name, String scmId, String directory, List<String> filter) {

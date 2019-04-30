@@ -64,38 +64,39 @@ public class ConfigConverterTest {
     private List<String> filter = new ArrayList<>();
     private CachedGoConfig cachedGoConfig;
 
-    Collection<CREnvironmentVariable> environmentVariables = new ArrayList<>();
-    Collection<CRParameter> parameters = new ArrayList<>();
-    Collection<CRTab> tabs = new ArrayList<>();
-    Collection<String> resources = new ArrayList<>();
-    Collection<CRArtifact> artifacts = new ArrayList<>();
-    Collection<CRPropertyGenerator> artifactPropertiesGenerators = new ArrayList<>();
-    List<CRTask> tasks = new ArrayList<>();
-    ArrayList<String> authorizedRoles;
-    ArrayList<String> authorizedUsers;
-    ArrayList<CRJob> jobs;
-
     private CRStage crStage;
-    private CRTrackingTool trackingTool;
-    private CRTimer timer;
-    private ArrayList<CRMaterial> materials;
-    private List<CRStage> stages;
     private CRGitMaterial git;
+
+    private CRJob buildJob() {
+        CRJob crJob = new CRJob("name");
+        crJob.setRunOnAllAgents(true);
+        crJob.setRunInstanceCount(5);
+        crJob.setTimeout(120);
+        crJob.addEnvironmentVariable("key", "value");
+        crJob.addTab(new CRTab("tabname", "tabpath"));
+        crJob.addArtifact(new CRBuiltInArtifact("src", "dest", CRArtifactType.build));
+        crJob.addProperty(new CRPropertyGenerator("name", "src", "path"));
+        crJob.addTask(new CRFetchArtifactTask(CRRunIf.failed, null, "upstream", "stage", "job", "src", "dest", false));
+        return crJob;
+    }
+
+    private CRPipeline buildPipeline() {
+        CRPipeline crPipeline = new CRPipeline("pipeline", "group");
+        git = new CRGitMaterial("name", "folder", true, true, "url", "branch", false, filter);
+
+        crPipeline.addMaterial(git);
+        crPipeline.addEnvironmentVariable("key", "value");
+        crPipeline.setTrackingTool(new CRTrackingTool("link", "regex"));
+        crPipeline.setTimer(new CRTimer("timer", true));
+        crPipeline.addStage(crStage);
+        crPipeline.setLabelTemplate("label-template");
+        crPipeline.setLockBehavior(LOCK_VALUE_LOCK_ON_FAILURE);
+
+        return crPipeline;
+    }
 
     @Before
     public void setUp() throws CryptoException {
-        environmentVariables = new ArrayList<>();
-        tabs = new ArrayList<>();
-        resources = new ArrayList<>();
-        artifacts = new ArrayList<>();
-        artifactPropertiesGenerators = new ArrayList<>();
-        tasks = new ArrayList<>();
-        authorizedRoles = new ArrayList<>();
-        authorizedUsers = new ArrayList<>();
-        jobs = new ArrayList<>();
-        stages = new ArrayList<>();
-        materials = new ArrayList<>();
-
         cachedGoConfig = mock(CachedGoConfig.class);
         goCipher = mock(GoCipher.class);
         context = mock(PartialConfigLoadContext.class);
@@ -109,32 +110,19 @@ public class ConfigConverterTest {
         filter = new ArrayList<>();
         filter.add("filter");
 
-        environmentVariables.add(new CREnvironmentVariable("key", "value"));
-        tabs.add(new CRTab("tabname", "tabpath"));
-        resources.add("resource1");
-        artifacts.add(new CRBuiltInArtifact("src", "dest"));
-        artifactPropertiesGenerators.add(new CRPropertyGenerator("name", "src", "path"));
 
-        tasks.add(new CRFetchArtifactTask(CRRunIf.failed, null,
-                "upstream", "stage", "job", "src", "dest", false));
+        CRApproval approval = new CRApproval(CRApprovalCondition.manual);
+        approval.addAuthorizedRole("authRole");
+        approval.addAuthorizedUser("authUser");
 
-        jobs.add(new CRJob("name", environmentVariables, tabs,
-                resources, null, artifacts, artifactPropertiesGenerators,
-                true, 5, 120, tasks));
+        crStage = new CRStage("stageName");
+        crStage.setFetchMaterials(true);
+        crStage.setNeverCleanupArtifacts(true);
+        crStage.setCleanWorkingDirectory(true);
+        crStage.addEnvironmentVariable("key", "value");
+        crStage.addJob(buildJob());
 
-        authorizedUsers.add("authUser");
-        authorizedRoles.add("authRole");
-
-        CRApproval approval = new CRApproval(CRApprovalCondition.manual, authorizedRoles, authorizedUsers);
-
-        crStage = new CRStage("stageName", true, true, true, approval, environmentVariables, jobs);
-        stages.add(crStage);
-
-        git = new CRGitMaterial("name", "folder", true, true, filter, "url", "branch", false);
-        materials.add(git);
-
-        trackingTool = new CRTrackingTool("link", "regex");
-        timer = new CRTimer("timer", true);
+        git = new CRGitMaterial("name", "folder", true, true, "url", "branch", false, filter);
     }
 
     @Test
@@ -175,13 +163,10 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldMigrateEnvironment() {
-        ArrayList<CREnvironmentVariable> environmentVariables = new ArrayList<>();
-        environmentVariables.add(new CREnvironmentVariable("key", "value"));
-        ArrayList<String> agents = new ArrayList<>();
-        agents.add("12");
-        ArrayList<String> pipelines = new ArrayList<>();
-        pipelines.add("pipe1");
-        CREnvironment crEnvironment = new CREnvironment("dev", environmentVariables, agents, pipelines);
+        CREnvironment crEnvironment = new CREnvironment("dev");
+        crEnvironment.addEnvironmentVariable("key", "value");
+        crEnvironment.addAgent("12");
+        crEnvironment.addPipeline("pipe1");
 
         BasicEnvironmentConfig environmentConfig = configConverter.toEnvironmentConfig(crEnvironment);
         assertThat(environmentConfig.name().toLower(), is("dev"));
@@ -206,7 +191,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldMigrateRakeTask() {
-        CRBuildTask crBuildTask = new CRBuildTask(CRRunIf.failed, null, "Rakefile.rb", "build", "src", CRBuildFramework.rake);
+        CRBuildTask crBuildTask = new CRBuildTask(CRBuildFramework.rake, CRRunIf.failed, null, "Rakefile.rb", "build", "src");
         RakeTask result = (RakeTask) configConverter.toAbstractTask(crBuildTask);
 
         assertRakeTask(result);
@@ -221,8 +206,8 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldMigrateAntTask() {
-        CRTask cancel = new CRBuildTask(CRRunIf.failed, null, "Rakefile.rb", "build", "src", CRBuildFramework.rake);
-        CRBuildTask crBuildTask = new CRBuildTask(CRRunIf.failed, cancel, "ant", "build", "src", CRBuildFramework.ant);
+        CRTask cancel = new CRBuildTask(CRBuildFramework.rake, CRRunIf.failed, null, "Rakefile.rb", "build", "src");
+        CRBuildTask crBuildTask = new CRBuildTask(CRBuildFramework.ant, CRRunIf.failed, cancel, "ant", "build", "src");
         AntTask result = (AntTask) configConverter.toAbstractTask(crBuildTask);
 
         assertThat(result.getConditions().first(), is(RunIfConfig.FAILED));
@@ -247,7 +232,9 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertExecTaskWhenCancelIsNotSpecified() {
-        CRExecTask crExecTask = new CRExecTask(CRRunIf.failed, null, "bash", "work", 120L, Arrays.asList("1", "2"));
+        CRExecTask crExecTask = new CRExecTask(CRRunIf.failed, null, "bash", "work", 120L);
+        crExecTask.addArgument("1");
+        crExecTask.addArgument("2");
         ExecTask result = (ExecTask) configConverter.toAbstractTask(crExecTask);
 
         assertThat(result.getConditions().first(), is(RunIfConfig.FAILED));
@@ -261,7 +248,9 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertExecTaskWhenCancelIsSpecified() {
-        CRExecTask crExecTask = new CRExecTask(CRRunIf.failed, new CRExecTask("kill"), "bash", "work", 120L, Arrays.asList("1", "2"));
+        CRExecTask crExecTask = new CRExecTask(CRRunIf.failed, new CRExecTask(null, null, "kill", null, 0), "bash", "work", 120L);
+        crExecTask.addArgument("1");
+        crExecTask.addArgument("2");
         ExecTask result = (ExecTask) configConverter.toAbstractTask(crExecTask);
 
         assertThat(result.getConditions().first(), is(RunIfConfig.FAILED));
@@ -341,8 +330,10 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertFetchPluggableArtifactTaskAndSetEmptyStringWhenPipelineIsNotSpecified() {
         CRConfigurationProperty crConfigurationProperty = new CRConfigurationProperty("k1", "v1", null);
+        final CRConfigurationProperty[] crConfigurationProperties = new CRConfigurationProperty[]{crConfigurationProperty};
+        final List<CRConfigurationProperty> crConfigurationProperties1 = Arrays.asList(crConfigurationProperties);
         CRFetchPluggableArtifactTask crFetchPluggableArtifactTask = new CRFetchPluggableArtifactTask(CRRunIf.passed, null,
-                null, "stage", "job", "artifactId", crConfigurationProperty);
+                null, "stage", "job", "artifactId", crConfigurationProperties1);
 
         FetchPluggableArtifactTask result = (FetchPluggableArtifactTask) configConverter.toAbstractTask(crFetchPluggableArtifactTask);
 
@@ -355,8 +346,10 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertFetchPluggableArtifactTaskWhenConfigurationIsNotSet() {
+        final CRConfigurationProperty[] crConfigurationProperties = new CRConfigurationProperty[]{};
+        final List<CRConfigurationProperty> crConfigurationProperties1 = Arrays.asList(crConfigurationProperties);
         CRFetchPluggableArtifactTask crFetchPluggableArtifactTask = new CRFetchPluggableArtifactTask(CRRunIf.passed, null,
-                null, "stage", "job", "artifactId");
+                null, "stage", "job", "artifactId", crConfigurationProperties1);
 
         FetchPluggableArtifactTask result = (FetchPluggableArtifactTask) configConverter.toAbstractTask(crFetchPluggableArtifactTask);
 
@@ -380,7 +373,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertGitMaterial() {
-        CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true, true, filter, "url", "branch", false);
+        CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true, true, "url", "branch", false, filter);
 
         GitMaterialConfig gitMaterialConfig =
                 (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
@@ -396,7 +389,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertGitMaterialWhenWhitelist() {
-        CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true, true, filter, "url", "branch", true);
+        CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true, true, "url", "branch", true, filter);
 
         GitMaterialConfig gitMaterialConfig =
                 (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
@@ -664,8 +657,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertP4MaterialWhenPlainPassword() {
-        CRP4Material crp4Material = CRP4Material.withPlainPassword(
-                "name", "folder", false, false, filter, "server:port", "user", "secret", true, "view");
+        CRP4Material crp4Material = new CRP4Material("name", "folder", false, "server:port", "view", "user", "secret", true, false, filter);
 
         P4MaterialConfig p4MaterialConfig =
                 (P4MaterialConfig) configConverter.toMaterialConfig(crp4Material, context);
@@ -701,7 +693,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertSvmMaterialWhenPlainPassword() {
-        CRSvnMaterial crSvnMaterial = new CRSvnMaterial("name", "folder", true, false, filter, "url", "username", "secret", true);
+        CRSvnMaterial crSvnMaterial = new CRSvnMaterial("name", "folder", true, "url", "username", "secret", true, false, filter);
 
         SvnMaterialConfig svnMaterialConfig =
                 (SvnMaterialConfig) configConverter.toMaterialConfig(crSvnMaterial, context);
@@ -907,7 +899,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertArtifactConfigWhenDestinationIsNull() {
-        BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig)configConverter.toArtifactConfig(new CRBuiltInArtifact("src", null));
+        BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) configConverter.toArtifactConfig(new CRBuiltInArtifact("src", null, CRArtifactType.build));
         assertThat(buildArtifactConfig.getDestination(), is(""));
     }
 
@@ -919,13 +911,13 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertArtifactConfigWhenDestinationIsSet() {
-        BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) configConverter.toArtifactConfig(new CRBuiltInArtifact("src", "dest"));
+        BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) configConverter.toArtifactConfig(new CRBuiltInArtifact("src", "dest", CRArtifactType.build));
         assertThat(buildArtifactConfig.getDestination(), is("dest"));
     }
 
     @Test
     public void shouldConvertToPluggableArtifactConfigWhenConfigrationIsNotPresent() {
-        PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) configConverter.toArtifactConfig(new CRPluggableArtifact("id", "storeId"));
+        PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) configConverter.toArtifactConfig(new CRPluggableArtifact("id", "storeId", null));
 
         assertThat(pluggableArtifactConfig.getId(), is("id"));
         assertThat(pluggableArtifactConfig.getStoreId(), is("storeId"));
@@ -934,7 +926,8 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertToPluggableArtifactConfigWithRightConfiguration() {
-        PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) configConverter.toArtifactConfig(new CRPluggableArtifact("id", "storeId", new CRConfigurationProperty("filename", "who-cares")));
+        final CRConfigurationProperty[] filenames = new CRConfigurationProperty[]{new CRConfigurationProperty("filename", "who-cares")};
+        PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) configConverter.toArtifactConfig(new CRPluggableArtifact("id", "storeId", Arrays.asList(filenames)));
 
         assertThat(pluggableArtifactConfig.getId(), is("id"));
         assertThat(pluggableArtifactConfig.getStoreId(), is("storeId"));
@@ -946,9 +939,8 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertJob() {
-        CRJob crJob = new CRJob("name", environmentVariables, tabs,
-                resources, null, artifacts, artifactPropertiesGenerators,
-                false, 5, 120, tasks);
+        CRJob crJob = buildJob();
+        crJob.addResource("resource1");
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
 
@@ -966,9 +958,9 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertJobWhenHasElasticProfileId() {
-        CRJob crJob = new CRJob("name", environmentVariables, tabs,
-                null, "myprofile", artifacts, artifactPropertiesGenerators,
-                false, 5, 120, tasks);
+        CRJob crJob = buildJob();
+        crJob.setRunOnAllAgents(false);
+        crJob.setElasticProfileId("myprofile");
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
 
@@ -978,9 +970,8 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertJobWhenRunInstanceCountIsNotSpecified() {
-        CRJob crJob = new CRJob("name", environmentVariables, tabs,
-                resources, null, artifacts, artifactPropertiesGenerators,
-                null, 120, tasks);
+        CRJob crJob = buildJob();
+        crJob.setRunOnAllAgents(false);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
 
@@ -992,9 +983,8 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertJobWhenRunInstanceCountIsAll() {
-        CRJob crJob = new CRJob("name", environmentVariables, tabs,
-                resources, null, artifacts, artifactPropertiesGenerators,
-                "all", 120, tasks);
+        CRJob crJob = buildJob();
+        crJob.setRunOnAllAgents(true);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
 
@@ -1006,7 +996,9 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertApprovalWhenManualAndAuth() {
-        CRApproval crApproval = new CRApproval(CRApprovalCondition.manual, authorizedRoles, authorizedUsers);
+        CRApproval crApproval = new CRApproval(CRApprovalCondition.manual);
+        crApproval.addAuthorizedUser("authUser");
+        crApproval.addAuthorizedRole("authRole");
 
         Approval approval = configConverter.toApproval(crApproval);
         assertThat(approval.isManual(), is(true));
@@ -1017,7 +1009,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertApprovalWhenManualAndNoAuth() {
-        CRApproval crApproval = new CRApproval(CRApprovalCondition.manual, new ArrayList<>(), new ArrayList<>());
+        CRApproval crApproval = new CRApproval(CRApprovalCondition.manual);
 
         Approval approval = configConverter.toApproval(crApproval);
         assertThat(approval.isManual(), is(true));
@@ -1026,7 +1018,7 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertApprovalWhenSuccess() {
-        CRApproval crApproval = new CRApproval(CRApprovalCondition.success, new ArrayList<>(), new ArrayList<>());
+        CRApproval crApproval = new CRApproval(CRApprovalCondition.success);
 
         Approval approval = configConverter.toApproval(crApproval);
         assertThat(approval.isManual(), is(false));
@@ -1035,9 +1027,17 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertStage() {
-        CRApproval approval = new CRApproval(CRApprovalCondition.manual, authorizedRoles, authorizedUsers);
+        CRApproval approval = new CRApproval(CRApprovalCondition.manual);
+        approval.addAuthorizedUser("authUser");
+        approval.addAuthorizedRole("authRole");
 
-        CRStage crStage = new CRStage("stageName", true, true, true, approval, environmentVariables, jobs);
+        CRStage crStage = new CRStage("stageName");
+        crStage.setFetchMaterials(true);
+        crStage.setNeverCleanupArtifacts(true);
+        crStage.setCleanWorkingDirectory(true);
+        crStage.setApproval(approval);
+        crStage.addEnvironmentVariable("key", "value");
+        crStage.addJob(buildJob());
 
         StageConfig stageConfig = configConverter.toStage(crStage);
 
@@ -1051,18 +1051,17 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertPipeline() {
-        CRPipeline crPipeline = new CRPipeline("pipename", "group1", "label", LOCK_VALUE_LOCK_ON_FAILURE,
-                trackingTool, null, timer, environmentVariables, materials, stages, null, parameters);
+        CRPipeline crPipeline = buildPipeline();
         crPipeline.setDisplayOrderWeight(10);
 
         PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline, context);
-        assertThat(pipelineConfig.name().toLower(), is("pipename"));
+        assertThat(pipelineConfig.name().toLower(), is("pipeline"));
         assertThat(pipelineConfig.materialConfigs().first() instanceof GitMaterialConfig, is(true));
         assertThat(pipelineConfig.first().name().toLower(), is("stagename"));
         assertThat(pipelineConfig.getVariables().hasVariable("key"), is(true));
         assertThat(pipelineConfig.trackingTool().getLink(), is("link"));
         assertThat(pipelineConfig.getTimer().getTimerSpec(), is("timer"));
-        assertThat(pipelineConfig.getLabelTemplate(), is("label"));
+        assertThat(pipelineConfig.getLabelTemplate(), is("label-template"));
         assertThat(pipelineConfig.isLockableOnFailure(), is(true));
         assertThat(pipelineConfig.getDisplayOrderWeight(), is(10));
     }
@@ -1078,7 +1077,7 @@ public class ConfigConverterTest {
         CRJob job = new CRJob();
         job.setName("buildjob");
         List<CRTask> min_tasks = new ArrayList<>();
-        min_tasks.add(new CRBuildTask("rake"));
+        min_tasks.add(new CRBuildTask(CRBuildFramework.rake));
         job.setTasks(min_tasks);
         min_jobs.add(job);
         min_stage.setJobs(min_jobs);
@@ -1094,15 +1093,13 @@ public class ConfigConverterTest {
         assertThat(pipelineConfig.name().toLower(), is("p1"));
         assertThat(pipelineConfig.materialConfigs().first() instanceof SvnMaterialConfig, is(true));
         assertThat(pipelineConfig.first().name().toLower(), is("build"));
-        ;
         assertThat(pipelineConfig.getLabelTemplate(), is(PipelineLabel.COUNT_TEMPLATE));
     }
 
     @Test
     public void shouldConvertPipelineGroup() {
         List<CRPipeline> pipelines = new ArrayList<>();
-        pipelines.add(new CRPipeline("pipename", "group", "label", LOCK_VALUE_LOCK_ON_FAILURE,
-                trackingTool, null, timer, environmentVariables, materials, stages, null, parameters));
+        pipelines.add(buildPipeline());
         Map<String, List<CRPipeline>> map = new HashMap<>();
         map.put("group", pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
@@ -1114,8 +1111,9 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertPipelineGroupWhenNoName() {
         List<CRPipeline> pipelines = new ArrayList<>();
-        pipelines.add(new CRPipeline("pipename", null, "label", LOCK_VALUE_LOCK_ON_FAILURE,
-                trackingTool, null, timer, environmentVariables, materials, stages, null, parameters));
+        CRPipeline pipeline = buildPipeline();
+        pipeline.setGroup(null);
+        pipelines.add(pipeline);
         Map<String, List<CRPipeline>> map = new HashMap<>();
         map.put(null, pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
@@ -1127,8 +1125,9 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertPipelineGroupWhenEmptyName() {
         List<CRPipeline> pipelines = new ArrayList<>();
-        pipelines.add(new CRPipeline("pipename", "", "label", LOCK_VALUE_LOCK_ON_FAILURE,
-                trackingTool, null, timer, environmentVariables, materials, stages, null, parameters));
+        CRPipeline crPipeline = buildPipeline();
+        crPipeline.setGroup("");
+        pipelines.add(crPipeline);
         Map<String, List<CRPipeline>> map = new HashMap<>();
         map.put("", pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
@@ -1139,13 +1138,11 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertPartialConfigWithGroupsAndEnvironments() {
-        CRPipeline pipeline = new CRPipeline("pipename", "group", "label", LOCK_VALUE_LOCK_ON_FAILURE,
-                trackingTool, null, timer, environmentVariables, materials, stages, null, parameters);
-        ArrayList<String> agents = new ArrayList<>();
-        agents.add("12");
-        ArrayList<String> pipelineNames = new ArrayList<>();
-        pipelineNames.add("pipename");
-        CREnvironment crEnvironment = new CREnvironment("dev", environmentVariables, agents, pipelineNames);
+        CRPipeline pipeline = buildPipeline();
+        CREnvironment crEnvironment = new CREnvironment("dev");
+        crEnvironment.addEnvironmentVariable("key", "value");
+        crEnvironment.addAgent("12");
+        crEnvironment.addPipeline("pipename");
 
         CRParseResult crPartialConfig = new CRParseResult();
         crPartialConfig.getEnvironments().add(crEnvironment);
@@ -1186,19 +1183,22 @@ public class ConfigConverterTest {
 
     @Test
     public void shouldConvertParametersWhenPassed() throws Exception {
-        Collection<CRParameter> parameters = new ArrayList<>();
-        parameters.add(new CRParameter("param", "value"));
-        CRPipeline crPipeline = new CRPipeline("p1", "g1", "template", LOCK_VALUE_LOCK_ON_FAILURE, null, null, null, environmentVariables, materials, null, "t1", parameters);
+        CRPipeline crPipeline = buildPipeline();
+        crPipeline.addParameter(new CRParameter("param", "value"));
         PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
+
         assertThat(pipeline.getParams(), is(new ParamsConfig(new ParamConfig("param", "value"))));
     }
 
     @Test
     public void shouldConvertTemplateNameWhenGiven() throws Exception {
-        CRPipeline crPipeline = new CRPipeline("p1", "g1", "template", LOCK_VALUE_LOCK_ON_FAILURE, null, null, null, environmentVariables, materials, null, "t1", parameters);
+        CRPipeline crPipeline = buildPipeline();
+        crPipeline.setTemplate("template");
+
         PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
+
         assertThat(pipeline.isEmpty(), is(true));
-        assertThat(pipeline.getTemplateName(), is(new CaseInsensitiveString("t1")));
+        assertThat(pipeline.getTemplateName(), is(new CaseInsensitiveString("template")));
     }
 
     @Test
@@ -1290,8 +1290,8 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertJobConfigToCRJob() {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("name"),
-        new ResourceConfigs(new ResourceConfig("resource1")),
-        new ArtifactConfigs(new BuildArtifactConfig("src", "dest")));
+                new ResourceConfigs(new ResourceConfig("resource1")),
+                new ArtifactConfigs(new BuildArtifactConfig("src", "dest")));
         jobConfig.setRunOnAllAgents(false);
         jobConfig.setTimeout("120");
         jobConfig.addTask(new ExecTask());
@@ -1305,8 +1305,8 @@ public class ConfigConverterTest {
         assertThat(job.getName(), is("name"));
         assertThat(job.hasEnvironmentVariable("key"), is(true));
         assertThat(job.getTabs().contains(new CRTab("tabname", "path")), is(true));
-        assertThat(job.getResources().contains("resource1"),  is(true));
-        assertThat(job.getArtifacts().contains(new CRBuiltInArtifact("src", "dest")), is(true));
+        assertThat(job.getResources().contains("resource1"), is(true));
+        assertThat(job.getArtifacts().contains(new CRBuiltInArtifact("src", "dest", CRArtifactType.build)), is(true));
         assertThat(job.getProperties().contains(new CRPropertyGenerator("name", "src", "path")), is(true));
         assertThat(job.isRunOnAllAgents(), is(false));
         assertThat(job.getRunInstanceCount(), is(5));
@@ -1569,7 +1569,7 @@ public class ConfigConverterTest {
         cruiseConfig.setSCMs(scms);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
 
-        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("name"), myscm, "directory",  Filter.create("filter"));
+        PluggableSCMMaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(new CaseInsensitiveString("name"), myscm, "directory", Filter.create("filter"));
 
         CRPluggableScmMaterial crPluggableScmMaterial =
                 (CRPluggableScmMaterial) configConverter.materialToCRMaterial(pluggableSCMMaterialConfig);
@@ -1779,11 +1779,11 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertFetchArtifactTaskWhenSourceIsDirectoryToCR() {
         FetchTask fetchTask = new FetchTask(
-               new CaseInsensitiveString("upstream"),
-               new CaseInsensitiveString("stage"),
-               new CaseInsensitiveString("job"),
-               "",
-               "dest"
+                new CaseInsensitiveString("upstream"),
+                new CaseInsensitiveString("stage"),
+                new CaseInsensitiveString("job"),
+                "",
+                "dest"
         );
         fetchTask.setSrcdir("src");
         fetchTask.setConditions(new RunIfConfigs(RunIfConfig.FAILED));
@@ -1822,7 +1822,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertFetchPluggableArtifactTaskToCRFetchPluggableArtifactTask() {
         FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(
-        new CaseInsensitiveString("upstream"),
+                new CaseInsensitiveString("upstream"),
                 new CaseInsensitiveString("stage"),
                 new CaseInsensitiveString("job"),
                 "artifactId");
@@ -1834,6 +1834,7 @@ public class ConfigConverterTest {
         assertThat(result.getJob(), is("job"));
         assertThat(result.getPipeline(), is("upstream"));
         assertThat(result.getStage(), is("stage"));
-        assertThat(result.getArtifactId(), is("artifactId")); assertThat(result.getConfiguration().isEmpty(), is(true));
+        assertThat(result.getArtifactId(), is("artifactId"));
+        assertThat(result.getConfiguration().isEmpty(), is(true));
     }
 }

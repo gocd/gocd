@@ -34,12 +34,12 @@ public class CRPluggableArtifactTest extends AbstractCRTest<CRPluggableArtifact>
     private CRPluggableArtifact invalidArtifactWithInvalidConfiguration;
 
     public CRPluggableArtifactTest() {
-        validArtifactWithNoConfiguration = new CRPluggableArtifact("id", "storeId");
-        validArtifactWithConfiguration = new CRPluggableArtifact("id", "storeId", new CRConfigurationProperty("foo", "bar"));
+        validArtifactWithNoConfiguration = new CRPluggableArtifact("id", "storeId", null);
+        validArtifactWithConfiguration = new CRPluggableArtifact("id", "storeId", Arrays.asList(new CRConfigurationProperty("foo", "bar")));
 
-        invalidArtifactWithNoId = new CRPluggableArtifact(null, "storeId");
-        invalidArtifactWithNoStoreId = new CRPluggableArtifact("id", null);
-        invalidArtifactWithInvalidConfiguration = new CRPluggableArtifact("id", "storeId", new CRConfigurationProperty("foo", "bar", "baz"));
+        invalidArtifactWithNoId = new CRPluggableArtifact(null, "storeId", null);
+        invalidArtifactWithNoStoreId = new CRPluggableArtifact("id", null, null);
+        invalidArtifactWithInvalidConfiguration = new CRPluggableArtifact("id", "storeId", Arrays.asList(new CRConfigurationProperty("foo", "bar", "baz")));
     }
 
     @Override

@@ -48,7 +48,7 @@ public class BuildTaskTest extends AbstractCRTest<CRBuildTask> {
         antCompileTask = CRBuildTask.ant(null, "compile");
         antWithDirTask = CRBuildTask.ant(null, "build", "src/tasks");
 
-        invalidTaskNoType = new CRBuildTask(null,null,null,null);
+        invalidTaskNoType = new CRBuildTask(null, null, null, null, null, null);
     }
 
     @Override

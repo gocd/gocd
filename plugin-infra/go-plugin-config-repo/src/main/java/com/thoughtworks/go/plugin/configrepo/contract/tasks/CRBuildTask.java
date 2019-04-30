@@ -26,70 +26,64 @@ import lombok.Setter;
 @Setter
 @EqualsAndHashCode(callSuper = true)
 public class CRBuildTask extends CRTask {
-    public static final String RAKE_TYPE_NAME = "rake";
-    public static final String ANT_TYPE_NAME = "ant";
-    public static final String NANT_TYPE_NAME = "nant";
-
     public static CRBuildTask rake() {
-        return new CRBuildTask(RAKE_TYPE_NAME);
+        return new CRBuildTask(CRBuildFramework.rake);
     }
 
     public static CRBuildTask rake(String rakeFile) {
-        return new CRBuildTask(RAKE_TYPE_NAME, rakeFile, null, null);
+        return new CRBuildTask(CRBuildFramework.rake, null, null, rakeFile, null, null);
     }
 
     public static CRBuildTask rake(String rakeFile, String target) {
-        return new CRBuildTask(RAKE_TYPE_NAME, rakeFile, target, null);
+        return new CRBuildTask(CRBuildFramework.rake, null, null, rakeFile, target, null);
     }
 
     public static CRBuildTask rake(String rakeFile, String target, String workingDirectory) {
-        return new CRBuildTask(RAKE_TYPE_NAME, rakeFile, target, workingDirectory);
+        return new CRBuildTask(CRBuildFramework.rake, null, null, rakeFile, target, workingDirectory);
     }
 
     public static CRBuildTask ant() {
-        return new CRBuildTask(ANT_TYPE_NAME, null, null, null);
+        return new CRBuildTask(CRBuildFramework.ant, null, null, null, null, null);
     }
 
     public static CRBuildTask ant(String antFile) {
-        return new CRBuildTask(ANT_TYPE_NAME, antFile, null, null);
+        return new CRBuildTask(CRBuildFramework.ant, null, null, antFile, null, null);
     }
 
     public static CRBuildTask ant(String antFile, String target) {
-        return new CRBuildTask(ANT_TYPE_NAME, antFile, target, null);
+        return new CRBuildTask(CRBuildFramework.ant, null, null, antFile, target, null);
     }
 
     public static CRBuildTask ant(String antFile, String target, String workingDirectory) {
-        return new CRBuildTask(ANT_TYPE_NAME, antFile, target, workingDirectory);
+        return new CRBuildTask(CRBuildFramework.ant, null, null, antFile, target, workingDirectory);
     }
 
     public static CRNantTask nant() {
-        return new CRNantTask(NANT_TYPE_NAME, null, null, null, null);
+        return new CRNantTask(null, null, null, null, null, null);
     }
 
     public static CRNantTask nant(String nantPath) {
-        return new CRNantTask(NANT_TYPE_NAME, null, null, null, nantPath);
+        return new CRNantTask(null, null, null, null, null, nantPath);
     }
 
     public static CRNantTask nant(String nantFile, String target) {
-        return new CRNantTask(NANT_TYPE_NAME, nantFile, target, null, null);
+        return new CRNantTask(null, null, nantFile, target, null, null);
     }
 
     public static CRNantTask nant(String nantFile, String target, String workingDirectory) {
-        return new CRNantTask(NANT_TYPE_NAME, nantFile, target, workingDirectory, null);
+        return new CRNantTask(null, null, nantFile, target, workingDirectory, null);
     }
 
     public static CRNantTask nant(String nantFile, String target, String workingDirectory, String nantPath) {
-        return new CRNantTask(NANT_TYPE_NAME, nantFile, target, workingDirectory, nantPath);
+        return new CRNantTask(null, null, nantFile, target, workingDirectory, nantPath);
     }
 
-    public static CRBuildTask rake(CRRunIf runIf, CRTask onCancel,
-                                   String buildFile, String target, String workingDirectory) {
-        return new CRBuildTask(runIf, onCancel, buildFile, target, workingDirectory, CRBuildFramework.rake);
+    public static CRBuildTask rake(CRRunIf runIf, CRTask onCancel, String buildFile, String target, String workingDirectory) {
+        return new CRBuildTask(CRBuildFramework.rake, runIf, onCancel, buildFile, target, workingDirectory);
     }
 
-    public static CRBuildTask ant(CRRunIf runIf, CRTask onCancel,
-                                  String buildFile, String target, String workingDirectory) {
-        return new CRBuildTask(runIf, onCancel, buildFile, target, workingDirectory, CRBuildFramework.ant);
+    public static CRBuildTask ant(CRRunIf runIf, CRTask onCancel, String buildFile, String target, String workingDirectory) {
+        return new CRBuildTask(CRBuildFramework.ant, runIf, onCancel, buildFile, target, workingDirectory);
     }
 
     @SerializedName("build_file")
@@ -102,24 +96,15 @@ public class CRBuildTask extends CRTask {
     @Expose
     private String workingDirectory;
 
-    public CRBuildTask(String type, String buildFile, String target, String workingDirectory) {
-        super(type);
+    public CRBuildTask(CRBuildFramework type) {
+        this(type, null, null, null, null, null);
+    }
+
+    public CRBuildTask(CRBuildFramework type, CRRunIf runIf, CRTask onCancel, String buildFile, String target, String workingDirectory) {
+        super(type != null ? type.toString() : null, runIf, onCancel);
         this.buildFile = buildFile;
         this.target = target;
         this.workingDirectory = workingDirectory;
-    }
-
-    public CRBuildTask(String type) {
-        super(type);
-    }
-
-    public CRBuildTask(CRRunIf runIf, CRTask onCancel,
-                       String buildFile, String target, String workingDirectory, CRBuildFramework type) {
-        super(runIf, onCancel);
-        this.buildFile = buildFile;
-        this.target = target;
-        this.workingDirectory = workingDirectory;
-        super.type = type.toString();
     }
 
     public CRBuildFramework getType() {

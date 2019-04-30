@@ -812,7 +812,7 @@ public class ConfigConverter {
     private CRFetchPluggableArtifactTask fetchPluggableArtifactTaskToCRFetchPluggableTask(FetchPluggableArtifactTask task) {
         List<CRConfigurationProperty> configuration = configurationToCRConfiguration(task.getConfiguration());
         CRFetchPluggableArtifactTask crTask = new CRFetchPluggableArtifactTask(
-                task.getStage().toString(),
+                null, null, null, task.getStage().toString(),
                 task.getJob().toString(), task.getArtifactId(), configuration);
         crTask.setPipeline(task.getPipelineName().toString());
         commonCRTaskMembers(crTask, task);
@@ -820,10 +820,7 @@ public class ConfigConverter {
     }
 
     private CRFetchArtifactTask fetchTaskToCRFetchTask(FetchTask task) {
-        CRFetchArtifactTask fetchTask = new CRFetchArtifactTask(
-                task.getStage().toString(),
-                task.getJob().toString(),
-                task.getSrc());
+        CRFetchArtifactTask fetchTask = new CRFetchArtifactTask(null, null, null, task.getStage().toString(), task.getJob().toString(), task.getSrc(), null, false);
 
         fetchTask.setDestination(task.getDest());
         fetchTask.setPipeline(task.getPipelineName().toString());
@@ -836,13 +833,13 @@ public class ConfigConverter {
     private CRPluggableTask pluggableTaskToCRPluggableTask(PluggableTask pluggableTask) {
         CRPluginConfiguration pluginConfiguration = new CRPluginConfiguration(pluggableTask.getPluginConfiguration().getId(), pluggableTask.getPluginConfiguration().getVersion());
         List<CRConfigurationProperty> configuration = configurationToCRConfiguration(pluggableTask.getConfiguration());
-        CRPluggableTask task = new CRPluggableTask(pluginConfiguration, configuration);
+        CRPluggableTask task = new CRPluggableTask(null, null, pluginConfiguration, configuration);
         commonCRTaskMembers(task, pluggableTask);
         return task;
     }
 
     private CRExecTask execTasktoCRExecTask(ExecTask task) {
-        CRExecTask crExecTask = new CRExecTask(task.getCommand());
+        CRExecTask crExecTask = new CRExecTask(null, null, task.getCommand(), null, 0);
         crExecTask.setTimeout(task.getTimeout());
         crExecTask.setWorkingDirectory(task.workingDirectory());
 
@@ -925,7 +922,7 @@ public class ConfigConverter {
     private CRArtifact artifactConfigToCRArtifact(ArtifactConfig artifactConfig) {
         if (artifactConfig instanceof BuildArtifactConfig) {
             BuildArtifactConfig buildArtifact = (BuildArtifactConfig) artifactConfig;
-            return new CRBuiltInArtifact(buildArtifact.getSource(), buildArtifact.getDestination());
+            return new CRBuiltInArtifact(buildArtifact.getSource(), buildArtifact.getDestination(), CRArtifactType.build);
         } else if (artifactConfig instanceof TestArtifactConfig) {
             TestArtifactConfig testArtifact = (TestArtifactConfig) artifactConfig;
             return new CRBuiltInArtifact(testArtifact.getSource(), testArtifact.getDestination(), CRArtifactType.test);

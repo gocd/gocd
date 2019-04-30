@@ -21,10 +21,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
+import java.util.*;
 
 @Getter
 @Setter
@@ -52,28 +49,11 @@ public class CRStage extends CRBase {
     @Expose
     private Collection<CRJob> jobs = new ArrayList<>();
 
-    public CRStage(String name, boolean fetchMaterials, boolean artifactCleanupProhibited,
-                   boolean cleanWorkingDir, CRApproval approval,
-                   Collection<CREnvironmentVariable> environmentVariables, Collection<CRJob> jobs) {
-        this.name = name;
-        this.fetchMaterials = fetchMaterials;
-        this.neverCleanupArtifacts = artifactCleanupProhibited;
-        this.cleanWorkingDirectory = cleanWorkingDir;
-        this.approval = approval;
-        this.environmentVariables = environmentVariables;
-        this.jobs = jobs;
-    }
-
     public CRStage() {
     }
 
     public CRStage(String name) {
         this.name = name;
-    }
-
-    public CRStage(String name, CRJob... jobs) {
-        this.name = name;
-        this.jobs = Arrays.asList(jobs);
     }
 
     public void addEnvironmentVariable(String key, String value) {

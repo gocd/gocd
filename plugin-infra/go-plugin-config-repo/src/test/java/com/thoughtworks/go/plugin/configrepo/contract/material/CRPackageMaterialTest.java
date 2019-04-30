@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.is;
 
 public class CRPackageMaterialTest extends AbstractCRTest<CRPackageMaterial> {
 
-    private CRPackageMaterial packageMaterial = new CRPackageMaterial("apt-package-plugin-id");
+    private CRPackageMaterial packageMaterial = new CRPackageMaterial(null, "apt-package-plugin-id");
     private CRPackageMaterial namedPackageMaterial = new CRPackageMaterial("myapt","apt-repo-id");
 
     private CRPackageMaterial invalidPackageMaterialNoId = new CRPackageMaterial();

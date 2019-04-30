@@ -42,12 +42,6 @@ public class CRBuiltInArtifact extends CRArtifact {
         this.destination = dest;
     }
 
-    public CRBuiltInArtifact(String src, String dest) {
-        super(CRArtifactType.build);
-        this.source = src;
-        this.destination = dest;
-    }
-
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);

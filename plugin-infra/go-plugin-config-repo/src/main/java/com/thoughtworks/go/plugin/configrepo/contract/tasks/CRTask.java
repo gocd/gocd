@@ -40,16 +40,8 @@ public abstract class CRTask extends CRBase {
     @Expose
     protected String type;
 
-    public CRTask(CRRunIf runIf, CRTask onCancel) {
-        this.runIf = runIf;
-        this.onCancel = onCancel;
-    }
-
     public CRTask() {
-    }
-
-    public CRTask(String type) {
-        this.type = type;
+        this(null, null, null);
     }
 
     public CRTask(String type, CRRunIf runIf, CRTask onCancel) {

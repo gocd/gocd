@@ -38,10 +38,6 @@ public abstract class CRMaterial extends CRBase {
     public CRMaterial() {
     }
 
-    public CRMaterial(String name) {
-        this.name = name;
-    }
-
     public CRMaterial(String type, String name) {
         this.type = type;
         this.name = name;

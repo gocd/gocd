@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.junit.Assert.assertThat;
@@ -37,14 +38,14 @@ public class CRP4MaterialTest extends AbstractCRTest<CRP4Material> {
 
     public CRP4MaterialTest()
     {
-        p4simple = new CRP4Material("10.18.3.102:1666",exampleView);
+        p4simple = new CRP4Material(null, null, false, "10.18.3.102:1666", exampleView, null, null, false, false, null);
 
         p4custom= new CRP4Material(
-                "p4materialName", "dir1", false,"10.18.3.102:1666",exampleView,"user1","pass1", false,false,"lib","tools");
+                "p4materialName", "dir1", false,"10.18.3.102:1666",exampleView,"user1","pass1", false,false, Arrays.asList("lib", "tools"));
 
-        invalidP4NoView = new CRP4Material("10.18.3.102:1666",null);
-        invalidP4NoServer =  new CRP4Material(null,exampleView);
-        invalidPasswordAndEncyptedPasswordSet = new CRP4Material("10.18.3.102:1666",null);
+        invalidP4NoView = new CRP4Material(null, null, false, "10.18.3.102:1666", null, null, null, false, false, null);
+        invalidP4NoServer =  new CRP4Material(null, null, false, null, exampleView, null, null, false, false, null);
+        invalidPasswordAndEncyptedPasswordSet = new CRP4Material(null, null, false, "10.18.3.102:1666", null, null, null, false, false, null);
         invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
         invalidPasswordAndEncyptedPasswordSet.setEncryptedPassword("26t=$j64");
     }

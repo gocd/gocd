@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.junit.Assert.assertThat;
@@ -36,10 +37,10 @@ public class CRHgMaterialTest extends AbstractCRTest<CRHgMaterial> {
         simpleHg = new CRHgMaterial();
         simpleHg.setUrl("myHgRepo");
 
-        customHg = new CRHgMaterial("hgMaterial1","dir1",false,"repos/myhg",false,"externals","tools");
+        customHg = new CRHgMaterial("hgMaterial1", "dir1", false, false, Arrays.asList("externals", "tools"), "repos/myhg");
 
         invalidHgNoUrl = new CRHgMaterial();
-        invalidHgWhitelistAndIgnores = new CRHgMaterial("hgMaterial1","dir1",false,"repos/myhg",false,"externals","tools");
+        invalidHgWhitelistAndIgnores = new CRHgMaterial("hgMaterial1", "dir1", false, false, Arrays.asList("externals", "tools"), "repos/myhg");
         invalidHgWhitelistAndIgnores.setWhitelistNoCheck("src","tests");
     }
 

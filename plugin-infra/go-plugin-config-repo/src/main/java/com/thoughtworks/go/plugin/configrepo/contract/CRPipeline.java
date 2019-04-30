@@ -76,29 +76,9 @@ public class CRPipeline extends CRBase {
     public CRPipeline() {
     }
 
-    public CRPipeline(String name, String groupName, CRMaterial material, String template, CRStage... stages) {
+    public CRPipeline(String name, String groupName) {
         this.name = name;
         this.group = groupName;
-        this.template = template;
-        this.materials.add(material);
-        this.stages = Arrays.asList(stages);
-    }
-
-    public CRPipeline(String name, String groupName, String labelTemplate, String lockBehavior, CRTrackingTool trackingTool,
-                      CRMingle mingle, CRTimer timer, Collection<CREnvironmentVariable> environmentVariables,
-                      Collection<CRMaterial> materials, List<CRStage> stages, String template, Collection<CRParameter> parameters) {
-        this.name = name;
-        this.group = groupName;
-        this.labelTemplate = labelTemplate;
-        this.lockBehavior = lockBehavior;
-        this.trackingTool = trackingTool;
-        this.mingle = mingle;
-        this.timer = timer;
-        this.environmentVariables = environmentVariables;
-        this.materials = materials;
-        this.stages = stages;
-        this.template = template;
-        this.parameters = parameters;
     }
 
     public boolean hasEnvironmentVariable(String key) {
@@ -273,5 +253,5 @@ public class CRPipeline extends CRBase {
     public boolean hasTemplate() {
         return template != null && !StringUtils.isBlank(template);
     }
-    
+
 }

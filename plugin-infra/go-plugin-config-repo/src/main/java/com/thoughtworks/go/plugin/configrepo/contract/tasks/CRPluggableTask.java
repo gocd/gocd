@@ -24,10 +24,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 @Getter
 @Setter
@@ -43,33 +41,11 @@ public class CRPluggableTask extends CRTask {
     private Collection<CRConfigurationProperty> configuration;
 
     public CRPluggableTask() {
-        super(TYPE_NAME);
+        this(null, null, null, null);
     }
 
-    public CRPluggableTask(CRPluginConfiguration pluginConfiguration,
-                           CRConfigurationProperty... properties) {
-        super(TYPE_NAME);
-        this.pluginConfiguration = pluginConfiguration;
-        this.configuration = Arrays.asList(properties);
-    }
-
-    public CRPluggableTask(CRPluginConfiguration pluginConfiguration,
-                           List<CRConfigurationProperty> properties) {
-        super(TYPE_NAME);
-        this.pluginConfiguration = pluginConfiguration;
-        this.configuration = properties;
-    }
-
-    public CRPluggableTask(String id, String version,
-                           CRConfigurationProperty... properties) {
-        super(TYPE_NAME);
-        this.pluginConfiguration = new CRPluginConfiguration(id, version);
-        this.configuration = Arrays.asList(properties);
-    }
-
-    public CRPluggableTask(CRRunIf runIf, CRTask onCancel,
-                           CRPluginConfiguration pluginConfiguration, Collection<CRConfigurationProperty> configuration) {
-        super(runIf, onCancel);
+    public CRPluggableTask(CRRunIf runIf, CRTask onCancel, CRPluginConfiguration pluginConfiguration, Collection<CRConfigurationProperty> configuration) {
+        super(TYPE_NAME, runIf, onCancel);
         this.pluginConfiguration = pluginConfiguration;
         this.configuration = configuration;
     }

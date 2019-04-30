@@ -23,6 +23,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -33,15 +34,13 @@ public class CRTfsMaterial extends CRScmMaterial {
     public static CRTfsMaterial withEncryptedPassword(String name, String directory, boolean autoUpdate,
                                                       boolean whitelist, List<String> filter, String url, String domain, String username,
                                                       String encrypted_password, String project) {
-        return new CRTfsMaterial(name, directory, autoUpdate, whitelist, filter,
-                url, username, null, encrypted_password, project, domain);
+        return new CRTfsMaterial(name, directory, autoUpdate, url, username, null, encrypted_password, project, domain, whitelist, filter);
     }
 
     public static CRTfsMaterial withPlainPassword(String name, String directory, boolean autoUpdate,
                                                   boolean whitelist, List<String> filter, String url, String domain, String username,
                                                   String password, String project) {
-        return new CRTfsMaterial(name, directory, autoUpdate, whitelist, filter,
-                url, username, password, null, project, domain);
+        return new CRTfsMaterial(name, directory, autoUpdate, url, username, password, null, project, domain, whitelist, filter);
     }
 
     public static final String TYPE_NAME = "tfs";
@@ -65,46 +64,7 @@ public class CRTfsMaterial extends CRScmMaterial {
     @Expose
     private String project;
 
-    private CRTfsMaterial(
-            String name, String folder, boolean autoUpdate, boolean whitelist, List<String> filter,
-            String url, String userName,
-            String password, String encryptedPassword,
-            String projectPath, String domain) {
-        super(name, folder, autoUpdate, whitelist, filter);
-        this.url = url;
-        this.username = userName;
-        this.domain = domain;
-        this.password = password;
-        this.encryptedPassword = encryptedPassword;
-        this.project = projectPath;
-    }
-
-    public CRTfsMaterial() {
-        type = TYPE_NAME;
-    }
-
-    public CRTfsMaterial(String url, String userName, String projectPath) {
-        type = TYPE_NAME;
-        this.url = url;
-        this.username = userName;
-        this.project = projectPath;
-    }
-
-    public CRTfsMaterial(String materialName, String folder, boolean autoUpdate, String url, String userName,
-                         String password, String encryptedPassword,
-                         String projectPath, String domain, boolean whitelist, String... filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
-        this.url = url;
-        this.username = userName;
-        this.password = password;
-        this.encryptedPassword = encryptedPassword;
-        this.project = projectPath;
-        this.domain = domain;
-    }
-
-    public CRTfsMaterial(String materialName, String folder, boolean autoUpdate, String url, String userName,
-                         String password, String encryptedPassword,
-                         String projectPath, String domain, boolean whitelist, List<String> filters) {
+    public CRTfsMaterial(String materialName, String folder, boolean autoUpdate, String url, String userName, String password, String encryptedPassword, String projectPath, String domain, boolean whitelist, List<String> filters) {
         super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
         this.url = url;
         this.username = userName;

@@ -35,30 +35,20 @@ public class CREnvironment extends CRBase {
     private String name;
     @SerializedName("environment_variables")
     @Expose
-    private Collection<CREnvironmentVariable> environmentVariables;
+    private Collection<CREnvironmentVariable> environmentVariables = new ArrayList<>();
     @SerializedName("agents")
     @Expose
-    private Collection<String> agents;
+    private Collection<String> agents = new ArrayList<>();
     @SerializedName("pipelines")
     @Expose
-    private Collection<String> pipelines;
-
-    public CREnvironment(String name) {
-        this();
-        this.name = name;
-    }
+    private Collection<String> pipelines = new ArrayList<>();
 
     public CREnvironment() {
-        environmentVariables = new ArrayList<>();
-        agents = new ArrayList<>();
-        pipelines = new ArrayList<>();
+        this(null);
     }
 
-    public CREnvironment(String name, Collection<CREnvironmentVariable> environmentVariables, Collection<String> agents, Collection<String> pipelines) {
+    public CREnvironment(String name) {
         this.name = name;
-        this.environmentVariables = environmentVariables;
-        this.agents = agents;
-        this.pipelines = pipelines;
     }
 
     public void addEnvironmentVariable(String key, String value) {

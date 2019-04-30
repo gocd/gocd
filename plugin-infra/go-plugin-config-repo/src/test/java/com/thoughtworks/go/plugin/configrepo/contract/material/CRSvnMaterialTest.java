@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.junit.Assert.assertThat;
@@ -32,8 +33,7 @@ public class CRSvnMaterialTest extends AbstractCRTest<CRSvnMaterial> {
     private final CRSvnMaterial invalidNoUrl;
     private final CRSvnMaterial invalidPasswordAndEncyptedPasswordSet;
 
-    public CRSvnMaterialTest()
-    {
+    public CRSvnMaterialTest() {
         simpleSvn = new CRSvnMaterial();
         simpleSvn.setUrl("http://mypublicrepo");
 
@@ -42,8 +42,8 @@ public class CRSvnMaterialTest extends AbstractCRTest<CRSvnMaterial> {
         simpleSvnAuth.setUsername("john");
         simpleSvnAuth.setPassword("pa$sw0rd");
 
-        customSvn = new CRSvnMaterial("svnMaterial1","destDir1", false,
-                "http://svn","user1","pass1",true,false,"tools","lib");
+        customSvn = new CRSvnMaterial("svnMaterial1", "destDir1", false,
+                "http://svn", "user1", "pass1", true, false, Arrays.asList("tools", "lib"));
 
         invalidNoUrl = new CRSvnMaterial();
         invalidPasswordAndEncyptedPasswordSet = new CRSvnMaterial();
@@ -54,32 +54,31 @@ public class CRSvnMaterialTest extends AbstractCRTest<CRSvnMaterial> {
 
     @Override
     public void addGoodExamples(Map<String, CRSvnMaterial> examples) {
-        examples.put("simpleSvn",simpleSvn);
-        examples.put("simpleSvnAuth",simpleSvnAuth);
-        examples.put("customSvn",customSvn);
+        examples.put("simpleSvn", simpleSvn);
+        examples.put("simpleSvnAuth", simpleSvnAuth);
+        examples.put("customSvn", customSvn);
     }
 
     @Override
     public void addBadExamples(Map<String, CRSvnMaterial> examples) {
-        examples.put("invalidNoUrl",invalidNoUrl);
-        examples.put("invalidPasswordAndEncyptedPasswordSet",invalidPasswordAndEncyptedPasswordSet);
+        examples.put("invalidNoUrl", invalidNoUrl);
+        examples.put("invalidPasswordAndEncyptedPasswordSet", invalidPasswordAndEncyptedPasswordSet);
     }
 
     @Test
-    public void shouldAppendTypeFieldWhenSerializingMaterials()
-    {
+    public void shouldAppendTypeFieldWhenSerializingMaterials() {
         CRMaterial value = customSvn;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is(CRSvnMaterial.TYPE_NAME));
     }
+
     @Test
-    public void shouldHandlePolymorphismWhenDeserializing()
-    {
+    public void shouldHandlePolymorphismWhenDeserializing() {
         CRMaterial value = customSvn;
         String json = gson.toJson(value);
 
-        CRSvnMaterial deserializedValue = (CRSvnMaterial)gson.fromJson(json,CRMaterial.class);
+        CRSvnMaterial deserializedValue = (CRSvnMaterial) gson.fromJson(json, CRMaterial.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+                deserializedValue, is(value));
     }
 }

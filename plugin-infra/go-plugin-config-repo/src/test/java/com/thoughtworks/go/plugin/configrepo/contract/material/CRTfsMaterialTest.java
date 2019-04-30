@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.junit.Assert.assertThat;
@@ -35,16 +36,15 @@ public class CRTfsMaterialTest extends AbstractCRTest<CRTfsMaterial> {
 
     public CRTfsMaterialTest()
     {
-        simpleTfs = new CRTfsMaterial("url1","user1","projectDir");
+        simpleTfs = new CRTfsMaterial(null, null, false, "url1", "user1", null, null, "projectDir", null, false, null);
 
-        customTfs = new CRTfsMaterial("tfsMaterialName", "dir1", false,"url3","user4",
-            "pass",null,"projectDir","example.com",false,"tools","externals");
+        customTfs = new CRTfsMaterial("tfsMaterialName", "dir1", false,"url3","user4", "pass",null,"projectDir","example.com",false, Arrays.asList("tools", "externals"));
 
-        invalidTfsNoUrl = new CRTfsMaterial(null,"user1","projectDir");
-        invalidTfsNoUser = new CRTfsMaterial("url1",null,"projectDir");
-        invalidTfsNoProject = new CRTfsMaterial("url1","user1",null);
+        invalidTfsNoUrl = new CRTfsMaterial(null, null, false, null, "user1", null, null, "projectDir", null, false, null);
+        invalidTfsNoUser = new CRTfsMaterial(null, null, false, "url1", null, null, null, "projectDir", null, false, null);
+        invalidTfsNoProject = new CRTfsMaterial(null, null, false, "url1", "user1", null, null, null, null, false, null);
 
-        invalidPasswordAndEncyptedPasswordSet = new CRTfsMaterial("url1","user1","projectDir");
+        invalidPasswordAndEncyptedPasswordSet = new CRTfsMaterial(null, null, false, "url1", "user1", null, null, "projectDir", null, false, null);
         invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
         invalidPasswordAndEncyptedPasswordSet.setEncryptedPassword("26t=$j64");
     }

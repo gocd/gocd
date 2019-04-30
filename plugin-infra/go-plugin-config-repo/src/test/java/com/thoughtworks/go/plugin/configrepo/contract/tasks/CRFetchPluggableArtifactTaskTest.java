@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import com.thoughtworks.go.plugin.configrepo.contract.CRConfigurationProperty;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertNull;
@@ -39,33 +40,32 @@ public class CRFetchPluggableArtifactTaskTest extends AbstractCRTest<CRFetchPlug
     public CRFetchPluggableArtifactTaskTest() {
         CRConfigurationProperty crConfigurationProperty = new CRConfigurationProperty("k1", "v1", null);
 
-        fetch = new CRFetchPluggableArtifactTask("build", "buildjob", "storeId", crConfigurationProperty);
-        fetchFromPipe = new CRFetchPluggableArtifactTask("build", "buildjob", "storeId", crConfigurationProperty);
+        fetch = new CRFetchPluggableArtifactTask(null, null, null, "build", "buildjob", "storeId", Arrays.asList(crConfigurationProperty));
+        fetchFromPipe = new CRFetchPluggableArtifactTask(null, null, null, "build", "buildjob", "storeId", Arrays.asList(crConfigurationProperty));
         fetchFromPipe.setPipeline("pipeline1");
 
-        invalidFetchNoStoreId = new CRFetchPluggableArtifactTask("build", "buildjob", null);
-        invalidFetchNoJob = new CRFetchPluggableArtifactTask("build", null, "storeId");
-        invalidFetchNoStage = new CRFetchPluggableArtifactTask(null, "buildjob", "storeId");
-        invalidFetchWithDuplicateProperties = new CRFetchPluggableArtifactTask("build", "buildjob", "storeId", crConfigurationProperty, crConfigurationProperty);
+        invalidFetchNoStoreId = new CRFetchPluggableArtifactTask(null, null, null, "build", "buildjob", null, null);
+        invalidFetchNoJob = new CRFetchPluggableArtifactTask(null, null, null, "build", null, "storeId", null);
+        invalidFetchNoStage = new CRFetchPluggableArtifactTask(null, null, null, null, "buildjob", "storeId", null);
+        invalidFetchWithDuplicateProperties = new CRFetchPluggableArtifactTask(null, null, null, "build", "buildjob", "storeId", Arrays.asList(crConfigurationProperty, crConfigurationProperty));
     }
 
     @Override
     public void addGoodExamples(Map<String, CRFetchPluggableArtifactTask> examples) {
-        examples.put("fetch",fetch);
-        examples.put("fetchFromPipe",fetchFromPipe);
+        examples.put("fetch", fetch);
+        examples.put("fetchFromPipe", fetchFromPipe);
     }
 
     @Override
     public void addBadExamples(Map<String, CRFetchPluggableArtifactTask> examples) {
-        examples.put("invalidFetchNoStoreId",invalidFetchNoStoreId);
-        examples.put("invalidFetchNoJob",invalidFetchNoJob);
-        examples.put("invalidFetchNoStage",invalidFetchNoStage);
+        examples.put("invalidFetchNoStoreId", invalidFetchNoStoreId);
+        examples.put("invalidFetchNoJob", invalidFetchNoJob);
+        examples.put("invalidFetchNoStage", invalidFetchNoStage);
         examples.put("invalidFetchWithDuplicateProperties", invalidFetchWithDuplicateProperties);
     }
 
     @Test
-    public void shouldDeserializeWhenConfigurationIsNull()
-    {
+    public void shouldDeserializeWhenConfigurationIsNull() {
         String json = "{\n" +
                 "              \"type\" : \"fetch\",\n" +
                 "              \"pipeline\" : \"pip\",\n" +
@@ -75,13 +75,13 @@ public class CRFetchPluggableArtifactTaskTest extends AbstractCRTest<CRFetchPlug
                 "              \"run_if\" : \"passed\",\n" +
                 "              \"artifact_origin\" : \"external\"\n" +
                 "            }";
-        CRFetchPluggableArtifactTask deserializedValue = (CRFetchPluggableArtifactTask)gson.fromJson(json, CRTask.class);
+        CRFetchPluggableArtifactTask deserializedValue = (CRFetchPluggableArtifactTask) gson.fromJson(json, CRTask.class);
 
-        assertThat(deserializedValue.getPipeline(),is("pip"));
-        assertThat(deserializedValue.getJob(),is("build"));
-        assertThat(deserializedValue.getStage(),is("build1"));
-        assertThat(deserializedValue.getArtifactId(),is("s3"));
-        assertThat(deserializedValue.getRunIf(),is(CRRunIf.passed));
+        assertThat(deserializedValue.getPipeline(), is("pip"));
+        assertThat(deserializedValue.getJob(), is("build"));
+        assertThat(deserializedValue.getStage(), is("build1"));
+        assertThat(deserializedValue.getArtifactId(), is("s3"));
+        assertThat(deserializedValue.getRunIf(), is(CRRunIf.passed));
         assertNull(deserializedValue.getConfiguration());
     }
 }

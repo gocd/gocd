@@ -34,11 +34,11 @@ public class TaskTypeAdapter extends TypeAdapter implements JsonDeserializer<CRT
     protected Class<?> classForName(String typeName, String origin) {
         if (typeName.equals(CRExecTask.TYPE_NAME))
             return CRExecTask.class;
-        if (typeName.equals(CRBuildTask.RAKE_TYPE_NAME))
+        if (typeName.equals(CRBuildFramework.rake.toString()))
             return CRBuildTask.class;
-        if (typeName.equals(CRBuildTask.ANT_TYPE_NAME))
+        if (typeName.equals(CRBuildFramework.ant.toString()))
             return CRBuildTask.class;
-        if (typeName.equals(CRBuildTask.NANT_TYPE_NAME))
+        if (typeName.equals(CRBuildFramework.nant.toString()))
             return CRNantTask.class;
         if (typeName.equals(CRPluggableTask.TYPE_NAME))
             return CRPluggableTask.class;

@@ -36,12 +36,7 @@ public class CRHgMaterial extends CRScmMaterial {
     private String url;
 
     public CRHgMaterial() {
-        type = TYPE_NAME;
-    }
-
-    public CRHgMaterial(String materialName, String folder, boolean autoUpdate, String url, boolean whitelist, String... filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
-        this.url = url;
+        this(null, null, false, false, null, null);
     }
 
     public CRHgMaterial(String name, String folder, boolean autoUpdate, boolean whitelist, List<String> filter, String url) {

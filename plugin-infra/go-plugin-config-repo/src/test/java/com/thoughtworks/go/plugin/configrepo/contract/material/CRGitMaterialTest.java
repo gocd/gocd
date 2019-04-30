@@ -19,6 +19,7 @@ import com.google.gson.JsonObject;
 import com.thoughtworks.go.plugin.configrepo.contract.AbstractCRTest;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static org.junit.Assert.assertThat;
@@ -44,11 +45,11 @@ public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
         simpleGitBranch.setUrl(url2);
         simpleGitBranch.setBranch("develop");
 
-        veryCustomGit = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",false,"externals","tools");
-        whitelistGit = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",true,"externals","tools");
+        veryCustomGit = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",false, Arrays.asList("externals", "tools"));
+        whitelistGit = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",true, Arrays.asList("externals", "tools"));
 
-        invalidNoUrl = new CRGitMaterial("gitMaterial1","dir1",false,true,null,"feature12",false,"externals","tools");
-        invalidBothWhiteListAndIgnore = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",false,"externals","tools");
+        invalidNoUrl = new CRGitMaterial("gitMaterial1","dir1",false,true,null,"feature12",false, Arrays.asList("externals", "tools"));
+        invalidBothWhiteListAndIgnore = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",false, Arrays.asList("externals", "tools"));
         invalidBothWhiteListAndIgnore.setWhitelistNoCheck("src","tests");
     }
 

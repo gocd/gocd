@@ -130,14 +130,6 @@ public class PluginInfoMother {
         return new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), targetOperatingSystems), "/home/pluginjar/", null, true);
     }
 
-
-    public static SecretsPluginInfo createSecretConfigPluginInfo() {
-        GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", "1", new GoPluginDescriptor.About("GoPlugin", "v1", "goVersion1", "go plugin", new GoPluginDescriptor.Vendor("go", "goUrl"), Collections.emptyList()), "/home/pluginjar/", null, true);
-
-        SecretsPluginInfo secretsPluginInfo = new SecretsPluginInfo(descriptor, getPluggableSettings(), new Image("content_type", "data", "hash"));
-        return secretsPluginInfo;
-    }
-
     public static NotificationPluginInfo createNotificationPluginInfo() {
         return new NotificationPluginInfo(getGoPluginDescriptor(), getPluggableSettings());
     }

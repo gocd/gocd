@@ -17,12 +17,10 @@ package com.thoughtworks.go.plugin.access.configrepo.v1.messages;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 import com.thoughtworks.go.plugin.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.configrepo.contract.CRError;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
-import jdk.nashorn.internal.objects.annotations.Getter;
-import jdk.nashorn.internal.objects.annotations.Setter;
+import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 
 import java.util.ArrayList;
 import java.util.Collection;

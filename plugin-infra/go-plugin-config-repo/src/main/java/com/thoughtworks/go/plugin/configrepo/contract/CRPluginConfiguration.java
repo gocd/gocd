@@ -41,6 +41,10 @@ public class CRPluginConfiguration extends CRBase {
         this.version = version;
     }
 
+    public String getVersion() {
+        return version == null ? "" : version;
+    }
+
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);

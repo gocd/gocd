@@ -195,7 +195,9 @@ public class PluggableArtifactConfig implements ArtifactConfig {
     private void encryptSecureConfigurations(ArtifactStore artifactStore) {
         if (artifactStore != null && hasPluginInfo(artifactStore)) {
             for (ConfigurationProperty configuration : getConfiguration()) {
-                configuration.handleSecureValueConfiguration(isSecure(configuration.getConfigKeyName(), artifactStore));
+                if (!(configuration.getValue() != null && configuration.getValue().contains("#{"))) {
+                    configuration.handleSecureValueConfiguration(isSecure(configuration.getConfigKeyName(), artifactStore));
+                }
             }
         }
     }

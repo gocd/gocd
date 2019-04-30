@@ -22,10 +22,10 @@ import com.thoughtworks.go.helper.PipelineTemplateConfigMother;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Test;
 
+import java.util.ArrayList;
+
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
 
 public class GoConfigClonerTest {
     @Test
@@ -74,7 +74,33 @@ public class GoConfigClonerTest {
     }
 
     @Test
-    public void shouldDeepCloneObject(){
+    public void shouldNotCloneCachedArtifactConfigs() {
+        BasicCruiseConfig config = GoConfigMother.configWithPipelines("p1", "p2");
+        //to prime cache
+        config.getAllPipelineConfigs();
+        //change state
+        config.encryptSecureProperties(config);
+
+        BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
+        assertThat(ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "externalArtifactConfigs"), is(new ArrayList()));
+        assertThat(ReflectionUtil.getField(cloned.getAllPipelineConfigs().get(0), "externalArtifactConfigs"), is(nullValue()));
+    }
+
+    @Test
+    public void shouldNotCloneCachedFetchPluggableArtifactTasks() {
+        BasicCruiseConfig config = GoConfigMother.configWithPipelines("p1", "p2");
+        //to prime cache
+        config.getAllPipelineConfigs();
+        //change state
+        config.encryptSecureProperties(config);
+
+        BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
+        assertThat(ReflectionUtil.getField(config.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks"), is(new ArrayList()));
+        assertThat(ReflectionUtil.getField(cloned.getAllPipelineConfigs().get(0), "fetchExternalArtifactTasks"), is(nullValue()));
+    }
+
+    @Test
+    public void shouldDeepCloneObject() {
         BasicCruiseConfig config = GoConfigMother.configWithPipelines("p1", "p2");
         BasicCruiseConfig cloned = new GoConfigCloner().deepClone(config);
         assertThat(cloned.getGroups().size(), is(1));

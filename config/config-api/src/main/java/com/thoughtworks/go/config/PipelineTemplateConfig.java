@@ -25,9 +25,7 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.Task;
-import com.thoughtworks.go.domain.config.Admin;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +53,8 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     @SkipParameterResolution
     private Authorization authorization = new Authorization();
 
-    private List<PluggableArtifactConfig> externalArtifactConfigs = null;
-    private List<FetchPluggableArtifactTask> fetchExternalArtifactTasks = null;
+    private CachedPluggableArtifactConfigs externalArtifactConfigs = null;
+    private CachedFetchPluggableArtifactTasks fetchExternalArtifactTasks = null;
 
     private final ConfigErrors configErrors = new ConfigErrors();
 
@@ -102,8 +100,8 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
     }
 
     private void cachePublishAndFetchExternalConfig() {
-        externalArtifactConfigs = new ArrayList<>();
-        fetchExternalArtifactTasks = new ArrayList<>();
+        externalArtifactConfigs = new CachedPluggableArtifactConfigs();
+        fetchExternalArtifactTasks = new CachedFetchPluggableArtifactTasks();
         for (StageConfig stageConfig : getStages()) {
             for (JobConfig jobConfig : stageConfig.getJobs()) {
                 externalArtifactConfigs.addAll(jobConfig.artifactConfigs().getPluggableArtifactConfigs());
@@ -321,8 +319,7 @@ public class PipelineTemplateConfig extends BaseCollection<StageConfig> implemen
         if (attributeMap.containsKey(AUTHORIZATION)) {
             this.authorization = new Authorization();
             this.authorization.setConfigAttributes(attributeMap.get(AUTHORIZATION));
-        }
-        else {
+        } else {
             this.authorization = new Authorization();
         }
 

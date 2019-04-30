@@ -107,7 +107,8 @@ enum Distro implements DistroBehavior {
       return [
         new DistroVersion(version: '28', releaseName: '28', eolDate: parseDate('2019-06-01'), continueToBuild: true),
         // approximate date - 1 year from release date, check when the build fails
-        new DistroVersion(version: '29', releaseName: '29', eolDate: parseDate('2019-11-30'))
+        new DistroVersion(version: '29', releaseName: '29', eolDate: parseDate('2019-11-30')),
+        new DistroVersion(version: '30', releaseName: '30', eolDate: parseDate('2020-06-01')),
       ]
     }
   },

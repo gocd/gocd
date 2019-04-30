@@ -84,6 +84,11 @@ public class RoleConfigDeleteCommand extends RoleConfigCommand {
         }
     }
 
+    @Override
+    public void encrypt(CruiseConfig preprocessedConfig) {
+        //do nothing
+    }
+
     private void removeFromServerRole(CruiseConfig preprocessedConfig, Role existingRole) {
         preprocessedConfig.server().security().getRoles().removeIfExists(existingRole);
     }

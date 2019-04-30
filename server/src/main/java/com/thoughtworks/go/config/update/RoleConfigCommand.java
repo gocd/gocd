@@ -73,6 +73,11 @@ abstract class RoleConfigCommand implements EntityConfigUpdateCommand<Role> {
         return cruiseConfig.server().security().getRoles().findByName(role.getName());
     }
 
+    @Override
+    public void encrypt(CruiseConfig preprocessedConfig) {
+        this.role.encryptSecureProperties(preprocessedConfig);
+    }
+
     protected final boolean isAuthorized() {
         if (goConfigService.isUserAdmin(currentUser)) {
             return true;

@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.validation.NameTypeValidator;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
 
 import java.util.List;
 
@@ -145,5 +147,37 @@ public class PluginRoleConfig extends Configuration implements Role {
                 "name=" + name +
                 ", authConfigId='" + authConfigId + '\'' +
                 '}';
+    }
+
+    public void encryptSecureProperties(CruiseConfig preprocessedConfig) {
+        if (authConfigId != null) {
+            SecurityAuthConfig authConfig = preprocessedConfig.server().security().securityAuthConfigs().find(this.authConfigId);
+            encryptSecureConfigurations(authConfig);
+        }
+    }
+
+    private void encryptSecureConfigurations(SecurityAuthConfig authConfig) {
+        if (authConfig != null && hasPluginInfo(authConfig)) {
+            for (ConfigurationProperty configuration : this) {
+                configuration.handleSecureValueConfiguration(isSecure(configuration.getConfigKeyName(), authConfig));
+            }
+        }
+    }
+
+    private boolean isSecure(String configKeyName, SecurityAuthConfig authConfig) {
+        AuthorizationPluginInfo pluginInfo = getPluginInfo(authConfig);
+
+        return pluginInfo != null
+                && pluginInfo.getRoleSettings() != null
+                && pluginInfo.getRoleSettings().getConfiguration(configKeyName) != null
+                && pluginInfo.getRoleSettings().getConfiguration(configKeyName).isSecure();
+    }
+
+    private boolean hasPluginInfo(SecurityAuthConfig authConfig) {
+        return getPluginInfo(authConfig) != null;
+    }
+
+    private AuthorizationPluginInfo getPluginInfo(SecurityAuthConfig authConfig) {
+        return AuthorizationMetadataStore.instance().getPluginInfo(authConfig.getPluginId());
     }
 }

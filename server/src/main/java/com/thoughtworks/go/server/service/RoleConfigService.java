@@ -89,7 +89,7 @@ public class RoleConfigService {
     }
 
     public RolesConfig getRoles() {
-        return goConfigService.serverConfig().security().getRoles();
+        return goConfigService.getConfigForEditing().server().security().getRoles();
     }
 
     public HashMap<Username, RolesConfig> getRolesForUser(List<Username> users) {

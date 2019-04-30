@@ -157,7 +157,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
         validateMaterialUrl(this.url, validationContext);
-        validateCredentialsInMaterialUrl();
+//        validateCredentialsInMaterialUrl();
     }
 
     private void validateCredentialsInMaterialUrl() {

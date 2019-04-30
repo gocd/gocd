@@ -1432,7 +1432,7 @@ public class ConfigConverterTest {
         assertThat(crp4Material.getUsername(), is("user"));
         assertThat(crp4Material.getEncryptedPassword(), is("encryptedvalue"));
         assertNull(crp4Material.getPassword());
-        assertThat(crp4Material.getUseTickets(), is(true));
+        assertThat(crp4Material.isUseTickets(), is(true));
         assertThat(crp4Material.getView(), is("view"));
     }
 
@@ -1456,7 +1456,7 @@ public class ConfigConverterTest {
         assertThat(crp4Material.getFilterList(), hasItem("filter"));
         assertThat(crp4Material.getPort(), is("server:port"));
         assertThat(crp4Material.getUsername(), is("user"));
-        assertThat(crp4Material.getUseTickets(), is(false));
+        assertThat(crp4Material.isUseTickets(), is(false));
         assertThat(crp4Material.getView(), is("view"));
     }
 

@@ -420,7 +420,7 @@ public class ConfigConverter {
                 p4MaterialConfig.setPassword(crp4Material.getPassword());
             }
             p4MaterialConfig.setUserName(crp4Material.getUsername());
-            p4MaterialConfig.setUseTickets(crp4Material.getUseTickets());
+            p4MaterialConfig.setUseTickets(crp4Material.isUseTickets());
             setCommonMaterialMembers(p4MaterialConfig, crScmMaterial);
             setCommonScmMaterialMembers(p4MaterialConfig, crp4Material);
             return p4MaterialConfig;
@@ -536,7 +536,7 @@ public class ConfigConverter {
             // else null - meaning simple job
         }
 
-        if (crJob.getTimeout() != null)
+        if (crJob.getTimeout() != 0)
             jobConfig.setTimeout(Integer.toString(crJob.getTimeout()));
         //else null - means default server-wide timeout
 

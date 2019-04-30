@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
+// utils
 import * as m from "mithril";
+import {Page, PageState} from "views/pages/page";
+
+// models
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
-import {ExecTask, Task} from "models/pipeline_configs/task";
-import {Page, PageState} from "views/pages/page";
+
+// components
 import {PipelineActions} from "views/pages/pipelines/actions";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import {ConceptDiagram} from "views/pages/pipelines/concept_diagram";
@@ -32,6 +36,9 @@ import {StageEditor} from "views/pages/pipelines/stage_editor";
 import {TaskEditor} from "views/pages/pipelines/task_editor";
 import {UserInputPane} from "views/pages/pipelines/user_input_pane";
 
+// styles
+import * as css from "views/pages/pipelines/components.scss";
+
 const materialImg = require("../../../app/assets/images/concept_diagrams/concept_material.svg");
 const pipelineImg = require("../../../app/assets/images/concept_diagrams/concept_pipeline.svg");
 const stageImg    = require("../../../app/assets/images/concept_diagrams/concept_stage.svg");
@@ -39,8 +46,7 @@ const jobImg      = require("../../../app/assets/images/concept_diagrams/concept
 
 export class PipelineCreatePage extends Page {
   private material: Material = new Material("git", new GitMaterialAttributes());
-  private tasks: Task[] = [new ExecTask("", [])];
-  private job: Job = new Job("", this.tasks);
+  private job: Job = new Job("", []);
   private stage: Stage = new Stage("", [this.job]);
   private model: PipelineConfig = new PipelineConfig("", [this.material], [this.stage]);
 
@@ -91,7 +97,10 @@ export class PipelineCreatePage extends Page {
       <FillableSection>
         <UserInputPane heading="Part 4: Job and Tasks">
           <JobEditor job={this.job}/>
+
+          <h4 class={css.sectionSubheading}>Write your tasks below</h4>
           <TaskEditor tasks={this.job.tasks}/>
+
           <AdvancedSettings>
             More to come...
           </AdvancedSettings>

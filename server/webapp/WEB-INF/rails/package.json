@@ -41,7 +41,8 @@
     "opensans": "file:vendor/assets/fonts/opensans",
     "underscore.string": "^3.3.5",
     "url-parse": "^1.4.7",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "shellwords-ts": "^1.0.0"
   },
   "devDependencies": {
     "@types/awesomplete": "^1.1.9",

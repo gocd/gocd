@@ -38,9 +38,13 @@ describe("Job model", () => {
       name: "name",
       tasks: [{
         type: "exec",
-        command: "ls",
-        arguments: ["-lA"]
+        attributes: {
+          command: "ls",
+          arguments: ["-lA"],
+          run_if: []
+        }
       }]
     });
   });
+
 });

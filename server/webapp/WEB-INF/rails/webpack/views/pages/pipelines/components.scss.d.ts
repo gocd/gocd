@@ -12,6 +12,7 @@ export const actions: string;
 export const saveBtns: string;
 export const errorResponse: string;
 export const sectionHeading: string;
+export const sectionSubheading: string;
 export const sectionNote: string;
 export const attention: string;
 export const userInput: string;

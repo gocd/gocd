@@ -15,31 +15,76 @@
  */
 
 import JsonUtils from "helpers/json_utils";
+import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 type ValidTypes = "exec" | "fetchArtifact";
+type RunIfCondition = "passed" | "failed" | "any";
+
 export interface Task extends ValidatableMixin {
   type: ValidTypes;
-  toApiPayload: () => any;
+  attributes: Stream<TaskAttributes>;
 }
 
-export class ExecTask extends ValidatableMixin implements Task {
-  type: ValidTypes =  "exec";
-  command: string;
-  arguments: string[];
+export interface TaskAttributes extends ValidatableMixin {
+  runIf: Stream<RunIfCondition[]>;
+  toApiPayload: () => any;
+  onCancel: Stream<Task>;
+}
+
+abstract class AbstractTask extends ValidatableMixin implements Task {
+  abstract type: ValidTypes;
+  attributes: Stream<TaskAttributes> = stream();
+
+  constructor() {
+    super();
+    this.validateAssociated("attributes");
+  }
+
+  toJSON(): any {
+    return {
+      type: this.type,
+      attributes: this.attributes().toApiPayload()
+    };
+  }
+}
+
+abstract class AbstractTaskAttributes extends ValidatableMixin implements TaskAttributes {
+  runIf: Stream<RunIfCondition[]> = stream([] as RunIfCondition[]);
+  onCancel: Stream<Task> = stream();
+
+  constructor() {
+    super();
+  }
+
+  abstract toApiPayload(): any;
+}
+
+export class ExecTask extends AbstractTask {
+  readonly type: ValidTypes = "exec";
+  workingDirectory: Stream<string> = stream();
 
   constructor(cmd: string, args: string[]) {
     super();
-    ValidatableMixin.call(this);
-    this.command = cmd;
-    this.arguments = args;
+    this.attributes(new ExecTaskAttributes(cmd, args));
+  }
+}
+
+export class ExecTaskAttributes extends AbstractTaskAttributes {
+  // validators expect streams for attrs
+  command: Stream<string>;
+  arguments: Stream<string[]>;
+
+  constructor(cmd: string, args: string[]) {
+    super();
+    this.command = stream(cmd);
+    this.validatePresenceOf("command");
+
+    this.arguments = stream(args || []);
   }
 
-  toApiPayload() {
+  toApiPayload(): any {
     return JsonUtils.toSnakeCasedObject(this);
-  }
-
-  modelType() {
-    return "Task";
   }
 }

@@ -16,13 +16,13 @@
 
 package com.thoughtworks.go.server.service.plugins.builder;
 
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
-import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.notification.NotificationMetadataStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskMetadataStore;
+import com.thoughtworks.go.plugin.access.secrets.SecretsMetadataStore;
 import com.thoughtworks.go.plugin.domain.common.*;
 import com.thoughtworks.go.plugin.domain.notification.NotificationPluginInfo;
 import com.thoughtworks.go.plugin.domain.pluggabletask.PluggableTaskPluginInfo;
+import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.junit.After;
@@ -37,9 +37,7 @@ import java.util.Collections;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class DefaultPluginInfoFinderTest {
@@ -49,12 +47,15 @@ public class DefaultPluginInfoFinderTest {
     private DefaultPluginInfoFinder finder;
     private PluggableTaskMetadataStore taskMetadataStore;
     private NotificationMetadataStore notificationMetadataStore;
+    private SecretsMetadataStore secretsMetadataStore;
+    private final String SECRET_PLUGIN_ID = "secret-plugin-id";
 
     @Before
     public void setUp() throws Exception {
         com.thoughtworks.go.ClearSingleton.clearSingletons();
         taskMetadataStore = PluggableTaskMetadataStore.instance();
         notificationMetadataStore = NotificationMetadataStore.instance();
+        secretsMetadataStore = SecretsMetadataStore.instance();
 
         finder = new DefaultPluginInfoFinder(pluginManager);
     }
@@ -73,11 +74,12 @@ public class DefaultPluginInfoFinderTest {
 
         Collection<CombinedPluginInfo> allPluginInfos = finder.allPluginInfos(null);
 
-        assertThat(allPluginInfos.size(), is(3));
+        assertThat(allPluginInfos.size(), is(4));
         assertThat(allPluginInfos, containsInAnyOrder(
                 combinedPluginInfo(taskPluginInfo("plugin-1"), notificationPluginInfo("plugin-1")),
                 combinedPluginInfo(taskPluginInfo("plugin-2")),
-                combinedPluginInfo(notificationPluginInfo("plugin-3"))));
+                combinedPluginInfo(notificationPluginInfo("plugin-3")),
+                combinedPluginInfo(secretsPluginInfo(SECRET_PLUGIN_ID))));
     }
 
     @Test
@@ -110,11 +112,25 @@ public class DefaultPluginInfoFinderTest {
         assertThat(finder.pluginInfoFor("plugin-NON-EXISTENT"), is(nullValue()));
     }
 
+    @Test
+    public void shouldGetPluginInfosForSecrets() {
+        SecretsPluginInfo pluginInfo = secretsPluginInfo(SECRET_PLUGIN_ID);
+        secretsMetadataStore.setPluginInfo(pluginInfo);
+
+        assertThat(finder.pluginInfoFor(SECRET_PLUGIN_ID), is(new CombinedPluginInfo(pluginInfo)));
+        assertThat(finder.pluginInfoFor("non-existent-plugin-id"), is(nullValue()));
+    }
+
     private PluggableInstanceSettings settings(String someConfigurationSettingKeyName) {
         PluginConfiguration configuration = new PluginConfiguration(someConfigurationSettingKeyName, new Metadata(false, false));
 
         return new PluggableInstanceSettings(singletonList(configuration));
     }
+
+    private SecretsPluginInfo secretsPluginInfo(String pluginID) {
+        return new SecretsPluginInfo(getDescriptor(pluginID), settings("key"), null);
+    }
+
 
     private NotificationPluginInfo notificationPluginInfo(String pluginID) {
         return new NotificationPluginInfo(getDescriptor(pluginID), settings("key2"));

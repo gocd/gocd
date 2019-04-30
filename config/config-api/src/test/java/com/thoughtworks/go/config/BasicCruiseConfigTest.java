@@ -66,6 +66,7 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         cruiseConfig = new BasicCruiseConfig(pipelines);
         goConfigMother = new GoConfigMother();
     }
+
     @After
     public void clear() {
         ArtifactMetadataStore.instance().clear();
@@ -297,6 +298,41 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
+    public void shouldEncryptSecurePluggableArtifactConfigPropertiesOfAllTemplatesInConfig() throws IOException, CryptoException {
+        setArtifactPluginInfo();
+        resetCipher.setupAESCipherFile();
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.getArtifactStores().add(new ArtifactStore("store1", "cd.go.s3"));
+        PipelineConfig pipelineConfig = new GoConfigMother().addPipelineWithTemplate(cruiseConfig, "p1", "t1", "s1", "j1");
+        cruiseConfig.addPipeline("first", pipelineConfig);
+        PipelineTemplateConfig templateConfig = cruiseConfig.getTemplates().first();
+        JobConfig jobConfig = templateConfig.getStages().get(0).getJobs().get(0);
+        PluggableArtifactConfig artifactConfig = new PluggableArtifactConfig("foo", "store1");
+        artifactConfig.addConfigurations(asList(
+                new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
+                new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
+                new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
+        jobConfig.artifactConfigs().add(artifactConfig);
+
+        BasicCruiseConfig preprocessed = new Cloner().deepClone(cruiseConfig);
+        new ConfigParamPreprocessor().process(preprocessed);
+        cruiseConfig.encryptSecureProperties(preprocessed);
+
+        Configuration properties = ((PluggableArtifactConfig) cruiseConfig.getTemplates().get(0).getStages().get(0).getJobs().get(0).artifactConfigs().get(0)).getConfiguration();
+
+        GoCipher goCipher = new GoCipher();
+        assertThat(properties.getProperty("k1").getEncryptedValue(), is(goCipher.encrypt("pub_v1")));
+        assertThat(properties.getProperty("k1").getConfigValue(), is(nullValue()));
+        assertThat(properties.getProperty("k1").getValue(), is("pub_v1"));
+        assertThat(properties.getProperty("k2").getEncryptedValue(), is(nullValue()));
+        assertThat(properties.getProperty("k2").getConfigValue(), is("pub_v2"));
+        assertThat(properties.getProperty("k2").getValue(), is("pub_v2"));
+        assertThat(properties.getProperty("k3").getEncryptedValue(), is(goCipher.encrypt("pub_v3")));
+        assertThat(properties.getProperty("k3").getConfigValue(), is(nullValue()));
+        assertThat(properties.getProperty("k3").getValue(), is("pub_v3"));
+    }
+
+    @Test
     public void shouldEncryptSecurePluggableArtifactConfigPropertiesOfAllPipelinesInConfig() throws IOException, CryptoException {
         // ancestor => parent => child [fetch pluggable artifact(ancestor), fetch pluggable artifact(parent)]
 
@@ -387,6 +423,11 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
                 new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("fetch_v3"))));
         child.getStage("stage1").getJobs().get(0).addTask(fetchFromParent);
 
+        setArtifactPluginInfo();
+        return config;
+    }
+
+    private void setArtifactPluginInfo() {
         PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
         PluggableInstanceSettings storeConfigSettings = new PluggableInstanceSettings(asList());
         PluginConfiguration k1 = new PluginConfiguration("k1", new Metadata(false, true));
@@ -397,12 +438,11 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         ArtifactPluginInfo artifactPluginInfo = new ArtifactPluginInfo(pluginDescriptor, storeConfigSettings, publishArtifactSettings, fetchArtifactSettings, null, new Capabilities());
         when(pluginDescriptor.id()).thenReturn("cd.go.s3");
         ArtifactMetadataStore.instance().setPluginInfo(artifactPluginInfo);
-        return config;
     }
 
     @Test
     public void shouldDeletePipelineGroupWithGroupName() {
-        PipelineConfigs group = createGroup("group", new PipelineConfig[] {});
+        PipelineConfigs group = createGroup("group", new PipelineConfig[]{});
         CruiseConfig config = createCruiseConfig();
         config.setGroup(new PipelineGroups(group));
 

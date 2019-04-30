@@ -34,6 +34,8 @@ public class GoConfigCloner extends Cloner {
     public GoConfigCloner() {
         nullInsteadOfClone(AllPipelineConfigs.class,
                 AllTemplatesWithAssociatedPipelines.class,
-                PipelineNameToConfigMap.class);
+                PipelineNameToConfigMap.class,
+                CachedPluggableArtifactConfigs.class,
+                CachedFetchPluggableArtifactTasks.class);
     }
 }

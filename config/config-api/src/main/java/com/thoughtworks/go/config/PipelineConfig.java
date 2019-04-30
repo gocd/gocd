@@ -123,8 +123,8 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
 
     private boolean templateApplied;
 
-    private List<PluggableArtifactConfig> externalArtifactConfigs = null;
-    private List<FetchPluggableArtifactTask> fetchExternalArtifactTasks = null;
+    private CachedPluggableArtifactConfigs externalArtifactConfigs = null;
+    private CachedFetchPluggableArtifactTasks fetchExternalArtifactTasks = null;
 
     private ConfigErrors errors = new ConfigErrors();
     public static final String NAME = "name";
@@ -167,7 +167,7 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
     }
 
     public void encryptSecureProperties(CruiseConfig preprocessedConfig, PipelineConfig preprocessedPipelineConfig) {
-        if (hasTemplate()) {
+        if (hasTemplate() || doesNotHavePublishAndFetchExternalConfig()) {
             return;
         }
         for (StageConfig stageConfig : getStages()) {
@@ -175,9 +175,16 @@ public class PipelineConfig extends BaseCollection<StageConfig> implements Param
         }
     }
 
+    private boolean doesNotHavePublishAndFetchExternalConfig() {
+        if (externalArtifactConfigs == null || fetchExternalArtifactTasks == null) {
+            cachePublishAndFetchExternalConfig();
+        }
+        return externalArtifactConfigs.isEmpty() && fetchExternalArtifactTasks.isEmpty();
+    }
+
     private void cachePublishAndFetchExternalConfig() {
-        externalArtifactConfigs = new ArrayList<>();
-        fetchExternalArtifactTasks = new ArrayList<>();
+        externalArtifactConfigs = new CachedPluggableArtifactConfigs();
+        fetchExternalArtifactTasks = new CachedFetchPluggableArtifactTasks();
         for (StageConfig stageConfig : getStages()) {
             for (JobConfig jobConfig : stageConfig.getJobs()) {
                 externalArtifactConfigs.addAll(jobConfig.artifactConfigs().getPluggableArtifactConfigs());

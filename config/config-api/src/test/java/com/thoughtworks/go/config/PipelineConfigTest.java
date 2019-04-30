@@ -1014,7 +1014,7 @@ public class PipelineConfigTest {
     }
 
     @Test
-    public void shouldAlwaysAttemptToEncryptProperties() {
+    public void shouldNotAttemptToEncryptPropertiesIfThereAreNoPluginConfigs() {
         PipelineConfig pipelineConfig = new PipelineConfig();
         StageConfig mockStageConfig = mock(StageConfig.class);
         pipelineConfig.add(mockStageConfig);
@@ -1024,7 +1024,7 @@ public class PipelineConfigTest {
 
         pipelineConfig.encryptSecureProperties(new BasicCruiseConfig(), pipelineConfig);
 
-        verify(mockStageConfig, times(1)).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any(StageConfig.class));
+        verify(mockStageConfig, never()).encryptSecureProperties(eq(new BasicCruiseConfig()), eq(pipelineConfig), ArgumentMatchers.any(StageConfig.class));
     }
 
     private StageConfig completedStage() {

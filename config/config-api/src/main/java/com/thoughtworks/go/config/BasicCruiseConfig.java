@@ -1567,6 +1567,10 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public void encryptSecureProperties(CruiseConfig preprocessed) {
+        for (PipelineTemplateConfig template : getTemplates()) {
+            template.encryptSecureProperties(preprocessed, preprocessed.getTemplateByName(template.name()));
+        }
+
         for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
             pipelineConfig.encryptSecureProperties(preprocessed, preprocessed.pipelineConfigByName(pipelineConfig.name()));
         }

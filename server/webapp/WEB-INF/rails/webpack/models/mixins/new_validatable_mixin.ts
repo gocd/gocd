@@ -111,6 +111,28 @@ class MaxLengthValidator extends Validator {
   }
 }
 
+class ChildAttrUniquenessValidator extends Validator {
+  private childAttr: string;
+  constructor(childAttr: string, options: ValidatorOptions = {}) {
+    super(options);
+    this.childAttr = childAttr;
+  }
+
+  protected doValidate(entity: any, attrName: string): void {
+    _.forEach(entity[attrName](), (child) => {
+      const duplicates = _.filter(entity[attrName](), (c) => {
+        return (c[this.childAttr]() === child[this.childAttr]() &&
+          c !== child);
+      });
+
+      if (!_.isEmpty(duplicates)) {
+        child.errors().add(this.childAttr, this.options.message || ErrorMessages.duplicate(this.childAttr));
+      }
+
+    });
+  }
+}
+
 class UniquenessValidator extends Validator {
   private otherElements: () => any[];
 
@@ -268,6 +290,10 @@ export class ValidatableMixin implements Validatable {
 
   validateEach(attr: string) {
     this.validateWith(new AssociatedListValidator(), attr);
+  }
+
+  validateChildAttrIsUnique(attr: string, childAttr: string, options?: ValidatorOptions): void {
+    this.validateWith(new ChildAttrUniquenessValidator(childAttr), attr);
   }
 
   validateAssociated(association: string): void {

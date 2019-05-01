@@ -104,6 +104,14 @@
   }
 }
 
+.icon-remove {
+  @include icon-before($type: $fa-var-trash, $color: $icon-color);
+
+  &:before {
+    margin: 5px 10px 5px -5px;
+  }
+}
+
 .button + .button {
   margin-left: 20px;
 }

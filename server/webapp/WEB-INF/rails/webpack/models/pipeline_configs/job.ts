@@ -15,27 +15,33 @@
  */
 
 import JsonUtils from "helpers/json_utils";
-import {Stream} from "mithril/stream";
+import * as _ from "lodash";
 import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {Task} from "models/pipeline_configs/task";
 
 export class Job extends ValidatableMixin {
   name: Stream<string>;
+  environmentVariables: Stream<EnvironmentVariableConfig[]>;
   tasks: Stream<Task[]>;
 
-  constructor(name: string, tasks: Task[]) {
+  constructor(name: string, tasks: Task[], envVars?: EnvironmentVariableConfig[]) {
     super();
 
     ValidatableMixin.call(this);
     this.name = stream(name);
     this.tasks = stream(tasks);
+    this.environmentVariables = stream(envVars);
     this.validatePresenceOf("name");
     this.validateIdFormat("name");
 
     this.validatePresenceOf("tasks");
     this.validateNonEmptyCollection("tasks", {message: "A job must have at least one task"});
     this.validateEach("tasks");
+    this.validateEach("environmentVariables");
+    this.validateChildAttrIsUnique("environmentVariables", "name");
   }
 
   toApiPayload() {

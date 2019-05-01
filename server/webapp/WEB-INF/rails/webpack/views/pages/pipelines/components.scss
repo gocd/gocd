@@ -151,6 +151,34 @@ $diagram-caption-width: 300px;
     margin: 0 5px;
   }
 
+  .env-vars {
+    table {
+      border: none;
+
+      thead {
+        background: unset;
+        border: none;
+      }
+
+      tr {
+        border: none;
+
+        td {
+          border: none;
+          vertical-align: top;
+
+          input {
+            width: 240px;;
+          }
+
+          div {
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+
   .summary {
     @include icon-before($type: $fa-var-play, $color: lighten($text-color, 30%), $size: 16px, $line-height: 25px, $margin: 0 5px);
 

@@ -15,6 +15,7 @@ export const btnDropdown: string;
 export const iconAdd: string;
 export const iconDoc: string;
 export const iconFilter: string;
+export const iconRemove: string;
 export const button: string;
 export const buttonGroup: string;
 export const btnDropdownContainer: string;

@@ -19,7 +19,7 @@ import {ExecTask} from "models/pipeline_configs/task";
 
 describe("Job model", () => {
   function validJob() {
-    return new Job("name", [new ExecTask("ls", ["-lA"])]);
+    return new Job("name", [new ExecTask("ls", ["-lA"])], []);
   }
 
   it("should include a name", () => {
@@ -27,13 +27,13 @@ describe("Job model", () => {
     expect(job.isValid()).toBe(true);
     expect(job.errors().count()).toBe(0);
 
-    job = new Job("", [new ExecTask("ls", [])]);
+    job = new Job("", [new ExecTask("ls", [])], []);
     expect(job.isValid()).toBe(false);
     expect(job.errors().count()).toBe(1);
   });
 
   it("validate name format", () => {
-    const job = new Job("my awesome job that has a terrible name", [new ExecTask("ls", ["-lA"])]);
+    const job = new Job("my awesome job that has a terrible name", [new ExecTask("ls", ["-lA"])], []);
     expect(job.isValid()).toBe(false);
     expect(job.errors().count()).toBe(1);
     expect(job.errors().keys()).toEqual(["name"]);
@@ -41,7 +41,7 @@ describe("Job model", () => {
   });
 
   it("should include at least one task", () => {
-    const job = new Job("awesome-job", []);
+    const job = new Job("awesome-job", [], []);
     expect(job.isValid()).toBe(false);
     expect(job.errors().count()).toBe(1);
     expect(job.errors().keys()).toEqual(["tasks"]);
@@ -52,6 +52,7 @@ describe("Job model", () => {
     const job = validJob();
     expect(job.toApiPayload()).toEqual({
       name: "name",
+      environment_variables: [ ],
       tasks: [{
         type: "exec",
         attributes: {
@@ -62,5 +63,4 @@ describe("Job model", () => {
       }]
     });
   });
-
 });

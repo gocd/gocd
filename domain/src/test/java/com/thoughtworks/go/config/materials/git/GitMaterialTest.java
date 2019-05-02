@@ -384,7 +384,7 @@ public class GitMaterialTest {
     }
 
     @Test
-    void shouldLogRepoInfoToConsoleOutWithoutFolder() throws Exception {
+    void shouldLogRepoInfoToConsoleOutWithoutFolder() {
         git.updateTo(outputStreamConsumer, workingDir, new RevisionContext(GitTestRepo.REVISION_1), new TestSubprocessExecutionContext());
         assertThat(outputStreamConsumer.getStdOut()).contains(String.format("Start updating %s at revision %s from %s", "files", GitTestRepo.REVISION_1.getRevision(),
                 git.getUrl()));
@@ -539,7 +539,6 @@ public class GitMaterialTest {
         assertThat(configuration.get("url")).isEqualTo("http://username:******@gitrepo.com");
         assertThat(configuration.get("branch")).isEqualTo(GitMaterialConfig.DEFAULT_BRANCH);
     }
-
 
     @Nested
     class hasSecretParams {

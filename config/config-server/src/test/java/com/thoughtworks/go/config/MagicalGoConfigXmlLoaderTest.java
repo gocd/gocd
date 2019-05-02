@@ -2537,7 +2537,7 @@ public class MagicalGoConfigXmlLoaderTest {
         MaterialConfigs materialConfigs = goConfigHolder.config.pipelineConfigByName(new CaseInsensitiveString("some_pipeline")).materialConfigs();
         assertThat(materialConfigs.size()).isEqualTo(1);
         TfsMaterialConfig materialConfig = (TfsMaterialConfig) materialConfigs.get(0);
-        assertThat(materialConfig).isEqualTo(new TfsMaterialConfig(new GoCipher(), UrlArgument.create("tfsurl"), "foo", "", "bar", "project-path"));
+        assertThat(materialConfig).isEqualTo(new TfsMaterialConfig(new GoCipher(), new UrlArgument("tfsurl"), "foo", "", "bar", "project-path"));
     }
 
     @Test

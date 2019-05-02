@@ -89,7 +89,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        String urlWithCredentials = urlWithCredentials(this.url.originalArgument(), getUserName(), getPassword());
+        String urlWithCredentials = urlWithCredentials(this.url.forCommandLine(), getUserName(), getPassword());
         parameters.put(ScmMaterialConfig.URL, urlWithCredentials);
         parameters.put("branch", branch);
     }
@@ -103,7 +103,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     public String getUrl() {
-        return url != null ? url.originalArgument() : null;
+        return url != null ? url.forCommandLine() : null;
     }
 
     @Override
@@ -156,7 +156,8 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
-        validateMaterialUrl(this.url, validationContext);
+        validateMaterialUrl(this.url);
+        validatePassword(validationContext);
 //        validateCredentialsInMaterialUrl();
     }
 

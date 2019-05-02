@@ -16,19 +16,23 @@
 
 package com.thoughtworks.go.util.command;
 
-import com.thoughtworks.go.config.SecretParam;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.stream.Stream;
+
+import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
 
 class UrlArgumentTest {
     private static final String URL_WITH_PASSWORD = "http://username:password@somehere";
-    private static final String URL_WITH_SECRET_PARAMS = "https://bob:{{SECRET:[secret-config-id][password]}}@gocd.org/foo/bar.git";
 
     private CommandArgument argument;
 
@@ -37,33 +41,71 @@ class UrlArgumentTest {
         argument = new UrlArgument(URL_WITH_PASSWORD);
     }
 
+    @Test
+    void shouldBeTypeOfCommandArgument() {
+        assertThat(new UrlArgument("foo")).isInstanceOf(CommandArgument.class);
+    }
+
+    @Test
+    void shouldErrorOutIfGivenUrlIsNull() {
+        assertThatCode(() -> new UrlArgument(null))
+                .isInstanceOf(RuntimeException.class)
+                .hasMessage("Url cannot be null.");
+    }
+
     @Nested
     class originalArgument {
         @Test
-        void shouldReturnStringValue() {
+        void shouldReturnGivenUrlAsItIs() {
             assertThat(argument.originalArgument()).isEqualTo(URL_WITH_PASSWORD);
         }
     }
 
     @Nested
-    class forDisplay {
+    class forCommandLine {
         @Test
-        void shouldReturnStringValueForReporting() {
-            assertThat(argument.forDisplay()).isEqualTo("http://username:******@somehere");
+        void shouldReturnGivenUrlAsItIs() {
+            final UrlArgument url = new UrlArgument("https://username:password@something/foo");
+
+            assertThat(url.forCommandLine()).isEqualTo("https://username:password@something/foo");
+        }
+    }
+
+    @Nested
+    @TestInstance(PER_CLASS)
+    class forDisplay {
+        Stream<Arguments> urls() {
+            return Stream.of(
+                    Arguments.of("", ""),
+                    Arguments.of("http://username:password@somehere", "http://username:******@somehere"),
+                    Arguments.of("http://username@somehere", "http://******@somehere"),
+                    Arguments.of("http://:@somehere", "http://:******@somehere"),
+                    Arguments.of("http://:password@somehere", "http://:******@somehere"),
+                    Arguments.of("http://username:@somehere", "http://username:******@somehere"),
+                    Arguments.of("http://something/somewhere", "http://something/somewhere")
+            );
+        }
+
+        @ParameterizedTest
+        @MethodSource("urls")
+        void shouldMaskPasswordInGivenUrl(String input, String expectedMaskedUrl) {
+            final UrlArgument simpleUrlArgument = new UrlArgument(input);
+
+            assertThat(simpleUrlArgument.forDisplay()).isEqualTo(expectedMaskedUrl);
         }
 
         @Test
         void shouldNotMaskWithJustUserForSvnSshProtocol() {
             String normal = "svn+ssh://user@10.18.7.51:8153";
             UrlArgument url = new UrlArgument(normal);
-            assertThat(url.forDisplay()).isEqualTo("svn+ssh://user@10.18.7.51:8153");
+            assertThat(url.forDisplay()).isEqualTo("svn+ssh://******@10.18.7.51:8153");
         }
 
         @Test
         void shouldNotMaskWithJustUserForSshProtocol() {
             String normal = "ssh://user@10.18.7.51:8153";
             UrlArgument url = new UrlArgument(normal);
-            assertThat(url.forDisplay()).isEqualTo("ssh://user@10.18.7.51:8153");
+            assertThat(url.forDisplay()).isEqualTo("ssh://******@10.18.7.51:8153");
         }
 
         @Test
@@ -78,20 +120,6 @@ class UrlArgumentTest {
         void shouldMaskAuthTokenInUrl() {
             UrlArgument url = new UrlArgument("https://9bf58jhrb32f29ad0c3983a65g594f1464jgf9a3@somewhere");
             assertThat(url.forDisplay()).isEqualTo("https://******@somewhere");
-        }
-
-        @Test
-        void shouldMaskSecretParamsInUrl() {
-            final UrlArgument argument = new UrlArgument(URL_WITH_SECRET_PARAMS);
-
-            assertThat(argument.forDisplay()).isEqualTo("https://bob:******@gocd.org/foo/bar.git");
-        }
-
-        @Test
-        void shouldMaskSecretParamsUsedForAnythingOtherThanPassword() {
-            final UrlArgument argument = new UrlArgument("https://{{SECRET:[id][key]}}:password@foo.com/bar.git");
-
-            assertThat(argument.forDisplay()).isEqualTo("https://******:******@foo.com/bar.git");
         }
     }
 
@@ -116,19 +144,11 @@ class UrlArgumentTest {
             assertThat(url.toString()).isEqualTo("svn+ssh://user:******@10.18.7.51:8153");
         }
 
-
         @Test
         void shouldIgnoreArgumentsThatAreNotRecognisedUrls() {
             String notAUrl = "C:\\foo\\bar\\baz";
             UrlArgument url = new UrlArgument(notAUrl);
             assertThat(url.toString()).isEqualTo(notAUrl);
-        }
-
-        @Test
-        void shouldMaskSecretParamsInUrl() {
-            final UrlArgument argument = new UrlArgument(URL_WITH_SECRET_PARAMS);
-
-            assertThat(argument.toString()).isEqualTo("https://bob:******@gocd.org/foo/bar.git");
         }
     }
 
@@ -158,148 +178,10 @@ class UrlArgumentTest {
         }
 
         @Test
-        void shouldBeEqualBasedOnRawUrlWhenHasSecretParams() {
-            UrlArgument url1 = new UrlArgument(URL_WITH_SECRET_PARAMS);
-            UrlArgument url2 = new UrlArgument(URL_WITH_SECRET_PARAMS);
-            assertThat(url1).isEqualTo(url2);
-        }
-
-        @Test
         void shouldIgnoreTrailingSlashesOnURIs() {
             UrlArgument url1 = new UrlArgument("file:///not-exist/svn/trunk/");
             UrlArgument url2 = new UrlArgument("file:///not-exist/svn/trunk");
             assertThat(url1).isEqualTo(url2);
-        }
-    }
-
-    @Nested
-    class hostInfoForDisplay {
-        @Test
-        void shouldMaskPasswordInHgUrlWithBranch() {
-            UrlArgument url = new UrlArgument("http://cce:password@10.18.3.171:8080/hg/connect4/trunk#foo");
-            assertThat(url.hostInfoForDisplay()).isEqualTo("http://cce:******@10.18.3.171:8080");
-        }
-
-        @Test
-        void shouldMaskSecretParamInHostInfo() {
-            UrlArgument url = new UrlArgument("https://{{SECRET:[secret-config-id][username]}}:{{SECRET:[secret-config-id][password]}}@10.18.3.171:8080/foo/bar.git");
-            assertThat(url.hostInfoForDisplay()).isEqualTo("https://******:******@10.18.3.171:8080");
-        }
-    }
-
-    @Nested
-    class hostInfoForCommandline {
-        @Test
-        void shouldReturnPasswordInUrl() {
-            UrlArgument url = new UrlArgument("http://cce:password@10.18.3.171:8080/hg/connect4/trunk#foo");
-            assertThat(url.hostInfoForCommandline()).isEqualTo("http://cce:password@10.18.3.171:8080");
-        }
-
-        @Test
-        void shouldSubstituteSecretParams() {
-            UrlArgument url = new UrlArgument(URL_WITH_SECRET_PARAMS);
-
-            url.getSecretParams().findFirst("password").ifPresent(secretParam -> secretParam.setValue("badger"));
-
-            final String actual = url.hostInfoForCommandline();
-
-            assertThat(actual).isEqualTo("https://bob:badger@gocd.org");
-        }
-    }
-
-    @Nested
-    class hasSecretParams {
-        @Test
-        void shouldReturnTrueIfHasSecretParams() {
-            final UrlArgument url = new UrlArgument(URL_WITH_SECRET_PARAMS);
-
-            assertThat(url.hasSecretParams()).isTrue();
-        }
-
-        @Test
-        void shouldReturnFalseIfHasNoSecretParams() {
-            final UrlArgument url = new UrlArgument("https://username:password@gocd.org/foo");
-
-            assertThat(url.hasSecretParams()).isFalse();
-        }
-    }
-
-    @Nested
-    class isValid {
-        @ParameterizedTest
-        @ValueSource(strings = {
-                "https://username:{{SECRET:[secret-config-id][password]}}@foo/bar.git",
-                "https://{{SECRET:[secret-config-id][token]}}@foo/bar.git"
-        })
-        void shouldBeTrueIfUserInfoIsSpecifiedUsingSecretParams(String url) {
-            final UrlArgument urlArgument = new UrlArgument(url);
-
-            assertThat(urlArgument.isValid()).isTrue();
-        }
-
-        @ParameterizedTest
-        @ValueSource(strings = {
-                "https://{{SECRET:[secret-config-id][host]}}:80/foo/bar.git",
-                "{{SECRET:[secret-config-id][scheme]}}://hostname/foo/bar.git",
-                "{{SECRET:[secret-config-id][scheme]}}://username:{{SECRET:[secret-config-id][password]}}@hostname:80/foo/bar.git",
-                "https://username:pass@{{SECRET:[secret-config-id][host]}}:80/foo/bar.git",
-                "https://{{SECRET:[secret-config-id][username]}}:pass@hostname/foo/bar.git",
-                "https://abc_{{SECRET:[secret-config-id][username]}}:pass@hostname/foo/bar.git",
-                "https://username:pass@foo:{{SECRET:[secret-config-id][port]}}/foo/bar.git",
-                "https://username:pass@foo.com/{{SECRET:[secret-config-id][path]}}.git",
-                "https://username:pass@foo/bar.git?foo={{SECRET:[secret-config-id][some-secret]}}",
-                "https://username:pass@foo/bar.git#foo={{SECRET:[secret-config-id][some-secret]}}"
-        })
-        void shouldBeFalseIfSecretParamsIsUsedInOtherThanUserInfo(String url) {
-            final UrlArgument urlArgument = new UrlArgument(url);
-
-            assertThat(urlArgument.isValid()).isFalse();
-        }
-    }
-
-    @Nested
-    class getSecretParams {
-        @Test
-        void shouldReturnSecretParamsIfHasSecretParams() {
-            final UrlArgument url = new UrlArgument(URL_WITH_SECRET_PARAMS);
-
-            assertThat(url.getSecretParams()).hasSize(1)
-                    .contains(new SecretParam("secret-config-id", "password"));
-        }
-
-        @Test
-        void shouldReturnEmptyIfHasNoSecretParams() {
-            final UrlArgument url = new UrlArgument("https://username:password@gocd.org/foo");
-
-            assertThat(url.getSecretParams()).hasSize(0);
-        }
-    }
-
-    @Nested
-    class forCommandLine {
-        @Test
-        void shouldReturnAppropriateUrl() {
-            final UrlArgument url = new UrlArgument("https://username:password@something/foo");
-
-            assertThat(url.forCommandLine()).isEqualTo("https://username:password@something/foo");
-        }
-
-        @Test
-        void shouldSubstituteSecretParamValue() {
-            final UrlArgument url = new UrlArgument(URL_WITH_SECRET_PARAMS);
-
-            url.getSecretParams().findFirst("password").ifPresent(secretParam -> secretParam.setValue("some-password"));
-
-            assertThat(url.forCommandLine()).isEqualTo("https://bob:some-password@gocd.org/foo/bar.git");
-        }
-
-        @Test
-        void shouldBombIfInvalidUrl() {
-            final UrlArgument url = new UrlArgument("https://{{SECRET:[secret_config_id][key]}}:pass@gocd.org");
-
-            assertThatCode(url::forCommandLine)
-                    .isInstanceOf(RuntimeException.class)
-                    .hasMessage("Url https://******:******@gocd.org is not valid url. Make sure that only password is specified as secret params.");
         }
     }
 
@@ -311,18 +193,61 @@ class UrlArgumentTest {
 
             assertThat(url.withoutCredentials()).isEqualTo("https://something/foo");
         }
-
-        @Test
-        void shouldRemoveSecretParams() {
-            final UrlArgument url = new UrlArgument(URL_WITH_SECRET_PARAMS);
-
-            assertThat(url.withoutCredentials()).isEqualTo("https://gocd.org/foo/bar.git");
-        }
     }
 
     //BUG #2973
     @Nested
+    @TestInstance(PER_CLASS)
     class replaceSecretInfo {
+        Stream<Arguments> urls() {
+            return Stream.of(
+                    Arguments.of("http://username:password@somewhere?name=bob", "http://username:******@somewhere?name=bob"),
+                    Arguments.of("http://username:@somewhere/gocd/gocd.git", "http://username:******@somewhere/gocd/gocd.git"),
+                    Arguments.of("http://somewhere:1234/gocd/gocd.git", "http://somewhere:1234/gocd/gocd.git")
+            );
+        }
+
+        @Test
+        void shouldReturnLineAsItIsIfLineIsBlank() {
+            final UrlArgument urlArgument = new UrlArgument("http://username:password@somewhere?name=bob");
+            assertThat(urlArgument.replaceSecretInfo("")).isEqualTo("");
+        }
+
+        @Test
+        void shouldReturnLineAsItIsIfLineIsNull() {
+            final UrlArgument urlArgument = new UrlArgument("http://username:password@somewhere?name=bob");
+            assertThat(urlArgument.replaceSecretInfo(null)).isEqualTo(null);
+        }
+
+        @Test
+        void shouldReturnLineAsItIsIfUrlIsBlank() {
+            final UrlArgument urlArgument = new UrlArgument("");
+            assertThat(urlArgument.replaceSecretInfo("some-content")).isEqualTo("some-content");
+        }
+
+        @ParameterizedTest
+        @MethodSource("urls")
+        void shouldMaskPasswordInGivenConsoleOutput(String input, String maskedUrl) {
+            final UrlArgument urlArgument = new UrlArgument(input);
+            final String originalLine = format("[go] Start updating repo at revision 08e7cc03 from %s", input);
+
+            final String expectedLine = format("[go] Start updating repo at revision 08e7cc03 from %s", maskedUrl);
+            assertThat(urlArgument.replaceSecretInfo(originalLine)).isEqualTo(expectedLine);
+        }
+
+        @Test
+        void shouldMaskMultipleOccurrencesOfUserInfo() {
+            final String url = "http://username:password@somewhere?name=bob";
+            final String originalLine = format("[go] echoing same url twice: %s and %s", url, url);
+            final UrlArgument urlArgument = new UrlArgument(url);
+
+            final String actual = urlArgument.replaceSecretInfo(originalLine);
+
+            final String maskedUrl = "http://username:******@somewhere?name=bob";
+            final String expectedLine = format("[go] echoing same url twice: %s and %s", maskedUrl, maskedUrl);
+            assertThat(actual).isEqualTo(expectedLine);
+        }
+
         @Test
         void shouldReplaceAllThePasswordsInSvnInfo() {
             String output = "<?xml version=\"1.0\"?>\n"

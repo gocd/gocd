@@ -17,14 +17,19 @@
 package com.thoughtworks.go.util.command;
 
 public class UrlUserInfo {
+    private static final String MASKED_VALUE = "******";
     private String username;
     private String password;
+
+    //To handle - BUG #5471
+    private boolean possiblyToken;
 
     public UrlUserInfo(String colonSeparatedCredentials) {
         if (colonSeparatedCredentials != null) {
             final String[] parts = colonSeparatedCredentials.split(":", 2);
             this.username = parts[0];
             this.password = parts.length == 2 ? parts[1] : null;
+            this.possiblyToken = (parts.length == 1);
         }
     }
 
@@ -43,11 +48,11 @@ public class UrlUserInfo {
 
         final StringBuilder builder = new StringBuilder();
         if (this.username != null) {
-            builder.append(this.username);
+            builder.append(possiblyToken ? MASKED_VALUE : this.username);
         }
 
         if (this.password != null) {
-            builder.append(":").append("******");
+            builder.append(":").append(MASKED_VALUE);
         }
         return builder.toString();
     }

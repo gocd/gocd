@@ -41,9 +41,9 @@ class UrlUserInfoTest {
     static Stream<Arguments> userInfoWithMaskedPassword() {
         return Stream.of(
                 Arguments.of(null, null),
-                Arguments.of("", ""),
+                Arguments.of("", "******"),
                 Arguments.of(":", ":******"),
-                Arguments.of("username", "username"),
+                Arguments.of("username-or-token", "******"),
                 Arguments.of("username:", "username:******"),
                 Arguments.of(":password", ":******"),
                 Arguments.of("username:password", "username:******")

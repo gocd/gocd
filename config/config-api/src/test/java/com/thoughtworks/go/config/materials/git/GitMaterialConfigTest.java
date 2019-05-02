@@ -179,23 +179,14 @@ class GitMaterialConfigTest {
         }
 
         @Test
-        void shouldFailValidationIfMaterialURLHasSecretParamsConfiguredOtherThanForUsernamePassword() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-
-            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
-
-            assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Only password can be specified as secret params");
-        }
-
-        @Test
         void shouldFailIfSecretParamConfiguredWithSecretConfigIdWhichIsNotExist() {
             final ValidationContext validationContext = mockValidationContextForSecretParams();
 
-            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
+            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://host/foo.git");
+            gitMaterialConfig.setPassword("{{SECRET:[secret_config_id][pass]}}");
 
             assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Secret config with ids `secret_config_id` does not exist.");
+            assertThat(gitMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret config with ids `secret_config_id` does not exist.");
         }
 
         @Test

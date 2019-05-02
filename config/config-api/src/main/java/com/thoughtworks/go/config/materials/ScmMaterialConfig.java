@@ -23,7 +23,7 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.FilenameUtil;
-import com.thoughtworks.go.util.command.UrlArgument;
+import com.thoughtworks.go.util.command.CommandArgument;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -391,17 +391,10 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         this.folder = folder;
     }
 
-    protected void validateMaterialUrl(UrlArgument url, ValidationContext validationContext) {
+    protected void validateMaterialUrl(CommandArgument url) {
         if (url == null || isBlank(url.forDisplay())) {
             errors().add(URL, "URL cannot be blank");
-            return;
         }
-
-        if (!url.isValid()) {
-            errors.add(URL, "Only password can be specified as secret params");
-        }
-
-        validateSecretParamsConfig(URL, url.getSecretParams(), validationContext);
     }
 
     protected void validatePassword(ValidationContext validationContext) {

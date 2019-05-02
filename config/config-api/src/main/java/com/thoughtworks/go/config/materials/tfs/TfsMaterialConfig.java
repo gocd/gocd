@@ -30,7 +30,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @ConfigTag(value = "tfs", label = "TFS")
 public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial, PasswordEncrypter {
@@ -126,7 +125,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
-        validateMaterialUrl(this.url, validationContext);
+        validateMaterialUrl(this.url);
         validatePassword(validationContext);
 
         if (StringUtils.isBlank(userName)) {

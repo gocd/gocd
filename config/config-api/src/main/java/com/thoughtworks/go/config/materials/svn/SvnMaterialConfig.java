@@ -28,7 +28,6 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.*;
 
 @ConfigTag(value = "svn", label = "Subversion")
 public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordEncrypter, PasswordAwareMaterial {
@@ -124,7 +123,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
 
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
-        validateMaterialUrl(this.url, validationContext);
+        validateMaterialUrl(this.url);
         validatePassword(validationContext);
     }
 

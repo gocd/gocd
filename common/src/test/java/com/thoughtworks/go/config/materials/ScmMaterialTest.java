@@ -18,13 +18,12 @@ package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.DummyMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,42 +32,41 @@ import java.util.Date;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
 
-public class ScmMaterialTest {
+class ScmMaterialTest {
     private DummyMaterial material;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         material = new DummyMaterial();
     }
 
     @Test
-    public void shouldSmudgePasswordForDescription() throws Exception{
+    void shouldSmudgePasswordForDescription() {
         material.setUrl("http://user:password@localhost:8000/foo");
         assertThat(material.getDescription(), is("http://user:******@localhost:8000/foo"));
     }
 
 
     @Test
-    public void displayNameShouldReturnUrlWhenNameNotSet() throws Exception{
+    void displayNameShouldReturnUrlWhenNameNotSet() {
         material.setUrl("http://user:password@localhost:8000/foo");
         assertThat(material.getDisplayName(), is("http://user:******@localhost:8000/foo"));
     }
 
     @Test
-    public void displayNameShouldReturnNameWhenSet() throws Exception{
+    void displayNameShouldReturnNameWhenSet() {
         material.setName(new CaseInsensitiveString("blah-name"));
         assertThat(material.getDisplayName(), is("blah-name"));
     }
 
     @Test
-    public void willNeverBeUsedInAFetchArtifact() {
+    void willNeverBeUsedInAFetchArtifact() {
         assertThat(material.isUsedInFetchArtifact(new PipelineConfig()), is(false));
     }
 
     @Test
-    public void populateEnvironmentContextShouldSetFromAndToRevisionEnvironmentVariables() {
+    void populateEnvironmentContextShouldSetFromAndToRevisionEnvironmentVariables() {
 
         EnvironmentVariableContext ctx = new EnvironmentVariableContext();
         final ArrayList<Modification> modifications = new ArrayList<>();
@@ -89,20 +87,20 @@ public class ScmMaterialTest {
     }
 
     @Test
-    public void shouldIncludeMaterialNameInEnvVariableNameIfAvailable() {
+    void shouldIncludeMaterialNameInEnvVariableNameIfAvailable() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         material.setVariableWithName(context, "value", "GO_PROPERTY");
         assertThat(context.getProperty("GO_PROPERTY"), is("value"));
 
         context = new EnvironmentVariableContext();
-        material.setName( new CaseInsensitiveString("dummy"));
+        material.setName(new CaseInsensitiveString("dummy"));
         material.setVariableWithName(context, "value", "GO_PROPERTY");
         assertThat(context.getProperty("GO_PROPERTY_DUMMY"), is("value"));
         assertThat(context.getProperty("GO_PROPERTY"), is(nullValue()));
     }
 
     @Test
-    public void shouldIncludeDestFolderInEnvVariableNameIfMaterialNameNotAvailable() {
+    void shouldIncludeDestFolderInEnvVariableNameIfMaterialNameNotAvailable() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         material.setVariableWithName(context, "value", "GO_PROPERTY");
         assertThat(context.getProperty("GO_PROPERTY"), is("value"));
@@ -115,16 +113,16 @@ public class ScmMaterialTest {
     }
 
     @Test
-    public void shouldEscapeHyphenFromMaterialNameWhenUsedInEnvVariable() {
+    void shouldEscapeHyphenFromMaterialNameWhenUsedInEnvVariable() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
-        material.setName( new CaseInsensitiveString("material-name"));
+        material.setName(new CaseInsensitiveString("material-name"));
         material.setVariableWithName(context, "value", "GO_PROPERTY");
         assertThat(context.getProperty("GO_PROPERTY_MATERIAL_NAME"), is("value"));
         assertThat(context.getProperty("GO_PROPERTY"), is(nullValue()));
     }
 
     @Test
-    public void shouldEscapeHyphenFromFolderNameWhenUsedInEnvVariable() {
+    void shouldEscapeHyphenFromFolderNameWhenUsedInEnvVariable() {
         EnvironmentVariableContext context = new EnvironmentVariableContext();
         material.setFolder("folder-name");
         material.setVariableWithName(context, "value", "GO_PROPERTY");
@@ -133,12 +131,12 @@ public class ScmMaterialTest {
     }
 
     @Test
-    public void shouldReturnTrueForAnScmMaterial_supportsDestinationFolder() throws Exception {
+    void shouldReturnTrueForAnScmMaterial_supportsDestinationFolder() {
         assertThat(material.supportsDestinationFolder(), is(true));
     }
 
     @Test
-    public void shouldGetMaterialNameForEnvironmentMaterial(){
+    void shouldGetMaterialNameForEnvironmentMaterial() {
         assertThat(material.getMaterialNameForEnvironmentVariable(), is(""));
         material.setFolder("dest-folder");
         assertThat(material.getMaterialNameForEnvironmentVariable(), is("DEST_FOLDER"));

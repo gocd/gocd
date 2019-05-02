@@ -25,7 +25,6 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
-        new DistroVersion(version: '3.6', releaseName: '3.6', eolDate: parseDate('2019-05-01'), continueToBuild: true),
         new DistroVersion(version: '3.7', releaseName: '3.7', eolDate: parseDate('2019-11-01')),
         new DistroVersion(version: '3.8', releaseName: '3.8', eolDate: parseDate('2020-05-01')),
         new DistroVersion(version: '3.9', releaseName: '3.9', eolDate: parseDate('2021-01-01'))

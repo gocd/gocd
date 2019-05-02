@@ -82,7 +82,7 @@ public class UrlArgument extends CommandArgument implements SecretParamAware {
         if (StringUtils.isBlank(path)) {
             return path;
         }
-        
+
         try {
             return URLDecoder.decode(path, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {

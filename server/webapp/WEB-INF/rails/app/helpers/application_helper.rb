@@ -284,6 +284,10 @@ module ApplicationHelper
     SystemEnvironment.goSpaRefreshInterval()
   end
 
+  def use_new_add_pipeline_flow?
+    Toggles.isToggleOn(Toggles.NEW_ADD_PIPELINE_FLOW)
+  end
+
   def version
     @@version ||= com.thoughtworks.go.CurrentGoCDVersion.getInstance().formatted()
   end

@@ -30,24 +30,21 @@ describe("Material Types", () => {
       const material = new Material("git", new GitMaterialAttributes());
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
-      expect(material.errors().count()).toBe(0);
       expect(material.attributes().errors().count()).toBe(1);
       expect(material.attributes().errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate SVN material attributes", () => {
-      const material = new Material("git", new SvnMaterialAttributes());
+      const material = new Material("svn", new SvnMaterialAttributes());
       expect(material.isValid()).toBe(false);
-      expect(material.errors().count()).toBe(0);
       expect(material.errors().count()).toBe(0);
       expect(material.attributes().errors().count()).toBe(1);
       expect(material.attributes().errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate P4 material attributes", () => {
-      const material = new Material("git", new P4MaterialAttributes());
+      const material = new Material("p4", new P4MaterialAttributes());
       expect(material.isValid()).toBe(false);
-      expect(material.errors().count()).toBe(0);
       expect(material.errors().count()).toBe(0);
       expect(material.attributes().errors().count()).toBe(2);
       expect(material.attributes().errors().keys()).toEqual(["view", "port"]);
@@ -56,23 +53,38 @@ describe("Material Types", () => {
     });
 
     it("should should validate Hg material attributes", () => {
-      const material = new Material("git", new HgMaterialAttributes());
+      const material = new Material("hg", new HgMaterialAttributes());
       expect(material.isValid()).toBe(false);
-      expect(material.errors().count()).toBe(0);
       expect(material.errors().count()).toBe(0);
       expect(material.attributes().errors().count()).toBe(1);
       expect(material.attributes().errors().keys()).toEqual(["url"]);
     });
 
     it("should should validate TFS material attributes", () => {
-      const material = new Material("git", new TfsMaterialAttributes());
+      const material = new Material("tfs", new TfsMaterialAttributes());
       expect(material.isValid()).toBe(false);
-      expect(material.errors().count()).toBe(0);
       expect(material.errors().count()).toBe(0);
       expect(material.attributes().errors().count()).toBe(4);
       expect(material.attributes().errors().keys())
         .toEqual(["url", "projectPath", "username", "password"]);
     });
 
+    it("should should validate Git URL credentials", () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "http://user:pass@host", "master", "user", "pass"));
+      expect(material.isValid()).toBe(false);
+      expect(material.errors().count()).toBe(0);
+      expect(material.attributes().errors().count()).toBe(1);
+      expect(material.attributes().errors().keys()).toEqual(["url"]);
+      expect(material.attributes().errors().errorsForDisplay("url")).toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
+    });
+
+    it("should should validate Hg URL credentials", () => {
+      const material = new Material("hg", new HgMaterialAttributes(undefined, true, "http://user:pass@host", "user", "pass"));
+      expect(material.isValid()).toBe(false);
+      expect(material.errors().count()).toBe(0);
+      expect(material.attributes().errors().count()).toBe(1);
+      expect(material.attributes().errors().keys()).toEqual(["url"]);
+      expect(material.attributes().errors().errorsForDisplay("url")).toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
+    });
   });
 });

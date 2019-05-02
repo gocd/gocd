@@ -73,21 +73,19 @@ describe("ConfigReposWidget", () => {
       helper.redraw();
       const materialPanel = helper.findByDataTestId("config-repo-material-panel");
       const title         = materialPanel.children().get(0);
-      const keyValuePair  = materialPanel.children().get(1).children[0].children;
+      const keyValuePair  = materialPanel.children().get(1).children[0];
 
       expect(title).toHaveText("Material");
-      expect(keyValuePair[0]).toContainText("Type");
-      expect(keyValuePair[0]).toContainText("git");
-      expect(keyValuePair[1]).toContainText("Username");
-      expect(keyValuePair[1]).toContainText("bob");
-
-      expect(keyValuePair[2]).toContainText("Password");
-      expect(keyValuePair[2]).toContainText("*******");
-
-      expect(keyValuePair[3]).toContainText("URL");
-      expect(keyValuePair[3]).toContainText("https://example.com/git");
-      expect(keyValuePair[4]).toContainText("Branch");
-      expect(keyValuePair[4]).toContainText("master");
+      expect(findByTestId(keyValuePair, "key-value-key-type")).toContainText("Type");
+      expect(findByTestId(keyValuePair, "key-value-value-type")).toContainText("git");
+      expect(findByTestId(keyValuePair, "key-value-key-username")).toContainText("Username");
+      expect(findByTestId(keyValuePair, "key-value-value-username")).toContainText("bob");
+      expect(findByTestId(keyValuePair, "key-value-key-password")).toContainText("Password");
+      expect(findByTestId(keyValuePair, "key-value-value-password")).toContainText("*******");
+      expect(findByTestId(keyValuePair, "key-value-key-url")).toContainText("URL");
+      expect(findByTestId(keyValuePair, "key-value-value-url")).toContainText("https://example.com/git");
+      expect(findByTestId(keyValuePair, "key-value-key-branch")).toContainText("Branch");
+      expect(findByTestId(keyValuePair, "key-value-value-branch")).toContainText("master");
     });
 
     it("should render config repository configuration details section", () => {
@@ -326,7 +324,8 @@ describe("ConfigReposWidget", () => {
                                      username: 'bob',
                                      encrypted_password: 'AES:foo:bar',
                                      auto_update: true,
-                                     branch: "master"
+                                     branch: "master",
+                                     destination: ""
                                    }
                                  },
                                  configuration: [{
@@ -365,7 +364,8 @@ describe("ConfigReposWidget", () => {
                                      url: "https://example.com/git/" + (repoId || uuid()),
                                      name: "foo",
                                      auto_update: true,
-                                     branch: "master"
+                                     branch: "master",
+                                     destination: ""
                                    }
                                  },
                                  configuration: [{
@@ -436,3 +436,7 @@ describe("ConfigReposWidget", () => {
     return PluginInfo.fromJSON(pluginInfoWithConfigRepoExtension, links);
   }
 });
+
+function findByTestId(el: Element, id: string): Element | null {
+  return el.querySelector(`[data-test-id="${id}"]`);
+}

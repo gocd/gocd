@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import SparkRoutes from "helpers/spark_routes";
+
 const _      = require('lodash');
 const Routes = require("gen/js-routes");
 
@@ -86,6 +88,7 @@ class PipelineGroup extends Group {
     return {
       show: `${Routes.pipelineGroupsPath()}#group-${this.name}`,
       edit: Routes.pipelineGroupEditPath(this.name),
+      new: `${SparkRoutes.newCreatePipelinePath()}?group=${this.name}`,
       newPipeline: `${Routes.pipelineNewPath()}?group=${this.name}`
     };
   }

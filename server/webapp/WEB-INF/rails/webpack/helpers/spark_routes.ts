@@ -22,8 +22,20 @@ export default class {
     return `/go/api/server_health_messages`;
   }
 
+  static pipelineGroupsListPath() {
+    return `/go/api/admin/pipeline_groups`;
+  }
+
   static adminPipelineConfigPath(pipelineName: string): string {
     return `/go/api/admin/pipelines/${pipelineName}`;
+  }
+
+  static newCreatePipelinePath(): string {
+    return `/go/admin/pipelines/create`;
+  }
+
+  static pipelineConfigCreatePath(): string {
+    return `/go/api/admin/pipelines`;
   }
 
   static pipelinePausePath(pipelineName: string): string {
@@ -53,6 +65,10 @@ export default class {
                                              search_text: searchText
                                            });
     return `/go/api/internal/material_search?${queryString}`;
+  }
+
+  static internalDependencyMaterialSuggestionsPath(): string {
+    return `/go/api/internal/dependency_material/autocomplete_suggestions`;
   }
 
   static pipelineSelectionPath(): string {

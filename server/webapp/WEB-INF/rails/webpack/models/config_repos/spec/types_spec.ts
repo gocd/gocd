@@ -48,7 +48,7 @@ describe("Config Repo Types", () => {
     });
 
     it("should should validate SVN material attributes", () => {
-      const configRepo = new ConfigRepo("id", "pluginId", new Material("git", new SvnMaterialAttributes()));
+      const configRepo = new ConfigRepo("id", "pluginId", new Material("svn", new SvnMaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);
@@ -57,7 +57,7 @@ describe("Config Repo Types", () => {
     });
 
     it("should should validate P4 material attributes", () => {
-      const configRepo = new ConfigRepo("id", "pluginId", new Material("git", new P4MaterialAttributes()));
+      const configRepo = new ConfigRepo("id", "pluginId", new Material("p4", new P4MaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);
@@ -68,7 +68,7 @@ describe("Config Repo Types", () => {
     });
 
     it("should should validate Hg material attributes", () => {
-      const configRepo = new ConfigRepo("id", "pluginId", new Material("git", new HgMaterialAttributes()));
+      const configRepo = new ConfigRepo("id", "pluginId", new Material("hg", new HgMaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);
@@ -77,7 +77,7 @@ describe("Config Repo Types", () => {
     });
 
     it("should should validate TFS material attributes", () => {
-      const configRepo = new ConfigRepo("id", "pluginId", new Material("git", new TfsMaterialAttributes()));
+      const configRepo = new ConfigRepo("id", "pluginId", new Material("tfs", new TfsMaterialAttributes()));
       expect(configRepo.isValid()).toBe(false);
       expect(configRepo.errors().count()).toBe(0);
       expect(configRepo.material().errors().count()).toBe(0);

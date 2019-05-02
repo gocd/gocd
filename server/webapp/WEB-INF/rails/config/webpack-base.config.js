@@ -105,7 +105,6 @@ module.exports = function (env) {
                   configFileName: path.join(__dirname, '..', 'tsconfig.common.json')
                 }
               },
-
             ]
           },
           {
@@ -119,7 +118,7 @@ module.exports = function (env) {
             }]
           },
           {
-            test:    /\.scss$/,
+            test:    /\.(s)?css$/,
             exclude: /node_modules/,
             use:     [
               {

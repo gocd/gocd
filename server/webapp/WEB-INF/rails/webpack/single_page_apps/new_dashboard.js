@@ -29,6 +29,7 @@ const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
 $(() => {
   const dashboardElem              = $('#dashboard');
   const shouldShowAnalyticsIcon    = JSON.parse(dashboardElem.attr('data-should-show-analytics-icon'));
+  const useNewAddPipelineFlow      = JSON.parse(dashboardElem.attr('data-use-new-add-pipeline-flow'));
   const pluginsSupportingAnalytics = {};
 
   const dashboard     = new Dashboard();
@@ -198,6 +199,7 @@ $(() => {
           showSpinner,
           pluginsSupportingAnalytics,
           shouldShowAnalyticsIcon,
+          useNewAddPipelineFlow,
           vm:                   dashboardVM,
           doCancelPolling:      () => repeater().stop(),
           doRefreshImmediately: () => repeater().restart()

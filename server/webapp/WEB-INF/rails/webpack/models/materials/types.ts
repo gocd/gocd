@@ -21,6 +21,7 @@ import * as _ from "lodash";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {
+  DependencyMaterialAttributesJSON,
   GitMaterialAttributesJSON,
   HgMaterialAttributesJSON,
   MaterialAttributesJSON,
@@ -31,10 +32,12 @@ import {
 } from "models/materials/serialization";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
-import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
 import {ErrorMessages} from "models/mixins/validatable";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
+
 const s = require("helpers/string-plus");
+const urlParse = require("url-parse");
 
 //tslint:disable-next-line
 export interface Material extends ValidatableMixin {
@@ -64,6 +67,10 @@ export interface P4MaterialAttributes extends ValidatableMixin {
 export interface TfsMaterialAttributes extends ValidatableMixin {
 }
 
+//tslint:disable-next-line
+export interface DependencyMaterialAttributes extends ValidatableMixin {
+}
+
 export class Materials {
   static fromJSON(material: MaterialJSON): Material {
     return new Material(material.type, MaterialAttributes.deserialize(material));
@@ -81,6 +88,14 @@ export class Material implements ValidatableMixin {
     this.type       = stream(type);
     ValidatableMixin.call(this);
     this.validateAssociated("attributes");
+  }
+
+  name(): string {
+    return this.attributes().name() || "";
+  }
+
+  modelType(): string {
+    return "Material";
   }
 
   typeProxy(value?: any): string {
@@ -102,7 +117,7 @@ export class Material implements ValidatableMixin {
     return this.type() === "p4" ? this.attributes().port() : this.attributes().url();
   }
 
-  toPayload() {
+  toApiPayload() {
     return JsonUtils.toSnakeCasedObject(this);
   }
 
@@ -110,7 +125,7 @@ export class Material implements ValidatableMixin {
     return ApiRequestBuilder.POST(
       SparkRoutes.materialConnectionCheck(),
       Material.API_VERSION_HEADER,
-      {payload: this.toPayload()}
+      {payload: this.toApiPayload()}
     );
   }
 }
@@ -118,18 +133,13 @@ export class Material implements ValidatableMixin {
 applyMixins(Material, ValidatableMixin);
 
 export abstract class MaterialAttributes implements ValidatableMixin {
-  username: Stream<string>;
-  password: Stream<EncryptedValue>;
+  name: Stream<string>;
+  destination: Stream<string> = stream();
   autoUpdate: Stream<boolean>;
 
-  protected constructor(name?: string,
-                        autoUpdate?: boolean,
-                        username?: string,
-                        password?: string,
-                        encryptedPassword?: string) {
+  protected constructor(name?: string, autoUpdate?: boolean) {
+    this.name = stream(name);
     this.autoUpdate = stream(autoUpdate);
-    this.username   = stream(username);
-    this.password   = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
     ValidatableMixin.call(this);
   }
 
@@ -145,6 +155,8 @@ export abstract class MaterialAttributes implements ValidatableMixin {
         return P4MaterialAttributes.fromJSON(material.attributes as P4MaterialAttributesJSON);
       case "tfs":
         return TfsMaterialAttributes.fromJSON(material.attributes as TfsMaterialAttributesJSON);
+      case "dependency":
+        return DependencyMaterialAttributes.fromJSON(material.attributes as DependencyMaterialAttributesJSON);
       default:
         throw new Error(`Unknown material type ${material.type}`);
     }
@@ -172,33 +184,68 @@ export abstract class MaterialAttributes implements ValidatableMixin {
 
 applyMixins(MaterialAttributes, ValidatableMixin);
 
-export class GitMaterialAttributes extends MaterialAttributes {
+abstract class ScmMaterialAttributes extends MaterialAttributes {
+  username: Stream<string>;
+  password: Stream<EncryptedValue>;
+
+  constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string) {
+    super(name, autoUpdate);
+    this.username = stream(username);
+    this.password = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+  }
+}
+
+class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
+  protected doValidate(entity: any, attr: string): void {
+    const url = this.get(entity, attr) as string;
+    if (!!url) {
+      const urlObj   = urlParse(url);
+      const username = this.get(entity, "username") as string | undefined;
+      const password = this.get(entity, "password") as EncryptedValue | undefined;
+
+      if ((!!username || !!(password && password.value())) && (!!urlObj.username || !!urlObj.password || url.indexOf("@") !== -1)) {
+        entity.errors().add(attr, "URL credentials must be set in either the URL or the username+password fields, but not both.");
+      }
+    }
+  }
+
+  private get(entity: any, attr: string): any {
+    const val = entity[attr];
+    return ("function" === typeof val) ? val() : val;
+  }
+}
+
+export class GitMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string>;
   branch: Stream<string>;
 
-  constructor(name?: string,
-              autoUpdate?: boolean,
-              url?: string,
-              branch?: string,
+  constructor(name?: string, autoUpdate?: boolean, url?: string, branch?: string,
               username?: string,
               password?: string,
               encryptedPassword?: string) {
     super(name, autoUpdate, username, password, encryptedPassword);
     this.url    = stream(url);
     this.branch = stream(branch);
+
     this.validatePresenceOf("url");
+    this.validateWith(new AuthNotSetInUrlAndUserPassFieldsValidator(), "url");
   }
 
   static fromJSON(json: GitMaterialAttributesJSON) {
-    const gitMaterialAttributes = new GitMaterialAttributes(json.name,
-                                                            json.auto_update,
-                                                            json.url,
-                                                            json.branch,
-                                                            json.username,
-                                                            json.password,
-                                                            json.encrypted_password);
-    gitMaterialAttributes.errors(new Errors(json.errors));
-    return gitMaterialAttributes;
+    const attrs = new GitMaterialAttributes(
+      json.name,
+      json.auto_update,
+      json.url,
+      json.branch,
+      json.username,
+      json.password,
+      json.encrypted_password,
+    );
+    if (undefined !== json.destination) {
+      attrs.destination(json.destination);
+    }
+    attrs.errors(new Errors(json.errors));
+    return attrs;
   }
 }
 
@@ -217,7 +264,7 @@ function plainOrCipherValue(passwordLike: PasswordLike) {
   }
 }
 
-export class SvnMaterialAttributes extends MaterialAttributes implements ValidatableMixin {
+export class SvnMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string>;
   checkExternals: Stream<boolean>;
 
@@ -231,53 +278,64 @@ export class SvnMaterialAttributes extends MaterialAttributes implements Validat
     super(name, autoUpdate, username, password, encryptedPassword);
     this.url            = stream(url);
     this.checkExternals = stream(checkExternals);
+
     this.validatePresenceOf("url");
   }
 
   static fromJSON(json: SvnMaterialAttributesJSON) {
-    const svnMaterialAttributes = new SvnMaterialAttributes(json.name,
-                                                            json.auto_update,
-                                                            json.url,
-                                                            json.check_externals,
-                                                            json.username,
-                                                            json.password,
-                                                            json.encrypted_password);
-    svnMaterialAttributes.errors(new Errors(json.errors));
-    return svnMaterialAttributes;
+    const attrs = new SvnMaterialAttributes(
+      json.name,
+      json.auto_update,
+      json.url,
+      json.check_externals,
+      json.username,
+      json.password,
+      json.encrypted_password,
+    );
+    if (undefined !== json.destination) {
+      attrs.destination(json.destination);
+    }
+    attrs.errors(new Errors(json.errors));
+    return attrs;
   }
 }
 
 applyMixins(SvnMaterialAttributes, ValidatableMixin);
 
-export class HgMaterialAttributes extends MaterialAttributes {
+export class HgMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string>;
 
-  constructor(name?: string,
-              autoUpdate?: boolean,
-              url?: string,
+  constructor(name?: string, autoUpdate?: boolean, url?: string,
               username?: string,
               password?: string,
               encryptedPassword?: string) {
     super(name, autoUpdate, username, password, encryptedPassword);
     this.url = stream(url);
+
     this.validatePresenceOf("url");
+    this.validateWith(new AuthNotSetInUrlAndUserPassFieldsValidator(), "url");
   }
 
   static fromJSON(json: HgMaterialAttributesJSON) {
-    const hgMaterialAttributes = new HgMaterialAttributes(json.name,
-                                                          json.auto_update,
-                                                          json.url,
-                                                          json.username,
-                                                          json.password,
-                                                          json.encrypted_password);
-    hgMaterialAttributes.errors(new Errors(json.errors));
-    return hgMaterialAttributes;
+    const attrs = new HgMaterialAttributes(
+      json.name,
+      json.auto_update,
+      json.url,
+      json.username,
+      json.password,
+      json.encrypted_password,
+    );
+    if (undefined !== json.destination) {
+      attrs.destination(json.destination);
+    }
+    attrs.errors(new Errors(json.errors));
+    return attrs;
   }
 }
 
 applyMixins(HgMaterialAttributes, ValidatableMixin);
 
-export class P4MaterialAttributes extends MaterialAttributes {
+export class P4MaterialAttributes extends ScmMaterialAttributes {
   port: Stream<string>;
   useTickets: Stream<boolean>;
   view: Stream<string>;
@@ -294,29 +352,34 @@ export class P4MaterialAttributes extends MaterialAttributes {
     this.port       = stream(port);
     this.useTickets = stream(useTickets);
     this.view       = stream(view);
-    this.username   = stream(username);
-    this.password   = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+
     this.validatePresenceOf("view");
     this.validatePresenceOf("port", {message: ErrorMessages.mustBePresent("Host and Port")});
   }
 
   static fromJSON(json: P4MaterialAttributesJSON) {
-    const p4MaterialAttributes = new P4MaterialAttributes(json.name,
-                                                          json.auto_update,
-                                                          json.port,
-                                                          json.use_tickets,
-                                                          json.view,
-                                                          json.username,
-                                                          json.password,
-                                                          json.encrypted_password);
-    p4MaterialAttributes.errors(new Errors(json.errors));
-    return p4MaterialAttributes;
+    const attrs = new P4MaterialAttributes(
+      json.name,
+      json.auto_update,
+      json.port,
+      json.use_tickets,
+      json.view,
+      json.username,
+      json.password,
+      json.encrypted_password,
+    );
+
+    if (undefined !== json.destination) {
+      attrs.destination(json.destination);
+    }
+    attrs.errors(new Errors(json.errors));
+    return attrs;
   }
 }
 
 applyMixins(P4MaterialAttributes, ValidatableMixin);
 
-export class TfsMaterialAttributes extends MaterialAttributes {
+export class TfsMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string>;
   domain: Stream<string>;
   projectPath: Stream<string>;
@@ -333,8 +396,7 @@ export class TfsMaterialAttributes extends MaterialAttributes {
     this.url         = stream(url);
     this.domain      = stream(domain);
     this.projectPath = stream(projectPath);
-    this.username    = stream(username);
-    this.password    = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
+
     this.validatePresenceOf("url");
     this.validatePresenceOf("projectPath");
     this.validatePresenceOf("username");
@@ -342,17 +404,49 @@ export class TfsMaterialAttributes extends MaterialAttributes {
   }
 
   static fromJSON(json: TfsMaterialAttributesJSON) {
-    const tfsMaterialAttributes = new TfsMaterialAttributes(json.name,
-                                                            json.auto_update,
-                                                            json.url,
-                                                            json.domain,
-                                                            json.project_path,
-                                                            json.username,
-                                                            json.password,
-                                                            json.encrypted_password);
-    tfsMaterialAttributes.errors(new Errors(json.errors));
-    return tfsMaterialAttributes;
+    const attrs = new TfsMaterialAttributes(
+      json.name,
+      json.auto_update,
+      json.url,
+      json.domain,
+      json.project_path,
+      json.username,
+      json.password,
+      json.encrypted_password,
+    );
+    if (undefined !== json.destination) {
+      attrs.destination(json.destination);
+    }
+    attrs.errors(new Errors(json.errors));
+    return attrs;
   }
 }
 
 applyMixins(TfsMaterialAttributes, ValidatableMixin);
+
+export class DependencyMaterialAttributes extends MaterialAttributes {
+  pipeline: Stream<string>;
+  stage: Stream<string>;
+
+  constructor(name?: string, autoUpdate?: boolean, pipeline?: string, stage?: string) {
+    super(name, autoUpdate);
+    this.pipeline = stream(pipeline);
+    this.stage    = stream(stage);
+
+    this.validatePresenceOf("pipeline");
+    this.validatePresenceOf("stage");
+  }
+
+  static fromJSON(json: DependencyMaterialAttributesJSON) {
+    const attrs = new DependencyMaterialAttributes(
+      json.name,
+      json.auto_update,
+      json.pipeline,
+      json.stage,
+    );
+    attrs.errors(new Errors(json.errors));
+    return attrs;
+  }
+}
+
+applyMixins(DependencyMaterialAttributes, ValidatableMixin);

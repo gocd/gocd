@@ -27,6 +27,11 @@
         "value": true
       },
       {
+        "key": "new_add_pipeline_flow",
+        "description": "New add pipeline flow.",
+        "value": false
+      },
+      {
          "key": "backup_page_using_rails",
          "description": "Switch backup page to use rails.",
          "value": false

@@ -7,9 +7,10 @@ const GroupHeading = {
   view(vnode) {
     const vm    = vnode.attrs.vm;
     const paths = vm.routes();
+    const useNewAddPipelineFlow = vnode.attrs.useNewAddPipelineFlow;
     let addPipeline = "";
     if (paths.newPipeline && vm.canAdminister) {
-      addPipeline = <div class="dashboard-group_add_pipeline"><f.link class="icon_add" disabled={!vm.canAdminister} href={paths.newPipeline}
+      addPipeline = <div class="dashboard-group_add_pipeline"><f.link class="icon_add" disabled={!vm.canAdminister} href={useNewAddPipelineFlow? paths.new : paths.newPipeline}
                     tooltipText={vm.tooltipForNewPipeline()} title={vm.titleForNewPipeline()} aria-label={vm.ariaLabelForNewPipeline()}>New Pipeline</f.link></div>;
     }
     return <div class="dashboard-group_title">

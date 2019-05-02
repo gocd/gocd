@@ -91,7 +91,7 @@ interface BindingsAttr<T> {
   property: (newValue?: T) => T;
 }
 
-type BaseAttrs<T> = DataTestIdAttr & HelpTextAttr & ErrorTextAttr & LabelAttr & BindingsAttr<T> & ReadonlyAttr;
+export type BaseAttrs<T> = DataTestIdAttr & HelpTextAttr & ErrorTextAttr & LabelAttr & BindingsAttr<T> & ReadonlyAttr;
 
 interface DefaultAttrs {
   [key: string]: string | boolean;
@@ -166,6 +166,7 @@ class Label extends MithrilViewComponent<LabelComponentAttrs> {
                     className={classnames(styles.formLabel)}>
         {vnode.attrs.label}
         <RequiredLabel {...vnode.attrs} />
+        {vnode.children}
       </label>;
     }
   }
@@ -266,7 +267,7 @@ function defaultAttributes<T, V>(attrs: BaseAttrs<T> & V,
   );
 }
 
-abstract class FormField<T, V = {}> extends MithrilViewComponent<BaseAttrs<T> & V> {
+export abstract class FormField<T, V = {}> extends MithrilViewComponent<BaseAttrs<T> & V> {
   protected readonly id: string         = `input-${uuid()}`;
   protected readonly helpTextId: string = `${this.id}-help-text`;
   protected readonly errorId: string    = `${this.id}-error-text`;

@@ -43,6 +43,16 @@ export abstract class Validator {
   protected abstract doValidate(entity: any, attr: string): void;
 }
 
+class AssociatedListValidator extends Validator {
+  protected doValidate(entity: any, attr: string): void {
+    _.forEach(entity[attr](), (p) => {
+      if (!p.isValid()) {
+        entity.errors().add(attr, this.options.message);
+      }
+    });
+  }
+}
+
 class PasswordPresenceValidator extends Validator {
   protected doValidate(entity: any, attr: string): void {
     if (s.isBlank(entity[attr]().value())) {
@@ -130,12 +140,18 @@ class UrlPatternValidator extends Validator {
   }
 }
 
-export class ValidatableMixin {
+export interface Validatable {
+  errors: (container?: Errors) => Errors;
+  isValid: () => boolean;
+  validate: (attr?: string) => Errors;
+}
+
+export class ValidatableMixin implements Validatable {
   private __errors                           = stream(new Errors());
   private __attrToValidators: any            = {};
   private __associationsToValidate: string[] = [];
 
-  errors(newVal?: Errors) {
+  errors(newVal?: Errors): Errors {
     if (arguments.length > 0) {
       this.__errors(newVal as Errors);
     }
@@ -221,6 +237,10 @@ export class ValidatableMixin {
 
   validateMaxLength(attr: string, maxAllowedLength: number, options?: ValidatorOptions) {
     this.validateWith(new MaxLengthValidator(maxAllowedLength, options), attr);
+  }
+
+  validateEach(attr: string) {
+    this.validateWith(new AssociatedListValidator(), attr);
   }
 
   validateAssociated(association: string): void {

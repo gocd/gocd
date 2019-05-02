@@ -20,6 +20,8 @@ import com.thoughtworks.go.config.Authorization
 import com.thoughtworks.go.config.BasicPipelineConfigs
 import com.thoughtworks.go.config.PipelineConfigs
 import com.thoughtworks.go.server.service.PipelineConfigService
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
+import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -62,6 +64,7 @@ class NewDashboardControllerTest implements ControllerTrait<NewDashboardControll
       void setUp() {
         enableSecurity()
         loginAsAdmin()
+        Toggles.initializeWith(mock(FeatureToggleService.class))
       }
 
       @Test

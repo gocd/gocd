@@ -55,6 +55,7 @@ public class RoleConfigServiceTest {
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
 
         when(configService.cruiseConfig()).thenReturn(cruiseConfig);
+        when(configService.getConfigForEditing()).thenReturn(cruiseConfig);
         roleConfigService = new RoleConfigService(configService, entityHashingService, extension, configurationValidator);
     }
 

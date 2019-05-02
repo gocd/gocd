@@ -69,6 +69,22 @@ describe("Material Types", () => {
         .toEqual(["url", "projectPath", "username", "password"]);
     });
 
+    it("should should allow Git SCP-style URLs", () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "git@host:repo.git"));
+      expect(material.isValid()).toBe(true);
+      expect(material.errors().count()).toBe(0);
+      expect(material.attributes().isValid()).toBe(true);
+      expect(material.attributes().errors().count()).toBe(0);
+    });
+
+    it("should should allow SSH URLs", () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "ssh://git@host/repo.git"));
+      expect(material.isValid()).toBe(true);
+      expect(material.errors().count()).toBe(0);
+      expect(material.attributes().isValid()).toBe(true);
+      expect(material.attributes().errors().count()).toBe(0);
+    });
+
     it("should should validate Git URL credentials", () => {
       const material = new Material("git", new GitMaterialAttributes(undefined, true, "http://user:pass@host", "master", "user", "pass"));
       expect(material.isValid()).toBe(false);

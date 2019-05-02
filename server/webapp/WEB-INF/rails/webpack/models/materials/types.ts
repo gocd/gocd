@@ -199,7 +199,7 @@ class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
   protected doValidate(entity: any, attr: string): void {
     const url = this.get(entity, attr) as string;
     if (!!url) {
-      const urlObj   = urlParse(url);
+      const urlObj   = urlParse(url); // use url-parse instead of native URL() because MSEdge will not allow embedded credentials
       const username = this.get(entity, "username") as string | undefined;
       const password = this.get(entity, "password") as EncryptedValue | undefined;
 

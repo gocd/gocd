@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.build.docker
 
-
 import org.gradle.api.Project
 
 enum Distro implements DistroBehavior {
@@ -171,6 +170,17 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getInstallPrerequisitesCommands() {
       return alpine.getInstallPrerequisitesCommands()
+    }
+
+
+    @Override
+    List<String> getInstallJavaCommands(Project project) {
+      return alpine.getInstallJavaCommands(project)
+    }
+
+    @Override
+    Map<String, String> getEnvironmentVariables() {
+      return [:]
     }
   }
 

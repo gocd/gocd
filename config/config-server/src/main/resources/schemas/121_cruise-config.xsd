@@ -89,7 +89,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="122"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="121"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -365,8 +365,9 @@
     <xsd:sequence>
       <xsd:element name="property" minOccurs="0" maxOccurs="unbounded" type="pluginPropertyType"/>
     </xsd:sequence>
-    <xsd:attribute type="nameType" name="id" use="required"/>
     <xsd:attribute type="nameType" name="clusterProfileId" use="required"/>
+    <xsd:attribute type="nameType" name="pluginId" use="required"/>
+    <xsd:attribute type="nameType" name="id" use="required"/>
   </xsd:complexType>
   <xsd:simpleType name="emailType">
     <xsd:restriction base="xsd:string">

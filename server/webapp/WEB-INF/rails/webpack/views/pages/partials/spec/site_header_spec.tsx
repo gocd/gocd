@@ -43,7 +43,8 @@ describe("Site Header", () => {
             isUserAdmin: false,
             canViewAdminPage: false,
             showAnalyticsDashboard: false,
-            enableAdminAccessTokensSPA: false
+            enableAdminAccessTokensSPA: false,
+            showSecretConfigSpa: false
           });
     expect(helper.find(`.${styles.userLink}`)).toHaveText("Jon Doe");
     expect(findMenuItem("/go/preferences/notifications")).toHaveText("Preferences");
@@ -61,13 +62,44 @@ describe("Site Header", () => {
             isUserAdmin: false,
             canViewAdminPage: false,
             showAnalyticsDashboard: false,
-            enableAdminAccessTokensSPA: false
+            enableAdminAccessTokensSPA: false,
+            showSecretConfigSpa: false
           });
     expect(helper.find(`.${styles.userLink}`)).not.toBeInDOM();
     expect(findMenuItem("/go/preferences/notifications")).not.toBeInDOM();
     expect(findMenuItem("/go/access_tokens")).not.toBeInDOM();
     expect(findMenuItem("/go/auth/logout")).not.toBeInDOM();
     expect(findMenuItem("https://gocd.org/help")).toHaveText("Need Help?");
+  });
+
+  it("should display the secret config menu when toggle is true", () => {
+    mount({
+            isAnonymous: false,
+            userDisplayName: "Jon Doe",
+            canViewTemplates: false,
+            isGroupAdmin: false,
+            isUserAdmin: true,
+            canViewAdminPage: true,
+            showAnalyticsDashboard: false,
+            enableAdminAccessTokensSPA: false,
+            showSecretConfigSpa: true
+          });
+    expect(findMenuItem("/go/admin/secret_configs")).toBeInDOM();
+  });
+
+  it("should not display the secret config menu when toggle is false", () => {
+    mount({
+            isAnonymous: false,
+            userDisplayName: "Jon Doe",
+            canViewTemplates: false,
+            isGroupAdmin: false,
+            isUserAdmin: true,
+            canViewAdminPage: true,
+            showAnalyticsDashboard: false,
+            enableAdminAccessTokensSPA: false,
+            showSecretConfigSpa: false
+          });
+    expect(findMenuItem("/go/admin/secret_configs")).not.toBeInDOM();
   });
 
   function mount(attrs: Attrs) {

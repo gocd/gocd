@@ -102,6 +102,7 @@ export default abstract class Page {
       const isAnonymous                = this.extractBoolean(body, "data-user-anonymous");
       const isServerInMaintenanceMode  = this.extractBoolean(body, "data-is-server-in-maintenance-mode");
       const enableAdminAccessTokensSPA = this.extractBoolean(body, "data-enable-admin-access-tokens-spa");
+      const showSecretConfigSpa        = this.extractBoolean(body, "data-show-secret-config-spa");
       const userDisplayName            = body.getAttribute("data-user-display-name") || "";
 
       const footerData = {
@@ -117,7 +118,8 @@ export default abstract class Page {
         canViewTemplates,
         userDisplayName,
         isAnonymous,
-        enableAdminAccessTokensSPA
+        enableAdminAccessTokensSPA,
+        showSecretConfigSpa
       };
 
       m.mount(body, {

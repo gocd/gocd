@@ -23,6 +23,7 @@ public class Toggles {
     public static String USE_OLD_ENVIRONMENTS_API = "use_old_environments_api";
     public static String ENABLE_ADMIN_ACCESS_TOKENS_SPA = "enable_admin_access_tokens_spa";
     public static String NEW_ADD_PIPELINE_FLOW = "new_add_pipeline_flow";
+    public static String SHOW_SECRET_CONFIG_SPA = "show_secret_config_spa";
 
     private static FeatureToggleService service;
 

@@ -37,15 +37,16 @@ $(() => {
       return JSON.parse(body.getAttribute(attribute) as string);
     }
 
-    const showAnalyticsDashboard    = extractBoolean(body, "data-show-analytics-dashboard");
-    const canViewAdminPage          = extractBoolean(body, "data-can-user-view-admin");
-    const isUserAdmin               = extractBoolean(body, "data-is-user-admin");
-    const isGroupAdmin              = extractBoolean(body, "data-is-user-group-admin");
-    const canViewTemplates          = extractBoolean(body, "data-can-user-view-templates");
-    const isAnonymous               = extractBoolean(body, "data-user-anonymous");
-    const isServerInMaintenanceMode = extractBoolean(body, "data-is-server-in-maintenance-mode");
+    const showAnalyticsDashboard     = extractBoolean(body, "data-show-analytics-dashboard");
+    const canViewAdminPage           = extractBoolean(body, "data-can-user-view-admin");
+    const isUserAdmin                = extractBoolean(body, "data-is-user-admin");
+    const isGroupAdmin               = extractBoolean(body, "data-is-user-group-admin");
+    const canViewTemplates           = extractBoolean(body, "data-can-user-view-templates");
+    const isAnonymous                = extractBoolean(body, "data-user-anonymous");
+    const isServerInMaintenanceMode  = extractBoolean(body, "data-is-server-in-maintenance-mode");
     const enableAdminAccessTokensSPA = extractBoolean(body, "data-enable-admin-access-tokens-spa");
-    const userDisplayName           = body.getAttribute("data-user-display-name") || "";
+    const userDisplayName            = body.getAttribute("data-user-display-name") || "";
+    const showSecretConfigSpa        = extractBoolean(body, "data-show-secret-config-spa");
 
     const footerData = {
       isServerInMaintenanceMode,
@@ -60,7 +61,8 @@ $(() => {
       canViewTemplates,
       userDisplayName,
       isAnonymous,
-      enableAdminAccessTokensSPA
+      enableAdminAccessTokensSPA ,
+      showSecretConfigSpa
     } as Attrs;
 
     const menuMountPoint = document.querySelector("#app-menu");

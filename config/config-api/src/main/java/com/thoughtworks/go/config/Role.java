@@ -87,6 +87,8 @@ public interface Role extends Validatable {
 
     boolean hasErrors();
 
+    void encryptSecureProperties(CruiseConfig preprocessedConfig);
+
     class ErrorMarkingDuplicateHandler {
 
         private final Role role;

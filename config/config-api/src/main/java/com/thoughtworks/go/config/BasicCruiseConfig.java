@@ -1574,6 +1574,10 @@ public class BasicCruiseConfig implements CruiseConfig {
         for (PipelineConfig pipelineConfig : getAllPipelineConfigs()) {
             pipelineConfig.encryptSecureProperties(preprocessed, preprocessed.pipelineConfigByName(pipelineConfig.name()));
         }
+
+        for (PluginRoleConfig pluginRoleConfig : server().security().getRoles().getPluginRoleConfigs()) {
+            pluginRoleConfig.encryptSecureProperties(preprocessed);
+        }
     }
 
     @Override

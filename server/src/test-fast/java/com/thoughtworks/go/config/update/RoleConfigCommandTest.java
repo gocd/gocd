@@ -18,9 +18,21 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.domain.config.ConfigurationKey;
+import com.thoughtworks.go.domain.config.ConfigurationProperty;
+import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
+import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.response.validation.ValidationResult;
+import com.thoughtworks.go.plugin.domain.authorization.AuthorizationPluginInfo;
+import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
+import com.thoughtworks.go.plugin.domain.common.Metadata;
+import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
+import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.security.CryptoException;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -30,6 +42,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.anyMap;
@@ -160,6 +173,59 @@ public class RoleConfigCommandTest {
         assertThat(cruiseConfig.server().security().securityAuthConfigs().find("ldap"), nullValue());
 
         assertThat(command.canContinue(cruiseConfig), is(false));
+    }
+
+    @Test
+    public void shouldEncryptRoleConfig() throws CryptoException {
+        setAuthorizationPluginInfo();
+        cruiseConfig.server().security().securityAuthConfigs().add(new SecurityAuthConfig("ldap", "cd.go.github"));
+        PluginRoleConfig role = new PluginRoleConfig("blackbird", "ldap");
+        role.addConfigurations(asList(
+                new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
+                new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
+                new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        RoleConfigCommand command = new StubCommand(goConfigService, role, extension, currentUser, result);
+
+        assertThat(role.getProperty("k1").getEncryptedValue(), is(nullValue()));
+        assertThat(role.getProperty("k1").getConfigValue(), is("pub_v1"));
+        assertThat(role.getProperty("k1").getValue(), is("pub_v1"));
+        assertThat(role.getProperty("k2").getEncryptedValue(), is(nullValue()));
+        assertThat(role.getProperty("k2").getConfigValue(), is("pub_v2"));
+        assertThat(role.getProperty("k2").getValue(), is("pub_v2"));
+        assertThat(role.getProperty("k3").getEncryptedValue(), is(nullValue()));
+        assertThat(role.getProperty("k3").getConfigValue(), is("pub_v3"));
+        assertThat(role.getProperty("k3").getValue(), is("pub_v3"));
+
+        command.encrypt(cruiseConfig);
+
+        GoCipher goCipher = new GoCipher();
+        assertThat(role.getProperty("k1").getEncryptedValue(), is(goCipher.encrypt("pub_v1")));
+        assertThat(role.getProperty("k1").getConfigValue(), is(nullValue()));
+        assertThat(role.getProperty("k1").getValue(), is("pub_v1"));
+        assertThat(role.getProperty("k2").getEncryptedValue(), is(nullValue()));
+        assertThat(role.getProperty("k2").getConfigValue(), is("pub_v2"));
+        assertThat(role.getProperty("k2").getValue(), is("pub_v2"));
+        assertThat(role.getProperty("k3").getEncryptedValue(), is(goCipher.encrypt("pub_v3")));
+        assertThat(role.getProperty("k3").getConfigValue(), is(nullValue()));
+        assertThat(role.getProperty("k3").getValue(), is("pub_v3"));
+    }
+
+    private void setAuthorizationPluginInfo() {
+        PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
+
+        PluginConfiguration k1 = new PluginConfiguration("k1", new Metadata(false, true));
+        PluginConfiguration k2 = new PluginConfiguration("k2", new Metadata(false, false));
+        PluginConfiguration k3 = new PluginConfiguration("k3", new Metadata(false, true));
+
+        PluggableInstanceSettings authConfigSettins = new PluggableInstanceSettings(asList(k1, k2, k3));
+        PluggableInstanceSettings roleConfigSettings = new PluggableInstanceSettings(asList(k1, k2, k3));
+
+        com.thoughtworks.go.plugin.domain.authorization.Capabilities capabilities = new com.thoughtworks.go.plugin.domain.authorization.Capabilities(SupportedAuthType.Web, true, true, true);
+        AuthorizationPluginInfo artifactPluginInfo = new AuthorizationPluginInfo(pluginDescriptor, authConfigSettins, roleConfigSettings, null, capabilities);
+        when(pluginDescriptor.id()).thenReturn("cd.go.github");
+        AuthorizationMetadataStore.instance().setPluginInfo(artifactPluginInfo);
     }
 
     private class StubCommand extends RoleConfigCommand {

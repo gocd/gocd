@@ -22,6 +22,7 @@ const DashboardGroupsWidget   = require('views/dashboard/dashboard_groups_widget
 const PersonalizedViewsWidget = require('views/dashboard/personalized_views_widget');
 const Dropdown                = require('views/shared/dropdown');
 
+import {RewardBanner} from "views/components/reward_banner";
 import {SearchBox} from "views/components/search_box";
 
 const GroupingSwitch = {
@@ -70,6 +71,12 @@ const DashboardWidget = {
         <PersonalizedViewsWidget vm={personalizeVM}/>
 
         <div class="dashboard-container" key="dashboard-content">
+          <RewardBanner
+            rewardText="Congratulations! You just ran your first pipeline on GoCD!"
+            key="gocd.reward.addPipeline"
+            query={m.parseQueryString(window.location.search).new_pipeline_name}
+          />
+
           <section class="dashboard-modifiers">
             <GroupingSwitch vm={vm}/>
             <SearchBox width="350"

@@ -40,7 +40,7 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
             window.location.href = Routes.pipelineEditPath("pipelines", pipelineConfig.name(), "general");
           });
         } else  {
-          window.location.href = "/go/pipelines";
+          window.location.href = `/go/pipelines?new_pipeline_name=${pipelineConfig.name()}`;
         }
       }).catch((reason) => {
         this.setError(reason);

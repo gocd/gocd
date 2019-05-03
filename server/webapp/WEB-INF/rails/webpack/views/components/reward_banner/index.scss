@@ -1,0 +1,78 @@
+$reward-banner-bg: #00c853;
+$reward-banner-hover-bg: #14e069;
+$reward-banner-text-color: #333;
+$reward-banner-border: #999;
+$reward-banner-after-bg: rgba(220, 220, 220, 0.7);
+
+@-webkit-keyframes slideFromUnder {
+  from {
+    height: 0;
+  }
+  to {
+    height: 40px;
+  }
+}
+@keyframes slideFromUnder {
+  from {
+    height: 0;
+  }
+  to {
+    height: 40px;
+  }
+}
+
+.reward-banner {
+  -webkit-animation: slideFromUnder 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s both;
+  animation: slideFromUnder 1s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s both;
+  position: relative;
+  box-sizing: border-box;
+  overflow: hidden;
+  width: calc(100% + 60px);
+  padding: 0 30px;
+  height: 40px;
+  line-height: 40px;
+  display: block;
+  text-align: center;
+  white-space: nowrap;
+  font-family: sans-serif;
+  font-weight: 600;
+  background-color: $reward-banner-bg;
+  color: $reward-banner-text-color;
+  left: -30px;
+  margin: -10px 0 10px 0;
+  cursor: pointer;
+
+  .hide {
+    display: none;
+  }
+
+  &:hover {
+    background-color: $reward-banner-hover-bg;
+  }
+
+  &:before {
+    line-height: normal;
+    padding: 2px 4px;
+    margin-right: 4.5ex;
+    font-size: 12px;
+    content: "click to close, or press";
+    float: right;
+    margin-top: 10px;
+    margin-left: -100%;
+    font-weight: normal;
+  }
+
+  &:after {
+    line-height: normal;
+    content: "esc";
+    font-size: 12px;
+    padding: 1px 4px;
+    border: 1px solid $reward-banner-border;
+    border-radius: 2px;
+    background-color: $reward-banner-after-bg;
+    float: right;
+    margin-top: 10px;
+    margin-left: -100%;
+    font-weight: normal;
+  }
+}

@@ -31,7 +31,7 @@ public class ElasticAgentProfileCreateCommand extends ElasticAgentProfileCommand
 
     @Override
     public void update(CruiseConfig preprocessedConfig) {
-        getPluginProfiles(preprocessedConfig).add(profile);
+        getPluginProfiles(preprocessedConfig).add(elasticProfile);
     }
 
     @Override

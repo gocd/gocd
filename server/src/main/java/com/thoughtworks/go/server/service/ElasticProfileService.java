@@ -17,8 +17,11 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.update.ElasticAgentProfileCreateCommand;
@@ -27,32 +30,43 @@ import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
 import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.plugins.validators.elastic.ElasticAgentProfileConfigurationValidator;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
 @Component
-public class ElasticProfileService extends PluginProfilesService<ElasticProfile> {
+public class ElasticProfileService {
+    protected Logger LOGGER = LoggerFactory.getLogger(getClass());
+
+    private final GoConfigService goConfigService;
+    private final EntityHashingService hashingService;
     private final ElasticAgentExtension elasticAgentExtension;
+    private ElasticAgentProfileConfigurationValidator profileConfigurationValidator;
 
     @Autowired
     public ElasticProfileService(GoConfigService goConfigService, EntityHashingService hashingService, ElasticAgentExtension elasticAgentExtension) {
-        super(goConfigService, hashingService);
+        this.goConfigService = goConfigService;
+        this.hashingService = hashingService;
         this.elasticAgentExtension = elasticAgentExtension;
+        this.profileConfigurationValidator = new ElasticAgentProfileConfigurationValidator(elasticAgentExtension);
     }
 
-    @Override
     public PluginProfiles<ElasticProfile> getPluginProfiles() {
         return goConfigService.getElasticConfig().getProfiles();
     }
 
     public void update(Username currentUser, String md5, ElasticProfile newProfile, LocalizedOperationResult result) {
+        validatePluginProfileMetadata(newProfile);
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(goConfigService, newProfile, elasticAgentExtension, currentUser, result, hashingService, md5);
         update(currentUser, newProfile, result, command);
     }
@@ -65,8 +79,24 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
     }
 
     public void create(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result) {
+        validatePluginProfileMetadata(elasticProfile);
         ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(goConfigService, elasticProfile, elasticAgentExtension, currentUser, result);
         update(currentUser, elasticProfile, result, command);
+    }
+
+    private void validatePluginProfileMetadata(ElasticProfile elasticProfile) {
+        String pluginId = getPluginIdForElasticAgentProfile(elasticProfile);
+
+        if (pluginId == null) {
+            return;
+        }
+
+        profileConfigurationValidator.validate(elasticProfile, pluginId);
+    }
+
+    private String getPluginIdForElasticAgentProfile(ElasticProfile elasticProfile) {
+        ClusterProfile clusterProfile = this.goConfigService.getElasticConfig().getClusterProfiles().find(elasticProfile.getClusterProfileId());
+        return (clusterProfile != null) ? clusterProfile.getPluginId() : null;
     }
 
     public Collection<ElasticProfileUsage> getUsageInformation(String profileId) {
@@ -104,5 +134,44 @@ public class ElasticProfileService extends PluginProfilesService<ElasticProfile>
         }
 
         return jobsUsingElasticProfile;
+    }
+
+    public ElasticProfile findProfile(String profileId) {
+        for (ElasticProfile profile : getPluginProfiles()) {
+            if (profile.getId().equals(profileId)) {
+                return profile;
+            }
+        }
+
+        return null;
+    }
+
+    private String getTagName(Class<?> clazz) {
+        return clazz.getAnnotation(ConfigTag.class).value();
+    }
+
+    protected void update(Username currentUser, ElasticProfile elasticProfile, LocalizedOperationResult result, EntityConfigUpdateCommand<ElasticProfile> command) {
+        try {
+            goConfigService.updateConfig(command, currentUser);
+        } catch (Exception e) {
+            if (e instanceof GoConfigInvalidException) {
+                result.unprocessableEntity(entityConfigValidationFailed(getTagName(elasticProfile.getClass()), elasticProfile.getId(), ((GoConfigInvalidException) e).getAllErrorMessages()));
+            } else {
+                if (!result.hasMessage()) {
+                    LOGGER.error(e.getMessage(), e);
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the elastic agent profile. Please check the logs for more information."));
+                }
+            }
+        }
+    }
+
+    public Map<String, ElasticProfile> listAll() {
+        return getPluginProfiles().stream()
+                .collect(Collectors.toMap(PluginProfile::getId, elasticAgentProfile -> elasticAgentProfile, (a, b) -> b, HashMap::new));
+    }
+
+    //used only from tests
+    public void setProfileConfigurationValidator(ElasticAgentProfileConfigurationValidator profileConfigurationValidator) {
+        this.profileConfigurationValidator = profileConfigurationValidator;
     }
 }

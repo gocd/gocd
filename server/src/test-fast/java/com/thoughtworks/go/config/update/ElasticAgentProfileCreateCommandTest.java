@@ -17,6 +17,9 @@
 package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
+import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -69,7 +72,7 @@ public class ElasticAgentProfileCreateCommandTest {
         validationResult.addError(new ValidationError("key", "error"));
         when(extension.validate(eq("aws"), anyMap())).thenReturn(validationResult);
         ElasticProfile newProfile = new ElasticProfile("foo", "aws", new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("val")));
-        PluginProfileCommand command = new ElasticAgentProfileCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
+        EntityConfigUpdateCommand command = new ElasticAgentProfileCreateCommand(mock(GoConfigService.class), newProfile, extension, null, new HttpLocalizedOperationResult());
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
 
         thrown.expect(RecordNotFoundException.class);
@@ -79,5 +82,4 @@ public class ElasticAgentProfileCreateCommandTest {
         assertThat(newProfile.first().errors().size(), is(1));
         assertThat(newProfile.first().errors().asString(), is("error"));
     }
-
 }

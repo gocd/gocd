@@ -37,17 +37,9 @@ public class ElasticProfile extends PluginProfile {
         super();
     }
 
-    public ElasticProfile(String id, String pluginId, ConfigurationProperty... props) {
-        super(id, pluginId, props);
-    }
-
     public ElasticProfile(String id, String pluginId, String clusterProfileId, ConfigurationProperty... props) {
         super(id, pluginId, props);
         this.clusterProfileId = clusterProfileId;
-    }
-
-    public ElasticProfile(String id, String pluginId, Collection<ConfigurationProperty> configProperties) {
-        this(id, pluginId, configProperties.toArray(new ConfigurationProperty[0]));
     }
 
     public ElasticProfile(String id, String pluginId, String clusterProfileId, Collection<ConfigurationProperty> configProperties) {

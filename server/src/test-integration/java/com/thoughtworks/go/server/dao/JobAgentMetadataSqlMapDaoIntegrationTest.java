@@ -96,7 +96,7 @@ public class JobAgentMetadataSqlMapDaoIntegrationTest {
 
     @Test
     public void shouldNotSaveClusterProfilePropertyOnJobWhenNotSpecified_forEAExtensionV4() throws Exception {
-        ElasticProfile profile = new ElasticProfile("elastic", "plugin");
+        ElasticProfile profile = new ElasticProfile("elastic", "plugin", "prod-cluster");
         JobAgentMetadata jobAgentMetadata = new JobAgentMetadata(jobId, profile, null);
         dao.save(jobAgentMetadata);
 

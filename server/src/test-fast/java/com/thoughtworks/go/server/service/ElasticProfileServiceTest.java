@@ -101,7 +101,7 @@ class ElasticProfileServiceTest {
     @Test
     void shouldReturnElasticProfileWithGivenIdWhenPresent() {
         ElasticConfig elasticConfig = new ElasticConfig();
-        ElasticProfile elasticProfile = new ElasticProfile("ecs", "cd.go.elatic.ecs");
+        ElasticProfile elasticProfile = new ElasticProfile("ecs", "cd.go.elatic.ecs", "prod-cluster");
         elasticConfig.getProfiles().add(elasticProfile);
 
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
@@ -111,7 +111,7 @@ class ElasticProfileServiceTest {
 
     @Test
     void shouldAddElasticProfileToConfig() {
-        ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap");
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap", "prod-cluster");
 
         Username username = new Username("username");
         elasticProfileService.create(username, elasticProfile, new HttpLocalizedOperationResult());
@@ -131,7 +131,7 @@ class ElasticProfileServiceTest {
 
     @Test
     void shouldUpdateExistingElasticProfileInConfig() {
-        ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap");
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap", "prod-cluster");
 
         Username username = new Username("username");
         elasticProfileService.update(username, "md5", elasticProfile, new HttpLocalizedOperationResult());
@@ -141,7 +141,7 @@ class ElasticProfileServiceTest {
 
     @Test
     void shouldPerformPluginValidationsBeforeUpdatingElasticProfile() {
-        ElasticProfile elasticProfile = new ElasticProfile("ldap", pluginId, create("key", false, "value"));
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", pluginId, clusterProfileId, create("key", false, "value"));
 
         Username username = new Username("username");
         elasticProfileService.update(username, "md5", elasticProfile, new HttpLocalizedOperationResult());
@@ -151,7 +151,7 @@ class ElasticProfileServiceTest {
 
     @Test
     void shouldDeleteExistingElasticProfileInConfig() {
-        ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap");
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap", "prod-cluster");
 
         Username username = new Username("username");
         elasticProfileService.delete(username, elasticProfile, new HttpLocalizedOperationResult());
@@ -164,9 +164,9 @@ class ElasticProfileServiceTest {
         @BeforeEach
         void setUp() {
             final ElasticConfig elasticConfig = new ElasticConfig();
-            elasticConfig.getProfiles().add(new ElasticProfile("docker", "cd.go.docker"));
-            elasticConfig.getProfiles().add(new ElasticProfile("ecs", "cd.go.ecs"));
-            elasticConfig.getProfiles().add(new ElasticProfile("kubernetes", "cd.go.k8s"));
+            elasticConfig.getProfiles().add(new ElasticProfile("docker", "cd.go.docker", "prod-cluster"));
+            elasticConfig.getProfiles().add(new ElasticProfile("ecs", "cd.go.ecs", "prod-cluster"));
+            elasticConfig.getProfiles().add(new ElasticProfile("kubernetes", "cd.go.k8s", "prod-cluster"));
             when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
         }
 

@@ -97,9 +97,9 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
       @Test
       void 'should list all elastic profiles'() {
         def elasticProfiles = new ElasticProfiles(
-          new ElasticProfile("docker", "cd.go.docker", create("docker-uri", false, "unix:///var/run/docker")),
-          new ElasticProfile("ecs", "cd.go.ecs", create("ACCESS_KEY", true, "encrypted-key")),
-          new ElasticProfile("k8s", "cd.go.k8s", create("cluster-uri", false, "https://foo.bar"))
+          new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("docker-uri", false, "unix:///var/run/docker")),
+          new ElasticProfile("ecs", "cd.go.ecs", "prod-cluster", create("ACCESS_KEY", true, "encrypted-key")),
+          new ElasticProfile("k8s", "cd.go.k8s", "prod-cluster", create("cluster-uri", false, "https://foo.bar"))
         )
 
         when(elasticProfileService.getPluginProfiles()).thenReturn(elasticProfiles)
@@ -140,7 +140,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should return elastic profile of specified id'() {
-        def dockerElasticProfile = new ElasticProfile("docker", "cd.go.docker", create("docker-uri", false, "unix:///var/run/docker"))
+        def dockerElasticProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("docker-uri", false, "unix:///var/run/docker"))
 
         when(entityHashingService.md5ForEntity(dockerElasticProfile)).thenReturn('md5')
         when(elasticProfileService.findProfile('docker')).thenReturn(dockerElasticProfile)
@@ -166,7 +166,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should return 304 if elastic profile is not modified'() {
-        def dockerElasticProfile = new ElasticProfile("docker", "cd.go.docker", create("docker-uri", false, "unix:///var/run/docker"))
+        def dockerElasticProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("docker-uri", false, "unix:///var/run/docker"))
 
         when(entityHashingService.md5ForEntity(dockerElasticProfile)).thenReturn('md5')
         when(elasticProfileService.findProfile('docker')).thenReturn(dockerElasticProfile)
@@ -180,7 +180,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should return 200 with elastic profile if etag does not match'() {
-        def dockerElasticProfile = new ElasticProfile("docker", "cd.go.docker", create("docker-uri", false, "unix:///var/run/docker"))
+        def dockerElasticProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("docker-uri", false, "unix:///var/run/docker"))
 
         when(entityHashingService.md5ForEntity(dockerElasticProfile)).thenReturn('md5-new')
         when(elasticProfileService.findProfile('docker')).thenReturn(dockerElasticProfile)
@@ -543,7 +543,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
     class AsGroupAdmin {
       @Test
       void 'should delete elastic profile with given id'() {
-        def elasticProfile = new ElasticProfile("docker", "cd.go.docker", create("DockerURI", false, "http://foo"))
+        def elasticProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo"))
 
         when(elasticProfileService.findProfile("docker")).thenReturn(elasticProfile)
         when(elasticProfileService.delete(Mockito.any() as Username, Mockito.any() as ElasticProfile, Mockito.any() as HttpLocalizedOperationResult)).then({ InvocationOnMock invocation ->
@@ -573,7 +573,7 @@ class ElasticProfileControllerV2Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should return validation error on failure'() {
-        def elasticProfile = new ElasticProfile("docker", "cd.go.docker", create("DockerURI", false, "http://foo"))
+        def elasticProfile = new ElasticProfile("docker", "cd.go.docker", "prod-cluster", create("DockerURI", false, "http://foo"))
 
         when(elasticProfileService.findProfile('docker')).thenReturn(elasticProfile)
         doAnswer({ InvocationOnMock invocation ->

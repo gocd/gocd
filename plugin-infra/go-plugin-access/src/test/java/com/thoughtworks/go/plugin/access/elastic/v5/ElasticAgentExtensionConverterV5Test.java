@@ -309,7 +309,7 @@ public class ElasticAgentExtensionConverterV5Test {
         List<ClusterProfile> clusterProfiles = new ArrayList<>();
 
         List<ElasticProfile> elasticAgentProfiles = new ArrayList<>();
-        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
+        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", "prod-cluster", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
 
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
 

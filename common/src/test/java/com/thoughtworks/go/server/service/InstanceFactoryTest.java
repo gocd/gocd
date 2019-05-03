@@ -320,7 +320,7 @@ public class InstanceFactoryTest {
 
     @Test
     public void shouldAddElasticProfileOnJobPlan() {
-        ElasticProfile elasticProfile = new ElasticProfile("id", "pluginId");
+        ElasticProfile elasticProfile = new ElasticProfile("id", "pluginId", "prod-cluster");
         DefaultSchedulingContext context = new DefaultSchedulingContext("foo", new Agents(), ImmutableMap.of("id", elasticProfile));
 
         ArtifactConfigs artifactConfigs = new ArtifactConfigs();

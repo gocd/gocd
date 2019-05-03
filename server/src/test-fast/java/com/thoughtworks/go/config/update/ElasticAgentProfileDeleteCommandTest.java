@@ -47,7 +47,7 @@ public class ElasticAgentProfileDeleteCommandTest {
 
     @Test
     public void shouldDeleteAProfile() throws Exception {
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "docker");
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "docker", "prod-cluster");
         cruiseConfig.getElasticConfig().getProfiles().add(elasticProfile);
 
         ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, null);
@@ -58,7 +58,7 @@ public class ElasticAgentProfileDeleteCommandTest {
 
     @Test
     public void shouldRaiseExceptionInCaseProfileDoesNotExist() throws Exception {
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "docker");
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "docker", "prod-cluster");
 
         assertThat(cruiseConfig.getElasticConfig().getProfiles(), is(empty()));
         ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, new HttpLocalizedOperationResult());
@@ -71,7 +71,7 @@ public class ElasticAgentProfileDeleteCommandTest {
 
     @Test
     public void shouldNotValidateIfProfileIsInUseByPipeline() throws Exception {
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "docker");
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "docker", "prod-cluster");
 
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfigWithJobConfigs("build-linux");
         pipelineConfig.getStages().first().getJobs().first().resourceConfigs().clear();
@@ -87,7 +87,7 @@ public class ElasticAgentProfileDeleteCommandTest {
 
     @Test
     public void shouldValidateIfProfileIsNotInUseByPipeline() throws Exception {
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "docker");
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "docker", "prod-cluster");
 
         assertThat(cruiseConfig.getElasticConfig().getProfiles(), is(empty()));
         ElasticAgentProfileDeleteCommand command = new ElasticAgentProfileDeleteCommand(null, elasticProfile, null, null, new HttpLocalizedOperationResult());

@@ -652,7 +652,7 @@ public class AgentInstanceTest {
         agentConfig.setElasticPluginId(elasticPluginId);
         AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class), null);
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
-        jobPlan1.setElasticProfile(new ElasticProfile("foo", elasticPluginId));
+        jobPlan1.setElasticProfile(new ElasticProfile("foo", elasticPluginId, "prod-cluster"));
         List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());
 
         assertThat(agentInstance.firstMatching(jobPlans), is(nullValue()));
@@ -666,7 +666,7 @@ public class AgentInstanceTest {
         agentConfig.setElasticPluginId(elasticPluginId);
         AgentInstance agentInstance = new AgentInstance(agentConfig, REMOTE, mock(SystemEnvironment.class), null);
         DefaultJobPlan jobPlan1 = new DefaultJobPlan();
-        jobPlan1.setElasticProfile(new ElasticProfile("foo", "elastic-plugin-id-2"));
+        jobPlan1.setElasticProfile(new ElasticProfile("foo", "elastic-plugin-id-2", "prod-cluster"));
         List<JobPlan> jobPlans = asList(jobPlan1, new DefaultJobPlan());
 
         assertThat(agentInstance.firstMatching(jobPlans), is(nullValue()));

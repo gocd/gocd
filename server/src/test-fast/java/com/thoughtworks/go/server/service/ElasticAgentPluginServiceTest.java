@@ -272,7 +272,7 @@ class ElasticAgentPluginServiceTest {
         String uuid = UUID.randomUUID().toString();
         String elasticPluginId = "plugin-1";
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
-        ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
+        ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId, "prod-cluster");
 
         when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(true);
         assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null)).isTrue();
@@ -283,7 +283,7 @@ class ElasticAgentPluginServiceTest {
         String uuid = UUID.randomUUID().toString();
         String elasticPluginId = "plugin-1";
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
-        ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
+        ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId, "prod-cluster");
         when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(false);
 
         assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null)).isFalse();
@@ -293,7 +293,7 @@ class ElasticAgentPluginServiceTest {
     void shouldNotAssignJobToAnAgentBroughtUpByADifferentElasticPlugin() {
         String uuid = UUID.randomUUID().toString();
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, "plugin-1", AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
-        ElasticProfile elasticProfile = new ElasticProfile("1", "plugin-2");
+        ElasticProfile elasticProfile = new ElasticProfile("1", "plugin-2", "prod-cluster");
 
         assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null)).isFalse();
         verifyNoMoreInteractions(registry);

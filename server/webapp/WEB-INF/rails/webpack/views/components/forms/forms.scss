@@ -99,6 +99,10 @@ select.form-control { //sass-lint:disable-line no-qualifying-elements
   width: 270px;
 }
 
+input:required {
+  box-shadow: none; // in firefox, required fields are outlined in red
+}
+
 input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-elements
   width: 35px;
 

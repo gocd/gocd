@@ -98,7 +98,7 @@ export class PipelineCreatePage extends Page {
         <UserInputPane heading="Part 4: Job and Tasks">
           <JobEditor job={this.job}/>
 
-          <h4 class={css.sectionSubheading}>Write your tasks below</h4>
+          <h4 class={css.sectionSubheading}>Write your tasks below at the prompt</h4>
           <TaskEditor tasks={this.job.tasks}/>
 
           <AdvancedSettings>

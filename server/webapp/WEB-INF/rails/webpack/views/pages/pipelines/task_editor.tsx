@@ -42,6 +42,14 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs, {}>) {
     return <code class={css.execEditor}>
+      <div class={css.caveats}>
+        <span>Caveats</span>
+        <p>This is not a real shell:</p>
+        <p>- Pipes, loops, and conditionals will NOT work</p>
+        <p>- Use <strong>&lt;shift&gt;-&lt;enter&gt;</strong> for multiline, not <strong>`\`</strong></p>
+        <p>- Commands are not stateful; e.g., `cd foo` will NOT change cwd for subsequent commands</p>
+      </div>
+      <p class={css.comment}># Type your commands; press <strong>&lt;enter&gt;</strong> to save</p>
       <pre contenteditable={true} class={css.currentEditor}></pre>
     </code>;
   }
@@ -59,6 +67,10 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
 
     EDITOR.addEventListener("blur", (e: Event) => {
       self.saveCommand(EDITOR, true);
+    });
+
+    this.terminal!.querySelector(`${sel.caveats} span`)!.addEventListener("click", (e) => {
+      (e.currentTarget as HTMLElement).parentElement!.classList.toggle(css.open);
     });
 
     this.terminal!.addEventListener("keydown", (e) => {

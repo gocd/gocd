@@ -31,6 +31,8 @@ export class Job extends ValidatableMixin {
     this.name = stream(name);
     this.tasks = stream(tasks);
     this.validatePresenceOf("name");
+    this.validateIdFormat("name");
+
     this.validatePresenceOf("tasks");
     this.validateEach("tasks");
   }

@@ -36,7 +36,10 @@ export class PipelineConfig extends ValidatableMixin {
     ValidatableMixin.call(this);
     this.name = stream(name);
     this.validatePresenceOf("name");
+    this.validateIdFormat("name");
+
     this.validatePresenceOf("group");
+    this.validateIdFormat("group");
 
     this.materials = stream(new NameableSet(materials));
     this.validateWith(new NonEmptyCollectionValidator({message: `A pipeline must have at least one material.`}), "materials");

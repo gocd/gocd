@@ -61,7 +61,10 @@ export class RewardBanner extends MithrilComponent<Attrs> {
       }
       document.body.removeEventListener("keydown", keyListener);
     }
-    document.body.addEventListener("keydown", keyListener);
+
+    if (this.show()) {
+      document.body.addEventListener("keydown", keyListener);
+    }
   }
 
   onClick(event: MouseEvent): void {

@@ -18,7 +18,6 @@ import asSelector from "helpers/selector_proxy";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
-import {Stream} from "mithril/stream";
 import {ExecTask, Task} from "models/pipeline_configs/task";
 import Shellwords from "shellwords-ts";
 import * as css from "./components.scss";
@@ -26,7 +25,7 @@ import * as css from "./components.scss";
 const sel = asSelector<typeof css>(css);
 
 interface Attrs {
-  tasks: Stream<Task[]>;
+  tasks: (newValue?: Task[]) => Task[];
 }
 
 interface ParsedCommand {
@@ -37,7 +36,7 @@ interface ParsedCommand {
 }
 
 export class TaskEditor extends MithrilViewComponent<Attrs> {
-  model?: Stream<Task[]>;
+  model?: (newValue?: Task[]) => Task[];
   terminal?: HTMLElement;
 
   view(vnode: m.Vnode<Attrs, {}>) {
@@ -61,34 +60,30 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
   }
 
   initTaskTerminal() {
-    const ENTER = 13;
+    const ENTER  = 13;
     const EDITOR = this.$(sel.currentEditor);
-    const self = this;
+    const self   = this;
+    const term   = this.terminal!;
 
     EDITOR.addEventListener("blur", (e: Event) => {
       self.saveCommand(EDITOR, true);
     });
 
-    this.terminal!.querySelector(`${sel.caveats} span`)!.addEventListener("click", (e) => {
+    this.$(`${sel.caveats} span`).addEventListener("click", (e) => {
       (e.currentTarget as HTMLElement).parentElement!.classList.toggle(css.open);
     });
 
-    this.terminal!.addEventListener("keydown", (e) => {
+    term.addEventListener("keydown", (e) => {
       if (EDITOR === e.target) {
-
-        switch (e.which) {
-          case ENTER:
-            if (!e.shiftKey) {
-              e.preventDefault();
-              e.stopPropagation();
-              self.saveCommand(e.target as HTMLElement);
-            }
-            break;
+        if (ENTER === e.which && !e.shiftKey) {
+          e.preventDefault();
+          e.stopPropagation();
+          self.saveCommand(e.target as HTMLElement);
         }
       }
     });
 
-    this.terminal!.addEventListener("click", (e) => {
+    term.addEventListener("click", (e) => {
       if (EDITOR === e.target) {
         e.stopPropagation(); // prevents need to click twice to focus caret in contenteditable on page load
       }

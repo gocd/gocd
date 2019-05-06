@@ -110,19 +110,13 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
     public String create(Request request, Response response) {
         final ElasticProfile elasticProfileToCreate = buildEntityFromRequestBody(request);
         haltIfEntityWithSameIdExists(elasticProfileToCreate);
-        populatePluginIdFromReferencedClusterProfile(elasticProfileToCreate);
+        ClusterProfile associatedClusterProfile = clusterProfilesService.findProfile(elasticProfileToCreate.getClusterProfileId());
+        haltIfSpecifiedClusterProfileDoesntExists(associatedClusterProfile, elasticProfileToCreate);
 
         final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         elasticProfileService.create(currentUsername(), elasticProfileToCreate, operationResult);
 
         return handleCreateOrUpdateResponse(request, response, elasticProfileToCreate, operationResult);
-    }
-
-    private void populatePluginIdFromReferencedClusterProfile(ElasticProfile elasticProfileToCreate) {
-        ClusterProfile associatedClusterProfile = clusterProfilesService.findProfile(elasticProfileToCreate.getClusterProfileId());
-        haltIfSpecifiedClusterProfileDoesntExists(associatedClusterProfile, elasticProfileToCreate);
-//        elasticProfileToCreate.setPluginId(associatedClusterProfile.getPluginId());
-//        elasticProfileToCreate.encryptSecureConfigurations();
     }
 
     public String update(Request request, Response response) {
@@ -138,7 +132,8 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
             throw haltBecauseEtagDoesNotMatch("elasticProfile", existingElasticProfile.getId());
         }
 
-        populatePluginIdFromReferencedClusterProfile(newElasticProfile);
+        ClusterProfile associatedClusterProfile = clusterProfilesService.findProfile(newElasticProfile.getClusterProfileId());
+        haltIfSpecifiedClusterProfileDoesntExists(associatedClusterProfile, newElasticProfile);
 
         final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         elasticProfileService.update(currentUsername(), etagFor(existingElasticProfile), newElasticProfile, operationResult);

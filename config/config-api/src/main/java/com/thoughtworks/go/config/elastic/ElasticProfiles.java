@@ -56,7 +56,7 @@ public class ElasticProfiles extends ArrayList<ElasticProfile> implements Valida
 
     @Override
     public void addError(String fieldName, String message) {
-
+        errors().add(fieldName, message);
     }
 
     public ElasticProfile find(String profileId) {

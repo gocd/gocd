@@ -40,11 +40,9 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ElasticAgentProfileCreateCommandTest {
-
     private ElasticAgentExtension extension;
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -79,5 +77,16 @@ public class ElasticAgentProfileCreateCommandTest {
         command.update(cruiseConfig);
         assertThat(newProfile.first().errors().size(), is(1));
         assertThat(newProfile.first().errors().asString(), is("error"));
+    }
+
+    @Test
+    public void shouldEncryptSecurePluginProperties() {
+        ElasticProfile elasticProfile = mock(ElasticProfile.class);
+        ElasticAgentProfileCreateCommand command = new ElasticAgentProfileCreateCommand(null, elasticProfile, extension, null, null);
+
+        BasicCruiseConfig preProcessedConfig = new BasicCruiseConfig();
+        command.encrypt(preProcessedConfig);
+
+        verify(elasticProfile, times(1)).encryptSecureProperties(preProcessedConfig);
     }
 }

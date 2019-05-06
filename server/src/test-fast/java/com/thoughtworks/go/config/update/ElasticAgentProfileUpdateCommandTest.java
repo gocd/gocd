@@ -31,8 +31,7 @@ import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 public class ElasticAgentProfileUpdateCommandTest {
     private Username currentUser;
@@ -86,5 +85,16 @@ public class ElasticAgentProfileUpdateCommandTest {
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("Someone has modified the configuration for"));
+    }
+
+    @Test
+    public void shouldEncryptSecurePluginProperties() {
+        ElasticProfile elasticProfile = mock(ElasticProfile.class);
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, elasticProfile, null, null, null, null, null);
+
+        BasicCruiseConfig preProcessedConfig = new BasicCruiseConfig();
+        command.encrypt(preProcessedConfig);
+
+        verify(elasticProfile, times(1)).encryptSecureProperties(preProcessedConfig);
     }
 }

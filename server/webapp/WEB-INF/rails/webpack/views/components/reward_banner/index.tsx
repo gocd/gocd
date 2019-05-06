@@ -31,12 +31,12 @@ interface Attrs {
 const STORAGE_KEY_PREFIX = "gocd.reward";
 
 export class RewardBanner extends MithrilComponent<Attrs> {
-  show: Stream<boolean> = stream(false);
+  show: Stream<boolean> = stream();
 
   oninit(vnode: m.Vnode<Attrs>) {
     const storageKey = STORAGE_KEY_PREFIX.concat(".", vnode.attrs.key);
     if (!localStorage.getItem(storageKey) && !s.isBlank(vnode.attrs.query)) {
-      this.show = stream(true);
+      this.show(true);
       localStorage.setItem(storageKey, "true");
     }
   }

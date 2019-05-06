@@ -18,7 +18,7 @@ import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
-import {Rules} from "models/secret_configs/rules";
+import {Rule, Rules} from "models/secret_configs/rules";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {SecretConfigsCRUD} from "models/secret_configs/secret_configs_crud";
 import {SecretConfigJSON} from "models/secret_configs/secret_configs_json";
@@ -26,10 +26,19 @@ import {Configurations} from "models/shared/configuration";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {SecretSettings} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import * as Buttons from "views/components/buttons";
 import {Form, FormHeader} from "views/components/forms/form";
-import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {
+  SelectField,
+  SelectFieldOptions,
+  Size as TextAreaSize,
+  TextAreaField,
+  TextField
+} from "views/components/forms/input_fields";
 import {Size} from "views/components/modal";
 import {EntityModal} from "views/components/modal/entity_modal";
+import * as styles from "views/pages/secret_configs/index.scss";
+import {RulesWidget} from "views/pages/secret_configs/rules_widget";
 
 const AngularPluginNew = require("views/shared/angular_plugin_new");
 
@@ -77,6 +86,16 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
         </Form>
       </FormHeader>
 
+      <div className={styles.widthSmall}>
+        <TextAreaField label={"Description"}
+                       property={this.entity().description}
+                       resizable={false}
+                       rows={5}
+                       size={TextAreaSize.MEDIUM}
+                       errorText={this.entity().errors().errorsForDisplay("description")}
+                       placeholder="What's this secret config used for?"/>
+      </div>
+
       <div>
         <div className="row collapse">
           <AngularPluginNew
@@ -84,6 +103,12 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
             configuration={this.entity().properties()}
             key={this.entity().id}/>
         </div>
+      </div>
+      <div>
+        <RulesWidget rules={this.entity().rules}/>
+      </div>
+      <div>
+        <Buttons.Secondary onclick={this.addNewRule.bind(this)}>+ New Rule</Buttons.Secondary>
       </div>
     </div>;
   }
@@ -102,6 +127,10 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
 
   protected performFetch(entity: SecretConfig): Promise<any> {
     return SecretConfigsCRUD.get(entity);
+  }
+
+  protected addNewRule() {
+    this.entity().rules().push(stream(new Rule("", "refer", "", "")));
   }
 
   protected afterSuccess(): void {

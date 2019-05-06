@@ -20,12 +20,14 @@ import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {isBlank} from "underscore.string";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
+import {RulesInfoWidget} from "views/pages/secret_configs/rules_widget";
 
 interface Attrs extends RequiresPluginInfos, EditOperation<SecretConfig>, CloneOperation<SecretConfig>, DeleteOperation<SecretConfig> {
   secretConfigs: Stream<SecretConfigs>;
@@ -57,9 +59,13 @@ export class SecretConfigsWidget extends MithrilViewComponent<Attrs> {
           const header = [this.headerIcon(pluginInfo),
             <KeyValuePair inline={true} data={this.headerMap(secretConfig())}/>];
 
-          return <CollapsiblePanel dataTestId="secret-configs-group" header={header}
-                                   actions={this.getActionButtons(vnode, secretConfig())}>
+          const descriptionText = !isBlank(secretConfig().description()) ? <p>{secretConfig().description()}</p> : null;
+          return <CollapsiblePanel
+            dataTestId="secret-configs-group" header={header}
+            actions={this.getActionButtons(vnode, secretConfig())}>
+            {descriptionText}
             {this.infoFor(secretConfig())}
+            <RulesInfoWidget rules={secretConfig().rules}/>
           </CollapsiblePanel>;
         })
       }
@@ -68,7 +74,6 @@ export class SecretConfigsWidget extends MithrilViewComponent<Attrs> {
 
   private infoFor(secretConfig: SecretConfig) {
     const properties = new Map(secretConfig.properties().asMap());
-    properties.set("Description", secretConfig.description());
     return <KeyValuePair data={properties}/>;
   }
 

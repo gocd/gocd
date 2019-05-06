@@ -17,6 +17,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -27,6 +28,7 @@ import com.thoughtworks.go.config.update.ElasticAgentProfileUpdateCommand;
 import com.thoughtworks.go.domain.ElasticProfileUsage;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.plugins.validators.elastic.ElasticAgentProfileConfigurationValidator;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -46,13 +48,23 @@ class ElasticProfileServiceTest {
     private GoConfigService goConfigService;
     private ElasticProfileService elasticProfileService;
     private ElasticAgentExtension elasticAgentExtension;
+    private String clusterProfileId;
+    private String pluginId;
+    private ElasticAgentProfileConfigurationValidator validator;
 
     @BeforeEach
     void setUp() throws Exception {
+        pluginId = "cd.go.elastic.ecs";
+        clusterProfileId = "prod-cluster";
         elasticAgentExtension = mock(ElasticAgentExtension.class);
         EntityHashingService hashingService = mock(EntityHashingService.class);
         goConfigService = mock(GoConfigService.class);
         elasticProfileService = new ElasticProfileService(goConfigService, hashingService, elasticAgentExtension);
+        validator = mock(ElasticAgentProfileConfigurationValidator.class);
+        elasticProfileService.setProfileConfigurationValidator(validator);
+        ElasticConfig elasticConfig = new ElasticConfig();
+        elasticConfig.getClusterProfiles().add(new ClusterProfile(clusterProfileId, pluginId));
+        when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
     }
 
     @Test
@@ -67,7 +79,7 @@ class ElasticProfileServiceTest {
     @Test
     void shouldReturnAMapOfElasticProfiles() {
         ElasticConfig elasticConfig = new ElasticConfig();
-        ElasticProfile elasticProfile = new ElasticProfile("ecs", "cd.go.elatic.ecs");
+        ElasticProfile elasticProfile = new ElasticProfile("ecs", pluginId, clusterProfileId);
         elasticConfig.getProfiles().add(elasticProfile);
 
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
@@ -109,25 +121,12 @@ class ElasticProfileServiceTest {
 
     @Test
     void shouldPerformPluginValidationsBeforeAddingElasticProfile() {
-        ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap", create("key", false, "value"));
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", pluginId, clusterProfileId, create("key", false, "value"));
 
         Username username = new Username("username");
         elasticProfileService.create(username, elasticProfile, new HttpLocalizedOperationResult());
 
-        verify(elasticAgentExtension).validate(elasticProfile.getPluginId(), elasticProfile.getConfigurationAsMap(true));
-    }
-
-    @Test
-    void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginIdWhileCreating() {
-        ElasticProfile elasticProfile = new ElasticProfile("some-id", "non-existent-plugin", create("key", false, "value"));
-
-        Username username = new Username("username");
-        when(elasticAgentExtension.validate(elasticProfile.getPluginId(), elasticProfile.getConfigurationAsMap(true))).thenThrow(new RecordNotFoundException("some error"));
-
-        elasticProfileService.create(username, elasticProfile, new HttpLocalizedOperationResult());
-
-        assertThat(elasticProfile.errors()).isNotEmpty();
-        assertThat(elasticProfile.errors().on("pluginId")).isEqualTo("Plugin with id `non-existent-plugin` is not found.");
+        verify(validator).validate(elasticProfile, pluginId);
     }
 
     @Test
@@ -142,25 +141,12 @@ class ElasticProfileServiceTest {
 
     @Test
     void shouldPerformPluginValidationsBeforeUpdatingElasticProfile() {
-        ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap", create("key", false, "value"));
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", pluginId, create("key", false, "value"));
 
         Username username = new Username("username");
         elasticProfileService.update(username, "md5", elasticProfile, new HttpLocalizedOperationResult());
 
-        verify(elasticAgentExtension).validate(elasticProfile.getPluginId(), elasticProfile.getConfigurationAsMap(true));
-    }
-
-    @Test
-    void shouldAddPluginNotFoundErrorOnConfigForANonExistentPluginIdWhileUpdating() {
-        ElasticProfile elasticProfile = new ElasticProfile("some-id", "non-existent-plugin", create("key", false, "value"));
-
-        Username username = new Username("username");
-        when(elasticAgentExtension.validate(elasticProfile.getPluginId(), elasticProfile.getConfigurationAsMap(true))).thenThrow(new RecordNotFoundException("some error"));
-
-        elasticProfileService.update(username, "md5", elasticProfile, new HttpLocalizedOperationResult());
-
-        assertThat(elasticProfile.errors()).isNotEmpty();
-        assertThat(elasticProfile.errors().on("pluginId")).isEqualTo("Plugin with id `non-existent-plugin` is not found.");
+        validator.validate(elasticProfile, pluginId);
     }
 
     @Test

@@ -106,7 +106,7 @@ public class PipelineServiceTest {
         when(pipelineDao.save(pipeline)).thenReturn(pipeline);
         when(materialRepository.findMaterialRevisionsForPipeline(9L)).thenReturn(MaterialRevisions.EMPTY);
         service.save(pipeline);
-        Mockito.verify(pipelineTimeline).update();
+        Mockito.verify(pipelineTimeline).update(pipeline.getName());
     }
 
     @Test
@@ -114,7 +114,7 @@ public class PipelineServiceTest {
         StageStatusListener stageStatusListener = mock(StageStatusListener.class);
         JobStatusListener jobStatusListener = mock(JobStatusListener.class);
         Pipeline pipeline = stubPipelineSaveForStatusListener(stageStatusListener, jobStatusListener);
-        Mockito.doThrow(new RuntimeException()).when(pipelineTimeline).update();
+        Mockito.doThrow(new RuntimeException()).when(pipelineTimeline).update(anyString());
 
         try {
             service.save(pipeline);

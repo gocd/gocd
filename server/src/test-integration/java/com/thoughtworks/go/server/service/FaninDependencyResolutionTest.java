@@ -853,12 +853,12 @@ public class FaninDependencyResolutionTest {
 
     private BuildCause getBuildCause(ScheduleTestUtil.AddedPipeline staging, MaterialRevisions given, MaterialRevisions previous) {
         AutoBuild autoBuild = new AutoBuild(goConfigService, pipelineService, staging.config.name().toString(), systemEnvironment, materialChecker);
-        pipelineTimeline.update();
+        pipelineTimeline.update(staging.config.name().toString());
         return autoBuild.onModifications(given, false, previous);
     }
 
     private MaterialRevisions getRevisionsBasedOnDependencies(ScheduleTestUtil.AddedPipeline pipeline, CruiseConfig cruiseConfig, MaterialRevisions given) {
-        pipelineTimeline.update();
+        pipelineTimeline.update(pipeline.config.name().toString());
         return pipelineService.getRevisionsBasedOnDependencies(given, cruiseConfig, pipeline.config.name());
     }
 

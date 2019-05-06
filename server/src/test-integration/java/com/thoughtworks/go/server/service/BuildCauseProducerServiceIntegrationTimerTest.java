@@ -122,7 +122,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, mduTimeForG11, "g11");
         u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, u.d(i++), "g12");
         u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, mduTimeForG11, "g11");
-        pipelineTimeline.update();
+        pipelineTimeline.update(pipelineName);
 
         buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
 
@@ -141,7 +141,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
 
         u.checkinFile(git1, "g11", temporaryFolder.newFile("blah_g11"), ModifiedAction.added);
         String up1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(up1, u.d(i++), "g11");
-        pipelineTimeline.update();
+        pipelineTimeline.update(pipelineName);
 
         // Run once with latest, when pipeline schedules due to timer.
         buildCauseProducerService.timerSchedulePipeline(p1.config, new ServerHealthStateOperationResult());
@@ -207,7 +207,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         u.checkinFile(git2, "g21", temporaryFolder.newFile("blah_g21"), ModifiedAction.added);
         Date mduTimeOfG11 = u.d(i++);
         String p1_1 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, mduTimeOfG11, "g11");
-        pipelineTimeline.update();
+        pipelineTimeline.update(pipelineName);
 
         // Run once with latest, when pipeline schedules due to timer.
         buildCauseProducerService.timerSchedulePipeline(p2.config, new ServerHealthStateOperationResult());
@@ -222,7 +222,7 @@ public class BuildCauseProducerServiceIntegrationTimerTest {
         // Check in to git2 and run pipeline P1 once before the timer time. Then, timer happens. Shows those two materials in "yellow" (changed), on the UI.
         u.checkinFile(git2, "g22", temporaryFolder.newFile("blah_g22"), ModifiedAction.added);
         String p1_2 = u.runAndPassWithGivenMDUTimestampAndRevisionStrings(p1, mduTimeOfG11, "g11");
-        pipelineTimeline.update();
+        pipelineTimeline.update(pipelineName);
         try (LogFixture logFixture = logFixtureFor(TimedBuild.class, Level.INFO)) {
             buildCauseProducerService.timerSchedulePipeline(p2.config, new ServerHealthStateOperationResult());
 

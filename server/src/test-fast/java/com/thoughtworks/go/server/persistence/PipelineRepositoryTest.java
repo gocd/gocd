@@ -26,6 +26,7 @@ import com.thoughtworks.go.server.domain.user.Filters;
 import com.thoughtworks.go.server.domain.user.PipelineSelections;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -60,6 +61,7 @@ public class PipelineRepositoryTest {
     private TransactionTemplate transactionTemplate;
     private Session session;
     private SQLQuery sqlQuery;
+    private SystemEnvironment systemEnvironment;
 
     @Before
     public void setup() {
@@ -68,6 +70,7 @@ public class PipelineRepositoryTest {
         sessionFactory = mock(SessionFactory.class);
         hibernateTemplate = mock(HibernateTemplate.class);
         goCache = mock(GoCache.class);
+        systemEnvironment = mock(SystemEnvironment.class);
         databaseStrategy = mock(DatabaseStrategy.class);
         when(databaseStrategy.getQueryExtensions()).thenReturn(mock(QueryExtensions.class));
         pipelineRepository = new PipelineRepository(sessionFactory, goCache, databaseStrategy);
@@ -133,7 +136,7 @@ public class PipelineRepositoryTest {
         ArrayList<PipelineTimelineEntry> tempEntries = new ArrayList<>();
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries);
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries, "p1");
 
         PipelineTimelineEntry timelineEntry1 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 1);
         PipelineTimelineEntry timelineEntry2 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 2);
@@ -154,7 +157,7 @@ public class PipelineRepositoryTest {
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
         try {
-            pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries);
+            pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries, "p1");
             fail("Should fail to retrieve pipeline.");
         } catch (ClassCastException e) {
             assertThat(tempEntries.size(), is(0));
@@ -174,7 +177,7 @@ public class PipelineRepositoryTest {
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
         try {
-            pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries);
+            pipelineRepository.updatePipelineTimeline(pipelineTimeline, tempEntries, "p1");
         } catch (RuntimeException e) {
             PipelineTimelineEntry timelineEntry1 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 1);
             PipelineTimelineEntry timelineEntry2 = pipelineTimeline.getEntryFor(new CaseInsensitiveString("p1"), 2);

@@ -40,8 +40,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class PipelineTimeline {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineTimeline.class);
 
-    private final Map<CaseInsensitiveString, TreeSet<PipelineTimelineEntry>> naturalOrderPmm;
-    private final Map<CaseInsensitiveString, ArrayList<PipelineTimelineEntry>> scheduleOrderPmm;
+    private final Map<CaseInsensitiveString, PipelineTimelineEntrySet> pipelineToEntries;
     private volatile long maximumId;
     private final PipelineRepository pipelineRepository;
     private TransactionTemplate transactionTemplate;
@@ -58,8 +57,7 @@ public class PipelineTimeline {
         this.transactionTemplate = transactionTemplate;
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.listeners = listeners;
-        naturalOrderPmm = new HashMap<>();
-        scheduleOrderPmm = new HashMap<>();
+        pipelineToEntries = new HashMap<>();
         maximumId = -1;
     }
 
@@ -70,7 +68,7 @@ public class PipelineTimeline {
     public Collection<PipelineTimelineEntry> getEntriesFor(String pipelineName) {
         naturalOrderLock.readLock().lock();
         try {
-            TreeSet<PipelineTimelineEntry> tree = naturalOrderPmm.get(new CaseInsensitiveString(pipelineName));
+            TreeSet<PipelineTimelineEntry> tree = pipelineToEntries.get(new CaseInsensitiveString(pipelineName)).getNaturalOrderSet();
             if (tree == null) {
                 tree = new TreeSet<>();
             }
@@ -84,20 +82,26 @@ public class PipelineTimeline {
         return maximumId;
     }
 
+    public long getMaximumIdFor(String pipelineName) {
+        return pipelineToEntries.get(new CaseInsensitiveString(pipelineName)).getMaximumId();
+    }
+
     public void add(PipelineTimelineEntry pipelineTimelineEntry) {
         CaseInsensitiveString pipelineName = new CaseInsensitiveString(pipelineTimelineEntry.getPipelineName());
-        initializedNaturalOrderCollection(pipelineName).add(pipelineTimelineEntry);
-        initializedScheduleOrderCollection(pipelineName).add(pipelineTimelineEntry);
+        PipelineTimelineEntrySet pipelineTimelineEntrySet = initializePipelineEntriesFor(pipelineName);
+        pipelineTimelineEntrySet.getNaturalOrderSet().add(pipelineTimelineEntry);
+        pipelineTimelineEntrySet.getScheduledOrderSet().add(pipelineTimelineEntry);
         pipelineTimelineEntry.setInsertedBefore(naturalOrderAfter(pipelineTimelineEntry));
         pipelineTimelineEntry.setInsertedAfter(naturalOrderBefore(pipelineTimelineEntry));
         pipelineTimelineEntry.updateNaturalOrder();
-        updateMaximumId(pipelineTimelineEntry.getId());
+        pipelineTimelineEntrySet.updateMaximumId(pipelineTimelineEntry.getId());
     }
 
-    public void update() {
+    public void update(final String pipelineName) {
         acquireAllWriteLocks();
         try {
-            final long maximumIdBeforeUpdate = maximumId;
+            PipelineTimelineEntrySet pipelineTimelineEntrySet = initializePipelineEntriesFor(new CaseInsensitiveString(pipelineName));
+            final long maximumIdBeforeUpdate = pipelineTimelineEntrySet.getMaximumId();
             transactionTemplate.execute((TransactionCallback) transactionStatus -> {
                 final List<PipelineTimelineEntry> newlyAddedEntries = new ArrayList<>();
                 transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
@@ -114,18 +118,19 @@ public class PipelineTimeline {
                         for (PipelineTimelineEntry entry : newlyAddedEntries) {
                             rollbackNewEntryFor(entry);
                         }
-                        maximumId = maximumIdBeforeUpdate;
+                        pipelineTimelineEntrySet.updateMaximumId(maximumIdBeforeUpdate);
                     }
 
                     private void rollbackNewEntryFor(PipelineTimelineEntry entry) {
                         CaseInsensitiveString pipelineName = new CaseInsensitiveString(entry.getPipelineName());
-                        initializedNaturalOrderCollection(pipelineName).remove(entry);
-                        initializedScheduleOrderCollection(pipelineName).remove(entry);
+                        PipelineTimelineEntrySet pipelineTimelineEntrySet = initializePipelineEntriesFor(pipelineName);
+                        pipelineTimelineEntrySet.getNaturalOrderSet().remove(entry);
+                        pipelineTimelineEntrySet.getScheduledOrderSet().remove(entry);
                     }
 
 
                 });
-                pipelineRepository.updatePipelineTimeline(PipelineTimeline.this, newlyAddedEntries);
+                pipelineRepository.updatePipelineTimeline(PipelineTimeline.this, newlyAddedEntries, pipelineName);
                 return null;
             });
         } finally {
@@ -161,7 +166,7 @@ public class PipelineTimeline {
         for (TimelineUpdateListener listener : listeners) {
             for (Map.Entry<CaseInsensitiveString, PipelineTimelineEntry> entry : pipelineToOldestEntry.entrySet()) {
                 try {
-                    listener.added(entry.getValue(), naturalOrderPmm.get(entry.getKey()));
+                    listener.added(entry.getValue(), pipelineToEntries.get(entry.getKey()).getNaturalOrderSet());
                 } catch (Exception e) {
                     LOGGER.warn("Ignoring exception when notifying listener: {}", listener, e);
                 }
@@ -175,7 +180,7 @@ public class PipelineTimeline {
     public void updateTimelineOnInit() {
         acquireAllWriteLocks();
         try {
-            pipelineRepository.updatePipelineTimeline(this, new ArrayList<>());
+//            pipelineRepository.updatePipelineTimeline(this, new ArrayList<>());
         } finally {
             releaseAllWriteLocks();
         }
@@ -187,10 +192,11 @@ public class PipelineTimeline {
      * @return PMM which was before the pipeline with this id at the time of insertion of the PTE with the id or null if there was nothing before this pipeline during insertion
      */
     public PipelineTimelineEntry runBefore(long id, final CaseInsensitiveString pipelineName) {
+        populatePipelineTimelineEntriesFor(pipelineName);
         naturalOrderLock.readLock().lock();
         try {
-            TreeSet<PipelineTimelineEntry> treeForPipeline = naturalOrderPmm.get(pipelineName);
-            if (treeForPipeline == null) {
+            TreeSet<PipelineTimelineEntry> treeForPipeline = pipelineToEntries.get(pipelineName).getNaturalOrderSet();
+            if (treeForPipeline == null || treeForPipeline.isEmpty()) {
                 return null;
             }
             for (PipelineTimelineEntry pipelineTimelineEntry : treeForPipeline) {
@@ -204,16 +210,30 @@ public class PipelineTimeline {
         }
     }
 
+    private void populatePipelineTimelineEntriesFor(CaseInsensitiveString pipelineName) {
+        PipelineTimelineEntrySet pipelineTimelineEntrySet;
+        naturalOrderLock.readLock().lock();
+        try {
+            pipelineTimelineEntrySet = pipelineToEntries.get(pipelineName);
+        } finally {
+            naturalOrderLock.readLock().unlock();
+        }
+        if (pipelineTimelineEntrySet == null) {
+            update(pipelineName.toString());
+        }
+    }
+
     /**
      * @param id           for the pipeline
      * @param pipelineName
      * @return PMM which was after the pipeline with this id at the time of insertion of the PTE with the id or null if there was nothing after this pipeline during insertion
      */
     public PipelineTimelineEntry runAfter(long id, final CaseInsensitiveString pipelineName) {
+        populatePipelineTimelineEntriesFor(pipelineName);
         naturalOrderLock.readLock().lock();
         try {
-            TreeSet<PipelineTimelineEntry> treeForPipeline = naturalOrderPmm.get(pipelineName);
-            if (treeForPipeline == null) {
+            TreeSet<PipelineTimelineEntry> treeForPipeline = pipelineToEntries.get(pipelineName).getNaturalOrderSet();
+            if (treeForPipeline == null || treeForPipeline.isEmpty()) {
                 return null;
             }
             for (PipelineTimelineEntry pipelineTimelineEntry : treeForPipeline) {
@@ -227,37 +247,30 @@ public class PipelineTimeline {
         }
     }
 
-    private void updateMaximumId(long id) {
-        maximumId = Math.max(id, maximumId);
-    }
-
-    private TreeSet<PipelineTimelineEntry> initializedNaturalOrderCollection(final CaseInsensitiveString pipelineName) {
-        if (!naturalOrderPmm.containsKey(pipelineName)) {
-            naturalOrderPmm.put(pipelineName, new TreeSet<>());
+    private PipelineTimelineEntrySet initializePipelineEntriesFor(final CaseInsensitiveString pipelineName) {
+        if (!pipelineToEntries.containsKey(pipelineName)) {
+            pipelineToEntries.put(pipelineName, new PipelineTimelineEntrySet());
         }
-        return naturalOrderPmm.get(pipelineName);
-    }
-
-    private ArrayList<PipelineTimelineEntry> initializedScheduleOrderCollection(final CaseInsensitiveString pipelineName) {
-        if (!scheduleOrderPmm.containsKey(pipelineName)) {
-            scheduleOrderPmm.put(pipelineName, new ArrayList<>());
-        }
-        return scheduleOrderPmm.get(pipelineName);
+        return pipelineToEntries.get(pipelineName);
     }
 
     private PipelineTimelineEntry naturalOrderAfter(PipelineTimelineEntry pipelineTimelineEntry) {
+        CaseInsensitiveString pipelineName = new CaseInsensitiveString(pipelineTimelineEntry.getPipelineName());
+        populatePipelineTimelineEntriesFor(pipelineName);
         naturalOrderLock.readLock().lock();
         try {
-            return naturalOrderPmm.get(new CaseInsensitiveString(pipelineTimelineEntry.getPipelineName())).higher(pipelineTimelineEntry);
+            return pipelineToEntries.get(pipelineName).getNaturalOrderSet().higher(pipelineTimelineEntry);
         } finally {
             naturalOrderLock.readLock().unlock();
         }
     }
 
     PipelineTimelineEntry naturalOrderBefore(PipelineTimelineEntry pipelineTimelineEntry) {
+        CaseInsensitiveString pipelineName = new CaseInsensitiveString(pipelineTimelineEntry.getPipelineName());
+        populatePipelineTimelineEntriesFor(pipelineName);
         naturalOrderLock.readLock().lock();
         try {
-            return naturalOrderPmm.get(new CaseInsensitiveString(pipelineTimelineEntry.getPipelineName())).lower(pipelineTimelineEntry);
+            return pipelineToEntries.get(pipelineName).getNaturalOrderSet().lower(pipelineTimelineEntry);
         } finally {
             naturalOrderLock.readLock().unlock();
         }
@@ -270,17 +283,17 @@ public class PipelineTimeline {
     public void clearWhichIsEvilAndShouldNotBeUsedInRealWorld() {
         acquireAllWriteLocks();
         try {
-            naturalOrderPmm.clear();
-            scheduleOrderPmm.clear();
+            pipelineToEntries.clear();
         } finally {
             releaseAllWriteLocks();
         }
     }
 
     public int instanceCount(CaseInsensitiveString pipelineName) {
+        populatePipelineTimelineEntriesFor(pipelineName);
         scheduleOrderLock.readLock().lock();
         try {
-            ArrayList<PipelineTimelineEntry> instances = scheduleOrderPmm.get(pipelineName);
+            ArrayList<PipelineTimelineEntry> instances = pipelineToEntries.get(pipelineName).getScheduledOrderSet();
             return instances == null ? 0 : instances.size();
         } finally {
             scheduleOrderLock.readLock().unlock();
@@ -288,9 +301,10 @@ public class PipelineTimeline {
     }
 
     public PipelineTimelineEntry instanceFor(CaseInsensitiveString pipelineName, int index) {
+        populatePipelineTimelineEntriesFor(pipelineName);
         scheduleOrderLock.readLock().lock();
         try {
-            ArrayList<PipelineTimelineEntry> instances = scheduleOrderPmm.get(pipelineName);
+            ArrayList<PipelineTimelineEntry> instances = pipelineToEntries.get(pipelineName).getScheduledOrderSet();
             return instances == null ? null : instances.get(index);
         } finally {
             scheduleOrderLock.readLock().unlock();
@@ -299,9 +313,10 @@ public class PipelineTimeline {
 
 
     public PipelineTimelineEntry getEntryFor(CaseInsensitiveString pipelineName, Integer pipelineCounter) {
+        populatePipelineTimelineEntriesFor(pipelineName);
         scheduleOrderLock.readLock().lock();
         try {
-            ArrayList<PipelineTimelineEntry> instances = scheduleOrderPmm.get(pipelineName);
+            ArrayList<PipelineTimelineEntry> instances = pipelineToEntries.get(pipelineName).getScheduledOrderSet();
             for (int i = instances.size() - 1; i >= 0; i--) {
                 PipelineTimelineEntry instance = instances.get(i);
                 if (instance.getCounter() == pipelineCounter) {

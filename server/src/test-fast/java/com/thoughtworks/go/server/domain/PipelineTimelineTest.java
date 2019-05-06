@@ -22,6 +22,7 @@ import com.thoughtworks.go.listener.TimelineUpdateListener;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.SystemEnvironment;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,11 +54,13 @@ public class PipelineTimelineTest {
     private TransactionSynchronization transactionSynchronization;
     private PipelineTimelineEntry[] repositoryEntries;
     private int txnStatus;
+    private SystemEnvironment systemEnvironment;
 
 
     @Before public void setUp() throws Exception {
         now = new DateTime();
         pipelineRepository = mock(PipelineRepository.class);
+        systemEnvironment = mock(SystemEnvironment.class);
         materials = Arrays.asList("first", "second", "third", "fourth");
         first = PipelineMaterialModificationMother.modification(1, materials, Arrays.asList(now, now.plusMinutes(1), now.plusMinutes(2), now.plusMinutes(3)), 1, "111", "pipeline");
         second = PipelineMaterialModificationMother.modification(2, materials, Arrays.asList(now, now.plusMinutes(2), now.plusMinutes(1), now.plusMinutes(2)), 2, "222", "pipeline");
@@ -168,7 +171,7 @@ public class PipelineTimelineTest {
         });
         stubPipelineRepository(timeline, true, new PipelineTimelineEntry[]{first, second});
 
-        timeline.update();
+        timeline.update(first.getPipelineName()); // this updates 2 entries `first` and `second` for pipeline with name `pipeline` at once like before
 
         assertThat(entries[0].size(), is(1));
         assertThat(entries[0].contains(first), is(true));
@@ -186,7 +189,7 @@ public class PipelineTimelineTest {
         }, anotherListener);
         stubPipelineRepository(timeline, true, new PipelineTimelineEntry[]{first, second});
         try {
-            timeline.update();
+            timeline.update(first.getPipelineName());
         } catch (Exception e) {
             fail("should not have failed because of exception thrown by listener");
         }
@@ -200,7 +203,7 @@ public class PipelineTimelineTest {
 
         timeline.updateTimelineOnInit();
 
-        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries));
+        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries), first.getPipelineName());
         verifyNoMoreInteractions(transactionSynchronizationManager);
         verifyNoMoreInteractions(transactionTemplate);
         assertThat(timeline.maximumId(), is(2L));
@@ -214,10 +217,10 @@ public class PipelineTimelineTest {
         PipelineTimelineEntry[] entries = {first, second};
         stubPipelineRepository(timeline, true, entries);
 
-        timeline.update();
+        timeline.update(first.getPipelineName());
 
-        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries));
-        assertThat(timeline.maximumId(), is(2L));
+        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries), first.getPipelineName());
+        assertThat(timeline.getMaximumIdFor(first.getPipelineName()), is(2L));
     }
 
     @Test public void updateShouldRemoveTheTimelinesReturnedOnRollback() throws Exception {
@@ -227,9 +230,9 @@ public class PipelineTimelineTest {
         PipelineTimelineEntry[] entries = {first, second};
         stubPipelineRepository(timeline, true, new PipelineTimelineEntry[]{first, second});
 
-        timeline.update();
+        timeline.update(first.getPipelineName());
 
-        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries));
+        verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries), first.getPipelineName());
         assertThat(timeline.maximumId(), is(-1L));
     }
 
@@ -242,16 +245,16 @@ public class PipelineTimelineTest {
         final PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
         stubPipelineRepository(timeline, true, first, second);
-        timeline.update();
+        timeline.update(first.getPipelineName());
         allEntries = timeline.getEntriesFor("pipeline");
 
         setupTransactionTemplateStub(TransactionSynchronization.STATUS_ROLLED_BACK, false);
 
         stubPipelineRepository(timeline, false, third, fourth);
-        timeline.update();
+        timeline.update(first.getPipelineName());
         allEntries = timeline.getEntriesFor("pipeline");
 
-        assertThat(timeline.maximumId(), is(2L));
+        assertThat(timeline.getMaximumIdFor(first.getPipelineName()), is(2L));
         assertThat(timeline.getEntriesFor("pipeline").size(), is(2));
         assertThat(allEntries, hasItems(first, second));
         assertThat(timeline.instanceCount(new CaseInsensitiveString("pipeline")), is(2));
@@ -271,7 +274,7 @@ public class PipelineTimelineTest {
                     ((List<PipelineTimelineEntry>) invocationOnMock.getArguments()[1]).addAll(Arrays.asList(repositoryEntries));
                     return Arrays.asList(repositoryEntries);
                 }
-            }).when(pipelineRepository).updatePipelineTimeline(eq(timeline), anyListOf(PipelineTimelineEntry.class));
+            }).when(pipelineRepository).updatePipelineTimeline(eq(timeline), anyListOf(PipelineTimelineEntry.class), any());
         }
     }
 

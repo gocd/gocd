@@ -293,7 +293,7 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
         materialUpdateService.updateMaterial(material);
         materialUpdateService.updateMaterial(dependencyMaterial);
         waitForMaterialNotInProgress();
-        pipelineTimeline.update();
+        pipelineTimeline.update(x.getName());
 
         configTestRepo.addCodeToRepositoryAndPush("a.java", "added code file", "some java code");
 

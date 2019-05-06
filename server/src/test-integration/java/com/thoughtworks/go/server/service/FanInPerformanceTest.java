@@ -122,7 +122,7 @@ public class FanInPerformanceTest {
     }
 
     private MaterialRevisions getRevisionsBasedOnDependencies(CaseInsensitiveString pipeline, CruiseConfig cruiseConfig, MaterialRevisions given) {
-        pipelineTimeline.update();
+        pipelineTimeline.update(pipeline.toString());
         return pipelineService.getRevisionsBasedOnDependencies(given, cruiseConfig, pipeline);
     }
 }

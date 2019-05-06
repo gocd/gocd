@@ -184,7 +184,7 @@ public class PipelineRepositoryIntegrationTest {
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
 
         ArrayList<PipelineTimelineEntry> entries = new ArrayList<>();
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline, entries);
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, entries, PIPELINE_NAME);
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size(), is(2));
         assertThat(entries.size(), is(2));
@@ -201,7 +201,7 @@ public class PipelineRepositoryIntegrationTest {
 
         long thirdId = createPipeline(hgmaterial, pipelineConfig, 3, oneModifiedFile("30", date.plusDays(10).toDate()));
 
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>());
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>(), PIPELINE_NAME);
 
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size(), is(3));
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME), hasItem(expected(thirdId,
@@ -213,7 +213,7 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(pipelineSqlMapDao.pipelineByIdWithMods(thirdId).getNaturalOrder(), is(2.0));
 
         PipelineTimeline pipelineTimeline2 = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline2, new ArrayList<>());
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline2, new ArrayList<>(), PIPELINE_NAME);
     }
 
     @Test
@@ -235,13 +235,13 @@ public class PipelineRepositoryIntegrationTest {
 
 
         PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        mods.update();
+        mods.update(PIPELINE_NAME);
 
         assertThat(pipelineSqlMapDao.pipelineByIdWithMods(firstId).getNaturalOrder(), is(1.0));
         assertThat(pipelineSqlMapDao.pipelineByIdWithMods(secondId).getNaturalOrder(), is(0.5));
 
         PipelineTimeline modsAfterReboot = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        modsAfterReboot.update();
+        modsAfterReboot.update(PIPELINE_NAME);
     }
 
     @Test
@@ -271,7 +271,7 @@ public class PipelineRepositoryIntegrationTest {
                         oneModifiedFile("25", date.plusDays(5).toDate())));
 
         PipelineTimeline pipelineTimeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>());
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>(), PIPELINE_NAME);
 
         Collection<PipelineTimelineEntry> modifications = pipelineTimeline.getEntriesFor(PIPELINE_NAME);
         assertThat(modifications.size(), is(2));

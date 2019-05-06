@@ -317,7 +317,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         configHelper.addPipeline(mingleDownstreamPipelineName, STAGE_NAME, new MaterialConfigs(svn.config(), mingleMaterialConfig), "unit");
 
-        pipelineTimeline.update();
+        pipelineTimeline.update(mingleDownstreamPipelineName);
         scheduleHelper.autoSchedulePipelinesWithRealMaterials(mingleDownstreamPipelineName);
 
         assertThat(pipelineScheduleQueue.toBeScheduled().keySet(), hasItem(new CaseInsensitiveString(mingleDownstreamPipelineName)));

@@ -97,10 +97,10 @@ public class AutoBuildIntegrationTest {
         ScheduleTestUtil.AddedPipeline down_pipe = scheduleUtil.saveConfigWith("down_pipe", scheduleUtil.m(svn), scheduleUtil.m(up_pipe));
 
         String up_pipe_1 = scheduleUtil.runAndPass(up_pipe, "s1");
-        pipelineTimeline.update();
+        pipelineTimeline.update(up_pipe.config.name().toString());
 
         String down_pipe_1 = scheduleUtil.runAndPass(down_pipe, "s1", up_pipe_1);
-        pipelineTimeline.update();
+        pipelineTimeline.update(down_pipe.config.name().toString());
 
         down_pipe.config.removeMaterialConfig(svn.config());
 

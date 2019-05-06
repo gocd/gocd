@@ -23,4 +23,6 @@ public interface QueryExtensions {
     String queryRelevantToLookedUpDependencyMap(List<Long> pipelineIds);
     
     String retrievePipelineTimeline();
+
+    String retrievePipelineTimelineFor(String pipelineName);
 }

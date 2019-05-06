@@ -161,7 +161,7 @@ public class PipelineHistoryServiceIntegrationTest {
         pipelineTwo.createPipelineWithFirstStagePassedAndSecondStageHasNotStarted();
         dbHelper.updateNaturalOrder(toRerun.getId(), 3);
         dbHelper.scheduleStage(toRerun, pipelineTwo.devStage());
-        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>());
+        pipelineRepository.updatePipelineTimeline(pipelineTimeline, new ArrayList<>(), pipelineOne.pipelineName);
 
         List<PipelineGroupModel> groupModels = pipelineHistoryService.allActivePipelineInstances(new Username(new CaseInsensitiveString("jez")), PipelineSelections.ALL);
         assertThat(groupModels.size(), is(2));

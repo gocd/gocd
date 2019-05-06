@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.elastic;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
@@ -30,6 +31,7 @@ import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
 import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -42,6 +44,19 @@ import static org.junit.Assert.*;
 public class ElasticProfileTest {
 
     private ElasticAgentMetadataStore store = ElasticAgentMetadataStore.instance();
+    private ValidationContext validationContext;
+    private String clusterProfileId;
+    private String pluginId;
+    private BasicCruiseConfig config;
+
+    @Before
+    public void setUp() throws Exception {
+        pluginId = "cd.go.elastic-agent.docker-swarm";
+        clusterProfileId = "prod-cluster";
+        config = new BasicCruiseConfig();
+        config.getElasticConfig().setClusterProfiles(new ClusterProfiles(new ClusterProfile(clusterProfileId, pluginId)));
+        validationContext = new ConfigSaveValidationContext(config);
+    }
 
     @After
     public void tearDown() throws Exception {
@@ -49,12 +64,19 @@ public class ElasticProfileTest {
     }
 
     @Test
-    public void shouldNotAllowNullPluginIdOrProfileId() throws Exception {
+    public void shouldNotAllowNullId() throws Exception {
         ElasticProfile profile = new ElasticProfile();
 
-        profile.validate(null);
-        assertThat(profile.errors().size(), is(2));
+        profile.validate(validationContext);
         assertThat(profile.errors().on(ElasticProfile.ID), is("Elastic agent profile cannot have a blank id."));
+    }
+
+    @Test
+    public void shouldVerifyExistenceOfReferencedClusterProfile() throws Exception {
+        ElasticProfile profile = new ElasticProfile("foo", "non-existing-cluster");
+
+        profile.validate(validationContext);
+        assertThat(profile.errors().on(ElasticProfile.CLUSTER_PROFILE_ID), is("No Cluster Profile exists with the specified cluster_profile_id 'non-existing-cluster'."));
     }
 
     @Test
@@ -71,7 +93,7 @@ public class ElasticProfileTest {
         ConfigurationProperty prop2 = ConfigurationPropertyMother.create("USERNAME");
         ElasticProfile profile = new ElasticProfile("docker.unit-test", "prod-cluster", prop1, prop2);
 
-        profile.validate(null);
+        profile.validate(validationContext);
 
         assertThat(profile.errors().size(), is(0));
 
@@ -80,26 +102,6 @@ public class ElasticProfileTest {
 
         assertThat(prop1.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'"));
         assertThat(prop2.errors().on(ConfigurationProperty.CONFIGURATION_KEY), is("Duplicate key 'USERNAME' found for Elastic agent profile 'docker.unit-test'"));
-    }
-
-    @Test
-    public void shouldValidateWhetherReferencedClusterProfileIdExists() {
-        ElasticProfile profile = new ElasticProfile("docker.unit-test", "prod-cluster");
-        profile.validate(new ConfigSaveValidationContext(new BasicCruiseConfig()));
-
-        assertThat(profile.errors().size(), is(1));
-        assertThat(profile.errors().get("clusterProfileId"), is(Arrays.asList("No Cluster Profile exists with the specified cluster_profile_id 'prod-cluster'.")));
-    }
-
-    @Test
-    public void shouldValidateWhetherReferencedClusterProfileIdBelongsToTheSamePlugin() {
-        ElasticProfile profile = new ElasticProfile("docker.unit-test", "prod-cluster");
-        BasicCruiseConfig config = new BasicCruiseConfig();
-        config.getElasticConfig().setClusterProfiles(new ClusterProfiles(new ClusterProfile("prod-cluster", "cd.go.elastic-agent.docker-swarm")));
-        profile.validate(new ConfigSaveValidationContext(config));
-
-        assertThat(profile.errors().size(), is(1));
-        assertThat(profile.errors().get("clusterProfileId"), is(Arrays.asList("Referenced Cluster Profile and Elastic Agent Profile should belong to same plugin. Specified cluster profile 'prod-cluster' belongs to 'cd.go.elastic-agent.docker-swarm' plugin, whereas, elastic agent profile belongs to 'cd.go.elastic-agent.docker' plugin.")));
     }
 
     @Test
@@ -135,19 +137,6 @@ public class ElasticProfileTest {
     }
 
     @Test
-    public void addConfiguration_shouldEncryptASecureVariable() throws Exception {
-        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
-        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), profileSettings, profileSettings, null, null, null);
-
-        store.setPluginInfo(pluginInfo);
-        ElasticProfile profile = new ElasticProfile("id", "prod-cluster");
-        profile.addConfigurations(Arrays.asList(new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass"))));
-
-        assertThat(profile.size(), is(1));
-        assertTrue(profile.first().isSecure());
-    }
-
-    @Test
     public void addConfiguration_shouldIgnoreEncryptionInAbsenceOfCorrespondingConfigurationInStore() throws Exception {
         ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), new PluggableInstanceSettings(new ArrayList<>()), null, null, null, null);
 
@@ -161,14 +150,14 @@ public class ElasticProfileTest {
     }
 
     @Test
-    public void postConstruct_shouldEncryptSecureConfigurations() {
+    public void shouldEncryptSecureConfigurations() {
         PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(Arrays.asList(new PluginConfiguration("password", new Metadata(true, true))));
-        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor("plugin_id"), profileSettings, profileSettings, null, null, null);
+        ElasticAgentPluginInfo pluginInfo = new ElasticAgentPluginInfo(pluginDescriptor(pluginId), profileSettings, profileSettings, null, null, null);
 
         store.setPluginInfo(pluginInfo);
-        ElasticProfile profile = new ElasticProfile("id", "prod-cluster", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
+        ElasticProfile profile = new ElasticProfile("id", clusterProfileId, new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
 
-//        profile.encryptSecureConfigurations();
+        profile.encryptSecureProperties(config);
 
         assertThat(profile.size(), is(1));
         assertTrue(profile.first().isSecure());

@@ -35,6 +35,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @ConfigCollection(value = ConfigurationProperty.class)
 public class ElasticProfile extends Configuration implements Validatable {
     public static final String ID = "id";
+    public static final String CLUSTER_PROFILE_ID = "clusterProfileId";
     private final ConfigErrors errors = new ConfigErrors();
 
     @ConfigAttribute(value = "id", optional = false)
@@ -115,7 +116,7 @@ public class ElasticProfile extends Configuration implements Validatable {
 
     @Override
     public void validate(ValidationContext validationContext) {
-        super.validate(validationContext);
+        validateUniqueness(getObjectDescription() + " " + (isBlank(id) ? "(noname)" : "'" + id + "'"));
 
         if (isBlank(id)) {
             errors().add(ID, getObjectDescription() + " cannot have a blank id.");

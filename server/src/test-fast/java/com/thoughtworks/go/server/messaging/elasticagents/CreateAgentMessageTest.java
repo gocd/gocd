@@ -38,7 +38,7 @@ public class CreateAgentMessageTest {
         ElasticProfile elasticProfile = new ElasticProfile("foo", "plugin-id", "prod-cluster", properties);
         ClusterProfile clusterProfile = new ClusterProfile("foo", "plugin-id", properties);
         CreateAgentMessage message = new CreateAgentMessage("key", "env", elasticProfile, clusterProfile, null);
-        assertThat(message.pluginId(), is(elasticProfile.getPluginId()));
+        assertThat(message.pluginId(), is(clusterProfile.getPluginId()));
         Map<String, String> configurationAsMap = elasticProfile.getConfigurationAsMap(true);
         assertThat(message.configuration(), is(configurationAsMap));
         Map<String, String> clusterProfileConfigurations = clusterProfile.getConfigurationAsMap(true);

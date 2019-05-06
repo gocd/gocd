@@ -45,7 +45,7 @@ public class JobAgentMetadata extends PersistentObject {
 
     public JobAgentMetadata(long jobId, ElasticProfile profile, ClusterProfile clusterProfile) {
         this.jobId = jobId;
-        this.elasticAgentProfileMetadata = jsonizeElasticAgentProfile(profile);
+        this.elasticAgentProfileMetadata = jsonizeElasticAgentProfile(profile, clusterProfile.getPluginId());
         this.clusterProfileMetadata = jsonizeClusterProfile(clusterProfile);
         this.metadataVersion = "2.0";
     }
@@ -77,10 +77,11 @@ public class JobAgentMetadata extends PersistentObject {
         return new ClusterProfile(id, pluginId, configProperties);
     }
 
-    private static String jsonizeElasticAgentProfile(ElasticProfile elasticProfile) {
+    private static String jsonizeElasticAgentProfile(ElasticProfile elasticProfile, String pluginId) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("clusterProfileId", elasticProfile.getClusterProfileId());
-        map.put("pluginId", elasticProfile.getPluginId());
+        //todo: elastic agent extension v6 should remove plugin id.
+        map.put("pluginId", pluginId);
         map.put("id", elasticProfile.getId());
         map.put("properties", elasticProfile.getConfigurationAsMap(true));
         return GSON.toJson(map);

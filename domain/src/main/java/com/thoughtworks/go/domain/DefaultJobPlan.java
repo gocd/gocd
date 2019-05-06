@@ -224,7 +224,7 @@ public class DefaultJobPlan implements JobPlan {
     }
 
     public void setElasticProfile(ElasticProfile elasticProfile) {
-        this.elasticProfile = new ElasticProfile(elasticProfile.getId(), elasticProfile.getPluginId(), elasticProfile.getClusterProfileId(), elasticProfile);
+        this.elasticProfile = new ElasticProfile(elasticProfile.getId(), null, elasticProfile.getClusterProfileId(), elasticProfile);
     }
 
     @Override

@@ -54,7 +54,6 @@ public class ElasticProfileTest {
 
         profile.validate(null);
         assertThat(profile.errors().size(), is(2));
-        assertThat(profile.errors().on(ElasticProfile.PLUGIN_ID), is("Elastic agent profile cannot have a blank plugin id."));
         assertThat(profile.errors().on(ElasticProfile.ID), is("Elastic agent profile cannot have a blank id."));
     }
 
@@ -169,7 +168,7 @@ public class ElasticProfileTest {
         store.setPluginInfo(pluginInfo);
         ElasticProfile profile = new ElasticProfile("id", "plugin_id", "prod-cluster", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
 
-        profile.encryptSecureConfigurations();
+//        profile.encryptSecureConfigurations();
 
         assertThat(profile.size(), is(1));
         assertTrue(profile.first().isSecure());
@@ -179,7 +178,7 @@ public class ElasticProfileTest {
     public void postConstruct_shouldIgnoreEncryptionIfPluginInfoIsNotDefined() {
         ElasticProfile profile = new ElasticProfile("id", "plugin_id", "prod-cluster", new ConfigurationProperty(new ConfigurationKey("password"), new ConfigurationValue("pass")));
 
-        profile.encryptSecureConfigurations();
+//        profile.encryptSecureConfigurations();
 
         assertThat(profile.size(), is(1));
         assertFalse(profile.first().isSecure());

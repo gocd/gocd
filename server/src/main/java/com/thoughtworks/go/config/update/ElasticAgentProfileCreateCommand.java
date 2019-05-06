@@ -39,4 +39,8 @@ public class ElasticAgentProfileCreateCommand extends ElasticAgentProfileCommand
         return isValidForCreateOrUpdate(preprocessedConfig);
     }
 
+    @Override
+    public void encrypt(CruiseConfig preProcessedConfig) {
+        elasticProfile.encryptSecureProperties(preProcessedConfig);
+    }
 }

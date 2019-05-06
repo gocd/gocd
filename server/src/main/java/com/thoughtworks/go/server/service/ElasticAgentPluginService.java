@@ -169,16 +169,16 @@ public class ElasticAgentPluginService {
         for (JobPlan plan : plansThatRequireElasticAgent) {
             jobCreationTimeMap.put(plan.getJobId(), timeProvider.currentTimeMillis());
             ElasticProfile elasticProfile = plan.getElasticProfile();
-            if (elasticAgentPluginRegistry.has(elasticProfile.getPluginId())) {
+            ClusterProfile clusterProfile = plan.getClusterProfile();
+            if (elasticAgentPluginRegistry.has(clusterProfile.getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
-                ClusterProfile clusterProfile = clusterProfilesService.findProfile(elasticProfile.getClusterProfileId());
                 createAgentQueue.post(new CreateAgentMessage(goConfigService.serverConfig().getAgentAutoRegisterKey(), environment, elasticProfile, clusterProfile, plan.getIdentifier()), messageTimeToLive);
                 serverHealthService.removeByScope(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
             } else {
                 String jobConfigIdentifier = plan.getIdentifier().jobConfigIdentifier().toString();
                 String description = format("Plugin [%s] associated with %s is missing. Either the plugin is not " +
                         "installed or could not be registered. Please check plugins tab " +
-                        "and server logs for more details.", elasticProfile.getPluginId(), jobConfigIdentifier);
+                        "and server logs for more details.", clusterProfile.getPluginId(), jobConfigIdentifier);
                 serverHealthService.update(ServerHealthState.error(format("Unable to find agent for %s",
                         jobConfigIdentifier), description, HealthStateType.general(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()))));
                 LOGGER.error(description);
@@ -196,7 +196,7 @@ public class ElasticAgentPluginService {
         GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(metadata.elasticPluginId());
         Map<String, String> configuration = elasticProfile.getConfigurationAsMap(true);
 
-        if (!StringUtils.equals(elasticProfile.getPluginId(), metadata.elasticPluginId())) {
+        if (!StringUtils.equals(clusterProfile.getPluginId(), metadata.elasticPluginId())) {
             return false;
         }
 

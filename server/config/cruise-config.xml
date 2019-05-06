@@ -1,47 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="122">
-  <server artifactsdir="artifacts" agentAutoRegisterKey="323040d4-f2e4-4b8a-8394-7a2d122054d1" webhookSecret="3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6" commandRepositoryLocation="default" serverId="60f5f682-5248-4ba9-bb35-72c92841bd75" tokenGenerationKey="8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c">
-    <security>
-      <authConfigs>
-        <authConfig id="9cad79b0-4d9e-4a62-829c-eb4d9488062f" pluginId="cd.go.authentication.passwordfile">
-          <property>
-            <key>PasswordFilePath</key>
-            <value>../manual-testing/ant_hg/password.properties</value>
-          </property>
-        </authConfig>
-      </authConfigs>
-      <roles>
-        <role name="xyz" />
-      </roles>
-      <admins>
-        <user>jez</user>
-        <user>admin</user>
-      </admins>
-    </security>
-    <backup emailOnSuccess="true" emailOnFailure="true" />
-  </server>
-  <pipelines group="first">
-    <authorization>
-      <view>
-        <user>operate</user>
-      </view>
-      <admins>
-        <user>operate</user>
-      </admins>
-    </authorization>
-    <pipeline name="up42">
-      <materials>
-        <git url="test-repo" />
-      </materials>
-      <stage name="up42_stage">
-        <jobs>
-          <job name="up42_job">
-            <tasks>
-              <exec command="ls" />
-            </tasks>
-          </job>
-        </jobs>
-      </stage>
-    </pipeline>
-  </pipelines>
+  <server artifactsdir="logs" agentAutoRegisterKey="32d281f7-f40f-41af-9f0a-adcfffcdfd29" webhookSecret="83aebf79-3477-422d-b4fd-bca88ea4e031" commandRepositoryLocation="default" serverId="78de52d0-2ceb-437f-bbc4-64834f6e4dfd" tokenGenerationKey="b36c5782-9680-4f8e-a283-b1fd2a6330ae" />
+  <elastic>
+    <agentProfiles>
+      <agentProfile id="asdf" clusterProfileId="asdf">
+        <property>
+          <key>Hosts</key>
+        </property>
+        <property>
+          <key>Mounts</key>
+        </property>
+        <property>
+          <key>Command</key>
+          <encryptedValue>AES:F23DgPUezxA3mEl7ShjYpQ==:d9pxaUxsG0DPVsO8bDg3pg==</encryptedValue>
+        </property>
+        <property>
+          <key>Privileged</key>
+        </property>
+        <property>
+          <key>ReservedMemory</key>
+        </property>
+        <property>
+          <key>Environment</key>
+        </property>
+        <property>
+          <key>Cpus</key>
+        </property>
+        <property>
+          <key>Image</key>
+          <value>asdf</value>
+        </property>
+        <property>
+          <key>MaxMemory</key>
+        </property>
+      </agentProfile>
+      <agentProfile id="asdf2" clusterProfileId="asdf">
+        <property>
+          <key>Hosts</key>
+        </property>
+        <property>
+          <key>Mounts</key>
+        </property>
+        <property>
+          <key>Command</key>
+          <encryptedValue>AES:7lFezt1S6eEbkr8SY+8rsg==:JhtyCKXWT96N/SWAgZfdbA==</encryptedValue>
+        </property>
+        <property>
+          <key>Privileged</key>
+        </property>
+        <property>
+          <key>ReservedMemory</key>
+        </property>
+        <property>
+          <key>Environment</key>
+        </property>
+        <property>
+          <key>Cpus</key>
+        </property>
+        <property>
+          <key>Image</key>
+          <value>asdf1</value>
+        </property>
+        <property>
+          <key>MaxMemory</key>
+        </property>
+      </agentProfile>
+    </agentProfiles>
+    <clusterProfiles>
+      <clusterProfile id="asdf" pluginId="cd.go.contrib.elastic-agent.docker">
+        <property>
+          <key>go_server_url</key>
+          <value>https://foobar.com/go</value>
+        </property>
+        <property>
+          <key>max_docker_containers</key>
+          <value>2</value>
+        </property>
+        <property>
+          <key>docker_uri</key>
+          <value>admin</value>
+        </property>
+        <property>
+          <key>auto_register_timeout</key>
+          <value>2</value>
+        </property>
+        <property>
+          <key>private_registry_password</key>
+          <encryptedValue>AES:5d2BOYmalWRhW8Zv4Lrv4Q==:VirrvXNv+rSCfAlOPyadoQ==</encryptedValue>
+        </property>
+        <property>
+          <key>enable_private_registry_authentication</key>
+          <value>false</value>
+        </property>
+        <property>
+          <key>private_registry_custom_credentials</key>
+          <value>true</value>
+        </property>
+        <property>
+          <key>pull_on_container_create</key>
+          <value>false</value>
+        </property>
+      </clusterProfile>
+    </clusterProfiles>
+  </elastic>
 </cruise>

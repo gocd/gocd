@@ -19,11 +19,14 @@ package com.thoughtworks.go.config.elastic;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.ConfigErrors;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 @ConfigTag("agentProfiles")
 @ConfigCollection(ElasticProfile.class)
-public class ElasticProfiles extends PluginProfiles<ElasticProfile> implements Validatable {
+public class ElasticProfiles extends ArrayList<ElasticProfile> implements Validatable {
     private final ConfigErrors errors = new ConfigErrors();
 
     public ElasticProfiles() {
@@ -33,7 +36,37 @@ public class ElasticProfiles extends PluginProfiles<ElasticProfile> implements V
         super(Arrays.asList(profiles));
     }
 
-    public void validateTree(ValidationContext validationContext) {
-        super.forEach(profile -> profile.validateTree(validationContext));
+
+    @Override
+    public void validate(ValidationContext validationContext) {
+        validateIdUniqueness();
+    }
+
+    private void validateIdUniqueness() {
+        Map<String, ElasticProfile> profiles = new HashMap<>();
+        for (ElasticProfile pluginProfile : this) {
+            pluginProfile.validateIdUniqueness(profiles);
+        }
+    }
+
+    @Override
+    public ConfigErrors errors() {
+        return errors;
+    }
+
+    @Override
+    public void addError(String fieldName, String message) {
+
+    }
+
+    public ElasticProfile find(String profileId) {
+        return this.stream()
+                .filter(elasticProfile -> elasticProfile.getId().equals(profileId))
+                .findFirst().orElse(null);
+    }
+
+    public void validateTree(ConfigSaveValidationContext configSaveValidationContext) {
+        validateIdUniqueness();
+        this.forEach(clusterProfile -> clusterProfile.validate(configSaveValidationContext));
     }
 }

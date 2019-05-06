@@ -24,6 +24,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.spark.Routes;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 public class ElasticProfileRepresenter {

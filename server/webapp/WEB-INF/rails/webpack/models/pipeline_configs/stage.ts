@@ -58,6 +58,9 @@ export class Stage extends ValidatableMixin {
 
     this.name = stream(name);
     this.validatePresenceOf("name");
+    this.validateIdFormat("name");
+
+    this.validateAssociated("approval");
 
     this.jobs = stream(new NameableSet(jobs));
     this.validateWith(new NonEmptyCollectionValidator({message: `A stage must have at least one job.`}), "jobs");

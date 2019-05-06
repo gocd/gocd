@@ -24,7 +24,7 @@ $current-prompt: #aadadb;
 
 $prompt: #999;
 $cmd-color: #aadbaa;
-
+$attention: #e6e699;
 
 .exec-editor {
   display: block;
@@ -35,8 +35,52 @@ $cmd-color: #aadbaa;
   font-family: Hack, monospace;
   font-size: 14px;
 
-  pre {
+  pre, code {
     font-family: inherit;
+  }
+
+  .comment {
+    margin: 0;
+    padding: 2px;
+    color: lighten($text-color, 30%);
+
+    strong {
+      color: lighten($text-color, 40%);
+    }
+  }
+
+  .caveats {
+    max-width: 100%;
+    margin-top: -1em;
+    margin-bottom: 1em;
+
+    span {
+      display: block;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: right;
+      color: $attention;
+
+      &:before {
+        content: "+ ";
+      }
+    }
+
+    p {
+      margin: 0;
+      padding: 0;
+      display: none;
+    }
+
+    &.open {
+      span {
+        &:before {
+          content: "- ";
+        }
+      }
+
+      p { display: block; }
+    }
   }
 
   .current-editor::before,

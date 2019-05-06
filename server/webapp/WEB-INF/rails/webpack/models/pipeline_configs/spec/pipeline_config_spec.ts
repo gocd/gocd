@@ -34,6 +34,14 @@ describe("PipelineConfig model", () => {
     expect(pip.errors().count()).toBe(1);
   });
 
+  it("validate name format", () => {
+    const pip = new PipelineConfig("my awesome pipeline that has a terrible name", defaultMaterials, defaultStages);
+    expect(pip.isValid()).toBe(false);
+    expect(pip.errors().count()).toBe(1);
+    expect(pip.errors().keys()).toEqual(["name"]);
+    expect(pip.errors().errorsForDisplay("name")).toBe("Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+  });
+
   it("should include a material", () => {
     let pip = new PipelineConfig("name", defaultMaterials, defaultStages);
     expect(pip.isValid()).toBe(true);

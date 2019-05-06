@@ -26,7 +26,6 @@ import {Stage} from "models/pipeline_configs/stage";
 
 // components
 import {PipelineActions} from "views/pages/pipelines/actions";
-import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import {ConceptDiagram} from "views/pages/pipelines/concept_diagram";
 import {FillableSection} from "views/pages/pipelines/fillable_section";
 import {JobEditor} from "views/pages/pipelines/job_editor";
@@ -98,12 +97,8 @@ export class PipelineCreatePage extends Page {
         <UserInputPane heading="Part 4: Job and Tasks">
           <JobEditor job={this.job}/>
 
-          <h4 class={css.sectionSubheading}>Write your tasks below</h4>
+          <h4 class={css.sectionSubheading}>Write your tasks below at the prompt</h4>
           <TaskEditor tasks={this.job.tasks}/>
-
-          <AdvancedSettings>
-            More to come...
-          </AdvancedSettings>
         </UserInputPane>
         <ConceptDiagram image={jobImg}>
           A <strong>job</strong> is like a script, where each sequential step is called

@@ -32,6 +32,14 @@ describe("Job model", () => {
     expect(job.errors().count()).toBe(1);
   });
 
+  it("validate name format", () => {
+    const job = new Job("my awesome job that has a terrible name", [new ExecTask("ls", ["-lA"])]);
+    expect(job.isValid()).toBe(false);
+    expect(job.errors().count()).toBe(1);
+    expect(job.errors().keys()).toEqual(["name"]);
+    expect(job.errors().errorsForDisplay("name")).toBe("Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+  });
+
   it("should serialize correctly", () => {
     const job = validJob();
     expect(job.toApiPayload()).toEqual({

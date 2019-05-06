@@ -35,7 +35,7 @@ public class CreateAgentMessageTest {
     @Test
     public void shouldGetPluginId() {
         List<ConfigurationProperty> properties = Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "plugin-id", "prod-cluster", properties);
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster", properties);
         ClusterProfile clusterProfile = new ClusterProfile("foo", "plugin-id", properties);
         CreateAgentMessage message = new CreateAgentMessage("key", "env", elasticProfile, clusterProfile, null);
         assertThat(message.pluginId(), is(clusterProfile.getPluginId()));
@@ -48,7 +48,7 @@ public class CreateAgentMessageTest {
     @Test
     public void shouldCreateCreateAgentMessageWhenClusterProfileIsNotSpecified() {
         List<ConfigurationProperty> properties = Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "plugin-id", "prod-cluster", properties);
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster", properties);
 
         CreateAgentMessage createAgentMessage = new CreateAgentMessage(null, null, elasticProfile, null, null);
         assertThat(createAgentMessage.getClusterProfileConfiguration(), is(Collections.emptyMap()));

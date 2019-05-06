@@ -52,15 +52,15 @@ public class ElasticAgentProfileUpdateCommandTest {
     @Test
     public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
         cruiseConfig.getElasticConfig().getProfiles().clear();
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, new ElasticProfile("foo", "docker", "prod-cluster"), null, null, new HttpLocalizedOperationResult(), null, null);
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, new ElasticProfile("foo", "prod-cluster"), null, null, new HttpLocalizedOperationResult(), null, null);
         thrown.expect(RecordNotFoundException.class);
         command.update(cruiseConfig);
     }
 
     @Test
     public void shouldUpdateExistingProfile() throws Exception {
-        ElasticProfile oldProfile = new ElasticProfile("foo", "docker", "prod-cluster");
-        ElasticProfile newProfile = new ElasticProfile("foo", "aws", "prod-cluster");
+        ElasticProfile oldProfile = new ElasticProfile("foo", "prod-cluster");
+        ElasticProfile newProfile = new ElasticProfile("foo", "prod-cluster");
 
         cruiseConfig.getElasticConfig().getProfiles().add(oldProfile);
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, newProfile, null, null, null, null, null);
@@ -72,8 +72,8 @@ public class ElasticAgentProfileUpdateCommandTest {
     public void shouldNotContinueWithConfigSaveIfRequestIsNotFresh() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
-        ElasticProfile oldProfile = new ElasticProfile("foo", "docker", "prod-cluster");
-        ElasticProfile newProfile = new ElasticProfile("foo", "aws", "prod-cluster");
+        ElasticProfile oldProfile = new ElasticProfile("foo", "prod-cluster");
+        ElasticProfile newProfile = new ElasticProfile("foo", "prod-cluster");
 
         cruiseConfig.getElasticConfig().getProfiles().add(oldProfile);
 

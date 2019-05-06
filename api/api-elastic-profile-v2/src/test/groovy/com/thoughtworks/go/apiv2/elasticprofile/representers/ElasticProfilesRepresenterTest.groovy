@@ -72,8 +72,8 @@ class ElasticProfilesRepresenterTest {
   @Test
   void 'should serialize elastic profiles to json'() {
     def elasticProfiles = new ElasticProfiles(
-      new ElasticProfile("docker", "cd.go.docker", 'foo', create("docker-uri", false, "unix:///var/run/docker")),
-      new ElasticProfile("ecs", "cd.go.ecs", "bar", create("ACCESS_KEY", true, "encrypted-key"))
+      new ElasticProfile("docker", 'foo', create("docker-uri", false, "unix:///var/run/docker")),
+      new ElasticProfile("ecs", "bar", create("ACCESS_KEY", true, "encrypted-key"))
     )
 
     def actualJson = toObjectString({ ElasticProfilesRepresenter.toJSON(it, elasticProfiles) })

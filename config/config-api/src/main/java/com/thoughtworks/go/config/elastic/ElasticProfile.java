@@ -47,14 +47,14 @@ public class ElasticProfile extends Configuration implements Validatable {
         super();
     }
 
-    public ElasticProfile(String id, String pluginId, String clusterProfileId, ConfigurationProperty... props) {
+    public ElasticProfile(String id, String clusterProfileId, ConfigurationProperty... props) {
         super(props);
         this.id = id;
         this.clusterProfileId = clusterProfileId;
     }
 
-    public ElasticProfile(String id, String pluginId, String clusterProfileId, Collection<ConfigurationProperty> configProperties) {
-        this(id, pluginId, clusterProfileId, configProperties.toArray(new ConfigurationProperty[0]));
+    public ElasticProfile(String id, String clusterProfileId, Collection<ConfigurationProperty> configProperties) {
+        this(id, clusterProfileId, configProperties.toArray(new ConfigurationProperty[0]));
     }
 
     protected String getObjectDescription() {

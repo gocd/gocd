@@ -59,7 +59,7 @@ public class JobAgentMetadata extends PersistentObject {
 
         Collection<ConfigurationProperty> configProperties = properties.entrySet().stream().map(entry -> new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue()))).collect(Collectors.toList());
 
-        return new ElasticProfile(id, pluginId, clusterProfileId, configProperties);
+        return new ElasticProfile(id, clusterProfileId, configProperties);
     }
 
     public ClusterProfile clusterProfile() {

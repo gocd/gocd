@@ -83,8 +83,8 @@ public class ElasticProfileServiceIntegrationTest {
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
         clusterProfile = new ClusterProfile(clusterProfileId, pluginId);
-        elasticProfile = new ElasticProfile(elasticProfileId, pluginId, clusterProfileId);
-        newElasticProfile = new ElasticProfile(elasticProfileId, pluginId, clusterProfileId, new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1")));
+        elasticProfile = new ElasticProfile(elasticProfileId, clusterProfileId);
+        newElasticProfile = new ElasticProfile(elasticProfileId, clusterProfileId, new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1")));
 
         goConfigService.updateConfig(cruiseConfig -> {
             ClusterProfiles clusterProfiles = new ClusterProfiles();
@@ -131,7 +131,7 @@ public class ElasticProfileServiceIntegrationTest {
     @Test
     public void shouldFailToCreateElasticAgentProfileWhenReferencedClusterProfileDoesNotExists() {
         clusterProfileId = "non-existing-cluster";
-        elasticProfile = new ElasticProfile(elasticProfileId, pluginId, clusterProfileId);
+        elasticProfile = new ElasticProfile(elasticProfileId, clusterProfileId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         assertThat(elasticProfileService.getPluginProfiles()).hasSize(0);
@@ -209,7 +209,7 @@ public class ElasticProfileServiceIntegrationTest {
         elasticProfileService.create(username, elasticProfile, result);
         assertThat(elasticProfileService.getPluginProfiles()).hasSize(1);
 
-        elasticProfile = new ElasticProfile("non-existing-profile", pluginId, clusterProfileId);
+        elasticProfile = new ElasticProfile("non-existing-profile", clusterProfileId);
 
         elasticProfileService.delete(username, elasticProfile, result);
         assertThat(elasticProfileService.getPluginProfiles()).hasSize(1);

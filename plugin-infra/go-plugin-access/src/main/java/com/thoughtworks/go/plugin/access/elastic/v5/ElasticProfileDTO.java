@@ -99,7 +99,7 @@ public class ElasticProfileDTO {
             configurationProperties.add(new ConfigurationProperty(new ConfigurationKey(key), new ConfigurationValue(value)));
         });
 
-        ElasticProfile elasticProfile = new ElasticProfile(this.id, this.pluginId, this.clusterProfileId);
+        ElasticProfile elasticProfile = new ElasticProfile(this.id, this.clusterProfileId);
         elasticProfile.addConfigurations(configurationProperties);
 
         return elasticProfile;

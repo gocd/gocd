@@ -68,6 +68,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.validation.GoConfigValidity.*;
+import static com.thoughtworks.go.config.validation.GoConfigValidity.invalid;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditPipeline;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
@@ -167,6 +168,19 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return new ConfigForEdit<>(config, configHolder);
     }
 
+    //used to show config repo pipelines in read only mode from rails pages
+    public ConfigForEdit<PipelineConfig> loadConfigRepoPipeline(String pipelineName,
+                                                                Username username,
+                                                                HttpLocalizedOperationResult result) {
+        if (!canEditPipeline(pipelineName, username, result)) {
+            return null;
+        }
+        GoConfigHolder configHolder = getConfigHolder();
+        configHolder = cloner.deepClone(configHolder);
+        PipelineConfig config = configHolder.mergedConfigForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName));
+        return new ConfigForEdit<>(config, configHolder);
+    }
+
     private boolean canEditPipeline(String pipelineName, Username username, LocalizedOperationResult result) {
         return canEditPipeline(pipelineName, username, result, findGroupNameByPipeline(new CaseInsensitiveString(pipelineName)));
     }
@@ -203,6 +217,9 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return true;
     }
 
+    public boolean isPipelineDefinedInConfigRepository(String pipelineName) {
+        return !this.getConfigHolder().mergedConfigForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).isLocal();
+    }
 
     public CruiseConfig currentCruiseConfig() {
         return getCurrentConfig();

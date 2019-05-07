@@ -156,13 +156,15 @@ public class ElasticProfileService {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
+            if (result.hasMessage()) {
+                LOGGER.error(e.getMessage(), e);
+                return;
+            }
+
             if (e instanceof GoConfigInvalidException) {
                 result.unprocessableEntity(entityConfigValidationFailed(getTagName(elasticProfile.getClass()), elasticProfile.getId(), ((GoConfigInvalidException) e).getAllErrorMessages()));
             } else {
-                if (!result.hasMessage()) {
-                    LOGGER.error(e.getMessage(), e);
-                    result.internalServerError(saveFailedWithReason("An error occurred while saving the elastic agent profile. Please check the logs for more information."));
-                }
+                result.internalServerError(saveFailedWithReason("An error occurred while saving the elastic agent profile. Please check the logs for more information."));
             }
         }
     }

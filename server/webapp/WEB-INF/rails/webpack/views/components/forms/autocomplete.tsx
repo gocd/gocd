@@ -18,30 +18,31 @@ import * as Awesomplete from "awesomplete";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
-import {BaseAttrs, TextField} from "views/components/forms/input_fields";
-import * as defaultStyles from "./index.scss";
+import {TextField, TextFieldAttrs} from "views/components/forms/input_fields";
+import * as defaultStyles from "./autocomplete.scss";
 
 export type SuggestionWriter = (data: Awesomplete.Suggestion[]) => void;
 
 const AWESOMPLETE_KEYS = ["list", "minChars", "maxItems", "autoFirst", "data", "filter", "sort", "item", "replace"];
 
 interface Attrs {
+  // allows us to override stylesheet with anything that defines, imports,
+  // or extends the classes defined in autocomplete.scss
+  //
+  // TODO: perhaps change input_fields.tsx to accept a similar property
+  // to allow customization of styles and pass this through.
   css?: typeof defaultStyles;
   provider: SuggestionProvider;
 }
 
-type AutoCompAttrs = BaseAttrs<string> & Attrs & Awesomplete.Options;
-
-function stripAwesompleteOpts(config: Awesomplete.Options): any {
-  return _.omit(config, AWESOMPLETE_KEYS);
-}
+type AutoCompAttrs = TextFieldAttrs & Attrs & Awesomplete.Options;
 
 function onlyAwesompleteOpts(config: any): Awesomplete.Options {
   return _.pick(config, AWESOMPLETE_KEYS);
 }
 
-function stripNativeAttrs(config: Attrs): any {
-  return _.omit(config, ["css", "provider"]);
+function onlyTextFieldAttrs(config: any): TextFieldAttrs {
+  return _.omit(config, ["css", "provider"].concat(AWESOMPLETE_KEYS));
 }
 
 export abstract class SuggestionProvider {
@@ -92,7 +93,7 @@ export class AutocompleteField extends MithrilViewComponent<AutoCompAttrs> {
   }
 
   view(vnode: m.Vnode<AutoCompAttrs, {}>): m.Children | void | null {
-    const attrs = stripNativeAttrs(stripAwesompleteOpts(vnode.attrs)) as BaseAttrs<string>;
+    const attrs = onlyTextFieldAttrs(vnode.attrs);
     return <TextField {...attrs} />;
   }
 }

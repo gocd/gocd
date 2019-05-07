@@ -14,30 +14,7 @@
  * limitations under the License.
  */
 
-import {Validatable, ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
-
-export class NonEmptyCollectionValidator<T = {}> extends Validator {
-  protected doValidate(entity: any, attr: string): void {
-    const property: Iterable<T> = ("function" === typeof entity[attr] ? entity[attr]() : entity[attr]) as Iterable<T>;
-
-    if (this.isEmpty(property)) {
-      entity.errors().add(attr, this.options.message || `${attr} cannot be empty`);
-    }
-  }
-
-  private isEmpty(i: Iterable<T>): boolean {
-    if ("string" === typeof i || "length" in i) {
-      return (i as { length: number }).length === 0;
-    }
-
-    if ("size" in i) {
-      return (i as { size: number }).size === 0;
-    }
-
-    // last resort
-    return Array.from(i).length === 0;
-  }
-}
+import {Validatable, ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 export interface Nameable extends Validatable {
   name: () => string;

@@ -30,7 +30,7 @@ import * as styles from "./forms.scss";
 
 const classnames = bind(styles);
 
-interface RequiredFieldAttr {
+export interface RequiredFieldAttr {
   required?: boolean;
   hideRequiredAsterix?: boolean;
 }
@@ -297,9 +297,10 @@ export abstract class FormField<T, V = {}> extends MithrilViewComponent<BaseAttr
   protected abstract renderInputField(vnode: m.Vnode<BaseAttrs<T> & V>): m.Children;
 }
 
+export type TextFieldAttrs = BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr;
 export class TextField extends FormField<string, RequiredFieldAttr & PlaceholderAttr> {
 
-  renderInputField(vnode: m.Vnode<BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr>) {
+  renderInputField(vnode: m.Vnode<TextFieldAttrs>) {
     return (
       <input type="text"
              className={classnames(styles.formControl)}
@@ -309,7 +310,7 @@ export class TextField extends FormField<string, RequiredFieldAttr & Placeholder
     );
   }
 
-  protected defaultAttributes(attrs: BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr) {
+  protected defaultAttributes(attrs: TextFieldAttrs) {
     const defaultAttributes = super.defaultAttributes(attrs);
     if (!_.isEmpty(attrs.placeholder)) {
       defaultAttributes.placeholder = attrs.placeholder as string;

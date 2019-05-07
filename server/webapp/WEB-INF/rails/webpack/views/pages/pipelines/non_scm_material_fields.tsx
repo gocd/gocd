@@ -21,7 +21,7 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {DependencyMaterialAutocomplete, PipelineNameCache} from "models/materials/dependency_autocomplete_cache";
 import {DependencyMaterialAttributes, Material, MaterialAttributes} from "models/materials/types";
-import {AutocompleteField, SuggestionProvider, SuggestionWriter} from "views/components/autocomplete/fields";
+import {AutocompleteField, SuggestionProvider, SuggestionWriter} from "views/components/forms/autocomplete";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import * as css from "./components.scss";

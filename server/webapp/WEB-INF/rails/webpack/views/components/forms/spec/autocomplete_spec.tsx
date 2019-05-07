@@ -19,9 +19,9 @@ import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import * as events from "simulate-event";
-import {AutocompleteField, SuggestionProvider, SuggestionWriter} from "views/components/autocomplete/fields";
+import {AutocompleteField, SuggestionProvider, SuggestionWriter} from "views/components/forms/autocomplete";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as css from "../index.scss";
+import * as css from "../autocomplete.scss";
 
 describe("AutocompleteField", () => {
   const helper = new TestHelper();

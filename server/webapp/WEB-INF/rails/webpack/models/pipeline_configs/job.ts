@@ -34,6 +34,7 @@ export class Job extends ValidatableMixin {
     this.validateIdFormat("name");
 
     this.validatePresenceOf("tasks");
+    this.validateNonEmptyCollection("tasks", {message: "A job must have at least one task"});
     this.validateEach("tasks");
   }
 

@@ -612,6 +612,21 @@ span.pipeline-buttons a.link_as_button {
   margin-left: 0;
 }
 
+.config-repo-pipeline-info-message {
+  //these colors are copied from new component styles: gocd/gocd/server/webapp/WEB-INF/rails/webpack/views/global
+  background-color: #fdf5e2;
+  color:            #a2750b;
+  border-color:     #fae5b2;
+  font-weight:      600;
+  font-size:        14px;
+  height:           20px;
+  line-height:      20px;
+  padding:          7px 40px 7px 30px;
+  border-radius:    3px;
+  margin:           0 0 10px 0;
+  position:         relative;
+}
+
 .pipeline_history, .yui-b .Job, .yui-b .Server, #admin-page .Administration, #my-cruise-page .Preferences {
 
   overflow:   hidden;

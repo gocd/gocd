@@ -10,3 +10,6 @@
     </div>
   </div>
 </div>
+<% if @is_config_repo_pipeline %>
+  <div class="config-repo-pipeline-info-message">Can not edit pipeline '<%= @pipeline.name() %>' as it is defined in config repository!</div>
+<% end %>

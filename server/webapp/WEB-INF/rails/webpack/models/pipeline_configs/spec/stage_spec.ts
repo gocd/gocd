@@ -42,6 +42,14 @@ describe("Stage model", () => {
     expect(stage.errors().errorsForDisplay("name")).toBe("Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
   });
 
+  it("should include a job", () => {
+    const stage = new Stage("foo", []);
+    expect(stage.isValid()).toBe(false);
+    expect(stage.errors().count()).toBe(1);
+    expect(stage.errors().keys()).toEqual(["jobs"]);
+    expect(stage.errors().errorsForDisplay("jobs")).toBe("A stage must have at least one job.");
+  });
+
   it("should serialize correctly", () => {
     const stage = new Stage("foo", [validJob()]);
     expect(stage.toApiPayload()).toEqual({

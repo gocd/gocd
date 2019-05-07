@@ -17,6 +17,7 @@
 @import "../../global/common";
 @import "task_terminal";
 @import "../../components/forms/autocomplete";
+@import "../../components/buttons/index";
 
 $diagram-width: 485px;
 
@@ -167,5 +168,17 @@ $diagram-width: 485px;
     }
 
     .details { display: block; }
+  }
+}
+
+.btn-secondary {
+  @include button($background-color: lighten($btn-reset, 10%));
+}
+
+.btn-cancel {
+  border: 1px solid $btn-reset;
+  &:hover {
+    background-color: $btn-reset;
+    color: $white;
   }
 }

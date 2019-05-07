@@ -64,8 +64,8 @@ public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand
         }
 
         if (!usedByPipelines.isEmpty()) {
-            result.unprocessableEntity(cannotDeleteResourceBecauseOfDependentPipelines(getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), pipelineNames));
-            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), profile.getId(), StringUtils.join(pipelineNames, ", ")));
+            result.unprocessableEntity(cannotDeleteResourceBecauseOfDependentPipelines(getObjectDescriptor().getEntityNameLowerCase(), elasticProfile.getId(), pipelineNames));
+            throw new GoConfigInvalidException(preprocessedConfig, String.format("The %s '%s' is being referenced by pipeline(s): %s.", getObjectDescriptor().getEntityNameLowerCase(), elasticProfile.getId(), StringUtils.join(pipelineNames, ", ")));
         }
         return true;
     }
@@ -74,7 +74,7 @@ public class ElasticAgentProfileDeleteCommand extends ElasticAgentProfileCommand
         for (StageConfig stage : pipelineConfig) {
             JobConfigs jobs = stage.getJobs();
             for (JobConfig job : jobs) {
-                String id = profile.getId();
+                String id = elasticProfile.getId();
                 if (id.equals(job.getElasticProfileId())) {
                     usedByPipelines.add(new JobConfigIdentifier(pipelineConfig.name(), stage.name(), job.name()));
                 }

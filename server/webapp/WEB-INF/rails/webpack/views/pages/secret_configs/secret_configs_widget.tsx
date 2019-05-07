@@ -27,6 +27,7 @@ import {HeaderIcon} from "views/components/header_icon";
 import {Clone, Delete, Edit, IconGroup} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
 import {CloneOperation, DeleteOperation, EditOperation, RequiresPluginInfos} from "views/pages/page_operations";
+import * as styles from "views/pages/secret_configs/index.scss";
 import {RulesInfoWidget} from "views/pages/secret_configs/rules_widget";
 
 interface Attrs extends RequiresPluginInfos, EditOperation<SecretConfig>, CloneOperation<SecretConfig>, DeleteOperation<SecretConfig> {
@@ -41,7 +42,7 @@ export class SecretConfigsWidget extends MithrilViewComponent<Attrs> {
         <FlashMessage type={MessageType.info} message="No secret plugin installed."/>;
     }
     if (vnode.attrs.secretConfigs === null || vnode.attrs.secretConfigs().length === 0) {
-      return (<div>
+      return (<div className={styles.tips}>
         {noSecretPluginInstalled}
         <ul data-test-id="secret-config-info">
           <li>Click on "Add" to add new secret configuration.</li>

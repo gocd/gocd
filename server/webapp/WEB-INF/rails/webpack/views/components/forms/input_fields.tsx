@@ -681,3 +681,48 @@ export class SearchFieldWithButton extends QuickAddField {
     </span>;
   }
 }
+
+interface AutocompleteAttr {
+  source?: string[];
+}
+
+type AutoCompleteTextFieldAttrs = RequiredFieldAttr & PlaceholderAttr & AutocompleteAttr ;
+
+export class AutoCompleteTextField extends FormField<string, AutoCompleteTextFieldAttrs> {
+  renderInputField(vnode: m.Vnode<BaseAttrs<string> & AutoCompleteTextFieldAttrs>) {
+    if (!vnode.attrs.source || vnode.attrs.source.length === 0) {
+      return (
+        <input type="text"
+               className={classnames(styles.formControl)}
+               {...this.defaultAttributes(vnode.attrs)}
+               {...this.bindingAttributes(vnode.attrs, "oninput", "value")}
+        />
+      );
+    }
+
+    return (
+      <input type="text"
+             list="source"
+             className={classnames(styles.formControl)}
+             {...this.defaultAttributes(vnode.attrs)}
+             {...this.bindingAttributes(vnode.attrs, "oninput", "value")}
+      >
+        <datalist id="source">
+          {
+            vnode.attrs.source.map((s) => <option>{s}</option>)
+          }
+        </datalist>
+      </input>
+    );
+  }
+
+  protected defaultAttributes(attrs: BaseAttrs<string> & AutoCompleteTextFieldAttrs) {
+    const defaultAttributes = super.defaultAttributes(attrs);
+    if (!_.isEmpty(attrs.placeholder)) {
+      defaultAttributes.placeholder = attrs.placeholder as string;
+    }
+
+    return _.assign(defaultAttributes, textInputFieldDefaultAttrs);
+  }
+
+}

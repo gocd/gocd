@@ -27,6 +27,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
 import {
+  AutoCompleteTextField,
   CheckboxField, CopyField,
   PasswordField, QuickAddField,
   SearchField, SearchFieldWithButton,
@@ -59,6 +60,7 @@ const reallyLongText                = "Lorem Ipsum is simply dummy text of the p
 
 export class KitchenSink extends MithrilViewComponent<null> {
   view(vnode: m.Vnode<null>) {
+    const source = ["input", "select", "div", "span", "p", "datalist", "form", "h1", "h2", "h3", "h4", "h5", "script", "button"];
     return (
       <div>
         <HeaderPanel title="Kitchen Sink" sectionName={"Admin"}/>
@@ -280,6 +282,11 @@ export class KitchenSink extends MithrilViewComponent<null> {
             <Ellipsize text={reallyLongText} fixed={true}/>
           </div>,
           "Content for two"]}/>
+
+        <br/>
+
+        <h3>Auto complete text field</h3>
+        <AutoCompleteTextField label="Search for html elements" property={formValue} source={source}/>
       </div>
     );
   }

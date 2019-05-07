@@ -32,6 +32,7 @@ import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.sql.Timestamp;
 
+import static com.thoughtworks.go.server.service.AccessTokenService.LOGGER;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @EqualsAndHashCode(callSuper = true, doNotUseGetters = true)
@@ -72,11 +73,17 @@ public class AccessToken extends PersistentObject implements Validatable {
     private transient ConfigErrors errors = new ConfigErrors();
 
     public static AccessTokenWithDisplayValue create(String description, String username, String authConfigId, Clock clock) {
+        LOGGER.debug("[Access Token] Creating new access token for user '{}' description '{}' using auth config '{}'.", username, description, authConfigId);
+        LOGGER.debug("[Access Token] Generating Secure Random String of length 16 bytes for original token.");
         String originalToken = generateSecureRandomString(16);
+        LOGGER.debug("[Access Token] Generating Secure Random String of length 4 bytes for salt id.");
         String saltId = generateSecureRandomString(4);
+        LOGGER.debug("[Access Token] Generating Secure Random String of length {} bytes for salt value.", SALT_LENGTH);
         String saltValue = generateSecureRandomString(SALT_LENGTH);
+        LOGGER.debug("[Access Token] Generating hashed token from original token and salt value.");
         String hashedToken = digestToken(originalToken, saltValue);
         String finalTokenValue = String.format("%s%s", saltId, originalToken);
+        LOGGER.debug("[Access Token] Done creating new access token for user '{}' description '{}' using auth config '{}'.", username, description, authConfigId);
 
         return (AccessTokenWithDisplayValue) new AccessTokenWithDisplayValue()
                 .setDisplayValue(finalTokenValue)
@@ -97,6 +104,7 @@ public class AccessToken extends PersistentObject implements Validatable {
 
     static String digestToken(String originalToken, String salt) {
         try {
+            LOGGER.debug("Generating secret using algorithm: {} with spec: DEFAULT_ITERATIONS: {}, DESIRED_KEY_LENGTH: {}", KEY_ALGORITHM, DEFAULT_ITERATIONS, DESIRED_KEY_LENGTH);
             SecretKeyFactory factory = SecretKeyFactory.getInstance(KEY_ALGORITHM);
             SecretKey key = factory.generateSecret(new PBEKeySpec(originalToken.toCharArray(), salt.getBytes(), DEFAULT_ITERATIONS, DESIRED_KEY_LENGTH));
             return Hex.encodeHexString(key.getEncoded());

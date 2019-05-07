@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentMap;
 
 @Service
 public class AccessTokenService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenService.class);
+    public static final Logger LOGGER = LoggerFactory.getLogger(AccessTokenService.class);
     private final Clock timeProvider;
 
     private final AccessTokenDao accessTokenDao;
@@ -110,9 +110,11 @@ public class AccessTokenService {
             throw new ConflictException("Access token has already been revoked!");
         }
 
+        LOGGER.debug("[Access Token] Revoking access token with id: '{}' for user '{}' with revoked cause '{}'.", id, username, revokeCause);
         fetchedAccessToken.revoke(username, revokeCause, timeProvider.currentTimestamp());
-
         accessTokenDao.saveOrUpdate(fetchedAccessToken);
+
+        LOGGER.debug("[Access Token] Done revoking access token with id: '{}' for user '{}' with revoked cause '{}'.", id, username, revokeCause);
 
         return fetchedAccessToken;
     }

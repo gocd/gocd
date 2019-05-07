@@ -70,6 +70,9 @@ Util = function() {
                 $(field).value = value;
             };
         },
+        disableAllFormElementsFor: function (selector) {
+            jQuery(selector).find(':input').prop("disabled", true);
+        },
         disable: function(element) {
             enable(element, false);
         },

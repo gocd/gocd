@@ -15,6 +15,7 @@
  */
 @import "../../global/common";
 
+
 .width-small {
   width: 320px;
 }
@@ -36,20 +37,12 @@
 .table-header {
   background:    $secondary-bg;
   border-radius: $global-border-radius $global-border-radius 0 0;
-  position:      static;
-  left:          30px;
-  right:         30px;
   display:       flex;
   align-items:   center;
   flex-grow:     1;
   box-sizing:    border-box;
   font-weight:   600;
-  top:           155px;
-  z-index:       map-get($zindex, user-management-table-header);
 
-  .has-message & {
-    margin-top: 44px
-  }
 }
 
 .table-head {
@@ -90,8 +83,8 @@
 }
 
 .table-body {
-  height:     auto;
-  overflow-y: auto;
+  border-left:  1px solid $border-color;
+  border-right: 1px solid $border-color;
 }
 
 .table-row {
@@ -147,10 +140,11 @@
   margin-left:    72px;
   font-weight:    400;
   border-radius:  $global-border-radius;
-  padding:        5px;
+  padding:        10px;
   box-shadow:     0 2px 4px $box-shadow-color;
   text-transform: none;
-  z-index:        map_get($zindex, submenu);
+  z-index:        map_get($zindex, tooltip);
+  width:          250px;
 
   &:before {
     content:          "";
@@ -168,3 +162,43 @@
     box-shadow:       1px -1px 1px 0 $box-shadow-color;
   }
 }
+
+.icon-drag {
+  @include sort-cursor;
+  @include grip-icon;
+
+  font-size: 12px;
+  color:     $icon-drag;
+
+  &:active {
+    @include sort-cursor-active;
+  }
+}
+
+.add-rule {
+  margin-top: 20px;
+}
+
+.icon-delete {
+  @include icon-before($type: $fa-var-times);
+  border:  none;
+  display: inline;
+  cursor:  pointer;
+  width:   22px;
+  height:  22px;
+  padding: 0;
+
+  &:before {
+    margin: 0;
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.tips {
+  background: $white;
+  padding:    20px;
+}
+

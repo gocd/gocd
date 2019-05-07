@@ -30,7 +30,7 @@ import * as styles from "./forms.scss";
 
 const classnames = bind(styles);
 
-interface RequiredFieldAttr {
+export interface RequiredFieldAttr {
   required?: boolean;
   hideRequiredAsterix?: boolean;
 }

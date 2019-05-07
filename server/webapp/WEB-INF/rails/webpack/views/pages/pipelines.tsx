@@ -32,11 +32,8 @@ import {JobEditor} from "views/pages/pipelines/job_editor";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
 import {PipelineInfoEditor} from "views/pages/pipelines/pipeline_info_editor";
 import {StageEditor} from "views/pages/pipelines/stage_editor";
-import {TaskEditor} from "views/pages/pipelines/task_editor";
+import {TaskTerminalField} from "views/pages/pipelines/task_editor";
 import {UserInputPane} from "views/pages/pipelines/user_input_pane";
-
-// styles
-import * as css from "views/pages/pipelines/components.scss";
 
 const materialImg = require("../../../app/assets/images/concept_diagrams/concept_material.svg");
 const pipelineImg = require("../../../app/assets/images/concept_diagrams/concept_pipeline.svg");
@@ -96,9 +93,7 @@ export class PipelineCreatePage extends Page {
       <FillableSection>
         <UserInputPane heading="Part 4: Job and Tasks">
           <JobEditor job={this.job}/>
-
-          <h4 class={css.sectionSubheading}>Write your tasks below at the prompt</h4>
-          <TaskEditor tasks={this.job.tasks}/>
+          <TaskTerminalField label="Write your tasks below at the prompt" property={this.job.tasks} errorText={this.job.errors().errorsForDisplay("tasks")} required={true}/>
         </UserInputPane>
         <ConceptDiagram image={jobImg}>
           A <strong>job</strong> is like a script, where each sequential step is called

@@ -20,6 +20,7 @@ import * as _ from "lodash";
 import * as m from "mithril";
 import {ExecTask, Task} from "models/pipeline_configs/task";
 import Shellwords from "shellwords-ts";
+import {BaseAttrs, FormField, RequiredFieldAttr} from "views/components/forms/input_fields";
 import * as css from "./components.scss";
 
 const sel = asSelector<typeof css>(css);
@@ -33,6 +34,12 @@ interface ParsedCommand {
   args: string[];
   rawCmd: string;
   rawArgs: string;
+}
+
+export class TaskTerminalField extends FormField<Task[], RequiredFieldAttr> {
+  renderInputField(vnode: m.Vnode<BaseAttrs<Task[]>>) {
+    return <TaskEditor tasks={vnode.attrs.property}/>;
+  }
 }
 
 export class TaskEditor extends MithrilViewComponent<Attrs> {

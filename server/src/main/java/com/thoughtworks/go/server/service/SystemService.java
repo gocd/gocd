@@ -16,31 +16,26 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.server.dao.DbMetadataDao;
+import com.thoughtworks.go.util.SystemEnvironment;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
-import com.thoughtworks.go.server.dao.DbMetadataDao;
-import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 @Service
 public class SystemService {
     private DbMetadataDao dbMetadataDao;
-    private SystemEnvironment systemEnvironment;
-    private static final Logger LOGGER = LoggerFactory.getLogger(SystemService.class);
 
     @Autowired
-    public SystemService(DbMetadataDao dbMetadataDao, SystemEnvironment systemEnvironment) {
+    public SystemService(DbMetadataDao dbMetadataDao) {
         this.dbMetadataDao = dbMetadataDao;
-        this.systemEnvironment = systemEnvironment;
     }
 
     public String getProperty(String prop) {

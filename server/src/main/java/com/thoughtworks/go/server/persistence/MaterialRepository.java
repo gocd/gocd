@@ -48,8 +48,8 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 
 import java.io.File;
 import java.math.BigInteger;
-import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static org.hibernate.criterion.Restrictions.eq;
@@ -166,7 +166,7 @@ public class MaterialRepository extends HibernateDaoSupport {
                     addScalar("pmrPipelineName", new StringType()).
                     addScalar("materialType", new StringType()).
                     addScalar("fingerprint", new StringType()).
-                    setParameterList("ids", CollectionUtil.map(relevantToLookedUpMap.keySet(), PipelineId.MAP_ID)).
+                    setParameterList("ids", relevantToLookedUpMap.keySet().stream().map(PipelineId::getPipelineId).collect(Collectors.toList())).
                     list();
 
             Map<Long, List<ModificationForPipeline>> modificationsForPipeline = new HashMap<>();

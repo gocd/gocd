@@ -16,9 +16,10 @@
 
 package com.thoughtworks.go.config;
 
+import org.junit.Test;
+
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import org.junit.Test;
 
 public class CruiseConfigClassTest {
 
@@ -36,4 +37,14 @@ public class CruiseConfigClassTest {
         assertThat(fooBarClass.getAllFields(new DerivedFooBar()).size(), is(4));
     }
 
+}
+
+class FooBar {
+    private String value;
+    private String data;
+    protected String moreData;
+}
+
+class DerivedFooBar extends FooBar {
+    protected String derivedClassData;
 }

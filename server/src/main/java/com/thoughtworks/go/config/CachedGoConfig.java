@@ -27,7 +27,6 @@ import com.thoughtworks.go.server.service.MaintenanceModeService;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +47,6 @@ public class CachedGoConfig {
     private final GoFileConfigDataSource dataSource;
     private final CachedGoPartials cachedGoPartials;
     private GoConfigMigrator goConfigMigrator;
-    private SystemEnvironment systemEnvironment;
     private MaintenanceModeService maintenanceModeService;
     private final ServerHealthService serverHealthService;
     private List<ConfigChangedListener> listeners = new ArrayList<>();
@@ -61,12 +59,11 @@ public class CachedGoConfig {
     @Autowired
     public CachedGoConfig(ServerHealthService serverHealthService, GoFileConfigDataSource dataSource,
                           CachedGoPartials cachedGoPartials, GoConfigMigrator goConfigMigrator,
-                          SystemEnvironment systemEnvironment, MaintenanceModeService maintenanceModeService) {
+                          MaintenanceModeService maintenanceModeService) {
         this.serverHealthService = serverHealthService;
         this.dataSource = dataSource;
         this.cachedGoPartials = cachedGoPartials;
         this.goConfigMigrator = goConfigMigrator;
-        this.systemEnvironment = systemEnvironment;
         this.maintenanceModeService = maintenanceModeService;
     }
 

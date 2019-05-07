@@ -46,8 +46,6 @@ import org.mockito.Mock;
 
 import java.io.IOException;
 
-import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
-import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -85,13 +83,11 @@ public class AgentHTTPClientControllerTest {
     @Mock
     private PluginJarLocationMonitor pluginJarLocationMonitor;
     private String agentUuid = "uuid";
-    private AgentIdentifier agentIdentifier;
     private AgentHTTPClientController agentController;
 
     @BeforeEach
     void setUp() {
         initMocks(this);
-        agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
     }
 
     @AfterEach

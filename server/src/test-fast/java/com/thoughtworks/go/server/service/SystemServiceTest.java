@@ -40,7 +40,7 @@ public class SystemServiceTest {
     @Before
     public void setUp() {
         systemEnvironment = mock(SystemEnvironment.class);
-        systemService = new SystemService(null, systemEnvironment);
+        systemService = new SystemService(null);
     }
 
     @Test
@@ -69,7 +69,7 @@ public class SystemServiceTest {
 
         Map<String, Object> model = new HashMap<>();
 
-        new SystemService(dao, null).populateServerDetailsModel(model);
+        new SystemService(dao).populateServerDetailsModel(model);
 
         assertThat(model.get("jvm_version"), is("1.5"));
         assertThat(model.get("os_info"), is("Linux 2.6"));

@@ -35,8 +35,6 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    protected File tempSource;
-
     protected void waitAMoment() throws InterruptedException {
         Thread.yield();
         Thread.sleep(2000);
@@ -76,7 +74,6 @@ public abstract class AbstractDefaultPluginJarLocationMonitorTest {
     @Before
     public void setUp() throws Exception {
         temporaryFolder.create();
-        tempSource = temporaryFolder.newFile("temp-file-in-plugin-monitor-test");
     }
 
     @After

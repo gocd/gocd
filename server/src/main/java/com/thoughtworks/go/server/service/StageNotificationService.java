@@ -46,7 +46,6 @@ public class StageNotificationService {
     private StageService stageService;
     private ServerConfigService serverConfigService;
     protected static final String MATERIAL_SECTION_HEADER = "-- CHECK-INS --";
-    public static final String FAILED_TEST_SECTION = "-- FAILED TESTS --";
 
     @Autowired
     public StageNotificationService(PipelineService pipelineService, UserService userService, EmailNotificationTopic emailNotificationTopic,

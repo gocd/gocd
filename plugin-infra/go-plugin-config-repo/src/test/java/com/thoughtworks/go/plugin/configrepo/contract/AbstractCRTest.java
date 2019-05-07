@@ -16,22 +16,23 @@
 
 package com.thoughtworks.go.plugin.configrepo.contract;
 
-import com.google.gson.*;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.thoughtworks.go.plugin.configrepo.codec.GsonCodec;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.fail;
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 public abstract class AbstractCRTest<T extends CRBase> {
 
@@ -163,8 +164,6 @@ public abstract class AbstractCRTest<T extends CRBase> {
         {
             T value = example.getValue();
             String json = gson.toJson(value);
-
-            Type typeOfT = new TypeToken<T>(){}.getType();
 
             T deserializedValue = (T)gson.fromJson(json,value.getClass());
             assertThat(String.format("Example %s - Deserialized value should equal to value before serialization",example.getKey()),

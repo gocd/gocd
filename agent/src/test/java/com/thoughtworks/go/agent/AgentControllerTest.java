@@ -20,19 +20,10 @@ import com.thoughtworks.go.agent.service.AgentUpgradeService;
 import com.thoughtworks.go.agent.service.SslInfrastructureService;
 import com.thoughtworks.go.agent.statusapi.AgentHealthHolder;
 import com.thoughtworks.go.config.AgentRegistry;
-import com.thoughtworks.go.plugin.access.packagematerial.PackageRepositoryExtension;
-import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
-import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
-import com.thoughtworks.go.publishers.GoArtifactsManipulator;
-import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.remote.BuildRepositoryRemote;
-import com.thoughtworks.go.remote.work.Work;
-import com.thoughtworks.go.util.HttpService;
 import com.thoughtworks.go.util.SubprocessLogger;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TestingClock;
-import org.apache.http.client.HttpClient;
 import org.junit.Rule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,8 +36,6 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Date;
 
-import static com.thoughtworks.go.util.SystemUtil.getFirstLocalNonLoopbackIpAddress;
-import static com.thoughtworks.go.util.SystemUtil.getLocalhostName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -56,13 +45,7 @@ public class AgentControllerTest {
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();
     @Mock
-    private BuildRepositoryRemote loopServer;
-    @Mock
-    private GoArtifactsManipulator artifactsManipulator;
-    @Mock
     private SslInfrastructureService sslInfrastructureService;
-    @Mock
-    private Work work;
     @Mock
     private SubprocessLogger subprocessLogger;
     @Mock
@@ -71,19 +54,7 @@ public class AgentControllerTest {
     private AgentUpgradeService agentUpgradeService;
     @Mock
     private PluginManager pluginManager;
-    @Mock
-    private PackageRepositoryExtension packageRepositoryExtension;
-    @Mock
-    private SCMExtension scmExtension;
-    @Mock
-    private TaskExtension taskExtension;
-    @Mock
-    private HttpService httpService;
-    @Mock
-    private HttpClient httpClient;
     private AgentController agentController;
-
-    private String agentUuid = "uuid";
 
     @Mock
     private AgentRegistry agentRegistry;
@@ -91,12 +62,9 @@ public class AgentControllerTest {
     private final int pingInterval = 5000;
     private AgentHealthHolder agentHealthHolder = new AgentHealthHolder(clock, pingInterval);
 
-    private AgentIdentifier agentIdentifier;
-
     @BeforeEach
     void setUp() {
         initMocks(this);
-        agentIdentifier = new AgentIdentifier(getLocalhostName(), getFirstLocalNonLoopbackIpAddress(), agentUuid);
     }
 
     @Test
@@ -124,7 +92,7 @@ public class AgentControllerTest {
     }
 
     @Test
-    void remembersLastPingTime() throws Exception {
+    void remembersLastPingTime() {
         // initial time
         Date now = new Date(42);
         clock.setTime(now);
@@ -152,7 +120,7 @@ public class AgentControllerTest {
             }
 
             @Override
-            protected void work() throws Exception {
+            protected void work() {
 
             }
         };

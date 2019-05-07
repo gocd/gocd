@@ -20,7 +20,6 @@ describe "admin/package_repositories/edit.html.erb" do
   include GoUtil
   include FormUI
   include ReflectiveUtil
-  include Admin::ConfigContextHelper
   include MockRegistryModule
 
   before(:each) do

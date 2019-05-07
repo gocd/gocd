@@ -75,7 +75,6 @@ public class BuildCauseProducerServiceIntegrationHgTest {
 
     @Autowired private DatabaseAccessHelper dbHelper;
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
-    public Subversion repository;
     private Pipeline latestPipeline;
     private InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
     private HgTestRepo hgTestRepo;

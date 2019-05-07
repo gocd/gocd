@@ -34,7 +34,6 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
 import com.thoughtworks.go.server.materials.MaterialChecker;
-import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Assert;
@@ -45,12 +44,10 @@ import org.mockito.Mock;
 import java.util.Date;
 
 import static com.thoughtworks.go.helper.ModificationsMother.*;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -65,7 +62,6 @@ public class AutoBuildCauseTest {
     private SystemEnvironment systemEnvironment;
 
     private CruiseConfig cruiseConfig;
-    private ServerHealthService serverHealthService;
 
     @Before
     public void setUp() throws Exception {
@@ -73,11 +69,10 @@ public class AutoBuildCauseTest {
         cruiseConfig = new BasicCruiseConfig();
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(materialChecker.hasPipelineEverRunWith(any(String.class), any(MaterialRevisions.class))).thenReturn(false);
-        serverHealthService = new ServerHealthService();
     }
 
     @Test
-    public void shouldThrowExceptionIfNoChanges() throws Exception {
+    public void shouldThrowExceptionIfNoChanges() {
         MaterialRevisions modifications = new MaterialRevisions();
         try {
             new AutoBuild(goConfigService, pipelineService, "foo", new SystemEnvironment(), materialChecker).onModifications(modifications, false, null);

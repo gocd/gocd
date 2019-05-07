@@ -16,14 +16,12 @@
 
 package com.thoughtworks.go.server.service.plugins.processor.authorization;
 
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.plugin.api.request.GoApiRequest;
 import com.thoughtworks.go.plugin.api.response.DefaultGoApiResponse;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.GoPluginApiRequestProcessor;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PluginRoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -37,14 +35,10 @@ import static java.util.Arrays.asList;
 public class AuthorizationRequestProcessor implements GoPluginApiRequestProcessor {
     private static final List<String> goSupportedVersions = asList("1.0");
 
-    private final GoConfigService goConfigService;
-    private final AuthorizationExtension extension;
     private final PluginRoleService pluginRoleService;
 
     @Autowired
-    public AuthorizationRequestProcessor(PluginRequestProcessorRegistry registry, GoConfigService goConfigService, AuthorizationExtension extension, PluginRoleService pluginRoleService) {
-        this.goConfigService = goConfigService;
-        this.extension = extension;
+    public AuthorizationRequestProcessor(PluginRequestProcessorRegistry registry, PluginRoleService pluginRoleService) {
         this.pluginRoleService = pluginRoleService;
         registry.registerProcessorFor(INVALIDATE_CACHE_REQUEST.requestName(), this);
     }
@@ -55,13 +49,13 @@ public class AuthorizationRequestProcessor implements GoPluginApiRequestProcesso
         validatePluginRequest(request);
         switch (Request.fromString(request.api())) {
             case INVALIDATE_CACHE_REQUEST:
-                return processInvalidateCacheRequest(pluginDescriptor, request);
+                return processInvalidateCacheRequest(pluginDescriptor);
             default:
                 return DefaultGoApiResponse.error("Illegal api request");
         }
     }
 
-    private GoApiResponse processInvalidateCacheRequest(GoPluginDescriptor pluginDescriptor, GoApiRequest request) {
+    private GoApiResponse processInvalidateCacheRequest(GoPluginDescriptor pluginDescriptor) {
         pluginRoleService.invalidateRolesFor(pluginDescriptor.id());
         return DefaultGoApiResponse.success(null);
     }

@@ -276,7 +276,7 @@ public class ScheduleServiceStageTriggerTest {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
         return new JobInstanceService(jobInstanceDao, propertiesService, jobResultTopic, jobStatusCache, transactionTemplate,
-                transactionSynchronizationManager, null, null, goConfigService, null, pluginManager, serverHealthService);
+                transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService);
     }
 
     @Test

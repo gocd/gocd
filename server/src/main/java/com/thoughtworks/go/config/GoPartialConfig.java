@@ -25,8 +25,6 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +40,6 @@ import java.util.Set;
 public class GoPartialConfig implements PartialConfigUpdateCompletedListener, ChangedRepoConfigWatchListListener {
 
     public static final String INVALID_CRUISE_CONFIG_MERGE = "Invalid Merged Configuration";
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoPartialConfig.class);
     private final GoConfigService goConfigService;
     private final CachedGoPartials cachedGoPartials;
     private final ServerHealthService serverHealthService;

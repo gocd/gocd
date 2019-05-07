@@ -110,7 +110,7 @@ public class RoleConfigService {
 
     public void update(Username currentUser, String md5, Role newRole, LocalizedOperationResult result) {
         validatePluginRoleMetadata(newRole);
-        update(currentUser, newRole, result, new RoleConfigUpdateCommand(goConfigService, newRole, authorizationExtension, currentUser, result, hashingService, md5));
+        update(currentUser, newRole, result, new RoleConfigUpdateCommand(goConfigService, newRole, currentUser, result, hashingService, md5));
     }
 
     public void bulkUpdate(GoCDRolesBulkUpdateRequest bulkUpdateRequest, Username currentUser,

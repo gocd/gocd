@@ -482,14 +482,6 @@ public class StageSqlMapDao extends SqlMapClientDaoSupport implements StageDao, 
         return cacheKeyGenerator.generate("detailedStageHistories", pipelineName, stageName);
     }
 
-    public Long findStageIdByPipelineAndStageNameAndCounter(long pipelineId, String name, String counter) {
-        Map<String, Object> toGet = arguments("pipelineId", pipelineId)
-                .and("stageName", name)
-                .and("stageCounter", counter)
-                .asMap();
-        return (Long) getSqlMapClientTemplate().queryForObject("findStageIdByPipelineAndStageNameAndCounter", toGet);
-    }
-
     public List<StageIdentifier> findFailedStagesBetween(String pipelineName,
                                                          String stageName,
                                                          double fromNaturalOrder,

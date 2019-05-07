@@ -34,7 +34,6 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.plugin.access.pluggabletask.PluggableTaskConfigStore;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskPreference;
 import com.thoughtworks.go.plugin.api.task.TaskView;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.plugins.PluginExtensions;
 import com.thoughtworks.go.plugins.presentation.PluggableViewModel;
 import com.thoughtworks.go.presentation.PluggableTaskViewModel;
@@ -56,8 +55,6 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class ConfigElementImplementationRegistrarTest {
     @Mock
     private PluginExtensions pluginExtns;
-    @Mock
-    private PluginManager pluginManager;
 
     private ConfigElementImplementationRegistry registry;
     private ConfigElementImplementationRegistrar registrar;

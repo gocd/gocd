@@ -262,46 +262,6 @@ public class PipelineTimeline {
         }
     }
 
-    public long pipelineBefore(long id) {
-        naturalOrderLock.readLock().lock();
-        try {
-            for (Map.Entry<CaseInsensitiveString, TreeSet<PipelineTimelineEntry>> nameToEntry : naturalOrderPmm.entrySet()) {
-                for (PipelineTimelineEntry entry : nameToEntry.getValue()) {
-                    if (entry.getId() == id) {
-                        PipelineTimelineEntry timelineEntry = naturalOrderBefore(entry);
-                        if (timelineEntry == null) {
-                            return -1;
-                        }
-                        return timelineEntry.getId();
-                    }
-                }
-            }
-            return -1;
-        } finally {
-            naturalOrderLock.readLock().unlock();
-        }
-    }
-
-    public long pipelineAfter(long id) {
-        naturalOrderLock.readLock().lock();
-        try {
-            for (Map.Entry<CaseInsensitiveString, TreeSet<PipelineTimelineEntry>> nameToEntry : naturalOrderPmm.entrySet()) {
-                for (PipelineTimelineEntry entry : nameToEntry.getValue()) {
-                    if (entry.getId() == id) {
-                        PipelineTimelineEntry timelineEntry = naturalOrderAfter(entry);
-                        if (timelineEntry == null) {
-                            return -1;
-                        }
-                        return timelineEntry.getId();
-                    }
-                }
-            }
-            return -1;
-        } finally {
-            naturalOrderLock.readLock().unlock();
-        }
-    }
-
     /**
      * @deprecated No reason why you should use this apart from test tear down
      */

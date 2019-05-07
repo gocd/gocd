@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.config;
 
-import com.rits.cloning.Cloner;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
@@ -25,7 +24,6 @@ import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.CachedDigestUtils;
-import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TimeProvider;
 import org.jdom2.Document;
 import org.slf4j.Logger;
@@ -57,14 +55,6 @@ public abstract class FullConfigSaveFlow {
         this.configRepository = configRepository;
         this.cachedGoPartials = cachedGoPartials;
         this.fileWriter = fileWriter;
-    }
-
-    public FullConfigSaveFlow(MagicalGoConfigXmlLoader loader, MagicalGoConfigXmlWriter writer,
-                              ConfigElementImplementationRegistry configElementImplementationRegistry,
-                              SystemEnvironment systemEnvironment,
-                              TimeProvider timeProvider, ConfigRepository configRepository, CachedGoPartials cachedGoPartials) {
-        this(loader, writer, configElementImplementationRegistry, timeProvider, configRepository, cachedGoPartials,
-                new GoConfigFileWriter(systemEnvironment));
     }
 
     public abstract GoConfigHolder execute(FullConfigUpdateCommand updatingCommand, List<PartialConfig> partials, String currentUser) throws Exception;

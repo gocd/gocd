@@ -21,7 +21,6 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.domain.JobStatusListener;
 import com.thoughtworks.go.server.domain.Username;
@@ -33,7 +32,10 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.JobInstancesModel;
 import com.thoughtworks.go.server.ui.SortOrder;
 import com.thoughtworks.go.server.util.Pagination;
-import com.thoughtworks.go.serverhealth.*;
+import com.thoughtworks.go.serverhealth.HealthStateScope;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthService;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +60,6 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     private final EnvironmentConfigService environmentConfigService;
     private final GoConfigService goConfigService;
     private SecurityService securityService;
-    private PluginManager pluginManager;
     private final ServerHealthService serverHealthService;
     private final List<JobStatusListener> listeners;
     private static final String NOT_AUTHORIZED_TO_VIEW_PIPELINE = "Not authorized to view pipeline";
@@ -70,7 +71,7 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
     JobInstanceService(JobInstanceDao jobInstanceDao, PropertiesService buildPropertiesService, JobResultTopic jobResultTopic, JobStatusCache jobStatusCache,
                        TransactionTemplate transactionTemplate, TransactionSynchronizationManager transactionSynchronizationManager, JobResolverService jobResolverService,
                        EnvironmentConfigService environmentConfigService, GoConfigService goConfigService,
-                       SecurityService securityService, PluginManager pluginManager, ServerHealthService serverHealthService, JobStatusListener... listener) {
+                       SecurityService securityService, ServerHealthService serverHealthService, JobStatusListener... listener) {
         this.jobInstanceDao = jobInstanceDao;
         this.buildPropertiesService = buildPropertiesService;
         this.jobResultTopic = jobResultTopic;
@@ -81,7 +82,6 @@ public class JobInstanceService implements JobPlanLoader, ConfigChangedListener 
         this.environmentConfigService = environmentConfigService;
         this.goConfigService = goConfigService;
         this.securityService = securityService;
-        this.pluginManager = pluginManager;
         this.serverHealthService = serverHealthService;
         this.listeners = new ArrayList<>(Arrays.asList(listener));
         this.goConfigService.register(this);

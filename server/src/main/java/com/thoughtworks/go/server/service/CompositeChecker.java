@@ -17,11 +17,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.server.service.result.OperationResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class CompositeChecker implements SchedulingChecker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(CompositeChecker.class);
 
     private final SchedulingChecker[] checkers;
 

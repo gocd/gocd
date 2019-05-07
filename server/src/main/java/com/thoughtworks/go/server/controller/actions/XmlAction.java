@@ -29,10 +29,6 @@ public class XmlAction extends BasicRestfulAction {
     private final String md5;
     public static final String X_CRUISE_CONFIG_MD5 = "X-CRUISE-CONFIG-MD5";
 
-    public static XmlAction xmlFound(String xml) {
-        return new XmlAction(SC_OK, xml);
-    }
-
     public static RestfulAction xmlFound(String xml, String md5) {
         return new XmlAction(SC_OK, xml, md5);
     }

@@ -29,7 +29,6 @@ import com.thoughtworks.go.plugin.access.scm.SCMExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.publishers.GoArtifactsManipulator;
 import com.thoughtworks.go.remote.BuildRepositoryRemote;
-import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.service.AgentBuildingInfo;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.util.HttpService;
@@ -69,8 +68,6 @@ public class AgentWebSocketClientControllerTest {
     private GoArtifactsManipulator artifactsManipulator;
     @Mock
     private SslInfrastructureService sslInfrastructureService;
-    @Mock
-    private Work work;
     @Mock
     private AgentRegistry agentRegistry;
     @Mock

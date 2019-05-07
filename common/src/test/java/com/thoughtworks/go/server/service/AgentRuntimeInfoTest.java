@@ -36,8 +36,6 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 public class AgentRuntimeInfoTest {
-    private static final int OLD_IDX = 0;
-    private static final int NEW_IDX = 1;
     private File pipelinesFolder;
     @Rule
     public final TemporaryFolder folder = new TemporaryFolder();

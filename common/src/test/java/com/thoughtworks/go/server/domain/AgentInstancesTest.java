@@ -52,7 +52,6 @@ public class AgentInstancesTest {
     private AgentInstance building;
     private AgentInstance pending;
     private AgentInstance disabled;
-    private AgentInstance local;
     @Mock
     private SystemEnvironment systemEnvironment;
     private AgentStatusChangeListener agentStatusChangeListener;
@@ -67,7 +66,6 @@ public class AgentInstancesTest {
         pending = AgentInstanceMother.pending(systemEnvironment);
         AgentInstanceMother.updateOS(pending, "windows");
         disabled = AgentInstanceMother.disabled("10.18.5.4", systemEnvironment);
-        local = AgentInstanceMother.local(systemEnvironment);
         agentStatusChangeListener = mock(AgentStatusChangeListener.class);
     }
 
@@ -236,36 +234,6 @@ public class AgentInstancesTest {
         agentInstances.add(pending);
         agentInstances.add(disabled);
         return agentInstances;
-    }
-
-    private static class AgentAdder implements Runnable {
-        private final AgentInstances agentInstances;
-        private boolean stop;
-
-        public static AgentAdder startAdding(AgentInstances agentInstances) {
-            AgentAdder agentAdder = new AgentAdder(agentInstances);
-            Thread thread = new Thread(agentAdder);
-            thread.setDaemon(true);
-            thread.start();
-            return agentAdder;
-        }
-
-        private AgentAdder(AgentInstances agentInstances) {
-            this.agentInstances = agentInstances;
-        }
-
-        public void run() {
-            int count = 0;
-            while (!stop) {
-                AgentConfig agentConfig = new AgentConfig("uuid" + count, "CCeDev_" + count, "10.18.5." + count);
-                agentInstances.register(AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", Long.MAX_VALUE, "linux", false));
-                count++;
-            }
-        }
-
-        public void stop() {
-            this.stop = true;
-        }
     }
 
 }

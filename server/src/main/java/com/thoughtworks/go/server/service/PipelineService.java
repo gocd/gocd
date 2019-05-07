@@ -36,8 +36,6 @@ import com.thoughtworks.go.server.service.dd.FanInGraph;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionCallback;
@@ -49,7 +47,6 @@ import java.util.Queue;
 
 @Service
 public class PipelineService implements UpstreamPipelineResolver {
-    private static final Logger LOGGER = LoggerFactory.getLogger(PipelineService.class);
 
     private TransactionTemplate transactionTemplate;
     private PipelineSqlMapDao pipelineDao;

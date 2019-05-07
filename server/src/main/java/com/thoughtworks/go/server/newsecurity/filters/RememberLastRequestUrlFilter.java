@@ -28,7 +28,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class RememberLastRequestUrlFilter extends OncePerRequestFilter {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RememberLastRequestUrlFilter.class);
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,

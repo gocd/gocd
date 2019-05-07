@@ -48,7 +48,6 @@ public class AutoBuildTriangleDependencyTest {
     private PipelineService pipelineService;
     private CruiseConfig cruiseConfig;
     private MaterialChecker materialChecker;
-    private ServerHealthService serverHealthService;
 
     @Before public void setUp() throws Exception {
         goConfigService = mock(GoConfigService.class);
@@ -57,7 +56,6 @@ public class AutoBuildTriangleDependencyTest {
         materialChecker = mock(MaterialChecker.class);
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
         when(materialChecker.hasPipelineEverRunWith(any(String.class), any(MaterialRevisions.class))).thenReturn(false);
-        serverHealthService = new ServerHealthService();
     }
 
     @Test

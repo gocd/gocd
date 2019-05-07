@@ -16,13 +16,11 @@
 
 package com.thoughtworks.go.server.domain;
 
-import java.util.*;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
+import com.thoughtworks.go.helper.PipelineMaterialModificationMother;
 import com.thoughtworks.go.listener.TimelineUpdateListener;
 import com.thoughtworks.go.server.persistence.PipelineRepository;
-import com.thoughtworks.go.helper.PipelineMaterialModificationMother;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import org.joda.time.DateTime;
@@ -34,20 +32,14 @@ import org.mockito.stubbing.Answer;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionSynchronization;
 
+import java.util.*;
+
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.hasItems;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyListOf;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 public class PipelineTimelineTest {
     private DateTime now;
@@ -112,32 +104,6 @@ public class PipelineTimelineTest {
 
         assertThat(second.insertedBefore(), is(third));
         assertThat(second.insertedAfter(), is(first));
-    }
-
-    @Test public void shouldReturnThePipelineBeforeAGivenPipelineId() throws Exception {
-        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        mods.add(first);
-        mods.add(fourth);
-        mods.add(third);
-        mods.add(second);
-
-        assertThat(mods.pipelineBefore(first.getId()), is(-1L));
-        assertThat(mods.pipelineBefore(second.getId()), is(first.getId()));
-        assertThat(mods.pipelineBefore(third.getId()), is(second.getId()));
-        assertThat(mods.pipelineBefore(fourth.getId()), is(third.getId()));
-    }
-
-    @Test public void shouldReturnThePipelineAfterAGivenPipelineId() throws Exception {
-        PipelineTimeline mods = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        mods.add(first);
-        mods.add(fourth);
-        mods.add(third);
-        mods.add(second);
-
-        assertThat(mods.pipelineAfter(first.getId()), is(second.getId()));
-        assertThat(mods.pipelineAfter(second.getId()), is(third.getId()));
-        assertThat(mods.pipelineAfter(third.getId()), is(fourth.getId()));
-        assertThat(mods.pipelineAfter(fourth.getId()), is(-1L));
     }
 
     @Test public void shouldBeAbleToFindThePreviousPipelineForAGivenPipeline() throws Exception {
@@ -238,7 +204,6 @@ public class PipelineTimelineTest {
         verifyNoMoreInteractions(transactionSynchronizationManager);
         verifyNoMoreInteractions(transactionTemplate);
         assertThat(timeline.maximumId(), is(2L));
-        assertThat(timeline.pipelineAfter(1L), is(2L));
     }
 
     @Test public void updateShouldLoadNewInstancesFromTheDatabase() throws Exception {
@@ -253,7 +218,6 @@ public class PipelineTimelineTest {
 
         verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries));
         assertThat(timeline.maximumId(), is(2L));
-        assertThat(timeline.pipelineAfter(1L), is(2L));
     }
 
     @Test public void updateShouldRemoveTheTimelinesReturnedOnRollback() throws Exception {

@@ -206,12 +206,6 @@
         LIMIT 1
     </select>
 
-    <select id="findStageIdByPipelineAndStageNameAndCounter" resultType="java.lang.Long">
-        SELECT stages.id
-        FROM stages
-        WHERE stages.pipelineId = #{pipelineId} AND stages.name = #{stageName} AND stages.counter = #{stageCounter}
-    </select>
-
     <sql id="selectStagesWithIdentifier">
         SELECT builds.*,builds.id as buildId,
         stages.name as stageName,

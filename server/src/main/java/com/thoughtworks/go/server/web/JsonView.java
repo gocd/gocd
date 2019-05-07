@@ -28,7 +28,6 @@ import java.util.Map;
 
 public class JsonView extends AbstractView {
 
-    private static final String RENDER_DIRECT = " ";
     private GoRequestContext requestContext;
 
     public JsonView() {

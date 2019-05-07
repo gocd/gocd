@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.Role;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.plugin.access.authorization.AuthorizationExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -31,7 +30,7 @@ public class RoleConfigUpdateCommand extends RoleConfigCommand {
     private final EntityHashingService hashingService;
     private final String md5;
 
-    public RoleConfigUpdateCommand(GoConfigService goConfigService, Role newRole, AuthorizationExtension extension, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String md5) {
+    public RoleConfigUpdateCommand(GoConfigService goConfigService, Role newRole, Username currentUser, LocalizedOperationResult result, EntityHashingService hashingService, String md5) {
         super(goConfigService, newRole, currentUser, result);
         this.hashingService = hashingService;
         this.md5 = md5;

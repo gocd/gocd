@@ -37,7 +37,6 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
      */
     public static final String FINGERPRINT_DELIMITER = "<|>";
 
-    public static final String SQL_CRITERIA_TYPE = "type";
     private static final int TRUNCATED_NAME_MAX_LENGTH = 20;
     public static final String MATERIAL_TYPE = "materialType";
 
@@ -49,7 +48,6 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
     protected ConfigErrors errors = new ConfigErrors();
 
     private Map<String, Object> sqlCriteria;
-    private Map<String, Object> attributesForXml;
     private String pipelineUniqueFingerprint;
     private String fingerprint;
 
@@ -269,7 +267,6 @@ public abstract class AbstractMaterialConfig implements MaterialConfig, ParamsAt
 
     protected void resetCachedIdentityAttributes() {
         sqlCriteria = null;
-        attributesForXml = null;
         pipelineUniqueFingerprint = null;
     }
 }

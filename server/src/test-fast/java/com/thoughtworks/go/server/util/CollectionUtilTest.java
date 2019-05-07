@@ -16,16 +16,9 @@
 
 package com.thoughtworks.go.server.util;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.junit.Test;
+
+import java.util.*;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -48,26 +41,11 @@ public class CollectionUtilTest {
     @Test
     public void shouldPopulateMapWithInitialization() {
         Map<String, List<Integer>> mapWithCollection = new HashMap<>();
-        CollectionUtil.CollectionValueMap<String, Integer> cVM = CollectionUtil.collectionValMap(mapWithCollection, new CollectionUtil.CollectionCreator<Integer>() {
-            public Collection<Integer> create() {
-                return new ArrayList<>();
-            }
-        });
+        CollectionUtil.CollectionValueMap<String, Integer> cVM = CollectionUtil.collectionValMap(mapWithCollection, new CollectionUtil.ArrayList<>());
         cVM.put("foo", 10);
         cVM.put("bar", 20);
         cVM.put("foo", 30);
         assertThat(mapWithCollection.get("foo"), is(Arrays.asList(10, 30)));
         assertThat(mapWithCollection.get("bar"), is(Arrays.asList(20)));
-    }
-
-    @Test
-    public void shouldMapWithGivenMappingFn() {
-        List<String> firstChar = CollectionUtil.map(Arrays.asList("foo", "bar", "quux"), new CollectionUtil.MapFn<String, String>() {
-            public String map(String s) {
-                return s.substring(0, 1);
-            }
-        });
-
-        assertThat(firstChar, is(Arrays.asList("f", "b", "q")));
     }
 }

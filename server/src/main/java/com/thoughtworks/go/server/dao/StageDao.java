@@ -87,8 +87,6 @@ public interface StageDao extends JobDurationStrategy {
 
 	StageInstanceModels findDetailedStageHistoryByOffset(String pipelineName, String stageName, Pagination pagination);
 
-    Long findStageIdByPipelineAndStageNameAndCounter(long pipeline, String name, String counter);
-
     List<StageIdentifier> findFailedStagesBetween(String pipelineName, String stageName, double fromNaturalOrder, double toNaturalOrder);
 
     void clearCachedAllStages(String pipelineName, int pipelineCounter, String stageName);

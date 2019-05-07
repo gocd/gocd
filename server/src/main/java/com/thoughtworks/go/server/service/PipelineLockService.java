@@ -28,7 +28,6 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.server.dao.PipelineStateDao;
 import com.thoughtworks.go.server.domain.PipelineLockStatusChangeListener;
 import com.thoughtworks.go.server.transaction.AfterCompletionCallback;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +45,12 @@ public class PipelineLockService implements ConfigChangedListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineLockService.class);
     private final GoConfigService goConfigService;
     private PipelineStateDao pipelineStateDao;
-    private final TransactionSynchronizationManager transactionSynchronizationManager;
     private List<PipelineLockStatusChangeListener> listeners = new ArrayList<>();
 
     @Autowired
-    public PipelineLockService(GoConfigService goConfigService, PipelineStateDao pipelineStateDao, TransactionSynchronizationManager transactionSynchronizationManager) {
+    public PipelineLockService(GoConfigService goConfigService, PipelineStateDao pipelineStateDao) {
         this.goConfigService = goConfigService;
         this.pipelineStateDao = pipelineStateDao;
-        this.transactionSynchronizationManager = transactionSynchronizationManager;
     }
 
     public void initialize() {

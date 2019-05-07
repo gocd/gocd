@@ -314,7 +314,7 @@ public class ApprovalTest {
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
 
-        PipelineConfigs group = addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
+        addUserAndRoleToDefaultGroup(cruiseConfig, "user", "role");
         PipelineConfig pipeline = cruiseConfig.find(DEFAULT_GROUP, 0);
         StageConfig stage = pipeline.get(0);
         StageConfigMother.addApprovalWithUsers(stage, "not-present");

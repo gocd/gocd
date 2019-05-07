@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
-import com.thoughtworks.go.domain.PipelineDependencyGraphOld;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.domain.PipelineTimelineEntry;
@@ -290,40 +289,6 @@ public class PipelineHistoryService {
             return false;
         }
         return true;
-    }
-
-    private void populateDownstreamPipelineState(Username username, PipelineInstanceModel pipelineInstanceModel) {
-        populatePlaceHolderStages(pipelineInstanceModel);
-        populatePipelineCanRunStatus(username, pipelineInstanceModel);
-        populateCanRunStatus(username, pipelineInstanceModel);
-        populateStageOperatePermission(pipelineInstanceModel, username);
-        pipelineInstanceModel.setMaterialConfigs(goConfigService.materialConfigsFor(new CaseInsensitiveString(pipelineInstanceModel.getName())));
-    }
-
-    private void removePipelinesThatAreNotInConfig(final Username username, PipelineDependencyGraphOld graph) {
-        graph.filterDependencies(pipelineName -> goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName)) && securityService.hasViewPermissionForPipeline(username, pipelineName));
-    }
-
-    private void addConfiguredPipelinesThatAreNotRunYet(Username username, PipelineDependencyGraphOld graph, List<PipelineConfig> dependents) {
-        for (PipelineConfig dependent : dependents) {
-            if (!graph.hasDependent(CaseInsensitiveString.str(dependent.name()))) {
-                graph.addDependent(addEmptyPipelineInstance(CaseInsensitiveString.str(dependent.name()), username, dependent, false));
-            }
-        }
-    }
-
-    private void populatePipelineState(PipelineInstanceModel instance, Username username) {
-        populatePlaceHolderStages(instance);
-        populateCanRunStatus(username, instance);
-        populateStageOperatePermission(instance, username);
-        populateLockStatus(instance.getName(), username, instance);
-
-        long id = pipelineTimeline.pipelineBefore(instance.getId());
-        if (id != -1) {
-            PipelineInstanceModel prevPipeline = pipelineDao.loadHistory(id);
-            instance.setPreviousPipelineLabel(prevPipeline.getLabel());
-            instance.setPreviousPipelineCounter(prevPipeline.getCounter());
-        }
     }
 
     public PipelineInstanceModel findPipelineInstance(String pipelineName, int pipelineCounter, Username username, OperationResult result) {

@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.ConfigCache;
 import com.thoughtworks.go.config.MagicalGoConfigXmlLoader;
 import com.thoughtworks.go.config.MagicalGoConfigXmlWriter;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
-import com.thoughtworks.go.util.SystemEnvironment;
 import org.junit.Before;
 
 import java.io.ByteArrayOutputStream;
@@ -27,7 +26,6 @@ import java.io.ByteArrayOutputStream;
 public abstract class AbstractConfigXmlWriterTest {
     ByteArrayOutputStream output;
     MagicalGoConfigXmlWriter xmlWriter;
-    SystemEnvironment systemEnvironment;
     MagicalGoConfigXmlLoader xmlLoader;
 
     @Before

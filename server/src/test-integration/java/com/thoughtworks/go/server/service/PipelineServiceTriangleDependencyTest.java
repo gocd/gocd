@@ -16,9 +16,6 @@
 
 package com.thoughtworks.go.server.service;
 
-import java.util.Date;
-import java.util.HashMap;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.JobConfigs;
@@ -26,27 +23,20 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.JobStatusCache;
 import com.thoughtworks.go.domain.activity.StageStatusCache;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.plugin.infra.PluginManager;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.dao.StageDao;
-import com.thoughtworks.go.server.domain.JobStatusListener;
-import com.thoughtworks.go.server.domain.PipelineConfigDependencyGraph;
-import com.thoughtworks.go.server.domain.PipelineTimeline;
-import com.thoughtworks.go.server.domain.StageStatusListener;
-import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.domain.*;
 import com.thoughtworks.go.server.functional.helpers.MaterialRevisionBuilder;
 import com.thoughtworks.go.server.materials.DependencyMaterialUpdateNotifier;
 import com.thoughtworks.go.server.messaging.JobResultTopic;
@@ -59,7 +49,6 @@ import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthStates;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.plugin.infra.PluginManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -68,22 +57,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static com.thoughtworks.go.helper.GoConfigMother.createPipelineConfigWithMaterialConfig;
-import static com.thoughtworks.go.helper.ModificationsMother.changedDependencyMaterialRevision;
-import static com.thoughtworks.go.helper.ModificationsMother.createHgMaterialWithMultipleRevisions;
-import static com.thoughtworks.go.helper.ModificationsMother.createSvnMaterialWithMultipleRevisions;
-import static com.thoughtworks.go.helper.ModificationsMother.dependencyMaterialRevision;
-import static com.thoughtworks.go.helper.ModificationsMother.oneModifiedFile;
+import java.util.Date;
+import java.util.HashMap;
+
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
+import static com.thoughtworks.go.helper.GoConfigMother.createPipelineConfigWithMaterialConfig;
+import static com.thoughtworks.go.helper.ModificationsMother.*;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -151,8 +135,6 @@ public class PipelineServiceTriangleDependencyTest {
     public void shouldTellPipelineMaterialModificationsToUpdateItselfOnSave() throws Exception {
         Pipeline pipeline = PipelineMother.pipeline("cruise");
         when(pipelineDao.save(pipeline)).thenReturn(pipeline);
-        when(pipelineTimeline.pipelineBefore(anyLong())).thenReturn(9L);
-        when(pipelineTimeline.pipelineAfter(pipeline.getId())).thenReturn(-1L);
         when(materialRepository.findMaterialRevisionsForPipeline(9L)).thenReturn(MaterialRevisions.EMPTY);
         service.save(pipeline);
         Mockito.verify(pipelineTimeline).update();
@@ -191,7 +173,7 @@ public class PipelineServiceTriangleDependencyTest {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
         JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(PropertiesService.class), mock(JobResultTopic.class), mock(JobStatusCache.class),
-                actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, pluginManager, serverHealthService, jobStatusListener);
+                actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService, jobStatusListener);
 
         StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), mock(SecurityService.class), mock(PipelineDao.class),
                 mock(ChangesetService.class), mock(GoConfigService.class), actualTransactionTemplate, transactionSynchronizationManager,
@@ -204,8 +186,6 @@ public class PipelineServiceTriangleDependencyTest {
         service = new PipelineService(pipelineDao, stageService, mock(PipelineLockService.class), pipelineTimeline, materialRepository, actualTransactionTemplate,systemEnvironment, null, materialConfigConverter);
         Pipeline pipeline = PipelineMother.pipeline("cruise", savedStage);
         when(pipelineDao.save(pipeline)).thenReturn(pipeline);
-        when(pipelineTimeline.pipelineBefore(anyLong())).thenReturn(9L);
-        when(pipelineTimeline.pipelineAfter(pipeline.getId())).thenReturn(-1L);
         when(materialRepository.findMaterialRevisionsForPipeline(9L)).thenReturn(MaterialRevisions.EMPTY);
         return pipeline;
     }
@@ -225,8 +205,6 @@ public class PipelineServiceTriangleDependencyTest {
         Pipeline pipeline = pipeline(scheduleTime, jobs());
         Pipeline savedPipeline = pipeline(scheduleTime, jobs());
 
-        when(pipelineTimeline.pipelineAfter(pipeline.getId())).thenReturn(11L);
-        when(pipelineTimeline.pipelineBefore(pipeline.getId())).thenReturn(-1L);
         when(materialRepository.findMaterialRevisionsForPipeline(11L)).thenReturn(next);
         when(pipelineDao.save(pipeline)).thenReturn(savedPipeline);
 

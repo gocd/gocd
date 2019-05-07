@@ -140,7 +140,6 @@ public class AccessTokenServiceIntegrationTest {
 
     @Test
     public void shouldFailToGetAccessTokenWhenProvidedTokenHashEqualityFails() {
-        long id = 42;
         String tokenDescription = "This is my first Token";
 
         AccessToken.AccessTokenWithDisplayValue createdToken = accessTokenService.create(tokenDescription, "bob", authConfigId);
@@ -154,7 +153,6 @@ public class AccessTokenServiceIntegrationTest {
 
     @Test
     public void shouldNotGetAccessTokenProvidedTokenValueWhenTokenIsRevoked() {
-        long id = 42;
         String tokenDescription = "This is my first Token";
 
         AccessToken.AccessTokenWithDisplayValue createdToken = accessTokenService.create(tokenDescription, "bob", authConfigId);

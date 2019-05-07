@@ -104,8 +104,6 @@ public class PipelineServiceTest {
     public void shouldTellPipelineMaterialModificationsToUpdateItselfOnSave() throws Exception {
         Pipeline pipeline = PipelineMother.pipeline("cruise");
         when(pipelineDao.save(pipeline)).thenReturn(pipeline);
-        when(pipelineTimeline.pipelineBefore(anyLong())).thenReturn(9L);
-        when(pipelineTimeline.pipelineAfter(pipeline.getId())).thenReturn(-1L);
         when(materialRepository.findMaterialRevisionsForPipeline(9L)).thenReturn(MaterialRevisions.EMPTY);
         service.save(pipeline);
         Mockito.verify(pipelineTimeline).update();
@@ -144,7 +142,7 @@ public class PipelineServiceTest {
         ServerHealthService serverHealthService = mock(ServerHealthService.class);
         when(serverHealthService.logs()).thenReturn(new ServerHealthStates());
         JobInstanceService jobInstanceService = new JobInstanceService(mock(JobInstanceDao.class), mock(PropertiesService.class), mock(JobResultTopic.class), mock(JobStatusCache.class),
-                actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, pluginManager, serverHealthService, jobStatusListener);
+                actualTransactionTemplate, transactionSynchronizationManager, null, null, goConfigService, null, serverHealthService, jobStatusListener);
 
         StageService stageService = new StageService(stageDao, jobInstanceService, mock(StageStatusTopic.class), mock(StageStatusCache.class), mock(SecurityService.class), mock(PipelineDao.class),
                 mock(ChangesetService.class), mock(GoConfigService.class), actualTransactionTemplate, transactionSynchronizationManager,
@@ -157,8 +155,6 @@ public class PipelineServiceTest {
         service = new PipelineService(pipelineDao, stageService, mock(PipelineLockService.class), pipelineTimeline, materialRepository, actualTransactionTemplate, systemEnvironment, null, materialConfigConverter);
         Pipeline pipeline = PipelineMother.pipeline("cruise", savedStage);
         when(pipelineDao.save(pipeline)).thenReturn(pipeline);
-        when(pipelineTimeline.pipelineBefore(anyLong())).thenReturn(9L);
-        when(pipelineTimeline.pipelineAfter(pipeline.getId())).thenReturn(-1L);
         when(materialRepository.findMaterialRevisionsForPipeline(9L)).thenReturn(MaterialRevisions.EMPTY);
         return pipeline;
     }
@@ -177,8 +173,6 @@ public class PipelineServiceTest {
         Pipeline pipeline = pipeline(scheduleTime, jobs());
         Pipeline savedPipeline = pipeline(scheduleTime, jobs());
 
-        when(pipelineTimeline.pipelineAfter(pipeline.getId())).thenReturn(11L);
-        when(pipelineTimeline.pipelineBefore(pipeline.getId())).thenReturn(-1L);
         when(materialRepository.findMaterialRevisionsForPipeline(11L)).thenReturn(next);
         when(pipelineDao.save(pipeline)).thenReturn(savedPipeline);
 

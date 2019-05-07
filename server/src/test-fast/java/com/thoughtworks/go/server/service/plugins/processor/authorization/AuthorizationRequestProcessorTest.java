@@ -66,7 +66,7 @@ public class AuthorizationRequestProcessorTest {
         when(authorizationExtension.getMessageConverter(AuthorizationMessageConverterV1.VERSION)).thenReturn(new AuthorizationMessageConverterV1());
 
         GoApiRequest request = new DefaultGoApiRequest(INVALIDATE_CACHE_REQUEST.requestName(), "1.0", null);
-        AuthorizationRequestProcessor authorizationRequestProcessor = new AuthorizationRequestProcessor(registry, null, authorizationExtension, pluginRoleService);
+        AuthorizationRequestProcessor authorizationRequestProcessor = new AuthorizationRequestProcessor(registry, pluginRoleService);
 
         GoApiResponse response = authorizationRequestProcessor.process(pluginDescriptor, request);
 

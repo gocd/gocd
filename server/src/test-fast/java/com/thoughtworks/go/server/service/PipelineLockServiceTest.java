@@ -62,7 +62,7 @@ public class PipelineLockServiceTest {
         pipelineStateDao = mock(PipelineStateDao.class);
         goConfigService = mock(GoConfigService.class);
         transactionSynchronizationManager = new TestTransactionSynchronizationManager();
-        pipelineLockService = new PipelineLockService(goConfigService, pipelineStateDao, transactionSynchronizationManager);
+        pipelineLockService = new PipelineLockService(goConfigService, pipelineStateDao);
         pipelineLockService.initialize();
     }
 

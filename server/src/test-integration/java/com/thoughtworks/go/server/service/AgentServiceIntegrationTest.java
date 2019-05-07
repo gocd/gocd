@@ -83,7 +83,6 @@ public class AgentServiceIntegrationTest {
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
     private static final String UUID = "uuid";
     private static final String UUID2 = "uuid2";
-    private static final String UUID3 = "uuid3";
     private static final Username USERNAME = new Username(new CaseInsensitiveString("admin"));
 
     @Before
@@ -228,7 +227,6 @@ public class AgentServiceIntegrationTest {
 
     @Test
     public void shouldNotAllowUpdatingEnvironmentsWhenNotAdmin() throws IOException {
-        String agentId = "agent-id";
         HttpOperationResult operationResult = new HttpOperationResult();
         CONFIG_HELPER.enableSecurity();
         CONFIG_HELPER.addAdmins("admin1");
@@ -869,7 +867,7 @@ public class AgentServiceIntegrationTest {
 
     @Test
     public void updateAgentAttributesShouldUpdateAnAgentHostname() throws Exception {
-        AgentConfig agent = createDisabledAndIdleAgent(UUID);
+        createDisabledAndIdleAgent(UUID);
 
         goConfigDao.load();
 
@@ -889,7 +887,7 @@ public class AgentServiceIntegrationTest {
 
     @Test
     public void updateAgentAttributesShouldUpdateAnAgentResources() throws Exception {
-        AgentConfig agent = createDisabledAndIdleAgent(UUID);
+        createDisabledAndIdleAgent(UUID);
 
         goConfigDao.load();
 
@@ -910,7 +908,7 @@ public class AgentServiceIntegrationTest {
     @Test
     public void updateAgentAttributesShouldUpdateAnAgentEnvironments() throws Exception {
         createEnvironment("a", "b", "c", "d", "e");
-        AgentConfig agent = createEnabledAgent(UUID);
+        createEnabledAgent(UUID);
 
         HttpOperationResult operationResult = new HttpOperationResult();
         agentService.modifyEnvironments(USERNAME, operationResult, Arrays.asList(UUID), Arrays.asList(
@@ -937,7 +935,7 @@ public class AgentServiceIntegrationTest {
 
     @Test
     public void updateAgentAttributesShouldUpdateAnAgentEnableState() throws Exception {
-        AgentConfig agent = createDisabledAndIdleAgent(UUID);
+        createDisabledAndIdleAgent(UUID);
 
         goConfigDao.load();
 
@@ -956,7 +954,7 @@ public class AgentServiceIntegrationTest {
 
     @Test
     public void updateAgentAttributesShouldUpdateAnAgentDisableState() throws Exception {
-        AgentConfig agent = createEnabledAgent(UUID);
+        createEnabledAgent(UUID);
 
         goConfigDao.load();
 
@@ -975,8 +973,8 @@ public class AgentServiceIntegrationTest {
 
     @Test
     public void updateAgentAttributesShouldNotUpdateAgentEnableStateIfTristateIsNotDefined() throws Exception {
-        AgentConfig enabledAgent = createEnabledAgent("enabled");
-        AgentConfig disabledAgent = createDisabledAgent("disabled");
+        createEnabledAgent("enabled");
+        createDisabledAgent("disabled");
 
         goConfigDao.load();
 
@@ -998,7 +996,7 @@ public class AgentServiceIntegrationTest {
     @Test
     public void testShouldUpdateAnAgentIfInputsAreValid() throws Exception {
         String headCommitBeforeUpdate = configRepository.getCurrentRevCommit().name();
-        AgentConfig agent = createDisabledAndIdleAgent(UUID);
+        createDisabledAndIdleAgent(UUID);
         createEnvironment("a", "b");
 
         goConfigDao.load();

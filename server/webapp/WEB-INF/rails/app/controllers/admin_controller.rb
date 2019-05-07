@@ -15,7 +15,6 @@
 ##########################GO-LICENSE-END##################################
 
 class AdminController < ApplicationController
-  include ::Admin::ConfigContextHelper
   include ::Admin::AuthorizationHelper
 
   layout "admin"

@@ -40,8 +40,6 @@ import com.thoughtworks.go.utils.Timeout;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
@@ -170,9 +168,4 @@ public class AgentServiceTest {
         verify(operationResult).internalServerError(any(String.class), any(HealthStateType.class));
     }
 
-    private void writeToFile(final String fileName) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream(fileName)) {
-            fos.write(fileName.getBytes());
-        }
-    }
 }

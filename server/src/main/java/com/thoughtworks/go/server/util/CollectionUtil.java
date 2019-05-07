@@ -16,24 +16,10 @@
 
 package com.thoughtworks.go.server.util;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+
+import java.util.*;
 
 public class CollectionUtil {
-    public interface MapFn<O, T> {
-        T map(O o);
-    }
-
-    public static <O, T> List<T> map(Collection<O> collection, MapFn<O, T> mapFn) {
-        List<T> values = new java.util.ArrayList<>();
-        for (O obj : collection) {
-            values.add(mapFn.map(obj));
-        }
-        return values;
-    }
 
     public static <K, V> Map<V, Set<K>> reverse(Map<K, List<V>> inputMap) {
         Map<V, Set<K>> resultMap = new HashMap<>();

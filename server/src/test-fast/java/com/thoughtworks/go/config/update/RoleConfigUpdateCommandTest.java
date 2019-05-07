@@ -60,7 +60,7 @@ public class RoleConfigUpdateCommandTest {
         PluginRoleConfig updatedRole = new PluginRoleConfig("foo", "github");
 
         cruiseConfig.server().security().getRoles().add(oldRole);
-        RoleConfigCommand command = new RoleConfigUpdateCommand(null, updatedRole, null, null, null, null, null);
+        RoleConfigCommand command = new RoleConfigUpdateCommand(null, updatedRole, null, null, null, null);
         command.update(cruiseConfig);
         assertThat(cruiseConfig.server().security().getRoles().findByName(new CaseInsensitiveString("foo")), is(equalTo(updatedRole)));
     }
@@ -72,7 +72,7 @@ public class RoleConfigUpdateCommandTest {
 
         when(goConfigService.isUserAdmin(viewUser)).thenReturn(false);
 
-        RoleConfigUpdateCommand command = new RoleConfigUpdateCommand(goConfigService, new RoleConfig("some-role"), null, viewUser, result, mock(EntityHashingService.class), "md5");
+        RoleConfigUpdateCommand command = new RoleConfigUpdateCommand(goConfigService, new RoleConfig("some-role"), viewUser, result, mock(EntityHashingService.class), "md5");
 
         assertFalse(command.canContinue(null));
         assertFalse(result.isSuccessful());
@@ -89,7 +89,7 @@ public class RoleConfigUpdateCommandTest {
         when(entityHashingService.md5ForEntity(oldRole)).thenReturn("md5");
 
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        RoleConfigCommand command = new RoleConfigUpdateCommand(goConfigService, updatedRole, null, currentUser, result, entityHashingService, "bad-md5");
+        RoleConfigCommand command = new RoleConfigUpdateCommand(goConfigService, updatedRole, currentUser, result, entityHashingService, "bad-md5");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.message(), is(EntityType.Role.staleConfig(updatedRole.getName())));
@@ -102,7 +102,7 @@ public class RoleConfigUpdateCommandTest {
 
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
-        RoleConfigCommand command = new RoleConfigUpdateCommand(goConfigService, updatedRole, null, currentUser, result, entityHashingService, "bad-md5");
+        RoleConfigCommand command = new RoleConfigUpdateCommand(goConfigService, updatedRole, currentUser, result, entityHashingService, "bad-md5");
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertFalse(result.isSuccessful());

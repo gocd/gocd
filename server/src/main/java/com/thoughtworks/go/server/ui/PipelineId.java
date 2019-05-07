@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.server.ui;
 
-import com.thoughtworks.go.server.util.CollectionUtil;
+import java.util.function.Function;
 
 /**
  * @understands identifying a pipeline uniquely in both config and db
  */
 public class PipelineId {
-    public static final CollectionUtil.MapFn<PipelineId,Long> MAP_ID = PipelineId::getPipelineId;
     private final String pipelineName;
     private final Long pipelineId;
 

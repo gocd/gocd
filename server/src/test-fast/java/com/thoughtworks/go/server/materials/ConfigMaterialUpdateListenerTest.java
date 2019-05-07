@@ -41,7 +41,6 @@ public class ConfigMaterialUpdateListenerTest {
     private GoRepoConfigDataSource repoConfigDataSource;
     private MaterialRepository materialRepository;
     private MaterialChecker materialChecker;
-    private ConfigMaterialUpdateCompletedTopic configCompleted;
     private MaterialUpdateCompletedTopic topic;
     private ConfigMaterialUpdateListener configUpdater;
     private   MaterialService materialService;
@@ -55,7 +54,6 @@ public class ConfigMaterialUpdateListenerTest {
         repoConfigDataSource = mock(GoRepoConfigDataSource.class);
         materialChecker = mock(MaterialChecker.class);
         materialRepository = mock(MaterialRepository.class);
-        configCompleted = mock(ConfigMaterialUpdateCompletedTopic.class);
         topic = mock(MaterialUpdateCompletedTopic.class);
         materialService = mock(MaterialService.class);
 

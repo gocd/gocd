@@ -17,12 +17,12 @@
 package com.thoughtworks.go.domain.valuestreammap;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.server.util.CollectionUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class Node implements Comparable<Node>{
     protected final CaseInsensitiveString id;
@@ -135,7 +135,7 @@ public abstract class Node implements Comparable<Node>{
 
     @Override
     public String toString() {
-        List<String> childIds = CollectionUtil.map(children, node -> node.getId().toString());
+        List<String> childIds = children.stream().map(node -> node.getId().toString()).collect(Collectors.toList());
         return String.format("id='%s' name='%s' level='%d' depth='%d' revisions='%s' children='%s'", id, nodeName, level, depth, revisions(), StringUtils.join(childIds, ','));
     }
 

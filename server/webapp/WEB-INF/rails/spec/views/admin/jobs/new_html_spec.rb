@@ -20,7 +20,6 @@ describe "admin/jobs/new.html.erb" do
   include GoUtil
   include FormUI
   include Admin::AdminHelper
-  include Admin::ConfigContextHelper
   include MockRegistryModule
 
   before :each do

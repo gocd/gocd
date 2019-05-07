@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.server.web;
 
-import com.thoughtworks.go.server.web.i18n.ResolvableViewableStatus;
 import com.thoughtworks.go.util.json.JsonUrl;
 import org.junit.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
@@ -29,7 +28,6 @@ import java.util.Map;
 
 import static com.thoughtworks.go.server.web.JsonRenderer.render;
 import static com.thoughtworks.go.server.web.JsonView.asMap;
-import static com.thoughtworks.go.server.web.i18n.CurrentStatus.WAITING;
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -104,20 +102,6 @@ public class JsonViewTest {
 
         String json = view.renderJson(asMap(list));
         assertThatJson("[{\"key1\":\"value1\"},\"value2\"]").isEqualTo(json);
-    }
-
-    @Test
-    public void testShouldRenderI18n() {
-        Map<String, Object> map = new LinkedHashMap<>();
-        final String i18nMessage = "waiting(zh_CN)";
-        final ResolvableViewableStatus resolvableViewableStatus = new ResolvableViewableStatus(WAITING);
-        map.put("key1", resolvableViewableStatus);
-        JsonView view = new JsonView(requestContext);
-
-        when(requestContext.getMessage(resolvableViewableStatus)).thenReturn(i18nMessage);
-
-        String json = view.renderJson(map);
-        assertThatJson("{\"key1\":\"waiting(zh_CN)\"}").isEqualTo(json);
     }
 
     @Test

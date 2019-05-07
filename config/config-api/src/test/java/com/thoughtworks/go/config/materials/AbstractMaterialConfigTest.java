@@ -230,10 +230,6 @@ public class AbstractMaterialConfigTest {
             return false;
         }
 
-        public Class getInstanceType() {
-            throw new UnsupportedOperationException("instance not available for test material");
-        }
-
         @Override
         public String getLongDescription() {
             throw new UnsupportedOperationException();

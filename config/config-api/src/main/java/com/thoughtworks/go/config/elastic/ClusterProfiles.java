@@ -20,14 +20,12 @@ import com.thoughtworks.go.config.ConfigCollection;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.Validatable;
-import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.Arrays;
 
 @ConfigTag("clusterProfiles")
 @ConfigCollection(ClusterProfile.class)
 public class ClusterProfiles extends PluginProfiles<ClusterProfile> implements Validatable {
-    private final ConfigErrors errors = new ConfigErrors();
 
     public ClusterProfiles() {
     }

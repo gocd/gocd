@@ -19,7 +19,6 @@ package com.thoughtworks.go.server.websocket;
 import com.thoughtworks.go.domain.ConsoleConsumer;
 import com.thoughtworks.go.domain.ConsoleStreamer;
 import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
 import com.thoughtworks.go.server.service.ConsoleService;
@@ -49,7 +48,6 @@ public class ConsoleLogSenderTest {
     private ConsoleService consoleService;
     private SocketEndpoint socket;
     private JobIdentifier jobIdentifier;
-    private JobInstance jobInstance;
     private SocketHealthService socketHealthService;
     private JobInstanceDao jobInstanceDao;
     private SystemEnvironment systemEnvironment;
@@ -66,7 +64,6 @@ public class ConsoleLogSenderTest {
         when(systemEnvironment.consoleLogCharsetAsCharset()).thenReturn(UTF_8);
         consoleLogSender = new ConsoleLogSender(consoleService, jobInstanceDao, socketHealthService, systemEnvironment);
         jobIdentifier = mock(JobIdentifier.class);
-        jobInstance = mock(JobInstance.class);
     }
 
     @Test

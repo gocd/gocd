@@ -120,7 +120,6 @@ public class BuildCauseProducerServiceConfigRepoIntegrationTest {
     private MDUPerformanceLogger logger;
     private MaterialUpdateListener worker;
     private HgMaterial material;
-    private Pipeline latestPipeline;
     private PipelineConfig pipelineConfig;
     MaterialRevisions firstRevisions;
     private String PIPELINE_NAME;

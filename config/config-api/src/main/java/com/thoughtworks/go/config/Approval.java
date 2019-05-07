@@ -16,14 +16,14 @@
 
 package com.thoughtworks.go.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @ConfigTag(value = "approval")
 //TODO: ChrisS: Make this a proper enumeration
@@ -195,7 +195,6 @@ public class Approval implements Validatable, ParamsAttributeAware {
 
     public void setOperatePermissions(List<Map<String, String>> usersMap, List<Map<String, String>> rolesMap) {
         authConfig.clear();
-        Iterable<String> i;
 
         if (usersMap != null) {
             addAdmin(extractAdminUsers(usersMap));

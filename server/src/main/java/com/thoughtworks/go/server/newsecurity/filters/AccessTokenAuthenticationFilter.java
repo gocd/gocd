@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.handlers.renderer.ContentTypeNegotiationMessageRenderer;
 import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
@@ -39,6 +40,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -124,11 +126,21 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } else {
             accessTokenService.updateLastUsedCacheWith(accessTokenCredential.getAccessToken());
-            LOGGER.debug("authenticating user {} using bearer token", accessTokenCredential.getAccessToken().getUsername());
+            LOGGER.debug("[Bearer Token Authentication] Authenticating bearer token for: " +
+                            "\n GoCD User:             '{}'." +
+                            "\n GoCD API endpoint:     '{}'," +
+                            "\n API Client:            '{}'," +
+                            "\n Is Admin Scoped Token: '{}'," +
+                            "\n Current Time:          '{}'"
+                    , accessTokenCredential.getAccessToken().getUsername()
+                    , request.getRequestURI()
+                    , request.getHeader("User-Agent")
+                    , securityService.isUserAdmin(new Username(accessTokenCredential.getAccessToken().getUsername()))
+                    , new Timestamp(System.currentTimeMillis()));
+
             try {
                 SecurityAuthConfig authConfig = securityAuthConfigService.findProfile(accessTokenCredential.getAccessToken().getAuthConfigId());
                 final AuthenticationToken<AccessTokenCredential> authenticationToken = authenticationProvider.authenticateUser(accessTokenCredential, authConfig);
-
                 if (authenticationToken == null) {
                     onAuthenticationFailure(request, response, BAD_CREDENTIALS_MSG);
                 } else {

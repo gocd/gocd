@@ -59,7 +59,7 @@ export class SecretConfigsWidget extends MithrilViewComponent<Attrs> {
           const header = [this.headerIcon(pluginInfo),
             <KeyValuePair inline={true} data={this.headerMap(secretConfig())}/>];
 
-          const descriptionText = !isBlank(secretConfig().description()) ? <p>{secretConfig().description()}</p> : null;
+          const descriptionText = !isBlank(secretConfig().description()) ? <p data-test-id="secret-config-description">{secretConfig().description()}</p> : null;
           return <CollapsiblePanel
             dataTestId="secret-configs-group" header={header}
             actions={this.getActionButtons(vnode, secretConfig())}>

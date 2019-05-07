@@ -61,9 +61,6 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
 
   static types() {
     return [
-      // {
-      //   id: "environment", text: "Environment"
-      // },
       {
         id: "pipeline_group", text: "Pipeline Group"
       }
@@ -76,35 +73,36 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
                     message="Configuring Rules is required to utilize this Secret Configuration. In absence of any rules, the secret configuration is denied access of any GoCD entities."/>
       : null;
 
-    return <div>
+    return <div data-test-id="rules-widget">
       <h2>Rules </h2>
       {maybeNoRulesWarningMessage}
-      <div className={styles.flexTable}>
-        <div className={styles.tableHeader}>
+      <div data-test-id="rules-table" className={styles.flexTable}>
+        <div data-test-id="rules-table-header" className={styles.tableHeader}>
           {
             _.map(RulesWidget.headers(), (header) => {
               return <div className={styles.tableHead}>{header}</div>;
             })
           }
         </div>
-        <div className={styles.tableBody}>
+        <div data-test-id="rules-table-body" className={styles.tableBody}>
           {
             _.map(vnode.attrs.rules(), (rule) => {
-              return <div className={styles.tableRow}>
+              return <div data-test-id="rules-table-row" className={styles.tableRow}>
                 <div className={styles.tableCell}>
                   d
                 </div>
                 <div className={styles.tableCell}>
-                  <SelectField
-                    property={rule().directive}
-                    required={true}
-                    errorText={rule().errors().errorsForDisplay("directive")}>
+                  <SelectField dataTestId="rule-directive"
+                               property={rule().directive}
+                               required={true}
+                               errorText={rule().errors().errorsForDisplay("directive")}>
                     <SelectFieldOptions selected={rule().directive()}
                                         items={RulesWidget.directives()}/>
                   </SelectField>
                 </div>
                 <div className={styles.tableCell}>
                   <SelectField
+                    dataTestId="rule-type"
                     property={rule().type}
                     required={true}
                     errorText={rule().errors().errorsForDisplay("type")}>
@@ -114,13 +112,15 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
                 </div>
                 <div className={styles.tableCell}>
                   <TextField
+                    dataTestId="rule-resource"
                     placeholder="Enter the resource"
                     property={rule().resource}
                     errorText={rule().errors().errorsForDisplay("resource")}
                     required={true}/>
                 </div>
                 <div className={styles.tableCell}>
-                  <Buttons.Cancel onclick={this.removeRule.bind(this, vnode, rule)}>X</Buttons.Cancel>
+                  <Buttons.Cancel data-test-id="rule-delete"
+                                  onclick={this.removeRule.bind(this, vnode, rule)}>X</Buttons.Cancel>
                 </div>
               </div>;
             })
@@ -158,9 +158,9 @@ export class RulesInfoWidget extends MithrilViewComponent<Attrs> {
         rule().resource()
       ];
     });
-    return <div>
+    return <div data-test-id="rules-info">
       <h3>Rules</h3>
-      <div className={styles.rulesWrapper}>
+      <div data-test-id="rule-table" className={styles.rulesWrapper}>
         <Table headers={RulesInfoWidget.headers()} data={ruleData}/>
       </div>
     </div>;

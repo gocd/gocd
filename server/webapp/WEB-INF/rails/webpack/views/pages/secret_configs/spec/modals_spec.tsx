@@ -19,6 +19,7 @@ import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs"
 import {secretConfigsTestData, secretConfigTestData} from "models/secret_configs/spec/test_data";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {SecretPluginInfo} from "models/shared/plugin_infos_new/spec/test_data";
+import * as simulateEvent from "simulate-event";
 import {TestSecretConfigModal} from "views/pages/secret_configs/spec/test_modal";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -43,6 +44,7 @@ describe("SecretConfigModal", () => {
     expect(helper.findByDataTestId("form-field-input-plugin").get(0).children[0])
       .toContainText("File based secrets plugin");
 
+    expect(helper.findByDataTestId("rules-widget")).toBeInDOM();
     helper.unmount();
   });
 
@@ -98,6 +100,23 @@ describe("SecretConfigModal", () => {
 
       expect(helper.findByDataTestId("form-field-input-id")).toBeInDOM();
       expect(helper.findByDataTestId("form-field-input-id")).not.toBeDisabled();
+
+      helper.unmount();
+    });
+
+    it("should callback the add function when add new rule is clicked", () => {
+      const modal = new TestSecretConfigModal(stream(secretConfigs),
+                                              SecretConfig.fromJSON(secretConfigTestData()),
+                                              pluginInfos,
+                                              onSuccessfulSave);
+      helper.mount(modal.body.bind(modal));
+
+      expect(helper.findByDataTestId("rules-table-row").length).toBe(2);
+
+      const addRuleButton = helper.findByDataTestId("add-rule-button")[0];
+      simulateEvent.simulate(addRuleButton, "click");
+
+      expect(helper.findByDataTestId("rules-table-row").length).toBe(3);
 
       helper.unmount();
     });

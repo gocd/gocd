@@ -104,11 +104,9 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
             key={this.entity().id}/>
         </div>
       </div>
+      <RulesWidget rules={this.entity().rules}/>
       <div>
-        <RulesWidget rules={this.entity().rules}/>
-      </div>
-      <div>
-        <Buttons.Secondary onclick={this.addNewRule.bind(this)}>+ New Rule</Buttons.Secondary>
+        <Buttons.Secondary data-test-id="add-rule-button" onclick={this.addNewRule.bind(this)}>+ New Rule</Buttons.Secondary>
       </div>
     </div>;
   }

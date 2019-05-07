@@ -111,11 +111,33 @@ describe("SecretConfigsWidget", () => {
     const groups = helper.findByDataTestId("secret-configs-group");
 
     expect(groups.length).toEqual(2);
+    expect(helper.findByDataTestId("secret-config-description").eq(0).text())
+      .toEqual("This is used to lookup for secrets for the team X.");
     expect(helper.findIn(groups.eq(0), "key-value-value-plugin-id").text()).toEqual("cd.go.secrets.file");
     expect(helper.findIn(groups.eq(0), "key-value-value-id").text()).toEqual("file");
-
     expect(helper.findIn(groups.eq(1), "key-value-value-plugin-id").text()).toBe("cd.go.secrets.aws");
     expect(helper.findIn(groups.eq(1), "key-value-value-id").text()).toEqual("aws");
+
+  });
+
+  it("should list rules information for secrets", () => {
+    mount(secretConfigs, pluginInfos);
+    const table = helper.findByDataTestId("rule-table").eq(0);
+
+    const headerRow = helper.findIn(table, "table-header").find("th");
+    expect(headerRow.length).toEqual(3);
+    expect(headerRow.eq(0)).toContainText("Directive");
+    expect(headerRow.eq(1)).toContainText("Type");
+    expect(headerRow.eq(2)).toContainText("Resource");
+
+    const ruleBodyRow = helper.findIn(table, "table-body").find("td");
+    expect(ruleBodyRow.eq(0)).toContainText("allow");
+    expect(ruleBodyRow.eq(1)).toContainText("pipeline_group");
+    expect(ruleBodyRow.eq(2)).toContainText("DeployPipelines");
+
+    expect(ruleBodyRow.eq(3)).toContainText("deny");
+    expect(ruleBodyRow.eq(4)).toContainText("pipeline_group");
+    expect(ruleBodyRow.eq(5)).toContainText("TestPipelines");
   });
 
   it("should display info when no secret configs are present", () => {

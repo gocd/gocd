@@ -1,0 +1,97 @@
+<div class="config-container">
+  <div class="title-cont">
+    <h3 class="section-title">Tracking Tool Integration</h3>
+    <span title="Can be used to specify links to an issue tracker. Go will construct a link based on the commit message that you can use to take you to your tracking tool (Mingle card, JIRA issue, Trac issue etc)." class="contextual_help has_go_tip_right"></span>
+  </div>
+<%= form_for @pipeline, :as => :pipeline, :url => pipeline_update_path(:pipeline_name => @pipeline.name(), :current_tab => 'project_management'), :html => {:method => :put, :id => 'pipeline_edit_form'} do |f| %>
+    <div class="fieldset">
+        <%= md5_field %>
+        <div class="form_item_block checkbox_row">
+            <label>Tracking Tool</label>
+            <%= f.radio_button com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE, com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_NONE, :id => "pipeline_none", :title => 'None' %>
+            <%= f.label com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_NONE, 'None' %>
+            <%= f.radio_button com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE, com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_MINGLE, :id => "pipeline_mingle", :title => 'Mingle' %>
+            <%= f.label com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_MINGLE, 'Mingle' %>
+            <%= f.radio_button com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE, com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_TRACKING_TOOL, :id => "pipeline_trackingTool", :title => 'Custom' %>
+            <%= f.label com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_TRACKING_TOOL, 'Custom' %>
+        </div>
+        <div id="tracking_tool_container">
+            <%= f.fields_for com.thoughtworks.go.config.PipelineConfig::TRACKING_TOOL, @pipeline.trackingTool do |t| %>
+                <div class="form_item_block">
+                    <div class="form_item_block required">
+                        <%= required_label(t, :regex, 'Pattern')-%>
+                        <%= t.text_field :regex %>
+                        <div class="contextual_help has_go_tip_right" title="A regular expression to identify card or bug numbers from your checkin comments. <a class='' href='<%= docs_url '/integration/' %>' target='_blank'>More...</a>"></div>
+                        <%= error_message_on(@pipeline.trackingTool, com.thoughtworks.go.config.TrackingTool::REGEX, :css_class => "form_error") %>
+                    </div>
+                    <div class="form_item_block required">
+                        <%= required_label(t, :link, 'URI')-%>
+                        <%= t.text_field :link %>
+                        <div class="contextual_help has_go_tip_right" title="The URI to your tracking tool. This must contain the string ${ID} which will be replaced with the number identified using the pattern. <a class='' href='<%= docs_url '/integration/' %>' target='_blank'>More...</a>"></div>
+                        <%= error_message_on(@pipeline.trackingTool, com.thoughtworks.go.config.TrackingTool::LINK, :css_class => "form_error") %>
+                    </div>
+                </div>
+                <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
+            <% end %>
+        </div>
+        <div id="mingle_config_container">
+
+            <%= f.fields_for com.thoughtworks.go.config.PipelineConfig::MINGLE_CONFIG, @pipeline.mingleConfig do |m| %>
+                <div class="form_item_block">
+                    <div class="form_item_block required">
+                        <%= required_label(m, com.thoughtworks.go.config.MingleConfig::BASE_URL, 'URI')-%>
+                        <%= m.text_field com.thoughtworks.go.config.MingleConfig::BASE_URL %>
+                        <div class="contextual_help has_go_tip_right" title="Base URI to the Mingle installation (do not include the project name/identifier)"></div>
+                        <%= error_message_on(@pipeline.mingleConfig, com.thoughtworks.go.config.MingleConfig::BASE_URL, :css_class => "form_error") %>
+                    </div>
+                    <div class="form_item_block required">
+                        <%= required_label(m, com.thoughtworks.go.config.MingleConfig::PROJECT_IDENTIFIER, 'Project Identifier')-%>
+                        <%= m.text_field com.thoughtworks.go.config.MingleConfig::PROJECT_IDENTIFIER %>
+                        <div class="contextual_help has_go_tip_right" title="In Mingle, the project 'Identfier' can be found under the project's 'Project admin' tab in the section titled 'Basic Information'."></div>
+                        <%= error_message_on(@pipeline.mingleConfig, com.thoughtworks.go.config.MingleConfig::PROJECT_IDENTIFIER, :css_class => "form_error") %>
+                    </div>
+                    <%= m.fields_for com.thoughtworks.go.config.MingleConfig::MQL_GROUPING_CONDITIONS, @pipeline.mingleConfig.mqlCriteria do |mQ| %>
+                        <div class="form_item_block">
+                            <%= mQ.label com.thoughtworks.go.config.MqlCriteria::MQL, 'MQL Grouping Conditions' %>
+                            <div>
+                                <%= mQ.text_field com.thoughtworks.go.config.MqlCriteria::MQL %>
+                                <div class="contextual_help has_go_tip_right" title="A MQL string that determines the 'passing criteria' for cards displayed."></div>
+                                <%= error_message_on(@pipeline.mingleConfig.mqlCriteria, com.thoughtworks.go.config.MqlCriteria::MQL, :css_class => "form_error") %>
+                            </div>
+                        </div>
+                    <% end %>
+                </div>
+                <%= render :partial => 'shared/form_required_message.html', :locals => {:scope => {}} %>
+            <% end %>
+        </div>
+    </div>
+    <%= render :partial => "admin/shared/form_submit", :locals => {:scope => {:reset_url => pipeline_edit_path(:pipeline_name => params[:pipeline_name], :current_tab => 'project_management')}} %>
+    </div>
+<% end %>
+</div>
+</div>
+<script type="text/javascript">
+  Util.on_load(function() {
+        if (<%= @is_config_repo_pipeline %>) {
+          Util.disableAllFormElementsFor(".admin_wrapper");
+        }
+        setConfigurationType = function(element) {
+            var selected = jQuery(element).val();
+            if (selected == "<%=com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_NONE%>") {
+                showElement(jQuery("#tracking_tool_container"), false);
+                showElement(jQuery("#mingle_config_container"), false);
+            } else if (selected == "<%=com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_TRACKING_TOOL%>") {
+                showElement(jQuery("#tracking_tool_container"), true);
+                showElement(jQuery("#mingle_config_container"), false);
+            } else if (selected == "<%=com.thoughtworks.go.config.PipelineConfig::INTEGRATION_TYPE_MINGLE%>") {
+                showElement(jQuery("#tracking_tool_container"), false);
+                showElement(jQuery("#mingle_config_container"), true);
+            }
+        };
+        setConfigurationType(jQuery("input:[name='pipeline[integrationType]']:checked"));
+
+        jQuery("input:[name='pipeline[integrationType]']").click(function() {
+            setConfigurationType(this);
+        });
+    });
+</script>

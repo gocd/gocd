@@ -43,6 +43,8 @@ import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
 import org.mockito.Mockito;
+import org.springframework.web.util.UriComponents;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.File;
 import java.io.IOException;
@@ -386,8 +388,7 @@ public class GitMaterialTest {
     @Test
     void shouldLogRepoInfoToConsoleOutWithoutFolder() {
         git.updateTo(outputStreamConsumer, workingDir, new RevisionContext(GitTestRepo.REVISION_1), new TestSubprocessExecutionContext());
-        assertThat(outputStreamConsumer.getStdOut()).contains(String.format("Start updating %s at revision %s from %s", "files", GitTestRepo.REVISION_1.getRevision(),
-                git.getUrl()));
+        assertThat(outputStreamConsumer.getStdOut()).contains(String.format("Start updating %s at revision %s from %s", "files", GitTestRepo.REVISION_1.getRevision(), git.getUrl()));
     }
 
     @Test
@@ -579,5 +580,12 @@ public class GitMaterialTest {
 
     private void assertWorkingCopyNotCheckedOut(File localWorkingDir) {
         assertThat(localWorkingDir.listFiles()).isEqualTo(new File[]{new File(localWorkingDir, ".git")});
+    }
+
+    @Test
+    void name() {
+        final UriComponents build = UriComponentsBuilder.fromUriString("https://user:pass@domain.com##branch-name")
+                .build();
+
     }
 }

@@ -98,12 +98,14 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public GitMaterial(GitMaterialConfig config) {
-        this(toURLArgument(config.getUrl(), config.getUserName(), config.getPassword()), config.getBranch(), config.getFolder(), config.isShallowClone());
+        this(config.getUrl(), config.getBranch(), config.getFolder(), config.isShallowClone());
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
         this.name = config.getName();
         this.submoduleFolder = config.getSubmoduleFolder();
         this.invertFilter = config.getInvertFilter();
+        this.userName = config.getUserName();
+        setPassword(config.getPassword());
     }
 
     private static String toURLArgument(String url, String userName, String password) {
@@ -151,7 +153,7 @@ public class GitMaterial extends ScmMaterial {
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         try {
-            outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
+            outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url.originalArgument()));
             File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
             GitCommand git = git(outputStreamConsumer, workingDir, revisionContext.numberOfModifications() + 1, execCtx);
             git.fetch(outputStreamConsumer);

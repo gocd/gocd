@@ -23,6 +23,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 import java.util.List;
@@ -40,15 +41,25 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
     @SerializedName("auto_update")
     @Expose
     protected boolean autoUpdate = true;
+    @SerializedName("username")
+    @Expose
+    protected String username;
+    @SerializedName("password")
+    @Expose
+    protected String password;
+    @SerializedName("encrypted_password")
+    @Expose
+    protected String encryptedPassword;
 
     public CRScmMaterial() {
     }
 
-    public CRScmMaterial(String type, String materialName, String folder, boolean autoUpdate, boolean whitelist, List<String> filter) {
+    public CRScmMaterial(String type, String materialName, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filter) {
         super(type, materialName);
         this.destination = folder;
         this.filter = new CRFilter(filter, whitelist);
         this.autoUpdate = autoUpdate;
+        this.username = username;
     }
 
     public List<String> getFilterList() {
@@ -63,6 +74,11 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
         return false;
     }
 
+    @Override
+    public void getErrors(ErrorCollection errors, String parentLocation) {
+        validatePassword(errors, parentLocation);
+    }
+
     protected void getCommonErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
         if (this.filter != null)
@@ -73,4 +89,17 @@ public abstract class CRScmMaterial extends CRMaterial implements SourceCodeMate
         this.filter.setWhitelistNoCheck(Arrays.asList(filters));
     }
 
+    public boolean hasEncryptedPassword() {
+        return StringUtils.isNotBlank(encryptedPassword);
+    }
+
+    public boolean hasPlainTextPassword() {
+        return StringUtils.isNotBlank(password);
+    }
+
+    protected void validatePassword(ErrorCollection errors, String location) {
+        if (this.hasEncryptedPassword() && this.hasPlainTextPassword()) {
+            errors.addError(location, String.format("%s material has both plain-text and encrypted passwords set. Please set only one password.", typeName()));
+        }
+    }
 }

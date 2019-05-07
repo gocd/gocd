@@ -22,7 +22,6 @@ import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -33,24 +32,9 @@ public class CRP4Material extends CRScmMaterial {
 
     public static final String TYPE_NAME = "p4";
 
-    public static CRP4Material withEncryptedPassword(String name, String folder, boolean autoUpdate, boolean whitelist, List<String> filter, String serverAndPort, String userName, String encryptedPassword, boolean useTickets, String view) {
-        CRP4Material crp4Material = new CRP4Material(name, folder, autoUpdate, serverAndPort, view, userName, null, useTickets, whitelist, filter);
-        crp4Material.setEncryptedPassword(encryptedPassword);
-        return crp4Material;
-    }
-
     @SerializedName("port")
     @Expose
     private String port;
-    @SerializedName("username")
-    @Expose
-    private String username;
-    @SerializedName("password")
-    @Expose
-    private String password;
-    @SerializedName("encrypted_password")
-    @Expose
-    private String encryptedPassword;
     @SerializedName("use_tickets")
     @Expose
     private boolean useTickets;
@@ -58,21 +42,11 @@ public class CRP4Material extends CRScmMaterial {
     @Expose
     private String view;
 
-    public CRP4Material(String materialName, String folder, boolean autoUpdate, String serverAndPort, String view, String userName, String password, boolean useTickets, boolean whitelist, List<String> filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
+    public CRP4Material(String materialName, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filters, String serverAndPort, String view, boolean useTickets) {
+        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, username, filters);
         this.port = serverAndPort;
-        this.username = userName;
-        this.password = password;
         this.useTickets = useTickets;
         this.view = view;
-    }
-
-    public boolean hasEncryptedPassword() {
-        return StringUtils.isNotBlank(encryptedPassword);
-    }
-
-    public boolean hasPlainTextPassword() {
-        return StringUtils.isNotBlank(password);
     }
 
     @Override
@@ -80,20 +54,13 @@ public class CRP4Material extends CRScmMaterial {
         return TYPE_NAME;
     }
 
-
-    private void validatePassword(ErrorCollection errors, String location) {
-        if (this.hasEncryptedPassword() && this.hasPlainTextPassword()) {
-            errors.addError(location, "Svn material has both plain-text and encrypted passwords set. Please set only one password.");
-        }
-    }
-
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
+        super.getErrors(errors, location);
         getCommonErrors(errors, location);
         errors.checkMissing(location, "port", port);
         errors.checkMissing(location, "view", view);
-        validatePassword(errors, parentLocation);
     }
 
     @Override

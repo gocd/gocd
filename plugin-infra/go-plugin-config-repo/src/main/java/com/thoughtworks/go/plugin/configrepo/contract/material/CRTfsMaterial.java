@@ -21,9 +21,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -31,45 +29,21 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 public class CRTfsMaterial extends CRScmMaterial {
 
-    public static CRTfsMaterial withEncryptedPassword(String name, String directory, boolean autoUpdate,
-                                                      boolean whitelist, List<String> filter, String url, String domain, String username,
-                                                      String encrypted_password, String project) {
-        return new CRTfsMaterial(name, directory, autoUpdate, url, username, null, encrypted_password, project, domain, whitelist, filter);
-    }
-
-    public static CRTfsMaterial withPlainPassword(String name, String directory, boolean autoUpdate,
-                                                  boolean whitelist, List<String> filter, String url, String domain, String username,
-                                                  String password, String project) {
-        return new CRTfsMaterial(name, directory, autoUpdate, url, username, password, null, project, domain, whitelist, filter);
-    }
-
     public static final String TYPE_NAME = "tfs";
 
     @SerializedName("url")
     @Expose
     private String url;
-    @SerializedName("username")
-    @Expose
-    private String username;
     @SerializedName("domain")
     @Expose
     private String domain;
-    @SerializedName("password")
-    @Expose
-    private String password;
-    @SerializedName("encrypted_password")
-    @Expose
-    private String encryptedPassword;
     @SerializedName("project")
     @Expose
     private String project;
 
-    public CRTfsMaterial(String materialName, String folder, boolean autoUpdate, String url, String userName, String password, String encryptedPassword, String projectPath, String domain, boolean whitelist, List<String> filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
+    public CRTfsMaterial(String materialName, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filters, String url, String projectPath, String domain) {
+        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, username, filters);
         this.url = url;
-        this.username = userName;
-        this.password = password;
-        this.encryptedPassword = encryptedPassword;
         this.project = projectPath;
         this.domain = domain;
     }
@@ -79,23 +53,12 @@ public class CRTfsMaterial extends CRScmMaterial {
         return TYPE_NAME;
     }
 
-    public boolean hasEncryptedPassword() {
-        return StringUtils.isNotBlank(encryptedPassword);
-    }
-
-    public boolean hasPlainTextPassword() {
-        return StringUtils.isNotBlank(password);
-    }
-
-    private void validatePassword(ErrorCollection errors, String location) {
-        if (this.hasEncryptedPassword() && this.hasPlainTextPassword()) {
-            errors.addError(location, "Tfs material has both plain-text and encrypted passwords set. Please set only one password.");
-        }
-    }
-
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = this.getLocation(parentLocation);
+
+        super.getErrors(errors, parentLocation);
+
         getCommonErrors(errors, location);
         errors.checkMissing(location, "url", url);
         errors.checkMissing(location, "username", username);

@@ -36,11 +36,11 @@ public class CRHgMaterial extends CRScmMaterial {
     private String url;
 
     public CRHgMaterial() {
-        this(null, null, false, false, null, null);
+        this(null, null, true, false, null, null, null);
     }
 
-    public CRHgMaterial(String name, String folder, boolean autoUpdate, boolean whitelist, List<String> filter, String url) {
-        super(TYPE_NAME, name, folder, autoUpdate, whitelist, filter);
+    public CRHgMaterial(String name, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filter, String url) {
+        super(TYPE_NAME, name, folder, autoUpdate, whitelist, username, filter);
         this.url = url;
     }
 
@@ -52,6 +52,7 @@ public class CRHgMaterial extends CRScmMaterial {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
+        super.getErrors(errors, location);
         getCommonErrors(errors, location);
         errors.checkMissing(location, "url", url);
     }

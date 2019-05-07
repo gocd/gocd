@@ -35,9 +35,9 @@ public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
     private final CRGitMaterial invalidNoUrl;
     private final CRGitMaterial whitelistGit;
     private final CRGitMaterial invalidBothWhiteListAndIgnore;
+    private final CRGitMaterial invalidPasswordAndEncyptedPasswordSet;
 
-    public CRGitMaterialTest()
-    {
+    public CRGitMaterialTest() {
         simpleGit = new CRGitMaterial();
         simpleGit.setUrl(url1);
 
@@ -45,44 +45,47 @@ public class CRGitMaterialTest extends AbstractCRTest<CRGitMaterial> {
         simpleGitBranch.setUrl(url2);
         simpleGitBranch.setBranch("develop");
 
-        veryCustomGit = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",false, Arrays.asList("externals", "tools"));
-        whitelistGit = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",true, Arrays.asList("externals", "tools"));
+        veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), url1, "feature12", true);
+        whitelistGit = new CRGitMaterial("gitMaterial1", "dir1", false, true, null, Arrays.asList("externals", "tools"), url1, "feature12", true);
 
-        invalidNoUrl = new CRGitMaterial("gitMaterial1","dir1",false,true,null,"feature12",false, Arrays.asList("externals", "tools"));
-        invalidBothWhiteListAndIgnore = new CRGitMaterial("gitMaterial1","dir1",false,true,url1,"feature12",false, Arrays.asList("externals", "tools"));
-        invalidBothWhiteListAndIgnore.setWhitelistNoCheck("src","tests");
+        invalidNoUrl = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), null, "feature12", true);
+        invalidBothWhiteListAndIgnore = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), url1, "feature12", true);
+        invalidBothWhiteListAndIgnore.setWhitelistNoCheck("src", "tests");
+
+        invalidPasswordAndEncyptedPasswordSet = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), null, "feature12", true);
+        invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
+        invalidPasswordAndEncyptedPasswordSet.setEncryptedPassword("26t=$j64");
     }
 
     @Override
     public void addGoodExamples(Map<String, CRGitMaterial> examples) {
-        examples.put("simpleGit",simpleGit);
-        examples.put("simpleGitBranch",simpleGitBranch);
-        examples.put("veryCustomGit",veryCustomGit);
-        examples.put("whitelistGit",whitelistGit);
+        examples.put("simpleGit", simpleGit);
+        examples.put("simpleGitBranch", simpleGitBranch);
+        examples.put("veryCustomGit", veryCustomGit);
+        examples.put("whitelistGit", whitelistGit);
     }
 
     @Override
     public void addBadExamples(Map<String, CRGitMaterial> examples) {
-        examples.put("invalidNoUrl",invalidNoUrl);
-        examples.put("invalidBothWhiteListAndIgnore",invalidBothWhiteListAndIgnore);
+        examples.put("invalidNoUrl", invalidNoUrl);
+        examples.put("invalidBothWhiteListAndIgnore", invalidBothWhiteListAndIgnore);
     }
 
     @Test
-    public void shouldAppendTypeFieldWhenSerializingMaterials()
-    {
+    public void shouldAppendTypeFieldWhenSerializingMaterials() {
         CRMaterial value = veryCustomGit;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is(CRGitMaterial.TYPE_NAME));
     }
+
     @Test
-    public void shouldHandlePolymorphismWhenDeserializing()
-    {
+    public void shouldHandlePolymorphismWhenDeserializing() {
         CRMaterial value = veryCustomGit;
         String json = gson.toJson(value);
 
-        CRGitMaterial deserializedValue = (CRGitMaterial)gson.fromJson(json,CRMaterial.class);
+        CRGitMaterial deserializedValue = (CRGitMaterial) gson.fromJson(json, CRMaterial.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+                deserializedValue, is(value));
     }
 
 }

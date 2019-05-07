@@ -75,7 +75,7 @@ export const PipelineHeaderWidget = {
 
     let settingsButton;
     const analyticsIcons = [];
-    if (pipeline.canAdminister && !pipeline.isDefinedInConfigRepo()) {
+    if (pipeline.canAdminister) {
       const settingsPath = pipeline.settingsPath;
       settingsButton     = (<a class={`edit_config`} aria-label={`Edit Configuration for Pipeline ${pipeline.name}`}
                                title={'Edit Pipeline Configuration'} href={settingsPath}/>);

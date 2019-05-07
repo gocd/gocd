@@ -23,13 +23,10 @@ import com.thoughtworks.go.plugin.configrepo.contract.tasks.CRBuildTask;
 import org.hamcrest.MatcherAssert;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.TestUtils.contains;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.Matchers.is;
 
@@ -49,9 +46,7 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
         CRBuildTask rakeTask = CRBuildTask.rake();
         CRJob buildRake = new CRJob("build");
         buildRake.addTask(rakeTask);
-        final String[] strings = new String[]{"externals", "tools"};
-        final java.util.List<String> strings1 = asList(strings);
-        veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false, true, "gitrepo", "feature12", false, strings1);
+        veryCustomGit = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "gitrepo", "feature12", true);
 
         buildStage = new CRStage("build");
         buildStage.addJob(buildRake);
@@ -114,9 +109,7 @@ public class CRPipelineTest extends AbstractCRTest<CRPipeline> {
         CRPipeline p = new CRPipeline();
         p.setName("pipe4");
 
-        final String[] strings = new String[]{"externals", "tools"};
-        final java.util.List<String> strings1 = asList(strings);
-        CRGitMaterial invalidGit = new CRGitMaterial("gitMaterial1", "dir1", false, true, null, "feature12", false, strings1);
+        CRGitMaterial invalidGit = new CRGitMaterial("gitMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), null, "feature12", true);
         p.addMaterial(invalidGit);
         // plugin may voluntarily set this
         p.setLocation("pipe4.json");

@@ -34,50 +34,49 @@ public class CRTfsMaterialTest extends AbstractCRTest<CRTfsMaterial> {
     private final CRTfsMaterial invalidTfsNoProject;
     private final CRTfsMaterial invalidPasswordAndEncyptedPasswordSet;
 
-    public CRTfsMaterialTest()
-    {
-        simpleTfs = new CRTfsMaterial(null, null, false, "url1", "user1", null, null, "projectDir", null, false, null);
+    public CRTfsMaterialTest() {
+        simpleTfs = new CRTfsMaterial(null, null, false, false, "user1", null, "url1", "projectDir", null);
 
-        customTfs = new CRTfsMaterial("tfsMaterialName", "dir1", false,"url3","user4", "pass",null,"projectDir","example.com",false, Arrays.asList("tools", "externals"));
+        customTfs = new CRTfsMaterial("tfsMaterialName", "dir1", false, false, "user4", Arrays.asList("tools", "externals"), "url3", "projectDir", "example.com");
+        customTfs.setPassword("pass");
 
-        invalidTfsNoUrl = new CRTfsMaterial(null, null, false, null, "user1", null, null, "projectDir", null, false, null);
-        invalidTfsNoUser = new CRTfsMaterial(null, null, false, "url1", null, null, null, "projectDir", null, false, null);
-        invalidTfsNoProject = new CRTfsMaterial(null, null, false, "url1", "user1", null, null, null, null, false, null);
+        invalidTfsNoUrl = new CRTfsMaterial(null, null, false, false, "user1", null, null, "projectDir", null);
+        invalidTfsNoUser = new CRTfsMaterial(null, null, false, false, null, null, "url1", "projectDir", null);
+        invalidTfsNoProject = new CRTfsMaterial(null, null, false, false, "user1", null, "url1", null, null);
 
-        invalidPasswordAndEncyptedPasswordSet = new CRTfsMaterial(null, null, false, "url1", "user1", null, null, "projectDir", null, false, null);
+        invalidPasswordAndEncyptedPasswordSet = new CRTfsMaterial(null, null, false, false, "user1", null, "url1", "projectDir", null);
         invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
         invalidPasswordAndEncyptedPasswordSet.setEncryptedPassword("26t=$j64");
     }
 
     @Override
     public void addGoodExamples(Map<String, CRTfsMaterial> examples) {
-        examples.put("simpleTfs",simpleTfs);
-        examples.put("customTfs",customTfs);
+        examples.put("simpleTfs", simpleTfs);
+        examples.put("customTfs", customTfs);
     }
 
     @Override
     public void addBadExamples(Map<String, CRTfsMaterial> examples) {
-        examples.put("invalidTfsNoUrl",invalidTfsNoUrl);
-        examples.put("invalidTfsNoUser",invalidTfsNoUser);
-        examples.put("invalidTfsNoProject",invalidTfsNoProject);
+        examples.put("invalidTfsNoUrl", invalidTfsNoUrl);
+        examples.put("invalidTfsNoUser", invalidTfsNoUser);
+        examples.put("invalidTfsNoProject", invalidTfsNoProject);
     }
 
 
     @Test
-    public void shouldAppendTypeFieldWhenSerializingMaterials()
-    {
+    public void shouldAppendTypeFieldWhenSerializingMaterials() {
         CRMaterial value = customTfs;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is(CRTfsMaterial.TYPE_NAME));
     }
+
     @Test
-    public void shouldHandlePolymorphismWhenDeserializing()
-    {
+    public void shouldHandlePolymorphismWhenDeserializing() {
         CRMaterial value = customTfs;
         String json = gson.toJson(value);
 
-        CRTfsMaterial deserializedValue = (CRTfsMaterial)gson.fromJson(json,CRMaterial.class);
+        CRTfsMaterial deserializedValue = (CRTfsMaterial) gson.fromJson(json, CRMaterial.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+                deserializedValue, is(value));
     }
 }

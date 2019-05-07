@@ -23,7 +23,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Getter
@@ -43,11 +42,11 @@ public class CRGitMaterial extends CRScmMaterial {
     private boolean shallowClone;
 
     public CRGitMaterial() {
-        this(null, null, true, false, null, null, false, null);
+        this(null, null, true, false, null, null, null, null, false);
     }
 
-    public CRGitMaterial(String materialName, String folder, boolean autoUpdate, boolean shallowClone, String url, String branch, boolean whitelist, List<String> filters) {
-        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, filters);
+    public CRGitMaterial(String materialName, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filters, String url, String branch, boolean shallowClone) {
+        super(TYPE_NAME, materialName, folder, autoUpdate, whitelist, username, filters);
         this.url = url;
         this.branch = branch;
         this.shallowClone = shallowClone;
@@ -61,6 +60,7 @@ public class CRGitMaterial extends CRScmMaterial {
     @Override
     public void getErrors(ErrorCollection errors, String parentLocation) {
         String location = getLocation(parentLocation);
+        super.getErrors(errors, location);
         getCommonErrors(errors, location);
         errors.checkMissing(location, "url", url);
     }

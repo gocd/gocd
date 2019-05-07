@@ -31,46 +31,50 @@ public class CRHgMaterialTest extends AbstractCRTest<CRHgMaterial> {
     private final CRHgMaterial customHg;
     private final CRHgMaterial invalidHgNoUrl;
     private final CRHgMaterial invalidHgWhitelistAndIgnores;
+    private final CRHgMaterial invalidPasswordAndEncyptedPasswordSet;
 
-    public CRHgMaterialTest()
-    {
+    public CRHgMaterialTest() {
         simpleHg = new CRHgMaterial();
         simpleHg.setUrl("myHgRepo");
 
-        customHg = new CRHgMaterial("hgMaterial1", "dir1", false, false, Arrays.asList("externals", "tools"), "repos/myhg");
+        customHg = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg");
 
         invalidHgNoUrl = new CRHgMaterial();
-        invalidHgWhitelistAndIgnores = new CRHgMaterial("hgMaterial1", "dir1", false, false, Arrays.asList("externals", "tools"), "repos/myhg");
-        invalidHgWhitelistAndIgnores.setWhitelistNoCheck("src","tests");
+        invalidHgWhitelistAndIgnores = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg");
+        invalidHgWhitelistAndIgnores.setWhitelistNoCheck("src", "tests");
+
+        invalidPasswordAndEncyptedPasswordSet = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg");
+        invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
+        invalidPasswordAndEncyptedPasswordSet.setEncryptedPassword("26t=$j64");
     }
 
     @Override
     public void addGoodExamples(Map<String, CRHgMaterial> examples) {
-        examples.put("simpleHg",simpleHg);
-        examples.put("customHg",customHg);
+        examples.put("simpleHg", simpleHg);
+        examples.put("customHg", customHg);
     }
 
     @Override
     public void addBadExamples(Map<String, CRHgMaterial> examples) {
-        examples.put("invalidHgNoUrl",invalidHgNoUrl);
-        examples.put("invalidHgWhitelistAndIgnores",invalidHgWhitelistAndIgnores);
+        examples.put("invalidHgNoUrl", invalidHgNoUrl);
+        examples.put("invalidHgWhitelistAndIgnores", invalidHgWhitelistAndIgnores);
+        examples.put("invalidPasswordAndEncyptedPasswordSet", invalidPasswordAndEncyptedPasswordSet);
     }
 
     @Test
-    public void shouldAppendTypeFieldWhenSerializingMaterials()
-    {
+    public void shouldAppendTypeFieldWhenSerializingMaterials() {
         CRMaterial value = customHg;
-        JsonObject jsonObject = (JsonObject)gson.toJsonTree(value);
+        JsonObject jsonObject = (JsonObject) gson.toJsonTree(value);
         assertThat(jsonObject.get("type").getAsString(), is(CRHgMaterial.TYPE_NAME));
     }
+
     @Test
-    public void shouldHandlePolymorphismWhenDeserializing()
-    {
+    public void shouldHandlePolymorphismWhenDeserializing() {
         CRMaterial value = customHg;
         String json = gson.toJson(value);
 
-        CRHgMaterial deserializedValue = (CRHgMaterial)gson.fromJson(json,CRMaterial.class);
+        CRHgMaterial deserializedValue = (CRHgMaterial) gson.fromJson(json, CRMaterial.class);
         assertThat("Deserialized value should equal to value before serialization",
-                deserializedValue,is(value));
+                deserializedValue, is(value));
     }
 }

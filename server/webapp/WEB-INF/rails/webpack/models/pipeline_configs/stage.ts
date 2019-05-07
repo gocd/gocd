@@ -19,7 +19,7 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Job} from "./job";
-import {NameableSet, NonEmptyCollectionValidator} from "./nameable_set";
+import {NameableSet} from "./nameable_set";
 
 export enum ApprovalType {
   success = "success",
@@ -63,7 +63,7 @@ export class Stage extends ValidatableMixin {
     this.validateAssociated("approval");
 
     this.jobs = stream(new NameableSet(jobs));
-    this.validateWith(new NonEmptyCollectionValidator({message: `A stage must have at least one job.`}), "jobs");
+    this.validateNonEmptyCollection("jobs", {message: `A stage must have at least one job`});
     this.validateAssociated("jobs");
   }
 

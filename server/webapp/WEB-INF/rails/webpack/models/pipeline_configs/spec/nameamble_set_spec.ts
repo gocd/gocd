@@ -15,8 +15,7 @@
  */
 
 import {Errors} from "models/mixins/errors";
-import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import {Nameable, NameableSet, NonEmptyCollectionValidator} from "models/pipeline_configs/nameable_set";
+import {Nameable, NameableSet} from "models/pipeline_configs/nameable_set";
 
 describe("NameableSet", () => {
   it("determines equality based on `name()`", () => {
@@ -119,65 +118,6 @@ describe("NameableSet", () => {
     expect(s.toJSON()).toEqual([a.toApiPayload(), b.toApiPayload(), c.toApiPayload()]);
   });
 });
-
-describe("NonEmptyCollectionValidator", () => {
-  describe("validates that Iterables are not empty:", () => {
-    it("String", () => {
-      const t = new Thang();
-
-      expect(t.validate("string").hasErrors("string")).toBe(true);
-      expect(t.validate("string").errorsForDisplay("string")).toBe("this string is empty.");
-      t.string = "foo";
-      expect(t.validate("string").hasErrors("string")).toBe(false);
-      expect(t.validate("string").errorsForDisplay("string")).toBe("");
-    });
-
-    it("Array", () => {
-      const t = new Thang();
-
-      expect(t.validate("array").hasErrors("array")).toBe(true);
-      expect(t.validate("array").errorsForDisplay("array")).toBe("this array is empty.");
-      t.array = [1];
-      expect(t.validate("array").hasErrors("array")).toBe(false);
-      expect(t.validate("array").errorsForDisplay("array")).toBe("");
-    });
-
-    it("Map", () => {
-      const t = new Thang();
-
-      expect(t.validate("map").hasErrors("map")).toBe(true);
-      expect(t.validate("map").errorsForDisplay("map")).toBe("this map is empty.");
-      t.map = new Map<string, number>().set("a", 1);
-      expect(t.validate("map").hasErrors("map")).toBe(false);
-      expect(t.validate("map").errorsForDisplay("map")).toBe("");
-    });
-
-    it("Set", () => {
-      const t = new Thang();
-
-      expect(t.validate("set").hasErrors("set")).toBe(true);
-      expect(t.validate("set").errorsForDisplay("set")).toBe("this set is empty.");
-      t.set = new Set<number>([1]);
-      expect(t.validate("set").hasErrors("set")).toBe(false);
-      expect(t.validate("set").errorsForDisplay("set")).toBe("");
-    });
-  });
-});
-
-class Thang extends ValidatableMixin {
-  string: string = "";
-  map: Map<string, number> = new Map<string, number>();
-  array: number[] = [];
-  set: Set<number> = new Set<number>();
-
-  constructor() {
-    super();
-    this.validateWith(new NonEmptyCollectionValidator({message: "this string is empty"}), "string");
-    this.validateWith(new NonEmptyCollectionValidator({message: "this array is empty"}), "array");
-    this.validateWith(new NonEmptyCollectionValidator({message: "this map is empty"}), "map");
-    this.validateWith(new NonEmptyCollectionValidator({message: "this set is empty"}), "set");
-  }
-}
 
 class MockNameable implements Nameable {
   private static nextId: number = 0;

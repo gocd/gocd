@@ -53,6 +53,29 @@ class AssociatedListValidator extends Validator {
   }
 }
 
+class NonEmptyCollectionValidator<T = {}> extends Validator {
+  protected doValidate(entity: any, attr: string): void {
+    const property: Iterable<T> = ("function" === typeof entity[attr] ? entity[attr]() : entity[attr]) as Iterable<T>;
+
+    if (this.isEmpty(property)) {
+      entity.errors().add(attr, this.options.message || `${attr} cannot be empty`);
+    }
+  }
+
+  private isEmpty(i: Iterable<T>): boolean {
+    if ("string" === typeof i || "length" in i) {
+      return (i as { length: number }).length === 0;
+    }
+
+    if ("size" in i) {
+      return (i as { size: number }).size === 0;
+    }
+
+    // last resort
+    return Array.from(i).length === 0;
+  }
+}
+
 class PasswordPresenceValidator extends Validator {
   protected doValidate(entity: any, attr: string): void {
     if (s.isBlank(entity[attr]().value())) {
@@ -214,6 +237,10 @@ export class ValidatableMixin implements Validatable {
 
   validateUniquenessOf(attr: string, siblings: () => any[], options?: ValidatorOptions): void {
     this.validateWith(new UniquenessValidator(siblings, options), attr);
+  }
+
+  validateNonEmptyCollection(attr: string, options?: ValidatorOptions): void {
+    this.validateWith(new NonEmptyCollectionValidator(options), attr);
   }
 
   validateFormatOf(attr: string, format: RegExp, options?: ValidatorOptions): void {

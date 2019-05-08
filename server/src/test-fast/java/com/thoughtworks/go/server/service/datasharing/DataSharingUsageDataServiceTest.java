@@ -62,8 +62,8 @@ public class DataSharingUsageDataServiceTest {
         initMocks(this);
         service = new DataSharingUsageDataService(goConfigService, jobInstanceSqlMapDao, dataSharingUsageStatisticsReportingService);
         goConfig = GoConfigMother.configWithPipelines("p1", "p2");
-        goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("docker-profile", "docker-plugin"));
-        goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("ecs-profile", "ecs-plugin"));
+        goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("docker-profile", "prod-cluster"));
+        goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("ecs-profile", "prod-cluster"));
 
         PipelineConfig configRepoPipeline = PipelineConfigMother.createPipelineConfig("p3", "s1");
         JobConfig elasticJob1 = JobConfigMother.elasticJob("docker-profile");

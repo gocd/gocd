@@ -207,7 +207,7 @@ public class JobController {
             return;
         }
 
-        final String pluginId = jobAgentMetadata.elasticProfile().getPluginId();
+        final String pluginId = jobAgentMetadata.clusterProfile().getPluginId();
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
 
         if (pluginInfo != null && pluginInfo.getCapabilities().supportsAgentStatusReport()) {

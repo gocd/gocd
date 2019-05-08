@@ -184,7 +184,7 @@ public class JobControllerIntegrationTest {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
         ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, new Capabilities(false, true)));
 
-        ElasticProfile profile = new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", Collections.EMPTY_LIST);
+        ElasticProfile profile = new ElasticProfile("profile_id", "cluster_profile_id", Collections.EMPTY_LIST);
         ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.EMPTY_LIST);
 
         fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), profile, clusterProfile));
@@ -205,7 +205,7 @@ public class JobControllerIntegrationTest {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin_id", null, about, null, null, false);
         ElasticAgentMetadataStore.instance().setPluginInfo(new ElasticAgentPluginInfo(descriptor, null, null, null, null, new Capabilities(false, true)));
 
-        ElasticProfile profile = new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", Collections.EMPTY_LIST);
+        ElasticProfile profile = new ElasticProfile("profile_id", "cluster_profile_id", Collections.EMPTY_LIST);
         ClusterProfile clusterProfile = new ClusterProfile("cluster_profile_id", "plugin_id", Collections.EMPTY_LIST);
 
         fixture.addJobAgentMetadata(new JobAgentMetadata(job.getId(), profile, clusterProfile));

@@ -24,9 +24,9 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfileRepresenter;
 import com.thoughtworks.go.apiv2.elasticprofile.representers.ElasticProfilesRepresenter;
-import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
@@ -91,7 +91,7 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
     }
 
     public String index(Request request, Response response) throws IOException {
-        final PluginProfiles<ElasticProfile> elasticProfiles = elasticProfileService.getPluginProfiles();
+        final ElasticProfiles elasticProfiles = elasticProfileService.getPluginProfiles();
         return writerForTopLevelObject(request, response,
                 outputWriter -> ElasticProfilesRepresenter.toJSON(outputWriter, elasticProfiles));
     }
@@ -110,19 +110,13 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
     public String create(Request request, Response response) {
         final ElasticProfile elasticProfileToCreate = buildEntityFromRequestBody(request);
         haltIfEntityWithSameIdExists(elasticProfileToCreate);
-        populatePluginIdFromReferencedClusterProfile(elasticProfileToCreate);
+        ClusterProfile associatedClusterProfile = clusterProfilesService.findProfile(elasticProfileToCreate.getClusterProfileId());
+        haltIfSpecifiedClusterProfileDoesntExists(associatedClusterProfile, elasticProfileToCreate);
 
         final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         elasticProfileService.create(currentUsername(), elasticProfileToCreate, operationResult);
 
         return handleCreateOrUpdateResponse(request, response, elasticProfileToCreate, operationResult);
-    }
-
-    private void populatePluginIdFromReferencedClusterProfile(ElasticProfile elasticProfileToCreate) {
-        ClusterProfile associatedClusterProfile = clusterProfilesService.findProfile(elasticProfileToCreate.getClusterProfileId());
-        haltIfSpecifiedClusterProfileDoesntExists(associatedClusterProfile, elasticProfileToCreate);
-        elasticProfileToCreate.setPluginId(associatedClusterProfile.getPluginId());
-        elasticProfileToCreate.encryptSecureConfigurations();
     }
 
     public String update(Request request, Response response) {
@@ -138,7 +132,8 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
             throw haltBecauseEtagDoesNotMatch("elasticProfile", existingElasticProfile.getId());
         }
 
-        populatePluginIdFromReferencedClusterProfile(newElasticProfile);
+        ClusterProfile associatedClusterProfile = clusterProfilesService.findProfile(newElasticProfile.getClusterProfileId());
+        haltIfSpecifiedClusterProfileDoesntExists(associatedClusterProfile, newElasticProfile);
 
         final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         elasticProfileService.update(currentUsername(), etagFor(existingElasticProfile), newElasticProfile, operationResult);
@@ -180,8 +175,8 @@ public class ElasticProfileControllerV2 extends ApiController implements SparkSp
     }
 
     @Override
-    public Consumer<OutputWriter> jsonWriter(ElasticProfile elasticProfile) {
-        return writer -> ElasticProfileRepresenter.toJSON(writer, elasticProfile);
+    public Consumer<OutputWriter> jsonWriter(ElasticProfile elasticAgentProfileProfile) {
+        return writer -> ElasticProfileRepresenter.toJSON(writer, elasticAgentProfileProfile);
     }
 
     //this is done in command as well, keeping it here for early return instead of failing later during config update command.

@@ -69,7 +69,7 @@ class ReplaceElasticAgentInformationCommandTest {
         clusterProfiles = new ClusterProfiles();
         clusterProfiles.add(new ClusterProfile("cluster-id", pluginId));
         elasticProfiles = new ElasticProfiles();
-        elasticProfiles.add(new ElasticProfile("profile-id", pluginId));
+        elasticProfiles.add(new ElasticProfile("profile-id", "prod-cluster"));
 
         replaceElasticAgentInformationCommand = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, pluginDescriptor, pluginSettings);
 

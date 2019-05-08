@@ -17,12 +17,11 @@
 package com.thoughtworks.go.apiv2.elasticprofile.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.config.PluginProfiles;
-import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.spark.Routes;
 
 public class ElasticProfilesRepresenter {
-    public static void toJSON(OutputWriter writer, PluginProfiles<ElasticProfile> elasticProfiles) {
+    public static void toJSON(OutputWriter writer, ElasticProfiles elasticProfiles) {
             writer.addLinks(
                     outputLinkWriter -> outputLinkWriter
                             .addLink("self", Routes.ElasticProfileAPI.BASE)

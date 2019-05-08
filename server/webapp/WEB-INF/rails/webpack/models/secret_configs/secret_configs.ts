@@ -16,6 +16,7 @@
 
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
+import {Errors} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Rules} from "models/secret_configs/rules";
 import {SecretConfigJSON, SecretConfigsJSON} from "models/secret_configs/secret_configs_json";
@@ -28,7 +29,12 @@ export class SecretConfig extends ValidatableMixin {
   properties: Stream<Configurations>;
   rules: Stream<Rules>;
 
-  constructor(id: string, description: string, pluginId: string, properties: Configurations, rules: Rules) {
+  constructor(id: string,
+              description: string,
+              pluginId: string,
+              properties: Configurations,
+              rules: Rules,
+              errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
     this.id          = stream(id);
@@ -36,15 +42,17 @@ export class SecretConfig extends ValidatableMixin {
     this.pluginId    = stream(pluginId);
     this.properties  = stream(properties);
     this.rules       = stream(rules);
+    this.errors(errors);
     this.validatePresenceOf("id");
     this.validateIdFormat("id");
     this.validatePresenceOf("pluginId");
   }
 
   static fromJSON(data: SecretConfigJSON) {
+    const errors         = new Errors(data.errors);
     const configurations = Configurations.fromJSON(data.properties);
     const rules          = Rules.fromJSON(data.rules);
-    return new SecretConfig(data.id, data.description, data.plugin_id, configurations, rules);
+    return new SecretConfig(data.id, data.description, data.plugin_id, configurations, rules, errors);
   }
 
   toJSON(): object {

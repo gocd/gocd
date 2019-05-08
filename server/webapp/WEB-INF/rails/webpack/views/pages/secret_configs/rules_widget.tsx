@@ -19,8 +19,10 @@ import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
+import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
+import {AutocompleteField} from "views/components/forms/autocomplete";
+import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
 import * as styles from "views/pages/secret_configs/index.scss";
 
@@ -50,6 +52,9 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
   static directives() {
     return [
       {
+        id: "", text: "Select"
+      }
+      , {
         id: "deny", text: "Deny"
       }
       , {
@@ -61,20 +66,19 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
   static types() {
     return [
       {
+        id: "", text: "Select"
+      }
+      , {
         id: "pipeline_group", text: "Pipeline Group"
       }
     ];
   }
 
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
-    const maybeNoRulesWarningMessage = (!vnode.attrs.rules || vnode.attrs.rules().length === 0) ?
-      <FlashMessage type={MessageType.info}
-                    message="Configuring Rules is required to utilize this Secret Configuration. In absence of any rules, the secret configuration is denied access of any GoCD entities."/>
-      : null;
-
     return <div data-test-id="rules-widget">
       <h2>Rules </h2>
-      {maybeNoRulesWarningMessage}
+      <FlashMessage type={MessageType.info}
+                    message="Configuring Rules is required to utilize this Secret Configuration. In absence of any rules, the secret configuration is denied access of any GoCD entities."/>
       <div data-test-id="rules-table" className={styles.flexTable}>
         <div data-test-id="rules-table-header" className={styles.tableHeader}>
           {
@@ -102,7 +106,7 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
                 <div className={styles.tableCell}>
                   <SelectField
                     dataTestId="rule-type"
-                    property={rule().type}
+                    property={this.proxyType.bind(this, rule)}
                     required={true}
                     errorText={rule().errors().errorsForDisplay("type")}>
                     <SelectFieldOptions selected={rule().type()}
@@ -110,17 +114,18 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
                   </SelectField>
                 </div>
                 <div className={styles.tableCell}>
-                  <TextField
+                  <AutocompleteField
                     dataTestId="rule-resource"
-                    placeholder="Enter the resource"
                     property={rule().resource}
+                    provider={rule().getProvider()}
                     errorText={rule().errors().errorsForDisplay("resource")}
                     required={true}/>
                 </div>
                 <div className={styles.tableCell}>
-                  <button className={styles.iconDelete} data-test-id="rule-delete"
-                                  onclick={this.removeRule.bind(this, vnode, rule)}></button>
-
+                  <Buttons.Cancel data-test-id="rule-delete"
+                                  onclick={this.removeRule.bind(this, vnode, rule)}>
+                    <span className={styles.iconDelete}></span>
+                  </Buttons.Cancel>
                 </div>
               </div>;
             })
@@ -135,6 +140,15 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
     if (index !== -1) {
       vnode.attrs.rules().splice(index, 1);
     }
+  }
+
+  private proxyType(rule: Stream<Rule>, newType?: string): string {
+    if (!newType) {
+      return rule().type();
+    }
+    rule().type(newType);
+    rule().updateProvider();
+    return newType;
   }
 }
 

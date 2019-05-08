@@ -25,7 +25,7 @@ interface PipelineGroup {
 
 export interface PipelineGroupCache<G> {
   ready: () => boolean;
-  prime: (onComplete: () => void) => void;
+  prime: (onSuccess: () => void, onError?: () => void) => void;
   pipelineGroups: () => G[];
   failureReason: () => string | undefined;
   failed: () => boolean;
@@ -41,18 +41,19 @@ export class PipelineGroupsCache<G> implements PipelineGroupCache<G> {
     this.toPipelineGroup = toPipelineGroup;
   }
 
-  prime(onComplete: () => void, onError?: () => void) {
+  prime(onSuccess: () => void, onError?: () => void) {
     if (this.busy()) {
       return;
     }
 
     this.lock();
 
+    delete this.error;
+
     ApiRequestBuilder.GET(SparkRoutes.pipelineGroupsListPath(), ApiVersion.v1).then((res) => {
       res.do((s) => {
-        delete this.error;
         this.data = JSON.parse(s.body)._embedded.groups as PipelineGroup[];
-        onComplete();
+        onSuccess();
       }, (e) => {
         this.error = e.message;
         if (onError) {

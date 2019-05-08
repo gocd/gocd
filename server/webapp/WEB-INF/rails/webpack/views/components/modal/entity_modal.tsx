@@ -67,19 +67,19 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   }
 
   body(): m.Children {
-    if (this.errorMessage()) {
-      return (<FlashMessage type={MessageType.alert} message={this.errorMessage()}/>);
-    }
+    const flashMessage = this.errorMessage() ?
+      <FlashMessage type={MessageType.alert} message={this.errorMessage()}/> : null;
 
     if (!this.entity || this.isStale()) {
       return <div className={styles.spinnerWrapper}><Spinner/></div>;
     }
 
-    return (
+    return [
+      flashMessage,
       <div className={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
         {this.modalBody()}
       </div>
-    );
+    ];
   }
 
   buttons() {

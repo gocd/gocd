@@ -59,6 +59,21 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
     this.disableId        = disableId;
   }
 
+  operationError(errorResponse: any, statusCode: number) {
+    if (!this.hasErrors() && errorResponse.message) {
+      this.errorMessage(errorResponse.message);
+    } else {
+      this.errorMessage("");
+    }
+  }
+
+  hasErrors() {
+    if (this.entity().errors().hasErrors()) {
+      return true;
+    }
+    return this.entity().rules().filter((rule) => rule().errors().hasErrors()).length > 0;
+  }
+
   protected modalBody(): m.Children {
     const pluginList     = _.map(this.pluginInfos, (pluginInfo: PluginInfo<any>) => {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
@@ -116,7 +131,7 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
                                  entity().description(),
                                  pluginInfo.id,
                                  new Configurations([]),
-                                 new Rules()));
+                                 new Rules(stream(new Rule("deny", "refer", "pipeline_group", "")))));
   }
 
   protected parseJsonToEntity(json: object): SecretConfig {

@@ -16,10 +16,11 @@
 
 import * as _ from "lodash";
 import * as m from "mithril";
+import "mithril/promise/promise";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import * as events from "simulate-event";
-import {AutocompleteField, SuggestionProvider, SuggestionWriter} from "views/components/forms/autocomplete";
+import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {TestHelper} from "views/pages/spec/test_helper";
 import * as css from "../autocomplete.scss";
 
@@ -52,32 +53,41 @@ describe("AutocompleteField", () => {
     expect(model()).toBe("synergy");
   });
 
-  it("suggests an item by partial match", () => {
+  it("suggests an item by partial match", (done) => {
     const model: Stream<string> = stream();
-    helper.mount(() => {
-      return <AutocompleteField label="Business Speak" property={model} provider={new CrazyBusinessSpeakProvider()}/>;
+    const provider = new CrazyBusinessSpeakProvider();
+
+    provider.onFinally(() => {
+      expect(q(helper, `[role="listbox"]`).textContent).toBe("Synergy");
+      expect(q(helper, `[role="listbox"] mark`).textContent).toBe("Syn"); // highlight matching char
+      done();
     });
+
+    helper.mount(() => {
+      return <AutocompleteField label="Business Speak" property={model} provider={provider}/>;
+    });
+
     const input = q(helper, "input") as HTMLInputElement;
     expect(q(helper, `[role="listbox"]`).textContent).toBe("");
 
     input.value = "syn";
     events.simulate(input, "input");
-    expect(q(helper, `[role="listbox"]`).textContent).toBe("Synergy");
-    expect(q(helper, `[role="listbox"] mark`).textContent).toBe("Syn"); // highlight matching char
   });
 });
 
-class CrazyBusinessSpeakProvider implements SuggestionProvider {
-  getData(setData: SuggestionWriter): void {
-    setData([
-      "Alignment",
-      "Best of breed",
-      "Dynamism",
-      "It is what it is",
-      "Leverage",
-      "Synergy",
-      "Team Player",
-    ]);
+class CrazyBusinessSpeakProvider extends SuggestionProvider {
+  getData(): Promise<Awesomplete.Suggestion[]> {
+    return new Promise<Awesomplete.Suggestion[]>((resolve) => {
+      resolve([
+        "Alignment",
+        "Best of breed",
+        "Dynamism",
+        "It is what it is",
+        "Leverage",
+        "Synergy",
+        "Team Player",
+      ]);
+    });
   }
 }
 

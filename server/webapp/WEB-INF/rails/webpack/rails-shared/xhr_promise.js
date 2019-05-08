@@ -43,7 +43,7 @@
     // are some differences from the native `finally()`. See here:
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/finally#Description
     Promise.prototype.finally = function(callback) {
-      function invokeIgnoringArgs() { callback(); }
+      function invokeIgnoringArgs() { if ("function" === typeof callback) { callback(); } }
       return this.then(invokeIgnoringArgs, invokeIgnoringArgs);
     };
   }

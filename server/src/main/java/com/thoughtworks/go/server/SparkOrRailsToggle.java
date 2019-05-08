@@ -22,10 +22,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
-    public void usersPageUsingRails(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.USERS_PAGE_USING_RAILS, request);
-    }
-
     public void backupPageUsingRails(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.BACKUP_PAGE_USING_RAILS, request);
     }

@@ -44,7 +44,6 @@ $(() => {
     const canViewTemplates           = extractBoolean(body, "data-can-user-view-templates");
     const isAnonymous                = extractBoolean(body, "data-user-anonymous");
     const isServerInMaintenanceMode  = extractBoolean(body, "data-is-server-in-maintenance-mode");
-    const enableAdminAccessTokensSPA = extractBoolean(body, "data-enable-admin-access-tokens-spa");
     const userDisplayName            = body.getAttribute("data-user-display-name") || "";
     const showSecretConfigSpa        = extractBoolean(body, "data-show-secret-config-spa");
 
@@ -61,7 +60,6 @@ $(() => {
       canViewTemplates,
       userDisplayName,
       isAnonymous,
-      enableAdminAccessTokensSPA ,
       showSecretConfigSpa
     } as Attrs;
 

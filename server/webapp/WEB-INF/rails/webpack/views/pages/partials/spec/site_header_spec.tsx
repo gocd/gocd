@@ -43,7 +43,6 @@ describe("Site Header", () => {
             isUserAdmin: false,
             canViewAdminPage: false,
             showAnalyticsDashboard: false,
-            enableAdminAccessTokensSPA: false,
             showSecretConfigSpa: false
           });
     expect(helper.find(`.${styles.userLink}`)).toHaveText("Jon Doe");
@@ -62,7 +61,6 @@ describe("Site Header", () => {
             isUserAdmin: false,
             canViewAdminPage: false,
             showAnalyticsDashboard: false,
-            enableAdminAccessTokensSPA: false,
             showSecretConfigSpa: false
           });
     expect(helper.find(`.${styles.userLink}`)).not.toBeInDOM();
@@ -81,7 +79,6 @@ describe("Site Header", () => {
             isUserAdmin: true,
             canViewAdminPage: true,
             showAnalyticsDashboard: false,
-            enableAdminAccessTokensSPA: false,
             showSecretConfigSpa: true
           });
     expect(findMenuItem("/go/admin/secret_configs")).toBeInDOM();
@@ -96,7 +93,6 @@ describe("Site Header", () => {
             isUserAdmin: true,
             canViewAdminPage: true,
             showAnalyticsDashboard: false,
-            enableAdminAccessTokensSPA: false,
             showSecretConfigSpa: false
           });
     expect(findMenuItem("/go/admin/secret_configs")).not.toBeInDOM();

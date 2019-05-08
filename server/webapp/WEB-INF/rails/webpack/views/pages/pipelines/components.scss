@@ -17,6 +17,7 @@
 @import "../../global/common";
 @import "task_terminal";
 @import "../../components/forms/autocomplete";
+@import "../../components/buttons/index";
 
 $diagram-width: 485px;
 
@@ -167,5 +168,38 @@ $diagram-width: 485px;
     }
 
     .details { display: block; }
+  }
+}
+
+.switch-label-text {
+  font-weight: normal;
+  cursor: pointer;
+}
+
+$btn-finish: #6eb642;
+
+.btn-primary:hover {
+  background-color: $btn-finish;
+  border-color: $btn-finish;
+}
+
+.btn-secondary {
+  @include button($background-color: $white);
+
+  color: $btn-primary;
+  border: 1px solid $btn-primary;
+
+  &:hover {
+    color: $btn-finish;
+    background-color: $white;
+    border-color: $btn-finish;
+  }
+}
+
+.btn-cancel {
+  border: 1px solid $btn-reset;
+  &:hover {
+    background-color: $btn-reset;
+    color: $white;
   }
 }

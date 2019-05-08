@@ -16,9 +16,10 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {Approval, ApprovalType, Stage} from "models/pipeline_configs/stage";
+import {Stage} from "models/pipeline_configs/stage";
 import {Form, FormBody} from "views/components/forms/form";
 import {TextField} from "views/components/forms/input_fields";
+import {SwitchBtn} from "views/components/switch/index";
 import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
@@ -31,26 +32,18 @@ interface Attrs {
 export class StageEditor extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const stage = vnode.attrs.stage;
+
     return <FormBody>
       <Form last={true} compactForm={true}>
         <TextField label="Stage Name" placeholder="e.g., Test-and-Report" required={true} property={stage.name} errorText={stage.errors().errorsForDisplay("name")}/>
         <AdvancedSettings>
-          <div class={css.approvalTypeSelectors}>
-            <label>This stage runs:</label>
-            <input class={css.approvalTypeSelector} type="radio" checked={stage.approval().isSuccessType()} value="success" onclick={this.changeApprovalType.bind(this, ApprovalType.success, stage.approval())} />
-            <label>Automatically</label>
-            <input class={css.approvalTypeSelector} type="radio" checked={!stage.approval().isSuccessType()} value="manual" onclick={this.changeApprovalType.bind(this, ApprovalType.manual, stage.approval())} />
-            <label>Manually</label>
-            <Tooltip.Help size={TooltipSize.medium}
-                          content="Automatically or Manually trigger your stage to run after preceding stage completes" />
-          </div>
+
+          <SwitchBtn label={<div class={css.switchLabelText}>
+            Automatically run this stage on upstream changes
+            <Tooltip.Help size={TooltipSize.medium} content="Enabling this means that this stage will automatically run when code is updated or its preceding or upstream stage passes. Disabling this means you must trigger this stage manually."/>
+          </div>} field={stage.approval().state} small={true}/>
         </AdvancedSettings>
       </Form>
     </FormBody>;
-  }
-
-  changeApprovalType(type: ApprovalType, approval: Approval, event: Event) {
-    event.stopPropagation();
-    approval.type(type);
   }
 }

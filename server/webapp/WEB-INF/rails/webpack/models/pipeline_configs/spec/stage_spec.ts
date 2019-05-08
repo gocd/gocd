@@ -34,7 +34,7 @@ describe("Stage model", () => {
     expect(stage.errors().keys()).toEqual(["name"]);
   });
 
-  it("validate name format", () => {
+  it("validates name format", () => {
     const stage = new Stage("my awesome stage that has a terrible name", [validJob()]);
     expect(stage.isValid()).toBe(false);
     expect(stage.errors().count()).toBe(1);
@@ -48,6 +48,17 @@ describe("Stage model", () => {
     expect(stage.errors().count()).toBe(1);
     expect(stage.errors().keys()).toEqual(["jobs"]);
     expect(stage.errors().errorsForDisplay("jobs")).toBe("A stage must have at least one job.");
+  });
+
+  it("approval state allows toggling between automatic and manual approval types", () => {
+    const stage = new Stage("foo", [validJob()]);
+    expect(stage.toApiPayload().approval.type).toBe("success"); // default setting
+
+    stage.approval().state(false);
+    expect(stage.toApiPayload().approval.type).toBe("manual");
+
+    stage.approval().state(true);
+    expect(stage.toApiPayload().approval.type).toBe("success");
   });
 
   it("should serialize correctly", () => {

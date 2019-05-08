@@ -54,6 +54,7 @@ $form-failed-field-background-color: lighten($form-failed-color, 35%);
   height:           $form-element-height;
   line-height:      $form-element-height;
   padding:          0 10px;
+  margin-right:     5px;
   font-size:        14px;
   background-color: $form-control-background-color;
   background-clip:  padding-box;
@@ -113,7 +114,8 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
 }
 
 .form-input-reset {
-  margin: 5px 0 0 0;
+  margin: 5px 0 0;
+  display: inline-block;
 }
 
 .text-area {

@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.newsecurity.filters;
 
 import com.thoughtworks.go.config.SecurityAuthConfig;
 import com.thoughtworks.go.domain.AccessToken;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.handlers.renderer.ContentTypeNegotiationMessageRenderer;
 import com.thoughtworks.go.server.newsecurity.models.AccessTokenCredential;
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken;
@@ -39,6 +40,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,6 +50,7 @@ import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 @Component
 public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    protected final Logger ACCESS_TOKEN_LOGGER = LoggerFactory.getLogger(AccessToken.class);
     private static final String BAD_CREDENTIALS_MSG = "Invalid Personal Access Token.";
     protected final SecurityService securityService;
     private SecurityAuthConfigService securityAuthConfigService;
@@ -124,11 +127,21 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } else {
             accessTokenService.updateLastUsedCacheWith(accessTokenCredential.getAccessToken());
-            LOGGER.debug("authenticating user {} using bearer token", accessTokenCredential.getAccessToken().getUsername());
+            ACCESS_TOKEN_LOGGER.debug("[Bearer Token Authentication] Authenticating bearer token for: " +
+                            "GoCD User: '{}'. " +
+                            "GoCD API endpoint: '{}', " +
+                            "API Client: '{}', " +
+                            "Is Admin Scoped Token: '{}', " +
+                            "Current Time: '{}'."
+                    , accessTokenCredential.getAccessToken().getUsername()
+                    , request.getRequestURI()
+                    , request.getHeader("User-Agent")
+                    , securityService.isUserAdmin(new Username(accessTokenCredential.getAccessToken().getUsername()))
+                    , new Timestamp(System.currentTimeMillis()));
+
             try {
                 SecurityAuthConfig authConfig = securityAuthConfigService.findProfile(accessTokenCredential.getAccessToken().getAuthConfigId());
                 final AuthenticationToken<AccessTokenCredential> authenticationToken = authenticationProvider.authenticateUser(accessTokenCredential, authConfig);
-
                 if (authenticationToken == null) {
                     onAuthenticationFailure(request, response, BAD_CREDENTIALS_MSG);
                 } else {

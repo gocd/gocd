@@ -1,6 +1,0 @@
-<span id="add_error_message">
-    <% if @warning_message -%>
-        <p><%= @warning_message -%></p>
-    <% end -%>
-</span>
-<%= render :partial => 'admin/users/user_results_table', :locals => {:scope => {:users => @users }} %>

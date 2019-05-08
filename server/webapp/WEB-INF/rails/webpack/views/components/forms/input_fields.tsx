@@ -36,7 +36,7 @@ export interface RequiredFieldAttr {
 }
 
 interface LabelAttr extends RequiredFieldAttr {
-  label?: string;
+  label?: m.Children;
 }
 
 interface ErrorTextAttr {

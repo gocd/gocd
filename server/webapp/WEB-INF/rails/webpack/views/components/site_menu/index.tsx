@@ -132,7 +132,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
       <SiteNavItem href="/go/analytics" text="Analytics"/> : null;
 
     let adminMenu = null;
-    let linkToAccessTokenManagementSPA = <SiteSubNavItem href="/go/admin/admin_access_tokens" text="Access Tokens Management"/>;
+    const linkToAccessTokenManagementSPA = <SiteSubNavItem href="/go/admin/admin_access_tokens" text="Access Tokens Management"/>;
 
     let linkToSecretConfigSPA;
     if (vnode.attrs.showSecretConfigSpa) {

@@ -258,13 +258,6 @@ Rails.application.routes.draw do
 
   scope :api, as: :apiv2, format: false do
     api_version(:module => 'ApiV2', header: {name: 'Accept', value: 'application/vnd.go.cd.v2+json'}) do
-      namespace :admin do
-        resources :environments, param: :name, only: [:show, :destroy, :create, :index], constraints: {:name => ENVIRONMENT_NAME_FORMAT}
-        patch 'environments/:name', to: 'environments#patch', constraints: {:name => ENVIRONMENT_NAME_FORMAT}
-        put 'environments/:name', to: 'environments#put', constraints: {:name => ENVIRONMENT_NAME_FORMAT}
-      end
-
-
       # These user routes are intentionally left behind for url helpers. These will actually be pointing to v3 in spark.
       resources :users, param: :login_name, only: [:create, :index, :show, :destroy], constraints: {login_name: /(.*?)/}
       delete 'users', controller: 'users', action: 'bulk_delete'

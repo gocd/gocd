@@ -24,6 +24,7 @@ import * as Buttons from "views/components/buttons/index";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
 import {Ellipsize} from "views/components/ellipsize";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 import {Form} from "views/components/forms/form";
 import {
@@ -45,6 +46,7 @@ import {Table, TableSortHandler} from "views/components/table";
 import * as Tooltip from "views/components/tooltip";
 import {TooltipSize} from "views/components/tooltip";
 
+let type               = "a";
 const formValue        = stream("initial value");
 const searchFieldValue = stream("");
 const checkboxField    = stream(false);
@@ -58,7 +60,10 @@ const switchStream: Stream<boolean> = stream(false);
 const reallyLongText                = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
 
 export class KitchenSink extends MithrilViewComponent<null> {
+  provider: DynamicSuggestionProvider = new DynamicSuggestionProvider(type);
+
   view(vnode: m.Vnode<null>) {
+    const model: Stream<string> = stream();
     return (
       <div>
         <HeaderPanel title="Kitchen Sink" sectionName={"Admin"}/>
@@ -280,8 +285,24 @@ export class KitchenSink extends MithrilViewComponent<null> {
             <Ellipsize text={reallyLongText} fixed={true}/>
           </div>,
           "Content for two"]}/>
+
+        <br/>
+        <h3>Dynamic autocomplete</h3>
+        <AutocompleteField label="Dynamic" property={model} provider={this.provider}/>
+
+        <Buttons.Primary onclick={this.toggleType.bind(this)}>Click to change type!</Buttons.Primary>
       </div>
     );
+  }
+
+  toggleType() {
+    if (type === "a") {
+      type = "b";
+    } else {
+      type = "a";
+    }
+    this.provider.setType(type);
+    this.provider.update();
   }
 
   private createModal(size: Size) {
@@ -326,3 +347,36 @@ class DummyTableSortHandler extends TableSortHandler {
 }
 
 const tableSortHandler = new DummyTableSortHandler();
+
+class DynamicSuggestionProvider extends SuggestionProvider {
+  private type: string;
+
+  constructor(type: string) {
+    super();
+    this.type = type;
+  }
+
+  setType(value: string) {
+    this.type = value;
+  }
+
+  getData(): Promise<Awesomplete.Suggestion[]> {
+    if (this.type === "a") {
+      return new Promise<Awesomplete.Suggestion[]>((resolve) => {
+        resolve([
+                  "first", "second", "third", "fourth"
+                ]);
+      });
+    } else if (this.type === "b") {
+      return new Promise<Awesomplete.Suggestion[]>((resolve) => {
+        resolve([
+                  "input", "div", "span", "select", "button"
+                ]);
+      });
+    }
+
+    return new Promise<Awesomplete.Suggestion[]>((resolve) => {
+      resolve([]);
+    });
+  }
+}

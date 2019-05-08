@@ -50,6 +50,7 @@ import static org.apache.http.HttpStatus.SC_UNAUTHORIZED;
 @Component
 public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    protected final Logger ACCESS_TOKEN_LOGGER = LoggerFactory.getLogger(AccessToken.class);
     private static final String BAD_CREDENTIALS_MSG = "Invalid Personal Access Token.";
     protected final SecurityService securityService;
     private SecurityAuthConfigService securityAuthConfigService;
@@ -126,12 +127,12 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } else {
             accessTokenService.updateLastUsedCacheWith(accessTokenCredential.getAccessToken());
-            LOGGER.debug("[Bearer Token Authentication] Authenticating bearer token for: " +
-                            "\n GoCD User:             '{}'." +
-                            "\n GoCD API endpoint:     '{}'," +
-                            "\n API Client:            '{}'," +
-                            "\n Is Admin Scoped Token: '{}'," +
-                            "\n Current Time:          '{}'"
+            ACCESS_TOKEN_LOGGER.debug("[Bearer Token Authentication] Authenticating bearer token for: " +
+                            "GoCD User: '{}'. " +
+                            "GoCD API endpoint: '{}', " +
+                            "API Client: '{}', " +
+                            "Is Admin Scoped Token: '{}', " +
+                            "Current Time: '{}'."
                     , accessTokenCredential.getAccessToken().getUsername()
                     , request.getRequestURI()
                     , request.getHeader("User-Agent")

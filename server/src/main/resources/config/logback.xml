@@ -79,6 +79,7 @@
 
   <logger name="com.thoughtworks.go" level="INFO"/>
   <logger name="com.thoughtworks.go.server.Rails" level="WARN"/>
+  <logger name="com.thoughtworks.go.domain.AccessToken" level="DEBUG"/>
 
   <!-- make sure this is the last line in the config -->
   <include optional="true" file="${cruise.config.dir:-config}/logback-include.xml"/>

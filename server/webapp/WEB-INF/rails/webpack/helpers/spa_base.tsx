@@ -101,7 +101,6 @@ export default abstract class Page {
       const canViewTemplates           = this.extractBoolean(body, "data-can-user-view-templates");
       const isAnonymous                = this.extractBoolean(body, "data-user-anonymous");
       const isServerInMaintenanceMode  = this.extractBoolean(body, "data-is-server-in-maintenance-mode");
-      const enableAdminAccessTokensSPA = this.extractBoolean(body, "data-enable-admin-access-tokens-spa");
       const showSecretConfigSpa        = this.extractBoolean(body, "data-show-secret-config-spa");
       const userDisplayName            = body.getAttribute("data-user-display-name") || "";
 
@@ -118,7 +117,6 @@ export default abstract class Page {
         canViewTemplates,
         userDisplayName,
         isAnonymous,
-        enableAdminAccessTokensSPA,
         showSecretConfigSpa
       };
 

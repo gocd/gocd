@@ -61,8 +61,9 @@ describe("Site Menu", () => {
     expect(findMenuItem("/go/admin/package_repositories/new")).toHaveText("Package Repositories");
     expect(findMenuItem("/go/admin/security/auth_configs")).toHaveText("Authorization Configuration");
     expect(findMenuItem("/go/admin/security/roles")).toHaveText("Role configuration");
+    expect(findMenuItem("/go/admin/admin_access_tokens")).toHaveText("Access Tokens Management");
     expect(helper.find(`a.${styles.siteNavLink}`)).toHaveLength(4);
-    expect(helper.find(`a.${styles.siteSubNavLink}`)).toHaveLength(17);
+    expect(helper.find(`a.${styles.siteSubNavLink}`)).toHaveLength(18);
   });
 
   it("should display the menus for users who can view templates", () => {

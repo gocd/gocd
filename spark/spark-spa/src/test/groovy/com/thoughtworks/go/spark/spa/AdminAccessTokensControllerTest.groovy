@@ -16,26 +16,14 @@
 
 package com.thoughtworks.go.spark.spa
 
-import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
-import com.thoughtworks.go.server.service.support.toggle.Toggles
+
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 
-import static org.mockito.Mockito.mock
-import static org.mockito.Mockito.when
-
 class AdminAccessTokensControllerTest implements ControllerTrait<AdminAccessTokensController>, SecurityServiceTrait {
-
-  @BeforeEach
-  void setUp() {
-    def featureToggleService = mock(FeatureToggleService.class)
-    when(featureToggleService.isToggleOn(Toggles.ENABLE_ADMIN_ACCESS_TOKENS_SPA)).thenReturn(true)
-    Toggles.initializeWith(featureToggleService)
-  }
 
   @Override
   AdminAccessTokensController createControllerInstance() {

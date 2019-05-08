@@ -22,11 +22,6 @@
         "value": false
       },
       {
-        "key": "enable_admin_access_tokens_spa",
-        "description": "Show admin access token SPA in menu for admin.",
-        "value": true
-      },
-      {
         "key": "new_add_pipeline_flow",
         "description": "New add pipeline flow.",
         "value": false

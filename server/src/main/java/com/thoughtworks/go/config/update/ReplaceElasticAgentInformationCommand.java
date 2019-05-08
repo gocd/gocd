@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.UpdateConfigCommand;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
-import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
@@ -27,7 +26,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.service.ClusterProfilesService;
 import com.thoughtworks.go.server.service.ElasticProfileService;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,7 +49,7 @@ public class ReplaceElasticAgentInformationCommand implements UpdateConfigComman
         String pluginId = pluginDescriptor.id();
 
         List<ClusterProfile> clusterProfiles = clusterProfilesService.getPluginProfiles().findByPluginId(pluginId);
-        List<ElasticProfile> elasticAgentProfiles = elasticProfileService.findElasticAgentProfilesByPluginId(pluginId);
+        List<ElasticProfile> elasticAgentProfiles = elasticProfileService.getPluginProfiles().findByPluginId(pluginId);
 
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
 

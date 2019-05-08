@@ -108,8 +108,8 @@ class DeleteClusterProfileCommandTest {
     void shouldNotAllowDeletionOfClusterProfileWhenReferencedFromElasticAgentProfile() {
         assertThat(result.message()).isEqualTo(null);
 
-        ElasticProfile dependentElasticAgentProfile1 = new ElasticProfile("profile1", clusterProfile.getId());
-        ElasticProfile dependentElasticAgentProfile2 = new ElasticProfile("profile2", clusterProfile.getId());
+        ElasticProfile dependentElasticAgentProfile1 = new ElasticProfile("profile1", "pluginId", clusterProfile.getId());
+        ElasticProfile dependentElasticAgentProfile2 = new ElasticProfile("profile2", "pluginId", clusterProfile.getId());
         config.getElasticConfig().getProfiles().add(dependentElasticAgentProfile1);
         config.getElasticConfig().getProfiles().add(dependentElasticAgentProfile2);
 

@@ -48,7 +48,7 @@ class ElasticProfileRepresenterTest {
         ]
       ]
 
-      def expectedObject = new ElasticProfile('docker', 'foo', create('DockerURI', false, 'http://foo'))
+      def expectedObject = new ElasticProfile('docker', null, 'foo', create('DockerURI', false, 'http://foo'))
 
       def jsonReader = GsonTransformer.instance.jsonReaderFrom(elasticProfile)
       def object = ElasticProfileRepresenter.fromJSON(jsonReader)
@@ -58,7 +58,7 @@ class ElasticProfileRepresenterTest {
 
     @Test
     void shouldAddErrorsToJson() {
-      def elasticProfile = new ElasticProfile('docker', 'foo', create('DockerURI', false, 'http://foo'))
+      def elasticProfile = new ElasticProfile('docker', null, 'foo', create('DockerURI', false, 'http://foo'))
       elasticProfile.addError("pluginId", "Invalid Plugin Id")
 
       def expectedJson = [

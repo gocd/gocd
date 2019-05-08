@@ -16,12 +16,9 @@
 
 package com.thoughtworks.go.plugin.access.elastic.v5;
 
-import com.thoughtworks.go.config.elastic.ClusterProfile;
-import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.plugin.access.elastic.DataConverter;
 import com.thoughtworks.go.plugin.access.elastic.models.ElasticAgentInformation;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 class ElasticAgentInformationConverterV5 implements DataConverter<ElasticAgentInformation, ElasticAgentInformationDTO> {
@@ -34,16 +31,6 @@ class ElasticAgentInformationConverterV5 implements DataConverter<ElasticAgentIn
     public ElasticAgentInformationDTO toDTO(ElasticAgentInformation elasticAgentInformation) {
         return new ElasticAgentInformationDTO(elasticAgentInformation.getPluginSettings(),
                 elasticAgentInformation.getClusterProfiles().stream().map(clusterProfile -> new ClusterProfileDTO(clusterProfile.getId(), clusterProfile.getPluginId(), clusterProfile.getConfigurationAsMap(true))).collect(Collectors.toList()),
-                elasticAgentInformation.getElasticAgentProfiles().stream().map(elasticProfile -> new ElasticProfileDTO(elasticProfile.getId(), findPluginIdFromReferencedCluster(elasticAgentInformation.getClusterProfiles(), elasticProfile), elasticProfile.getClusterProfileId(), elasticProfile.getConfigurationAsMap(true))).collect(Collectors.toList()));
-    }
-
-    private String findPluginIdFromReferencedCluster(List<ClusterProfile> clusterProfiles, ElasticProfile elasticProfile) {
-        for (ClusterProfile clusterProfile : clusterProfiles) {
-            if (clusterProfile.getId().equals(elasticProfile.getClusterProfileId())) {
-                return clusterProfile.getPluginId();
-            }
-        }
-
-        throw new RuntimeException(String.format("No Cluster Profile exists with the specified cluster_profile_id '%s' for Elastic Agent Profile '%s'.", elasticProfile.getClusterProfileId(), elasticProfile.getId()));
+                elasticAgentInformation.getElasticAgentProfiles().stream().map(elasticProfile -> new ElasticProfileDTO(elasticProfile.getId(), elasticProfile.getPluginId(), elasticProfile.getClusterProfileId(), elasticProfile.getConfigurationAsMap(true))).collect(Collectors.toList()));
     }
 }

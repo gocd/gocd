@@ -1315,40 +1315,6 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind-docker-compose")).isNotNull();
     }
 
-    @Test
-    public void shouldRemovePluginIdFromAgentProfilesMigration122() throws Exception {
-        String configContent = "<elastic jobStarvationTimeout=\"1\">\n" +
-                "    <agentProfiles>\n" +
-                "      <agentProfile clusterProfileId=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" id=\"ecs-gocd-dev-build-dind\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
-                "        <property>\n" +
-                "          <key>Image</key>\n" +
-                "          <value>docker.gocd.io/gocddev/gocd-dev-build:centos-7-v2.0.67</value>\n" +
-                "        </property>\n" +
-                "      </agentProfile>\n" +
-                "      <agentProfile clusterProfileId=\"4ca85ebb-3fad-45f6-a4fc-0894f714ecdc\" id=\"ecs-gocd-dev-build-dind-docker-compose\" pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\">\n" +
-                "        <property>\n" +
-                "          <key>Image</key>\n" +
-                "          <value>docker.gocd.io/gocddev/gocd-dev-build:centos-7-v2.0.67</value>\n" +
-                "        </property>\n" +
-                "      </agentProfile>\n" +
-                "    </agentProfiles>\n" +
-                "  </elastic>";
-
-        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion=\"121\">\n"
-                + configContent
-                + "</cruise>";
-
-        String migratedContent = migrateXmlString(configXml, 121);
-        assertThat(migratedContent).doesNotContain("pluginId=\"com.thoughtworks.gocd.elastic-agent.ecs\"");
-
-        CruiseConfig cruiseConfig = loader.deserializeConfig(migratedContent);
-        assertThat(cruiseConfig.getElasticConfig().getJobStarvationTimeout()).isEqualTo(1 * 60 * 1000);
-        assertThat(cruiseConfig.getElasticConfig().getProfiles()).hasSize(2);
-        assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind")).isNotNull();
-        assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind-docker-compose")).isNotNull();
-    }
-
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertThat(actual.replaceAll("\\r", "")).isEqualTo(expected.replaceAll("\\r", ""));
     }

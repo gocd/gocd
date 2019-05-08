@@ -35,9 +35,9 @@ public class CreateAgentMessage implements PluginAwareMessage {
     public CreateAgentMessage(String autoregisterKey, String environment, ElasticProfile elasticProfile, ClusterProfile clusterProfile, JobIdentifier jobIdentifier) {
         this.autoregisterKey = autoregisterKey;
         this.environment = environment;
-        this.pluginId = clusterProfile.getPluginId();
+        this.pluginId = elasticProfile.getPluginId();
         this.configuration = elasticProfile.getConfigurationAsMap(true);
-        this.clusterProfile = clusterProfile.getConfigurationAsMap(true);
+        this.clusterProfile = clusterProfile != null ? clusterProfile.getConfigurationAsMap(true) : Collections.emptyMap();
         this.jobIdentifier = jobIdentifier;
     }
 

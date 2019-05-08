@@ -101,7 +101,7 @@ class UpdateClusterProfileCommandTest {
     void shouldValidateElasticAgentProfilesAsPartOfUpdateClusterProfile() {
         ElasticConfig elasticConfig = new ElasticConfig();
         elasticConfig.getClusterProfiles().add(new ClusterProfile("cluster1", "ecs"));
-        elasticConfig.getProfiles().add(new ElasticProfile("profile1", "cluster1"));
+        elasticConfig.getProfiles().add(new ElasticProfile("profile1", "docker", "cluster1"));
         config.setElasticConfig(elasticConfig);
 
         GoConfigInvalidException exception = assertThrows(GoConfigInvalidException.class, () -> command.isValid(config));

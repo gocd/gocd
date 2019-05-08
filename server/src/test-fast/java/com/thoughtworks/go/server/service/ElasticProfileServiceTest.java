@@ -79,7 +79,7 @@ class ElasticProfileServiceTest {
     @Test
     void shouldReturnAMapOfElasticProfiles() {
         ElasticConfig elasticConfig = new ElasticConfig();
-        ElasticProfile elasticProfile = new ElasticProfile("ecs", clusterProfileId);
+        ElasticProfile elasticProfile = new ElasticProfile("ecs", pluginId, clusterProfileId);
         elasticConfig.getProfiles().add(elasticProfile);
 
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
@@ -101,7 +101,7 @@ class ElasticProfileServiceTest {
     @Test
     void shouldReturnElasticProfileWithGivenIdWhenPresent() {
         ElasticConfig elasticConfig = new ElasticConfig();
-        ElasticProfile elasticProfile = new ElasticProfile("ecs", "prod-cluster");
+        ElasticProfile elasticProfile = new ElasticProfile("ecs", "cd.go.elatic.ecs");
         elasticConfig.getProfiles().add(elasticProfile);
 
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
@@ -111,7 +111,7 @@ class ElasticProfileServiceTest {
 
     @Test
     void shouldAddElasticProfileToConfig() {
-        ElasticProfile elasticProfile = new ElasticProfile("ldap", "prod-cluster");
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap");
 
         Username username = new Username("username");
         elasticProfileService.create(username, elasticProfile, new HttpLocalizedOperationResult());
@@ -121,7 +121,7 @@ class ElasticProfileServiceTest {
 
     @Test
     void shouldPerformPluginValidationsBeforeAddingElasticProfile() {
-        ElasticProfile elasticProfile = new ElasticProfile("ldap", clusterProfileId, create("key", false, "value"));
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", pluginId, clusterProfileId, create("key", false, "value"));
 
         Username username = new Username("username");
         elasticProfileService.create(username, elasticProfile, new HttpLocalizedOperationResult());
@@ -131,7 +131,7 @@ class ElasticProfileServiceTest {
 
     @Test
     void shouldUpdateExistingElasticProfileInConfig() {
-        ElasticProfile elasticProfile = new ElasticProfile("ldap", "prod-cluster");
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap");
 
         Username username = new Username("username");
         elasticProfileService.update(username, "md5", elasticProfile, new HttpLocalizedOperationResult());
@@ -141,7 +141,7 @@ class ElasticProfileServiceTest {
 
     @Test
     void shouldPerformPluginValidationsBeforeUpdatingElasticProfile() {
-        ElasticProfile elasticProfile = new ElasticProfile("ldap", clusterProfileId, create("key", false, "value"));
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", pluginId, create("key", false, "value"));
 
         Username username = new Username("username");
         elasticProfileService.update(username, "md5", elasticProfile, new HttpLocalizedOperationResult());
@@ -151,7 +151,7 @@ class ElasticProfileServiceTest {
 
     @Test
     void shouldDeleteExistingElasticProfileInConfig() {
-        ElasticProfile elasticProfile = new ElasticProfile("ldap", "prod-cluster");
+        ElasticProfile elasticProfile = new ElasticProfile("ldap", "cd.go.ldap");
 
         Username username = new Username("username");
         elasticProfileService.delete(username, elasticProfile, new HttpLocalizedOperationResult());
@@ -164,9 +164,9 @@ class ElasticProfileServiceTest {
         @BeforeEach
         void setUp() {
             final ElasticConfig elasticConfig = new ElasticConfig();
-            elasticConfig.getProfiles().add(new ElasticProfile("docker", "prod-cluster"));
-            elasticConfig.getProfiles().add(new ElasticProfile("ecs", "prod-cluster"));
-            elasticConfig.getProfiles().add(new ElasticProfile("kubernetes", "prod-cluster"));
+            elasticConfig.getProfiles().add(new ElasticProfile("docker", "cd.go.docker"));
+            elasticConfig.getProfiles().add(new ElasticProfile("ecs", "cd.go.ecs"));
+            elasticConfig.getProfiles().add(new ElasticProfile("kubernetes", "cd.go.k8s"));
             when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
         }
 

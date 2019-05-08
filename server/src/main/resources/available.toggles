@@ -17,11 +17,6 @@
         "value": false
       },
       {
-        "key": "use_old_environments_api",
-        "description": "Switch to using rails environments API.",
-        "value": false
-      },
-      {
         "key": "enable_admin_access_tokens_spa",
         "description": "Show admin access token SPA in menu for admin.",
         "value": true

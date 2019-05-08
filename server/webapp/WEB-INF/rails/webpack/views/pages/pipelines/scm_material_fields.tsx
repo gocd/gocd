@@ -45,7 +45,7 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
       <TestConnection material={vnode.attrs.material}/>,
       <AdvancedSettings>
         {this.extraFields(mattrs)}
-        <TextField label="Alternate Checkout Path" property={mattrs.destination}/>
+        <TextField label="Alternate Checkout Path" helpText="Specify a different path to clone/checkout this repository. Must be a relative path within the pipeline’s working directory." property={mattrs.destination}/>
         <TextField label="Material Name" placeholder="A human-friendly label for this material" property={mattrs.name}/>
       </AdvancedSettings>
     ];

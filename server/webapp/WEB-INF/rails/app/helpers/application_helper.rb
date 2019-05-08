@@ -505,10 +505,6 @@ module ApplicationHelper
     pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general')
   end
 
-  def enable_admin_access_token?
-    Toggles.isToggleOn(Toggles.ENABLE_ADMIN_ACCESS_TOKENS_SPA)
-  end
-
   def show_secret_config_spa?
     Toggles.isToggleOn(Toggles.SHOW_SECRET_CONFIG_SPA)
   end

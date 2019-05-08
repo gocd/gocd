@@ -122,7 +122,6 @@ export interface Attrs {
   isUserAdmin: boolean;
   canViewAdminPage: boolean;
   showAnalytics: boolean;
-  enableAdminAccessTokensSPA: boolean;
   showSecretConfigSpa: boolean;
 }
 
@@ -133,11 +132,7 @@ export default class SiteMenu extends MithrilViewComponent<Attrs> {
       <SiteNavItem href="/go/analytics" text="Analytics"/> : null;
 
     let adminMenu = null;
-    let linkToAccessTokenManagementSPA;
-    if (vnode.attrs.enableAdminAccessTokensSPA) {
-      linkToAccessTokenManagementSPA =
-        <SiteSubNavItem href="/go/admin/admin_access_tokens" text="Access Tokens Management"/>;
-    }
+    let linkToAccessTokenManagementSPA = <SiteSubNavItem href="/go/admin/admin_access_tokens" text="Access Tokens Management"/>;
 
     let linkToSecretConfigSPA;
     if (vnode.attrs.showSecretConfigSpa) {

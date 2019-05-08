@@ -47,7 +47,6 @@
       data-user-display-name="${currentUser.displayName}"
       data-user-anonymous="${currentUser.anonymous?c}"
       data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()?c}"
-      data-enable-admin-access-tokens-spa="${enableAdminAccessTokensSPA?c}"
       data-show-secret-config-spa="${showSecretConfigSpa?c}"
       data-meta="${meta}">
     <#if devMode>

@@ -21,7 +21,7 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {DependencyMaterialAutocomplete, PipelineNameCache} from "models/materials/dependency_autocomplete_cache";
 import {DependencyMaterialAttributes, Material, MaterialAttributes} from "models/materials/types";
-import {AutocompleteField, SuggestionProvider, SuggestionWriter} from "views/components/forms/autocomplete";
+import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import * as css from "./components.scss";
@@ -48,14 +48,19 @@ class DependencySuggestionProvider extends SuggestionProvider {
     this.cache = cache;
   }
 
-  getData(setData: SuggestionWriter): void {
-    if (!this.cache.ready()) {
-      this.cache.prime(() => {
-        setData(this.cache.pipelines());
-      });
-    } else {
-      setData(this.cache.pipelines());
-    }
+  getData(): Promise<Awesomplete.Suggestion[]> {
+    const self = this;
+    return new Promise<Awesomplete.Suggestion[]>((resolve, reject) => {
+      if (!self.cache.ready()) {
+        self.cache.prime(() => {
+          resolve(self.cache.pipelines());
+        }, () => {
+          reject(self.cache.failureReason());
+        });
+      } else {
+        resolve(self.cache.pipelines());
+      }
+    });
   }
 }
 

@@ -21,7 +21,7 @@ import * as m from "mithril";
 import {TextField, TextFieldAttrs} from "views/components/forms/input_fields";
 import * as defaultStyles from "./autocomplete.scss";
 
-export type SuggestionWriter = (data: Awesomplete.Suggestion[]) => void;
+type SuggestionWriter = (data: Awesomplete.Suggestion[]) => void;
 
 const AWESOMPLETE_KEYS = ["list", "minChars", "maxItems", "autoFirst", "data", "filter", "sort", "item", "replace"];
 
@@ -46,7 +46,30 @@ function onlyTextFieldAttrs(config: any): TextFieldAttrs {
 }
 
 export abstract class SuggestionProvider {
-  abstract getData(setData: SuggestionWriter): void;
+  protected receiver?: SuggestionWriter;
+  protected errorMsg?: (reason?: string) => string;
+  protected done?: () => void;
+
+  onData(receiver: SuggestionWriter) {
+    this.receiver = receiver;
+  }
+
+  onError(handler: (reason?: string) => string) {
+    this.errorMsg = handler;
+  }
+
+  onFinally(handler: () => void) {
+    this.done = handler;
+  }
+
+  update(): void {
+    this.getData().
+      then(this.receiver).
+      catch(this.errorMsg).
+      finally(this.done);
+  }
+
+  abstract getData(): Promise<Awesomplete.Suggestion[]>;
 }
 
 export class AutocompleteField extends MithrilViewComponent<AutoCompAttrs> {
@@ -78,9 +101,12 @@ export class AutocompleteField extends MithrilViewComponent<AutoCompAttrs> {
       this._asm.status.classList.remove("visually-hidden");
       this._asm.status.classList.add(css.visuallyHidden);
 
-      vnode.attrs.provider.getData((data: Awesomplete.Suggestion[]) => {
+      vnode.attrs.provider.onData((data: Awesomplete.Suggestion[]) => {
         this._asm!.list = data;
+        this._asm!.evaluate();
       });
+
+      vnode.attrs.provider.update();
     }
   }
 

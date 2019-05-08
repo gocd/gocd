@@ -25,7 +25,7 @@ interface PipelineSuggestion {
 
 export interface PipelineNameCache<P, S> {
   ready: () => boolean;
-  prime: (onComplete: () => void) => void;
+  prime: (onSuccess: () => void, onError?: () => void) => void;
   pipelines: () => P[];
   stages: (pipeline: string) => S[];
   failureReason: () => string | undefined;
@@ -44,18 +44,19 @@ export class DependencyMaterialAutocomplete<P, S> implements PipelineNameCache<P
     this.toStage = toStage;
   }
 
-  prime(onComplete: () => void, onError?: () => void) {
+  prime(onSuccess: () => void, onError?: () => void) {
     if (this.busy()) {
       return;
     }
 
     this.lock();
 
+    delete this.error;
+
     ApiRequestBuilder.GET(SparkRoutes.internalDependencyMaterialSuggestionsPath(), ApiVersion.v1).then((res) => {
       res.do((s) => {
-        delete this.error;
         this.data = JSON.parse(s.body) as PipelineSuggestion[];
-        onComplete();
+        onSuccess();
       }, (e) => {
         this.error = e.message;
         if (onError) {

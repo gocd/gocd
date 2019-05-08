@@ -27,6 +27,8 @@ import {
 } from "models/materials/types";
 import {CheckboxField, PasswordField, TextField} from "views/components/forms/input_fields";
 import {TestConnection} from "views/components/materials/test_connection";
+import {TooltipSize} from "views/components/tooltip";
+import * as Tooltip from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 
 interface Attrs {
@@ -45,7 +47,11 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
       <TestConnection material={vnode.attrs.material}/>,
       <AdvancedSettings>
         {this.extraFields(mattrs)}
-        <TextField label="Alternate Checkout Path" helpText="Specify a different path to clone/checkout this repository. Must be a relative path within the pipeline’s working directory." property={mattrs.destination}/>
+        <TextField label={[
+          "Alternate Checkout Path",
+          " ",
+          <Tooltip.Help size={TooltipSize.medium} content="Specify a different path to clone/checkout this repository. Must be a relative path within the pipeline’s working directory. Defaults to the root of the pipeline's working directory."/>
+        ]} property={mattrs.destination}/>
         <TextField label="Material Name" placeholder="A human-friendly label for this material" property={mattrs.name}/>
       </AdvancedSettings>
     ];

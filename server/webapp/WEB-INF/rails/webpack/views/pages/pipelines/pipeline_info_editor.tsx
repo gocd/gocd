@@ -23,6 +23,7 @@ import {DefaultCache, PipelineGroupsCache} from "models/pipeline_configs/pipelin
 import {Form, FormBody} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
+import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
@@ -46,7 +47,7 @@ export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return <FormBody>
       <Form last={true} compactForm={true}>
-        <TextField label="Pipeline Name" placeholder="e.g., My-New-Pipeline" required={true} property={vnode.attrs.pipelineConfig.name} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("name")}/>
+        <TextField label="Pipeline Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., My-New-Pipeline" property={vnode.attrs.pipelineConfig.name} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("name")} required={true}/>
       <div style="display:none;"><AdvancedSettings>
         <SelectField label="Pipeline Group" property={vnode.attrs.pipelineConfig.group} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("group")} required={true}>
           <SelectFieldOptions selected={vnode.attrs.pipelineConfig.group()} items={this.pipelineGroups()}/>

@@ -22,7 +22,7 @@ import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -104,8 +104,8 @@ class UpdateClusterProfileCommandTest {
         elasticConfig.getProfiles().add(new ElasticProfile("profile1", "cluster1"));
         config.setElasticConfig(elasticConfig);
 
-        GoConfigInvalidException exception = assertThrows(GoConfigInvalidException.class, () -> command.isValid(config));
-        assertThat(exception.getMessage()).isEqualTo("Referenced Cluster Profile and Elastic Agent Profile should belong to same plugin. Specified cluster profile 'cluster1' belongs to 'ecs' plugin, whereas, elastic agent profile belongs to 'docker' plugin.");
+        RecordNotFoundException exception = assertThrows(RecordNotFoundException.class, () -> command.isValid(config));
+        assertThat(exception.getMessage()).isEqualTo("Cluster profile with id 'cluster-id' was not found!");
     }
 
     @Test

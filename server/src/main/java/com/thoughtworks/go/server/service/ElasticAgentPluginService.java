@@ -190,8 +190,7 @@ public class ElasticAgentPluginService {
         return JobPlan::requiresElasticAgent;
     }
 
-    public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, ElasticProfile elasticProfile, JobIdentifier identifier) {
-        ClusterProfile clusterProfile = clusterProfilesService.findProfile(elasticProfile.getClusterProfileId());
+    public boolean shouldAssignWork(ElasticAgentMetadata metadata, String environment, ElasticProfile elasticProfile, ClusterProfile clusterProfile, JobIdentifier identifier) {
         Map<String, String> clusterProfileProperties = clusterProfile != null ? clusterProfile.getConfigurationAsMap(true) : Collections.EMPTY_MAP;
         GoPluginDescriptor pluginDescriptor = pluginManager.getPluginDescriptorFor(metadata.elasticPluginId());
         Map<String, String> configuration = elasticProfile.getConfigurationAsMap(true);

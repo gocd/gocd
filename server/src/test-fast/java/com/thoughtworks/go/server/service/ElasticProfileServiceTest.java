@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticConfig;
@@ -65,6 +66,9 @@ class ElasticProfileServiceTest {
         ElasticConfig elasticConfig = new ElasticConfig();
         elasticConfig.getClusterProfiles().add(new ClusterProfile(clusterProfileId, pluginId));
         when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setElasticConfig(elasticConfig);
+        when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
     }
 
     @Test
@@ -82,7 +86,9 @@ class ElasticProfileServiceTest {
         ElasticProfile elasticProfile = new ElasticProfile("ecs", clusterProfileId);
         elasticConfig.getProfiles().add(elasticProfile);
 
-        when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setElasticConfig(elasticConfig);
+        when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 
         HashMap<String, ElasticProfile> expectedMap = new HashMap<>();
         expectedMap.put("ecs", elasticProfile);
@@ -104,7 +110,9 @@ class ElasticProfileServiceTest {
         ElasticProfile elasticProfile = new ElasticProfile("ecs", "prod-cluster");
         elasticConfig.getProfiles().add(elasticProfile);
 
-        when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.setElasticConfig(elasticConfig);
+        when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 
         assertThat(elasticProfileService.findProfile("ecs")).isEqualTo(elasticProfile);
     }
@@ -167,7 +175,9 @@ class ElasticProfileServiceTest {
             elasticConfig.getProfiles().add(new ElasticProfile("docker", "prod-cluster"));
             elasticConfig.getProfiles().add(new ElasticProfile("ecs", "prod-cluster"));
             elasticConfig.getProfiles().add(new ElasticProfile("kubernetes", "prod-cluster"));
-            when(goConfigService.getElasticConfig()).thenReturn(elasticConfig);
+            BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+            cruiseConfig.setElasticConfig(elasticConfig);
+            when(goConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
         }
 
         @Test

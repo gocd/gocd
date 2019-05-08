@@ -44,13 +44,4 @@ public class CreateAgentMessageTest {
         Map<String, String> clusterProfileConfigurations = clusterProfile.getConfigurationAsMap(true);
         assertThat(message.getClusterProfileConfiguration(), is(clusterProfileConfigurations));
     }
-
-    @Test
-    public void shouldCreateCreateAgentMessageWhenClusterProfileIsNotSpecified() {
-        List<ConfigurationProperty> properties = Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value")));
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "prod-cluster", properties);
-
-        CreateAgentMessage createAgentMessage = new CreateAgentMessage(null, null, elasticProfile, null, null);
-        assertThat(createAgentMessage.getClusterProfileConfiguration(), is(Collections.emptyMap()));
-    }
 }

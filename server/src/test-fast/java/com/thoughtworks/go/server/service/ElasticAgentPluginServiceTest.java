@@ -160,8 +160,8 @@ class ElasticAgentPluginServiceTest {
 
     @Test
     void shouldCreateAgentForNewlyAddedJobPlansOnly() {
-        JobPlan plan1 = plan(1);
-        JobPlan plan2 = plan(2);
+        JobPlan plan1 = plan(1, "docker");
+        JobPlan plan2 = plan(2, "docker");
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
         ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
         when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
@@ -182,8 +182,8 @@ class ElasticAgentPluginServiceTest {
 
     @Test
     void shouldPostCreateAgentMessageWithTimeToLiveLesserThanJobStarvationThreshold() throws Exception {
-        JobPlan plan1 = plan(1);
-        JobPlan plan2 = plan(2);
+        JobPlan plan1 = plan(1, "docker");
+        JobPlan plan2 = plan(2, "docker");
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(20000L);
         ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
         when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
@@ -199,7 +199,7 @@ class ElasticAgentPluginServiceTest {
 
     @Test
     void shouldRetryCreateAgentForJobThatHasBeenWaitingForAnAgentForALongTime() {
-        JobPlan plan1 = plan(1);
+        JobPlan plan1 = plan(1, "docker");
 
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
         ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
@@ -220,7 +220,7 @@ class ElasticAgentPluginServiceTest {
 
     @Test
     void shouldReportMissingElasticPlugin() {
-        JobPlan plan1 = plan(1);
+        JobPlan plan1 = plan(1, "missing");
         ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
         service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
 
@@ -236,7 +236,7 @@ class ElasticAgentPluginServiceTest {
 
     @Test
     void shouldRemoveExistingMissingPluginErrorFromAPreviousAttemptIfThePluginIsNowRegistered() {
-        JobPlan plan1 = plan(1);
+        JobPlan plan1 = plan(1, "docker");
         ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
         when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
         ArgumentCaptor<HealthStateScope> captor = ArgumentCaptor.forClass(HealthStateScope.class);
@@ -253,7 +253,7 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldRetryCreateAgentForJobForWhichAssociatedPluginIsMissing() {
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
-        JobPlan plan1 = plan(1);
+        JobPlan plan1 = plan(1, "missing");
         service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
         service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1));//invoke create again
 
@@ -271,11 +271,12 @@ class ElasticAgentPluginServiceTest {
     void shouldAssignJobToAnAgentIfThePluginMatchesForTheAgentAndJob_AndThePluginAgreesToTheAssignment() {
         String uuid = UUID.randomUUID().toString();
         String elasticPluginId = "plugin-1";
+
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
-        ElasticProfile elasticProfile = new ElasticProfile("1", "prod-cluster");
+        ElasticProfile elasticProfile = new ElasticProfile("1", "clusterProfileId");
 
         when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(true);
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null)).isTrue();
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, new ClusterProfile("clusterProfileId", elasticPluginId), null)).isTrue();
     }
 
     @Test
@@ -283,19 +284,19 @@ class ElasticAgentPluginServiceTest {
         String uuid = UUID.randomUUID().toString();
         String elasticPluginId = "plugin-1";
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
-        ElasticProfile elasticProfile = new ElasticProfile("1", "prod-cluster");
+        ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
         when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(false);
 
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null)).isFalse();
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, new ClusterProfile("clusterProfileId", elasticPluginId), null)).isFalse();
     }
 
     @Test
     void shouldNotAssignJobToAnAgentBroughtUpByADifferentElasticPlugin() {
         String uuid = UUID.randomUUID().toString();
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, "plugin-1", AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
-        ElasticProfile elasticProfile = new ElasticProfile("1", "prod-cluster");
+        ElasticProfile elasticProfile = new ElasticProfile("1", "clusterProfileId");
 
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null)).isFalse();
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, new ClusterProfile("clusterProfileId", "plugin-2"), null)).isFalse();
         verifyNoMoreInteractions(registry);
     }
 
@@ -483,9 +484,10 @@ class ElasticAgentPluginServiceTest {
         }
     }
 
-    private JobPlan plan(int jobId) {
+    private JobPlan plan(int jobId, String pluginId) {
+        ClusterProfile clusterProfile = new ClusterProfile("clusterProfileId", pluginId);
         ElasticProfile elasticProfile = new ElasticProfile("id", "clusterProfileId");
         JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
-        return new DefaultJobPlan(null, new ArrayList<>(), null, jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, null);
+        return new DefaultJobPlan(null, new ArrayList<>(), null, jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, clusterProfile);
     }
 }

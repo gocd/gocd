@@ -17,6 +17,8 @@
 package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
@@ -30,6 +32,7 @@ import com.thoughtworks.go.domain.config.ConfigurationValue;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactMetadataStore;
 import com.thoughtworks.go.plugin.access.authorization.AuthorizationMetadataStore;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.domain.artifact.ArtifactPluginInfo;
 import com.thoughtworks.go.plugin.domain.artifact.Capabilities;
@@ -38,6 +41,7 @@ import com.thoughtworks.go.plugin.domain.authorization.SupportedAuthType;
 import com.thoughtworks.go.plugin.domain.common.Metadata;
 import com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings;
 import com.thoughtworks.go.plugin.domain.common.PluginConfiguration;
+import com.thoughtworks.go.plugin.domain.elastic.ElasticAgentPluginInfo;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
@@ -368,6 +372,38 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
+    public void shouldEncryptElasticAgentProfileConfigProperties() throws IOException, CryptoException {
+        setEAPluginInfo();
+        resetCipher.setupAESCipherFile();
+        BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
+        cruiseConfig.getElasticConfig().getClusterProfiles().add(new ClusterProfile("prod-cluster", "ecs"));
+        ElasticProfile elasticProfile = new ElasticProfile("profile1", "prod-cluster");
+        elasticProfile.addConfigurations(asList(
+                new ConfigurationProperty(new ConfigurationKey("k1"), new ConfigurationValue("pub_v1")),
+                new ConfigurationProperty(new ConfigurationKey("k2"), new ConfigurationValue("pub_v2")),
+                new ConfigurationProperty(new ConfigurationKey("k3"), new ConfigurationValue("pub_v3"))));
+
+        cruiseConfig.getElasticConfig().getProfiles().add(elasticProfile);
+
+        BasicCruiseConfig preprocessed = new Cloner().deepClone(cruiseConfig);
+        new ConfigParamPreprocessor().process(preprocessed);
+        cruiseConfig.encryptSecureProperties(preprocessed);
+
+        Configuration properties = cruiseConfig.getElasticConfig().getProfiles().get(0);
+
+        GoCipher goCipher = new GoCipher();
+        assertThat(properties.getProperty("k1").getEncryptedValue(), is(goCipher.encrypt("pub_v1")));
+        assertThat(properties.getProperty("k1").getConfigValue(), is(nullValue()));
+        assertThat(properties.getProperty("k1").getValue(), is("pub_v1"));
+        assertThat(properties.getProperty("k2").getEncryptedValue(), is(nullValue()));
+        assertThat(properties.getProperty("k2").getConfigValue(), is("pub_v2"));
+        assertThat(properties.getProperty("k2").getValue(), is("pub_v2"));
+        assertThat(properties.getProperty("k3").getEncryptedValue(), is(goCipher.encrypt("pub_v3")));
+        assertThat(properties.getProperty("k3").getConfigValue(), is(nullValue()));
+        assertThat(properties.getProperty("k3").getValue(), is("pub_v3"));
+    }
+
+    @Test
     public void shouldEncryptSecurePluggableArtifactConfigPropertiesOfAllPipelinesInConfig() throws IOException, CryptoException {
         // ancestor => parent => child [fetch pluggable artifact(ancestor), fetch pluggable artifact(parent)]
 
@@ -489,6 +525,22 @@ public class BasicCruiseConfigTest extends CruiseConfigTestBase {
         AuthorizationPluginInfo artifactPluginInfo = new AuthorizationPluginInfo(pluginDescriptor, authConfigSettins, roleConfigSettings, null, capabilities);
         when(pluginDescriptor.id()).thenReturn("cd.go.github");
         AuthorizationMetadataStore.instance().setPluginInfo(artifactPluginInfo);
+    }
+
+    private void setEAPluginInfo() {
+        PluginDescriptor pluginDescriptor = mock(PluginDescriptor.class);
+
+        PluginConfiguration k1 = new PluginConfiguration("k1", new Metadata(false, true));
+        PluginConfiguration k2 = new PluginConfiguration("k2", new Metadata(false, false));
+        PluginConfiguration k3 = new PluginConfiguration("k3", new Metadata(false, true));
+
+        PluggableInstanceSettings clusterProfileSettings = new PluggableInstanceSettings(asList(k1, k2, k3));
+        PluggableInstanceSettings profileSettings = new PluggableInstanceSettings(asList(k1, k2, k3));
+
+        com.thoughtworks.go.plugin.domain.elastic.Capabilities capabilities = new com.thoughtworks.go.plugin.domain.elastic.Capabilities(true);
+        ElasticAgentPluginInfo ecsPluginInfo = new ElasticAgentPluginInfo(pluginDescriptor, clusterProfileSettings, profileSettings, null, null, capabilities);
+        when(pluginDescriptor.id()).thenReturn("ecs");
+        ElasticAgentMetadataStore.instance().setPluginInfo(ecsPluginInfo);
     }
 
     @Test

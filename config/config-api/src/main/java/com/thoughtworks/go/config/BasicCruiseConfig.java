@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.elastic.ElasticConfig;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.StageNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
@@ -1577,6 +1578,10 @@ public class BasicCruiseConfig implements CruiseConfig {
 
         for (PluginRoleConfig pluginRoleConfig : server().security().getRoles().getPluginRoleConfigs()) {
             pluginRoleConfig.encryptSecureProperties(preprocessed);
+        }
+
+        for (ElasticProfile elasticProfile : getElasticConfig().getProfiles()) {
+            elasticProfile.encryptSecureProperties(preprocessed);
         }
     }
 

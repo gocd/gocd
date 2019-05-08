@@ -67,7 +67,7 @@ public class DataSharingUsageDataService {
                     String elasticProfileId = job.getElasticProfileId();
                     if (elasticProfileId != null) {
                         ElasticProfile elasticProfile = config.getElasticConfig().getProfiles().find(elasticProfileId);
-                        String key = elasticProfile.getPluginId();
+                        String key = findPluginIdFromReferencedCluster(elasticProfile);
                         elasticAgentPluginToJobCount.put(key, elasticAgentPluginToJobCount.getOrDefault(key, 0L) + 1);
                     }
                 }
@@ -86,5 +86,9 @@ public class DataSharingUsageDataService {
                 .serverId(serverId)
                 .gocdVersion(CurrentGoCDVersion.getInstance().fullVersion())
                 .build();
+    }
+
+    private String findPluginIdFromReferencedCluster(ElasticProfile elasticProfile) {
+        return goConfigService.getElasticConfig().getClusterProfiles().find(elasticProfile.getClusterProfileId()).getPluginId();
     }
 }

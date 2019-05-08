@@ -48,7 +48,6 @@ public class ElasticProfileRepresenter {
     public static ElasticProfile fromJSON(JsonReader jsonReader) {
         ElasticProfile elasticProfile = new ElasticProfile(
                 jsonReader.getString("id"),
-                null,
                 jsonReader.getString("cluster_profile_id"));
         elasticProfile.addConfigurations(ConfigurationPropertyRepresenter.fromJSONArray(jsonReader, "properties"));
         return elasticProfile;

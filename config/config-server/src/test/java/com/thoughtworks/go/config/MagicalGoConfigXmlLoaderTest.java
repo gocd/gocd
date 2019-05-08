@@ -3577,7 +3577,6 @@ public class MagicalGoConfigXmlLoaderTest {
 
         ElasticProfile elasticProfile = cruiseConfig.getElasticConfig().getProfiles().find("foo");
         assertThat(elasticProfile).isNotNull();
-        assertThat(elasticProfile.getPluginId()).isEqualTo("docker");
         assertThat(elasticProfile.size()).isEqualTo(1);
         assertThat(elasticProfile.getProperty("USERNAME").getValue()).isEqualTo("bob");
     }

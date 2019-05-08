@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
-import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
@@ -42,7 +41,6 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -112,8 +110,8 @@ class BuildAssignmentServiceTest {
         elasticAgent = AgentMother.elasticAgent();
         elasticAgentInstance = AgentInstance.createFromConfig(elasticAgent, new SystemEnvironment(), null);
         regularAgentInstance = AgentInstance.createFromConfig(AgentMother.approvedAgent(), new SystemEnvironment(), null);
-        elasticProfile1 = new ElasticProfile(elasticProfileId1, elasticAgent.getElasticPluginId());
-        elasticProfile2 = new ElasticProfile(elasticProfileId2, elasticAgent.getElasticPluginId());
+        elasticProfile1 = new ElasticProfile(elasticProfileId1, "prod-cluster");
+        elasticProfile2 = new ElasticProfile(elasticProfileId2, "prod-cluster");
         jobPlans = new ArrayList<>();
         HashMap<String, ElasticProfile> profiles = new HashMap<>();
         profiles.put(elasticProfile1.getId(), elasticProfile1);

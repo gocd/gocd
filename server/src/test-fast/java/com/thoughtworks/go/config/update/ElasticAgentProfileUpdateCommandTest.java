@@ -31,7 +31,8 @@ import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class ElasticAgentProfileUpdateCommandTest {
     private Username currentUser;
@@ -51,15 +52,15 @@ public class ElasticAgentProfileUpdateCommandTest {
     @Test
     public void shouldRaiseErrorWhenUpdatingNonExistentProfile() throws Exception {
         cruiseConfig.getElasticConfig().getProfiles().clear();
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, new ElasticProfile("foo", "prod-cluster"), null, null, new HttpLocalizedOperationResult(), null, null);
+        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, new ElasticProfile("foo", "docker"), null, null, new HttpLocalizedOperationResult(), null, null);
         thrown.expect(RecordNotFoundException.class);
         command.update(cruiseConfig);
     }
 
     @Test
     public void shouldUpdateExistingProfile() throws Exception {
-        ElasticProfile oldProfile = new ElasticProfile("foo", "prod-cluster");
-        ElasticProfile newProfile = new ElasticProfile("foo", "prod-cluster");
+        ElasticProfile oldProfile = new ElasticProfile("foo", "docker");
+        ElasticProfile newProfile = new ElasticProfile("foo", "aws");
 
         cruiseConfig.getElasticConfig().getProfiles().add(oldProfile);
         ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, newProfile, null, null, null, null, null);
@@ -71,8 +72,8 @@ public class ElasticAgentProfileUpdateCommandTest {
     public void shouldNotContinueWithConfigSaveIfRequestIsNotFresh() {
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(true);
 
-        ElasticProfile oldProfile = new ElasticProfile("foo", "prod-cluster");
-        ElasticProfile newProfile = new ElasticProfile("foo", "prod-cluster");
+        ElasticProfile oldProfile = new ElasticProfile("foo", "docker");
+        ElasticProfile newProfile = new ElasticProfile("foo", "aws");
 
         cruiseConfig.getElasticConfig().getProfiles().add(oldProfile);
 
@@ -85,16 +86,5 @@ public class ElasticAgentProfileUpdateCommandTest {
 
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertThat(result.toString(), containsString("Someone has modified the configuration for"));
-    }
-
-    @Test
-    public void shouldEncryptSecurePluginProperties() {
-        ElasticProfile elasticProfile = mock(ElasticProfile.class);
-        ElasticAgentProfileUpdateCommand command = new ElasticAgentProfileUpdateCommand(null, elasticProfile, null, null, null, null, null);
-
-        BasicCruiseConfig preProcessedConfig = new BasicCruiseConfig();
-        command.encrypt(preProcessedConfig);
-
-        verify(elasticProfile, times(1)).encryptSecureProperties(preProcessedConfig);
     }
 }

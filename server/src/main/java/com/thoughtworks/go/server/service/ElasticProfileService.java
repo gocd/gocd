@@ -19,9 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
-import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
-import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -63,8 +61,8 @@ public class ElasticProfileService {
         this.profileConfigurationValidator = new ElasticAgentProfileConfigurationValidator(elasticAgentExtension);
     }
 
-    public ElasticProfiles getPluginProfiles() {
-        return goConfigService.getConfigForEditing().getElasticConfig().getProfiles();
+    public PluginProfiles<ElasticProfile> getPluginProfiles() {
+        return goConfigService.getElasticConfig().getProfiles();
     }
 
     public void update(Username currentUser, String md5, ElasticProfile newProfile, LocalizedOperationResult result) {
@@ -156,34 +154,24 @@ public class ElasticProfileService {
         try {
             goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
-            if (result.hasMessage()) {
-                LOGGER.error(e.getMessage(), e);
-                return;
-            }
-
             if (e instanceof GoConfigInvalidException) {
                 result.unprocessableEntity(entityConfigValidationFailed(getTagName(elasticProfile.getClass()), elasticProfile.getId(), ((GoConfigInvalidException) e).getAllErrorMessages()));
             } else {
-                result.internalServerError(saveFailedWithReason("An error occurred while saving the elastic agent profile. Please check the logs for more information."));
+                if (!result.hasMessage()) {
+                    LOGGER.error(e.getMessage(), e);
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the elastic agent profile. Please check the logs for more information."));
+                }
             }
         }
     }
 
     public Map<String, ElasticProfile> listAll() {
         return getPluginProfiles().stream()
-                .collect(Collectors.toMap(ElasticProfile::getId, elasticAgentProfile -> elasticAgentProfile, (a, b) -> b, HashMap::new));
+                .collect(Collectors.toMap(PluginProfile::getId, elasticAgentProfile -> elasticAgentProfile, (a, b) -> b, HashMap::new));
     }
 
     //used only from tests
     public void setProfileConfigurationValidator(ElasticAgentProfileConfigurationValidator profileConfigurationValidator) {
         this.profileConfigurationValidator = profileConfigurationValidator;
-    }
-
-    public List<ElasticProfile> findElasticAgentProfilesByPluginId(String pluginId) {
-        ClusterProfiles allClusterProfiles = goConfigService.getElasticConfig().getClusterProfiles();
-
-        return getPluginProfiles().stream()
-                .filter(profile -> allClusterProfiles.find(profile.getClusterProfileId()).getPluginId().equals(pluginId))
-                .collect(Collectors.toCollection(ArrayList::new));
     }
 }

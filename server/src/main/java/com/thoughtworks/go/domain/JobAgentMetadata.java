@@ -45,7 +45,7 @@ public class JobAgentMetadata extends PersistentObject {
 
     public JobAgentMetadata(long jobId, ElasticProfile profile, ClusterProfile clusterProfile) {
         this.jobId = jobId;
-        this.elasticAgentProfileMetadata = jsonizeElasticAgentProfile(profile, clusterProfile.getPluginId());
+        this.elasticAgentProfileMetadata = jsonizeElasticAgentProfile(profile);
         this.clusterProfileMetadata = jsonizeClusterProfile(clusterProfile);
         this.metadataVersion = "2.0";
     }
@@ -59,7 +59,7 @@ public class JobAgentMetadata extends PersistentObject {
 
         Collection<ConfigurationProperty> configProperties = properties.entrySet().stream().map(entry -> new ConfigurationProperty(new ConfigurationKey(entry.getKey()), new ConfigurationValue(entry.getValue()))).collect(Collectors.toList());
 
-        return new ElasticProfile(id, clusterProfileId, configProperties);
+        return new ElasticProfile(id, pluginId, clusterProfileId, configProperties);
     }
 
     public ClusterProfile clusterProfile() {
@@ -77,11 +77,10 @@ public class JobAgentMetadata extends PersistentObject {
         return new ClusterProfile(id, pluginId, configProperties);
     }
 
-    private static String jsonizeElasticAgentProfile(ElasticProfile elasticProfile, String pluginId) {
+    private static String jsonizeElasticAgentProfile(ElasticProfile elasticProfile) {
         Map<String, Object> map = new LinkedHashMap<>();
         map.put("clusterProfileId", elasticProfile.getClusterProfileId());
-        //todo: elastic agent extension v6 should remove plugin id.
-        map.put("pluginId", pluginId);
+        map.put("pluginId", elasticProfile.getPluginId());
         map.put("id", elasticProfile.getId());
         map.put("properties", elasticProfile.getConfigurationAsMap(true));
         return GSON.toJson(map);

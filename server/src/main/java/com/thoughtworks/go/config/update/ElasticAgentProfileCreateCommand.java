@@ -24,6 +24,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
 public class ElasticAgentProfileCreateCommand extends ElasticAgentProfileCommand {
+
     public ElasticAgentProfileCreateCommand(GoConfigService goConfigService, ElasticProfile elasticProfile, ElasticAgentExtension extension, Username currentUser, LocalizedOperationResult result) {
         super(goConfigService, elasticProfile, extension, currentUser, result);
     }
@@ -38,8 +39,4 @@ public class ElasticAgentProfileCreateCommand extends ElasticAgentProfileCommand
         return isValidForCreateOrUpdate(preprocessedConfig);
     }
 
-    @Override
-    public void encrypt(CruiseConfig preProcessedConfig) {
-        elasticProfile.encryptSecureProperties(preProcessedConfig);
-    }
 }

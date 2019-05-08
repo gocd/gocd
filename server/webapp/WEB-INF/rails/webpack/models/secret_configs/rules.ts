@@ -16,13 +16,16 @@
 
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {DynamicSuggestionProvider} from "models/secret_configs/suggestion_provider";
 
 export interface RuleJSON {
   directive: string;
   action: string;
   type: string;
   resource: string;
+  errors?: ErrorsJSON;
 }
 
 export class Rule extends ValidatableMixin {
@@ -30,21 +33,34 @@ export class Rule extends ValidatableMixin {
   action: Stream<string>;
   type: Stream<string>;
   resource: Stream<string>;
+  private provider: DynamicSuggestionProvider;
 
-  constructor(directive: string, action: string, type: string, resource: string) {
+  constructor(directive: string, action: string, type: string, resource: string, errors: Errors = new Errors()) {
     super();
     ValidatableMixin.call(this);
     this.directive = stream(directive);
     this.action    = stream(action);
     this.type      = stream(type);
     this.resource  = stream(resource);
+    this.errors(errors);
     this.validatePresenceOf("directive");
     this.validatePresenceOf("action");
     this.validatePresenceOf("type");
+    this.provider = new DynamicSuggestionProvider(type);
   }
 
   static fromJSON(ruleJSON: RuleJSON) {
-    return new Rule(ruleJSON.directive, ruleJSON.action, ruleJSON.type, ruleJSON.resource);
+    const errors = new Errors(ruleJSON.errors);
+    return new Rule(ruleJSON.directive, ruleJSON.action, ruleJSON.type, ruleJSON.resource, errors);
+  }
+
+  getProvider() {
+    return this.provider;
+  }
+
+  updateProvider() {
+    this.provider.setType(this.type());
+    this.provider.update();
   }
 }
 

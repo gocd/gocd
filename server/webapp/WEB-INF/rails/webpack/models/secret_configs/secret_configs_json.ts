@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {ErrorsJSON} from "models/mixins/errors";
 import {RuleJSON} from "models/secret_configs/rules";
 import {PropertyJSON} from "models/shared/configuration";
 
@@ -31,4 +32,5 @@ export interface SecretConfigJSON {
   plugin_id: string;
   properties: PropertyJSON[];
   rules: RuleJSON[];
+  errors?: ErrorsJSON;
 }

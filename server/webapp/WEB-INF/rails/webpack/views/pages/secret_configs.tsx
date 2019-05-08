@@ -18,7 +18,7 @@ import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
-import {Rules} from "models/secret_configs/rules";
+import {Rule, Rules} from "models/secret_configs/rules";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {SecretConfigsCRUD} from "models/secret_configs/secret_configs_crud";
 import {Configurations} from "models/shared/configuration";
@@ -59,7 +59,7 @@ export class SecretConfigsPage extends Page<null, State> {
                                                    "",
                                                    id,
                                                    new Configurations([]),
-                                                   new Rules()),
+                                                   new Rules(stream(new Rule("deny", "refer", "pipeline_group", "")))),
                                   vnode.state.pluginInfos(),
                                   vnode.state.onSuccessfulSave).render();
     };
@@ -73,7 +73,7 @@ export class SecretConfigsPage extends Page<null, State> {
                                 vnode.state.onSuccessfulSave).render();
     };
 
-    vnode.state.onClone = (obj, e) => {  //todo
+    vnode.state.onClone = (obj, e) => {
       e.stopPropagation();
       this.flashMessage.clear();
       new CloneSecretConfigModal(vnode.state.secretConfigs,

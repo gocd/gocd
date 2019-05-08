@@ -82,6 +82,15 @@ describe("RulesWidget", () => {
     expect(rules.length).toBe(1);
   });
 
+  // it("should show the possible values of pipeline groups", () => {
+  //   const map = new Map();
+  //   map.set("pipeline_group", ["first", "second", "dummy"]);
+  //   mount(Rules.fromJSON([ruleTestData()]), map);
+  //
+  //   const dataList = helper.findByDataTestId("rule-resource").find("datalist");
+  //   expect(dataList).toBeInDOM();
+  // });
+
   function mount(rules: Rules) {
     helper.mount(() => <RulesWidget rules={stream(rules)}/>);
   }

@@ -171,8 +171,29 @@ $diagram-width: 485px;
   }
 }
 
+.switch-label-text {
+  font-weight: normal;
+  cursor: pointer;
+}
+
+$btn-finish: #6eb642;
+
+.btn-primary:hover {
+  background-color: $btn-finish;
+  border-color: $btn-finish;
+}
+
 .btn-secondary {
-  @include button($background-color: lighten($btn-reset, 10%));
+  @include button($background-color: $white);
+
+  color: $btn-primary;
+  border: 1px solid $btn-primary;
+
+  &:hover {
+    color: $btn-finish;
+    background-color: $white;
+    border-color: $btn-finish;
+  }
 }
 
 .btn-cancel {

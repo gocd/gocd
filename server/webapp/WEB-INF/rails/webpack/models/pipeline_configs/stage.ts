@@ -21,13 +21,11 @@ import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Job} from "./job";
 import {NameableSet} from "./nameable_set";
 
-export enum ApprovalType {
-  success = "success",
-    manual = "manual"
-}
+enum ApprovalType { success = "success", manual = "manual" }
 
-export class Approval extends ValidatableMixin {
+class Approval extends ValidatableMixin {
   type: Stream<ApprovalType> = stream();
+  state: (value?: boolean) => boolean;
 
   //authorization must be present for server side validations
   //even though it's not editable from the create pipeline page
@@ -40,10 +38,15 @@ export class Approval extends ValidatableMixin {
     this.type(ApprovalType.success);
     this.validatePresenceOf("type");
     this.validatePresenceOf("authorization");
-  }
 
-  isSuccessType() {
-    return ApprovalType.success === this.type();
+    // define like this because it will be bound later to the component
+    // and `this` won't refer to an Approval object
+    this.state = (value?: boolean) => {
+      if ("boolean" === typeof value) {
+        this.type(value ? ApprovalType.success : ApprovalType.manual);
+      }
+      return ApprovalType.success === this.type();
+    };
   }
 }
 

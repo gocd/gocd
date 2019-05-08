@@ -28,7 +28,7 @@ export interface Attrs {
   inProgress?: boolean;
   small?: boolean;
   disabled?: boolean;
-  label?: string;
+  label?: m.Children;
   onclick?: (e: MouseEvent) => any;
   field: (newValue?: any) => any | Stream<boolean>;
 }
@@ -40,7 +40,7 @@ export class SwitchBtn extends MithrilViewComponent<Attrs> {
     const switchId   = `switch-${uuid4()}`;
     let label        = null;
     if (vnode.attrs.label) {
-      label = <label className={classnames({[styles.disabled]: vnode.attrs.disabled}, styles.switchLabel)}
+      label = <label for={switchId} className={classnames({[styles.disabled]: vnode.attrs.disabled}, styles.switchLabel)}
                      data-test-id="switch-label">
         {vnode.attrs.label}
       </label>;

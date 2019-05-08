@@ -24,6 +24,7 @@ import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import * as css from "./components.scss";
+import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
   stage: Stage;
@@ -35,7 +36,7 @@ export class StageEditor extends MithrilViewComponent<Attrs> {
 
     return <FormBody>
       <Form last={true} compactForm={true}>
-        <TextField label="Stage Name" placeholder="e.g., Test-and-Report" required={true} property={stage.name} errorText={stage.errors().errorsForDisplay("name")}/>
+        <TextField label="Stage Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., Test-and-Report" property={stage.name} errorText={stage.errors().errorsForDisplay("name")} required={true}/>
         <AdvancedSettings>
 
           <SwitchBtn label={<div class={css.switchLabelText}>

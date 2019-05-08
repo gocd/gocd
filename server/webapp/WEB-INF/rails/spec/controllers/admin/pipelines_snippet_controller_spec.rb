@@ -164,10 +164,7 @@ describe Admin::PipelinesSnippetController do
         group_name = "group_name"
         cruise_config_operational_response = double('cruise_config_operational_response')
         expect(cruise_config_operational_response).to receive(:getConfigElement).and_return(pipeline_configs)
-        validity = double('validity')
-        expect(validity).to receive(:errorMessage).never
-        expect(validity).to receive(:isMergeConflict).and_return(false)
-        expect(validity).to receive(:isPostValidationError).and_return(false)
+        validity = com.thoughtworks.go.config.validation.GoConfigValidity.valid()
         expect(cruise_config_operational_response).to receive(:getValidity).and_return(validity)
         expect(@pipeline_configs_service).to receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
         put :update, params:{:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}
@@ -183,11 +180,7 @@ describe Admin::PipelinesSnippetController do
         group_name = "group_name"
         cruise_config_operational_response = double('cruise_config_operational_response')
         expect(cruise_config_operational_response).to receive(:getConfigElement).and_return(nil)
-        validity = double('validity')
-        expect(validity).to receive(:errorMessage).and_return('error message')
-        expect(validity).to receive(:isValid).never
-        expect(validity).to receive(:isMergeConflict).and_return(true)
-        expect(validity).to receive(:isPostValidationError).never
+        validity = com.thoughtworks.go.config.validation.GoConfigValidity.mergeConflict('error message')
         expect(cruise_config_operational_response).to receive(:getValidity).and_return(validity)
         expect(@pipeline_configs_service).to receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
         put :update, params:{:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}
@@ -211,11 +204,7 @@ describe Admin::PipelinesSnippetController do
         group_name = "group_name"
         cruise_config_operational_response = double('cruise_config_operational_response')
         expect(cruise_config_operational_response).to receive(:getConfigElement).and_return(nil)
-        validity = double('validity')
-        expect(validity).to receive(:isValid).never
-        expect(validity).to receive(:errorMessage).never
-        expect(validity).to receive(:isPostValidationError).and_return(false)
-        expect(validity).to receive(:isMergeConflict).and_return(false)
+        validity = com.thoughtworks.go.config.validation.GoConfigValidity.mergePreValidationError(nil)
         expect(cruise_config_operational_response).to receive(:getValidity).and_return(validity)
         expect(@pipeline_configs_service).to receive(:updateXml).with(group_name, updated_xml, "md5", @user, @result).and_return(cruise_config_operational_response)
         put :update, params:{:group_name => group_name, :group_xml => updated_xml, :config_md5 => "md5"}

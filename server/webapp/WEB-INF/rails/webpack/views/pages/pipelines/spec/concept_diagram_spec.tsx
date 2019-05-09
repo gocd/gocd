@@ -29,14 +29,14 @@ describe("AddPipeline: ConceptDiagram", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("Renders the concept diagram SVG", () => {
-    const img = helper.find(`object[type="image/svg+xml"]`)[0];
+    const img = helper.q(`object[type="image/svg+xml"]`);
     expect(img).toBeTruthy();
     expect(img.getAttribute("data")).toBe(image);
   });
 
   it("Renders the concept diagram caption", () => {
-    expect(helper.find("figure figcaption")[0].textContent).toBe("A simple explanation");
+    expect(helper.q("figure figcaption").textContent).toBe("A simple explanation");
     // preserves formatting
-    expect(helper.find("figure figcaption strong")[0].textContent).toBe("simple");
+    expect(helper.q("figure figcaption strong").textContent).toBe("simple");
   });
 });

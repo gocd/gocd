@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
+import asSelector from "helpers/selector_proxy";
 import * as m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as styles from "../components.scss";
+import * as css from "../components.scss";
 import {UserInputPane} from "../user_input_pane";
 
 describe("AddPipeline: UserInputPane", () => {
+  const sel = asSelector<typeof css>(css);
   const helper = new TestHelper();
-  const cls = bind(styles);
 
   beforeEach(() => {
     helper.mount(() => {
@@ -35,21 +35,19 @@ describe("AddPipeline: UserInputPane", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("Generates structure with heading", () => {
-    const top = helper.find(`.${cls(styles.userInput)}`)[0];
+    const top = helper.q(sel.userInput);
     expect(top).toBeTruthy();
 
-    const heading = top!.querySelector(`.${cls(styles.sectionHeading)}`);
-    expect(heading).not.toBeNull();
-    expect(heading!.textContent).toBe("Episode IV: A New Hope");
+    expect(helper.q(sel.sectionHeading, top)).toBeTruthy();
+    expect(helper.text(sel.sectionHeading, top)).toBe("Episode IV: A New Hope");
 
-    const note = top.querySelector(`.${cls(styles.sectionNote)}`);
-    expect(note).not.toBeNull();
-    expect(note!.textContent).toBe("* denotes a required field");
+    expect(helper.q(sel.sectionNote, top)).toBeTruthy();
+    expect(helper.text(sel.sectionNote, top)).toBe("* denotes a required field");
   });
 
   it("Renders child elements", () => {
-    const top = helper.find(`.${cls(styles.userInput)}`)[0];
-    expect(top.querySelector("p.nerd-alert")).toBeTruthy();
-    expect(top.querySelector("p.nerd-alert")!.textContent).toBe("A long time ago in a galaxy far, far away...");
+    const top = helper.q(sel.userInput);
+    expect(helper.q("p.nerd-alert", top)).toBeTruthy();
+    expect(helper.text("p.nerd-alert", top)).toBe("A long time ago in a galaxy far, far away...");
   });
 });

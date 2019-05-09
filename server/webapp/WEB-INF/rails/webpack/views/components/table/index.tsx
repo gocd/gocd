@@ -22,6 +22,7 @@ import * as s from "underscore.string";
 import * as styles from "./index.scss";
 
 const classnames = bind(styles);
+const Sortable   = require("@shopify/draggable/lib/es5/sortable").default; // es5 bundle => IE11 support
 
 export abstract class TableSortHandler {
   private __currentSortedColumnIndex: number = -1;
@@ -46,6 +47,7 @@ interface Attrs {
   data: m.Child[][];
   "data-test-id"?: string;
   sortHandler?: TableSortHandler;
+  draggable?: boolean;
 }
 
 interface HeaderAttrs {
@@ -89,10 +91,31 @@ class TableHeader extends MithrilViewComponent<HeaderAttrs> {
 }
 
 export class Table extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    return <table className={styles.table} data-test-id={vnode.attrs["data-test-id"] || "table"}>
+  draggable: boolean = false;
+
+  view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
+    let draggableColHeader: m.Child;
+    let draggableCol: m.Child;
+    let iconDrag: string | undefined;
+    let draggable_row: string | undefined;
+    let draggable_table: string | undefined;
+
+    this.draggable = (vnode.attrs.draggable && vnode.attrs.draggable === true) || false;
+
+    if (vnode.attrs.draggable && vnode.attrs.draggable === true) {
+      iconDrag           = vnode.attrs.draggable ? "icon-drag" : undefined;
+      draggable_row      = vnode.attrs.draggable ? "draggable-row" : undefined;
+      draggable_table    = vnode.attrs.draggable ? "draggable" : undefined;
+      draggableColHeader = <th></th>;
+      draggableCol       =
+        <td><i className={classnames(styles.dragIcon, iconDrag)}></i></td>;
+    }
+
+    return <table className={classnames(styles.table, draggable_table)}
+                  data-test-id={vnode.attrs["data-test-id"] || "table"}>
       <thead data-test-id="table-header">
       <tr data-test-id="table-header-row">
+        {draggableColHeader}
         {vnode.attrs.headers
               .map((header: any, index: number) => {
                 return <TableHeader name={Table.renderedValue(header)}
@@ -106,7 +129,8 @@ export class Table extends MithrilViewComponent<Attrs> {
       {
         vnode.attrs.data.map((rows) => {
           return (
-            <tr data-test-id="table-row">
+            <tr class={draggable_row} data-test-id="table-row">
+              {draggableCol}
               {rows.map((row) => <td>{Table.renderedValue(row)}</td>)}
             </tr>
           );
@@ -114,6 +138,18 @@ export class Table extends MithrilViewComponent<Attrs> {
       }
       </tbody>
     </table>;
+  }
+
+  oncreate(vnode: m.VnodeDOM<Attrs, this>): any {
+    if (this.draggable) {
+      return new Sortable(vnode.dom.querySelector("tbody"),
+                          {
+                            draggable: ".draggable-row",
+                            handle: ".icon-drag",
+                            swapThreshold: 1,
+                            easing: "cubic-bezier(1, 0, 0, 1)"
+                          });
+    }
   }
 
   private static renderedValue(value: m.Children) {

@@ -291,6 +291,10 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <AutocompleteField label="Dynamic" property={model} provider={this.provider}/>
 
         <Buttons.Primary onclick={this.toggleType.bind(this)}>Click to change type!</Buttons.Primary>
+
+        <br/>
+        <h3>Draggable Table</h3>
+        <Table draggable={true} headers={["Pipeline", "Stage", "Job"]} data={draggableList()}/>
       </div>
     );
   }
@@ -318,6 +322,14 @@ const pipelineData = stream(
     ["LinuxPR", "build", "clean"],
     ["LinuxPR", "test", "clean"],
     ["LinuxPR", "build", "clean"]
+  ]);
+
+const draggableList = stream(
+  [
+    ["1", "test", "jasmine"],
+    ["2", "build", "installer"],
+    ["4", "upload", "upload"],
+    ["3", "build", "clean"]
   ]);
 
 class DummyTableSortHandler extends TableSortHandler {

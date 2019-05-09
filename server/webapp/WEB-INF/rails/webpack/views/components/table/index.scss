@@ -102,4 +102,12 @@ $icon_disable_color: #ccc;
   }
 }
 
+.mirror {
+  background-color: $info;
+  opacity:          0.7;
+}
+
+.draggable-over {
+  background-color: $icon_disable_color;
+}
 

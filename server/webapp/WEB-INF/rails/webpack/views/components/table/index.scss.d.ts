@@ -6,3 +6,5 @@ export const sortButton: string;
 export const inActive: string;
 export const draggable: string;
 export const dragIcon: string;
+export const mirror: string;
+export const draggableOver: string;

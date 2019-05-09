@@ -102,10 +102,10 @@ export class Table extends MithrilViewComponent<Attrs> {
 
     this.draggable = (vnode.attrs.draggable && vnode.attrs.draggable === true) || false;
 
-    if (vnode.attrs.draggable && vnode.attrs.draggable === true) {
-      iconDrag           = vnode.attrs.draggable ? "icon-drag" : undefined;
-      draggable_row      = vnode.attrs.draggable ? "draggable-row" : undefined;
-      draggable_table    = vnode.attrs.draggable ? "draggable" : undefined;
+    if (this.draggable) {
+      iconDrag           = "icon-drag";
+      draggable_row      = "draggable-row";
+      draggable_table    = "draggable";
       draggableColHeader = <th></th>;
       draggableCol       =
         <td><i className={classnames(styles.dragIcon, iconDrag)}></i></td>;
@@ -146,8 +146,13 @@ export class Table extends MithrilViewComponent<Attrs> {
                           {
                             draggable: ".draggable-row",
                             handle: ".icon-drag",
-                            swapThreshold: 1,
-                            easing: "cubic-bezier(1, 0, 0, 1)"
+                            classes: {
+                              "mirror": styles.mirror,
+                              "draggable:over": styles.draggableOver
+                            } ,
+                            mirror: {
+                              appendTo: "body"
+                            }
                           });
     }
   }

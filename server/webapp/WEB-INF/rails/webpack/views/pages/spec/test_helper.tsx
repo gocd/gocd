@@ -67,6 +67,20 @@ export class TestHelper {
     }
   }
 
+  // native implementations - prefer these
+  byTestId(id: string, context?: Element): Element {
+    return this.q(`[data-test-id='${id}']`, context);
+  }
+
+  q(selector: string, context?: Element): Element {
+    return (context || this.root!).querySelector(selector)!;
+  }
+
+  qa(selector: string, context?: Element): NodeListOf<Element> {
+    return (context || this.root!).querySelectorAll(selector);
+  }
+
+  // jQuery implementations
   findByDataTestId(id: string) {
     return $(this.root!).find(`[data-test-id='${id}']`);
   }
@@ -80,7 +94,7 @@ export class TestHelper {
   }
 
   click(selector: string) {
-    const element = this.root!.querySelector(selector);
+    const element = this.q(selector);
     if (!element) {
       throw new Error(`Unable to find element with selector ${selector}`);
     }
@@ -89,7 +103,7 @@ export class TestHelper {
   }
 
   clickButtonOnActiveModal(buttonSelector: string) {
-    const element = document.querySelector(".new-modal-container")!.querySelector(buttonSelector);
+    const element = document.querySelector(`.new-modal-container ${buttonSelector}`);
     if (!element) {
       throw new Error(`Unable to find button with selector ${buttonSelector}`);
     }
@@ -111,7 +125,7 @@ export class TestHelper {
   }
 
   findByClass(className: string) {
-    return this.find(`.${className}`);
+    return this.root!.getElementsByClassName(className);
   }
 
   private initialize() {

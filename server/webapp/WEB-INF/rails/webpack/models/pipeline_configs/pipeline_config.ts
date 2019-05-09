@@ -56,6 +56,10 @@ export class PipelineConfig extends ValidatableMixin {
     });
   }
 
+  run() {
+    return ApiRequestBuilder.POST(SparkRoutes.pipelineTriggerPath(this.name()), ApiVersion.v1);
+  }
+
   pause() {
     return ApiRequestBuilder.POST(SparkRoutes.pipelinePausePath(this.name()), ApiVersion.v1);
   }

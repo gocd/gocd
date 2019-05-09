@@ -132,6 +132,7 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
   private static toTaskEl(parsed: ParsedCommand): HTMLElement {
     return newEl("pre", {class: css.task}, [
       newEl("span", {"class": css.cmd, "data-cmd": JSON.stringify(parsed.cmd)}, parsed.rawCmd),
+      "" === parsed.rawArgs ? "" : " ",
       newEl("span", {"class": css.args, "data-args": JSON.stringify(parsed.args)}, parsed.rawArgs)
     ]);
   }
@@ -187,16 +188,21 @@ function newEl(tag: string, options: any, children: Child | Child[]): HTMLElemen
 
   if (children instanceof Array) {
     for (const child of children) {
-      el.appendChild(ensureNode(child));
+      appendTo(el, asNode(child));
     }
   } else {
-    el.appendChild(ensureNode(children));
+    appendTo(el, asNode(children));
   }
   return el;
 }
 
-function ensureNode(subj: Child): Node {
+function appendTo(el: Node, child?: Node) {
+  if (child) { el.appendChild(child); }
+}
+
+function asNode(subj: Child): Node | undefined {
   if ("string" === typeof subj) {
+    if ("" === subj) { return undefined; }
     return document.createTextNode(subj);
   }
 

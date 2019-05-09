@@ -20,6 +20,8 @@ import * as simulateEvent from "simulate-event";
 import {Page} from "views/pages/page";
 
 let mounted = false;
+type ElementWithInput = HTMLInputElement | HTMLTextAreaElement;
+type ElementWithValue = ElementWithInput | HTMLSelectElement;
 
 export class TestHelper {
   root?: HTMLElement;
@@ -80,17 +82,33 @@ export class TestHelper {
     return (context || this.root!).querySelectorAll(selector);
   }
 
-  // jQuery implementations
-  findByDataTestId(id: string) {
-    return $(this.root!).find(`[data-test-id='${id}']`);
+  text(selector: string, context?: Element): string {
+    return (this.q(selector, context).textContent || "").trim();
   }
 
-  find(selector: string) {
-    return $(this.root!).find(selector);
+  textAll(selector: string, context?: Element): string[] {
+    const result: string[] = [];
+    const elements = Array.from(this.qa(selector, context));
+
+    for (const el of elements) {
+      result.push((el.textContent || "").trim());
+    }
+
+    return result;
   }
 
-  findIn(elem: any, id: string) {
-    return $(elem).find(this.dataTestIdSelector(id));
+  onchange(selector: string, value: string) {
+    const input: ElementWithValue = this.q(selector) as ElementWithValue;
+    input.value = value;
+    simulateEvent.simulate(input, "change");
+    this.redraw();
+  }
+
+  oninput(selector: string, value: string) {
+    const input: ElementWithInput = this.q(selector) as ElementWithInput;
+    input.value = value;
+    simulateEvent.simulate(input, "input");
+    this.redraw();
   }
 
   click(selector: string) {
@@ -126,6 +144,19 @@ export class TestHelper {
 
   findByClass(className: string) {
     return this.root!.getElementsByClassName(className);
+  }
+
+  // jQuery implementations
+  findByDataTestId(id: string) {
+    return $(this.root!).find(`[data-test-id='${id}']`);
+  }
+
+  find(selector: string) {
+    return $(this.root!).find(selector);
+  }
+
+  findIn(elem: any, id: string) {
+    return $(elem).find(this.dataTestIdSelector(id));
   }
 
   private initialize() {

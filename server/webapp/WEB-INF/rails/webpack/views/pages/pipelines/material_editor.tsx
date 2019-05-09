@@ -39,7 +39,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
     return <FormBody>
-      <SelectField label="Material Type"property={vnode.attrs.material.type} required={true}>
+      <SelectField label="Material Type" property={vnode.attrs.material.type} required={true}>
         <SelectFieldOptions selected={vnode.attrs.material.type()} items={this.supportedMaterials()}/>
       </SelectField>
 

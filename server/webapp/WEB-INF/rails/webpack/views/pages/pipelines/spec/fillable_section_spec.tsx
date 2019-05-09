@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+import asSelector from "helpers/selector_proxy";
 import * as m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
 import * as css from "../components.scss";
 import {FillableSection} from "../fillable_section";
 
 describe("AddPipeline: FillableSection", () => {
+  const sel = asSelector<typeof css>(css);
   const helper = new TestHelper();
 
   beforeEach(() => {
@@ -33,12 +35,12 @@ describe("AddPipeline: FillableSection", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("Generates structure", () => {
-    const top = helper.find(`.${css.fillable}`)[0];
+    const top = helper.q(sel.fillable);
     expect(top).toBeTruthy();
   });
 
   it("Renders child elements", () => {
-    const top = helper.find(`.${css.fillable}`)[0];
+    const top = helper.q(sel.fillable);
     expect(top.querySelector(".foo")).toBeTruthy();
     expect(top.querySelector(".foo")!.textContent).toBe("Some content");
   });

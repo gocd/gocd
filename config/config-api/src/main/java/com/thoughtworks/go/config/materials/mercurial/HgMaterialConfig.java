@@ -19,14 +19,10 @@ package com.thoughtworks.go.config.materials.mercurial;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.HgUrlArgument;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
-
-import static com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121.urlWithoutCredentials;
 
 @ConfigTag(value = "hg", label = "Mercurial")
 public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware {
@@ -42,23 +38,18 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     public HgMaterialConfig(String url, String folder) {
         this();
-        setUrl(UrlDenormalizerXSLTMigration121.urlWithoutCredentials(url));
-        setUserName(UrlDenormalizerXSLTMigration121.getUsername(url));
-        setPassword(UrlDenormalizerXSLTMigration121.getPassword(url));
+        setUrl(url);
         this.folder = folder;
     }
 
     public HgMaterialConfig(HgUrlArgument url, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
         super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
-        setUrl(UrlDenormalizerXSLTMigration121.urlWithoutCredentials(url.forCommandLine()));
-        setUserName(UrlDenormalizerXSLTMigration121.getUsername(url.forCommandLine()));
-        setPassword(UrlDenormalizerXSLTMigration121.getPassword(url.forCommandLine()));
+        this.url = url;
     }
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        String urlWithCredentials = UrlDenormalizerXSLTMigration121.urlWithCredentials(this.url.originalArgument(), getUserName(), getPassword());
-        parameters.put(ScmMaterialConfig.URL, urlWithCredentials);
+        parameters.put(ScmMaterialConfig.URL, this.url.originalArgument());
     }
 
     @Override
@@ -119,17 +110,6 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
         validateMaterialUrl(this.url, validationContext);
-//        validateCredentialsInMaterialUrl();
-    }
-
-    private void validateCredentialsInMaterialUrl() {
-        if (this.url == null) {
-            return;
-        }
-
-        if (!StringUtils.equals(this.url.originalArgument(), urlWithoutCredentials(this.url.originalArgument()))) {
-            errors().add("url", "You may specify credentials only in attributes, not in url");
-        }
     }
 
     @Override

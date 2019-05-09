@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.materials.mercurial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
-import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
@@ -73,7 +72,7 @@ public class HgMaterial extends ScmMaterial {
     }
 
     public HgMaterial(HgMaterialConfig config) {
-        this(UrlDenormalizerXSLTMigration121.urlWithCredentials(config.getUrl(), config.getUserName(), config.getPassword()), config.getFolder());
+        this(config.getUrl(), config.getFolder());
         this.userName = config.getUserName();
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();

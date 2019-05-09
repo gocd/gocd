@@ -22,15 +22,11 @@ import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
-
-import static com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121.urlWithCredentials;
-import static com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121.urlWithoutCredentials;
 
 @ConfigTag("git")
 public class GitMaterialConfig extends ScmMaterialConfig {
@@ -58,9 +54,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     public GitMaterialConfig(String url) {
         super(TYPE);
-        setUrl(urlWithoutCredentials(url));
-        setUserName(UrlDenormalizerXSLTMigration121.getUsername(url));
-        setPassword(UrlDenormalizerXSLTMigration121.getPassword(url));
+        setUrl(url);
     }
 
     public GitMaterialConfig(String url, String branch) {
@@ -77,9 +71,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name, Boolean shallowClone) {
         super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
-        setUrl(urlWithoutCredentials(url.forCommandLine()));
-        setUserName(UrlDenormalizerXSLTMigration121.getUsername(url.forCommandLine()));
-        setPassword(UrlDenormalizerXSLTMigration121.getPassword(url.forCommandLine()));
+        this.url = url;
         if (branch != null) {
             this.branch = branch;
         }
@@ -89,8 +81,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        String urlWithCredentials = urlWithCredentials(this.url.originalArgument(), getUserName(), getPassword());
-        parameters.put(ScmMaterialConfig.URL, urlWithCredentials);
+        parameters.put(ScmMaterialConfig.URL, url.originalArgument());
         parameters.put("branch", branch);
     }
 
@@ -157,17 +148,6 @@ public class GitMaterialConfig extends ScmMaterialConfig {
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
         validateMaterialUrl(this.url, validationContext);
-//        validateCredentialsInMaterialUrl();
-    }
-
-    private void validateCredentialsInMaterialUrl() {
-        if (this.url == null) {
-            return;
-        }
-
-        if (!StringUtils.equals(this.url.originalArgument(), urlWithoutCredentials(this.url.originalArgument()))) {
-            errors().add("url", "You may specify credentials only in attributes, not in url");
-        }
     }
 
     @Override

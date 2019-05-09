@@ -898,18 +898,18 @@ public class GoConfigMigrationIntegrationTest {
 
         String migratedContent = migrateXmlString(configXml, 105, 106);
         String artifactId2 = "<artifact type=\"external\" id=\"artifactId2\" storeId=\"foo\">"
-                +"                         <property>"
-                +"                             <key>BuildFile</key>"
-                +"                             <value>foo.json</value>"
-                +"                         </property>"
-                +"                     </artifact>";
+                + "                         <property>"
+                + "                             <key>BuildFile</key>"
+                + "                             <value>foo.json</value>"
+                + "                         </property>"
+                + "                     </artifact>";
 
         String artifactId3 = "<artifact type=\"external\" id=\"artifactId3\" storeId=\"foo\">"
-                +"                         <property>"
-                +"                             <key>SecureProperty</key>"
-                +"                             <encryptedValue>trMHp15AjUE=</encryptedValue>"
-                +"                         </property>"
-                +"                     </artifact>";
+                + "                         <property>"
+                + "                             <key>SecureProperty</key>"
+                + "                             <encryptedValue>trMHp15AjUE=</encryptedValue>"
+                + "                         </property>"
+                + "                     </artifact>";
         assertThat(migratedContent).contains("<artifact type=\"external\" id=\"artifactId1\" storeId=\"foo\"/>");
         assertThat(migratedContent).contains(artifactId2);
         assertThat(migratedContent).contains(artifactId3);
@@ -1025,22 +1025,22 @@ public class GoConfigMigrationIntegrationTest {
         String migratedContent = migrateXmlString(configXml, 106);
 
         String artifactId2 = "<fetchartifact artifactOrigin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId2\">"
-                +"                         <configuration>"
-                +"                             <property>"
-                +"                                 <key>dest</key>"
-                +"                                 <value>destination</value>"
-                +"                             </property>"
-                +"                         </configuration>"
-                +"                     </fetchartifact>";
+                + "                         <configuration>"
+                + "                             <property>"
+                + "                                 <key>dest</key>"
+                + "                                 <value>destination</value>"
+                + "                             </property>"
+                + "                         </configuration>"
+                + "                     </fetchartifact>";
 
         String artifactId3 = "<fetchartifact artifactOrigin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId3\">"
-                +"                         <configuration>"
-                +"                             <property>"
-                +"                                 <key>SomeSecureProperty</key>"
-                +"                                 <encryptedValue>" + new GoCipher().encrypt("abcd") + "</encryptedValue>"
-                +"                             </property>"
-                +"                         </configuration>"
-                +"                     </fetchartifact>";
+                + "                         <configuration>"
+                + "                             <property>"
+                + "                                 <key>SomeSecureProperty</key>"
+                + "                                 <encryptedValue>" + new GoCipher().encrypt("abcd") + "</encryptedValue>"
+                + "                             </property>"
+                + "                         </configuration>"
+                + "                     </fetchartifact>";
 
         assertThat(migratedContent).contains("<fetchartifact artifactOrigin=\"external\" pipeline=\"foo\" stage=\"stage1\" job=\"job1\" artifactId=\"artifactId1\"");
         assertThat(migratedContent).contains(artifactId2);
@@ -1103,7 +1103,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldOnlyUpdateSchemaVersionForMigration114() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        String configContent =  "<pipelines>"
+        String configContent = "<pipelines>"
                 + "      <pipeline name=\"p1\">"
                 + "         <materials> "
                 + "           <hg url=\"blah\"/>"
@@ -1218,29 +1218,29 @@ public class GoConfigMigrationIntegrationTest {
 
         assertStringContainsIgnoringCarriageReturn(migratedContent,
                 "<config-repos>\n" +
-                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test\">\n" +
-                "      <git url=\"test\" branch=\"test\"/>\n" +
-                "    </config-repo>\n" +
-                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test1\">\n" +
-                "      <svn url=\"test\" username=\"\"/>\n" +
-                "    </config-repo>\n" +
-                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test2\">\n" +
-                "      <hg url=\"test\"/>\n" +
-                "    </config-repo>\n" +
-                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"asd\">\n" +
-                "      <tfs url=\"test\" username=\"admin\" domain=\"test\" encryptedPassword=\"AES:09M8nDpEgOgRGVVWAnEiMQ==:7lAsVu5nZ6iYhoZ4Alwc5g==\" projectPath=\"test\"/>\n" +
-                "    </config-repo>\n" +
-                "    <config-repo pluginId=\"yaml.config.plugin\" id=\"asdasd\">\n" +
-                "      <p4 port=\"test\" username=\"admin\" encryptedPassword=\"AES:A7h8pqjGyz372Kogx5xX/w==:tG1WNNd680UyqOUM1BVrfQ==\">\n" +
-                "        <view>&lt;h1&gt;test&lt;/h1&gt;</view>\n" +
-                "      </p4>\n" +
-                "    </config-repo>\n" +
-                "  </config-repos>");
+                        "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test\">\n" +
+                        "      <git url=\"test\" branch=\"test\"/>\n" +
+                        "    </config-repo>\n" +
+                        "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test1\">\n" +
+                        "      <svn url=\"test\" username=\"\"/>\n" +
+                        "    </config-repo>\n" +
+                        "    <config-repo pluginId=\"yaml.config.plugin\" id=\"test2\">\n" +
+                        "      <hg url=\"test\"/>\n" +
+                        "    </config-repo>\n" +
+                        "    <config-repo pluginId=\"yaml.config.plugin\" id=\"asd\">\n" +
+                        "      <tfs url=\"test\" username=\"admin\" domain=\"test\" encryptedPassword=\"AES:09M8nDpEgOgRGVVWAnEiMQ==:7lAsVu5nZ6iYhoZ4Alwc5g==\" projectPath=\"test\"/>\n" +
+                        "    </config-repo>\n" +
+                        "    <config-repo pluginId=\"yaml.config.plugin\" id=\"asdasd\">\n" +
+                        "      <p4 port=\"test\" username=\"admin\" encryptedPassword=\"AES:A7h8pqjGyz372Kogx5xX/w==:tG1WNNd680UyqOUM1BVrfQ==\">\n" +
+                        "        <view>&lt;h1&gt;test&lt;/h1&gt;</view>\n" +
+                        "      </p4>\n" +
+                        "    </config-repo>\n" +
+                        "  </config-repos>");
     }
 
     @Test
     public void shouldOnlyUpdateSchemaVersionForMigration116() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        String configContent =  "<pipelines>"
+        String configContent = "<pipelines>"
                 + "      <pipeline name=\"p1\">"
                 + "         <materials> "
                 + "           <hg url=\"blah\"/>"
@@ -1347,6 +1347,41 @@ public class GoConfigMigrationIntegrationTest {
         assertThat(cruiseConfig.getElasticConfig().getProfiles()).hasSize(2);
         assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind")).isNotNull();
         assertThat(cruiseConfig.getElasticConfig().getProfiles().find("ecs-gocd-dev-build-dind-docker-compose")).isNotNull();
+    }
+
+    @Test
+    public void shouldMigrateEverythingAsItIs() throws Exception {
+        String originalConfig = "<pipelines group=\"first\">" +
+                "    <pipeline name=\"Test\" template=\"test_template\">" +
+                "      <materials>" +
+                "          <git url=\"http://\" dest=\"dest_dir14\" />" +
+                "      </materials>" +
+                "     </pipeline>" +
+                "  </pipelines>" +
+                "  <templates>" +
+                "    <pipeline name=\"test_template\">" +
+                "      <stage name=\"Functional\">" +
+                "        <jobs>" +
+                "          <job name=\"Functional\">" +
+                "            <tasks>" +
+                "              <exec command=\"echo\" args=\"Hello World!!!\" />" +
+                "            </tasks>" +
+                "           </job>" +
+                "        </jobs>" +
+                "      </stage>" +
+                "    </pipeline>" +
+                "  </templates>";
+
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"120\">" + originalConfig + "</cruise>";
+
+        String expectedConfig =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"121\">" + originalConfig + "</cruise>";
+
+        final String migratedXml = migrateXmlString(configXml, 120, 121);
+        XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {

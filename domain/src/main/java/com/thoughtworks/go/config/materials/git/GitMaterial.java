@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.materials.git;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
-import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
@@ -98,16 +97,12 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public GitMaterial(GitMaterialConfig config) {
-        this(toURLArgument(config.getUrl(), config.getUserName(), config.getPassword()), config.getBranch(), config.getFolder(), config.isShallowClone());
+        this(config.getUrl(), config.getBranch(), config.getFolder(), config.isShallowClone());
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
         this.name = config.getName();
         this.submoduleFolder = config.getSubmoduleFolder();
         this.invertFilter = config.getInvertFilter();
-    }
-
-    private static String toURLArgument(String url, String userName, String password) {
-        return UrlDenormalizerXSLTMigration121.urlWithCredentials(url, userName, password);
     }
 
     @Override

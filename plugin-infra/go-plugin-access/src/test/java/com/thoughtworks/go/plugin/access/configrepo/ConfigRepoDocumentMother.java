@@ -84,12 +84,4 @@ class ConfigRepoDocumentMother {
     String v4ComprehensiveWithDisplayOrderWeightsOf10AndMinusOne() {
         return JsonUtils.toJsonString(getJSONFor("/v4_comprehensive_with_display_order_weights_of_10_and_minus_one.json"));
     }
-
-    String v4GitMaterialWithCredentialInUrl() {
-        return JsonUtils.toJsonString(getJSONFor("/v4_git_and_hg_material_with_credential_inside_url.json"));
-    }
-
-    String v5GitMaterialWithCredentialNotInUrl() {
-        return JsonUtils.toJsonString(getJSONFor("/v5_git_and_hg_materials_with_denormalized_url.json"));
-    }
 }

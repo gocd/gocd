@@ -128,17 +128,4 @@ public class ConfigRepoMigratorTest {
 
         assertThatJson(newJSON).isEqualTo(transformedJSON);
     }
-
-
-    @Test
-    public void migrateV4ToV5_shouldNormalizeMaterialUrlsForGit() {
-        ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
-
-        String oldJSON = documentMother.v4GitMaterialWithCredentialInUrl();
-        String newJSON = documentMother.v5GitMaterialWithCredentialNotInUrl();
-
-        String transformedJSON = migrator.migrate(oldJSON, 5);
-
-        assertThatJson(newJSON).isEqualTo(transformedJSON);
-    }
 }

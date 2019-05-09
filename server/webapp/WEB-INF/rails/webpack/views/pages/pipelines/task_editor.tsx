@@ -52,7 +52,7 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
         <span>Caveats</span>
         <p>This is not a real shell:</p>
         <p>- Pipes, loops, and conditionals will NOT work</p>
-        <p>- Use <strong>&lt;shift&gt;-&lt;enter&gt;</strong> for multiline, not <strong>`\`</strong></p>
+        <p>- <strong>&lt;shift&gt;-&lt;enter&gt;</strong> for newlines, <strong>`\`</strong> is optional</p>
         <p>- Commands are not stateful; e.g., `cd foo` will NOT change cwd for subsequent commands</p>
       </div>
       <p class={css.comment}># Type your commands; press <strong>&lt;enter&gt;</strong> to save</p>
@@ -140,7 +140,7 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
   private static parseCLI(raw: string): ParsedCommand {
     let rawCmd = raw, rawArgs = ""; // rawCmd/Args preserve the exact formatting of the user's input
     let extractedCommand = false; // flag to ensure we only set these once
-    const args = Shellwords.split(raw, (token: string) => {
+    const args = _.filter(Shellwords.split(raw, (token: string) => {
       if (!extractedCommand) {
         // get the raw cmd string and argStr to
         // preserve exactly what the user typed, so as
@@ -149,8 +149,10 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
         rawArgs = raw.slice(token.length).trim();
         extractedCommand = true;
       }
-    });
+    }), (s) => "\\" !== s.trim());
+
     const cmd = args.shift()!;
+
     return { cmd, args, rawCmd, rawArgs };
   }
 

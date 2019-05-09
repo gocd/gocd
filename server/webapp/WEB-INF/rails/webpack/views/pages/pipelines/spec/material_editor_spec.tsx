@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-// import asSelector from "helpers/selector_proxy";
 import * as m from "mithril";
-import {Material} from "models/materials/types";
+import {GitMaterialAttributes, Material, P4MaterialAttributes} from "models/materials/types";
 import {TestHelper} from "views/pages/spec/test_helper";
-// import * as css from "../components.scss";
 import {MaterialEditor} from "../material_editor";
 
 describe("AddPipeline: Material Editor", () => {
-  // const sel = asSelector<typeof css>(css);
   const helper = new TestHelper();
   let material: Material;
 
@@ -45,15 +42,18 @@ describe("AddPipeline: Material Editor", () => {
 
   it("Selecting a material updates the model type", () => {
     expect(material.type()).toBeUndefined();
+    expect(material.attributes()).toBeUndefined();
 
     helper.onchange("select", "p4");
     expect(material.type()).toBe("p4");
+    expect(material.attributes() instanceof P4MaterialAttributes).toBe(true);
     expect(helper.byTestId("form-field-label-repository-url")).toBeFalsy();
     expect(helper.byTestId("form-field-label-p4-view")).toBeTruthy();
     expect(helper.byTestId("form-field-label-p4-view").textContent).toBe("P4 View*");
 
     helper.onchange("select", "git");
     expect(material.type()).toBe("git");
+    expect(material.attributes() instanceof GitMaterialAttributes).toBe(true);
     expect(helper.byTestId("form-field-label-p4-view")).toBeFalsy();
     expect(helper.byTestId("form-field-label-repository-url")).toBeTruthy();
     expect(helper.byTestId("form-field-label-repository-url").textContent).toBe("Repository URL*");

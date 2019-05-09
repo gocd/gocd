@@ -159,10 +159,29 @@ class Label extends MithrilViewComponent<LabelComponentAttrs> {
     }
   }
 
+  static labelToId(label: m.Children): string {
+    if ("string" === typeof label) {
+      return label;
+    }
+
+    if (label instanceof Array) { // best guess, only consider top-level and don't recurse
+      let text = "";
+      for (const child of label) {
+        if ("string" === typeof child) {
+          text += child;
+        } else if (!(child instanceof Array)) {
+          text += (child as m.Vnode).text || "";
+        }
+      }
+      return text;
+    }
+    return "";
+  }
+
   view(vnode: m.Vnode<LabelComponentAttrs>) {
     if (Label.hasLabelText(vnode.attrs)) {
       return <label for={vnode.attrs.fieldId}
-                    data-test-id={`form-field-label-${s.slugify(vnode.attrs.label as string)}`}
+                    data-test-id={`form-field-label-${s.slugify(Label.labelToId(vnode.attrs.label))}`}
                     className={classnames(styles.formLabel)}>
         {vnode.attrs.label}
         <RequiredLabel {...vnode.attrs} />
@@ -252,7 +271,7 @@ function defaultAttributes<T, V>(attrs: BaseAttrs<T> & V,
     "disabled": !!(attrs.readonly),
     "required": !!required,
     "id": id,
-    "data-test-id": `form-field-input-${s.slugify(attrs.label as string)}`
+    "data-test-id": `form-field-input-${s.slugify(Label.labelToId(attrs.label))}`
   };
 
   if (attrs.dataTestId) {

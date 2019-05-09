@@ -18,13 +18,18 @@ package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.materials.DummyMaterial;
 import com.thoughtworks.go.domain.materials.Modification;
+import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Nested;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,8 +37,7 @@ import java.util.Date;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ScmMaterialTest {
     private DummyMaterial material;
@@ -145,4 +149,42 @@ public class ScmMaterialTest {
         material.setName(new CaseInsensitiveString("some-material"));
         assertThat(material.getMaterialNameForEnvironmentVariable(), is("SOME_MATERIAL"));
     }
+
+    @Nested
+    class hasSecretParams {
+        @Test
+        void shouldBeTrueIfPasswordHasSecretParam() {
+            DummyMaterial dummyMaterial = new DummyMaterial();
+            dummyMaterial.setPassword("{{SECRET:[secret_config_id][lookup_password]}}");
+
+            assertTrue(dummyMaterial.hasSecretParams());
+        }
+
+        @Test
+        void shouldBeFalseIfMaterialUrlAndPasswordDoesNotHaveSecretParams() {
+            DummyMaterial dummyMaterial = new DummyMaterial();
+
+            assertFalse(dummyMaterial.hasSecretParams());
+        }
+    }
+
+    @Nested
+    class getSecretParams {
+        @Test
+        void shouldReturnAListOfSecretParams() {
+            DummyMaterial dummyMaterial = new DummyMaterial();
+            dummyMaterial.setPassword("{{SECRET:[secret_config_id][lookup_password]}}");
+
+            assertThat(dummyMaterial.getSecretParams().size(), is(1));
+            assertThat(dummyMaterial.getSecretParams().get(0), is(new SecretParam("secret_config_id", "lookup_password")));
+        }
+
+        @Test
+        void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialPassword() {
+            DummyMaterial dummyMaterial = new DummyMaterial();
+
+            assertThat(dummyMaterial.getSecretParams().size(), is(0));
+        }
+    }
+
 }

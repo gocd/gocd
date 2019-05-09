@@ -181,34 +181,6 @@ class HgMaterialConfigTest {
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(hgMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
         }
-
-        @Test
-        void shouldFailValidationIfMaterialURLHasSecretParamsConfiguredOtherThanForUsernamePassword() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-            hgMaterialConfig.setUrl("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
-
-            assertThat(hgMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(hgMaterialConfig.errors().on("url")).isEqualTo("Only password can be specified as secret params");
-        }
-
-        @Test
-        void shouldFailIfSecretParamConfiguredWithSecretConfigIdWhichDoesNotExist() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-            hgMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
-
-            assertThat(hgMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(hgMaterialConfig.errors().on("url")).isEqualTo("Secret config with ids `secret_config_id` does not exist.");
-        }
-
-        @Test
-        void shouldNotFailIfSecretConfigWithIdPresentForConfiguredSecretParams() {
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file");
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-            hgMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][username]}}@host/foo.git");
-
-            assertThat(hgMaterialConfig.validateTree(validationContext)).isTrue();
-            assertThat(hgMaterialConfig.errors().getAll()).isEmpty();
-        }
     }
 
     private ValidationContext mockValidationContextForSecretParams(SecretConfig... secretConfigs) {

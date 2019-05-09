@@ -158,34 +158,6 @@ class SvnMaterialConfigTest {
 
             assertThat(svnMaterialConfig.errors().on(SvnMaterialConfig.FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
         }
-
-        @Test
-        void shouldFailValidationIfMaterialURLHasSecretParamsConfiguredOtherThanForUsernamePassword() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-            svnMaterialConfig.setUrl("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
-
-            assertThat(svnMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(svnMaterialConfig.errors().on("url")).isEqualTo("Only password can be specified as secret params");
-        }
-
-        @Test
-        void shouldFailIfSecretParamConfiguredWithSecretConfigIdWhichDoesNotExist() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-            svnMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
-
-            assertThat(svnMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(svnMaterialConfig.errors().on("url")).isEqualTo("Secret config with ids `secret_config_id` does not exist.");
-        }
-
-        @Test
-        void shouldNotFailIfSecretConfigWithIdPresentForConfiguredSecretParams() {
-            svnMaterialConfig.setUrl("https://bob:{{SECRET:[secret_config_id][username]}}@host/foo.git");
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file");
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-
-            assertThat(svnMaterialConfig.validateTree(validationContext)).isTrue();
-            assertThat(svnMaterialConfig.errors().getAll()).isEmpty();
-        }
     }
 
     @Nested

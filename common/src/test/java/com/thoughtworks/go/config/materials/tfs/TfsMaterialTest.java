@@ -279,61 +279,6 @@ public class TfsMaterialTest {
     }
 
     @Nested
-    class hasSecretParams {
-        @Test
-        void shouldBeTrueIfMaterialUrlHasSecretParams() {
-            UrlArgument urlArgument = new UrlArgument("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com");
-            TfsMaterial tfsMaterial = new TfsMaterial(new GoCipher(), urlArgument, null, null, null, null);
-
-            assertThat(tfsMaterial.hasSecretParams()).isTrue();
-        }
-
-        @Test
-        void shouldBeTrueIfPasswordHasSecretParam() {
-            UrlArgument urlArgument = new UrlArgument("http://foo.com");
-            TfsMaterial tfsMaterial
-                    = new TfsMaterial(new GoCipher(), urlArgument, null, null, "{{SECRET:[secret_config_id][lookup_password]}}", null);
-
-            assertThat(tfsMaterial.hasSecretParams()).isTrue();
-        }
-
-        @Test
-        void shouldBeFalseIfMaterialUrlAndPasswordDoesNotHaveSecretParams() {
-            UrlArgument urlArgument = new UrlArgument("http://foo.com");
-            TfsMaterial tfsMaterial
-                    = new TfsMaterial(new GoCipher(), urlArgument, null, null, "password", null);
-
-            assertThat(tfsMaterial.hasSecretParams()).isFalse();
-        }
-    }
-
-    @Nested
-    class getSecretParams {
-        @Test
-        void shouldReturnAListOfSecretParams() {
-            UrlArgument urlArgument = new UrlArgument("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com");
-            TfsMaterial tfsMaterial
-                    = new TfsMaterial(new GoCipher(), urlArgument, null,
-                    null, "{{SECRET:[secret_config_id][lookup_pass]}}", null);
-
-            assertThat(tfsMaterial.getSecretParams())
-                    .hasSize(2)
-                    .contains(new SecretParam("secret_config_id", "lookup_password"),
-                            new SecretParam("secret_config_id", "lookup_pass"));
-        }
-
-        @Test
-        void shouldBeAnEmptyListInAbsenceOfSecretParamsinMaterialUrlOrPassword() {
-            UrlArgument urlArgument = new UrlArgument("http://foo.com");
-            TfsMaterial tfsMaterial
-                    = new TfsMaterial(new GoCipher(), urlArgument, null, null, "pass", null);
-
-            assertThat(tfsMaterial.getSecretParams())
-                    .hasSize(0);
-        }
-    }
-
-    @Nested
     class passwordForCommandLine {
         @Test
         void shouldReturnPasswordAsConfigured_IfNotDefinedAsSecretParam() {

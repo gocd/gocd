@@ -396,12 +396,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
             errors().add(URL, "URL cannot be blank");
             return;
         }
-
-        if (!url.isValid()) {
-            errors.add(URL, "Only password can be specified as secret params");
-        }
-
-        validateSecretParamsConfig(URL, url.getSecretParams(), validationContext);
     }
 
     protected void validatePassword(ValidationContext validationContext) {

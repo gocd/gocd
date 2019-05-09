@@ -272,36 +272,6 @@ class TfsMaterialConfigTest {
             tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(tfsMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
         }
-
-        @Test
-        void shouldFailValidationIfMaterialURLHasSecretParamsConfiguredOtherThanForUsernamePassword() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-            tfsMaterialConfig.setUrl("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
-
-            assertThat(tfsMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(tfsMaterialConfig.errors().on("url")).isEqualTo("Only password can be specified as secret params");
-        }
-
-        @Test
-        void shouldFailIfSecretParamConfiguredWithSecretConfigIdWhichDoesNotExist() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-            tfsMaterialConfig.setUrl("https://{{SECRET:[secret_config_id_1][user]}}:{{SECRET:[secret_config_id_2][pass]}}@host/foo.git");
-
-            assertThat(tfsMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(tfsMaterialConfig.errors().get("url"))
-                    .hasSize(2)
-                    .contains("Only password can be specified as secret params", "Secret config with ids `secret_config_id_1, secret_config_id_2` does not exist.");
-        }
-
-        @Test
-        void shouldNotFailIfSecretConfigWithIdPresentForConfiguredSecretParams() {
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file");
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-            tfsMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][password]}}@host/foo.git");
-
-            assertThat(tfsMaterialConfig.validateTree(validationContext)).isTrue();
-            assertThat(tfsMaterialConfig.errors().getAll()).isEmpty();
-        }
     }
 
     @Nested

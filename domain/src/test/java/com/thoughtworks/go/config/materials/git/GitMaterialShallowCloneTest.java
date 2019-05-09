@@ -154,19 +154,6 @@ public class GitMaterialShallowCloneTest {
     }
 
     @Test
-    public void withShallowCloneShouldGenerateANewMaterialRetainingTheResolvedSecretParams() {
-        GitMaterial original = new GitMaterial("http://username:{{SECRET:[id][key]}}@foo.bar");
-        original.getSecretParams().get(0).setValue("pass");
-
-        GitMaterial newMaterial = original.withShallowClone(true);
-
-        SecretParams secretParams = newMaterial.getSecretParams();
-
-        assertTrue(newMaterial.hasSecretParams());
-        assertThat(secretParams.get(0).getValue(), is("pass"));
-    }
-
-    @Test
     public void updateToANewRevisionShouldNotResultInUnshallowing() throws IOException {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         material.updateTo(inMemoryConsumer(), workingDir, new RevisionContext(REVISION_4, REVISION_4, 1), context());

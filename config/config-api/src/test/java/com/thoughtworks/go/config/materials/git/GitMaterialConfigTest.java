@@ -31,7 +31,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.helper.MaterialConfigsMother.gitMaterialConfig;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -176,37 +175,6 @@ class GitMaterialConfigTest {
             GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("");
             gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isEqualTo("URL cannot be blank");
-        }
-
-        @Test
-        void shouldFailValidationIfMaterialURLHasSecretParamsConfiguredOtherThanForUsernamePassword() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-
-            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
-
-            assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Only password can be specified as secret params");
-        }
-
-        @Test
-        void shouldFailIfSecretParamConfiguredWithSecretConfigIdWhichIsNotExist() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-
-            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
-
-            assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Secret config with ids `secret_config_id` does not exist.");
-        }
-
-        @Test
-        void shouldNotFailIfSecretConfigWithIdPresentForConfiguredSecretParams() {
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file");
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-
-            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
-
-            assertThat(gitMaterialConfig.validateTree(validationContext)).isTrue();
-            assertThat(gitMaterialConfig.errors().getAll()).isEmpty();
         }
     }
 

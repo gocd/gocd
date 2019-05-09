@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.SecretConfigUsage;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
@@ -118,7 +119,9 @@ class SecretConfigServiceTest {
         @Test
         void shouldReturnUsagesForMaterialUsingSecretConfig() {
             PipelineConfig pipelineConfig = createPipelineConfig("P4", "S1", "Job1", "Job2");
-            pipelineConfig.addMaterialConfig(MaterialConfigsMother.gitMaterialConfig("/Users/username/{{SECRET:[ForDeploy][placeholder]}}"));
+            GitMaterialConfig materialConfig = MaterialConfigsMother.gitMaterialConfig("http://example.com");
+            materialConfig.setPassword("{{SECRET:[ForDeploy][placeholder]}}");
+            pipelineConfig.addMaterialConfig(materialConfig);
 
             when(goConfigService.getAllPipelineConfigs()).thenReturn(Arrays.asList(pipelineConfig));
 

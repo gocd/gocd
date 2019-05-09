@@ -298,7 +298,9 @@ class BuildAssignmentServiceTest {
 
         @Test
         void shouldResolveSecretParamsInMaterials() {
-            final SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com");
+            final SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://foo.com");
+            svnMaterial.setUserName("username");
+            svnMaterial.setPassword("{{SECRET:[secret_config_id][lookup_password]}}");
             final Modification modification = new Modification("user", null, null, null, "rev1");
             final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(svnMaterial, modification));
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
@@ -319,6 +321,7 @@ class BuildAssignmentServiceTest {
 
             buildAssignmentService.assignWorkToAgent(agentInstance);
 
+            assertThat(svnMaterial.hasSecretParams()).isTrue();
             verify(secretParamResolver).resolve(svnMaterial.getSecretParams());
             verify(scheduleService, never()).failJob(any());
             verifyZeroInteractions(consoleService);

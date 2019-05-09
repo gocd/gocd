@@ -270,7 +270,7 @@ public class MaterialServiceTest {
 
     @Test
     public void latestModification_shouldResolveSecretsForMaterialConfiguredWithSecretParams() {
-        GitMaterial gitMaterial = spy(new GitMaterial("https://username:{{SECRET:[][]}@foo.bar}"));
+        GitMaterial gitMaterial = spy(new GitMaterial("https://example.com"));
         MaterialService spy = spy(materialService);
         GitPoller gitPoller = mock(GitPoller.class);
         SecretParams secretParams = mock(SecretParams.class);
@@ -288,7 +288,7 @@ public class MaterialServiceTest {
 
     @Test
     public void modificationsSince_shouldResolveSecretsForMaterialConfiguredWithSecretParams() {
-        GitMaterial gitMaterial = spy(new GitMaterial("https://username:{{SECRET:[][]}@foo.bar}"));
+        GitMaterial gitMaterial = spy(new GitMaterial("https://example.com"));
         MaterialService spy = spy(materialService);
         GitPoller gitPoller = mock(GitPoller.class);
         Class<GitMaterial> toBeReturned = GitMaterial.class;

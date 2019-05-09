@@ -40,9 +40,9 @@ describe("AddPipeline: TaskTerminalField", () => {
   afterEach(helper.unmount.bind(helper));
 
   it("adds tasks", () => {
-    hitEnter(helper.find(sel.currentEditor).text("foo -bar")[0]);
-    hitEnter(helper.find(sel.currentEditor).text("whoami")[0]);
-    hitEnter(helper.find(sel.currentEditor).text(`bash -c "echo 'Hello, McFly ~ is anybody home?'"`)[0]);
+    hitEnter(editText("foo -bar"));
+    hitEnter(editText("whoami"));
+    hitEnter(editText(`bash -c "echo 'Hello, McFly ~ is anybody home?'"`));
     assertModel(
       new ExecTask("foo", ["-bar"]),
       new ExecTask("whoami", []),
@@ -50,13 +50,27 @@ describe("AddPipeline: TaskTerminalField", () => {
     );
   });
 
+  it("allows multiline entry without trailing backslashes", () => {
+    hitEnter(editText(`find .
+      -name package.json
+      -type f`));
+    assertModel(new ExecTask("find", [".", "-name", "package.json", "-type", "f"]));
+  });
+
+  it("multiline entries ignore trailing backslashes at newlines", () => {
+    hitEnter(editText(`find . \\
+      -name package.json \\
+      -type f`));
+    assertModel(new ExecTask("find", [".", "-name", "package.json", "-type", "f"]));
+  });
+
   it("replaces task on edit", () => {
     // add some tasks
-    hitEnter(helper.find(sel.currentEditor).text("find .")[0]);
-    hitEnter(helper.find(sel.currentEditor).text("whoami")[0]);
-    hitEnter(helper.find(sel.currentEditor).text("echo hello")[0]);
+    hitEnter(editText("find ."));
+    hitEnter(editText("whoami"));
+    hitEnter(editText("echo hello"));
 
-    expect(helper.find(sel.currentEditor).text()).toBe("");
+    expect(helper.q(sel.currentEditor).textContent).toBe("");
     expect(getTasksText()).toEqual(["find .", "whoami", "echo hello"]);
     assertModel(
       new ExecTask("find", ["."]),
@@ -66,9 +80,9 @@ describe("AddPipeline: TaskTerminalField", () => {
 
     // replace the middle task via edit
     events.simulate(getTasks()[1], "click");
-    hitEnter(helper.find(sel.currentEditor).text("ls -la")[0]);
+    hitEnter(editText("ls -la"));
 
-    expect(helper.find(sel.currentEditor).text()).toBe("");
+    expect(helper.q(sel.currentEditor).textContent).toBe("");
     expect(getTasksText()).toEqual(["find .", "ls -la", "echo hello"]);
     assertModel(
       new ExecTask("find", ["."]),
@@ -78,11 +92,17 @@ describe("AddPipeline: TaskTerminalField", () => {
   });
 
   it("doesn't create task for blank string", () => {
-    hitEnter(helper.find(sel.currentEditor).text(" \t\n\n\n ")[0]);
+    hitEnter(editText(" \t\n\n\n "));
     assertModel();
   });
 
-  function hitEnter(input: HTMLElement) {
+  function editText(text: string): Element {
+    const el = helper.q(sel.currentEditor);
+    el.textContent = text;
+    return el;
+  }
+
+  function hitEnter(input: Element) {
     events.simulate(input, "keydown", {which: 13});
   }
 
@@ -91,7 +111,7 @@ describe("AddPipeline: TaskTerminalField", () => {
   }
 
   function getTasks() {
-    return helper.find(sel.task);
+    return helper.qa(sel.task);
   }
 
   function plainObj(obj: any): any {

@@ -31,7 +31,7 @@ interface Attrs {
   cache: SuggestionCache;
 }
 
-//tslint:disable-next-line
+// tslint:disable-next-line
 export interface SuggestionCache extends PipelineNameCache<Awesomplete.Suggestion, Option> {}
 
 export class DefaultCache extends DependencyMaterialAutocomplete<Awesomplete.Suggestion, Option> implements SuggestionCache {

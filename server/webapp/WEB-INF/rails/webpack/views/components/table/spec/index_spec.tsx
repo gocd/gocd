@@ -112,8 +112,40 @@ describe("TableComponent", () => {
     });
   });
 
-  function mount(headers: any, data: any, sortHandler?: TableSortHandler) {
-    helper.mount(() => <Table headers={headers} data={data} sortHandler={sortHandler}/>);
+  describe("Draggable", () => {
+
+    it("should have a drag icon for each row if draggable to set to true", () => {
+      mount(headers, getTestData()(), undefined, true);
+
+      expect(helper.find(`.${styles.draggable}`)).toBeInDOM();
+      expect(helper.find(`.draggable-row`)).toBeInDOM();
+      expect(helper.find(`.draggable-row`).length).toBe(3);
+
+      expect(helper.find(".draggable-row").eq(0).find(`.${styles.dragIcon}`)).toBeInDOM();
+      expect(helper.find(".draggable-row").eq(1).find(`.${styles.dragIcon}`)).toBeInDOM();
+      expect(helper.find(".draggable-row").eq(2).find(`.${styles.dragIcon}`)).toBeInDOM();
+    });
+
+    it("should not have a drag icon for each row if draggable is set to false", () => {
+      mount(headers, getTestData()(), undefined, false);
+
+      expect(helper.find(`.${styles.draggable}`)).not.toBeInDOM();
+      expect(helper.find(`.draggable-row`)).not.toBeInDOM();
+      expect(helper.find(`.${styles.dragIcon}`)).not.toBeInDOM();
+    });
+
+    it("should not have a drag icon for each row if draggable is not set", () => {
+      mount(headers, getTestData()());
+
+      expect(helper.find(`.${styles.draggable}`)).not.toBeInDOM();
+      expect(helper.find(`.draggable-row`)).not.toBeInDOM();
+      expect(helper.find(`.${styles.dragIcon}`)).not.toBeInDOM();
+    });
+
+  });
+
+  function mount(headers: any, data: any, sortHandler?: TableSortHandler, draggable?: boolean) {
+    helper.mount(() => <Table headers={headers} data={data} sortHandler={sortHandler} draggable={draggable}/>);
   }
 });
 

@@ -91,6 +91,7 @@ class TableHeader extends MithrilViewComponent<HeaderAttrs> {
 }
 
 export class Table extends MithrilViewComponent<Attrs> {
+  sort: any;
   draggable: boolean = false;
 
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
@@ -125,7 +126,7 @@ export class Table extends MithrilViewComponent<Attrs> {
         }
       </tr>
       </thead>
-      <tbody data-test-id="table-body">
+      {/*<tbody data-test-id="table-body">*/}
       {
         vnode.attrs.data.map((rows) => {
           return (
@@ -136,24 +137,21 @@ export class Table extends MithrilViewComponent<Attrs> {
           );
         })
       }
-      </tbody>
+      {/*</tbody>*/}
     </table>;
   }
 
   oncreate(vnode: m.VnodeDOM<Attrs, this>): any {
-    if (this.draggable) {
-      return new Sortable(vnode.dom.querySelector("tbody"),
-                          {
-                            draggable: ".draggable-row",
-                            handle: ".icon-drag",
-                            classes: {
-                              "mirror": styles.mirror,
-                              "draggable:over": styles.draggableOver
-                            } ,
-                            mirror: {
-                              appendTo: "body"
-                            }
-                          });
+    this.initializeSortable(vnode);
+  }
+
+  onupdate(vnode: m.VnodeDOM<Attrs, this>): any {
+    this.initializeSortable(vnode);
+  }
+
+  onremove(vnode: m.VnodeDOM<Attrs, this>): any {
+    if (this.sort) {
+      this.sort.destroy();
     }
   }
 
@@ -177,5 +175,23 @@ export class Table extends MithrilViewComponent<Attrs> {
 
   private static unspecifiedValue() {
     return ("");
+  }
+
+  private initializeSortable(vnode: m.VnodeDOM<Attrs, this>) {
+    if (!this.sort && this.draggable) {
+      this.sort = new Sortable(vnode.dom,
+                               {
+                                 draggable: ".draggable-row",
+                                 handle: ".icon-drag",
+                                 classes: {
+                                   "mirror": styles.mirror,
+                                   "draggable:over": styles.draggableOver
+                                 },
+                                 mirror: {
+                                   appendTo: "body"
+                                 }
+                               });
+      return this.sort;
+    }
   }
 }

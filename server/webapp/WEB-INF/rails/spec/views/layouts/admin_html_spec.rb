@@ -103,36 +103,6 @@ describe "/layouts/admin" do
 
   end
 
-  describe "server-backup" do
-
-    it "should show backup tab" do
-      render :inline => "<div>content</div>", :layout => @layout_name
-      Capybara.string(response.body).find(".sub_tabs_container ul") do |ul|
-        ul.find("#backup-tab-button") do |button|
-          expect(button).to have_selector("a#tab-link-of-backup[href='/admin/backup']")
-        end
-      end
-    end
-
-    it "should show the backup tab as current if on that tab" do
-      assign(:tab_name, "backup")
-
-      render :inline => "<div>content</div>", :layout => @layout_name
-
-      Capybara.string(response.body).find(".sub_tabs_container ul") do |ul|
-        expect(ul).to have_selector("#backup-tab-button.current_tab")
-      end
-    end
-
-    it "should show the contents for the backup tab" do
-      assign(:tab_name, "backup")
-
-      render :inline => "<div>content</div>", :layout => @layout_name
-
-      expect(response.body).to have_selector(".sub_tab_container_content #tab-content-of-backup")
-    end
-  end
-
   describe "xml" do
     before(:each) do
       assign(:tab_name, "pipelines-snippet")

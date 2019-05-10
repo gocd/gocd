@@ -21,10 +21,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class SparkOrRailsToggle {
-    public void backupPageUsingRails(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.BACKUP_PAGE_USING_RAILS, request);
-    }
-
     public void securityAuthConfigApi(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.SECURITY_AUTH_CONFIG_USE_RAILS_API, request);
     }

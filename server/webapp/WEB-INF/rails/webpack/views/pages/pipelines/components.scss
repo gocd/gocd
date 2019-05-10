@@ -39,6 +39,10 @@ $diagram-width: 485px;
   .error-response {
     margin-right: 2ex;
     color: $go-danger;
+
+    &:empty {
+      margin-right: 0;
+    }
   }
 }
 
@@ -158,7 +162,7 @@ $diagram-width: 485px;
     display: none;
   }
 
-  &.open {
+  &.open, &.lock-open {
     .summary {
       margin-bottom: 15px;
 
@@ -168,6 +172,14 @@ $diagram-width: 485px;
     }
 
     .details { display: block; }
+  }
+
+  &.lock-open .summary {
+    cursor: not-allowed;
+
+    &:before {
+      color: lighten($text-color, 50%);
+    }
   }
 }
 

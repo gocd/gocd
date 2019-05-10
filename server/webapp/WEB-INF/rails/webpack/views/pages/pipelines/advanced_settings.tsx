@@ -14,20 +14,35 @@
  * limitations under the License.
  */
 
+import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as css from "./components.scss";
 
-export class AdvancedSettings extends MithrilViewComponent {
-  oncreate(vnode: m.VnodeDOM) {
+const cls = bind(css);
+
+interface Attrs {
+  forceOpen?: boolean;
+}
+
+export class AdvancedSettings extends MithrilViewComponent<Attrs> {
+  oncreate(vnode: m.VnodeDOM<Attrs, {}>) {
     const el = vnode.dom;
     el!.querySelector("dt")!.addEventListener("click", () => {
-      el.classList.toggle(css.open);
+      if (!vnode.attrs.forceOpen) {
+        el.classList.toggle(css.open);
+      }
     });
   }
 
-  view(vnode: m.Vnode): m.Children | void | null {
-    return <dl class={css.advancedSettings}>
+  onupdate(vnode: m.VnodeDOM<Attrs, {}>) {
+    if (vnode.attrs.forceOpen) {
+      vnode.dom.classList.remove(css.open);
+    }
+  }
+
+  view(vnode: m.Vnode<Attrs>): m.Children | void | null {
+    return <dl class={cls(css.advancedSettings, {[css.lockOpen]: vnode.attrs.forceOpen})}>
       <dt class={css.summary}>Advanced Settings</dt>
       <dd class={css.details}>{vnode.children}</dd>
     </dl>;

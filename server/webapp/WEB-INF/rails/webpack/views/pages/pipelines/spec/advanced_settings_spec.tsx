@@ -48,14 +48,36 @@ describe("AddPipeline: AdvancedSettings", () => {
   it("Clicking toggles the open class", () => {
     const top = helper.q(sel.advancedSettings);
     expect(top.classList.contains(css.open)).toBe(false);
+    expect(top.classList.contains(css.lockOpen)).toBe(false);
     expect(window.getComputedStyle(helper.q(sel.details, top)).display).toBe("none");
 
     helper.click(sel.summary, top);
     expect(top.classList.contains(css.open)).toBe(true);
+    expect(top.classList.contains(css.lockOpen)).toBe(false);
     expect(window.getComputedStyle(helper.q(sel.details, top)).display).toBe("block");
 
     helper.click(sel.summary, top);
     expect(top.classList.contains(css.open)).toBe(false);
+    expect(top.classList.contains(css.lockOpen)).toBe(false);
     expect(window.getComputedStyle(helper.q(sel.details, top)).display).toBe("none");
+  });
+
+  it("Can be locked in an open state with forceOpen attribute", () => {
+    helper.unmount();
+    helper.mount(() => {
+      return <AdvancedSettings forceOpen={true}>
+        <span class="foo">Some content</span>
+      </AdvancedSettings>;
+    });
+
+    const top = helper.q(sel.advancedSettings);
+
+    expect(top.classList.contains(css.lockOpen)).toBe(true);
+    expect(top.classList.contains(css.open)).toBe(false);
+    expect(window.getComputedStyle(helper.q(sel.details, top)).display).toBe("block");
+
+    helper.click(sel.summary, top); // click has no effect
+    expect(top.classList.contains(css.open)).toBe(false);
+    expect(window.getComputedStyle(helper.q(sel.details, top)).display).toBe("block");
   });
 });

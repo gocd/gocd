@@ -43,4 +43,5 @@ export const approvalTypeSelectors: string;
 export const approvalTypeSelector: string;
 export const summary: string;
 export const details: string;
+export const lockOpen: string;
 export const switchLabelText: string;

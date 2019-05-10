@@ -15,11 +15,14 @@
  */
 
 import * as Routes from "gen/ts-routes";
+import asSelector from "helpers/selector_proxy";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import * as Buttons from "views/components/buttons";
 import * as css from "./components.scss";
+
+const sel = asSelector<typeof css>(css);
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
@@ -82,11 +85,13 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
       }).catch((reason) => {
         this.setError(reason);
       });
+    } else {
+      this.setError("Please fix the validation errors above before proceeding.");
     }
   }
 
   private clearError(): Node {
-    return empty(document.querySelector(`.${css.errorResponse}`)!);
+    return empty(document.querySelector(sel.errorResponse)!);
   }
 
   private setError(text: string) {

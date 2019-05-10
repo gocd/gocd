@@ -16,7 +16,6 @@
 
 import asSelector from "helpers/selector_proxy";
 import * as m from "mithril";
-import * as events from "simulate-event";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {AdvancedSettings} from "../advanced_settings";
 import * as css from "../components.scss";
@@ -51,11 +50,11 @@ describe("AddPipeline: AdvancedSettings", () => {
     expect(top.classList.contains(css.open)).toBe(false);
     expect(window.getComputedStyle(helper.q(sel.details, top)).display).toBe("none");
 
-    events.simulate(helper.q(sel.summary, top), "click");
+    helper.click(sel.summary, top);
     expect(top.classList.contains(css.open)).toBe(true);
     expect(window.getComputedStyle(helper.q(sel.details, top)).display).toBe("block");
 
-    events.simulate(helper.q(sel.summary, top), "click");
+    helper.click(sel.summary, top);
     expect(top.classList.contains(css.open)).toBe(false);
     expect(window.getComputedStyle(helper.q(sel.details, top)).display).toBe("none");
   });

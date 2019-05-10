@@ -97,22 +97,22 @@ export class TestHelper {
     return result;
   }
 
-  onchange(selector: string, value: string) {
-    const input: ElementWithValue = this.q(selector) as ElementWithValue;
+  onchange(selector: string | Element, value: string, context?: Element) {
+    const input: ElementWithValue = this._el(selector, context) as ElementWithValue;
     input.value = value;
     simulateEvent.simulate(input, "change");
     this.redraw();
   }
 
-  oninput(selector: string, value: string) {
-    const input: ElementWithInput = this.q(selector) as ElementWithInput;
+  oninput(selector: string | Element, value: string, context?: Element) {
+    const input: ElementWithInput = this._el(selector, context) as ElementWithInput;
     input.value = value;
     simulateEvent.simulate(input, "input");
     this.redraw();
   }
 
-  click(selector: string) {
-    const element = this.q(selector);
+  click(selector: string | Element, context?: Element) {
+    const element = this._el(selector, context);
     if (!element) {
       throw new Error(`Unable to find element with selector ${selector}`);
     }
@@ -157,6 +157,10 @@ export class TestHelper {
 
   findIn(elem: any, id: string) {
     return $(elem).find(this.dataTestIdSelector(id));
+  }
+
+  private _el(selector: string | Element, context?: Element): Element {
+    return "string" === typeof selector ? this.q(selector, context) : selector;
   }
 
   private initialize() {

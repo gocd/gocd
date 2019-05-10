@@ -118,7 +118,7 @@ export class Table extends MithrilViewComponent<Attrs> {
     }
 
     const tableRows = vnode.attrs.data.map((rows) => {
-      const index = "a";
+      const index = `${rows[0]} 0`;
       return (
         <tr key={index} class={draggable_row} data-test-id="table-row">
           {draggableCol}

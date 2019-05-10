@@ -776,25 +776,11 @@ public class JobInstanceSqlMapDaoIntegrationTest {
     }
 
     @Test
-    public void shouldSaveJobAgentMetadata_WhenNoClusterProfileIsAssociatedWithElasticAgentProfile() {
-        JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
-        instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "cd.go.elastic-agent:docker", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
-        JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArrayList<>(),
-                new ArrayList<>(), instance.getId(), instance.getIdentifier(), null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, null);
-        jobInstanceDao.save(instance.getId(), plan);
-
-        JobPlan retrieved = jobInstanceDao.loadPlan(plan.getJobId());
-        assertThat(retrieved.getElasticProfile(), is(elasticProfile));
-        assertNull(retrieved.getClusterProfile());
-    }
-
-    @Test
     public void shouldSaveJobAgentMetadata_WhenClusterProfileIsAssociatedWithElasticAgentProfile() {
         JobInstance instance = jobInstanceDao.save(stageId, new JobInstance(JOB_NAME));
         instance.setIdentifier(new JobIdentifier(savedPipeline, savedStage, instance));
 
-        ElasticProfile elasticProfile = new ElasticProfile("foo", "cd.go.elastic-agent:docker", "clusterId", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
+        ElasticProfile elasticProfile = new ElasticProfile("foo", "clusterId", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
         ClusterProfile clusterProfile = new ClusterProfile("clusterId", "cd.go.elastic-agent:docker", Arrays.asList(new ConfigurationProperty(new ConfigurationKey("key"), new ConfigurationValue("value"))));
 
         JobPlan plan = new DefaultJobPlan(new Resources("something"), new ArrayList<>(),

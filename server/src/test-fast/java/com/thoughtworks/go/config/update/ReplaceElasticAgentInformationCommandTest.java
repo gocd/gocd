@@ -67,15 +67,15 @@ class ReplaceElasticAgentInformationCommandTest {
 
         pluginSettings = new HashMap<>();
         clusterProfiles = new ClusterProfiles();
-        clusterProfiles.add(new ClusterProfile("cluster-id", pluginId));
+        clusterProfiles.add(new ClusterProfile("prod-cluster", pluginId));
         elasticProfiles = new ElasticProfiles();
-        elasticProfiles.add(new ElasticProfile("profile-id", pluginId));
+        elasticProfiles.add(new ElasticProfile("profile-id", "prod-cluster"));
 
         replaceElasticAgentInformationCommand = new ReplaceElasticAgentInformationCommand(clusterProfilesService, elasticProfileService, elasticAgentExtension, pluginDescriptor, pluginSettings);
 
         when(pluginDescriptor.id()).thenReturn(pluginId);
         when(clusterProfilesService.getPluginProfiles()).thenReturn(clusterProfiles);
-        when(elasticProfileService.getPluginProfiles()).thenReturn(elasticProfiles);
+        when(elasticProfileService.findElasticAgentProfilesByPluginId(pluginId)).thenReturn(elasticProfiles);
         when(elasticAgentExtension.migrateConfig(eq(pluginId), any())).thenReturn(new ElasticAgentInformation(Collections.emptyMap(), clusterProfiles, elasticProfiles));
         when(goConfigService.getElasticConfig()).thenReturn(new ElasticConfig());
     }

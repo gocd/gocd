@@ -163,7 +163,7 @@ class ElasticAgentPluginServiceTest {
         JobPlan plan1 = plan(1, "docker");
         JobPlan plan2 = plan(2, "docker");
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
-        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getElasticProfile().getPluginId());
+        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
         when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
 
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
@@ -174,7 +174,7 @@ class ElasticAgentPluginServiceTest {
         verify(createAgentQueue).post(createAgentMessageArgumentCaptor.capture(), ttl.capture());
         CreateAgentMessage createAgentMessage = createAgentMessageArgumentCaptor.getValue();
         assertThat(createAgentMessage.autoregisterKey()).isEqualTo(autoRegisterKey);
-        assertThat(createAgentMessage.pluginId()).isEqualTo(plan2.getElasticProfile().getPluginId());
+        assertThat(createAgentMessage.pluginId()).isEqualTo(plan2.getClusterProfile().getPluginId());
         assertThat(createAgentMessage.configuration()).isEqualTo(plan2.getElasticProfile().getConfigurationAsMap(true));
         assertThat(createAgentMessage.environment()).isEqualTo("env-2");
         assertThat(createAgentMessage.jobIdentifier()).isEqualTo(plan2.getIdentifier());
@@ -185,7 +185,7 @@ class ElasticAgentPluginServiceTest {
         JobPlan plan1 = plan(1, "docker");
         JobPlan plan2 = plan(2, "docker");
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(20000L);
-        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getElasticProfile().getPluginId());
+        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
         when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
 
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
@@ -202,7 +202,7 @@ class ElasticAgentPluginServiceTest {
         JobPlan plan1 = plan(1, "docker");
 
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
-        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getElasticProfile().getPluginId());
+        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
         when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
         ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
@@ -214,7 +214,7 @@ class ElasticAgentPluginServiceTest {
 
         CreateAgentMessage createAgentMessage = captor.getValue();
         assertThat(createAgentMessage.autoregisterKey()).isEqualTo(autoRegisterKey);
-        assertThat(createAgentMessage.pluginId()).isEqualTo(plan1.getElasticProfile().getPluginId());
+        assertThat(createAgentMessage.pluginId()).isEqualTo(plan1.getClusterProfile().getPluginId());
         assertThat(createAgentMessage.configuration()).isEqualTo(plan1.getElasticProfile().getConfigurationAsMap(true));
     }
 
@@ -237,7 +237,7 @@ class ElasticAgentPluginServiceTest {
     @Test
     void shouldRemoveExistingMissingPluginErrorFromAPreviousAttemptIfThePluginIsNowRegistered() {
         JobPlan plan1 = plan(1, "docker");
-        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getElasticProfile().getPluginId());
+        ClusterProfile clusterProfile = new ClusterProfile(plan1.getElasticProfile().getClusterProfileId(), plan1.getClusterProfile().getPluginId());
         when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
         ArgumentCaptor<HealthStateScope> captor = ArgumentCaptor.forClass(HealthStateScope.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
@@ -271,11 +271,12 @@ class ElasticAgentPluginServiceTest {
     void shouldAssignJobToAnAgentIfThePluginMatchesForTheAgentAndJob_AndThePluginAgreesToTheAssignment() {
         String uuid = UUID.randomUUID().toString();
         String elasticPluginId = "plugin-1";
+
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, elasticPluginId, AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
-        ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
+        ElasticProfile elasticProfile = new ElasticProfile("1", "clusterProfileId");
 
         when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(true);
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null)).isTrue();
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, new ClusterProfile("clusterProfileId", elasticPluginId), null)).isTrue();
     }
 
     @Test
@@ -286,16 +287,16 @@ class ElasticAgentPluginServiceTest {
         ElasticProfile elasticProfile = new ElasticProfile("1", elasticPluginId);
         when(registry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(false);
 
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null)).isFalse();
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, new ClusterProfile("clusterProfileId", elasticPluginId), null)).isFalse();
     }
 
     @Test
     void shouldNotAssignJobToAnAgentBroughtUpByADifferentElasticPlugin() {
         String uuid = UUID.randomUUID().toString();
         ElasticAgentMetadata agentMetadata = new ElasticAgentMetadata(uuid, uuid, "plugin-1", AgentRuntimeStatus.Idle, AgentConfigStatus.Enabled);
-        ElasticProfile elasticProfile = new ElasticProfile("1", "plugin-2");
+        ElasticProfile elasticProfile = new ElasticProfile("1", "clusterProfileId");
 
-        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, null)).isFalse();
+        assertThat(service.shouldAssignWork(agentMetadata, null, elasticProfile, new ClusterProfile("clusterProfileId", "plugin-2"), null)).isFalse();
         verifyNoMoreInteractions(registry);
     }
 
@@ -442,7 +443,7 @@ class ElasticAgentPluginServiceTest {
 
         @Test
         void shouldMakeJobCompletionCallToThePluginWhenJobAssignedToAnElastic() {
-            ElasticProfile elasticProfile = new ElasticProfile("foo", "docker", "clusterId");
+            ElasticProfile elasticProfile = new ElasticProfile("foo", "clusterId");
             ClusterProfile clusterProfile = new ClusterProfile("clusterId", "docker");
 
             String elasticAgentId = "i-123456";
@@ -484,8 +485,9 @@ class ElasticAgentPluginServiceTest {
     }
 
     private JobPlan plan(int jobId, String pluginId) {
-        ElasticProfile elasticProfile = new ElasticProfile("id", pluginId, "clusterProfileId");
+        ClusterProfile clusterProfile = new ClusterProfile("clusterProfileId", pluginId);
+        ElasticProfile elasticProfile = new ElasticProfile("id", "clusterProfileId");
         JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
-        return new DefaultJobPlan(null, new ArrayList<>(), null, jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, null);
+        return new DefaultJobPlan(null, new ArrayList<>(), null, jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, clusterProfile);
     }
 }

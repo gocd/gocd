@@ -307,9 +307,10 @@ public class ElasticAgentExtensionConverterV5Test {
         Map<String, String> pluginSettings = configuration.getConfigurationAsMap(true);
 
         List<ClusterProfile> clusterProfiles = new ArrayList<>();
+        clusterProfiles.add(new ClusterProfile("prod-cluster", "plugin_id"));
 
         List<ElasticProfile> elasticAgentProfiles = new ArrayList<>();
-        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
+        elasticAgentProfiles.add(new ElasticProfile("profile_id", "prod-cluster", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
 
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
 
@@ -321,12 +322,19 @@ public class ElasticAgentExtensionConverterV5Test {
                 "        \"key2\":\"password\", " +
                 "        \"key\":\"value\"" +
                 "    }," +
-                "    \"cluster_profiles\":[]," +
+                "    \"cluster_profiles\":[" +
+                "        {" +
+                "            \"id\":\"prod-cluster\"," +
+                "            \"plugin_id\":\"plugin_id\"," +
+                "            \"properties\":{" +
+                "            }" +
+                "        }" +
+                "    ]," +
                 "    \"elastic_agent_profiles\":[" +
                 "        {" +
                 "            \"id\":\"profile_id\"," +
                 "            \"plugin_id\":\"plugin_id\"," +
-                "            \"cluster_profile_id\": null," +
+                "            \"cluster_profile_id\": \"prod-cluster\"," +
                 "            \"properties\":{" +
                 "                \"some_key\":\"some_value\", " +
                 "                \"some_key2\":\"some_value2\"" +
@@ -352,7 +360,7 @@ public class ElasticAgentExtensionConverterV5Test {
         clusterProfiles.add(new ClusterProfile("cluster_profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
 
         List<ElasticProfile> elasticAgentProfiles = new ArrayList<>();
-        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
+        elasticAgentProfiles.add(new ElasticProfile("profile_id", "cluster_profile_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
 
         ElasticAgentInformation elasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
 
@@ -439,7 +447,8 @@ public class ElasticAgentExtensionConverterV5Test {
         clusterProfiles.add(new ClusterProfile("cluster_profile_id", "plugin_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value2")))));
 
         List<ElasticProfile> elasticAgentProfiles = new ArrayList<>();
-        elasticAgentProfiles.add(new ElasticProfile("profile_id", "plugin_id", "cluster_profile_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new EncryptedConfigurationValue(new GoCipher().encrypt("some_value"))), new ConfigurationProperty(new ConfigurationKey("some_key2"), new ConfigurationValue("some_value2"))));
+        //do not worry about encryption, it is handled during config save (migrate-config) call
+        elasticAgentProfiles.add(new ElasticProfile("profile_id", "cluster_profile_id", new ConfigurationProperty(new ConfigurationKey("some_key"), new ConfigurationValue("some_value")), new ConfigurationProperty(new ConfigurationKey("some_key2"), new ConfigurationValue("some_value2"))));
 
         ElasticAgentInformation expectedElasticAgentInformation = new ElasticAgentInformation(pluginSettings, clusterProfiles, elasticAgentProfiles);
 

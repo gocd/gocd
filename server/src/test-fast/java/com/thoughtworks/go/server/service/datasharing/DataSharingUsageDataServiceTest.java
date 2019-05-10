@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.JobState;
@@ -62,8 +63,10 @@ public class DataSharingUsageDataServiceTest {
         initMocks(this);
         service = new DataSharingUsageDataService(goConfigService, jobInstanceSqlMapDao, dataSharingUsageStatisticsReportingService);
         goConfig = GoConfigMother.configWithPipelines("p1", "p2");
-        goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("docker-profile", "docker-plugin"));
-        goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("ecs-profile", "ecs-plugin"));
+        goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("docker-profile", "prod-cluster-2"));
+        goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("ecs-profile", "prod-cluster-1"));
+        goConfig.getElasticConfig().getClusterProfiles().add(new ClusterProfile("prod-cluster-1", "ecs-plugin"));
+        goConfig.getElasticConfig().getClusterProfiles().add(new ClusterProfile("prod-cluster-2", "docker-plugin"));
 
         PipelineConfig configRepoPipeline = PipelineConfigMother.createPipelineConfig("p3", "s1");
         JobConfig elasticJob1 = JobConfigMother.elasticJob("docker-profile");
@@ -73,6 +76,7 @@ public class DataSharingUsageDataServiceTest {
         goConfig.addPipeline("first", configRepoPipeline);
         goConfig.agents().add(new AgentConfig("agent1"));
         when(goConfigService.getCurrentConfig()).thenReturn(goConfig);
+        when(goConfigService.getElasticConfig()).thenReturn(goConfig.getElasticConfig());
         oldestBuild = new JobStateTransition(JobState.Scheduled, new Date());
         when(jobInstanceSqlMapDao.oldestBuild()).thenReturn(oldestBuild);
         when(dataSharingUsageStatisticsReportingService.get()).thenReturn(new UsageStatisticsReporting("server-id", new Date()));

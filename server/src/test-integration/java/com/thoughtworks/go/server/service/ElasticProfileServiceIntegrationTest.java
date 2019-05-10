@@ -39,6 +39,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.HashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -82,8 +83,8 @@ public class ElasticProfileServiceIntegrationTest {
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
         clusterProfile = new ClusterProfile(clusterProfileId, pluginId);
-        elasticProfile = new ElasticProfile(elasticProfileId, pluginId, clusterProfileId);
-        newElasticProfile = new ElasticProfile(elasticProfileId, pluginId, clusterProfileId, new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1")));
+        elasticProfile = new ElasticProfile(elasticProfileId, clusterProfileId);
+        newElasticProfile = new ElasticProfile(elasticProfileId, clusterProfileId, new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1")));
 
         goConfigService.updateConfig(cruiseConfig -> {
             ClusterProfiles clusterProfiles = new ClusterProfiles();
@@ -111,7 +112,6 @@ public class ElasticProfileServiceIntegrationTest {
         assertThat(elasticProfileService.getPluginProfiles()).hasSize(1);
         ElasticProfile created = elasticProfileService.getPluginProfiles().get(0);
         assertThat(created.getId()).isEqualTo(elasticProfileId);
-        assertThat(created.getPluginId()).isEqualTo(pluginId);
         assertThat(created.getConfigWithErrorsAsMap()).isEqualTo(new HashMap<>());
     }
 
@@ -131,7 +131,7 @@ public class ElasticProfileServiceIntegrationTest {
     @Test
     public void shouldFailToCreateElasticAgentProfileWhenReferencedClusterProfileDoesNotExists() {
         clusterProfileId = "non-existing-cluster";
-        elasticProfile = new ElasticProfile(elasticProfileId, pluginId, clusterProfileId);
+        elasticProfile = new ElasticProfile(elasticProfileId, clusterProfileId);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         assertThat(elasticProfileService.getPluginProfiles()).hasSize(0);
@@ -169,7 +169,6 @@ public class ElasticProfileServiceIntegrationTest {
         elasticProfileService.update(username, entityHashingService.md5ForEntity(this.elasticProfile), newElasticProfile, result);
         ElasticProfile updated = elasticProfileService.getPluginProfiles().get(0);
         assertThat(updated.getId()).isEqualTo(elasticProfileId);
-        assertThat(updated.getPluginId()).isEqualTo(pluginId);
         assertThat(updated.get(0)).isEqualTo(new ConfigurationProperty(new ConfigurationKey("key1"), new ConfigurationValue("value1")));
     }
 
@@ -210,7 +209,7 @@ public class ElasticProfileServiceIntegrationTest {
         elasticProfileService.create(username, elasticProfile, result);
         assertThat(elasticProfileService.getPluginProfiles()).hasSize(1);
 
-        elasticProfile = new ElasticProfile("non-existing-profile", pluginId, clusterProfileId);
+        elasticProfile = new ElasticProfile("non-existing-profile", clusterProfileId);
 
         elasticProfileService.delete(username, elasticProfile, result);
         assertThat(elasticProfileService.getPluginProfiles()).hasSize(1);
@@ -228,7 +227,6 @@ public class ElasticProfileServiceIntegrationTest {
 
         ElasticProfile found = elasticProfileService.findProfile(elasticProfileId);
         assertThat(found.getId()).isEqualTo(elasticProfileId);
-        assertThat(found.getPluginId()).isEqualTo(pluginId);
         assertThat(found.getConfigWithErrorsAsMap()).isEqualTo(new HashMap<>());
     }
 }

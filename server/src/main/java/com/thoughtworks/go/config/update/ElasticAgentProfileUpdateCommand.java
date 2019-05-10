@@ -52,6 +52,11 @@ public class ElasticAgentProfileUpdateCommand extends ElasticAgentProfileCommand
         return super.canContinue(cruiseConfig) && isRequestFresh(cruiseConfig);
     }
 
+    @Override
+    public void encrypt(CruiseConfig preProcessedConfig) {
+        this.elasticProfile.encryptSecureProperties(preProcessedConfig);
+    }
+
     private boolean isRequestFresh(CruiseConfig cruiseConfig) {
         ElasticProfile existingProfile = findExistingProfile(cruiseConfig);
         boolean freshRequest = hashingService.md5ForEntity(existingProfile).equals(md5);

@@ -93,7 +93,7 @@ export class PipelineCreatePage extends Page {
       <FillableSection>
         <UserInputPane heading="Part 4: Job and Tasks">
           <JobEditor job={this.job}/>
-          <TaskTerminalField label="Write your tasks below at the prompt" property={this.job.tasks} errorText={this.job.errors().errorsForDisplay("tasks")} required={true}/>
+          <TaskTerminalField label="Type your tasks below at the prompt" property={this.job.tasks} errorText={this.job.errors().errorsForDisplay("tasks")} required={true}/>
         </UserInputPane>
         <ConceptDiagram image={jobImg}>
           A <strong>job</strong> is like a script, where each sequential step is called

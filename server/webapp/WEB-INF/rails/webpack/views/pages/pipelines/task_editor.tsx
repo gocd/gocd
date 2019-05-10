@@ -52,10 +52,9 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
         <span>Caveats</span>
         <p>This is not a real shell:</p>
         <p>- Pipes, loops, and conditionals will NOT work</p>
-        <p>- <strong>&lt;shift&gt;-&lt;enter&gt;</strong> for newlines, <strong>`\`</strong> is optional</p>
         <p>- Commands are not stateful; e.g., `cd foo` will NOT change cwd for subsequent commands</p>
       </div>
-      <p class={css.comment}># Type your commands; press <strong>&lt;enter&gt;</strong> to save</p>
+      <p class={css.comment}># Press <strong>&lt;enter&gt;</strong> to save, <strong>&lt;shift-enter&gt;</strong> for newline</p>
       <pre contenteditable={true} class={css.currentEditor}></pre>
     </code>;
   }

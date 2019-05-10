@@ -30,6 +30,7 @@ import {TestConnection} from "views/components/materials/test_connection";
 import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
+import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
   material: Material;
@@ -52,7 +53,7 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
           " ",
           <Tooltip.Help size={TooltipSize.medium} content="Specify a different path to clone/checkout this repository. Must be a relative path within the pipeline’s working directory. Defaults to the root of the pipeline's working directory."/>
         ]} property={mattrs.destination}/>
-        <TextField label="Material Name" placeholder="A human-friendly label for this material" property={mattrs.name}/>
+        <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="A human-friendly label for this material" property={mattrs.name} errorText={this.errs(mattrs, "name")}/>
       </AdvancedSettings>
     ];
   }

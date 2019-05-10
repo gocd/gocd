@@ -118,7 +118,13 @@ export class Material implements ValidatableMixin {
   }
 
   toApiPayload() {
-    return JsonUtils.toSnakeCasedObject(this);
+    const raw = JsonUtils.toSnakeCasedObject(this);
+
+    if (!raw.attributes.name) {
+      delete raw.attributes.name; // collapse empty string as undefined to avoid blowing up
+    }
+
+    return raw;
   }
 
   checkConnection() {
@@ -141,6 +147,7 @@ export abstract class MaterialAttributes implements ValidatableMixin {
     this.name = stream(name);
     this.autoUpdate = stream(autoUpdate);
     ValidatableMixin.call(this);
+    this.validateIdFormat("name");
   }
 
   static deserialize(material: MaterialJSON) {

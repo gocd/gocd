@@ -68,6 +68,7 @@ export class PipelineConfig extends ValidatableMixin {
     const raw = JsonUtils.toSnakeCasedObject(this);
     const group = raw.group;
     delete raw.group;
+
     return { group, pipeline: raw };
   }
 

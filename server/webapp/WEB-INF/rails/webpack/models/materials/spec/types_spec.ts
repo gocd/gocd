@@ -69,6 +69,19 @@ describe("Material Types", () => {
         .toEqual(["url", "projectPath", "username", "password"]);
     });
 
+    it("should validate name if provided", () => {
+      const material = new Material("git", new GitMaterialAttributes(undefined, true, "http://host"));
+      expect(material.isValid()).toBe(true);
+
+      material.attributes().name("foo bar baz");
+      expect(material.name()).toBe("foo bar baz");
+
+      expect(material.isValid()).toBe(false);
+      expect(material.attributes().errors().count()).toBe(1);
+      expect(material.attributes().errors().keys()).toEqual(["name"]);
+      expect(material.attributes().errors().errorsForDisplay("name")).toBe("Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+    });
+
     it("should should allow Git SCP-style URLs", () => {
       const material = new Material("git", new GitMaterialAttributes(undefined, true, "git@host:repo.git"));
       expect(material.isValid()).toBe(true);

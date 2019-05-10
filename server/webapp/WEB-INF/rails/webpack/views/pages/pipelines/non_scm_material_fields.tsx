@@ -25,6 +25,7 @@ import {AutocompleteField, SuggestionProvider} from "views/components/forms/auto
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import * as css from "./components.scss";
+import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
   material: Material;
@@ -88,7 +89,7 @@ export class DependencyFields extends MithrilViewComponent<Attrs> {
         <SelectFieldOptions selected={mat.stage()} items={this.stages()}/>
       </SelectField>,
       <AdvancedSettings>
-        <TextField label="Material Name" placeholder="A human-friendly label for this material" property={mat.name}/>
+        <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="A human-friendly label for this material" property={mat.name}/>
       </AdvancedSettings>
     ];
   }

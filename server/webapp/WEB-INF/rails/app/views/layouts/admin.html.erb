@@ -78,7 +78,7 @@
                       <%= link_to "Users Management", '/go/admin/users', :id => "tab-link-of-user-listing" %>
                     </li>
                     <li id="backup-tab-button" class="<%= @tab_name == "backup" ? "current_tab" : "" -%>">
-                      <%= link_to "Backup", backup_server_path, :id => "tab-link-of-backup" %>
+                      <%= link_to "Backup", '/go/admin/backup', :id => "tab-link-of-backup" %>
                     </li>
                     <li id="package-repositories-tab-button" class="<%= @tab_name == "package-repositories" ? "current_tab" : "" -%>">
                       <%= link_to 'Package Repositories', package_repositories_new_path, :id => "tab-link-of-package-repositories" %>

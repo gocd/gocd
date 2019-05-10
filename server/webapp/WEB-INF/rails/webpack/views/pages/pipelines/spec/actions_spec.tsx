@@ -84,6 +84,7 @@ describe("AddPipeline: Actions Section", () => {
 
     expect(config.isValid).toHaveBeenCalled();
     expect(config.create).not.toHaveBeenCalled();
+    expect(helper.text(sel.errorResponse)).toBe("Please fix the validation errors above before proceeding.");
   });
 
   it("Cancel goes to the dashboard but does not create", () => {

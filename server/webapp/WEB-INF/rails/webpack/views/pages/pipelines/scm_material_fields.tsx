@@ -46,7 +46,7 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     return [
       this.requiredFields(mattrs),
       <TestConnection material={vnode.attrs.material}/>,
-      <AdvancedSettings>
+      <AdvancedSettings forceOpen={mattrs.errors().hasErrors("name")}>
         {this.extraFields(mattrs)}
         <TextField label={[
           "Alternate Checkout Path",

@@ -88,7 +88,7 @@ export class DependencyFields extends MithrilViewComponent<Attrs> {
       <SelectField label="Upstream Stage" property={mat.stage} errorText={this.errs(mat, "stage")} required={true}>
         <SelectFieldOptions selected={mat.stage()} items={this.stages()}/>
       </SelectField>,
-      <AdvancedSettings>
+      <AdvancedSettings forceOpen={mat.errors().hasErrors("name")}>
         <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="A human-friendly label for this material" property={mat.name}/>
       </AdvancedSettings>
     ];

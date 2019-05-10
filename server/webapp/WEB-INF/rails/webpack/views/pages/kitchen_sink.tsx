@@ -262,14 +262,6 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <CopyField property={formValue} buttonDisableReason={"Add text to enable quick add"}/>
 
         <SearchFieldWithButton property={formValue} buttonDisableReason={"Add text to enable search"}/>
-
-        <h3>Table</h3>
-        <Table headers={["Pipeline", "Stage", "Job", "Action"]}
-               data={[
-                 ["WindowsPR", <label>test</label>, "jasmine", <a href="#!">Go to report</a>],
-                 ["LinuxPR", "build", "clean", "Foo"]
-               ]}/>
-
         <br/>
         <h3>Sortable Table</h3>
         <Table data={pipelineData()} headers={["Pipeline", "Stage", "Job"]}
@@ -294,7 +286,9 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
         <br/>
         <h3>Draggable Table</h3>
-        <Table draggable={true} headers={["Pipeline", "Stage", "Job"]} data={draggableList()}/>
+        <Table draggable={true} headers={["Pipeline", "Stage", "Job"]} data={draggableList()}
+               dragHandler={updateModel.bind(this)}/>
+        <p>Model: {JSON.stringify(draggableList())}</p>
       </div>
     );
   }
@@ -328,9 +322,13 @@ const draggableList = stream(
   [
     ["1", "test", "jasmine"],
     ["2", "build", "installer"],
-    ["4", "upload", "upload"],
     ["3", "build", "clean"]
   ]);
+
+function updateModel(oldIndex: number, newIndex: number) {
+  draggableList().splice(newIndex, 0, draggableList().splice(oldIndex, 1)[0]);
+  m.redraw();
+}
 
 class DummyTableSortHandler extends TableSortHandler {
   private sortOrders = new Map();

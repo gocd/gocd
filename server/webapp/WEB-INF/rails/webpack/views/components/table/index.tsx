@@ -48,6 +48,7 @@ interface Attrs {
   "data-test-id"?: string;
   sortHandler?: TableSortHandler;
   draggable?: boolean;
+  dragHandler?: (oldIndex: number, newIndex: number) => void;
 }
 
 interface HeaderAttrs {
@@ -93,6 +94,12 @@ class TableHeader extends MithrilViewComponent<HeaderAttrs> {
 export class Table extends MithrilViewComponent<Attrs> {
   sort: any;
   draggable: boolean = false;
+  dragHandler?: (oldIndex: number, newIndex: number) => void;
+
+  oninit(vnode: m.Vnode<Attrs, this>): any {
+    this.dragHandler = vnode.attrs.dragHandler;
+    this.draggable   = (vnode.attrs.draggable && vnode.attrs.draggable === true) || false;
+  }
 
   view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
     let draggableColHeader: m.Child;
@@ -100,8 +107,6 @@ export class Table extends MithrilViewComponent<Attrs> {
     let iconDrag: string | undefined;
     let draggable_row: string | undefined;
     let draggable_table: string | undefined;
-
-    this.draggable = (vnode.attrs.draggable && vnode.attrs.draggable === true) || false;
 
     if (this.draggable) {
       iconDrag           = "icon-drag";
@@ -111,6 +116,16 @@ export class Table extends MithrilViewComponent<Attrs> {
       draggableCol       =
         <td><i className={classnames(styles.dragIcon, iconDrag)}></i></td>;
     }
+
+    const tableRows = vnode.attrs.data.map((rows) => {
+      const index = "a";
+      return (
+        <tr key={index} class={draggable_row} data-test-id="table-row">
+          {draggableCol}
+          {rows.map((row) => <td>{Table.renderedValue(row)}</td>)}
+        </tr>
+      );
+    });
 
     return <table className={classnames(styles.table, draggable_table)}
                   data-test-id={vnode.attrs["data-test-id"] || "table"}>
@@ -127,16 +142,7 @@ export class Table extends MithrilViewComponent<Attrs> {
       </tr>
       </thead>
       {/*<tbody data-test-id="table-body">*/}
-      {
-        vnode.attrs.data.map((rows) => {
-          return (
-            <tr class={draggable_row} data-test-id="table-row">
-              {draggableCol}
-              {rows.map((row) => <td>{Table.renderedValue(row)}</td>)}
-            </tr>
-          );
-        })
-      }
+      {tableRows}
       {/*</tbody>*/}
     </table>;
   }
@@ -191,6 +197,12 @@ export class Table extends MithrilViewComponent<Attrs> {
                                    appendTo: "body"
                                  }
                                });
+
+      this.sort.on("sortable:stop", (event: any) => {
+        if (this.dragHandler) {
+          this.dragHandler(event.data.oldIndex, event.data.newIndex);
+        }
+      });
       return this.sort;
     }
   }

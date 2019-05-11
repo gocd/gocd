@@ -26,6 +26,10 @@ public class SparkOrRailsToggle {
         basedOnToggle(Toggles.BACKUP_PAGE_USING_RAILS, request);
     }
 
+    public void securityAuthConfigApi(HttpServletRequest request, HttpServletResponse response) {
+        basedOnToggle(Toggles.SECURITY_AUTH_CONFIG_USE_RAILS_API, request);
+    }
+
     public void pluginSettingsAPIUsingRails(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.PLUGIN_SETTINGS_API_USING_RAILS, request);
     }

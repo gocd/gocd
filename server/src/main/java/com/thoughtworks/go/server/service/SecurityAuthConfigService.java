@@ -55,7 +55,7 @@ public class SecurityAuthConfigService extends PluginProfilesService<SecurityAut
         this.authorizationMetadataStore = authorizationMetadataStore;
     }
 
-    protected SecurityAuthConfigs getPluginProfiles() {
+    public SecurityAuthConfigs getPluginProfiles() {
         return goConfigService.security().securityAuthConfigs();
     }
 

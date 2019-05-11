@@ -65,8 +65,7 @@ export class PipelineCreatePage extends Page {
           <MaterialEditor material={this.material}/>
         </UserInputPane>
         <ConceptDiagram image={materialImg}>
-          A <strong>material</strong> triggers your pipeline to run. Typically this is a
-          <strong>source repository</strong> or an <strong>upstream pipeline</strong>.
+          A <strong>material</strong> triggers your pipeline to run. Typically this is a <strong>source repository</strong> or an <strong>upstream pipeline</strong>.
         </ConceptDiagram>
       </FillableSection>,
 
@@ -75,8 +74,7 @@ export class PipelineCreatePage extends Page {
           <PipelineInfoEditor pipelineConfig={this.model}/>
         </UserInputPane>
         <ConceptDiagram image={pipelineImg}>
-          In GoCD, a <strong>pipeline</strong> is a representation of a <strong>workflow</strong>.
-          Pipelines consist of one or more <strong>stages</strong>.
+          In GoCD, a <strong>pipeline</strong> is a representation of a <strong>workflow</strong>. Pipelines consist of one or more <strong>stages</strong>.
         </ConceptDiagram>
       </FillableSection>,
 
@@ -85,8 +83,7 @@ export class PipelineCreatePage extends Page {
           <StageEditor stage={this.stage} />
         </UserInputPane>
         <ConceptDiagram image={stageImg}>
-          A <strong>stage</strong> is a group of jobs, and a <strong>job</strong> is a
-          piece of work to execute.
+          A <strong>stage</strong> is a group of jobs, and a <strong>job</strong> is a piece of work to execute.
         </ConceptDiagram>
       </FillableSection>,
 
@@ -96,8 +93,7 @@ export class PipelineCreatePage extends Page {
           <TaskTerminalField label="Type your tasks below at the prompt" property={this.job.tasks} errorText={this.job.errors().errorsForDisplay("tasks")} required={true}/>
         </UserInputPane>
         <ConceptDiagram image={jobImg}>
-          A <strong>job</strong> is like a script, where each sequential step is called
-          a <strong>task</strong>. Typically, a task is a single command.
+          A <strong>job</strong> is like a script, where each sequential step is called a <strong>task</strong>. Typically, a task is a single command.
         </ConceptDiagram>
       </FillableSection>,
 

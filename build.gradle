@@ -1006,18 +1006,20 @@ task newApi {
 
           package ${packageName};
 
-          import com.fasterxml.jackson.databind.JsonNode;
           import com.thoughtworks.go.api.ApiController;
           import com.thoughtworks.go.api.ApiVersion;
           import com.thoughtworks.go.api.CrudController;
+          import com.thoughtworks.go.api.base.OutputWriter;
+          import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
+          import com.thoughtworks.go.config.exceptions.EntityType;
+          import com.thoughtworks.go.config.exceptions.HttpException;
           import com.thoughtworks.go.spark.spring.SparkSpringController;
           import org.springframework.beans.factory.annotation.Autowired;
           import org.springframework.stereotype.Component;
-          import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
           import spark.Request;
-
-          import java.io.IOException;
-
+          
+          import java.util.function.Consumer;
+          
           import static spark.Spark.*;
 
           @Component
@@ -1056,27 +1058,27 @@ task newApi {
 
               @Override
               public String etagFor(${entityClassName} entityFromServer) {
-                  return null; // to be implemented
+                  return null;
               }
-
+          
               @Override
-              public ${entityClassName} doGetEntityFromConfig(String name) {
-                  return null; // to be implemented
+              public EntityType getEntityType() {
+                  return null;
               }
-
+          
               @Override
-              public ${entityClassName} getEntityFromRequestBody(Request req) {
-                  return null; // to be implemented
+              public ${entityClassName} doFetchEntityFromConfig(String name) {
+                  return null;
               }
-
+          
               @Override
-              public String jsonize(Request req, ${entityClassName} o) {
-                  return null; // to be implemented
+              public ${entityClassName} buildEntityFromRequestBody(Request req) {
+                  return null;
               }
-
+          
               @Override
-              public JsonNode jsonNode(Request req, ${entityClassName} o) throws IOException {
-                  return null; // to be implemented
+              public Consumer<OutputWriter> jsonWriter(${entityClassName} configurationProperties) {
+                  return null;
               }
           }
         """

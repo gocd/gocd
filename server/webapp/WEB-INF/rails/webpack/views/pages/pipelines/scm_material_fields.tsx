@@ -22,6 +22,7 @@ import {
   Material,
   MaterialAttributes,
   P4MaterialAttributes,
+  ScmMaterialAttributes,
   SvnMaterialAttributes,
   TfsMaterialAttributes
 } from "models/materials/types";
@@ -30,7 +31,7 @@ import {TestConnection} from "views/components/materials/test_connection";
 import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
-import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
+import {DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
   material: Material;
@@ -42,17 +43,17 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>): m.Children {
-    const mattrs = vnode.attrs.material.attributes();
+    const mattrs = vnode.attrs.material.attributes() as ScmMaterialAttributes;
     return [
       this.requiredFields(mattrs),
       <TestConnection material={vnode.attrs.material}/>,
-      <AdvancedSettings forceOpen={mattrs.errors().hasErrors("name")}>
+      <AdvancedSettings forceOpen={mattrs.errors().hasErrors("name") || mattrs.errors().hasErrors("destination")}>
         {this.extraFields(mattrs)}
         <TextField label={[
           "Alternate Checkout Path",
           " ",
-          <Tooltip.Help size={TooltipSize.medium} content="Specify a different path to clone/checkout this repository. Must be a relative path within the pipeline’s working directory. Defaults to the root of the pipeline's working directory."/>
-        ]} property={mattrs.destination}/>
+          <Tooltip.Help size={TooltipSize.medium} content={DESTINATION_DIR_HELP_MESSAGE}/>
+        ]} property={mattrs.destination} errorText={this.errs(mattrs, "destination")}/>
         <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="A human-friendly label for this material" property={mattrs.name} errorText={this.errs(mattrs, "name")}/>
       </AdvancedSettings>
     ];

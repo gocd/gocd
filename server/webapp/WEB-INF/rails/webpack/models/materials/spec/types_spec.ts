@@ -19,12 +19,12 @@ import {
   HgMaterialAttributes,
   Material,
   P4MaterialAttributes,
+  ScmMaterialAttributes,
   SvnMaterialAttributes,
   TfsMaterialAttributes
 } from "models/materials/types";
 
 describe("Material Types", () => {
-
   describe("Validation", () => {
     it("should should validate Git material attributes", () => {
       const material = new Material("git", new GitMaterialAttributes());
@@ -80,6 +80,44 @@ describe("Material Types", () => {
       expect(material.attributes().errors().count()).toBe(1);
       expect(material.attributes().errors().keys()).toEqual(["name"]);
       expect(material.attributes().errors().errorsForDisplay("name")).toBe("Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+    });
+
+    it("should validate destination directory if provided", () => {
+      const attrs = new GitMaterialAttributes(undefined, true, "http://host");
+      const material = new Material("git", attrs);
+
+      assertValidPaths(material, attrs, [
+        "",
+        "foo/bar",
+        "./somepath",
+        "here",
+        "here or there"
+      ]);
+
+      assertInvalidPaths(material, attrs, [
+        "..",
+        "../up",
+        ". ",
+        " .",
+        "/root"
+      ]);
+
+      function assertValidPaths(material: Material, attrs: ScmMaterialAttributes, paths: string[]) {
+        for (const path of paths) {
+          attrs.destination(path);
+          expect(material.isValid()).toBe(true, `${path} should be valid`);
+          expect(attrs.errors().hasErrors("destination")).toBe(false, `${path} should yield no errors`);
+        }
+      }
+
+      function assertInvalidPaths(material: Material, attrs: ScmMaterialAttributes, paths: string[]) {
+        for (const path of paths) {
+          attrs.destination(path);
+          expect(material.isValid()).toBe(false, `${path} should be invalid`);
+          expect(attrs.errors().hasErrors("destination")).toBe(true, `${path} should yield errors`);
+          expect(attrs.errors().errorsForDisplay("destination")).toBe("Must be a relative path within the pipeline's working directory.");
+        }
+      }
     });
 
     it("should should allow Git SCP-style URLs", () => {

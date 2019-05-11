@@ -124,6 +124,10 @@ export class Material implements ValidatableMixin {
       delete raw.attributes.name; // collapse empty string as undefined to avoid blowing up
     }
 
+    if (!raw.attributes.destination) {
+      delete raw.attributes.destination; // collapse empty string as undefined to avoid blowing up
+    }
+
     return raw;
   }
 
@@ -140,7 +144,6 @@ applyMixins(Material, ValidatableMixin);
 
 export abstract class MaterialAttributes implements ValidatableMixin {
   name: Stream<string>;
-  destination: Stream<string> = stream();
   autoUpdate: Stream<boolean>;
 
   protected constructor(name?: string, autoUpdate?: boolean) {
@@ -191,12 +194,16 @@ export abstract class MaterialAttributes implements ValidatableMixin {
 
 applyMixins(MaterialAttributes, ValidatableMixin);
 
-abstract class ScmMaterialAttributes extends MaterialAttributes {
+export abstract class ScmMaterialAttributes extends MaterialAttributes {
+  static readonly DESTINATION_REGEX = new RegExp("^(?!\\/)((([\\.]\\/)?[\\.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ]))$");
+  destination: Stream<string> = stream();
   username: Stream<string>;
   password: Stream<EncryptedValue>;
 
   constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string) {
     super(name, autoUpdate);
+    this.validateFormatOf("destination", ScmMaterialAttributes.DESTINATION_REGEX, {message: "Must be a relative path within the pipeline's working directory"});
+
     this.username = stream(username);
     this.password = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
   }

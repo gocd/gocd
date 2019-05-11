@@ -18,6 +18,7 @@ import * as Routes from "gen/ts-routes";
 import {ApiResult} from "helpers/api_request_builder";
 import asSelector from "helpers/selector_proxy";
 import * as m from "mithril";
+import {GitMaterialAttributes, Material} from "models/materials/types";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {LocationHandler, PipelineActions} from "../actions";
@@ -44,12 +45,11 @@ const helper = new TestHelper();
 const loc = new TestLocationHandler();
 
 describe("AddPipeline: Actions Section", () => {
-
   let config: PipelineConfig;
 
   beforeEach(() => {
     loc.reset();
-    config = new PipelineConfig("hello", [], []);
+    config = new PipelineConfig("hello", [new Material("git", new GitMaterialAttributes())], []);
     helper.mount(() => {
       return <PipelineActions pipelineConfig={config} loc={loc}/>;
     });
@@ -94,7 +94,7 @@ describe("AddPipeline: Actions Section", () => {
     expect(loc.last()).toBe(`/go/pipelines`);
   });
 
-  it("Displays errors when save fails", (done) => {
+  it("Displays errors when save fails and marks any fields with specific errors", (done) => {
     config.isValid = jasmine.createSpy("isValid").and.returnValue(true);
     const createPromise = createFailedResp(config).
       catch(() => done.fail("shouldn't have gotten here; 400 responses are handled in then()"));
@@ -106,7 +106,10 @@ describe("AddPipeline: Actions Section", () => {
 
     createPromise.then(() => {
       setTimeout(() => { // allow the outer promise.then() wrapping createPromise to finish
-        expect(helper.q(sel.errorResponse).textContent).toBe("Error: uh-oh!");
+        expect(helper.text(sel.errorResponse)).toBe("uh-oh!");
+        const mat = Array.from(config.materials()).pop()!;
+        expect(mat.attributes().errors().hasErrors("url")).toBe(true);
+        expect(mat.attributes().errors().errorsForDisplay("url")).toBe("This url is bogus.");
         done();
       }, 0);
     });
@@ -167,7 +170,15 @@ function createSuccessResp(config: PipelineConfig): Promise<ApiResult<string>> {
 
 function createFailedResp(config: PipelineConfig): Promise<ApiResult<string>> {
   return new Promise<ApiResult<string>>((resolve) => {
-    resolve(ApiResult.error("", "uh-oh!", 422));
+    resolve(ApiResult.error(JSON.stringify({
+      message: "uh-oh!",
+      data: {
+        materials: [
+          {errors: {url: ["This url is bogus"]}}
+        ],
+        stages: []
+      }
+    }), "uh-oh!", 422));
   });
 }
 

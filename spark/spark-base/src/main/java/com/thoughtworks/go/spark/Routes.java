@@ -398,6 +398,22 @@ public class Routes {
         }
     }
 
+    public static class SecurityAuthConfigAPI {
+        public static final String BASE = "/api/admin/security/auth_configs";
+        public static final String ID = "/:id";
+        public static final String DOC = apiDocsUrl("#auth_configs");
+        public static final String VERIFY_CONNECTION = "/verify_connection";
+        public static final String INTERNAL_BASE = "/api/admin/internal/security/auth_configs";
+
+        public static String find() {
+            return BASE + ID;
+        }
+
+        public static String id(String id) {
+            return find().replaceAll(":id", id);
+        }
+    }
+
     public static class PluginInfoAPI {
         public static final String BASE = "/api/admin/plugin_info";
         public static final String ID = "/:id";

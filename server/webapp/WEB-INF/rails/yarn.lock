@@ -7870,10 +7870,10 @@ shelljs@^0.6.0:
   resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.6.1.tgz#ec6211bed1920442088fe0f70b2837232ed2c8a8"
   integrity sha1-7GIRvtGSBEIIj+D3Cyg3Iy7SyKg=
 
-shellwords-ts@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/shellwords-ts/-/shellwords-ts-2.0.0.tgz#408cac5d91bb9ca51a13e00b4515eea5b7f7ca21"
-  integrity sha512-+UGIMEEFOXjOJh736wmNjnf5XBeBevsNoQvwvhZ36oOGMOVpuALZo1ochlbAQqrRnAczripF6NLHeNzwGq1NkQ==
+shellwords-ts@^2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/shellwords-ts/-/shellwords-ts-2.0.1.tgz#a1f94dc9ca431e745542c81d466ec949f5d32e93"
+  integrity sha512-4hn7mS6hrX81Xzbl/Hlf3OIZhfWydNTiT1Bez73saNdLEPBXwyuP8lAE2aracFog0KdeDn0TEkNT/GHLplFtog==
 
 shellwords@^0.1.1:
   version "0.1.1"

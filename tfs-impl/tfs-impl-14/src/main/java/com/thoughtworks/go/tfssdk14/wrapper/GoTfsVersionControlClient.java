@@ -61,7 +61,7 @@ public class GoTfsVersionControlClient {
     }
 
     public GoTfsWorkspace createWorkspace(String workspace) {
-        WorkspaceLocation workspaceLocation = "Y".equalsIgnoreCase(getProperty("toggle.agent.tfs.use.server.workspace.location", "N")) ? SERVER : null;
+        WorkspaceLocation workspaceLocation = "Y".equalsIgnoreCase(getProperty("toggle.agent.tfs.use.server.workspace.location", "Y")) ? SERVER : null;
         return new GoTfsWorkspace(client.createWorkspace(null, workspace, null, workspaceLocation, null, null));
     }
 

@@ -15,7 +15,7 @@
  */
 
 import {bind} from "classnames/bind";
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as s from "underscore.string";
@@ -46,6 +46,8 @@ interface Attrs {
   data: m.Child[][];
   "data-test-id"?: string;
   sortHandler?: TableSortHandler;
+  draggable?: boolean;
+  dragHandler?: (oldIndex: number, newIndex: number) => void;
 }
 
 interface HeaderAttrs {
@@ -53,6 +55,14 @@ interface HeaderAttrs {
   columnIndex: number;
   width?: string;
   sortCallBackHandler?: TableSortHandler;
+}
+
+interface State {
+  dragging: number;
+  dragStart: (e: any) => void;
+  dragOver: (e: any) => void;
+  dragEnd: () => void;
+  dragged: number;
 }
 
 class TableHeader extends MithrilViewComponent<HeaderAttrs> {
@@ -88,11 +98,60 @@ class TableHeader extends MithrilViewComponent<HeaderAttrs> {
   }
 }
 
-export class Table extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    return <table className={styles.table} data-test-id={vnode.attrs["data-test-id"] || "table"}>
+export class Table extends MithrilComponent<Attrs, State> {
+
+  oninit(vnode: m.Vnode<Attrs, State>): any {
+
+    // Return if not draggable
+    if (!vnode.attrs.draggable) {
+      return;
+    }
+
+    vnode.state.dragStart = (e) => {
+      // vnode.state.time             = new Date().getTime();
+      vnode.state.dragged          = Number(e.currentTarget.dataset.id);
+      vnode.state.dragging         = vnode.state.dragged;
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/html", null);
+    };
+
+    vnode.state.dragOver = (e) => {
+      e.preventDefault();
+
+      const toBeReplaced                 = e.target;
+      const updatedPositionWhileDragging = vnode.state.dragging;
+      const newPosition                  = Number(toBeReplaced.dataset.id) || updatedPositionWhileDragging;
+
+      if (updatedPositionWhileDragging === newPosition) {
+        return;
+      }
+
+      vnode.attrs.data.splice(newPosition, 0, vnode.attrs.data.splice(updatedPositionWhileDragging, 1)[0]);
+      vnode.state.dragging = newPosition;
+      if (vnode.attrs.dragHandler) {
+        vnode.attrs.dragHandler(updatedPositionWhileDragging, newPosition);
+      }
+    };
+
+    vnode.state.dragEnd = () => {
+      vnode.state.dragging = -1;
+      m.redraw();
+    };
+  }
+
+  view(vnode: m.Vnode<Attrs, State>) {
+    let draggableColHeader: m.Child;
+    let tableCss: string | undefined;
+
+    if (vnode.attrs.draggable) {
+      draggableColHeader = <th></th>;
+      tableCss           = styles.draggable;
+    }
+    return <table className={classnames(styles.table, tableCss)}
+                  data-test-id={vnode.attrs["data-test-id"] || "table"}>
       <thead data-test-id="table-header">
       <tr data-test-id="table-header-row">
+        {draggableColHeader}
         {vnode.attrs.headers
               .map((header: any, index: number) => {
                 return <TableHeader name={Table.renderedValue(header)}
@@ -104,13 +163,25 @@ export class Table extends MithrilViewComponent<Attrs> {
       </thead>
       <tbody data-test-id="table-body">
       {
-        vnode.attrs.data.map((rows) => {
+        _.map(vnode.attrs.data, ((rows, index) => {
+          const dragging = (Number(index) === vnode.state.dragging) ? styles.draggableOver : undefined;
           return (
-            <tr data-test-id="table-row">
-              {rows.map((row) => <td>{Table.renderedValue(row)}</td>)}
+            <tr key={index.toString()}
+                data-id={index}
+                class={dragging}
+                data-test-id="table-row">
+              {vnode.attrs.draggable ?
+                <td draggable={true} data-id={index}
+                    onmouseover={Table.disable.bind(this)}
+                    ondragstart={vnode.state.dragStart.bind(this)}
+                    ondragover={vnode.state.dragOver.bind(this)}
+                    ondragend={vnode.state.dragEnd.bind(this)}>
+                  <i className={styles.dragIcon}></i>
+                </td> : null}
+              {_.map(rows, ((row) => <td>{Table.renderedValue(row)}</td>))}
             </tr>
           );
-        })
+        }))
       }
       </tbody>
     </table>;
@@ -136,5 +207,10 @@ export class Table extends MithrilViewComponent<Attrs> {
 
   private static unspecifiedValue() {
     return ("");
+  }
+
+  private static disable(e: MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
   }
 }

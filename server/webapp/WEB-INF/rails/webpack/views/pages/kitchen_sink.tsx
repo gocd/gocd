@@ -262,14 +262,6 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <CopyField property={formValue} buttonDisableReason={"Add text to enable quick add"}/>
 
         <SearchFieldWithButton property={formValue} buttonDisableReason={"Add text to enable search"}/>
-
-        <h3>Table</h3>
-        <Table headers={["Pipeline", "Stage", "Job", "Action"]}
-               data={[
-                 ["WindowsPR", <label>test</label>, "jasmine", <a href="#!">Go to report</a>],
-                 ["LinuxPR", "build", "clean", "Foo"]
-               ]}/>
-
         <br/>
         <h3>Sortable Table</h3>
         <Table data={pipelineData()} headers={["Pipeline", "Stage", "Job"]}
@@ -291,6 +283,12 @@ export class KitchenSink extends MithrilViewComponent<null> {
         <AutocompleteField label="Dynamic" property={model} provider={this.provider}/>
 
         <Buttons.Primary onclick={this.toggleType.bind(this)}>Click to change type!</Buttons.Primary>
+
+        <br/>
+        <h3>Draggable Table</h3>
+        <Table draggable={true} headers={["Pipeline", "Stage", "Job"]} data={pipelineData()}
+               dragHandler={updateModel.bind(this)}/>
+        <p>Model: {JSON.stringify(pipelines())}</p>
       </div>
     );
   }
@@ -310,15 +308,38 @@ export class KitchenSink extends MithrilViewComponent<null> {
   }
 }
 
-const pipelineData = stream(
-  [
-    ["WindowsPR", "test", "jasmine"],
-    ["WindowsPR", "build", "installer"],
-    ["WindowsPR", "upload", "upload"],
-    ["LinuxPR", "build", "clean"],
-    ["LinuxPR", "test", "clean"],
-    ["LinuxPR", "build", "clean"]
-  ]);
+class Pipeline {
+  private pipeline: string;
+  private stage: string;
+  private job: string;
+
+  constructor(pipeline: string, stage: string, job: string) {
+    this.pipeline = pipeline;
+    this.stage    = stage;
+    this.job      = job;
+
+  }
+
+  tableData() {
+    return [this.pipeline, this.stage, this.job];
+  }
+}
+
+const pipelines = stream([
+                           new Pipeline("WindowsPR", "test", "jasmine"),
+                           new Pipeline("WindowsPR", "build", "installer"),
+                           new Pipeline("WindowsPR", "upload", "upload"),
+                           new Pipeline("LinuxPR", "build", "clean"),
+                           new Pipeline("LinuxPR", "test", "clean"),
+                           new Pipeline("LinuxPR", "build", "clean")
+                         ]);
+
+const pipelineData = stream(pipelines().map((e, i) => e.tableData()));
+
+function updateModel(oldIndex: number, newIndex: number) {
+  pipelines().splice(newIndex, 0, pipelines().splice(oldIndex, 1)[0]);
+  // m.redraw();
+}
 
 class DummyTableSortHandler extends TableSortHandler {
   private sortOrders = new Map();

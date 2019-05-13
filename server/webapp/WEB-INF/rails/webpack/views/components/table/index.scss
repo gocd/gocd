@@ -70,4 +70,38 @@ $icon_disable_color: #ccc;
   color: $icon_disable_color;
 }
 
+.drag-icon {
+  @include sort-cursor;
+  @include grip-icon;
 
+  font-size: 12px;
+  color:     $icon-drag;
+  margin:    10px;
+
+  &:active {
+    @include sort-cursor-active;
+  }
+}
+
+.draggable {
+
+  tbody, tr {
+    outline: none;
+  }
+
+  th {
+    &:nth-child(1) {
+      width: 6%;
+    }
+  }
+
+  td {
+    &:nth-child(1) {
+      width: 6%;
+    }
+  }
+}
+
+.draggable-over {
+  background-color: $icon_disable_color;
+}

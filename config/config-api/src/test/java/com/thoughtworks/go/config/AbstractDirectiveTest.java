@@ -23,14 +23,13 @@ import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.registerCustomDateFormat;
 
 abstract class AbstractDirectiveTest {
     @Nested
     class validate {
         @Test
         void shouldAddErrorIfActionIsNotSet() {
-            Directive directive = getDirective(null, "pipeline_group", "");
+            Directive directive = getDirective(null, "pipeline_group", "test-resource");
 
             directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
 
@@ -42,7 +41,7 @@ abstract class AbstractDirectiveTest {
 
         @Test
         void shouldAddErrorIfActionIsSetToOtherThanAllowedActions() {
-            Directive directive = getDirective("invalid", "pipeline_group", null);
+            Directive directive = getDirective("invalid", "pipeline_group", "test-resource");
 
             directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
 
@@ -55,7 +54,7 @@ abstract class AbstractDirectiveTest {
 
         @Test
         void shouldAllowActionToHaveWildcard() {
-            Directive directive = getDirective("*", "pipeline_group", null);
+            Directive directive = getDirective("*", "pipeline_group", "test-resource");
 
             directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
 
@@ -64,7 +63,7 @@ abstract class AbstractDirectiveTest {
 
         @Test
         void shouldAddErrorIfTypeIsNotSet() {
-            Directive directive = getDirective("refer", null, "");
+            Directive directive = getDirective("refer", null, "test-resource");
 
             directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
 
@@ -76,7 +75,7 @@ abstract class AbstractDirectiveTest {
 
         @Test
         void shouldAddErrorIfTypeIsSetToOtherThanAllowedActions() {
-            Directive directive = getDirective("refer", "invalid", "");
+            Directive directive = getDirective("refer", "invalid", "test-resource");
 
             directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
 
@@ -89,12 +88,24 @@ abstract class AbstractDirectiveTest {
 
         @Test
         void shouldAllowTypeToHaveWildcard() {
-            Directive directive = getDirective("refer", "*", "");
+            Directive directive = getDirective("refer", "*", "test-resource");
 
             directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
 
             assertThat(directive.errors()).hasSize(0);
         }
+
+        @Test
+        void shouldAddErrorIfResourceIsBlank() {
+            Directive directive = getDirective("refer", "*", "");
+
+            directive.validate(rulesValidationContext(singletonList("refer"), singletonList("pipeline_group")));
+
+            assertThat(directive.errors().get("resource"))
+                    .hasSize(1)
+                    .contains("Resource cannot be blank.");
+        }
+
     }
 
     private ValidationContext rulesValidationContext(List<String> allowedAction, List<String> allowedType) {

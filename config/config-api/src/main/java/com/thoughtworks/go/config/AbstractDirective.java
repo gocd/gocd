@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.ConfigErrors;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -59,6 +60,10 @@ public abstract class AbstractDirective implements Directive {
 
         if (isInvalid(type, rulesValidationContext.getAllowedTypes())) {
             this.addError("type", format("Invalid type, must be one of %s.", rulesValidationContext.getAllowedTypes()));
+        }
+
+        if (StringUtils.isBlank(resource)) {
+            this.addError("resource", "Resource cannot be blank.");
         }
     }
 

@@ -15,17 +15,16 @@
  */
 
 import * as Awesomplete from "awesomplete";
-import {DefaultCache, PipelineGroupCache} from "models/pipeline_configs/pipeline_groups_cache";
 import {SuggestionProvider} from "views/components/forms/autocomplete";
-import {Option} from "views/components/forms/input_fields";
 
 export class DynamicSuggestionProvider extends SuggestionProvider {
   private type: string;
-  private pipelineGroupCache: PipelineGroupCache<Option> = new DefaultCache();
+  private autoCompleteHelper: Map<string, string[]>;
 
-  constructor(type: string) {
+  constructor(type: string, autoCompleteHelper: Map<string, string[]>) {
     super();
-    this.type = type;
+    this.type               = type;
+    this.autoCompleteHelper = autoCompleteHelper;
   }
 
   setType(value: string) {
@@ -33,18 +32,9 @@ export class DynamicSuggestionProvider extends SuggestionProvider {
   }
 
   getData(): Promise<Awesomplete.Suggestion[]> {
-    const self = this;
-    if (this.type === "pipeline_group") {
-      return new Promise<Awesomplete.Suggestion[]>((resolve, reject) => {
-        if (!self.pipelineGroupCache.ready()) {
-          self.pipelineGroupCache.prime(() => {
-            resolve(self.pipelineGroupCache.pipelineGroups().map((group) => group.text));
-          }, () => {
-            reject(self.pipelineGroupCache.failureReason());
-          });
-        } else {
-          resolve(self.pipelineGroupCache.pipelineGroups().map((group) => group.text));
-        }
+    if (this.autoCompleteHelper.has(this.type)) {
+      return new Promise<Awesomplete.Suggestion[]>((resolve) => {
+        resolve(this.autoCompleteHelper.get(this.type));
       });
     }
 

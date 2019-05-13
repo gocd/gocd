@@ -27,6 +27,7 @@ describe("SecretConfigModal", () => {
   const helper           = new TestHelper();
   const secretConfigs    = SecretConfigs.fromJSON(secretConfigsTestData());
   const pluginInfos      = [PluginInfo.fromJSON(SecretPluginInfo.file())];
+  const resourceHelper   = new Map();
   const onSuccessfulSave = jasmine.createSpy("onSuccessfulSave");
 
   it("should render modal title and fields", () => {
@@ -81,7 +82,7 @@ describe("SecretConfigModal", () => {
       const modal = new TestSecretConfigModal(stream(secretConfigs),
                                               SecretConfig.fromJSON(secretConfigTestData()),
                                               pluginInfos,
-                                              onSuccessfulSave, true);
+                                              onSuccessfulSave, resourceHelper, true);
       helper.mount(modal.body.bind(modal));
 
       expect(helper.findByDataTestId("form-field-input-id")).toBeDisabled();

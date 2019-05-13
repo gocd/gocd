@@ -19,6 +19,7 @@ import * as stream from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
 import {rulesTestData, ruleTestData} from "models/secret_configs/spec/test_data";
 import * as simulateEvent from "simulate-event";
+import * as styles from "views/components/forms/autocomplete.scss";
 import {RulesWidget} from "views/pages/secret_configs/rules_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -82,16 +83,27 @@ describe("RulesWidget", () => {
     expect(rules.length).toBe(1);
   });
 
-  // it("should show the possible values of pipeline groups", () => {
-  //   const map = new Map();
-  //   map.set("pipeline_group", ["first", "second", "dummy"]);
-  //   mount(Rules.fromJSON([ruleTestData()]), map);
-  //
-  //   const dataList = helper.findByDataTestId("rule-resource").find("datalist");
-  //   expect(dataList).toBeInDOM();
-  // });
+  it("should show the possible values of pipeline groups", (done) => {
+    const map = new Map();
+    map.set("pipeline_group", ["env-dev", "env-prod", "test"]);
+    const ruleData = Rule.fromJSON(ruleTestData());
+    ruleData.resource("env");
+    ruleData.setProvider(map);
+    ruleData.getProvider().onFinally(() => {
+      expect(rulesResource.find("ul").find("li").length).toBe(2);
+      expect(rulesResource.find("ul").find("li").get(0).innerText).toBe("env-dev");
+      expect(rulesResource.find("ul").find("li").get(1).innerText).toBe("env-prod");
+      done();
+    });
+    const rules = new Rules(stream(ruleData));
+    mount(rules, map);
+    const rulesResource    = helper.find(`.${styles.awesomplete}`);
+    const inputForResource = helper.findIn(rulesResource, "rule-resource").get(0);
+    simulateEvent.simulate(inputForResource, "focus");
+    m.redraw();
+  });
 
-  function mount(rules: Rules) {
-    helper.mount(() => <RulesWidget rules={stream(rules)}/>);
+  function mount(rules: Rules, resources: Map<string, string[]> = new Map()) {
+    helper.mount(() => <RulesWidget rules={stream(rules)} resourceAutocompleteHelper={resources} minChars={0}/>);
   }
 });

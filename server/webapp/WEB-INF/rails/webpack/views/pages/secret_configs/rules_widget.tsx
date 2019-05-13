@@ -30,7 +30,12 @@ interface Attrs {
   rules: Stream<Rules>;
 }
 
-export class RulesWidget extends MithrilViewComponent<Attrs> {
+interface AutoCompleteAttrs extends Attrs {
+  resourceAutocompleteHelper: Map<string, string[]>;
+  minChars?: number;
+}
+
+export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
   static headers() {
     return [
       ""
@@ -74,7 +79,7 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
     ];
   }
 
-  view(vnode: m.Vnode<Attrs, this>): m.Children | void | null {
+  view(vnode: m.Vnode<AutoCompleteAttrs, this>): m.Children | void | null {
     return <div data-test-id="rules-widget">
       <h2>Rules </h2>
       <FlashMessage type={MessageType.info}
@@ -90,6 +95,9 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
         <div data-test-id="rules-table-body" className={styles.tableBody}>
           {
             _.map(vnode.attrs.rules(), (rule) => {
+              if (!rule().getProvider()) {
+                rule().setProvider(vnode.attrs.resourceAutocompleteHelper);
+              }
               return <div data-test-id="rules-table-row" className={styles.tableRow}>
                 <div className={styles.tableCell}>
                   <span className={styles.iconDrag}></span>
@@ -115,6 +123,7 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
                 </div>
                 <div className={styles.tableCell}>
                   <AutocompleteField
+                    minChars={vnode.attrs.minChars || 1}
                     dataTestId="rule-resource"
                     property={rule().resource}
                     provider={rule().getProvider()}
@@ -135,7 +144,7 @@ export class RulesWidget extends MithrilViewComponent<Attrs> {
     </div>;
   }
 
-  removeRule(vnode: m.Vnode<Attrs, this>, ruleToBeRemoved: Stream<Rule>) {
+  removeRule(vnode: m.Vnode<AutoCompleteAttrs, this>, ruleToBeRemoved: Stream<Rule>) {
     const index = vnode.attrs.rules().findIndex((r) => r === ruleToBeRemoved);
     if (index !== -1) {
       vnode.attrs.rules().splice(index, 1);

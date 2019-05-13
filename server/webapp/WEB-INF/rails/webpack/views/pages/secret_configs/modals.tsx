@@ -46,17 +46,20 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
   protected readonly originalEntityId: string;
   protected entities: Stream<SecretConfigs>;
   private disableId: boolean;
+  private resourceAutocompleteHelper: Map<string, string[]>;
 
   constructor(entities: Stream<SecretConfigs>,
               entity: SecretConfig,
               pluginInfos: Array<PluginInfo<any>>,
               onSuccessfulSave: (msg: m.Children) => any,
+              resourceAutocompleteHelper: Map<string, string[]>,
               disableId: boolean = false,
               size: Size         = Size.large) {
     super(entity, pluginInfos, onSuccessfulSave, size);
-    this.entities         = entities;
-    this.originalEntityId = entity.id();
-    this.disableId        = disableId;
+    this.resourceAutocompleteHelper = resourceAutocompleteHelper;
+    this.entities                   = entities;
+    this.originalEntityId           = entity.id();
+    this.disableId                  = disableId;
   }
 
   operationError(errorResponse: any, statusCode: number) {
@@ -119,7 +122,7 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
             key={this.entity().id}/>
         </div>
       </div>
-      <RulesWidget rules={this.entity().rules}/>
+      <RulesWidget rules={this.entity().rules} resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>
       <div>
         <Buttons.Secondary data-test-id="add-rule-button" onclick={this.addNewRule.bind(this)}>+ New Rule</Buttons.Secondary>
       </div>
@@ -160,8 +163,9 @@ export class CreateSecretConfigModal extends SecretConfigModal {
   constructor(entities: Stream<SecretConfigs>,
               entity: SecretConfig,
               pluginInfos: Array<PluginInfo<any>>,
-              onSuccessfulSave: (msg: m.Children) => any) {
-    super(entities, entity, pluginInfos, onSuccessfulSave, false);
+              onSuccessfulSave: (msg: m.Children) => any,
+              resourceAutocompleteHelper: Map<string, string[]>) {
+    super(entities, entity, pluginInfos, onSuccessfulSave, resourceAutocompleteHelper, false);
     this.isStale(false);
   }
 
@@ -182,8 +186,9 @@ export class EditSecretConfigModal extends SecretConfigModal {
   constructor(entities: Stream<SecretConfigs>,
               entity: SecretConfig,
               pluginInfos: Array<PluginInfo<any>>,
-              onSuccessfulSave: (msg: m.Children) => any) {
-    super(entities, entity, pluginInfos, onSuccessfulSave, true);
+              onSuccessfulSave: (msg: m.Children) => any,
+              resourceAutocompleteHelper: Map<string, string[]>) {
+    super(entities, entity, pluginInfos, onSuccessfulSave, resourceAutocompleteHelper, true);
   }
 
   title(): string {
@@ -212,8 +217,9 @@ export class CloneSecretConfigModal extends SecretConfigModal {
   constructor(entities: Stream<SecretConfigs>,
               entity: SecretConfig,
               pluginInfos: Array<PluginInfo<any>>,
-              onSuccessfulSave: (msg: m.Children) => any) {
-    super(entities, entity, pluginInfos, onSuccessfulSave, false);
+              onSuccessfulSave: (msg: m.Children) => any,
+              resourceAutocompleteHelper: Map<string, string[]>) {
+    super(entities, entity, pluginInfos, onSuccessfulSave, resourceAutocompleteHelper, false);
   }
 
   title(): string {

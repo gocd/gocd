@@ -18,6 +18,7 @@ import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {PipelineGroupCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {Rule, Rules} from "models/secret_configs/rules";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
 import {SecretConfigsCRUD} from "models/secret_configs/secret_configs_crud";
@@ -45,15 +46,17 @@ import {SecretConfigsWidget} from "views/pages/secret_configs/secret_configs_wid
 
 interface State extends RequiresPluginInfos, AddOperation<SecretConfig>, EditOperation<SecretConfig>, CloneOperation<SecretConfig>, DeleteOperation<SecretConfig>, SaveOperation {
   secretConfigs: Stream<SecretConfigs>;
+  resourceAutocompleteHelper: Stream<Map<string, string[]>>;
 }
 
 export class SecretConfigsPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
+    vnode.state.resourceAutocompleteHelper = stream(new Map());
 
     vnode.state.onAdd = (e) => {
       e.stopPropagation();
-      const id = vnode.state.pluginInfos()[0].id;
+      const id   = vnode.state.pluginInfos()[0].id;
       new CreateSecretConfigModal(vnode.state.secretConfigs,
                                   new SecretConfig("",
                                                    "",
@@ -61,7 +64,7 @@ export class SecretConfigsPage extends Page<null, State> {
                                                    new Configurations([]),
                                                    new Rules(stream(new Rule("deny", "refer", "pipeline_group", "")))),
                                   vnode.state.pluginInfos(),
-                                  vnode.state.onSuccessfulSave).render();
+                                  vnode.state.onSuccessfulSave, vnode.state.resourceAutocompleteHelper()).render();
     };
 
     vnode.state.onEdit = (obj, e) => {
@@ -70,7 +73,7 @@ export class SecretConfigsPage extends Page<null, State> {
       new EditSecretConfigModal(vnode.state.secretConfigs,
                                 obj,
                                 vnode.state.pluginInfos(),
-                                vnode.state.onSuccessfulSave).render();
+                                vnode.state.onSuccessfulSave, vnode.state.resourceAutocompleteHelper()).render();
     };
 
     vnode.state.onClone = (obj, e) => {
@@ -79,7 +82,7 @@ export class SecretConfigsPage extends Page<null, State> {
       new CloneSecretConfigModal(vnode.state.secretConfigs,
                                  obj,
                                  vnode.state.pluginInfos(),
-                                 vnode.state.onSuccessfulSave).render();
+                                 vnode.state.onSuccessfulSave, vnode.state.resourceAutocompleteHelper()).render();
     };
 
     vnode.state.onDelete = (obj, e) => {
@@ -130,6 +133,7 @@ export class SecretConfigsPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
     return Promise.all([PluginInfoCRUD.all({type: ExtensionType.SECRETS}), SecretConfigsCRUD.all()])
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionType.SECRETS}), SecretConfigsCRUD.all(), PipelineGroupCRUD.all()])
                   .then((results) => {
                     results[0].do((successResponse) => {
                       vnode.state.pluginInfos = stream(successResponse.body);
@@ -141,6 +145,10 @@ export class SecretConfigsPage extends Page<null, State> {
                       vnode.state.secretConfigs = stream(successResponse.body);
                     }, () => this.setErrorState());
 
+                    results[2].do((successResponse) => {
+                      vnode.state.resourceAutocompleteHelper()
+                           .set("pipeline_group", successResponse.body.map((group) => group.name));
+                    }, () => this.setErrorState());
                   });
   }
 

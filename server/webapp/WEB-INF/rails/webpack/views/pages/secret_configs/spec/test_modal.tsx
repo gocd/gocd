@@ -26,8 +26,9 @@ export class TestSecretConfigModal extends SecretConfigModal {
               entity: SecretConfig,
               pluginInfos: Array<PluginInfo<any>>,
               onSuccessfulSave: (msg: m.Children) => any,
-              disableId: boolean = false) {
-    super(entities, entity, pluginInfos, onSuccessfulSave, disableId);
+              resourceAutoCompleteHelper: Map<string, string[]> = new Map(),
+              disableId: boolean                                = false) {
+    super(entities, entity, pluginInfos, onSuccessfulSave, resourceAutoCompleteHelper, disableId);
     this.isStale(false);
   }
 

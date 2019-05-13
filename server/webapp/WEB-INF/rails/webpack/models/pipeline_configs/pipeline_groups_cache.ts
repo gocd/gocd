@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
 import * as _ from "lodash";
 import {Option} from "views/components/forms/input_fields";
@@ -97,5 +97,19 @@ export class PipelineGroupsCache<G> implements PipelineGroupCache<G> {
 export class DefaultCache extends PipelineGroupsCache<Option> {
   constructor() {
     super((groupName: string) => ({id: groupName, text: groupName} as Option));
+  }
+}
+
+export class PipelineGroupCRUD {
+  private static API_VERSION_HEADER = ApiVersion.v1;
+
+  static all(): Promise<ApiResult<PipelineGroup[]>> {
+    return ApiRequestBuilder.GET(SparkRoutes.pipelineGroupsListPath(), this.API_VERSION_HEADER)
+                            .then((result: ApiResult<string>) => {
+                              return result.map((str) => {
+                                const data = JSON.parse(str);
+                                return data._embedded.groups as PipelineGroup[];
+                              });
+                            });
   }
 }

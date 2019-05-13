@@ -52,10 +52,12 @@ describe("DynamicSuggestionProvider", () => {
 
   it("should show suggestions for pipeline group", (done) => {
     jasmine.Ajax.stubRequest("/go/api/admin/pipeline_groups").andReturn(pipelineGroupsResponse());
-    const provider = new DynamicSuggestionProvider("pipeline_group");
+    const pipelines = new Map<string, string[]>();
+    pipelines.set("pipeline_group", ["env-dev", "env-prod", "test"]);
+    const provider = new DynamicSuggestionProvider("pipeline_group", pipelines);
 
     const onResponse = jasmine.createSpy().and.callFake((response: PipelineGroup[]) => {
-      expect(response).toHaveLength(2);
+      expect(response).toHaveLength(3);
       done();
     });
 

@@ -33,7 +33,7 @@ export class Rule extends ValidatableMixin {
   action: Stream<string>;
   type: Stream<string>;
   resource: Stream<string>;
-  private provider: DynamicSuggestionProvider;
+  private __provider!: DynamicSuggestionProvider;
 
   constructor(directive: string, action: string, type: string, resource: string, errors: Errors = new Errors()) {
     super();
@@ -46,7 +46,6 @@ export class Rule extends ValidatableMixin {
     this.validatePresenceOf("directive");
     this.validatePresenceOf("action");
     this.validatePresenceOf("type");
-    this.provider = new DynamicSuggestionProvider(type);
   }
 
   static fromJSON(ruleJSON: RuleJSON) {
@@ -54,13 +53,26 @@ export class Rule extends ValidatableMixin {
     return new Rule(ruleJSON.directive, ruleJSON.action, ruleJSON.type, ruleJSON.resource, errors);
   }
 
+  setProvider(autoCompleteHelper: Map<string, string[]>) {
+    this.__provider = new DynamicSuggestionProvider(this.type(), autoCompleteHelper);
+  }
+
   getProvider() {
-    return this.provider;
+    return this.__provider;
   }
 
   updateProvider() {
-    this.provider.setType(this.type());
-    this.provider.update();
+    this.__provider.setType(this.type());
+    this.__provider.update();
+  }
+
+  toJSON(): object {
+    return {
+      directive: this.directive,
+      action: this.action,
+      type: this.type,
+      resource: this.resource
+    };
   }
 }
 

@@ -39,10 +39,10 @@
     "moment-duration-format": "^2.2.1",
     "normalize-scss": "^7.0.1",
     "opensans": "file:vendor/assets/fonts/opensans",
+    "shellwords-ts": "^2.0.0",
     "underscore.string": "^3.3.5",
     "url-parse": "^1.4.7",
-    "uuid": "^3.2.1",
-    "shellwords-ts": "^1.0.0"
+    "uuid": "^3.2.1"
   },
   "devDependencies": {
     "@types/awesomplete": "^1.1.9",

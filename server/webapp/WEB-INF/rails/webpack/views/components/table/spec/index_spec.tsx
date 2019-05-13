@@ -112,8 +112,57 @@ describe("TableComponent", () => {
     });
   });
 
-  function mount(headers: any, data: any, sortHandler?: TableSortHandler) {
-    helper.mount(() => <Table headers={headers} data={data} sortHandler={sortHandler}/>);
+  describe("Draggable", () => {
+    it("should have a drag icon for each row if draggable to set to true", () => {
+      mount(headers, getTestData()(), undefined, true);
+
+      expect(helper.find(`.${styles.draggable}`)).toBeInDOM();
+
+      expect(helper.find(`.${styles.dragIcon}`)).toBeInDOM();
+      expect(helper.find(`.${styles.dragIcon}`).length).toBe(3);
+    });
+
+    it("should not have a drag icon for each row if draggable is set to false", () => {
+      mount(headers, getTestData()(), undefined, false);
+
+      expect(helper.find(`.${styles.draggable}`)).not.toBeInDOM();
+      expect(helper.find(`.${styles.dragIcon}`)).not.toBeInDOM();
+    });
+
+    it("should give a callback on dragover", () => {
+      const spy = jasmine.createSpy();
+      helper.mount(() => <Table headers={headers} data={testdata()} draggable={true} dragHandler={spy}/>);
+
+      const dragIconFirst  = helper.find(`.${styles.dragIcon}`).eq(0).parent().get(0);
+      const dragIconSecond = helper.find(`.${styles.dragIcon}`).eq(1).parent().get(0);
+
+      expect(helper.find("tr[data-id=\"0\"]").text()).toBe("AZM");
+      expect(helper.find("tr[data-id=\"1\"]").text()).toBe("CXN");
+
+      const dataTransfer         = new DataTransfer();
+      dataTransfer.effectAllowed = "move";
+      dragIconFirst.dispatchEvent(new DragEvent("dragstart", {
+        dataTransfer
+      } as DragEventInit));
+      m.redraw();
+      dragIconSecond.dispatchEvent(new DragEvent("dragover", {} as DragEventInit));
+      m.redraw();
+
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(helper.find(`.${styles.draggableOver}`)).toBeInDOM();
+
+      dragIconFirst.dispatchEvent(new DragEvent("dragend", {} as DragEventInit));
+      m.redraw();
+
+      expect(helper.find("tr[data-id=\"0\"]").text()).toBe("CXN");
+      expect(helper.find("tr[data-id=\"1\"]").text()).toBe("AZM");
+
+    });
+
+  });
+
+  function mount(headers: any, data: any, sortHandler?: TableSortHandler, draggable?: boolean) {
+    helper.mount(() => <Table headers={headers} data={data} sortHandler={sortHandler} draggable={draggable}/>);
   }
 });
 
@@ -125,6 +174,11 @@ function getTestData() {
       ["B", "Y", "L"],
     ]);
 }
+
+const testdata = stream([
+                          ["A", "Z", "M"],
+                          ["C", "X", "N"],
+                          ["B", "Y", "L"]]);
 
 class TestTableSortHandler extends TableSortHandler {
   private data: Stream<any[]>;

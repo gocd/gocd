@@ -108,7 +108,6 @@ export class Table extends MithrilComponent<Attrs, State> {
     }
 
     vnode.state.dragStart = (e) => {
-      // vnode.state.time             = new Date().getTime();
       vnode.state.dragged          = Number(e.currentTarget.dataset.id);
       vnode.state.dragging         = vnode.state.dragged;
       e.dataTransfer.effectAllowed = "move";
@@ -171,7 +170,8 @@ export class Table extends MithrilComponent<Attrs, State> {
                 class={dragging}
                 data-test-id="table-row">
               {vnode.attrs.draggable ?
-                <td draggable={true} data-id={index}
+                <td draggable={true}
+                    data-id={index}
                     onmouseover={Table.disable.bind(this)}
                     ondragstart={vnode.state.dragStart.bind(this)}
                     ondragover={vnode.state.dragOver.bind(this)}

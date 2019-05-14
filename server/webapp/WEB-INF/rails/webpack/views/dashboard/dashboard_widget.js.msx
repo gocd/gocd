@@ -72,7 +72,7 @@ const DashboardWidget = {
 
         <div class="dashboard-container" key="dashboard-content">
           <RewardBanner
-            rewardText="Congratulations! You just ran your first pipeline on GoCD!"
+            rewardText="Congratulations! You just created your first pipeline in GoCD!"
             key="addPipeline"
             query={m.parseQueryString(window.location.search).new_pipeline_name}
           />

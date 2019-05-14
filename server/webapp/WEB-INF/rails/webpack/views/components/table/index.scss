@@ -19,6 +19,7 @@ $table-border-color: $line-color;
 $table-header-bg: $secondary-bg;
 $table_background_color: #fff;
 $icon_disable_color: #ccc;
+$draggable-row-color: #e2f7fa;
 
 .table {
   $table-border-top-color: #dee2e6;
@@ -103,5 +104,5 @@ $icon_disable_color: #ccc;
 }
 
 .draggable-over {
-  background-color: $icon_disable_color;
+  background-color: $draggable-row-color;
 }

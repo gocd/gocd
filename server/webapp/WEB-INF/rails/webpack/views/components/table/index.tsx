@@ -125,7 +125,10 @@ export class Table extends MithrilComponent<Attrs, State> {
         return;
       }
 
-      vnode.attrs.data.splice(newPosition, 0, vnode.attrs.data.splice(updatedPositionWhileDragging, 1)[0]);
+      // deleting the dragged element from the old position
+      const draggedElement = vnode.attrs.data.splice(updatedPositionWhileDragging, 1)[0];
+      // moving the element to new position
+      vnode.attrs.data.splice(newPosition, 0, draggedElement);
       vnode.state.dragging = newPosition;
       if (vnode.attrs.dragHandler) {
         vnode.attrs.dragHandler(updatedPositionWhileDragging, newPosition);
@@ -172,7 +175,7 @@ export class Table extends MithrilComponent<Attrs, State> {
               {vnode.attrs.draggable ?
                 <td draggable={true}
                     data-id={index}
-                    onmouseover={Table.disable.bind(this)}
+                    onmouseover={Table.disableEvent.bind(this)}
                     ondragstart={vnode.state.dragStart.bind(this)}
                     ondragover={vnode.state.dragOver.bind(this)}
                     ondragend={vnode.state.dragEnd.bind(this)}>
@@ -209,7 +212,7 @@ export class Table extends MithrilComponent<Attrs, State> {
     return ("");
   }
 
-  private static disable(e: MouseEvent) {
+  private static disableEvent(e: MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
   }

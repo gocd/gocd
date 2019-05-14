@@ -338,7 +338,6 @@ const pipelineData = stream(pipelines().map((e, i) => e.tableData()));
 
 function updateModel(oldIndex: number, newIndex: number) {
   pipelines().splice(newIndex, 0, pipelines().splice(oldIndex, 1)[0]);
-  // m.redraw();
 }
 
 class DummyTableSortHandler extends TableSortHandler {

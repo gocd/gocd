@@ -137,7 +137,7 @@ public class SecretConfigsControllerV1 extends ApiController implements SparkSpr
         final HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         configService.update(currentUsername(), etagFor(newSecretConfig), newSecretConfig, operationResult);
 
-        return handleCreateOrUpdateResponse(request, response, fetchEntityFromConfig(configId), operationResult);
+        return handleCreateOrUpdateResponse(request, response, newSecretConfig, operationResult);
     }
 
     public String destroy(Request request, Response response) throws IOException {

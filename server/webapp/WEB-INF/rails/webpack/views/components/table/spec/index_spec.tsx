@@ -130,6 +130,10 @@ describe("TableComponent", () => {
     });
 
     it("should give a callback on dragover", () => {
+      if (/(MSIE|Trident|Edge)/i.test(navigator.userAgent)) {
+        return;
+      }
+
       const spy = jasmine.createSpy();
       helper.mount(() => <Table headers={headers} data={testdata()} draggable={true} dragHandler={spy}/>);
 
@@ -143,20 +147,20 @@ describe("TableComponent", () => {
       dataTransfer.effectAllowed = "move";
       rowFirst.dispatchEvent(new DragEvent("dragstart", {
         dataTransfer
-      } as DragEventInit));
+      }));
       m.redraw();
-      rowSecond.dispatchEvent(new DragEvent("dragover", {} as DragEventInit));
+      rowSecond.dispatchEvent(new DragEvent("dragover"));
       m.redraw();
 
       expect(spy).toHaveBeenCalledTimes(1);
+      expect(spy).toHaveBeenCalledWith(0, 1);
       expect(helper.find(`.${styles.draggableOver}`)).toBeInDOM();
 
-      rowFirst.dispatchEvent(new DragEvent("dragend", {} as DragEventInit));
+      rowFirst.dispatchEvent(new DragEvent("dragend"));
       m.redraw();
 
       expect(rowFirst.textContent).toBe("CXN");
       expect(rowSecond.textContent).toBe("AZM");
-
     });
 
   });

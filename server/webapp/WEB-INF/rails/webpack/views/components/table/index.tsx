@@ -117,7 +117,7 @@ export class Table extends MithrilComponent<Attrs, State> {
     vnode.state.dragOver = (e) => {
       e.preventDefault();
 
-      const toBeReplaced                 = e.target;
+      const toBeReplaced                 = e.currentTarget;
       const updatedPositionWhileDragging = vnode.state.dragging;
       const newPosition                  = Number(toBeReplaced.dataset.id);
 
@@ -182,8 +182,7 @@ export class Table extends MithrilComponent<Attrs, State> {
                   onmouseover={Table.disableEvent.bind(this)}>
                   <i className={styles.dragIcon}></i>
                 </td> : null}
-              {_.map(rows,
-                     ((row) => <td>{Table.renderedValue(row)}</td>))}
+              {_.map(rows, ((row) => <td>{Table.renderedValue(row)}</td>))}
             </tr>
           );
         }))

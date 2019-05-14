@@ -119,7 +119,7 @@ export class Table extends MithrilComponent<Attrs, State> {
 
       const toBeReplaced                 = e.target;
       const updatedPositionWhileDragging = vnode.state.dragging;
-      const newPosition                  = Number(toBeReplaced.dataset.id) || updatedPositionWhileDragging;
+      const newPosition                  = Number(toBeReplaced.dataset.id);
 
       if (updatedPositionWhileDragging === newPosition) {
         return;
@@ -171,17 +171,19 @@ export class Table extends MithrilComponent<Attrs, State> {
             <tr key={index.toString()}
                 data-id={index}
                 class={dragging}
+                draggable={true}
+                ondragstart={vnode.attrs.draggable ? vnode.state.dragStart.bind(this) : Table.disableEvent.bind(this)}
+                ondragover={vnode.attrs.draggable ? vnode.state.dragOver.bind(this) : Table.disableEvent.bind(this)}
+                ondragend={vnode.attrs.draggable ? vnode.state.dragEnd.bind(this) : Table.disableEvent.bind(this)}
                 data-test-id="table-row">
               {vnode.attrs.draggable ?
-                <td draggable={true}
-                    data-id={index}
-                    onmouseover={Table.disableEvent.bind(this)}
-                    ondragstart={vnode.state.dragStart.bind(this)}
-                    ondragover={vnode.state.dragOver.bind(this)}
-                    ondragend={vnode.state.dragEnd.bind(this)}>
+                <td
+                  data-id={index}
+                  onmouseover={Table.disableEvent.bind(this)}>
                   <i className={styles.dragIcon}></i>
                 </td> : null}
-              {_.map(rows, ((row) => <td>{Table.renderedValue(row)}</td>))}
+              {_.map(rows,
+                     ((row) => <td>{Table.renderedValue(row)}</td>))}
             </tr>
           );
         }))
@@ -212,8 +214,10 @@ export class Table extends MithrilComponent<Attrs, State> {
     return ("");
   }
 
-  private static disableEvent(e: MouseEvent) {
+  private static disableEvent(e: Event) {
     e.preventDefault();
     e.stopPropagation();
+    e.stopImmediatePropagation();
+    return false;
   }
 }

@@ -133,29 +133,29 @@ describe("TableComponent", () => {
       const spy = jasmine.createSpy();
       helper.mount(() => <Table headers={headers} data={testdata()} draggable={true} dragHandler={spy}/>);
 
-      const dragIconFirst  = helper.find(`.${styles.dragIcon}`).eq(0).parent().get(0);
-      const dragIconSecond = helper.find(`.${styles.dragIcon}`).eq(1).parent().get(0);
+      const rowFirst  = helper.find("tr[data-id=\"0\"]").get(0);
+      const rowSecond = helper.find("tr[data-id=\"1\"]").get(0);
 
-      expect(helper.find("tr[data-id=\"0\"]").text()).toBe("AZM");
-      expect(helper.find("tr[data-id=\"1\"]").text()).toBe("CXN");
+      expect(rowFirst.textContent).toBe("AZM");
+      expect(rowSecond.textContent).toBe("CXN");
 
       const dataTransfer         = new DataTransfer();
       dataTransfer.effectAllowed = "move";
-      dragIconFirst.dispatchEvent(new DragEvent("dragstart", {
+      rowFirst.dispatchEvent(new DragEvent("dragstart", {
         dataTransfer
       } as DragEventInit));
       m.redraw();
-      dragIconSecond.dispatchEvent(new DragEvent("dragover", {} as DragEventInit));
+      rowSecond.dispatchEvent(new DragEvent("dragover", {} as DragEventInit));
       m.redraw();
 
       expect(spy).toHaveBeenCalledTimes(1);
       expect(helper.find(`.${styles.draggableOver}`)).toBeInDOM();
 
-      dragIconFirst.dispatchEvent(new DragEvent("dragend", {} as DragEventInit));
+      rowFirst.dispatchEvent(new DragEvent("dragend", {} as DragEventInit));
       m.redraw();
 
-      expect(helper.find("tr[data-id=\"0\"]").text()).toBe("CXN");
-      expect(helper.find("tr[data-id=\"1\"]").text()).toBe("AZM");
+      expect(rowFirst.textContent).toBe("CXN");
+      expect(rowSecond.textContent).toBe("AZM");
 
     });
 

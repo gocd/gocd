@@ -74,29 +74,36 @@ export abstract class SuggestionProvider {
 
 export class AutocompleteField extends MithrilViewComponent<AutoCompAttrs> {
   private _asm?: Awesomplete;
+  private property?: (newValue?: string) => string;
 
   ensureInited(vnode: m.VnodeDOM<AutoCompAttrs, {}>): void {
-    const css = vnode.attrs.css || defaultStyles;
+    const css     = vnode.attrs.css || defaultStyles;
+    const self    = this;
+    this.property = vnode.attrs.property;
+
+    vnode.dom.classList.add(css.awesomplete);
 
     if (!this._asm && vnode.dom) {
       const input = Awesomplete.$("input", vnode.dom!) as HTMLInputElement;
 
-      this._asm = new Awesomplete(input, _.assign({
-        sort: false,
-        minChars: 0,
-        container(input: HTMLElement): Element {
-          vnode.dom.classList.add(css.awesomplete);
-          return vnode.dom!;
-        },
-        replace(text: Awesomplete.Suggestion) {
-          vnode.attrs.property(input.value = text.toString());
-          m.redraw();
-        }
-      }, onlyAwesompleteOpts(vnode.attrs)));
+      this._asm = new Awesomplete(input, _.assign(
+        {
+          sort: false,
+          minChars: 0,
+          container(input: HTMLElement): Element {
+            return vnode.dom!;
+          },
+          replace(text: Awesomplete.Suggestion) {
+            input.value = text.toString();
+            self.updateProperty(input.value);
+            // vnode.attrs.property(input.value = text.toString());
+            m.redraw();
+          }
+        }, onlyAwesompleteOpts(vnode.attrs)));
 
-      input.addEventListener("awesomplete-selectcomplete", (e: Event) => {
-        vnode.attrs.property(input.value);
-      });
+      // input.addEventListener("awesomplete-selectcomplete", (e: Event) => {
+      //   vnode.attrs.property(input.value);
+      // });
 
       this._asm.status.classList.remove("visually-hidden");
       this._asm.status.classList.add(css.visuallyHidden);
@@ -105,7 +112,6 @@ export class AutocompleteField extends MithrilViewComponent<AutoCompAttrs> {
         this._asm!.list = data;
         this._asm!.evaluate();
       });
-
       vnode.attrs.provider.update();
     }
   }
@@ -118,8 +124,18 @@ export class AutocompleteField extends MithrilViewComponent<AutoCompAttrs> {
     this.ensureInited(vnode);
   }
 
+  onremove(vnode: m.VnodeDOM<AutoCompAttrs, this>): any {
+    if (this._asm) {
+      this._asm.destroy();
+    }
+  }
+
   view(vnode: m.Vnode<AutoCompAttrs, {}>): m.Children | void | null {
     const attrs = onlyTextFieldAttrs(vnode.attrs);
     return <TextField {...attrs} />;
+  }
+
+  private updateProperty(value: string): void {
+    this.property!(value);
   }
 }

@@ -24,10 +24,15 @@ import com.thoughtworks.go.util.command.HgUrlArgument;
 
 import java.util.Map;
 
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 @ConfigTag(value = "hg", label = "Mercurial")
 public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware {
     @ConfigAttribute(value = "url")
     private HgUrlArgument url;
+
+    @ConfigAttribute(value = "branch", allowNull = true)
+    private String branch;
 
     public static final String TYPE = "HgMaterial";
     public static final String URL = "url";
@@ -42,14 +47,22 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         this.folder = folder;
     }
 
-    public HgMaterialConfig(HgUrlArgument url, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
+    public HgMaterialConfig(HgUrlArgument url, String userName, String password, String branch, boolean autoUpdate, Filter filter,
+                            boolean invertFilter, String folder, CaseInsensitiveString name) {
         super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
+        this.userName = userName;
+        this.branch = branch;
+        setPassword(password);
     }
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
         parameters.put(ScmMaterialConfig.URL, this.url.originalArgument());
+
+        if (isNotBlank(branch)) {
+            parameters.put("branch", branch);
+        }
     }
 
     @Override
@@ -72,6 +85,14 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         if (url != null) {
             this.url = new HgUrlArgument(url);
         }
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
     }
 
     @Override
@@ -97,6 +118,10 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
             return false;
         }
 
+        if (branch != null ? !branch.equals(that.branch) : that.branch != null) {
+            return false;
+        }
+
         return true;
     }
 
@@ -104,6 +129,7 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (url != null ? url.hashCode() : 0);
+        result = 31 * result + (branch != null ? branch.hashCode() : 0);
         return result;
     }
 

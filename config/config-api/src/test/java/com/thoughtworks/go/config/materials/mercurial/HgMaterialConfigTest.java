@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
@@ -35,8 +36,6 @@ import static com.thoughtworks.go.config.materials.AbstractMaterialConfig.MATERI
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class HgMaterialConfigTest {
     private HgMaterialConfig hgMaterialConfig;
@@ -147,6 +146,51 @@ class HgMaterialConfigTest {
     }
 
     @Nested
+    class Equals {
+        @Test
+        void shouldBeEqualIfObjectsHaveSameUrlBranch() {
+            final HgMaterialConfig material_1 = new HgMaterialConfig("http://example.com", "master");
+            material_1.setUserName("bob");
+            material_1.setBranch("feature");
+
+            final HgMaterialConfig material_2 = new HgMaterialConfig("http://example.com", "master");
+            material_2.setUserName("alice");
+            material_2.setBranch("feature");
+
+            assertThat(material_1.equals(material_2)).isTrue();
+        }
+    }
+
+    @Nested
+    class Fingerprint {
+        @Test
+        void shouldGenerateFingerprintForGivenMaterialUrl() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("https://bob:pass@github.com/gocd#feature", "dest");
+
+            assertThat(hgMaterialConfig.getFingerprint()).isEqualTo("d84d91f37da0367a9bd89fff0d48638f5c1bf993d637735ec26f13c21c23da19");
+        }
+
+        @Test
+        void shouldConsiderBranchWhileGeneratingFingerprint_IfBranchSpecifiedAsAnAttribute() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("https://bob:pass@github.com/gocd", "dest");
+            hgMaterialConfig.setBranch("feature");
+
+            assertThat(hgMaterialConfig.getFingerprint()).isEqualTo("db13278ed2b804fc5664361103bcea3d7f5106879683085caed4311aa4d2f888");
+        }
+
+        @Test
+        void branchInUrlShouldGenerateFingerprintWhichIsOtherFromBranchInAttribute() {
+            HgMaterialConfig hgMaterialConfigWithBranchInUrl = new HgMaterialConfig("https://github.com/gocd#feature", "dest");
+
+            HgMaterialConfig hgMaterialConfigWithBranchAsAttribute = new HgMaterialConfig("https://github.com/gocd", "dest");
+            hgMaterialConfigWithBranchAsAttribute.setBranch("feature");
+
+            assertThat(hgMaterialConfigWithBranchInUrl.getFingerprint())
+                    .isNotEqualTo(hgMaterialConfigWithBranchAsAttribute.getFingerprint());
+        }
+    }
+
+    @Nested
     class ValidateURL {
         @Test
         void shouldEnsureUrlIsNotBlank() {
@@ -181,13 +225,5 @@ class HgMaterialConfigTest {
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(hgMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
         }
-    }
-
-    private ValidationContext mockValidationContextForSecretParams(SecretConfig... secretConfigs) {
-        final ValidationContext validationContext = mock(ValidationContext.class);
-        final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-        when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
-        when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(secretConfigs));
-        return validationContext;
     }
 }

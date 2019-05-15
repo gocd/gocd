@@ -406,7 +406,7 @@ public class ConfigConverter {
         } else if (crScmMaterial instanceof CRHgMaterial) {
             CRHgMaterial hg = (CRHgMaterial) crScmMaterial;
             HgMaterialConfig hgConfig = new HgMaterialConfig(new HgUrlArgument(hg.getUrl()),
-                    hg.isAutoUpdate(), toFilter(crScmMaterial), false, hg.getDestination(),
+                    hg.getUsername(), hg.getPassword(), hg.getBranch(), hg.isAutoUpdate(), toFilter(crScmMaterial), false, hg.getDestination(),
                     toMaterialName(materialName));
             setCommonMaterialMembers(hgConfig, crScmMaterial);
             setCommonScmMaterialMembers(hgConfig, hg);

@@ -16,65 +16,70 @@
   -->
 
 <!DOCTYPE hibernate-mapping PUBLIC
-        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
-        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
 <hibernate-mapping package="com.thoughtworks.go.domain" default-access="field" default-lazy="false">
-    <class name="com.thoughtworks.go.domain.MaterialInstance" table="materials" discriminator-value="">
-        <id name="id" column="id">
-            <generator class="identity"/>
-        </id>
-        <discriminator column="type" type="string"/>
+  <class name="com.thoughtworks.go.domain.MaterialInstance" table="materials" discriminator-value="">
+    <id name="id" column="id">
+      <generator class="identity"/>
+    </id>
+    <discriminator column="type" type="string"/>
 
-        <property name="flyweightName"/>
-        <property name="fingerprint"/>
-        <property name="additionalData" access="property"/>
+    <property name="flyweightName"/>
+    <property name="fingerprint"/>
+    <property name="additionalData" access="property"/>
 
-        <subclass name="com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance" discriminator-value="HgMaterial">
-            <property name="url"/>
-        </subclass>
+    <subclass name="com.thoughtworks.go.domain.materials.mercurial.HgMaterialInstance" discriminator-value="HgMaterial">
+      <property name="url"/>
+      <property name="username"/>
+      <property name="branch"/>
+    </subclass>
 
-        <subclass name="com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance" discriminator-value="SvnMaterial">
-            <property name="url"/>
-            <property name="checkExternals"/>
-            <property name="username"/>
-        </subclass>
+    <subclass name="com.thoughtworks.go.domain.materials.svn.SvnMaterialInstance" discriminator-value="SvnMaterial">
+      <property name="url"/>
+      <property name="checkExternals"/>
+      <property name="username"/>
+    </subclass>
 
-        <subclass name="com.thoughtworks.go.domain.materials.git.GitMaterialInstance" discriminator-value="GitMaterial">
-            <property name="url"/>
-            <property name="username"/>
-            <property name="branch"/>
-            <property name="submoduleFolder"/>
-        </subclass>
+    <subclass name="com.thoughtworks.go.domain.materials.git.GitMaterialInstance" discriminator-value="GitMaterial">
+      <property name="url"/>
+      <property name="username"/>
+      <property name="branch"/>
+      <property name="submoduleFolder"/>
+    </subclass>
 
-        <subclass name="com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance" discriminator-value="P4Material">
-            <property name="username"/>
-            <property name="url"/>
-            <property name="view"/>
-            <property name="useTickets"/>
-        </subclass>
+    <subclass name="com.thoughtworks.go.domain.materials.perforce.P4MaterialInstance" discriminator-value="P4Material">
+      <property name="username"/>
+      <property name="url"/>
+      <property name="view"/>
+      <property name="useTickets"/>
+    </subclass>
 
-        <subclass name="com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance" discriminator-value="DependencyMaterial">
-            <property name="pipelineName"/>
-            <property name="stageName"/>
-        </subclass>
+    <subclass name="com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance"
+              discriminator-value="DependencyMaterial">
+      <property name="pipelineName"/>
+      <property name="stageName"/>
+    </subclass>
 
-        <subclass name="com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance" discriminator-value="TfsMaterial">
-            <property name="url"/>
-            <property name="username"/>
-            <property name="workspace"/>
-            <property name="projectPath"/>
-            <property name="domain"/>
-        </subclass>
+    <subclass name="com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance" discriminator-value="TfsMaterial">
+      <property name="url"/>
+      <property name="username"/>
+      <property name="workspace"/>
+      <property name="projectPath"/>
+      <property name="domain"/>
+    </subclass>
 
-        <subclass name="com.thoughtworks.go.domain.materials.TestingMaterialInstance" discriminator-value="TestingMaterial">
-            <property name="url"/>
-        </subclass>
-        <subclass name="com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance" discriminator-value="PackageMaterialInstance">
-            <property name="configuration"/>
-        </subclass>
-        <subclass name="com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance" discriminator-value="PluggableSCMMaterialInstance">
-            <property name="configuration"/>
-        </subclass>
-    </class>
+    <subclass name="com.thoughtworks.go.domain.materials.TestingMaterialInstance" discriminator-value="TestingMaterial">
+      <property name="url"/>
+    </subclass>
+    <subclass name="com.thoughtworks.go.domain.materials.packagematerial.PackageMaterialInstance"
+              discriminator-value="PackageMaterialInstance">
+      <property name="configuration"/>
+    </subclass>
+    <subclass name="com.thoughtworks.go.domain.materials.scm.PluggableSCMMaterialInstance"
+              discriminator-value="PluggableSCMMaterialInstance">
+      <property name="configuration"/>
+    </subclass>
+  </class>
 </hibernate-mapping>

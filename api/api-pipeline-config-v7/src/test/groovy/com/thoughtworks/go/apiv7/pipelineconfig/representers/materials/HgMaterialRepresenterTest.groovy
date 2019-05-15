@@ -48,7 +48,7 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   def existingMaterialWithErrors() {
-    def hgConfig = new HgMaterialConfig(new HgUrlArgument(''), true, null, false, '/dest/', new CaseInsensitiveString('!nV@l!d'))
+    def hgConfig = new HgMaterialConfig(new HgUrlArgument(''), null, null, null, true, null, false, '/dest/', new CaseInsensitiveString('!nV@l!d'))
     def materialConfigs = new MaterialConfigs(hgConfig);
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.get(0)

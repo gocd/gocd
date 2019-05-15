@@ -64,4 +64,9 @@ public class CRHgMaterial extends CRScmMaterial {
         String url = getUrl() != null ? getUrl() : "unknown";
         return String.format("%s; Hg material %s URL: %s", myLocation, name, url);
     }
+
+    //TODO:
+    public String getBranch() {
+        throw new RuntimeException("Implement me ");
+    }
 }

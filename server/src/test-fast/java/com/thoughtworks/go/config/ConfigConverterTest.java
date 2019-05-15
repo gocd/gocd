@@ -556,7 +556,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertConfigMaterialWhenConfigRepoIsHg() {
         // these parameters would be configured inside xml config-repo section
-        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"), true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
+        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", null, null);
 
@@ -573,7 +573,7 @@ public class ConfigConverterTest {
     @Test
     public void shouldConvertConfigMaterialWhenConfigRepoIsHgWithDestination() {
         // these parameters would be configured inside xml config-repo section
-        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"), true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
+        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1", null);
 

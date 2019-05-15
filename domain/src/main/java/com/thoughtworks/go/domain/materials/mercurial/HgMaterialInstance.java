@@ -24,14 +24,17 @@ public class HgMaterialInstance extends MaterialInstance {
     protected HgMaterialInstance() {
     }
 
-    public HgMaterialInstance(String url, String flyweightName) {
-        super(url, null, null, null, null, null, null, null, flyweightName, null, null, null, null);
+    public HgMaterialInstance(String url, String username, String branch, String flyweightName) {
+        super(url, username, null, null, null, null, branch, null, flyweightName, null, null, null, null);
     }
 
-    @Override public Material toOldMaterial(String name, String folder, String password) {
+    @Override
+    public Material toOldMaterial(String name, String folder, String password) {
         HgMaterial hg = new HgMaterial(url, folder);
         setName(name, hg);
         hg.setId(id);
+        hg.setUserName(username);
+        hg.setBranch(branch);
         return hg;
     }
 }

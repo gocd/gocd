@@ -15,6 +15,7 @@
  */
 
 
+import com.thoughtworks.go.build.AdoptOpenJDKUrlHelper
 import com.thoughtworks.go.build.DownloadFile
 import com.thoughtworks.go.build.WindowsPackagingTask
 import org.apache.commons.codec.digest.DigestUtils
@@ -24,11 +25,18 @@ private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
 }
 
-task downloadWindowsJre(type: DownloadFile) {
-  def srcUrl = System.getenv("WINDOWS_JDK_URL") ?: 'https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_windows-x64_bin.zip'
+task downloadWindowsJreChecksum(type: DownloadFile) {
+  def srcUrl = AdoptOpenJDKUrlHelper.sha256sumURL(com.thoughtworks.go.build.OperatingSystem.windows, project.versions.adoptOpenjdk.major, project.versions.adoptOpenjdk.build)
   src srcUrl
   dest destFile(srcUrl)
-  checksum 'cf39490fe042dba1b61d6e9a395095279a69e70086c8c8d5466d9926d80976d8'
+}
+
+task downloadWindowsJre(type: DownloadFile) {
+  dependsOn downloadWindowsJreChecksum
+  def srcUrl = AdoptOpenJDKUrlHelper.downloadURL(com.thoughtworks.go.build.OperatingSystem.windows, project.versions.adoptOpenjdk.major, project.versions.adoptOpenjdk.build)
+  src srcUrl
+  dest destFile(srcUrl)
+  checksum = { downloadWindowsJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
 task agentWindows64bitExe(type: WindowsPackagingTask) {

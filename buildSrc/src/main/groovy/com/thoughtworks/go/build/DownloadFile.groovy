@@ -19,21 +19,39 @@ package com.thoughtworks.go.build
 import de.undercouch.gradle.tasks.download.Download
 import de.undercouch.gradle.tasks.download.VerifyAction
 import org.apache.commons.codec.digest.DigestUtils
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
+import java.util.concurrent.Callable
+
 class DownloadFile extends Download {
-  String checksum
+  @Input
+  @Optional
+  Object checksum
 
   @TaskAction
   @Override
   void download() {
+
+    String expectedChecksum
+
+    if (checksum instanceof Callable) {
+      expectedChecksum = checksum.call()
+    } else if (checksum instanceof String) {
+      expectedChecksum = checksum.trim()
+    }
+
     def shouldDownload = true
 
     if (dest.exists()) {
       def actualChecksum = dest.withInputStream { is -> DigestUtils.sha256Hex(is) }
-      project.logger.info("Verifying checksum. Actual: ${actualChecksum}, expected: ${checksum}")
-
-      shouldDownload = actualChecksum != checksum
+      if (expectedChecksum != null) {
+        project.logger.info("Verifying checksum. Actual: ${actualChecksum}, expected: ${expectedChecksum}.")
+        shouldDownload = actualChecksum != expectedChecksum
+      } else {
+        shouldDownload = false
+      }
     }
 
     if (shouldDownload) {
@@ -43,11 +61,13 @@ class DownloadFile extends Download {
 
       project.logger.info("Verifying checksum of ${dest}")
 
-      def action = new VerifyAction(project)
-      action.checksum(checksum)
-      action.algorithm('SHA-256')
-      action.src(dest)
-      action.execute()
+      if (expectedChecksum != null) {
+        def action = new VerifyAction(project)
+        action.checksum(expectedChecksum)
+        action.algorithm('SHA-256')
+        action.src(dest)
+        action.execute()
+      }
     } else {
       project.logger.info("Skipping download of ${src}")
     }

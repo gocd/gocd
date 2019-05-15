@@ -59,8 +59,8 @@ interface HeaderAttrs {
 
 interface State {
   dragging: number;
-  dragStart: (e: any) => void;
-  dragOver: (e: any) => void;
+  dragStart: (e: DragEvent) => void;
+  dragOver: (e: DragEvent) => void;
   dragEnd: () => void;
   dragged: number;
 }
@@ -107,17 +107,17 @@ export class Table extends MithrilComponent<Attrs, State> {
       return;
     }
 
-    vnode.state.dragStart = (e) => {
-      vnode.state.dragged          = Number(e.currentTarget.dataset.id);
-      vnode.state.dragging         = vnode.state.dragged;
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/html", null);
+    vnode.state.dragStart = (e: DragEvent) => {
+      vnode.state.dragged           = Number((e.currentTarget as HTMLElement).dataset.id);
+      vnode.state.dragging          = vnode.state.dragged;
+      e.dataTransfer!.effectAllowed = "move";
+      e.dataTransfer!.setData("text/html", "");
     };
 
-    vnode.state.dragOver = (e) => {
+    vnode.state.dragOver = (e: DragEvent) => {
       e.preventDefault();
 
-      const toBeReplaced                 = e.currentTarget;
+      const toBeReplaced                 = e.currentTarget as HTMLElement;
       const updatedPositionWhileDragging = vnode.state.dragging;
       const newPosition                  = Number(toBeReplaced.dataset.id);
 

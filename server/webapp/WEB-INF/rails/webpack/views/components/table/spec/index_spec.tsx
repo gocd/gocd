@@ -130,12 +130,12 @@ describe("TableComponent", () => {
     });
 
     it("should give a callback on dragover", () => {
+      const spy = jasmine.createSpy();
+      helper.mount(() => <Table headers={headers} data={testdata()} draggable={true} dragHandler={spy}/>);
+
       if (/(MSIE|Trident|Edge)/i.test(navigator.userAgent)) {
         return;
       }
-
-      const spy = jasmine.createSpy();
-      helper.mount(() => <Table headers={headers} data={testdata()} draggable={true} dragHandler={spy}/>);
 
       const rowFirst  = helper.find("tr[data-id=\"0\"]").get(0);
       const rowSecond = helper.find("tr[data-id=\"1\"]").get(0);

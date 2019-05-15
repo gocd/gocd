@@ -29,9 +29,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.Map;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-
 @ConfigTag(value = "tfs", label = "TFS")
 public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial, PasswordEncrypter {
     public static final String TYPE = "TfsMaterial";
@@ -197,6 +194,11 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         if (url != null ? !url.equals(material.url) : material.url != null) {
             return false;
         }
+
+        if (userName != null ? !userName.equals(material.userName) : material.userName != null) {
+            return false;
+        }
+
         if (domain != null ? !domain.equals(material.domain) : material.domain != null) {
             return false;
         }
@@ -207,6 +209,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (url != null ? url.hashCode() : 0);
+        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (domain != null ? domain.hashCode() : 0);
         result = 31 * result + (projectPath != null ? projectPath.hashCode() : 0);
         return result;

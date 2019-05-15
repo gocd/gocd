@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,6 @@
 
 package com.thoughtworks.go.server.persistence;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.UUID;
-
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -35,6 +31,10 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.UUID;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -113,7 +113,7 @@ public class MaterialRepositoryTest {
 
     @Test
     public void shouldNotSaveAndClearCacheWhenThereAreNoModifications() {
-        GitMaterialInstance materialInstance = new GitMaterialInstance("url", "branch", null, UUID.randomUUID().toString());
+        GitMaterialInstance materialInstance = new GitMaterialInstance("url", null, "branch", null, UUID.randomUUID().toString());
         materialRepository.saveModifications(materialInstance, new ArrayList<>());
         verifyZeroInteractions(mockHibernateTemplate);
         verifyZeroInteractions(goCache);

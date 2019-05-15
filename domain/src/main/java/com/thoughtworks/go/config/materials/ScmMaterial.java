@@ -150,6 +150,10 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
         }
     }
 
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     public final void setEncryptedPassword(String encryptedPassword) {
         this.encryptedPassword = encryptedPassword;
     }
@@ -212,7 +216,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     }
 
     public String getUriForDisplay() {
-        return getUrlArgument().forDisplay();
+        return this.getUrlArgument().forDisplay();
     }
 
     public void populateEnvironmentContext(EnvironmentVariableContext environmentVariableContext, MaterialRevision materialRevision, File workingDir) {
@@ -300,10 +304,6 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
             return false;
         }
 
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
-
         return true;
     }
 
@@ -311,7 +311,6 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (folder != null ? folder.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         return result;
     }
 

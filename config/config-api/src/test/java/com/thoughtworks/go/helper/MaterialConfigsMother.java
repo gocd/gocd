@@ -1,18 +1,17 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.thoughtworks.go.helper;
@@ -56,7 +55,7 @@ public class MaterialConfigsMother {
         return materialConfigs;
     }
 
-    public static PackageMaterialConfig packageMaterialConfig(){
+    public static PackageMaterialConfig packageMaterialConfig() {
         return packageMaterialConfig("repo-name", "package-name");
     }
 
@@ -72,14 +71,14 @@ public class MaterialConfigsMother {
 
     public static PluggableSCMMaterialConfig pluggableSCMMaterialConfig() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-         return pluggableSCMMaterialConfig("scm-id", "des-folder", filter);
+        return pluggableSCMMaterialConfig("scm-id", "des-folder", filter);
     }
 
     public static PluggableSCMMaterialConfig pluggableSCMMaterialConfigWithConfigProperties(String... properties) {
         SCM scmConfig = SCMMother.create("scm-id");
         Configuration configuration = new Configuration();
         for (String property : properties) {
-            ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey(property), new ConfigurationValue(property+"-value"));
+            ConfigurationProperty configurationProperty = new ConfigurationProperty(new ConfigurationKey(property), new ConfigurationValue(property + "-value"));
             configuration.add(configurationProperty);
         }
         scmConfig.setConfiguration(configuration);
@@ -100,12 +99,12 @@ public class MaterialConfigsMother {
 
     public static HgMaterialConfig hgMaterialConfigFull() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return new HgMaterialConfig(new HgUrlArgument("http://user:pass@domain/path##branch"),true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material") );
+        return new HgMaterialConfig(new HgUrlArgument("http://user:pass@domain/path##branch"), null, null, null, true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material"));
     }
 
     public static HgMaterialConfig hgMaterialConfigFull(String url) {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return new HgMaterialConfig(new HgUrlArgument(url),true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material") );
+        return new HgMaterialConfig(new HgUrlArgument(url), null, null, null, true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material"));
     }
 
     public static HgMaterialConfig hgMaterialConfig() {
@@ -129,7 +128,7 @@ public class MaterialConfigsMother {
 
     public static GitMaterialConfig gitMaterialConfig() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return new GitMaterialConfig(new UrlArgument("http://user:password@funk.com/blank"), "branch", "sub_module_folder", false, filter, false, "destination", new CaseInsensitiveString("AwesomeGitMaterial"), true);
+        return new GitMaterialConfig(new UrlArgument("http://user:password@funk.com/blank"), "bob", "pass", "branch", "sub_module_folder", false, filter, false, "destination", new CaseInsensitiveString("AwesomeGitMaterial"), true);
     }
 
     public static GitMaterialConfig gitMaterialConfig(String url) {
@@ -139,6 +138,7 @@ public class MaterialConfigsMother {
     public static P4MaterialConfig p4MaterialConfig() {
         return p4MaterialConfig("serverAndPort", null, null, "view", false);
     }
+
     public static P4MaterialConfig p4MaterialConfigFull() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
         P4MaterialConfig config = p4MaterialConfig("host:9876", "user", "password", "view", true);
@@ -197,9 +197,9 @@ public class MaterialConfigsMother {
         return new MaterialConfigs(new SvnMaterialConfig(url, null, null, false));
     }
 
-    public static TfsMaterialConfig tfsMaterialConfig(){
+    public static TfsMaterialConfig tfsMaterialConfig() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        TfsMaterialConfig tfsMaterialConfig= new TfsMaterialConfig(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "some_domain", "passwd", "walk_this_path");
+        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "some_domain", "passwd", "walk_this_path");
         tfsMaterialConfig.setFilter(filter);
         tfsMaterialConfig.setName(new CaseInsensitiveString("tfs-material"));
         tfsMaterialConfig.setFolder("dest-folder");

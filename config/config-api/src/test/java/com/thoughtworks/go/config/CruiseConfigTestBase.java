@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -824,7 +824,7 @@ public abstract class CruiseConfigTestBase {
     public void getAllUniquePostCommitSchedulableMaterials_shouldReturnMaterialsWithAutoUpdateFalse() {
         GitMaterialConfig gitAutoMaterial = MaterialConfigsMother.gitMaterialConfig("url");
         PipelineConfig pipelineAuto = pipelineConfig("pipelineAuto", new MaterialConfigs(gitAutoMaterial));
-        GitMaterialConfig gitNonAutoMaterial = new GitMaterialConfig(new UrlArgument("other-url"), "master", "dest", false, null, false, null, new CaseInsensitiveString("git"), false);
+        GitMaterialConfig gitNonAutoMaterial = new GitMaterialConfig(new UrlArgument("other-url"), null, null, "master", "dest", false, null, false, null, new CaseInsensitiveString("git"), false);
         PipelineConfig pipelineTriggerable = pipelineConfig("pipelineTriggerable", new MaterialConfigs(gitNonAutoMaterial));
         PipelineConfigs defaultGroup = createGroup("defaultGroup", pipelineAuto, pipelineTriggerable);
         cruiseConfig.getGroups().add(defaultGroup);
@@ -837,7 +837,7 @@ public abstract class CruiseConfigTestBase {
     public void getAllUniquePostCommitSchedulableMaterials_shouldReturnMaterialsWithAutoUpdateFalseAndConfigRepos() {
         GitMaterialConfig gitAutoMaterial = MaterialConfigsMother.gitMaterialConfig("url");
         PipelineConfig pipelineAuto = pipelineConfig("pipelineAuto", new MaterialConfigs(gitAutoMaterial));
-        GitMaterialConfig gitNonAutoMaterial = new GitMaterialConfig(new UrlArgument("other-url"), "master", "dest", false, null, false, null, new CaseInsensitiveString("git"), false);
+        GitMaterialConfig gitNonAutoMaterial = new GitMaterialConfig(new UrlArgument("other-url"), null, null, "master", "dest", false, null, false, null, new CaseInsensitiveString("git"), false);
         PipelineConfig pipelineTriggerable = pipelineConfig("pipelineTriggerable", new MaterialConfigs(gitNonAutoMaterial));
         PipelineConfigs defaultGroup = createGroup("defaultGroup", pipelineAuto, pipelineTriggerable);
 

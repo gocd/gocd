@@ -33,6 +33,11 @@ public class UrlUserInfo {
         }
     }
 
+    public UrlUserInfo(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -53,6 +58,22 @@ public class UrlUserInfo {
 
         if (this.password != null) {
             builder.append(":").append(MASKED_VALUE);
+        }
+        return builder.toString();
+    }
+
+    public String asString() {
+        if (this.username == null && this.password == null) {
+            return null;
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        if (this.username != null) {
+            builder.append(this.username);
+        }
+
+        if (this.password != null) {
+            builder.append(":").append(this.password);
         }
         return builder.toString();
     }

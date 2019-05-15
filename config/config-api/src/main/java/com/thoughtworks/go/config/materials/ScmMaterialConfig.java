@@ -277,9 +277,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         if (folder != null ? !folder.equals(that.folder) : that.folder != null) {
             return false;
         }
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
         return super.equals(that);
     }
 
@@ -287,7 +284,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (folder != null ? folder.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         return result;
     }
 

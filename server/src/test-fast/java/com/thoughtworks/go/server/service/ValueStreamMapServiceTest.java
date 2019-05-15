@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -334,7 +334,7 @@ public class ValueStreamMapServiceTest {
 
 		GitMaterial gitMaterial = new GitMaterial("git");
 		MaterialConfig gitConfig = gitMaterial.config();
-		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("git", "master", "submodule", "flyweight");
+		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("git", null, "master", "submodule", "flyweight");
 		BuildCause p3buildCause = createBuildCause(asList("p1", "p2"), new ArrayList<>());
 		BuildCause p2buildCause = createBuildCause(new ArrayList<>(), asList(gitMaterial));
 		Modification gitModification = p2buildCause.getMaterialRevisions().getRevisions().get(0).getModifications().get(0);
@@ -670,7 +670,7 @@ public class ValueStreamMapServiceTest {
         Modification modification3 = checkinWithComment("rev3", "comment3", new Date());
         BuildCause p1buildCause = createBuildCauseForRevisions(new ArrayList<>(), asList(git), new Modifications(
                 modification1, modification2));
-        BuildCause p2buildCause = createBuildCauseForRevisions(asList(dependencyMaterial("p1", 1)),asList(git) , new Modifications(modification3));
+        BuildCause p2buildCause = createBuildCauseForRevisions(asList(dependencyMaterial("p1", 1)), asList(git), new Modifications(modification3));
 
         when(pipelineService.buildCauseFor("p2", 1)).thenReturn(p2buildCause);
         when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
@@ -895,63 +895,63 @@ public class ValueStreamMapServiceTest {
     }
 
     @Test
-	public void shouldPopulateErrorCorrectly_VSMForMaterial() throws Exception {
+    public void shouldPopulateErrorCorrectly_VSMForMaterial() throws Exception {
 		/*
 				git --> p1
 		 */
 
-		String groupName = "g1";
-		String pipelineName = "p1";
-		String userName = "looser";
-		GitMaterial gitMaterial = new GitMaterial("git");
-		MaterialConfig gitConfig = gitMaterial.config();
-		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("url", "branch", "submodule", "flyweight");
-		PipelineConfigs groups = new BasicPipelineConfigs(groupName, new Authorization(), PipelineConfigMother.pipelineConfig(pipelineName, new MaterialConfigs(gitConfig)));
-		CruiseConfig cruiseConfig = new BasicCruiseConfig(groups);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
-		when(goConfigService.groups()).thenReturn(new PipelineGroups(groups));
+        String groupName = "g1";
+        String pipelineName = "p1";
+        String userName = "looser";
+        GitMaterial gitMaterial = new GitMaterial("git");
+        MaterialConfig gitConfig = gitMaterial.config();
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("url", null, "branch", "submodule", "flyweight");
+        PipelineConfigs groups = new BasicPipelineConfigs(groupName, new Authorization(), PipelineConfigMother.pipelineConfig(pipelineName, new MaterialConfigs(gitConfig)));
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(groups);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(goConfigService.groups()).thenReturn(new PipelineGroups(groups));
 
-		when(securityService.hasViewPermissionForGroup(userName, groupName)).thenReturn(false);
+        when(securityService.hasViewPermissionForGroup(userName, groupName)).thenReturn(false);
 
-		// unknown material
-		valueStreamMapService.getValueStreamMap("unknown-material", "r1", new Username(new CaseInsensitiveString(userName)), result);
+        // unknown material
+        valueStreamMapService.getValueStreamMap("unknown-material", "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(SC_NOT_FOUND, "Material with fingerprint 'unknown-material' not found.");
+        assertResult(SC_NOT_FOUND, "Material with fingerprint 'unknown-material' not found.");
 
-		// unauthorized
-		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
+        // unauthorized
+        valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
         assertResult(SC_FORBIDDEN, "You do not have view permissions for material with fingerprint '" + gitConfig.getFingerprint() + "'.");
 
-		// material config exists but no material instance
-		when(securityService.hasViewPermissionForGroup(userName, groupName)).thenReturn(true);
-		when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(null);
+        // material config exists but no material instance
+        when(securityService.hasViewPermissionForGroup(userName, groupName)).thenReturn(true);
+        when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(null);
 
-		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
+        valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
         assertResult(SC_NOT_FOUND, "Material Instance with fingerprint '" + gitConfig.getFingerprint() + "' not found.");
 
-		// modification (revision) doesn't exist
-		when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
-		when(materialRepository.findModificationWithRevision(gitMaterial, "r1")).thenReturn(null);
+        // modification (revision) doesn't exist
+        when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
+        when(materialRepository.findModificationWithRevision(gitMaterial, "r1")).thenReturn(null);
 
-		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
+        valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(SC_NOT_FOUND, "Modification 'r1' for material with fingerprint '" + gitMaterial.getFingerprint() + "' not found.");
+        assertResult(SC_NOT_FOUND, "Modification 'r1' for material with fingerprint '" + gitMaterial.getFingerprint() + "' not found.");
 
-		// internal error
-		when(goConfigService.groups()).thenThrow(new RuntimeException("just for fun"));
+        // internal error
+        when(goConfigService.groups()).thenThrow(new RuntimeException("just for fun"));
 
-		valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
+        valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), "r1", new Username(new CaseInsensitiveString(userName)), result);
 
-		assertResult(SC_INTERNAL_SERVER_ERROR, "Value Stream Map of material with fingerprint '" + gitMaterial.getFingerprint() + "' with revision 'r1' can not be rendered. Please check the server log for details.");
-	}
+        assertResult(SC_INTERNAL_SERVER_ERROR, "Value Stream Map of material with fingerprint '" + gitMaterial.getFingerprint() + "' with revision 'r1' can not be rendered. Please check the server log for details.");
+    }
 
-	private void assertResult(int httpCode, String msgKey) {
-		assertThat(result.isSuccessful(), is(false));
-		assertThat(result.httpCode(), is(httpCode));
+    private void assertResult(int httpCode, String msgKey) {
+        assertThat(result.isSuccessful(), is(false));
+        assertThat(result.httpCode(), is(httpCode));
         assertThat(result.message(), is(msgKey));
-	}
+    }
 
     private void assertLayerHasDummyNodeWithDependents(List<Node> nodesOfLevel, CaseInsensitiveString... dependents) {
         for (Node currentNode : nodesOfLevel) {

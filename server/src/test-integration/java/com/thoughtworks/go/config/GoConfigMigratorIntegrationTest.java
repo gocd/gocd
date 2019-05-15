@@ -1340,36 +1340,6 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(migratedElasticAgentProfiles.find("profile5")).isEqualTo(profile5);
     }
 
-    private void assertMaterial(int index, String tag, String url, String username, String password) throws IOException {
-        String migratedConfigString = FileUtils.readFileToString(configFile, UTF_8);
-
-        SingleNodeAssert assertion = XmlAssert.assertThat(migratedConfigString).nodesByXPath("(//cruise/pipelines/pipeline/materials/" + tag + ")[" + index + "]")
-                .hasSize(1)
-                .first();
-
-        assertion
-                .hasAttribute("url", url)
-                .doesNotHaveAttribute("password");
-
-        if (username == null) {
-            assertion.doesNotHaveAttribute("username");
-        } else {
-            assertion.hasAttribute("username", username);
-        }
-
-        if (password == null) {
-            assertion.doesNotHaveAttribute("encryptedPassword");
-        } else {
-            assertion.hasAttribute("encryptedPassword").matches((Node node) -> {
-                try {
-                    return new GoCipher().decrypt(((Element) node).getAttribute("encryptedPassword")).equals(password);
-                } catch (CryptoException e) {
-                    throw new RuntimeException(e);
-                }
-            });
-        }
-    }
-
     private TimerConfig createTimerConfigWithAttribute(String valueForOnChangesInTimer) throws Exception {
         final String content = configWithTimerBasedPipeline(valueForOnChangesInTimer);
         CruiseConfig configAfterMigration = migrateConfigAndLoadTheNewConfig(content);

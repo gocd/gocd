@@ -21,13 +21,11 @@ import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-import static com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121.urlWithCredentials;
-
 class GitMaterialRepresenter {
     static void toJSON(OutputWriter json, GitMaterialConfig material) {
         json.add("name", material.getName());
         json.add("auto_update", material.getAutoUpdate());
-        json.add("url", urlWithCredentials(material.getUrl(), material.getUserName(), material.getPassword() != null ? "******" : null));
+        json.add("url", material.getUrl());
         json.addWithDefaultIfBlank("branch", material.getBranch(), "master");
     }
 

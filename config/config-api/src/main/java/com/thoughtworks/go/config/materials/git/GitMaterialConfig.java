@@ -30,7 +30,6 @@ import java.util.Map;
 
 @ConfigTag("git")
 public class GitMaterialConfig extends ScmMaterialConfig {
-
     @ConfigAttribute(value = "url")
     private UrlArgument url;
 
@@ -69,7 +68,7 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         setShallowClone(shallowClone);
     }
 
-    public GitMaterialConfig(UrlArgument url, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name, Boolean shallowClone) {
+    public GitMaterialConfig(UrlArgument url, String userName, String password, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name, Boolean shallowClone) {
         super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
         if (branch != null) {
@@ -77,6 +76,8 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         }
         this.submoduleFolder = submoduleFolder;
         this.shallowClone = shallowClone;
+        this.userName = userName;
+        setPassword(password);
     }
 
     @Override

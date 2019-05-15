@@ -22,14 +22,13 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
-import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 
 public class ScmMaterialRepresenter {
 
     public static void toJSON(OutputWriter jsonWriter, ScmMaterialConfig scmMaterialConfig) {
         if (!(scmMaterialConfig instanceof P4MaterialConfig)) {
             if (scmMaterialConfig instanceof GitMaterialConfig || scmMaterialConfig instanceof HgMaterialConfig) {
-                jsonWriter.add("url", UrlDenormalizerXSLTMigration121.urlWithCredentials(scmMaterialConfig.getUrl(), scmMaterialConfig.getUserName(), scmMaterialConfig.getPassword()));
+                jsonWriter.add("url", scmMaterialConfig.getUrl());
             } else {
                 jsonWriter.add("url", scmMaterialConfig.getUrl());
             }

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config.materials.svn;
 
 import com.thoughtworks.go.config.PasswordEncrypter;
-import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -202,6 +201,10 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
             return false;
         }
 
+        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+            return false;
+        }
+
         return true;
     }
 
@@ -209,6 +212,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (url != null ? url.hashCode() : 0);
+        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (checkExternals ? 1 : 0);
         return result;
     }

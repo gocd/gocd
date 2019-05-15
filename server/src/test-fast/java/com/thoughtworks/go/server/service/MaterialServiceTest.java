@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -146,7 +146,8 @@ public class MaterialServiceTest {
         verify(operationResult).notFound("Pipeline '" + "pipeline" + "' does not contain material with fingerprint '" + "sha" + "'.", HealthStateType.general(HealthStateScope.forPipeline("pipeline")));
     }
 
-    @DataPoint public static RequestDataPoints GIT_LATEST_MODIFICATIONS = new RequestDataPoints(new GitMaterial("url") {
+    @DataPoint
+    public static RequestDataPoints GIT_LATEST_MODIFICATIONS = new RequestDataPoints(new GitMaterial("url") {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -163,7 +164,8 @@ public class MaterialServiceTest {
         }
     }, GitMaterial.class);
 
-    @DataPoint public static RequestDataPoints SVN_LATEST_MODIFICATIONS = new RequestDataPoints(new SvnMaterial("url", "username", "password", true) {
+    @DataPoint
+    public static RequestDataPoints SVN_LATEST_MODIFICATIONS = new RequestDataPoints(new SvnMaterial("url", "username", "password", true) {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -175,7 +177,8 @@ public class MaterialServiceTest {
         }
     }, SvnMaterial.class);
 
-    @DataPoint public static RequestDataPoints HG_LATEST_MODIFICATIONS = new RequestDataPoints(new HgMaterial("url", null) {
+    @DataPoint
+    public static RequestDataPoints HG_LATEST_MODIFICATIONS = new RequestDataPoints(new HgMaterial("url", null) {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -187,7 +190,8 @@ public class MaterialServiceTest {
         }
     }, HgMaterial.class);
 
-    @DataPoint public static RequestDataPoints TFS_LATEST_MODIFICATIONS = new RequestDataPoints(new TfsMaterial(mock(GoCipher.class)) {
+    @DataPoint
+    public static RequestDataPoints TFS_LATEST_MODIFICATIONS = new RequestDataPoints(new TfsMaterial(mock(GoCipher.class)) {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -200,7 +204,8 @@ public class MaterialServiceTest {
 
     }, TfsMaterial.class);
 
-    @DataPoint public static RequestDataPoints P4_LATEST_MODIFICATIONS = new RequestDataPoints(new P4Material("url", "view", "user") {
+    @DataPoint
+    public static RequestDataPoints P4_LATEST_MODIFICATIONS = new RequestDataPoints(new P4Material("url", "view", "user") {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -212,7 +217,8 @@ public class MaterialServiceTest {
         }
     }, P4Material.class);
 
-    @DataPoint public static RequestDataPoints DEPENDENCY_LATEST_MODIFICATIONS = new RequestDataPoints(new DependencyMaterial(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")) {
+    @DataPoint
+    public static RequestDataPoints DEPENDENCY_LATEST_MODIFICATIONS = new RequestDataPoints(new DependencyMaterial(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")) {
         @Override
         public List<Modification> latestModification(File baseDir, SubprocessExecutionContext execCtx) {
             return (List<Modification>) MODIFICATIONS;
@@ -363,36 +369,36 @@ public class MaterialServiceTest {
         assertThat(modifications.get(0).getRevision(), is("new-revision-456"));
     }
 
-	@Test
-	public void shouldDelegateToMaterialRepository_getTotalModificationsFor() {
-		GitMaterialConfig materialConfig = new GitMaterialConfig("http://test.com");
-		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, "flyweight");
+    @Test
+    public void shouldDelegateToMaterialRepository_getTotalModificationsFor() {
+        GitMaterialConfig materialConfig = new GitMaterialConfig("http://test.com");
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
 
-		when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
 
-		when(materialRepository.getTotalModificationsFor(gitMaterialInstance)).thenReturn(1L);
+        when(materialRepository.getTotalModificationsFor(gitMaterialInstance)).thenReturn(1L);
 
-		Long totalCount = materialService.getTotalModificationsFor(materialConfig);
+        Long totalCount = materialService.getTotalModificationsFor(materialConfig);
 
-		assertThat(totalCount, is(1L));
-	}
+        assertThat(totalCount, is(1L));
+    }
 
-	@Test
-	public void shouldDelegateToMaterialRepository_getModificationsFor() {
-		GitMaterialConfig materialConfig = new GitMaterialConfig("http://test.com");
-		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, "flyweight");
-		Pagination pagination = Pagination.pageStartingAt(0, 10, 10);
-		Modifications modifications = new Modifications();
-		modifications.add(new Modification("user", "comment", "email", new Date(), "revision"));
+    @Test
+    public void shouldDelegateToMaterialRepository_getModificationsFor() {
+        GitMaterialConfig materialConfig = new GitMaterialConfig("http://test.com");
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
+        Pagination pagination = Pagination.pageStartingAt(0, 10, 10);
+        Modifications modifications = new Modifications();
+        modifications.add(new Modification("user", "comment", "email", new Date(), "revision"));
 
-		when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
+        when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
 
-		when(materialRepository.getModificationsFor(gitMaterialInstance, pagination)).thenReturn(modifications);
+        when(materialRepository.getModificationsFor(gitMaterialInstance, pagination)).thenReturn(modifications);
 
-		Modifications gotModifications = materialService.getModificationsFor(materialConfig, pagination);
+        Modifications gotModifications = materialService.getModificationsFor(materialConfig, pagination);
 
-		assertThat(gotModifications, is(modifications));
-	}
+        assertThat(gotModifications, is(modifications));
+    }
 
     private void assertHasModification(MaterialRevisions materialRevisions, boolean b) {
         HgMaterial hgMaterial = new HgMaterial("foo.com", null);

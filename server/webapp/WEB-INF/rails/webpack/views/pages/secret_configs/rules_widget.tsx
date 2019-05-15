@@ -38,8 +38,7 @@ interface AutoCompleteAttrs extends Attrs {
 export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
   static headers() {
     return [
-      ""
-      , "Directive"
+      "Directive"
       , "Type"
       , <div>
         Resources
@@ -80,66 +79,47 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
   }
 
   view(vnode: m.Vnode<AutoCompleteAttrs, this>): m.Children | void | null {
+    const tableData = _.map(vnode.attrs.rules(), (rule) => {
+      if (!rule().getProvider()) {
+        rule().setProvider(vnode.attrs.resourceAutocompleteHelper);
+      }
+      return [
+        <SelectField dataTestId="rule-directive"
+                     property={rule().directive}
+                     required={true}
+                     errorText={rule().errors().errorsForDisplay("directive")}>
+          <SelectFieldOptions selected={rule().directive()}
+                              items={RulesWidget.directives()}/>
+        </SelectField>,
+        <SelectField
+          dataTestId="rule-type"
+          property={this.proxyType.bind(this, rule)}
+          required={true}
+          errorText={rule().errors().errorsForDisplay("type")}>
+          <SelectFieldOptions selected={rule().type()}
+                              items={RulesWidget.types()}/>
+        </SelectField>,
+        <AutocompleteField
+          minChars={vnode.attrs.minChars || 1}
+          dataTestId="rule-resource"
+          property={rule().resource}
+          provider={rule().getProvider()}
+          errorText={rule().errors().errorsForDisplay("resource")}
+          required={true}/>,
+        <Buttons.Cancel data-test-id="rule-delete"
+                        onclick={this.removeRule.bind(this, vnode, rule)}>
+          <span className={styles.iconDelete}></span>
+        </Buttons.Cancel>
+      ];
+    });
+
     return <div data-test-id="rules-widget">
       <h2>Rules </h2>
       <FlashMessage type={MessageType.info}
                     message="Configuring Rules is required to utilize this Secret Configuration. In absence of any rules, the secret configuration is denied access of any GoCD entities."/>
-      <div data-test-id="rules-table" className={styles.flexTable}>
-        <div data-test-id="rules-table-header" className={styles.tableHeader}>
-          {
-            _.map(RulesWidget.headers(), (header) => {
-              return <div className={styles.tableHead}>{header}</div>;
-            })
-          }
-        </div>
-        <div data-test-id="rules-table-body" className={styles.tableBody}>
-          {
-            _.map(vnode.attrs.rules(), (rule) => {
-              if (!rule().getProvider()) {
-                rule().setProvider(vnode.attrs.resourceAutocompleteHelper);
-              }
-              return <div data-test-id="rules-table-row" className={styles.tableRow}>
-                <div className={styles.tableCell}>
-                  <span className={styles.iconDrag}></span>
-                </div>
-                <div className={styles.tableCell}>
-                  <SelectField dataTestId="rule-directive"
-                               property={rule().directive}
-                               required={true}
-                               errorText={rule().errors().errorsForDisplay("directive")}>
-                    <SelectFieldOptions selected={rule().directive()}
-                                        items={RulesWidget.directives()}/>
-                  </SelectField>
-                </div>
-                <div className={styles.tableCell}>
-                  <SelectField
-                    dataTestId="rule-type"
-                    property={this.proxyType.bind(this, rule)}
-                    required={true}
-                    errorText={rule().errors().errorsForDisplay("type")}>
-                    <SelectFieldOptions selected={rule().type()}
-                                        items={RulesWidget.types()}/>
-                  </SelectField>
-                </div>
-                <div className={styles.tableCell}>
-                  <AutocompleteField
-                    minChars={vnode.attrs.minChars || 1}
-                    dataTestId="rule-resource"
-                    property={rule().resource}
-                    provider={rule().getProvider()}
-                    errorText={rule().errors().errorsForDisplay("resource")}
-                    required={true}/>
-                </div>
-                <div className={styles.tableCell}>
-                  <Buttons.Cancel data-test-id="rule-delete"
-                                  onclick={this.removeRule.bind(this, vnode, rule)}>
-                    <span className={styles.iconDelete}></span>
-                  </Buttons.Cancel>
-                </div>
-              </div>;
-            })
-          }
-        </div>
+      <div data-test-id="rules-table" className={styles.rulesTable}>
+        <Table headers={RulesWidget.headers()} data={tableData} draggable={true}
+               dragHandler={this.reArrange.bind(this, vnode.attrs.rules)}/>
       </div>
     </div>;
   }
@@ -158,6 +138,13 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
     rule().type(newType);
     rule().updateProvider();
     return newType;
+  }
+
+  private reArrange(rule: Stream<Rules>, oldIndex: number, newIndex: number) {
+    const splicedRule = rule().splice(oldIndex, 1);
+    rule().splice(newIndex, 0, splicedRule[0]);
+    // rule().forEach((rule) => rule().updateProvider());
+    m.redraw();
   }
 }
 

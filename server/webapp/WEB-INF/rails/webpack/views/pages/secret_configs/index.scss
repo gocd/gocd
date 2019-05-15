@@ -15,7 +15,6 @@
  */
 @import "../../global/common";
 
-
 .width-small {
   width: 320px;
 }
@@ -29,89 +28,20 @@
   }
 }
 
-.flex-table {
-  border-radius: $global-border-radius $global-border-radius 0 0;
-
+.rules-table li {
+  margin: 0 0;
+  width:  100%;
 }
 
-.table-header {
-  background:    $secondary-bg;
-  border-radius: $global-border-radius $global-border-radius 0 0;
-  display:       flex;
-  align-items:   center;
-  flex-grow:     1;
-  box-sizing:    border-box;
-  font-weight:   600;
-
+.rules-table select {
+  width:  220px;
+  margin: 0 0;
 }
 
-.table-head {
-  text-transform: uppercase;
-  text-align:     left;
-  font-weight:    600;
+.rules-table input[type="text"] { //sass-lint:disable-line no-qualifying-elements
+  margin: 0 0;
 }
 
-
-.table-head, .table-cell {
-  display:         flex;
-  flex-wrap:       Wrap;
-  justify-content: flex-start;
-  padding:         10px;
-
-  &:nth-child(1) {
-    width:           4%;
-    justify-content: center;
-  }
-
-  &:nth-child(2) {
-    width: 25%;
-  }
-
-  &:nth-child(3) {
-    width: 25%;
-  }
-
-  &:nth-child(4) {
-    width: 40%;
-  }
-
-  &:nth-child(5) {
-    width:           4%;
-    justify-content: center;
-    vertical-align:  center;
-  }
-}
-
-.table-body {
-  border-left:  1px solid $border-color;
-  border-right: 1px solid $border-color;
-}
-
-.table-row {
-  border-bottom: 1px solid $border-color;
-  min-height:    45px;
-  display:       flex;
-  align-items:   center;
-  width:         100%;
-  flex-grow:     1;
-  box-sizing:    border-box;
-  font-weight:   600;
-  background:    $white;
-
-  .table-cell li {
-    margin: 0 0;
-    width:  100%;
-  }
-
-  .table-cell select {
-    width:  220px;
-    margin: 0 0;
-  }
-
-  .table-cell input[type="text"] { //sass-lint:disable-line no-qualifying-elements
-    margin: 0 0;
-  }
-}
 
 .rules-wrapper table td {
   &:nth-child(1) {
@@ -160,18 +90,6 @@
     transform-origin: 0 0;
     transform:        rotate(-45deg);
     box-shadow:       1px -1px 1px 0 $box-shadow-color;
-  }
-}
-
-.icon-drag {
-  @include sort-cursor;
-  @include grip-icon;
-
-  font-size: 12px;
-  color:     $icon-drag;
-
-  &:active {
-    @include sort-cursor-active;
   }
 }
 

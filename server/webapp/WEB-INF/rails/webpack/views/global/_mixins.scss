@@ -86,3 +86,49 @@ $spinner-wrapper-height: 175px;
   -ms-user-select: none;
   user-select: none;
 }
+
+@mixin sort-cursor {
+  //sass-lint:disable no-duplicate-properties
+  cursor: move;
+  cursor: grab;
+  cursor: -moz-grab;
+  cursor: -webkit-grab;
+}
+
+@mixin sort-cursor-active {
+  //sass-lint:disable no-duplicate-properties
+  cursor: move;
+  cursor: grabbing;
+  cursor: -moz-grabbing;
+  cursor: -webkit-grabbing;
+}
+
+@mixin grip-icon($color: #ccc, $shadow-color: #333) {
+  @include unselectable;
+
+  display:        inline-block;
+
+  width:          1em;
+  height:         2.2em;
+  line-height:    0.45em;
+  letter-spacing: 0.15em;
+  color:          $icon-drag;
+
+  vertical-align: middle;
+  text-align:     center;
+  font-family:    sans-serif;
+  overflow:       hidden;
+  white-space:    normal;
+
+  &:after {
+    content: ".. .. .. ..";
+  }
+}
+
+@mixin unselectable {
+  //sass-lint:disable no-duplicate-properties no-important
+  -webkit-user-select: none !important;
+  -moz-user-select:    none !important;
+  -ms-user-select:     none !important;
+  user-select:         none !important;
+}

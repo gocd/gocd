@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.ConfigAttributeValue;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 
+import java.net.URI;
 import java.net.URISyntaxException;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
@@ -39,21 +40,27 @@ public class UrlArgument extends CommandArgument {
         return url;
     }
 
+    //TODO: Change this later to use URIBuilder
     @Override
     public String forDisplay() {
-        if (isBlank(sanitizeUrl())) {
-            return sanitizeUrl();
-        }
-
         try {
-            final URIBuilder uriBuilder = new URIBuilder(sanitizeUrl());
-            final UrlUserInfo urlUserInfo = new UrlUserInfo(uriBuilder.getUserInfo());
-            uriBuilder.setUserInfo(urlUserInfo.maskedUserInfo());
-            return uriBuilder.build().toString();
+            URI uri = new URI(sanitizeUrl());
+            if (uri.getUserInfo() != null) {
+                uri = new URI(uri.getScheme(), clean(uri.getScheme(), uri.getUserInfo()), uri.getHost(), uri.getPort(), uri.getPath(), uri.getQuery(), uri.getFragment());
+            }
+            return uri.toString();
         } catch (URISyntaxException e) {
-            // In subversion we may have a file path that is not actually a URL
-            return sanitizeUrl();
+            return url;
         }
+    }
+
+    private String clean(String scheme, String userInfo) {
+        if (userInfo.contains(":")) {
+            return userInfo.replaceFirst(":.*", ":******");
+        } else if ("ssh".equals(scheme) || "svn+ssh".equals(scheme)) {
+            return userInfo;
+        }
+        return "******";
     }
 
     @Override

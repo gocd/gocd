@@ -98,14 +98,14 @@ class UrlArgumentTest {
         void shouldNotMaskWithJustUserForSvnSshProtocol() {
             String normal = "svn+ssh://user@10.18.7.51:8153";
             UrlArgument url = new UrlArgument(normal);
-            assertThat(url.forDisplay()).isEqualTo("svn+ssh://******@10.18.7.51:8153");
+            assertThat(url.forDisplay()).isEqualTo("svn+ssh://user@10.18.7.51:8153");
         }
 
         @Test
         void shouldNotMaskWithJustUserForSshProtocol() {
             String normal = "ssh://user@10.18.7.51:8153";
             UrlArgument url = new UrlArgument(normal);
-            assertThat(url.forDisplay()).isEqualTo("ssh://******@10.18.7.51:8153");
+            assertThat(url.forDisplay()).isEqualTo("ssh://user@10.18.7.51:8153");
         }
 
         @Test

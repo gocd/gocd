@@ -19,12 +19,10 @@ import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
-import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {AutocompleteField} from "views/components/forms/autocomplete";
-import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
 import * as styles from "views/pages/secret_configs/index.scss";
+import RuleWidget from "views/pages/secret_configs/rule_widget";
 
 interface Attrs {
   rules: Stream<Rules>;
@@ -80,37 +78,16 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
 
   view(vnode: m.Vnode<AutoCompleteAttrs, this>): m.Children | void | null {
     const tableData = _.map(vnode.attrs.rules(), (rule) => {
-      if (!rule().getProvider()) {
-        rule().setProvider(vnode.attrs.resourceAutocompleteHelper);
-      }
-      return [
-        <SelectField dataTestId="rule-directive"
-                     property={rule().directive}
-                     required={true}
-                     errorText={rule().errors().errorsForDisplay("directive")}>
-          <SelectFieldOptions selected={rule().directive()}
-                              items={RulesWidget.directives()}/>
-        </SelectField>,
-        <SelectField
-          dataTestId="rule-type"
-          property={this.proxyType.bind(this, rule)}
-          required={true}
-          errorText={rule().errors().errorsForDisplay("type")}>
-          <SelectFieldOptions selected={rule().type()}
-                              items={RulesWidget.types()}/>
-        </SelectField>,
-        <AutocompleteField
-          minChars={vnode.attrs.minChars || 1}
-          dataTestId="rule-resource"
-          property={rule().resource}
-          provider={rule().getProvider()}
-          errorText={rule().errors().errorsForDisplay("resource")}
-          required={true}/>,
-        <Buttons.Cancel data-test-id="rule-delete"
-                        onclick={this.removeRule.bind(this, vnode, rule)}>
-          <span className={styles.iconDelete}></span>
-        </Buttons.Cancel>
-      ];
+
+      const ruleWidget = new RuleWidget(rule,
+                                        vnode.attrs.resourceAutocompleteHelper,
+                                        (ruleToBeRemoved: Stream<Rule>) => {
+                                          const index = vnode.attrs.rules().findIndex((r) => r === ruleToBeRemoved);
+                                          if (index !== -1) {
+                                            vnode.attrs.rules().splice(index, 1);
+                                          }
+                                        });
+      return ruleWidget.getViewData();
     });
 
     return <div data-test-id="rules-widget">
@@ -122,22 +99,6 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
                dragHandler={this.reArrange.bind(this, vnode.attrs.rules)}/>
       </div>
     </div>;
-  }
-
-  removeRule(vnode: m.Vnode<AutoCompleteAttrs, this>, ruleToBeRemoved: Stream<Rule>) {
-    const index = vnode.attrs.rules().findIndex((r) => r === ruleToBeRemoved);
-    if (index !== -1) {
-      vnode.attrs.rules().splice(index, 1);
-    }
-  }
-
-  private proxyType(rule: Stream<Rule>, newType?: string): string {
-    if (!newType) {
-      return rule().type();
-    }
-    rule().type(newType);
-    rule().updateProvider();
-    return newType;
   }
 
   private reArrange(rule: Stream<Rules>, oldIndex: number, newIndex: number) {

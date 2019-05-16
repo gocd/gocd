@@ -62,7 +62,7 @@ import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @EnableRuleMigrationSupport
 public class GitMaterialTest {
@@ -360,7 +360,7 @@ public class GitMaterialTest {
             assertThat(validationBean.isValid()).as("Repository should exist").isEqualTo(true);
         }
     }
-
+    
     @Test
     void shouldBeEqualWhenUrlSameForHgMaterial() {
         Material material = MaterialsMother.gitMaterials("url1").get(0);

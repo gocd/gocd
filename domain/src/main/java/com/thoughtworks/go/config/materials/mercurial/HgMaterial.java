@@ -178,7 +178,7 @@ public class HgMaterial extends ScmMaterial {
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         HgCommand hgCommand = new HgCommand(null, null, null, null, secrets());
         try {
-            hgCommand.checkConnection(url);
+            hgCommand.checkConnection(new UrlArgument(urlForCommandLine()));
             return ValidationBean.valid();
         } catch (Exception e) {
             try {

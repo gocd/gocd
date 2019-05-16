@@ -159,7 +159,7 @@ public class GitMaterial extends ScmMaterial {
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         GitCommand gitCommand = new GitCommand(null, null, null, false, secrets());
         try {
-            gitCommand.checkConnection(url, branch);
+            gitCommand.checkConnection(new UrlArgument(urlForCommandLine()), branch);
             return ValidationBean.valid();
         } catch (Exception e) {
             try {

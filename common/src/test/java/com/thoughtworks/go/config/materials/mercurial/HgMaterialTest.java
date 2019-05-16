@@ -54,8 +54,7 @@ import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @EnableRuleMigrationSupport
 public class HgMaterialTest {
@@ -278,6 +277,17 @@ public class HgMaterialTest {
         private void updateMaterial(HgMaterial hgMaterial, StringRevision revision) {
             hgMaterial.updateTo(outputStreamConsumer, workingFolder, new RevisionContext(revision), new TestSubprocessExecutionContext());
         }
+    }
+
+    @Test
+    void checkConnectionShouldUseUrlForCommandLine() {
+        final HgMaterial material = spy(new HgMaterial("http://example.com", null));
+        material.setUserName("bob");
+        material.setPassword("password");
+
+        material.checkConnection(new TestSubprocessExecutionContext());
+
+        verify(material).urlForCommandLine();
     }
 
     @Test

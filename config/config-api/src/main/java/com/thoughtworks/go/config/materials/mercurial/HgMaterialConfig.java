@@ -92,7 +92,7 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         return branch;
     }
 
-    public void setBranch(String branch) {
+    public void setBranchAttribute(String branch) {
         this.branch = branch;
     }
 
@@ -202,5 +202,9 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     private boolean hasBranchInUrl() {
         return split(url.originalArgument(), HgUrlArgument.DOUBLE_HASH).length > 1;
+    }
+
+    public String getBranchAttribute() {
+        return branch;
     }
 }

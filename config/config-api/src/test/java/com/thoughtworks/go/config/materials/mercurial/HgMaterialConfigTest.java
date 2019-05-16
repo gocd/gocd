@@ -151,11 +151,11 @@ class HgMaterialConfigTest {
         void shouldBeEqualIfObjectsHaveSameUrlBranch() {
             final HgMaterialConfig material_1 = new HgMaterialConfig("http://example.com", "master");
             material_1.setUserName("bob");
-            material_1.setBranch("feature");
+            material_1.setBranchAttribute("feature");
 
             final HgMaterialConfig material_2 = new HgMaterialConfig("http://example.com", "master");
             material_2.setUserName("alice");
-            material_2.setBranch("feature");
+            material_2.setBranchAttribute("feature");
 
             assertThat(material_1.equals(material_2)).isTrue();
         }
@@ -173,7 +173,7 @@ class HgMaterialConfigTest {
         @Test
         void shouldConsiderBranchWhileGeneratingFingerprint_IfBranchSpecifiedAsAnAttribute() {
             HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("https://bob:pass@github.com/gocd", "dest");
-            hgMaterialConfig.setBranch("feature");
+            hgMaterialConfig.setBranchAttribute("feature");
 
             assertThat(hgMaterialConfig.getFingerprint()).isEqualTo("db13278ed2b804fc5664361103bcea3d7f5106879683085caed4311aa4d2f888");
         }
@@ -183,7 +183,7 @@ class HgMaterialConfigTest {
             HgMaterialConfig hgMaterialConfigWithBranchInUrl = new HgMaterialConfig("https://github.com/gocd#feature", "dest");
 
             HgMaterialConfig hgMaterialConfigWithBranchAsAttribute = new HgMaterialConfig("https://github.com/gocd", "dest");
-            hgMaterialConfigWithBranchAsAttribute.setBranch("feature");
+            hgMaterialConfigWithBranchAsAttribute.setBranchAttribute("feature");
 
             assertThat(hgMaterialConfigWithBranchInUrl.getFingerprint())
                     .isNotEqualTo(hgMaterialConfigWithBranchAsAttribute.getFingerprint());
@@ -280,7 +280,7 @@ class HgMaterialConfigTest {
         @Test
         void shouldEnsureBranchIsNotProvidedInBothUrlAsWellAsAttributes() {
             HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com#some-branch", null);
-            hgMaterialConfig.setBranch("branch-in-attribute");
+            hgMaterialConfig.setBranchAttribute("branch-in-attribute");
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
 

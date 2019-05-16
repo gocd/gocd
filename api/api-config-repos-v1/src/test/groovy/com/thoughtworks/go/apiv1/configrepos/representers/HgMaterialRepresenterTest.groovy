@@ -37,7 +37,7 @@ class HgMaterialRepresenterTest {
 
     assertThatJson(json).isEqualTo([
       name       : null,
-      url        : REPO_URL.replace('password', '******'),
+      url        : REPO_URL,
       auto_update: true
     ])
   }

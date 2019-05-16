@@ -36,7 +36,10 @@ class GitMaterialRepresenterTest {
   class ToJSON {
     @Test
     void shouldSerializeObjectToJson() {
-      GitMaterialConfig config = new GitMaterialConfig("https://bob:some-pass@guthib.com/chewbacca", BRANCH)
+      GitMaterialConfig config = new GitMaterialConfig("https://guthib.com/chewbacca", BRANCH)
+      config.setUserName("bob")
+      config.setPassword("some-pass")
+
       String json = toObjectString({ w -> new GitMaterialRepresenter().toJSON(w, config) })
 
       assertThatJson(json).isEqualTo([

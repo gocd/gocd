@@ -81,7 +81,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
   @Nested
   class Credentials {
     @Test
-    void "should deserialize material with credentials in attributes"() {
+    void "should deserialize material with credentials as attributes"() {
       def jsonReader = GsonTransformer.instance.jsonReaderFrom([
         type      : 'git',
         attributes:
@@ -94,7 +94,9 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
       ])
 
       def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-      def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
+      def expected = new GitMaterialConfig("http://funk.com/blank")
+      expected.setUserName("user")
+      expected.setPassword("password")
 
       assertEquals(expected.isAutoUpdate(), deserializedObject.isAutoUpdate())
       assertNull(deserializedObject.getName())
@@ -118,7 +120,9 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     ])
 
     def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-    def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
+    def expected = new GitMaterialConfig("http://funk.com/blank")
+    expected.setUserName("user")
+    expected.setPassword("password")
 
     assertEquals(expected.isAutoUpdate(), deserializedObject.isAutoUpdate())
     assertNull(deserializedObject.getName())
@@ -141,7 +145,9 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         ]
     ])
     def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-    def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
+    def expected = new GitMaterialConfig("http://funk.com/blank")
+    expected.setUserName("user")
+    expected.setPassword("password")
 
     assertEquals(expected.isInvertFilter(), deserializedObject.isInvertFilter())
     assertEquals(expected, deserializedObject)
@@ -163,7 +169,9 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         ]
     ])
     def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-    def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
+    def expected = new GitMaterialConfig("http://funk.com/blank")
+    expected.setUserName("user")
+    expected.setPassword("password")
     expected.setInvertFilter(true)
 
     assertEquals(expected.isInvertFilter(), deserializedObject.isInvertFilter())
@@ -227,7 +235,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     [
       type      : 'git',
       attributes: [
-        url               : "http://funk.com/blank",
+        url               : "http://user:password@funk.com/blank",
         destination       : "destination",
         filter            : [
           ignore: ['**/*.html', '**/foobar/']
@@ -238,8 +246,6 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         shallow_clone     : true,
         name              : 'AwesomeGitMaterial',
         auto_update       : false,
-        username          : 'user',
-        encrypted_password: new GoCipher().encrypt("password")
       ]
     ]
 

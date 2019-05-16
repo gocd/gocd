@@ -173,10 +173,11 @@ class ConfigRepoWidget extends MithrilViewComponent<ShowObjectAttrs<ConfigRepo>>
         <FlashMessage type={MessageType.alert}>This configuration repository was never parsed.</FlashMessage>
       );
     } else if (parseInfo && parseInfo.error() && !parseInfo.latestParsedModification) {
+      let error = parseInfo.error() || "";
       maybeWarning = (
         <FlashMessage type={MessageType.alert}>
           There was an error parsing this configuration repository:
-          <Code>{parseInfo.error}</Code>
+          <Code>{m.trust(error)}</Code>
         </FlashMessage>
       );
     }

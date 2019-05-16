@@ -18,7 +18,6 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import {DynamicSuggestionProvider} from "models/secret_configs/suggestion_provider";
 
 export interface RuleJSON {
   directive: string;
@@ -33,7 +32,6 @@ export class Rule extends ValidatableMixin {
   action: Stream<string>;
   type: Stream<string>;
   resource: Stream<string>;
-  private __provider!: DynamicSuggestionProvider;
 
   constructor(directive: string, action: string, type: string, resource: string, errors: Errors = new Errors()) {
     super();
@@ -51,28 +49,6 @@ export class Rule extends ValidatableMixin {
   static fromJSON(ruleJSON: RuleJSON) {
     const errors = new Errors(ruleJSON.errors);
     return new Rule(ruleJSON.directive, ruleJSON.action, ruleJSON.type, ruleJSON.resource, errors);
-  }
-
-  setProvider(autoCompleteHelper: Map<string, string[]>) {
-    this.__provider = new DynamicSuggestionProvider(this.type(), autoCompleteHelper);
-  }
-
-  getProvider() {
-    return this.__provider;
-  }
-
-  updateProvider() {
-    this.__provider.setType(this.type());
-    this.__provider.update();
-  }
-
-  toJSON(): object {
-    return {
-      directive: this.directive,
-      action: this.action,
-      type: this.type,
-      resource: this.resource
-    };
   }
 }
 

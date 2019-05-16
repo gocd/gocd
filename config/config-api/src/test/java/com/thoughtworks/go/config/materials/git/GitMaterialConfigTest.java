@@ -175,6 +175,57 @@ class GitMaterialConfigTest {
             gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isEqualTo("URL cannot be blank");
         }
+
+        @Test
+        void shouldEnsureUserNameIsNotProvidedInBothUrlAsWellAsAttributes() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com");
+            gitMaterialConfig.setUserName("user");
+
+            gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
+        }
+
+        @Test
+        void shouldEnsurePasswordIsNotProvidedInBothUrlAsWellAsAttributes() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com");
+            gitMaterialConfig.setPassword("pass");
+
+            gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
+        }
+
+        @Test
+        void shouldIgnoreInvalidUrlForCredentialValidation() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com##dobule-hash-is-invalid-in-url");
+            gitMaterialConfig.setUserName("user");
+            gitMaterialConfig.setPassword("password");
+
+            gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isNull();
+        }
+
+        @Test
+        void shouldBeValidWhenCredentialsAreProvidedOnlyInUrl() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com");
+
+            gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isNull();
+        }
+
+        @Test
+        void shouldBeValidWhenCredentialsAreProvidedOnlyAsAttributes() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://example.com");
+            gitMaterialConfig.setUserName("bob");
+            gitMaterialConfig.setPassword("badger");
+
+            gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isNull();
+        }
     }
 
     @Nested

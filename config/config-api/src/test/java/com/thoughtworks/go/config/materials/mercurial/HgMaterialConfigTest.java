@@ -191,7 +191,7 @@ class HgMaterialConfigTest {
     }
 
     @Nested
-    class ValidateURL {
+    class validate {
         @Test
         void shouldEnsureUrlIsNotBlank() {
             hgMaterialConfig.setUrl("");
@@ -224,6 +224,67 @@ class HgMaterialConfigTest {
             hgMaterialConfig.setConfigAttributes(Collections.singletonMap(FOLDER, "../a"));
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(hgMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
+        }
+
+        @Test
+        void shouldEnsureUserNameIsNotProvidedInBothUrlAsWellAsAttributes() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com", null);
+            hgMaterialConfig.setUserName("user");
+
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
+        }
+
+        @Test
+        void shouldEnsurePasswordIsNotProvidedInBothUrlAsWellAsAttributes() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com", null);
+            hgMaterialConfig.setPassword("pass");
+
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
+        }
+
+        @Test
+        void shouldIgnoreInvalidUrlForCredentialValidation() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com##dobule-hash-is-invalid-in-url", null);
+            hgMaterialConfig.setUserName("user");
+            hgMaterialConfig.setPassword("password");
+
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isNull();
+        }
+
+        @Test
+        void shouldBeValidWhenCredentialsAreProvidedOnlyInUrl() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com", null);
+
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isNull();
+        }
+
+        @Test
+        void shouldBeValidWhenCredentialsAreProvidedOnlyAsAttributes() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://example.com", null);
+            hgMaterialConfig.setUserName("bob");
+            hgMaterialConfig.setPassword("badger");
+
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isNull();
+        }
+
+        @Test
+        void shouldEnsureBranchIsNotProvidedInBothUrlAsWellAsAttributes() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com#some-branch", null);
+            hgMaterialConfig.setBranch("branch-in-attribute");
+
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("Ambiguous branch, must be provided either in URL or as an attribute.");
         }
     }
 }

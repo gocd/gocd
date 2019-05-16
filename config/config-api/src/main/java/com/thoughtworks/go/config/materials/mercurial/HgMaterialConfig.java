@@ -25,6 +25,7 @@ import com.thoughtworks.go.util.command.HgUrlArgument;
 import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.split;
 
 @ConfigTag(value = "hg", label = "Mercurial")
 public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware {
@@ -136,6 +137,15 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
         validateMaterialUrl(this.url, validationContext);
+        validateCredentials();
+
+        validateBranch();
+    }
+
+    private void validateBranch() {
+        if (isNotBlank(this.branch) && hasBranchInUrl()) {
+            errors().add(URL, "Ambiguous branch, must be provided either in URL or as an attribute.");
+        }
     }
 
     @Override
@@ -188,5 +198,9 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
             String passwordToSet = (String) map.get(PASSWORD);
             resetPassword(passwordToSet);
         }
+    }
+
+    private boolean hasBranchInUrl() {
+        return split(url.originalArgument(), HgUrlArgument.DOUBLE_HASH).length > 1;
     }
 }

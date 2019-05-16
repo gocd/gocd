@@ -16,9 +16,12 @@
 
 package com.thoughtworks.go.util.command;
 
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.stream.Stream;
 
@@ -65,5 +68,30 @@ class UrlUserInfoTest {
         final UrlUserInfo urlUserInfo = new UrlUserInfo(input);
 
         assertThat(urlUserInfo.maskedUserInfo()).isEqualTo(expectedMaskedUserinfo);
+    }
+
+    @Nested
+    class hasUserInfo {
+        @ParameterizedTest
+        @ValueSource(strings = {
+                "https://bob@example.com",
+                "https://bob:pass@example.com",
+                "https://:pass@example.com",
+                "https://bob:@example.com",
+                "https://:@example.com"
+        })
+        void shouldBeTrueIfUrlHasUserInfo(String inputUrl) {
+            assertThat(UrlUserInfo.hasUserInfo(inputUrl)).isTrue();
+        }
+
+        @Test
+        void shouldBeFalseIfUrlHasNoUserInfo() {
+            assertThat(UrlUserInfo.hasUserInfo("https://example.com")).isFalse();
+        }
+        
+        @Test
+        void shouldBeFalseForInvalidUrls() {
+            assertThat(UrlUserInfo.hasUserInfo("https://example.com##foo")).isFalse();
+        }
     }
 }

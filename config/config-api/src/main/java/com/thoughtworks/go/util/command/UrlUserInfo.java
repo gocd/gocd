@@ -16,6 +16,11 @@
 
 package com.thoughtworks.go.util.command;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
 public class UrlUserInfo {
     private static final String MASKED_VALUE = "******";
     private String username;
@@ -36,6 +41,14 @@ public class UrlUserInfo {
     public UrlUserInfo(String username, String password) {
         this.username = username;
         this.password = password;
+    }
+
+    public static boolean hasUserInfo(String url) {
+        try {
+            return isNotBlank(new URI(url).getUserInfo());
+        } catch (URISyntaxException e) {
+            return false;
+        }
     }
 
     public String getUsername() {

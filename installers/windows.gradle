@@ -26,14 +26,26 @@ private File destFile(String url) {
 }
 
 task downloadWindowsJreChecksum(type: DownloadFile) {
-  def srcUrl = AdoptOpenJDKUrlHelper.sha256sumURL(com.thoughtworks.go.build.OperatingSystem.windows, project.versions.adoptOpenjdk.major, project.versions.adoptOpenjdk.build)
+  def srcUrl = AdoptOpenJDKUrlHelper.sha256sumURL(
+    com.thoughtworks.go.build.OperatingSystem.windows,
+    project.versions.adoptOpenjdk.featureVersion,
+    project.versions.adoptOpenjdk.interimVersion,
+    project.versions.adoptOpenjdk.updateVersion,
+    project.versions.adoptOpenjdk.buildVersion
+  )
   src srcUrl
   dest destFile(srcUrl)
 }
 
 task downloadWindowsJre(type: DownloadFile) {
   dependsOn downloadWindowsJreChecksum
-  def srcUrl = AdoptOpenJDKUrlHelper.downloadURL(com.thoughtworks.go.build.OperatingSystem.windows, project.versions.adoptOpenjdk.major, project.versions.adoptOpenjdk.build)
+  def srcUrl = AdoptOpenJDKUrlHelper.downloadURL(
+    com.thoughtworks.go.build.OperatingSystem.windows,
+    project.versions.adoptOpenjdk.featureVersion,
+    project.versions.adoptOpenjdk.interimVersion,
+    project.versions.adoptOpenjdk.updateVersion,
+    project.versions.adoptOpenjdk.buildVersion
+  )
   src srcUrl
   dest destFile(srcUrl)
   checksum = { downloadWindowsJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }

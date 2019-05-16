@@ -1,3 +1,4 @@
+import com.thoughtworks.go.build.AdoptOpenJDKUrlHelper
 import com.thoughtworks.go.build.DownloadFile
 import org.apache.commons.codec.digest.DigestUtils
 
@@ -21,11 +22,30 @@ private File destFile(String url) {
   new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
 }
 
-task downloadOSXJre(type: DownloadFile) {
-  def srcUrl = System.getenv("OSX_JDK_URL") ?: 'https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u202-b08/OpenJDK8U-jre_x64_mac_hotspot_8u202b08.tar.gz'
+task downloadOsxJreChecksum(type: DownloadFile) {
+  def srcUrl = AdoptOpenJDKUrlHelper.sha256sumURL(
+    com.thoughtworks.go.build.OperatingSystem.mac,
+    project.versions.adoptOpenjdk.featureVersion,
+    project.versions.adoptOpenjdk.interimVersion,
+    project.versions.adoptOpenjdk.updateVersion,
+    project.versions.adoptOpenjdk.buildVersion
+  )
   src srcUrl
   dest destFile(srcUrl)
-  checksum 'd7be3dfd5cd10323e1272e06d26f0709fbbc4a6f25a3992c2f2eef7022517fba'
+}
+
+task downloadOSXJre(type: DownloadFile) {
+  dependsOn downloadOsxJreChecksum
+  def srcUrl = AdoptOpenJDKUrlHelper.downloadURL(
+    com.thoughtworks.go.build.OperatingSystem.mac,
+    project.versions.adoptOpenjdk.featureVersion,
+    project.versions.adoptOpenjdk.interimVersion,
+    project.versions.adoptOpenjdk.updateVersion,
+    project.versions.adoptOpenjdk.buildVersion
+  )
+  src srcUrl
+  dest destFile(srcUrl)
+  checksum = { downloadOsxJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
 task downloadTanukiDeltaPack(type: DownloadFile) {

@@ -17,7 +17,6 @@
 package com.thoughtworks.go.build.docker
 
 import com.thoughtworks.go.build.AdoptOpenJDKUrlHelper
-import com.thoughtworks.go.build.OperatingSystem
 import org.gradle.api.Project
 
 trait DistroBehavior {
@@ -44,8 +43,15 @@ trait DistroBehavior {
   }
 
   List<String> getInstallJavaCommands(Project project) {
+    def downloadUrl = AdoptOpenJDKUrlHelper.downloadURL(
+      com.thoughtworks.go.build.OperatingSystem.linux,
+      project.versions.adoptOpenjdk.featureVersion,
+      project.versions.adoptOpenjdk.interimVersion,
+      project.versions.adoptOpenjdk.updateVersion,
+      project.versions.adoptOpenjdk.buildVersion)
+
     return [
-      "curl --fail --location --silent --show-error '${AdoptOpenJDKUrlHelper.downloadURL(OperatingSystem.linux, project.versions.adoptOpenjdk.major, project.versions.adoptOpenjdk.build)}' --output /tmp/jre.tar.gz",
+      "curl --fail --location --silent --show-error '${downloadUrl}' --output /tmp/jre.tar.gz",
       'mkdir -p /gocd-jre',
       'tar -xf /tmp/jre.tar.gz -C /gocd-jre --strip 1',
       'rm -rf /tmp/jre.tar.gz'

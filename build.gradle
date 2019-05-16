@@ -233,8 +233,10 @@ rootProject.ext.versions = [
     iedriverserver: '3.14.0'
   ],
   adoptOpenjdk        : [
-    major: 12,
-    build: 33
+    featureVersion: 12,
+    interimVersion: 0, // set to `null` for the first release
+    updateVersion : 1, // set to `null` for the first release
+    buildVersion  : 12
   ]
 ]
 

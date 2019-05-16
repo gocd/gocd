@@ -27,12 +27,13 @@ enum OperatingSystem {
 }
 
 class AdoptOpenJDKUrlHelper {
-  static String downloadURL(OperatingSystem operatingSystem, int majorVersion, int patchVersion) {
-    "https://github.com/AdoptOpenJDK/openjdk${majorVersion}-binaries/releases/download/jdk-${majorVersion}%2B${patchVersion}/OpenJDK${majorVersion}U-jre_x64_${operatingSystem.name()}_hotspot_${majorVersion}_${patchVersion}.${operatingSystem.extension}"
+  static String downloadURL(OperatingSystem operatingSystem, Integer featureVersion, Integer interimVersion, Integer updateVersion, Integer buildVersion) {
+    String versionComponent = [featureVersion, interimVersion, updateVersion].findAll({ it != null }).join('.')
+
+    "https://github.com/AdoptOpenJDK/openjdk${featureVersion}-binaries/releases/download/jdk-${versionComponent}%2B${buildVersion}/OpenJDK${featureVersion}U-jre_x64_${operatingSystem.name()}_hotspot_${versionComponent}_${buildVersion}.${operatingSystem.extension}"
   }
 
-
-  static String sha256sumURL(OperatingSystem operatingSystem, int majorVersion, int patchVersion) {
-    "${downloadURL(operatingSystem, majorVersion, patchVersion)}.sha256.txt"
+  static String sha256sumURL(OperatingSystem operatingSystem, Integer featureVersion, Integer interimVersion, Integer updateVersion, Integer buildVersion) {
+    "${downloadURL(operatingSystem, featureVersion, interimVersion, updateVersion, buildVersion)}.sha256.txt"
   }
 }

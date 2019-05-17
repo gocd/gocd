@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -62,8 +62,8 @@ public class JobIdentifier implements Serializable, LocatableEntity {
                 stage.getStageCounter(), jobName, jobId);
     }
 
-    public JobIdentifier(String pipelineName, int pipelineCounter, String pipelineLabel, String staqeName, String stageCounter, String jobName) {
-        this(pipelineName, pipelineCounter, pipelineLabel, staqeName, stageCounter, jobName, -1L);
+    public JobIdentifier(String pipelineName, int pipelineCounter, String pipelineLabel, String stageName, String stageCounter, String jobName) {
+        this(pipelineName, pipelineCounter, pipelineLabel, stageName, stageCounter, jobName, -1L);
     }
 
     public static JobIdentifier invalidIdentifier(String pipelineName, String pipelineLabel, String stageName,

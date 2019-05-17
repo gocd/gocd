@@ -37,6 +37,7 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     public static final String TYPE = "HgMaterial";
     public static final String URL = "url";
+    public static final String BRANCH = "branch";
 
     public HgMaterialConfig() {
         super(TYPE);

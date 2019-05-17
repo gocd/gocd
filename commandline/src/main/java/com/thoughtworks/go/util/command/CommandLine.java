@@ -18,6 +18,7 @@ package com.thoughtworks.go.util.command;
 
 import com.thoughtworks.go.util.ExceptionUtils;
 import com.thoughtworks.go.util.ProcessManager;
+import com.thoughtworks.go.util.ProcessTag;
 import com.thoughtworks.go.util.ProcessWrapper;
 import com.thoughtworks.go.utils.CommandUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -268,14 +269,14 @@ public class CommandLine {
      * @deprecated this should not be used outside of this CommandLine(in production code), as using it directly can bypass smudging of sensitive data
      * this is used only in tests
      */
-    public ProcessWrapper execute(ConsoleOutputStreamConsumer outputStreamConsumer, EnvironmentVariableContext environmentVariableContext, String processTag) {
+    public ProcessWrapper execute(ConsoleOutputStreamConsumer outputStreamConsumer, EnvironmentVariableContext environmentVariableContext, ProcessTag processTag) {
         ProcessWrapper process = createProcess(environmentVariableContext, outputStreamConsumer, processTag, ERROR_STREAM_PREFIX_FOR_CMDS);
         process.typeInputToConsole(inputs);
         return process;
     }
 
 
-    private ProcessWrapper createProcess(EnvironmentVariableContext environmentVariableContext, ConsoleOutputStreamConsumer consumer, String processTag, String errorPrefix) {
+    private ProcessWrapper createProcess(EnvironmentVariableContext environmentVariableContext, ConsoleOutputStreamConsumer consumer, ProcessTag processTag, String errorPrefix) {
         return ProcessManager.getInstance().createProcess(getCommandLine(), toString(getCommandLineForDisplay(), true), workingDir, env, environmentVariableContext, consumer, processTag, encoding,
                 errorPrefix);
     }
@@ -366,7 +367,7 @@ public class CommandLine {
     }
 
     public void runScript(Script script, StreamConsumer buildOutputConsumer,
-                          EnvironmentVariableContext environmentVariableContext, String processTag) throws CheckedCommandLineException {
+                          EnvironmentVariableContext environmentVariableContext, ProcessTag processTag) throws CheckedCommandLineException {
         LOG.info("Running command: {}", toStringForDisplay());
 
         CompositeConsumer errorStreamConsumer = new CompositeConsumer(CompositeConsumer.ERR, StreamLogger.getWarnLogger(LOG), buildOutputConsumer);
@@ -399,7 +400,7 @@ public class CommandLine {
         script.setExitCode(exitCode);
     }
 
-    public ConsoleResult runOrBomb(boolean failOnNonZeroReturn, String processTag, String... input) {
+    public ConsoleResult runOrBomb(boolean failOnNonZeroReturn, ProcessTag processTag, String... input) {
         LOG.debug("Running {}", this);
         addInput(input);
         InMemoryStreamConsumer output = ProcessOutputStreamConsumer.inMemoryConsumer();
@@ -417,14 +418,14 @@ public class CommandLine {
         return result;
     }
 
-    private ProcessWrapper startProcess(EnvironmentVariableContext environmentVariableContext, ConsoleOutputStreamConsumer consumer, String processTag) throws IOException {
+    private ProcessWrapper startProcess(EnvironmentVariableContext environmentVariableContext, ConsoleOutputStreamConsumer consumer, ProcessTag processTag) throws IOException {
         ProcessWrapper process = createProcess(environmentVariableContext, consumer, processTag, ERROR_STREAM_PREFIX_FOR_SCRIPTS);
         process.closeOutputStream();
         return process;
     }
 
 
-    public int run(ConsoleOutputStreamConsumer outputStreamConsumer, String processTag, String... input) {
+    public int run(ConsoleOutputStreamConsumer outputStreamConsumer, ProcessTag processTag, String... input) {
         LOG.debug("Running {}", this);
         addInput(input);
         SafeOutputStreamConsumer safeStreamConsumer = new SafeOutputStreamConsumer(outputStreamConsumer);
@@ -434,7 +435,7 @@ public class CommandLine {
         return process.waitForExit();
     }
 
-    public ConsoleResult runOrBomb(String processTag, String... input) {
+    public ConsoleResult runOrBomb(ProcessTag processTag, String... input) {
         return runOrBomb(true, processTag, input);
     }
 }

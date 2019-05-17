@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
+import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleResult;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
@@ -111,13 +112,13 @@ abstract class P4CommandTestBase extends PerforceFixture {
     void shouldBombForNonZeroReturnCode() {
         ProcessOutputStreamConsumer outputStreamConsumer = Mockito.mock(ProcessOutputStreamConsumer.class);
         CommandLine line = Mockito.mock(CommandLine.class);
-        when(line.run(outputStreamConsumer, null, "foo")).thenReturn(1);
+        when(line.run(outputStreamConsumer, new MaterialFingerprintTag(null), "foo")).thenReturn(1);
         try {
             p4.execute(line, "foo", outputStreamConsumer, true);
             fail("did't bomb for non zero return code");
         } catch (Exception ignored) {
         }
-        verify(line).run(outputStreamConsumer, null, "foo");
+        verify(line).run(outputStreamConsumer, new MaterialFingerprintTag(null), "foo");
     }
 
     @Test

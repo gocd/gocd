@@ -23,6 +23,7 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.NamedProcessTag;
 import org.apache.commons.io.FileUtils;
 import org.junit.rules.TemporaryFolder;
 
@@ -82,9 +83,9 @@ public class GitRepoContainingSubmodule extends TestRepo {
         File withSubmodules = new File(workingDir, repoName);
         withSubmodules.mkdirs();
         git(withSubmodules).init();
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.name", "go_test").runOrBomb(true, "git_config");
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, "git_config");
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, "git_config");
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.name", "go_test").runOrBomb(true, new NamedProcessTag("git_config"));
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, new NamedProcessTag("git_config"));
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(withSubmodules).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, new NamedProcessTag("git_config"));
 
         String fileName = "file-" + System.currentTimeMillis();
         addAndCommitNewFile(withSubmodules, fileName, "Added " + fileName);

@@ -30,8 +30,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import static org.apache.commons.lang3.StringUtils.isEmpty;
-
 public class ProcessManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProcessManager.class);
@@ -47,7 +45,7 @@ public class ProcessManager {
     }
 
     public ProcessWrapper createProcess(String[] commandLine, String commandLineForDisplay, File workingDir, Map<String, String> envMap, EnvironmentVariableContext environmentVariableContext,
-                                        ConsoleOutputStreamConsumer consumer, String processTag, String encoding, String errorPrefix) {
+                                        ConsoleOutputStreamConsumer consumer, ProcessTag processTag, String encoding, String errorPrefix) {
         ProcessBuilder processBuilder = new ProcessBuilder(commandLine);
         LOG.debug("Executing: {}", commandLineForDisplay);
         if (workingDir != null) {
@@ -70,10 +68,10 @@ public class ProcessManager {
         }
     }
 
-    public long getIdleTimeFor(String processTag) {
+    public long getIdleTimeFor(ProcessTag processTag) {
         for (ProcessWrapper processWrapper : processMap.values()) {
-            String tag = processWrapper.getProcessTag();
-            if (!isEmpty(tag) && tag.equalsIgnoreCase(processTag)) {
+            ProcessTag tag = processWrapper.getProcessTag();
+            if (processTag.equals(tag)) {
                 return processWrapper.getIdleTime();
             }
         }

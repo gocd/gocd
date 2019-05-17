@@ -144,14 +144,14 @@ class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
         GitMaterial material = new GitMaterial(repoWithBranch.projectRepositoryUrl(), true);
         updateTo(material, new RevisionContext(new StringRevision("origin/master")), JobResult.Passed);
         InMemoryStreamConsumer output = inMemoryConsumer();
-        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
+        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, null);
         assertThat(output.getStdOut()).isEqualTo("* master");
 
         GitMaterial material1 = new GitMaterial(repoWithBranch.projectRepositoryUrl(), "foo", null, true);
         updateTo(material1, new RevisionContext(new StringRevision("origin/foo")), JobResult.Passed);
 
         output = inMemoryConsumer();
-        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
+        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, null);
         assertThat(output.getStdOut()).isEqualTo("* foo");
     }
 

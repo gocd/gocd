@@ -209,7 +209,7 @@ public class PipelineConfigServicePerformanceTest {
         InMemoryStreamConsumer outputStreamConsumer = inMemoryConsumer();
         CommandLine commandLine = CommandLine.createCommandLine("jmap").withArgs("-J-d64", String.format("-dump:format=b,file=%s/%s.hprof", dumpDir.getAbsoluteFile(), i), ManagementFactory.getRuntimeMXBean().getName().split("@")[0]);
         LOGGER.info(commandLine.describe());
-        int exitCode = commandLine.run(outputStreamConsumer, "thread" + i);
+        int exitCode = commandLine.run(outputStreamConsumer, new NamedProcessTag("thread" + i));
         LOGGER.info(outputStreamConsumer.getAllOutput());
         assertThat(exitCode, is(0));
         LOGGER.info("Heap dump available at " + dumpDir.getAbsolutePath());

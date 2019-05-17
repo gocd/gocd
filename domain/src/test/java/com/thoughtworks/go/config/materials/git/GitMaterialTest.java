@@ -284,13 +284,13 @@ public class GitMaterialTest {
         git = new GitMaterial(gitFooBranchBundle.projectRepositoryUrl());
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         InMemoryStreamConsumer output = inMemoryConsumer();
-        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
+        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, null);
         assertThat(output.getStdOut()).isEqualTo("* master");
 
         git = new GitMaterial(gitFooBranchBundle.projectRepositoryUrl(), "foo");
         git.latestModification(workingDir, new TestSubprocessExecutionContext());
         output = inMemoryConsumer();
-        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, "");
+        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(workingDir).run(output, null);
         assertThat(output.getStdOut()).isEqualTo("* foo");
     }
 

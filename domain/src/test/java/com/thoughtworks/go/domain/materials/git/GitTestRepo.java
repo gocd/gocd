@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.FileUtil;
+import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
 import org.junit.rules.TemporaryFolder;
@@ -107,9 +108,9 @@ public class GitTestRepo extends TestRepo {
             throw new RuntimeException(String.format("[ERROR] Failed to clone. URL [%s] exit value [%d] output [%s]", from.getAbsolutePath(), returnValue, outputStreamConsumer.getAllOutput()));
         }
 
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "user.name", "go_test").runOrBomb(true, "git_config");
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, "git_config");
-        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, "git_config");
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "user.name", "go_test").runOrBomb(true, new NamedProcessTag("git_config"));
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "user.email", "go_test@go_test.me").runOrBomb(true, new NamedProcessTag("git_config"));
+        createCommandLine("git").withEncoding("UTF-8").withWorkingDir(workingDir).withArgs("config", "commit.gpgSign", "false").runOrBomb(true, new NamedProcessTag("git_config"));
 
         git.fetchAndResetToHead(outputStreamConsumer);
     }

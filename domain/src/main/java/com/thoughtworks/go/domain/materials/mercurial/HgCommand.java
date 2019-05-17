@@ -19,6 +19,7 @@ package com.thoughtworks.go.domain.materials.mercurial;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.SCMCommand;
+import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.command.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,7 @@ public class HgCommand extends SCMCommand {
 
     public HgVersion version() {
         CommandLine hg = createCommandLine("hg").withArgs("version").withEncoding("utf-8");
-        String hgOut = execute(hg, "hg version check").outputAsString();
+        String hgOut = execute(hg, new NamedProcessTag("hg version check")).outputAsString();
         return HgVersion.parse(hgOut);
     }
 
@@ -72,7 +73,7 @@ public class HgCommand extends SCMCommand {
     }
 
     public void checkConnection(UrlArgument repositoryURL) {
-        execute(createCommandLine("hg").withArgs("id", "--id").withArg(repositoryURL).withNonArgSecrets(secrets).withEncoding("utf-8"), repositoryURL.forDisplay());
+        execute(createCommandLine("hg").withArgs("id", "--id").withArg(repositoryURL).withNonArgSecrets(secrets).withEncoding("utf-8"), new NamedProcessTag(repositoryURL.forDisplay()));
     }
 
     public void updateTo(Revision revision, ConsoleOutputStreamConsumer outputStreamConsumer) {
@@ -148,7 +149,7 @@ public class HgCommand extends SCMCommand {
         return createCommandLine("hg").withArgs(arguments).withNonArgSecrets(secrets).withWorkingDir(workingDir).withEncoding("UTF-8");
     }
 
-    private static ConsoleResult execute(CommandLine hgCmd, String processTag) {
+    private static ConsoleResult execute(CommandLine hgCmd, NamedProcessTag processTag) {
         return hgCmd.runOrBomb(processTag);
     }
 

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.domain.materials;
 
+import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
 import com.thoughtworks.go.util.command.ConsoleResult;
@@ -31,14 +32,14 @@ public abstract class SCMCommand {
     }
 
     protected int run(CommandLine commandLine, ConsoleOutputStreamConsumer outputStreamConsumer, String... input) {
-        return commandLine.run(outputStreamConsumer, materialFingerprint, input);
+        return commandLine.run(outputStreamConsumer, new MaterialFingerprintTag(materialFingerprint), input);
     }
 
     public ConsoleResult runOrBomb(CommandLine commandLine, boolean failOnNonZeroReturn, String... input) {
-        return commandLine.runOrBomb(failOnNonZeroReturn, materialFingerprint, input);
+        return commandLine.runOrBomb(failOnNonZeroReturn, new MaterialFingerprintTag(materialFingerprint), input);
     }
 
     public ConsoleResult runOrBomb(CommandLine commandLine, String... input) {
-        return commandLine.runOrBomb(materialFingerprint, input);
+        return commandLine.runOrBomb(new MaterialFingerprintTag(materialFingerprint), input);
     }
 }

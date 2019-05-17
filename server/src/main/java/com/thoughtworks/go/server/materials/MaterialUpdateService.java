@@ -39,6 +39,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.slf4j.Logger;
@@ -185,7 +186,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             }
         } else {
             LOGGER.warn("[Material Update] Skipping update of material {} which has been in-progress since {}", material, inProgressSince);
-            long idleTime = getProcessManager().getIdleTimeFor(material.getFingerprint());
+            long idleTime = getProcessManager().getIdleTimeFor(new MaterialFingerprintTag(material.getFingerprint()));
             if (idleTime > getMaterialUpdateInActiveTimeoutInMillis()) {
                 HealthStateScope scope = HealthStateScope.forMaterialUpdate(material);
                 serverHealthService.removeByScope(scope);

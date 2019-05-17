@@ -121,7 +121,7 @@ public class GitCommandTest {
         InMemoryStreamConsumer output = inMemoryConsumer();
         git.clone(output, repoUrl);
         CommandLine commandLine = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir);
-        commandLine.run(output, "");
+        commandLine.run(output, null);
         assertThat(output.getStdOut()).isEqualTo("* master");
     }
 
@@ -192,7 +192,7 @@ public class GitCommandTest {
         GitCommand branchedGit = new GitCommand(null, gitLocalRepoDir, BRANCH, false, new HashMap<>(), null);
         branchedGit.clone(inMemoryConsumer(), gitFooBranchBundle.projectRepositoryUrl());
         InMemoryStreamConsumer output = inMemoryConsumer();
-        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir).run(output, "");
+        CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("branch").withWorkingDir(gitLocalRepoDir).run(output, null);
         assertThat(output.getStdOut()).isEqualTo("* foo");
     }
 
@@ -201,7 +201,7 @@ public class GitCommandTest {
         gitLocalRepoDir = createTempWorkingDirectory();
         CommandLine gitCloneCommand = CommandLine.createCommandLine("git").withEncoding("UTF-8").withArg("clone");
         gitCloneCommand.withArg("--branch=" + BRANCH).withArg(new UrlArgument(gitFooBranchBundle.projectRepositoryUrl())).withArg(gitLocalRepoDir.getAbsolutePath());
-        gitCloneCommand.run(inMemoryConsumer(), "");
+        gitCloneCommand.run(inMemoryConsumer(), null);
         git = new GitCommand(null, gitLocalRepoDir, BRANCH, false, new HashMap<>(), null);
         assertThat(git.getCurrentBranch()).isEqualTo(BRANCH);
     }

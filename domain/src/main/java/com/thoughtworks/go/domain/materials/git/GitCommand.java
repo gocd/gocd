@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.domain.materials.git;
 
-import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.Revision;
 import com.thoughtworks.go.domain.materials.SCMCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
+import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -311,7 +311,7 @@ public class GitCommand extends SCMCommand {
 
     public void checkConnection(UrlArgument repoUrl, String branch, Map<String, String> environment) {
         CommandLine commandLine = git(environment).withArgs("ls-remote").withArg(repoUrl).withArg("refs/heads/" + branch);
-        ConsoleResult result = commandLine.runOrBomb(repoUrl.forDisplay());
+        ConsoleResult result = commandLine.runOrBomb(new NamedProcessTag(repoUrl.forDisplay()));
         if (!hasOnlyOneMatchingBranch(result)) {
             throw new CommandLineException(String.format("The branch %s could not be found.", branch));
         }
@@ -324,7 +324,7 @@ public class GitCommand extends SCMCommand {
     public GitVersion version(Map<String, String> map) {
         CommandLine gitLsRemote = git(map).withArgs("version");
 
-        String gitVersionString = gitLsRemote.runOrBomb("git version check").outputAsString();
+        String gitVersionString = gitLsRemote.runOrBomb(new NamedProcessTag("git version check")).outputAsString();
         return GitVersion.parse(gitVersionString);
     }
 

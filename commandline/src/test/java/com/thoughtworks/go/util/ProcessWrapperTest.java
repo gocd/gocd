@@ -37,7 +37,7 @@ class ProcessWrapperTest {
     void shouldReturnTrueWhenAProcessIsRunning() {
         Process process = getMockedProcess(mock(OutputStream.class));
         when(process.exitValue()).thenThrow(new IllegalThreadStateException());
-        ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), "utf-8", null);
+        ProcessWrapper processWrapper = new ProcessWrapper(process, null, "", inMemoryConsumer(), "utf-8", null);
         assertThat(processWrapper.isRunning()).isTrue();
     }
 
@@ -45,7 +45,7 @@ class ProcessWrapperTest {
     void shouldReturnFalseWhenAProcessHasExited() {
         Process process = getMockedProcess(mock(OutputStream.class));
         when(process.exitValue()).thenReturn(1);
-        ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), "utf-8", null);
+        ProcessWrapper processWrapper = new ProcessWrapper(process, null, "", inMemoryConsumer(), "utf-8", null);
         assertThat(processWrapper.isRunning()).isFalse();
     }
 
@@ -53,7 +53,7 @@ class ProcessWrapperTest {
     void shouldTypeInputToConsole() {
         OutputStream processInputStream = new ByteArrayOutputStream();// mock(OutputStream.class);
         Process process = getMockedProcess(processInputStream);
-        ProcessWrapper processWrapper = new ProcessWrapper(process, "", "", inMemoryConsumer(), "utf-8", null);
+        ProcessWrapper processWrapper = new ProcessWrapper(process, null, "", inMemoryConsumer(), "utf-8", null);
         ArrayList<String> inputs = new ArrayList<>();
         inputs.add("input1");
         inputs.add("input2");

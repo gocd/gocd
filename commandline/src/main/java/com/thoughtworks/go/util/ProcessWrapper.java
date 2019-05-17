@@ -35,11 +35,11 @@ public class ProcessWrapper {
     private StreamPumper processErrorStream;
     private PrintWriter processInputStream;
     private long startTime;
-    private String processTag;
+    private ProcessTag processTag;
     private String command;
     private static final Logger LOGGER = LoggerFactory.getLogger(ProcessWrapper.class);
 
-    ProcessWrapper(Process process, String processTag, String command, ConsoleOutputStreamConsumer consumer, String encoding, String errorPrefix) {
+    ProcessWrapper(Process process, ProcessTag processTag, String command, ConsoleOutputStreamConsumer consumer, String encoding, String errorPrefix) {
         this.process = process;
         this.processTag = processTag;
         this.command = command;
@@ -108,7 +108,7 @@ public class ProcessWrapper {
         return new SimpleDateFormat("dd/MM/yy - H:mm:ss:S").format(new Date(startTime));
     }
 
-    public String getProcessTag() {
+    public ProcessTag getProcessTag() {
         return processTag;
     }
 

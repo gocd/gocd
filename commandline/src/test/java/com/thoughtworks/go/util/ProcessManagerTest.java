@@ -39,6 +39,8 @@ class ProcessManagerTest {
     private ProcessWrapper wrapperForProcessOne;
     private ProcessWrapper wrapperForProcessTwo;
     private Process processStartedByManager;
+    private ProcessTag tag1;
+    private ProcessTag tag2;
 
     @BeforeEach
     void setUp() {
@@ -63,15 +65,17 @@ class ProcessManagerTest {
         when(processTwo.getErrorStream()).thenReturn(mock(InputStream.class));
         when(processTwo.getOutputStream()).thenReturn(mock(OutputStream.class));
         ConcurrentMap<Process, ProcessWrapper> processMap = processManager.getProcessMap();
-        wrapperForProcessOne = new ProcessWrapper(processOne, "tag1", null, inMemoryConsumer(), "utf-8", "ERROR: ");
+        tag1 = mock(ProcessTag.class);
+        wrapperForProcessOne = new ProcessWrapper(processOne, tag1, null, inMemoryConsumer(), "utf-8", "ERROR: ");
         processMap.put(processOne, wrapperForProcessOne);
-        wrapperForProcessTwo = new ProcessWrapper(processTwo, "tag2", null, inMemoryConsumer(), "utf-8", "ERROR: ");
+        tag2 = mock(ProcessTag.class);
+        wrapperForProcessTwo = new ProcessWrapper(processTwo, tag2, null, inMemoryConsumer(), "utf-8", "ERROR: ");
         processMap.put(processTwo, wrapperForProcessTwo);
     }
 
     @Test
     void shouldAddToProcessListWhenNewProcessCreated() {
-        processManager.createProcess(new String[]{"echo", "message"}, "echo 'message'", null, new HashMap<>(), new EnvironmentVariableContext(), inMemoryConsumer(), "test-tag", "utf-8",
+        processManager.createProcess(new String[]{"echo", "message"}, "echo 'message'", null, new HashMap<>(), new EnvironmentVariableContext(), inMemoryConsumer(), null, "utf-8",
                 "ERROR: ");
         assertThat(processManager.getProcessMap().size()).isEqualTo(3);
     }
@@ -94,12 +98,12 @@ class ProcessManagerTest {
         processMap.put(processOne, processWrapperOne);
         processMap.put(processTwo, processWrapperTwo);
 
-        when(processWrapperOne.getProcessTag()).thenReturn("tag1");
+        when(processWrapperOne.getProcessTag()).thenReturn(tag1);
         when(processWrapperOne.getIdleTime()).thenReturn(200L);
-        when(processWrapperTwo.getProcessTag()).thenReturn("tag2");
+        when(processWrapperTwo.getProcessTag()).thenReturn(tag2);
         when(processWrapperTwo.getIdleTime()).thenReturn(100L);
 
-        long timeout = processManager.getIdleTimeFor("tag2");
+        long timeout = processManager.getIdleTimeFor(tag2);
         assertThat(timeout).isEqualTo(100L);
     }
 

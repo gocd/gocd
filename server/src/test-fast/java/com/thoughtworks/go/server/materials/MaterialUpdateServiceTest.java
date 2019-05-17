@@ -41,6 +41,7 @@ import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
+import com.thoughtworks.go.util.MaterialFingerprintTag;
 import com.thoughtworks.go.util.ProcessManager;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -388,7 +389,7 @@ public class MaterialUpdateServiceTest {
         when(material.getUriForDisplay()).thenReturn("uri");
         when(material.getLongDescription()).thenReturn("details to uniquely identify a material");
         when(material.isAutoUpdate()).thenReturn(true);
-        when(processManager.getIdleTimeFor("fingerprint")).thenReturn(60010L);
+        when(processManager.getIdleTimeFor(new MaterialFingerprintTag("fingerprint"))).thenReturn(60010L);
 
         //when
         service.updateMaterial(material);
@@ -412,7 +413,7 @@ public class MaterialUpdateServiceTest {
         service.updateMaterial(material);
         when(service.getProcessManager()).thenReturn(processManager);
         when(material.getFingerprint()).thenReturn("fingerprint");
-        when(processManager.getIdleTimeFor("fingerprint")).thenReturn(60010L);
+        when(processManager.getIdleTimeFor(new MaterialFingerprintTag("fingerprint"))).thenReturn(60010L);
 
         //when
         service.updateMaterial(material);

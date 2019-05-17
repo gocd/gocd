@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.domain;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.thoughtworks.go.server.service.BackupService;
+import com.thoughtworks.go.util.NamedProcessTag;
 import com.thoughtworks.go.util.command.CommandLine;
 import com.thoughtworks.go.util.command.CommandLineException;
 import org.slf4j.Logger;
@@ -52,7 +53,7 @@ public class PostBackupScript {
 
     public boolean execute() {
         try {
-            commandLine().runOrBomb("Post Backup Script");
+            commandLine().runOrBomb(new NamedProcessTag("Post Backup Script"));
             return true;
         } catch (CommandLineException e) {
             LOG.error("Failed to execute post backup script.\n{}", e.getResult().describe(), e);

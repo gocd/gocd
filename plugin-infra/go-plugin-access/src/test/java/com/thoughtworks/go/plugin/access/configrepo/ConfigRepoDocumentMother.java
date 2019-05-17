@@ -84,4 +84,12 @@ class ConfigRepoDocumentMother {
     String v4ComprehensiveWithDisplayOrderWeightsOf10AndMinusOne() {
         return JsonUtils.toJsonString(getJSONFor("/v4_comprehensive_with_display_order_weights_of_10_and_minus_one.json"));
     }
+
+    String v4Simple() {
+        return JsonUtils.toJsonString(getJSONFor("/v4_simple.json"));
+    }
+
+    String v5Simple() {
+        return JsonUtils.toJsonString(getJSONFor("/v5_simple.json"));
+    }
 }

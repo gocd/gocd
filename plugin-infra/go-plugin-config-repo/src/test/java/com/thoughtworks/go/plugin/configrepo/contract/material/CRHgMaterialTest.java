@@ -37,13 +37,13 @@ public class CRHgMaterialTest extends AbstractCRTest<CRHgMaterial> {
         simpleHg = new CRHgMaterial();
         simpleHg.setUrl("myHgRepo");
 
-        customHg = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg");
+        customHg = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg", "feature");
 
         invalidHgNoUrl = new CRHgMaterial();
-        invalidHgWhitelistAndIgnores = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg");
+        invalidHgWhitelistAndIgnores = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg", "feature");
         invalidHgWhitelistAndIgnores.setWhitelistNoCheck("src", "tests");
 
-        invalidPasswordAndEncyptedPasswordSet = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg");
+        invalidPasswordAndEncyptedPasswordSet = new CRHgMaterial("hgMaterial1", "dir1", false, false, null, Arrays.asList("externals", "tools"), "repos/myhg", "feature");
         invalidPasswordAndEncyptedPasswordSet.setPassword("pa$sw0rd");
         invalidPasswordAndEncyptedPasswordSet.setEncryptedPassword("26t=$j64");
     }

@@ -1018,7 +1018,7 @@ public class ConfigConverter {
     }
 
     private CRHgMaterial hgMaterialToCRHgMaterial(String materialName, HgMaterialConfig hgMaterialConfig) {
-        CRHgMaterial crHgMaterial = new CRHgMaterial(materialName, hgMaterialConfig.getFolder(), hgMaterialConfig.isAutoUpdate(), hgMaterialConfig.isInvertFilter(), hgMaterialConfig.getUserName(), hgMaterialConfig.filter().ignoredFileNames(), hgMaterialConfig.getUrl());
+        CRHgMaterial crHgMaterial = new CRHgMaterial(materialName, hgMaterialConfig.getFolder(), hgMaterialConfig.isAutoUpdate(), hgMaterialConfig.isInvertFilter(), hgMaterialConfig.getUserName(), hgMaterialConfig.filter().ignoredFileNames(), hgMaterialConfig.getUrl(), hgMaterialConfig.getBranchAttribute());
         crHgMaterial.setEncryptedPassword(hgMaterialConfig.getEncryptedPassword());
         return crHgMaterial;
     }

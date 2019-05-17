@@ -31,17 +31,22 @@ import java.util.List;
 public class CRHgMaterial extends CRScmMaterial {
     public static final String TYPE_NAME = "hg";
 
-    @SerializedName("url")
     @Expose
+    @SerializedName("url")
     private String url;
 
+    @Expose
+    @SerializedName("branch")
+    private String branch;
+
     public CRHgMaterial() {
-        this(null, null, true, false, null, null, null);
+        this(null, null, true, false, null, null, null, null);
     }
 
-    public CRHgMaterial(String name, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filter, String url) {
+    public CRHgMaterial(String name, String folder, boolean autoUpdate, boolean whitelist, String username, List<String> filter, String url, String branch) {
         super(TYPE_NAME, name, folder, autoUpdate, whitelist, username, filter);
         this.url = url;
+        this.branch = branch;
     }
 
     @Override
@@ -65,8 +70,7 @@ public class CRHgMaterial extends CRScmMaterial {
         return String.format("%s; Hg material %s URL: %s", myLocation, name, url);
     }
 
-    //TODO:
     public String getBranch() {
-        throw new RuntimeException("Implement me ");
+        return this.branch;
     }
 }

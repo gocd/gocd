@@ -37,8 +37,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public class JsonMessageHandler1_0 implements JsonMessageHandler {
-
-    static final int CURRENT_CONTRACT_VERSION = 4;
+    static final int CURRENT_CONTRACT_VERSION = 5;
     private static final Logger LOGGER = LoggerFactory.getLogger(JsonMessageHandler1_0.class);
     private final GsonCodec codec;
     private final ConfigRepoMigrator migrator;

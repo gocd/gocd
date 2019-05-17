@@ -120,17 +120,20 @@ api/api-build_cause-v1/target/
 api/api-current-user-v1/logs/
 api/api-current-user-v1/out/
 api/api-current-user-v1/target/
-api/api-config-repo-operations-v1/target/
+api/api-config-repo-operations-v1/config/
 api/api-config-repo-operations-v1/logs/
 api/api-config-repo-operations-v1/out/
+api/api-config-repo-operations-v1/target/
 api/api-config-repos-v1/config/
 api/api-config-repos-v1/out/
+api/api-dashboard-v2/config/
 api/api-dashboard-v2/logs/
 api/api-dashboard-v2/out/
 api/api-version-v1/out/
 api/api-version-v1/logs/
 api/api-version-v1/target/
 api/api-dashboard-v2/target/
+api/api-dashboard-v3/config/
 api/api-dashboard-v3/out/
 api/api-dashboard-v3/logs/
 api/api-dashboard-v3/target/
@@ -143,6 +146,7 @@ api/api-data-sharing-settings-v1/target/
 api/api-data-sharing-usage-data-v3/logs/
 api/api-data-sharing-usage-data-v3/out/
 api/api-data-sharing-usage-data-v3/target/
+api/api-environments-v2/config/
 api/api-environments-v2/logs/
 api/api-environments-v2/out/
 api/api-environments-v2/target/
@@ -368,6 +372,7 @@ api/api-support/config/
 api/api-plugin-infos-v5/out/
 api/api-plugin-infos-v5/target/
 api/api-plugin-infos-v5/logs/
+api/api-secret-configs-v1/config/
 api/api-secret-configs-v1/out/
 api/api-secret-configs-v1/target/
 api/api-secret-configs-v1/logs/
@@ -386,4 +391,3 @@ api/api-plugin-infos-v6/config/
 api/api-dependency-material-autocomplete-v1/out/
 api/api-dependency-material-autocomplete-v1/target/
 api/api-dependency-material-autocomplete-v1/logs/
-

@@ -38,7 +38,6 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -277,7 +276,7 @@ class GitMaterialUpdaterTest extends BuildSessionBasedTestCase {
     }
 
     private GitCommand localRepoFor(GitMaterial material) {
-        return new GitCommand(material.getFingerprint(), workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
+        return new GitCommand(material.getFingerprint(), workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, null);
     }
 
     private List<File> allFilesIn(File directory, String prefixOfFiles) {

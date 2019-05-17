@@ -31,7 +31,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
@@ -108,7 +107,7 @@ public class GitRepoContainingSubmodule extends TestRepo {
     }
 
     private GitCommand git(File workingDir) {
-        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
+        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, null);
     }
 
     public GitMaterial mainRepo() {

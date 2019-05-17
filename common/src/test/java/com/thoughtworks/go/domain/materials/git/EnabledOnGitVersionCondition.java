@@ -23,8 +23,6 @@ import org.junit.jupiter.api.extension.ExecutionCondition;
 import org.junit.jupiter.api.extension.ExtensionContext;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Optional;
 
 import static org.junit.platform.commons.util.AnnotationUtils.findAnnotation;
@@ -38,8 +36,8 @@ public class EnabledOnGitVersionCondition implements ExecutionCondition {
         if (annotation.isPresent()) {
             String version = annotation.get().value();
             Version requiredVersion = Version.parseVersion(version);
-            GitCommand git = new GitCommand(null, new File(""), GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
-            Version gitVersion = git.version(Collections.emptyMap()).getVersion();
+            GitCommand git = new GitCommand(null, new File(""), GitMaterialConfig.DEFAULT_BRANCH, false, null);
+            Version gitVersion = git.version().getVersion();
             if (gitVersion.compareTo(requiredVersion) >= 0) {
                 return ConditionEvaluationResult.enabled(String.format(
                         "Git version required for this test is %s or later. Detected Version is %s", requiredVersion, gitVersion));

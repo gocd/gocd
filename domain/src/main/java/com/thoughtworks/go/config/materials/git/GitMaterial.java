@@ -164,13 +164,13 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
-        GitCommand gitCommand = new GitCommand(null, null, null, false, null, secrets());
+        GitCommand gitCommand = new GitCommand(null, null, null, false, secrets());
         try {
-            gitCommand.checkConnection(url, branch, execCtx.getDefaultEnvironmentVariables());
+            gitCommand.checkConnection(url, branch);
             return ValidationBean.valid();
         } catch (Exception e) {
             try {
-                return handleException(e, gitCommand.version(execCtx.getDefaultEnvironmentVariables()));
+                return handleException(e, gitCommand.version());
             } catch (Exception notInstallGitException) {
                 return ValidationBean.notValid(ERR_GIT_NOT_FOUND);
             }
@@ -201,10 +201,10 @@ public class GitMaterial extends ScmMaterial {
 
     private GitCommand git(ConsoleOutputStreamConsumer outputStreamConsumer, final File workingFolder, int preferredCloneDepth, SubprocessExecutionContext executionContext) throws Exception {
         if (isSubmoduleFolder()) {
-            return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, executionContext.getDefaultEnvironmentVariables(), secrets());
+            return new GitCommand(getFingerprint(), new File(workingFolder.getPath()), GitMaterialConfig.DEFAULT_BRANCH, true, secrets());
         }
 
-        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, getBranch(), false, executionContext.getDefaultEnvironmentVariables(), secrets());
+        GitCommand gitCommand = new GitCommand(getFingerprint(), workingFolder, getBranch(), false, secrets());
         if (!isGitRepository(workingFolder) || isRepositoryChanged(gitCommand, workingFolder)) {
             LOG.debug("Invalid git working copy or repository changed. Delete folder: {}", workingFolder);
             deleteDirectoryNoisily(workingFolder);

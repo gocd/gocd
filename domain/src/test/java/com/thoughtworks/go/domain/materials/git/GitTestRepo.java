@@ -116,7 +116,7 @@ public class GitTestRepo extends TestRepo {
     }
 
     private GitCommand git(File workingDir) {
-        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null);
+        return new GitCommand(null, workingDir, GitMaterialConfig.DEFAULT_BRANCH, false, null);
     }
 
     public GitMaterial createMaterial() {
@@ -128,7 +128,7 @@ public class GitTestRepo extends TestRepo {
     }
 
     private void checkoutRemoteBranchToLocal(String branch) {
-        new GitCommand(null, gitRepo, branch, false, new HashMap<>(), null).checkoutRemoteBranchToLocal();
+        new GitCommand(null, gitRepo, branch, false, null).checkoutRemoteBranchToLocal();
     }
 
     public List<Modification> addFileAndPush(String fileName, String message) throws IOException {
@@ -138,15 +138,15 @@ public class GitTestRepo extends TestRepo {
     }
 
     public List<Modification> addFileAndPush(File newFile, String message) throws IOException {
-        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null).add(newFile);
-        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null).commit(message);
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, null).add(newFile);
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, null).commit(message);
         return createMaterial().latestModification(temporaryFolder.newFolder(), new TestSubprocessExecutionContext());
     }
 
     public List<Modification> addFileAndAmend(String fileName, String message) throws IOException {
         File newFile = new File(gitRepo, fileName);
         newFile.createNewFile();
-        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>(), null).add(newFile);
+        new GitCommand(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, null).add(newFile);
         new GitCommandWithAmend(null, gitRepo, GitMaterialConfig.DEFAULT_BRANCH, false, new HashMap<>()).commitWithAmend(message, gitRepo);
         return createMaterial().latestModification(temporaryFolder.newFolder(), new TestSubprocessExecutionContext());
     }
@@ -154,7 +154,7 @@ public class GitTestRepo extends TestRepo {
     private static class GitCommandWithAmend extends GitCommand {
 
         public GitCommandWithAmend(String materialFingerprint, File workingDir, String branch, boolean isSubmodule, Map<String, String> environment) {
-            super(materialFingerprint, workingDir, branch, isSubmodule, environment, null);
+            super(materialFingerprint, workingDir, branch, isSubmodule, null);
         }
 
         public void commitWithAmend(String message, File gitRepo) {

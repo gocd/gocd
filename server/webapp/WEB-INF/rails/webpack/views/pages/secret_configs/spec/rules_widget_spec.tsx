@@ -19,7 +19,6 @@ import * as stream from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
 import {rulesTestData, ruleTestData} from "models/secret_configs/spec/test_data";
 import * as simulateEvent from "simulate-event";
-import * as styles from "views/components/forms/autocomplete.scss";
 import {RulesWidget} from "views/pages/secret_configs/rules_widget";
 import {TestHelper} from "views/pages/spec/test_helper";
 
@@ -41,20 +40,20 @@ describe("RulesWidget", () => {
 
     mount(rules);
 
-    const tableBody   = helper.findByDataTestId("rules-table-body");
-    const tableRow    = helper.findByDataTestId("rules-table-row");
-    const tableHeader = helper.findByDataTestId("rules-table-header");
+    const tableBody   = helper.findByDataTestId("table-body");
+    const tableRow    = tableBody.find("tr");
+    const tableHeader = helper.findByDataTestId("table-header");
 
     expect(helper.findByDataTestId("rules-table")).toBeInDOM();
     expect(tableHeader).toBeInDOM();
-    expect(tableHeader.eq(0).children().length).toBe(5);
+    expect(tableHeader.find("th").length).toBe(5);
     expect(tableHeader.eq(0)).toContainText("Directive");
     expect(tableHeader.eq(0)).toContainText("Type");
     expect(tableHeader.eq(0)).toContainText("Resources");
 
     expect(tableBody).toBeInDOM();
 
-    expect(tableRow.eq(0).children().length).toBe(5);
+    expect(tableRow.find("td").length).toBe(5);
     expect(helper.findByDataTestId("rule-directive").get(0)).toHaveValue("allow");
     expect(helper.findByDataTestId("rule-directive").get(0)).toContainText("DenyAllow");
     expect(helper.findByDataTestId("rule-type").get(0)).toHaveValue("pipeline_group");
@@ -66,7 +65,7 @@ describe("RulesWidget", () => {
     const rulesJSON = rulesTestData();
     const rules     = Rules.fromJSON(rulesJSON);
     mount(rules);
-    expect(helper.findByDataTestId("rules-table-row").length).toBe(2);
+    expect(helper.findByDataTestId("table-body").find("tr").length).toBe(2);
   });
 
   it("should callback the remove function and remove rule when cancel button is clicked", () => {
@@ -76,31 +75,10 @@ describe("RulesWidget", () => {
 
     expect(rules.length).toBe(2);
 
-    const tableBody        = helper.findByDataTestId("rules-table-body");
-    const row              = helper.findIn(tableBody, "rules-table-row").eq(0);
-    const deleteRuleButton = helper.findIn(row, "rule-delete")[0];
+    const tableBody        = helper.findByDataTestId("table-body");
+    const deleteRuleButton = helper.findIn(tableBody, "rule-delete")[0];
     simulateEvent.simulate(deleteRuleButton, "click");
     expect(rules.length).toBe(1);
-  });
-
-  it("should show the possible values of pipeline groups", (done) => {
-    const map = new Map();
-    map.set("pipeline_group", ["env-dev", "env-prod", "test"]);
-    const ruleData = Rule.fromJSON(ruleTestData());
-    ruleData.resource("env");
-    ruleData.setProvider(map);
-    ruleData.getProvider().onFinally(() => {
-      expect(rulesResource.find("ul").find("li").length).toBe(2);
-      expect(rulesResource.find("ul").find("li").get(0).innerText).toBe("env-dev");
-      expect(rulesResource.find("ul").find("li").get(1).innerText).toBe("env-prod");
-      done();
-    });
-    const rules = new Rules(stream(ruleData));
-    mount(rules, map);
-    const rulesResource    = helper.find(`.${styles.awesomplete}`);
-    const inputForResource = helper.findIn(rulesResource, "rule-resource").get(0);
-    simulateEvent.simulate(inputForResource, "focus");
-    m.redraw();
   });
 
   function mount(rules: Rules, resources: Map<string, string[]> = new Map()) {

@@ -18,11 +18,15 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
 import {Rule, Rules} from "models/secret_configs/rules";
+import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
+import {AutocompleteField} from "views/components/forms/autocomplete";
+import {SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
 import * as styles from "views/pages/secret_configs/index.scss";
-import RuleWidget from "views/pages/secret_configs/rule_widget";
+import {ResourceSuggestionProvider} from "views/pages/secret_configs/suggestion_provider";
 
 interface Attrs {
   rules: Stream<Rules>;
@@ -77,25 +81,22 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
   }
 
   view(vnode: m.Vnode<AutoCompleteAttrs, this>): m.Children | void | null {
-    const tableData = _.map(vnode.attrs.rules(), (rule) => {
-
-      const ruleWidget = new RuleWidget(rule,
-                                        vnode.attrs.resourceAutocompleteHelper,
-                                        (ruleToBeRemoved: Stream<Rule>) => {
-                                          const index = vnode.attrs.rules().findIndex((r) => r === ruleToBeRemoved);
-                                          if (index !== -1) {
-                                            vnode.attrs.rules().splice(index, 1);
-                                          }
-                                        });
-      return ruleWidget.getViewData();
-    });
-
+    const removeRuleCallback = (ruleToBeRemoved: Stream<Rule>) => {
+      const index = vnode.attrs.rules().findIndex((r) => r === ruleToBeRemoved);
+      if (index !== -1) {
+        vnode.attrs.rules().splice(index, 1);
+      }
+    };
     return <div data-test-id="rules-widget">
       <h2>Rules </h2>
       <FlashMessage type={MessageType.info}
                     message="Configuring Rules is required to utilize this Secret Configuration. In absence of any rules, the secret configuration is denied access of any GoCD entities."/>
       <div data-test-id="rules-table" className={styles.rulesTable}>
-        <Table headers={RulesWidget.headers()} data={tableData} draggable={true}
+        <Table headers={RulesWidget.headers()}
+               data={new RulesWidgetBody(vnode.attrs.rules,
+                                         vnode.attrs.resourceAutocompleteHelper,
+                                         removeRuleCallback).getData()}
+               draggable={true}
                dragHandler={this.reArrange.bind(this, vnode.attrs.rules)}/>
       </div>
     </div>;
@@ -104,8 +105,57 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
   private reArrange(rule: Stream<Rules>, oldIndex: number, newIndex: number) {
     const splicedRule = rule().splice(oldIndex, 1);
     rule().splice(newIndex, 0, splicedRule[0]);
-    // rule().forEach((rule) => rule().updateProvider());
     m.redraw();
+  }
+}
+
+class RulesWidgetBody {
+  private rules: Stream<Rules>;
+  private resourceAutocompleteHelper: Map<string, string[]>;
+  private removeRule: (ruleToBeRemoved: Stream<Rule>) => void;
+
+  constructor(rules: Stream<Rules>,
+              resourceAutocompleteHelper: Map<string, string[]>,
+              removeRule: (ruleToBeRemoved: Stream<Rule>) => void) {
+    this.rules                      = rules;
+    this.resourceAutocompleteHelper = resourceAutocompleteHelper;
+    this.removeRule                 = removeRule;
+  }
+
+  getData(): m.Child[][] {
+    return _.map(this.rules(), (rule) => {
+      const provider = stream(new ResourceSuggestionProvider(rule, this.resourceAutocompleteHelper));
+      return [<SelectField dataTestId="rule-directive"
+                           property={rule().directive}
+                           required={true}
+                           errorText={rule().errors().errorsForDisplay("directive")}>
+        <SelectFieldOptions selected={rule().directive()}
+                            items={RulesWidget.directives()}/>
+      </SelectField>,
+        <SelectField
+          dataTestId="rule-type"
+          property={rule().type}
+          required={true}
+          onchange={(e) => provider().update()}
+          errorText={rule().errors().errorsForDisplay("type")}>
+          <SelectFieldOptions selected={rule().type()}
+                              items={RulesWidget.types()}/>
+        </SelectField>,
+        <AutocompleteField
+          key={rule().type()}
+          minChars={1}
+          autoFirst={true}
+          dataTestId="rule-resource"
+          property={rule().resource}
+          provider={provider()}
+          errorText={rule().errors().errorsForDisplay("resource")}
+          required={true}/>,
+        <Buttons.Cancel data-test-id="rule-delete"
+                        onclick={this.removeRule.bind(this, rule)}>
+          <span className={styles.iconDelete}></span>
+        </Buttons.Cancel>
+      ];
+    });
   }
 }
 

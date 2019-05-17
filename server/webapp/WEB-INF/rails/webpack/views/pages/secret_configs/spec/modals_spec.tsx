@@ -112,12 +112,12 @@ describe("SecretConfigModal", () => {
                                               onSuccessfulSave);
       helper.mount(modal.body.bind(modal));
 
-      expect(helper.findByDataTestId("rules-table-row").length).toBe(2);
+      expect(helper.findByDataTestId("table-body").find("tr").length).toBe(2);
 
       const addRuleButton = helper.findByDataTestId("add-rule-button")[0];
       simulateEvent.simulate(addRuleButton, "click");
 
-      expect(helper.findByDataTestId("rules-table-row").length).toBe(3);
+      expect(helper.findByDataTestId("table-body").find("tr").length).toBe(3);
 
       helper.unmount();
     });

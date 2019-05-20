@@ -49,8 +49,8 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         this.folder = folder;
     }
 
-    public HgMaterialConfig(HgUrlArgument url, String userName, String password, String branch, boolean autoUpdate, Filter filter,
-                            boolean invertFilter, String folder, CaseInsensitiveString name) {
+    public HgMaterialConfig(HgUrlArgument url, String userName, String password, String branch, boolean autoUpdate,
+                            Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
         super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
         this.userName = userName;

@@ -20,8 +20,8 @@ module ApiV1
       module Materials
         class HgMaterialRepresenter < ScmMaterialRepresenter
           include EncryptedPasswordSupport
-          
-          property :user_name, as: :username
+
+          property :user_name, as: :username, skip_nil: true
           property :password,
                    skip_render: true,
                    skip_nil: true,

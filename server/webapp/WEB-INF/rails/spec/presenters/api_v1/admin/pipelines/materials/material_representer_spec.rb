@@ -60,8 +60,8 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      git_config = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
-      dup_git_material = GitMaterialConfig.new(UrlArgument.new(''), '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
+      git_config = GitMaterialConfig.new(UrlArgument.new(''), nil, nil, '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
+      dup_git_material = GitMaterialConfig.new(UrlArgument.new(''), nil, nil, '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
       material_configs = MaterialConfigs.new(git_config);
       material_configs.add(dup_git_material)
 
@@ -70,14 +70,24 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should serialize material without name" do
-      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.prepare(GitMaterialConfig.new("http://user:password@funk.com/blank"))
+      git_material = GitMaterialConfig.new("http://funk.com/blank")
+      git_material.setUserName("user")
+      git_material.setPassword("password")
+
+      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.prepare(git_material)
+
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(git_material_basic_hash)
     end
 
 
     it "should serialize material with blank branch" do
-      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.prepare(GitMaterialConfig.new("http://user:password@funk.com/blank", ""))
+      git_material = GitMaterialConfig.new("http://funk.com/blank", "")
+      git_material.setUserName("user")
+      git_material.setPassword("password")
+
+      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.prepare(git_material)
+
       actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
       expect(actual_json).to eq(git_material_basic_hash)
     end
@@ -95,7 +105,9 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
                                                     name: nil
                                                   }
                                                 })
-      expected = GitMaterialConfig.new("http://user:password@funk.com/blank")
+      expected = GitMaterialConfig.new("http://funk.com/blank")
+      expected.setUserName("user")
+      expected.setPassword("password")
       expect(deserialized_object.autoUpdate).to eq(expected.autoUpdate)
       expect(deserialized_object.name.to_s).to eq("")
       expect(deserialized_object).to eq(expected)
@@ -115,7 +127,9 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
                                                     invert_filter: nil
                                                   }
                                                 })
-      expected = GitMaterialConfig.new("http://user:password@funk.com/blank")
+      expected = GitMaterialConfig.new("http://funk.com/blank")
+      expected.setUserName("user")
+      expected.setPassword("password")
       expect(deserialized_object.invertFilter).to eq(expected.invertFilter)
       expect(deserialized_object).to eq(expected)
     end
@@ -134,7 +148,9 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
                                                     invert_filter: true
                                                   }
                                                 })
-      expected = GitMaterialConfig.new("http://user:password@funk.com/blank")
+      expected = GitMaterialConfig.new("http://funk.com/blank")
+      expected.setUserName("user")
+      expected.setPassword("password")
       expected.setInvertFilter(true)
       expect(deserialized_object.invertFilter).to eq(expected.invertFilter)
       expect(deserialized_object).to eq(expected)
@@ -160,9 +176,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
       {
         type: 'git',
         attributes: {
-          url: "http://funk.com/blank",
-          username: 'user',
-          encrypted_password: GoCipher.new.encrypt('password'),
+          url: "http://user:password@funk.com/blank",
           destination: "destination",
           filter: {
             ignore: %w(**/*.html **/foobar/)
@@ -208,8 +222,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
           auto_update: true,
           branch: "master",
           submodule_folder: "",
-          shallow_clone: false,
-          username: nil
+          shallow_clone: false
         },
         errors: {
           name: ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
@@ -293,7 +306,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      hg_config = HgMaterialConfig.new(com.thoughtworks.go.util.command::HgUrlArgument.new(''), true, nil, false, '/dest/', CaseInsensitiveString.new('!nV@l!d'))
+      hg_config = HgMaterialConfig.new(com.thoughtworks.go.util.command::HgUrlArgument.new(''), nil, nil, nil, true, nil, false, '/dest/', CaseInsensitiveString.new('!nV@l!d'))
       material_configs = MaterialConfigs.new(hg_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.get(0)
@@ -303,9 +316,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
       {
         type: 'hg',
         attributes: {
-          url: "http://domain/path",
-          username: 'user',
-          encrypted_password: GoCipher.new.encrypt('pass'),
+          url: "http://user:pass@domain/path",
           destination: "dest-folder",
           filter: {
             ignore: %w(**/*.html **/foobar/)
@@ -326,8 +337,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
           filter: nil,
           invert_filter: false,
           name: "!nV@l!d",
-          auto_update: true,
-          username: nil
+          auto_update: true
         },
         errors: {
           name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],

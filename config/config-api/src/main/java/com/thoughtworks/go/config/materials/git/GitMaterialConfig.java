@@ -68,7 +68,9 @@ public class GitMaterialConfig extends ScmMaterialConfig {
         setShallowClone(shallowClone);
     }
 
-    public GitMaterialConfig(UrlArgument url, String userName, String password, String branch, String submoduleFolder, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name, Boolean shallowClone) {
+    public GitMaterialConfig(UrlArgument url, String userName, String password, String branch, String submoduleFolder,
+                             boolean autoUpdate, Filter filter, boolean invertFilter, String folder,
+                             CaseInsensitiveString name, Boolean shallowClone) {
         super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
         this.url = url;
         if (branch != null) {

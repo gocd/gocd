@@ -85,19 +85,22 @@
             }
         });
 
-        jQuery("#<%='edit_pipelines_for_'+environment.name().to_s%>").click(function () {
+        var editPipelinesSelector = "button[id=\"<%='edit_pipelines_for_'+environment.name().to_s%>\"]";
+        jQuery(editPipelinesSelector).click(function () {
             Util.ajax_modal("<%= environment_edit_pipelines_path({:name => environment.name()}) -%>", {
                 width: 805,
                 title: <%== 'Pipelines'.to_json -%>
             });
         });
-        jQuery("#<%='edit_agents_for_'+environment.name().to_s%>").click(function () {
+        var editAgentsSelector = "button[id=\"<%='edit_agents_for_'+environment.name().to_s%>\"]";
+        jQuery(editAgentsSelector).click(function () {
             Util.ajax_modal("<%= environment_edit_agents_path({:name => environment.name()}) -%>", {
                 width: 800,
                 title: <%== 'Agents'.to_json -%>
             });
         });
-        jQuery("#<%='edit_environment_variables_for_'+environment.name().to_s%>").click(function () {
+        var editEnvVarsSelector = "button[id=\"<%='edit_environment_variables_for_'+environment.name().to_s%>\"]";
+        jQuery(editEnvVarsSelector).click(function () {
             Util.ajax_modal("<%= environment_edit_variables_path({:name => environment.name()}) -%>", {
                 width: 800,
                 title: <%== 'Environment Variables'.to_json -%>

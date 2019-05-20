@@ -38,7 +38,7 @@ describe "admin/pipelines/new.html.erb" do
     assign(:template_list, Array.new)
     assign(:all_pipelines, java.util.ArrayList.new)
     tvms = java.util.ArrayList.new
-    tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(com.thoughtworks.go.config.AntTask.new,"template"))
+    tvms.add(com.thoughtworks.go.presentation.TaskViewModel.new(com.thoughtworks.go.config.AntTask.new, "template"))
     assign(:task_view_models, tvms)
 
     @cruise_config = BasicCruiseConfig.new
@@ -144,6 +144,12 @@ describe "admin/pipelines/new.html.erb" do
           expect(form).to have_selector("label", :text => "URL*")
           expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::URL}]']")
 
+          expect(form).to have_selector("label", :text => "Username")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]']")
+
+          expect(form).to have_selector("label", :text => "Password")
+          expect(form).to have_selector("input[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]']")
+
           expect(form).to have_selector("label", :text => "Branch")
           expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::BRANCH}]']")
 
@@ -167,6 +173,15 @@ describe "admin/pipelines/new.html.erb" do
         Capybara.string(response.body).find("div#tab-content-of-materials #material_forms .HgMaterial").tap do |form|
           expect(form).to have_selector("label", :text => "URL*")
           expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::URL}]']")
+
+          expect(form).to have_selector("label", :text => "Username")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME}]']")
+
+          expect(form).to have_selector("label", :text => "Password")
+          expect(form).to have_selector("input[type='password'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]']")
+
+          expect(form).to have_selector("label", :text => "Branch")
+          expect(form).to have_selector("input[type='text'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.git.GitMaterialConfig::BRANCH}]']")
 
           expect(form).to have_selector("label", :text => "Poll for new changes")
           expect(form).to have_selector("input[type='checkbox'][name='pipeline_group[pipeline][materials][#{com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::TYPE}][#{com.thoughtworks.go.config.materials.ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
@@ -370,10 +385,10 @@ describe "admin/pipelines/new.html.erb" do
           render :partial => "admin/pipelines/materials/package_material_form.html", :locals => {:scope => {:material => @material, :form => @form}}
 
           Capybara.string(response.body).find('.new_form_content').tap do |div|
-              expect(div).to have_selector("p.warnings", :text => "No repositories found. Please add a package repository first.")
-              div.find("p.warnings") do |warnings|
-                expect(warnings).to have_selector("a[href='#{package_repositories_new_path}']", :text => "add a package repository")
-              end
+            expect(div).to have_selector("p.warnings", :text => "No repositories found. Please add a package repository first.")
+            div.find("p.warnings") do |warnings|
+              expect(warnings).to have_selector("a[href='#{package_repositories_new_path}']", :text => "add a package repository")
+            end
           end
         end
       end

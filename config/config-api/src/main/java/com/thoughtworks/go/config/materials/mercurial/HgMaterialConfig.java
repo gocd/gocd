@@ -199,6 +199,9 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
             String passwordToSet = (String) map.get(PASSWORD);
             resetPassword(passwordToSet);
         }
+        if (map.containsKey(BRANCH)) {
+            setBranchAttribute((String) map.get(BRANCH));
+        }
     }
 
     private boolean hasBranchInUrl() {

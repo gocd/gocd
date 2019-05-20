@@ -89,7 +89,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="123"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="122"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -231,7 +231,6 @@
     <xsd:attribute name="username" type="xsd:string"/>
     <xsd:attribute name="password" type="xsd:string"/>
     <xsd:attribute name="encryptedPassword" type="xsd:string"/>
-    <xsd:attribute name="branch" type="xsd:string" use="optional"/>
     <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>
   </xsd:complexType>
   <xsd:complexType name="configRepoTfsType">
@@ -567,7 +566,6 @@
     <xsd:attribute name="username" type="xsd:string"/>
     <xsd:attribute name="password" type="xsd:string"/>
     <xsd:attribute name="encryptedPassword" type="xsd:string"/>
-    <xsd:attribute name="branch" type="xsd:string" use="optional"/>
     <xsd:attribute name="dest" type="filePathType" use="optional"/>
     <xsd:attribute name="materialName" type="nameType" use="optional"/>
     <xsd:attribute name="autoUpdate" type="xsd:boolean" use="optional"/>

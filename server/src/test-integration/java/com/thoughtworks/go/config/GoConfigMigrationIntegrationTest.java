@@ -1350,7 +1350,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     @Test
-    public void shouldMigrateEverythingAsItIs() throws Exception {
+    public void shouldMigrateEverythingAsItIs_Migration120To121() throws Exception {
         String originalConfig = "<pipelines group=\"first\">" +
                 "    <pipeline name=\"Test\" template=\"test_template\">" +
                 "      <materials>" +
@@ -1381,6 +1381,41 @@ public class GoConfigMigrationIntegrationTest {
                         "<cruise schemaVersion=\"121\">" + originalConfig + "</cruise>";
 
         final String migratedXml = migrateXmlString(configXml, 120, 121);
+        XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
+    }
+
+    @Test
+    public void shouldMigrateEverythingAsItIs_Migration122To123() throws Exception {
+        String originalConfig = "<pipelines group=\"first\">" +
+                "    <pipeline name=\"Test\" template=\"test_template\">" +
+                "      <materials>" +
+                "          <git url=\"http://\" dest=\"dest_dir14\" />" +
+                "      </materials>" +
+                "     </pipeline>" +
+                "  </pipelines>" +
+                "  <templates>" +
+                "    <pipeline name=\"test_template\">" +
+                "      <stage name=\"Functional\">" +
+                "        <jobs>" +
+                "          <job name=\"Functional\">" +
+                "            <tasks>" +
+                "              <exec command=\"echo\" args=\"Hello World!!!\" />" +
+                "            </tasks>" +
+                "           </job>" +
+                "        </jobs>" +
+                "      </stage>" +
+                "    </pipeline>" +
+                "  </templates>";
+
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"122\">" + originalConfig + "</cruise>";
+
+        String expectedConfig =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"123\">" + originalConfig + "</cruise>";
+
+        final String migratedXml = migrateXmlString(configXml, 122, 123);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 

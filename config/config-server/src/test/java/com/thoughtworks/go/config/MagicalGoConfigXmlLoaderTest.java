@@ -4366,6 +4366,46 @@ public class MagicalGoConfigXmlLoaderTest {
         }
     }
 
+    @Test
+    void shouldLoadHgConfigWithBranchAttributeForSchemaVersion123() throws Exception {
+        String content = config(
+                "<config-repos>" +
+                        "    <config-repo id=\"Test\" pluginId=\"cd.go.json\">" +
+                        "        <hg url=\"http://domain.com\" branch=\"feature\" />" +
+                        "     </config-repo>" +
+                        "</config-repos>" +
+                        "<pipelines group=\"first\">" +
+                        "    <pipeline name=\"Test\" template=\"test_template\">" +
+                        "      <materials>" +
+                        "          <hg url=\"http://domain.com\" branch=\"feature\" />" +
+                        "      </materials>" +
+                        "     </pipeline>" +
+                        "</pipelines>" +
+                        "<templates>" +
+                        "    <pipeline name=\"test_template\">" +
+                        "      <stage name=\"Functional\">" +
+                        "        <jobs>" +
+                        "          <job name=\"Functional\">" +
+                        "            <tasks>" +
+                        "              <exec command=\"echo\" args=\"Hello World!!!\" />" +
+                        "            </tasks>" +
+                        "           </job>" +
+                        "        </jobs>" +
+                        "      </stage>" +
+                        "    </pipeline>" +
+                        "</templates>", 123);
+
+        CruiseConfig config = xmlLoader.loadConfigHolder(content).config;
+
+        PipelineConfig pipelineConfig = config.getPipelineConfigByName(new CaseInsensitiveString("Test"));
+        assertThat(pipelineConfig.materialConfigs()).hasSize(1);
+        assertThat(((HgMaterialConfig) pipelineConfig.materialConfigs().get(0)).getBranch()).isEqualTo("feature");
+
+        assertThat(config.getConfigRepos()).hasSize(1);
+        assertThat(((HgMaterialConfig) config.getConfigRepos().get(0).getMaterialConfig()).getBranch()).isEqualTo("feature");
+
+    }
+
     private void assertConfigProperty(Configuration configuration, String name, String plainTextValue, boolean shouldBeEncrypted) {
         assertThat(configuration.getProperty(name).getValue()).isEqualTo(plainTextValue);
         if (shouldBeEncrypted) {

@@ -36,7 +36,7 @@ import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
 import {ErrorMessages} from "models/mixins/validatable";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 
-const s = require("helpers/string-plus");
+const s        = require("helpers/string-plus");
 const urlParse = require("url-parse");
 
 //tslint:disable-next-line
@@ -147,7 +147,7 @@ export abstract class MaterialAttributes implements ValidatableMixin {
   autoUpdate: Stream<boolean>;
 
   protected constructor(name?: string, autoUpdate?: boolean) {
-    this.name = stream(name);
+    this.name       = stream(name);
     this.autoUpdate = stream(autoUpdate);
     ValidatableMixin.call(this);
     this.validateIdFormat("name");
@@ -195,14 +195,17 @@ export abstract class MaterialAttributes implements ValidatableMixin {
 applyMixins(MaterialAttributes, ValidatableMixin);
 
 export abstract class ScmMaterialAttributes extends MaterialAttributes {
-  static readonly DESTINATION_REGEX = new RegExp("^(?!\\/)((([\\.]\\/)?[\\.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ]))$");
-  destination: Stream<string> = stream();
+  static readonly DESTINATION_REGEX = new RegExp(
+    "^(?!\\/)((([\\.]\\/)?[\\.][^. ]+)|([^. ].+[^. ])|([^. ][^. ])|([^. ]))$");
+  destination: Stream<string>       = stream();
   username: Stream<string>;
   password: Stream<EncryptedValue>;
 
   constructor(name?: string, autoUpdate?: boolean, username?: string, password?: string, encryptedPassword?: string) {
     super(name, autoUpdate);
-    this.validateFormatOf("destination", ScmMaterialAttributes.DESTINATION_REGEX, {message: "Must be a relative path within the pipeline's working directory"});
+    this.validateFormatOf("destination",
+                          ScmMaterialAttributes.DESTINATION_REGEX,
+                          {message: "Must be a relative path within the pipeline's working directory"});
 
     this.username = stream(username);
     this.password = stream(plainOrCipherValue({plainText: password, cipherText: encryptedPassword}));
@@ -218,7 +221,9 @@ class AuthNotSetInUrlAndUserPassFieldsValidator extends Validator {
       const password = this.get(entity, "password") as EncryptedValue | undefined;
 
       if ((!!username || !!(password && password.value())) && (!!urlObj.username || !!urlObj.password || url.indexOf("@") !== -1)) {
-        entity.errors().add(attr, "URL credentials must be set in either the URL or the username+password fields, but not both.");
+        entity.errors()
+              .add(attr,
+                   "URL credentials must be set in either the URL or the username+password fields, but not both.");
       }
     }
   }
@@ -318,13 +323,16 @@ applyMixins(SvnMaterialAttributes, ValidatableMixin);
 
 export class HgMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string>;
+  branch: Stream<string>;
 
   constructor(name?: string, autoUpdate?: boolean, url?: string,
               username?: string,
               password?: string,
-              encryptedPassword?: string) {
+              encryptedPassword?: string,
+              branch?: string) {
     super(name, autoUpdate, username, password, encryptedPassword);
-    this.url = stream(url);
+    this.url    = stream(url);
+    this.branch = stream(branch);
 
     this.validatePresenceOf("url");
     this.validateWith(new AuthNotSetInUrlAndUserPassFieldsValidator(), "url");
@@ -338,6 +346,7 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
       json.username,
       json.password,
       json.encrypted_password,
+      json.branch
     );
     if (undefined !== json.destination) {
       attrs.destination(json.destination);

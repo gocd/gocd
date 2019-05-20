@@ -49,6 +49,7 @@ export interface SvnMaterialAttributesJSON extends ScmAttributesJSON {
 
 export interface HgMaterialAttributesJSON extends ScmAttributesJSON {
   url: string;
+  branch: string;
 }
 
 export interface P4MaterialAttributesJSON extends ScmAttributesJSON {

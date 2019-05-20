@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {Hg} from "models/materials/spec/material_test_data";
 import {
   GitMaterialAttributes,
   HgMaterialAttributes,
@@ -25,6 +26,15 @@ import {
 } from "models/materials/types";
 
 describe("Material Types", () => {
+  describe("Deserialize", () => {
+    it("should deserialize hg material with branch", () => {
+      const hgJson               = Hg.withBranch();
+      const hgMaterialAttributes = HgMaterialAttributes.fromJSON(hgJson);
+
+      expect(hgMaterialAttributes.branch()).toBe(hgJson.branch);
+    });
+  });
+
   describe("Validation", () => {
     it("should should validate Git material attributes", () => {
       const material = new Material("git", new GitMaterialAttributes());
@@ -79,11 +89,13 @@ describe("Material Types", () => {
       expect(material.isValid()).toBe(false);
       expect(material.attributes().errors().count()).toBe(1);
       expect(material.attributes().errors().keys()).toEqual(["name"]);
-      expect(material.attributes().errors().errorsForDisplay("name")).toBe("Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+      expect(material.attributes().errors().errorsForDisplay("name"))
+        .toBe(
+          "Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
     });
 
     it("should validate destination directory if provided", () => {
-      const attrs = new GitMaterialAttributes(undefined, true, "http://host");
+      const attrs    = new GitMaterialAttributes(undefined, true, "http://host");
       const material = new Material("git", attrs);
 
       assertValidPaths(material, attrs, [
@@ -115,7 +127,8 @@ describe("Material Types", () => {
           attrs.destination(path);
           expect(material.isValid()).toBe(false, `${path} should be invalid`);
           expect(attrs.errors().hasErrors("destination")).toBe(true, `${path} should yield errors`);
-          expect(attrs.errors().errorsForDisplay("destination")).toBe("Must be a relative path within the pipeline's working directory.");
+          expect(attrs.errors().errorsForDisplay("destination"))
+            .toBe("Must be a relative path within the pipeline's working directory.");
         }
       }
     });
@@ -137,21 +150,30 @@ describe("Material Types", () => {
     });
 
     it("should should validate Git URL credentials", () => {
-      const material = new Material("git", new GitMaterialAttributes(undefined, true, "http://user:pass@host", "master", "user", "pass"));
+      const material = new Material("git",
+                                    new GitMaterialAttributes(undefined,
+                                                              true,
+                                                              "http://user:pass@host",
+                                                              "master",
+                                                              "user",
+                                                              "pass"));
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
       expect(material.attributes().errors().count()).toBe(1);
       expect(material.attributes().errors().keys()).toEqual(["url"]);
-      expect(material.attributes().errors().errorsForDisplay("url")).toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
+      expect(material.attributes().errors().errorsForDisplay("url"))
+        .toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
     });
 
     it("should should validate Hg URL credentials", () => {
-      const material = new Material("hg", new HgMaterialAttributes(undefined, true, "http://user:pass@host", "user", "pass"));
+      const material = new Material("hg",
+                                    new HgMaterialAttributes(undefined, true, "http://user:pass@host", "user", "pass"));
       expect(material.isValid()).toBe(false);
       expect(material.errors().count()).toBe(0);
       expect(material.attributes().errors().count()).toBe(1);
       expect(material.attributes().errors().keys()).toEqual(["url"]);
-      expect(material.attributes().errors().errorsForDisplay("url")).toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
+      expect(material.attributes().errors().errorsForDisplay("url"))
+        .toBe("URL credentials must be set in either the URL or the username+password fields, but not both.");
     });
   });
 });

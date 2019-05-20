@@ -26,6 +26,7 @@ module ApiV1
                    skip_render: true,
                    skip_nil: true,
                    skip_parse: true
+          property :branch, skip_nil: true
 
           property :encrypted_password, skip_nil: true, skip_parse: true
         end

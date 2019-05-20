@@ -406,7 +406,7 @@ public class ConfigConverter {
         } else if (crScmMaterial instanceof CRHgMaterial) {
             CRHgMaterial hg = (CRHgMaterial) crScmMaterial;
             HgMaterialConfig hgConfig = new HgMaterialConfig(new HgUrlArgument(hg.getUrl()),
-                    hg.isAutoUpdate(), toFilter(crScmMaterial), false, hg.getDestination(),
+                    hg.getUsername(), hg.getPassword(), hg.getBranch(), hg.isAutoUpdate(), toFilter(crScmMaterial), false, hg.getDestination(),
                     toMaterialName(materialName));
             setCommonMaterialMembers(hgConfig, crScmMaterial);
             setCommonScmMaterialMembers(hgConfig, hg);
@@ -1018,7 +1018,7 @@ public class ConfigConverter {
     }
 
     private CRHgMaterial hgMaterialToCRHgMaterial(String materialName, HgMaterialConfig hgMaterialConfig) {
-        CRHgMaterial crHgMaterial = new CRHgMaterial(materialName, hgMaterialConfig.getFolder(), hgMaterialConfig.isAutoUpdate(), hgMaterialConfig.isInvertFilter(), hgMaterialConfig.getUserName(), hgMaterialConfig.filter().ignoredFileNames(), hgMaterialConfig.getUrl());
+        CRHgMaterial crHgMaterial = new CRHgMaterial(materialName, hgMaterialConfig.getFolder(), hgMaterialConfig.isAutoUpdate(), hgMaterialConfig.isInvertFilter(), hgMaterialConfig.getUserName(), hgMaterialConfig.filter().ignoredFileNames(), hgMaterialConfig.getUrl(), hgMaterialConfig.getBranchAttribute());
         crHgMaterial.setEncryptedPassword(hgMaterialConfig.getEncryptedPassword());
         return crHgMaterial;
     }

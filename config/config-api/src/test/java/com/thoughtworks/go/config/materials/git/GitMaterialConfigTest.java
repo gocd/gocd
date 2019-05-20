@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.config.materials.git;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
@@ -31,10 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.helper.MaterialConfigsMother.gitMaterialConfig;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class GitMaterialConfigTest {
     @Test
@@ -149,7 +147,7 @@ class GitMaterialConfigTest {
     @Test
     void shouldHandleNullBranchAtTheTimeOfMaterialConfigCreation() {
         GitMaterialConfig config1 = new GitMaterialConfig("http://url", null);
-        GitMaterialConfig config2 = new GitMaterialConfig(new UrlArgument("http://url"), null, "sub1", true, new Filter(), false, "folder", new CaseInsensitiveString("git"), false);
+        GitMaterialConfig config2 = new GitMaterialConfig(new UrlArgument("http://url"), "bob", "pass", null, "sub1", true, new Filter(), false, "folder", new CaseInsensitiveString("git"), false);
 
         assertThat(config1.getBranch()).isEqualTo("master");
         assertThat(config2.getBranch()).isEqualTo("master");
@@ -179,106 +177,80 @@ class GitMaterialConfigTest {
         }
 
         @Test
-        void shouldFailValidationIfMaterialURLHasSecretParamsConfiguredOtherThanForUsernamePassword() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
+        void shouldEnsureUserNameIsNotProvidedInBothUrlAsWellAsAttributes() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com");
+            gitMaterialConfig.setUserName("user");
 
-            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
+            gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Only password can be specified as secret params");
+            assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
         }
 
         @Test
-        void shouldFailIfSecretParamConfiguredWithSecretConfigIdWhichIsNotExist() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
+        void shouldEnsurePasswordIsNotProvidedInBothUrlAsWellAsAttributes() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com");
+            gitMaterialConfig.setPassword("pass");
 
-            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
+            gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(gitMaterialConfig.errors().on("url")).isEqualTo("Secret config with ids `secret_config_id` does not exist.");
+            assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
         }
 
         @Test
-        void shouldNotFailIfSecretConfigWithIdPresentForConfiguredSecretParams() {
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file");
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
+        void shouldIgnoreInvalidUrlForCredentialValidation() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com##dobule-hash-is-invalid-in-url");
+            gitMaterialConfig.setUserName("user");
+            gitMaterialConfig.setPassword("password");
 
-            final GitMaterialConfig gitMaterialConfig = gitMaterialConfig("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
+            gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-            assertThat(gitMaterialConfig.validateTree(validationContext)).isTrue();
-            assertThat(gitMaterialConfig.errors().getAll()).isEmpty();
+            assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isNull();
         }
-    }
 
-    private ValidationContext mockValidationContextForSecretParams(SecretConfig... secretConfigs) {
-        final ValidationContext validationContext = mock(ValidationContext.class);
-        final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-        when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
-        when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(secretConfigs));
-        return validationContext;
+        @Test
+        void shouldBeValidWhenCredentialsAreProvidedOnlyInUrl() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com");
+
+            gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isNull();
+        }
+
+        @Test
+        void shouldBeValidWhenCredentialsAreProvidedOnlyAsAttributes() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://example.com");
+            gitMaterialConfig.setUserName("bob");
+            gitMaterialConfig.setPassword("badger");
+
+            gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isNull();
+        }
     }
 
     @Nested
-    class FingerPrintShouldNotChangeBecauseOfUrlDenormalize {
+    class Equals {
         @Test
-        void shouldNotChangeFingerprintForHttpUrlWithCredentials() {
-            GitMaterialConfig migratedConfig = new GitMaterialConfig("http://github.com/gocd/gocd", "my-branch");
-            migratedConfig.setUserName("bobfoo@example.com");
-            migratedConfig.setPassword("p@ssw&rd:");
-            assertThat(migratedConfig.getFingerprint()).isEqualTo("d9ff4f64572b94d169291ea2e0b2a7bb1a65a9770023ccd6d404bf90342f6803");
+        void shouldBeEqualIfObjectsHaveSameUrlBranchAndSubModuleFolder() {
+            final GitMaterialConfig material_1 = new GitMaterialConfig("http://example.com", "master");
+            material_1.setUserName("bob");
+            material_1.setSubmoduleFolder("/var/lib/git");
 
-        }
+            final GitMaterialConfig material_2 = new GitMaterialConfig("http://example.com", "master");
+            material_2.setUserName("alice");
+            material_2.setSubmoduleFolder("/var/lib/git");
 
-        @Test
-        void shouldNotChangeFingerprintForHttpsUrlWithCredentials() {
-            GitMaterialConfig migratedConfig = new GitMaterialConfig("https://github.com/gocd/gocd", "my-branch");
-            migratedConfig.setUserName("bobfoo@example.com");
-            migratedConfig.setPassword("p@ssw&rd:");
-            assertThat(migratedConfig.getFingerprint()).isEqualTo("8175cb458dcc59b18fd26e00027aede864fd37e781eccaaab025643a846e7507");
-
-        }
-
-        @Test
-        void shouldNotChangeFingerprintForHttpUrlWithUsername() {
-            GitMaterialConfig migratedConfig = new GitMaterialConfig("https://github.com/gocd/gocd", "my-branch");
-            migratedConfig.setUserName("some-hex-key");
-
-            assertThat(migratedConfig.getFingerprint()).isEqualTo("872fe03fc56d7fbabef64cb30b9e7724116b950ed7e7d3ff47941fd3fa0a239c");
-        }
-
-        @Test
-        void shouldChangeFingerprintForHttpUrlWithUsernameAndColonWithNoPassword() {
-            GitMaterialConfig config = new GitMaterialConfig("https://some-hex-key:@github.com/gocd/gocd", "my-branch");
-            assertThat(config.getFingerprint()).isNotEqualTo("b06945f3677210eda12f9ef48f08ca6637c5c49a931635ad8bb908c11b8d145d");
-            assertThat(config.getFingerprint()).isEqualTo("872fe03fc56d7fbabef64cb30b9e7724116b950ed7e7d3ff47941fd3fa0a239c");
-
-            GitMaterialConfig migratedConfig = new GitMaterialConfig("https://github.com/gocd/gocd", "my-branch");
-            migratedConfig.setUserName("some-hex-key");
-
-            assertThat(config.getFingerprint()).isEqualTo(migratedConfig.getFingerprint());
-        }
-
-        @Test
-        void shouldNotChangeFingerprintForHttpUrlWithPassword() {
-            GitMaterialConfig config = new GitMaterialConfig("https://:some-hex-key@github.com/gocd/gocd", "my-branch");
-            assertThat(config.getFingerprint()).isEqualTo("8d03776a5ae4a116874b3abe1af1281dbd7a21733ba83b5458a556f1e688a89e");
-
-            GitMaterialConfig migratedConfig = new GitMaterialConfig("https://github.com/gocd/gocd", "my-branch");
-            migratedConfig.setPassword("some-hex-key");
-
-            assertThat(config.getFingerprint()).isEqualTo(migratedConfig.getFingerprint());
+            assertThat(material_1.equals(material_2)).isTrue();
         }
     }
 
-//    @Test
-//    void shouldNotAllowCredentialsInUrl() {
-//        GitMaterialConfig config = new GitMaterialConfig();
-//        config.setUrl("https://bob:password@github.com/gocd/gocd");
-//
-//        config.validate(null);
-//
-//        assertThat(config.errors().get("url"))
-//                .hasSize(1)
-//                .contains("You may specify credentials only in attributes, not in url");
-//    }
+    @Nested
+    class Fingerprint {
+        @Test
+        void shouldGenerateFingerprintForGivenMaterialUrlAndBranch() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("https://bob:pass@github.com/gocd", "feature");
+
+            assertThat(gitMaterialConfig.getFingerprint()).isEqualTo("755da7fb7415c8674bdf5f8a4ba48fc3e071e5de429b1308ccf8949d215bdb08");
+        }
+    }
 }

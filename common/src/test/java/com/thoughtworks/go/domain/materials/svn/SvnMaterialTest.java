@@ -446,13 +446,6 @@ public class SvnMaterialTest {
     @Nested
     class hasSecretParams {
         @Test
-        void shouldBeTrueIfMaterialUrlHasSecretParams() {
-            SvnMaterial svnMaterial = new SvnMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com", null, null, false);
-
-            assertThat(svnMaterial.hasSecretParams()).isTrue();
-        }
-
-        @Test
         void shouldBeTrueIfPasswordHasSecretParam() {
             SvnMaterial svnMaterial = new SvnMaterial("http://foo.com", null, "{{SECRET:[secret_config_id][lookup_password]}}", false);
 
@@ -460,7 +453,7 @@ public class SvnMaterialTest {
         }
 
         @Test
-        void shouldBeFalseIfMaterialUrlAndPasswordDoesNotHaveSecretParams() {
+        void shouldBeFalseIfPasswordDoesNotHaveSecretParams() {
             SvnMaterial svnMaterial = new SvnMaterial("http://foo.com", null, "password", false);
 
             assertThat(svnMaterial.hasSecretParams()).isFalse();
@@ -471,13 +464,12 @@ public class SvnMaterialTest {
     class getSecretParams {
         @Test
         void shouldReturnAListOfSecretParams() {
-            SvnMaterial svnMaterial = new SvnMaterial("http://username:{{SECRET:[secret_config_id][lookup_password]}}@foo.com",
-                    null, "{{SECRET:[secret_config_id][lookup_pass]}}", false);
+            SvnMaterial svnMaterial = new SvnMaterial("http://foo.com",
+                    "username", "{{SECRET:[secret_config_id][lookup_pass]}}", false);
 
             assertThat(svnMaterial.getSecretParams())
-                    .hasSize(2)
-                    .contains(new SecretParam("secret_config_id", "lookup_password"),
-                            new SecretParam("secret_config_id", "lookup_pass"));
+                    .hasSize(1)
+                    .contains(new SecretParam("secret_config_id", "lookup_pass"));
         }
 
         @Test

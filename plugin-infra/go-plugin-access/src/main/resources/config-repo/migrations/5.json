@@ -7,12 +7,5 @@
       },
       "*": "&"
     }
-  },
-  {
-    "operation": "com.thoughtworks.go.plugin.access.configrepo.migrator.V5",
-    "spec": {
-      "materials": {
-      }
-    }
   }
 ]

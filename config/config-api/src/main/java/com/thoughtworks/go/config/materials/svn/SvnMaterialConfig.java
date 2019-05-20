@@ -27,8 +27,6 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.*;
 
 @ConfigTag(value = "svn", label = "Subversion")
 public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordEncrypter, PasswordAwareMaterial {
@@ -179,6 +177,10 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         if (url != null ? !url.equals(that.url) : that.url != null) {
             return false;
         }
+
+        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+            return false;
+        }
         return true;
     }
 
@@ -186,6 +188,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (url != null ? url.hashCode() : 0);
+        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (checkExternals ? 1 : 0);
         return result;
     }

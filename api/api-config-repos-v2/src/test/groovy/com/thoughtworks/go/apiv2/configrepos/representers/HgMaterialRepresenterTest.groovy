@@ -35,7 +35,10 @@ class HgMaterialRepresenterTest {
   class ToJSON {
     @Test
     void shouldSerializeObjectToJson() {
-      HgMaterialConfig config = new HgMaterialConfig("http://bob:password@mydomain.com/myproject", null)
+      HgMaterialConfig config = new HgMaterialConfig(REPO_URL, null)
+      config.setUserName("bob")
+      config.setPassword("password")
+      config.setBranchAttribute("feature")
       String json = toObjectString({ w -> new HgMaterialRepresenter().toJSON(w, config) })
 
       assertThatJson(json).isEqualTo([
@@ -43,7 +46,8 @@ class HgMaterialRepresenterTest {
         url               : REPO_URL,
         username          : "bob",
         encrypted_password: new GoCipher().encrypt("password"),
-        auto_update       : true
+        auto_update       : true,
+        branch            : "feature"
       ])
     }
   }
@@ -57,7 +61,8 @@ class HgMaterialRepresenterTest {
         url       : REPO_URL,
         auto_upate: true,
         username  : "bob",
-        password  : "some-pass"
+        password  : "some-pass",
+        branch    : "feature"
       ])
 
       def materialConfig = new HgMaterialRepresenter().fromJSON(json)
@@ -67,6 +72,7 @@ class HgMaterialRepresenterTest {
       assertThat(materialConfig.getUserName()).isEqualTo("bob")
       assertThat(materialConfig.getPassword()).isEqualTo("some-pass")
       assertThat(materialConfig.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("some-pass"))
+      assertThat(materialConfig.getBranchAttribute()).isEqualTo("feature")
     }
   }
 }

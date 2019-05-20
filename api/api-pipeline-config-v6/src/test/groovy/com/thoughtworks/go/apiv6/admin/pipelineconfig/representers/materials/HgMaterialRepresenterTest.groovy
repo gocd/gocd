@@ -40,42 +40,42 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   def existingMaterialWithErrors() {
-    def hgConfig = new HgMaterialConfig(new HgUrlArgument(''), true, null, false, '/dest/', new CaseInsensitiveString('!nV@l!d'))
+    def hgConfig = new HgMaterialConfig(new HgUrlArgument(''), null, null, null, true, null, false, '/dest/', new CaseInsensitiveString('!nV@l!d'))
     def materialConfigs = new MaterialConfigs(hgConfig);
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.get(0)
   }
 
   def materialHash =
-  [
-    type: 'hg',
-    attributes: [
-      url: "http://user:pass@domain/path##branch",
-      destination: "dest-folder",
-      filter: [
-        ignore: ['**/*.html','**/foobar/']
-      ],
-      invert_filter: false,
-      name: "hg-material",
-      auto_update: true
+    [
+      type      : 'hg',
+      attributes: [
+        url          : "http://user:pass@domain/path##branch",
+        destination  : "dest-folder",
+        filter       : [
+          ignore: ['**/*.html', '**/foobar/']
+        ],
+        invert_filter: false,
+        name         : "hg-material",
+        auto_update  : true
+      ]
     ]
-  ]
 
   def expectedMaterialHashWithErrors =
-  [
-    type: "hg",
-    attributes: [
-      url: "",
-      destination: "/dest/",
-      filter: null,
-      invert_filter: false,
-      name: "!nV@l!d",
-      auto_update: true
-    ],
-    errors: [
-      name: ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
-      destination: ["Dest folder '/dest/' is not valid. It must be a sub-directory of the working folder."],
-      url: ["URL cannot be blank"]
+    [
+      type      : "hg",
+      attributes: [
+        url          : "",
+        destination  : "/dest/",
+        filter       : null,
+        invert_filter: false,
+        name         : "!nV@l!d",
+        auto_update  : true
+      ],
+      errors    : [
+        name       : ["Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
+        destination: ["Dest folder '/dest/' is not valid. It must be a sub-directory of the working folder."],
+        url        : ["URL cannot be blank"]
+      ]
     ]
-  ]
 }

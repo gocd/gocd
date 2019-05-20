@@ -16,7 +16,8 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
@@ -35,8 +36,6 @@ import static com.thoughtworks.go.config.materials.AbstractMaterialConfig.MATERI
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 class HgMaterialConfigTest {
     private HgMaterialConfig hgMaterialConfig;
@@ -147,7 +146,52 @@ class HgMaterialConfigTest {
     }
 
     @Nested
-    class ValidateURL {
+    class Equals {
+        @Test
+        void shouldBeEqualIfObjectsHaveSameUrlBranch() {
+            final HgMaterialConfig material_1 = new HgMaterialConfig("http://example.com", "master");
+            material_1.setUserName("bob");
+            material_1.setBranchAttribute("feature");
+
+            final HgMaterialConfig material_2 = new HgMaterialConfig("http://example.com", "master");
+            material_2.setUserName("alice");
+            material_2.setBranchAttribute("feature");
+
+            assertThat(material_1.equals(material_2)).isTrue();
+        }
+    }
+
+    @Nested
+    class Fingerprint {
+        @Test
+        void shouldGenerateFingerprintForGivenMaterialUrl() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("https://bob:pass@github.com/gocd#feature", "dest");
+
+            assertThat(hgMaterialConfig.getFingerprint()).isEqualTo("d84d91f37da0367a9bd89fff0d48638f5c1bf993d637735ec26f13c21c23da19");
+        }
+
+        @Test
+        void shouldConsiderBranchWhileGeneratingFingerprint_IfBranchSpecifiedAsAnAttribute() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("https://bob:pass@github.com/gocd", "dest");
+            hgMaterialConfig.setBranchAttribute("feature");
+
+            assertThat(hgMaterialConfig.getFingerprint()).isEqualTo("db13278ed2b804fc5664361103bcea3d7f5106879683085caed4311aa4d2f888");
+        }
+
+        @Test
+        void branchInUrlShouldGenerateFingerprintWhichIsOtherFromBranchInAttribute() {
+            HgMaterialConfig hgMaterialConfigWithBranchInUrl = new HgMaterialConfig("https://github.com/gocd#feature", "dest");
+
+            HgMaterialConfig hgMaterialConfigWithBranchAsAttribute = new HgMaterialConfig("https://github.com/gocd", "dest");
+            hgMaterialConfigWithBranchAsAttribute.setBranchAttribute("feature");
+
+            assertThat(hgMaterialConfigWithBranchInUrl.getFingerprint())
+                    .isNotEqualTo(hgMaterialConfigWithBranchAsAttribute.getFingerprint());
+        }
+    }
+
+    @Nested
+    class validate {
         @Test
         void shouldEnsureUrlIsNotBlank() {
             hgMaterialConfig.setUrl("");
@@ -183,103 +227,64 @@ class HgMaterialConfigTest {
         }
 
         @Test
-        void shouldFailValidationIfMaterialURLHasSecretParamsConfiguredOtherThanForUsernamePassword() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-            hgMaterialConfig.setUrl("https://user:pass@{{SECRET:[secret_config_id][hostname]}}/foo.git");
+        void shouldEnsureUserNameIsNotProvidedInBothUrlAsWellAsAttributes() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com", null);
+            hgMaterialConfig.setUserName("user");
 
-            assertThat(hgMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(hgMaterialConfig.errors().on("url")).isEqualTo("Only password can be specified as secret params");
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
         }
 
         @Test
-        void shouldFailIfSecretParamConfiguredWithSecretConfigIdWhichDoesNotExist() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-            hgMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][pass]}}@host/foo.git");
+        void shouldEnsurePasswordIsNotProvidedInBothUrlAsWellAsAttributes() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com", null);
+            hgMaterialConfig.setPassword("pass");
 
-            assertThat(hgMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(hgMaterialConfig.errors().on("url")).isEqualTo("Secret config with ids `secret_config_id` does not exist.");
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("Ambiguous credentials, must be provided either in URL or as attributes.");
         }
 
         @Test
-        void shouldNotFailIfSecretConfigWithIdPresentForConfiguredSecretParams() {
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file");
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-            hgMaterialConfig.setUrl("https://username:{{SECRET:[secret_config_id][username]}}@host/foo.git");
+        void shouldIgnoreInvalidUrlForCredentialValidation() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com##dobule-hash-is-invalid-in-url", null);
+            hgMaterialConfig.setUserName("user");
+            hgMaterialConfig.setPassword("password");
 
-            assertThat(hgMaterialConfig.validateTree(validationContext)).isTrue();
-            assertThat(hgMaterialConfig.errors().getAll()).isEmpty();
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isNull();
+        }
+
+        @Test
+        void shouldBeValidWhenCredentialsAreProvidedOnlyInUrl() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com", null);
+
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isNull();
+        }
+
+        @Test
+        void shouldBeValidWhenCredentialsAreProvidedOnlyAsAttributes() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://example.com", null);
+            hgMaterialConfig.setUserName("bob");
+            hgMaterialConfig.setPassword("badger");
+
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isNull();
+        }
+
+        @Test
+        void shouldEnsureBranchIsNotProvidedInBothUrlAsWellAsAttributes() {
+            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com#some-branch", null);
+            hgMaterialConfig.setBranchAttribute("branch-in-attribute");
+
+            hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("Ambiguous branch, must be provided either in URL or as an attribute.");
         }
     }
-
-    private ValidationContext mockValidationContextForSecretParams(SecretConfig... secretConfigs) {
-        final ValidationContext validationContext = mock(ValidationContext.class);
-        final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-        when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
-        when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(secretConfigs));
-        return validationContext;
-    }
-
-    @Nested
-    class FingerPrintShouldNotChangeBecauseOfUrlDenormalize {
-        @Test
-        void shouldNotChangeFingerprintForHttpUrlWithCredentials() {
-            HgMaterialConfig migratedConfig = new HgMaterialConfig("http://github.com/gocd/gocd", "my-branch");
-            migratedConfig.setUserName("bobfoo@example.com");
-            migratedConfig.setPassword("p@ssw&rd:");
-            assertThat(migratedConfig.getFingerprint()).isEqualTo("ff407f3ab9623d2a87c7c7037388863e30711ccda837fee54685ae490cea9b1b");
-
-        }
-
-        @Test
-        void shouldNotChangeFingerprintForHttpsUrlWithCredentials() {
-            HgMaterialConfig migratedConfig = new HgMaterialConfig("https://github.com/gocd/gocd", "my-branch");
-            migratedConfig.setUserName("bobfoo@example.com");
-            migratedConfig.setPassword("p@ssw&rd:");
-            assertThat(migratedConfig.getFingerprint()).isEqualTo("0128b4baa42f594edebf0aa8b03accb775437f87e24c091df43f7089d9273379");
-
-        }
-
-        @Test
-        void shouldNotChangeFingerprintForHttpUrlWithUsername() {
-            HgMaterialConfig migratedConfig = new HgMaterialConfig("https://github.com/gocd/gocd", "my-branch");
-            migratedConfig.setUserName("some-hex-key");
-
-            assertThat(migratedConfig.getFingerprint()).isEqualTo("740752da427d67093b8e41d2484d0408caa7a6e6aa39df670789a35d36a1c4fd");
-        }
-
-        @Test
-        void shouldChangeFingerprintForHttpUrlWithUsernameAndColonWithNoPassword() {
-            HgMaterialConfig config = new HgMaterialConfig("https://some-hex-key:@github.com/gocd/gocd", "my-branch");
-            assertThat(config.getFingerprint()).isNotEqualTo("2a8d3901b89ab34c75b5a5a0ce2fccaf1deef76e30e9534c9770e123534813ba");
-            assertThat(config.getFingerprint()).isEqualTo("740752da427d67093b8e41d2484d0408caa7a6e6aa39df670789a35d36a1c4fd");
-
-            HgMaterialConfig migratedConfig = new HgMaterialConfig("https://github.com/gocd/gocd", "my-branch");
-            migratedConfig.setUserName("some-hex-key");
-
-            assertThat(config.getFingerprint()).isEqualTo(migratedConfig.getFingerprint());
-        }
-
-        @Test
-        void shouldNotChangeFingerprintForHttpUrlWithPassword() {
-            HgMaterialConfig config = new HgMaterialConfig("https://:some-hex-key@github.com/gocd/gocd", "my-branch");
-            assertThat(config.getFingerprint()).isEqualTo("a8fa1c0729bd9687f31493e97281339cc8987779264e1f59d741be264c738f53");
-
-            HgMaterialConfig migratedConfig = new HgMaterialConfig("https://github.com/gocd/gocd", "my-branch");
-            migratedConfig.setPassword("some-hex-key");
-
-            assertThat(config.getFingerprint()).isEqualTo(migratedConfig.getFingerprint());
-        }
-    }
-
-//    @Test
-//    void shouldNotAllowCredentialsInUrl() {
-//        HgMaterialConfig config = new HgMaterialConfig();
-//        config.setUrl("https://bob:password@github.com/gocd/gocd");
-//
-//        config.validate(null);
-//
-//        assertThat(config.errors().get("url"))
-//                .hasSize(1)
-//                .contains("You may specify credentials only in attributes, not in url");
-//    }
 }

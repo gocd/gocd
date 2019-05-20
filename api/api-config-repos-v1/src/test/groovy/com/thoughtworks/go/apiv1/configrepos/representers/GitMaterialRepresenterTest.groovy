@@ -38,7 +38,7 @@ class GitMaterialRepresenterTest {
 
     assertThatJson(json).isEqualTo([
       name       : null,
-      url        : REPO_URL.replace('password', '******'),
+      url        : REPO_URL,
       branch     : BRANCH,
       auto_update: true
     ])

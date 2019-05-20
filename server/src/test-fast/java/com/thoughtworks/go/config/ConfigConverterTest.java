@@ -44,19 +44,18 @@ import com.thoughtworks.go.plugin.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static junit.framework.TestCase.fail;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ConfigConverterTest {
+class ConfigConverterTest {
 
     private ConfigConverter configConverter;
     private GoCipher goCipher;
@@ -95,8 +94,8 @@ public class ConfigConverterTest {
         return crPipeline;
     }
 
-    @Before
-    public void setUp() throws CryptoException {
+    @BeforeEach
+    void setUp() throws CryptoException {
         cachedGoConfig = mock(CachedGoConfig.class);
         goCipher = mock(GoCipher.class);
         context = mock(PartialConfigLoadContext.class);
@@ -126,71 +125,71 @@ public class ConfigConverterTest {
     }
 
     @Test
-    public void shouldConvertEnvironmentVariableToInsecureWhenValueIsNotBlank() {
+    void shouldConvertEnvironmentVariableToInsecureWhenValueIsNotBlank() {
         CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", "value");
         EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
-        assertThat(result.getValue(), is("value"));
-        assertThat(result.getName(), is("key1"));
-        assertThat(result.isSecure(), is(false));
+        assertThat(result.getValue()).isEqualTo("value");
+        assertThat(result.getName()).isEqualTo("key1");
+        assertThat(result.isSecure()).isFalse();
     }
 
     @Test
-    public void shouldConvertEnvironmentVariableToSecureWhenEncryptedValueIsNotBlank() {
+    void shouldConvertEnvironmentVariableToSecureWhenEncryptedValueIsNotBlank() {
         CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", null, "encryptedvalue");
         EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
-        assertThat(result.isSecure(), is(true));
-        assertThat(result.getValue(), is("secret"));
-        assertThat(result.getName(), is("key1"));
+        assertThat(result.isSecure()).isTrue();
+        assertThat(result.getValue()).isEqualTo("secret");
+        assertThat(result.getName()).isEqualTo("key1");
     }
 
     @Test
-    public void shouldConvertEnvironmentVariableToSecureWhenEncryptedValueIsEmptyString() {
+    void shouldConvertEnvironmentVariableToSecureWhenEncryptedValueIsEmptyString() {
         CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", null, "");
         EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
-        assertThat(result.isSecure(), is(true));
-        assertThat(result.getValue(), is(""));
-        assertThat(result.getName(), is("key1"));
+        assertThat(result.isSecure()).isTrue();
+        assertThat(result.getValue()).isEqualTo("");
+        assertThat(result.getName()).isEqualTo("key1");
     }
 
     @Test
-    public void shouldConvertEnvironmentVariableToInsecureWhenValueAndEncryptedValueIsNull() {
+    void shouldConvertEnvironmentVariableToInsecureWhenValueAndEncryptedValueIsNull() {
         CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", null, null);
         EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
-        assertThat(result.isSecure(), is(false));
-        assertThat(result.getValue(), is(""));
-        assertThat(result.getName(), is("key1"));
+        assertThat(result.isSecure()).isFalse();
+        assertThat(result.getValue()).isEqualTo("");
+        assertThat(result.getName()).isEqualTo("key1");
     }
 
     @Test
-    public void shouldMigrateEnvironment() {
+    void shouldMigrateEnvironment() {
         CREnvironment crEnvironment = new CREnvironment("dev");
         crEnvironment.addEnvironmentVariable("key", "value");
         crEnvironment.addAgent("12");
         crEnvironment.addPipeline("pipe1");
 
         BasicEnvironmentConfig environmentConfig = configConverter.toEnvironmentConfig(crEnvironment);
-        assertThat(environmentConfig.name().toLower(), is("dev"));
-        assertThat(environmentConfig.contains("pipe1"), is(true));
-        assertThat(environmentConfig.hasVariable("key"), is(true));
-        assertThat(environmentConfig.hasAgent("12"), is(true));
+        assertThat(environmentConfig.name().toLower()).isEqualTo("dev");
+        assertThat(environmentConfig.contains("pipe1")).isTrue();
+        assertThat(environmentConfig.hasVariable("key")).isTrue();
+        assertThat(environmentConfig.hasAgent("12")).isTrue();
     }
 
     @Test
-    public void shouldMigratePluggableTask() {
+    void shouldMigratePluggableTask() {
         ArrayList<CRConfigurationProperty> configs = new ArrayList<>();
         configs.add(new CRConfigurationProperty("k", "m", null));
         CRPluggableTask pluggableTask = new CRPluggableTask(CRRunIf.any, null,
                 new CRPluginConfiguration("myplugin", "1"), configs);
         PluggableTask result = (PluggableTask) configConverter.toAbstractTask(pluggableTask);
 
-        assertThat(result.getPluginConfiguration().getId(), is("myplugin"));
-        assertThat(result.getPluginConfiguration().getVersion(), is("1"));
-        assertThat(result.getConfiguration().getProperty("k").getValue(), is("m"));
-        assertThat(result.getConditions().first(), is(RunIfConfig.ANY));
+        assertThat(result.getPluginConfiguration().getId()).isEqualTo("myplugin");
+        assertThat(result.getPluginConfiguration().getVersion()).isEqualTo("1");
+        assertThat(result.getConfiguration().getProperty("k").getValue()).isEqualTo("m");
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.ANY);
     }
 
     @Test
-    public void shouldMigrateRakeTask() {
+    void shouldMigrateRakeTask() {
         CRBuildTask crBuildTask = new CRBuildTask(CRBuildFramework.rake, CRRunIf.failed, null, "Rakefile.rb", "build", "src");
         RakeTask result = (RakeTask) configConverter.toAbstractTask(crBuildTask);
 
@@ -198,137 +197,137 @@ public class ConfigConverterTest {
     }
 
     private void assertRakeTask(RakeTask result) {
-        assertThat(result.getConditions().first(), is(RunIfConfig.FAILED));
-        assertThat(result.getBuildFile(), is("Rakefile.rb"));
-        assertThat(result.getTarget(), is("build"));
-        assertThat(result.workingDirectory(), is("src"));
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.getBuildFile()).isEqualTo("Rakefile.rb");
+        assertThat(result.getTarget()).isEqualTo("build");
+        assertThat(result.workingDirectory()).isEqualTo("src");
     }
 
     @Test
-    public void shouldMigrateAntTask() {
+    void shouldMigrateAntTask() {
         CRTask cancel = new CRBuildTask(CRBuildFramework.rake, CRRunIf.failed, null, "Rakefile.rb", "build", "src");
         CRBuildTask crBuildTask = new CRBuildTask(CRBuildFramework.ant, CRRunIf.failed, cancel, "ant", "build", "src");
         AntTask result = (AntTask) configConverter.toAbstractTask(crBuildTask);
 
-        assertThat(result.getConditions().first(), is(RunIfConfig.FAILED));
-        assertThat(result.getBuildFile(), is("ant"));
-        assertThat(result.getTarget(), is("build"));
-        assertThat(result.workingDirectory(), is("src"));
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.getBuildFile()).isEqualTo("ant");
+        assertThat(result.getTarget()).isEqualTo("build");
+        assertThat(result.workingDirectory()).isEqualTo("src");
 
-        assertThat(result.cancelTask() instanceof RakeTask, is(true));
+        assertThat(result.cancelTask() instanceof RakeTask).isTrue();
         assertRakeTask((RakeTask) result.cancelTask());
     }
 
     @Test
-    public void shouldMigrateNantTask() {
+    void shouldMigrateNantTask() {
         CRBuildTask crBuildTask = new CRNantTask(CRRunIf.passed, null, "nant", "build", "src", "path");
         NantTask result = (NantTask) configConverter.toAbstractTask(crBuildTask);
 
-        assertThat(result.getConditions().first(), is(RunIfConfig.PASSED));
-        assertThat(result.getBuildFile(), is("nant"));
-        assertThat(result.getTarget(), is("build"));
-        assertThat(result.workingDirectory(), is("src"));
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.PASSED);
+        assertThat(result.getBuildFile()).isEqualTo("nant");
+        assertThat(result.getTarget()).isEqualTo("build");
+        assertThat(result.workingDirectory()).isEqualTo("src");
     }
 
     @Test
-    public void shouldConvertExecTaskWhenCancelIsNotSpecified() {
+    void shouldConvertExecTaskWhenCancelIsNotSpecified() {
         CRExecTask crExecTask = new CRExecTask(CRRunIf.failed, null, "bash", "work", 120L);
         crExecTask.addArgument("1");
         crExecTask.addArgument("2");
         ExecTask result = (ExecTask) configConverter.toAbstractTask(crExecTask);
 
-        assertThat(result.getConditions().first(), is(RunIfConfig.FAILED));
-        assertThat(result.command(), is("bash"));
-        assertThat(result.getArgList(), hasItem(new Argument("1")));
-        assertThat(result.getArgList(), hasItem(new Argument("2")));
-        assertThat(result.workingDirectory(), is("work"));
-        assertThat(result.getTimeout(), is(120L));
-        assertThat(result.getOnCancelConfig().getTask(), instanceOf(KillAllChildProcessTask.class));
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.command()).isEqualTo("bash");
+        assertThat(result.getArgList()).contains(new Argument("1"));
+        assertThat(result.getArgList()).contains(new Argument("2"));
+        assertThat(result.workingDirectory()).isEqualTo("work");
+        assertThat(result.getTimeout()).isEqualTo(120L);
+        assertThat(result.getOnCancelConfig().getTask()).isInstanceOf(KillAllChildProcessTask.class);
     }
 
     @Test
-    public void shouldConvertExecTaskWhenCancelIsSpecified() {
+    void shouldConvertExecTaskWhenCancelIsSpecified() {
         CRExecTask crExecTask = new CRExecTask(CRRunIf.failed, new CRExecTask(null, null, "kill", null, 0), "bash", "work", 120L);
         crExecTask.addArgument("1");
         crExecTask.addArgument("2");
         ExecTask result = (ExecTask) configConverter.toAbstractTask(crExecTask);
 
-        assertThat(result.getConditions().first(), is(RunIfConfig.FAILED));
-        assertThat(result.command(), is("bash"));
-        assertThat(result.getArgList(), hasItem(new Argument("1")));
-        assertThat(result.getArgList(), hasItem(new Argument("2")));
-        assertThat(result.workingDirectory(), is("work"));
-        assertThat(result.getTimeout(), is(120L));
-        assertThat(result.getOnCancelConfig().getTask(), instanceOf(ExecTask.class));
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.command()).isEqualTo("bash");
+        assertThat(result.getArgList()).contains(new Argument("1"));
+        assertThat(result.getArgList()).contains(new Argument("2"));
+        assertThat(result.workingDirectory()).isEqualTo("work");
+        assertThat(result.getTimeout()).isEqualTo(120L);
+        assertThat(result.getOnCancelConfig().getTask()).isInstanceOf(ExecTask.class);
         ExecTask cancel = (ExecTask) result.getOnCancelConfig().getTask();
-        assertThat(cancel.command(), is("kill"));
+        assertThat(cancel.command()).isEqualTo("kill");
     }
 
     @Test
-    public void shouldConvertFetchArtifactTaskAndSetEmptyStringWhenPipelineIsNotSpecified() {
+    void shouldConvertFetchArtifactTaskAndSetEmptyStringWhenPipelineIsNotSpecified() {
         // if not then null causes errors in parameter expansion
         CRFetchArtifactTask crFetchArtifactTask = new CRFetchArtifactTask(CRRunIf.passed, null,
                 null, "stage", "job", "src", null, false);
 
         FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
 
-        assertThat(result.getConditions().first(), is(RunIfConfig.PASSED));
-        assertThat(result.getDest(), is(""));
-        assertThat(result.getJob().toLower(), is("job"));
-        assertThat(result.getPipelineName().toLower(), is(""));
-        assertThat(result.getSrc(), is("src"));
-        assertThat(result.isSourceAFile(), is(true));
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.PASSED);
+        assertThat(result.getDest()).isEqualTo("");
+        assertThat(result.getJob().toLower()).isEqualTo("job");
+        assertThat(result.getPipelineName().toLower()).isEqualTo("");
+        assertThat(result.getSrc()).isEqualTo("src");
+        assertThat(result.isSourceAFile()).isTrue();
     }
 
     @Test
-    public void shouldConvertFetchArtifactTaskWhenDestinationIsNotSpecified() {
+    void shouldConvertFetchArtifactTaskWhenDestinationIsNotSpecified() {
         CRFetchArtifactTask crFetchArtifactTask = new CRFetchArtifactTask(CRRunIf.passed, null,
                 "upstream", "stage", "job", "src", null, false);
 
         FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
 
-        assertThat(result.getConditions().first(), is(RunIfConfig.PASSED));
-        assertThat(result.getDest(), is(""));
-        assertThat(result.getJob().toLower(), is("job"));
-        assertThat(result.getPipelineName().toLower(), is("upstream"));
-        assertThat(result.getSrc(), is("src"));
-        assertThat(result.isSourceAFile(), is(true));
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.PASSED);
+        assertThat(result.getDest()).isEqualTo("");
+        assertThat(result.getJob().toLower()).isEqualTo("job");
+        assertThat(result.getPipelineName().toLower()).isEqualTo("upstream");
+        assertThat(result.getSrc()).isEqualTo("src");
+        assertThat(result.isSourceAFile()).isTrue();
     }
 
     @Test
-    public void shouldConvertFetchArtifactTaskWhenSourceIsDirectory() {
+    void shouldConvertFetchArtifactTaskWhenSourceIsDirectory() {
         CRFetchArtifactTask crFetchArtifactTask = new CRFetchArtifactTask(CRRunIf.failed, null,
                 "upstream", "stage", "job", "src", "dest", true);
 
         FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
 
-        assertThat(result.getConditions().first(), is(RunIfConfig.FAILED));
-        assertThat(result.getDest(), is("dest"));
-        assertThat(result.getJob().toLower(), is("job"));
-        assertThat(result.getPipelineName().toLower(), is("upstream"));
-        assertThat(result.getSrc(), is("src"));
-        assertNull(result.getSrcfile());
-        assertThat(result.isSourceAFile(), is(false));
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.getDest()).isEqualTo("dest");
+        assertThat(result.getJob().toLower()).isEqualTo("job");
+        assertThat(result.getPipelineName().toLower()).isEqualTo("upstream");
+        assertThat(result.getSrc()).isEqualTo("src");
+        assertThat(result.getSrcfile()).isNull();
+        assertThat(result.isSourceAFile()).isFalse();
     }
 
     @Test
-    public void shouldConvertFetchArtifactTaskWhenSourceIsFile() {
+    void shouldConvertFetchArtifactTaskWhenSourceIsFile() {
         CRFetchArtifactTask crFetchArtifactTask = new CRFetchArtifactTask(CRRunIf.failed, null,
                 "upstream", "stage", "job", "src", "dest", false);
 
         FetchTask result = (FetchTask) configConverter.toAbstractTask(crFetchArtifactTask);
 
-        assertThat(result.getConditions().first(), is(RunIfConfig.FAILED));
-        assertThat(result.getDest(), is("dest"));
-        assertThat(result.getJob().toLower(), is("job"));
-        assertThat(result.getPipelineName().toLower(), is("upstream"));
-        assertThat(result.getSrc(), is("src"));
-        assertNull(result.getSrcdir());
-        assertThat(result.isSourceAFile(), is(true));
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.FAILED);
+        assertThat(result.getDest()).isEqualTo("dest");
+        assertThat(result.getJob().toLower()).isEqualTo("job");
+        assertThat(result.getPipelineName().toLower()).isEqualTo("upstream");
+        assertThat(result.getSrc()).isEqualTo("src");
+        assertThat(result.getSrcdir()).isNull();
+        assertThat(result.isSourceAFile()).isTrue();
     }
 
     @Test
-    public void shouldConvertFetchPluggableArtifactTaskAndSetEmptyStringWhenPipelineIsNotSpecified() {
+    void shouldConvertFetchPluggableArtifactTaskAndSetEmptyStringWhenPipelineIsNotSpecified() {
         CRConfigurationProperty crConfigurationProperty = new CRConfigurationProperty("k1", "v1", null);
         final CRConfigurationProperty[] crConfigurationProperties = new CRConfigurationProperty[]{crConfigurationProperty};
         final List<CRConfigurationProperty> crConfigurationProperties1 = Arrays.asList(crConfigurationProperties);
@@ -337,15 +336,15 @@ public class ConfigConverterTest {
 
         FetchPluggableArtifactTask result = (FetchPluggableArtifactTask) configConverter.toAbstractTask(crFetchPluggableArtifactTask);
 
-        assertThat(result.getConditions().first(), is(RunIfConfig.PASSED));
-        assertThat(result.getJob().toLower(), is("job"));
-        assertThat(result.getPipelineName().toLower(), is(""));
-        assertThat(result.getArtifactId(), is("artifactId"));
-        assertThat(result.getConfiguration().getProperty("k1").getValue(), is("v1"));
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.PASSED);
+        assertThat(result.getJob().toLower()).isEqualTo("job");
+        assertThat(result.getPipelineName().toLower()).isEqualTo("");
+        assertThat(result.getArtifactId()).isEqualTo("artifactId");
+        assertThat(result.getConfiguration().getProperty("k1").getValue()).isEqualTo("v1");
     }
 
     @Test
-    public void shouldConvertFetchPluggableArtifactTaskWhenConfigurationIsNotSet() {
+    void shouldConvertFetchPluggableArtifactTaskWhenConfigurationIsNotSet() {
         final CRConfigurationProperty[] crConfigurationProperties = new CRConfigurationProperty[]{};
         final List<CRConfigurationProperty> crConfigurationProperties1 = Arrays.asList(crConfigurationProperties);
         CRFetchPluggableArtifactTask crFetchPluggableArtifactTask = new CRFetchPluggableArtifactTask(CRRunIf.passed, null,
@@ -353,148 +352,149 @@ public class ConfigConverterTest {
 
         FetchPluggableArtifactTask result = (FetchPluggableArtifactTask) configConverter.toAbstractTask(crFetchPluggableArtifactTask);
 
-        assertThat(result.getConditions().first(), is(RunIfConfig.PASSED));
-        assertThat(result.getJob().toLower(), is("job"));
-        assertThat(result.getPipelineName().toLower(), is(""));
-        assertThat(result.getArtifactId(), is("artifactId"));
-        assertThat(result.getConfiguration().isEmpty(), is(true));
+        assertThat(result.getConditions().first()).isEqualTo(RunIfConfig.PASSED);
+        assertThat(result.getJob().toLower()).isEqualTo("job");
+        assertThat(result.getPipelineName().toLower()).isEqualTo("");
+        assertThat(result.getArtifactId()).isEqualTo("artifactId");
+        assertThat(result.getConfiguration().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldConvertDependencyMaterial() {
+    void shouldConvertDependencyMaterial() {
         CRDependencyMaterial crDependencyMaterial = new CRDependencyMaterial("name", "pipe", "stage");
         DependencyMaterialConfig dependencyMaterialConfig =
                 (DependencyMaterialConfig) configConverter.toMaterialConfig(crDependencyMaterial, context);
 
-        assertThat(dependencyMaterialConfig.getName().toLower(), is("name"));
-        assertThat(dependencyMaterialConfig.getPipelineName().toLower(), is("pipe"));
-        assertThat(dependencyMaterialConfig.getStageName().toLower(), is("stage"));
+        assertThat(dependencyMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(dependencyMaterialConfig.getPipelineName().toLower()).isEqualTo("pipe");
+        assertThat(dependencyMaterialConfig.getStageName().toLower()).isEqualTo("stage");
     }
 
     @Test
-    public void shouldConvertGitMaterial() {
+    void shouldConvertGitMaterial() {
         CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true, false, null, filter, "url", "branch", true);
 
         GitMaterialConfig gitMaterialConfig =
                 (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
 
-        assertThat(gitMaterialConfig.getName().toLower(), is("name"));
-        assertThat(gitMaterialConfig.getFolder(), is("folder"));
-        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(gitMaterialConfig.isInvertFilter(), is(false));
-        assertThat(gitMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(gitMaterialConfig.getUrl(), is("url"));
-        assertThat(gitMaterialConfig.getBranch(), is("branch"));
+        assertThat(gitMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(gitMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(gitMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(gitMaterialConfig.isInvertFilter()).isFalse();
+        assertThat(gitMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("branch");
     }
 
     @Test
-    public void shouldConvertGitMaterialWhenWhitelist() {
+    void shouldConvertGitMaterialWhenWhitelist() {
         CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true, true, null, filter, "url", "branch", true);
 
         GitMaterialConfig gitMaterialConfig =
                 (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
 
-        assertThat(gitMaterialConfig.getName().toLower(), is("name"));
-        assertThat(gitMaterialConfig.getFolder(), is("folder"));
-        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(gitMaterialConfig.isInvertFilter(), is(true));
-        assertThat(gitMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(gitMaterialConfig.getUrl(), is("url"));
-        assertThat(gitMaterialConfig.getBranch(), is("branch"));
+        assertThat(gitMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(gitMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(gitMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(gitMaterialConfig.isInvertFilter()).isTrue();
+        assertThat(gitMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("branch");
     }
 
     @Test
-    public void shouldConvertHgMaterialWhenWhitelist() {
-        CRHgMaterial crHgMaterial = new CRHgMaterial("name", "folder", true, true, null, filter, "url");
+    void shouldConvertHgMaterialWhenWhitelist() {
+        CRHgMaterial crHgMaterial = new CRHgMaterial("name", "folder", true, true, null, filter, "url", "feature");
 
         HgMaterialConfig hgMaterialConfig =
                 (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
 
-        assertThat(hgMaterialConfig.getName().toLower(), is("name"));
-        assertThat(hgMaterialConfig.getFolder(), is("folder"));
-        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(hgMaterialConfig.isInvertFilter(), is(true));
-        assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(hgMaterialConfig.getUrl(), is("url"));
+        assertThat(hgMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(hgMaterialConfig.isInvertFilter()).isTrue();
+        assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(hgMaterialConfig.getBranch()).isEqualTo("feature");
     }
 
     @Test
-    public void shouldConvertGitMaterialWhenNulls() {
+    void shouldConvertGitMaterialWhenNulls() {
         CRGitMaterial crGitMaterial = new CRGitMaterial();
         crGitMaterial.setUrl("url");
 
         GitMaterialConfig gitMaterialConfig =
                 (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
 
-        assertNull(crGitMaterial.getName());
-        assertNull(crGitMaterial.getDestination());
-        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(gitMaterialConfig.isShallowClone(), is(false));
-        assertThat(gitMaterialConfig.filter(), is(new Filter()));
-        assertThat(gitMaterialConfig.getUrl(), is("url"));
-        assertThat(gitMaterialConfig.getBranch(), is("master"));
+        assertThat(crGitMaterial.getName()).isNull();
+        assertThat(crGitMaterial.getDestination()).isNull();
+        assertThat(gitMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(gitMaterialConfig.isShallowClone()).isFalse();
+        assertThat(gitMaterialConfig.filter()).isEqualTo(new Filter());
+        assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("master");
     }
 
     @Test
-    public void shouldConvertGitMaterialWhenPlainPassword() {
+    void shouldConvertGitMaterialWhenPlainPassword() {
         CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true, false, null, filter, "url", "branch", true);
         crGitMaterial.setPassword("secret");
 
         GitMaterialConfig gitMaterialConfig =
                 (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
 
-        assertThat(gitMaterialConfig.getName().toLower(), is("name"));
-        assertThat(gitMaterialConfig.getFolder(), is("folder"));
-        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(gitMaterialConfig.isInvertFilter(), is(false));
-        assertThat(gitMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(gitMaterialConfig.getUrl(), is("url"));
-        assertThat(gitMaterialConfig.getBranch(), is("branch"));
-        assertThat(gitMaterialConfig.getPassword(), is("secret"));
+        assertThat(gitMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(gitMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(gitMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(gitMaterialConfig.isInvertFilter()).isFalse();
+        assertThat(gitMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("branch");
+        assertThat(gitMaterialConfig.getPassword()).isEqualTo("secret");
     }
 
     @Test
-    public void shouldConvertGitMaterialWhenEncryptedPassword() throws CryptoException {
+    void shouldConvertGitMaterialWhenEncryptedPassword() throws CryptoException {
         CRGitMaterial crGitMaterial = new CRGitMaterial("name", "folder", true, false, null, filter, "url", "branch", true);
         crGitMaterial.setEncryptedPassword(new GoCipher().encrypt("secret"));
 
         GitMaterialConfig gitMaterialConfig =
                 (GitMaterialConfig) configConverter.toMaterialConfig(crGitMaterial, context);
 
-        assertThat(gitMaterialConfig.getName().toLower(), is("name"));
-        assertThat(gitMaterialConfig.getFolder(), is("folder"));
-        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(gitMaterialConfig.isInvertFilter(), is(false));
-        assertThat(gitMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(gitMaterialConfig.getUrl(), is("url"));
-        assertThat(gitMaterialConfig.getBranch(), is("branch"));
-        assertThat(gitMaterialConfig.getPassword(), is("secret"));
+        assertThat(gitMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(gitMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(gitMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(gitMaterialConfig.isInvertFilter()).isFalse();
+        assertThat(gitMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("branch");
+        assertThat(gitMaterialConfig.getPassword()).isEqualTo("secret");
     }
 
     @Test
-    public void shouldConvertConfigMaterialWhenConfigRepoIsGitWithUrlOnly() {
+    void shouldConvertConfigMaterialWhenConfigRepoIsGitWithUrlOnly() {
         // this url would be configured inside xml config-repo section
         GitMaterialConfig configRepoMaterial = new GitMaterialConfig("url");
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial();
 
         MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
-        assertNull("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode", materialConfig.getName());
+        assertThat(materialConfig.getName()).as("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode").isNull();
 
         GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) materialConfig;
-        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(gitMaterialConfig.getUrl(), is("url"));
-        assertNull(gitMaterialConfig.getFolder());
-        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(gitMaterialConfig.isShallowClone(), is(false));
-        assertThat(gitMaterialConfig.filter(), is(new Filter()));
-        assertThat(gitMaterialConfig.getUrl(), is("url"));
-        assertThat(gitMaterialConfig.getBranch(), is("master"));
+        assertThat(gitMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(gitMaterialConfig.getFolder()).isNull();
+        assertThat(gitMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(gitMaterialConfig.isShallowClone()).isFalse();
+        assertThat(gitMaterialConfig.filter()).isEqualTo(new Filter());
+        assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("master");
     }
 
 
     @Test
-    public void shouldConvertConfigMaterialWhenConfigRepoIsGitWithBlacklist() {
+    void shouldConvertConfigMaterialWhenConfigRepoIsGitWithBlacklist() {
         // this url would be configured inside xml config-repo section
         GitMaterialConfig configRepoMaterial = new GitMaterialConfig("url");
         when(context.configMaterial()).thenReturn(configRepoMaterial);
@@ -502,93 +502,93 @@ public class ConfigConverterTest {
         crConfigMaterial.setFilter(new CRFilter(filter, false));
 
         MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
-        assertNull("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode", materialConfig.getName());
+        assertThat(materialConfig.getName()).as("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode").isNull();
 
         GitMaterialConfig gitMaterialConfig = (GitMaterialConfig) materialConfig;
-        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(gitMaterialConfig.getUrl(), is("url"));
-        assertNull(gitMaterialConfig.getFolder());
-        assertThat(gitMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(gitMaterialConfig.isShallowClone(), is(false));
+        assertThat(gitMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(gitMaterialConfig.getFolder()).isNull();
+        assertThat(gitMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(gitMaterialConfig.isShallowClone()).isFalse();
         Filter blacklistFilter = new Filter(new IgnoredFiles("filter"));
-        assertThat(gitMaterialConfig.filter(), is(blacklistFilter));
-        assertThat(gitMaterialConfig.getUrl(), is("url"));
-        assertThat(gitMaterialConfig.getBranch(), is("master"));
+        assertThat(gitMaterialConfig.filter()).isEqualTo(blacklistFilter);
+        assertThat(gitMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(gitMaterialConfig.getBranch()).isEqualTo("master");
     }
 
     @Test
-    public void shouldConvertConfigMaterialWhenConfigRepoIsHgWithWhitelist() {
+    void shouldConvertConfigMaterialWhenConfigRepoIsHgWithWhitelist() {
         // this url would be configured inside xml config-repo section
         HgMaterialConfig configRepoMaterial = new HgMaterialConfig("url", "folder");
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial(null, null, new CRFilter(filter, true));
 
         MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
-        assertNull("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode", materialConfig.getName());
+        assertThat(materialConfig.getName()).as("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode").isNull();
 
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) materialConfig;
-        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(hgMaterialConfig.getUrl(), is("url"));
+        assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
         Filter whitelistFilter = new Filter(new IgnoredFiles("filter"));
-        assertThat(hgMaterialConfig.filter(), is(whitelistFilter));
-        assertThat(hgMaterialConfig.isInvertFilter(), is(true));
+        assertThat(hgMaterialConfig.filter()).isEqualTo(whitelistFilter);
+        assertThat(hgMaterialConfig.isInvertFilter()).isTrue();
     }
 
     @Test
-    public void shouldConvertConfigMaterialWhenConfigRepoIsHgWithEmptyFilter() {
+    void shouldConvertConfigMaterialWhenConfigRepoIsHgWithEmptyFilter() {
         // this url would be configured inside xml config-repo section
         HgMaterialConfig configRepoMaterial = new HgMaterialConfig("url", "folder");
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial(null, null, new CRFilter(new ArrayList<>(), true));
 
         MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
-        assertNull("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode", materialConfig.getName());
+        assertThat(materialConfig.getName()).as("shouldSetEmptyMaterialNameAsInConfigRepoSourceCode").isNull();
 
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) materialConfig;
-        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(hgMaterialConfig.getFilterAsString(), is(""));
-        assertThat(hgMaterialConfig.getUrl(), is("url"));
-        assertThat(hgMaterialConfig.filter(), is(new Filter()));
-        assertThat(hgMaterialConfig.isInvertFilter(), is(false));
+        assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("");
+        assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(hgMaterialConfig.filter()).isEqualTo(new Filter());
+        assertThat(hgMaterialConfig.isInvertFilter()).isFalse();
     }
 
     @Test
-    public void shouldConvertConfigMaterialWhenConfigRepoIsHg() {
+    void shouldConvertConfigMaterialWhenConfigRepoIsHg() {
         // these parameters would be configured inside xml config-repo section
-        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"), true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
+        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", null, null);
 
         MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
-        assertThat("shouldSetMaterialNameAsInConfigRepoSourceCode", materialConfig.getName().toLower(), is("example"));
-        assertThat("shouldUseFolderFromXMLWhenConfigRepoHasNone", materialConfig.getFolder(), is("folder"));
+        assertThat(materialConfig.getName().toLower()).as("shouldSetMaterialNameAsInConfigRepoSourceCode").isEqualTo("example");
+        assertThat(materialConfig.getFolder()).as("shouldUseFolderFromXMLWhenConfigRepoHasNone").isEqualTo("folder");
 
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) materialConfig;
-        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(hgMaterialConfig.getFilterAsString(), is("ignore"));
-        assertThat(hgMaterialConfig.getUrl(), is("url"));
+        assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("ignore");
+        assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
     }
 
     @Test
-    public void shouldConvertConfigMaterialWhenConfigRepoIsHgWithDestination() {
+    void shouldConvertConfigMaterialWhenConfigRepoIsHgWithDestination() {
         // these parameters would be configured inside xml config-repo section
-        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"), true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
+        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1", null);
 
         MaterialConfig materialConfig = configConverter.toMaterialConfig(crConfigMaterial, context);
-        assertThat("shouldSetMaterialNameAsInConfigRepoSourceCode", materialConfig.getName().toLower(), is("example"));
-        assertThat("shouldUseFolderFromConfigRepoWhenSpecified", materialConfig.getFolder(), is("dest1"));
+        assertThat(materialConfig.getName().toLower()).as("shouldSetMaterialNameAsInConfigRepoSourceCode").isEqualTo("example");
+        assertThat(materialConfig.getFolder()).as("shouldUseFolderFromConfigRepoWhenSpecified").isEqualTo("dest1");
 
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) materialConfig;
-        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(hgMaterialConfig.getFilterAsString(), is("ignore"));
-        assertThat(hgMaterialConfig.getUrl(), is("url"));
+        assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("ignore");
+        assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
     }
 
     @Test
-    public void shouldConvertConfigMaterialWhenPluggableScmMaterial() {
+    void shouldConvertConfigMaterialWhenPluggableScmMaterial() {
         SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
         SCMs scms = new SCMs(myscm);
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -601,16 +601,16 @@ public class ConfigConverterTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
                 (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crConfigMaterial, context);
 
-        assertThat(pluggableSCMMaterialConfig.getName().toLower(), is("example"));
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(myscm));
-        assertThat(pluggableSCMMaterialConfig.getScmId(), is("scmid"));
-        assertThat(pluggableSCMMaterialConfig.getFolder(), is("dest1"));
-        assertThat(pluggableSCMMaterialConfig.getFilterAsString(), is(""));
+        assertThat(pluggableSCMMaterialConfig.getName().toLower()).isEqualTo("example");
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(myscm);
+        assertThat(pluggableSCMMaterialConfig.getScmId()).isEqualTo("scmid");
+        assertThat(pluggableSCMMaterialConfig.getFolder()).isEqualTo("dest1");
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("");
     }
 
 
     @Test
-    public void shouldFailToConvertConfigMaterialWhenPluggableScmMaterialWithWhitelist() {
+    void shouldFailToConvertConfigMaterialWhenPluggableScmMaterialWithWhitelist() {
         SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
         SCMs scms = new SCMs(myscm);
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -624,87 +624,88 @@ public class ConfigConverterTest {
             configConverter.toMaterialConfig(crConfigMaterial, context);
             fail("should have thrown");
         } catch (ConfigConvertionException ex) {
-            assertThat(ex.getMessage(), is("Plugable SCMs do not support whitelisting"));
+            assertThat(ex.getMessage()).isEqualTo("Plugable SCMs do not support whitelisting");
         }
     }
 
     @Test
-    public void shouldConvertHgMaterial() {
-        CRHgMaterial crHgMaterial = new CRHgMaterial("name", "folder", true, false, null, filter, "url");
+    void shouldConvertHgMaterial() {
+        CRHgMaterial crHgMaterial = new CRHgMaterial("name", "folder", true, false, null, filter, "url", null);
 
         HgMaterialConfig hgMaterialConfig =
                 (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
 
-        assertThat(hgMaterialConfig.getName().toLower(), is("name"));
-        assertThat(hgMaterialConfig.getFolder(), is("folder"));
-        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(hgMaterialConfig.getUrl(), is("url"));
+        assertThat(hgMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
     }
 
     @Test
-    public void shouldConvertHgMaterialWhenNullName() {
-        CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, false, null, filter, "url");
+    void shouldConvertHgMaterialWhenNullName() {
+        CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, false, null, filter, "url", null);
 
         HgMaterialConfig hgMaterialConfig =
                 (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
 
-        assertNull(hgMaterialConfig.getName());
-        assertThat(hgMaterialConfig.getFolder(), is("folder"));
-        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(hgMaterialConfig.getUrl(), is("url"));
-        assertThat(hgMaterialConfig.getInvertFilter(), is(false));
+        assertThat(hgMaterialConfig.getName()).isNull();
+        assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(hgMaterialConfig.getInvertFilter()).isFalse();
+        assertThat(hgMaterialConfig.getBranch()).isNull();
     }
 
     @Test
-    public void shouldConvertHgMaterialWhenPlainPassword() {
-        CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, false, null, filter, "url");
+    void shouldConvertHgMaterialWhenPlainPassword() {
+        CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, false, null, filter, "url", null);
         crHgMaterial.setPassword("secret");
 
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
 
-        assertNull(hgMaterialConfig.getName());
-        assertThat(hgMaterialConfig.getFolder(), is("folder"));
-        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(hgMaterialConfig.getUrl(), is("url"));
-        assertThat(hgMaterialConfig.getPassword(), is("secret"));
-        assertThat(hgMaterialConfig.getInvertFilter(), is(false));
+        assertThat(hgMaterialConfig.getName()).isNull();
+        assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(hgMaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(hgMaterialConfig.getInvertFilter()).isFalse();
     }
 
     @Test
-    public void shouldConvertHgMaterialWhenEncryptedPassword() throws CryptoException {
-        CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, false, null, filter, "url");
+    void shouldConvertHgMaterialWhenEncryptedPassword() throws CryptoException {
+        CRHgMaterial crHgMaterial = new CRHgMaterial(null, "folder", true, false, null, filter, "url", null);
         crHgMaterial.setEncryptedPassword(new GoCipher().encrypt("some password"));
 
         HgMaterialConfig hgMaterialConfig = (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
 
-        assertNull(hgMaterialConfig.getName());
-        assertThat(hgMaterialConfig.getFolder(), is("folder"));
-        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(hgMaterialConfig.getUrl(), is("url"));
-        assertThat(hgMaterialConfig.getPassword(), is("some password"));
-        assertThat(hgMaterialConfig.getInvertFilter(), is(false));
+        assertThat(hgMaterialConfig.getName()).isNull();
+        assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(hgMaterialConfig.getPassword()).isEqualTo("some password");
+        assertThat(hgMaterialConfig.getInvertFilter()).isFalse();
     }
 
     @Test
-    public void shouldConvertHgMaterialWhenEmptyName() {
-        CRHgMaterial crHgMaterial = new CRHgMaterial("", "folder", true, false, null, filter, "url");
+    void shouldConvertHgMaterialWhenEmptyName() {
+        CRHgMaterial crHgMaterial = new CRHgMaterial("", "folder", true, false, null, filter, "url", null);
 
         HgMaterialConfig hgMaterialConfig =
                 (HgMaterialConfig) configConverter.toMaterialConfig(crHgMaterial, context);
 
-        assertNull(hgMaterialConfig.getName());
-        assertThat(hgMaterialConfig.getFolder(), is("folder"));
-        assertThat(hgMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(hgMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(hgMaterialConfig.getUrl(), is("url"));
+        assertThat(hgMaterialConfig.getName()).isNull();
+        assertThat(hgMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(hgMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(hgMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(hgMaterialConfig.getUrl()).isEqualTo("url");
     }
 
     @Test
-    public void shouldConvertP4MaterialWhenEncryptedPassword() {
+    void shouldConvertP4MaterialWhenEncryptedPassword() {
         CRP4Material crp4Material1 = new CRP4Material("name", "folder", false, false, "user", filter, "server:port", "view", true);
         crp4Material1.setEncryptedPassword("encryptedvalue");
         CRP4Material crp4Material = crp4Material1;
@@ -712,112 +713,112 @@ public class ConfigConverterTest {
         P4MaterialConfig p4MaterialConfig =
                 (P4MaterialConfig) configConverter.toMaterialConfig(crp4Material, context);
 
-        assertThat(p4MaterialConfig.getName().toLower(), is("name"));
-        assertThat(p4MaterialConfig.getFolder(), is("folder"));
-        assertThat(p4MaterialConfig.getAutoUpdate(), is(false));
-        assertThat(p4MaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(p4MaterialConfig.getUrl(), is("server:port"));
-        assertThat(p4MaterialConfig.getUserName(), is("user"));
-        assertThat(p4MaterialConfig.getPassword(), is("secret"));
-        assertThat(p4MaterialConfig.getUseTickets(), is(true));
-        assertThat(p4MaterialConfig.getView(), is("view"));
+        assertThat(p4MaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(p4MaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(p4MaterialConfig.getAutoUpdate()).isFalse();
+        assertThat(p4MaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(p4MaterialConfig.getUrl()).isEqualTo("server:port");
+        assertThat(p4MaterialConfig.getUserName()).isEqualTo("user");
+        assertThat(p4MaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(p4MaterialConfig.getUseTickets()).isTrue();
+        assertThat(p4MaterialConfig.getView()).isEqualTo("view");
 
     }
 
     @Test
-    public void shouldConvertP4MaterialWhenPlainPassword() {
+    void shouldConvertP4MaterialWhenPlainPassword() {
         CRP4Material crp4Material = new CRP4Material("name", "folder", false, false, "user", filter, "server:port", "view", true);
         crp4Material.setPassword("secret");
 
         P4MaterialConfig p4MaterialConfig = (P4MaterialConfig) configConverter.toMaterialConfig(crp4Material, context);
 
-        assertThat(p4MaterialConfig.getName().toLower(), is("name"));
-        assertThat(p4MaterialConfig.getFolder(), is("folder"));
-        assertThat(p4MaterialConfig.getAutoUpdate(), is(false));
-        assertThat(p4MaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(p4MaterialConfig.getUrl(), is("server:port"));
-        assertThat(p4MaterialConfig.getUserName(), is("user"));
-        assertThat(p4MaterialConfig.getPassword(), is("secret"));
-        assertThat(p4MaterialConfig.getUseTickets(), is(true));
-        assertThat(p4MaterialConfig.getView(), is("view"));
+        assertThat(p4MaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(p4MaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(p4MaterialConfig.getAutoUpdate()).isFalse();
+        assertThat(p4MaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(p4MaterialConfig.getUrl()).isEqualTo("server:port");
+        assertThat(p4MaterialConfig.getUserName()).isEqualTo("user");
+        assertThat(p4MaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(p4MaterialConfig.getUseTickets()).isTrue();
+        assertThat(p4MaterialConfig.getView()).isEqualTo("view");
 
     }
 
     @Test
-    public void shouldConvertSvmMaterialWhenEncryptedPassword() {
+    void shouldConvertSvmMaterialWhenEncryptedPassword() {
         CRSvnMaterial crSvnMaterial = new CRSvnMaterial("name", "folder", true, false, "username", filter, "url", true);
         crSvnMaterial.setEncryptedPassword("encryptedvalue");
 
         SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) configConverter.toMaterialConfig(crSvnMaterial, context);
 
-        assertThat(svnMaterialConfig.getName().toLower(), is("name"));
-        assertThat(svnMaterialConfig.getFolder(), is("folder"));
-        assertThat(svnMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(svnMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(svnMaterialConfig.getUrl(), is("url"));
-        assertThat(svnMaterialConfig.getUserName(), is("username"));
-        assertThat(svnMaterialConfig.getPassword(), is("secret"));
-        assertThat(svnMaterialConfig.isCheckExternals(), is(true));
+        assertThat(svnMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(svnMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(svnMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(svnMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(svnMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(svnMaterialConfig.getUserName()).isEqualTo("username");
+        assertThat(svnMaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(svnMaterialConfig.isCheckExternals()).isTrue();
     }
 
     @Test
-    public void shouldConvertSvmMaterialWhenPlainPassword() {
+    void shouldConvertSvmMaterialWhenPlainPassword() {
         CRSvnMaterial crSvnMaterial = new CRSvnMaterial("name", "folder", true, false, "username", filter, "url", true);
         crSvnMaterial.setPassword("secret");
 
         SvnMaterialConfig svnMaterialConfig =
                 (SvnMaterialConfig) configConverter.toMaterialConfig(crSvnMaterial, context);
 
-        assertThat(svnMaterialConfig.getName().toLower(), is("name"));
-        assertThat(svnMaterialConfig.getFolder(), is("folder"));
-        assertThat(svnMaterialConfig.getAutoUpdate(), is(true));
-        assertThat(svnMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(svnMaterialConfig.getUrl(), is("url"));
-        assertThat(svnMaterialConfig.getUserName(), is("username"));
-        assertThat(svnMaterialConfig.getPassword(), is("secret"));
-        assertThat(svnMaterialConfig.isCheckExternals(), is(true));
+        assertThat(svnMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(svnMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(svnMaterialConfig.getAutoUpdate()).isTrue();
+        assertThat(svnMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(svnMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(svnMaterialConfig.getUserName()).isEqualTo("username");
+        assertThat(svnMaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(svnMaterialConfig.isCheckExternals()).isTrue();
     }
 
     @Test
-    public void shouldConvertTfsMaterialWhenPlainPassword() {
+    void shouldConvertTfsMaterialWhenPlainPassword() {
         CRTfsMaterial crTfsMaterial = new CRTfsMaterial("name", "folder", false, false, "user", filter, "url", "project", "domain");
         crTfsMaterial.setPassword("secret");
 
         TfsMaterialConfig tfsMaterialConfig = (TfsMaterialConfig) configConverter.toMaterialConfig(crTfsMaterial, context);
 
-        assertThat(tfsMaterialConfig.getName().toLower(), is("name"));
-        assertThat(tfsMaterialConfig.getFolder(), is("folder"));
-        assertThat(tfsMaterialConfig.getAutoUpdate(), is(false));
-        assertThat(tfsMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(tfsMaterialConfig.getUrl(), is("url"));
-        assertThat(tfsMaterialConfig.getUserName(), is("user"));
-        assertThat(tfsMaterialConfig.getPassword(), is("secret"));
-        assertThat(tfsMaterialConfig.getDomain(), is("domain"));
-        assertThat(tfsMaterialConfig.getProjectPath(), is("project"));
+        assertThat(tfsMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(tfsMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(tfsMaterialConfig.getAutoUpdate()).isFalse();
+        assertThat(tfsMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(tfsMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(tfsMaterialConfig.getUserName()).isEqualTo("user");
+        assertThat(tfsMaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(tfsMaterialConfig.getDomain()).isEqualTo("domain");
+        assertThat(tfsMaterialConfig.getProjectPath()).isEqualTo("project");
 
     }
 
     @Test
-    public void shouldConvertTfsMaterialWhenEncryptedPassword() {
+    void shouldConvertTfsMaterialWhenEncryptedPassword() {
         CRTfsMaterial crTfsMaterial = new CRTfsMaterial("name", "folder", false, false, "user", filter, "url", "project", "domain");
         crTfsMaterial.setEncryptedPassword("encryptedvalue");
 
         TfsMaterialConfig tfsMaterialConfig = (TfsMaterialConfig) configConverter.toMaterialConfig(crTfsMaterial, context);
 
-        assertThat(tfsMaterialConfig.getName().toLower(), is("name"));
-        assertThat(tfsMaterialConfig.getFolder(), is("folder"));
-        assertThat(tfsMaterialConfig.getAutoUpdate(), is(false));
-        assertThat(tfsMaterialConfig.getFilterAsString(), is("filter"));
-        assertThat(tfsMaterialConfig.getUrl(), is("url"));
-        assertThat(tfsMaterialConfig.getUserName(), is("user"));
-        assertThat(tfsMaterialConfig.getPassword(), is("secret"));
-        assertThat(tfsMaterialConfig.getDomain(), is("domain"));
-        assertThat(tfsMaterialConfig.getProjectPath(), is("project"));
+        assertThat(tfsMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(tfsMaterialConfig.getFolder()).isEqualTo("folder");
+        assertThat(tfsMaterialConfig.getAutoUpdate()).isFalse();
+        assertThat(tfsMaterialConfig.getFilterAsString()).isEqualTo("filter");
+        assertThat(tfsMaterialConfig.getUrl()).isEqualTo("url");
+        assertThat(tfsMaterialConfig.getUserName()).isEqualTo("user");
+        assertThat(tfsMaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(tfsMaterialConfig.getDomain()).isEqualTo("domain");
+        assertThat(tfsMaterialConfig.getProjectPath()).isEqualTo("project");
 
     }
 
     @Test
-    public void shouldConvertPluggableScmMaterial() {
+    void shouldConvertPluggableScmMaterial() {
         SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
         SCMs scms = new SCMs(myscm);
 
@@ -830,15 +831,15 @@ public class ConfigConverterTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
                 (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
 
-        assertThat(pluggableSCMMaterialConfig.getName().toLower(), is("name"));
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(myscm));
-        assertThat(pluggableSCMMaterialConfig.getScmId(), is("scmid"));
-        assertThat(pluggableSCMMaterialConfig.getFolder(), is("directory"));
-        assertThat(pluggableSCMMaterialConfig.getFilterAsString(), is("filter"));
+        assertThat(pluggableSCMMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(myscm);
+        assertThat(pluggableSCMMaterialConfig.getScmId()).isEqualTo("scmid");
+        assertThat(pluggableSCMMaterialConfig.getFolder()).isEqualTo("directory");
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("filter");
     }
 
     @Test
-    public void shouldConvertPluggableScmMaterialWithNewSCM() {
+    void shouldConvertPluggableScmMaterialWithNewSCM() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(new SCMs());
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
@@ -853,17 +854,17 @@ public class ConfigConverterTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
                 (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
 
-        assertThat(pluggableSCMMaterialConfig.getName().toLower(), is("name"));
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig().getName(), is("name"));
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig().getId(), is("scmid"));
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig().getFingerprint(), is(myscm.getFingerprint()));
-        assertThat(pluggableSCMMaterialConfig.getScmId(), is("scmid"));
-        assertThat(pluggableSCMMaterialConfig.getFolder(), is("directory"));
-        assertThat(pluggableSCMMaterialConfig.getFilterAsString(), is("filter"));
+        assertThat(pluggableSCMMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig().getName()).isEqualTo("name");
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig().getId()).isEqualTo("scmid");
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig().getFingerprint()).isEqualTo(myscm.getFingerprint());
+        assertThat(pluggableSCMMaterialConfig.getScmId()).isEqualTo("scmid");
+        assertThat(pluggableSCMMaterialConfig.getFolder()).isEqualTo("directory");
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("filter");
     }
 
     @Test
-    public void shouldConvertPluggableScmMaterialWithADuplicateSCMFingerPrintShouldUseWhatAlreadyExists() {
+    void shouldConvertPluggableScmMaterialWithADuplicateSCMFingerPrintShouldUseWhatAlreadyExists() {
         Configuration config = new Configuration();
         config.addNewConfigurationWithValue("url", "url", false);
         SCM scm = new SCM("scmid", new PluginConfiguration("plugin_id", "1.0"), config);
@@ -880,11 +881,11 @@ public class ConfigConverterTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
                 (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
 
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(scm));
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(scm);
     }
 
     @Test
-    public void shouldConvertPluggableScmMaterialWithANewSCMDefinitionWithoutAnSCMID() {
+    void shouldConvertPluggableScmMaterialWithANewSCMDefinitionWithoutAnSCMID() {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setSCMs(new SCMs());
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
@@ -894,11 +895,11 @@ public class ConfigConverterTest {
 
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
                 (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
-        assertNotNull(pluggableSCMMaterialConfig.getScmId());
+        assertThat(pluggableSCMMaterialConfig.getScmId()).isNotNull();
     }
 
     @Test
-    public void shouldConvertPluggableScmMaterialWithADuplicateSCMIDShouldUseWhatAlreadyExists() {
+    void shouldConvertPluggableScmMaterialWithADuplicateSCMIDShouldUseWhatAlreadyExists() {
         SCM scm = new SCM("scmid", new PluginConfiguration(), new Configuration());
         scm.setName("noName");
         SCMs scms = new SCMs(scm);
@@ -913,11 +914,11 @@ public class ConfigConverterTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
                 (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
 
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(scm));
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(scm);
     }
 
     @Test
-    public void shouldConvertPluggableScmMaterialWithNewSCMPluginVersionShouldDefaultToEmptyString() {
+    void shouldConvertPluggableScmMaterialWithNewSCMPluginVersionShouldDefaultToEmptyString() {
         SCM s = new SCM("an_id", new PluginConfiguration(), new Configuration());
         s.setName("aname");
         SCMs scms = new SCMs(s);
@@ -936,15 +937,15 @@ public class ConfigConverterTest {
         PluggableSCMMaterialConfig pluggableSCMMaterialConfig =
                 (PluggableSCMMaterialConfig) configConverter.toMaterialConfig(crPluggableScmMaterial, context);
 
-        assertThat(pluggableSCMMaterialConfig.getName().toLower(), is("name"));
-        assertThat(pluggableSCMMaterialConfig.getSCMConfig(), is(myscm));
-        assertThat(pluggableSCMMaterialConfig.getScmId(), is("scmid"));
-        assertThat(pluggableSCMMaterialConfig.getFolder(), is("directory"));
-        assertThat(pluggableSCMMaterialConfig.getFilterAsString(), is("filter"));
+        assertThat(pluggableSCMMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(pluggableSCMMaterialConfig.getSCMConfig()).isEqualTo(myscm);
+        assertThat(pluggableSCMMaterialConfig.getScmId()).isEqualTo("scmid");
+        assertThat(pluggableSCMMaterialConfig.getFolder()).isEqualTo("directory");
+        assertThat(pluggableSCMMaterialConfig.getFilterAsString()).isEqualTo("filter");
     }
 
     @Test
-    public void shouldConvertPackageMaterial() {
+    void shouldConvertPackageMaterial() {
         PackageRepositories repositories = new PackageRepositories();
         PackageRepository packageRepository = new PackageRepository();
         PackageDefinition definition = new PackageDefinition("package-id", "n", new Configuration());
@@ -960,141 +961,141 @@ public class ConfigConverterTest {
         PackageMaterialConfig packageMaterialConfig =
                 (PackageMaterialConfig) configConverter.toMaterialConfig(crPackageMaterial, context);
 
-        assertThat(packageMaterialConfig.getName().toLower(), is("name"));
-        assertThat(packageMaterialConfig.getPackageId(), is("package-id"));
-        assertThat(packageMaterialConfig.getPackageDefinition(), is(definition));
+        assertThat(packageMaterialConfig.getName().toLower()).isEqualTo("name");
+        assertThat(packageMaterialConfig.getPackageId()).isEqualTo("package-id");
+        assertThat(packageMaterialConfig.getPackageDefinition()).isEqualTo(definition);
     }
 
     @Test
-    public void shouldConvertArtifactConfigWhenDestinationIsNull() {
+    void shouldConvertArtifactConfigWhenDestinationIsNull() {
         BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) configConverter.toArtifactConfig(new CRBuiltInArtifact("src", null, CRArtifactType.build));
-        assertThat(buildArtifactConfig.getDestination(), is(""));
+        assertThat(buildArtifactConfig.getDestination()).isEqualTo("");
     }
 
     @Test
-    public void shouldConvertTestArtifactConfigWhenDestinationIsNull() {
+    void shouldConvertTestArtifactConfigWhenDestinationIsNull() {
         TestArtifactConfig testArtifactConfig = (TestArtifactConfig) configConverter.toArtifactConfig(new CRBuiltInArtifact("src", null, CRArtifactType.test));
-        assertThat(testArtifactConfig.getDestination(), is("testoutput"));
+        assertThat(testArtifactConfig.getDestination()).isEqualTo("testoutput");
     }
 
     @Test
-    public void shouldConvertArtifactConfigWhenDestinationIsSet() {
+    void shouldConvertArtifactConfigWhenDestinationIsSet() {
         BuildArtifactConfig buildArtifactConfig = (BuildArtifactConfig) configConverter.toArtifactConfig(new CRBuiltInArtifact("src", "dest", CRArtifactType.build));
-        assertThat(buildArtifactConfig.getDestination(), is("dest"));
+        assertThat(buildArtifactConfig.getDestination()).isEqualTo("dest");
     }
 
     @Test
-    public void shouldConvertToPluggableArtifactConfigWhenConfigrationIsNotPresent() {
+    void shouldConvertToPluggableArtifactConfigWhenConfigrationIsNotPresent() {
         PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) configConverter.toArtifactConfig(new CRPluggableArtifact("id", "storeId", null));
 
-        assertThat(pluggableArtifactConfig.getId(), is("id"));
-        assertThat(pluggableArtifactConfig.getStoreId(), is("storeId"));
-        assertThat(pluggableArtifactConfig.getConfiguration().isEmpty(), is(true));
+        assertThat(pluggableArtifactConfig.getId()).isEqualTo("id");
+        assertThat(pluggableArtifactConfig.getStoreId()).isEqualTo("storeId");
+        assertThat(pluggableArtifactConfig.getConfiguration().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldConvertToPluggableArtifactConfigWithRightConfiguration() {
+    void shouldConvertToPluggableArtifactConfigWithRightConfiguration() {
         final CRConfigurationProperty[] filenames = new CRConfigurationProperty[]{new CRConfigurationProperty("filename", "who-cares")};
         PluggableArtifactConfig pluggableArtifactConfig = (PluggableArtifactConfig) configConverter.toArtifactConfig(new CRPluggableArtifact("id", "storeId", Arrays.asList(filenames)));
 
-        assertThat(pluggableArtifactConfig.getId(), is("id"));
-        assertThat(pluggableArtifactConfig.getStoreId(), is("storeId"));
+        assertThat(pluggableArtifactConfig.getId()).isEqualTo("id");
+        assertThat(pluggableArtifactConfig.getStoreId()).isEqualTo("storeId");
         Configuration configuration = pluggableArtifactConfig.getConfiguration();
-        assertThat(configuration.size(), is(1));
-        assertThat(configuration.get(0).getConfigKeyName(), is("filename"));
-        assertThat(configuration.get(0).getConfigValue(), is("who-cares"));
+        assertThat(configuration.size()).isEqualTo(1);
+        assertThat(configuration.get(0).getConfigKeyName()).isEqualTo("filename");
+        assertThat(configuration.get(0).getConfigValue()).isEqualTo("who-cares");
     }
 
     @Test
-    public void shouldConvertJob() {
+    void shouldConvertJob() {
         CRJob crJob = buildJob();
         crJob.addResource("resource1");
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
 
-        assertThat(jobConfig.name().toLower(), is("name"));
-        assertThat(jobConfig.hasVariable("key"), is(true));
-        assertThat(jobConfig.getTabs().first().getName(), is("tabname"));
-        assertThat(jobConfig.resourceConfigs(), hasItem(new ResourceConfig("resource1")));
-        assertThat(jobConfig.artifactConfigs(), hasItem(new BuildArtifactConfig("src", "dest")));
-        assertThat(jobConfig.getProperties(), hasItem(new ArtifactPropertyConfig("name", "src", "path")));
-        assertThat(jobConfig.isRunOnAllAgents(), is(false));
-        assertThat(jobConfig.getRunInstanceCount(), is("5"));
-        assertThat(jobConfig.getTimeout(), is("120"));
-        assertThat(jobConfig.getTasks().size(), is(1));
+        assertThat(jobConfig.name().toLower()).isEqualTo("name");
+        assertThat(jobConfig.hasVariable("key")).isTrue();
+        assertThat(jobConfig.getTabs().first().getName()).isEqualTo("tabname");
+        assertThat(jobConfig.resourceConfigs().get(0)).isEqualTo(new ResourceConfig("resource1"));
+        assertThat(jobConfig.artifactConfigs()).contains(new BuildArtifactConfig("src", "dest"));
+        assertThat(jobConfig.getProperties()).contains(new ArtifactPropertyConfig("name", "src", "path"));
+        assertThat(jobConfig.isRunOnAllAgents()).isFalse();
+        assertThat(jobConfig.getRunInstanceCount()).isEqualTo("5");
+        assertThat(jobConfig.getTimeout()).isEqualTo("120");
+        assertThat(jobConfig.getTasks().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldConvertJobWhenHasElasticProfileId() {
+    void shouldConvertJobWhenHasElasticProfileId() {
         CRJob crJob = buildJob();
         crJob.setRunOnAllAgents(false);
         crJob.setElasticProfileId("myprofile");
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
 
-        assertThat(jobConfig.getElasticProfileId(), is("myprofile"));
-        assertThat(jobConfig.resourceConfigs().size(), is(0));
+        assertThat(jobConfig.getElasticProfileId()).isEqualTo("myprofile");
+        assertThat(jobConfig.resourceConfigs().size()).isEqualTo(0);
     }
 
     @Test
-    public void shouldConvertJobWhenRunInstanceCountIsNotSpecified() {
+    void shouldConvertJobWhenRunInstanceCountIsNotSpecified() {
         CRJob crJob = buildJob();
         crJob.setRunOnAllAgents(false);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
 
-        assertThat(jobConfig.isRunOnAllAgents(), is(false));
-        assertNull(jobConfig.getRunInstanceCount());
-        assertThat(jobConfig.getTimeout(), is("120"));
-        assertThat(jobConfig.getTasks().size(), is(1));
+        assertThat(jobConfig.isRunOnAllAgents()).isFalse();
+        assertThat(jobConfig.getRunInstanceCount()).isNull();
+        assertThat(jobConfig.getTimeout()).isEqualTo("120");
+        assertThat(jobConfig.getTasks().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldConvertJobWhenRunInstanceCountIsAll() {
+    void shouldConvertJobWhenRunInstanceCountIsAll() {
         CRJob crJob = buildJob();
         crJob.setRunOnAllAgents(true);
 
         JobConfig jobConfig = configConverter.toJobConfig(crJob);
 
-        assertNull(jobConfig.getRunInstanceCount());
-        assertThat(jobConfig.isRunOnAllAgents(), is(true));
-        assertThat(jobConfig.getTimeout(), is("120"));
-        assertThat(jobConfig.getTasks().size(), is(1));
+        assertThat(jobConfig.getRunInstanceCount()).isNull();
+        assertThat(jobConfig.isRunOnAllAgents()).isTrue();
+        assertThat(jobConfig.getTimeout()).isEqualTo("120");
+        assertThat(jobConfig.getTasks().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldConvertApprovalWhenManualAndAuth() {
+    void shouldConvertApprovalWhenManualAndAuth() {
         CRApproval crApproval = new CRApproval(CRApprovalCondition.manual);
         crApproval.addAuthorizedUser("authUser");
         crApproval.addAuthorizedRole("authRole");
 
         Approval approval = configConverter.toApproval(crApproval);
-        assertThat(approval.isManual(), is(true));
-        assertThat(approval.isAuthorizationDefined(), is(true));
-        assertThat(approval.getAuthConfig().getRoles(), hasItem(new AdminRole(new CaseInsensitiveString("authRole"))));
-        assertThat(approval.getAuthConfig().getUsers(), hasItem(new AdminUser(new CaseInsensitiveString("authUser"))));
+        assertThat(approval.isManual()).isTrue();
+        assertThat(approval.isAuthorizationDefined()).isTrue();
+        assertThat(approval.getAuthConfig().getRoles()).contains(new AdminRole(new CaseInsensitiveString("authRole")));
+        assertThat(approval.getAuthConfig().getUsers()).contains(new AdminUser(new CaseInsensitiveString("authUser")));
     }
 
     @Test
-    public void shouldConvertApprovalWhenManualAndNoAuth() {
+    void shouldConvertApprovalWhenManualAndNoAuth() {
         CRApproval crApproval = new CRApproval(CRApprovalCondition.manual);
 
         Approval approval = configConverter.toApproval(crApproval);
-        assertThat(approval.isManual(), is(true));
-        assertThat(approval.isAuthorizationDefined(), is(false));
+        assertThat(approval.isManual()).isTrue();
+        assertThat(approval.isAuthorizationDefined()).isFalse();
     }
 
     @Test
-    public void shouldConvertApprovalWhenSuccess() {
+    void shouldConvertApprovalWhenSuccess() {
         CRApproval crApproval = new CRApproval(CRApprovalCondition.success);
 
         Approval approval = configConverter.toApproval(crApproval);
-        assertThat(approval.isManual(), is(false));
-        assertThat(approval.isAuthorizationDefined(), is(false));
+        assertThat(approval.isManual()).isFalse();
+        assertThat(approval.isAuthorizationDefined()).isFalse();
     }
 
     @Test
-    public void shouldConvertStage() {
+    void shouldConvertStage() {
         CRApproval approval = new CRApproval(CRApprovalCondition.manual);
         approval.addAuthorizedUser("authUser");
         approval.addAuthorizedRole("authRole");
@@ -1109,33 +1110,33 @@ public class ConfigConverterTest {
 
         StageConfig stageConfig = configConverter.toStage(crStage);
 
-        assertThat(stageConfig.name().toLower(), is("stagename"));
-        assertThat(stageConfig.isFetchMaterials(), is(true));
-        assertThat(stageConfig.isCleanWorkingDir(), is(true));
-        assertThat(stageConfig.isArtifactCleanupProhibited(), is(true));
-        assertThat(stageConfig.getVariables().hasVariable("key"), is(true));
-        assertThat(stageConfig.getJobs().size(), is(1));
+        assertThat(stageConfig.name().toLower()).isEqualTo("stagename");
+        assertThat(stageConfig.isFetchMaterials()).isTrue();
+        assertThat(stageConfig.isCleanWorkingDir()).isTrue();
+        assertThat(stageConfig.isArtifactCleanupProhibited()).isTrue();
+        assertThat(stageConfig.getVariables().hasVariable("key")).isTrue();
+        assertThat(stageConfig.getJobs().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldConvertPipeline() {
+    void shouldConvertPipeline() {
         CRPipeline crPipeline = buildPipeline();
         crPipeline.setDisplayOrderWeight(10);
 
         PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline, context);
-        assertThat(pipelineConfig.name().toLower(), is("pipeline"));
-        assertThat(pipelineConfig.materialConfigs().first() instanceof GitMaterialConfig, is(true));
-        assertThat(pipelineConfig.first().name().toLower(), is("stagename"));
-        assertThat(pipelineConfig.getVariables().hasVariable("key"), is(true));
-        assertThat(pipelineConfig.trackingTool().getLink(), is("link"));
-        assertThat(pipelineConfig.getTimer().getTimerSpec(), is("timer"));
-        assertThat(pipelineConfig.getLabelTemplate(), is("label-template"));
-        assertThat(pipelineConfig.isLockableOnFailure(), is(true));
-        assertThat(pipelineConfig.getDisplayOrderWeight(), is(10));
+        assertThat(pipelineConfig.name().toLower()).isEqualTo("pipeline");
+        assertThat(pipelineConfig.materialConfigs().first() instanceof GitMaterialConfig).isTrue();
+        assertThat(pipelineConfig.first().name().toLower()).isEqualTo("stagename");
+        assertThat(pipelineConfig.getVariables().hasVariable("key")).isTrue();
+        assertThat(pipelineConfig.trackingTool().getLink()).isEqualTo("link");
+        assertThat(pipelineConfig.getTimer().getTimerSpec()).isEqualTo("timer");
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo("label-template");
+        assertThat(pipelineConfig.isLockableOnFailure()).isTrue();
+        assertThat(pipelineConfig.getDisplayOrderWeight()).isEqualTo(10);
     }
 
     @Test
-    public void shouldConvertMinimalPipeline() {
+    void shouldConvertMinimalPipeline() {
         CRPipeline crPipeline = new CRPipeline();
         crPipeline.setName("p1");
         List<CRStage> min_stages = new ArrayList<>();
@@ -1158,26 +1159,26 @@ public class ConfigConverterTest {
         crPipeline.setMaterials(min_materials);
 
         PipelineConfig pipelineConfig = configConverter.toPipelineConfig(crPipeline, context);
-        assertThat(pipelineConfig.name().toLower(), is("p1"));
-        assertThat(pipelineConfig.materialConfigs().first() instanceof SvnMaterialConfig, is(true));
-        assertThat(pipelineConfig.first().name().toLower(), is("build"));
-        assertThat(pipelineConfig.getLabelTemplate(), is(PipelineLabel.COUNT_TEMPLATE));
+        assertThat(pipelineConfig.name().toLower()).isEqualTo("p1");
+        assertThat(pipelineConfig.materialConfigs().first() instanceof SvnMaterialConfig).isTrue();
+        assertThat(pipelineConfig.first().name().toLower()).isEqualTo("build");
+        assertThat(pipelineConfig.getLabelTemplate()).isEqualTo(PipelineLabel.COUNT_TEMPLATE);
     }
 
     @Test
-    public void shouldConvertPipelineGroup() {
+    void shouldConvertPipelineGroup() {
         List<CRPipeline> pipelines = new ArrayList<>();
         pipelines.add(buildPipeline());
         Map<String, List<CRPipeline>> map = new HashMap<>();
         map.put("group", pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
         PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);
-        assertThat(pipelineConfigs.getGroup(), is("group"));
-        assertThat(pipelineConfigs.getPipelines().size(), is(1));
+        assertThat(pipelineConfigs.getGroup()).isEqualTo("group");
+        assertThat(pipelineConfigs.getPipelines().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldConvertPipelineGroupWhenNoName() {
+    void shouldConvertPipelineGroupWhenNoName() {
         List<CRPipeline> pipelines = new ArrayList<>();
         CRPipeline pipeline = buildPipeline();
         pipeline.setGroup(null);
@@ -1186,12 +1187,12 @@ public class ConfigConverterTest {
         map.put(null, pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
         PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);
-        assertThat(pipelineConfigs.getGroup(), is(PipelineConfigs.DEFAULT_GROUP));
-        assertThat(pipelineConfigs.getPipelines().size(), is(1));
+        assertThat(pipelineConfigs.getGroup()).isEqualTo(PipelineConfigs.DEFAULT_GROUP);
+        assertThat(pipelineConfigs.getPipelines().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldConvertPipelineGroupWhenEmptyName() {
+    void shouldConvertPipelineGroupWhenEmptyName() {
         List<CRPipeline> pipelines = new ArrayList<>();
         CRPipeline crPipeline = buildPipeline();
         crPipeline.setGroup("");
@@ -1200,12 +1201,12 @@ public class ConfigConverterTest {
         map.put("", pipelines);
         Map.Entry<String, List<CRPipeline>> crPipelineGroup = map.entrySet().iterator().next();
         PipelineConfigs pipelineConfigs = configConverter.toBasicPipelineConfigs(crPipelineGroup, context);
-        assertThat(pipelineConfigs.getGroup(), is(PipelineConfigs.DEFAULT_GROUP));
-        assertThat(pipelineConfigs.getPipelines().size(), is(1));
+        assertThat(pipelineConfigs.getGroup()).isEqualTo(PipelineConfigs.DEFAULT_GROUP);
+        assertThat(pipelineConfigs.getPipelines().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldConvertPartialConfigWithGroupsAndEnvironments() {
+    void shouldConvertPartialConfigWithGroupsAndEnvironments() {
         CRPipeline pipeline = buildPipeline();
         CREnvironment crEnvironment = new CREnvironment("dev");
         crEnvironment.addEnvironmentVariable("key", "value");
@@ -1218,28 +1219,28 @@ public class ConfigConverterTest {
         crPartialConfig.getPipelines().add(pipeline);
 
         PartialConfig partialConfig = configConverter.toPartialConfig(crPartialConfig, context);
-        assertThat(partialConfig.getGroups().size(), is(1));
-        assertThat(partialConfig.getEnvironments().size(), is(1));
+        assertThat(partialConfig.getGroups().size()).isEqualTo(1);
+        assertThat(partialConfig.getEnvironments().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldConvertCRTimerWhenAllAssigned() {
+    void shouldConvertCRTimerWhenAllAssigned() {
         CRTimer timer = new CRTimer("0 15 * * 6", true);
         TimerConfig result = configConverter.toTimerConfig(timer);
-        assertThat(result.getTimerSpec(), is("0 15 * * 6"));
-        assertThat(result.getOnlyOnChanges(), is(true));
+        assertThat(result.getTimerSpec()).isEqualTo("0 15 * * 6");
+        assertThat(result.getOnlyOnChanges()).isTrue();
     }
 
     @Test
-    public void shouldConvertCRTimerWhenNullOnChanges() {
+    void shouldConvertCRTimerWhenNullOnChanges() {
         CRTimer timer = new CRTimer("0 15 * * 6", false);
         TimerConfig result = configConverter.toTimerConfig(timer);
-        assertThat(result.getTimerSpec(), is("0 15 * * 6"));
-        assertThat(result.getOnlyOnChanges(), is(false));
+        assertThat(result.getTimerSpec()).isEqualTo("0 15 * * 6");
+        assertThat(result.getOnlyOnChanges()).isFalse();
     }
 
     @Test
-    public void shouldFailConvertCRTimerWhenNullSpec() {
+    void shouldFailConvertCRTimerWhenNullSpec() {
         CRTimer timer = new CRTimer(null, false);
         try {
             configConverter.toTimerConfig(timer);
@@ -1250,27 +1251,27 @@ public class ConfigConverterTest {
     }
 
     @Test
-    public void shouldConvertParametersWhenPassed() throws Exception {
+    void shouldConvertParametersWhenPassed() throws Exception {
         CRPipeline crPipeline = buildPipeline();
         crPipeline.addParameter(new CRParameter("param", "value"));
         PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
 
-        assertThat(pipeline.getParams(), is(new ParamsConfig(new ParamConfig("param", "value"))));
+        assertThat(pipeline.getParams()).isEqualTo(new ParamsConfig(new ParamConfig("param", "value")));
     }
 
     @Test
-    public void shouldConvertTemplateNameWhenGiven() throws Exception {
+    void shouldConvertTemplateNameWhenGiven() throws Exception {
         CRPipeline crPipeline = buildPipeline();
         crPipeline.setTemplate("template");
 
         PipelineConfig pipeline = configConverter.toPipelineConfig(crPipeline, context);
 
-        assertThat(pipeline.isEmpty(), is(true));
-        assertThat(pipeline.getTemplateName(), is(new CaseInsensitiveString("template")));
+        assertThat(pipeline.isEmpty()).isTrue();
+        assertThat(pipeline.getTemplateName()).isEqualTo(new CaseInsensitiveString("template"));
     }
 
     @Test
-    public void shouldConvertParamConfigWhenPassed() throws Exception {
+    void shouldConvertParamConfigWhenPassed() throws Exception {
         PipelineConfig pipeline = new PipelineConfig();
         pipeline.setName("p1");
         pipeline.addParam(new ParamConfig("param", "value"));
@@ -1278,11 +1279,11 @@ public class ConfigConverterTest {
         Collection<CRParameter> parameters = new ArrayList<>();
         parameters.add(new CRParameter("param", "value"));
         CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipeline, "group");
-        assertThat(crPipeline.getParameters(), is(parameters));
+        assertThat(crPipeline.getParameters()).isEqualTo(parameters);
     }
 
     @Test
-    public void shouldConvertPipelineConfigToCRPipeline() {
+    void shouldConvertPipelineConfigToCRPipeline() {
         TrackingTool trackingTool = new TrackingTool();
         trackingTool.setLink("link");
         TimerConfig timerConfig = new TimerConfig("timer", true);
@@ -1309,22 +1310,22 @@ public class ConfigConverterTest {
         pipeline.addMaterialConfig(mat);
 
         CRPipeline crPipeline = configConverter.pipelineConfigToCRPipeline(pipeline, "group1");
-        assertThat(crPipeline.getName(), is("p1"));
-        assertThat(crPipeline.getGroup(), is("group1"));
-        assertThat(crPipeline.getMaterialByName("mat") instanceof CRSvnMaterial, is(true));
-        assertThat(crPipeline.getLabelTemplate(), is(PipelineLabel.COUNT_TEMPLATE));
-        assertThat(crPipeline.getMaterials().size(), is(1));
-        assertThat(crPipeline.hasEnvironmentVariable("testing"), is(true));
-        assertThat(crPipeline.getTrackingTool().getLink(), is("link"));
-        assertThat(crPipeline.getTimer().getSpec(), is("timer"));
-        assertThat(crPipeline.getStages().get(0).getName(), is("build"));
-        assertThat(crPipeline.getStages().get(0).getJobs().size(), is(1));
-        assertNull(crPipeline.getMingle());
-        assertThat(crPipeline.getDisplayOrderWeight(), is(10));
+        assertThat(crPipeline.getName()).isEqualTo("p1");
+        assertThat(crPipeline.getGroup()).isEqualTo("group1");
+        assertThat(crPipeline.getMaterialByName("mat") instanceof CRSvnMaterial).isTrue();
+        assertThat(crPipeline.getLabelTemplate()).isEqualTo(PipelineLabel.COUNT_TEMPLATE);
+        assertThat(crPipeline.getMaterials().size()).isEqualTo(1);
+        assertThat(crPipeline.hasEnvironmentVariable("testing")).isTrue();
+        assertThat(crPipeline.getTrackingTool().getLink()).isEqualTo("link");
+        assertThat(crPipeline.getTimer().getSpec()).isEqualTo("timer");
+        assertThat(crPipeline.getStages().get(0).getName()).isEqualTo("build");
+        assertThat(crPipeline.getStages().get(0).getJobs().size()).isEqualTo(1);
+        assertThat(crPipeline.getMingle()).isNull();
+        assertThat(crPipeline.getDisplayOrderWeight()).isEqualTo(10);
     }
 
     @Test
-    public void shouldConvertStageConfigToCRStage() {
+    void shouldConvertStageConfigToCRStage() {
         EnvironmentVariablesConfig envVars = new EnvironmentVariablesConfig();
         envVars.add("testing", "123");
 
@@ -1345,18 +1346,18 @@ public class ConfigConverterTest {
 
         CRStage crStage = configConverter.stageToCRStage(stage);
 
-        assertThat(crStage.getName(), is("stageName"));
-        assertThat(crStage.getApproval().getRoles(), hasItem("a_role"));
-        assertThat(crStage.getApproval().getUsers(), hasItem("a_user"));
-        assertThat(crStage.isFetchMaterials(), is(true));
-        assertThat(crStage.isCleanWorkingDirectory(), is(true));
-        assertThat(crStage.isNeverCleanupArtifacts(), is(true));
-        assertThat(crStage.hasEnvironmentVariable("testing"), is(true));
-        assertThat(crStage.getJobs().size(), is(1));
+        assertThat(crStage.getName()).isEqualTo("stageName");
+        assertThat(crStage.getApproval().getRoles()).contains("a_role");
+        assertThat(crStage.getApproval().getUsers()).contains("a_user");
+        assertThat(crStage.isFetchMaterials()).isTrue();
+        assertThat(crStage.isCleanWorkingDirectory()).isTrue();
+        assertThat(crStage.isNeverCleanupArtifacts()).isTrue();
+        assertThat(crStage.hasEnvironmentVariable("testing")).isTrue();
+        assertThat(crStage.getJobs().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldConvertJobConfigToCRJob() {
+    void shouldConvertJobConfigToCRJob() {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("name"),
                 new ResourceConfigs(new ResourceConfig("resource1")),
                 new ArtifactConfigs(new BuildArtifactConfig("src", "dest")));
@@ -1370,20 +1371,20 @@ public class ConfigConverterTest {
 
         CRJob job = configConverter.jobToCRJob(jobConfig);
 
-        assertThat(job.getName(), is("name"));
-        assertThat(job.hasEnvironmentVariable("key"), is(true));
-        assertThat(job.getTabs().contains(new CRTab("tabname", "path")), is(true));
-        assertThat(job.getResources().contains("resource1"), is(true));
-        assertThat(job.getArtifacts().contains(new CRBuiltInArtifact("src", "dest", CRArtifactType.build)), is(true));
-        assertThat(job.getProperties().contains(new CRPropertyGenerator("name", "src", "path")), is(true));
-        assertThat(job.isRunOnAllAgents(), is(false));
-        assertThat(job.getRunInstanceCount(), is(5));
-        assertThat(job.getTimeout(), is(120));
-        assertThat(job.getTasks().size(), is(1));
+        assertThat(job.getName()).isEqualTo("name");
+        assertThat(job.hasEnvironmentVariable("key")).isTrue();
+        assertThat(job.getTabs().contains(new CRTab("tabname", "path"))).isTrue();
+        assertThat(job.getResources().contains("resource1")).isTrue();
+        assertThat(job.getArtifacts().contains(new CRBuiltInArtifact("src", "dest", CRArtifactType.build))).isTrue();
+        assertThat(job.getProperties().contains(new CRPropertyGenerator("name", "src", "path"))).isTrue();
+        assertThat(job.isRunOnAllAgents()).isFalse();
+        assertThat(job.getRunInstanceCount()).isEqualTo(5);
+        assertThat(job.getTimeout()).isEqualTo(120);
+        assertThat(job.getTasks().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldConvertJobConfigToCRJobWithNullTimeouBeingZerot() {
+    void shouldConvertJobConfigToCRJobWithNullTimeouBeingZerot() {
         JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("name"),
                 new ResourceConfigs(new ResourceConfig("resource1")),
                 new ArtifactConfigs(new BuildArtifactConfig("src", "dest")));
@@ -1392,23 +1393,23 @@ public class ConfigConverterTest {
 
         CRJob job = configConverter.jobToCRJob(jobConfig);
 
-        assertThat(job.getTimeout(), is(0));
+        assertThat(job.getTimeout()).isEqualTo(0);
     }
 
     @Test
-    public void shouldConvertDependencyMaterialConfigToCRDependencyMaterial() {
+    void shouldConvertDependencyMaterialConfigToCRDependencyMaterial() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("name"), new CaseInsensitiveString("pipe"), new CaseInsensitiveString("stage"));
 
         CRDependencyMaterial crDependencyMaterial =
                 (CRDependencyMaterial) configConverter.materialToCRMaterial(dependencyMaterialConfig);
 
-        assertThat(crDependencyMaterial.getName(), is("name"));
-        assertThat(crDependencyMaterial.getPipeline(), is("pipe"));
-        assertThat(crDependencyMaterial.getStage(), is("stage"));
+        assertThat(crDependencyMaterial.getName()).isEqualTo("name");
+        assertThat(crDependencyMaterial.getPipeline()).isEqualTo("pipe");
+        assertThat(crDependencyMaterial.getStage()).isEqualTo("stage");
     }
 
     @Test
-    public void shouldConvertGitMaterialConfigToCRGitMaterial() {
+    void shouldConvertGitMaterialConfigToCRGitMaterial() {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("url", "branch", true);
         gitMaterialConfig.setName(new CaseInsensitiveString("name"));
         gitMaterialConfig.setFolder("folder");
@@ -1419,18 +1420,18 @@ public class ConfigConverterTest {
         CRGitMaterial crGitMaterial =
                 (CRGitMaterial) configConverter.materialToCRMaterial(gitMaterialConfig);
 
-        assertThat(crGitMaterial.getName(), is("name"));
-        assertThat(crGitMaterial.getDestination(), is("folder"));
-        assertThat(crGitMaterial.isAutoUpdate(), is(true));
-        assertThat(crGitMaterial.isWhitelist(), is(false));
-        assertThat(crGitMaterial.getFilterList(), hasItem("filter"));
-        assertThat(crGitMaterial.getUrl(), is("url"));
-        assertThat(crGitMaterial.getBranch(), is("branch"));
-        assertThat(crGitMaterial.isShallowClone(), is(true));
+        assertThat(crGitMaterial.getName()).isEqualTo("name");
+        assertThat(crGitMaterial.getDestination()).isEqualTo("folder");
+        assertThat(crGitMaterial.isAutoUpdate()).isTrue();
+        assertThat(crGitMaterial.isWhitelist()).isFalse();
+        assertThat(crGitMaterial.getFilterList()).contains("filter");
+        assertThat(crGitMaterial.getUrl()).isEqualTo("url");
+        assertThat(crGitMaterial.getBranch()).isEqualTo("branch");
+        assertThat(crGitMaterial.isShallowClone()).isTrue();
     }
 
     @Test
-    public void shouldConvertGitMaterialConfigToCRGitMaterialWhenPlainPassword() throws CryptoException {
+    void shouldConvertGitMaterialConfigToCRGitMaterialWhenPlainPassword() throws CryptoException {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("url", "branch", true);
         gitMaterialConfig.setName(new CaseInsensitiveString("name"));
         gitMaterialConfig.setFolder("folder");
@@ -1441,20 +1442,20 @@ public class ConfigConverterTest {
 
         CRGitMaterial crGitMaterial = (CRGitMaterial) configConverter.materialToCRMaterial(gitMaterialConfig);
 
-        assertThat(crGitMaterial.getName(), is("name"));
-        assertThat(crGitMaterial.getDestination(), is("folder"));
-        assertThat(crGitMaterial.isAutoUpdate(), is(true));
-        assertThat(crGitMaterial.isWhitelist(), is(false));
-        assertThat(crGitMaterial.getFilterList(), hasItem("filter"));
-        assertThat(crGitMaterial.getUrl(), is("url"));
-        assertThat(crGitMaterial.getBranch(), is("branch"));
-        assertThat(crGitMaterial.isShallowClone(), is(true));
-        assertNull(crGitMaterial.getPassword());
-        assertThat(crGitMaterial.getEncryptedPassword(), is(new GoCipher().encrypt("secret")));
+        assertThat(crGitMaterial.getName()).isEqualTo("name");
+        assertThat(crGitMaterial.getDestination()).isEqualTo("folder");
+        assertThat(crGitMaterial.isAutoUpdate()).isTrue();
+        assertThat(crGitMaterial.isWhitelist()).isFalse();
+        assertThat(crGitMaterial.getFilterList()).contains("filter");
+        assertThat(crGitMaterial.getUrl()).isEqualTo("url");
+        assertThat(crGitMaterial.getBranch()).isEqualTo("branch");
+        assertThat(crGitMaterial.isShallowClone()).isTrue();
+        assertThat(crGitMaterial.getPassword()).isNull();
+        assertThat(crGitMaterial.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
     }
 
     @Test
-    public void shouldConvertGitMaterialConfigToCRGitMaterialWhenEncryptedPassword() throws CryptoException {
+    void shouldConvertGitMaterialConfigToCRGitMaterialWhenEncryptedPassword() throws CryptoException {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("url", "branch", true);
         gitMaterialConfig.setName(new CaseInsensitiveString("name"));
         gitMaterialConfig.setFolder("folder");
@@ -1465,35 +1466,35 @@ public class ConfigConverterTest {
 
         CRGitMaterial crGitMaterial = (CRGitMaterial) configConverter.materialToCRMaterial(gitMaterialConfig);
 
-        assertThat(crGitMaterial.getName(), is("name"));
-        assertThat(crGitMaterial.getDestination(), is("folder"));
-        assertThat(crGitMaterial.isAutoUpdate(), is(true));
-        assertThat(crGitMaterial.isWhitelist(), is(false));
-        assertThat(crGitMaterial.getFilterList(), hasItem("filter"));
-        assertThat(crGitMaterial.getUrl(), is("url"));
-        assertThat(crGitMaterial.getBranch(), is("branch"));
-        assertThat(crGitMaterial.isShallowClone(), is(true));
-        assertThat(crGitMaterial.getEncryptedPassword(), is(new GoCipher().encrypt("secret")));
+        assertThat(crGitMaterial.getName()).isEqualTo("name");
+        assertThat(crGitMaterial.getDestination()).isEqualTo("folder");
+        assertThat(crGitMaterial.isAutoUpdate()).isTrue();
+        assertThat(crGitMaterial.isWhitelist()).isFalse();
+        assertThat(crGitMaterial.getFilterList()).contains("filter");
+        assertThat(crGitMaterial.getUrl()).isEqualTo("url");
+        assertThat(crGitMaterial.getBranch()).isEqualTo("branch");
+        assertThat(crGitMaterial.isShallowClone()).isTrue();
+        assertThat(crGitMaterial.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
     }
 
     @Test
-    public void shouldConvertGitMaterialConfigWhenNulls() {
+    void shouldConvertGitMaterialConfigWhenNulls() {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
         gitMaterialConfig.setUrl("url");
 
         CRGitMaterial crGitMaterial =
                 (CRGitMaterial) configConverter.materialToCRMaterial(gitMaterialConfig);
 
-        assertNull(crGitMaterial.getName());
-        assertNull(crGitMaterial.getDestination());
-        assertThat(crGitMaterial.isAutoUpdate(), is(true));
-        assertThat(crGitMaterial.isShallowClone(), is(false));
-        assertThat(crGitMaterial.getUrl(), is("url"));
-        assertThat(crGitMaterial.getBranch(), is("master"));
+        assertThat(crGitMaterial.getName()).isNull();
+        assertThat(crGitMaterial.getDestination()).isNull();
+        assertThat(crGitMaterial.isAutoUpdate()).isTrue();
+        assertThat(crGitMaterial.isShallowClone()).isFalse();
+        assertThat(crGitMaterial.getUrl()).isEqualTo("url");
+        assertThat(crGitMaterial.getBranch()).isEqualTo("master");
     }
 
     @Test
-    public void shouldConvertHgMaterialConfigToCRHgMaterial() {
+    void shouldConvertHgMaterialConfigToCRHgMaterial() {
         HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
         hgMaterialConfig.setName(new CaseInsensitiveString("name"));
         hgMaterialConfig.setFilter(Filter.create("filter"));
@@ -1502,15 +1503,15 @@ public class ConfigConverterTest {
         CRHgMaterial crHgMaterial =
                 (CRHgMaterial) configConverter.materialToCRMaterial(hgMaterialConfig);
 
-        assertThat(crHgMaterial.getName(), is("name"));
-        assertThat(crHgMaterial.getDestination(), is("folder"));
-        assertThat(crHgMaterial.isAutoUpdate(), is(true));
-        assertThat(crHgMaterial.getFilterList(), hasItem("filter"));
-        assertThat(crHgMaterial.getUrl(), is("url"));
+        assertThat(crHgMaterial.getName()).isEqualTo("name");
+        assertThat(crHgMaterial.getDestination()).isEqualTo("folder");
+        assertThat(crHgMaterial.isAutoUpdate()).isTrue();
+        assertThat(crHgMaterial.getFilterList()).contains("filter");
+        assertThat(crHgMaterial.getUrl()).isEqualTo("url");
     }
 
     @Test
-    public void shouldConvertHgMaterialConfigToCRHgMaterialWhenPlainPassword() throws CryptoException {
+    void shouldConvertHgMaterialConfigToCRHgMaterialWhenPlainPassword() throws CryptoException {
         HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
         hgMaterialConfig.setName(new CaseInsensitiveString("name"));
         hgMaterialConfig.setFilter(Filter.create("filter"));
@@ -1519,17 +1520,17 @@ public class ConfigConverterTest {
 
         CRHgMaterial crHgMaterial = (CRHgMaterial) configConverter.materialToCRMaterial(hgMaterialConfig);
 
-        assertThat(crHgMaterial.getName(), is("name"));
-        assertThat(crHgMaterial.getDestination(), is("folder"));
-        assertThat(crHgMaterial.isAutoUpdate(), is(true));
-        assertThat(crHgMaterial.getFilterList(), hasItem("filter"));
-        assertThat(crHgMaterial.getUrl(), is("url"));
-        assertNull(crHgMaterial.getPassword());
-        assertThat(crHgMaterial.getEncryptedPassword(), is(new GoCipher().encrypt("secret")));
+        assertThat(crHgMaterial.getName()).isEqualTo("name");
+        assertThat(crHgMaterial.getDestination()).isEqualTo("folder");
+        assertThat(crHgMaterial.isAutoUpdate()).isTrue();
+        assertThat(crHgMaterial.getFilterList()).contains("filter");
+        assertThat(crHgMaterial.getUrl()).isEqualTo("url");
+        assertThat(crHgMaterial.getPassword()).isNull();
+        assertThat(crHgMaterial.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
     }
 
     @Test
-    public void shouldConvertHgMaterialConfigToCRHgMaterialWhenEncryptedPassword() throws CryptoException {
+    void shouldConvertHgMaterialConfigToCRHgMaterialWhenEncryptedPassword() throws CryptoException {
         HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
         hgMaterialConfig.setName(new CaseInsensitiveString("name"));
         hgMaterialConfig.setFilter(Filter.create("filter"));
@@ -1538,16 +1539,16 @@ public class ConfigConverterTest {
 
         CRHgMaterial crHgMaterial = (CRHgMaterial) configConverter.materialToCRMaterial(hgMaterialConfig);
 
-        assertThat(crHgMaterial.getName(), is("name"));
-        assertThat(crHgMaterial.getDestination(), is("folder"));
-        assertThat(crHgMaterial.isAutoUpdate(), is(true));
-        assertThat(crHgMaterial.getFilterList(), hasItem("filter"));
-        assertThat(crHgMaterial.getUrl(), is("url"));
-        assertThat(crHgMaterial.getEncryptedPassword(), is(new GoCipher().encrypt("secret")));
+        assertThat(crHgMaterial.getName()).isEqualTo("name");
+        assertThat(crHgMaterial.getDestination()).isEqualTo("folder");
+        assertThat(crHgMaterial.isAutoUpdate()).isTrue();
+        assertThat(crHgMaterial.getFilterList()).contains("filter");
+        assertThat(crHgMaterial.getUrl()).isEqualTo("url");
+        assertThat(crHgMaterial.getEncryptedPassword()).isEqualTo(new GoCipher().encrypt("secret"));
     }
 
     @Test
-    public void shouldConvertHgMaterialConfigWhenNullName() {
+    void shouldConvertHgMaterialConfigWhenNullName() {
         HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
         hgMaterialConfig.setFilter(Filter.create("filter"));
         hgMaterialConfig.setAutoUpdate(true);
@@ -1555,15 +1556,15 @@ public class ConfigConverterTest {
         CRHgMaterial crHgMaterial =
                 (CRHgMaterial) configConverter.materialToCRMaterial(hgMaterialConfig);
 
-        assertNull(crHgMaterial.getName());
-        assertThat(crHgMaterial.getDestination(), is("folder"));
-        assertThat(crHgMaterial.isAutoUpdate(), is(true));
-        assertThat(crHgMaterial.getFilterList(), hasItem("filter"));
-        assertThat(crHgMaterial.getUrl(), is("url"));
+        assertThat(crHgMaterial.getName()).isNull();
+        assertThat(crHgMaterial.getDestination()).isEqualTo("folder");
+        assertThat(crHgMaterial.isAutoUpdate()).isTrue();
+        assertThat(crHgMaterial.getFilterList()).contains("filter");
+        assertThat(crHgMaterial.getUrl()).isEqualTo("url");
     }
 
     @Test
-    public void shouldConvertP4MaterialConfigWhenEncryptedPassword() {
+    void shouldConvertP4MaterialConfigWhenEncryptedPassword() {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("server:port", "view");
         p4MaterialConfig.setName(new CaseInsensitiveString("name"));
         p4MaterialConfig.setFolder("folder");
@@ -1575,20 +1576,20 @@ public class ConfigConverterTest {
 
         CRP4Material crp4Material = (CRP4Material) configConverter.materialToCRMaterial(p4MaterialConfig);
 
-        assertThat(crp4Material.getName(), is("name"));
-        assertThat(crp4Material.getDestination(), is("folder"));
-        assertThat(crp4Material.isAutoUpdate(), is(false));
-        assertThat(crp4Material.getFilterList(), hasItem("filter"));
-        assertThat(crp4Material.getPort(), is("server:port"));
-        assertThat(crp4Material.getUsername(), is("user"));
-        assertThat(crp4Material.getEncryptedPassword(), is("encryptedvalue"));
-        assertNull(crp4Material.getPassword());
-        assertThat(crp4Material.isUseTickets(), is(true));
-        assertThat(crp4Material.getView(), is("view"));
+        assertThat(crp4Material.getName()).isEqualTo("name");
+        assertThat(crp4Material.getDestination()).isEqualTo("folder");
+        assertThat(crp4Material.isAutoUpdate()).isFalse();
+        assertThat(crp4Material.getFilterList()).contains("filter");
+        assertThat(crp4Material.getPort()).isEqualTo("server:port");
+        assertThat(crp4Material.getUsername()).isEqualTo("user");
+        assertThat(crp4Material.getEncryptedPassword()).isEqualTo("encryptedvalue");
+        assertThat(crp4Material.getPassword()).isNull();
+        assertThat(crp4Material.isUseTickets()).isTrue();
+        assertThat(crp4Material.getView()).isEqualTo("view");
     }
 
     @Test
-    public void shouldConvertP4MaterialConfigWhenPlainPassword() {
+    void shouldConvertP4MaterialConfigWhenPlainPassword() {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("server:port", "view");
         p4MaterialConfig.setName(new CaseInsensitiveString("name"));
         p4MaterialConfig.setFolder("folder");
@@ -1600,18 +1601,18 @@ public class ConfigConverterTest {
 
         CRP4Material crp4Material = (CRP4Material) configConverter.materialToCRMaterial(p4MaterialConfig);
 
-        assertThat(crp4Material.getName(), is("name"));
-        assertThat(crp4Material.getDestination(), is("folder"));
-        assertThat(crp4Material.isAutoUpdate(), is(false));
-        assertThat(crp4Material.getFilterList(), hasItem("filter"));
-        assertThat(crp4Material.getPort(), is("server:port"));
-        assertThat(crp4Material.getUsername(), is("user"));
-        assertThat(crp4Material.isUseTickets(), is(false));
-        assertThat(crp4Material.getView(), is("view"));
+        assertThat(crp4Material.getName()).isEqualTo("name");
+        assertThat(crp4Material.getDestination()).isEqualTo("folder");
+        assertThat(crp4Material.isAutoUpdate()).isFalse();
+        assertThat(crp4Material.getFilterList()).contains("filter");
+        assertThat(crp4Material.getPort()).isEqualTo("server:port");
+        assertThat(crp4Material.getUsername()).isEqualTo("user");
+        assertThat(crp4Material.isUseTickets()).isFalse();
+        assertThat(crp4Material.getView()).isEqualTo("view");
     }
 
     @Test
-    public void shouldConvertSvmMaterialConfigWhenEncryptedPassword() {
+    void shouldConvertSvmMaterialConfigWhenEncryptedPassword() {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", true);
         svnMaterialConfig.setName(new CaseInsensitiveString("name"));
         svnMaterialConfig.setEncryptedPassword("encryptedvalue");
@@ -1621,19 +1622,19 @@ public class ConfigConverterTest {
 
         CRSvnMaterial crSvnMaterial = (CRSvnMaterial) configConverter.materialToCRMaterial(svnMaterialConfig);
 
-        assertThat(crSvnMaterial.getName(), is("name"));
-        assertThat(crSvnMaterial.getDestination(), is("folder"));
-        assertThat(crSvnMaterial.isAutoUpdate(), is(true));
-        assertThat(crSvnMaterial.getFilterList(), hasItem("filter"));
-        assertThat(crSvnMaterial.getUrl(), is("url"));
-        assertThat(crSvnMaterial.getUsername(), is("username"));
-        assertThat(crSvnMaterial.getEncryptedPassword(), is("encryptedvalue"));
-        assertNull(crSvnMaterial.getPassword());
-        assertThat(crSvnMaterial.isCheckExternals(), is(true));
+        assertThat(crSvnMaterial.getName()).isEqualTo("name");
+        assertThat(crSvnMaterial.getDestination()).isEqualTo("folder");
+        assertThat(crSvnMaterial.isAutoUpdate()).isTrue();
+        assertThat(crSvnMaterial.getFilterList()).contains("filter");
+        assertThat(crSvnMaterial.getUrl()).isEqualTo("url");
+        assertThat(crSvnMaterial.getUsername()).isEqualTo("username");
+        assertThat(crSvnMaterial.getEncryptedPassword()).isEqualTo("encryptedvalue");
+        assertThat(crSvnMaterial.getPassword()).isNull();
+        assertThat(crSvnMaterial.isCheckExternals()).isTrue();
     }
 
     @Test
-    public void shouldConvertSvmMaterialConfigWhenPlainPassword() {
+    void shouldConvertSvmMaterialConfigWhenPlainPassword() {
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", true);
         svnMaterialConfig.setName(new CaseInsensitiveString("name"));
         svnMaterialConfig.setPassword("pass");
@@ -1644,18 +1645,18 @@ public class ConfigConverterTest {
         CRSvnMaterial crSvnMaterial =
                 (CRSvnMaterial) configConverter.materialToCRMaterial(svnMaterialConfig);
 
-        assertThat(crSvnMaterial.getName(), is("name"));
-        assertThat(crSvnMaterial.getDestination(), is("folder"));
-        assertThat(crSvnMaterial.isAutoUpdate(), is(true));
-        assertThat(crSvnMaterial.getFilterList(), hasItem("filter"));
-        assertThat(crSvnMaterial.getUrl(), is("url"));
-        assertThat(crSvnMaterial.getUsername(), is("username"));
-        assertNull(crSvnMaterial.getPassword());
-        assertThat(crSvnMaterial.isCheckExternals(), is(true));
+        assertThat(crSvnMaterial.getName()).isEqualTo("name");
+        assertThat(crSvnMaterial.getDestination()).isEqualTo("folder");
+        assertThat(crSvnMaterial.isAutoUpdate()).isTrue();
+        assertThat(crSvnMaterial.getFilterList()).contains("filter");
+        assertThat(crSvnMaterial.getUrl()).isEqualTo("url");
+        assertThat(crSvnMaterial.getUsername()).isEqualTo("username");
+        assertThat(crSvnMaterial.getPassword()).isNull();
+        assertThat(crSvnMaterial.isCheckExternals()).isTrue();
     }
 
     @Test
-    public void shouldConvertTfsMaterialConfigWhenPlainPassword() {
+    void shouldConvertTfsMaterialConfigWhenPlainPassword() {
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
         tfsMaterialConfig.setUrl("url");
         tfsMaterialConfig.setDomain("domain");
@@ -1670,19 +1671,19 @@ public class ConfigConverterTest {
         CRTfsMaterial crTfsMaterial =
                 (CRTfsMaterial) configConverter.materialToCRMaterial(tfsMaterialConfig);
 
-        assertThat(crTfsMaterial.getName(), is("name"));
-        assertThat(crTfsMaterial.getDestination(), is("folder"));
-        assertThat(crTfsMaterial.isAutoUpdate(), is(false));
-        assertThat(crTfsMaterial.getFilterList(), hasItem("filter"));
-        assertThat(crTfsMaterial.getUrl(), is("url"));
-        assertThat(crTfsMaterial.getUsername(), is("user"));
-        assertNull(crTfsMaterial.getPassword());
-        assertThat(crTfsMaterial.getDomain(), is("domain"));
-        assertThat(crTfsMaterial.getProject(), is("project"));
+        assertThat(crTfsMaterial.getName()).isEqualTo("name");
+        assertThat(crTfsMaterial.getDestination()).isEqualTo("folder");
+        assertThat(crTfsMaterial.isAutoUpdate()).isFalse();
+        assertThat(crTfsMaterial.getFilterList()).contains("filter");
+        assertThat(crTfsMaterial.getUrl()).isEqualTo("url");
+        assertThat(crTfsMaterial.getUsername()).isEqualTo("user");
+        assertThat(crTfsMaterial.getPassword()).isNull();
+        assertThat(crTfsMaterial.getDomain()).isEqualTo("domain");
+        assertThat(crTfsMaterial.getProject()).isEqualTo("project");
     }
 
     @Test
-    public void shouldConvertTfsMaterialConfigWhenEncryptedPassword() {
+    void shouldConvertTfsMaterialConfigWhenEncryptedPassword() {
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
         tfsMaterialConfig.setUrl("url");
         tfsMaterialConfig.setDomain("domain");
@@ -1697,20 +1698,20 @@ public class ConfigConverterTest {
         CRTfsMaterial crTfsMaterial =
                 (CRTfsMaterial) configConverter.materialToCRMaterial(tfsMaterialConfig);
 
-        assertThat(crTfsMaterial.getName(), is("name"));
-        assertThat(crTfsMaterial.getDestination(), is("folder"));
-        assertThat(crTfsMaterial.isAutoUpdate(), is(false));
-        assertThat(crTfsMaterial.getFilterList(), hasItem("filter"));
-        assertThat(crTfsMaterial.getUrl(), is("url"));
-        assertThat(crTfsMaterial.getUsername(), is("user"));
-        assertThat(crTfsMaterial.getEncryptedPassword(), is("encryptedvalue"));
-        assertNull(crTfsMaterial.getPassword());
-        assertThat(crTfsMaterial.getDomain(), is("domain"));
-        assertThat(crTfsMaterial.getProject(), is("project"));
+        assertThat(crTfsMaterial.getName()).isEqualTo("name");
+        assertThat(crTfsMaterial.getDestination()).isEqualTo("folder");
+        assertThat(crTfsMaterial.isAutoUpdate()).isFalse();
+        assertThat(crTfsMaterial.getFilterList()).contains("filter");
+        assertThat(crTfsMaterial.getUrl()).isEqualTo("url");
+        assertThat(crTfsMaterial.getUsername()).isEqualTo("user");
+        assertThat(crTfsMaterial.getEncryptedPassword()).isEqualTo("encryptedvalue");
+        assertThat(crTfsMaterial.getPassword()).isNull();
+        assertThat(crTfsMaterial.getDomain()).isEqualTo("domain");
+        assertThat(crTfsMaterial.getProject()).isEqualTo("project");
     }
 
     @Test
-    public void shouldConvertPluggableScmMaterialConfig() {
+    void shouldConvertPluggableScmMaterialConfig() {
         SCM myscm = new SCM("scmid", new PluginConfiguration(), new Configuration());
         SCMs scms = new SCMs(myscm);
 
@@ -1723,14 +1724,14 @@ public class ConfigConverterTest {
         CRPluggableScmMaterial crPluggableScmMaterial =
                 (CRPluggableScmMaterial) configConverter.materialToCRMaterial(pluggableSCMMaterialConfig);
 
-        assertThat(crPluggableScmMaterial.getName(), is("name"));
-        assertThat(crPluggableScmMaterial.getScmId(), is("scmid"));
-        assertThat(crPluggableScmMaterial.getDestination(), is("directory"));
-        assertThat(crPluggableScmMaterial.getFilterList(), hasItem("filter"));
+        assertThat(crPluggableScmMaterial.getName()).isEqualTo("name");
+        assertThat(crPluggableScmMaterial.getScmId()).isEqualTo("scmid");
+        assertThat(crPluggableScmMaterial.getDestination()).isEqualTo("directory");
+        assertThat(crPluggableScmMaterial.getFilterList()).contains("filter");
     }
 
     @Test
-    public void shouldConvertPackageMaterialConfig() {
+    void shouldConvertPackageMaterialConfig() {
         PackageRepositories repositories = new PackageRepositories();
         PackageRepository packageRepository = new PackageRepository();
         PackageDefinition definition = new PackageDefinition("package-id", "n", new Configuration());
@@ -1746,42 +1747,42 @@ public class ConfigConverterTest {
         CRPackageMaterial crPackageMaterial =
                 (CRPackageMaterial) configConverter.materialToCRMaterial(packageMaterialConfig);
 
-        assertThat(crPackageMaterial.getName(), is("name"));
-        assertThat(crPackageMaterial.getPackageId(), is("package-id"));
+        assertThat(crPackageMaterial.getName()).isEqualTo("name");
+        assertThat(crPackageMaterial.getPackageId()).isEqualTo("package-id");
     }
 
     @Test
-    public void shouldConvertEnvironmentVariableConfigWhenNotSecure() {
+    void shouldConvertEnvironmentVariableConfigWhenNotSecure() {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", "value");
         CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
-        assertThat(result.getValue(), is("value"));
-        assertThat(result.getName(), is("key1"));
-        assertThat(result.hasEncryptedValue(), is(false));
+        assertThat(result.getValue()).isEqualTo("value");
+        assertThat(result.getName()).isEqualTo("key1");
+        assertThat(result.hasEncryptedValue()).isFalse();
     }
 
     @Test
-    public void shouldConvertNullEnvironmentVariableConfigWhenNotSecure() {
+    void shouldConvertNullEnvironmentVariableConfigWhenNotSecure() {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", null);
         CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
-        assertThat(result.getValue(), is(""));
-        assertThat(result.getName(), is("key1"));
-        assertThat(result.hasEncryptedValue(), is(false));
+        assertThat(result.getValue()).isEqualTo("");
+        assertThat(result.getName()).isEqualTo("key1");
+        assertThat(result.hasEncryptedValue()).isFalse();
     }
 
     @Test
-    public void shouldConvertEnvironmentVariableConfigWhenSecure() {
+    void shouldConvertEnvironmentVariableConfigWhenSecure() {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", null);
         environmentVariableConfig.setIsSecure(true);
         environmentVariableConfig.setEncryptedValue("encryptedvalue");
         CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
-        assertThat(result.hasEncryptedValue(), is(true));
-        assertThat(result.getEncryptedValue(), is("encryptedvalue"));
-        assertNull(result.getValue());
-        assertThat(result.getName(), is("key1"));
+        assertThat(result.hasEncryptedValue()).isTrue();
+        assertThat(result.getEncryptedValue()).isEqualTo("encryptedvalue");
+        assertThat(result.getValue()).isNull();
+        assertThat(result.getName()).isEqualTo("key1");
     }
 
     @Test
-    public void shouldMigratePluggableTasktoCR() {
+    void shouldMigratePluggableTasktoCR() {
         ArrayList<CRConfigurationProperty> configs = new ArrayList<>();
         configs.add(new CRConfigurationProperty("k", "m", null));
 
@@ -1795,14 +1796,14 @@ public class ConfigConverterTest {
 
         CRPluggableTask result = (CRPluggableTask) configConverter.taskToCRTask(pluggableTask);
 
-        assertThat(result.getPluginConfiguration().getId(), is("myplugin"));
-        assertThat(result.getPluginConfiguration().getVersion(), is("1"));
-        assertThat(result.getConfiguration(), hasItem(new CRConfigurationProperty("k", "m", null)));
-        assertThat(result.getRunIf(), is(CRRunIf.any));
+        assertThat(result.getPluginConfiguration().getId()).isEqualTo("myplugin");
+        assertThat(result.getPluginConfiguration().getVersion()).isEqualTo("1");
+        assertThat(result.getConfiguration()).contains(new CRConfigurationProperty("k", "m", null));
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.any);
     }
 
     @Test
-    public void shouldMigrateRakeTaskToCR() {
+    void shouldMigrateRakeTaskToCR() {
         RakeTask rakeTask = new RakeTask();
         rakeTask.setBuildFile("Rakefile.rb");
         rakeTask.setWorkingDirectory("src");
@@ -1811,15 +1812,15 @@ public class ConfigConverterTest {
 
         CRBuildTask result = (CRBuildTask) configConverter.taskToCRTask(rakeTask);
 
-        assertThat(result.getType(), is(CRBuildFramework.rake));
-        assertThat(result.getBuildFile(), is("Rakefile.rb"));
-        assertThat(result.getTarget(), is("build"));
-        assertThat(result.getWorkingDirectory(), is("src"));
-        assertThat(result.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getType()).isEqualTo(CRBuildFramework.rake);
+        assertThat(result.getBuildFile()).isEqualTo("Rakefile.rb");
+        assertThat(result.getTarget()).isEqualTo("build");
+        assertThat(result.getWorkingDirectory()).isEqualTo("src");
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.failed);
     }
 
     @Test
-    public void shouldMigrateAntTaskToCR() {
+    void shouldMigrateAntTaskToCR() {
         RakeTask rakeTask = new RakeTask();
         rakeTask.setBuildFile("Rakefile.rb");
         rakeTask.setWorkingDirectory("src");
@@ -1836,19 +1837,19 @@ public class ConfigConverterTest {
         CRBuildTask result = (CRBuildTask) configConverter.taskToCRTask(antTask);
         CRBuildTask onCancel = (CRBuildTask) result.getOnCancel();
 
-        assertThat(result.getRunIf(), is(CRRunIf.failed));
-        assertThat(result.getBuildFile(), is("ant"));
-        assertThat(result.getTarget(), is("build"));
-        assertThat(result.getWorkingDirectory(), is("src"));
-        assertThat(onCancel.getType(), is(CRBuildFramework.rake));
-        assertThat(onCancel.getBuildFile(), is("Rakefile.rb"));
-        assertThat(onCancel.getTarget(), is("build"));
-        assertThat(onCancel.getWorkingDirectory(), is("src"));
-        assertThat(onCancel.getRunIf(), is(CRRunIf.failed));
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.failed);
+        assertThat(result.getBuildFile()).isEqualTo("ant");
+        assertThat(result.getTarget()).isEqualTo("build");
+        assertThat(result.getWorkingDirectory()).isEqualTo("src");
+        assertThat(onCancel.getType()).isEqualTo(CRBuildFramework.rake);
+        assertThat(onCancel.getBuildFile()).isEqualTo("Rakefile.rb");
+        assertThat(onCancel.getTarget()).isEqualTo("build");
+        assertThat(onCancel.getWorkingDirectory()).isEqualTo("src");
+        assertThat(onCancel.getRunIf()).isEqualTo(CRRunIf.failed);
     }
 
     @Test
-    public void shouldMigrateNantTaskToCR() {
+    void shouldMigrateNantTaskToCR() {
         NantTask nantTask = new NantTask();
         nantTask.setBuildFile("nant");
         nantTask.setWorkingDirectory("src");
@@ -1858,15 +1859,15 @@ public class ConfigConverterTest {
 
         CRNantTask result = (CRNantTask) configConverter.taskToCRTask(nantTask);
 
-        assertThat(result.getRunIf(), is(CRRunIf.passed));
-        assertThat(result.getBuildFile(), is("nant"));
-        assertThat(result.getTarget(), is("build"));
-        assertThat(result.getWorkingDirectory(), is("src"));
-        assertThat(result.getNantPath(), is("path"));
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.passed);
+        assertThat(result.getBuildFile()).isEqualTo("nant");
+        assertThat(result.getTarget()).isEqualTo("build");
+        assertThat(result.getWorkingDirectory()).isEqualTo("src");
+        assertThat(result.getNantPath()).isEqualTo("path");
     }
 
     @Test
-    public void shouldConvertExecTaskWhenCancelIsNotSpecifiedToCR() {
+    void shouldConvertExecTaskWhenCancelIsNotSpecifiedToCR() {
         ExecTask execTask = new ExecTask("bash",
                 new Arguments(new Argument("1"), new Argument("2")),
                 "work");
@@ -1874,17 +1875,17 @@ public class ConfigConverterTest {
         execTask.setTimeout(120L);
         CRExecTask result = (CRExecTask) configConverter.taskToCRTask(execTask);
 
-        assertThat(result.getRunIf(), is(CRRunIf.failed));
-        assertThat(result.getCommand(), is("bash"));
-        assertThat(result.getArguments(), hasItem("1"));
-        assertThat(result.getArguments(), hasItem("2"));
-        assertThat(result.getWorkingDirectory(), is("work"));
-        assertThat(result.getTimeout(), is(120L));
-        assertNull(result.getOnCancel());
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.failed);
+        assertThat(result.getCommand()).isEqualTo("bash");
+        assertThat(result.getArguments()).contains("1");
+        assertThat(result.getArguments()).contains("2");
+        assertThat(result.getWorkingDirectory()).isEqualTo("work");
+        assertThat(result.getTimeout()).isEqualTo(120L);
+        assertThat(result.getOnCancel()).isNull();
     }
 
     @Test
-    public void shouldConvertExecTaskWhenOldArgsAreUsed() {
+    void shouldConvertExecTaskWhenOldArgsAreUsed() {
         ExecTask execTask = new ExecTask("bash",
                 "1 2 \"file name\"",
                 "work");
@@ -1892,18 +1893,18 @@ public class ConfigConverterTest {
         execTask.setTimeout(120L);
         CRExecTask result = (CRExecTask) configConverter.taskToCRTask(execTask);
 
-        assertThat(result.getRunIf(), is(CRRunIf.failed));
-        assertThat(result.getCommand(), is("bash"));
-        assertThat(result.getArguments(), hasItem("1"));
-        assertThat(result.getArguments(), hasItem("2"));
-        assertThat(result.getArguments(), hasItem("file name"));
-        assertThat(result.getWorkingDirectory(), is("work"));
-        assertThat(result.getTimeout(), is(120L));
-        assertNull(result.getOnCancel());
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.failed);
+        assertThat(result.getCommand()).isEqualTo("bash");
+        assertThat(result.getArguments()).contains("1");
+        assertThat(result.getArguments()).contains("2");
+        assertThat(result.getArguments()).contains("file name");
+        assertThat(result.getWorkingDirectory()).isEqualTo("work");
+        assertThat(result.getTimeout()).isEqualTo(120L);
+        assertThat(result.getOnCancel()).isNull();
     }
 
     @Test
-    public void shouldConvertExecTaskWhenCancelIsSpecifiedToCR() {
+    void shouldConvertExecTaskWhenCancelIsSpecifiedToCR() {
         ExecTask onCancel = new ExecTask();
         onCancel.setCommand("kill");
         ExecTask execTask = new ExecTask("bash",
@@ -1916,17 +1917,17 @@ public class ConfigConverterTest {
         CRExecTask result = (CRExecTask) configConverter.taskToCRTask(execTask);
         CRExecTask crOnCancel = (CRExecTask) result.getOnCancel();
 
-        assertThat(result.getRunIf(), is(CRRunIf.failed));
-        assertThat(result.getCommand(), is("bash"));
-        assertThat(result.getArguments(), hasItem("1"));
-        assertThat(result.getArguments(), hasItem("2"));
-        assertThat(result.getWorkingDirectory(), is("work"));
-        assertThat(result.getTimeout(), is(120L));
-        assertThat(crOnCancel.getCommand(), is("kill"));
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.failed);
+        assertThat(result.getCommand()).isEqualTo("bash");
+        assertThat(result.getArguments()).contains("1");
+        assertThat(result.getArguments()).contains("2");
+        assertThat(result.getWorkingDirectory()).isEqualTo("work");
+        assertThat(result.getTimeout()).isEqualTo(120L);
+        assertThat(crOnCancel.getCommand()).isEqualTo("kill");
     }
 
     @Test
-    public void shouldConvertFetchArtifactTaskWhenSourceIsDirectoryToCR() {
+    void shouldConvertFetchArtifactTaskWhenSourceIsDirectoryToCR() {
         FetchTask fetchTask = new FetchTask(
                 new CaseInsensitiveString("upstream"),
                 new CaseInsensitiveString("stage"),
@@ -1939,16 +1940,16 @@ public class ConfigConverterTest {
 
         CRFetchArtifactTask result = (CRFetchArtifactTask) configConverter.taskToCRTask(fetchTask);
 
-        assertThat(result.getRunIf(), is(CRRunIf.failed));
-        assertThat(result.getDestination(), is("dest"));
-        assertThat(result.getJob(), is("job"));
-        assertThat(result.getPipeline(), is("upstream"));
-        assertThat(result.getSource(), is("src"));
-        assertThat(result.sourceIsDirectory(), is(true));
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.failed);
+        assertThat(result.getDestination()).isEqualTo("dest");
+        assertThat(result.getJob()).isEqualTo("job");
+        assertThat(result.getPipeline()).isEqualTo("upstream");
+        assertThat(result.getSource()).isEqualTo("src");
+        assertThat(result.sourceIsDirectory()).isTrue();
     }
 
     @Test
-    public void shouldConvertFetchArtifactTaskWhenSourceIsFileToCR() {
+    void shouldConvertFetchArtifactTaskWhenSourceIsFileToCR() {
         FetchTask fetchTask = new FetchTask(
                 new CaseInsensitiveString("upstream"),
                 new CaseInsensitiveString("stage"),
@@ -1960,16 +1961,16 @@ public class ConfigConverterTest {
 
         CRFetchArtifactTask result = (CRFetchArtifactTask) configConverter.taskToCRTask(fetchTask);
 
-        assertThat(result.getRunIf(), is(CRRunIf.failed));
-        assertThat(result.getDestination(), is("dest"));
-        assertThat(result.getJob(), is("job"));
-        assertThat(result.getPipeline(), is("upstream"));
-        assertThat(result.getSource(), is("src"));
-        assertThat(result.sourceIsDirectory(), is(false));
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.failed);
+        assertThat(result.getDestination()).isEqualTo("dest");
+        assertThat(result.getJob()).isEqualTo("job");
+        assertThat(result.getPipeline()).isEqualTo("upstream");
+        assertThat(result.getSource()).isEqualTo("src");
+        assertThat(result.sourceIsDirectory()).isFalse();
     }
 
     @Test
-    public void shouldConvertFetchPluggableArtifactTaskToCRFetchPluggableArtifactTask() {
+    void shouldConvertFetchPluggableArtifactTaskToCRFetchPluggableArtifactTask() {
         FetchPluggableArtifactTask fetchPluggableArtifactTask = new FetchPluggableArtifactTask(
                 new CaseInsensitiveString("upstream"),
                 new CaseInsensitiveString("stage"),
@@ -1979,11 +1980,11 @@ public class ConfigConverterTest {
 
         CRFetchPluggableArtifactTask result = (CRFetchPluggableArtifactTask) configConverter.taskToCRTask(fetchPluggableArtifactTask);
 
-        assertThat(result.getRunIf(), is(CRRunIf.passed));
-        assertThat(result.getJob(), is("job"));
-        assertThat(result.getPipeline(), is("upstream"));
-        assertThat(result.getStage(), is("stage"));
-        assertThat(result.getArtifactId(), is("artifactId"));
-        assertThat(result.getConfiguration().isEmpty(), is(true));
+        assertThat(result.getRunIf()).isEqualTo(CRRunIf.passed);
+        assertThat(result.getJob()).isEqualTo("job");
+        assertThat(result.getPipeline()).isEqualTo("upstream");
+        assertThat(result.getStage()).isEqualTo("stage");
+        assertThat(result.getArtifactId()).isEqualTo("artifactId");
+        assertThat(result.getConfiguration().isEmpty()).isTrue();
     }
 }

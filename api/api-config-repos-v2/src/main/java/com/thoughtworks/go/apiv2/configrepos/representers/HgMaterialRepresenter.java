@@ -30,6 +30,7 @@ class HgMaterialRepresenter implements MaterialRepresenter<HgMaterialConfig> {
         json.add("url", material.getUrl());
         json.addIfNotNull("username", material.getUserName());
         json.addIfNotNull("encrypted_password", material.getEncryptedPassword());
+        json.addIfNotNull("branch", material.getBranchAttribute());
     }
 
     @Override
@@ -39,6 +40,7 @@ class HgMaterialRepresenter implements MaterialRepresenter<HgMaterialConfig> {
         json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
         json.readStringIfPresent("url", materialConfig::setUrl);
         json.readStringIfPresent("username", materialConfig::setUserName);
+        json.readStringIfPresent("branch", materialConfig::setBranchAttribute);
 
         String password = json.getStringOrDefault("password", null);
         String encryptedPassword = json.getStringOrDefault("encrypted_password", null);

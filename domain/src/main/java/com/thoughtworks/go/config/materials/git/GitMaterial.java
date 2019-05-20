@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.materials.git;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
-import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.git.GitCommand;
@@ -29,18 +28,16 @@ import com.thoughtworks.go.domain.materials.svn.MaterialUrl;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.util.GoConstants;
-import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
-import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import com.thoughtworks.go.util.command.SecretString;
-import com.thoughtworks.go.util.command.UrlArgument;
+import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.io.File;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
@@ -49,10 +46,8 @@ import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
 import static com.thoughtworks.go.util.FileUtil.deleteDirectoryNoisily;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.*;
 
-/**
- * Understands configuration for git version control
- */
 public class GitMaterial extends ScmMaterial {
     private static final Logger LOG = LoggerFactory.getLogger(GitMaterial.class);
     public static final int UNSHALLOW_TRYOUT_STEP = 100;
@@ -98,21 +93,19 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public GitMaterial(GitMaterialConfig config) {
-        this(toURLArgument(config.getUrl(), config.getUserName(), config.getPassword()), config.getBranch(), config.getFolder(), config.isShallowClone());
+        this(config.getUrl(), config.getBranch(), config.getFolder(), config.isShallowClone());
         this.autoUpdate = config.getAutoUpdate();
         this.filter = config.rawFilter();
         this.name = config.getName();
         this.submoduleFolder = config.getSubmoduleFolder();
         this.invertFilter = config.getInvertFilter();
-    }
-
-    private static String toURLArgument(String url, String userName, String password) {
-        return UrlDenormalizerXSLTMigration121.urlWithCredentials(url, userName, password);
+        this.userName = config.getUserName();
+        setPassword(config.getPassword());
     }
 
     @Override
     public MaterialConfig config() {
-        return new GitMaterialConfig(url, branch, submoduleFolder, autoUpdate, filter, invertFilter, folder, name, shallowClone);
+        return new GitMaterialConfig(url, userName, getPassword(), branch, submoduleFolder, autoUpdate, filter, invertFilter, folder, name, shallowClone);
     }
 
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {
@@ -132,7 +125,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public MaterialInstance createMaterialInstance() {
-        return new GitMaterialInstance(url.originalArgument(), branch, submoduleFolder, UUID.randomUUID().toString());
+        return new GitMaterialInstance(url.originalArgument(), userName, branch, submoduleFolder, UUID.randomUUID().toString());
     }
 
     @Override
@@ -151,7 +144,7 @@ public class GitMaterial extends ScmMaterial {
     public void updateTo(ConsoleOutputStreamConsumer outputStreamConsumer, File baseDir, RevisionContext revisionContext, final SubprocessExecutionContext execCtx) {
         Revision revision = revisionContext.getLatestRevision();
         try {
-            outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), url));
+            outputStreamConsumer.stdOutput(format("[%s] Start updating %s at revision %s from %s", GoConstants.PRODUCT_NAME, updatingTarget(), revision.getRevision(), getUriForDisplay()));
             File workingDir = execCtx.isServer() ? baseDir : workingdir(baseDir);
             GitCommand git = git(outputStreamConsumer, workingDir, revisionContext.numberOfModifications() + 1, execCtx);
             git.fetch(outputStreamConsumer);
@@ -166,7 +159,7 @@ public class GitMaterial extends ScmMaterial {
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         GitCommand gitCommand = new GitCommand(null, null, null, false, secrets());
         try {
-            gitCommand.checkConnection(url, branch);
+            gitCommand.checkConnection(new UrlArgument(urlForCommandLine()), branch);
             return ValidationBean.valid();
         } catch (Exception e) {
             try {
@@ -225,9 +218,9 @@ public class GitMaterial extends ScmMaterial {
             int cloneDepth = shallowClone ? preferredCloneDepth : Integer.MAX_VALUE;
             int returnValue;
             if (executionContext.isServer()) {
-                returnValue = gitCommand.cloneWithNoCheckout(outputStreamConsumer, url.forCommandLine());
+                returnValue = gitCommand.cloneWithNoCheckout(outputStreamConsumer, urlForCommandLine());
             } else {
-                returnValue = gitCommand.clone(outputStreamConsumer, url.forCommandLine(), cloneDepth);
+                returnValue = gitCommand.clone(outputStreamConsumer, urlForCommandLine(), cloneDepth);
             }
             bombIfFailedToRunCommandLine(returnValue, "Failed to run git clone command");
         }
@@ -235,7 +228,7 @@ public class GitMaterial extends ScmMaterial {
     }
 
     private List<SecretString> secrets() {
-        SecretString secretSubstitution = line -> line.replace(url.forCommandLine(), url.forDisplay());
+        SecretString secretSubstitution = line -> line.replace(urlForCommandLine(), getUriForDisplay());
         return Collections.singletonList(secretSubstitution);
     }
 
@@ -289,9 +282,25 @@ public class GitMaterial extends ScmMaterial {
 
     @Override
     public String urlForCommandLine() {
-        return url.forCommandLine();
+        try {
+            if (credentialsAreNotProvided()) {
+                return this.url.originalArgument();
+            }
+
+            return new URIBuilder(this.url.originalArgument())
+                    .setUserInfo(new UrlUserInfo(this.userName, this.getPassword()).asString())
+                    .build().toString();
+
+        } catch (URISyntaxException e) {
+            return this.url.originalArgument();
+        }
     }
 
+    private boolean credentialsAreNotProvided() {
+        return isAllBlank(this.userName, this.getPassword());
+    }
+
+    @Override
     public UrlArgument getUrlArgument() {
         return url;
     }
@@ -418,6 +427,6 @@ public class GitMaterial extends ScmMaterial {
     }
 
     public String branchWithDefault() {
-        return StringUtils.isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch;
+        return isBlank(branch) ? GitMaterialConfig.DEFAULT_BRANCH : branch;
     }
 }

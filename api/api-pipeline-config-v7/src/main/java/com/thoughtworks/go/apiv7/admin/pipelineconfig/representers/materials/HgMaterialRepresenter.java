@@ -26,12 +26,14 @@ public class HgMaterialRepresenter extends ScmMaterialRepresenter<HgMaterialConf
     @Override
     public void toJSON(OutputWriter jsonWriter, HgMaterialConfig hgMaterialConfig) {
         super.toJSON(jsonWriter, hgMaterialConfig);
+        jsonWriter.addIfNotNull("branch", hgMaterialConfig.getBranchAttribute());
     }
 
     @Override
     public HgMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
         HgMaterialConfig hgMaterialConfig = new HgMaterialConfig(jsonReader.optString("url").orElse(null), null);
         super.fromJSON(jsonReader, hgMaterialConfig, options);
+        jsonReader.readStringIfPresent("branch", hgMaterialConfig::setBranchAttribute);
         return hgMaterialConfig;
     }
 }

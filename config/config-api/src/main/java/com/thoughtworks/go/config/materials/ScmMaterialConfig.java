@@ -24,7 +24,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.FilenameUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
-import org.apache.commons.lang3.StringUtils;
+import com.thoughtworks.go.util.command.UrlUserInfo;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -34,8 +34,7 @@ import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isNotEmpty;
+import static org.apache.commons.lang3.StringUtils.*;
 
 /**
  * @understands a source control repository and its configuration
@@ -147,7 +146,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     }
 
     protected void resetPassword(String passwordToSet) {
-        if (StringUtils.isBlank(passwordToSet)) {
+        if (isBlank(passwordToSet)) {
             encryptedPassword = null;
         }
 
@@ -156,7 +155,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     @PostConstruct
     public final void ensureEncrypted() {
-        this.userName = StringUtils.stripToNull(this.userName);
+        this.userName = stripToNull(this.userName);
         setPasswordIfNotBlank(password);
 
         if (encryptedPassword != null) {
@@ -165,8 +164,8 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     }
 
     private void setPasswordIfNotBlank(String password) {
-        this.password = StringUtils.stripToNull(password);
-        this.encryptedPassword = StringUtils.stripToNull(encryptedPassword);
+        this.password = stripToNull(password);
+        this.encryptedPassword = stripToNull(encryptedPassword);
 
         if (this.password == null) {
             return;
@@ -181,7 +180,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
 
     public final String currentPassword() {
         try {
-            return StringUtils.isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
+            return isBlank(encryptedPassword) ? null : this.goCipher.decrypt(encryptedPassword);
         } catch (Exception e) {
             throw new RuntimeException("Could not decrypt the password to get the real password", e);
         }
@@ -277,9 +276,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         if (folder != null ? !folder.equals(that.folder) : that.folder != null) {
             return false;
         }
-        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
-            return false;
-        }
         return super.equals(that);
     }
 
@@ -287,7 +283,6 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (folder != null ? folder.hashCode() : 0);
-        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         return result;
     }
 
@@ -301,7 +296,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     public abstract void validateConcreteScmMaterial(ValidationContext validationContext);
 
     private void validateDestFolderPath() {
-        if (StringUtils.isBlank(folder)) {
+        if (isBlank(folder)) {
             return;
         }
         if (!new FilePathTypeValidator().isPathValid(folder)) {
@@ -314,7 +309,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         Map map = (Map) attributes;
         if (map.containsKey(FOLDER)) {
             String folder = (String) map.get(FOLDER);
-            if (StringUtils.isBlank(folder)) {
+            if (isBlank(folder)) {
                 folder = null;
             }
             this.folder = folder;
@@ -323,7 +318,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         this.setInvertFilter("true".equals(map.get(INVERT_FILTER)));
         if (map.containsKey(FILTER)) {
             String pattern = (String) map.get(FILTER);
-            if (!StringUtils.isBlank(pattern)) {
+            if (!isBlank(pattern)) {
                 this.setFilter(Filter.fromDisplayString(pattern));
             } else {
                 this.setFilter(null);
@@ -396,12 +391,16 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
             errors().add(URL, "URL cannot be blank");
             return;
         }
+    }
 
-        if (!url.isValid()) {
-            errors.add(URL, "Only password can be specified as secret params");
+    protected void validateCredentials() {
+        if (isBlank(getUrl()) || isAllBlank(userName, getPassword())) {
+            return;
         }
 
-        validateSecretParamsConfig(URL, url.getSecretParams(), validationContext);
+        if (UrlUserInfo.hasUserInfo(getUrl())) {
+            errors().add(URL, "Ambiguous credentials, must be provided either in URL or as attributes.");
+        }
     }
 
     protected void validatePassword(ValidationContext validationContext) {

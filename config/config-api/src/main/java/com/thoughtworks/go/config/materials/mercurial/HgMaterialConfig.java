@@ -19,22 +19,25 @@ package com.thoughtworks.go.config.materials.mercurial;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.HgUrlArgument;
-import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
-import static com.thoughtworks.go.config.migration.UrlDenormalizerXSLTMigration121.urlWithoutCredentials;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.apache.commons.lang3.StringUtils.split;
 
 @ConfigTag(value = "hg", label = "Mercurial")
 public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware {
     @ConfigAttribute(value = "url")
     private HgUrlArgument url;
 
+    @ConfigAttribute(value = "branch", allowNull = true)
+    private String branch;
+
     public static final String TYPE = "HgMaterial";
     public static final String URL = "url";
+    public static final String BRANCH = "branch";
 
     public HgMaterialConfig() {
         super(TYPE);
@@ -42,23 +45,26 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     public HgMaterialConfig(String url, String folder) {
         this();
-        setUrl(UrlDenormalizerXSLTMigration121.urlWithoutCredentials(url));
-        setUserName(UrlDenormalizerXSLTMigration121.getUsername(url));
-        setPassword(UrlDenormalizerXSLTMigration121.getPassword(url));
+        setUrl(url);
         this.folder = folder;
     }
 
-    public HgMaterialConfig(HgUrlArgument url, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
+    public HgMaterialConfig(HgUrlArgument url, String userName, String password, String branch, boolean autoUpdate,
+                            Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
         super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
-        setUrl(UrlDenormalizerXSLTMigration121.urlWithoutCredentials(url.forCommandLine()));
-        setUserName(UrlDenormalizerXSLTMigration121.getUsername(url.forCommandLine()));
-        setPassword(UrlDenormalizerXSLTMigration121.getPassword(url.forCommandLine()));
+        this.url = url;
+        this.userName = userName;
+        this.branch = branch;
+        setPassword(password);
     }
 
     @Override
     protected void appendCriteria(Map<String, Object> parameters) {
-        String urlWithCredentials = UrlDenormalizerXSLTMigration121.urlWithCredentials(this.url.originalArgument(), getUserName(), getPassword());
-        parameters.put(ScmMaterialConfig.URL, urlWithCredentials);
+        parameters.put(ScmMaterialConfig.URL, this.url.originalArgument());
+
+        if (isNotBlank(branch)) {
+            parameters.put("branch", branch);
+        }
     }
 
     @Override
@@ -81,6 +87,14 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
         if (url != null) {
             this.url = new HgUrlArgument(url);
         }
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranchAttribute(String branch) {
+        this.branch = branch;
     }
 
     @Override
@@ -106,6 +120,10 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
             return false;
         }
 
+        if (branch != null ? !branch.equals(that.branch) : that.branch != null) {
+            return false;
+        }
+
         return true;
     }
 
@@ -113,22 +131,21 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (url != null ? url.hashCode() : 0);
+        result = 31 * result + (branch != null ? branch.hashCode() : 0);
         return result;
     }
 
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
         validateMaterialUrl(this.url, validationContext);
-//        validateCredentialsInMaterialUrl();
+        validateCredentials();
+
+        validateBranch();
     }
 
-    private void validateCredentialsInMaterialUrl() {
-        if (this.url == null) {
-            return;
-        }
-
-        if (!StringUtils.equals(this.url.originalArgument(), urlWithoutCredentials(this.url.originalArgument()))) {
-            errors().add("url", "You may specify credentials only in attributes, not in url");
+    private void validateBranch() {
+        if (isNotBlank(this.branch) && hasBranchInUrl()) {
+            errors().add(URL, "Ambiguous branch, must be provided either in URL or as an attribute.");
         }
     }
 
@@ -182,5 +199,13 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
             String passwordToSet = (String) map.get(PASSWORD);
             resetPassword(passwordToSet);
         }
+    }
+
+    private boolean hasBranchInUrl() {
+        return split(url.originalArgument(), HgUrlArgument.DOUBLE_HASH).length > 1;
+    }
+
+    public String getBranchAttribute() {
+        return branch;
     }
 }

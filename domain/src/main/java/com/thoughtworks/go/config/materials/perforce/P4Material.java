@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config.materials.perforce;
 
 import com.thoughtworks.go.config.PasswordEncrypter;
-import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -262,6 +261,10 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
             return false;
         }
 
+        if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+            return false;
+        }
+
         return true;
     }
 
@@ -269,6 +272,7 @@ public class P4Material extends ScmMaterial implements PasswordEncrypter, Passwo
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (serverAndPort != null ? serverAndPort.hashCode() : 0);
+        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (useTickets != null ? useTickets.hashCode() : 0);
         result = 31 * result + (view != null ? view.hashCode() : 0);
         return result;

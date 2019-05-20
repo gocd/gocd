@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,24 +73,32 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     private static Map<Class, String[]> fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack = new HashMap<>();
     private MaterialConfigConverter materialConfigConverter = new MaterialConfigConverter();
 
-    @DataPoint public static MaterialConfig gitMaterialConfig = new GitMaterialConfig(url("git-url"), "branch", "submodule", true, filterFor("*.doc"), false, "folder", cis("gitMaterial"), false);
-    @DataPoint public static MaterialConfig hgMaterialConfig = new HgMaterialConfig(new HgUrlArgument("hg-url"), true, filterFor("*.png"), false, "folder", cis("hgMaterial"));
-    @DataPoint public static MaterialConfig svnMaterialConfig = new SvnMaterialConfig(url("svn-url"), "user", "pass", true, new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("name1"));
-    @DataPoint public static MaterialConfig p4MaterialConfig = new P4MaterialConfig("localhost:9090", "user", "pass", true, "view", new GoCipher(), cis("p4Material"), true, filterFor("*.jpg"), false, "folder");
-    @DataPoint public static MaterialConfig tfsMaterialConfig = new TfsMaterialConfig(url("tfs-url"), "user", "domain", "pass", "prj-path", new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("tfsMaterial"));
-    @DataPoint public static MaterialConfig pkgMaterialConfig = new PackageMaterialConfig(cis("name"), "pkg-id", packageDefinition);
-    @DataPoint public static MaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(cis("name"), scmConfig, "folder", filterFor("*.txt"));
-    @DataPoint public static MaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("name1"), cis("pipeline1"), cis("stage1"));
+    @DataPoint
+    public static MaterialConfig gitMaterialConfig = new GitMaterialConfig(url("git-url"), null, null, "branch", "submodule", true, filterFor("*.doc"), false, "folder", cis("gitMaterial"), false);
+    @DataPoint
+    public static MaterialConfig hgMaterialConfig = new HgMaterialConfig(new HgUrlArgument("hg-url"), null, null, null, true, filterFor("*.png"), false, "folder", cis("hgMaterial"));
+    @DataPoint
+    public static MaterialConfig svnMaterialConfig = new SvnMaterialConfig(url("svn-url"), "user", "pass", true, new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("name1"));
+    @DataPoint
+    public static MaterialConfig p4MaterialConfig = new P4MaterialConfig("localhost:9090", "user", "pass", true, "view", new GoCipher(), cis("p4Material"), true, filterFor("*.jpg"), false, "folder");
+    @DataPoint
+    public static MaterialConfig tfsMaterialConfig = new TfsMaterialConfig(url("tfs-url"), "user", "domain", "pass", "prj-path", new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("tfsMaterial"));
+    @DataPoint
+    public static MaterialConfig pkgMaterialConfig = new PackageMaterialConfig(cis("name"), "pkg-id", packageDefinition);
+    @DataPoint
+    public static MaterialConfig pluggableSCMMaterialConfig = new PluggableSCMMaterialConfig(cis("name"), scmConfig, "folder", filterFor("*.txt"));
+    @DataPoint
+    public static MaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(cis("name1"), cis("pipeline1"), cis("stage1"));
 
     static {
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(GitMaterialConfig.class, new String[]{"filter", "goCipher"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(HgMaterialConfig.class, new String[]{"filter", "goCipher"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(SvnMaterialConfig.class, new String[]{"filter", "goCipher"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(P4MaterialConfig.class, new String[]{"filter", "goCipher"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(TfsMaterialConfig.class, new String[]{"filter", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(GitMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(HgMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(SvnMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(P4MaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(TfsMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
         fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(PackageMaterialConfig.class, new String[]{"filter", "packageId", "packageDefinition", "fingerprint"});
         fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(PluggableSCMMaterialConfig.class, new String[]{"filter", "scmId", "scmConfig", "fingerprint"});
-        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(DependencyMaterialConfig.class, new String[]{"filter", "goCipher"});
+        fieldsWhichShouldBeIgnoredWhenSavedInDbAndGotBack.put(DependencyMaterialConfig.class, new String[]{"filter", "secretParamsForPassword", "goCipher"});
     }
 
     @Theory

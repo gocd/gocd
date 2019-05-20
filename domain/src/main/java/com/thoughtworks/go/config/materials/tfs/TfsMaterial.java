@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config.materials.tfs;
 
 import com.thoughtworks.go.config.PasswordEncrypter;
-import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
@@ -217,6 +216,9 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
         if (domain != null ? !domain.equals(material.domain) : material.domain != null) {
             return false;
         }
+        if (userName != null ? !userName.equals(material.userName) : material.userName != null) {
+            return false;
+        }
         return true;
     }
 
@@ -224,6 +226,7 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (url != null ? url.hashCode() : 0);
+        result = 31 * result + (userName != null ? userName.hashCode() : 0);
         result = 31 * result + (domain != null ? domain.hashCode() : 0);
         result = 31 * result + (projectPath != null ? projectPath.hashCode() : 0);
         return result;

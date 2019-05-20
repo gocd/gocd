@@ -40,15 +40,15 @@ import static org.mockito.Mockito.mock
 class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   static def existingMaterial() {
-    return MaterialConfigsMother.hgMaterialConfigFull("http://user:pass@domain/path")
+    return MaterialConfigsMother.hgMaterialConfigFull("http://domain/path")
   }
 
   def getOptions() {
-    return new ConfigHelperOptions(mock(BasicCruiseConfig.class), mock(PasswordDeserializer.class))
+    return new ConfigHelperOptions(mock(BasicCruiseConfig.class), new PasswordDeserializer())
   }
 
   def existingMaterialWithErrors() {
-    def hgConfig = new HgMaterialConfig(new HgUrlArgument(''), true, null, false, '/dest/', new CaseInsensitiveString('!nV@l!d'))
+    def hgConfig = new HgMaterialConfig(new HgUrlArgument(''), null, null, null, true, null, false, '/dest/', new CaseInsensitiveString('!nV@l!d'))
     def materialConfigs = new MaterialConfigs(hgConfig);
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.get(0)
@@ -71,11 +71,57 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
       ])
 
       def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-      def expected = new HgMaterialConfig("http://user:password@funk.com/blank", null)
+      def expected = new HgMaterialConfig("http://funk.com/blank", null)
+      expected.setUserName("user")
+      expected.setPassword("password")
+      expected.setBranchAttribute("master")
 
       assertEquals(expected.isAutoUpdate(), deserializedObject.isAutoUpdate())
       assertNull(deserializedObject.getName())
       assertEquals(expected, deserializedObject)
+    }
+
+    @Test
+    void "should deserialize material with encrypted password in attributes"() {
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom([
+        type      : 'hg',
+        attributes:
+          [
+            url               : "http://funk.com/blank",
+            branch            : "master",
+            username          : "user",
+            encrypted_password: new GoCipher().encrypt("password")
+          ]
+      ])
+
+      def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
+      def expected = new HgMaterialConfig("http://funk.com/blank", null)
+      expected.setUserName("user")
+      expected.setPassword("password")
+      expected.setBranchAttribute("master")
+
+      assertEquals(expected.isAutoUpdate(), deserializedObject.isAutoUpdate())
+      assertNull(deserializedObject.getName())
+      assertEquals(expected, deserializedObject)
+    }
+
+    @Test
+    void "should add error if failed to deserialize encrypted password"() {
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom([
+        type      : 'hg',
+        attributes:
+          [
+            url               : "http://funk.com/blank",
+            branch            : "master",
+            username          : "user",
+            encrypted_password: "not-decryptable-by-gocd"
+          ]
+      ])
+
+      def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
+
+      assertThat(deserializedObject.errors().on("encryptedPassword"))
+        .isEqualTo("Encrypted value for password is invalid. This usually happens when the cipher text is invalid.")
     }
   }
 
@@ -118,16 +164,14 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
     [
       type      : 'hg',
       attributes: [
-        url               : "http://domain/path",
-        destination       : "dest-folder",
-        username          : "user",
-        encrypted_password: new GoCipher().encrypt("pass"),
-        filter            : [
+        url          : "http://domain/path",
+        destination  : "dest-folder",
+        filter       : [
           ignore: ['**/*.html', '**/foobar/']
         ],
-        invert_filter     : false,
-        name              : "hg-material",
-        auto_update       : true
+        invert_filter: false,
+        name         : "hg-material",
+        auto_update  : true
       ]
     ]
 

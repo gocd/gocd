@@ -174,4 +174,18 @@ public abstract class MaterialInstance extends PersistentObject {
         }
         return !this.getAdditionalDataMap().equals(additionalDataMap);
     }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+
 }

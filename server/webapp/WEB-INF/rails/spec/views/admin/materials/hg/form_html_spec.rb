@@ -24,6 +24,7 @@ describe "_form.html.erb" do
     @material_config = HgMaterialConfig.new("hg://foo", "dest")
     @material_config.setName(CaseInsensitiveString.new("Hg Material Name"))
     @material_config.setAutoUpdate(true)
+    @material_config.setBranchAttribute("feature")
     @ignored_file = IgnoredFiles.new("/sugar")
     @material_config.setFilter(Filter.new([@ignored_file, IgnoredFiles.new("/jaggery")].to_java(IgnoredFiles)))
 
@@ -40,6 +41,7 @@ describe "_form.html.erb" do
     expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material_type'][value='#{@material_config.getType()}']", {visible: :hidden})
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{AbstractMaterialConfig::MATERIAL_NAME}]'][value='Hg Material Name']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{HgMaterialConfig::URL}]'][value='hg://foo']")
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{HgMaterialConfig::BRANCH}]'][value='feature']")
     expect(response.body).to have_selector(".popup_form input[type='text'][name='material[#{ScmMaterialConfig::FOLDER}]'][value='dest']")
     expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{ScmMaterialConfig::AUTO_UPDATE}]'][checked='checked']")
     expect(response.body).to have_selector(".popup_form textarea[name='material[#{ScmMaterialConfig::FILTER}]']", :text => "/sugar,/jaggery")
@@ -53,6 +55,19 @@ describe "_form.html.erb" do
 
     expect(response.body).to have_selector(".popup_form button#check_connection_hg", :text => "CHECK CONNECTION")
     expect(response.body).to have_selector(".popup_form #vcsconnection-message_hg", :text => "", visible: false)
+  end
+
+  it "should render username and password attributes" do
+    @material_config.setUserName("bob")
+    @material_config.setPassword("pass")
+    encryptedPassword = com.thoughtworks.go.security.GoCipher.new.encrypt("pass")
+    in_params(:pipeline_name => "pipeline_name")
+
+    render :partial => "admin/materials/hg/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO"}}
+
+    expect(response.body).to have_selector(".popup_form input[type='text'][name='material[userName]'][value='bob']")
+    expect(response.body).to have_selector(".popup_form input[type='password'][name='material[password]'][value='pass']")
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material[encryptedPassword]'][value='#{encryptedPassword}']", :visible => false)
   end
 
   it "should display new hg material view with errors" do
@@ -87,7 +102,7 @@ describe "_form.html.erb" do
   end
 
   it "should not generate the id for input text of url field" do
-    render partial: "admin/materials/hg/form.html", locals: { scope: { material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo" }}
+    render partial: "admin/materials/hg/form.html", locals: {scope: {material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo"}}
 
     Capybara.string(response.body).all(".form_item .form_item_block").tap do |text_field|
       expect(text_field[0]).to_not have_selector("input[type='text'][class='form_input url'][id]")

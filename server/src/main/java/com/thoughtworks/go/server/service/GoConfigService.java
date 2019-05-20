@@ -68,7 +68,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.config.validation.GoConfigValidity.*;
-import static com.thoughtworks.go.config.validation.GoConfigValidity.invalid;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEditPipeline;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 import static com.thoughtworks.go.serverhealth.HealthStateScope.forPipeline;
@@ -218,7 +217,13 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public boolean isPipelineDefinedInConfigRepository(String pipelineName) {
-        return !this.getConfigHolder().mergedConfigForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).isLocal();
+        GoConfigHolder configHolder = this.getConfigHolder();
+        //check if mergedConfigForEdit exists..
+        if (configHolder.mergedConfigForEdit != null) {
+            return !configHolder.mergedConfigForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).isLocal();
+        } else {
+            return !configHolder.configForEdit.pipelineConfigByName(new CaseInsensitiveString(pipelineName)).isLocal();
+        }
     }
 
     public CruiseConfig currentCruiseConfig() {

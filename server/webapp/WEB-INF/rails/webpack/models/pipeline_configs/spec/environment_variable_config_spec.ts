@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import JsonUtils from "helpers/json_utils";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 
 describe("EnvironmentVariableConfig model", () => {
@@ -23,9 +22,7 @@ describe("EnvironmentVariableConfig model", () => {
   }
 
   function validSecureEnvironmentVariableConfig() {
-    const v = new EnvironmentVariableConfig(true, "KEY", "");
-    v.encryptedValue().value("value");
-    return v;
+    return new EnvironmentVariableConfig(true, "KEY", "value");
   }
 
   it("should validate presence of name", () => {
@@ -48,13 +45,13 @@ describe("EnvironmentVariableConfig model", () => {
 
   it("should serialize correctly", () => {
     const envVar = validEnvironmentVariableConfig();
-    expect(JsonUtils.toSnakeCasedObject(envVar.toJSON())).toEqual({
+    expect(envVar.toApiPayload()).toEqual({
       name: "KEY",
       value: "value",
       secure: false
     });
     const secureVar = validSecureEnvironmentVariableConfig();
-    expect(JsonUtils.toSnakeCasedObject(secureVar.toJSON())).toEqual({
+    expect(secureVar.toApiPayload()).toEqual({
       name: "KEY",
       value: "value",
       secure: true

@@ -14,16 +14,15 @@
  * limitations under the License.
  */
 
+import JsonUtils from "helpers/json_utils";
 import * as _ from "lodash";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import {EncryptedValue} from "views/components/forms/encrypted_value";
 
 export class EnvironmentVariableConfig extends ValidatableMixin {
   name: Stream<string>;
   value: Stream<string>;
-  encryptedValue: Stream<EncryptedValue> = stream(new EncryptedValue({clearText: ""}));
   secure: Stream<boolean> = stream(false);
 
   constructor(secure: boolean, name: string, value: string) {
@@ -35,15 +34,8 @@ export class EnvironmentVariableConfig extends ValidatableMixin {
     this.validatePresenceOf("name");
   }
 
-  toJSON() {
-    const serialized                       = _.assign({}, this);
-    const encrypted: Stream<EncryptedValue> = _.get(serialized, "encryptedValue");
-    delete serialized.encryptedValue;
-    if (encrypted().isDirty()) {
-      return _.assign({}, serialized, { value: encrypted().value()});
-    }
-
-    return serialized;
+  toApiPayload() {
+    return JsonUtils.toSnakeCasedObject(this);
   }
 
   modelType(): string {

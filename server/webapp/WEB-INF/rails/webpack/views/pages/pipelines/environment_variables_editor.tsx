@@ -22,7 +22,7 @@ import {Stream} from "mithril/stream";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import * as Buttons from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
-import {PasswordField, TextField} from "views/components/forms/input_fields";
+import {SimplePasswordField, TextField} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
 import * as css from "./components.scss";
 
@@ -57,7 +57,7 @@ export class EnvironmentVariablesEditor extends MithrilViewComponent<Attrs> {
               Environment Variables
               <Buttons.Cancel onclick={this.addVar.bind(this, false)} small={true} icon={Buttons.ButtonIcon.ADD} />
             </label>
-            <Table headers={["key", "value", ""]} data={
+            <Table headers={["name", "value", ""]} data={
               _.map(plainVars, (variable) => {
                 return [
                     <TextField property={variable.name} errorText={variable.errors().errorsForDisplay("name")} onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
@@ -72,11 +72,11 @@ export class EnvironmentVariablesEditor extends MithrilViewComponent<Attrs> {
               Secure Variables
               <Buttons.Cancel onclick={this.addVar.bind(this, true)} small={true} icon={Buttons.ButtonIcon.ADD} />
             </label>
-            <Table headers={["key", "value", ""]} data={
+            <Table headers={["name", "value", ""]} data={
               _.map(secureVars, (variable) => {
                 return [
                     <TextField property={variable.name} errorText={variable.errors().errorsForDisplay("name")} onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
-                    <PasswordField property={variable.encryptedValue} errorText={variable.errors().errorsForDisplay("encryptedValue")} onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
+                    <SimplePasswordField property={variable.value} errorText={variable.errors().errorsForDisplay("value")} onchange={this.update.bind(this, vnode.attrs.variables, variable)}/>,
                     <Buttons.Cancel onclick={this.removeVar.bind(this, vnode.attrs.variables, variable)} small={true} icon={Buttons.ButtonIcon.REMOVE} />
                 ];
               })

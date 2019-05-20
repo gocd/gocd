@@ -394,6 +394,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
 
         return materials.stream()
                 .filter(material -> material instanceof SecretParamAware)
+                .filter(material -> ((SecretParamAware) material).hasSecretParams())
                 .map(material -> ((SecretParamAware) material).getSecretParams())
                 .collect(SecretParams.toFlatSecretParams());
     }

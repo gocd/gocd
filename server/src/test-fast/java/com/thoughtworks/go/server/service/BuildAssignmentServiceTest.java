@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -356,6 +357,36 @@ class BuildAssignmentServiceTest {
             inOrder.verify(consoleService, times(2)).appendToConsoleLog(eq(jobPlan1.getIdentifier()), anyString());
             inOrder.verify(scheduleService).failJob(jobInstance);
             inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan1.getIdentifier(), JobState.Completed, "agent_uuid"));
+        }
+
+        @Test
+        void shouldIgnoreIfMaterialHasNoSecretParam() {
+            final GitMaterial svnMaterial = MaterialsMother.gitMaterial("http://foo.com", null, null);
+            final Modification modification = new Modification("user", null, null, null, "rev1");
+            final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(svnMaterial, modification));
+            final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
+            pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
+            final AgentInstance agentInstance = mock(AgentInstance.class);
+            final Pipeline pipeline = mock(Pipeline.class);
+            final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
+
+            when(agentInstance.isRegistered()).thenReturn(true);
+            when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
+            when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
+            when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
+            when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
+            when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
+            when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
+            when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
+            when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(new EnvironmentVariableContext());
+
+            buildAssignmentService.assignWorkToAgent(agentInstance);
+
+            assertThat(svnMaterial.hasSecretParams()).isFalse();
+            verify(scheduleService, never()).failJob(any());
+            verify(secretParamResolver).resolve(new SecretParams());
+            verifyZeroInteractions(consoleService);
+            verifyZeroInteractions(jobStatusTopic);
         }
     }
 

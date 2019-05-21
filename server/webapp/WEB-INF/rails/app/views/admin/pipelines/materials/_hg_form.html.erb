@@ -5,11 +5,11 @@
 </div>
 <div class="form_item_block">
   <label>Username</label>
-  <%= scope[:form].text_field(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, {:class => "form_input svn_username", :id => nil}) -%>
+  <%= scope[:form].text_field(com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, {:class => "form_input hg_username", :id => nil}) -%>
   <%= error_message_on(scope[:material], com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::USERNAME, :css_class => "form_error") %>
 </div>
 
-<%= render :partial => 'admin/materials/shared/plain_password', :locals => {:scope => {:form => scope[:form], :password_class => 'svn_password'}} %>
+<%= render :partial => 'admin/materials/shared/plain_password', :locals => {:scope => {:form => scope[:form], :password_class => 'hg_password'}} %>
 <div class="form_item_block">
   <label>Branch</label>
   <%= scope[:form].text_field com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig::BRANCH, {:class => "form_input branch", :id => nil} -%>
@@ -19,6 +19,11 @@
 <%= render :partial => "admin/materials/shared/dest_folder", :locals => {:scope => {:form => scope[:form]}}%>
 <%= render :partial => "admin/materials/shared/options", :locals => {:scope => {:form => scope[:form]}} %>
 <%= render :partial => "admin/materials/shared/filter", :locals => {:scope => {:form => scope[:form]}} %>
-<%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:url => ".hg_url", :type => "hg"}} %>
+<%= render :partial => 'admin/materials/shared/check_connection', :locals => {:scope => {:url => ".hg_url",
+                                                                                         :type => "hg",
+                                                                                         :branch => ".branch",
+                                                                                         :username => ".hg_username",
+                                                                                         :password => ".hg_password",
+                                                                                         :encrypted_password => "false"}} %>
 
 <%= render :partial => 'shared/convert_tool_tips.html', :locals => {:scope => {}} %>

@@ -305,6 +305,38 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
       HgMaterialConfig
     end
 
+    it "should serialize branch if present" do
+      hgMaterialConfig = MaterialConfigsMother.hgMaterialConfigFull 'http://user:pass@domain/path'
+      hgMaterialConfig.setBranchAttribute("feature")
+
+      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.prepare(hgMaterialConfig)
+
+      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+      expect(actual_json).to eq({:type => "hg",
+                                 :attributes => {:auto_update => true,
+                                                 :branch => "feature",
+                                                 :destination => "dest-folder",
+                                                 :filter => {:ignore => ["**/*.html", "**/foobar/"]},
+                                                 :invert_filter => false,
+                                                 :name => "hg-material",
+                                                 :url => "http://user:pass@domain/path"}})
+    end
+
+    it "serialized json should not have branch attribute when specified in url" do
+      hgMaterialConfig = MaterialConfigsMother.hgMaterialConfigFull 'http://user:pass@domain/path#feature'
+
+      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.prepare(hgMaterialConfig)
+
+      actual_json = presenter.to_hash(url_builder: UrlBuilder.new)
+      expect(actual_json).to eq({:type => "hg",
+                                 :attributes => {:auto_update => true,
+                                                 :destination => "dest-folder",
+                                                 :filter => {:ignore => ["**/*.html", "**/foobar/"]},
+                                                 :invert_filter => false,
+                                                 :name => "hg-material",
+                                                 :url => "http://user:pass@domain/path#feature"}})
+    end
+
     def existing_material_with_errors
       hg_config = HgMaterialConfig.new(com.thoughtworks.go.util.command::HgUrlArgument.new(''), nil, nil, nil, true, nil, false, '/dest/', CaseInsensitiveString.new('!nV@l!d'))
       material_configs = MaterialConfigs.new(hg_config);

@@ -19,6 +19,7 @@ package com.thoughtworks.go.config.materials.git;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -27,6 +28,7 @@ import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.git.GitVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonValue;
@@ -62,7 +64,7 @@ import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 @EnableRuleMigrationSupport
 public class GitMaterialTest {
@@ -80,6 +82,30 @@ public class GitMaterialTest {
     @BeforeEach
     void setUp() {
         outputStreamConsumer = inMemoryConsumer();
+    }
+
+    @Nested
+    class PasswordAware {
+        private GitMaterial material;
+
+        @BeforeEach
+        void setUp() {
+            material = new GitMaterial("some-url");
+        }
+
+        @Test
+        void shouldBePasswordAwareMaterial() {
+            assertThat(material).isInstanceOf(PasswordAwareMaterial.class);
+        }
+
+        @Test
+        void shouldUpdatePasswordFromConfig() {
+            assertThat(material.getPassword()).isNull();
+
+            material.updateFromConfig(MaterialConfigsMother.git("some-url", "bob", "badger"));
+
+            assertThat(material.getPassword()).isEqualTo("badger");
+        }
     }
 
     @Nested
@@ -360,7 +386,7 @@ public class GitMaterialTest {
             assertThat(validationBean.isValid()).as("Repository should exist").isEqualTo(true);
         }
     }
-    
+
     @Test
     void shouldBeEqualWhenUrlSameForHgMaterial() {
         Material material = MaterialsMother.gitMaterials("url1").get(0);

@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.materials.mercurial;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.HgUrlArgument;
@@ -28,7 +29,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.apache.commons.lang3.StringUtils.split;
 
 @ConfigTag(value = "hg", label = "Mercurial")
-public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware {
+public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial {
     @ConfigAttribute(value = "url")
     private HgUrlArgument url;
 

@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials.git;
 
+import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -46,9 +47,10 @@ import static com.thoughtworks.go.util.FileUtil.createParentFolderIfNotExist;
 import static com.thoughtworks.go.util.FileUtil.deleteDirectoryNoisily;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.*;
+import static org.apache.commons.lang3.StringUtils.isAllBlank;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
-public class GitMaterial extends ScmMaterial {
+public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
     private static final Logger LOG = LoggerFactory.getLogger(GitMaterial.class);
     public static final int UNSHALLOW_TRYOUT_STEP = 100;
     public static final int DEFAULT_SHALLOW_CLONE_DEPTH = 2;

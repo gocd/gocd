@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.ConfigAttribute;
 import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -29,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Map;
 
 @ConfigTag("git")
-public class GitMaterialConfig extends ScmMaterialConfig {
+public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwareMaterial {
     @ConfigAttribute(value = "url")
     private UrlArgument url;
 

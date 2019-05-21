@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
+import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
@@ -51,7 +52,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 /**
  * @understands configuration for mercurial version control
  */
-public class HgMaterial extends ScmMaterial {
+public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
     private static final Pattern HG_VERSION_PATTERN = Pattern.compile(".*\\(.*\\s+(\\d(\\.\\d)+.*)\\)");
     private static final Logger LOGGER = LoggerFactory.getLogger(HgMaterial.class);
     private HgUrlArgument url;

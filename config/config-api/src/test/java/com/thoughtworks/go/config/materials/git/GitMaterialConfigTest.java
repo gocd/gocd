@@ -18,10 +18,7 @@ package com.thoughtworks.go.config.materials.git;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
-import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
-import com.thoughtworks.go.config.materials.Filter;
-import com.thoughtworks.go.config.materials.IgnoredFiles;
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -35,6 +32,11 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class GitMaterialConfigTest {
+    @Test
+    void shouldBePasswordAwareMaterial() {
+        assertThat(new GitMaterialConfig()).isInstanceOf(PasswordAwareMaterial.class);
+    }
+
     @Test
     void shouldSetConfigAttributes() {
         GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("");

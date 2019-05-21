@@ -18,12 +18,14 @@ package com.thoughtworks.go.config.materials.mercurial;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.HgVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonValue;
@@ -67,6 +69,30 @@ public class HgMaterialTest {
     private static final String REVISION_0 = "b61d12de515d82d3a377ae3aae6e8abe516a2651";
     private static final String REVISION_1 = "35ff2159f303ecf986b3650fc4299a6ffe5a14e1";
     private static final String REVISION_2 = "ca3ebb67f527c0ad7ed26b789056823d8b9af23f";
+
+    @Nested
+    class PasswordAware {
+        private HgMaterial material;
+
+        @BeforeEach
+        void setUp() {
+            material = new HgMaterial("some-url", null);
+        }
+
+        @Test
+        void shouldBePasswordAwareMaterial() {
+            assertThat(material).isInstanceOf(PasswordAwareMaterial.class);
+        }
+
+        @Test
+        void shouldUpdatePasswordFromConfig() {
+            assertThat(material.getPassword()).isNull();
+
+            material.updateFromConfig(MaterialConfigsMother.hg("some-url", "bob", "badger"));
+
+            assertThat(material.getPassword()).isEqualTo("badger");
+        }
+    }
 
     @Nested
     class SlowOldTestWhichUsesHgCheckout {

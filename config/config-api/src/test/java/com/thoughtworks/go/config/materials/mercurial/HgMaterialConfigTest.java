@@ -18,10 +18,7 @@ package com.thoughtworks.go.config.materials.mercurial;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
-import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
-import com.thoughtworks.go.config.materials.Filter;
-import com.thoughtworks.go.config.materials.IgnoredFiles;
-import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +40,11 @@ class HgMaterialConfigTest {
     @BeforeEach
     void setUp() {
         hgMaterialConfig = new HgMaterialConfig("", null);
+    }
+
+    @Test
+    void shouldBePasswordAwareMaterial() {
+        assertThat(hgMaterialConfig).isInstanceOf(PasswordAwareMaterial.class);
     }
 
     @Test

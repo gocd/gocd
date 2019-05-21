@@ -206,4 +206,18 @@ public class MaterialConfigsMother {
         return tfsMaterialConfig;
 
     }
+
+    public static GitMaterialConfig git(String url, String username, String password) {
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig(url);
+        gitMaterialConfig.setUserName(username);
+        gitMaterialConfig.setPassword(password);
+        return gitMaterialConfig;
+    }
+
+    public static HgMaterialConfig hg(String url, String username, String password) {
+        HgMaterialConfig materialConfig = new HgMaterialConfig(url, null);
+        materialConfig.setUserName(username);
+        materialConfig.setPassword(password);
+        return materialConfig;
+    }
 }

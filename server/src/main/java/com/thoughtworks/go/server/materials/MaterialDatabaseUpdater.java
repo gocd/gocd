@@ -118,9 +118,9 @@ public class MaterialDatabaseUpdater {
             String message = escapeHtml4("Modification check failed for material: " + material.getLongDescription());
             String affectedPipelinesMessage = "";
             if (pipelineNames.isEmpty()) {
-                affectedPipelinesMessage = (" <br/> No pipelines are affected by this material, perhaps this material is unused.");
+                affectedPipelinesMessage = ("\nNo pipelines are affected by this material, perhaps this material is unused.");
             } else {
-                affectedPipelinesMessage = (" <br/> Affected pipelines are " + StringUtils.join(pipelineNames, ", ") + ".");
+                affectedPipelinesMessage = ("\nAffected pipelines are " + StringUtils.join(pipelineNames, ", ") + ".");
             }
             String finalMessage = message + affectedPipelinesMessage;
             String errorDescription = e.getMessage() == null ? "Unknown error" : escapeHtml4(e.getMessage());

@@ -65,7 +65,7 @@ public class MaterialDatabaseUpdaterTest {
     public void shouldThrowExceptionWithLongDescriptionOfMaterialWhenUpdateFails() throws Exception {
         Material material = new GitMaterial("url", "branch");
         Exception exception = new RuntimeException("failed");
-        String message = "Modification check failed for material: " + material.getLongDescription() + " <br/> Affected pipelines are blah.";
+        String message = "Modification check failed for material: " + material.getLongDescription() + "\nAffected pipelines are blah.";
         when(goConfigService.pipelinesWithMaterial(material.config().getFingerprint())).thenReturn(Collections.singletonList(new CaseInsensitiveString("blah")));
         ServerHealthState error = ServerHealthState.errorWithHtml(message, exception.getMessage(), HealthStateType.general(HealthStateScope.forMaterial(material)));
         when(materialRepository.findMaterialInstance(material)).thenThrow(exception);
@@ -90,7 +90,7 @@ public class MaterialDatabaseUpdaterTest {
     public void shouldFailWithAReasonableMessageWhenExceptionMessageIsNull() throws Exception {
         Material material = new GitMaterial("url", "branch");
         Exception exceptionWithNullMessage = new RuntimeException(null, new RuntimeException("Inner exception has non-null message"));
-        String message = "Modification check failed for material: " + material.getLongDescription() + " <br/> No pipelines are affected by this material, perhaps this material is unused.";
+        String message = "Modification check failed for material: " + material.getLongDescription() + "\nNo pipelines are affected by this material, perhaps this material is unused.";
         when(goConfigService.pipelinesWithMaterial(material.config().getFingerprint())).thenReturn(Collections.emptyList());
 
         when(materialRepository.findMaterialInstance(material)).thenThrow(exceptionWithNullMessage);

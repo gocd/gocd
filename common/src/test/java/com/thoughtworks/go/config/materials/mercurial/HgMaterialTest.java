@@ -68,7 +68,6 @@ public class HgMaterialTest {
     private static final String REVISION_1 = "35ff2159f303ecf986b3650fc4299a6ffe5a14e1";
     private static final String REVISION_2 = "ca3ebb67f527c0ad7ed26b789056823d8b9af23f";
 
-
     @Nested
     class SlowOldTestWhichUsesHgCheckout {
         private HgMaterial hgMaterial;

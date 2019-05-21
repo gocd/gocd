@@ -22,7 +22,7 @@ module ApiV1
 
         def index
           environment_list = environment_config_service.environmentNames()
-          if stale?(etag: environment_list)
+          if stale?(strong_etag: environment_list)
             render json_hal_v1: environment_list
           end
         end

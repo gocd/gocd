@@ -96,6 +96,7 @@ describe ApiV1::Admin::PackagesController do
         allow(@package_definition_service).to receive(:find).with(@package_id).and_return(@package)
         get_with_api_header :show, params:{package_id: @package_id}
         expect(response.status).to eq(200)
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(actual_response).to eq(expected_response({package: @package}, ApiV1::Config::PackageRepresenter))
       end
 

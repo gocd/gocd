@@ -28,7 +28,7 @@ module ApiV1
 
       def show
         hash = get_scm_hash(params[:material_name])
-        render DEFAULT_FORMAT => hash if stale?(etag: etag_for(find_scm(params[:material_name])))
+        render DEFAULT_FORMAT => hash if stale?(strong_etag: etag_for(find_scm(params[:material_name])))
       end
 
       def create

@@ -24,7 +24,7 @@ module ApiV1
 
     def show
       entity_from_config = load_entity_from_config
-      if stale?(etag: etag_for(entity_from_config))
+      if stale?(strong_etag: etag_for(entity_from_config))
         render BaseController::DEFAULT_FORMAT => entity_representer.new(entity_from_config).to_hash(url_builder: self)
       end
     end

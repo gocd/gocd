@@ -22,7 +22,7 @@ module ApiV1
 
         def index
           resource_list = go_config_service.getResourceList()
-          if stale?(etag: resource_list)
+          if stale?(strong_etag: resource_list)
             render json_hal_v1: resource_list
           end
         end

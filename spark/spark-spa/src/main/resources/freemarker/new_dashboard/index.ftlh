@@ -18,6 +18,7 @@
   data-show-empty-pipeline-groups="${showEmptyPipelineGroups?c}"
   data-add-pipeline-button-styling="${addPipelineButtonStyling?c}"
   data-use-new-add-pipeline-flow="${useNewAddPipelineFlow?c}"
-  data-should-show-analytics-icon="${shouldShowAnalyticsIcon?c}">
+  data-should-show-analytics-icon="${shouldShowAnalyticsIcon?c}"
+  data-universal-add-pipeline-button="${universalAddPipelineButton?c}">
   <span class="page-spinner"/>
 </div>

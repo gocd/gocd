@@ -17,12 +17,14 @@ const m                       = require('mithril');
 const f                       = require('helpers/form_helper');
 const _                       = require('lodash');
 const ComponentMixins         = require('helpers/mithril_component_mixins');
+const Buttons                 = require('views/components/buttons/index');
 const DashboardGroupsWidget   = require('views/dashboard/dashboard_groups_widget');
 const PersonalizedViewsWidget = require('views/dashboard/personalized_views_widget');
 const Dropdown                = require('views/shared/dropdown');
 
 import {RewardBanner} from "views/components/reward_banner";
 import {SearchBox} from "views/components/search_box";
+import SparkRoutes from "helpers/spark_routes";
 
 const GroupingSwitch = {
   view(vnode) {
@@ -37,6 +39,10 @@ const GroupingSwitch = {
 };
 
 const DashboardWidget = {
+  goToAddPipeline() {
+    window.location.href = SparkRoutes.newCreatePipelinePath();
+  },
+
   oninit(vnode) {
     ComponentMixins.HasViewModel.call(vnode.state);
   },
@@ -82,6 +88,7 @@ const DashboardWidget = {
                        class="pipeline-search_dashboard"
                        model={vm} attrName="searchText"
                        placeholder="Search pipelines"/>
+            {args.universalAddPipelineButton ? <Buttons.Primary icon={Buttons.ButtonIcon.ADD} aria-label="Create a new pipeline" title="Create a new pipeline" onclick={this.goToAddPipeline}>New Pipeline</Buttons.Primary> : null}
           </section>
 
           {messageView}

@@ -296,6 +296,18 @@ describe("Dashboard Widget", () => {
     expect(title.href.indexOf(`/go/admin/pipelines#group-${pipelineGroupJSON.name}`)).not.toEqual(-1);
   });
 
+  it("should show universal add pipeline button when permitted", () => {
+    unmount();
+    mount(true, Stream(false), true);
+    let button = helper.q(".dashboard-actions>button");
+    expect(button).toExist;
+
+    unmount();
+    mount(false, Stream(false), true);
+    button = helper.q(".dashboard-actions>button");
+    expect(button).toBeNull;
+  });
+
   it("should show pipeline group icon which links to pipeline group settings page for admin users", () => {
     const pipelineGroupJSON = dashboardJson._embedded.pipeline_groups[0];
 
@@ -345,7 +357,7 @@ describe("Dashboard Widget", () => {
     expect(pipelinesWithinPipelineGroup).toContainText(pipelineName);
   });
 
-  function mount(canAdminister = true, showSpinner = Stream(false)) {
+  function mount(canAdminister = true, showSpinner = Stream(false), addPipelineToggle = false) {
     buildCauseJson = {
       "approver":           "",
       "is_forced":          false,
@@ -534,6 +546,7 @@ describe("Dashboard Widget", () => {
       showSpinner,
       pluginsSupportingAnalytics: {},
       shouldShowAnalyticsIcon:    false,
+      universalAddPipelineButton: addPipelineToggle,
       doCancelPolling,
       doRefreshImmediately,
       vm:                         dashboardViewModel

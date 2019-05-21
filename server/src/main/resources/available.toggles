@@ -32,6 +32,11 @@
       "value": false
     },
     {
+      "key": "universal_add_pipeline_button",
+      "description": "Adds a universal add pipeline button.",
+      "value": false
+    },
+    {
       "key": "show_secret_config_spa",
       "description": "Show Secret Config SPA in menu for admin. Default: true",
       "value": true

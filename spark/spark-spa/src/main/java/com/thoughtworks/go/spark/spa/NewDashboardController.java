@@ -74,6 +74,7 @@ public class NewDashboardController implements SparkController {
             put("shouldShowAnalyticsIcon", showAnalyticsIcon());
             put("useNewAddPipelineFlow", Toggles.isToggleOn(Toggles.NEW_ADD_PIPELINE_FLOW));
             put("addPipelineButtonStyling", Toggles.isToggleOn(Toggles.ADD_PIPELINE_BUTTON_STYLING));
+            put("universalAddPipelineButton", Toggles.isToggleOn(Toggles.UNIVERSAL_ADD_PIPELINE_BUTTON));
         }};
         return new ModelAndView(object, "new_dashboard/index.ftlh");
     }

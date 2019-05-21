@@ -73,6 +73,7 @@ public class NewDashboardController implements SparkController {
             put("viewTitle", "Dashboard");
             put("shouldShowAnalyticsIcon", showAnalyticsIcon());
             put("useNewAddPipelineFlow", Toggles.isToggleOn(Toggles.NEW_ADD_PIPELINE_FLOW));
+            put("addPipelineButtonStyling", Toggles.isToggleOn(Toggles.ADD_PIPELINE_BUTTON_STYLING));
         }};
         return new ModelAndView(object, "new_dashboard/index.ftlh");
     }
@@ -81,3 +82,4 @@ public class NewDashboardController implements SparkController {
         return systemEnvironment.enableAnalyticsOnlyForAdmins() ? securityService.isUserAdmin(currentUsername()) : true;
     }
 }
+

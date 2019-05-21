@@ -206,14 +206,15 @@ public class HgMaterial extends ScmMaterial {
 
 
     private HgCommand hg(File workingFolder, ConsoleOutputStreamConsumer outputStreamConsumer) throws Exception {
-        HgCommand hgCommand = new HgCommand(getFingerprint(), workingFolder, getBranch(), getUrl(), secrets());
+        UrlArgument urlArgument = new UrlArgument(urlForCommandLine());
+        HgCommand hgCommand = new HgCommand(getFingerprint(), workingFolder, getBranch(), urlArgument.forCommandLine(), secrets());
         if (!isHgRepository(workingFolder) || isRepositoryChanged(hgCommand)) {
             LOGGER.debug("Invalid hg working copy or repository changed. Delete folder: {}", workingFolder);
             FileUtils.deleteQuietly(workingFolder);
         }
         if (!workingFolder.exists()) {
             createParentFolderIfNotExist(workingFolder);
-            int returnValue = hgCommand.clone(outputStreamConsumer, url);
+            int returnValue = hgCommand.clone(outputStreamConsumer, urlArgument);
             bombIfFailedToRunCommandLine(returnValue, "Failed to run hg clone command");
         }
         return hgCommand;

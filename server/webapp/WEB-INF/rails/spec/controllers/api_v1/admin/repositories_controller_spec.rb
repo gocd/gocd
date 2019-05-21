@@ -84,6 +84,7 @@ describe ApiV1::Admin::RepositoriesController do
         allow(@package_repository_service).to receive(:getPackageRepository).with(@repo_id).and_return(@package_repo)
         get_with_api_header :show, params:{repo_id: @repo_id}
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(actual_response).to eq(expected_response(@package_repo, ApiV1::Config::PackageRepositoryRepresenter))
       end
 

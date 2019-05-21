@@ -95,6 +95,7 @@ describe ApiV1::Admin::PluginSettingsController do
         get_with_api_header :show, params:{plugin_id: 'plugin.id.1'}
 
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(actual_response).to eq(expected_response({plugin_settings: @plugin_settings, plugin_info: @plugin_info}, ApiV1::Config::PluginSettingsRepresenter))
       end
 

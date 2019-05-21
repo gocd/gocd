@@ -23,7 +23,7 @@ module ApiV1
 
       def show
         json = ApiV1::Config::PluginSettingsRepresenter.new({plugin_settings: @plugin_settings, plugin_info: load_plugin_info(@plugin_settings.getPluginId)}).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: etag_for(@plugin_settings))
+        render DEFAULT_FORMAT => json if stale?(strong_etag: etag_for(@plugin_settings))
       end
 
       def create

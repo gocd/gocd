@@ -63,6 +63,7 @@ describe ApiV1::Admin::Internal::EnvironmentsController do
         get_with_api_header :index
 
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(JSON.parse(response.body)).to eq(environments_list)
       end
 

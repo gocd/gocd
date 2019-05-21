@@ -25,7 +25,7 @@ module ApiV1
 
         def show
           json = ApiV1::Admin::Authorization::AuthorizationConfigRepresenter.new(@template.getAuthorization).to_hash(url_builder: self)
-          render DEFAULT_FORMAT => json if stale?(etag: etag_for(@template))
+          render DEFAULT_FORMAT => json if stale?(strong_etag: etag_for(@template))
         end
 
         def update

@@ -128,6 +128,7 @@ describe ApiV1::Admin::PluggableScmsController do
         get_with_api_header :show, params:{material_name: 'material'}
 
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(actual_response).to eq(expected_response(@scm, ApiV1::Scms::PluggableScmRepresenter))
       end
 

@@ -86,6 +86,7 @@ describe ApiV1::Admin::MergedEnvironmentsController do
 
         get_with_api_header :show, params:{environment_name: @environment_name}
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(actual_response).to eq(expected_response(@environment_config, ApiV1::Admin::MergedEnvironments::MergedEnvironmentConfigRepresenter))
       end
 

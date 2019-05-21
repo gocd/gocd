@@ -83,6 +83,7 @@ describe ApiV1::Admin::Templates::AuthorizationController do
         get_with_api_header :show, params:{template_name: 'template'}
 
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(actual_response).to eq(expected_response(@template.getAuthorization, ApiV1::Admin::Authorization::AuthorizationConfigRepresenter))
       end
 

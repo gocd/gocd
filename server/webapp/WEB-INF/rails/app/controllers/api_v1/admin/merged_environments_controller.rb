@@ -27,7 +27,7 @@ module ApiV1
         environment_name = params[:environment_name]
         load_merged_environment(environment_name)
         json = ApiV1::Admin::MergedEnvironments::MergedEnvironmentConfigRepresenter.new(@environment_config).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if stale?(etag: etag_for(environment_config_service.getEnvironmentForEdit(environment_name)))
+        render DEFAULT_FORMAT => json if stale?(strong_etag: etag_for(environment_config_service.getEnvironmentForEdit(environment_name)))
       end
 
       protected

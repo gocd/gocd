@@ -74,11 +74,11 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     private MaterialConfigConverter materialConfigConverter = new MaterialConfigConverter();
 
     @DataPoint
-    public static MaterialConfig gitMaterialConfig = new GitMaterialConfig(url("git-url"), null, null, "branch", "submodule", true, filterFor("*.doc"), false, "folder", cis("gitMaterial"), false);
-    @DataPoint
-    public static MaterialConfig hgMaterialConfig = new HgMaterialConfig(new HgUrlArgument("hg-url"), null, null, null, true, filterFor("*.png"), false, "folder", cis("hgMaterial"));
-    @DataPoint
     public static MaterialConfig svnMaterialConfig = new SvnMaterialConfig(url("svn-url"), "user", "pass", true, new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("name1"));
+    @DataPoint
+    public static MaterialConfig gitMaterialConfig = new GitMaterialConfig(url("git-url"), null, "pass", "branch", "submodule", true, filterFor("*.doc"), false, "folder", cis("gitMaterial"), false);
+    @DataPoint
+    public static MaterialConfig hgMaterialConfig = new HgMaterialConfig(new HgUrlArgument("hg-url"), null, "pass", null, true, filterFor("*.png"), false, "folder", cis("hgMaterial"));
     @DataPoint
     public static MaterialConfig p4MaterialConfig = new P4MaterialConfig("localhost:9090", "user", "pass", true, "view", new GoCipher(), cis("p4Material"), true, filterFor("*.jpg"), false, "folder");
     @DataPoint
@@ -102,7 +102,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     }
 
     @Theory
-    public void shouldBeSameObject_WhenConversionIsDoneFromMaterialConfigToMaterialAndBack(MaterialConfig materialConfig) throws Exception {
+    public void shouldBeSameObject_WhenConversionIsDoneFromMaterialConfigToMaterialAndBack(MaterialConfig materialConfig) {
         Material materialFromConfig = materialConfigConverter.toMaterial(materialConfig);
         MaterialConfig materialConfigConvertedBackFromMaterial = materialFromConfig.config();
 
@@ -119,7 +119,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     }
 
     @Theory
-    public void shouldBeSameObject_WhenConversionIsDoneFromMaterialToMaterialInstanceAndBack(MaterialConfig materialConfig) throws Exception {
+    public void shouldBeSameObject_WhenConversionIsDoneFromMaterialToMaterialInstanceAndBack(MaterialConfig materialConfig) {
         Material material = materialConfigConverter.toMaterial(materialConfig);
 
         MaterialInstance materialInstance = material.createMaterialInstance();

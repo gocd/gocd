@@ -41,7 +41,6 @@ public class PipelineTimeline {
     private static final Logger LOGGER = LoggerFactory.getLogger(PipelineTimeline.class);
 
     private final Map<CaseInsensitiveString, PipelineTimelineEntrySet> pipelineToEntries;
-    private volatile long maximumId;
     private final PipelineRepository pipelineRepository;
     private TransactionTemplate transactionTemplate;
     private TransactionSynchronizationManager transactionSynchronizationManager;
@@ -58,7 +57,6 @@ public class PipelineTimeline {
         this.transactionSynchronizationManager = transactionSynchronizationManager;
         this.listeners = listeners;
         pipelineToEntries = new HashMap<>();
-        maximumId = -1;
     }
 
     /**
@@ -76,10 +74,6 @@ public class PipelineTimeline {
         } finally {
             naturalOrderLock.readLock().unlock();
         }
-    }
-
-    public long maximumId() {
-        return maximumId;
     }
 
     public long getMaximumIdFor(String pipelineName) {

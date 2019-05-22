@@ -206,7 +206,7 @@ public class PipelineTimelineTest {
         verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries), first.getPipelineName());
         verifyNoMoreInteractions(transactionSynchronizationManager);
         verifyNoMoreInteractions(transactionTemplate);
-        assertThat(timeline.maximumId(), is(2L));
+//        assertThat(timeline.maximumId(), is(2L));
     }
 
     @Test public void updateShouldLoadNewInstancesFromTheDatabase() throws Exception {
@@ -233,7 +233,7 @@ public class PipelineTimelineTest {
         timeline.update(first.getPipelineName());
 
         verify(pipelineRepository).updatePipelineTimeline(timeline, Arrays.asList(entries), first.getPipelineName());
-        assertThat(timeline.maximumId(), is(-1L));
+        assertThat(timeline.getMaximumIdFor(first.getPipelineName()), is(-1L));
     }
 
     @Test

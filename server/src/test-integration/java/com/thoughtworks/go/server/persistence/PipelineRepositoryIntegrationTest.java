@@ -197,7 +197,7 @@ public class PipelineRepositoryIntegrationTest {
                 Collections.singletonMap(hgmaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(2).toDate(), "123", hgmaterial.getFingerprint(), 10))), 1)));
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME), hasItem(expected(secondId,
                 Collections.singletonMap(hgmaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(1).toDate(), "12", hgmaterial.getFingerprint(), 8))), 2)));
-        assertThat(pipelineTimeline.maximumId(), is(secondId));
+        assertThat(pipelineTimeline.getMaximumIdFor(PIPELINE_NAME), is(secondId));
 
         long thirdId = createPipeline(hgmaterial, pipelineConfig, 3, oneModifiedFile("30", date.plusDays(10).toDate()));
 
@@ -206,7 +206,7 @@ public class PipelineRepositoryIntegrationTest {
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME).size(), is(3));
         assertThat(pipelineTimeline.getEntriesFor(PIPELINE_NAME), hasItem(expected(thirdId,
                 Collections.singletonMap(hgmaterial.getFingerprint(), a(new PipelineTimelineEntry.Revision(date.plusDays(10).toDate(), "1234", hgmaterial.getFingerprint(), 12))), 3)));
-        assertThat(pipelineTimeline.maximumId(), is(thirdId));
+        assertThat(pipelineTimeline.getMaximumIdFor(PIPELINE_NAME), is(thirdId));
 
         assertThat(pipelineSqlMapDao.pipelineByIdWithMods(firstId).getNaturalOrder(), is(1.0));
         assertThat(pipelineSqlMapDao.pipelineByIdWithMods(secondId).getNaturalOrder(), is(0.5));

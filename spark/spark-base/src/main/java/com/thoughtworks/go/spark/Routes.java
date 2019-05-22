@@ -127,12 +127,32 @@ public class Routes {
         public static final String DOC = "https://api.go.cd/current/#dashboard";
     }
 
-    public static class Materials {
+    public static class MaterialConfig {
+        public static final String BASE = "/api/config/materials";
+        public static final String DOC = apiDocsUrl("#materials");
+
         public static String vsm(String materialFingerprint, String revision) {
             return StrSubstitutor.replace("/materials/value_stream_map/${material_fingerprint}/${revision}", of(
                     "material_fingerprint", materialFingerprint,
                     "revision", revision));
         }
+    }
+
+    public static class MaterialModifications {
+        public static final String BASE = "/api/materials/:fingerprint/modifications";
+        public static final String OFFSET = "/:offset";
+
+        public static String modification(String fingerprint) {
+            return BASE.replaceAll(":fingerprint", fingerprint);
+        }
+    }
+
+    public static class MaterialNotify {
+        public static final String BASE = "/api/admin/materials";
+        public static final String SVN = "/svn/notify";
+        public static final String GIT = "/git/notify";
+        public static final String HG = "/hg/notify";
+        public static final String SCM = "/scm/notify";
     }
 
     public static class PipelineGroup {

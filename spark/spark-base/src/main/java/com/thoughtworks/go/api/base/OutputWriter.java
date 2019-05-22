@@ -32,6 +32,8 @@ public interface OutputWriter extends Closeable {
 
     OutputWriter addIfNotNull(String key, CaseInsensitiveString value);
 
+    OutputWriter addIfNotNull(String key, Long value);
+
     OutputWriter addWithDefaultIfBlank(String key, String value, String defaultValue);
 
     OutputWriter add(String key, int value);
@@ -51,6 +53,8 @@ public interface OutputWriter extends Closeable {
     OutputWriter addChildList(String key, Collection<String> values);
 
     OutputWriter addLinks(Consumer<OutputLinkWriter> consumer);
+
+    OutputWriter addEmbedded(Consumer<OutputWriter> consumer);
 
     OutputWriter add(String key, JsonNode jsonNode);
 

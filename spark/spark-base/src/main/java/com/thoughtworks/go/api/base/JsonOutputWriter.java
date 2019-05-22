@@ -124,6 +124,15 @@ public class JsonOutputWriter {
         }
 
         @Override
+        public JsonOutputWriterUsingJackson addIfNotNull(String key, Long value) {
+            return withExceptionHandling((jacksonWriter) -> {
+                if (value != null) {
+                    add(key, value);
+                }
+            });
+        }
+
+        @Override
         public JsonOutputWriterUsingJackson addIfNotNull(String key, CaseInsensitiveString value) {
             return withExceptionHandling((jacksonWriter) -> {
                 if (value != null) {
@@ -205,6 +214,11 @@ public class JsonOutputWriter {
                     consumer.accept(new JsonOutputLinkWriter(childWriter));
                 });
             });
+        }
+
+        @Override
+        public OutputWriter addEmbedded(Consumer<OutputWriter> consumer) {
+            return new JsonOutputChildWriter("_embedded", this).body(consumer);
         }
 
         @Override

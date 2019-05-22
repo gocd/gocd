@@ -30,6 +30,34 @@
   </rule>
 
   <rule>
+    <name>Spark Materials Index API</name>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/config/materials(/?)$</from>
+    <to last="true">/spark/api/config/materials</to>
+  </rule>
+
+  <rule>
+    <name>Spark Material Modifications API</name>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/materials/([^/]+)/modifications(/?)$</from>
+    <to last="true">/spark/api/materials/${escape:$1}/modifications</to>
+  </rule>
+
+  <rule>
+    <name>Spark Material Notify API</name>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/admin/materials/(svn|git|hg|scm)/notify(/?)$</from>
+    <to last="true">/spark/api/admin/materials/${escape:$1}/notify</to>
+  </rule>
+
+  <rule>
+    <name>Spark Material Modifications with offset API</name>
+    <condition name="Accept">application\/vnd\.go\.cd\.v1\+json</condition>
+    <from>^/api/materials/([^/]+)/modifications/([^/+])(/?)$</from>
+    <to last="true">/spark/api/materials/${escape:$1}/modifications/${escape:$2}</to>
+  </rule>
+
+  <rule>
     <name>secret_configs UI</name>
     <from>^/admin/secret_configs(/?)$</from>
     <to last="true">/spark/admin/secret_configs</to>

@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv1.stageoperations.representers
+
+package com.thoughtworks.go.api.representers
 
 import com.thoughtworks.go.server.util.Pagination
 import org.junit.jupiter.api.Test
@@ -27,7 +28,7 @@ class PaginationRepresenterTest {
   void 'should represent pagination with hal'() {
     def pagination = new Pagination(1, 20, 10)
 
-    def actualJson = toObjectString({PaginationRepresenter.toJSON(it, pagination) })
+    def actualJson = toObjectString({ PaginationRepresenter.toJSON(it, pagination) })
 
     assertThatJson(actualJson).isEqualTo(paginationHash)
   }

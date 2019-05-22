@@ -33,6 +33,7 @@ public class GitMaterialInstance extends MaterialInstance {
         GitMaterial git = new GitMaterial(url, branch, folder);
         setName(name, git);
         git.setUserName(username);
+        git.setPassword(password);
         git.setSubmoduleFolder(submoduleFolder);
         git.setId(id);
         return git;

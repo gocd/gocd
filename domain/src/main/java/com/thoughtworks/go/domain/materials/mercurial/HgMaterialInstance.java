@@ -34,6 +34,7 @@ public class HgMaterialInstance extends MaterialInstance {
         setName(name, hg);
         hg.setId(id);
         hg.setUserName(username);
+        hg.setPassword(password);
         hg.setBranch(branch);
         return hg;
     }

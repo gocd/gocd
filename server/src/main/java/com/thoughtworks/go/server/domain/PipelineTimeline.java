@@ -77,7 +77,9 @@ public class PipelineTimeline {
     }
 
     public long getMaximumIdFor(String pipelineName) {
-        return pipelineToEntries.get(new CaseInsensitiveString(pipelineName)).getMaximumId();
+        PipelineTimelineEntrySet pipelineTimelineEntrySet = pipelineToEntries.get(new CaseInsensitiveString(pipelineName));
+
+        return pipelineTimelineEntrySet == null ? -1 : pipelineTimelineEntrySet.getMaximumId();
     }
 
     public void add(PipelineTimelineEntry pipelineTimelineEntry) {
@@ -112,7 +114,7 @@ public class PipelineTimeline {
                         for (PipelineTimelineEntry entry : newlyAddedEntries) {
                             rollbackNewEntryFor(entry);
                         }
-                        pipelineTimelineEntrySet.updateMaximumId(maximumIdBeforeUpdate);
+                        pipelineTimelineEntrySet.setMaximumId(maximumIdBeforeUpdate);
                     }
 
                     private void rollbackNewEntryFor(PipelineTimelineEntry entry) {

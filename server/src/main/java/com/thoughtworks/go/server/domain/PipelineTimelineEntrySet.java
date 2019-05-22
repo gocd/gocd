@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,10 @@ public class PipelineTimelineEntrySet {
 
     public void updateMaximumId(long id) {
         maximumId = Math.max(id, maximumId);
+    }
+
+    public void setMaximumId(long id) {
+        maximumId = id;
     }
 
     public long getMaximumId() {

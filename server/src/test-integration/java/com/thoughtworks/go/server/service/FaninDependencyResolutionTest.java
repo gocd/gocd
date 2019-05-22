@@ -191,6 +191,7 @@ public class FaninDependencyResolutionTest {
         assertThat(getRevisionsBasedOnDependencies(regression, cruiseConfig, given), is(expected));
 
         String a_2 = u.runAndPass(acceptance, b_2);
+        pipelineTimeline.update(acceptance.config.name().toString());
 
         given = u.mrs(
                 u.mr(build, true, b_2),
@@ -202,6 +203,7 @@ public class FaninDependencyResolutionTest {
 
         String r_2 = u.runAndPass(regression, b_2, a_2);
         String r_3 = u.runAndPass(regression, b_1, a_2);
+        pipelineTimeline.update(regression.config.name().toString());
 
         given = u.mrs(
                 u.mr(acceptance, true, a_2),
@@ -213,6 +215,7 @@ public class FaninDependencyResolutionTest {
 
         String s_2 = u.runAndPass(staging, a_2, r_2);
         String s_3 = u.runAndPass(staging, a_2, r_3);
+        pipelineTimeline.update(staging.config.name().toString());
 
         given = u.mrs(u.mr(staging, true, s_3));
         expected = u.mrs(u.mr(staging, true, s_2));
@@ -224,6 +227,10 @@ public class FaninDependencyResolutionTest {
         String r_4 = u.runAndPass(regression, b_3, a_3);
         String s_4 = u.runAndPass(staging, a_3, r_1);
         String s_5 = u.runAndPass(staging, a_1, r_4);
+        pipelineTimeline.update(build.config.name().toString());
+        pipelineTimeline.update(acceptance.config.name().toString());
+        pipelineTimeline.update(regression.config.name().toString());
+        pipelineTimeline.update(staging.config.name().toString());
 
         given = u.mrs(
                 u.mr(acceptance, true, a_3),
@@ -238,6 +245,7 @@ public class FaninDependencyResolutionTest {
 //        assertThat(getBuildCause(staging,given,previousMaterialRevisions), is(not(nullValue()))); //TODO: *************** Bug where pipeline should be triggered <Sara>
 
         String r_5 = u.runAndPass(regression, b_3, a_3);
+        pipelineTimeline.update(regression.config.name().toString());
 
         given = u.mrs(
                 u.mr(acceptance, true, a_3),

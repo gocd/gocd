@@ -127,7 +127,7 @@ public class PipelineRepositoryIntegrationTest {
         u.runAndPass(p, "g2", "g1");
 
         PipelineTimeline timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        timeline.updateTimelineOnInit();
+        timeline.update("P");
 
         List<PipelineTimelineEntry> timelineEntries = new ArrayList<>(timeline.getEntriesFor("P"));
         assertThat(timelineEntries.get(0).getPipelineLocator().getCounter(), is(1));
@@ -148,7 +148,7 @@ public class PipelineRepositoryIntegrationTest {
         goConfigDao.load();
 
         timeline = new PipelineTimeline(pipelineRepository, transactionTemplate, transactionSynchronizationManager);
-        timeline.updateTimelineOnInit();
+        timeline.update("P");
 
         timelineEntries = new ArrayList<>(timeline.getEntriesFor("P"));
         assertThat(timelineEntries.get(0).getPipelineLocator().getCounter(), is(1));

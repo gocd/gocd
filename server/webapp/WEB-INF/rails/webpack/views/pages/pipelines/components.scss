@@ -20,6 +20,7 @@
 @import "../../components/buttons/index";
 
 $diagram-width: 485px;
+$diagram-caption-width: 300px;
 
 .fillable, .actions {
   background-color: $white;
@@ -109,6 +110,8 @@ $diagram-width: 485px;
   figcaption {
     font-size: 16px;
     text-align: center;
+    width: $diagram-caption-width;
+    margin: 10px auto 0;
   }
 }
 

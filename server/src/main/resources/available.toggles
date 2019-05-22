@@ -1,40 +1,40 @@
 {
-   "version": "1",
-   "toggles": [
-      {
-         "key": "pipeline_comment_feature_toggle_key",
-         "description": "Enables commenting on a pipeline run, in the pipeline history view. See more at: https://docs.gocd.org/current/beta/comment_on_pipeline_run.html. Default: off.",
-         "value": false
-      },
-      {
-         "key": "browser_console_log_ws_key",
-         "description": "Enables rendering console logs via websockets. Default: disabled.",
-         "value": false
-      },
-      {
-        "key": "users_page_using_rails",
-        "description": "Switch users page to use spark.",
-        "value": false
-      },
-      {
-        "key": "new_add_pipeline_flow",
-        "description": "New add pipeline flow.",
-        "value": false
-      },
-      {
-        "key": "add_pipeline_button_styling",
-        "description": "Makes the add pipeline buttons for pipeline groups on dashboard styled like a primary button.",
-        "value": false
-      },
-      {
-         "key": "backup_page_using_rails",
-         "description": "Switch backup page to use rails.",
-         "value": false
-      } ,
-      {
-        "key": "show_secret_config_spa",
-        "description": "Show Secret Config SPA in menu for admin. Default: false",
-        "value": false
-      }
+  "version":"1",
+  "toggles":[
+    {
+      "key":"pipeline_comment_feature_toggle_key",
+      "description":"Enables commenting on a pipeline run, in the pipeline history view. See more at: https://docs.gocd.org/current/beta/comment_on_pipeline_run.html. Default: off.",
+      "value":false
+    },
+    {
+      "key":"browser_console_log_ws_key",
+      "description":"Enables rendering console logs via websockets. Default: disabled.",
+      "value":false
+    },
+    {
+      "key":"users_page_using_rails",
+      "description":"Switch users page to use spark.",
+      "value":false
+    },
+    {
+      "key":"new_add_pipeline_flow",
+      "description":"New add pipeline flow.",
+      "value":false
+    },
+    {
+      "key":"add_pipeline_button_styling",
+      "description":"Makes the add pipeline buttons for pipeline groups on dashboard styled like a primary button.",
+      "value":false
+    },
+    {
+      "key":"backup_page_using_rails",
+      "description":"Switch backup page to use rails.",
+      "value":false
+    },
+    {
+      "key":"show_secret_config_spa",
+      "description":"Show Secret Config SPA in menu for admin. Default: false",
+      "value":false
+    }
   ]
 }

@@ -34,7 +34,7 @@ class GitMaterialInstanceTest {
         assertThat(material.getName()).isEqualTo(new CaseInsensitiveString("example"));
         assertThat(material.getUrl()).isEqualTo("https://example.com");
         assertThat(material.getUserName()).isEqualTo("bob");
-        assertThat(material.getPassword()).isEqualTo(null);
+        assertThat(material.getPassword()).isEqualTo("pass");
         assertThat(material.getBranch()).isEqualTo("feature");
         assertThat(material.getSubmoduleFolder()).isEqualTo("submodule_folder");
         assertThat(material.getFolder()).isEqualTo("destination");

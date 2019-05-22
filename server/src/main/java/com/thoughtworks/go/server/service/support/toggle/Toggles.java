@@ -21,6 +21,7 @@ public class Toggles {
     public static String USERS_PAGE_USING_RAILS = "users_page_using_rails";
     public static String BACKUP_PAGE_USING_RAILS = "backup_page_using_rails";
     public static String NEW_ADD_PIPELINE_FLOW = "new_add_pipeline_flow";
+    public static String ADD_PIPELINE_BUTTON_STYLING = "add_pipeline_button_styling";
     public static String SHOW_SECRET_CONFIG_SPA = "show_secret_config_spa";
 
     private static FeatureToggleService service;

@@ -12,6 +12,8 @@ export const awesomplete: string;
 export const visuallyHidden: string;
 export const disabled: string;
 export const btnSmall: string;
+export const rightAlign: string;
+export const leftAlign: string;
 export const btnPrimary: string;
 export const btnDanger: string;
 export const btnSecondary: string;

@@ -30,6 +30,8 @@ export enum ButtonIcon {
   FILTER,
 }
 
+export type Alignment = "right" | "left";
+
 export interface OnClickHandler {
   onclick?: (e: MouseEvent) => void;
 }
@@ -43,6 +45,7 @@ export interface Attrs extends OnClickHandler, Restyleable<Styles> {
   small?: boolean;
   disabled?: boolean;
   dropdown?: boolean;
+  align?: Alignment;
 }
 
 abstract class Button extends MithrilViewComponent<Attrs> {
@@ -73,6 +76,7 @@ abstract class Button extends MithrilViewComponent<Attrs> {
                 this.css().button,
                 {[this.css().btnSmall]: isSmall, [this.css().btnDropdown]: isDropdown},
                 Button.iconClass(vnode.attrs.icon, this.css()),
+                Button.alignClass(vnode.attrs.align, this.css()),
                 this.type()
               )}>
         {vnode.children}
@@ -90,6 +94,18 @@ abstract class Button extends MithrilViewComponent<Attrs> {
         return css.iconDoc;
       case ButtonIcon.FILTER:
         return css.iconFilter;
+    }
+    return "";
+  }
+
+  private static alignClass(align?: Alignment, css?: Styles) {
+    css = css || defaultStyles;
+
+    switch (align) {
+      case "left":
+        return css.leftAlign;
+      case "right":
+        return css.rightAlign;
     }
     return "";
   }

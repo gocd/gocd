@@ -14,6 +14,6 @@
  limitations under the License.
  -->
 
-<div id="dashboard" class="dashboard" data-use-new-add-pipeline-flow="${useNewAddPipelineFlow?c}" data-should-show-analytics-icon="${shouldShowAnalyticsIcon?c}">
+<div id="dashboard" class="dashboard" data-add-pipeline-button-styling="${addPipelineButtonStyling?c}" data-use-new-add-pipeline-flow="${useNewAddPipelineFlow?c}" data-should-show-analytics-icon="${shouldShowAnalyticsIcon?c}">
   <span class="page-spinner"/>
 </div>

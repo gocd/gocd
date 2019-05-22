@@ -29,6 +29,14 @@
   font-size:   13px;
 }
 
+.right-align {
+  float: right;
+}
+
+.left-align {
+  float: left;
+}
+
 .btn-primary {
   @include button($background-color: $btn-primary);
 }

@@ -126,6 +126,11 @@ class ChildAttrUniquenessValidator extends Validator {
       });
 
       if (!_.isEmpty(duplicates)) {
+        //Need to add at the entity level because we clear the child errors
+        //when we validate the children
+        entity.errors().add(attrName, this.options.message || ErrorMessages.duplicate(this.childAttr));
+        //Need to add the error to the child because we want the error to be
+        //visible from the UI
         child.errors().add(this.childAttr, this.options.message || ErrorMessages.duplicate(this.childAttr));
       }
 
@@ -293,7 +298,7 @@ export class ValidatableMixin implements Validatable {
   }
 
   validateChildAttrIsUnique(attr: string, childAttr: string, options?: ValidatorOptions): void {
-    this.validateWith(new ChildAttrUniquenessValidator(childAttr), attr);
+    this.validateWith(new ChildAttrUniquenessValidator(childAttr, options), attr);
   }
 
   validateAssociated(association: string): void {

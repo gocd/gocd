@@ -41,7 +41,7 @@ export class Job extends ValidatableMixin {
     this.validateNonEmptyCollection("tasks", {message: "A job must have at least one task"});
     this.validateEach("tasks");
     this.validateEach("environmentVariables");
-    this.validateChildAttrIsUnique("environmentVariables", "name");
+    this.validateChildAttrIsUnique("environmentVariables", "name", {message: "Environment Variable names must be unique"});
   }
 
   toApiPayload() {

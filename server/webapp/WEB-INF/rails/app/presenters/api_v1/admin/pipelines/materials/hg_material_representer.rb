@@ -21,12 +21,12 @@ module ApiV1
         class HgMaterialRepresenter < ScmMaterialRepresenter
           include EncryptedPasswordSupport
 
-          property :user_name, as: :username, skip_nil: true
+          property :user_name, as: :username, skip_nil: true, skip_parse: SkipParseOnBlank
           property :password,
                    skip_render: true,
                    skip_nil: true,
                    skip_parse: true
-          property :branch, skip_nil: true,
+          property :branch, skip_nil: true, skip_parse: SkipParseOnBlank,
                    getter: lambda {|args|
                      self.getBranchAttribute
                    },

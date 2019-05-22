@@ -31,7 +31,7 @@ module ApiV1
                    }
           property :submodule_folder
           property :shallow_clone
-          property :user_name, as: :username, skip_nil: true
+          property :user_name, as: :username, skip_nil: true, skip_parse: SkipParseOnBlank
           property :password,
                    skip_render: true,
                    skip_nil: true,

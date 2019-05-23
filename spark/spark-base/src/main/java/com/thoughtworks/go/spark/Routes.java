@@ -588,4 +588,8 @@ public class Routes {
     public class ClusterProfiles {
         public static final String SPA_BASE = "/admin/cluster_profiles";
     }
+
+    public class PipelineActivity {
+        public static final String SPA_BASE = "/pipeline/activity/:pipeline_name";
+    }
 }

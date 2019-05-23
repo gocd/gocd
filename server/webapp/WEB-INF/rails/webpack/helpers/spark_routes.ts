@@ -279,4 +279,8 @@ export default class {
     }
     return `/go/api/admin/secret_configs`;
   }
+
+  static apiPipelineActivity(pipelineName: string) {
+    return `/go/pipelineHistory.json?pipelineName=${pipelineName}`;
+  }
 }

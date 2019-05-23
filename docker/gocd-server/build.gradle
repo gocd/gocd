@@ -44,9 +44,11 @@ subprojects {
     if (project.hasProperty('dockerBuildLocalZip')) {
       task.dependsOn ':installers:serverGenericZip'
       task.artifactZip = rootProject.project(':installers').tasks.getByName('serverGenericZip').outputs.files.singleFile
+    } else if (project.hasProperty('dockerbuildServerZipLocation')) {
+      task.artifactZip = project.file(project.dockerbuildServerZipLocation)
     } else {
-      if (project.hasProperty('dockerbuildServerZipLocation')) {
-        task.artifactZip = project.file(project.dockerbuildServerZipLocation)
+      task.doFirst {
+        throw new GradleException("You must specify either -PdockerBuildLocalZip or -PdockerbuildAgentZipLocation=/path/to/agent.zip")
       }
     }
 

@@ -443,4 +443,8 @@ export class SparkRoutes {
   static editEnvironmentsPath(environmentName: string) {
     return `/go/admin/environments/#!${environmentName}`;
   }
+
+  static apiPipelineActivity(pipelineName: string) {
+    return `/go/pipelineHistory.json?pipelineName=${pipelineName}`;
+  }
 }

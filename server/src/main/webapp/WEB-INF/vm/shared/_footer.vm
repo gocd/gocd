@@ -27,6 +27,8 @@
     <script type="text/javascript">
         restoreSidebarStatus();
 
+        ##new AjaxRefresher("$req.getContextPath()/server/messages.json", "$req.getContextPath()/auth/login", {executeImmediately: true});
+
         #if($global_error_message && $global_error_message != "")
             FlashMessageLauncher.warn("$esc.javascript("$global_error_message")", null, true);
         #end

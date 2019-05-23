@@ -20,7 +20,6 @@ import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
-import * as events from "simulate-event";
 import {TestHelper} from "views/pages/spec/test_helper";
 import * as css from "../components.scss";
 import {EnvironmentVariablesEditor} from "../environment_variables_editor";
@@ -69,12 +68,8 @@ describe("EnvironmentVariablesEditor", () => {
     helper.click("button", section);
     const variable = helper.findIn(section, "table-row").last();
     const fields = variable.find("input");
-    fields.first().val(name);
-    events.simulate(fields.first().get(0), "input");
-    helper.redraw();
-    fields.last().val(value);
-    events.simulate(fields.last().get(0), "input");
-    helper.redraw();
+    helper.oninput(fields.get(0), name);
+    helper.oninput(fields.get(1), value);
     return variable.get(0);
   }
 

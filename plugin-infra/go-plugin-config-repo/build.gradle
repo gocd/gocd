@@ -39,7 +39,7 @@ javadoc {
     windowTitle = 'GoCD Plugin Config Repo Contract'
     docTitle = 'GoCD Plugin Config Repo Contract'
     header = 'GoCD Plugin Config Repo Contract'
-    bottom = "Copyright &copy; ${Calendar.getInstance().get(Calendar.YEAR).toString()} ThoughtWorks, Inc. GoCD Version: ${project.version}"
+    bottom = "Copyright &copy; ${Calendar.getInstance().get(Calendar.YEAR).toString()} ThoughtWorks, Inc. GoCD Version: ${project.fullVersion}"
   }
 }
 

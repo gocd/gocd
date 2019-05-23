@@ -117,6 +117,7 @@ def configureOSXZip(Zip zipTask,
     dependsOn extractDeltaPack
     destinationDirectory = file("${project.buildDir}/${project.distsDirName}/osx")
     archiveBaseName = type.baseName
+    archiveVersion = project.fullVersion
     archiveClassifier = 'osx'
 
     def baseDirInsideArchive = "${type.baseName}-${project.goVersion}"

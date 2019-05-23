@@ -265,7 +265,7 @@ task compileAssets {
       from licenseReportAggregate
       // assets are cached with a long lived cache header
       // we purposefully add a version string in the path so every new build will basically use a different url
-      into "${outputDir}/dependency-license-report-${project.version}"
+      into "${outputDir}/dependency-license-report-${project.fullVersion}"
     }
     copy {
       from compileRailsAssets

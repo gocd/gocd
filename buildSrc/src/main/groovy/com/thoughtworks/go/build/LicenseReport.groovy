@@ -89,7 +89,7 @@ class LicenseReport {
         }
 
         body {
-          div(class: "header", "Dependency License Report for GoCD ${project.version}")
+          div(class: "header", "Dependency License Report for GoCD ${project.fullVersion}")
 
           licensesForPackagedJarDependencies.each { String moduleName, Map<String, Object> moduleLicenseData ->
             // find what project contains the specific module

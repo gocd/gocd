@@ -90,6 +90,16 @@ class HgMaterialUpdaterTest extends BuildSessionBasedTestCase {
     }
 
     @Test
+    void failureCommandShouldNotLeakPasswordOnUrlWhenCredentialConfiguredThroughAttributes() {
+        HgMaterial material = MaterialsMother.hgMaterial("https://this.is.absolute.not.exists");
+        material.setUserName("foo");
+        material.setPassword("foopassword");
+        updateTo(material, new RevisionContext(REVISION_1), JobResult.Failed);
+        assertThat(console.output()).contains("https://this.is.absolute.not.exists");
+        assertThat(console.output()).doesNotContain("foopassword");
+    }
+
+    @Test
     void shouldCreateBuildCommandUpdateToSpecificRevision() {
         File newFile = new File(workingFolder, "end2end/revision2.txt");
         updateTo(hgMaterial, new RevisionContext(REVISION_0), JobResult.Passed);

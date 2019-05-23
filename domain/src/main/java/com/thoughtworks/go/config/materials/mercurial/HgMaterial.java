@@ -179,7 +179,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
     public ValidationBean checkConnection(final SubprocessExecutionContext execCtx) {
         HgCommand hgCommand = new HgCommand(null, null, null, null, secrets());
         try {
-            hgCommand.checkConnection(new UrlArgument(urlForCommandLine()));
+            hgCommand.checkConnection(new HgUrlArgument(urlForCommandLine()));
             return ValidationBean.valid();
         } catch (Exception e) {
             try {
@@ -207,7 +207,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
 
     private HgCommand hg(File workingFolder, ConsoleOutputStreamConsumer outputStreamConsumer) throws Exception {
-        UrlArgument urlArgument = new UrlArgument(urlForCommandLine());
+        UrlArgument urlArgument = new HgUrlArgument(urlForCommandLine());
         HgCommand hgCommand = new HgCommand(getFingerprint(), workingFolder, getBranch(), urlArgument.forCommandLine(), secrets());
         if (!isHgRepository(workingFolder) || isRepositoryChanged(hgCommand)) {
             LOGGER.debug("Invalid hg working copy or repository changed. Delete folder: {}", workingFolder);
@@ -221,8 +221,8 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
         return hgCommand;
     }
 
-    private List<SecretString> secrets() {
-        SecretString secretSubstitution = line -> line.replace(url.forCommandLine(), url.forDisplay());
+    protected List<SecretString> secrets() {
+        SecretString secretSubstitution = line -> line.replace(urlForCommandLine(), getUriForDisplay());
         return Collections.singletonList(secretSubstitution);
     }
 

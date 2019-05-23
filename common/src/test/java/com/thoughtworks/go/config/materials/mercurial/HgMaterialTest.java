@@ -30,10 +30,7 @@ import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.command.ConsoleResult;
-import com.thoughtworks.go.util.command.HgUrlArgument;
-import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
-import com.thoughtworks.go.util.command.UrlArgument;
+import com.thoughtworks.go.util.command.*;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
@@ -306,13 +303,13 @@ public class HgMaterialTest {
 
     @Test
     void checkConnectionShouldUseUrlForCommandLine() {
-        final HgMaterial material = spy(new HgMaterial("http://example.com", null));
+        final HgMaterial material = spy(new HgMaterial("http://example.com", ""));
         material.setUserName("bob");
         material.setPassword("password");
 
         material.checkConnection(new TestSubprocessExecutionContext());
 
-        verify(material).urlForCommandLine();
+        verify(material, atLeastOnce()).urlForCommandLine();
     }
 
     @Test
@@ -653,6 +650,29 @@ public class HgMaterialTest {
             assertThat(materialInstance.getUrl()).isEqualTo(hgMaterial.getUrl());
             assertThat(materialInstance.getUsername()).isEqualTo(hgMaterial.getUserName());
             assertThat(materialInstance.getBranch()).isEqualTo("branch-as-attribute");
+        }
+    }
+
+    @Nested
+    class secrets {
+        @Test
+        void shouldReplaceUrlForCommandLineWithUrlForDisplay_whenCredntialsAreProvidedInUrl() {
+            HgMaterial hgMaterial = new HgMaterial("https://bob:pass@example.com", "destinations");
+
+            String info = hgMaterial.secrets().get(0).replaceSecretInfo("https://bob:pass@example.com");
+
+            assertThat(info).isEqualTo(hgMaterial.getUriForDisplay());
+        }
+
+        @Test
+        void shouldReplaceUrlForCommandLineWithUrlForDisplay_whenCredentialsAreProvidedAsAttributes() {
+            HgMaterial hgMaterial = new HgMaterial("https://example.com", "destinations");
+            hgMaterial.setUserName("bob");
+            hgMaterial.setPassword("pass");
+
+            String info = hgMaterial.secrets().get(0).replaceSecretInfo("https://bob:pass@example.com");
+
+            assertThat(info).isEqualTo(hgMaterial.getUriForDisplay());
         }
     }
 }

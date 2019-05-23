@@ -39,7 +39,7 @@ public class HgMaterialUpdater {
         String workingDir = material.workingdir(new File(baseDir)).getPath();
         UrlArgument url = material.getUrlArgument();
         return compose(
-                secret(url.forCommandLine(), url.forDisplay()),
+                secret(material.urlForCommandLine(), material.getUriForDisplay()),
                 echoWithPrefix("Start updating %s at revision %s from %s", material.updatingTarget(), revision.getRevision(), url.forDisplay()),
                 cloneIfNeeded(workingDir),
                 pull(workingDir),

@@ -16,29 +16,37 @@
 package com.thoughtworks.go.server.domain;
 
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.ResourceConfigs;
+import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.ValidationContext;
+import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.domain.PersistentObject;
+import com.thoughtworks.go.remote.AgentIdentifier;
+import org.apache.commons.lang3.StringUtils;
 
-public class Agent extends PersistentObject {
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+
+public class Agent extends PersistentObject implements Validatable {
     private String uuid;
     private String cookie;
     private String hostname;
     private String ipaddress;
+    private String elasticAgentId;
+    private String elasticPluginId;
+    private boolean disabled;
+    private String environments;
+    private String resources;
+    private boolean deleted;
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public void setCookie(String cookie) {
-        this.cookie = cookie;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public void setIpaddress(String ipaddress) {
-        this.ipaddress = ipaddress;
-    }
+    private ConfigErrors errors = new ConfigErrors();
+    public static final String IP_ADDRESS = "ipaddress";
+    public static final String UUID = "uuid";
 
     public Agent(String uuid, String cookie, String hostname, String ipaddress) {
         this.uuid = uuid;
@@ -52,33 +60,193 @@ public class Agent extends PersistentObject {
     }
 
     public static Agent fromConfig(AgentConfig config) {
-        return new Agent(config.getUuid(), "None", config.getHostNameForDisplay(), config.getIpAddress());
+        Agent agent = new Agent(config.getUuid(), null, config.getHostName(), config.getIpAddress());
+        agent.setDisabled(config.isDisabled());
+        agent.setElasticAgentId(config.getElasticAgentId());
+        agent.setElasticPluginId(config.getElasticPluginId());
+        agent.setEnvironments(config.getEnvironments());
+        agent.setResources(config.getResourceConfigs());
+        agent.setId(config.getId());
+        if (config.getCookie() != null) {
+            agent.setCookie(config.getCookie());
+        }
+
+        return agent;
     }
 
     @Deprecated //for hibernate
     private Agent() {
     }
 
-    public String getHostname() {
-        return hostname;
+    public void update(String cookie, String hostname, String ipaddress) {
+        this.setCookie(cookie);
+        this.setHostname(hostname);
+        this.setIpaddress(ipaddress);
+    }
+
+    public AgentIdentifier getAgentIdentifier() {
+        return new AgentIdentifier(this.getHostname(), getIpaddress(), getUuid());
+    }
+
+    public boolean isElastic() {
+        return isNotBlank(elasticAgentId) && isNotBlank(elasticPluginId);
+    }
+
+    public void addResources(List<String> resourcesToAdd) {
+        LinkedHashSet<String> resources = new LinkedHashSet<>();
+        if (getResources() != null) {
+            resources.addAll(getResources().stream().map(resource -> resource.getName()).collect(Collectors.toList()));
+        }
+        resources.addAll(resourcesToAdd);
+        setResources(new ResourceConfigs(String.join(",", resources)));
+    }
+
+    public void removeResources(List<String> resourcesToRemove) {
+        if (getResources() != null) {
+            List<String> resources = getResources()
+                    .stream()
+                    .map(resource -> resource.getName())
+                    .filter(resource -> !resourcesToRemove.contains(resource))
+                    .collect(Collectors.toList());
+
+            setResources(new ResourceConfigs(String.join(",", resources)));
+        }
+    }
+
+    public void addEnvironments(List<String> environmentsToAdd) {
+        LinkedHashSet<String> environments = new LinkedHashSet<>();
+        if (this.getEnvironments() != null) {
+            environments.addAll(Arrays.asList(this.getEnvironments().split(",")));
+        }
+        environments.addAll(environmentsToAdd);
+        this.setEnvironments(String.join(",", environments));
+    }
+
+    public void removeEnvironments(List<String> environmentsToRemove) {
+        if (this.getEnvironments() != null) {
+            List<String> environments = Arrays.stream(this.getEnvironments().split(","))
+                    .filter(environment -> !environmentsToRemove.contains(environment))
+                    .collect(Collectors.toList());
+
+            this.setEnvironments(String.join(",", environments));
+        }
     }
 
     public String getUuid() {
         return uuid;
     }
 
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
     public String getCookie() {
         return cookie;
+    }
+
+    public void setCookie(String cookie) {
+        this.cookie = cookie;
+    }
+
+    public String getHostname() {
+        return hostname;
+    }
+
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
     }
 
     public String getIpaddress() {
         return ipaddress;
     }
 
-    public void update(String cookie, String hostname, String ipaddress) {
-        this.cookie = cookie;
-        this.hostname = hostname;
+    public void setIpaddress(String ipaddress) {
         this.ipaddress = ipaddress;
     }
 
+    public String getElasticAgentId() {
+        return elasticAgentId;
+    }
+
+    public void setElasticAgentId(String elasticAgentId) {
+        this.elasticAgentId = elasticAgentId;
+    }
+
+    public String getElasticPluginId() {
+        return elasticPluginId;
+    }
+
+    public void setElasticPluginId(String elasticPluginId) {
+        this.elasticPluginId = elasticPluginId;
+    }
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    public String getEnvironments() {
+        return environments;
+    }
+
+    public void setEnvironments(String environments) {
+        this.environments = environments;
+    }
+
+    public ResourceConfigs getResources() {
+        return new ResourceConfigs(resources == null ? "" : resources);
+    }
+
+    public void setResources(ResourceConfigs resourceConfigs) {
+        this.resources = StringUtils.join(resourceConfigs.resourceNames(), ",");
+    }
+
+    public void setResources(String resources) {
+        this.resources = resources;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    public void validate(ValidationContext validationContext) {
+        validateIpAddress();
+        if (StringUtils.isBlank(uuid)) {
+            addError(UUID, "UUID cannot be empty");
+        }
+        validateResources();
+    }
+
+    private void validateResources() {
+        if (isElastic() && !resources.isEmpty()) {
+            errors.add("elasticAgentId", "Elastic agents cannot have resources.");
+        }
+    }
+
+    private void validateIpAddress() {
+        String address = getIpaddress();
+        if (address == null) {
+            return;
+        }
+        if (StringUtils.isBlank(address)) {
+            addError(IP_ADDRESS, "IpAddress cannot be empty if it is present.");
+            return;
+        }
+        try {
+            IpAddress.create(address);
+        } catch (Exception e) {
+            addError(IP_ADDRESS, String.format("'%s' is an invalid IP address.", address));
+        }
+    }
+
+    public void addError(String fieldName, String msg) {
+        errors.add(fieldName, msg);
+    }
+
+    public ConfigErrors errors() {
+        return errors;
+    }
 }

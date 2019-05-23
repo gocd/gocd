@@ -34,8 +34,7 @@ describe ApiV1::Admin::MergedEnvironments::MergedEnvironmentConfigRepresenter do
                                   name: 'dev',
                                   origins: [ApiV1::Shared::ConfigOrigin::ConfigXmlOriginRepresenter.new(com.thoughtworks.go.config.remote.FileConfigOrigin.new).to_hash(url_builder: UrlBuilder.new)],
                                   pipelines: [ApiV1::Admin::MergedEnvironments::PipelineConfigSummaryRepresenter.new({pipeline: com.thoughtworks.go.config.EnvironmentPipelineConfig.new('dev-pipeline'), environment: environment}).to_hash(url_builder: UrlBuilder.new)],
-                                  agents: [ApiV1::Admin::MergedEnvironments::AgentSummaryRepresenter.new({agent: EnvironmentAgentConfig.new('dev-agent'), environment: environment}).to_hash(url_builder: UrlBuilder.new),
-                                           ApiV1::Admin::MergedEnvironments::AgentSummaryRepresenter.new({agent: EnvironmentAgentConfig.new('omnipresent-agent'), environment: environment}).to_hash(url_builder: UrlBuilder.new)],
+                                  agents: [],
                                   environment_variables: [
                                     ApiV1::Admin::MergedEnvironments::EnvironmentVariableRepresenter.new({env_var: EnvironmentVariableConfig.new('username', 'admin'), environment: environment}).to_hash(url_builder: UrlBuilder.new)
                                   ]

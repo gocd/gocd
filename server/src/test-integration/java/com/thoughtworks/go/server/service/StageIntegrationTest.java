@@ -88,6 +88,7 @@ public class StageIntegrationTest {
         svnRepo = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
         CONFIG_HELPER.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");
         mingle = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, FT_STAGE, "bar");
+        // TODO: Vrushali & Viraj need to fix this
         CONFIG_HELPER.addAgent(HOSTNAME, AGENT_UUID);
     }
 

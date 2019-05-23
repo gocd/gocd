@@ -52,7 +52,6 @@ import org.xmlunit.assertj.XmlAssert;
 import java.io.File;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_NONE;
@@ -128,7 +127,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldMigrateToRevision22() throws Exception {
         final String content = IOUtils.toString(getClass().getResourceAsStream("cruise-config-escaping-migration-test-fixture.xml"), UTF_8);
 
-        String migratedContent = migrateXmlString(content, 21, 22);
+        String migratedContent = ConfigMigrator.migrate(content, 21, 22);
 
         String expected = content.replaceAll("(?<!do_not_sub_)#", "##").replace("<cruise schemaVersion=\"21\">", "<cruise schemaVersion=\"22\">");
         assertStringsIgnoringCarriageReturnAreEqual(expected, migratedContent);
@@ -148,7 +147,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldMigrateToRevision34() throws Exception {
         final String content = IOUtils.toString(getClass().getResourceAsStream("svn-p4-with-parameterized-passwords.xml"), UTF_8);
 
-        String migratedContent = migrateXmlString(content, 22, 34);
+        String migratedContent = ConfigMigrator.migrate(content, 22, 34);
 
         String expected = content.replaceAll("#\\{jez_passwd\\}", "badger")
                 .replace("<cruise schemaVersion=\"22\">", "<cruise schemaVersion=\"34\">")
@@ -160,7 +159,7 @@ public class GoConfigMigrationIntegrationTest {
     public void shouldMigrateToRevision35_escapeHash() throws Exception {
         final String content = IOUtils.toString(getClass().getResourceAsStream("escape_param_for_nant_p4.xml"), UTF_8).trim();
 
-        String migratedContent = migrateXmlString(content, 22, 35);
+        String migratedContent = ConfigMigrator.migrate(content, 22, 35);
 
         String expected = content.replace("<cruise schemaVersion=\"22\">", "<cruise schemaVersion=\"35\">")
                 .replace("<view>##foo#</view>", "<view>####foo##</view>").replace("nantpath=\"#foo##\"", "nantpath=\"##foo####\"");
@@ -169,7 +168,7 @@ public class GoConfigMigrationIntegrationTest {
 
     @Test
     public void shouldMigrateToRevision58_deleteVMMS() throws Exception {
-        String migratedContent = migrateXmlString(ConfigFileFixture.WITH_VMMS_CONFIG, 50, 58);
+        String migratedContent = ConfigMigrator.migrate(ConfigFileFixture.WITH_VMMS_CONFIG, 50, 58);
 
         assertThat(migratedContent.contains("vmms")).isFalse();
     }
@@ -238,7 +237,7 @@ public class GoConfigMigrationIntegrationTest {
                 + "    </environment>"
                 + "    </environments>"
                 + " </cruise>";
-        String migratedContent = migrateXmlString(content, 22, 23);
+        String migratedContent = ConfigMigrator.migrate(content, 22, 23);
 
         assertThat(migratedContent).contains("<pipeline isLocked=\"true\" name=\"in_env\">");
         assertThat(migratedContent).contains("<pipeline isLocked=\"false\" name=\"in_env_unLocked\">");
@@ -524,9 +523,9 @@ public class GoConfigMigrationIntegrationTest {
         String lockedPipelineAfterMigration = pipelineWithAttributes("name=\"locked1\" lockBehavior=\"" + LOCK_VALUE_LOCK_ON_FAILURE + "\"", 98);
         String unLockedPipelineAfterMigration = pipelineWithAttributes("name=\"unlocked1\" lockBehavior=\"" + LOCK_VALUE_NONE + "\"", 98);
 
-        assertStringsIgnoringCarriageReturnAreEqual(defaultPipelineAfterMigration, migrateXmlString(defaultPipeline, 97, 98));
-        assertStringsIgnoringCarriageReturnAreEqual(lockedPipelineAfterMigration, migrateXmlString(lockedPipeline, 97, 98));
-        assertStringsIgnoringCarriageReturnAreEqual(unLockedPipelineAfterMigration, migrateXmlString(unLockedPipeline, 97, 98));
+        assertStringsIgnoringCarriageReturnAreEqual(defaultPipelineAfterMigration, ConfigMigrator.migrate(defaultPipeline, 97, 98));
+        assertStringsIgnoringCarriageReturnAreEqual(lockedPipelineAfterMigration, ConfigMigrator.migrate(lockedPipeline, 97, 98));
+        assertStringsIgnoringCarriageReturnAreEqual(unLockedPipelineAfterMigration, ConfigMigrator.migrate(unLockedPipeline, 97, 98));
     }
 
     @Test
@@ -894,7 +893,7 @@ public class GoConfigMigrationIntegrationTest {
                 + "    </pipelines>"
                 + "</cruise>";
 
-        String migratedContent = migrateXmlString(configXml, 105, 106);
+        String migratedContent = ConfigMigrator.migrate(configXml, 105, 106);
         String artifactId2 = "<artifact type=\"external\" id=\"artifactId2\" storeId=\"foo\">"
                 + "                         <property>"
                 + "                             <key>BuildFile</key>"
@@ -1123,7 +1122,7 @@ public class GoConfigMigrationIntegrationTest {
                 + configContent
                 + "</cruise>";
 
-        String migratedContent = migrateXmlString(configXml, 113, 114);
+        String migratedContent = ConfigMigrator.migrate(configXml, 113, 114);
 
         assertThat(migratedContent).contains("<cruise schemaVersion=\"114\"");
         assertThat(migratedContent).contains(configContent);
@@ -1260,7 +1259,7 @@ public class GoConfigMigrationIntegrationTest {
                 + configContent
                 + "</cruise>";
 
-        String migratedContent = migrateXmlString(configXml, 115, 116);
+        String migratedContent = ConfigMigrator.migrate(configXml, 115, 116);
 
         assertThat(migratedContent).contains("<cruise schemaVersion=\"116\"");
         assertThat(migratedContent).contains(configContent);
@@ -1378,7 +1377,7 @@ public class GoConfigMigrationIntegrationTest {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<cruise schemaVersion=\"121\">" + originalConfig + "</cruise>";
 
-        final String migratedXml = migrateXmlString(configXml, 120, 121);
+        final String migratedXml = ConfigMigrator.migrate(configXml, 120, 121);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 
@@ -1413,7 +1412,7 @@ public class GoConfigMigrationIntegrationTest {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<cruise schemaVersion=\"123\">" + originalConfig + "</cruise>";
 
-        final String migratedXml = migrateXmlString(configXml, 122, 123);
+        final String migratedXml = ConfigMigrator.migrate(configXml, 122, 123);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 
@@ -1448,7 +1447,7 @@ public class GoConfigMigrationIntegrationTest {
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                         "<cruise schemaVersion=\"124\">" + originalConfig + "</cruise>";
 
-        final String migratedXml = migrateXmlString(configXml, 123, 124);
+        final String migratedXml = ConfigMigrator.migrate(configXml, 123, 124);
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 
@@ -1701,13 +1700,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     private String migrateXmlString(String content, int fromVersion) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        return migrateXmlString(content, fromVersion, GoConfigSchema.currentSchemaVersion());
+        return ConfigMigrator.migrate(content, fromVersion, GoConfigSchema.currentSchemaVersion());
     }
 
-    private String migrateXmlString(String content, int fromVersion, int toVersion) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider(), ConfigElementImplementationRegistryMother.withNoPlugins());
-        Method upgrade = upgrader.getClass().getDeclaredMethod("upgrade", String.class, Integer.TYPE, Integer.TYPE);
-        upgrade.setAccessible(true);
-        return (String) upgrade.invoke(upgrader, content, fromVersion, toVersion);
-    }
 }

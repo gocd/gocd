@@ -37,7 +37,7 @@ import java.io.File;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.helper.ConfigFileFixture.INVALID_CONFIG_WITH_MULTIPLE_TRACKINGTOOLS;
-import static com.thoughtworks.go.helper.ConfigFileFixture.WITH_3_AGENT_CONFIG;
+import static com.thoughtworks.go.helper.ConfigFileFixture.BASIC_CONFIG;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.*;
@@ -52,7 +52,7 @@ public abstract class GoConfigDaoTestBase {
 
     @Test
     public void shouldCreateCruiseConfigFromBasicConfigFile() throws Exception {
-        CruiseConfig cruiseConfig = GoConfigFileHelper.load(WITH_3_AGENT_CONFIG);
+        CruiseConfig cruiseConfig = GoConfigFileHelper.load(BASIC_CONFIG);
 
         assertThat(cruiseConfig, is(notNullValue()));
         PipelineConfig pipelineConfig = cruiseConfig.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
@@ -65,21 +65,6 @@ public abstract class GoConfigDaoTestBase {
         assertThat(stageConfig.jobConfigByInstanceName("bluemonkeybutt", true).name(), is(new CaseInsensitiveString("bluemonkeybutt")));
         assertThat(cardList.tasks(), iterableWithSize(1));
         assertThat(cardList.tasks().first(), instanceOf(NullTask.class));
-    }
-
-    @Test
-    public void shouldGetAgents() throws Exception {
-        CruiseConfig cruiseConfig = GoConfigFileHelper.load(WITH_3_AGENT_CONFIG);
-
-        Agents agents = cruiseConfig.agents();
-        assertThat(agents.size(), is(3));
-        final AgentConfig approvedAgentConfig = agents.getAgentByUuid("3");
-        assertThat(approvedAgentConfig.getHostname(), is("test3.com"));
-        assertThat(approvedAgentConfig.getIpAddress(), is("192.168.0.3"));
-        assertThat(approvedAgentConfig.getResourceConfigs().toString(), is("jdk1.4"));
-
-        final AgentConfig deniedAgentConfig = agents.getAgentByUuid("2");
-        assertThat(deniedAgentConfig.isDisabled(), is(true));
     }
 
     @Test
@@ -96,7 +81,7 @@ public abstract class GoConfigDaoTestBase {
 
     @Test
     public void shouldGetArtifactsFromBuildPlan() throws Exception {
-        CruiseConfig cruiseConfig = GoConfigFileHelper.load(WITH_3_AGENT_CONFIG);
+        CruiseConfig cruiseConfig = GoConfigFileHelper.load(BASIC_CONFIG);
 
         final ArtifactConfigs cardListArtifacts = cruiseConfig.jobConfigByName("pipeline1", "mingle",
                 "cardlist", true).artifactConfigs();

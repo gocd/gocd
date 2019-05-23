@@ -16,11 +16,19 @@
 package com.thoughtworks.go.server.persistence;
 
 import java.sql.SQLException;
+import java.util.Arrays;
+import java.util.List;
 
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.ResourceConfigs;
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Agent;
+import com.thoughtworks.go.server.domain.AgentInstances;
+import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TriState;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.junit.After;
@@ -35,8 +43,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -50,9 +57,12 @@ import static org.mockito.Mockito.mock;
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class AgentDaoTest {
-    @Autowired private AgentDao agentDao;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoCache goCache;
+    @Autowired
+    private AgentDao agentDao;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoCache goCache;
     private HibernateTemplate hibernateTemplate;
     private HibernateTemplate mockHibernateTemplate;
 
@@ -148,6 +158,110 @@ public class AgentDaoTest {
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
         agentDao.setHibernateTemplate(originalTemplate);
     }
+
+    @Test
+    public void shouldGetAgentsForGivenUuidsExcludingSoftDeletedAgents() {
+        Agent agent1 = new Agent("uuid", "cookie", "localhost", "127.0.0.1");
+        Agent agent2 = new Agent("uuid2", "cookie2", "localhost2", "127.0.0.2");
+        Agent agent3 = new Agent("uuid3", "cookie3", "localhost3", "127.0.0.3");
+        agent3.setDeleted(true);
+        agentDao.saveOrUpdate(agent1);
+        agentDao.saveOrUpdate(agent2);
+        agentDao.saveOrUpdate(agent3);
+
+        List<String> uuids = Arrays.asList("uuid", "uuid3");
+
+        List<Agent> allAgents = agentDao.getAllAgents(uuids);
+
+        assertThat(allAgents.size(), is(1));
+        assertThat(allAgents.get(0).getUuid(), is("uuid"));
+    }
+
+    @Test
+    public void shouldGetAllAgentsExcludingSoftDeletedAgents() {
+        Agent agent1 = new Agent("uuid", "cookie", "localhost", "127.0.0.1");
+        Agent agent2 = new Agent("uuid2", "cookie2", "localhost2", "127.0.0.2");
+        Agent agent3 = new Agent("uuid3", "cookie3", "localhost3", "127.0.0.3");
+        agent3.setDeleted(true);
+        agentDao.saveOrUpdate(agent1);
+        agentDao.saveOrUpdate(agent2);
+        agentDao.saveOrUpdate(agent3);
+
+        List<Agent> allAgents = agentDao.getAllAgents();
+
+        assertThat(allAgents.size(), is(2));
+        assertThat(allAgents.get(0).getUuid(), is("uuid"));
+        assertThat(allAgents.get(1).getUuid(), is("uuid2"));
+    }
+
+    @Test
+    public void shouldChangeAgentDisabledFlag() {
+        Agent agent1 = new Agent("uuid", "cookie", "localhost", "127.0.0.1");
+        Agent agent2 = new Agent("uuid2", "cookie2", "localhost2", "127.0.0.2");
+        Agent agent3 = new Agent("uuid3", "cookie3", "localhost3", "127.0.0.3");
+        agentDao.saveOrUpdate(agent1);
+        agentDao.saveOrUpdate(agent2);
+        agentDao.saveOrUpdate(agent3);
+
+        List<String> uuidsForDisabledAgents = Arrays.asList("uuid", "uuid3");
+        List<String> uuidsForEnabledAgents = Arrays.asList("uuid2");
+
+        agentDao.changeDisabled(uuidsForDisabledAgents, true);
+        agentDao.changeDisabled(uuidsForEnabledAgents, false);
+
+        assertThat(agentDao.agentByUuid("uuid").isDisabled(), is(true));
+        assertThat(agentDao.agentByUuid("uuid3").isDisabled(), is(true));
+        assertThat(agentDao.agentByUuid("uuid2").isDisabled(), is(false));
+    }
+
+    @Test
+    public void shouldBulkUpdateAttributes() {
+        AgentConfig agentConfig1 = new AgentConfig("uuid", "localhost", "127.0.0.1", "cookie");
+        agentConfig1.setResourceConfigs(new ResourceConfigs("resource1,resource2"));
+        AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), null);
+        agentConfig1.setEnvironments("env1,env2,env3");
+        AgentConfig agentConfig2 = new AgentConfig("uuid2", "localhost2", "127.0.0.2", "cookie2");
+        agentConfig2.setResourceConfigs(new ResourceConfigs("resource1"));
+        AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), null);
+        AgentConfig agentConfig3 = new AgentConfig("uuid3", "localhost3", "127.0.0.3", "cookie3");
+        agentConfig3.setResourceConfigs(new ResourceConfigs("resource1"));
+        agentConfig3.setEnvironments("env1,env3");
+        AgentInstance agentInstance3 = AgentInstance.createFromConfig(agentConfig3, new SystemEnvironment(), null);
+        agentDao.saveOrUpdate(agentConfig1);
+        agentDao.saveOrUpdate(agentConfig2);
+        agentDao.saveOrUpdate(agentConfig3);
+
+        agentDao.bulkUpdateAttributes(
+                Arrays.asList(agentConfig1.getUuid(), agentConfig3.getUuid()),
+                Arrays.asList("resource3", "resource4"),
+                Arrays.asList("resource1", "resource2"),
+                Arrays.asList("env2", "env4"),
+                Arrays.asList("env1", "env3"),
+                TriState.UNSET,
+                new AgentInstances(new SystemEnvironment(), null, agentInstance1, agentInstance2, agentInstance3));
+
+        assertThat(agentDao.agentByUuid(agentConfig1.getUuid()).getResources().resourceNames(), is(Arrays.asList("resource3", "resource4")));
+        assertThat(agentDao.agentByUuid(agentConfig2.getUuid()).getResources().resourceNames(), is(Arrays.asList("resource1")));
+        assertThat(agentDao.agentByUuid(agentConfig3.getUuid()).getResources().resourceNames(), is(Arrays.asList("resource3", "resource4")));
+
+        assertThat(agentDao.agentByUuid(agentConfig1.getUuid()).getEnvironments(), is("env2,env4"));
+        assertNull(agentDao.agentByUuid(agentConfig2.getUuid()).getEnvironments());
+        assertThat(agentDao.agentByUuid(agentConfig3.getUuid()).getEnvironments(), is("env2,env4"));
+    }
+
+    @Test
+    public void shouldBulkDeleteAgent() {
+        Agent agent1 = new Agent("uuid", "cookie", "localhost", "127.0.0.1");
+        Agent agent2 = new Agent("uuid2", "cookie2", "localhost2", "127.0.0.2");
+        agentDao.saveOrUpdate(agent1);
+        agentDao.saveOrUpdate(agent2);
+
+        agentDao.bulkSoftDelete(Arrays.asList("uuid", "uuid2"));
+
+        assertNull(agentDao.agentByUuid("uuid"));
+        assertNull(agentDao.agentByUuid("uuid2"));
+    }
+
 
     private Agent getAgentByUuid(AgentIdentifier agentIdentifier) {
         return (Agent) hibernateTemplate.execute(new HibernateCallback() {

@@ -65,6 +65,8 @@ import static org.mockito.Mockito.*;
         "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
+
+//TODO: Vrushali and Viraj need to fix this
 public class AgentServiceIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
@@ -86,6 +88,8 @@ public class AgentServiceIntegrationTest {
     private AgentDao agentDao;
     @Autowired
     private ConfigRepository configRepository;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
 
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
     private static final String UUID = "uuid";
@@ -96,6 +100,7 @@ public class AgentServiceIntegrationTest {
     public void setUp() throws Exception {
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.onSetUp();
+        dbHelper.onSetUp();
         cachedGoConfig.clearListeners();
         agentService.clearAll();
         agentService.initialize();
@@ -109,6 +114,7 @@ public class AgentServiceIntegrationTest {
         CONFIG_HELPER.onTearDown();
         cachedGoConfig.clearListeners();
         agentService.clearAll();
+        dbHelper.onTearDown();
     }
 
     private AgentService getAgentService(AgentInstances agentInstances) {
@@ -438,8 +444,7 @@ public class AgentServiceIntegrationTest {
 
         assertThat(agentService.findRegisteredAgents().size(), is(1));
         assertThat(agentService.findAgentAndRefreshStatus(pending.agentConfig().getUuid()).agentConfig().isDisabled(), is(false));
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().get(0).isDisabled(), is(false));
+        assertThat(agentDao.agentByUuid(pending.getUuid()).isDisabled(), is(false));
     }
 
     @Test
@@ -477,9 +482,8 @@ public class AgentServiceIntegrationTest {
 
     @Test
     public void shouldDenyApprovedAgent() throws Exception {
-        CONFIG_HELPER.addAgent(new AgentConfig(UUID, "agentName", "127.0.0.9"));
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().get(0).isDisabled(), is(false));
+        agentDao.saveOrUpdate(new AgentConfig(UUID, "agentName", "127.0.0.9"));
+        assertThat(agentDao.agentByUuid(UUID).isDisabled(), is(false));
 
         agentService.initialize();
 
@@ -499,11 +503,10 @@ public class AgentServiceIntegrationTest {
 
     @Test
     public void shouldDenyCorrectAgentWhenTwoOnSameBox() throws Exception {
-        CONFIG_HELPER.addAgent(new AgentConfig(UUID, "agentName", "127.0.0.9", new ResourceConfigs("agent1")));
-        CONFIG_HELPER.addAgent(new AgentConfig(UUID2, "agentName", "127.0.0.9", new ResourceConfigs("agent2")));
-        CruiseConfig cruiseConfig = goConfigDao.load();
-        assertThat(cruiseConfig.agents().getAgentByUuid(UUID).isDisabled(), is(false));
-        assertThat(cruiseConfig.agents().getAgentByUuid(UUID2).isDisabled(), is(false));
+        agentDao.saveOrUpdate(new AgentConfig(UUID, "agentName", "127.0.0.9", new ResourceConfigs("agent1")));
+        agentDao.saveOrUpdate(new AgentConfig(UUID2, "agentName", "127.0.0.9", new ResourceConfigs("agent2")));
+        assertThat(agentDao.agentByUuid(UUID).isDisabled(), is(false));
+        assertThat(agentDao.agentByUuid(UUID2).isDisabled(), is(false));
 
         agentService.initialize();
 
@@ -723,24 +726,24 @@ public class AgentServiceIntegrationTest {
         AgentConfig deniedAgent1 = new AgentConfig("uuid1", "deniedAgent1", "127.0.0.1");
         deniedAgent1.disable();
 
-        CONFIG_HELPER.addAgent(deniedAgent1);
+        agentDao.saveOrUpdate(deniedAgent1);
         AgentConfig deniedAgent2 = new AgentConfig("uuid2", "deniedAgent2", "127.0.0.2");
         deniedAgent2.disable();
-        CONFIG_HELPER.addAgent(deniedAgent2);
+        agentDao.saveOrUpdate(deniedAgent2);
 
-        CONFIG_HELPER.addAgent(new AgentConfig("uuid3", "approvedAgent1", "127.0.0.3"));
+        agentDao.saveOrUpdate(new AgentConfig("uuid3", "approvedAgent1", "127.0.0.3"));
         goConfigDao.load();
 
         agentService.initialize();
 
         AgentInstances approvedAgents = agentService.findEnabledAgents();
         assertThat(approvedAgents.size(), is(1));
-        assertThat(approvedAgents.findAgentAndRefreshStatus("uuid3").agentConfig().getHostname(), is("approvedAgent1"));
+        assertThat(approvedAgents.findAgentAndRefreshStatus("uuid3").agentConfig().getHostName(), is("approvedAgent1"));
 
         AgentInstances deniedAgents = agentService.findDisabledAgents();
         assertThat(deniedAgents.size(), is(2));
-        assertThat(deniedAgents.findAgentAndRefreshStatus("uuid1").agentConfig().getHostname(), is("deniedAgent1"));
-        assertThat(deniedAgents.findAgentAndRefreshStatus("uuid2").agentConfig().getHostname(), is("deniedAgent2"));
+        assertThat(deniedAgents.findAgentAndRefreshStatus("uuid1").agentConfig().getHostName(), is("deniedAgent1"));
+        assertThat(deniedAgents.findAgentAndRefreshStatus("uuid2").agentConfig().getHostName(), is("deniedAgent2"));
     }
 
     @Test
@@ -1051,7 +1054,7 @@ public class AgentServiceIntegrationTest {
     public void testShouldNotUpdateHostnameOrResourcesOrEnvironmentsIfNoneAreSpecified() throws Exception {
         createEnvironment("a", "b");
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
-        String originalHostname = agent.getHostname();
+        String originalHostname = agent.getHostName();
 
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), Collections.emptyList(), Collections.emptyList(), Arrays.asList("a","b"), Collections.emptyList(), TriState.TRUE);
@@ -1076,7 +1079,7 @@ public class AgentServiceIntegrationTest {
     @Test
     public void testShouldThrowErrorOnUpdatingAgentOnInvalidInputs() throws Exception {
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
-        String originalHostname = agent.getHostname();
+        String originalHostname = agent.getHostName();
         List<String> originalResourceNames = agent.getResourceConfigs().resourceNames();
 
         goConfigDao.load();

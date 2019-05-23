@@ -316,24 +316,11 @@ public class MagicalGoConfigXmlLoaderTest {
         String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat'>"
-                        + "    <agents>"
-                        + "      <physical uuid='1'/>"
-                        + "      <physical uuid='2'/>"
-                        + "    </agents>"
                         + "  </environment>"
-                        + "</environments>");
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         EnvironmentsConfig environmentsConfig = xmlLoader.deserializeConfig(content).getEnvironments();
         EnvironmentConfig uat = environmentsConfig.get(0);
         assertThat(uat.getOrigin()).isEqualTo(new FileConfigOrigin());
-    }
-
-    @Test
-    void shouldSupportMultipleAgentsFromSameBox() throws Exception {
-        CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ConfigMigrator.migrate(WITH_MULTIPLE_LOCAL_AGENT_CONFIG)).config;
-        assertThat(cruiseConfig.agents().size()).isEqualTo(2);
-        assertThat(cruiseConfig.agents().get(0).getHostname()).isEqualTo(cruiseConfig.agents().get(1).getHostname());
-        assertThat(cruiseConfig.agents().get(0).getIpAddress()).isEqualTo(cruiseConfig.agents().get(1).getIpAddress());
-        assertThat(cruiseConfig.agents().get(0).getUuid()).isNotEqualTo(cruiseConfig.agents().get(1).getUuid());
     }
 
     @Test
@@ -686,36 +673,20 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldLoadPartialConfigWithEnvironment() throws Exception {
-        String partialConfigWithPipeline =
-                "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                        + "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <agents>"
-                        + "      <physical uuid='1'/>"
-                        + "      <physical uuid='2'/>"
-                        + "    </agents>"
-                        + "  </environment>"
-                        + "  <environment name='prod'>"
-                        + "    <agents>"
-                        + "      <physical uuid='2'/>"
-                        + "    </agents>"
-                        + "  </environment>"
-                        + "</environments>"
-                        + "</cruise>\n";
+        String partialConfigWithPipeline = configWithEnvironments(
+                "<environments>\n"
+                        + "  <environment name='uat'>\n"
+                        + "     <pipelines>\n"
+                        + "         <pipeline name='pipeline1' />\n"
+                        + "     </pipelines>\n"
+                        + "  </environment>\n"
+                        + "  <environment name='prod' />\n"
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         PartialConfig partialConfig = xmlLoader.fromXmlPartial(partialConfigWithPipeline, PartialConfig.class);
         EnvironmentsConfig environmentsConfig = partialConfig.getEnvironments();
         assertThat(environmentsConfig.size()).isEqualTo(2);
-        EnvironmentPipelineMatchers matchers = environmentsConfig.matchers();
-        assertThat(matchers.size()).isEqualTo(2);
-        ArrayList<String> uat_uuids = new ArrayList<String>() {{
-            add("1");
-            add("2");
-        }};
-        ArrayList<String> prod_uuids = new ArrayList<String>() {{
-            add("2");
-        }};
-        assertThat(matchers).contains(new EnvironmentPipelineMatcher(new CaseInsensitiveString("uat"), uat_uuids, new EnvironmentPipelinesConfig()));
-        assertThat(matchers).contains(new EnvironmentPipelineMatcher(new CaseInsensitiveString("prod"), prod_uuids, new EnvironmentPipelinesConfig()));
+        assertThat(environmentsConfig.get(0).containsPipeline(new CaseInsensitiveString("pipeline1"))).isTrue();
+        assertThat(environmentsConfig.get(1).getPipelines().size()).isEqualTo(0);
     }
 
     @Test
@@ -1301,30 +1272,12 @@ public class MagicalGoConfigXmlLoaderTest {
     void shouldLoadConfigWithEnvironment() throws Exception {
         String content = configWithEnvironments(
                 "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <agents>"
-                        + "      <physical uuid='1'/>"
-                        + "      <physical uuid='2'/>"
-                        + "    </agents>"
-                        + "  </environment>"
-                        + "  <environment name='prod'>"
-                        + "    <agents>"
-                        + "      <physical uuid='2'/>"
-                        + "    </agents>"
-                        + "  </environment>"
-                        + "</environments>");
+                        + "  <environment name='uat' />"
+                        + "  <environment name='prod' />"
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         EnvironmentsConfig environmentsConfig = xmlLoader.loadConfigHolder(content).config.getEnvironments();
         EnvironmentPipelineMatchers matchers = environmentsConfig.matchers();
         assertThat(matchers.size()).isEqualTo(2);
-        ArrayList<String> uat_uuids = new ArrayList<String>() {{
-            add("1");
-            add("2");
-        }};
-        ArrayList<String> prod_uuids = new ArrayList<String>() {{
-            add("2");
-        }};
-        assertThat(matchers).contains(new EnvironmentPipelineMatcher(new CaseInsensitiveString("uat"), uat_uuids, new EnvironmentPipelinesConfig()));
-        assertThat(matchers).contains(new EnvironmentPipelineMatcher(new CaseInsensitiveString("prod"), prod_uuids, new EnvironmentPipelinesConfig()));
     }
 
     @Test
@@ -1756,14 +1709,14 @@ public class MagicalGoConfigXmlLoaderTest {
                 "<environments>"
                         + "  <environment name='uat'>"
                         + "    <pipelines>"
-                        + "      <pipeline name='piPeline1'/>"
+                        + "      <pipeline name='pipeline1'/>"
                         + "    </pipelines>"
                         + "  </environment>"
-                        + "</environments>");
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         EnvironmentsConfig environmentsConfig = ConfigMigrator.loadWithMigration(content).config.getEnvironments();
         EnvironmentPipelineMatcher matcher = environmentsConfig.matchersForPipeline("pipeline1");
         assertThat(matcher).isEqualTo(new EnvironmentPipelineMatcher(new CaseInsensitiveString("uat"), new ArrayList<>(),
-                new EnvironmentPipelinesConfig(new CaseInsensitiveString("piPeline1"))));
+                new EnvironmentPipelinesConfig(new CaseInsensitiveString("pipeline1"))));
     }
 
     @Test
@@ -1775,7 +1728,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "      <pipeline name='notpresent'/>"
                         + "    </pipelines>"
                         + "  </environment>"
-                        + "</environments>");
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         try {
             ConfigMigrator.loadWithMigration(content);
             fail("Should not have allowed referencing of an unknown pipeline under an environment.");
@@ -1799,7 +1752,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "      <pipeline name='Pipeline1'/>"
                         + "    </pipelines>"
                         + "  </environment>"
-                        + "</environments>");
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         try {
             ConfigMigrator.loadWithMigration(content);
             fail("Should not have allowed duplicate pipeline reference across environments");
@@ -1818,7 +1771,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "      <pipeline name='Pipeline1'/>"
                         + "    </pipelines>"
                         + "  </environment>"
-                        + "</environments>");
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         try {
             ConfigMigrator.loadWithMigration(content);
             fail("Should not have allowed duplicate pipeline reference under an environment");
@@ -1833,7 +1786,7 @@ public class MagicalGoConfigXmlLoaderTest {
                 "<environments>"
                         + "  <environment name='uat' />"
                         + "  <environment name='uat' />"
-                        + "</environments>");
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         try {
             xmlLoader.loadConfigHolder(content);
             fail("Should not support 2 environments with the same same");
@@ -1850,34 +1803,12 @@ public class MagicalGoConfigXmlLoaderTest {
         String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='exclamation is invalid !' />"
-                        + "</environments>");
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         try {
             xmlLoader.loadConfigHolder(content);
             fail("XSD should not allow invalid characters");
         } catch (Exception e) {
             assertThat(e.getMessage()).contains("\"exclamation is invalid !\" should conform to the pattern - [a-zA-Z0-9_\\-]{1}[a-zA-Z0-9_\\-.]*");
-        }
-    }
-
-    @Test
-    void shouldNotAllowConfigWithAbsentReferencedAgentUuid() throws Exception {
-        String content = configWithEnvironmentsAndAgents(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <agents>"
-                        + "      <physical uuid='missing' />"
-                        + "    </agents>"
-                        + "  </environment>"
-                        + "</environments>",
-
-                "<agents>"
-                        + "  <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />"
-                        + "</agents>");
-        try {
-            ConfigMigrator.loadWithMigration(content);
-            fail("XSD should not allow reference to absent agent");
-        } catch (Exception e) {
-            assertThat(e.getMessage()).contains("Environment 'uat' has an invalid agent uuid 'missing'");
         }
     }
 
@@ -1888,7 +1819,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         + "  <environment name='uat'>"
                         + "    <pipelines/>"
                         + "  </environment>"
-                        + "</environments>");
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         try {
             ConfigMigrator.loadWithMigration(content);
         } catch (Exception e) {
@@ -1897,40 +1828,20 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldAllowConfigWithEmptyAgents() throws Exception {
-        String content = configWithEnvironments(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <agents/>"
-                        + "  </environment>"
-                        + "</environments>");
-        try {
-            ConfigMigrator.loadWithMigration(content);
-        } catch (Exception e) {
-            fail("should not allow empty agents block under an environment");
-        }
-    }
-
-    @Test
     void shouldNotAllowConfigWithDuplicateAgentUuidInEnvironment() throws Exception {
-        String content = configWithEnvironmentsAndAgents(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <agents>"
-                        + "      <physical uuid='1' />"
-                        + "      <physical uuid='1' />"
-                        + "    </agents>"
-                        + "  </environment>"
-                        + "</environments>",
-
-                "<agents>"
-                        + "  <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />"
-                        + "</agents>");
+        String content = configWithEnvironments("<environments>"
+                + "  <environment name='uat'>"
+                + "    <agents>"
+                + "      <physical uuid='1' />"
+                + "      <physical uuid='1' />"
+                + "    </agents>"
+                + "  </environment>"
+                + "</environments>", 110);
         try {
-            xmlLoader.loadConfigHolder(content);
+            ConfigMigrator.migrate(content, 110, CONFIG_SCHEMA_VERSION);
             fail("XSD should not allow duplicate agent uuid in environment");
         } catch (Exception e) {
-            assertThat(StringUtils.containsAny(e.getMessage(),
+            assertThat(StringUtils.containsAny(e.getCause().getCause().getMessage(),
                     "Duplicate unique value [1] declared for identity constraint of element \"agents\".",
                     "Duplicate unique value [1] declared for identity constraint \"uniqueEnvironmentAgentsUuid\" of element \"agents\"."
             )).isTrue();
@@ -1941,7 +1852,7 @@ public class MagicalGoConfigXmlLoaderTest {
     void shouldNotAllowConfigWithEmptyEnvironmentsBlock() throws Exception {
         String content = configWithEnvironments(
                 "<environments>"
-                        + "</environments>");
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         try {
             xmlLoader.loadConfigHolder(content);
             fail("XSD should not allow empty environments block");
@@ -1955,44 +1866,21 @@ public class MagicalGoConfigXmlLoaderTest {
         String content = configWithEnvironments(
                 "<environments>"
                         + "  <environment name='uat' />"
-                        + "</environments>");
+                        + "</environments>", CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         assertThat(config.getEnvironments().size()).isEqualTo(1);
     }
 
     @Test
-    void shouldAllowConfigWithEnvironmentReferencingDisabledAgent() throws Exception {
-        String content = configWithEnvironmentsAndAgents(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "    <agents>"
-                        + "      <physical uuid='1' />"
-                        + "    </agents>"
-                        + "  </environment>"
-                        + "</environments>",
-
-                "<agents>"
-                        + "  <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' isDisabled='true' />"
-                        + "</agents>");
-        CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
-        assertThat(config.getEnvironments().matchers().size()).isEqualTo(1);
-    }
-
-    @Test
     void shouldSupportEnvironmentVariablesInEnvironment() throws Exception {
-        String content = configWithEnvironmentsAndAgents(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "     <environmentvariables> "
-                        + "         <variable name='VAR_NAME_1'><value>variable_name_value_1</value></variable>"
-                        + "         <variable name='CRUISE_ENVIRONEMNT_NAME'><value>variable_name_value_2</value></variable>"
-                        + "     </environmentvariables> "
-                        + "  </environment>"
-                        + "</environments>",
-
-                "<agents>"
-                        + "  <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' isDisabled='true' />"
-                        + "</agents>");
+        String content = configWithEnvironments("<environments>"
+                + "  <environment name='uat'>"
+                + "     <environmentvariables> "
+                + "         <variable name='VAR_NAME_1'><value>variable_name_value_1</value></variable>"
+                + "         <variable name='CRUISE_ENVIRONEMNT_NAME'><value>variable_name_value_2</value></variable>"
+                + "     </environmentvariables> "
+                + "  </environment>"
+                + "</environments>", CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         EnvironmentConfig element = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
         element.addEnvironmentVariable("VAR_NAME_1", "variable_name_value_1");
@@ -2005,18 +1893,13 @@ public class MagicalGoConfigXmlLoaderTest {
         //TODO : This should be fixed as part of #4865
         //String multiLinedata = "\nsome data\nfoo bar";
         String multiLinedata = "some data\nfoo bar";
-        String content = configWithEnvironmentsAndAgents(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "     <environmentvariables> "
-                        + "         <variable name='cdata'><value><![CDATA[" + multiLinedata + "]]></value></variable>"
-                        + "     </environmentvariables> "
-                        + "  </environment>"
-                        + "</environments>",
-
-                "<agents>"
-                        + "  <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' isDisabled='true' />"
-                        + "</agents>");
+        String content = configWithEnvironments("<environments>"
+                + "  <environment name='uat'>"
+                + "     <environmentvariables> "
+                + "         <variable name='cdata'><value><![CDATA[" + multiLinedata + "]]></value></variable>"
+                + "     </environmentvariables> "
+                + "  </environment>"
+                + "</environments>", CONFIG_SCHEMA_VERSION);
         CruiseConfig config = ConfigMigrator.loadWithMigration(content).config;
         EnvironmentConfig element = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
         element.addEnvironmentVariable("cdata", multiLinedata);
@@ -2305,19 +2188,14 @@ public class MagicalGoConfigXmlLoaderTest {
 
     @Test
     void shouldNotAllowDuplicateEnvironmentVariablesInAnEnvironment() throws Exception {
-        String content = configWithEnvironmentsAndAgents(
-                "<environments>"
-                        + "  <environment name='uat'>"
-                        + "     <environmentvariables> "
-                        + "         <variable name='FOO'><value>foo</value></variable>"
-                        + "         <variable name='FOO'><value>foo</value></variable>"
-                        + "     </environmentvariables> "
-                        + "  </environment>"
-                        + "</environments>",
-
-                "<agents>"
-                        + "  <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' isDisabled='true' />"
-                        + "</agents>");
+        String content = configWithEnvironments("<environments>"
+                + "  <environment name='uat'>"
+                + "     <environmentvariables> "
+                + "         <variable name='FOO'><value>foo</value></variable>"
+                + "         <variable name='FOO'><value>foo</value></variable>"
+                + "     </environmentvariables> "
+                + "  </environment>"
+                + "</environments>", CONFIG_SCHEMA_VERSION);
         try {
             ConfigMigrator.loadWithMigration(content);
             fail("Should not allow duplicate variable names");

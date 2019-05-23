@@ -29,6 +29,7 @@ import com.thoughtworks.go.server.newsecurity.models.X509Credential;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.security.GoAuthority;
 import com.thoughtworks.go.server.security.userdetail.GoUserPrinciple;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.util.TestingClock;
 import org.junit.Rule;
@@ -76,7 +77,7 @@ public class X509AuthenticationFilterTest {
                     .withX509(registration.getChain())
                     .build();
 
-            new X509AuthenticationFilter(null, clock).doFilter(request, response, filterChain);
+            new X509AuthenticationFilter(null, clock, null).doFilter(request, response, filterChain);
 
             final AuthenticationToken authentication = SessionUtils.getAuthenticationToken(request);
             assertThat(authentication.getUser().getUsername())
@@ -91,7 +92,7 @@ public class X509AuthenticationFilterTest {
         @Test
         void shouldRejectRequestWith403IfCertificateIsNotProvided() throws Exception {
             final MockHttpServletRequest request = HttpRequestBuilder.GET("/").build();
-            new X509AuthenticationFilter(null, clock).doFilter(request, response, filterChain);
+            new X509AuthenticationFilter(null, clock, null).doFilter(request, response, filterChain);
 
             assertThat(SessionUtils.getAuthenticationToken(request)).isNull();
             verifyZeroInteractions(filterChain);
@@ -108,7 +109,7 @@ public class X509AuthenticationFilterTest {
             com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAsRandomUser(request);
             final HttpSession originalSession = request.getSession(true);
 
-            new X509AuthenticationFilter(null, clock).doFilter(request, response, filterChain);
+            new X509AuthenticationFilter(null, clock, null).doFilter(request, response, filterChain);
 
             final AuthenticationToken authentication = SessionUtils.getAuthenticationToken(request);
             assertThat(authentication.getUser().getUsername())
@@ -135,7 +136,7 @@ public class X509AuthenticationFilterTest {
                     .withSession(originalSession)
                     .build();
 
-            new X509AuthenticationFilter(null, clock).doFilter(request, response, filterChain);
+            new X509AuthenticationFilter(null, clock, null).doFilter(request, response, filterChain);
 
             final AuthenticationToken authentication = SessionUtils.getAuthenticationToken(request);
             assertThat(authentication.getUser().getUsername())
@@ -154,13 +155,14 @@ public class X509AuthenticationFilterTest {
         @Test
         void shouldPopulateAgentUserInSessionIfAgentExistsInConfig() throws Exception {
             GoConfigService goConfigService = mock(GoConfigService.class);
+            AgentService agentService = mock(AgentService.class);
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.ensureTokenGenerationKeyExists();
 
             when(goConfigService.serverConfig()).thenReturn(serverConfig);
-            when(goConfigService.hasAgent("blah")).thenReturn(true);
+            when(agentService.hasAgent("blah")).thenReturn(true);
 
-            X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock);
+            X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock, agentService);
 
             final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
                     .withHeader("X-Agent-GUID", "blah")
@@ -182,13 +184,14 @@ public class X509AuthenticationFilterTest {
         @Test
         void shouldRejectRequestIfUUIDIsNotInConfig() throws Exception {
             GoConfigService goConfigService = mock(GoConfigService.class);
+            AgentService agentService = mock(AgentService.class);
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.ensureTokenGenerationKeyExists();
 
             when(goConfigService.serverConfig()).thenReturn(serverConfig);
-            when(goConfigService.hasAgent("blah")).thenReturn(false);
+            when(agentService.hasAgent("blah")).thenReturn(false);
 
-            X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock);
+            X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock, agentService);
 
             final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
                     .withHeader("X-Agent-GUID", "blah")
@@ -206,13 +209,14 @@ public class X509AuthenticationFilterTest {
         @Test
         void shouldRejectRequestWith403IfCredentialsAreBad() throws Exception {
             GoConfigService goConfigService = mock(GoConfigService.class);
+            AgentService agentService = mock(AgentService.class);
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.ensureTokenGenerationKeyExists();
 
             when(goConfigService.serverConfig()).thenReturn(serverConfig);
-            when(goConfigService.hasAgent("blah")).thenReturn(true);
+            when(agentService.hasAgent("blah")).thenReturn(true);
 
-            X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock);
+            X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock, agentService);
 
             final MockHttpServletRequest request = HttpRequestBuilder.GET("/")
                     .withHeader("X-Agent-GUID", "blah")
@@ -236,7 +240,7 @@ public class X509AuthenticationFilterTest {
             com.thoughtworks.go.server.newsecurity.SessionUtilsHelper.loginAsRandomUser(request);
             final HttpSession originalSession = request.getSession(true);
 
-            new X509AuthenticationFilter(null, clock).doFilter(request, response, filterChain);
+            new X509AuthenticationFilter(null, clock, null).doFilter(request, response, filterChain);
 
             final AuthenticationToken authentication = SessionUtils.getAuthenticationToken(request);
             assertThat(authentication.getUser().getUsername())
@@ -254,13 +258,14 @@ public class X509AuthenticationFilterTest {
             String uuid = "blah";
 
             GoConfigService goConfigService = mock(GoConfigService.class);
+            AgentService agentService = mock(AgentService.class);
             ServerConfig serverConfig = new ServerConfig();
             serverConfig.ensureTokenGenerationKeyExists();
 
             when(goConfigService.serverConfig()).thenReturn(serverConfig);
-            when(goConfigService.hasAgent(uuid)).thenReturn(true);
+            when(agentService.hasAgent(uuid)).thenReturn(true);
 
-            X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock);
+            X509AuthenticationFilter filter = new X509AuthenticationFilter(goConfigService, clock, agentService);
 
             MockHttpSession existingSession = new MockHttpSession();
             GoUserPrinciple goodAgentPrinciple = new GoUserPrinciple("_go_agent_blah", "");

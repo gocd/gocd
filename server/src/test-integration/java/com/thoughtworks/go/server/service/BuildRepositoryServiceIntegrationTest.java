@@ -137,6 +137,7 @@ public class BuildRepositoryServiceIntegrationTest {
         svnRepo = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
         config.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");
         mingle = config.addStageToPipeline(PIPELINE_NAME, FT_STAGE, "bar");
+        // TODO: Vrushali & Viraj need to fix this
         config.addAgent(HOSTNAME, AGENT_UUID);
         pipeline = dbHelper.newPipelineWithAllStagesPassed(mingle);
         goCache.clear();

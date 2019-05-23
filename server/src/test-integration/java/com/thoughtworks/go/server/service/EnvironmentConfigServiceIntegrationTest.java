@@ -36,10 +36,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -163,10 +160,7 @@ public class EnvironmentConfigServiceIntegrationTest {
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("foo", "dev", "job"), "foo-grp");
         goConfigService.addPipeline(PipelineConfigMother.createPipelineConfig("bar", "dev", "job"), "foo-grp");
         Username user = Username.ANONYMOUS;
-        agentConfigService.addAgent(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), user);
-        agentConfigService.addAgent(new AgentConfig("uuid-2", "host-2", "192.168.1.3"), user);
         uat.addPipeline(new CaseInsensitiveString("foo"));
-        uat.addAgent("uuid-2");
         uat.addEnvironmentVariable("env-one", "ONE");
         uat.addEnvironmentVariable("env-two", "TWO");
         goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("dev")));
@@ -176,14 +170,12 @@ public class EnvironmentConfigServiceIntegrationTest {
         goConfigService.addEnvironment(new BasicEnvironmentConfig(new CaseInsensitiveString("function_testing")));
         EnvironmentConfig newUat = new BasicEnvironmentConfig(new CaseInsensitiveString("prod"));
         newUat.addPipeline(new CaseInsensitiveString("bar"));
-        newUat.addAgent("uuid-1");
         newUat.addEnvironmentVariable("env-three", "THREE");
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         String md5 = entityHashingService.md5ForEntity(uat);
         service.updateEnvironment(uat.name().toString(), newUat, new Username(new CaseInsensitiveString("foo")), md5, result);
         EnvironmentConfig updatedEnv = service.named("prod");
         assertThat(updatedEnv.name(), is(new CaseInsensitiveString("prod")));
-        assertThat(updatedEnv.getAgents().getUuids(), is(Arrays.asList("uuid-1")));
         assertThat(updatedEnv.getPipelineNames(), is(Arrays.asList(new CaseInsensitiveString("bar"))));
         EnvironmentVariablesConfig updatedVariables = new EnvironmentVariablesConfig();
         updatedVariables.add("env-three", "THREE");
@@ -266,24 +258,21 @@ public class EnvironmentConfigServiceIntegrationTest {
 
         BasicEnvironmentConfig env = environmentConfig(environmentName);
         Username user = Username.ANONYMOUS;
-        String uuid = "uuid-1";
-        agentConfigService.addAgent(new AgentConfig(uuid, "host-1", "192.168.1.2"), user);
+
         goConfigService.addEnvironment(env);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
-        List<String> agentsToremove = new ArrayList<>();
-        List<String> agentsToAdd = new ArrayList<>();
-        agentsToAdd.add(uuid);
         List<String> pipelinesToAdd = new ArrayList<>();
         List<String> pipelinesToRemove = new ArrayList<>();
         List<EnvironmentVariableConfig> envVarsToAdd = new ArrayList<>();
+        envVarsToAdd.add(new EnvironmentVariableConfig("name", "val"));
         List<String> envVarsToRemove = new ArrayList<>();
 
-        service.patchEnvironment(service.getEnvironmentConfig(environmentName), pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToremove, envVarsToAdd, envVarsToRemove, user, result);
+        service.patchEnvironment(service.getEnvironmentConfig(environmentName), pipelinesToAdd, pipelinesToRemove, Collections.emptyList(), Collections.emptyList(), envVarsToAdd, envVarsToRemove, user, result);
         EnvironmentConfig updatedEnv = service.named(env.name().toString());
 
         assertThat(updatedEnv.name(), is(new CaseInsensitiveString(environmentName)));
-        assertThat(updatedEnv.getAgents().getUuids(), is(Arrays.asList("uuid-1")));
+        assertThat(updatedEnv.getVariables().hasVariable("name"), is(true));
         assertThat(result.message(), containsString("Updated environment 'env'."));
     }
 

@@ -24,6 +24,7 @@ import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TriState;
@@ -42,12 +43,14 @@ public class AgentConfigServiceTest {
     private GoConfigService goConfigService;
     private AgentConfigService agentConfigService;
     private EnvironmentConfigService environmentConfigService;
+    private AgentDao agentDao;
 
     @Before
     public void setUp() throws Exception {
         goConfigService = mock(GoConfigService.class);
         environmentConfigService = mock(EnvironmentConfigService.class);
-        agentConfigService = new AgentConfigService(goConfigService);
+        agentDao = mock(AgentDao.class);
+        agentConfigService = new AgentConfigService(goConfigService, agentDao);
     }
 
     @Test
@@ -56,6 +59,7 @@ public class AgentConfigServiceTest {
         AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", agentId), AgentRuntimeStatus.Unknown, "cookie");
         AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
+
         AgentInstances agentInstances = new AgentInstances(null, null, instance);
         List<String> uuids = Arrays.asList(agentId);
 
@@ -77,17 +81,16 @@ public class AgentConfigServiceTest {
         AgentConfig agentConfig = new AgentConfig("UUID2", "remote-host", "50.40.30.20");
         agentConfig.disable();
         AgentInstance fromConfigFile = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), null);
-        when(goConfigService.hasAgent(fromConfigFile.getUuid())).thenReturn(true);
-        when(goConfigService.hasAgent(pending.getUuid())).thenReturn(false);
 
         AgentInstances agentInstances = new AgentInstances(null, null, fromConfigFile, pending);
+
         agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, new HttpLocalizedOperationResult(), Arrays.asList(pending.getUuid(), fromConfigFile.getUuid()), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
-        shouldPerformCommand();
+        verify(agentDao).bulkUpdateAttributes(eq(Arrays.asList(pending.getUuid(),fromConfigFile.getUuid())), eq(Collections.emptyList()),eq(Collections.emptyList()),eq(Collections.emptyList()),eq(Collections.emptyList()), eq(TriState.TRUE), eq(agentInstances));
     }
 
     @Test
-    public void shouldEnableAgentWhenAlreadyInTheConfig() {
+    public void shouldEnableAgentWhenAlreadyInTheDatabase() {
         String agentId = DatabaseAccessHelper.AGENT_UUID;
         AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
         agentConfig.disable();
@@ -98,6 +101,6 @@ public class AgentConfigServiceTest {
         AgentInstances agentInstances = new AgentInstances(null, null, instance);
         agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, new HttpLocalizedOperationResult(), Arrays.asList(instance.getUuid()), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
-        shouldPerformCommand();
+        verify(agentDao).bulkUpdateAttributes(eq(Arrays.asList(agentConfig.getUuid())), eq(Collections.emptyList()),eq(Collections.emptyList()),eq(Collections.emptyList()),eq(Collections.emptyList()), eq(TriState.TRUE), eq(agentInstances));
     }
 }

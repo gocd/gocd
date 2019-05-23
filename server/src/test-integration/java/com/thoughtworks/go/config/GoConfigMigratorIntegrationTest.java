@@ -33,6 +33,7 @@ import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.security.ResetCipher;
+import com.thoughtworks.go.server.persistence.AgentDao;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.serverhealth.*;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -62,10 +63,12 @@ import java.util.List;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+
 import com.thoughtworks.go.util.GoConfigFileHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -77,6 +80,8 @@ import com.thoughtworks.go.util.GoConfigFileHelper;
 public class GoConfigMigratorIntegrationTest {
     private File configFile;
     ConfigRepository configRepository;
+    @Autowired
+    private AgentDao agentDao;
     @Autowired
     private SystemEnvironment systemEnvironment;
     @Autowired
@@ -147,13 +152,13 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldValidateCruiseConfigFileIrrespectiveOfUpgrade() {
-        String configString = ConfigFileFixture.configWithEnvironments("<environments>"
+        String configString = ConfigFileFixture.    configWithEnvironments("<environments>"
                 + "  <environment name='foo'>"
                 + "<pipelines>"
                 + " <pipeline name='does_not_exist'/>"
                 + "</pipelines>"
                 + "</environment>"
-                + "</environments>");
+                + "</environments>", CONFIG_SCHEMA_VERSION);
         try {
             loadConfigFileWithContent(configString);
             fail("Should not upgrade invalid config file");
@@ -251,13 +256,6 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(hgConfig.filter()).isNotNull();
     }
 
-    @Test
-    public void shouldMigrateToRevision17() throws Exception {
-        CruiseConfig cruiseConfig = loadConfigFileWithContent(ConfigFileFixture.WITH_3_AGENT_CONFIG);
-        assertThat(cruiseConfig.agents().size()).isEqualTo(3);
-        assertThat(cruiseConfig.agents().getAgentByUuid("2").isDisabled()).isTrue();
-        assertThat(cruiseConfig.agents().getAgentByUuid("1").isDisabled()).isFalse();
-    }
 
     @Test
     public void shouldMigrateDependsOnTagToBeADependencyMaterial() throws Exception {
@@ -1333,6 +1331,51 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(migratedElasticAgentProfiles.find("profile3")).isEqualTo(profile3);
         assertThat(migratedElasticAgentProfiles.find("profile4")).isEqualTo(profile4);
         assertThat(migratedElasticAgentProfiles.find("profile5")).isEqualTo(profile5);
+    }
+
+    @Test
+    public void shouldMigrateAgentsOutOfXMLAndIntoDB() throws Exception {
+        String configContent = "" +
+                "  <environments>\n" +
+                "\n" +
+                "    <environment name=\"bar\">\n" +
+                "    </environment>\n" +
+                "\n" +
+                "    <environment name=\"baz\">\n" +
+                "      <agents>\n" +
+                "        <physical uuid=\"elastic-one\" />\n" +
+                "        <physical uuid=\"elastic-two\" />\n" +
+                "      </agents>\n" +
+                "    </environment>\n" +
+                "    <environment name=\"foo\">\n" +
+                "      <agents>\n" +
+                "        <physical uuid=\"one\" />\n" +
+                "        <physical uuid=\"two\" />\n" +
+                "        <physical uuid=\"elastic-two\" />\n" +
+                "      </agents>\n" +
+                "    </environment>\n" +
+                "  </environments>" +
+                "  <agents>" +
+                "    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1'/>" +
+                "    <agent uuid='two' hostname='two-host' ipaddress='127.0.0.2'/>" +
+                "    <agent uuid='elastic-one' hostname='one-elastic-host' ipaddress='172.10.20.30' elasticAgentId='docker.foo1' elasticPluginId='docker'/>" +
+                "    <agent uuid='elastic-two' hostname='two-elastic-host' ipaddress='172.10.20.31' elasticAgentId='docker.foo2' elasticPluginId='docker'/>" +
+                "  </agents>";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                + "<cruise schemaVersion=\"120\">\n"
+                + configContent
+                + "</cruise>";
+
+        int initialAgentCountInDb = agentDao.getAllAgents().size();
+        CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
+        String newConfigFile = FileUtils.readFileToString(configFile, UTF_8);
+
+        System.out.println("newConfigFile = " + newConfigFile);
+        int newAgentCountInDb = agentDao.getAllAgents().size();
+        assertThat(newAgentCountInDb).isEqualTo(initialAgentCountInDb + 4);
+
+        XmlAssert.assertThat(newConfigFile).doesNotHaveXPath("//agents");
     }
 
     private TimerConfig createTimerConfigWithAttribute(String valueForOnChangesInTimer) throws Exception {

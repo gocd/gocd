@@ -27,5 +27,11 @@
         <property name="cookie"/>
         <property name="hostname"/>
         <property name="ipaddress"/>
+        <property name="disabled"/>
+        <property name="elasticAgentId"/>
+        <property name="elasticPluginId"/>
+        <property name="environments"/>
+        <property name="resources"/>
+        <property name="deleted"/>
     </class>
 </hibernate-mapping>

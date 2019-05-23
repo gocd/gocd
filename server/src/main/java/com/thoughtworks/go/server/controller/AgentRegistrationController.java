@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.controller;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
 import com.thoughtworks.go.config.update.UpdateResourceCommand;
@@ -263,16 +264,11 @@ public class AgentRegistrationController {
                 agentConfig.setElasticPluginId(elasticPluginId);
             }
 
-            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !goConfigService.hasAgent(uuid)) {
+            if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !agentService.hasAgent(uuid)) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
-                GoConfigDao.CompositeConfigCommand compositeConfigCommand = new GoConfigDao.CompositeConfigCommand(
-                        new AgentConfigService.AddAgentCommand(agentConfig),
-                        new UpdateResourceCommand(uuid, agentAutoRegisterResources),
-                        new UpdateEnvironmentsCommand(uuid, agentAutoRegisterEnvironments)
-                );
                 HttpOperationResult result = new HttpOperationResult();
-                agentConfig = agentConfigService.updateAgent(compositeConfigCommand, uuid, result, agentService.agentUsername(uuid, ipAddress, preferredHostname));
-                if (!result.isSuccess()) {
+                agentService.register(agentConfig, agentAutoRegisterResources, agentAutoRegisterEnvironments, result);
+                if (!agentConfig.errors().isEmpty()) {
                     List<ConfigErrors> errors = ErrorCollector.getAllErrors(agentConfig);
 
                     ConfigErrors e = new ConfigErrors();
@@ -283,7 +279,7 @@ public class AgentRegistrationController {
                 }
             }
 
-            boolean registeredAlready = goConfigService.hasAgent(uuid);
+            boolean registeredAlready = agentService.hasAgent(uuid);
             long usableSpace = Long.parseLong(usablespaceAsString);
 
             AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, registeredAlready, location, usableSpace, operatingSystem);
@@ -311,7 +307,8 @@ public class AgentRegistrationController {
 
     private String getErrorMessage(Exception e) {
         if (e instanceof GoConfigInvalidException) {
-            return ((GoConfigInvalidException) e).getAllErrorMessages();
+            GoConfigInvalidException exception = (GoConfigInvalidException) e;
+            return StringUtils.join(exception.getAllErrors(), ", ");
         }
         return e.getMessage();
     }
@@ -324,7 +321,7 @@ public class AgentRegistrationController {
             return new ResponseEntity<>(message, CONFLICT);
         }
         final AgentInstance agentInstance = agentService.findAgent(uuid);
-        if ((!agentInstance.isNullAgent() && agentInstance.isPending()) || goConfigService.hasAgent(uuid)) {
+        if ((!agentInstance.isNullAgent() && agentInstance.isPending()) || agentService.hasAgent(uuid)) {
             String message = "A token has already been issued for this agent.";
             LOG.error("Rejecting request for token. Error: HttpCode=[{}] Message=[{}] Pending=[{}] UUID=[{}]",
                     CONFLICT, message, agentInstance.isPending(), uuid);

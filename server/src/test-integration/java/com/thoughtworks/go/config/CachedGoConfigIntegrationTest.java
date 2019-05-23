@@ -18,7 +18,6 @@ package com.thoughtworks.go.config;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
 import com.thoughtworks.go.config.parts.XmlPartialConfigProvider;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -55,6 +54,7 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.service.ConfigRepository;
+import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -85,7 +85,6 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import com.thoughtworks.go.util.GoConfigFileHelper;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
@@ -156,7 +155,7 @@ public class CachedGoConfigIntegrationTest {
         goConfigService.forceNotifyListeners();
         configRepo = configWatchList.getCurrentConfigRepos().get(0);
         cachedGoPartials.clear();
-        configHelper.addAgent("hostname1", "uuid1");
+        configHelper.addEnvironments("some_environment");
         magicalGoConfigXmlLoader = new MagicalGoConfigXmlLoader(configCache, registry);
     }
 
@@ -440,26 +439,35 @@ public class CachedGoConfigIntegrationTest {
 
     @Test
     public void shouldUpdateCachedConfigOnSave() throws Exception {
-        assertThat(cachedGoConfig.currentConfig().agents().size()).isEqualTo(1);
-        configHelper.addAgent("hostname", "uuid2");
-        assertThat(cachedGoConfig.currentConfig().agents().size()).isEqualTo(2);
+        assertThat(cachedGoConfig.currentConfig().getEnvironments().size()).isEqualTo(1);
+        configHelper.addEnvironments("new_env");
+        assertThat(cachedGoConfig.currentConfig().getEnvironments().size()).isEqualTo(2);
     }
 
     @Test
     public void shouldReloadCachedConfigWhenWriting() throws Exception {
-        cachedGoConfig.writeWithLock(updateFirstAgentResources("osx"));
-        assertThat(cachedGoConfig.currentConfig().agents().get(0).getResourceConfigs().toString()).isEqualTo("osx");
+        cachedGoConfig.writeWithLock(updateEnvironmentVariables("var1", "value1"));
+        EnvironmentVariableConfig variable = cachedGoConfig.currentConfig().getEnvironments().get(0).getVariables().getVariable("var1");
 
-        cachedGoConfig.writeWithLock(updateFirstAgentResources("osx, firefox"));
-        assertThat(cachedGoConfig.currentConfig().agents().get(0).getResourceConfigs().toString()).isEqualTo("firefox | osx");
+        assertThat(cachedGoConfig.currentConfig().getEnvironments().get(0).getVariables().size()).isEqualTo(1);
+        assertThat(variable).isNotNull();
+        assertThat(variable.getValue()).isEqualTo("value1");
+
+        cachedGoConfig.writeWithLock(updateEnvironmentVariables("var2", "value2"));
+
+        EnvironmentVariableConfig secondVariable = cachedGoConfig.currentConfig().getEnvironments().get(0).getVariables().getVariable("var2");
+
+        assertThat(cachedGoConfig.currentConfig().getEnvironments().get(0).getVariables().size()).isEqualTo(2);
+        assertThat(secondVariable).isNotNull();
+        assertThat(secondVariable.getValue()).isEqualTo("value2");
     }
 
     @Test
     public void shouldReloadCachedConfigFromDisk() throws Exception {
-        assertThat(cachedGoConfig.currentConfig().agents().size()).isEqualTo(1);
+        assertThat(cachedGoConfig.currentConfig().getEnvironments().size()).isEqualTo(1);
         configHelper.writeXmlToConfigFile(ConfigFileFixture.TASKS_WITH_CONDITION);
         cachedGoConfig.forceReload();
-        assertThat(cachedGoConfig.currentConfig().agents().size()).isEqualTo(0);
+        assertThat(cachedGoConfig.currentConfig().getEnvironments().size()).isEqualTo(0);
     }
 
     @Test
@@ -629,7 +637,7 @@ public class CachedGoConfigIntegrationTest {
     @Test
     public void shouldReturnCachedConfigIfConfigFileIsInvalid() throws Exception {
         CruiseConfig before = cachedGoConfig.currentConfig();
-        assertThat(before.agents().size()).isEqualTo(1);
+        assertThat(before.getEnvironments().size()).isEqualTo(1);
 
         configHelper.writeXmlToConfigFile("invalid-xml");
         cachedGoConfig.forceReload();
@@ -645,10 +653,10 @@ public class CachedGoConfigIntegrationTest {
         cachedGoConfig.currentConfig();
         assertThat(cachedGoConfig.checkConfigFileValid().isValid()).isEqualTo(false);
 
-        configHelper.addAgent("hostname", "uuid2");//some valid change
+        configHelper.addEnvironments("uat");//some valid change
 
         CruiseConfig cruiseConfig = cachedGoConfig.currentConfig();
-        assertThat(cruiseConfig.agents().size()).isEqualTo(2);
+        assertThat(cruiseConfig.getEnvironments().size()).isEqualTo(2);
         assertThat(cachedGoConfig.checkConfigFileValid().isValid()).isEqualTo(true);
     }
 
@@ -1254,6 +1262,17 @@ public class CachedGoConfigIntegrationTest {
             public CruiseConfig update(CruiseConfig cruiseConfig) {
                 AgentConfig agentConfig = cruiseConfig.agents().get(0);
                 agentConfig.setResourceConfigs(new ResourceConfigs(resources));
+                return cruiseConfig;
+            }
+        };
+    }
+
+    private UpdateConfigCommand updateEnvironmentVariables(final String name, final String value) {
+        return new UpdateConfigCommand() {
+            @Override
+            public CruiseConfig update(CruiseConfig cruiseConfig) {
+                EnvironmentConfig environmentConfig = cruiseConfig.getEnvironments().get(0);
+                environmentConfig.addEnvironmentVariable(name, value);
                 return cruiseConfig;
             }
         };

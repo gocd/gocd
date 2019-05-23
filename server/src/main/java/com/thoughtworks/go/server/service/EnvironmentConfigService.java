@@ -52,16 +52,18 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     public final GoConfigService goConfigService;
     private final SecurityService securityService;
     private EntityHashingService entityHashingService;
+    private AgentConfigService agentConfigService;
 
     private EnvironmentsConfig environments;
     private EnvironmentPipelineMatchers matchers;
     private static final Cloner cloner = new Cloner();
 
     @Autowired
-    public EnvironmentConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService) {
+    public EnvironmentConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, AgentConfigService agentConfigService) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
+        this.agentConfigService = agentConfigService;
     }
 
     public void initialize() {
@@ -128,13 +130,13 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         if (environments.isPipelineAssociatedWithAnyEnvironment(pipelineName)) {
             EnvironmentConfig forPipeline = environments.findEnvironmentForPipeline(pipelineName);
             for (EnvironmentAgentConfig environmentAgentConfig : forPipeline.getAgents()) {
-                configs.add(goConfigService.agentByUuid(environmentAgentConfig.getUuid()));
+                configs.add(agentConfigService.agentByUuid(environmentAgentConfig.getUuid()));
             }
 
         } else {
-            for (AgentConfig agentConfig : goConfigService.agents()) {
+            for (AgentConfig agentConfig : agentConfigService.agents()) {
                 if (!environments.isAgentUnderEnvironment(agentConfig.getUuid())) {
-                    configs.add(agentConfig);
+                     configs.add(agentConfig);
                 }
             }
         }
@@ -161,10 +163,6 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public Set<EnvironmentConfig> environmentConfigsFor(String agentUuid) {
         return environments.environmentConfigsForAgent(agentUuid);
-    }
-
-    public void modifyEnvironments(List<AgentInstance> agents, List<TriStateSelection> selections) {
-        goConfigService.modifyEnvironments(agents, selections);
     }
 
     public EnvironmentConfig named(String environmentName) {

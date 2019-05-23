@@ -63,8 +63,14 @@ public class AgentInstance implements Comparable<AgentInstance> {
         this.timeProvider = new TimeProvider();
     }
 
+    protected AgentInstance(AgentConfig agentConfig, AgentType agentType, SystemEnvironment systemEnvironment,
+                            AgentStatusChangeListener agentStatusChangeListener, AgentRuntimeInfo agentRuntimeInfo) {
+        this(agentConfig, agentType, systemEnvironment, agentStatusChangeListener);
+        this.agentRuntimeInfo = agentRuntimeInfo;
+    }
+
     public String getHostname() {
-        return agentConfig().getHostname();
+        return agentConfig().getHostName();
     }
 
     public String getUuid() {
@@ -211,7 +217,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
             return Registration.createNullPrivateKeyEntry();
         }
         X509CertificateGenerator certificateGenerator = new X509CertificateGenerator();
-        Registration entry = certificateGenerator.createAgentCertificate(new SystemEnvironment().agentkeystore(), agentConfig.getHostname());
+        Registration entry = certificateGenerator.createAgentCertificate(new SystemEnvironment().agentkeystore(), agentConfig.getHostName());
         return new Registration(entry.getPrivateKey(), entry.getChain());
     }
 
@@ -363,7 +369,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
         AgentType type = config.isFromLocalHost() ? AgentType.LOCAL : AgentType.REMOTE;
         AgentInstance instance;
         if (systemEnvironment.isAutoRegisterLocalAgentEnabled() && config.isFromLocalHost()) {
-            instance = new AgentInstance(config, type, systemEnvironment, agentStatusChangeListener);
+            instance = new AgentInstance(config, type, systemEnvironment, agentStatusChangeListener, agentRuntimeInfo);
             instance.agentConfigStatus = AgentConfigStatus.Enabled;
             instance.agentRuntimeInfo.idle();
             instance.update(agentRuntimeInfo);

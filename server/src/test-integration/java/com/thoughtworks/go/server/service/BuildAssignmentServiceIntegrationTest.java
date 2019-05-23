@@ -90,6 +90,8 @@ import static org.mockito.Mockito.*;
         "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
+
+//TODO: Vrushali and Viraj need to fix this
 public class BuildAssignmentServiceIntegrationTest {
     @Autowired private BuildAssignmentService buildAssignmentService;
     @Autowired private GoConfigService goConfigService;
@@ -587,7 +589,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
 
     private AgentIdentifier agent(AgentConfig agentConfig) {
-        agentService.sync(new Agents(agentConfig));
+        agentService.sync();
         agentService.approve(agentConfig.getUuid());
         return agentService.findAgent(agentConfig.getUuid()).getAgentIdentifier();
     }

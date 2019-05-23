@@ -13,25 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.thoughtworks.go.listener;
 
-import com.thoughtworks.go.server.domain.Agent;
-import com.thoughtworks.go.server.service.AgentService;
+public interface DatabaseEntityChangeListener<T> {
+    public abstract void onBulkEntityChange();
 
-public class AgentChangeListener implements DatabaseEntityChangeListener<Agent>{
-    private final AgentService agentService;
-
-    public AgentChangeListener(AgentService agentService) {
-        this.agentService = agentService;
-    }
-
-    @Override
-    public void onBulkEntityChange() {
-        agentService.sync();
-    }
-
-    @Override
-    public void onEntityChange(Agent entity) {
-        agentService.sync();
-    }
+    public abstract void onEntityChange(T entity);
 }

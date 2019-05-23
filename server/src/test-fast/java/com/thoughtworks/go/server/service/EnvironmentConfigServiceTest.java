@@ -41,17 +41,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
+//TODO: Vrushali and Viraj need to fix this
 class EnvironmentConfigServiceTest {
     private GoConfigService mockGoConfigService;
     private EnvironmentConfigService environmentConfigService;
     private SecurityService securityService;
+    private AgentConfigService agentConfigService;
 
     @BeforeEach
     void setUp() throws Exception {
         mockGoConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
+        agentConfigService = mock(AgentConfigService.class);
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
-        environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService);
+        environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService, agentConfigService);
     }
 
     @Test

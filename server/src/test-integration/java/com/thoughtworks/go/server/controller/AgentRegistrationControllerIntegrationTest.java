@@ -25,6 +25,7 @@ import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
 import org.junit.After;
@@ -67,6 +68,8 @@ public class AgentRegistrationControllerIntegrationTest {
     private AgentService agentService;
     @Autowired
     private AgentConfigService agentConfigService;
+    @Autowired
+    private UuidGenerator uuidGenerator;
 
     static final Cloner CLONER = new Cloner();
     private Properties original;
@@ -86,10 +89,10 @@ public class AgentRegistrationControllerIntegrationTest {
         System.setProperty(SystemEnvironment.AUTO_REGISTER_LOCAL_AGENT_ENABLED.propertyName(), "true");
         String uuid = UUID.randomUUID().toString();
         MockHttpServletRequest request = new MockHttpServletRequest();
-        final ResponseEntity responseEntity = controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, token(uuid, goConfigService.serverConfig().getTokenGenerationKey()), request);
-        AgentConfig agentConfig = goConfigService.agentByUuid(uuid);
+        final ResponseEntity responseEntity = controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, token(uuid, goConfigService.serverConfig().getTokenGenerationKey()), request);
+        AgentConfig agentConfig = agentService.agentByUuid(uuid);
 
-        assertThat(agentConfig.getHostname(), is("hostname"));
+        assertThat(agentConfig.getHostName(), is("hostname"));
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getHeaders().getContentType(), is(MediaType.APPLICATION_JSON));
         assertTrue(RegistrationJSONizer.fromJson(responseEntity.getBody().toString()).isValid());
@@ -114,7 +117,7 @@ public class AgentRegistrationControllerIntegrationTest {
                 "elastic-plugin-id",
                 token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
                 request);
-        AgentConfig agentConfig = goConfigService.agentByUuid(uuid);
+        AgentConfig agentConfig = agentService.agentByUuid(uuid);
 
         assertTrue(agentConfig.isElastic());
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
@@ -142,7 +145,7 @@ public class AgentRegistrationControllerIntegrationTest {
                 "elastic-plugin-id",
                 token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
                 request);
-        AgentConfig agentConfig = goConfigService.agentByUuid(uuid);
+        AgentConfig agentConfig = agentService.agentByUuid(uuid);
         assertTrue(agentConfig.isElastic());
 
         final ResponseEntity responseEntity = controller.agentRequest("elastic-agent-hostname",
@@ -194,9 +197,9 @@ public class AgentRegistrationControllerIntegrationTest {
     @Test
     public void shouldNotRegisterAgentWhenValidationFails() throws Exception {
         MockHttpServletRequest request = new MockHttpServletRequest();
-        int totalAgentsBeforeRegistrationRequest = goConfigService.agents().size();
+        int totalAgentsBeforeRegistrationRequest = agentService.findRegisteredAgentsInDB().size();
         final ResponseEntity responseEntity = controller.agentRequest("hostname", "", "sandbox", "100", null, null, null, null, null, null, null, token("", goConfigService.serverConfig().getTokenGenerationKey()), request);
-        int totalAgentsAfterRegistrationRequest = goConfigService.agents().size();
+        int totalAgentsAfterRegistrationRequest = agentService.findRegisteredAgentsInDB().size();
         assertThat(totalAgentsBeforeRegistrationRequest, is(totalAgentsAfterRegistrationRequest));
 
         assertThat(responseEntity.getStatusCode(), is(UNPROCESSABLE_ENTITY));
@@ -232,7 +235,7 @@ public class AgentRegistrationControllerIntegrationTest {
     public void shouldRejectGenerateTokenRequestIfAgentIsInConfig() throws Exception {
         System.setProperty(SystemEnvironment.AUTO_REGISTER_LOCAL_AGENT_ENABLED.propertyName(), "false");
         final String uuid = UUID.randomUUID().toString();
-        agentConfigService.addAgent(new AgentConfig(uuid, "hostname", "127.0.01"), Username.ANONYMOUS);
+        agentConfigService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()), Username.ANONYMOUS);
         assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
 
         final ResponseEntity responseEntity = controller.getToken(uuid);
@@ -265,7 +268,7 @@ public class AgentRegistrationControllerIntegrationTest {
     @Test
     public void shouldReIssueCertificateIfRegisteredAgentAsksForRegistrationWithoutAutoRegisterKeys() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        agentConfigService.addAgent(new AgentConfig(uuid, "hostname", "127.0.01"), Username.ANONYMOUS);
+        agentConfigService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()), Username.ANONYMOUS);
         assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -281,7 +284,7 @@ public class AgentRegistrationControllerIntegrationTest {
     @Test
     public void shouldReIssueCertificateIfRegisteredAgentAsksForRegistrationWithAutoRegisterKeys() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        agentConfigService.addAgent(new AgentConfig(uuid, "hostname", "127.0.01"), Username.ANONYMOUS);
+        agentConfigService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()), Username.ANONYMOUS);
         assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
 
         MockHttpServletRequest request = new MockHttpServletRequest();

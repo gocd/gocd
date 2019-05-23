@@ -89,8 +89,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         return false;
     }
 
-    @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
+    public void validate() throws Exception {
         Set<CaseInsensitiveString> allEnvironmentNames = new HashSet<>(goConfigService.getEnvironments().names());
 
         // validate all inputs
@@ -100,10 +99,18 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         validatePresenceOfAgentUuidsInConfig();
         checkIfResourcesAreBeingUpdatedOnElasticAgents();
 
+        validatePresenceOfAgentUuidsInConfig();
+        checkIfResourcesAreBeingUpdatedOnElasticAgents();
         List<AgentConfig> pendingAgents = findPendingAgents();
         validateOperationOnPendingAgents(pendingAgents);
+    }
+
+    @Override
+    public void update(CruiseConfig modifiedConfig) throws Exception {
+        validate();
 
         // add pending agents to the config
+        List<AgentConfig> pendingAgents = findPendingAgents();
         modifiedConfig.agents().addAll(pendingAgents);
 
         // update all agents specified by uuids

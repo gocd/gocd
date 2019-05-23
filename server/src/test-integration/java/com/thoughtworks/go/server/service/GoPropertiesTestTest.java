@@ -70,6 +70,7 @@ public class GoPropertiesTestTest {
         configHelper.onSetUp();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
+        // TODO: Vrushali & Viraj need to fix this
         configHelper.addAgent(HOSTNAME, AGENT_UUID);
     }
 

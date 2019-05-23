@@ -110,7 +110,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     public AgentInstances findDisabledAgents() {
         AgentInstances agentInstances = new AgentInstances(agentStatusChangeListener);
         for (AgentInstance agentInstance : currentInstances()) {
-            if (agentInstance.isDisabled()){
+            if (agentInstance.isDisabled()) {
                 agentInstances.add(agentInstance);
             }
         }
@@ -138,7 +138,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public AgentInstance findFirstByHostname(String hostname) {
         for (AgentInstance agentInstance : currentInstances()) {
-            if (agentInstance.agentConfig().getHostname().equals(hostname)) {
+            if (agentInstance.agentConfig().getHostName().equals(hostname)) {
                 return agentInstance;
             }
         }
@@ -203,7 +203,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     public AgentInstance register(AgentRuntimeInfo info) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(info.getUUId());
         if (!agentInstance.isRegistered()) {
-            if(isMaxPendingAgentsLimitReached()) {
+            if (isMaxPendingAgentsLimitReached()) {
                 throw new MaxPendingAgentsLimitReachedException(systemEnvironment.get(SystemEnvironment.MAX_PENDING_AGENTS_ALLOWED));
             }
             agentInstance = AgentInstance.createFromLiveAgent(info, systemEnvironment, agentStatusChangeListener);
@@ -274,5 +274,16 @@ public class AgentInstances implements Iterable<AgentInstance> {
         }
 
         return values.iterator().next();
+    }
+
+    public List<AgentConfig> findPendingAgents(List<String> uuids) {
+        List<AgentConfig> pendingAgents = new ArrayList<>();
+        for (String uuid : uuids) {
+            AgentInstance agent = this.findAgent(uuid);
+            if (agent.isPending()) {
+                pendingAgents.add(agent.agentConfig().deepClone());
+            }
+        }
+        return pendingAgents;
     }
 }

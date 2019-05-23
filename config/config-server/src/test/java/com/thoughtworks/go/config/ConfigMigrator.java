@@ -21,6 +21,8 @@ import com.thoughtworks.go.util.*;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -51,6 +53,13 @@ public class ConfigMigrator {
         String newConfigXml = FileUtils.readFileToString(tempFile, UTF_8);
         tempFile.delete();
         return newConfigXml;
+    }
+
+    public static String migrate(String content, int fromVersion, int toVersion) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        GoConfigMigration upgrader = new GoConfigMigration(new TimeProvider(), ConfigElementImplementationRegistryMother.withNoPlugins());
+        Method upgrade = upgrader.getClass().getDeclaredMethod("upgrade", String.class, Integer.TYPE, Integer.TYPE);
+        upgrade.setAccessible(true);
+        return (String) upgrade.invoke(upgrader, content, fromVersion, toVersion);
     }
 
     public static GoConfigHolder loadWithMigration(String xml) {

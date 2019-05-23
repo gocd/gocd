@@ -130,7 +130,6 @@ public class JobControllerTest {
             jobInstance.setState(JobState.Building);
 
             when(jobInstanceService.latestCompletedJobs("p1", "s1", jobInstance.getName())).thenReturn(new JobInstances());
-            when(jobConfigService.agentByUuid(anyString())).thenReturn(new AgentConfig());
             when(pipelineService.wrapBuildDetails(jobInstance)).thenReturn(pipeline);
             when(pipelineService.resolvePipelineCounter(eq("p1"), anyString())).thenReturn(Optional.of(1));
             when(restfulService.translateStageCounter(any(PipelineIdentifier.class), eq("s1"), anyString())).thenReturn(stageIdentifier);

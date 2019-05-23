@@ -18,7 +18,11 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.ErrorCollector;
+import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.AllConfigErrors;
+import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
@@ -48,6 +52,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static java.lang.String.format;
@@ -93,12 +98,12 @@ public class AgentService {
     }
 
     public void initialize() {
-        this.sync(this.agentConfigService.agents());
+        this.sync();
         agentConfigService.register(new AgentChangeListener(this));
     }
 
-    public void sync(Agents agents) {
-        agentInstances.sync(agents);
+    public void sync() {
+        agentInstances.sync(new Agents(agentDao.getAllAgentConfigs()));
     }
 
     public AgentInstances agents() {
@@ -139,6 +144,10 @@ public class AgentService {
 
     public AgentInstances findRegisteredAgents() {
         return agentInstances.findRegisteredAgents();
+    }
+
+    public List<Agent> findRegisteredAgentsInDB() {
+        return agentDao.getAllAgents();
     }
 
     private boolean isUnknownAgent(AgentInstance agentInstance, OperationResult operationResult) {
@@ -236,7 +245,7 @@ public class AgentService {
         AgentInstance agentInstance = findAgentAndRefreshStatus(info.getUUId());
         if (agentInstance.isIpChangeRequired(info.getIpAdress())) {
             AgentConfig agentConfig = agentInstance.agentConfig();
-            Username userName = agentUsername(info.getUUId(), info.getIpAdress(), agentConfig.getHostNameForDisplay());
+            Username userName = agentUsername(info.getUUId(), info.getIpAdress(), agentConfig.getHostName());
             LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", info.getUUId(), agentConfig.getIpAddress(), info.getIpAdress());
             agentConfigService.updateAgentIpByUuid(agentConfig.getUuid(), info.getIpAdress(), userName);
         }
@@ -252,7 +261,17 @@ public class AgentService {
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
         Registration registration = agentInstance.assignCertification();
         if (agentInstance.isRegistered()) {
+            AgentConfig agentConfig = agentInstance.agentConfig();
+            if (agentConfig.getCookie() == null) {
+                String cookie = uuidGenerator.randomUuid();
+                agentConfig.setCookie(cookie);
+            }
             agentConfigService.saveOrUpdateAgent(agentInstance, username);
+            if (!agentConfig.errors().isEmpty()) {
+                List<ConfigErrors> errors = ErrorCollector.getAllErrors(agentConfig);
+
+                throw new GoConfigInvalidException(null, new AllConfigErrors(errors));
+            }
             LOGGER.debug("New Agent approved {}", agentRuntimeInfo);
         }
         return registration;
@@ -334,5 +353,21 @@ public class AgentService {
 
     public AgentInstances findDisabledAgents() {
         return agentInstances.findDisabledAgents();
+    }
+
+    public void register(AgentConfig agentConfig, String agentAutoRegisterResources, String agentAutoRegisterEnvironments, HttpOperationResult result) {
+        if (agentConfig.getCookie() == null) {
+            String cookie = uuidGenerator.randomUuid();
+            agentConfig.setCookie(cookie);
+        }
+        agentConfigService.registerAgent(agentConfig, agentAutoRegisterResources, agentAutoRegisterEnvironments, result);
+    }
+
+    public boolean hasAgent(String uuid) {
+        return agentDao.agentByUuid(uuid) != null;
+    }
+
+    public AgentConfig agentByUuid(String agentUuid) {
+        return agentDao.agentConfigByUuid(agentUuid);
     }
 }

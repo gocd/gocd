@@ -18,11 +18,13 @@ package com.thoughtworks.go.config;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.IpAddress;
+import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.Collection;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -31,21 +33,25 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  * @understands the current persistent information related to an Agent
  */
 @ConfigTag("agent")
-public class AgentConfig implements Validatable {
+public class AgentConfig extends PersistentObject implements Validatable {
     @ConfigAttribute(value = "hostname", allowNull = true)
     private String hostName;
     @ConfigAttribute(value = "ipaddress", allowNull = true)
     private String ipAddress;
     @ConfigAttribute(value = "uuid", allowNull = true)
     private String uuid;
-    @ConfigAttribute(value = "isDisabled")
-    private Boolean isDisabled = false;
 
     @ConfigAttribute(value = "elasticAgentId", allowNull = true, optional = true)
     private String elasticAgentId;
 
     @ConfigAttribute(value = "elasticPluginId", allowNull = true, optional = true)
     private String elasticPluginId;
+
+    private boolean disabled;
+    private String environments;
+    private String resources;
+    private String cookie;
+    private boolean deleted;
 
     @ConfigSubtag
     private ResourceConfigs resourceConfigs = new ResourceConfigs();
@@ -73,6 +79,11 @@ public class AgentConfig implements Validatable {
         this.resourceConfigs = resourceConfigs;
     }
 
+    public AgentConfig(String uuid, String hostName, String ipAddress, String cookie) {
+        this(uuid, hostName, ipAddress);
+        this.cookie = cookie;
+    }
+
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors().isEmpty();
@@ -82,7 +93,7 @@ public class AgentConfig implements Validatable {
     @Override
     public void validate(ValidationContext validationContext) {
         validateIpAddress();
-        if(StringUtils.isBlank(uuid)) {
+        if (StringUtils.isBlank(uuid)) {
             addError(UUID, "UUID cannot be empty");
         }
         validateResources();
@@ -140,20 +151,8 @@ public class AgentConfig implements Validatable {
         this.resourceConfigs = resourceConfigs;
     }
 
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
-
-    public boolean isDisabled() {
-        return Boolean.TRUE.equals(isDisabled);
-    }
-
     public boolean isEnabled() {
         return !isDisabled();
-    }
-
-    public void setDisabled(Boolean disabled) {
-        isDisabled = disabled;
     }
 
     public void enable() {
@@ -183,24 +182,66 @@ public class AgentConfig implements Validatable {
         return cachedIsFromLocalHost.booleanValue();
     }
 
-    public String getIpAddress() {
-        return this.ipAddress;
+    public boolean isElastic() {
+        return isNotBlank(elasticAgentId) && isNotBlank(elasticPluginId);
     }
 
-    public String getHostname() {
-        return this.hostName;
+    @Override
+    public String toString() {
+        if (isElastic()) {
+            return format("ElasticAgent [%s, %s, %s, %s, %s]", hostName, ipAddress, uuid, elasticAgentId, elasticPluginId);
+        } else {
+            return format("Agent [%s, %s, %s]", hostName, ipAddress, uuid);
+        }
+    }
+
+    public AgentIdentifier getAgentIdentifier() {
+        return new AgentIdentifier(this.getHostName(), getIpAddress(), getUuid());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AgentConfig that = (AgentConfig) o;
+        return disabled == that.disabled &&
+                Objects.equals(hostName, that.hostName) &&
+                Objects.equals(ipAddress, that.ipAddress) &&
+                Objects.equals(uuid, that.uuid) &&
+                Objects.equals(elasticAgentId, that.elasticAgentId) &&
+                Objects.equals(elasticPluginId, that.elasticPluginId) &&
+                Objects.equals(environments, that.environments) &&
+                Objects.equals(resources, that.resources) &&
+                Objects.equals(cookie, that.cookie);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(hostName, ipAddress, uuid, elasticAgentId, elasticPluginId, disabled, environments, resources, cookie);
+    }
+
+    public String getHostName() {
+        return hostName;
     }
 
     public void setHostName(String hostName) {
         this.hostName = hostName;
     }
 
-    public String getHostNameForDisplay() {
-        return this.hostName;
+    public String getIpAddress() {
+        return ipAddress;
+    }
+
+    public void setIpAddress(String ipAddress) {
+        this.ipAddress = ipAddress;
     }
 
     public String getUuid() {
         return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
     }
 
     public String getElasticAgentId() {
@@ -219,70 +260,79 @@ public class AgentConfig implements Validatable {
         this.elasticPluginId = elasticPluginId;
     }
 
-    public boolean isElastic() {
-        return isNotBlank(elasticAgentId) && isNotBlank(elasticPluginId);
+    public boolean isDisabled() {
+        return disabled;
     }
 
-    @Deprecated
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
     }
 
-    @Override
-    public String toString() {
-        if (isElastic()) {
-            return format("ElasticAgent [%s, %s, %s, %s, %s]", hostName, ipAddress, uuid, elasticAgentId, elasticPluginId);
-        } else {
-            return format("Agent [%s, %s, %s]", hostName, ipAddress, uuid);
+    public String getEnvironments() {
+        return environments;
+    }
+
+    public void setEnvironments(String environments) {
+        this.environments = environments;
+    }
+
+    public void addEnvironments(List<String> environmentsToAdd) {
+        LinkedHashSet<String> environments = new LinkedHashSet<>();
+        if (this.getEnvironments() != null) {
+            environments.addAll(Arrays.asList(this.getEnvironments().split(",")));
+        }
+        environments.addAll(environmentsToAdd);
+        this.setEnvironments(String.join(",", environments));
+    }
+
+    public void removeEnvironments(List<String> environmentsToRemove) {
+        if (this.getEnvironments() != null) {
+            List<String> environments = Arrays.stream(this.getEnvironments().split(","))
+                    .filter(environment -> !environmentsToRemove.contains(environment))
+                    .collect(Collectors.toList());
+
+            this.setEnvironments(String.join(",", environments));
         }
     }
 
-    public AgentIdentifier getAgentIdentifier() {
-        return new AgentIdentifier(this.getHostname(), getIpAddress(), getUuid());
+    public ResourceConfigs getResources() {
+        return new ResourceConfigs(resources == null ? "" : resources);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        AgentConfig agentConfig = (AgentConfig) o;
-
-        if (hostName != null ? !hostName.equals(agentConfig.hostName) : agentConfig.hostName != null) {
-            return false;
-        }
-        if (ipAddress != null ? !ipAddress.equals(agentConfig.ipAddress) : agentConfig.ipAddress != null) {
-            return false;
-        }
-        if (uuid != null ? !uuid.equals(agentConfig.uuid) : agentConfig.uuid != null) {
-            return false;
-        }
-        if (isDisabled != null ? !isDisabled.equals(agentConfig.isDisabled) : agentConfig.isDisabled != null) {
-            return false;
-        }
-        if (elasticAgentId != null ? !elasticAgentId.equals(agentConfig.elasticAgentId) : agentConfig.elasticAgentId != null) {
-            return false;
-        }
-        if (elasticPluginId != null ? !elasticPluginId.equals(agentConfig.elasticPluginId) : agentConfig.elasticPluginId != null) {
-            return false;
-        }
-        return resourceConfigs != null ? resourceConfigs.equals(agentConfig.resourceConfigs) : agentConfig.resourceConfigs == null;
-
+    public void setResources(ResourceConfigs resourceConfigs) {
+        this.resources = StringUtils.join(resourceConfigs.resourceNames(), ",");
     }
 
-    @Override
-    public int hashCode() {
-        int result = hostName != null ? hostName.hashCode() : 0;
-        result = 31 * result + (ipAddress != null ? ipAddress.hashCode() : 0);
-        result = 31 * result + (uuid != null ? uuid.hashCode() : 0);
-        result = 31 * result + (isDisabled != null ? isDisabled.hashCode() : 0);
-        result = 31 * result + (elasticAgentId != null ? elasticAgentId.hashCode() : 0);
-        result = 31 * result + (elasticPluginId != null ? elasticPluginId.hashCode() : 0);
-        result = 31 * result + (resourceConfigs != null ? resourceConfigs.hashCode() : 0);
-        return result;
+    public void addResources(List<String> resourcesToAdd) {
+        LinkedHashSet<String> resources = new LinkedHashSet<>();
+        if (getResources() != null) {
+            resources.addAll(getResources().stream().map(ResourceConfig::getName).collect(Collectors.toList()));
+        }
+        resources.addAll(resourcesToAdd);
+        setResources(new ResourceConfigs(String.join(",", resources)));
+    }
+
+    public void removeResources(List<String> resourcesToRemove) {
+        if (getResources() != null) {
+            List<String> resources = getResources()
+                    .stream()
+                    .map(ResourceConfig::getName)
+                    .filter(resource -> !resourcesToRemove.contains(resource))
+                    .collect(Collectors.toList());
+
+            setResources(new ResourceConfigs(String.join(",", resources)));
+        }
+    }
+
+    public String getCookie() {
+        return cookie;
+    }
+
+    public void setCookie(String cookie) {
+        this.cookie = cookie;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

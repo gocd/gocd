@@ -88,6 +88,7 @@ public class GoConfigMigrator {
         try {
             return upgrade();
         } catch (Exception e) {
+            e.printStackTrace();
             upgradeFailedHandler.handle(e);
         }
         return null;

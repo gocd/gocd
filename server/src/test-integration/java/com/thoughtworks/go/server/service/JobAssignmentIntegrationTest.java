@@ -51,6 +51,8 @@ import static org.junit.Assert.assertThat;
         "classpath:testPropertyConfigurer.xml",
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
+
+//TODO: Vrushali and Viraj need to fix this
 public class JobAssignmentIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoConfigDao cruiseConfigDao;

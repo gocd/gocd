@@ -18,7 +18,15 @@
 ###############################################################################################
 
 FROM alpine:latest as gocd-agent-unzip
+<#if useFromArtifact >
 COPY go-agent-${fullVersion}.zip /tmp/go-agent-${fullVersion}.zip
+<#else>
+RUN \
+  apk --no-cache upgrade && \
+  apk add --no-cache curl && \
+  curl --fail --location --silent --show-error "https://download.gocd.org/binaries/${fullVersion}/generic/go-agent-${fullVersion}.zip" > /tmp/go-agent-${fullVersion}.zip
+</#if>
+
 RUN unzip /tmp/go-agent-${fullVersion}.zip -d /
 RUN mv /go-agent-${goVersion} /go-agent
 

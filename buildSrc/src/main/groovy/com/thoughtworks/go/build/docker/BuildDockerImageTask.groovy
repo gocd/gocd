@@ -147,7 +147,8 @@ class BuildDockerImageTask extends DefaultTask {
       gitRevision    : project.gitRevision,
       additionalFiles: additionalFiles,
       imageName      : dockerImageName,
-      copyrightYear  : project.copyrightYear
+      copyrightYear  : project.copyrightYear,
+      useFromArtifact: !project.hasProperty('dockerGitPush')
     ]
 
     project.mkdir(project.buildDir)

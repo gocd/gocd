@@ -61,12 +61,12 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsAndGroupLevelAuthorization_shouldConsiderAllSuperAdminUsersAsViewersOperatorsAndAdminsOfPipelines() throws Exception {
+    public void withSuperAdminsAndGroupLevelAuthorization_shouldConsiderAllSuperAdminUsersAsViewersOperatorsAndAdminsOfPipelines() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
 
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
-        configMother.addUserAsSuperAdmin(config, "superadmin2");
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin2");
 
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 
@@ -77,7 +77,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsThroughRolesAndGroupLevelAuthorization_shouldConsiderUsersOfAllSuperAdminRolesAsViewersOperatorsAndAdminsOfPipelines() throws Exception {
+    public void withSuperAdminsThroughRolesAndGroupLevelAuthorization_shouldConsiderUsersOfAllSuperAdminRolesAsViewersOperatorsAndAdminsOfPipelines() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
 
@@ -95,7 +95,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsThroughPluginRolesAndGroupLevelAuthorization_shouldConsiderAllUsersHavingSuperAdminPluginRoleAsViewersOperatorsAndAdminsOfPipelineGroups() throws Exception {
+    public void withSuperAdminsThroughPluginRolesAndGroupLevelAuthorization_shouldConsiderAllUsersHavingSuperAdminPluginRoleAsViewersOperatorsAndAdminsOfPipelineGroups() {
         PluginRoleConfig admin = new PluginRoleConfig("go_admins", "ldap");
         pluginRoleUsersStore.assignRole("admin_user", admin);
 
@@ -108,16 +108,16 @@ public class GoConfigPipelinePermissionsAuthorityTest {
         Map<CaseInsensitiveString, Permissions> permissions = getPipelinesAndTheirPermissions();
 
         assertPipelinesInMap(permissions, "pipeline1");
-        assertViewers(permissions, "pipeline1", Collections.singleton(admin),  "viewer1");
+        assertViewers(permissions, "pipeline1", Collections.singleton(admin), "viewer1");
         assertOperators(permissions, "pipeline1", Collections.singleton(admin));
         assertAdmins(permissions, "pipeline1", Collections.singleton(admin));
     }
 
     @Test
-    public void withSuperAdminsAndNoGroupLevelAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() throws Exception {
+    public void withSuperAdminsAndNoGroupLevelAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
 
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         PipelineConfigs group = config.findGroup("group1");
         assertThat(group.getAuthorization(), is(new Authorization()));
@@ -134,7 +134,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsThroughRolesAndNoGroupLevelAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() throws Exception {
+    public void withSuperAdminsThroughRolesAndNoGroupLevelAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
 
         configMother.addRole(config, configMother.createRole("superadminrole1", "superadmin1", "superadmin2"));
@@ -150,7 +150,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsThroughPluginRolesAndNoGroupAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() throws Exception {
+    public void withSuperAdminsThroughPluginRolesAndNoGroupAuthorization_shouldConsiderAllNonAdminUsersAsViewersOperatorsOfPipelines() {
         PluginRoleConfig admin = new PluginRoleConfig("go_admins", "ldap");
         pluginRoleUsersStore.assignRole("admin_user", admin);
 
@@ -170,7 +170,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsThroughPluginRolesAndGroupAuthorization_uponRevocationOfARoleForAdminUser_shouldNoLongerBeViewerOperatorOrAdminOfPipelines() throws Exception {
+    public void withSuperAdminsThroughPluginRolesAndGroupAuthorization_uponRevocationOfARoleForAdminUser_shouldNoLongerBeViewerOperatorOrAdminOfPipelines() {
         PluginRoleConfig admin = new PluginRoleConfig("go_admins", "ldap");
         pluginRoleUsersStore.assignRole("admin_user", admin);
 
@@ -196,7 +196,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminAndPipelineGroupAdminThroughPluginRole_uponRevocationOfTheRoleForGroupAdminUser_shouldNoLongerBeViewerOperatorOrAdminOfPipelines() throws Exception {
+    public void withSuperAdminAndPipelineGroupAdminThroughPluginRole_uponRevocationOfTheRoleForGroupAdminUser_shouldNoLongerBeViewerOperatorOrAdminOfPipelines() {
         PluginRoleConfig groupAdmin = new PluginRoleConfig("group_admin", "ldap");
         pluginRoleUsersStore.assignRole("admin_user", groupAdmin);
 
@@ -222,11 +222,11 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldCreateAUniqueSetOfNamesWhenSameUserIsPartOfBothSuperAdminUsersAndRolesConfigurations() throws Exception {
+    public void shouldCreateAUniqueSetOfNamesWhenSameUserIsPartOfBothSuperAdminUsersAndRolesConfigurations() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addUserAsViewerOfPipelineGroup(config, "viewer1", "group1");
 
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
         configMother.addRole(config, configMother.createRole("superadminrole1", "superadmin1", "superadmin2"));
         configMother.addRoleAsSuperAdmin(config, "superadminrole1");
 
@@ -239,8 +239,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsAndPipelineGroupAdminUsers_shouldConsiderPipelineGroupAdminsAsViewersOperatorsAndAdminsOfTheirPipelines() throws Exception {
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+    public void withSuperAdminsAndPipelineGroupAdminUsers_shouldConsiderPipelineGroupAdminsAsViewersOperatorsAndAdminsOfTheirPipelines() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
@@ -263,8 +263,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsAndPipelineGroupAdminsRole_shouldConsiderAllUsersInPipelineGroupAdminRolesAsViewersOperatorsAndAdminsOfTheirPipelines() throws Exception {
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+    public void withSuperAdminsAndPipelineGroupAdminsRole_shouldConsiderAllUsersInPipelineGroupAdminRolesAsViewersOperatorsAndAdminsOfTheirPipelines() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
@@ -289,11 +289,11 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsAndPipelineGroupAdminsPluginRole_shouldConsiderAllUsersInPipelineGroupAdminPluginRolesAsViewersOperatorsAndAdminsOfTheirPipelines() throws Exception {
+    public void withSuperAdminsAndPipelineGroupAdminsPluginRole_shouldConsiderAllUsersInPipelineGroupAdminPluginRolesAsViewersOperatorsAndAdminsOfTheirPipelines() {
         PluginRoleConfig groupAdmin = new PluginRoleConfig("group_admin", "ldap");
         pluginRoleUsersStore.assignRole("admin", groupAdmin);
 
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addRole(config, groupAdmin);
@@ -317,8 +317,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldCreateAUniqueSetOfNamesWhenSameUserIsPartOfBothGroupAdminUsersAndRolesConfigurations() throws Exception {
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+    public void shouldCreateAUniqueSetOfNamesWhenSameUserIsPartOfBothGroupAdminUsersAndRolesConfigurations() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
 
         configMother.addRole(config, configMother.createRole("group1_admin_role1", "groupadmin1", "groupadmin2"));
@@ -334,8 +334,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminAndGroupAuthorization_shouldConsiderUsersWithViewPermissionsAsOnlyViewersOfTheirPipelines() throws Exception {
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+    public void withSuperAdminAndGroupAuthorization_shouldConsiderUsersWithViewPermissionsAsOnlyViewersOfTheirPipelines() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
@@ -358,8 +358,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminAndGroupAuthorizationThroughRole_shouldConsiderUsersOfRolesWithViewPermissionsAsOnlyViewersOfTheirPipelines() throws Exception {
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+    public void withSuperAdminAndGroupAuthorizationThroughRole_shouldConsiderUsersOfRolesWithViewPermissionsAsOnlyViewersOfTheirPipelines() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
@@ -384,11 +384,11 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminAndGroupAuthorizationThroughPluginRoles_shouldConsiderUsersOfPluginRolesWithViewPermissionsAsOnlyViewersOfTheirPipelines() throws Exception {
+    public void withSuperAdminAndGroupAuthorizationThroughPluginRoles_shouldConsiderUsersOfPluginRolesWithViewPermissionsAsOnlyViewersOfTheirPipelines() {
         PluginRoleConfig groupViewer = new PluginRoleConfig("group_viewer", "ldap");
         pluginRoleUsersStore.assignRole("viewer", groupViewer);
 
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addRole(config, groupViewer);
@@ -412,8 +412,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminAndGroupAuthorization_shouldConsiderUsersWithOperatePermissionsAsOnlyOperatorsOfTheirPipelines() throws Exception {
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+    public void withSuperAdminAndGroupAuthorization_shouldConsiderUsersWithOperatePermissionsAsOnlyOperatorsOfTheirPipelines() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
@@ -436,8 +436,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminAndGroupAuthorizationThroughRole_shouldConsiderUsersOfRolesWithOperatePermissionsAsOnlyOperatorsOfTheirPipelines() throws Exception {
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+    public void withSuperAdminAndGroupAuthorizationThroughRole_shouldConsiderUsersOfRolesWithOperatePermissionsAsOnlyOperatorsOfTheirPipelines() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");
@@ -462,11 +462,11 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminAndGroupAuthorizationThroughPluginRoles_shouldConsiderUsersOfPluginRolesWithOperatePermissionsAsOnlyOperatorsOfTheirPipelines() throws Exception {
+    public void withSuperAdminAndGroupAuthorizationThroughPluginRoles_shouldConsiderUsersOfPluginRolesWithOperatePermissionsAsOnlyOperatorsOfTheirPipelines() {
         PluginRoleConfig groupOperator = new PluginRoleConfig("group_operator", "ldap");
         pluginRoleUsersStore.assignRole("operator", groupOperator);
 
-        configMother.addUserAsSuperAdmin(config, "super_admin");
+        GoConfigMother.addUserAsSuperAdmin(config, "super_admin");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addRole(config, groupOperator);
@@ -489,8 +489,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldCreateAUniqueSetOfNamesWhenSameUserIsPartOfBothViewUsersAndViewRolesConfigurations() throws Exception {
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+    public void shouldCreateAUniqueSetOfNamesWhenSameUserIsPartOfBothViewUsersAndViewRolesConfigurations() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
 
@@ -508,13 +508,13 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldCreateAnEntryForEveryPipelineInTheConfig() throws Exception {
+    public void shouldCreateAnEntryForEveryPipelineInTheConfig() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1B", "job1B1", "job1B2");
         configMother.addPipelineWithGroup(config, "group3", "pipeline3", "stage1C", "job1C1", "job1C2");
         configMother.addPipelineWithGroup(config, "group3", "pipeline4", "stage1D", "job1D1", "job1D2");
 
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addRole(config, configMother.createRole("group1adminrole", "group1admin1", "group1admin2"));
         configMother.addAdminRoleForPipelineGroup(config, "group1adminrole", "group1");
@@ -547,12 +547,12 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldAllowAUserToBePartOfDifferentGroups() throws Exception {
+    public void shouldAllowAUserToBePartOfDifferentGroups() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1B", "job1B1", "job1B2");
         configMother.addPipelineWithGroup(config, "group3", "pipeline3", "stage1C", "job1C1", "job1C2");
 
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addRole(config, configMother.createRole("group1adminrole", "user1", "user2"));
         configMother.addAdminRoleForPipelineGroup(config, "group1adminrole", "group1");
@@ -583,7 +583,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withNoSuperAdminsAndNoGroupAuthorization_shouldConsiderAllUsersAsViewersOperatorsAndAdminsOfAGroup() throws Exception {
+    public void withNoSuperAdminsAndNoGroupAuthorization_shouldConsiderAllUsersAsViewersOperatorsAndAdminsOfAGroup() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
 
         PipelineConfigs group = config.findGroup("group1");
@@ -602,7 +602,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withNoSuperAdminsAndGroupLevelAuthorization_shouldConsiderAllUsersAsViewersOperatorsAndAdminsOfAGroup_EvenIfExplicitGroupAdminIsSetup() throws Exception {
+    public void withNoSuperAdminsAndGroupLevelAuthorization_shouldConsiderAllUsersAsViewersOperatorsAndAdminsOfAGroup_EvenIfExplicitGroupAdminIsSetup() {
         /* No superuser */
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2A", "job2A1", "job2A2");
@@ -630,7 +630,7 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsThroughEmptyRoleAndGroupAuthorization_shouldApplyAuthorizationBasedOnPipelineGroupAuthorization() throws Exception {
+    public void withSuperAdminsThroughEmptyRoleAndGroupAuthorization_shouldApplyAuthorizationBasedOnPipelineGroupAuthorization() {
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage2A", "job2A1", "job2A2");
 
@@ -650,8 +650,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldHandleRoleNamesCaseInsensitively() throws Exception {
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+    public void shouldHandleRoleNamesCaseInsensitively() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
         configMother.addRole(config, configMother.createRole("roleWithDifferentCase", "user1", "user2"));
 
         configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
@@ -666,9 +666,9 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsAndGroupLevelAuthorization_shouldAllowStageToOverrideOperators() throws Exception {
+    public void withSuperAdminsAndGroupLevelAuthorization_shouldAllowStageToOverrideOperators() {
         PipelineConfig pipelineConfig = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         configMother.addUserAsOperatorOfPipelineGroup(config, "user1", "group1");
         configMother.addUserAsOperatorOfPipelineGroup(config, "user2", "group1");
@@ -690,13 +690,13 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void withSuperAdminsAndGroupLevelAuthorization_shouldAllowStageToOverrideOperatorsThroughPluginRole() throws Exception {
+    public void withSuperAdminsAndGroupLevelAuthorization_shouldAllowStageToOverrideOperatorsThroughPluginRole() {
         PipelineConfig pipelineConfig = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
 
         PluginRoleConfig groupOperator = new PluginRoleConfig("group_operator", "ldap");
         pluginRoleUsersStore.assignRole("operator", groupOperator);
 
-        configMother.addUserAsSuperAdmin(config, "super_admin");
+        GoConfigMother.addUserAsSuperAdmin(config, "super_admin");
 
         configMother.addRole(config, groupOperator);
         configMother.addRoleAsOperatorOfPipelineGroup(config, "group_operator", "group1");
@@ -713,8 +713,8 @@ public class GoConfigPipelinePermissionsAuthorityTest {
     }
 
     @Test
-    public void shouldAllowRetrievingPermissionsOfASinglePipelineByName() throws Exception {
-        configMother.addUserAsSuperAdmin(config, "superadmin1");
+    public void shouldAllowRetrievingPermissionsOfASinglePipelineByName() {
+        GoConfigMother.addUserAsSuperAdmin(config, "superadmin1");
 
         PipelineConfig p1Config = configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1A", "job1A1", "job1A2");
         PipelineConfig p2Config = configMother.addPipelineWithGroup(config, "group2", "pipeline2", "stage1A", "job1A1", "job1A2");

@@ -55,6 +55,7 @@ public class SpaControllers implements SparkSpringController {
 
 		sparkControllers.add(new AgentJobRunHistoryController(authenticationHelper, templateEngineFactory.create(AgentJobRunHistoryController.class, () -> COMPONENT_LAYOUT_PATH)));
 		sparkControllers.add(new AdminTemplatesController(authenticationHelper, templateEngineFactory.create(AdminTemplatesController.class, () -> COMPONENT_LAYOUT_PATH)));
+        sparkControllers.add(new PipelineActivityController(authenticationHelper, templateEngineFactory.create(PipelineActivityController.class, () -> COMPONENT_LAYOUT_PATH)));
 		sparkControllers.add(new AdminPipelinesController(authenticationHelper, templateEngineFactory.create(AdminPipelinesController.class, () -> COMPONENT_LAYOUT_PATH)));
 		sparkControllers.add(new ServerConfigurationController(authenticationHelper, templateEngineFactory.create(ServerConfigurationController.class, () -> COMPONENT_LAYOUT_PATH)));
 		sparkControllers.add(new NewEnvironmentsController(authenticationHelper, templateEngineFactory.create(NewEnvironmentsController.class, () -> COMPONENT_LAYOUT_PATH)));

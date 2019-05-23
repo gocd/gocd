@@ -776,4 +776,8 @@ public class Routes {
             return BASE.replace(":uuid", uuid);
         }
     }
+
+    public class PipelineActivity {
+        public static final String SPA_BASE = "/pipeline/activity/:pipeline_name";
+    }
 }

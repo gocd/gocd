@@ -69,3 +69,9 @@ export interface RequiresPluginInfos {
 export interface FlashContainer {
   flash: FlashProvider;
 }
+
+export interface ResultAwarePage<T> {
+  onSuccess(data: T): void;
+
+  onFailure(message: string): void;
+}

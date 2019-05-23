@@ -44,6 +44,12 @@
   </rule>
 
   <rule>
+    <name>pipeline_activity UI</name>
+    <from>^/pipeline/activity/(.+)$</from>
+    <to last="true">/spark/pipeline/activity/$1</to>
+  </rule>
+
+  <rule>
     <name>admin_pipelines UI</name>
     <from>^/admin/pipelines(/?)$</from>
     <to last="true">/spark/admin/pipelines</to>

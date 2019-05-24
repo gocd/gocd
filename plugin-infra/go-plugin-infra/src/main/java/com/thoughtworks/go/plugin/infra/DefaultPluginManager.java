@@ -46,6 +46,7 @@ public class DefaultPluginManager implements PluginManager {
     private DefaultPluginRegistry registry;
     private final DefaultPluginJarChangeListener defaultPluginJarChangeListener;
     private SystemEnvironment systemEnvironment;
+    private PluginLoader pluginLoader;
     private File bundleLocation;
     private GoPluginOSGiFramework goPluginOSGiFramework;
     private final Map<PluginDescriptor, Set<String>> initializedPluginsWithTheirExtensionTypes = new HashMap<>();
@@ -54,12 +55,13 @@ public class DefaultPluginManager implements PluginManager {
     @Autowired
     public DefaultPluginManager(DefaultPluginJarLocationMonitor monitor, DefaultPluginRegistry registry, GoPluginOSGiFramework goPluginOSGiFramework,
                                 DefaultPluginJarChangeListener defaultPluginJarChangeListener, PluginRequestProcessorRegistry requestProcessRegistry,
-                                SystemEnvironment systemEnvironment) {
+                                SystemEnvironment systemEnvironment, PluginLoader pluginLoader) {
         this.monitor = monitor;
         this.registry = registry;
         this.defaultPluginJarChangeListener = defaultPluginJarChangeListener;
         this.requestProcessRegistry = requestProcessRegistry;
         this.systemEnvironment = systemEnvironment;
+        this.pluginLoader = pluginLoader;
         bundleLocation = bundlePath();
         this.goPluginOSGiFramework = goPluginOSGiFramework;
     }
@@ -116,12 +118,12 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public void addPluginChangeListener(PluginChangeListener pluginChangeListener) {
-        goPluginOSGiFramework.addPluginChangeListener(pluginChangeListener);
+        pluginLoader.addPluginChangeListener(pluginChangeListener);
     }
 
     @Override
     public PluginPostLoadHook addPluginPostLoadHook(PluginPostLoadHook pluginPostLoadHook) {
-        return goPluginOSGiFramework.addPostLoadHook(pluginPostLoadHook);
+        return pluginLoader.addPluginPostLoadHook(pluginPostLoadHook);
     }
 
     @Override

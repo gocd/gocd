@@ -373,7 +373,40 @@ class FelixGoPluginOSGiFrameworkTest {
         verifyZeroInteractions(listener2);
 
         verify(bundle, times(1)).start();
-        verify(pluginDescriptor).markAsInvalid(anyList(), eq(null));
+        verify(pluginDescriptor).markAsInvalid(eq(singletonList("Something went wrong")), eq(null));
+        verify(postLoadHook).run(pluginDescriptor);
+    }
+
+    @Test
+    void shouldRunPostLoadHooksInOrderOfRegistration() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        when(pluginDescriptor.bundle()).thenReturn(bundle);
+        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
+        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
+
+        final PluginPostLoadHook postLoadHook1 = mock(PluginPostLoadHook.class);
+        when(postLoadHook1.run(pluginDescriptor)).thenReturn(new PluginPostLoadHook.Result(false, null));
+
+        final PluginPostLoadHook postLoadHook2 = mock(PluginPostLoadHook.class);
+        when(postLoadHook2.run(pluginDescriptor)).thenReturn(new PluginPostLoadHook.Result(true, "Something went wrong"));
+
+        PluginChangeListener listener1 = mock(PluginChangeListener.class);
+
+        spy.addPluginChangeListener(listener1);
+        spy.addPostLoadHook(postLoadHook1);
+        spy.addPostLoadHook(postLoadHook2);
+
+        spy.start();
+        spy.loadPlugin(pluginDescriptor);
+
+        verifyZeroInteractions(listener1);
+
+        verify(bundle, times(1)).start();
+        verify(pluginDescriptor).markAsInvalid(eq(singletonList("Something went wrong")), eq(null));
+
+        final InOrder inOrder = inOrder(postLoadHook1, postLoadHook2);
+        inOrder.verify(postLoadHook1).run(pluginDescriptor);
+        inOrder.verify(postLoadHook2).run(pluginDescriptor);
     }
 
     @Test

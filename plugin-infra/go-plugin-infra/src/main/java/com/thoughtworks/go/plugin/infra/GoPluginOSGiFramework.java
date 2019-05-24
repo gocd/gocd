@@ -41,7 +41,4 @@ public interface GoPluginOSGiFramework {
 
     PluginPostLoadHook addPostLoadHook(PluginPostLoadHook pluginPostLoadHook);
 
-    void setElasticAgentInformationMigrator(ElasticAgentInformationMigrator elasticAgentInformationMigrator);
-
-    boolean migrateConfig(GoPluginDescriptor descriptor);
 }

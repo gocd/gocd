@@ -141,7 +141,13 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public void setElasticAgentInformationMigrator(ElasticAgentInformationMigrator elasticAgentInformationMigrator) {
-        goPluginOSGiFramework.setElasticAgentInformationMigrator(elasticAgentInformationMigrator);
+        goPluginOSGiFramework.addPostLoadHook(new PluginPostLoadHook() {
+            @Override
+            public Result run(GoPluginDescriptor pluginDescriptor) {
+                final boolean migratedSuccessfully = elasticAgentInformationMigrator.migrate(pluginDescriptor);
+                return new Result(!migratedSuccessfully, "Failed to migrate config for " + pluginDescriptor.id());
+            }
+        });
     }
 
     @Override

@@ -58,18 +58,14 @@ class PluginExtensionsAndVersionValidatorImplTest {
 
     @Test
     void shouldNotAddErrorOnSuccessfulValidation() {
-        when(pluginRegistry.getExtensionsInfo(PLUGIN_ID)).thenReturn(Collections.singletonMap(ELASTIC_AGENT_EXTENSION, singletonList("2.0")));
-
-        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor);
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Collections.singletonMap(ELASTIC_AGENT_EXTENSION, singletonList("2.0")));
 
         assertThat(validationResult.isAFailure()).isFalse();
     }
 
     @Test
     void shouldAddErrorAndReturnValidationResultWhenPluginRequiredExtensionIsNotSupportedByGoCD() {
-        when(pluginRegistry.getExtensionsInfo(PLUGIN_ID)).thenReturn(Collections.singletonMap("some-invalid-extension", singletonList("2.0")));
-
-        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor);
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Collections.singletonMap("some-invalid-extension", singletonList("2.0")));
 
         assertThat(validationResult.isAFailure()).isTrue();
         assertThat(validationResult.getMessage()).isEqualTo("Extension incompatibility detected between plugin(Some-Plugin-Id) and GoCD:\n" +
@@ -78,9 +74,7 @@ class PluginExtensionsAndVersionValidatorImplTest {
 
     @Test
     void shouldAddErrorAndReturnValidationResultWhenPluginRequiredExtensionVersionIsNotSupportedByGoCD() {
-        when(pluginRegistry.getExtensionsInfo(PLUGIN_ID)).thenReturn(Collections.singletonMap(ELASTIC_AGENT_EXTENSION, singletonList("3.0")));
-
-        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor);
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Collections.singletonMap(ELASTIC_AGENT_EXTENSION, singletonList("3.0")));
 
         assertThat(validationResult.isAFailure()).isTrue();
         assertThat(validationResult.getMessage())
@@ -90,9 +84,7 @@ class PluginExtensionsAndVersionValidatorImplTest {
 
     @Test
     void shouldConsiderPluginValidWhenOneOfTheExtensionVersionUsedByThePluginIsSupportedByGoCD() {
-        when(pluginRegistry.getExtensionsInfo(PLUGIN_ID)).thenReturn(Collections.singletonMap(ELASTIC_AGENT_EXTENSION, Arrays.asList("a.b", "2.0")));
-
-        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor);
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor, Collections.singletonMap(ELASTIC_AGENT_EXTENSION, Arrays.asList("a.b", "2.0")));
 
         assertThat(validationResult.isAFailure()).isFalse();
     }

@@ -37,8 +37,6 @@ public interface GoPluginOSGiFramework {
 
     <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId, String extensionType);
 
-    <T extends GoPlugin> Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId);
-
     PluginPostLoadHook addPostLoadHook(PluginPostLoadHook pluginPostLoadHook);
 
 }

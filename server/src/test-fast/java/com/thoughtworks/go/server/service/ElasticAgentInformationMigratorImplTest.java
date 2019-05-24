@@ -65,7 +65,7 @@ class ElasticAgentInformationMigratorImplTest {
     void shouldDoNothingForNonElasticAgentPlugins() {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(false);
 
-        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor);
+        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
 
         assertThat(result.isAFailure()).isFalse();
         verifyZeroInteractions(goConfigService);
@@ -80,7 +80,7 @@ class ElasticAgentInformationMigratorImplTest {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, JsonHelper.toJsonString(configuration)));
 
-        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor);
+        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
 
         assertThat(result.isAFailure()).isFalse();
         verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
@@ -91,7 +91,7 @@ class ElasticAgentInformationMigratorImplTest {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
 
-        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor);
+        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
 
         assertThat(result.isAFailure()).isFalse();
         assertThat(result.getMessage()).isEqualTo("Success");
@@ -108,7 +108,7 @@ class ElasticAgentInformationMigratorImplTest {
 
         String expectedErrorMessage = "Plugin 'plugin-id' failed to perform 'cd.go.elastic-agent.migrate-config' call. Plugin sent an invalid config. Reason: Boom!.\n Please fix the errors and restart GoCD server.";
 
-        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor);
+        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor, new HashMap<>());
 
         assertThat(result.isAFailure()).isTrue();
         assertThat(result.getMessage()).isEqualTo(expectedErrorMessage);

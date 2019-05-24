@@ -42,15 +42,6 @@ public class DefaultPluginRegistry implements PluginRegistry {
         idToDescriptorMap.put(descriptor.id(), descriptor);
     }
 
-    @Override
-    public void registerExtensions(GoPluginDescriptor descriptor, Map<String, List<String>> requiredExtensionsInfoForThePlugin) {
-        if (containsKey(idToExtensionsInfoMap, descriptor.id())) {
-            throw new RuntimeException("Found another plugin with ID: " + descriptor.id());
-        }
-
-        idToExtensionsInfoMap.put(descriptor.id(), requiredExtensionsInfoForThePlugin);
-    }
-
     private boolean containsKey(Map<String, ?> map, String id) {
         for (String key : map.keySet()) {
             if (key.equalsIgnoreCase(id)) {
@@ -94,11 +85,6 @@ public class DefaultPluginRegistry implements PluginRegistry {
         if (goPluginDescriptor != null) {
             goPluginDescriptor.markAsInvalid(messages, null);
         }
-    }
-
-    @Override
-    public Map<String, List<String>> getExtensionsInfo(String pluginId) {
-        return idToExtensionsInfoMap.get(pluginId);
     }
 
     @Override

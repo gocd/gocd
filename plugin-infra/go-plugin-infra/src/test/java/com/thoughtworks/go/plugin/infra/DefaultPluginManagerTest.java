@@ -403,11 +403,6 @@ public class DefaultPluginManagerTest {
         }
 
         @Override
-        public <T extends GoPlugin> Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId) {
-            return null;
-        }
-
-        @Override
         public PluginPostLoadHook addPostLoadHook(PluginPostLoadHook pluginPostLoadHook) {
             return pluginPostLoadHook;
         }

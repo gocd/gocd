@@ -45,16 +45,14 @@ public class PluginExtensionsAndVersionValidatorImpl implements PluginExtensions
     }
 
     @Override
-    public Result run(GoPluginDescriptor pluginDescriptor) {
-        final ValidationResult validationResult = validate(pluginDescriptor);
+    public Result run(GoPluginDescriptor pluginDescriptor, Map<String, List<String>> extensionsInfoOfPlugin) {
+        final ValidationResult validationResult = validate(pluginDescriptor, extensionsInfoOfPlugin);
         return new Result(validationResult.hasError(), validationResult.toErrorMessage());
     }
 
-    private ValidationResult validate(GoPluginDescriptor descriptor) {
+    private ValidationResult validate(GoPluginDescriptor descriptor, Map<String, List<String>> extensionsInfoFromPlugin) {
         ValidationResult validationResult = new ValidationResult(descriptor.id());
         final Set<String> gocdSupportedExtensions = extensionsRegistry.allRegisteredExtensions();
-
-        final Map<String, List<String>> extensionsInfoFromPlugin = pluginRegistry.getExtensionsInfo(descriptor.id());
 
         final Set<String> difference = SetUtils.difference(extensionsInfoFromPlugin.keySet(), gocdSupportedExtensions).toSet();
 

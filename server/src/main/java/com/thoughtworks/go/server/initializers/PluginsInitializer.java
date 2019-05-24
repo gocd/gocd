@@ -49,11 +49,7 @@ public class PluginsInitializer implements Initializer {
         this.zipUtil = zipUtil;
 
         this.pluginManager.addPluginPostLoadHook(pluginExtensionsAndVersionValidator);
-
-        this.pluginManager.addPluginPostLoadHook(pluginDescriptor -> {
-            final boolean migrationResult = elasticAgentInformationMigrator.migrate(pluginDescriptor);
-            return new PluginPostLoadHook.Result(!migrationResult, "Failed to migrate config for " + pluginDescriptor.id());
-        });
+        this.pluginManager.addPluginPostLoadHook(elasticAgentInformationMigrator);
     }
 
     @Override

@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.update.ReplaceElasticAgentInformationCommand;
 import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.PluginPostLoadHook;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -64,9 +65,9 @@ class ElasticAgentInformationMigratorImplTest {
     void shouldDoNothingForNonElasticAgentPlugins() {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(false);
 
-        boolean migratedSuccessfully = elasticAgentInformationMigrator.migrate(goPluginDescriptor);
+        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor);
 
-        assertThat(migratedSuccessfully).isTrue();
+        assertThat(result.isAFailure()).isFalse();
         verifyZeroInteractions(goConfigService);
     }
 
@@ -79,9 +80,9 @@ class ElasticAgentInformationMigratorImplTest {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, JsonHelper.toJsonString(configuration)));
 
-        boolean migratedSuccessfully = elasticAgentInformationMigrator.migrate(goPluginDescriptor);
+        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor);
 
-        assertThat(migratedSuccessfully).isTrue();
+        assertThat(result.isAFailure()).isFalse();
         verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
     }
 
@@ -90,9 +91,10 @@ class ElasticAgentInformationMigratorImplTest {
         when(pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, goPluginDescriptor.id())).thenReturn(true);
         when(pluginSqlMapDao.findPlugin(PLUGIN_ID)).thenReturn(new Plugin(PLUGIN_ID, null));
 
-        boolean migratedSuccessfully = elasticAgentInformationMigrator.migrate(goPluginDescriptor);
+        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor);
 
-        assertThat(migratedSuccessfully).isTrue();
+        assertThat(result.isAFailure()).isFalse();
+        assertThat(result.getMessage()).isEqualTo("Success");
         verify(goConfigService, times(1)).updateConfig(any(ReplaceElasticAgentInformationCommand.class));
     }
 
@@ -104,11 +106,12 @@ class ElasticAgentInformationMigratorImplTest {
 
         assertThat(goPluginDescriptor.isInvalid()).isFalse();
 
-        boolean migratedSuccessfully = elasticAgentInformationMigrator.migrate(goPluginDescriptor);
-
         String expectedErrorMessage = "Plugin 'plugin-id' failed to perform 'cd.go.elastic-agent.migrate-config' call. Plugin sent an invalid config. Reason: Boom!.\n Please fix the errors and restart GoCD server.";
 
-        assertThat(migratedSuccessfully).isFalse();
+        PluginPostLoadHook.Result result = elasticAgentInformationMigrator.run(goPluginDescriptor);
+
+        assertThat(result.isAFailure()).isTrue();
+        assertThat(result.getMessage()).isEqualTo(expectedErrorMessage);
         assertThat(goPluginDescriptor.isInvalid()).isTrue();
         assertThat(goPluginDescriptor.getStatus().getMessages().get(0)).isEqualTo(expectedErrorMessage);
     }

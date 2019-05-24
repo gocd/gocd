@@ -22,6 +22,7 @@ import com.thoughtworks.go.domain.Plugin;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentExtension;
 import com.thoughtworks.go.plugin.infra.ElasticAgentInformationMigrator;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.PluginPostLoadHook;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.dao.PluginSqlMapDao;
 import com.thoughtworks.go.util.json.JsonHelper;
@@ -53,7 +54,12 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
     }
 
     @Override
-    public boolean migrate(GoPluginDescriptor pluginDescriptor) {
+    public Result run(GoPluginDescriptor pluginDescriptor) {
+        final boolean migrationResult = migrate(pluginDescriptor);
+        return new PluginPostLoadHook.Result(!migrationResult, !migrationResult ? pluginDescriptor.getStatus().getMessages().get(0) : "Success");
+    }
+
+    private boolean migrate(GoPluginDescriptor pluginDescriptor) {
         String pluginId = pluginDescriptor.id();
         boolean isElasticAgentPlugin = pluginManager.isPluginOfType(ELASTIC_AGENT_EXTENSION, pluginId);
 

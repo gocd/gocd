@@ -16,7 +16,7 @@
 package com.thoughtworks.go.plugin.infra.listeners;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.plugin.infra.GoPluginOSGiFramework;
+import com.thoughtworks.go.plugin.infra.PluginLoader;
 import com.thoughtworks.go.plugin.infra.monitor.PluginFileDetails;
 import com.thoughtworks.go.plugin.infra.monitor.PluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.plugininfo.*;
@@ -42,15 +42,15 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     private static Logger LOGGER = LoggerFactory.getLogger(DefaultPluginJarChangeListener.class);
     private final DefaultPluginRegistry registry;
     private final GoPluginOSGiManifestGenerator osgiManifestGenerator;
-    private final GoPluginOSGiFramework goPluginOSGiFramework;
+    private final PluginLoader pluginLoader;
     private final SystemEnvironment systemEnvironment;
     private GoPluginDescriptorBuilder goPluginDescriptorBuilder;
 
     @Autowired
-    public DefaultPluginJarChangeListener(DefaultPluginRegistry registry, GoPluginOSGiManifestGenerator osgiManifestGenerator, GoPluginOSGiFramework goPluginOSGiFramework, GoPluginDescriptorBuilder goPluginDescriptorBuilder, SystemEnvironment systemEnvironment) {
+    public DefaultPluginJarChangeListener(DefaultPluginRegistry registry, GoPluginOSGiManifestGenerator osgiManifestGenerator, PluginLoader pluginLoader, GoPluginDescriptorBuilder goPluginDescriptorBuilder, SystemEnvironment systemEnvironment) {
         this.registry = registry;
         this.osgiManifestGenerator = osgiManifestGenerator;
-        this.goPluginOSGiFramework = goPluginOSGiFramework;
+        this.pluginLoader = pluginLoader;
         this.goPluginDescriptorBuilder = goPluginDescriptorBuilder;
         this.systemEnvironment = systemEnvironment;
     }
@@ -102,7 +102,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
 
     private void removePlugin(GoPluginDescriptor descriptor) {
         GoPluginDescriptor descriptorOfRemovedPlugin = registry.unloadPlugin(descriptor);
-        goPluginOSGiFramework.unloadPlugin(descriptorOfRemovedPlugin);
+        pluginLoader.unloadPlugin(descriptorOfRemovedPlugin);
         boolean bundleLocationHasBeenDeleted = FileUtils.deleteQuietly(descriptorOfRemovedPlugin.bundleLocation());
         if (!bundleLocationHasBeenDeleted) {
             throw new RuntimeException(String.format("Failed to remove bundle jar %s from bundle location %s", descriptorOfRemovedPlugin.fileName(), descriptorOfRemovedPlugin.bundleLocation()));
@@ -147,7 +147,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     private void refreshBundle(GoPluginDescriptor descriptor) {
         if (!descriptor.isInvalid()) {
             osgiManifestGenerator.updateManifestOf(descriptor);
-            goPluginOSGiFramework.loadPlugin(descriptor);
+            pluginLoader.loadPlugin(descriptor);
         }
     }
 

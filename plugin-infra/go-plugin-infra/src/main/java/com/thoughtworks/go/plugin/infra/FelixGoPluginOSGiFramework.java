@@ -46,7 +46,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
 @Component
@@ -100,44 +99,55 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public Bundle loadPlugin(GoPluginDescriptor pluginDescriptor) {
         File bundleLocation = pluginDescriptor.bundleLocation();
-        return getBundle(pluginDescriptor, bundleLocation);
+        final Bundle bundle = getBundle(pluginDescriptor, bundleLocation);
+
+        if (!pluginDescriptor.isInvalid()) {
+            doPostBundleInstallActivities(pluginDescriptor, bundleLocation);
+        }
+
+        return bundle;
     }
 
     private Bundle getBundle(GoPluginDescriptor pluginDescriptor, File bundleLocation) {
-        Bundle bundle = null;
         try {
-            bundle = framework.getBundleContext().installBundle("reference:" + bundleLocation.toURI());
+            Bundle bundle = framework.getBundleContext().installBundle("reference:" + bundleLocation.toURI());
             pluginDescriptor.setBundle(bundle);
             bundle.start();
             if (pluginDescriptor.isInvalid()) {
-                handlePluginInvalidation(pluginDescriptor, bundleLocation, bundle);
-                return bundle;
+                handlePluginInvalidation(pluginDescriptor, bundleLocation);
             }
+            return bundle;
+        } catch (Exception e) {
+            pluginDescriptor.markAsInvalid(asList(e.getMessage()), e);
+            LOGGER.error("Failed to load plugin: {}", bundleLocation, e);
+            handlePluginInvalidation(pluginDescriptor, bundleLocation);
+            throw new RuntimeException("Failed to load plugin: " + bundleLocation, e);
+        }
+    }
 
+    private void doPostBundleInstallActivities(GoPluginDescriptor pluginDescriptor, File bundleLocation) {
+        try {
             for (PluginPostLoadHook pluginPostLoadHook : pluginPostLoadHooks) {
                 final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginDescriptor, getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
                 if (result.isAFailure()) {
                     pluginDescriptor.markAsInvalid(singletonList(result.getMessage()), null);
                     LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.getMessage()));
-                    return bundle;
+                    return;
                 }
             }
 
-            if (pluginDescriptor.isInvalid()) {
-                return bundle;
+            if (!pluginDescriptor.isInvalid()) {
+                IterableUtils.forEach(pluginChangeListeners, notifyPluginLoadedEvent(pluginDescriptor));
             }
-
-            IterableUtils.forEach(pluginChangeListeners, notifyPluginLoadedEvent(pluginDescriptor));
-            return bundle;
         } catch (Exception e) {
             pluginDescriptor.markAsInvalid(asList(e.getMessage()), e);
             LOGGER.error("Failed to load plugin: {}", bundleLocation, e);
-            handlePluginInvalidation(pluginDescriptor, bundleLocation, bundle);
+            handlePluginInvalidation(pluginDescriptor, bundleLocation);
             throw new RuntimeException("Failed to load plugin: " + bundleLocation, e);
         }
     }
 
-    private void handlePluginInvalidation(GoPluginDescriptor pluginDescriptor, File bundleLocation, Bundle bundle) {
+    private void handlePluginInvalidation(GoPluginDescriptor pluginDescriptor, File bundleLocation) {
         String failureMsg = format("Failed to load plugin: %s. Plugin is invalid. Reasons %s",
                 bundleLocation, pluginDescriptor.getStatus().getMessages());
         LOGGER.error(failureMsg);

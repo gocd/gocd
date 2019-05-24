@@ -261,7 +261,7 @@ allprojects {
   apply plugin: 'idea'
   apply plugin: 'jacoco'
   group = 'com.thoughtworks.go'
-  version = project.goVersion
+  version = project.fullVersion
   buildDir = "${projectDir}/target"
 
   repositories {
@@ -403,11 +403,11 @@ subprojects {
   tasks.withType(Jar) { jarTask ->
     manifest {
       attributes(
-        'Go-Version': project.fullVersion,
-        'ImplementationVersion': project.fullVersion,
+        'Go-Version': project.version,
+        'ImplementationVersion': project.version,
         'Go-Revision': project.gitRevision,
         'Implementation-Title': project.name,
-        'Implementation-Version': project.fullVersion,
+        'Implementation-Version': project.version,
         'Source-Compatibility': project.compilerOptions.sourceCompatibility,
         'Target-Compatibility': project.compilerOptions.targetCompatibility
       )

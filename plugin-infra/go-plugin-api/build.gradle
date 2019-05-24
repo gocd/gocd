@@ -41,7 +41,7 @@ javadoc {
     windowTitle = 'GoCD Plugin API'
     docTitle = 'GoCD Plugin API'
     header = 'GoCD Plugin API'
-    bottom = "Copyright &copy; ${Calendar.getInstance().get(Calendar.YEAR).toString()} ThoughtWorks, Inc. GoCD Version: ${project.fullVersion}"
+    bottom = "Copyright &copy; ${Calendar.getInstance().get(Calendar.YEAR).toString()} ThoughtWorks, Inc. GoCD Version: ${project.version}"
   }
 }
 

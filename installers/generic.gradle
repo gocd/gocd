@@ -17,7 +17,6 @@
 task agentGenericZip(type: Zip) {
   destinationDirectory = file("${project.buildDir}/${project.distsDirName}/zip")
   archiveBaseName  = "go-agent"
-  archiveVersion = project.fullVersion
   into("go-agent-${project.goVersion}")
   group project.name
   description 'Build the go-agent zip installer'
@@ -43,7 +42,6 @@ task agentGenericZip(type: Zip) {
 task serverGenericZip(type: Zip) {
   destinationDirectory = file("${project.buildDir}/${project.distsDirName}/zip")
   archiveBaseName  = "go-server"
-  archiveVersion = project.fullVersion
   into("go-server-${project.goVersion}")
   group project.name
   description = 'Build the go-server zip installer'

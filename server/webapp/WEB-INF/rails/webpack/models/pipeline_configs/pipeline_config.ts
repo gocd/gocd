@@ -71,8 +71,4 @@ export class PipelineConfig extends ValidatableMixin {
 
     return { group, pipeline: raw };
   }
-
-  modelType(): string {
-    return "PipelineConfig";
-  }
 }

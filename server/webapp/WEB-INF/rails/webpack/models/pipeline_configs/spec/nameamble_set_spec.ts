@@ -134,7 +134,6 @@ class MockNameable implements Nameable {
   }
 
   name(): string { return this._name; }
-  modelType(): string { return "MockNameable"; }
   toApiPayload(): any { return { id: this._id, name: this._name }; }
 
   isValid(): boolean { return this._result; }

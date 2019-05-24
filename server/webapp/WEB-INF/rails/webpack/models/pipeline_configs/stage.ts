@@ -73,8 +73,4 @@ export class Stage extends ValidatableMixin {
   toApiPayload() {
     return JsonUtils.toSnakeCasedObject(this);
   }
-
-  modelType(): string {
-    return "StageConfig";
-  }
 }

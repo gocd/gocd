@@ -94,10 +94,6 @@ export class Material implements ValidatableMixin {
     return this.attributes().name() || "";
   }
 
-  modelType(): string {
-    return "Material";
-  }
-
   typeProxy(value?: any): string {
     if (arguments.length > 0) {
       const newType = value;

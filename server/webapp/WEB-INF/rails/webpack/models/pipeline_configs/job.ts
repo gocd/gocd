@@ -47,8 +47,4 @@ export class Job extends ValidatableMixin {
   toApiPayload() {
     return JsonUtils.toSnakeCasedObject(this);
   }
-
-  modelType() {
-    return "Job";
-  }
 }

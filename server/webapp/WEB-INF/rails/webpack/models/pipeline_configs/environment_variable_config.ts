@@ -37,8 +37,4 @@ export class EnvironmentVariableConfig extends ValidatableMixin {
   toApiPayload() {
     return JsonUtils.toSnakeCasedObject(this);
   }
-
-  modelType(): string {
-    return "EnvironmentVariableConfig";
-  }
 }

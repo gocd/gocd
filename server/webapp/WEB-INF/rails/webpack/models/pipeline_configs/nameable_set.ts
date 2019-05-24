@@ -18,7 +18,6 @@ import {Validatable, ValidatableMixin} from "models/mixins/new_validatable_mixin
 
 export interface Nameable extends Validatable {
   name: () => string;
-  modelType: () => string;
   toApiPayload: () => any;
 }
 
@@ -53,7 +52,7 @@ export class NameableSet<T extends Nameable> extends ValidatableMixin implements
     this.clearErrors(key);
     this.forEach((item: T) => {
       if (!item.isValid()) {
-        this.errors().add(item.name(), `${item.modelType()} named \`${item.name()}\` is invalid`);
+        this.errors().add(item.name(), `${item.constructor.name} named \`${item.name()}\` is invalid`);
       }
     }, this);
     return this.errors();

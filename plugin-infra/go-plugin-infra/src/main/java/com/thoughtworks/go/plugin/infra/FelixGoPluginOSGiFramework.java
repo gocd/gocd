@@ -54,6 +54,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     private Framework framework;
     private SystemEnvironment systemEnvironment;
     private Collection<PluginChangeListener> pluginChangeListeners = new ConcurrentLinkedQueue<>();
+    private List<PluginPostLoadHook> pluginPostLoadHooks = new ArrayList<>();
     private PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator;
     private ElasticAgentInformationMigrator elasticAgentInformationMigrator;
 
@@ -114,6 +115,16 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
             }
 
             registry.registerExtensions(pluginDescriptor, getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
+
+            for (PluginPostLoadHook pluginPostLoadHook : pluginPostLoadHooks) {
+                final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginDescriptor);
+                if (result.isAFailure()) {
+                    pluginDescriptor.markAsInvalid(singletonList(result.getMessage()), null);
+                    LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.getMessage()));
+                    return bundle;
+                }
+            }
+
             if (pluginExtensionsAndVersionValidator != null) {
                 final PluginExtensionsAndVersionValidator.ValidationResult result = pluginExtensionsAndVersionValidator.validate(pluginDescriptor);
 
@@ -182,6 +193,12 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public void setPluginExtensionsAndVersionValidator(PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator) {
         this.pluginExtensionsAndVersionValidator = pluginExtensionsAndVersionValidator;
+    }
+
+    @Override
+    public PluginPostLoadHook addPostLoadHook(PluginPostLoadHook pluginPostLoadHook) {
+        pluginPostLoadHooks.add(pluginPostLoadHook);
+        return pluginPostLoadHook;
     }
 
     @Override

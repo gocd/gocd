@@ -48,10 +48,7 @@ public class PluginsInitializer implements Initializer {
         this.systemEnvironment = systemEnvironment;
         this.zipUtil = zipUtil;
 
-        this.pluginManager.addPluginPostLoadHook(pluginDescriptor -> {
-            final PluginExtensionsAndVersionValidator.ValidationResult validationResult = pluginExtensionsAndVersionValidator.validate(pluginDescriptor);
-            return new PluginPostLoadHook.Result(validationResult.hasError(), validationResult.toErrorMessage());
-        });
+        this.pluginManager.addPluginPostLoadHook(pluginExtensionsAndVersionValidator);
 
         this.pluginManager.addPluginPostLoadHook(pluginDescriptor -> {
             final boolean migrationResult = elasticAgentInformationMigrator.migrate(pluginDescriptor);

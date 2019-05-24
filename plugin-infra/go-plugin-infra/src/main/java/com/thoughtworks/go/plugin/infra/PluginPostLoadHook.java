@@ -33,11 +33,11 @@ public interface PluginPostLoadHook {
             this.message = message;
         }
 
-        boolean isAFailure() {
+        public boolean isAFailure() {
             return isAFailure;
         }
 
-        String getMessage() {
+        public String getMessage() {
             return message;
         }
     }

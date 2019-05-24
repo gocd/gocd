@@ -24,6 +24,7 @@ import org.apache.commons.collections4.SetUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,16 +38,19 @@ public class PluginExtensionsAndVersionValidatorImpl implements PluginExtensions
     private final ExtensionsRegistry extensionsRegistry;
     private static final String UNSUPPORTED_VERSION_ERROR_MESSAGE = "Expected %s extension version(s) %s by plugin is unsupported. GoCD Supported versions are %s.";
     private static final String UNSUPPORTED_EXTENSION_ERROR_MESSAGE = "Extension(s) %s used by the plugin is not supported. GoCD Supported extensions are %s.";
-    private final PluginRegistry pluginRegistry;
 
     @Autowired
-    public PluginExtensionsAndVersionValidatorImpl(ExtensionsRegistry extensionsRegistry, PluginRegistry pluginRegistry) {
+    public PluginExtensionsAndVersionValidatorImpl(ExtensionsRegistry extensionsRegistry) {
         this.extensionsRegistry = extensionsRegistry;
-        this.pluginRegistry = pluginRegistry;
     }
 
     @Override
-    public ValidationResult validate(GoPluginDescriptor descriptor) {
+    public Result run(GoPluginDescriptor pluginDescriptor) {
+        final ValidationResult validationResult = validate(pluginDescriptor);
+        return new Result(validationResult.hasError(), validationResult.toErrorMessage());
+    }
+
+    private ValidationResult validate(GoPluginDescriptor descriptor) {
         ValidationResult validationResult = new ValidationResult(descriptor.id());
         final Set<String> gocdSupportedExtensions = extensionsRegistry.allRegisteredExtensions();
 
@@ -91,5 +95,31 @@ public class PluginExtensionsAndVersionValidatorImpl implements PluginExtensions
                 return -1.0;
             }
         };
+    }
+
+    class ValidationResult {
+        private final String pluginId;
+
+        ValidationResult(String pluginId) {
+            this.pluginId = pluginId;
+        }
+
+        private final List<String> errors = new ArrayList<>();
+
+        public void addError(String error) {
+            errors.add(error);
+        }
+
+        public List<String> allErrors() {
+            return new ArrayList<>(this.errors);
+        }
+
+        String toErrorMessage() {
+            return format("Extension incompatibility detected between plugin(%s) and GoCD:\n  %s", pluginId, String.join("\n  ", errors));
+        }
+
+        boolean hasError() {
+            return !this.errors.isEmpty();
+        }
     }
 }

@@ -73,7 +73,7 @@ public class PluginsInitializerTest {
 
     @Test
     public void shouldRegisterPluginExtensionValidatorWithPluginManager() {
-        verify(pluginManager, atLeastOnce()).addPluginPostLoadHook(any(PluginPostLoadHook.class));
+        verify(pluginManager, times(1)).addPluginPostLoadHook(pluginExtensionsAndVersionValidator);
     }
 
     @Test

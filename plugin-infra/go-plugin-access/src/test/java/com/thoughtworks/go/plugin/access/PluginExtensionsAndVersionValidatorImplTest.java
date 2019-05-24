@@ -16,8 +16,8 @@
 
 package com.thoughtworks.go.plugin.access;
 
+import com.thoughtworks.go.plugin.infra.PluginPostLoadHook;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
-import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.AUTHORIZATION_EXTENSION;
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
-import static com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator.ValidationResult;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -41,8 +40,6 @@ class PluginExtensionsAndVersionValidatorImplTest {
     private ExtensionsRegistry extensionsRegistry;
     @Mock
     private GoPluginDescriptor descriptor;
-    @Mock
-    private PluginRegistry pluginRegistry;
     private PluginExtensionsAndVersionValidatorImpl pluginExtensionsAndVersionValidator;
 
     @BeforeEach
@@ -56,26 +53,26 @@ class PluginExtensionsAndVersionValidatorImplTest {
         when(extensionsRegistry.gocdSupportedExtensionVersions(AUTHORIZATION_EXTENSION))
                 .thenReturn(singletonList("2.0"));
 
-        pluginExtensionsAndVersionValidator = new PluginExtensionsAndVersionValidatorImpl(extensionsRegistry, pluginRegistry);
+        pluginExtensionsAndVersionValidator = new PluginExtensionsAndVersionValidatorImpl(extensionsRegistry);
     }
 
     @Test
     void shouldNotAddErrorOnSuccessfulValidation() {
         when(pluginRegistry.getExtensionsInfo(PLUGIN_ID)).thenReturn(Collections.singletonMap(ELASTIC_AGENT_EXTENSION, singletonList("2.0")));
 
-        final ValidationResult validationResult = pluginExtensionsAndVersionValidator.validate(descriptor);
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor);
 
-        assertThat(validationResult.hasError()).isFalse();
+        assertThat(validationResult.isAFailure()).isFalse();
     }
 
     @Test
     void shouldAddErrorAndReturnValidationResultWhenPluginRequiredExtensionIsNotSupportedByGoCD() {
         when(pluginRegistry.getExtensionsInfo(PLUGIN_ID)).thenReturn(Collections.singletonMap("some-invalid-extension", singletonList("2.0")));
 
-        final ValidationResult validationResult = pluginExtensionsAndVersionValidator.validate(descriptor);
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor);
 
-        assertThat(validationResult.hasError()).isTrue();
-        assertThat(validationResult.toErrorMessage()).isEqualTo("Extension incompatibility detected between plugin(Some-Plugin-Id) and GoCD:\n" +
+        assertThat(validationResult.isAFailure()).isTrue();
+        assertThat(validationResult.getMessage()).isEqualTo("Extension incompatibility detected between plugin(Some-Plugin-Id) and GoCD:\n" +
                 "  Extension(s) [some-invalid-extension] used by the plugin is not supported. GoCD Supported extensions are [authorization, elastic-agent].");
     }
 
@@ -83,10 +80,10 @@ class PluginExtensionsAndVersionValidatorImplTest {
     void shouldAddErrorAndReturnValidationResultWhenPluginRequiredExtensionVersionIsNotSupportedByGoCD() {
         when(pluginRegistry.getExtensionsInfo(PLUGIN_ID)).thenReturn(Collections.singletonMap(ELASTIC_AGENT_EXTENSION, singletonList("3.0")));
 
-        final ValidationResult validationResult = pluginExtensionsAndVersionValidator.validate(descriptor);
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor);
 
-        assertThat(validationResult.hasError()).isTrue();
-        assertThat(validationResult.toErrorMessage())
+        assertThat(validationResult.isAFailure()).isTrue();
+        assertThat(validationResult.getMessage())
                 .isEqualTo("Extension incompatibility detected between plugin(Some-Plugin-Id) and GoCD:\n" +
                         "  Expected elastic-agent extension version(s) [3.0] by plugin is unsupported. GoCD Supported versions are [1.0, 2.0].");
     }
@@ -95,8 +92,8 @@ class PluginExtensionsAndVersionValidatorImplTest {
     void shouldConsiderPluginValidWhenOneOfTheExtensionVersionUsedByThePluginIsSupportedByGoCD() {
         when(pluginRegistry.getExtensionsInfo(PLUGIN_ID)).thenReturn(Collections.singletonMap(ELASTIC_AGENT_EXTENSION, Arrays.asList("a.b", "2.0")));
 
-        final ValidationResult validationResult = pluginExtensionsAndVersionValidator.validate(descriptor);
+        final PluginPostLoadHook.Result validationResult = pluginExtensionsAndVersionValidator.run(descriptor);
 
-        assertThat(validationResult.hasError()).isFalse();
+        assertThat(validationResult.isAFailure()).isFalse();
     }
 }

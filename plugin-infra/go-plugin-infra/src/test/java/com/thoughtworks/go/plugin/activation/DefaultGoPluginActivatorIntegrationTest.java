@@ -25,7 +25,6 @@ import com.thoughtworks.go.plugin.api.annotation.Extension;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.FelixGoPluginOSGiFramework;
-import com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -50,12 +49,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.zip.ZipInputStream;
 
-import static com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator.ValidationResult;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class DefaultGoPluginActivatorIntegrationTest {
     @Rule
@@ -73,8 +68,6 @@ public class DefaultGoPluginActivatorIntegrationTest {
     public void setUp() throws IOException {
         tmpDir = temporaryFolder.newFolder();
         registry = new StubOfDefaultPluginRegistry();
-        PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator = mock(PluginExtensionsAndVersionValidator.class);
-        when(pluginExtensionsAndVersionValidator.validate(any())).thenReturn(new ValidationResult("foo"));
         framework = new FelixGoPluginOSGiFramework(registry, new SystemEnvironment()) {
             @Override
             protected HashMap<String, String> generateOSGiFrameworkConfig() {
@@ -323,7 +316,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         framework.stop();
     }
 

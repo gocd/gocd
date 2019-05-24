@@ -23,34 +23,7 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public interface PluginExtensionsAndVersionValidator {
-    ValidationResult validate(GoPluginDescriptor descriptor);
-
-    class ValidationResult {
-        private final String pluginId;
-
-        public ValidationResult(String pluginId) {
-            this.pluginId = pluginId;
-        }
-
-        private final List<String> errors = new ArrayList<>();
-
-        public void addError(String error) {
-            errors.add(error);
-        }
-
-        public List<String> allErrors() {
-            return new ArrayList<>(this.errors);
-        }
-
-        public String toErrorMessage() {
-            return format("Extension incompatibility detected between plugin(%s) and GoCD:\n  %s", pluginId, String.join("\n  ", errors));
-        }
-
-        public boolean hasError() {
-            return !this.errors.isEmpty();
-        }
-    }
+public interface PluginExtensionsAndVersionValidator extends PluginPostLoadHook {
 }
 
 

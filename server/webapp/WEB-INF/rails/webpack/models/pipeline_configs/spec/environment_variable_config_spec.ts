@@ -43,6 +43,16 @@ describe("EnvironmentVariableConfig model", () => {
     expect(envVar.errors().count()).toBe(1);
   });
 
+  it("adopts errors in server response", () => {
+    const env = validEnvironmentVariableConfig();
+
+    env.consumeErrorsResponse({
+      errors: { name: ["this name is uncreative"] }
+    });
+
+    expect(env.errors().errorsForDisplay("name")).toBe("this name is uncreative.");
+  });
+
   it("should serialize correctly", () => {
     const envVar = validEnvironmentVariableConfig();
     expect(envVar.toApiPayload()).toEqual({

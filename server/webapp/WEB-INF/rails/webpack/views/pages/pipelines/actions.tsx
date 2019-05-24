@@ -19,8 +19,6 @@ import {ErrorResponse} from "helpers/api_request_builder";
 import asSelector from "helpers/selector_proxy";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import {Material} from "models/materials/types";
-import {Validatable} from "models/mixins/new_validatable_mixin";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import * as Buttons from "views/components/buttons";
 import * as css from "./components.scss";
@@ -87,7 +85,8 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
           }
         }, (error: ErrorResponse) => {
           if (error.body) {
-            this.markFieldsWithErrors(JSON.parse(error.body).data, pipelineConfig);
+            pipelineConfig.consumeErrorsResponse(JSON.parse(error.body).data);
+            m.redraw();
           }
           this.setError(error.message);
         });
@@ -99,47 +98,12 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
     }
   }
 
-  private markFieldsWithErrors(data: any, config: PipelineConfig) {
-    if (!data) { return; }
-
-    addErrorsToModel(config, data);
-
-    // materials
-    addErrorsToAssociations(Array.from(config.materials()), data.materials as Result[]);
-
-    // stages
-    addErrorsToAssociations(Array.from(config.stages()), data.stages as Result[]);
-
-    // TODO: add the rest of the deeply nested hierarchy.
-    m.redraw();
-  }
-
   private clearError(): Node {
     return empty(document.querySelector(sel.errorResponse)!);
   }
 
   private setError(text: string) {
     this.clearError().textContent = text;
-  }
-}
-
-interface ErrorMap {
-  [key: string]: string[];
-}
-
-interface Result { errors?: ErrorMap; }
-
-function addErrorsToAssociations(assoc: Validatable[], results: Result[]) {
-  for (let i = results.length - 1; i >= 0; i--) {
-    addErrorsToModel(assoc[i], results[i]);
-  }
-}
-
-function addErrorsToModel(model: Validatable, result: Result) {
-  if (result.errors) {
-    for (const key of Object.keys(result.errors)) {
-      ((model instanceof Material) ? model.attributes() : model).errors().add(key, result.errors[key][0]);
-    }
   }
 }
 

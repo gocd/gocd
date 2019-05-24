@@ -16,6 +16,7 @@
 
 import SparkRoutes from "helpers/spark_routes";
 import {GitMaterialAttributes, Material} from "models/materials/types";
+import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {Job} from "models/pipeline_configs/job";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
@@ -61,6 +62,55 @@ describe("PipelineConfig model", () => {
     pip = new PipelineConfig("name", defaultMaterials, []);
     expect(pip.isValid()).toBe(false);
     expect(pip.errors().count()).toBe(1);
+  });
+
+  it("adopts errors in server response", () => {
+    const pip = new PipelineConfig("meh", [
+        new Material("git", new GitMaterialAttributes("one", true, "uh...")),
+        new Material("git", new GitMaterialAttributes("two", true, "")),
+      ], [
+        new Stage("meow", [
+          new Job("scooby", [], [
+            new EnvironmentVariableConfig(false, "FOO", "OOF"),
+            new EnvironmentVariableConfig(false, "BAR", "RAB")
+          ]), new Job("doo", [
+            new ExecTask("whoami", []),
+            new ExecTask("id", ["apache"])
+          ])
+        ]), new Stage("oink", [])
+      ]);
+
+    pip.consumeErrorsResponse({
+      errors: { name: ["this name is fugly"] },
+      materials: [{}, { errors: { url: ["you dolt! you can't have a blank url"] } }],
+      stages: [{ errors: { name: ["yay"] }, jobs: [
+        { errors: { name: ["ruh-roh!"] }, tasks: [], environment_variables: [{}, { errors: { name: ["BAR? yes please!"] } }] },
+        { tasks: [{ errors: { command: ["who are you?"] } }, {}] }
+      ]}, { errors: { name: ["boo"], jobs: ["all them other stages are taking our jobs"] }, jobs: [] }]
+    });
+
+    expect(pip.errors().errorsForDisplay("name")).toBe("this name is fugly.");
+
+    const materials = Array.from(pip.materials());
+    expect(materials[0].attributes().errors().hasErrors()).toBe(false);
+    expect(materials[1].attributes().errors().errorsForDisplay("url")).toBe("you dolt! you can't have a blank url.");
+
+    const stages = Array.from(pip.stages());
+    expect(stages[0].errors().errorsForDisplay("name")).toBe("yay.");
+    expect(stages[1].errors().errorsForDisplay("name")).toBe("boo.");
+    expect(stages[1].errors().errorsForDisplay("jobs")).toBe("all them other stages are taking our jobs.");
+
+    const s1jobs = Array.from(stages[0].jobs());
+    expect(s1jobs[0].errors().errorsForDisplay("name")).toBe("ruh-roh!.");
+    expect(s1jobs[1].errors().hasErrors()).toBe(false);
+
+    const s1j2tasks = s1jobs[1].tasks();
+    expect(s1j2tasks[0].attributes().errors().errorsForDisplay("command")).toBe("who are you?.");
+    expect(s1j2tasks[1].attributes().errors().hasErrors()).toBe(false);
+
+    const s1j1envs = s1jobs[0].environmentVariables();
+    expect(s1j1envs[0].errors().hasErrors()).toBe(false);
+    expect(s1j1envs[1].errors().errorsForDisplay("name")).toBe("BAR? yes please!.");
   });
 
   it("create()", (done) => {

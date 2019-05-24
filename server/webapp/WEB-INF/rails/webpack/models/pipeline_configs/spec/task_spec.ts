@@ -27,6 +27,16 @@ describe("Task", () => {
     expect(new ExecTask("ls", ["-lA"]).isValid());
   });
 
+  it("adopts errors in server response", () => {
+    const task = new ExecTask("whoami", []);
+
+    task.consumeErrorsResponse({
+      errors: { command: ["who are you?"] }
+    });
+
+    expect(task.attributes().errors().errorsForDisplay("command")).toBe("who are you?.");
+  });
+
   it("serializes", () => {
     expect(new ExecTask("ls", ["-la"]).toJSON()).toEqual({
       type: "exec",

@@ -194,6 +194,7 @@ export interface Validatable {
   errors: (container?: Errors) => Errors;
   isValid: () => boolean;
   validate: (attr?: string) => Errors;
+  consumeErrorsResponse: (response: any & ResponseWithErrors) => void;
 }
 
 export class ValidatableMixin implements Validatable {
@@ -304,4 +305,33 @@ export class ValidatableMixin implements Validatable {
   validateAssociated(association: string): void {
     this.__associationsToValidate.push(association);
   }
+
+  // responsible for reading in an error response from the server and associating errors
+  // returned in the response back to the corresponding fields
+  consumeErrorsResponse(response: any & ResponseWithErrors) {
+    // subclasses are responsible for implementation; optional
+  }
+
+  addErrorsToAssociations(assoc: Validatable[], results?: ResponseWithErrors[]) {
+    if (!results) { return; }
+    for (let i = results.length - 1; i >= 0; i--) {
+      assoc[i].consumeErrorsResponse(results[i]);
+    }
+  }
+
+  addErrorsToModel(model: Validatable, result?: ResponseWithErrors) {
+    if (!result) { return; }
+    if (result.errors) {
+      for (const key of Object.keys(result.errors)) {
+        // by convention, we use camelcase for model attrs, but snakecase for JSON
+        model.errors().add(s.camelize(key, true), result.errors[key][0]);
+      }
+    }
+  }
 }
+
+interface ErrorMap {
+  [key: string]: string[];
+}
+
+export interface ResponseWithErrors { errors?: ErrorMap; }

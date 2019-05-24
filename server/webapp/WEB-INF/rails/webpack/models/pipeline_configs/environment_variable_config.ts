@@ -19,19 +19,26 @@ import * as _ from "lodash";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
+import {ResponseWithErrors} from "models/mixins/new_validatable_mixin";
 
 export class EnvironmentVariableConfig extends ValidatableMixin {
-  name: Stream<string>;
-  value: Stream<string>;
-  secure: Stream<boolean> = stream(false);
+  name: Stream<string>    = stream();
+  value: Stream<string>   = stream();
+  secure: Stream<boolean> = stream();
 
   constructor(secure: boolean, name: string, value: string) {
     super();
-    this.name = stream(name);
-    this.value = stream(value);
-    this.secure = stream(secure);
-    ValidatableMixin.call(this);
+    this.name(name);
+    this.value(value);
+    this.secure(secure);
+
     this.validatePresenceOf("name");
+  }
+
+  consumeErrorsResponse(data: ResponseWithErrors) {
+    if (!data) { return; }
+
+    this.addErrorsToModel(this, data);
   }
 
   toApiPayload() {

@@ -422,6 +422,11 @@ public class DefaultPluginManagerTest {
             return null;
         }
 
+        @Override
+        public PluginPostLoadHook addPostLoadHook(PluginPostLoadHook pluginPostLoadHook) {
+            return pluginPostLoadHook;
+        }
+
         public void addHasReferenceFor(Class<?> serviceRef, String pluginId, String extensionType, boolean hasReference) {
             when(goPluginOSGiFramework.hasReferenceFor(serviceRef, pluginId, extensionType)).thenReturn(hasReference);
         }

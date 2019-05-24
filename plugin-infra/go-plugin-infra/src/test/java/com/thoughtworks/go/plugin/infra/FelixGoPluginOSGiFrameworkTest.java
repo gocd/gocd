@@ -386,6 +386,36 @@ class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
+    void shouldMarkPluginDescriptorInvalidAndNotNotifyPluginChangeListenersWhenPostLoadHookFails() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        when(pluginDescriptor.bundle()).thenReturn(bundle);
+        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
+        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
+
+        final PluginPostLoadHook postLoadHook = mock(PluginPostLoadHook.class);
+        when(postLoadHook.run(pluginDescriptor)).thenReturn(new PluginPostLoadHook.Result(true, "Something went wrong"));
+
+        PluginChangeListener listener1 = mock(PluginChangeListener.class);
+        PluginChangeListener listener2 = mock(PluginChangeListener.class);
+        PluginChangeListener listener3 = mock(PluginChangeListener.class);
+
+        spy.addPluginChangeListener(listener1);
+        spy.addPluginChangeListener(listener2);
+        spy.addPluginChangeListener(listener3);
+        spy.addPostLoadHook(postLoadHook);
+
+        spy.start();
+        spy.loadPlugin(pluginDescriptor);
+
+        verifyZeroInteractions(listener1);
+        verifyZeroInteractions(listener3);
+        verifyZeroInteractions(listener2);
+
+        verify(bundle, times(1)).start();
+        verify(pluginDescriptor).markAsInvalid(anyList(), eq(null));
+    }
+
+    @Test
     void shouldMigrateElasticAgentInformationAsPartOfMigrateConfigurationCall() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);

@@ -39,20 +39,17 @@ import org.osgi.framework.Bundle;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class DefaultPluginManagerTest {
-    private File nonJarFile;
-    private File newJarFile;
 
     @Mock
     private DefaultPluginJarLocationMonitor monitor;
@@ -66,9 +63,10 @@ public class DefaultPluginManagerTest {
     private SystemEnvironment systemEnvironment;
     @Mock
     private PluginRequestProcessorRegistry pluginRequestProcessorRegistry;
+    @Mock
+    private PluginLoader pluginLoader;
 
     private File bundleDir;
-    private File pluginExternalDir;
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -78,10 +76,7 @@ public class DefaultPluginManagerTest {
         initMocks(this);
 
         bundleDir = temporaryFolder.newFolder("bundleDir");
-        pluginExternalDir = temporaryFolder.newFolder("externalDir");
-
-        newJarFile = temporaryFolder.newFile("jar-file.jar");
-        nonJarFile = temporaryFolder.newFile("some-picture.jpg");
+        File pluginExternalDir = temporaryFolder.newFolder("externalDir");
 
         when(systemEnvironment.get(PLUGIN_BUNDLE_PATH)).thenReturn(bundleDir.getAbsolutePath());
         when(systemEnvironment.get(PLUGIN_EXTERNAL_PROVIDED_PATH)).thenReturn(pluginExternalDir.getAbsolutePath());
@@ -92,14 +87,14 @@ public class DefaultPluginManagerTest {
         String pluginJarFile = "descriptor-aware-test-plugin.should.be.deleted.jar";
         copyPluginToTheDirectory(bundleDir, pluginJarFile);
 
-        new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment).startInfrastructure(true);
+        new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment, pluginLoader).startInfrastructure(true);
 
         assertThat(bundleDir.exists(), is(false));
     }
 
     @Test
-    public void shouldStartOSGiFrameworkBeforeStartingMonitor() throws Exception {
-        new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment).startInfrastructure(true);
+    public void shouldStartOSGiFrameworkBeforeStartingMonitor() {
+        new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment, pluginLoader).startInfrastructure(true);
         InOrder inOrder = inOrder(goPluginOSGiFramework, monitor);
 
         inOrder.verify(goPluginOSGiFramework).start();
@@ -107,45 +102,28 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldAllowRegistrationOfPluginChangeListeners() throws Exception {
-        GoPlugginOSGiFrameworkStub frameworkStub = new GoPlugginOSGiFrameworkStub();
-        PluginManager pluginManager = new DefaultPluginManager(monitor, registry, frameworkStub, jarChangeListener, null, systemEnvironment);
+    public void shouldAllowRegistrationOfPluginChangeListeners() {
+        PluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment, pluginLoader);
 
-        String pluginId1 = "test-plugin-id-1";
-        String pluginId2 = "test-plugin-id-2";
-        GoPluginDescriptor descriptor1 = mock(GoPluginDescriptor.class);
-        when(descriptor1.id()).thenReturn(pluginId1);
-        GoPluginDescriptor descriptor2 = mock(GoPluginDescriptor.class);
-        when(descriptor2.id()).thenReturn(pluginId2);
+        final PluginChangeListener pluginChangeListener = mock(PluginChangeListener.class);
+        pluginManager.addPluginChangeListener(pluginChangeListener);
 
-        final int[] pluginLoaded = new int[]{0};
-        final int[] pluginUnloaded = new int[]{0};
-        PluginChangeListener someInterfaceListener = new PluginChangeListener() {
-            @Override
-            public void pluginLoaded(GoPluginDescriptor pluginDescriptor) {
-                pluginLoaded[0]++;
-            }
-
-            @Override
-            public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
-                pluginUnloaded[0]++;
-            }
-        };
-        pluginManager.addPluginChangeListener(someInterfaceListener);
-
-        frameworkStub.pluginChangeListener.pluginLoaded(descriptor1);
-        frameworkStub.pluginChangeListener.pluginLoaded(descriptor2);
-
-        frameworkStub.pluginChangeListener.pluginUnLoaded(descriptor1);
-        frameworkStub.pluginChangeListener.pluginUnLoaded(descriptor2);
-
-        assertThat(pluginLoaded[0], is(2));
-        assertThat(pluginUnloaded[0], is(2));
+        verify(pluginLoader).addPluginChangeListener(pluginChangeListener);
     }
 
     @Test
-    public void shouldGetPluginDescriptorForGivenPluginIdCorrectly() throws Exception {
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment);
+    public void shouldAllowRegistrationOfPluginPostLoadHooks() {
+        PluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment, pluginLoader);
+
+        final PluginPostLoadHook pluginPostLoadHook = mock(PluginPostLoadHook.class);
+        pluginManager.addPluginPostLoadHook(pluginPostLoadHook);
+
+        verify(pluginLoader).addPluginPostLoadHook(pluginPostLoadHook);
+    }
+
+    @Test
+    public void shouldGetPluginDescriptorForGivenPluginIdCorrectly() {
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, null, systemEnvironment, pluginLoader);
         GoPluginDescriptor pluginDescriptorForP1 = new GoPluginDescriptor("p1", "1.0", null, null, null, true);
         when(registry.getPlugin("valid-plugin")).thenReturn(pluginDescriptorForP1);
         when(registry.getPlugin("invalid-plugin")).thenReturn(null);
@@ -167,13 +145,13 @@ public class DefaultPluginManagerTest {
 
         doAnswer(new Answer() {
             @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+            public Object answer(InvocationOnMock invocationOnMock) {
                 ActionWithReturn<GoPlugin, GoPluginApiResponse> action = (ActionWithReturn<GoPlugin, GoPluginApiResponse>) invocationOnMock.getArguments()[3];
                 return action.execute(goPlugin, descriptor);
             }
         }).when(goPluginOSGiFramework).doOn(eq(GoPlugin.class), eq("plugin-id"), eq(extensionType), any(ActionWithReturn.class));
 
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment);
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
         GoPluginApiResponse actualResponse = pluginManager.submitTo("plugin-id", extensionType, request);
 
         assertThat(actualResponse, is(expectedResponse));
@@ -182,7 +160,7 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldSayPluginIsOfGivenExtensionTypeWhenReferenceIsFound() throws Exception {
+    public void shouldSayPluginIsOfGivenExtensionTypeWhenReferenceIsFound() {
         String pluginId = "plugin-id";
         String extensionType = "sample-extension";
         GoPluginIdentifier pluginIdentifier = new GoPluginIdentifier(extensionType, asList("1.0"));
@@ -192,24 +170,24 @@ public class DefaultPluginManagerTest {
 
         doAnswer(new Answer() {
             @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
+            public Object answer(InvocationOnMock invocationOnMock) {
                 ActionWithReturn<GoPlugin, GoPluginApiResponse> action = (ActionWithReturn<GoPlugin, GoPluginApiResponse>) invocationOnMock.getArguments()[2];
                 return action.execute(goPlugin, descriptor);
             }
         }).when(goPluginOSGiFramework).doOn(eq(GoPlugin.class), eq(pluginId), eq(extensionType), any(ActionWithReturn.class));
         when(goPlugin.pluginIdentifier()).thenReturn(pluginIdentifier);
 
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment);
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
         assertTrue(pluginManager.isPluginOfType(extensionType, pluginId));
     }
 
     @Test
-    public void shouldSayAPluginIsNotOfAnExtensionTypeWhenReferenceIsNotFound() throws Exception {
+    public void shouldSayAPluginIsNotOfAnExtensionTypeWhenReferenceIsNotFound() {
         final String pluginThatDoesNotImplement = "plugin-that-does-not-implement";
         String extensionType = "extension-type";
         when(goPluginOSGiFramework.hasReferenceFor(GoPlugin.class, pluginThatDoesNotImplement, extensionType)).thenReturn(false);
 
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment);
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, goPluginOSGiFramework, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
         boolean pluginIsOfExtensionType = pluginManager.isPluginOfType(extensionType, pluginThatDoesNotImplement);
 
         assertFalse(pluginIsOfExtensionType);
@@ -218,7 +196,7 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldResolveToCorrectExtensionVersion() throws Exception {
+    public void shouldResolveToCorrectExtensionVersion() {
         String pluginId = "plugin-id";
         String extensionType = "sample-extension";
         GoPlugin goPlugin = mock(GoPlugin.class);
@@ -226,12 +204,12 @@ public class DefaultPluginManagerTest {
         osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, extensionType, true);
         when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier(extensionType, asList("1.0", "2.0")));
 
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment);
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
         assertThat(pluginManager.resolveExtensionVersion(pluginId, extensionType, asList("1.0", "2.0", "3.0")), is("2.0"));
     }
 
     @Test
-    public void shouldThrowExceptionIfMatchingExtensionVersionNotFound() throws Exception {
+    public void shouldThrowExceptionIfMatchingExtensionVersionNotFound() {
         String pluginId = "plugin-id";
         String extensionType = "sample-extension";
         GoPlugin goPlugin = mock(GoPlugin.class);
@@ -239,7 +217,7 @@ public class DefaultPluginManagerTest {
         osGiFrameworkStub.addHasReferenceFor(GoPlugin.class, pluginId, extensionType, true);
         when(goPlugin.pluginIdentifier()).thenReturn(new GoPluginIdentifier(extensionType, asList("1.0", "2.0")));
 
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment);
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, osGiFrameworkStub, jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
         try {
             pluginManager.resolveExtensionVersion(pluginId, extensionType, asList("3.0", "4.0"));
             fail("should have thrown exception for not finding matching extension version");
@@ -249,8 +227,8 @@ public class DefaultPluginManagerTest {
     }
 
     @Test
-    public void shouldAddPluginChangeListener() throws Exception {
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment);
+    public void shouldAddPluginChangeListener() {
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
         pluginManager.startInfrastructure(true);
 
         InOrder inOrder = inOrder(monitor);
@@ -265,7 +243,7 @@ public class DefaultPluginManagerTest {
         when(dockerPluginDescriptor.isInvalid()).thenReturn(false);
         when(registry.getPlugin("cd.go.elastic-agent.docker")).thenReturn(dockerPluginDescriptor);
 
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment);
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
 
         assertTrue(pluginManager.isPluginLoaded("cd.go.elastic-agent.docker"));
     }
@@ -277,7 +255,7 @@ public class DefaultPluginManagerTest {
         when(dockerPluginDescriptor.isInvalid()).thenReturn(true);
         when(registry.getPlugin("cd.go.elastic-agent.docker")).thenReturn(dockerPluginDescriptor);
 
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment);
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
 
         assertFalse(pluginManager.isPluginLoaded("cd.go.elastic-agent.docker"));
     }
@@ -286,12 +264,12 @@ public class DefaultPluginManagerTest {
     public void isPluginLoaded_shouldReturnFalseWhenPluginIsNotLoaded() {
         when(registry.getPlugin("cd.go.elastic-agent.docker")).thenReturn(null);
 
-        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment);
+        DefaultPluginManager pluginManager = new DefaultPluginManager(monitor, registry, mock(GoPluginOSGiFramework.class), jarChangeListener, pluginRequestProcessorRegistry, systemEnvironment, pluginLoader);
 
         assertFalse(pluginManager.isPluginLoaded("cd.go.elastic-agent.docker"));
     }
 
-    private void copyPluginToTheDirectory(File destinationDir, String destinationFilenameOfPlugin) throws IOException, URISyntaxException {
+    private void copyPluginToTheDirectory(File destinationDir, String destinationFilenameOfPlugin) throws IOException {
         FileUtils.copyFile(pathOfFileInDefaultFiles("descriptor-aware-test-plugin.jar"), new File(destinationDir, destinationFilenameOfPlugin));
     }
 
@@ -299,15 +277,9 @@ public class DefaultPluginManagerTest {
         return new File(getClass().getClassLoader().getResource("defaultFiles/" + filePath).getFile());
     }
 
-    private static interface SomeInterface {
-    }
-
-    private static interface SomeOtherInterface {
-    }
-
     private static class GoPlugginOSGiFrameworkStub implements GoPluginOSGiFramework {
 
-        public PluginChangeListener pluginChangeListener;
+        PluginChangeListener pluginChangeListener;
         private GoPluginOSGiFramework goPluginOSGiFramework = mock(GoPluginOSGiFramework.class);
         private Object serviceReferenceInstance;
 

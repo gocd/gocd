@@ -111,7 +111,6 @@ module JavaImports
   java_import com.thoughtworks.go.config.TrackingTool unless defined? TrackingTool
   java_import com.thoughtworks.go.domain.User unless defined? User
   java_import com.thoughtworks.go.i18n.LocalizedMessage unless defined? LocalizedMessage
-  java_import com.thoughtworks.go.presentation.GoPluginDescriptorModel unless defined? GoPluginDescriptorModel
   java_import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel unless defined? EnvironmentPipelineModel
   java_import com.thoughtworks.go.presentation.FlashMessageModel unless defined? FlashMessageModel
   java_import com.thoughtworks.go.presentation.ConfigForEdit unless defined? ConfigForEdit

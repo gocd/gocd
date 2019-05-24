@@ -73,7 +73,7 @@ public class PluginsInitializerTest {
 
     @Test
     public void shouldRegisterPluginExtensionValidatorWithPluginManager() {
-        verify(pluginManager, times(1)).addPluginPostLoadHook(any(PluginPostLoadHook.class));
+        verify(pluginManager, atLeastOnce()).addPluginPostLoadHook(any(PluginPostLoadHook.class));
     }
 
     @Test
@@ -154,6 +154,6 @@ public class PluginsInitializerTest {
         reset(pluginManager);
         new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil(), pluginExtensionsAndVersionValidator, elasticAgentInformationMigrator);
 
-        verify(pluginManager, times(1)).setElasticAgentInformationMigrator(elasticAgentInformationMigrator);
+        verify(pluginManager, atLeastOnce()).addPluginPostLoadHook(any(PluginPostLoadHook.class));
     }
 }

@@ -53,7 +53,10 @@ public class PluginsInitializer implements Initializer {
             return new PluginPostLoadHook.Result(validationResult.hasError(), validationResult.toErrorMessage());
         });
 
-        this.pluginManager.setElasticAgentInformationMigrator(elasticAgentInformationMigrator);
+        this.pluginManager.addPluginPostLoadHook(pluginDescriptor -> {
+            final boolean migrationResult = elasticAgentInformationMigrator.migrate(pluginDescriptor);
+            return new PluginPostLoadHook.Result(!migrationResult, "Failed to migrate config for " + pluginDescriptor.id());
+        });
     }
 
     @Override

@@ -20,7 +20,7 @@ import {ExecTask} from "models/pipeline_configs/task";
 
 describe("Stage model", () => {
   function validJob() {
-    return new Job("name", [new ExecTask("ls", ["-lA"])]);
+    return new Job("name", [new ExecTask("ls", ["-lA"])], []);
   }
 
   it("should include a name", () => {
@@ -72,6 +72,7 @@ describe("Stage model", () => {
       jobs: [
         {
           name: "name",
+          environment_variables: [ ],
           tasks: [{
             type: "exec",
             attributes: {

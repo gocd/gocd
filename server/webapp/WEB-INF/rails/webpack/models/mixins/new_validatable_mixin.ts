@@ -111,6 +111,33 @@ class MaxLengthValidator extends Validator {
   }
 }
 
+class ChildAttrUniquenessValidator extends Validator {
+  private childAttr: string;
+  constructor(childAttr: string, options: ValidatorOptions = {}) {
+    super(options);
+    this.childAttr = childAttr;
+  }
+
+  protected doValidate(entity: any, attrName: string): void {
+    _.forEach(entity[attrName](), (child) => {
+      const duplicates = _.filter(entity[attrName](), (c) => {
+        return (c[this.childAttr]() === child[this.childAttr]() &&
+          c !== child);
+      });
+
+      if (!_.isEmpty(duplicates)) {
+        //Need to add at the entity level because we clear the child errors
+        //when we validate the children
+        entity.errors().add(attrName, this.options.message || ErrorMessages.duplicate(this.childAttr));
+        //Need to add the error to the child because we want the error to be
+        //visible from the UI
+        child.errors().add(this.childAttr, this.options.message || ErrorMessages.duplicate(this.childAttr));
+      }
+
+    });
+  }
+}
+
 class UniquenessValidator extends Validator {
   private otherElements: () => any[];
 
@@ -268,6 +295,10 @@ export class ValidatableMixin implements Validatable {
 
   validateEach(attr: string) {
     this.validateWith(new AssociatedListValidator(), attr);
+  }
+
+  validateChildAttrIsUnique(attr: string, childAttr: string, options?: ValidatorOptions): void {
+    this.validateWith(new ChildAttrUniquenessValidator(childAttr, options), attr);
   }
 
   validateAssociated(association: string): void {

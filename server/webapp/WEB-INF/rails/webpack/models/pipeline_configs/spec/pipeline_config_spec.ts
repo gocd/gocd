@@ -23,7 +23,7 @@ import {ExecTask} from "models/pipeline_configs/task";
 
 describe("PipelineConfig model", () => {
   const defaultMaterials = [new Material("git", new GitMaterialAttributes(undefined, true, "https://github.com/gocd/gocd"))];
-  const defaultStages = [new Stage("stage1", [new Job("job1", [new ExecTask("echo", [])])])];
+  const defaultStages = [new Stage("stage1", [new Job("job1", [new ExecTask("echo", [])], [])])];
 
   it("should include a name", () => {
     let pip = new PipelineConfig("name", defaultMaterials, defaultStages);

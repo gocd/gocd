@@ -16,39 +16,29 @@
 
 import JsonUtils from "helpers/json_utils";
 import * as _ from "lodash";
-import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
-import {Task} from "models/pipeline_configs/task";
 
-export class Job extends ValidatableMixin {
+export class EnvironmentVariableConfig extends ValidatableMixin {
   name: Stream<string>;
-  environmentVariables: Stream<EnvironmentVariableConfig[]>;
-  tasks: Stream<Task[]>;
+  value: Stream<string>;
+  secure: Stream<boolean> = stream(false);
 
-  constructor(name: string, tasks: Task[], envVars?: EnvironmentVariableConfig[]) {
+  constructor(secure: boolean, name: string, value: string) {
     super();
-
-    ValidatableMixin.call(this);
     this.name = stream(name);
-    this.tasks = stream(tasks);
-    this.environmentVariables = stream(envVars);
+    this.value = stream(value);
+    this.secure = stream(secure);
+    ValidatableMixin.call(this);
     this.validatePresenceOf("name");
-    this.validateIdFormat("name");
-
-    this.validatePresenceOf("tasks");
-    this.validateNonEmptyCollection("tasks", {message: "A job must have at least one task"});
-    this.validateEach("tasks");
-    this.validateEach("environmentVariables");
-    this.validateChildAttrIsUnique("environmentVariables", "name", {message: "Environment Variable names must be unique"});
   }
 
   toApiPayload() {
     return JsonUtils.toSnakeCasedObject(this);
   }
 
-  modelType() {
-    return "Job";
+  modelType(): string {
+    return "EnvironmentVariableConfig";
   }
 }

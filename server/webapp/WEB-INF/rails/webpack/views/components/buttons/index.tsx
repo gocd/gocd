@@ -26,6 +26,7 @@ type Styles = typeof defaultStyles;
 
 export enum ButtonIcon {
   ADD,
+  REMOVE,
   DOC,
   FILTER,
 }
@@ -94,6 +95,8 @@ abstract class Button extends MithrilViewComponent<Attrs> {
         return css.iconDoc;
       case ButtonIcon.FILTER:
         return css.iconFilter;
+      case ButtonIcon.REMOVE:
+        return css.iconRemove;
     }
     return "";
   }

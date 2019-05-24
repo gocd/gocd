@@ -26,7 +26,9 @@ import {Stage} from "models/pipeline_configs/stage";
 
 // components
 import {PipelineActions} from "views/pages/pipelines/actions";
+import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
 import {ConceptDiagram} from "views/pages/pipelines/concept_diagram";
+import {EnvironmentVariablesEditor} from "views/pages/pipelines/environment_variables_editor";
 import {FillableSection} from "views/pages/pipelines/fillable_section";
 import {JobEditor} from "views/pages/pipelines/job_editor";
 import {MaterialEditor} from "views/pages/pipelines/material_editor";
@@ -42,7 +44,7 @@ const jobImg      = require("../../../app/assets/images/concept_diagrams/concept
 
 export class PipelineCreatePage extends Page {
   private material: Material = new Material("git", new GitMaterialAttributes());
-  private job: Job = new Job("", []);
+  private job: Job = new Job("", [], []);
   private stage: Stage = new Stage("", [this.job]);
   private model: PipelineConfig = new PipelineConfig("", [this.material], [this.stage]);
 
@@ -91,6 +93,9 @@ export class PipelineCreatePage extends Page {
         <UserInputPane heading="Part 4: Job and Tasks">
           <JobEditor job={this.job}/>
           <TaskTerminalField label="Type your tasks below at the prompt" property={this.job.tasks} errorText={this.job.errors().errorsForDisplay("tasks")} required={true}/>
+          <AdvancedSettings>
+            <EnvironmentVariablesEditor variables={this.job.environmentVariables}  />
+          </AdvancedSettings>
         </UserInputPane>
         <ConceptDiagram image={jobImg}>
           A <strong>job</strong> is like a script, where each sequential step is called a <strong>task</strong>. Typically, a task is a single command.

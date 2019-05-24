@@ -29,8 +29,13 @@ dependencies {
   testCompile project(':test:test-utils')
 }
 
+jar {
+  archiveVersion = project.fullVersion
+}
+
 task sourcesJar(type: Jar, dependsOn: classes) {
   archiveClassifier = 'sources'
+  archiveVersion = project.fullVersion
   from sourceSets.main.allSource
 }
 
@@ -47,5 +52,6 @@ javadoc {
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
   archiveClassifier = 'javadoc'
+  archiveVersion = project.fullVersion
   from javadoc.destinationDir
 }

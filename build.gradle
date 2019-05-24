@@ -1162,9 +1162,11 @@ task newApi {
       out.println("")
       out.println("rootProject.name = 'gocd'")
       out.println("")
-      def existingProjects = rootProject.allprojects.findAll { prj -> prj.childProjects.isEmpty() }.collect { it.path }
+      def existingProjects = rootProject.allprojects.findAll { prj -> prj.childProjects.isEmpty() && !prj.path.startsWith(":docker") }.collect { it.path }
       def newProjects = existingProjects + [":api:${newProjectName}"]
       newProjects.sort().unique().each { out.println "include '${it}'" }
+      out.println("")
+      out.println("apply from: 'settings-docker.gradle'")
     }
 
     file('.gitignore').withWriterAppend { out ->

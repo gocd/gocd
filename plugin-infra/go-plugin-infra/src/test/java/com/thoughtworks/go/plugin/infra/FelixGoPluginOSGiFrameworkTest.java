@@ -59,8 +59,6 @@ class FelixGoPluginOSGiFrameworkTest {
     private PluginRegistry registry;
     @Mock
     private SystemEnvironment systemEnvironment;
-    @Mock
-    private PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator;
     private FelixGoPluginOSGiFramework spy;
 
     @BeforeEach
@@ -76,7 +74,6 @@ class FelixGoPluginOSGiFrameworkTest {
         };
 
         spy = spy(goPluginOSGiFramework);
-        spy.setPluginExtensionsAndVersionValidator(pluginExtensionsAndVersionValidator);
         when(framework.getBundleContext()).thenReturn(bundleContext);
         when(registry.getPlugin(TEST_SYMBOLIC_NAME)).thenReturn(buildExpectedDescriptor(TEST_SYMBOLIC_NAME));
         doReturn(framework).when(spy).getFelixFramework(any());
@@ -278,24 +275,20 @@ class FelixGoPluginOSGiFrameworkTest {
     @Test
     void shouldRegisterExtensionInfosWithPluginRegistry() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
         when(pluginDescriptor.id()).thenReturn("some-id");
         when(pluginDescriptor.bundle()).thenReturn(bundle);
         when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
         when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
-        when(pluginExtensionsAndVersionValidator.validate(pluginDescriptor)).thenReturn(result);
-        when(result.hasError()).thenReturn(false);
         doReturn(singletonMap("elastic-agent", singletonList("1.0"))).when(spy).getExtensionsInfoFromThePlugin("some-id");
 
         spy.start();
 
         spy.loadPlugin(pluginDescriptor);
 
-        InOrder inOrder = inOrder(bundle, framework, registry, pluginExtensionsAndVersionValidator);
+        InOrder inOrder = inOrder(bundle, framework, registry);
         inOrder.verify(framework, times(2)).getBundleContext();
         inOrder.verify(bundle).start();
         inOrder.verify(registry).registerExtensions(pluginDescriptor, singletonMap("elastic-agent", singletonList("1.0")));
-        inOrder.verify(pluginExtensionsAndVersionValidator).validate(pluginDescriptor);
     }
 
     @Nested
@@ -331,12 +324,9 @@ class FelixGoPluginOSGiFrameworkTest {
     @Test
     void shouldNotifyAllPluginChangeListenerOncePluginIsLoaded() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
         when(pluginDescriptor.bundle()).thenReturn(bundle);
         when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
         when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
-        when(pluginExtensionsAndVersionValidator.validate(pluginDescriptor)).thenReturn(result);
-        when(result.hasError()).thenReturn(false);
 
         PluginChangeListener listener1 = mock(PluginChangeListener.class);
         PluginChangeListener listener2 = mock(PluginChangeListener.class);
@@ -354,35 +344,6 @@ class FelixGoPluginOSGiFrameworkTest {
         verify(listener2, times(1)).pluginLoaded(pluginDescriptor);
 
         verify(bundle, times(1)).start();
-    }
-
-    @Test
-    void shouldMarkPluginDescriptorInvalidAndNotNotifyPluginChangeListenersWhenExtensionVersionsRequiredByThePluginIsNotSupportedByGoCD() throws BundleException {
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        final PluginExtensionsAndVersionValidator.ValidationResult result = mock(PluginExtensionsAndVersionValidator.ValidationResult.class);
-        when(pluginDescriptor.bundle()).thenReturn(bundle);
-        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
-        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
-        when(pluginExtensionsAndVersionValidator.validate(pluginDescriptor)).thenReturn(result);
-        when(result.hasError()).thenReturn(true);
-
-        PluginChangeListener listener1 = mock(PluginChangeListener.class);
-        PluginChangeListener listener2 = mock(PluginChangeListener.class);
-        PluginChangeListener listener3 = mock(PluginChangeListener.class);
-
-        spy.addPluginChangeListener(listener1);
-        spy.addPluginChangeListener(listener2);
-        spy.addPluginChangeListener(listener3);
-
-        spy.start();
-        spy.loadPlugin(pluginDescriptor);
-
-        verifyZeroInteractions(listener1);
-        verifyZeroInteractions(listener3);
-        verifyZeroInteractions(listener2);
-
-        verify(bundle, times(1)).start();
-        verify(pluginDescriptor).markAsInvalid(anyList(), eq(null));
     }
 
     @Test
@@ -416,7 +377,7 @@ class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    void shouldMigrateElasticAgentInformationAsPartOfMigrateConfigurationCall() throws BundleException {
+    void shouldMigrateElasticAgentInformationAsPartOfMigrateConfigurationCall() {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);
         when(migrator.migrate(any())).thenReturn(true);
@@ -429,7 +390,7 @@ class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    void shouldReturnWhetherMigrationSuccessStatus() throws BundleException {
+    void shouldReturnWhetherMigrationSuccessStatus() {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);
         when(migrator.migrate(any())).thenReturn(false);
@@ -442,7 +403,7 @@ class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    void shouldNotMigrateElasticAgentInformationWhenNoMigratorIsSpecified() throws BundleException {
+    void shouldNotMigrateElasticAgentInformationWhenNoMigratorIsSpecified() {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);
         boolean migratedSuccessfully = spy.migrateConfig(pluginDescriptor);

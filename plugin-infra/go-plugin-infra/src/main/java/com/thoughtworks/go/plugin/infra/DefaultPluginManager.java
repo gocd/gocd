@@ -136,7 +136,10 @@ public class DefaultPluginManager implements PluginManager {
 
     @Override
     public void setPluginExtensionsAndVersionValidator(PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator) {
-        goPluginOSGiFramework.setPluginExtensionsAndVersionValidator(pluginExtensionsAndVersionValidator);
+        goPluginOSGiFramework.addPostLoadHook(pluginDescriptor -> {
+            final PluginExtensionsAndVersionValidator.ValidationResult validationResult = pluginExtensionsAndVersionValidator.validate(pluginDescriptor);
+            return new PluginPostLoadHook.Result(validationResult.hasError(), validationResult.toErrorMessage());
+        });
     }
 
     @Override

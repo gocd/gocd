@@ -33,8 +33,6 @@ public interface GoPluginOSGiFramework {
 
     void addPluginChangeListener(PluginChangeListener pluginChangeListener);
 
-    void setPluginExtensionsAndVersionValidator(PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator);
-
     <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, String extensionType, ActionWithReturn<T, R> action);
 
     <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId, String extensionType);

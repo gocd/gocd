@@ -393,11 +393,6 @@ public class DefaultPluginManagerTest {
         }
 
         @Override
-        public void setPluginExtensionsAndVersionValidator(PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator) {
-
-        }
-
-        @Override
         public void setElasticAgentInformationMigrator(ElasticAgentInformationMigrator elasticAgentInformationMigrator) {
 
         }

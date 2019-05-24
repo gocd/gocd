@@ -55,7 +55,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     private SystemEnvironment systemEnvironment;
     private Collection<PluginChangeListener> pluginChangeListeners = new ConcurrentLinkedQueue<>();
     private List<PluginPostLoadHook> pluginPostLoadHooks = new ArrayList<>();
-    private PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator;
     private ElasticAgentInformationMigrator elasticAgentInformationMigrator;
 
     @Autowired
@@ -125,17 +124,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
                 }
             }
 
-            if (pluginExtensionsAndVersionValidator != null) {
-                final PluginExtensionsAndVersionValidator.ValidationResult result = pluginExtensionsAndVersionValidator.validate(pluginDescriptor);
-
-                if (result.hasError()) {
-                    pluginDescriptor.markAsInvalid(singletonList(result.toErrorMessage()), null);
-                    LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.toErrorMessage()));
-
-                    return bundle;
-                }
-            }
-
             if (pluginDescriptor.isInvalid()) {
                 return bundle;
             }
@@ -188,11 +176,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public void addPluginChangeListener(PluginChangeListener pluginChangeListener) {
         pluginChangeListeners.add(pluginChangeListener);
-    }
-
-    @Override
-    public void setPluginExtensionsAndVersionValidator(PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator) {
-        this.pluginExtensionsAndVersionValidator = pluginExtensionsAndVersionValidator;
     }
 
     @Override

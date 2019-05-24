@@ -34,7 +34,7 @@ public interface PluginManager {
 
     void addPluginChangeListener(PluginChangeListener pluginChangeListener);
 
-    void setPluginExtensionsAndVersionValidator(PluginExtensionsAndVersionValidator pluginExtensionsAndVersionValidator);
+    PluginPostLoadHook addPluginPostLoadHook(PluginPostLoadHook pluginPostLoadHook);
 
     GoPluginApiResponse submitTo(String pluginId, String extensionType, GoPluginApiRequest apiRequest);
 

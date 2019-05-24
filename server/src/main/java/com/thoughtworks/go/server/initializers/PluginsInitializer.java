@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.initializers;
 import com.thoughtworks.go.plugin.infra.ElasticAgentInformationMigrator;
 import com.thoughtworks.go.plugin.infra.PluginExtensionsAndVersionValidator;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.PluginPostLoadHook;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
 import org.apache.commons.io.FileUtils;
@@ -46,7 +47,12 @@ public class PluginsInitializer implements Initializer {
         this.pluginManager = pluginManager;
         this.systemEnvironment = systemEnvironment;
         this.zipUtil = zipUtil;
-        this.pluginManager.setPluginExtensionsAndVersionValidator(pluginExtensionsAndVersionValidator);
+
+        this.pluginManager.addPluginPostLoadHook(pluginDescriptor -> {
+            final PluginExtensionsAndVersionValidator.ValidationResult validationResult = pluginExtensionsAndVersionValidator.validate(pluginDescriptor);
+            return new PluginPostLoadHook.Result(validationResult.hasError(), validationResult.toErrorMessage());
+        });
+
         this.pluginManager.setElasticAgentInformationMigrator(elasticAgentInformationMigrator);
     }
 

@@ -20,7 +20,6 @@ import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
-import com.thoughtworks.go.plugin.infra.commons.PluginUploadResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
@@ -28,7 +27,6 @@ import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,15 +48,13 @@ public class DefaultPluginManager implements PluginManager {
     private SystemEnvironment systemEnvironment;
     private File bundleLocation;
     private GoPluginOSGiFramework goPluginOSGiFramework;
-    private PluginWriter pluginWriter;
-    private PluginValidator pluginValidator;
     private final Map<PluginDescriptor, Set<String>> initializedPluginsWithTheirExtensionTypes = new HashMap<>();
     private PluginRequestProcessorRegistry requestProcessRegistry;
 
     @Autowired
     public DefaultPluginManager(DefaultPluginJarLocationMonitor monitor, DefaultPluginRegistry registry, GoPluginOSGiFramework goPluginOSGiFramework,
-                                DefaultPluginJarChangeListener defaultPluginJarChangeListener, PluginRequestProcessorRegistry requestProcessRegistry, PluginWriter pluginWriter,
-                                PluginValidator pluginValidator, SystemEnvironment systemEnvironment) {
+                                DefaultPluginJarChangeListener defaultPluginJarChangeListener, PluginRequestProcessorRegistry requestProcessRegistry,
+                                SystemEnvironment systemEnvironment) {
         this.monitor = monitor;
         this.registry = registry;
         this.defaultPluginJarChangeListener = defaultPluginJarChangeListener;
@@ -66,22 +62,11 @@ public class DefaultPluginManager implements PluginManager {
         this.systemEnvironment = systemEnvironment;
         bundleLocation = bundlePath();
         this.goPluginOSGiFramework = goPluginOSGiFramework;
-        this.pluginWriter = pluginWriter;
-        this.pluginValidator = pluginValidator;
     }
 
     @Override
     public List<GoPluginDescriptor> plugins() {
         return registry.plugins();
-    }
-
-    public PluginUploadResponse addPlugin(File uploadedPlugin, String filename) {
-        if (!pluginValidator.namecheckForJar(filename)) {
-            Map<Integer, String> errors = new HashMap<>();
-            errors.put(HttpStatus.SC_UNSUPPORTED_MEDIA_TYPE, "Please upload a jar.");
-            return PluginUploadResponse.create(false, null, errors);
-        }
-        return pluginWriter.addPlugin(uploadedPlugin, filename);
     }
 
     @Override

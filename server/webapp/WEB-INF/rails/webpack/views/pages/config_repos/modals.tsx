@@ -50,7 +50,11 @@ import {Spinner} from "views/components/spinner";
 import * as styles from "views/pages/config_repos/index.scss";
 import {RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
-type EditableMaterial = SaveOperation & { repo: ConfigRepo } & { isNew: boolean } & RequiresPluginInfos;
+type EditableMaterial = SaveOperation
+  & { repo: ConfigRepo }
+  & { isNew: boolean }
+  & RequiresPluginInfos
+  & { error?: m.Children };
 
 class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
   view(vnode: m.Vnode<EditableMaterial>) {
@@ -58,29 +62,31 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
       return {id: pluginInfo.id, text: pluginInfo.about.name};
     });
 
+    const errorMessage = vnode.attrs.error ? <div className={styles.errorWrapper}>{vnode.attrs.error}</div> : undefined;
     return (
       [
+        (errorMessage),
         (<FormHeader>
           <Form>
-              <SelectField label="Plugin ID"
-                           property={vnode.attrs.repo.pluginId}
-                           required={true}
-                           errorText={vnode.attrs.repo.errors().errorsForDisplay("pluginId")}>
-                <SelectFieldOptions selected={vnode.attrs.repo.pluginId()}
-                                    items={pluginList}/>
-              </SelectField>
-              <SelectField label={"Material type"}
-                           property={vnode.attrs.repo.material().typeProxy.bind(vnode.attrs.repo.material())}
-                           required={true}
-                           errorText={vnode.attrs.repo.errors().errorsForDisplay("material")}>
-                <SelectFieldOptions selected={vnode.attrs.repo.material().type()}
-                                    items={this.materialSelectOptions()}/>
-              </SelectField>
-              <TextField label="Config repository ID"
-                         readonly={!vnode.attrs.isNew}
-                         property={vnode.attrs.repo.id}
-                         errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
-                         required={true}/>
+            <SelectField label="Plugin ID"
+                         property={vnode.attrs.repo.pluginId}
+                         required={true}
+                         errorText={vnode.attrs.repo.errors().errorsForDisplay("pluginId")}>
+              <SelectFieldOptions selected={vnode.attrs.repo.pluginId()}
+                                  items={pluginList}/>
+            </SelectField>
+            <SelectField label={"Material type"}
+                         property={vnode.attrs.repo.material().typeProxy.bind(vnode.attrs.repo.material())}
+                         required={true}
+                         errorText={vnode.attrs.repo.errors().errorsForDisplay("material")}>
+              <SelectFieldOptions selected={vnode.attrs.repo.material().type()}
+                                  items={this.materialSelectOptions()}/>
+            </SelectField>
+            <TextField label="Config repository ID"
+                       readonly={!vnode.attrs.isNew}
+                       property={vnode.attrs.repo.id}
+                       errorText={vnode.attrs.repo.errors().errorsForDisplay("id")}
+                       required={true}/>
           </Form>
         </FormHeader>),
         (<div>
@@ -90,7 +96,7 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
                   {vnode.children}
                 </Form>
               </FormBody>
-              <TestConnection material={vnode.attrs.repo.material()} />
+              <TestConnection material={vnode.attrs.repo.material()}/>
             </div>
             <div class={styles.pluginFilePatternConfigWrapper}>
               <FormBody>
@@ -276,7 +282,7 @@ const MATERIAL_TO_COMPONENT_MAP: { [key: string]: MithrilViewComponent<EditableM
   } as MithrilViewComponent<EditableMaterial>
 };
 
-abstract class ConfigRepoModal extends Modal {
+export abstract class ConfigRepoModal extends Modal {
   protected error: string | undefined;
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly onError: (msg: m.Children) => any;
@@ -293,8 +299,9 @@ abstract class ConfigRepoModal extends Modal {
   }
 
   body(): m.Children {
+    let errorMessage;
     if (this.error) {
-      return (<FlashMessage type={MessageType.alert} message={this.error}/>);
+      errorMessage = (<FlashMessage type={MessageType.alert} message={this.error}/>);
     }
 
     if (!this.getRepo()) {
@@ -314,7 +321,8 @@ abstract class ConfigRepoModal extends Modal {
                onError: this.onError,
                repo: this.getRepo(),
                isNew: this.isNew,
-               pluginInfos: this.pluginInfos
+               pluginInfos: this.pluginInfos,
+               error: errorMessage
              });
 
   }
@@ -327,6 +335,13 @@ abstract class ConfigRepoModal extends Modal {
   }
 
   abstract performSave(): void;
+
+  protected handleAutoUpdateError() {
+    const errors = this.getRepo().material().attributes().errors();
+    if (errors.hasErrors("auto_update")) {
+      this.error = errors.errorsForDisplay("auto_update");
+    }
+  }
 
   protected abstract getRepo(): ConfigRepo;
 }
@@ -368,6 +383,7 @@ export class NewConfigRepoModal extends ConfigRepoModal {
     if (result.getStatusCode() === 422 && errorResponse.body) {
       const json = JSON.parse(errorResponse.body);
       this.repo(ConfigRepo.fromJSON(json.data));
+      this.handleAutoUpdateError();
     } else {
       this.onError(errorResponse.message);
       this.close();
@@ -423,6 +439,7 @@ export class EditConfigRepoModal extends ConfigRepoModal {
       const json = JSON.parse(errorResponse.body);
       const etag = this.repoWithEtag().etag;
       this.repoWithEtag({etag, object: ConfigRepo.fromJSON(json.data)});
+      this.handleAutoUpdateError();
     } else {
       this.onError(errorResponse.message);
       this.close();

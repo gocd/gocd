@@ -272,25 +272,6 @@ class FelixGoPluginOSGiFrameworkTest {
         }
     }
 
-    @Test
-    void shouldRegisterExtensionInfosWithPluginRegistry() throws BundleException {
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        when(pluginDescriptor.id()).thenReturn("some-id");
-        when(pluginDescriptor.bundle()).thenReturn(bundle);
-        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
-        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
-        doReturn(singletonMap("elastic-agent", singletonList("1.0"))).when(spy).getExtensionsInfoFromThePlugin("some-id");
-
-        spy.start();
-
-        spy.loadPlugin(pluginDescriptor);
-
-        InOrder inOrder = inOrder(bundle, framework, registry);
-        inOrder.verify(framework, times(2)).getBundleContext();
-        inOrder.verify(bundle).start();
-        inOrder.verify(registry).registerExtensions(pluginDescriptor, singletonMap("elastic-agent", singletonList("1.0")));
-    }
-
     @Nested
     class GetExtensionsInfoFromThePlugin {
         @Test
@@ -354,7 +335,7 @@ class FelixGoPluginOSGiFrameworkTest {
         when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
 
         final PluginPostLoadHook postLoadHook = mock(PluginPostLoadHook.class);
-        when(postLoadHook.run(pluginDescriptor)).thenReturn(new PluginPostLoadHook.Result(true, "Something went wrong"));
+        when(postLoadHook.run(eq(pluginDescriptor), anyMap())).thenReturn(new PluginPostLoadHook.Result(true, "Something went wrong"));
 
         PluginChangeListener listener1 = mock(PluginChangeListener.class);
         PluginChangeListener listener2 = mock(PluginChangeListener.class);
@@ -374,7 +355,7 @@ class FelixGoPluginOSGiFrameworkTest {
 
         verify(bundle, times(1)).start();
         verify(pluginDescriptor).markAsInvalid(eq(singletonList("Something went wrong")), eq(null));
-        verify(postLoadHook).run(pluginDescriptor);
+        verify(postLoadHook).run(eq(pluginDescriptor), anyMap());
     }
 
     @Test
@@ -385,10 +366,10 @@ class FelixGoPluginOSGiFrameworkTest {
         when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
 
         final PluginPostLoadHook postLoadHook1 = mock(PluginPostLoadHook.class);
-        when(postLoadHook1.run(pluginDescriptor)).thenReturn(new PluginPostLoadHook.Result(false, null));
+        when(postLoadHook1.run(eq(pluginDescriptor), anyMap())).thenReturn(new PluginPostLoadHook.Result(false, null));
 
         final PluginPostLoadHook postLoadHook2 = mock(PluginPostLoadHook.class);
-        when(postLoadHook2.run(pluginDescriptor)).thenReturn(new PluginPostLoadHook.Result(true, "Something went wrong"));
+        when(postLoadHook2.run(eq(pluginDescriptor), anyMap())).thenReturn(new PluginPostLoadHook.Result(true, "Something went wrong"));
 
         PluginChangeListener listener1 = mock(PluginChangeListener.class);
 
@@ -405,8 +386,31 @@ class FelixGoPluginOSGiFrameworkTest {
         verify(pluginDescriptor).markAsInvalid(eq(singletonList("Something went wrong")), eq(null));
 
         final InOrder inOrder = inOrder(postLoadHook1, postLoadHook2);
-        inOrder.verify(postLoadHook1).run(pluginDescriptor);
-        inOrder.verify(postLoadHook2).run(pluginDescriptor);
+        inOrder.verify(postLoadHook1).run(eq(pluginDescriptor), anyMap());
+        inOrder.verify(postLoadHook2).run(eq(pluginDescriptor), anyMap());
+    }
+
+    @Test
+    void shouldSendExtensionsInfoToPostLoadHooks() throws BundleException {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        when(pluginDescriptor.id()).thenReturn("some-id");
+        when(pluginDescriptor.bundle()).thenReturn(bundle);
+        when(pluginDescriptor.bundleLocation()).thenReturn(new File("foo"));
+        when(bundleContext.installBundle(any(String.class))).thenReturn(bundle);
+
+        final Map<String, List<String>> extensionsInfo = singletonMap("elastic-agent", singletonList("1.0"));
+        when(spy.getExtensionsInfoFromThePlugin("some-id")).thenReturn(extensionsInfo);
+
+
+        final PluginPostLoadHook postLoadHook = mock(PluginPostLoadHook.class);
+        when(postLoadHook.run(pluginDescriptor, extensionsInfo)).thenReturn(new PluginPostLoadHook.Result(false, null));
+
+        spy.addPostLoadHook(postLoadHook);
+        spy.start();
+        spy.loadPlugin(pluginDescriptor);
+
+
+        verify(postLoadHook).run(pluginDescriptor, extensionsInfo);
     }
 
     @Test

@@ -18,11 +18,14 @@ package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * A hook which runs after plugin load, and before listeners are called. Has the power to stop loading the plugin and marking it invalid.
  */
 public interface PluginPostLoadHook {
-    Result run(GoPluginDescriptor pluginDescriptor);
+    Result run(GoPluginDescriptor pluginDescriptor, Map<String, List<String>> extensionsInfoFromThePlugin);
 
     class Result {
         private final boolean isAFailure;

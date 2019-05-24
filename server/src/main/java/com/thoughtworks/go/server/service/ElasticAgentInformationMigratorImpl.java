@@ -31,6 +31,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.plugin.domain.common.PluginConstants.ELASTIC_AGENT_EXTENSION;
 
@@ -54,7 +56,7 @@ public class ElasticAgentInformationMigratorImpl implements ElasticAgentInformat
     }
 
     @Override
-    public Result run(GoPluginDescriptor pluginDescriptor) {
+    public Result run(GoPluginDescriptor pluginDescriptor, Map<String, List<String>> extensionsInfoFromThePlugin) {
         final boolean migrationResult = migrate(pluginDescriptor);
         return new PluginPostLoadHook.Result(!migrationResult, !migrationResult ? pluginDescriptor.getStatus().getMessages().get(0) : "Success");
     }

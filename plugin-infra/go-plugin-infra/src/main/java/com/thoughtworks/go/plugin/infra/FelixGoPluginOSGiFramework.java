@@ -27,6 +27,7 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.Closure;
 import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.IteratorUtils;
+import org.apache.commons.collections4.keyvalue.AbstractKeyValue;
 import org.apache.commons.collections4.keyvalue.DefaultKeyValue;
 import org.apache.felix.framework.cache.BundleCache;
 import org.apache.felix.framework.util.FelixConstants;
@@ -46,6 +47,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 @Component
 public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
@@ -112,10 +114,8 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
                 return bundle;
             }
 
-            registry.registerExtensions(pluginDescriptor, getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
-
             for (PluginPostLoadHook pluginPostLoadHook : pluginPostLoadHooks) {
-                final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginDescriptor);
+                final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginDescriptor, getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
                 if (result.isAFailure()) {
                     pluginDescriptor.markAsInvalid(singletonList(result.getMessage()), null);
                     LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.getMessage()));
@@ -242,39 +242,22 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         return !matchingServiceReferences.isEmpty();
     }
 
-    @Override
-    public <T extends GoPlugin> Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId) {
+    Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId) {
         if (framework == null) {
             LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", GoPlugin.class);
             return null;
         }
 
         final BundleContext bundleContext = framework.getBundleContext();
-        final Collection<ServiceReference<T>> serviceReferences = new HashSet<>(findServiceReferenceByPluginId((Class<T>) GoPlugin.class, pluginId, bundleContext));
+        final Collection<ServiceReference<GoPlugin>> serviceReferences = new HashSet<>(findServiceReferenceByPluginId(GoPlugin.class, pluginId, bundleContext));
 
-        ActionWithReturn<T, DefaultKeyValue<String, List<String>>> action = (goPlugin, descriptor) -> new DefaultKeyValue<>(goPlugin.pluginIdentifier().getExtension(), goPlugin.pluginIdentifier().getSupportedExtensionVersions());
+        ActionWithReturn<GoPlugin, DefaultKeyValue<String, List<String>>> action = (goPlugin, descriptor) -> new DefaultKeyValue<>(goPlugin.pluginIdentifier().getExtension(), goPlugin.pluginIdentifier().getSupportedExtensionVersions());
 
-        return convertToMap(pluginId, serviceReferences.stream()
+        return serviceReferences.stream()
                 .map(serviceReference -> {
-                    T service = bundleContext.getService(serviceReference);
+                    GoPlugin service = bundleContext.getService(serviceReference);
                     return executeActionOnTheService(action, service, getDescriptorFor(serviceReference));
-                }).collect(toList()));
-    }
-
-    private Map<String, List<String>> convertToMap(String pluginId, List<DefaultKeyValue<String, List<String>>> list) {
-        if (list.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        final Map<String, List<String>> map = new HashMap<>();
-        for (DefaultKeyValue<String, List<String>> keyValue : list) {
-            if (map.containsKey(keyValue.getKey())) {
-                LOGGER.warn(format("[Plugin Framework] Plugin '%s' has multiple implementation of the '%s' extension. Ignoring duplicates for the '%s' extension.", pluginId, keyValue.getKey(), keyValue.getKey()));
-            } else {
-                map.put(keyValue.getKey(), keyValue.getValue());
-            }
-        }
-        return map;
+                }).collect(toMap(AbstractKeyValue::getKey, AbstractKeyValue::getValue));
     }
 
     private <T, R> R executeActionOnTheService(ActionWithReturn<T, R> action, T service, GoPluginDescriptor goPluginDescriptor) {

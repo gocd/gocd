@@ -377,41 +377,6 @@ class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    void shouldMigrateElasticAgentInformationAsPartOfMigrateConfigurationCall() {
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);
-        when(migrator.migrate(any())).thenReturn(true);
-        spy.setElasticAgentInformationMigrator(migrator);
-
-        boolean migratedSuccessfully = spy.migrateConfig(pluginDescriptor);
-
-        assertThat(migratedSuccessfully).isTrue();
-        verify(migrator, times(1)).migrate(pluginDescriptor);
-    }
-
-    @Test
-    void shouldReturnWhetherMigrationSuccessStatus() {
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);
-        when(migrator.migrate(any())).thenReturn(false);
-        spy.setElasticAgentInformationMigrator(migrator);
-
-        boolean migratedSuccessfully = spy.migrateConfig(pluginDescriptor);
-
-        assertThat(migratedSuccessfully).isFalse();
-        verify(migrator, times(1)).migrate(pluginDescriptor);
-    }
-
-    @Test
-    void shouldNotMigrateElasticAgentInformationWhenNoMigratorIsSpecified() {
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        ElasticAgentInformationMigrator migrator = mock(ElasticAgentInformationMigrator.class);
-        boolean migratedSuccessfully = spy.migrateConfig(pluginDescriptor);
-        assertThat(migratedSuccessfully).isTrue();
-        verifyNoMoreInteractions(migrator);
-    }
-
-    @Test
     void shouldSkipUninstallIfPluginIsPreviouslyUninstalled() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         when(pluginDescriptor.bundle()).thenReturn(bundle);

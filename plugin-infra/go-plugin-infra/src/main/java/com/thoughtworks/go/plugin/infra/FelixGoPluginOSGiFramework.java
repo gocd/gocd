@@ -55,7 +55,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     private SystemEnvironment systemEnvironment;
     private Collection<PluginChangeListener> pluginChangeListeners = new ConcurrentLinkedQueue<>();
     private List<PluginPostLoadHook> pluginPostLoadHooks = new ArrayList<>();
-    private ElasticAgentInformationMigrator elasticAgentInformationMigrator;
 
     @Autowired
     public FelixGoPluginOSGiFramework(PluginRegistry registry, SystemEnvironment systemEnvironment) {
@@ -182,20 +181,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     public PluginPostLoadHook addPostLoadHook(PluginPostLoadHook pluginPostLoadHook) {
         pluginPostLoadHooks.add(pluginPostLoadHook);
         return pluginPostLoadHook;
-    }
-
-    @Override
-    public void setElasticAgentInformationMigrator(ElasticAgentInformationMigrator elasticAgentInformationMigrator) {
-        this.elasticAgentInformationMigrator = elasticAgentInformationMigrator;
-    }
-
-    @Override
-    public boolean migrateConfig(GoPluginDescriptor descriptor) {
-        if (elasticAgentInformationMigrator != null) {
-            return elasticAgentInformationMigrator.migrate(descriptor);
-        }
-
-        return true;
     }
 
     private void registerInternalServices(BundleContext bundleContext) {

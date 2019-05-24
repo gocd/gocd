@@ -21,6 +21,10 @@ export namespace ErrorMessages {
     return `${humanize(attribute)} is a duplicate`;
   }
 
+  export function mutuallyExclusive(attributeOne: string, attributeTwo: string) {
+    return `${humanize(attributeOne)} and ${humanize(attributeTwo)} are mutuallly exclusive`;
+  }
+
   export function mustBePresent(attribute: string) {
     return `${humanize(attribute).replace(/\bxpath\b/i, "XPath").replace(/\burl\b/i, "URL")} must be present`;
   }

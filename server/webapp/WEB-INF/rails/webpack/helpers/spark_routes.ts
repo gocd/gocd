@@ -106,6 +106,10 @@ export default class {
       "/go/api/dashboard";
   }
 
+  static templatesPath(): string {
+    return "/go/api/admin/templates";
+  }
+
   static DataSharingSettingsPath(): string {
     return "/go/api/data_sharing/settings";
   }

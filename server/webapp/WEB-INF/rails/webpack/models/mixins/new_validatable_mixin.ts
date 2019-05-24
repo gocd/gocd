@@ -111,6 +111,24 @@ class MaxLengthValidator extends Validator {
   }
 }
 
+class MutualExclusivityValidator extends Validator {
+  private attrTwo: string;
+  constructor(attrTwo: string, options: ValidatorOptions = {}) {
+    super(options);
+    this.attrTwo = attrTwo;
+  }
+
+  protected doValidate(entity: any, attrName: string): void {
+    if ((entity[attrName]() === undefined) || (entity[this.attrTwo]() === undefined)) {
+      return;
+    }
+
+    if (!(entity[attrName]().length === 0) && !(entity[this.attrTwo]().length === 0)) {
+      entity.errors().add(attrName, this.options.message || ErrorMessages.mutuallyExclusive(attrName, this.attrTwo));
+    }
+  }
+}
+
 class ChildAttrUniquenessValidator extends Validator {
   private childAttr: string;
   constructor(childAttr: string, options: ValidatorOptions = {}) {
@@ -291,6 +309,10 @@ export class ValidatableMixin extends BaseErrorsConsumer implements Validatable,
 
   validateChildAttrIsUnique(attr: string, childAttr: string, options?: ValidatorOptions): void {
     this.validateWith(new ChildAttrUniquenessValidator(childAttr, options), attr);
+  }
+
+  validateMutualExclusivityOf(attrOne: string, attrTwo: string, options?: ValidatorOptions): void {
+    this.validateWith(new MutualExclusivityValidator(attrTwo, options), attrOne);
   }
 
   validateAssociated(association: string): void {

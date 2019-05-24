@@ -44,5 +44,4 @@ public interface PluginManager {
 
     List<String> getRequiredExtensionVersionsByPlugin(String pluginId, String extensionType);
 
-    void setElasticAgentInformationMigrator(ElasticAgentInformationMigrator elasticAgentInformationMigrator);
 }

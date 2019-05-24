@@ -15,6 +15,8 @@
  */
 @import "../../global/common";
 
+$error-message-margin-bottom: 40px;
+
 @mixin header-icon($type, $color) {
   @include icon-before($type: $type, $color: $color, $size: 25px, $margin: 0) {
     text-align: center;
@@ -141,4 +143,8 @@ code {
 
 .section-header-title {
   font-weight: 600;
+}
+
+.error-wrapper{
+  margin-bottom: $error-message-margin-bottom;
 }

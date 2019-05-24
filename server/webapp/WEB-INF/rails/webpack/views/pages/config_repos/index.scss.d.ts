@@ -20,3 +20,4 @@ export const configRepoProperties: string;
 export const errorMessage: string;
 export const sectionHeader: string;
 export const sectionHeaderTitle: string;
+export const errorWrapper: string;

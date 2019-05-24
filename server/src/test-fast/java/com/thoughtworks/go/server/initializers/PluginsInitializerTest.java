@@ -151,9 +151,6 @@ public class PluginsInitializerTest {
 
     @Test
     public void shouldSetElasticAgentInformationMigratorOnPluginManager() {
-        reset(pluginManager);
-        new PluginsInitializer(pluginManager, systemEnvironment, new ZipUtil(), pluginExtensionsAndVersionValidator, elasticAgentInformationMigrator);
-
-        verify(pluginManager, atLeastOnce()).addPluginPostLoadHook(any(PluginPostLoadHook.class));
+        verify(pluginManager, times(1)).addPluginPostLoadHook(elasticAgentInformationMigrator);
     }
 }

@@ -124,7 +124,7 @@ module TaskMother
   end
 
   def unload_all_from_registry
-    Spring.bean("defaultPluginRegistry").unloadAll()
+    Spring.bean("defaultPluginRegistry").clear()
   end
 
   class ApiTaskViewForTest

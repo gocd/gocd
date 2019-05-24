@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentMap;
 @Component
 public class DefaultPluginRegistry implements PluginRegistry {
     protected ConcurrentMap<String, GoPluginDescriptor> idToDescriptorMap = new ConcurrentHashMap<>();
-    protected ConcurrentMap<String, Map<String, List<String>>> idToExtensionsInfoMap = new ConcurrentHashMap<>();
 
     @Override
     public List<GoPluginDescriptor> plugins() {
@@ -56,13 +55,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
         if (existingDescriptor == null) {
             throw new RuntimeException("Could not find existing plugin with ID: " + descriptor.id());
         }
-        idToExtensionsInfoMap.remove(descriptor.id());
         return idToDescriptorMap.remove(existingDescriptor.id());
-    }
-
-    public void unloadAll() {
-        idToDescriptorMap.clear();
-        idToExtensionsInfoMap.clear();
     }
 
     public GoPluginDescriptor getPluginByIdOrFileName(String pluginID, final String fileName) {
@@ -95,6 +88,5 @@ public class DefaultPluginRegistry implements PluginRegistry {
     @Override
     public void clear() {
         idToDescriptorMap.clear();
-        idToExtensionsInfoMap.clear();
     }
 }

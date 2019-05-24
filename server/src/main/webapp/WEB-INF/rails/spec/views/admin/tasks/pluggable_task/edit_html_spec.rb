@@ -42,7 +42,7 @@ describe "admin/tasks/plugin/edit.html.erb" do
 
   after :each do
     PluggableTaskConfigStore.store().removePreferenceFor(task_plugin_id)
-    @registry.unloadAll() if @registry
+    @registry.clear() if @registry
   end
 
   it "should render plugin template and data for existing pluggable task" do

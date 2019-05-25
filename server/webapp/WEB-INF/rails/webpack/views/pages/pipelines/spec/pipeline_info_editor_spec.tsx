@@ -16,6 +16,8 @@
 
 import * as m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
+import {PipelineGroupCache} from "models/pipeline_configs/pipeline_groups_cache";
+import {Option} from "views/components/forms/input_fields";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PipelineInfoEditor} from "../pipeline_info_editor";
 
@@ -25,7 +27,7 @@ describe("AddPipeline: PipelineInfoEditor", () => {
 
   beforeEach(() => {
     config = new PipelineConfig("", [], []);
-    helper.mount(() => <PipelineInfoEditor pipelineConfig={config}/>);
+    helper.mount(() => <PipelineInfoEditor pipelineConfig={config} cache={new DummyCache()}/>);
   });
 
   afterEach(helper.unmount.bind(helper));
@@ -44,3 +46,13 @@ describe("AddPipeline: PipelineInfoEditor", () => {
     expect(config.name()).toBe("my-pipeline");
   });
 });
+
+class DummyCache implements PipelineGroupCache<Option> {
+  ready() { return true; }
+  // tslint:disable-next-line
+  prime(onComplete: () => void) {}
+  pipelineGroups() { return []; }
+  stages(pipeline: string) { return []; }
+  failureReason() { return undefined; }
+  failed() { return false; }
+}

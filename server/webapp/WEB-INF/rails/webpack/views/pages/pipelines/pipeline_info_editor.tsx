@@ -19,7 +19,7 @@ import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
-import {DefaultCache, PipelineGroupsCache} from "models/pipeline_configs/pipeline_groups_cache";
+import {DefaultCache, PipelineGroupCache} from "models/pipeline_configs/pipeline_groups_cache";
 import {Form, FormBody} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
@@ -27,12 +27,12 @@ import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
-  cache?: PipelineGroupsCache<Option>;
+  cache?: PipelineGroupCache<Option>;
 }
 
 export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
   private pipelineGroups: Stream<Option[]> = stream();
-  private cache: PipelineGroupsCache<Option> = new DefaultCache();
+  private cache: PipelineGroupCache<Option> = new DefaultCache();
 
   oninit(vnode: m.Vnode<Attrs, {}>) {
     if (vnode.attrs.cache) {

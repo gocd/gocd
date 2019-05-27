@@ -53,6 +53,7 @@ public abstract class RuleAwarePluginProfile implements Validatable, RulesAware 
     public RuleAwarePluginProfile() {
         configuration = new Configuration();
     }
+
     private final ConfigErrors errors = new ConfigErrors();
 
     public RuleAwarePluginProfile(String id, String pluginId, Rules rules, ConfigurationProperty... configurationProperties) {
@@ -96,10 +97,11 @@ public abstract class RuleAwarePluginProfile implements Validatable, RulesAware 
         this.description.text = description;
     }
 
+    //TODO: return clone instead?
+    @Override
     public Rules getRules() {
         return this.rules;
     }
-
 
     @ConfigTag("description")
     public static class Description {
@@ -182,7 +184,6 @@ public abstract class RuleAwarePluginProfile implements Validatable, RulesAware 
             }
         });
     }
-
 
 
     @Override

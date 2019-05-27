@@ -123,7 +123,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
         validateMaterialUrl(this.url, validationContext);
-        validatePassword(validationContext);
+        validateSecretParams(validationContext);
     }
 
     @Override

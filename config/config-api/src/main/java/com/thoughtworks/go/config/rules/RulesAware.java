@@ -16,10 +16,28 @@
 
 package com.thoughtworks.go.config.rules;
 
+import com.thoughtworks.go.config.Validatable;
+
 import java.util.List;
 
 public interface RulesAware {
     List<String> allowedActions();
 
     List<String> allowedTypes();
+
+    Rules getRules();
+
+    default boolean canRefer(Class<? extends Validatable> entityType, String resource) {
+        Rules rules = getRules();
+        if (rules == null || rules.isEmpty()) {
+            return false;
+        }
+
+        return rules.stream()
+                .map(directive -> directive.apply("refer", entityType, resource))
+                .filter(result -> result != Result.SKIP)
+                .map(result -> result == Result.ALLOW)
+                .findFirst()
+                .orElse(false);
+    }
 }

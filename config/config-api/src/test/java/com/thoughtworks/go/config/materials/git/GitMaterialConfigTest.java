@@ -16,9 +16,11 @@
 
 package com.thoughtworks.go.config.materials.git;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.*;
+import com.thoughtworks.go.config.rules.Allow;
+import com.thoughtworks.go.config.rules.Rules;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.command.UrlArgument;
@@ -29,7 +31,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
+import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 class GitMaterialConfigTest {
     @Test
@@ -231,6 +236,53 @@ class GitMaterialConfigTest {
     }
 
     @Nested
+    class ValidateTree {
+        @Test
+        void shouldCallValidate() {
+            final MaterialConfig materialConfig = spy(new GitMaterialConfig("https://example.repo"));
+            final ValidationContext validationContext = mockValidationContextForSecretParams();
+
+            materialConfig.validateTree(validationContext);
+
+            verify(materialConfig).validate(validationContext);
+        }
+
+        @Test
+        void shouldFailIfSecretConfigCannotBeUsedInPipelineGroupWhereCurrentMaterialIsDefined() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("https://example.repo");
+            gitMaterialConfig.setUserName("bob");
+            gitMaterialConfig.setPassword("{{SECRET:[secret_config_id][pass]}}");
+            final Rules directives = new Rules(new Allow("refer", PIPELINE_GROUP.getType(), "group_2"));
+            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
+            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
+            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
+
+            assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
+
+            assertThat(gitMaterialConfig.errors().get("encryptedPassword"))
+                    .contains("Secret config with ids `secret_config_id` is not allowed to use in `pipelines` with name `group_1`.");
+        }
+
+        @Test
+        void shouldPassIfSecretConfigCanBeReferredInPipelineGroupWhereCurrentMaterialIsDefined() {
+            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("https://example.repo");
+            gitMaterialConfig.setUserName("bob");
+            gitMaterialConfig.setPassword("{{SECRET:[secret_config_id][pass]}}");
+            final Rules directives = new Rules(
+                    new Allow("refer", PIPELINE_GROUP.getType(), "group_2"),
+                    new Allow("refer", PIPELINE_GROUP.getType(), "group_1")
+            );
+            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
+            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
+            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
+
+            assertThat(gitMaterialConfig.validateTree(validationContext)).isTrue();
+
+            assertThat(gitMaterialConfig.errors().getAll()).isEmpty();
+        }
+    }
+
+    @Nested
     class Equals {
         @Test
         void shouldBeEqualIfObjectsHaveSameUrlBranchAndSubModuleFolder() {
@@ -254,5 +306,13 @@ class GitMaterialConfigTest {
 
             assertThat(gitMaterialConfig.getFingerprint()).isEqualTo("755da7fb7415c8674bdf5f8a4ba48fc3e071e5de429b1308ccf8949d215bdb08");
         }
+    }
+
+    private ValidationContext mockValidationContextForSecretParams(SecretConfig... secretConfigs) {
+        final ValidationContext validationContext = mock(ValidationContext.class);
+        final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(secretConfigs));
+        return validationContext;
     }
 }

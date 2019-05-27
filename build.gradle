@@ -109,9 +109,9 @@ List<String> partitionFiles(Collection originalFiles) {
   return currentPartition ?: []
 }
 
-def GO_VERSION_PREVIOUS = '19.3.0'
-def GO_VERSION_SEGMENTS = [year: 19, releaseInYear: 4, patch: 0]
-def GO_VERSION_NEXT = '19.5.0'
+def GO_VERSION_PREVIOUS = '19.4.0'
+def GO_VERSION_SEGMENTS = [year: 19, releaseInYear: 5, patch: 0]
+def GO_VERSION_NEXT = '19.6.0'
 
 def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
 def DIST_VERSION = releaseRevision()

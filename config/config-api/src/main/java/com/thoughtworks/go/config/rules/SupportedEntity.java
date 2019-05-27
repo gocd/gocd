@@ -16,15 +16,20 @@
 
 package com.thoughtworks.go.config.rules;
 
+import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.PipelineConfigs;
 import com.thoughtworks.go.config.Validatable;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import static java.util.Collections.unmodifiableList;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
 
 public enum SupportedEntity {
     PIPELINE_GROUP("pipeline_group", PipelineConfigs.class),
+    ENVIRONMENT("environment", EnvironmentsConfig.class),
     UNKNOWN(null, null);
 
     private final String type;
@@ -46,5 +51,11 @@ public enum SupportedEntity {
     public static SupportedEntity fromString(String type) {
         return Arrays.stream(values()).filter(t -> equalsIgnoreCase(t.type, type))
                 .findFirst().orElse(UNKNOWN);
+    }
+
+    public static List<String> unmodifiableListOf(SupportedEntity... supportedEntities) {
+        return unmodifiableList(Arrays.stream(supportedEntities)
+                .map(SupportedEntity::getType)
+                .collect(Collectors.toList()));
     }
 }

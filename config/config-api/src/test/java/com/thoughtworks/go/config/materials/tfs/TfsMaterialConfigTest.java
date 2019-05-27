@@ -19,6 +19,9 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
+import com.thoughtworks.go.config.rules.Allow;
+import com.thoughtworks.go.config.rules.Rules;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
@@ -34,10 +37,11 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.AbstractMaterialConfig.MATERIAL_NAME;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
+import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
+import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class TfsMaterialConfigTest {
     private TfsMaterialConfig tfsMaterialConfig;
@@ -77,7 +81,7 @@ class TfsMaterialConfigTest {
     }
 
     @Test
-    void shouldDefaultDomainToEmptyStringWhenNothingIsSet() throws Exception {
+    void shouldDefaultDomainToEmptyStringWhenNothingIsSet() {
         TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(mock(GoCipher.class));
         assertThat(tfsMaterialConfig.getDomain()).isEqualTo("");
     }
@@ -113,33 +117,58 @@ class TfsMaterialConfigTest {
         assertThat(tfsMaterialConfig.getEncryptedPassword()).isNull();
     }
 
-    @Test
-    void validate_shouldEnsureMandatoryFieldsAreNotBlank() {
-        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument(""), "", "CORPORATE", "", "");
-        tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(tfsMaterialConfig.errors().on(URL)).isEqualTo("URL cannot be blank");
-        assertThat(tfsMaterialConfig.errors().on(TfsMaterialConfig.USERNAME)).isEqualTo("Username cannot be blank");
-        assertThat(tfsMaterialConfig.errors().on(TfsMaterialConfig.PROJECT_PATH)).isEqualTo("Project Path cannot be blank");
-    }
+    @Nested
+    class Validate {
 
-    @Test
-    void validate_shouldEnsureMaterialNameIsValid() {
-        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
+        @Test
+        void shouldEnsureMandatoryFieldsAreNotBlank() {
+            TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument(""), "", "CORPORATE", "", "");
 
-        tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(tfsMaterialConfig.errors().on(MATERIAL_NAME)).isNull();
+            tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
-        tfsMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
-        tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(tfsMaterialConfig.errors().on(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
-    }
+            assertThat(tfsMaterialConfig.errors().on(URL)).isEqualTo("URL cannot be blank");
+            assertThat(tfsMaterialConfig.errors().on(TfsMaterialConfig.USERNAME)).isEqualTo("Username cannot be blank");
+            assertThat(tfsMaterialConfig.errors().on(TfsMaterialConfig.PROJECT_PATH)).isEqualTo("Project Path cannot be blank");
+        }
 
-    @Test
-    void validate_shouldEnsureDestFilePathIsValid() {
-        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
-        tfsMaterialConfig.setConfigAttributes(Collections.singletonMap(FOLDER, "../a"));
-        tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
-        assertThat(tfsMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
+        @Test
+        void shouldEnsureMaterialNameIsValid() {
+            TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
+
+            tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(tfsMaterialConfig.errors().on(MATERIAL_NAME)).isNull();
+            tfsMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
+            tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
+            assertThat(tfsMaterialConfig.errors().on(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
+        }
+
+        @Test
+        void shouldEnsureDestFilePathIsValid() {
+            TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "CORPORATE", "passwd", "walk_this_path");
+            tfsMaterialConfig.setConfigAttributes(Collections.singletonMap(FOLDER, "../a"));
+
+            tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(tfsMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
+        }
+
+        @Test
+        void shouldEnsureUrlIsNotBlank() {
+            tfsMaterialConfig.setUrl("");
+            tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(tfsMaterialConfig.errors().on(ScmMaterialConfig.URL)).isEqualTo("URL cannot be blank");
+        }
+
+        @Test
+        void shouldEnsureUrlIsNotNull() {
+            tfsMaterialConfig.setUrl(null);
+
+            tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
+
+            assertThat(tfsMaterialConfig.errors().on(URL)).isEqualTo("URL cannot be blank");
+        }
     }
 
     @Test
@@ -237,47 +266,20 @@ class TfsMaterialConfigTest {
     }
 
     @Nested
-    class ValidateURL {
-        @Test
-        void shouldEnsureUrlIsNotBlank() {
-            tfsMaterialConfig.setUrl("");
-            tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
-
-            assertThat(tfsMaterialConfig.errors().on(ScmMaterialConfig.URL)).isEqualTo("URL cannot be blank");
-        }
-
-        @Test
-        void shouldEnsureUrlIsNotNull() {
-            tfsMaterialConfig.setUrl(null);
-
-            tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
-
-            assertThat(tfsMaterialConfig.errors().on(URL)).isEqualTo("URL cannot be blank");
-        }
-
-        @Test
-        void shouldEnsureMaterialNameIsValid() {
-            tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
-            assertThat(tfsMaterialConfig.errors().on(MATERIAL_NAME)).isNull();
-
-            tfsMaterialConfig.setName(new CaseInsensitiveString(".bad-name-with-dot"));
-            tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
-            assertThat(tfsMaterialConfig.errors().on(MATERIAL_NAME)).isEqualTo("Invalid material name '.bad-name-with-dot'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
-        }
-
-        @Test
-        void shouldEnsureDestFilePathIsValid() {
-            tfsMaterialConfig.setConfigAttributes(Collections.singletonMap(FOLDER, "../a"));
-            tfsMaterialConfig.validate(new ConfigSaveValidationContext(null));
-            assertThat(tfsMaterialConfig.errors().on(FOLDER)).isEqualTo("Dest folder '../a' is not valid. It must be a sub-directory of the working folder.");
-        }
-    }
-
-    @Nested
-    class ValidatePassword {
+    class ValidateTree {
         @BeforeEach
         void setUp() {
             tfsMaterialConfig.setUrl("/foo/bar");
+        }
+
+        @Test
+        void shouldCallValidate() {
+            final MaterialConfig materialConfig = spy(tfsMaterialConfig);
+            final ValidationContext validationContext = mockValidationContextForSecretParams();
+
+            materialConfig.validateTree(validationContext);
+
+            verify(materialConfig).validate(validationContext);
         }
 
         @Test
@@ -299,21 +301,45 @@ class TfsMaterialConfigTest {
         }
 
         @Test
-        void shouldPassIfPasswordSpecifiedAsSecretParamIsValid() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams(new SecretConfig("secret_config_id", "cd.go.secret.file"));
-            tfsMaterialConfig.setPassword("{{SECRET:[secret_config_id][password]}}");
-
-            assertThat(tfsMaterialConfig.validateTree(validationContext)).isTrue();
-            assertThat(tfsMaterialConfig.errors().getAll()).isEmpty();
-        }
-
-        @Test
         void shouldFailIfSecretConfigForPasswordSpecifiedAsSecretParamDoesNotExist() {
             final ValidationContext validationContext = mockValidationContextForSecretParams();
             tfsMaterialConfig.setPassword("{{SECRET:[secret_config_id][password]}}");
 
             assertThat(tfsMaterialConfig.validateTree(validationContext)).isFalse();
             assertThat(tfsMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret config with ids `secret_config_id` does not exist.");
+        }
+
+
+        @Test
+        void shouldFailIfSecretConfigCannotBeUsedInPipelineGroupWhereCurrentMaterialIsDefined() {
+            tfsMaterialConfig.setUserName("bob");
+            tfsMaterialConfig.setPassword("{{SECRET:[secret_config_id][pass]}}");
+            final Rules directives = new Rules(new Allow("refer", PIPELINE_GROUP.getType(), "group_2"));
+            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
+            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
+            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
+
+            assertThat(tfsMaterialConfig.validateTree(validationContext)).isFalse();
+
+            assertThat(tfsMaterialConfig.errors().get("encryptedPassword"))
+                    .contains("Secret config with ids `secret_config_id` is not allowed to use in `pipelines` with name `group_1`.");
+        }
+
+        @Test
+        void shouldPassIfSecretConfigCanBeReferredInPipelineGroupWhereCurrentMaterialIsDefined() {
+            tfsMaterialConfig.setUserName("bob");
+            tfsMaterialConfig.setPassword("{{SECRET:[secret_config_id][pass]}}");
+            final Rules directives = new Rules(
+                    new Allow("refer", PIPELINE_GROUP.getType(), "group_2"),
+                    new Allow("refer", PIPELINE_GROUP.getType(), "group_1")
+            );
+            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
+            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
+            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
+
+            assertThat(tfsMaterialConfig.validateTree(validationContext)).isTrue();
+
+            assertThat(tfsMaterialConfig.errors().getAll()).isEmpty();
         }
     }
 

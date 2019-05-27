@@ -37,6 +37,7 @@ import org.mockito.ArgumentCaptor;
 
 import java.util.ArrayList;
 
+import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -104,7 +105,6 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
         }
     }
 
-
     @Nested
     class postConstruct {
         @Test
@@ -152,8 +152,8 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
                     .contains("refer");
 
             assertThat(rulesValidationContext.getAllowedTypes())
-                    .hasSize(1)
-                    .contains("pipeline_group");
+                    .hasSize(2)
+                    .contains("pipeline_group", "environment");
         }
 
         @Test
@@ -179,7 +179,21 @@ public class SecretConfigTest extends AbstractRuleAwarePluginProfileTest {
             assertThat(secretConfig.hasErrors()).isTrue();
         }
     }
-    
+
+    @Nested
+    class canRefer {
+        @Test
+        void shouldReturnTrueIfCanBeReferByGivenEntityOfTypeAndName() {
+            final Rules directives = new Rules(
+                    new Allow("refer", PIPELINE_GROUP.getType(), "group_2"),
+                    new Allow("refer", PIPELINE_GROUP.getType(), "group_1")
+            );
+            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
+
+            assertThat(secretConfig.canRefer(PipelineConfigs.class, "group_1")).isTrue();
+        }
+    }
+
     private PluginDescriptor pluginDescriptor(String pluginId) {
         return new PluginDescriptor() {
             @Override

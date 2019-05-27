@@ -25,6 +25,7 @@ import com.thoughtworks.go.plugin.domain.secrets.SecretsPluginInfo;
 
 import java.util.List;
 
+import static com.thoughtworks.go.config.rules.SupportedEntity.*;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.isNull;
@@ -32,7 +33,7 @@ import static java.util.Objects.isNull;
 @ConfigTag("secretConfig")
 public class SecretConfig extends RuleAwarePluginProfile {
     private List<String> allowedActions = unmodifiableList(asList("refer"));
-    private List<String> allowedTypes = unmodifiableList(asList("pipeline_group"));
+    private List<String> allowedTypes = unmodifiableListOf(PIPELINE_GROUP, ENVIRONMENT);
 
     public SecretConfig() {
         super();

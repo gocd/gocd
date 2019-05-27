@@ -15,9 +15,11 @@
  */
 package com.thoughtworks.go.config.materials.mercurial;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ConfigSaveValidationContext;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.*;
+import com.thoughtworks.go.config.rules.Allow;
+import com.thoughtworks.go.config.rules.Rules;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,7 +33,10 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.AbstractMaterialConfig.MATERIAL_NAME;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
+import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
+import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 class HgMaterialConfigTest {
     private HgMaterialConfig hgMaterialConfig;
@@ -287,5 +292,60 @@ class HgMaterialConfigTest {
 
             assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("Ambiguous branch, must be provided either in URL or as an attribute.");
         }
+    }
+
+    @Nested
+    class ValidateTree {
+        @Test
+        void shouldCallValidate() {
+            final MaterialConfig materialConfig = spy(new HgMaterialConfig("https://example.repo", null));
+            final ValidationContext validationContext = mockValidationContextForSecretParams();
+
+            materialConfig.validateTree(validationContext);
+
+            verify(materialConfig).validate(validationContext);
+        }
+
+        @Test
+        void shouldFailIfSecretConfigCannotBeUsedInPipelineGroupWhereCurrentMaterialIsDefined() {
+            HgMaterialConfig material = new HgMaterialConfig("https://example.repo", null);
+            material.setUserName("bob");
+            material.setPassword("{{SECRET:[secret_config_id][pass]}}");
+            final Rules directives = new Rules(new Allow("refer", PIPELINE_GROUP.getType(), "group_2"));
+            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
+            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
+            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
+
+            assertThat(material.validateTree(validationContext)).isFalse();
+
+            assertThat(material.errors().get("encryptedPassword"))
+                    .contains("Secret config with ids `secret_config_id` is not allowed to use in `pipelines` with name `group_1`.");
+        }
+
+        @Test
+        void shouldPassIfSecretConfigCanBeReferredInPipelineGroupWhereCurrentMaterialIsDefined() {
+            HgMaterialConfig material = new HgMaterialConfig("https://example.repo", null);
+            material.setUserName("bob");
+            material.setPassword("{{SECRET:[secret_config_id][pass]}}");
+            final Rules directives = new Rules(
+                    new Allow("refer", PIPELINE_GROUP.getType(), "group_2"),
+                    new Allow("refer", PIPELINE_GROUP.getType(), "group_1")
+            );
+            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
+            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
+            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
+
+            assertThat(material.validateTree(validationContext)).isTrue();
+
+            assertThat(material.errors().getAll()).isEmpty();
+        }
+    }
+
+    private ValidationContext mockValidationContextForSecretParams(SecretConfig... secretConfigs) {
+        final ValidationContext validationContext = mock(ValidationContext.class);
+        final CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+        when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+        when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(secretConfigs));
+        return validationContext;
     }
 }

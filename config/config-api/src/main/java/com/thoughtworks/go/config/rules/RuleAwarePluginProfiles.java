@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.config.rules;
 
+import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 

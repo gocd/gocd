@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.config.rules;
 
+import com.thoughtworks.go.config.ConfigAttribute;
+import com.thoughtworks.go.config.ConfigValue;
+import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.domain.ConfigErrors;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOCase;
 
 import java.util.List;
 import java.util.Objects;
 
+import static com.thoughtworks.go.config.rules.SupportedEntity.*;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.equalsIgnoreCase;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public abstract class AbstractDirective implements Directive {
     @ConfigAttribute(value = "action", optional = false)
@@ -62,7 +69,7 @@ public abstract class AbstractDirective implements Directive {
             this.addError("type", format("Invalid type, must be one of %s.", rulesValidationContext.getAllowedTypes()));
         }
 
-        if (StringUtils.isBlank(resource)) {
+        if (isBlank(resource)) {
             this.addError("resource", "Resource cannot be blank.");
         }
     }
@@ -73,6 +80,30 @@ public abstract class AbstractDirective implements Directive {
         }
 
         return allowedActions.stream().noneMatch(it -> equalsIgnoreCase(it, actionOrType));
+    }
+
+    protected boolean matchesAction(String action) {
+        if (equalsIgnoreCase("*", this.action)) {
+            return true;
+        }
+
+        return equalsIgnoreCase(action, this.action);
+    }
+
+    protected boolean matchesType(Class<? extends Validatable> entityType) {
+        if (equalsIgnoreCase("*", this.type)) {
+            return true;
+        }
+
+        return fromString(this.type).getEntityType().isAssignableFrom(entityType);
+    }
+
+    protected boolean matchesResource(String resource) {
+        if (equalsIgnoreCase("*", this.resource)) {
+            return true;
+        }
+
+        return FilenameUtils.wildcardMatch(resource, this.resource, IOCase.INSENSITIVE);
     }
 
     @Override

@@ -16,6 +16,10 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.rules.Allow;
+import com.thoughtworks.go.config.rules.RuleAwarePluginProfile;
+import com.thoughtworks.go.config.rules.Rules;
+import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;

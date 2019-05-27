@@ -14,7 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.config.rules;
+
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.Validatable;
 
 @ConfigTag("allow")
 public class Allow extends AbstractDirective {
@@ -24,6 +27,14 @@ public class Allow extends AbstractDirective {
 
     public Allow(String action, String type, String resource) {
         super(DirectiveType.ALLOW, action, type, resource);
+    }
+
+    @Override
+    public Result apply(String action, Class<? extends Validatable> entityClass, String resource) {
+        if (matchesAction(action) && matchesType(entityClass) && matchesResource(resource)) {
+            return Result.ALLOW;
+        }
+        return Result.SKIP;
     }
 }
 

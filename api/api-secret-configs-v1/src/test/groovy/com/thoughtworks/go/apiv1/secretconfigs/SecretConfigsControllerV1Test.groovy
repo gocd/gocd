@@ -23,6 +23,9 @@ import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigRepresen
 import com.thoughtworks.go.apiv1.secretconfigs.representers.SecretConfigsRepresenter
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.EntityType
+import com.thoughtworks.go.config.rules.Allow
+import com.thoughtworks.go.config.rules.Deny
+import com.thoughtworks.go.config.rules.Rules
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import com.thoughtworks.go.i18n.LocalizedMessage
 import com.thoughtworks.go.server.domain.Username

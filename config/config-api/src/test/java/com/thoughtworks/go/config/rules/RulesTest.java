@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.config.rules;
 
+import com.thoughtworks.go.config.DelegatingValidationContext;
+import com.thoughtworks.go.config.ValidationContext;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

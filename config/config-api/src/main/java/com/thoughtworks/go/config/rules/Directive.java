@@ -14,43 +14,15 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.config.rules;
 
-import org.apache.commons.lang3.StringUtils;
+import com.thoughtworks.go.config.ConfigInterface;
+import com.thoughtworks.go.config.Validatable;
 
 import java.io.Serializable;
-import java.util.Optional;
 
 @ConfigInterface
 public interface Directive extends Validatable, Serializable {
-    enum DirectiveType {
-        ALLOW("allow"), DENY("deny");
-
-        private final String type;
-
-        DirectiveType(String type) {
-            this.type = type;
-        }
-
-        public String type() {
-            return type;
-        }
-
-        public static Optional<DirectiveType> fromString(String directive) {
-            if (StringUtils.isBlank(directive)) {
-                Optional.empty();
-            }
-
-            switch (directive) {
-                case "allow":
-                    return Optional.of(ALLOW);
-                case "deny":
-                    return Optional.of(DENY);
-                default:
-                    return Optional.empty();
-            }
-        }
-    }
     boolean hasErrors();
 
     String action();
@@ -60,4 +32,6 @@ public interface Directive extends Validatable, Serializable {
     String resource();
 
     DirectiveType getDirectiveType();
+
+    Result apply(String refer, Class<? extends Validatable> aClass, String group);
 }

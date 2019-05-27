@@ -23,16 +23,16 @@ import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
-import com.thoughtworks.go.config.Allow;
-import com.thoughtworks.go.config.Deny;
-import com.thoughtworks.go.config.Directive;
-import com.thoughtworks.go.config.Directive.DirectiveType;
-import com.thoughtworks.go.config.Rules;
+import com.thoughtworks.go.config.rules.Allow;
+import com.thoughtworks.go.config.rules.Deny;
+import com.thoughtworks.go.config.rules.Directive;
+import com.thoughtworks.go.config.rules.DirectiveType;
+import com.thoughtworks.go.config.rules.Rules;
 
 import java.util.HashMap;
 import java.util.Optional;
 
-import static com.thoughtworks.go.config.Directive.DirectiveType.fromString;
+import static com.thoughtworks.go.config.rules.DirectiveType.fromString;
 
 public class RulesRepresenter {
     public static void toJSON(OutputListWriter listWriter, Rules rules) {

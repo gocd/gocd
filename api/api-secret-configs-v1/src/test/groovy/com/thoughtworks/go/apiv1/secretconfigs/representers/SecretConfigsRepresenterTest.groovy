@@ -17,6 +17,9 @@
 package com.thoughtworks.go.apiv1.secretconfigs.representers
 
 import com.thoughtworks.go.config.*
+import com.thoughtworks.go.config.rules.Allow
+import com.thoughtworks.go.config.rules.Deny
+import com.thoughtworks.go.config.rules.Rules
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother
 import org.junit.jupiter.api.Test
 

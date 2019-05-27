@@ -67,6 +67,18 @@
   </rule>
 
   <rule>
+    <name>Spark Plugin Settings Create API</name>
+    <from>^/api/admin/plugin_settings(/?)$</from>
+    <to last="true">/spark/api/admin/plugin_settings</to>
+  </rule>
+
+  <rule>
+    <name>Spark Plugin Settings Get and Update API</name>
+    <from>^/api/admin/plugin_settings/(.*)$</from>
+    <to last="true">/spark/api/admin/plugin_settings/${escape:$1}</to>
+  </rule>
+
+  <rule>
     <name>Spark Cluster Profile Index API</name>
     <from>^/api/admin/elastic/cluster_profiles(/?)$</from>
     <to last="true">/spark/api/admin/elastic/cluster_profiles</to>

@@ -384,6 +384,20 @@ public class Routes {
         }
     }
 
+    public static class PluginSettingsAPI {
+        public static final String BASE = "/api/admin/plugin_settings";
+        public static final String ID = "/:plugin_id";
+        public static final String DOC = apiDocsUrl("#plugin-settings");
+
+        public static String find() {
+            return BASE + ID;
+        }
+
+        public static String id(String id) {
+            return find().replaceAll(":plugin_id", id);
+        }
+    }
+
     public static class PluginInfoAPI {
         public static final String BASE = "/api/admin/plugin_info";
         public static final String ID = "/:id";

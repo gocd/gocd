@@ -391,3 +391,7 @@ api/api-plugin-infos-v6/config/
 api/api-dependency-material-autocomplete-v1/out/
 api/api-dependency-material-autocomplete-v1/target/
 api/api-dependency-material-autocomplete-v1/logs/
+api/api-plugin-settings-v1/out/
+api/api-plugin-settings-v1/target/
+api/api-plugin-settings-v1/logs/
+api/api-plugin-settings-v1/config/

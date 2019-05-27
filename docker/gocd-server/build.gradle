@@ -48,7 +48,7 @@ subprojects {
       task.artifactZip = project.file(project.dockerbuildServerZipLocation)
     } else {
       task.doFirst {
-        throw new GradleException("You must specify either -PdockerBuildLocalZip or -PdockerbuildAgentZipLocation=/path/to/agent.zip")
+        throw new GradleException("You must specify either -PdockerBuildLocalZip or -PdockerbuildServerZipLocation=/path/to/server.zip")
       }
     }
 

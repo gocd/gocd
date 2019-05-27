@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.config.rules;
 
-class AllowTest extends AbstractDirectiveTest {
-    //runs the test from AbstractDirectiveTest for this Directive
-    Directive getDirective(String action, String type, String resource) {
-        return new Allow(action, type, resource);
-    }
+public enum Result {
+    ALLOW,
+    DENY,
+    SKIP
 }

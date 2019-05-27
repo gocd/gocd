@@ -14,12 +14,24 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.config.rules;
 
 import java.util.List;
 
-public interface RulesAware {
-    List<String> allowedActions();
+public class RulesValidationContext {
+    private final List<String> allowedActions;
+    private final List<String> allowedTypes;
 
-    List<String> allowedTypes();
+    public RulesValidationContext(List<String> allowedActions, List<String> allowedTypes) {
+        this.allowedActions = allowedActions;
+        this.allowedTypes = allowedTypes;
+    }
+
+    public List<String> getAllowedActions() {
+        return allowedActions;
+    }
+
+    public List<String> getAllowedTypes() {
+        return allowedTypes;
+    }
 }

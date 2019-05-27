@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
+import com.thoughtworks.go.config.rules.RuleAwarePluginProfiles;
 import com.thoughtworks.go.config.update.SecretConfigCreateCommand;
 import com.thoughtworks.go.config.update.SecretConfigDeleteCommand;
 import com.thoughtworks.go.config.update.SecretConfigUpdateCommand;

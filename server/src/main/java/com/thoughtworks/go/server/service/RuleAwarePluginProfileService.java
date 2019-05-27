@@ -18,8 +18,8 @@ package com.thoughtworks.go.server.service;
 
 
 import com.thoughtworks.go.config.ConfigTag;
-import com.thoughtworks.go.config.RuleAwarePluginProfile;
-import com.thoughtworks.go.config.RuleAwarePluginProfiles;
+import com.thoughtworks.go.config.rules.RuleAwarePluginProfile;
+import com.thoughtworks.go.config.rules.RuleAwarePluginProfiles;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.RuleAwarePluginProfileCommand;

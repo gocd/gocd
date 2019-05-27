@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.rules.RuleAwarePluginProfile;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
 import org.junit.Test;

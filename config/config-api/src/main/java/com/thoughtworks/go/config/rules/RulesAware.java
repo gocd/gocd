@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.config;
+package com.thoughtworks.go.config.rules;
 
-class DenyTest extends AbstractDirectiveTest {
-    //runs the test from AbstractDirectiveTest for this Directive
-    Directive getDirective(String action, String type, String resource) {
-        return new Deny(action, type, resource);
-    }
+import java.util.List;
+
+public interface RulesAware {
+    List<String> allowedActions();
+
+    List<String> allowedTypes();
 }

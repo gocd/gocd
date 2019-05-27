@@ -18,6 +18,7 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.elastic.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;

@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
 import com.thoughtworks.go.domain.scm.SCM;
 

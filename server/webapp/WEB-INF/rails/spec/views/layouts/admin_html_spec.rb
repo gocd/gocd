@@ -49,11 +49,6 @@ describe "/layouts/admin" do
       render :inline => '<div>content</div>', :layout => @layout_name
       expect(response.body).to have_selector('#tab-content-of-user-listing', 'content')
     end
-
-    it "should show tab button" do
-      render :inline => "<div>content</div>", :layout => @layout_name
-      expect(response.body).to have_selector("#user-summary-tab-button.current_tab a#tab-link-of-user-listing[href='/admin/users']")
-    end
   end
 
   describe "pipeline-groups" do

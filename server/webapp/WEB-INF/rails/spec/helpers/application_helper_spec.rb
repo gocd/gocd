@@ -554,31 +554,6 @@ describe ApplicationHelper do
 
   end
 
-  describe "form_remote_tag_new" do
-
-   it 'should generate form tag with on complete for ajax update' do
-     expected = %q|<form onsubmit="jQuery('#search_id').addClass('ac_loading'); new Ajax.Updater({success:'search_results_container'}, '/admin/users/search', {asynchronous:true, evalScripts:true, onComplete:function(request){jQuery('#search_id').removeClass('ac_loading');}, parameters:Form.serialize(this)}); return false;" action="/admin/users/search" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
-     actual = form_remote_tag_new(
-         :url => users_search_path,
-         :update => {:success => "search_results_container"},
-         :before => "jQuery('#search_id').addClass('ac_loading');",
-         :complete => "jQuery('#search_id').removeClass('ac_loading');"
-     )
-     expect(actual).to eq(expected)
-   end
-
-   it 'should generate form tag with on success and failure for ajax update' do
-     expected = %q|<form onsubmit="new Ajax.Updater({success:'tab-content-of-user-listing'}, '/admin/users/create', {asynchronous:true, evalScripts:true, onFailure:function(request){Util.refresh_child_text('add_error_message', request.responseText, 'error');}, onSuccess:function(request){Modalbox.hide();Util.refresh_child_text('message_pane', 'Added user successfully', 'success');}, parameters:Form.serialize(this)}); return false;" action="/admin/users/create" accept-charset="UTF-8" method="post"><input name="utf8" type="hidden" value="&#x2713;" />|
-     actual = form_remote_tag_new(
-         :url => users_create_path,
-         :update => {:success => "tab-content-of-user-listing"},
-         :failure => "Util.refresh_child_text('add_error_message', request.responseText, 'error');",
-         :success => "Modalbox.hide();Util.refresh_child_text('message_pane', 'Added user successfully', 'success');"
-     )
-     expect(actual).to eq(expected)
-   end
-  end
-
   describe "go_update" do
     it 'should fetch the new go release' do
       expect(version_info_service).to receive(:getGoUpdate).and_return("1.2.3-1")

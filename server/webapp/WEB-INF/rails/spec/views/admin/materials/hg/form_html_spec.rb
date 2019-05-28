@@ -21,7 +21,7 @@ describe "_form.html.erb" do
   include FormUI
 
   before(:each) do
-    @material_config = HgMaterialConfig.new("hg://foo", "dest")
+    @material_config = com.thoughtworks.go.helper.MaterialConfigsMother.hg("hg://foo", "dest")
     @material_config.setName(CaseInsensitiveString.new("Hg Material Name"))
     @material_config.setAutoUpdate(true)
     @material_config.setBranchAttribute("feature")

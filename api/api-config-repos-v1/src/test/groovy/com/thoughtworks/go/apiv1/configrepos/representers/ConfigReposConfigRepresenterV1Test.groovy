@@ -16,6 +16,7 @@
 package com.thoughtworks.go.apiv1.configrepos.representers
 
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
 import com.thoughtworks.go.spark.Routes
@@ -74,7 +75,7 @@ class ConfigReposConfigRepresenterV1Test {
   }
 
   static ConfigRepoConfig repo(String id) {
-    HgMaterialConfig materialConfig = new HgMaterialConfig("${TEST_REPO_URL}/$id", "")
+    HgMaterialConfig materialConfig = hg("${TEST_REPO_URL}/$id", "")
     ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
 
     return repo

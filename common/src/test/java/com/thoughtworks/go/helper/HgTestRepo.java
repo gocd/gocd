@@ -18,6 +18,8 @@ package com.thoughtworks.go.helper;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
@@ -91,7 +93,7 @@ public class HgTestRepo extends TestRepo {
     }
 
     public HgMaterialConfig materialConfig() {
-        return new HgMaterialConfig(projectRepositoryUrl(), null);
+        return hg(projectRepositoryUrl(), null);
     }
 
     private void setUpServerRepoFromHgBundle(File serverRepo, File hgBundleFile) {

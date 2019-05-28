@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.configrepos.representers
 import com.thoughtworks.go.apiv1.configrepos.ConfigRepoWithResult
 import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.PartialConfig
 import com.thoughtworks.go.domain.materials.Modification
@@ -90,7 +91,7 @@ class ConfigRepoWithResultListRepresenterTest {
   }
 
   static ConfigRepoWithResult repo(String id) {
-    HgMaterialConfig materialConfig = new HgMaterialConfig("$TEST_REPO_URL/$id", "")
+    HgMaterialConfig materialConfig = hg("$TEST_REPO_URL/$id", "")
 
     Modification modification = new Modification()
     modification.setRevision("${id}-123")

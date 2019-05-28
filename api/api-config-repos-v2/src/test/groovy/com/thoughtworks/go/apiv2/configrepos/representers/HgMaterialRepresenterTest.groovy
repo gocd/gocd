@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -35,7 +36,7 @@ class HgMaterialRepresenterTest {
   class ToJSON {
     @Test
     void shouldSerializeObjectToJson() {
-      HgMaterialConfig config = new HgMaterialConfig(REPO_URL, null)
+      HgMaterialConfig config = hg(REPO_URL, null)
       config.setUserName("bob")
       config.setPassword("password")
       config.setBranchAttribute("feature")

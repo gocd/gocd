@@ -44,7 +44,6 @@ import com.thoughtworks.go.plugin.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.CommandLine;
-import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -408,9 +407,16 @@ public class ConfigConverter {
             return gitConfig;
         } else if (crScmMaterial instanceof CRHgMaterial) {
             CRHgMaterial hg = (CRHgMaterial) crScmMaterial;
-            HgMaterialConfig hgConfig = new HgMaterialConfig(new HgUrlArgument(hg.getUrl()),
-                    hg.getUsername(), hg.getPassword(), hg.getBranch(), hg.isAutoUpdate(), toFilter(crScmMaterial), false, hg.getDestination(),
-                    toMaterialName(materialName));
+            HgMaterialConfig hgConfig = new HgMaterialConfig();
+            hgConfig.setUrl(hg.getUrl());
+            hgConfig.setUserName(hg.getUsername());
+            hgConfig.setPassword(hg.getPassword());
+            hgConfig.setBranchAttribute(hg.getBranch());
+            hgConfig.setAutoUpdate(hg.isAutoUpdate());
+            hgConfig.setFilter(toFilter(crScmMaterial));
+            hgConfig.setInvertFilter(false);
+            hgConfig.setFolder(hg.getDestination());
+            hgConfig.setName(toMaterialName(materialName));
             setCommonMaterialMembers(hgConfig, crScmMaterial);
             setCommonScmMaterialMembers(hgConfig, hg);
             return hgConfig;

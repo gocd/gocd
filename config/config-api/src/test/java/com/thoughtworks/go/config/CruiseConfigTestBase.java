@@ -23,6 +23,8 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
@@ -793,7 +795,7 @@ public abstract class CruiseConfigTestBase {
         svnMaterialConfig.setAutoUpdate(false);
         final MaterialConfig svnMaterialConfigWithAutoUpdate = new SvnMaterialConfig("http://svn_url_2", "username", "password", false);
         svnMaterialConfigWithAutoUpdate.setAutoUpdate(true);
-        final MaterialConfig hgMaterialConfig = new HgMaterialConfig("http://hg_url", null);
+        final MaterialConfig hgMaterialConfig = hg("http://hg_url", null);
         hgMaterialConfig.setAutoUpdate(false);
         final MaterialConfig gitMaterialConfig = git("http://git_url");
         gitMaterialConfig.setAutoUpdate(false);

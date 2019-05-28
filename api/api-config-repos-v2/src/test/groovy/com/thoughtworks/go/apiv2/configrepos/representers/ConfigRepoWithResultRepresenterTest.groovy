@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv2.configrepos.representers
 import com.thoughtworks.go.apiv2.configrepos.ConfigRepoWithResult
 import com.thoughtworks.go.config.PartialConfigParseResult
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.domain.config.Configuration
 import com.thoughtworks.go.domain.materials.Modification
@@ -92,7 +93,7 @@ class ConfigRepoWithResultRepresenterTest {
     c.addNewConfigurationWithValue("foo", "bar", false)
     c.addNewConfigurationWithValue("baz", "quu", false)
 
-    HgMaterialConfig materialConfig = new HgMaterialConfig(TEST_REPO_URL, "")
+    HgMaterialConfig materialConfig = hg(TEST_REPO_URL, "")
     ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
     repo.setConfiguration(c)
 

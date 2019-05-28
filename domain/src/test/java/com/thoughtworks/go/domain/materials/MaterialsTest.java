@@ -24,6 +24,8 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.BuildCommand;
@@ -164,9 +166,9 @@ public class MaterialsTest {
     @Test
     @DisabledOnOs(OS.WINDOWS)
     void shouldFailIfMultipleMaterialsHaveSameFolderNameSet_CaseInSensitive() {
-        HgMaterialConfig materialOne = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialOne = hg("http://url1", null);
         materialOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder"));
-        HgMaterialConfig materialTwo = new HgMaterialConfig("http://url2", null);
+        HgMaterialConfig materialTwo = hg("http://url2", null);
         materialTwo.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "foLder"));
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));

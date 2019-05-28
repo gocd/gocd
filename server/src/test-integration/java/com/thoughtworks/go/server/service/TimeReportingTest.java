@@ -19,6 +19,8 @@ import java.util.Date;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.UpdateConfigFromUI;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -148,7 +150,7 @@ public class TimeReportingTest {
                     pipelineConfig.get(0).getJobs().add(jobConfig);
                 }
                 for (int j = 0; j < numberOfMaterials; j++) {
-                    pipelineConfig.addMaterialConfig(new HgMaterialConfig("url" + j, "dest" + j));
+                    pipelineConfig.addMaterialConfig(hg("url" + j, "dest" + j));
                 }
                 cruiseConfig.addPipeline("group" + i, pipelineConfig);
             }
@@ -171,7 +173,7 @@ public class TimeReportingTest {
                     pipelineConfig.get(0).getJobs().add(jobConfig);
                 }
                 for (int j = 0; j < numberOfMaterials; j++) {
-                    pipelineConfig.addMaterialConfig(new HgMaterialConfig("url" + j, "dest" + j));
+                    pipelineConfig.addMaterialConfig(hg("url" + j, "dest" + j));
                 }
                 cruiseConfig.addPipeline("group" + z, pipelineConfig);
             }

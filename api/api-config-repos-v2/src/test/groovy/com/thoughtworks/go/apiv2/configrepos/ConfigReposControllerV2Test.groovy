@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
 import com.thoughtworks.go.server.domain.Username
@@ -278,8 +279,8 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
     void 'updates an existing repo'() {
       String id = "test-repo"
 
-      ConfigRepoConfig existing = new ConfigRepoConfig(new HgMaterialConfig("https://fakeurl.com", null), TEST_PLUGIN_ID, id)
-      ConfigRepoConfig repoFromRequest = new ConfigRepoConfig(new HgMaterialConfig("https://newfakeurl.com", null), TEST_PLUGIN_ID, id)
+      ConfigRepoConfig existing = new ConfigRepoConfig(hg("https://fakeurl.com", null), TEST_PLUGIN_ID, id)
+      ConfigRepoConfig repoFromRequest = new ConfigRepoConfig(hg("https://newfakeurl.com", null), TEST_PLUGIN_ID, id)
       when(service.getConfigRepo(id)).thenReturn(existing)
       when(entityHashingService.md5ForEntity(existing)).thenReturn('md5')
       when(entityHashingService.md5ForEntity(repoFromRequest)).thenReturn('new_md5')
@@ -324,7 +325,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
       String id = "test-repo"
 
       ConfigRepoConfig existing = repo(id)
-      when(service.getConfigRepo(id)).thenReturn(new ConfigRepoConfig(new HgMaterialConfig(TEST_REPO_URL, ""), TEST_PLUGIN_ID, id) {
+      when(service.getConfigRepo(id)).thenReturn(new ConfigRepoConfig(hg(TEST_REPO_URL, ""), TEST_PLUGIN_ID, id) {
         @Override
         String etag() {
           return "no-match!"
@@ -414,7 +415,7 @@ class ConfigReposControllerV2Test implements SecurityServiceTrait, ControllerTra
   }
 
   static ConfigRepoConfig repo(String id) {
-    return new ConfigRepoConfig(new HgMaterialConfig("${TEST_REPO_URL}/$id", ""), TEST_PLUGIN_ID, id) {
+    return new ConfigRepoConfig(hg("${TEST_REPO_URL}/$id", ""), TEST_PLUGIN_ID, id) {
       @Override
       String etag() {
         return "etag-for-${id}"

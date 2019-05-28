@@ -16,11 +16,12 @@
 
 package com.thoughtworks.go.config.materials.mercurial;
 
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.ConfigAttribute;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.ParamsAttributeAware;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 
 import java.util.Map;
@@ -42,21 +43,6 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
 
     public HgMaterialConfig() {
         super(TYPE);
-    }
-
-    public HgMaterialConfig(String url, String folder) {
-        this();
-        setUrl(url);
-        this.folder = folder;
-    }
-
-    public HgMaterialConfig(HgUrlArgument url, String userName, String password, String branch, boolean autoUpdate,
-                            Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
-        super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
-        this.url = url;
-        this.userName = userName;
-        this.branch = branch;
-        setPassword(password);
     }
 
     @Override

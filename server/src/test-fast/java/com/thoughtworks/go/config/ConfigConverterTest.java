@@ -23,6 +23,8 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
@@ -520,7 +522,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertConfigMaterialWhenConfigRepoIsHgWithWhitelist() {
         // this url would be configured inside xml config-repo section
-        HgMaterialConfig configRepoMaterial = new HgMaterialConfig("url", "folder");
+        HgMaterialConfig configRepoMaterial = hg("url", "folder");
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial(null, null, new CRFilter(filter, true));
 
@@ -539,7 +541,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertConfigMaterialWhenConfigRepoIsHgWithEmptyFilter() {
         // this url would be configured inside xml config-repo section
-        HgMaterialConfig configRepoMaterial = new HgMaterialConfig("url", "folder");
+        HgMaterialConfig configRepoMaterial = hg("url", "folder");
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial(null, null, new CRFilter(new ArrayList<>(), true));
 
@@ -557,7 +559,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertConfigMaterialWhenConfigRepoIsHg() {
         // these parameters would be configured inside xml config-repo section
-        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
+        HgMaterialConfig configRepoMaterial = hg(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", null, null);
 
@@ -574,7 +576,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertConfigMaterialWhenConfigRepoIsHgWithDestination() {
         // these parameters would be configured inside xml config-repo section
-        HgMaterialConfig configRepoMaterial = new HgMaterialConfig(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
+        HgMaterialConfig configRepoMaterial = hg(new HgUrlArgument("url"), null, null, null, true, new Filter(new IgnoredFiles("ignore")), false, "folder", new CaseInsensitiveString("name"));
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial("example", "dest1", null);
 
@@ -1496,7 +1498,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertHgMaterialConfigToCRHgMaterial() {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
+        HgMaterialConfig hgMaterialConfig = hg("url", "folder");
         hgMaterialConfig.setName(new CaseInsensitiveString("name"));
         hgMaterialConfig.setFilter(Filter.create("filter"));
         hgMaterialConfig.setAutoUpdate(true);
@@ -1513,7 +1515,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertHgMaterialConfigToCRHgMaterialWhenPlainPassword() throws CryptoException {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
+        HgMaterialConfig hgMaterialConfig = hg("url", "folder");
         hgMaterialConfig.setName(new CaseInsensitiveString("name"));
         hgMaterialConfig.setFilter(Filter.create("filter"));
         hgMaterialConfig.setAutoUpdate(true);
@@ -1532,7 +1534,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertHgMaterialConfigToCRHgMaterialWhenEncryptedPassword() throws CryptoException {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
+        HgMaterialConfig hgMaterialConfig = hg("url", "folder");
         hgMaterialConfig.setName(new CaseInsensitiveString("name"));
         hgMaterialConfig.setFilter(Filter.create("filter"));
         hgMaterialConfig.setAutoUpdate(true);
@@ -1550,7 +1552,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertHgMaterialConfigWhenNullName() {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", "folder");
+        HgMaterialConfig hgMaterialConfig = hg("url", "folder");
         hgMaterialConfig.setFilter(Filter.create("filter"));
         hgMaterialConfig.setAutoUpdate(true);
 

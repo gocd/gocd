@@ -87,6 +87,34 @@ public class MaterialConfigsMother {
         return gitMaterialConfig;
     }
 
+    public static HgMaterialConfig hg() {
+        return new HgMaterialConfig();
+    }
+
+    public static HgMaterialConfig hg(String url, String folder) {
+        HgMaterialConfig config = hg();
+        config.setUrl(url);
+        config.setFolder(folder);
+        return config;
+    }
+
+    public static HgMaterialConfig hg(HgUrlArgument url, String userName, String password, String branch, boolean autoUpdate,
+                                      Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
+        return hg(url.originalArgument(), userName, password, branch, autoUpdate, filter, invertFilter, folder, name);
+    }
+
+    public static HgMaterialConfig hg(String url, String userName, String password, String branch, boolean autoUpdate,
+                                      Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
+        HgMaterialConfig config = hg(url, folder);
+        config.setUserName(userName);
+        config.setPassword(password);
+        config.setBranchAttribute(branch);
+        config.setAutoUpdate(autoUpdate);
+        config.setFilter(filter);
+        config.setInvertFilter(invertFilter);
+        config.setName(name);
+        return config;
+    }
 
     public static MaterialConfigs defaultMaterialConfigs() {
         return defaultSvnMaterialConfigsWithUrl("http://some/svn/url");
@@ -148,12 +176,12 @@ public class MaterialConfigsMother {
 
     public static HgMaterialConfig hgMaterialConfigFull() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return new HgMaterialConfig(new HgUrlArgument("http://user:pass@domain/path##branch"), null, null, null, true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material"));
+        return hg(new HgUrlArgument("http://user:pass@domain/path##branch"), null, null, null, true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material"));
     }
 
     public static HgMaterialConfig hgMaterialConfigFull(String url) {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return new HgMaterialConfig(new HgUrlArgument(url), null, null, null, true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material"));
+        return hg(new HgUrlArgument(url), null, null, null, true, filter, false, "dest-folder", new CaseInsensitiveString("hg-material"));
     }
 
     public static HgMaterialConfig hgMaterialConfig() {
@@ -165,7 +193,7 @@ public class MaterialConfigsMother {
     }
 
     public static HgMaterialConfig hgMaterialConfig(String url, String folder) {
-        return new HgMaterialConfig(url, folder);
+        return hg(url, folder);
     }
 
     public static GitMaterialConfig gitMaterialConfig(String url, String submoduleFolder, String branch, boolean shallowClone) {
@@ -264,7 +292,7 @@ public class MaterialConfigsMother {
     }
 
     public static HgMaterialConfig hg(String url, String username, String password) {
-        HgMaterialConfig materialConfig = new HgMaterialConfig(url, null);
+        HgMaterialConfig materialConfig = hg(url, null);
         materialConfig.setUserName(username);
         materialConfig.setPassword(password);
         return materialConfig;

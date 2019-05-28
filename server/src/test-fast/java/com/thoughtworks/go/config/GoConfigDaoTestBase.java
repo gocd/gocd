@@ -21,6 +21,8 @@ import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.ConfigFileHasChangedException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.update.ConfigUpdateCheckFailedException;
 import com.thoughtworks.go.domain.NullTask;
 import com.thoughtworks.go.helper.ConfigFileFixture;
@@ -209,7 +211,7 @@ public abstract class GoConfigDaoTestBase {
 
             @Override
             public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("foo"), "#{bar}-${COUNT}", null, false, new MaterialConfigs(new HgMaterialConfig("url", null)),
+                PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("foo"), "#{bar}-${COUNT}", null, false, new MaterialConfigs(hg("url", null)),
                         a(StageConfigMother.custom("stage", "job")));
                 pipelineConfig.addParam(new ParamConfig("bar", "baz"));
                 cruiseConfig.addPipeline("my-group", pipelineConfig);

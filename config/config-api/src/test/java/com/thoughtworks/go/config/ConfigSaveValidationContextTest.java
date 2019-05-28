@@ -18,6 +18,8 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.elastic.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.rules.RulesValidationContext;
 import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
@@ -57,7 +59,7 @@ public class ConfigSaveValidationContextTest {
     @Test
     void shouldReturnAllMaterialsMatchingTheFingerprint() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        HgMaterialConfig hg = new HgMaterialConfig("url", null);
+        HgMaterialConfig hg = hg("url", null);
         for (int i = 0; i < 10; i++) {
             PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline" + i, new MaterialConfigs(hg));
             cruiseConfig.addPipeline("defaultGroup", pipelineConfig);

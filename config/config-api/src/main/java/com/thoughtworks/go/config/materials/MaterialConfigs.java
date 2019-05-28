@@ -301,7 +301,9 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     public HgMaterialConfig getHgMaterial() {
-        return getExistingOrDefaultMaterial(new HgMaterialConfig("", null));
+        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig();
+        hgMaterialConfig.setUrl("");
+        return getExistingOrDefaultMaterial(hgMaterialConfig);
     }
 
     public GitMaterialConfig getGitMaterial() {

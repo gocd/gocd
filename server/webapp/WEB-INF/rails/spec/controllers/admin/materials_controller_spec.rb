@@ -83,7 +83,7 @@ describe Admin::MaterialsController do
       stub_localized_result
       stub_save_for_success
 
-      @pipeline.addMaterialConfig(hg = HgMaterialConfig.new("url", nil))
+      @pipeline.addMaterialConfig(hg = com.thoughtworks.go.helper.MaterialConfigsMother.hg("url", nil))
       expect(@pipeline.materialConfigs().size).to eq(2)
 
       delete :destroy, params:{:stage_parent => "pipelines", :pipeline_name => "pipeline-name", :config_md5 => "1234abcd", :finger_print => @material_config.getPipelineUniqueFingerprint()}

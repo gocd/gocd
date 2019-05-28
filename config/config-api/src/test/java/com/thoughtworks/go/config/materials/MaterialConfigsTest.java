@@ -19,6 +19,8 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
@@ -205,9 +207,9 @@ Above scenario allowed
 
     @Test
     public void shouldFailIfAllScmMaterialsInAPipelineHaveSameFolders() throws IOException {
-        HgMaterialConfig materialOne = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialOne = hg("http://url1", null);
         materialOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder1"));
-        HgMaterialConfig materialTwo = new HgMaterialConfig("http://url2", null);
+        HgMaterialConfig materialTwo = hg("http://url2", null);
         materialTwo.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder1"));
         PluggableSCMMaterialConfig materialThree = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), "folder1", null);
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
@@ -224,9 +226,9 @@ Above scenario allowed
 
     @Test
     public void shouldNotFailIfAllScmMaterialsInAPipelineHaveDifferentFolders() {
-        HgMaterialConfig materialOne = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialOne = hg("http://url1", null);
         materialOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder1"));
-        HgMaterialConfig materialTwo = new HgMaterialConfig("http://url2", null);
+        HgMaterialConfig materialTwo = hg("http://url2", null);
         materialTwo.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder2"));
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
@@ -247,9 +249,9 @@ Above scenario allowed
 
     @Test
     public void shouldFailIfMultipleMaterialsDoNotHaveDestinationFolderSet() {
-        HgMaterialConfig materialConfigOne = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialConfigOne = hg("http://url1", null);
         materialConfigOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder"));
-        HgMaterialConfig materialConfigTwo = new HgMaterialConfig("http://url2", null);
+        HgMaterialConfig materialConfigTwo = hg("http://url2", null);
         PluggableSCMMaterialConfig materialConfigThree = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null);
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
@@ -292,9 +294,9 @@ Above scenario allowed
 
     @Test
     public void shouldNotFailIfMultipleMaterialsHaveUniqueDestinationFolderSet() {
-        HgMaterialConfig materialOne = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialOne = hg("http://url1", null);
         materialOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder"));
-        HgMaterialConfig materialTwo = new HgMaterialConfig("http://url2", null);
+        HgMaterialConfig materialTwo = hg("http://url2", null);
         materialTwo.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder2"));
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
@@ -308,7 +310,7 @@ Above scenario allowed
 
     @Test
     public void shouldCheckSCMMaterialsHaveDestinationCorrectly() {
-        HgMaterialConfig materialConfigOne = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialConfigOne = hg("http://url1", null);
         materialConfigOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder"));
 
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
@@ -325,10 +327,10 @@ Above scenario allowed
 
     @Test
     public void shouldShowAutoUpdateMismatchErrorTwiceWhenMaterialIsAddedToSamePipeline() throws Exception {
-        HgMaterialConfig materialOne = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialOne = hg("http://url1", null);
         materialOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "some-folder"));
         materialOne.setAutoUpdate(true);
-        HgMaterialConfig materialTwo = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialTwo = hg("http://url1", null);
         materialTwo.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "some-folder-2"));
         materialTwo.setAutoUpdate(false);
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
@@ -343,9 +345,9 @@ Above scenario allowed
 
     @Test
     public void shouldNotThrowUpOnMaterialIfAutoUpdateValuesAreCorrect() throws Exception {
-        HgMaterialConfig materialOne = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialOne = hg("http://url1", null);
         materialOne.setAutoUpdate(true);
-        HgMaterialConfig materialTwo = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialTwo = hg("http://url1", null);
         materialTwo.setAutoUpdate(true);
         CruiseConfig config = GoConfigMother.configWithPipelines("one", "two", "three");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
@@ -383,9 +385,9 @@ Above scenario allowed
 
     @Test
     public void shouldAddErrorOnMaterialIfAutoUpdateDoesNotMatchAcrossFingerPrint() throws Exception {
-        HgMaterialConfig materialOne = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialOne = hg("http://url1", null);
         materialOne.setAutoUpdate(false);
-        HgMaterialConfig materialTwo = new HgMaterialConfig("http://url1", null);
+        HgMaterialConfig materialTwo = hg("http://url1", null);
         materialTwo.setAutoUpdate(true);
         CruiseConfig config = GoConfigMother.configWithPipelines("one", "two");
         PipelineConfig pipelineOne = config.pipelineConfigByName(new CaseInsensitiveString("one"));
@@ -476,7 +478,7 @@ Above scenario allowed
     @Test
     public void shouldClearExistingAndSetHgConfigAttributesForMaterial() {
         MaterialConfigs materialConfigs = new MaterialConfigs();
-        materialConfigs.add(new HgMaterialConfig("", null));
+        materialConfigs.add(hg("", null));
         materialConfigs.add(new SvnMaterialConfig("", "", "", false));
 
         Map<String, String> hashMap = new HashMap<>();
@@ -488,7 +490,7 @@ Above scenario allowed
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs.size(), is(1));
-        assertThat(materialConfigs.first(), is(new HgMaterialConfig("foo", null)));
+        assertThat(materialConfigs.first(), is(hg("foo", null)));
     }
 
     @Test
@@ -613,7 +615,7 @@ Above scenario allowed
         svn.setName(new CaseInsensitiveString("mat-name"));
         P4MaterialConfig p4 = new P4MaterialConfig();
         TfsMaterialConfig tfs = new TfsMaterialConfig();
-        HgMaterialConfig hg = new HgMaterialConfig();
+        HgMaterialConfig hg = hg();
         MaterialConfigs materialConfigs = new MaterialConfigs(git, svn, p4, tfs, hg);
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p1"), new MaterialConfigs(svn));

@@ -19,7 +19,9 @@ module Admin::Materials
     private
 
     def load_new_material(cruise_config)
-      assert_load :material, HgMaterialConfig.new("", nil)
+      hgMaterialConfig = HgMaterialConfig.new
+      hgMaterialConfig.setUrl("")
+      assert_load :material, hgMaterialConfig
     end
   end
 end

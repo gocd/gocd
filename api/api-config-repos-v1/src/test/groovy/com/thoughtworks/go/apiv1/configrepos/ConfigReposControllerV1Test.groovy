@@ -18,7 +18,6 @@ package com.thoughtworks.go.apiv1.configrepos
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.materials.PasswordDeserializer
-import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
 import com.thoughtworks.go.server.domain.Username
@@ -34,6 +33,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
 import static org.mockito.Mockito.*
@@ -246,8 +246,8 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
             auto_update: true
           ]
         ],
-        errors : [
-          id : [ "ConfigRepo ids should be unique. A ConfigRepo with the same id already exists." ]
+        errors       : [
+          id: ["ConfigRepo ids should be unique. A ConfigRepo with the same id already exists."]
         ],
         configuration: []
       ]
@@ -277,8 +277,8 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
     void 'updates an existing repo'() {
       String id = "test-repo"
 
-      ConfigRepoConfig existing = new ConfigRepoConfig(new HgMaterialConfig("https://fakeurl.com", null), TEST_PLUGIN_ID, id)
-      ConfigRepoConfig repoFromRequest = new ConfigRepoConfig(new HgMaterialConfig("https://newfakeurl.com", null), TEST_PLUGIN_ID, id)
+      ConfigRepoConfig existing = new ConfigRepoConfig(hg("https://fakeurl.com", null), TEST_PLUGIN_ID, id)
+      ConfigRepoConfig repoFromRequest = new ConfigRepoConfig(hg("https://newfakeurl.com", null), TEST_PLUGIN_ID, id)
       when(service.getConfigRepo(id)).thenReturn(existing)
       when(entityHashingService.md5ForEntity(existing)).thenReturn('md5')
       when(entityHashingService.md5ForEntity(repoFromRequest)).thenReturn('new_md5')
@@ -323,7 +323,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
       String id = "test-repo"
 
       ConfigRepoConfig existing = repo(id)
-      when(service.getConfigRepo(id)).thenReturn(new ConfigRepoConfig(new HgMaterialConfig(TEST_REPO_URL, ""), TEST_PLUGIN_ID, id) {
+      when(service.getConfigRepo(id)).thenReturn(new ConfigRepoConfig(hg(TEST_REPO_URL, ""), TEST_PLUGIN_ID, id) {
         @Override
         String etag() {
           return "no-match!"
@@ -390,7 +390,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
     }
   }
 
-  static Map expectedRepoJson(String id, String url="${TEST_REPO_URL}/$id".toString()) {
+  static Map expectedRepoJson(String id, String url = "${TEST_REPO_URL}/$id".toString()) {
     return [
       _links       : [
         self: [href: "http://test.host/go${Routes.ConfigRepos.id(id)}".toString()],
@@ -413,7 +413,7 @@ class ConfigReposControllerV1Test implements SecurityServiceTrait, ControllerTra
   }
 
   static ConfigRepoConfig repo(String id) {
-    return new ConfigRepoConfig(new HgMaterialConfig("${TEST_REPO_URL}/$id", ""), TEST_PLUGIN_ID, id) {
+    return new ConfigRepoConfig(hg("${TEST_REPO_URL}/$id", ""), TEST_PLUGIN_ID, id) {
       @Override
       String etag() {
         return "etag-for-${id}"

@@ -56,7 +56,7 @@ describe "admin/materials/index.html.erb" do
   end
 
   it "should show can delete material icon with title" do
-      @pipeline_config.addMaterialConfig(HgMaterialConfig.new("url", nil))
+      @pipeline_config.addMaterialConfig(com.thoughtworks.go.helper.MaterialConfigsMother.hg("url", nil))
 
       render
 
@@ -88,7 +88,7 @@ describe "admin/materials/index.html.erb" do
   end
 
   it "should show cannot delete material icon with title when it is used in a label template" do
-    material_config = HgMaterialConfig.new("url", nil)
+    material_config = com.thoughtworks.go.helper.MaterialConfigsMother.hg("url", nil)
     material_config.setName(CaseInsensitiveString.new("some_funky_name"))
     @pipeline_config.addMaterialConfig(material_config)
     @pipeline_config.setLabelTemplate("${COUNT}-${some_funky_name}-and-some-funky-name")
@@ -104,7 +104,7 @@ describe "admin/materials/index.html.erb" do
 
   it "should have new material warning div when scm material does not have dest set" do
     @pipeline_config.materialConfigs().clear()
-    material_config = HgMaterialConfig.new("url", nil)
+    material_config = com.thoughtworks.go.helper.MaterialConfigsMother.hg("url", nil)
     @pipeline_config.addMaterialConfig(material_config)
 
     render

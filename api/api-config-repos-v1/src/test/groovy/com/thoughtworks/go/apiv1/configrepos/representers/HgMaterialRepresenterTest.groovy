@@ -18,6 +18,7 @@ package com.thoughtworks.go.apiv1.configrepos.representers
 import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import com.thoughtworks.go.domain.materials.MaterialConfig
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -31,7 +32,7 @@ class HgMaterialRepresenterTest {
 
   @Test
   void toJSON() {
-    HgMaterialConfig config = new HgMaterialConfig(REPO_URL, null)
+    HgMaterialConfig config = hg(REPO_URL, null)
     String json = toObjectString({ w -> HgMaterialRepresenter.toJSON(w, config) })
 
     assertThatJson(json).isEqualTo([
@@ -51,7 +52,7 @@ class HgMaterialRepresenterTest {
         auto_upate: true
       ])
 
-      MaterialConfig expected = new HgMaterialConfig(REPO_URL, null)
+      MaterialConfig expected = hg(REPO_URL, null)
       assertEquals(expected, HgMaterialRepresenter.fromJSON(json))
     }
 
@@ -63,7 +64,7 @@ class HgMaterialRepresenterTest {
         auto_upate: true
       ])
 
-      MaterialConfig expected = new HgMaterialConfig()
+      MaterialConfig expected = hg()
       assertEquals(expected, HgMaterialRepresenter.fromJSON(json))
     }
 
@@ -74,7 +75,7 @@ class HgMaterialRepresenterTest {
         auto_upate: true
       ])
 
-      MaterialConfig expected = new HgMaterialConfig()
+      MaterialConfig expected = hg()
       assertEquals(expected, HgMaterialRepresenter.fromJSON(json))
     }
   }

@@ -28,7 +28,8 @@ class HgMaterialRepresenter {
     }
 
     public static MaterialConfig fromJSON(JsonReader json) {
-        HgMaterialConfig materialConfig = new HgMaterialConfig(json.optString("url").orElse(null), null);
+        HgMaterialConfig materialConfig = new HgMaterialConfig();
+        json.readStringIfPresent("url", materialConfig::setUrl);
         json.readStringIfPresent("name", materialConfig::setName);
         json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
         return materialConfig;

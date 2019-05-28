@@ -35,6 +35,7 @@ import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
 import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -43,7 +44,7 @@ class HgMaterialConfigTest {
 
     @BeforeEach
     void setUp() {
-        hgMaterialConfig = new HgMaterialConfig("", null);
+        hgMaterialConfig = hg("", null);
     }
 
     @Test
@@ -53,7 +54,7 @@ class HgMaterialConfigTest {
 
     @Test
     void shouldSetConfigAttributes() {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("", null);
+        HgMaterialConfig hgMaterialConfig = hg("", null);
 
         Map<String, String> map = new HashMap<>();
         map.put(HgMaterialConfig.URL, "url");
@@ -73,7 +74,7 @@ class HgMaterialConfigTest {
 
     @Test
     void setConfigAttributes_shouldUpdatePasswordWhenPasswordChangedBooleanChanged() throws Exception {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig();
+        HgMaterialConfig hgMaterialConfig = hg();
         Map<String, String> map = new HashMap<>();
         map.put(HgMaterialConfig.PASSWORD, "secret");
         map.put(HgMaterialConfig.PASSWORD_CHANGED, "1");
@@ -103,31 +104,31 @@ class HgMaterialConfigTest {
 
     @Test
     void validate_shouldEnsureUrlIsNotBlank() {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("", null);
+        HgMaterialConfig hgMaterialConfig = hg("", null);
         hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
         assertThat(hgMaterialConfig.errors().on(HgMaterialConfig.URL)).isEqualTo("URL cannot be blank");
     }
 
     @Test
     void shouldReturnIfAttributeMapIsNull() {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("", null);
+        HgMaterialConfig hgMaterialConfig = hg("", null);
 
         hgMaterialConfig.setConfigAttributes(null);
 
-        assertThat(hgMaterialConfig).isEqualTo(new HgMaterialConfig("", null));
+        assertThat(hgMaterialConfig).isEqualTo(hg("", null));
     }
 
     @Test
     void shouldReturnTheUrl() {
         String url = "git@github.com/my/repo";
-        HgMaterialConfig config = new HgMaterialConfig(url, null);
+        HgMaterialConfig config = hg(url, null);
 
         assertThat(config.getUrl()).isEqualTo(url);
     }
 
     @Test
     void shouldReturnNullIfUrlForMaterialNotSpecified() {
-        HgMaterialConfig config = new HgMaterialConfig();
+        HgMaterialConfig config = hg();
 
         assertThat(config.getUrl()).isNull();
     }
@@ -135,7 +136,7 @@ class HgMaterialConfigTest {
     @Test
     void shouldSetUrlForAMaterial() {
         String url = "git@github.com/my/repo";
-        HgMaterialConfig config = new HgMaterialConfig();
+        HgMaterialConfig config = hg();
 
         config.setUrl(url);
 
@@ -144,7 +145,7 @@ class HgMaterialConfigTest {
 
     @Test
     void shouldHandleNullWhenSettingUrlForAMaterial() {
-        HgMaterialConfig config = new HgMaterialConfig();
+        HgMaterialConfig config = hg();
 
         config.setUrl(null);
 
@@ -155,11 +156,11 @@ class HgMaterialConfigTest {
     class Equals {
         @Test
         void shouldBeEqualIfObjectsHaveSameUrlBranch() {
-            final HgMaterialConfig material_1 = new HgMaterialConfig("http://example.com", "master");
+            final HgMaterialConfig material_1 = hg("http://example.com", "master");
             material_1.setUserName("bob");
             material_1.setBranchAttribute("feature");
 
-            final HgMaterialConfig material_2 = new HgMaterialConfig("http://example.com", "master");
+            final HgMaterialConfig material_2 = hg("http://example.com", "master");
             material_2.setUserName("alice");
             material_2.setBranchAttribute("feature");
 
@@ -171,14 +172,14 @@ class HgMaterialConfigTest {
     class Fingerprint {
         @Test
         void shouldGenerateFingerprintForGivenMaterialUrl() {
-            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("https://bob:pass@github.com/gocd#feature", "dest");
+            HgMaterialConfig hgMaterialConfig = hg("https://bob:pass@github.com/gocd#feature", "dest");
 
             assertThat(hgMaterialConfig.getFingerprint()).isEqualTo("d84d91f37da0367a9bd89fff0d48638f5c1bf993d637735ec26f13c21c23da19");
         }
 
         @Test
         void shouldConsiderBranchWhileGeneratingFingerprint_IfBranchSpecifiedAsAnAttribute() {
-            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("https://bob:pass@github.com/gocd", "dest");
+            HgMaterialConfig hgMaterialConfig = hg("https://bob:pass@github.com/gocd", "dest");
             hgMaterialConfig.setBranchAttribute("feature");
 
             assertThat(hgMaterialConfig.getFingerprint()).isEqualTo("db13278ed2b804fc5664361103bcea3d7f5106879683085caed4311aa4d2f888");
@@ -186,9 +187,9 @@ class HgMaterialConfigTest {
 
         @Test
         void branchInUrlShouldGenerateFingerprintWhichIsOtherFromBranchInAttribute() {
-            HgMaterialConfig hgMaterialConfigWithBranchInUrl = new HgMaterialConfig("https://github.com/gocd#feature", "dest");
+            HgMaterialConfig hgMaterialConfigWithBranchInUrl = hg("https://github.com/gocd#feature", "dest");
 
-            HgMaterialConfig hgMaterialConfigWithBranchAsAttribute = new HgMaterialConfig("https://github.com/gocd", "dest");
+            HgMaterialConfig hgMaterialConfigWithBranchAsAttribute = hg("https://github.com/gocd", "dest");
             hgMaterialConfigWithBranchAsAttribute.setBranchAttribute("feature");
 
             assertThat(hgMaterialConfigWithBranchInUrl.getFingerprint())
@@ -234,7 +235,7 @@ class HgMaterialConfigTest {
 
         @Test
         void shouldEnsureUserNameIsNotProvidedInBothUrlAsWellAsAttributes() {
-            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com", null);
+            HgMaterialConfig hgMaterialConfig = hg("http://bob:pass@example.com", null);
             hgMaterialConfig.setUserName("user");
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
@@ -244,7 +245,7 @@ class HgMaterialConfigTest {
 
         @Test
         void shouldEnsurePasswordIsNotProvidedInBothUrlAsWellAsAttributes() {
-            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com", null);
+            HgMaterialConfig hgMaterialConfig = hg("http://bob:pass@example.com", null);
             hgMaterialConfig.setPassword("pass");
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
@@ -254,7 +255,7 @@ class HgMaterialConfigTest {
 
         @Test
         void shouldIgnoreInvalidUrlForCredentialValidation() {
-            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com##dobule-hash-is-invalid-in-url", null);
+            HgMaterialConfig hgMaterialConfig = hg("http://bob:pass@example.com##dobule-hash-is-invalid-in-url", null);
             hgMaterialConfig.setUserName("user");
             hgMaterialConfig.setPassword("password");
 
@@ -265,7 +266,7 @@ class HgMaterialConfigTest {
 
         @Test
         void shouldBeValidWhenCredentialsAreProvidedOnlyInUrl() {
-            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com", null);
+            HgMaterialConfig hgMaterialConfig = hg("http://bob:pass@example.com", null);
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
@@ -274,7 +275,7 @@ class HgMaterialConfigTest {
 
         @Test
         void shouldBeValidWhenCredentialsAreProvidedOnlyAsAttributes() {
-            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://example.com", null);
+            HgMaterialConfig hgMaterialConfig = hg("http://example.com", null);
             hgMaterialConfig.setUserName("bob");
             hgMaterialConfig.setPassword("badger");
 
@@ -285,7 +286,7 @@ class HgMaterialConfigTest {
 
         @Test
         void shouldEnsureBranchIsNotProvidedInBothUrlAsWellAsAttributes() {
-            HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("http://bob:pass@example.com#some-branch", null);
+            HgMaterialConfig hgMaterialConfig = hg("http://bob:pass@example.com#some-branch", null);
             hgMaterialConfig.setBranchAttribute("branch-in-attribute");
 
             hgMaterialConfig.validate(new ConfigSaveValidationContext(null));
@@ -298,7 +299,7 @@ class HgMaterialConfigTest {
     class ValidateTree {
         @Test
         void shouldCallValidate() {
-            final MaterialConfig materialConfig = spy(new HgMaterialConfig("https://example.repo", null));
+            final MaterialConfig materialConfig = spy(hg("https://example.repo", null));
             final ValidationContext validationContext = mockValidationContextForSecretParams();
 
             materialConfig.validateTree(validationContext);
@@ -308,7 +309,7 @@ class HgMaterialConfigTest {
 
         @Test
         void shouldFailIfSecretConfigCannotBeUsedInPipelineGroupWhereCurrentMaterialIsDefined() {
-            HgMaterialConfig material = new HgMaterialConfig("https://example.repo", null);
+            HgMaterialConfig material = hg("https://example.repo", null);
             material.setUserName("bob");
             material.setPassword("{{SECRET:[secret_config_id][pass]}}");
             final Rules directives = new Rules(new Allow("refer", PIPELINE_GROUP.getType(), "group_2"));
@@ -324,7 +325,7 @@ class HgMaterialConfigTest {
 
         @Test
         void shouldPassIfSecretConfigCanBeReferredInPipelineGroupWhereCurrentMaterialIsDefined() {
-            HgMaterialConfig material = new HgMaterialConfig("https://example.repo", null);
+            HgMaterialConfig material = hg("https://example.repo", null);
             material.setUserName("bob");
             material.setPassword("{{SECRET:[secret_config_id][pass]}}");
             final Rules directives = new Rules(

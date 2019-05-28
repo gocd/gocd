@@ -24,6 +24,8 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -149,7 +151,7 @@ public class BuildCauseProducerServiceTest {
 
     @Test
     public void shouldCheckForModificationsWhenManuallyScheduling() throws Exception {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", null);
+        HgMaterialConfig hgMaterialConfig = hg("url", null);
         HgMaterial hgMaterial = new HgMaterial("url", null);
         SvnMaterial svnMaterial = new SvnMaterial("url", null, null, false);
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", null, null, false);
@@ -207,7 +209,7 @@ public class BuildCauseProducerServiceTest {
     @Test
     public void shouldAllowTriggeringOfPipelineAfterMaterialUpdate() throws Exception {
         HgMaterial hgMaterial = new HgMaterial("url", null);
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", null);
+        HgMaterialConfig hgMaterialConfig = hg("url", null);
 
         pipelineConfig.addMaterialConfig(hgMaterialConfig);
 
@@ -224,7 +226,7 @@ public class BuildCauseProducerServiceTest {
 
     @Test
     public void manualTriggerShouldNotTriggerThePipelineIfMaterialUpdateFailed() throws Exception {
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", null);
+        HgMaterialConfig hgMaterialConfig = hg("url", null);
         HgMaterial hgMaterial = new HgMaterial("url", null);
 
         pipelineConfig.addMaterialConfig(hgMaterialConfig);
@@ -267,7 +269,7 @@ public class BuildCauseProducerServiceTest {
     @Test
     public void shouldScheduleAfterAllMaterialsAreUpdated() throws Exception {
         HgMaterial hgMaterial = new HgMaterial("url", null);
-        HgMaterialConfig hgMaterialConfig = new HgMaterialConfig("url", null);
+        HgMaterialConfig hgMaterialConfig = hg("url", null);
         SvnMaterial svnMaterial = new SvnMaterial("url", null, null, false);
         SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", null, null, false);
         pipelineConfig.addMaterialConfig(hgMaterialConfig);
@@ -364,8 +366,8 @@ public class BuildCauseProducerServiceTest {
     public void shouldUpdateOnlyOnceIfThereAreTwoMaterialsWithSameFingerPrintButDifferentDest() {
         HgMaterial material1 = new HgMaterial("url", null);
         HgMaterial material2 = new HgMaterial("url", null);
-        HgMaterialConfig materialConfig1 = new HgMaterialConfig("url", null);
-        HgMaterialConfig materialConfig2 = new HgMaterialConfig("url", null);
+        HgMaterialConfig materialConfig1 = hg("url", null);
+        HgMaterialConfig materialConfig2 = hg("url", null);
         material1.setFolder("folder1");
         material2.setFolder("folder2");
 
@@ -391,7 +393,7 @@ public class BuildCauseProducerServiceTest {
     @Test
     public void manualTrigger_shouldUpdatePipelineConfigWhenMaterialIsConfigRepo() {
         HgMaterial material1 = new HgMaterial("url", null);
-        HgMaterialConfig materialConfig1 = new HgMaterialConfig("url", null);
+        HgMaterialConfig materialConfig1 = hg("url", null);
 
         pipelineConfig.addMaterialConfig(materialConfig1);
         pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig1, "plug"), "revision1"));
@@ -414,8 +416,8 @@ public class BuildCauseProducerServiceTest {
     @Test
     public void manualTrigger_shouldUpdateJustPipelineConfigNotMaterialsWhenPipelineIsDefinedInConfigRepoAndMDUFlagIsTurnedOff() {
         HgMaterial material1 = new HgMaterial("url", null);
-        HgMaterialConfig materialConfig1 = new HgMaterialConfig("url", null);
-        HgMaterialConfig materialConfig2 = new HgMaterialConfig("url2", null);
+        HgMaterialConfig materialConfig1 = hg("url", null);
+        HgMaterialConfig materialConfig2 = hg("url2", null);
 
         pipelineConfig.addMaterialConfig(materialConfig1);
         pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig2, "plug"), "revision1"));
@@ -440,8 +442,8 @@ public class BuildCauseProducerServiceTest {
     public void manualTrigger_shouldRequestUpdateOfNewMaterials_WhenPipelineConfigInConfigRepo() {
         HgMaterial material1 = new HgMaterial("url", null);
         HgMaterial material2 = new HgMaterial("url2", null);
-        HgMaterialConfig materialConfig1 = new HgMaterialConfig("url", null);
-        HgMaterialConfig materialConfig2 = new HgMaterialConfig("url2", null);
+        HgMaterialConfig materialConfig1 = hg("url", null);
+        HgMaterialConfig materialConfig2 = hg("url2", null);
 
         pipelineConfig.addMaterialConfig(materialConfig1);
         pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(materialConfig1, "plug"), "revision1"));

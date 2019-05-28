@@ -338,7 +338,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      hg_config = HgMaterialConfig.new(com.thoughtworks.go.util.command::HgUrlArgument.new(''), nil, nil, nil, true, nil, false, '/dest/', CaseInsensitiveString.new('!nV@l!d'))
+      hg_config = com.thoughtworks.go.helper.MaterialConfigsMother.hg(com.thoughtworks.go.util.command::HgUrlArgument.new(''), nil, nil, nil, true, nil, false, '/dest/', CaseInsensitiveString.new('!nV@l!d'))
       material_configs = MaterialConfigs.new(hg_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.get(0)

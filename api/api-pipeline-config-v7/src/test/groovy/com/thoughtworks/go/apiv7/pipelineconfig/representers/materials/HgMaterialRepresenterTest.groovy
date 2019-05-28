@@ -26,6 +26,7 @@ import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.util.command.HgUrlArgument
@@ -48,7 +49,7 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   def existingMaterialWithErrors() {
-    def hgConfig = new HgMaterialConfig(new HgUrlArgument(''), null, null, null, true, null, false, '/dest/', new CaseInsensitiveString('!nV@l!d'))
+    def hgConfig = hg(new HgUrlArgument(''), null, null, null, true, null, false, '/dest/', new CaseInsensitiveString('!nV@l!d'))
     def materialConfigs = new MaterialConfigs(hgConfig);
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.get(0)
@@ -71,7 +72,7 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
       ])
 
       def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-      def expected = new HgMaterialConfig("http://funk.com/blank", null)
+      def expected = hg("http://funk.com/blank", null)
       expected.setUserName("user")
       expected.setPassword("password")
       expected.setBranchAttribute("master")
@@ -95,7 +96,7 @@ class HgMaterialRepresenterTest implements MaterialRepresenterTrait {
       ])
 
       def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-      def expected = new HgMaterialConfig("http://funk.com/blank", null)
+      def expected = hg("http://funk.com/blank", null)
       expected.setUserName("user")
       expected.setPassword("password")
       expected.setBranchAttribute("master")

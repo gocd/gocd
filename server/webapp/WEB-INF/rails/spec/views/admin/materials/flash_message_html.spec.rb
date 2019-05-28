@@ -21,7 +21,7 @@ describe "admin/materials/hg/new.html.erb" do
   include GoUtil
 
   before :each do
-    assign(:material, @material = HgMaterialConfig.new("url", nil))
+    assign(:material, @material = com.thoughtworks.go.helper.MaterialConfigsMother.hg("url", nil))
     assign(:cruise_config, @cruise_config = BasicCruiseConfig.new)
     ReflectionUtil.setField(@cruise_config, "md5", "abc")
   end

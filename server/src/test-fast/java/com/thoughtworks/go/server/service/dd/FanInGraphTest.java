@@ -24,6 +24,8 @@ import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import org.junit.Test;
 
@@ -38,7 +40,7 @@ public class FanInGraphTest {
     @Test
     public void shouldConstructAFaninGraph() throws Exception {
         GitMaterialConfig git = git("giturl", "dest");
-        HgMaterialConfig hg = new HgMaterialConfig("hgurl", "dest");
+        HgMaterialConfig hg = hg("hgurl", "dest");
         PipelineConfig p1 = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(git));
         DependencyMaterialConfig p1Dep = new DependencyMaterialConfig(p1.name(), p1.get(0).name());
         PipelineConfig p2 = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(p1Dep));

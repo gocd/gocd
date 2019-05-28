@@ -26,11 +26,11 @@ describe Admin::Materials::HgController do
   it_should_behave_like :material_controller
 
   def new_material
-    HgMaterialConfig.new("", nil)
+    com.thoughtworks.go.helper.MaterialConfigsMother.hg("", nil)
   end
 
   def assert_successful_create
-    hg_material_config = HgMaterialConfig.new("new-url", nil)
+    hg_material_config = com.thoughtworks.go.helper.MaterialConfigsMother.hg("new-url", nil)
     hg_material_config.setName(CaseInsensitiveString.new('new-some-kinda-material'))
     hg_material_config.setConfigAttributes({HgMaterialConfig::FOLDER => "folder"})
     expect(@pipeline.materialConfigs().get(1)).to eq(hg_material_config)

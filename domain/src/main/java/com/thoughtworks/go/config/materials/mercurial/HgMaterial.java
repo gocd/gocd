@@ -91,7 +91,17 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
     @Override
     public MaterialConfig config() {
-        return new HgMaterialConfig(url, userName, getPassword(), branch, autoUpdate, filter, invertFilter, folder, name);
+        HgMaterialConfig hgConfig = new HgMaterialConfig();
+        hgConfig.setUrl(this.url.originalArgument());
+        hgConfig.setUserName(this.userName);
+        hgConfig.setPassword(getPassword());
+        hgConfig.setBranchAttribute(this.branch);
+        hgConfig.setAutoUpdate(this.autoUpdate);
+        hgConfig.setFilter(this.filter);
+        hgConfig.setInvertFilter(this.invertFilter);
+        hgConfig.setFolder(this.folder);
+        hgConfig.setName(this.name);
+        return hgConfig;
     }
 
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {

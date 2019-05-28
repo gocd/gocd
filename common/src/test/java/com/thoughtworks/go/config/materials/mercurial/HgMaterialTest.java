@@ -49,6 +49,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.lang.String.format;
@@ -85,7 +86,7 @@ public class HgMaterialTest {
         void shouldUpdatePasswordFromConfig() {
             assertThat(material.getPassword()).isNull();
 
-            material.updateFromConfig(MaterialConfigsMother.hg("some-url", "bob", "badger"));
+            material.updateFromConfig(hg("some-url", "bob", "badger"));
 
             assertThat(material.getPassword()).isEqualTo("badger");
         }
@@ -535,7 +536,7 @@ public class HgMaterialTest {
     class ConfigToMaterial {
         @Test
         void shouldBuildFromConfigObject() {
-            final HgMaterialConfig materialConfig = new HgMaterialConfig(new HgUrlArgument("http://example.com"), "bob", "pass",
+            final HgMaterialConfig materialConfig = hg(new HgUrlArgument("http://example.com"), "bob", "pass",
                     "feature", true, Filter.create("igrnored"), false, "destination",
                     new CaseInsensitiveString("example"));
 

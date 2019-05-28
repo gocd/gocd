@@ -24,6 +24,8 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
@@ -222,7 +224,7 @@ public class BuildAssignmentServiceIntegrationTest {
         AgentIdentifier instance = agent(AgentMother.localAgent());
         Pipeline pipeline = instanceFactory.createPipelineInstance(evolveConfig, modifyNoFiles(evolveConfig), new DefaultSchedulingContext(DEFAULT_APPROVED_BY), md5, new TimeProvider());
         dbHelper.savePipelineWithStagesAndMaterials(pipeline);
-        evolveConfig.setMaterialConfigs(new MaterialConfigs(new HgMaterialConfig("foo", null)));
+        evolveConfig.setMaterialConfigs(new MaterialConfigs(hg("foo", null)));
         configHelper.removePipeline(CaseInsensitiveString.str(evolveConfig.name()));
         configHelper.addPipeline(evolveConfig);
         buildAssignmentService.onConfigChange(goConfigService.getCurrentConfig());

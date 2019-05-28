@@ -18,6 +18,8 @@ package com.thoughtworks.go.server.materials;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -115,7 +117,7 @@ public class ConfigMaterialUpdateListenerIntegrationTest {
         configHelper.onSetUp();
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
 
-        materialConfig = new HgMaterialConfig(hgRepo.projectRepositoryUrl(), null);
+        materialConfig = hg(hgRepo.projectRepositoryUrl(), null);
         configHelper.addConfigRepo(new ConfigRepoConfig(materialConfig, "gocd-xml"));
 
         logger = mock(MDUPerformanceLogger.class);

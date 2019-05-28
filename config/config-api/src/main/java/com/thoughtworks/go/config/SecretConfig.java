@@ -33,7 +33,7 @@ import static java.util.Objects.isNull;
 @ConfigTag("secretConfig")
 public class SecretConfig extends RuleAwarePluginProfile {
     private List<String> allowedActions = unmodifiableList(asList("refer"));
-    private List<String> allowedTypes = unmodifiableListOf(PIPELINE_GROUP, ENVIRONMENT, TEMPLATE);
+    private List<String> allowedTypes = unmodifiableListOf(PIPELINE_GROUP, ENVIRONMENT);
 
     public SecretConfig() {
         super();

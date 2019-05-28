@@ -354,7 +354,7 @@ class EnvironmentVariableConfigTest {
         }
 
         @Test
-        void shouldCallCanReferForTemplate() {
+        void shouldNotCallCanReferForTemplate() {
             final SecretConfig secretConfig = mock(SecretConfig.class);
             EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
             validationContext.getCruiseConfig().getSecretConfigs().add(secretConfig);
@@ -367,7 +367,7 @@ class EnvironmentVariableConfigTest {
 
             environmentVariableConfig.validateTree(validationContext);
 
-            verify(secretConfig).canRefer(pipelineTemplateConfig.getClass(), "example-env");
+            verify(secretConfig, never()).canRefer(pipelineTemplateConfig.getClass(), "example-env");
         }
     }
 

@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -48,7 +49,7 @@ public class ConfigRepoConfigTest {
     public void validate_shouldNotAllowDisabledAutoUpdate() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
 
-        SvnMaterialConfig svn = new SvnMaterialConfig("url", false);
+        SvnMaterialConfig svn = svn("url", false);
         svn.setAutoUpdate(false);
 
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(svn, "plug");
@@ -93,7 +94,7 @@ public class ConfigRepoConfigTest {
     @Test
     public void validate_shouldCheckUniquenessOfMaterial() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        SvnMaterialConfig svn = new SvnMaterialConfig("url", false);
+        SvnMaterialConfig svn = svn("url", false);
 
         ConfigRepoConfig configRepoConfig1 = new ConfigRepoConfig(svn, "plug", "id_1");
         ConfigRepoConfig configRepoConfig2 = new ConfigRepoConfig(svn, "plug", "id_2");
@@ -157,8 +158,8 @@ public class ConfigRepoConfigTest {
         GoConfigMother mother = new GoConfigMother();
 
         MaterialConfigs materialConfigs = new MaterialConfigs();
-        SvnMaterialConfig svnInConfigRepo = new SvnMaterialConfig("url", false);
-        SvnMaterialConfig svnInPipelineConfig = new SvnMaterialConfig("url", false);
+        SvnMaterialConfig svnInConfigRepo = svn("url", false);
+        SvnMaterialConfig svnInPipelineConfig = svn("url", false);
         svnInConfigRepo.setAutoUpdate(true);
         svnInPipelineConfig.setAutoUpdate(false);
         materialConfigs.add(svnInPipelineConfig);

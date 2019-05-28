@@ -22,7 +22,7 @@ describe "_form.html.erb" do
   include ReflectiveUtil
 
   before(:each) do
-    @material_config = SvnMaterialConfig.new("svn://foo", "loser", "secret", true, "dest")
+    @material_config = com.thoughtworks.go.helper.MaterialConfigsMother.svn("svn://foo", "loser", "secret", true, "dest")
     @material_config.setAutoUpdate(true)
     @material_config.setName(CaseInsensitiveString.new("Svn Material Name"))
     @ignored_file = IgnoredFiles.new("/sugar")

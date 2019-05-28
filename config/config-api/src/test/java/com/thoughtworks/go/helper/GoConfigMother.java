@@ -20,8 +20,6 @@ import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
@@ -42,6 +40,7 @@ import java.util.Arrays;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static java.util.Arrays.asList;
 
 public class GoConfigMother {
@@ -312,7 +311,7 @@ public class GoConfigMother {
         artifactFile.setSource(directoryPath);
         job.artifactConfigs().add(artifactDir);
 
-        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs(new SvnMaterialConfig("file:///foo", null, null, false)), new StageConfig(
+        PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(pipelineName), new MaterialConfigs(svn("file:///foo", null, null, false)), new StageConfig(
                 new CaseInsensitiveString(stageName), new JobConfigs(job)));
         config.addPipeline(BasicPipelineConfigs.DEFAULT_GROUP, pipelineConfig);
         return config;

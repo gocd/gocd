@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.SvnTestRepoWithExternal;

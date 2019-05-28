@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config.materials;
 
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.security.ResetCipher;
@@ -38,7 +39,7 @@ public class PasswordDeserializerTest {
 
     @Test
     public void shouldErrorOutWhenBothPasswordAndEncryptedPasswordAreGivenForDeserialization() throws CryptoException {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         passwordDeserializer.deserialize("password", new GoCipher().encrypt("encryptedPassword"), svnMaterialConfig);
         assertThat(svnMaterialConfig.errors().getAllOn("password"), is(Arrays.asList("You may only specify `password` or `encrypted_password`, not both!")));
@@ -47,7 +48,7 @@ public class PasswordDeserializerTest {
 
     @Test
     public void shouldErrorOutWhenEncryptedPasswordIsInvalid() {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         passwordDeserializer.deserialize(null, "invalidEncryptedPassword", svnMaterialConfig);
         assertThat(svnMaterialConfig.errors().getAllOn("encryptedPassword"), is(Arrays.asList("Encrypted value for password is invalid. This usually happens when the cipher text is invalid.")));
@@ -55,7 +56,7 @@ public class PasswordDeserializerTest {
 
     @Test
     public void shouldEncryptClearTextPasswordSentByUser() throws CryptoException {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         String encrypted = passwordDeserializer.deserialize("password", null, svnMaterialConfig);
         assertThat(encrypted, is(new GoCipher().encrypt("password")));
@@ -64,7 +65,7 @@ public class PasswordDeserializerTest {
     @Test
     public void shouldReturnTheEncryptedPasswordSentByUserIfValid() throws CryptoException {
         String encryptedPassword = new GoCipher().encrypt("password");
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         String encrypted = passwordDeserializer.deserialize(null, encryptedPassword, svnMaterialConfig);
         assertThat(encrypted, is(encryptedPassword));
@@ -72,7 +73,7 @@ public class PasswordDeserializerTest {
 
     @Test
     public void shouldReturnNullIfBothPasswordAndEncryptedPasswordAreNull() {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         String encrypted = passwordDeserializer.deserialize(null, null, svnMaterialConfig);
         assertNull(encrypted);
@@ -80,7 +81,7 @@ public class PasswordDeserializerTest {
 
     @Test
     public void shouldReturnNullIfBothPasswordAndEncryptedPasswordAreBlank() {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         String encrypted = passwordDeserializer.deserialize("", "", svnMaterialConfig);
         assertNull(encrypted);
@@ -88,7 +89,7 @@ public class PasswordDeserializerTest {
 
     @Test
     public void shouldNotValidateEncryptedPasswordIfBlank() {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
         String encrypted = passwordDeserializer.deserialize(null, "", svnMaterialConfig);
         assertNull(encrypted);
@@ -99,7 +100,7 @@ public class PasswordDeserializerTest {
         resetCipher.setupAESCipherFile();
         resetCipher.setupDESCipherFile();
 
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        SvnMaterialConfig svnMaterialConfig = svn();
         PasswordDeserializer passwordDeserializer = new PasswordDeserializer();
 
         String encrypted = passwordDeserializer.deserialize(null, "mvcX9yrQsM4iPgm1tDxN1A==", svnMaterialConfig);

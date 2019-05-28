@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config.remote;
 
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import org.junit.Test;
 
 import static org.junit.Assert.assertThat;
@@ -26,7 +27,7 @@ public class RepoConfigOriginTest {
     @Test
     public void shouldShowDisplayName()
     {
-        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(new ConfigRepoConfig(new SvnMaterialConfig("http://mysvn", false), "myplugin"), "123");
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(new ConfigRepoConfig(svn("http://mysvn", false), "myplugin"), "123");
         assertThat(repoConfigOrigin.displayName(),is("http://mysvn at 123"));
     }
 

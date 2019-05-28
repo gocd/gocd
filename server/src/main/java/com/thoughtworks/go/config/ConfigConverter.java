@@ -429,8 +429,10 @@ public class ConfigConverter {
             return p4MaterialConfig;
         } else if (crScmMaterial instanceof CRSvnMaterial) {
             CRSvnMaterial crSvnMaterial = (CRSvnMaterial) crScmMaterial;
-            SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig(
-                    crSvnMaterial.getUrl(), crSvnMaterial.getUsername(), crSvnMaterial.isCheckExternals(), cipher);
+            SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+            svnMaterialConfig.setUrl(crSvnMaterial.getUrl());
+            svnMaterialConfig.setUserName(crSvnMaterial.getUsername());
+            svnMaterialConfig.setCheckExternals(crSvnMaterial.isCheckExternals());
             setCommonMaterialMembers(svnMaterialConfig, crScmMaterial);
             setCommonScmMaterialMembers(svnMaterialConfig, crSvnMaterial);
             return svnMaterialConfig;

@@ -87,7 +87,12 @@ public class MaterialExpansionService {
 
         List<SvnExternal> urLs = svn(svnMaterialConfig).getAllExternalURLs();
         for (SvnExternal externalUrl : urLs) {
-            SvnMaterialConfig svnMaterial = new SvnMaterialConfig(externalUrl.getURL(), svnMaterialConfig.getUserName(), svnMaterialConfig.getPassword(), true, svnMaterialConfig.folderFor(externalUrl.getFolder()));
+            SvnMaterialConfig svnMaterial = new SvnMaterialConfig();
+            svnMaterial.setUrl(externalUrl.getURL());
+            svnMaterial.setUserName(svnMaterialConfig.getUserName());
+            svnMaterial.setPassword(svnMaterialConfig.getPassword());
+            svnMaterial.setCheckExternals(true);
+            svnMaterial.setFolder(svnMaterialConfig.folderFor(externalUrl.getFolder()));
             svnMaterial.setFilter(svnMaterialConfig.filter());
             expandedMaterials.add(svnMaterial);
         }

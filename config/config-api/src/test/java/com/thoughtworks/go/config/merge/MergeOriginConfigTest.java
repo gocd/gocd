@@ -16,6 +16,7 @@
 package com.thoughtworks.go.config.merge;
 
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -30,7 +31,7 @@ public class MergeOriginConfigTest {
     public void shouldShowDisplayName()
     {
         FileConfigOrigin fileConfigOrigin = new FileConfigOrigin();
-        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(new ConfigRepoConfig(new SvnMaterialConfig("http://mysvn", false), "myplugin"), "123");
+        RepoConfigOrigin repoConfigOrigin = new RepoConfigOrigin(new ConfigRepoConfig(svn("http://mysvn", false), "myplugin"), "123");
         MergeConfigOrigin mergeOrigin = new MergeConfigOrigin(fileConfigOrigin, repoConfigOrigin);
         assertThat(mergeOrigin.displayName(),is("Merged: [ cruise-config.xml; http://mysvn at 123; ]"));
     }

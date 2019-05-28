@@ -16,20 +16,18 @@
 
 package com.thoughtworks.go.config.materials.svn;
 
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.ConfigAttribute;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.ParamsAttributeAware;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
 
 import java.util.Map;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-
 @ConfigTag(value = "svn", label = "Subversion")
-public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordEncrypter, PasswordAwareMaterial {
+public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial {
     @ConfigAttribute(value = ScmMaterialConfig.URL)
     private UrlArgument url;
 
@@ -42,49 +40,7 @@ public class SvnMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     public static final String TYPE = "SvnMaterial";
 
     public SvnMaterialConfig() {
-        this(new GoCipher());
-    }
-
-    private SvnMaterialConfig(GoCipher goCipher) {
-        super(TYPE, goCipher);
-    }
-
-    public SvnMaterialConfig(String url, boolean checkExternals) {
-        this(url, null, null, checkExternals);
-    }
-
-    public SvnMaterialConfig(String url, String userName, String password, boolean checkExternals) {
-        this(url, userName, password, checkExternals, new GoCipher());
-    }
-
-    public SvnMaterialConfig(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
-        this(goCipher);
-        bombIfNull(url, "null url");
-        this.url = new UrlArgument(url);
-        this.userName = userName;
-        setPassword(password);
-        this.checkExternals = checkExternals;
-    }
-
-    public SvnMaterialConfig(String url, String userName, boolean checkExternals, GoCipher goCipher) {
-        this(goCipher);
-        bombIfNull(url, "null url");
-        this.url = new UrlArgument(url);
-        this.userName = userName;
-        this.checkExternals = checkExternals;
-    }
-
-    public SvnMaterialConfig(String url, String userName, String password, boolean checkExternals, String folder) {
-        this(url, userName, password, checkExternals);
-        this.folder = folder;
-    }
-
-    public SvnMaterialConfig(UrlArgument url, String userName, String password, boolean checkExternals, GoCipher goCipher, boolean autoUpdate, Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
-        super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
-        this.url = url;
-        this.userName = userName;
-        this.checkExternals = checkExternals;
-        this.setPassword(password);
+        super(TYPE);
     }
 
     @Override

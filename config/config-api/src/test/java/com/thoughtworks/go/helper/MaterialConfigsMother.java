@@ -116,6 +116,49 @@ public class MaterialConfigsMother {
         return config;
     }
 
+    public static SvnMaterialConfig svn() {
+        return new SvnMaterialConfig();
+    }
+
+    public static SvnMaterialConfig svn(String url, boolean checkExternals) {
+        return svn(url, null, null, checkExternals);
+    }
+
+    public static SvnMaterialConfig svn(String url, String userName, String password, boolean checkExternals) {
+        return svn(url, userName, password, checkExternals, new GoCipher());
+    }
+
+    public static SvnMaterialConfig svn(String url, String userName, String password, boolean checkExternals, String folder) {
+        SvnMaterialConfig svnMaterialConfig = svn(url, userName, password, checkExternals);
+        svnMaterialConfig.setFolder(folder);
+        return svnMaterialConfig;
+    }
+
+    public static SvnMaterialConfig svn(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
+        SvnMaterialConfig svnMaterialConfig = svn();
+        svnMaterialConfig.setUrl(url);
+        svnMaterialConfig.setUserName(userName);
+        svnMaterialConfig.setPassword(password);
+        svnMaterialConfig.setCheckExternals(checkExternals);
+        return svnMaterialConfig;
+    }
+
+    public static SvnMaterialConfig svn(UrlArgument url, String userName, String password, boolean checkExternals,
+                                        GoCipher goCipher, boolean autoUpdate, Filter filter, boolean invertFilter,
+                                        String folder, CaseInsensitiveString name) {
+        SvnMaterialConfig svnMaterialConfig = svn();
+        svnMaterialConfig.setUrl(url.originalArgument());
+        svnMaterialConfig.setUserName(userName);
+        svnMaterialConfig.setPassword(password);
+        svnMaterialConfig.setCheckExternals(checkExternals);
+        svnMaterialConfig.setAutoUpdate(autoUpdate);
+        svnMaterialConfig.setFilter(filter);
+        svnMaterialConfig.setInvertFilter(invertFilter);
+        svnMaterialConfig.setFolder(folder);
+        svnMaterialConfig.setName(name);
+        return svnMaterialConfig;
+    }
+
     public static MaterialConfigs defaultMaterialConfigs() {
         return defaultSvnMaterialConfigsWithUrl("http://some/svn/url");
     }
@@ -248,14 +291,14 @@ public class MaterialConfigsMother {
     }
 
     public static SvnMaterialConfig svnMaterialConfig(String svnUrl, String folder, boolean autoUpdate) {
-        SvnMaterialConfig materialConfig = new SvnMaterialConfig(new UrlArgument(svnUrl), "user", "pass", true, new GoCipher(), autoUpdate, new Filter(new IgnoredFiles("*.doc")), false,
+        SvnMaterialConfig materialConfig = svn(new UrlArgument(svnUrl), "user", "pass", true, new GoCipher(), autoUpdate, new Filter(new IgnoredFiles("*.doc")), false,
                 folder, new CaseInsensitiveString("svn-material"));
         materialConfig.setPassword("pass");
         return materialConfig;
     }
 
     public static SvnMaterialConfig svnMaterialConfig(String svnUrl, String folder, String userName, String password, boolean checkExternals, String filterPattern) {
-        SvnMaterialConfig svnMaterial = new SvnMaterialConfig(svnUrl, userName, password, checkExternals, folder);
+        SvnMaterialConfig svnMaterial = svn(svnUrl, userName, password, checkExternals, folder);
         if (filterPattern != null)
             svnMaterial.setFilter(new Filter(new IgnoredFiles(filterPattern)));
         String name = svnUrl.replaceAll("/", "_");
@@ -271,7 +314,7 @@ public class MaterialConfigsMother {
     }
 
     public static MaterialConfigs mockMaterialConfigs(String url) {
-        return new MaterialConfigs(new SvnMaterialConfig(url, null, null, false));
+        return new MaterialConfigs(svn(url, null, null, false));
     }
 
     public static TfsMaterialConfig tfsMaterialConfig() {

@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.GoConfigWatchList;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.perf.MDUPerformanceLogger;
 import com.thoughtworks.go.server.service.MaintenanceModeService;
@@ -57,7 +58,7 @@ public class MaterialUpdateServiceIntegrationTest {
         HealthStateScope badScope = HealthStateScope.forMaterial(new SvnMaterial("non-existent-url!", "user", "pwd", false));
         serverHealthService.update(ServerHealthState.error("where's the material!", "fubar", HealthStateType.general(badScope)));
 
-        SvnMaterialConfig goodMaterial = new SvnMaterialConfig("good-url!", "user", "pwd", false);
+        SvnMaterialConfig goodMaterial = svn("good-url!", "user", "pwd", false);
         HealthStateScope goodScope = HealthStateScope.forMaterialConfig(goodMaterial);
         serverHealthService.update(ServerHealthState.error("could not update!", "why", HealthStateType.general(goodScope)));
 
@@ -71,7 +72,7 @@ public class MaterialUpdateServiceIntegrationTest {
     }
 
     @Test public void shouldClearServerHealthLogsForMaterialWhereAutoUpdateChanged() throws Exception {
-        SvnMaterialConfig material = new SvnMaterialConfig("non-existent-url!", "user", "pwd2", false);
+        SvnMaterialConfig material = svn("non-existent-url!", "user", "pwd2", false);
         HealthStateScope scope = HealthStateScope.forMaterialConfig(material);
         serverHealthService.update(ServerHealthState.error("where's the material!", "fubar", HealthStateType.general(scope)));
 

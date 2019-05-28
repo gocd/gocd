@@ -19,7 +19,12 @@ module Admin::Materials
     private
 
     def load_new_material(cruise_config)
-      assert_load :material, SvnMaterialConfig.new("", "", "", false)
+      svnMaterialConfig = SvnMaterialConfig.new()
+      svnMaterialConfig.setUrl("")
+      svnMaterialConfig.setUserName("")
+      svnMaterialConfig.setPassword("")
+      svnMaterialConfig.setCheckExternals(false)
+      assert_load :material, svnMaterialConfig
     end
   end
 end

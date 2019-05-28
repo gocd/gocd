@@ -26,7 +26,7 @@ describe "admin/pipelines/new.html.erb" do
     allow(view).to receive(:pipeline_create_path).and_return("create_path")
 
     @pipeline = PipelineConfigMother.createPipelineConfig("", "defaultStage", ["defaultJob"].to_java(java.lang.String))
-    @material_config = SvnMaterialConfig.new("svn://foo", "loser", "secret", true, "dest")
+    @material_config = com.thoughtworks.go.helper.MaterialConfigsMother.svn("svn://foo", "loser", "secret", true, "dest")
     @material_config.setName(CaseInsensitiveString.new("Svn Material Name"))
     @pipeline.materialConfigs().clear()
     @pipeline.addMaterialConfig(@material_config)

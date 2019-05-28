@@ -49,6 +49,7 @@ import java.util.UUID;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -385,7 +386,7 @@ public class GoConfigFileHelper {
     }
 
     public PipelineConfig addPipeline(String pipelineName, String stageName, Subversion repository, String... buildNames) {
-        return addPipeline(pipelineName, stageName, new SvnMaterialConfig(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals()), buildNames);
+        return addPipeline(pipelineName, stageName, svn(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals()), buildNames);
     }
 
     public void updateArtifactRoot(String path) {
@@ -395,7 +396,7 @@ public class GoConfigFileHelper {
     }
 
     public PipelineConfig addPipeline(String pipelineName, String stageName, Subversion repository, Filter filter, String... buildNames) throws Exception {
-        return addPipeline(pipelineName, stageName, new SvnMaterialConfig(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals()), filter, buildNames);
+        return addPipeline(pipelineName, stageName, svn(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals()), filter, buildNames);
     }
 
     private PipelineConfig addPipeline(String pipelineName, String stageName, SvnMaterialConfig svnMaterialConfig, Filter filter,
@@ -554,7 +555,7 @@ public class GoConfigFileHelper {
 
 
     private MaterialConfig invalidSvnMaterialConfig() {
-        return new SvnMaterialConfig("invalid://invalid url", "user", "password", false);
+        return svn("invalid://invalid url", "user", "password", false);
     }
 
     private MaterialConfigs invalidRepositoryMaterialConfigs() {

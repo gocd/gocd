@@ -25,6 +25,7 @@ import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.domain.DefaultSchedulingContext;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
@@ -111,7 +112,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
         svnRepository = new SvnTestRepo(temporaryFolder);
         hgTestRepo = new HgTestRepo("testHgRepo", temporaryFolder);
         repository = new SvnCommand(null, svnRepository.projectRepositoryUrl());
-        svnMaterialConfig = new SvnMaterialConfig(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
+        svnMaterialConfig = svn(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
     }
 
     @After
@@ -183,7 +184,7 @@ public class BuildCauseProducerServiceWithFlipModificationTest {
     }
 
     private SvnMaterialConfig setUpPipelineWithTwoMaterials() throws Exception {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
+        SvnMaterialConfig svnMaterialConfig = svn(repository.getUrl().originalArgument(), repository.getUserName(), repository.getPassword(), repository.isCheckExternals());
         svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "svnDir"));
         MaterialConfigs materialConfigs = new MaterialConfigs(svnMaterialConfig, hgTestRepo.createMaterialConfig("hgDir"));
         mingleConfig = configHelper.addPipeline(PIPELINE_NAME, STAGE_NAME, materialConfigs, "unit", "functional");

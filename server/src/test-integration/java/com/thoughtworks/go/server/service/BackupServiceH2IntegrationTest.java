@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.googlecode.junit.ext.RunIf;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.database.Database;
 import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.helper.MaterialConfigsMother;

@@ -27,6 +27,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.config.Configuration;
@@ -77,7 +78,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     private MaterialConfigConverter materialConfigConverter = new MaterialConfigConverter();
 
     @DataPoint
-    public static MaterialConfig svnMaterialConfig = new SvnMaterialConfig(url("svn-url"), "user", "pass", true, new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("name1"));
+    public static MaterialConfig svnMaterialConfig = svn(url("svn-url"), "user", "pass", true, new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("name1"));
     @DataPoint
     public static MaterialConfig gitMaterialConfig = git(url("git-url"), null, "pass", "branch", "submodule", true, filterFor("*.doc"), false, "folder", cis("gitMaterial"), false);
     @DataPoint

@@ -24,6 +24,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialViewConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;

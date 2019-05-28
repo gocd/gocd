@@ -26,6 +26,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.merge.MergeConfigOrigin;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
@@ -1409,7 +1410,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldAllowAdminInPipelineGroups() throws Exception {
+    void shouldAllowAdminInPipelineGroups() {
         String content = "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                 + "<server artifactsdir='artifacts' >"
                 + "</server>"

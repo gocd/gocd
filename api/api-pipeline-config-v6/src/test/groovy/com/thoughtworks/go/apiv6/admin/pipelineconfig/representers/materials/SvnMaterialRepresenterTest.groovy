@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.util.command.UrlArgument
@@ -46,7 +47,7 @@ class SvnMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   def existingMaterialWithErrors() {
-    def svnConfig = new SvnMaterialConfig(new UrlArgument(''), '', '', true, new GoCipher(), true, null, false, '', new CaseInsensitiveString('!nV@l!d'))
+    def svnConfig = svn(new UrlArgument(''), '', '', true, new GoCipher(), true, null, false, '', new CaseInsensitiveString('!nV@l!d'))
     def materialConfigs = new MaterialConfigs(svnConfig);
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.get(0)

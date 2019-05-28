@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.exceptions.ConfigMergeException;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.parts.XmlPartialConfigProvider;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;

@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv2.configrepos.representers
 import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn
 import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.BeforeEach
@@ -40,7 +41,7 @@ class SvnMaterialRepresenterTest {
 
   @Test
   void toJSON() {
-    SvnMaterialConfig config = new SvnMaterialConfig(REPO_URL, true)
+    SvnMaterialConfig config = svn(REPO_URL, true)
     String json = toObjectString({ w -> new SvnMaterialRepresenter().toJSON(w, config) })
 
     assertThatJson(json).isEqualTo([
@@ -55,7 +56,7 @@ class SvnMaterialRepresenterTest {
   @Test
   void 'toJSON() with auth'() {
     def cipher = new GoCipher()
-    SvnMaterialConfig config = new SvnMaterialConfig(REPO_URL, USER, PASSWORD, false, cipher)
+    SvnMaterialConfig config = svn(REPO_URL, USER, PASSWORD, false, cipher)
 
     String json = toObjectString({ w -> new SvnMaterialRepresenter().toJSON(w, config) })
 
@@ -82,7 +83,7 @@ class SvnMaterialRepresenterTest {
 
     MaterialConfig materialConfig = new SvnMaterialRepresenter().fromJSON(json)
     def goCipher = new GoCipher()
-    SvnMaterialConfig expected = new SvnMaterialConfig(REPO_URL, USER, PASSWORD, false, goCipher)
+    SvnMaterialConfig expected = svn(REPO_URL, USER, PASSWORD, false, goCipher)
 
     assertEquals(expected, materialConfig)
     assertTrue(goCipher.passwordEquals(expected.encryptedPassword, materialConfig.encryptedPassword))

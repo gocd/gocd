@@ -16,7 +16,10 @@
 
 package com.thoughtworks.go.config;
 
+import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
+import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
@@ -203,7 +206,13 @@ class EnvironmentVariableConfigTest {
 
     @Nested
     class validate {
+        private ValidationContext validationContext;
 
+        @BeforeEach
+        void setUp() {
+            validationContext = mock(ValidationContext.class);
+            when(validationContext.getCruiseConfig()).thenReturn(GoConfigMother.defaultCruiseConfig());
+        }
 
         @Test
         void shouldErrorOutOnValidateWhenEncryptedValueIsForceChanged() throws CryptoException {
@@ -240,32 +249,125 @@ class EnvironmentVariableConfigTest {
 
         @Test
         void shouldBeInvalidIfSecretParamContainsANonExistentSecretConfigId() {
-            ValidationContext validationContext = mock(ValidationContext.class);
-            CruiseConfig cruiseConfig = mock(CruiseConfig.class);
             EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
+            CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+            PipelineConfigs group = mock(BasicPipelineConfigs.class);
 
             when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+            when(validationContext.isWithinPipelines()).thenReturn(true);
+            when(validationContext.getPipelineGroup()).thenReturn(group);
             when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs());
 
             environmentVariableConfig.validate(validationContext);
 
             assertThat(environmentVariableConfig.errors()).isNotEmpty();
-            assertThat(environmentVariableConfig.errors().get(EnvironmentVariableConfig.VALUE))
-                    .contains("Secret config with ids `secret_config_id` does not exist.");
+            assertThat(environmentVariableConfig.errors().getAllOn(EnvironmentVariableConfig.VALUE))
+                    .contains("Secret config with ids 'secret_config_id' does not exist.");
         }
 
         @Test
         void shouldBeValidIfSecretParamContainsAExistentSecretConfigId() {
-            ValidationContext validationContext = mock(ValidationContext.class);
-            CruiseConfig cruiseConfig = mock(CruiseConfig.class);
             EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
+            SecretConfig secretConfig = mock(SecretConfig.class);
+            CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+            PipelineConfigs group = mock(BasicPipelineConfigs.class);
 
+            when(secretConfig.getId()).thenReturn("secret_config_id");
+            when(secretConfig.canRefer(any(), any())).thenReturn(true);
             when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
-            when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(new SecretConfig("secret_config_id", "cd.go.secret.file")));
+            when(validationContext.isWithinPipelines()).thenReturn(true);
+            when(validationContext.getPipelineGroup()).thenReturn(group);
+            when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(secretConfig));
+            when(group.getGroup()).thenReturn("example");
 
             environmentVariableConfig.validate(validationContext);
 
             assertThat(environmentVariableConfig.errors()).isEmpty();
+        }
+
+        @Test
+        void shouldCallCanReferForPipelineGroup() {
+            final SecretConfig secretConfig = mock(SecretConfig.class);
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
+            validationContext.getCruiseConfig().getSecretConfigs().add(secretConfig);
+            PipelineConfigs group = mock(BasicPipelineConfigs.class);
+
+            when(validationContext.isWithinPipelines()).thenReturn(true);
+            when(validationContext.getPipelineGroup()).thenReturn(group);
+            when(secretConfig.getId()).thenReturn("secret_config_id");
+            when(group.getGroup()).thenReturn("example");
+
+            environmentVariableConfig.validateTree(validationContext);
+
+            verify(secretConfig).canRefer(group.getClass(), "example");
+        }
+
+        @Test
+        void shouldCallCanReferForMergePipelineGroup() {
+            final SecretConfig secretConfig = mock(SecretConfig.class);
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
+            validationContext.getCruiseConfig().getSecretConfigs().add(secretConfig);
+            PipelineConfigs group = mock(MergePipelineConfigs.class);
+
+            when(validationContext.isWithinPipelines()).thenReturn(true);
+            when(validationContext.getPipelineGroup()).thenReturn(group);
+            when(secretConfig.getId()).thenReturn("secret_config_id");
+            when(group.getGroup()).thenReturn("example");
+
+            environmentVariableConfig.validateTree(validationContext);
+
+            verify(secretConfig).canRefer(group.getClass(), "example");
+        }
+
+        @Test
+        void shouldCallCanReferForEnvironmentConfig() {
+            final SecretConfig secretConfig = mock(SecretConfig.class);
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
+            validationContext.getCruiseConfig().getSecretConfigs().add(secretConfig);
+            EnvironmentConfig environmentConfig = mock(BasicEnvironmentConfig.class);
+
+            when(validationContext.isWithinEnvironment()).thenReturn(true);
+            when(validationContext.getEnvironment()).thenReturn(environmentConfig);
+            when(secretConfig.getId()).thenReturn("secret_config_id");
+            when(environmentConfig.name()).thenReturn(new CaseInsensitiveString("example-env"));
+
+            environmentVariableConfig.validateTree(validationContext);
+
+            verify(secretConfig).canRefer(environmentConfig.getClass(), "example-env");
+        }
+
+        @Test
+        void shouldCallCanReferForMergeEnvironmentConfig() {
+            final SecretConfig secretConfig = mock(SecretConfig.class);
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
+            validationContext.getCruiseConfig().getSecretConfigs().add(secretConfig);
+            EnvironmentConfig environmentConfig = mock(MergeEnvironmentConfig.class);
+
+            when(validationContext.isWithinEnvironment()).thenReturn(true);
+            when(validationContext.getEnvironment()).thenReturn(environmentConfig);
+            when(secretConfig.getId()).thenReturn("secret_config_id");
+            when(environmentConfig.name()).thenReturn(new CaseInsensitiveString("example-env"));
+
+            environmentVariableConfig.validateTree(validationContext);
+
+            verify(secretConfig).canRefer(environmentConfig.getClass(), "example-env");
+        }
+
+        @Test
+        void shouldCallCanReferForTemplate() {
+            final SecretConfig secretConfig = mock(SecretConfig.class);
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
+            validationContext.getCruiseConfig().getSecretConfigs().add(secretConfig);
+            PipelineTemplateConfig pipelineTemplateConfig = mock(PipelineTemplateConfig.class);
+
+            when(validationContext.isWithinTemplates()).thenReturn(true);
+            when(validationContext.getTemplate()).thenReturn(pipelineTemplateConfig);
+            when(secretConfig.getId()).thenReturn("secret_config_id");
+            when(pipelineTemplateConfig.name()).thenReturn(new CaseInsensitiveString("example-env"));
+
+            environmentVariableConfig.validateTree(validationContext);
+
+            verify(secretConfig).canRefer(pipelineTemplateConfig.getClass(), "example-env");
         }
     }
 

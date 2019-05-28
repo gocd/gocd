@@ -42,6 +42,8 @@ public interface ValidationContext {
 
     JobConfig getJob();
 
+    boolean isWithinEnvironment();
+
     PipelineConfigs getPipelineGroup();
 
     PipelineTemplateConfig getTemplate();
@@ -59,6 +61,8 @@ public interface ValidationContext {
     PackageRepository findPackageById(String packageId);
 
     ValidationContext withParent(Validatable validatable);
+
+    EnvironmentConfig getEnvironment();
 
     boolean isValidProfileId(String profileId);
 

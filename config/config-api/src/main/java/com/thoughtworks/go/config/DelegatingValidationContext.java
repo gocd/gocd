@@ -129,4 +129,14 @@ public abstract class DelegatingValidationContext implements ValidationContext {
     public RulesValidationContext getRulesValidationContext() {
         return null;
     }
+
+    @Override
+    public boolean isWithinEnvironment() {
+        return validationContext.isWithinEnvironment();
+    }
+
+    @Override
+    public EnvironmentConfig getEnvironment() {
+        return validationContext.getEnvironment();
+    }
 }

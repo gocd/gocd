@@ -203,12 +203,22 @@ public class ConfigSaveValidationContext implements ValidationContext {
         return hasParentOfType(PipelineConfigs.class);
     }
 
+    @Override
+    public boolean isWithinEnvironment() {
+        return hasParentOfType(EnvironmentConfig.class);
+    }
+
     private <T> boolean hasParentOfType(Class<T> validatable) {
         return getFirstOfType(validatable) != null;
     }
 
     public PipelineConfigs getPipelineGroup() {
         return loadFirstOfType(PipelineConfigs.class);
+    }
+
+    @Override
+    public EnvironmentConfig getEnvironment() {
+        return loadFirstOfType(EnvironmentConfig.class);
     }
 
     @Override

@@ -96,6 +96,11 @@ public class RolesConfigUpdateValidator implements ConfigUpdateValidator {
             }
 
             @Override
+            public boolean isWithinEnvironment() {
+                return false;
+            }
+
+            @Override
             public PipelineConfigs getPipelineGroup() {
                 return null;
             }
@@ -137,6 +142,11 @@ public class RolesConfigUpdateValidator implements ConfigUpdateValidator {
 
             @Override
             public ValidationContext withParent(Validatable validatable) {
+                return null;
+            }
+
+            @Override
+            public EnvironmentConfig getEnvironment() {
                 return null;
             }
 

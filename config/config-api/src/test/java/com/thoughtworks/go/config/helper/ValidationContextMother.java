@@ -90,6 +90,11 @@ public class ValidationContextMother {
         }
 
         @Override
+        public boolean isWithinEnvironment() {
+            return false;
+        }
+
+        @Override
         public PipelineConfigs getPipelineGroup() {
             return null;
         }
@@ -131,6 +136,11 @@ public class ValidationContextMother {
 
         @Override
         public ValidationContext withParent(Validatable validatable) {
+            return null;
+        }
+
+        @Override
+        public EnvironmentConfig getEnvironment() {
             return null;
         }
 

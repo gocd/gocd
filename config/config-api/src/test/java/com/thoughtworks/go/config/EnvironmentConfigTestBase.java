@@ -17,12 +17,15 @@ package com.thoughtworks.go.config;
 
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
+import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
 
 public abstract class EnvironmentConfigTestBase {
     public EnvironmentConfig environmentConfig;
@@ -164,6 +167,21 @@ public abstract class EnvironmentConfigTestBase {
         EnvironmentConfig beforeUpdate = new Cloner().deepClone(environmentConfig);
         environmentConfig.setConfigAttributes(null);
         assertThat(environmentConfig).isEqualTo(beforeUpdate);
+    }
+
+    @Nested
+    class validateTree {
+        @Test
+        void shouldCallValidate() {
+            EnvironmentConfig spy = spy(environmentConfig);
+            ConfigSaveValidationContext validationContext = mock(ConfigSaveValidationContext.class);
+            CruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
+            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+
+            spy.validateTree(validationContext, cruiseConfig);
+
+            verify(spy).validate(validationContext);
+        }
     }
 
     protected static Map<String, String> envVar(String name, String value) {

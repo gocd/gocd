@@ -24,6 +24,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
+import java.nio.file.NoSuchFileException;
 import java.util.Map;
 
 public class ConsoleOutView implements View {
@@ -45,12 +46,8 @@ public class ConsoleOutView implements View {
         try (final PrintWriter writer = response.getWriter()) {
             try {
                 consumer.stream(line -> writer.write(line + "\n"));
-            } catch (IOException e) {
-                if (e instanceof FileNotFoundException) {
-                    response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-                } else {
-                    throw e;
-                }
+            } catch (FileNotFoundException | NoSuchFileException e) {
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             }
         } finally {
             consumer.close();

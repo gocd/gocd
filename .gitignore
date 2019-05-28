@@ -126,13 +126,9 @@ api/api-config-repo-operations-v1/out/
 api/api-config-repo-operations-v1/target/
 api/api-config-repos-v1/config/
 api/api-config-repos-v1/out/
-api/api-dashboard-v2/config/
-api/api-dashboard-v2/logs/
-api/api-dashboard-v2/out/
 api/api-version-v1/out/
 api/api-version-v1/logs/
 api/api-version-v1/target/
-api/api-dashboard-v2/target/
 api/api-dashboard-v3/config/
 api/api-dashboard-v3/out/
 api/api-dashboard-v3/logs/

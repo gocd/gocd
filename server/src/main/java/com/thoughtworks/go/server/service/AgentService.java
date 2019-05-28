@@ -186,38 +186,6 @@ public class AgentService {
                 resourcesToAdd, resourcesToRemove, environmentsToAdd, environmentsToRemove, enable);
     }
 
-    public void enableAgents(Username username, OperationResult operationResult, List<String> uuids) {
-        if (!hasOperatePermission(username, operationResult)) {
-            return;
-        }
-        List<AgentInstance> agents = new ArrayList<>();
-        if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)) {
-            return;
-        }
-        try {
-            agentConfigService.enableAgents(username, agents.toArray((new AgentInstance[0])));
-            operationResult.ok(String.format("Enabled %s agent(s)", uuids.size()));
-        } catch (Exception e) {
-            operationResult.internalServerError("Enabling agents failed:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
-        }
-    }
-
-    public void disableAgents(Username username, OperationResult operationResult, List<String> uuids) {
-        if (!hasOperatePermission(username, operationResult)) {
-            return;
-        }
-        List<AgentInstance> agents = new ArrayList<>();
-        if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)) {
-            return;
-        }
-        try {
-            agentConfigService.disableAgents(username, agents.toArray(new AgentInstance[0]));
-            operationResult.ok(String.format("Disabled %s agent(s)", uuids.size()));
-        } catch (Exception e) {
-            operationResult.internalServerError("Disabling agents failed:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
-        }
-    }
-
     private boolean populateAgentInstancesForUUIDs(OperationResult operationResult, List<String> uuids, List<AgentInstance> agents) {
         for (String uuid : uuids) {
             AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
@@ -251,39 +219,6 @@ public class AgentService {
             operationResult.ok(String.format("Deleted %s agent(s).", agents.size()));
         } catch (Exception e) {
             operationResult.internalServerError("Deleting agents failed:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
-        }
-    }
-
-    public void modifyResources(Username username, HttpOperationResult operationResult, List<String> uuids, List<TriStateSelection> selections) {
-        if (!hasOperatePermission(username, operationResult)) {
-            return;
-        }
-        List<AgentInstance> agents = new ArrayList<>();
-        if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)) {
-            return;
-        }
-        try {
-            agentConfigService.modifyResources(agents.toArray(new AgentInstance[0]), selections, username);
-            operationResult.ok(String.format("Resource(s) modified on %s agent(s)", uuids.size()));
-        } catch (Exception e) {
-            operationResult.notAcceptable("Could not modify resources:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
-        }
-    }
-
-    public void modifyEnvironments(Username username, HttpOperationResult operationResult, List<String> uuids, List<TriStateSelection> selections) {
-        if (!hasOperatePermission(username, operationResult)) {
-            return;
-        }
-        List<AgentInstance> agents = new ArrayList<>();
-        if (!populateAgentInstancesForUUIDs(operationResult, uuids, agents)) {
-            return;
-        }
-
-        try {
-            environmentConfigService.modifyEnvironments(agents, selections);
-            operationResult.ok(String.format("Environment(s) modified on %s agent(s)", uuids.size()));
-        } catch (Exception e) {
-            operationResult.notAcceptable("Could not modify environments:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
         }
     }
 

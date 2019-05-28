@@ -15,7 +15,6 @@
 ##########################GO-LICENSE-END##################################
 
 class Api::AgentsController < Api::ApiController
-  include AgentBulkEditor
   include AuthenticationHelper
 
   before_action :check_user_and_404

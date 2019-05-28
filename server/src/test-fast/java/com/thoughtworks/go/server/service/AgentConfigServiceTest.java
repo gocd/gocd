@@ -19,18 +19,23 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.UpdateConfigCommand;
-import com.thoughtworks.go.config.update.AgentsUpdateCommand;
+import com.thoughtworks.go.config.update.AgentsEntityConfigUpdateCommand;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.util.ReflectionUtil;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TriState;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -40,10 +45,12 @@ public class AgentConfigServiceTest {
 
     private GoConfigService goConfigService;
     private AgentConfigService agentConfigService;
+    private EnvironmentConfigService environmentConfigService;
 
     @Before
     public void setUp() throws Exception {
         goConfigService = mock(GoConfigService.class);
+        environmentConfigService = mock(EnvironmentConfigService.class);
         agentConfigService = new AgentConfigService(goConfigService);
     }
 
@@ -53,15 +60,17 @@ public class AgentConfigServiceTest {
         AgentConfig agentConfig = new AgentConfig(agentId, "remote-host", "50.40.30.20");
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(new AgentIdentifier("remote-host", "50.40.30.20", agentId), AgentRuntimeStatus.Unknown, "cookie", false);
         AgentInstance instance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
-        agentConfigService.enableAgents(Username.ANONYMOUS, instance);
-        shouldPerformCommand(new GoConfigDao.CompositeConfigCommand(new AgentConfigService.AddAgentCommand(agentConfig)));
+        AgentInstances agentInstances = new AgentInstances(null, null, instance);
+        List<String> uuids = Arrays.asList(agentId);
+
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, new HttpLocalizedOperationResult(), uuids, environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
+
+        shouldPerformCommand();
     }
 
-    private void shouldPerformCommand(UpdateConfigCommand command) {
-        ArgumentCaptor<AgentsUpdateCommand> captor = ArgumentCaptor.forClass(AgentsUpdateCommand.class);
+    private void shouldPerformCommand() {
+        ArgumentCaptor<AgentsEntityConfigUpdateCommand> captor = ArgumentCaptor.forClass(AgentsEntityConfigUpdateCommand.class);
         verify(goConfigService).updateConfig(captor.capture(), eq(Username.ANONYMOUS));
-        AgentsUpdateCommand updateCommand = captor.getValue();
-        assertThat(ReflectionUtil.getField(updateCommand, "command"), is(command));
     }
 
     @Test
@@ -75,15 +84,10 @@ public class AgentConfigServiceTest {
         when(goConfigService.hasAgent(fromConfigFile.getUuid())).thenReturn(true);
         when(goConfigService.hasAgent(pending.getUuid())).thenReturn(false);
 
-        agentConfigService.enableAgents(Username.ANONYMOUS, pending, fromConfigFile);
+        AgentInstances agentInstances = new AgentInstances(null, null, fromConfigFile, pending);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, new HttpLocalizedOperationResult(), Arrays.asList(pending.getUuid(), fromConfigFile.getUuid()), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
-        GoConfigDao.CompositeConfigCommand command = new GoConfigDao.CompositeConfigCommand(
-                new AgentConfigService.AddAgentCommand(pending.agentConfig()),
-                new AgentConfigService.UpdateAgentApprovalStatus("UUID2", false));
-        ArgumentCaptor<AgentsUpdateCommand> captor = ArgumentCaptor.forClass(AgentsUpdateCommand.class);
-        verify(goConfigService).updateConfig(captor.capture(), eq(Username.ANONYMOUS));
-        AgentsUpdateCommand updateCommand = captor.getValue();
-        assertThat(ReflectionUtil.getField(updateCommand, "command"), is(command));
+        shouldPerformCommand();
     }
 
     @Test
@@ -94,7 +98,10 @@ public class AgentConfigServiceTest {
         AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), null);
         when(goConfigService.currentCruiseConfig()).thenReturn(mock(CruiseConfig.class));
         when(goConfigService.hasAgent(agentConfig.getUuid())).thenReturn(true);
-        agentConfigService.enableAgents(Username.ANONYMOUS, instance);
-        shouldPerformCommand(new GoConfigDao.CompositeConfigCommand((UpdateConfigCommand) new AgentConfigService.UpdateAgentApprovalStatus(agentId, false)));
+
+        AgentInstances agentInstances = new AgentInstances(null, null, instance);
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, new HttpLocalizedOperationResult(), Arrays.asList(instance.getUuid()), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
+
+        shouldPerformCommand();
     }
 }

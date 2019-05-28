@@ -73,10 +73,6 @@ public class AgentConfigService {
         goConfigService.register(agentChangeListener);
     }
 
-    public void enableAgents(Username currentUser, AgentInstance... agentInstance) {
-        disableAgents(false, currentUser, agentInstance);
-    }
-
     public void disableAgents(Username currentUser, AgentInstance... agentInstance) {
         disableAgents(true, currentUser, agentInstance);
     }

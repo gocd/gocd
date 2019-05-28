@@ -1420,7 +1420,7 @@ public class GoConfigMigrationIntegrationTest {
     }
 
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
-        assertThat(actual.replaceAll("\\r", "")).isEqualTo(expected.replaceAll("\\r", ""));
+        assertThat(actual.replaceAll("\\r", "").trim()).isEqualTo(expected.replaceAll("\\r", "").trim());
     }
 
     @Test

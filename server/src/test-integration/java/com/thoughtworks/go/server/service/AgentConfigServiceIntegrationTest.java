@@ -54,10 +54,14 @@ import static org.junit.Assert.*;
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class AgentConfigServiceIntegrationTest {
-    @Autowired private AgentConfigService agentConfigService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private EnvironmentConfigService environmentConfigService;
+    @Autowired
+    private AgentConfigService agentConfigService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private EnvironmentConfigService environmentConfigService;
     private GoConfigFileHelper configHelper;
     private AgentInstances agentInstances;
 
@@ -209,7 +213,10 @@ public class AgentConfigServiceIntegrationTest {
         assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled(), is(true));
         assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled(), is(true));
 
-        agentConfigService.enableAgents(Username.ANONYMOUS, fromConfigFile1, fromConfigFile2);
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        AgentInstances agentInstances = new AgentInstances(null, null, fromConfigFile1, fromConfigFile2);
+        List<String> uuids = Arrays.asList(fromConfigFile1.getUuid(), fromConfigFile2.getUuid());
+        agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, operationResult, uuids, environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
         cruiseConfig = goConfigDao.load();
         assertThat(cruiseConfig.agents().getAgentByUuid(agentConfig1.getUuid()).isDisabled(), is(false));

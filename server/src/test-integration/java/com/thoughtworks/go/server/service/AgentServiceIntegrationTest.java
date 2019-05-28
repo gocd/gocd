@@ -61,6 +61,7 @@ import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -69,16 +70,26 @@ import static org.mockito.Mockito.*;
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class AgentServiceIntegrationTest {
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private AgentConfigService agentConfigService;
-    @Autowired private EnvironmentConfigService environmentConfigService;
-    @Autowired private AgentService agentService;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private CachedGoConfig cachedGoConfig;
-    @Autowired private SecurityService securityService;
-    @Autowired private ServerHealthService serverHealthService;
-    @Autowired private AgentDao agentDao;
-    @Autowired private ConfigRepository configRepository;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private AgentConfigService agentConfigService;
+    @Autowired
+    private EnvironmentConfigService environmentConfigService;
+    @Autowired
+    private AgentService agentService;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private CachedGoConfig cachedGoConfig;
+    @Autowired
+    private SecurityService securityService;
+    @Autowired
+    private ServerHealthService serverHealthService;
+    @Autowired
+    private AgentDao agentDao;
+    @Autowired
+    private ConfigRepository configRepository;
 
     private static final GoConfigFileHelper CONFIG_HELPER = new GoConfigFileHelper();
     private static final String UUID = "uuid";
@@ -113,16 +124,15 @@ public class AgentServiceIntegrationTest {
         createEnabledAgent(UUID);
         createEnabledAgent(UUID2);
 
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.modifyResources(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Arrays.asList(new TriStateSelection("old-resource", TriStateSelection.Action.add),
-                new TriStateSelection("new-resource", TriStateSelection.Action.add)));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentConfigService.bulkUpdateAgentAttributes(agentService.agents(), USERNAME, operationResult, Arrays.asList(UUID, UUID2), environmentConfigService, Arrays.asList("old-resource", "new-resource"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Resource(s) modified on 2 agent(s)"));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(),hasItem(new ResourceConfig("old-resource")));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(),hasItem(new ResourceConfig("new-resource")));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(),hasItem(new ResourceConfig("old-resource")));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(),hasItem(new ResourceConfig("new-resource")));
+        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
+        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("old-resource")));
+        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("new-resource")));
+        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("old-resource")));
+        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("new-resource")));
     }
 
     @Test
@@ -132,13 +142,11 @@ public class AgentServiceIntegrationTest {
         createEnabledAgent(UUID);
         createEnabledAgent(UUID2);
 
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.modifyEnvironments(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Arrays.asList(
-                new TriStateSelection("uat", TriStateSelection.Action.add),
-                new TriStateSelection("prod", TriStateSelection.Action.add)));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentConfigService.bulkUpdateAgentAttributes(agentService.agents(), USERNAME, operationResult, Arrays.asList(UUID, UUID2), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Arrays.asList("uat", "prod"), Collections.emptyList(), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Environment(s) modified on 2 agent(s)"));
+        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
         assertThat(environmentConfigService.environmentsFor(UUID), containsSet("uat", "prod"));
         assertThat(environmentConfigService.environmentsFor(UUID2), containsSet("uat", "prod"));
     }
@@ -152,9 +160,8 @@ public class AgentServiceIntegrationTest {
 
         CONFIG_HELPER.addAgentToEnvironment("uat", UUID);
 
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.modifyEnvironments(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Arrays.asList(
-                new TriStateSelection("uat", TriStateSelection.Action.add)));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentConfigService.bulkUpdateAgentAttributes(agentService.agents(), USERNAME, operationResult, Arrays.asList(UUID, UUID2), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Arrays.asList("uat"), Collections.emptyList(), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(200));
         assertThat(environmentConfigService.environmentsFor(UUID), containsSet("uat"));
@@ -171,13 +178,11 @@ public class AgentServiceIntegrationTest {
         addAgentToEnv("uat", UUID);
         addAgentToEnv("prod", UUID2);
 
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.modifyEnvironments(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Arrays.asList(
-                new TriStateSelection("uat", TriStateSelection.Action.remove),
-                new TriStateSelection("prod", TriStateSelection.Action.nochange)));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentConfigService.bulkUpdateAgentAttributes(agentService.agents(), USERNAME, operationResult, Arrays.asList(UUID, UUID2), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList("uat"), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Environment(s) modified on 2 agent(s)"));
+        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
         assertThat(environmentConfigService.environmentsFor(UUID2), not(containsSet("uat")));
         assertThat(environmentConfigService.environmentsFor(UUID2), containsSet("prod"));
     }
@@ -190,12 +195,11 @@ public class AgentServiceIntegrationTest {
         addAgentToEnv("uat", UUID);
         addAgentToEnv("prod", UUID);
 
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.modifyEnvironments(USERNAME, operationResult, Arrays.asList(UUID), Arrays.asList(
-                new TriStateSelection("uat", TriStateSelection.Action.remove)));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentConfigService.bulkUpdateAgentAttributes(agentService.agents(), USERNAME, operationResult, Arrays.asList(UUID), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList("uat"), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Environment(s) modified on 1 agent(s)"));
+        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid]."));
         assertThat(environmentConfigService.environmentsFor(UUID), not(containsSet("uat")));
         assertThat(environmentConfigService.environmentsFor(UUID), containsSet("prod"));
     }
@@ -205,17 +209,17 @@ public class AgentServiceIntegrationTest {
 
         createEnabledAgent(UUID);
 
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.modifyEnvironments(USERNAME, operationResult, Arrays.asList(UUID), Arrays.asList(
-                new TriStateSelection("unknown_env", TriStateSelection.Action.add)));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentConfigService.bulkUpdateAgentAttributes(agentService.agents(), USERNAME, operationResult, Arrays.asList(UUID), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Arrays.asList("unknown_env"), Collections.emptyList(), TriState.TRUE);
 
-        assertThat(operationResult.httpCode(), is(406));
-        assertThat(operationResult.message(), containsString("Could not modify environments:"));
+        assertThat(operationResult.httpCode(), is(400));
+        assertThat(operationResult.message(), containsString("Environment with name 'unknown_env' was not found!"));
     }
 
     private TypeSafeMatcher<Set<String>> containsSet(final String... items) {
         return new TypeSafeMatcher<Set<String>>() {
-            @Override public boolean matchesSafely(Set<String> item) {
+            @Override
+            public boolean matchesSafely(Set<String> item) {
                 return item.containsAll(Arrays.asList(items));
             }
 
@@ -227,12 +231,14 @@ public class AgentServiceIntegrationTest {
 
     @Test
     public void shouldNotAllowUpdatingEnvironmentsWhenNotAdmin() throws IOException {
-        HttpOperationResult operationResult = new HttpOperationResult();
         CONFIG_HELPER.enableSecurity();
         CONFIG_HELPER.addAdmins("admin1");
-        agentService.modifyEnvironments(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(UUID), Arrays.asList(new TriStateSelection("uat", TriStateSelection.Action.remove)));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList("uat"), TriState.TRUE);
+
         assertThat(operationResult.httpCode(), is(403));
-        assertThat(operationResult.message(), is("Unauthorized to operate on agent"));
+        assertThat(operationResult.message(), is("Unauthorized to edit."));
     }
 
     @Test
@@ -240,18 +246,15 @@ public class AgentServiceIntegrationTest {
         createEnabledAgent(UUID);
         createEnabledAgent(UUID2);
 
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.modifyResources(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Arrays.asList(new TriStateSelection("resource-1", TriStateSelection.Action.add),
-                new TriStateSelection("resource-2", TriStateSelection.Action.add)));
-
-        agentService.modifyResources(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Arrays.asList(new TriStateSelection("resource-1", TriStateSelection.Action.remove)));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Arrays.asList("resource-2"), Arrays.asList("resource-1"), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Resource(s) modified on 2 agent(s)"));
+        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
         assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("resource-2")));
         assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(), not(hasItem(new ResourceConfig("resource-1"))));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(),hasItem(new ResourceConfig("resource-2")));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(),not(hasItem(new ResourceConfig("resource-1"))));
+        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("resource-2")));
+        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(), not(hasItem(new ResourceConfig("resource-1"))));
 
     }
 
@@ -276,15 +279,13 @@ public class AgentServiceIntegrationTest {
         createEnabledAgent(UUID);
         createEnabledAgent(UUID2);
 
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.modifyResources(USERNAME, operationResult, Arrays.asList(UUID), Arrays.asList(new TriStateSelection("resource-1", TriStateSelection.Action.add)));
-
-        agentService.modifyResources(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Arrays.asList(new TriStateSelection("resource-1", TriStateSelection.Action.nochange)));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), Arrays.asList("resource-1"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Resource(s) modified on 2 agent(s)"));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(),hasItem(new ResourceConfig("resource-1")));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(),not(hasItem(new ResourceConfig("resource-1"))));
+        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid]."));
+        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("resource-1")));
+        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(), not(hasItem(new ResourceConfig("resource-1"))));
     }
 
     private void addAgentToEnv(String uat, String uatAgentUuid) throws Exception {
@@ -325,7 +326,8 @@ public class AgentServiceIntegrationTest {
             assertThat(e.getMessage(), is(format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString())));
         }
         agents = agentService.findRegisteredAgents();
-        assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));AgentIdentifier agentIdentifier = instance.agentConfig().getAgentIdentifier();
+        assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
+        AgentIdentifier agentIdentifier = instance.agentConfig().getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
         agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false));
     }
@@ -337,7 +339,7 @@ public class AgentServiceIntegrationTest {
 
         Date date = new Date(70, 1, 1, 1, 1, 1);
         AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
-        ((AgentRuntimeInfo)ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
+        ((AgentRuntimeInfo) ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
         EmailSender mailSender = mock(EmailSender.class);
         AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender, agentStatusChangeNotifier());
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
@@ -356,7 +358,7 @@ public class AgentServiceIntegrationTest {
 
         Date date = new Date(70, 1, 1, 1, 1, 1);
         AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
-        ((AgentRuntimeInfo)ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
+        ((AgentRuntimeInfo) ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
         EmailSender mailSender = mock(EmailSender.class);
         AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender, agentStatusChangeNotifier());
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
@@ -462,10 +464,13 @@ public class AgentServiceIntegrationTest {
 
         String uuid = pending.getUuid();
 
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.disableAgents(USERNAME, operationResult, Arrays.asList(uuid));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(uuid), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
+
         assertAgentDisablingSucceeded(operationResult, uuid);
+
         Agents agents = agentConfigService.agents();
+
         assertThat(agentService.agents().size(), is(1));
         assertThat(agents.size(), is(1));
         assertThat(agents.get(0).isDisabled(), is(true));
@@ -480,17 +485,19 @@ public class AgentServiceIntegrationTest {
         assertThat(cruiseConfig.agents().get(0).isDisabled(), is(false));
 
         agentService.initialize();
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.disableAgents(USERNAME, operationResult, Arrays.asList(UUID));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
 
         CruiseConfig newCruiseConfig = goConfigDao.load();
+
         assertThat(newCruiseConfig.agents().get(0).isDisabled(), is(true));
         assertAgentDisablingSucceeded(operationResult, UUID);
     }
 
-    private void assertAgentDisablingSucceeded(HttpOperationResult operationResult, String uuid) {
+    private void assertAgentDisablingSucceeded(HttpLocalizedOperationResult operationResult, String uuid) {
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is(String.format("Disabled 1 agent(s)", uuid)));
+        assertThat(operationResult.message(), is(String.format("Updated agent(s) with uuid(s): [%s].", uuid)));
     }
 
     @Test
@@ -502,9 +509,12 @@ public class AgentServiceIntegrationTest {
         assertThat(cruiseConfig.agents().getAgentByUuid(UUID2).isDisabled(), is(false));
 
         agentService.initialize();
-        agentService.disableAgents(USERNAME, new HttpOperationResult(), Arrays.asList(UUID2));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID2), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
 
         CruiseConfig newCruiseConfig = goConfigDao.load();
+
         assertThat(newCruiseConfig.agents().getAgentByUuid(UUID).isDisabled(), is(false));
         assertThat(newCruiseConfig.agents().getAgentByUuid(UUID2).isDisabled(), is(true));
     }
@@ -521,8 +531,10 @@ public class AgentServiceIntegrationTest {
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
 
         agentService.updateRuntimeInfo(agentRuntimeInfo);
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.disableAgents(USERNAME, operationResult, Arrays.asList(agentId));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(agentId), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
+
         assertAgentDisablingSucceeded(operationResult, agentId);
     }
 
@@ -533,42 +545,50 @@ public class AgentServiceIntegrationTest {
         AgentConfig agentConfig = new AgentConfig(agentId, agentName, "127.0.0.9");
         addAgent(agentConfig);
         disable(agentConfig);
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.disableAgents(USERNAME, operationResult, Arrays.asList(agentId));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(agentId), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
+
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Disabled 1 agent(s)"));
+        assertThat(operationResult.message(), is(String.format("Updated agent(s) with uuid(s): [%s].", agentId)));
     }
 
     @Test
     public void shouldSetErrorState404OnTryingToDisableUnknownAgent() {
         // pending matches this as well
         String agentId = "unknown-agent-id";
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.disableAgents(USERNAME, operationResult, Arrays.asList(agentId));
-        assertThat(operationResult.httpCode(), is(404));
-        assertThat(operationResult.message(), is("Agent not found."));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(agentId), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
+
+        assertThat(operationResult.httpCode(), is(400));
+        assertThat(operationResult.message(), is("Agents with uuids 'unknown-agent-id' were not found!"));
     }
 
     @Test
     public void shouldNotAllowDisablingAgentWhenNotAdmin() throws IOException {
         String agentId = "agent-id";
-        HttpOperationResult operationResult = new HttpOperationResult();
         CONFIG_HELPER.enableSecurity();
         CONFIG_HELPER.addAdmins("admin1");
-        agentService.disableAgents(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(agentId));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(agentId), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
+
         assertThat(operationResult.httpCode(), is(403));
-        assertThat(operationResult.message(), is("Unauthorized to operate on agent"));
+        assertThat(operationResult.message(), is("Unauthorized to edit."));
     }
 
     @Test
     public void shouldNotAllowAddingResourcesWhenNotAdmin() throws IOException {
         String agentId = "agent-id";
         CONFIG_HELPER.enableSecurity();
-        HttpOperationResult operationResult = new HttpOperationResult();
         CONFIG_HELPER.addAdmins("admin1");
-        agentService.modifyResources(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(agentId), Arrays.asList(new TriStateSelection("dont-care", TriStateSelection.Action.add)));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(agentId), Arrays.asList("dont-care"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.UNSET);
+
         assertThat(operationResult.httpCode(), is(403));
-        assertThat(operationResult.message(), is("Unauthorized to operate on agent"));
+        assertThat(operationResult.message(), is("Unauthorized to edit."));
     }
 
     @Test
@@ -579,10 +599,12 @@ public class AgentServiceIntegrationTest {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
         agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.disableAgents(USERNAME, operationResult, Arrays.asList(agentId));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(agentId), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
+
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Disabled 1 agent(s)"));
+        assertThat(operationResult.message(), is(String.format("Updated agent(s) with uuid(s): [%s].", agentId)));
     }
 
     @Test
@@ -593,10 +615,12 @@ public class AgentServiceIntegrationTest {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
         agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.enableAgents(USERNAME, operationResult, Arrays.asList(agentId));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(agentId), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
+
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Enabled 1 agent(s)"));
+        assertThat(operationResult.message(), is(String.format("Updated agent(s) with uuid(s): [%s].", agentId)));
     }
 
     @Test
@@ -606,60 +630,66 @@ public class AgentServiceIntegrationTest {
         AgentConfig agentConfig = new AgentConfig(agentId, agentName, "127.0.0.9");
         addAgent(agentConfig);
         disable(agentConfig);
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.enableAgents(USERNAME, operationResult, Arrays.asList(agentId));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(agentId), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
+
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Enabled 1 agent(s)"));
-        assertThat(isDisabled(agentConfig),is(false));
+        assertThat(operationResult.message(), is(String.format("Updated agent(s) with uuid(s): [%s].", agentId)));
+        assertThat(isDisabled(agentConfig), is(false));
     }
 
     @Test
     public void shouldEnableMultipleAgents() {
         AgentConfig agentConfig1 = createDisabledAgent(UUID);
         AgentConfig agentConfig2 = createDisabledAgent(UUID2);
-        HttpOperationResult operationResult = new HttpOperationResult();
 
-        agentService.enableAgents(USERNAME, operationResult, Arrays.asList(UUID, UUID2));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID,UUID2), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(isDisabled(agentConfig1),is(false));
-        assertThat(isDisabled(agentConfig2),is(false));
-        assertThat(operationResult.message(), containsString("Enabled 2 agent(s)"));
+        assertThat(isDisabled(agentConfig1), is(false));
+        assertThat(isDisabled(agentConfig2), is(false));
+        assertThat(operationResult.message(), containsString("Updated agent(s) with uuid(s): [uuid, uuid2]."));
     }
 
     @Test
     public void shouldDisableMultipleAgents() {
         AgentConfig agentConfig1 = createEnabledAgent(UUID);
         AgentConfig agentConfig2 = createEnabledAgent(UUID2);
-        HttpOperationResult operationResult = new HttpOperationResult();
 
-        agentService.disableAgents(USERNAME, operationResult, Arrays.asList(UUID, UUID2));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID,UUID2), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
 
         assertThat(operationResult.httpCode(), is(200));
         assertThat(isDisabled(agentConfig1), is(true));
-        assertThat(isDisabled(agentConfig2),is(true));
-        assertThat(operationResult.message(), containsString("Disabled 2 agent(s)"));
+        assertThat(isDisabled(agentConfig2), is(true));
+        assertThat(operationResult.message(), containsString("Updated agent(s) with uuid(s): [uuid, uuid2]."));
     }
 
     @Test
     public void shouldReturn403WhenAUnauthorizedUserTriesToEnable() throws IOException {
         String agentId = "agent-id";
         CONFIG_HELPER.enableSecurity();
-        HttpOperationResult operationResult = new HttpOperationResult();
         CONFIG_HELPER.addAdmins("admin1");
-        agentService.enableAgents(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(agentId));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(new Username(new CaseInsensitiveString("not-admin")), operationResult, Arrays.asList(agentId), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
+
         assertThat(operationResult.httpCode(), is(403));
-        assertThat(operationResult.message(), is("Unauthorized to operate on agent"));
+        assertThat(operationResult.message(), is("Unauthorized to edit."));
     }
 
     @Test
     public void shouldReturn404WhenAgentUUIDNotKnown() {
         // pending matches that as well
         String agentId = "unknown-agent-id";
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.enableAgents(USERNAME, operationResult, Arrays.asList(agentId));
-        assertThat(operationResult.httpCode(), is(404));
-        assertThat(operationResult.message(), is("Agent not found."));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(agentId), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
+
+        assertThat(operationResult.httpCode(), is(400));
+        assertThat(operationResult.message(), is("Agents with uuids 'unknown-agent-id' were not found!"));
     }
 
     @Test
@@ -668,10 +698,12 @@ public class AgentServiceIntegrationTest {
         String agentId = DatabaseAccessHelper.AGENT_UUID;
         AgentConfig agentConfig = new AgentConfig(agentId, agentName, "127.0.0.9");
         addAgent(agentConfig);
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.enableAgents(USERNAME, operationResult, Arrays.asList(agentId));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(agentId), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
+
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Enabled 1 agent(s)"));
+        assertThat(operationResult.message(), is(String.format("Updated agent(s) with uuid(s): [%s].", agentId)));
     }
 
     @Test
@@ -910,11 +942,9 @@ public class AgentServiceIntegrationTest {
         createEnvironment("a", "b", "c", "d", "e");
         createEnabledAgent(UUID);
 
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.modifyEnvironments(USERNAME, operationResult, Arrays.asList(UUID), Arrays.asList(
-                new TriStateSelection("a", TriStateSelection.Action.add),
-                new TriStateSelection("b", TriStateSelection.Action.add),
-                new TriStateSelection("c", TriStateSelection.Action.add)));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), Collections.emptyList(), Collections.emptyList(), Arrays.asList("a","b","c"), Collections.emptyList(), TriState.UNSET);
+
         assertThat(operationResult.httpCode(), is(200));
 
         goConfigDao.load();
@@ -922,11 +952,11 @@ public class AgentServiceIntegrationTest {
         assertThat(agentService.agents().size(), is(1));
         assertThat(getFirstAgent().getResourceConfigs(), is(empty()));
 
-        operationResult = new HttpOperationResult();
-        agentService.updateAgentAttributes(USERNAME, operationResult, UUID, null, null, "c,d,e", TriState.UNSET);
+        HttpOperationResult operationResult1 = new HttpOperationResult();
+        agentService.updateAgentAttributes(USERNAME, operationResult1, UUID, null, null, "c,d,e", TriState.UNSET);
 
-        assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Updated agent with uuid uuid."));
+        assertThat(operationResult1.httpCode(), is(200));
+        assertThat(operationResult1.message(), is("Updated agent with uuid uuid."));
 
         assertThat(agentService.agents().size(), is(1));
         assertThat(getEnvironments(getFirstAgent().getUuid()).equals(new HashSet<>(Arrays.asList("c", "d", "e"))), is(true));
@@ -1026,21 +1056,19 @@ public class AgentServiceIntegrationTest {
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
         String originalHostname = agent.getHostname();
 
-        HttpOperationResult operationResult = new HttpOperationResult();
-        agentService.modifyEnvironments(USERNAME, operationResult, Arrays.asList(UUID), Arrays.asList(
-                new TriStateSelection("a", TriStateSelection.Action.add),
-                new TriStateSelection("b", TriStateSelection.Action.add)));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), Collections.emptyList(), Collections.emptyList(), Arrays.asList("a","b"), Collections.emptyList(), TriState.TRUE);
 
         goConfigDao.load();
         agentConfigService.updateAgentResources(agent.getUuid(), new ResourceConfigs("linux,java"));
 
         assertThat(agentService.agents().size(), is(1));
 
-        operationResult = new HttpOperationResult();
-        agentService.updateAgentAttributes(USERNAME, operationResult, UUID, null, null, null, TriState.UNSET);
+        HttpOperationResult operationResult1 = new HttpOperationResult();
+        agentService.updateAgentAttributes(USERNAME, operationResult1, UUID, null, null, null, TriState.UNSET);
 
-        assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Updated agent with uuid uuid."));
+        assertThat(operationResult1.httpCode(), is(200));
+        assertThat(operationResult1.message(), is("Updated agent with uuid uuid."));
 
         assertThat(agentService.agents().size(), is(1));
         assertThat(getFirstAgent().getHostname(), is(originalHostname));
@@ -1106,8 +1134,11 @@ public class AgentServiceIntegrationTest {
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
         agentService.updateRuntimeInfo(agentRuntimeInfo);
-        agentService.disableAgents(USERNAME, new HttpOperationResult(), Arrays.asList(agentConfig.getUuid()));
-        assertThat(isDisabled(agentConfig),is(true));
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(agentConfig.getUuid()), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
+
+        assertThat(isDisabled(agentConfig), is(true));
     }
 
     private void disableAgent() {
@@ -1144,9 +1175,11 @@ public class AgentServiceIntegrationTest {
         agentService.updateRuntimeInfo(agentRuntimeInfo);
         assertTrue(agentService.findAgentAndRefreshStatus(uuid).isIdle());
 
-        agentService.disableAgents(USERNAME, new HttpOperationResult(), Arrays.asList(agentConfig.getUuid()));
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(agentConfig.getUuid()), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
+
         AgentConfig updatedAgent = goConfigDao.load().agents().getAgentByUuid(agentConfig.getUuid());
-        assertThat(isDisabled(updatedAgent),is(true));
+        assertThat(isDisabled(updatedAgent), is(true));
         return updatedAgent;
     }
 

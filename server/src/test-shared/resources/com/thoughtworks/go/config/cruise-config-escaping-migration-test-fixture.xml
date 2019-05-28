@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><cruise schemaVersion="21">
-<!-- *************************GO-LICENSE-START******************************
+<!-- *
  * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END******************************* -->
+ * -->
 
     <server artifactsdir="artifacts"/>
     <pipelines>
@@ -395,7 +395,7 @@
                         <artifacts>
                             <test src="#test_art_#{test_art}" dest="#test_dest_#{test_dest}"/>
                             <artifact src="#art_#{art}" dest="#dest_#{dest}"/>
-                            <log src="#log_art_#{log_art}" dest="#log_dest_#{log_dest}"/> 
+                            <log src="#log_art_#{log_art}" dest="#log_dest_#{log_dest}"/>
                         </artifacts>
                         <resources>
                             <resource>#res_#{res}</resource>

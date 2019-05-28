@@ -1,4 +1,4 @@
---*************************GO-LICENSE-START*********************************
+--****
 -- Copyright 2014 ThoughtWorks, Inc.
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
---*************************GO-LICENSE-END***********************************
+--*****
 
 ALTER TABLE modifications ADD pipelineId BIGINT;
 ALTER TABLE modifications ADD CONSTRAINT fk_modifications_pipelineId FOREIGN KEY (pipelineId) REFERENCES pipelines;
@@ -27,7 +27,7 @@ ALTER TABLE modifications ADD COLUMN TEMP_COUNTER_FOR_MIGRATION VARCHAR_CASESENS
 UPDATE modifications SET TEMP_REVISION_FOR_MIGRATION = REGEXP_REPLACE(revision, '\/.*', ''), TEMP_COUNTER_FOR_MIGRATION = REGEXP_REPLACE(REGEXP_REPLACE(revision, '^.*?\/', ''), '\/.*', '');
 CREATE INDEX idx_modifications_temp_revision_for_migration ON modifications(TEMP_REVISION_FOR_MIGRATION, TEMP_COUNTER_FOR_MIGRATION);
 
---// Actual Migration 
+--// Actual Migration
 UPDATE modifications
   SET pipelineId = (SELECT id
                     FROM pipelines

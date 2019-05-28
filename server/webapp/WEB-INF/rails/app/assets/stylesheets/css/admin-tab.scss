@@ -1,19 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
-
+ */
 a#add-new-pipeline-button {
     margin-left: 10px;
 }
@@ -54,10 +53,10 @@ a#add-new-pipeline-button {
      /*background-color : #eae0ce;*/
     /*overflow: auto;*/
     /*color: #452f33;*/
-    
+
 }
 .admin_holder .wbrSensitive{
-    
+
     display: block;
     font-size: 17px;
     margin-left: .25em;
@@ -130,7 +129,7 @@ a#add-new-pipeline-button {
     margin-right: 1em;
 }
 #pipelines ol {
-        
+
 }
 #pipelines li {
     display:block;
@@ -195,7 +194,7 @@ a#add-new-pipeline-button {
 #pipelines-list h2 a {
 
     font-weight: normal;
-    
+
 }
 
 .stages .stages-h3-wrapper {
@@ -337,9 +336,9 @@ ol.builds li.build {
 
 #pipelines-configuration table th,
 #pipelines-configuration table td,
-.build-content th, 
-.build-content td, 
-.material-and-dependencies th, 
+.build-content th,
+.build-content td,
+.material-and-dependencies th,
 .material-and-dependencies td {
     border-top: 1px dotted #ccc;
     padding: 7px 10px;
@@ -488,7 +487,7 @@ span.build-plan-operations a.link_as_button {
     min-width: 100px;
     margin-left: 5px;
     margin-right: 0;
-}   
+}
 /* About page start */
 td {
     padding: 5px 10px;
@@ -523,7 +522,7 @@ td {
 
 
 #pipelines li.current {
-    
+
 }
 
 
@@ -547,7 +546,7 @@ td {
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
-    border: 1px solid transparent;  
+    border: 1px solid transparent;
     font-size: 11px !important;
 }
 
@@ -563,12 +562,12 @@ td {
 #pipelines li.current div.item:hover {
     background-color: #fff;
     border: 1px solid #ccc;
-    -moz-box-shadow: inset 0 0 3px #ccc;   
+    -moz-box-shadow: inset 0 0 3px #ccc;
 }
 
 #pipelines li div.item:hover {
     background-color: #c3e1f2;
-    border: 1px solid #ccc; 
+    border: 1px solid #ccc;
 }
 
 

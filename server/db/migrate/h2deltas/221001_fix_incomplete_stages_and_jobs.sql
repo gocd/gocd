@@ -1,4 +1,4 @@
---*************************GO-LICENSE-START*********************************
+--****
 -- Copyright 2014 ThoughtWorks, Inc.
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
---*************************GO-LICENSE-END***********************************
+--*****
 
 -- subset of 90
 CREATE TABLE latest_bst AS (SELECT MAX(bst.id) id, bst.buildId, bst.stageId FROM buildStateTransitions bst GROUP BY bst.buildId);

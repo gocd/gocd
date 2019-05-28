@@ -1,4 +1,4 @@
-REM *************************GO-LICENSE-START********************************
+REM ***
 REM Copyright 2014 ThoughtWorks, Inc.
 REM
 REM Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@ REM distributed under the License is distributed on an "AS IS" BASIS,
 REM WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 REM See the License for the specific language governing permissions and
 REM limitations under the License.
-REM *************************GO-LICENSE-END**********************************
+REM ****
 
 FOR /F "tokens=2" %%I in ('TASKLIST /NH /FI "WINDOWTITLE eq Go server - server.cmd"' ) DO TASKKILL /F /T /PID %%I
 

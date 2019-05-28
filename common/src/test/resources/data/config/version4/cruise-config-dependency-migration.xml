@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- *************************GO-LICENSE-START******************************
+<!-- *
  * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END******************************* -->
+ * -->
 
 <cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="4">
   <server>
@@ -23,7 +23,7 @@
         HUPG9NHLQ9iwooQAIo3enTMaarJoPExuFws07jReyGl0lCkK5NjaHpjvcZgZ
         O7YMRS6D2z11AVB7JodtvKbjyZWbTPbbXMRdrlgHOkYumQUWa3D94k5oBvQK
         7RYts714dNmWlsE1ANKGwK7+nUuCi70/CrRjvt8r3cNyoON89nJ2nx7mGS0F
-        yQOdSVX/kBc3XHWAYsL2D45D69JIIP54KgMysc0g5A==        
+        yQOdSVX/kBc3XHWAYsL2D45D69JIIP54KgMysc0g5A==
     </license>
   </server>
   <pipelines>

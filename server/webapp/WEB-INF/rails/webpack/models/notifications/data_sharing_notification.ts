@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import {ApiResult} from "helpers/api_request_builder";
 import DataSharingNotificationPermission from "models/notifications/data_sharing_notification_permissions";
 import {Notification, SystemNotifications} from "models/notifications/system_notifications";

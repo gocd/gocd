@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import {ClusterProfile, ElasticAgentProfile, ElasticAgentProfiles} from "models/elastic_profiles/types";
 import {EncryptedValue, PlainTextValue} from "models/shared/config_value";
 import {Configuration, Configurations} from "models/shared/configuration";

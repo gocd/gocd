@@ -1,4 +1,4 @@
---*************************GO-LICENSE-START*********************************
+--****
 -- Copyright 2014 ThoughtWorks, Inc.
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
---*************************GO-LICENSE-END***********************************
+--*****
 
 -- fixing bad data
 --unsetting unnecessary fields based on material type
@@ -90,13 +90,13 @@ UPDATE newMaterials SET fingerprint =
         THEN HASH('SHA256', STRINGTOUTF8(concat('type=', type, @delimiter, 'url=', url, @delimiter, 'username=', username, @delimiter, 'view=', view) ), 1)
     END;
 
--- point material to newMaterial 
+-- point material to newMaterial
 ALTER TABLE materials ADD COLUMN newMaterialId BIGINT;
 
 UPDATE materials m SET newMaterialId =
   (
     SELECT n.id
-    FROM newMaterials n 
+    FROM newMaterials n
     WHERE ((m.type IS NULL AND n.type IS NULL) OR (m.type = n.type))
       AND ((m.url IS NULL AND n.url IS NULL) OR (m.url = n.url))
       AND ((m.username IS NULL AND n.username IS NULL) OR (m.username = n.username))
@@ -112,7 +112,7 @@ UPDATE materials m SET newMaterialId =
 -- point modifications to newMaterials
 ALTER TABLE modifications ADD COLUMN newMaterialId BIGINT;
 
-UPDATE modifications set newMaterialId = (SELECT newMaterialId FROM materials WHERE materials.id = modifications.materialId); 
+UPDATE modifications set newMaterialId = (SELECT newMaterialId FROM materials WHERE materials.id = modifications.materialId);
 
 CREATE SEQUENCE seq_ordered_modifications START WITH 1;
 
@@ -157,10 +157,10 @@ CREATE TABLE PipelineMaterialRevisions (
    pipelineId BIGINT NOT NULL,
    toRevisionId BIGINT NOT NULL,
    fromRevisionId BIGINT NOT NULL,
-   changed BOOLEAN DEFAULT FALSE        
+   changed BOOLEAN DEFAULT FALSE
 );
 
--- set newModificationId on ordered_modifications so we can use it to create PMRs 
+-- set newModificationId on ordered_modifications so we can use it to create PMRs
 UPDATE ordered_modifications om SET newModificationId =
   SELECT realModificationId
   FROM unique_modifications um
@@ -243,4 +243,4 @@ ALTER TABLE materials ADD CONSTRAINT unique_fingerprint UNIQUE (fingerprint);
 
 --//@UNDO
 
--- we don't support undo for this 
+-- we don't support undo for this

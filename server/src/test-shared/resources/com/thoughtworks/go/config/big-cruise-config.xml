@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?><cruise xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="cruise-config.xsd" schemaVersion="26">
-<!-- *************************GO-LICENSE-START******************************
+<!-- *
  * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END******************************* -->
+ * -->
 
   <server artifactsdir="logs">
     <license user="Go Test">AjYGtQl1lSe4d/acvF+Attko9iD4gvqj6NtJbluiAoB02on8yYvpVEGx6KAM&#13;

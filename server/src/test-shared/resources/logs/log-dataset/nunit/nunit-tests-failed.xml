@@ -1,4 +1,4 @@
-<!-- *************************GO-LICENSE-START******************************
+<!-- *
  * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END******************************* -->
+ * -->
 
 <!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by liyanhui (thoughtworks) -->
 <test-results name="C:\evolve\trunk\src\uat\bin\Release\Macquarie.Evolve.QATest.UAT.dll" total="2" failures="0" not-run="0" date="2008-01-11" time="06:44:47">

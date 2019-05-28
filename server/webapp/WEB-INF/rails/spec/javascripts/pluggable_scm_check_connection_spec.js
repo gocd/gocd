@@ -1,19 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END**********************************/
-
+ */
 describe("pluggable_scm_check_connection", function () {
     beforeEach(function () {
         setFixtures("<form accept-charset=\"UTF-8\" action=\"/go/admin/pipelines/up42/materials/pluggable_scm/git\" class=\"popup_form ng-scope ng-pristine ng-invalid ng-invalid-required\" id=\"material_form\" method=\"post\" name=\"material_form\" novalidate=\"novalidate\" onsubmit=\"return AjaxForm.jquery_ajax_submit(this);\"><div style=\"margin:0;padding:0;display:inline\"><input name=\"utf8\" type=\"hidden\" value=\"✓\"><input name=\"authenticity_token\" type=\"hidden\" value=\"XZDkTl/L7FU/gchK/3d/2hwQunCW6kRFKmXgxEgYzs4=\"></div>\n" +

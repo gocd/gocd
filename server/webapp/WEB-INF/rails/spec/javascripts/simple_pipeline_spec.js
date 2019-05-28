@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 describe("simple-pipeline", function () {
     it("should pass along all properties with password if the password is not encrypted for check connection", function () {
         spyOn(jQuery, "ajax").and.callFake(function (options) {

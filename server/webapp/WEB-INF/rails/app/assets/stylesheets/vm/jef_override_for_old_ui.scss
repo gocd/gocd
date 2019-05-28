@@ -1,19 +1,18 @@
-/*************************GO-LICENSE-START*********************************
- * Copyright 2014 ThoughtWorks, Inc.
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END***********************************/
-
+ */
 * {
     font-size: 12px;
 }
@@ -71,15 +70,15 @@ a {
 /*
  * kill rounded corner graphics and other cruft
  */
- 
+
 .c1, .c2, .c3, .c4 {
     display: none !important;
 }
-.rounded-corner-grey-border, 
-.rounded-corner-for-body, 
-.rounded-corner-for-pipeline, 
-.rounded-corner-for-pipe-conf, 
-.rounded-corner-for-pipe-conf-stage, 
+.rounded-corner-grey-border,
+.rounded-corner-for-body,
+.rounded-corner-for-pipeline,
+.rounded-corner-for-pipe-conf,
+.rounded-corner-for-pipe-conf-stage,
 .rounded-corner-for-tab-container {
     margin: 0;
     border: 0;
@@ -90,21 +89,21 @@ a {
 /*
  * build the rounded white box.
  */
- 
+
 
 #yui-main {
     margin: 0;
-} 
+}
 
 .container-in-body{
   border: 0;
-  
+
   position: relative;
   top: 0;
   left: 0;
   padding: 0 15px 15px 15px;
   margin: 0;
-  
+
 }
 .admin-rounded-container, /* admin section; new class just for this baby */
 #yui-main .content_wrapper_inner,
@@ -123,7 +122,7 @@ a {
 }
 
 #yui-main .content_wrapper_inner {
-    padding: 15px;    
+    padding: 15px;
 }
 
 
@@ -242,7 +241,7 @@ ol#pipelines  {
 /**
  * Jobs
  */
- 
+
 
 
 

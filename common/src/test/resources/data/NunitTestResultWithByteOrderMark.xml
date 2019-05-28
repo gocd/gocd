@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<!-- *************************GO-LICENSE-START******************************
+<!-- *
  * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END******************************* -->
+ * -->
 
 <!--This file represents the results of running a test suite-->
 <test-results name="C:\Go\Agent\pipelines\foundation\src\MediaPlanningTool.Full.Tests.Unit\bin\Debug\MediaPlanningTool.Full.Tests.Unit.dll" total="18" failures="0" not-run="0" date="2010-08-31" time="03:07:23">

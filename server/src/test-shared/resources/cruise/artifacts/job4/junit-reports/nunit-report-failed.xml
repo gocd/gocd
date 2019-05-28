@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
-<!-- *************************GO-LICENSE-START******************************
+<!-- *
  * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END******************************* -->
+ * -->
 
 <test-results name="/home/erik/coding/test/nunittests/Tests.dll" total="4" failures="1" not-run="0" date="2007-07-27" time="11:18:43">
   <environment nunit-version="2.2.8.0" clr-version="2.0.50727.42" os-version="Unix 2.6.18.4" platform="Unix" cwd="/home/erik/coding/test/nunittests" machine-name="akira.ramfelt.se" user="erik" user-domain="akira.ramfelt.se" />

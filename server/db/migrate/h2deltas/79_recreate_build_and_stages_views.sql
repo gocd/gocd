@@ -1,4 +1,4 @@
---*************************GO-LICENSE-START*********************************
+--****
 -- Copyright 2014 ThoughtWorks, Inc.
 --
 -- Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
 -- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
---*************************GO-LICENSE-END***********************************
+--*****
 
 
 -- recreate the view from 72_create_builds_view.sql and 73_create_stages_view.sql since H2 does not automatically include new columns into views

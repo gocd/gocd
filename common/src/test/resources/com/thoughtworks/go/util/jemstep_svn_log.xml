@@ -1,4 +1,4 @@
-<!-- *************************GO-LICENSE-START******************************
+<!-- *
  * Copyright 2014 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +12,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *************************GO-LICENSE-END******************************* -->
+ * -->
 
 <log>
 <logentry
@@ -881,7 +881,7 @@
    kind="file"
    action="M">/ARTEMIS/trunk/artemis/artemis-client/src/main/java/com/jemstep/gwt/client/ui/widget/base/DropUpBox.java</path>
 </paths>
-<msg>ARTEMIS-639 - Filter modal 
+<msg>ARTEMIS-639 - Filter modal
 *updated deriving filters and filter modal</msg>
 </logentry>
 </log>

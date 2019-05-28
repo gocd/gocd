@@ -1,5 +1,5 @@
-##########################GO-LICENSE-START################################
-# Copyright 2014 ThoughtWorks, Inc.
+#
+# Copyright 2019 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +12,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-##########################GO-LICENSE-END##################################
+#
 
 class JobInstanceAPIModel
   attr_reader :id, :name, :state, :result, :scheduled_date, :rerun, :original_job_id, :agent_uuid, :pipeline_name, :pipeline_counter, :stage_name, :stage_counter, :job_state_transitions

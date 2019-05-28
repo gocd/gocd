@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service.support.toggle;
 public class Toggles {
     public static String PIPELINE_COMMENT_FEATURE_TOGGLE_KEY = "pipeline_comment_feature_toggle_key";
     public static String BROWSER_CONSOLE_LOG_WS = "browser_console_log_ws_key";
-    public static String USERS_PAGE_USING_RAILS = "users_page_using_rails";
     public static String BACKUP_PAGE_USING_RAILS = "backup_page_using_rails";
     public static String NEW_ADD_PIPELINE_FLOW = "new_add_pipeline_flow";
     public static String ADD_PIPELINE_BUTTON_STYLING = "add_pipeline_button_styling";

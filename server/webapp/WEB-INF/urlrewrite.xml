@@ -153,8 +153,7 @@
   <rule>
     <name>users UI</name>
     <from>^/admin/users(/?)$</from>
-    <run class="com.thoughtworks.go.server.SparkOrRailsToggle" method="usersPageUsingRails"/>
-    <to last="true">/%{attribute:sparkOrRails}/admin/users</to>
+    <to last="true">/spark/admin/users</to>
   </rule>
 
   <rule>

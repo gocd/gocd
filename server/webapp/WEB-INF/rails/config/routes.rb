@@ -380,17 +380,6 @@ Rails.application.routes.draw do
   get "history/stage/:pipeline_name/:pipeline_counter/:stage_name/:stage_counter" => 'stages#history', as: :stage_history, constraints: STAGE_LOCATOR_CONSTRAINTS
   get "config_change/between/:later_md5/and/:earlier_md5" => 'stages#config_change', as: :config_change
 
-  scope 'admin/users', module: 'admin' do
-    defaults :no_layout => true do
-      get 'new' => 'users#new', as: :users_new
-      post 'create' => 'users#create', as: :users_create
-      post 'search' => 'users#search', as: :users_search
-      post 'roles' => 'users#roles', as: :user_roles
-    end
-    post 'operate' => 'users#operate', as: :user_operate
-    get '' => 'users#users', as: :user_listing
-  end
-
   scope 'internal' do
     # redirects to first-stage details page of the specific pipeline run
     get 'pipelines/:pipeline_name/:pipeline_counter' => 'stages#redirect_to_first_stage', as: :internal_stage_detail_tab, constraints: PIPELINE_LOCATOR_CONSTRAINTS

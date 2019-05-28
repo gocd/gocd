@@ -12,11 +12,6 @@
       "value": false
     },
     {
-      "key": "users_page_using_rails",
-      "description": "Switch users page to use spark.",
-      "value": false
-    },
-    {
       "key": "new_add_pipeline_flow",
       "description": "New add pipeline flow.",
       "value": false

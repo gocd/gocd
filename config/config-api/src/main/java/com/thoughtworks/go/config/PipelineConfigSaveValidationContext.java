@@ -97,12 +97,22 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
     }
 
     @Override
+    public EnvironmentConfig getEnvironment() {
+        throw new NotImplementedException("Operation not supported");
+    }
+
+    @Override
     public ConfigReposConfig getConfigRepos() {
         throw new NotImplementedException("Operation not supported");
     }
 
     public JobConfig getJob() {
         return this.job;
+    }
+
+    @Override
+    public boolean isWithinEnvironment() {
+        return false;
     }
 
     public StageConfig getStage() {
@@ -269,7 +279,7 @@ public class PipelineConfigSaveValidationContext implements ValidationContext {
 
     @Override
     public ArtifactStores artifactStores() {
-       return this.cruiseConfig.getArtifactStores();
+        return this.cruiseConfig.getArtifactStores();
     }
 
     @Override

@@ -19,29 +19,27 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.hamcrest.Matchers;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
-public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
-    public MergeEnvironmentConfig singleEnvironmentConfig;
-    public MergeEnvironmentConfig pairEnvironmentConfig;
+class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
+    private MergeEnvironmentConfig singleEnvironmentConfig;
+    private MergeEnvironmentConfig pairEnvironmentConfig;
     private static final String AGENT_UUID = "uuid";
     private EnvironmentConfig localUatEnv1;
     private EnvironmentConfig uatLocalPart2;
     private BasicEnvironmentConfig uatRemotePart;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() {
         localUatEnv1 = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         localUatEnv1.setOrigins(new FileConfigOrigin());
 
@@ -57,204 +55,223 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         super.environmentConfig = pairEnvironmentConfig;
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowPartsWithDifferentNames()
-    {
-        new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")),
-                new BasicEnvironmentConfig(new CaseInsensitiveString("Two")));
+    @Test
+    void shouldNotAllowPartsWithDifferentNames() {
+        assertThatCode(() -> new MergeEnvironmentConfig(new BasicEnvironmentConfig(new CaseInsensitiveString("UAT")),
+                new BasicEnvironmentConfig(new CaseInsensitiveString("Two"))))
+                .isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test
-    public void ShouldContainSameNameAsOfPartialEnvironments() throws Exception {
+    void ShouldContainSameNameAsOfPartialEnvironments() {
         BasicEnvironmentConfig local = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         BasicEnvironmentConfig remote = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         MergeEnvironmentConfig mergeEnv = new MergeEnvironmentConfig(local, remote);
 
-        assertThat(mergeEnv.name(), is(local.name()));
+        assertThat(mergeEnv.name()).isEqualTo(local.name());
+    }
+
+    @Nested
+    class GetRemotePipelines {
+        @Test
+        void shouldReturnEmptyWhenOnlyLocalPartHasPipelines() {
+            uatLocalPart2.addPipeline(new CaseInsensitiveString("pipe"));
+            assertThat(pairEnvironmentConfig.getRemotePipelines().isEmpty()).isTrue();
+        }
+
+        @Test
+        void shouldReturnPipelinesFromRemotePartWhenRemoteHasPipesAssigned() {
+            uatRemotePart.addPipeline(new CaseInsensitiveString("pipe"));
+            assertThat(environmentConfig.getRemotePipelines().isEmpty()).isFalse();
+        }
     }
 
     @Test
-    public void getRemotePipelines_shouldReturnEmptyWhenOnlyLocalPartHasPipelines()
-    {
-        uatLocalPart2.addPipeline(new CaseInsensitiveString("pipe"));
-        assertThat(pairEnvironmentConfig.getRemotePipelines().isEmpty(), is(true));
+    void shouldReturnFalseThatLocal() {
+        assertThat(environmentConfig.isLocal()).isFalse();
     }
 
     @Test
-    public void getRemotePipelines_shouldReturnPipelinesFromRemotePartWhenRemoteHasPipesAssigned() {
-        uatRemotePart.addPipeline(new CaseInsensitiveString("pipe"));
-        assertThat(environmentConfig.getRemotePipelines().isEmpty(), is(false));
+    void shouldGetLocalPartWhenOriginFile() {
+        assertThat(environmentConfig.getLocal()).isEqualTo(uatLocalPart2);
+    }
+
+    @Nested
+    class hasSamePipelinesAs {
+        @Test
+        void shouldReturnTrueWhenAnyPipelineNameIsEqualToOther() {
+            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("pipe1"));
+            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("pipe2"));
+            BasicEnvironmentConfig config = new BasicEnvironmentConfig();
+            config.addPipeline(new CaseInsensitiveString("pipe2"));
+            assertThat(pairEnvironmentConfig.hasSamePipelinesAs(config)).isTrue();
+        }
+
+        @Test
+        void shouldReturnFalseWhenNoneOfOtherPipelinesIsEqualToOther() {
+            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("pipe1"));
+            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("pipe2"));
+            BasicEnvironmentConfig config = new BasicEnvironmentConfig();
+            config.addPipeline(new CaseInsensitiveString("pipe3"));
+            assertThat(pairEnvironmentConfig.hasSamePipelinesAs(config)).isFalse();
+        }
+    }
+
+    @Nested
+    class getPipelineNames {
+        @Test
+        void shouldReturnPipelineNamesFrom2Parts() {
+            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("deployment"));
+            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("testing"));
+
+            List<CaseInsensitiveString> pipelineNames = pairEnvironmentConfig.getPipelineNames();
+
+            assertThat(pipelineNames).hasSize(2)
+                    .contains(new CaseInsensitiveString("deployment"), new CaseInsensitiveString("testing"));
+        }
+
+        @Test
+        void shouldNotRepeatPipelineNamesFrom2Parts() {
+            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("deployment"));
+            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("deployment"));
+
+            List<CaseInsensitiveString> pipelineNames = pairEnvironmentConfig.getPipelineNames();
+
+            assertThat(pipelineNames).contains(new CaseInsensitiveString("deployment"));
+        }
+
+        @Test
+        void shouldDeduplicateRepeatedPipelinesFrom2Parts() {
+            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("deployment"));
+            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("deployment"));
+
+            List<CaseInsensitiveString> pipelineNames = pairEnvironmentConfig.getPipelineNames();
+
+            assertThat(pipelineNames).hasSize(1);
+            assertThat(pairEnvironmentConfig.containsPipeline(new CaseInsensitiveString("deployment"))).isTrue();
+        }
+    }
+
+
+    @Nested
+    class getAgents {
+        @Test
+        void shouldHaveAgentsFrom2Parts() {
+            pairEnvironmentConfig.get(0).addAgent("123");
+            pairEnvironmentConfig.get(1).addAgent("345");
+            EnvironmentAgentsConfig agents = pairEnvironmentConfig.getAgents();
+
+            assertThat(pairEnvironmentConfig.hasAgent("123")).isTrue();
+            assertThat(pairEnvironmentConfig.hasAgent("345")).isTrue();
+        }
+
+        @Test
+        void shouldReturnAgentsUuidsFrom2Parts() {
+            pairEnvironmentConfig.get(0).addAgent("123");
+            pairEnvironmentConfig.get(1).addAgent("345");
+
+            EnvironmentAgentsConfig agents = pairEnvironmentConfig.getAgents();
+
+            assertThat(agents).hasSize(2);
+            assertThat(agents.getUuids()).contains("123", "345");
+        }
+
+        @Test
+        void shouldDeduplicateRepeatedAgentsFrom2Parts() {
+            pairEnvironmentConfig.get(0).addAgent("123");
+            pairEnvironmentConfig.get(1).addAgent("123");
+            EnvironmentAgentsConfig agents = pairEnvironmentConfig.getAgents();
+            assertThat(agents).hasSize(1);
+            assertThat(agents.getUuids()).contains("123");
+        }
     }
 
     @Test
-    public void shouldReturnFalseThatLocal()
-    {
-        assertThat(environmentConfig.isLocal(),is(false));
-    }
-    @Test
-    public void shouldGetLocalPartWhenOriginFile()
-    {
-        assertThat(environmentConfig.getLocal(),is(uatLocalPart2));
-    }
-
-    @Test
-    public void hasSamePipelinesAs_shouldReturnTrueWhenAnyPipelineNameIsEqualToOther(){
-        pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("pipe1"));
-        pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("pipe2"));
-        BasicEnvironmentConfig config = new BasicEnvironmentConfig();
-        config.addPipeline(new CaseInsensitiveString("pipe2"));
-        assertThat(pairEnvironmentConfig.hasSamePipelinesAs(config),is(true));
-    }
-
-    @Test
-    public void hasSamePipelinesAs_shouldReturnFalseWhenNoneOfOtherPipelinesIsEqualToOther(){
-        pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("pipe1"));
-        pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("pipe2"));
-        BasicEnvironmentConfig config = new BasicEnvironmentConfig();
-        config.addPipeline(new CaseInsensitiveString("pipe3"));
-        assertThat(pairEnvironmentConfig.hasSamePipelinesAs(config),is(false));
-    }
-
-    // merges
-
-    @Test
-    public void shouldReturnPipelineNamesFrom2Parts() throws Exception {
-        pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("deployment"));
-        pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("testing"));
-        List<CaseInsensitiveString> pipelineNames = pairEnvironmentConfig.getPipelineNames();
-        assertThat(pipelineNames.size(), is(2));
-        assertThat(pipelineNames, hasItem(new CaseInsensitiveString("deployment")));
-        assertThat(pipelineNames, hasItem(new CaseInsensitiveString("testing")));
-    }
-
-    @Test
-    public void shouldNotRepeatPipelineNamesFrom2Parts() throws Exception {
-        pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("deployment"));
-        pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("deployment"));
-        List<CaseInsensitiveString> pipelineNames = pairEnvironmentConfig.getPipelineNames();
-        assertThat(pipelineNames, hasItem(new CaseInsensitiveString("deployment")));
-    }
-
-    @Test
-    public void shouldDeduplicateRepeatedPipelinesFrom2Parts() throws Exception {
-        pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("deployment"));
-        pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("deployment"));
-        List<CaseInsensitiveString> pipelineNames = pairEnvironmentConfig.getPipelineNames();
-        assertThat(pipelineNames.size(), is(1));
-        assertTrue(pairEnvironmentConfig.containsPipeline(new CaseInsensitiveString("deployment")));
-    }
-
-    @Test
-    public void shouldHaveAgentsFrom2Parts() throws Exception {
-        pairEnvironmentConfig.get(0).addAgent("123");
-        pairEnvironmentConfig.get(1).addAgent("345");
-        EnvironmentAgentsConfig agents = pairEnvironmentConfig.getAgents();
-
-        assertTrue(pairEnvironmentConfig.hasAgent("123"));
-        assertTrue(pairEnvironmentConfig.hasAgent("345"));
-    }
-    @Test
-    public void shouldReturnAgentsUuidsFrom2Parts() throws Exception {
-        pairEnvironmentConfig.get(0).addAgent("123");
-        pairEnvironmentConfig.get(1).addAgent("345");
-        EnvironmentAgentsConfig agents = pairEnvironmentConfig.getAgents();
-        assertThat(agents.size(), is(2));
-        assertThat(agents.getUuids(), hasItem("123"));
-        assertThat(agents.getUuids(), hasItem("345"));
-    }
-    @Test
-    public void shouldDeduplicateRepeatedAgentsFrom2Parts() throws Exception {
-        pairEnvironmentConfig.get(0).addAgent("123");
-        pairEnvironmentConfig.get(1).addAgent("123");
-        EnvironmentAgentsConfig agents = pairEnvironmentConfig.getAgents();
-        assertThat(agents.size(), is(1));
-        assertThat(agents.getUuids(), hasItem("123"));
-    }
-
-    @Test
-    public void shouldHaveVariablesFrom2Parts() throws Exception {
+    void shouldHaveVariablesFrom2Parts() {
         pairEnvironmentConfig.get(0).addEnvironmentVariable("variable-name1", "variable-value1");
         pairEnvironmentConfig.get(1).addEnvironmentVariable("variable-name2", "variable-value2");
 
-        assertTrue(pairEnvironmentConfig.hasVariable("variable-name1"));
-        assertTrue(pairEnvironmentConfig.hasVariable("variable-name2"));
+        assertThat(pairEnvironmentConfig.hasVariable("variable-name1")).isTrue();
+        assertThat(pairEnvironmentConfig.hasVariable("variable-name2")).isTrue();
     }
+
     @Test
-    public void shouldAddEnvironmentVariablesToEnvironmentVariableContextFrom2Parts() throws Exception {
+    void shouldAddEnvironmentVariablesToEnvironmentVariableContextFrom2Parts() {
         pairEnvironmentConfig.get(0).addEnvironmentVariable("variable-name1", "variable-value1");
         pairEnvironmentConfig.get(1).addEnvironmentVariable("variable-name2", "variable-value2");
 
         EnvironmentVariableContext context = pairEnvironmentConfig.createEnvironmentContext();
-        assertThat(context.getProperty("variable-name1"), is("variable-value1"));
-        assertThat(context.getProperty("variable-name2"), is("variable-value2"));
+        assertThat(context.getProperty("variable-name1")).isEqualTo("variable-value1");
+        assertThat(context.getProperty("variable-name2")).isEqualTo("variable-value2");
     }
+
     @Test
-    public void shouldAddDeduplicatedEnvironmentVariablesToEnvironmentVariableContextFrom2Parts() throws Exception {
+    void shouldAddDeduplicatedEnvironmentVariablesToEnvironmentVariableContextFrom2Parts() {
         pairEnvironmentConfig.get(0).addEnvironmentVariable("variable-name1", "variable-value1");
         pairEnvironmentConfig.get(1).addEnvironmentVariable("variable-name1", "variable-value1");
 
-        assertThat(pairEnvironmentConfig.getVariables().size(), is(1));
+        assertThat(pairEnvironmentConfig.getVariables().size()).isEqualTo(1);
 
         EnvironmentVariableContext context = pairEnvironmentConfig.createEnvironmentContext();
-        assertThat(context.getProperty("variable-name1"), is("variable-value1"));
+        assertThat(context.getProperty("variable-name1")).isEqualTo("variable-value1");
     }
 
     @Test
-    public void shouldCreateErrorsForInconsistentEnvironmentVariables() throws Exception {
+    void shouldCreateErrorsForInconsistentEnvironmentVariables() {
         pairEnvironmentConfig.get(0).addEnvironmentVariable("variable-name1", "variable-value1");
         pairEnvironmentConfig.get(1).addEnvironmentVariable("variable-name1", "variable-value2");
         pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
-        assertThat(pairEnvironmentConfig.errors().isEmpty(), is(false));
-        assertThat(pairEnvironmentConfig.errors().on(MergeEnvironmentConfig.CONSISTENT_KV),
-                Matchers.is("Environment variable 'variable-name1' is defined more than once with different values"));
+        assertThat(pairEnvironmentConfig.errors().isEmpty()).isFalse();
+        assertThat(pairEnvironmentConfig.errors().on(MergeEnvironmentConfig.CONSISTENT_KV)).isEqualTo("Environment variable 'variable-name1' is defined more than once with different values");
+    }
+
+    @Nested
+    class validate {
+        @Test
+        void shouldValidateDuplicatePipelines() {
+            pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("up42"));
+            pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("up42"));
+
+            pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
+
+            assertThat(pairEnvironmentConfig.errors().isEmpty()).isFalse();
+
+            assertThat(pairEnvironmentConfig.errors().firstError()).isEqualTo("Environment pipeline 'up42' is defined more than once.");
+        }
+
+        @Test
+        void shouldValidateDuplicateAgents() {
+            pairEnvironmentConfig.get(0).addAgent("random-uuid");
+            pairEnvironmentConfig.get(1).addAgent("random-uuid");
+
+            pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
+
+            assertThat(pairEnvironmentConfig.errors().isEmpty()).isFalse();
+
+            assertThat(pairEnvironmentConfig.errors().firstError()).isEqualTo("Environment agent 'random-uuid' is defined more than once.");
+        }
     }
 
     @Test
-    public void shouldValidateDuplicatePipelines() throws Exception {
-        pairEnvironmentConfig.get(0).addPipeline(new CaseInsensitiveString("up42"));
-        pairEnvironmentConfig.get(1).addPipeline(new CaseInsensitiveString("up42"));
-
-        pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
-
-        assertThat(pairEnvironmentConfig.errors().isEmpty(), is(false));
-
-        assertThat(pairEnvironmentConfig.errors().firstError(),
-                Matchers.is("Environment pipeline 'up42' is defined more than once."));
-    }
-
-    @Test
-    public void shouldValidateDuplicateAgents() throws Exception {
-        pairEnvironmentConfig.get(0).addAgent("random-uuid");
-        pairEnvironmentConfig.get(1).addAgent("random-uuid");
-
-        pairEnvironmentConfig.validate(ConfigSaveValidationContext.forChain(pairEnvironmentConfig));
-
-        assertThat(pairEnvironmentConfig.errors().isEmpty(), is(false));
-
-        assertThat(pairEnvironmentConfig.errors().firstError(),
-                Matchers.is("Environment agent 'random-uuid' is defined more than once."));
-    }
-
-    @Test
-    public void shouldReturnTrueWhenOnlyPartIsLocal() {
+    void shouldReturnTrueWhenOnlyPartIsLocal() {
         BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatLocalPart.setOrigins(new FileConfigOrigin());
         environmentConfig = new MergeEnvironmentConfig(uatLocalPart);
-        assertThat(environmentConfig.isLocal(),is(true));
+        assertThat(environmentConfig.isLocal()).isTrue();
     }
 
     @Test
-    public void shouldReturnFalseWhenPartIsRemote() {
+    void shouldReturnFalseWhenPartIsRemote() {
         BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatLocalPart.setOrigins(new FileConfigOrigin());
         BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatRemotePart.setOrigins(new RepoConfigOrigin());
         environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
-        assertThat(environmentConfig.isLocal(),is(false));
+        assertThat(environmentConfig.isLocal()).isFalse();
     }
 
     @Test
-    public void shouldUpdateEnvironmentVariablesWhenSourceIsEditable() {
+    void shouldUpdateEnvironmentVariablesWhenSourceIsEditable() {
         BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatLocalPart.setOrigins(new FileConfigOrigin());
         BasicEnvironmentConfig uatRemotePart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
@@ -263,21 +280,21 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         uatLocalPart.addEnvironmentVariable("hello", "world");
         environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
         environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.VARIABLES_FIELD,
-                Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"),envVar("hello", "you"))));
+                Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"), envVar("hello", "you"))));
 
-        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("hello", "you")));
-        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
-        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
-        assertThat(environmentConfig.getVariables().size(), is(3));
+        assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("hello", "you"));
+        assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("foo", "bar"));
+        assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("baz", "quux"));
+        assertThat(environmentConfig.getVariables().size()).isEqualTo(3);
 
-        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("hello", "you")));
-        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
-        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
-        assertThat("ChangesShouldBeInLocalConfig",uatLocalPart.getVariables().size(), is(3));
+        assertThat(uatLocalPart.getVariables()).as("ChangesShouldBeInLocalConfig").contains(new EnvironmentVariableConfig("hello", "you"));
+        assertThat(uatLocalPart.getVariables()).as("ChangesShouldBeInLocalConfig").contains(new EnvironmentVariableConfig("foo", "bar"));
+        assertThat(uatLocalPart.getVariables()).as("ChangesShouldBeInLocalConfig").contains(new EnvironmentVariableConfig("baz", "quux"));
+        assertThat(uatLocalPart.getVariables().size()).as("ChangesShouldBeInLocalConfig").isEqualTo(3);
     }
 
     @Test
-    public void shouldReturnCorrectOriginOfDefinedPipeline() throws Exception {
+    void shouldReturnCorrectOriginOfDefinedPipeline() {
         BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatLocalPart.setOrigins(new FileConfigOrigin());
         String localPipeline = "local-pipeline";
@@ -288,13 +305,13 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         uatRemotePart.addPipeline(new CaseInsensitiveString(remotePipeline));
         MergeEnvironmentConfig environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
 
-        assertThat(environmentConfig.getOriginForPipeline(new CaseInsensitiveString(localPipeline)), is(new FileConfigOrigin()));
-        assertThat(environmentConfig.getOriginForPipeline(new CaseInsensitiveString(remotePipeline)), is(new RepoConfigOrigin()));
+        assertThat(environmentConfig.getOriginForPipeline(new CaseInsensitiveString(localPipeline))).isEqualTo(new FileConfigOrigin());
+        assertThat(environmentConfig.getOriginForPipeline(new CaseInsensitiveString(remotePipeline))).isEqualTo(new RepoConfigOrigin());
     }
 
 
     @Test
-    public void shouldReturnCorrectOriginOfDefinedAgent() throws Exception {
+    void shouldReturnCorrectOriginOfDefinedAgent() {
         BasicEnvironmentConfig uatLocalPart = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
         uatLocalPart.setOrigins(new FileConfigOrigin());
         String localAgent = "local-agent";
@@ -305,7 +322,7 @@ public class MergeEnvironmentConfigTest extends EnvironmentConfigTestBase {
         uatRemotePart.addAgent(remoteAgent);
         MergeEnvironmentConfig environmentConfig = new MergeEnvironmentConfig(uatLocalPart, uatRemotePart);
 
-        assertThat(environmentConfig.getOriginForAgent(localAgent), is(new FileConfigOrigin()));
-        assertThat(environmentConfig.getOriginForAgent(remoteAgent), is(new RepoConfigOrigin()));
+        assertThat(environmentConfig.getOriginForAgent(localAgent)).isEqualTo(new FileConfigOrigin());
+        assertThat(environmentConfig.getOriginForAgent(remoteAgent)).isEqualTo(new RepoConfigOrigin());
     }
 }

@@ -18,157 +18,152 @@ package com.thoughtworks.go.config;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.hamcrest.Matchers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public abstract class EnvironmentConfigTestBase {
     public EnvironmentConfig environmentConfig;
     private static final String AGENT_UUID = "uuid";
 
     @Test
-    public void shouldReturnTrueWhenIsEmpty()
-    {
-        assertThat(environmentConfig.isEnvironmentEmpty(),is(true));
+    void shouldReturnTrueWhenIsEmpty() {
+        assertThat(environmentConfig.isEnvironmentEmpty()).isTrue();
     }
+
     @Test
-    public void shouldReturnFalseThatNotEmptyWhenHasPipeline()
-    {
+    void shouldReturnFalseThatNotEmptyWhenHasPipeline() {
         environmentConfig.addPipeline(new CaseInsensitiveString("pipe"));
-        assertThat(environmentConfig.isEnvironmentEmpty(), is(false));
+        assertThat(environmentConfig.isEnvironmentEmpty()).isFalse();
     }
+
     @Test
-    public void shouldReturnFalseThatNotEmptyWhenHasAgent()
-    {
+    void shouldReturnFalseThatNotEmptyWhenHasAgent() {
         environmentConfig.addAgent("agent");
-        assertThat(environmentConfig.isEnvironmentEmpty(), is(false));
-    }
-    @Test
-    public void shouldReturnFalseThatNotEmptyWhenHasVariable()
-    {
-        environmentConfig.addEnvironmentVariable("k","v");
-        assertThat(environmentConfig.isEnvironmentEmpty(), is(false));
+        assertThat(environmentConfig.isEnvironmentEmpty()).isFalse();
     }
 
     @Test
-    public void shouldCreateMatcherWhenNoPipelines() throws Exception {
+    void shouldReturnFalseThatNotEmptyWhenHasVariable() {
+        environmentConfig.addEnvironmentVariable("k", "v");
+        assertThat(environmentConfig.isEnvironmentEmpty()).isFalse();
+    }
+
+    @Test
+    void shouldCreateMatcherWhenNoPipelines() {
         EnvironmentPipelineMatcher pipelineMatcher = environmentConfig.createMatcher();
-        assertThat(pipelineMatcher.match("pipeline", AGENT_UUID), is(false));
+        assertThat(pipelineMatcher.match("pipeline", AGENT_UUID)).isFalse();
     }
 
     @Test
-    public void shouldCreateMatcherWhenPipelinesGiven() throws Exception {
+    void shouldCreateMatcherWhenPipelinesGiven() {
         environmentConfig.addPipeline(new CaseInsensitiveString("pipeline"));
         environmentConfig.addAgent(AGENT_UUID);
         EnvironmentPipelineMatcher pipelineMatcher = environmentConfig.createMatcher();
-        assertThat(pipelineMatcher.match("pipeline", AGENT_UUID), is(true));
+        assertThat(pipelineMatcher.match("pipeline", AGENT_UUID)).isTrue();
     }
 
     @Test
-    public void shouldRemoveAgentFromEnvironment() throws Exception {
+    void shouldRemoveAgentFromEnvironment() {
         environmentConfig.addAgent("uuid1");
         environmentConfig.addAgent("uuid2");
-        assertThat(environmentConfig.getAgents().size(), is(2));
-        assertThat(environmentConfig.hasAgent("uuid1"), is(true));
-        assertThat(environmentConfig.hasAgent("uuid2"), is(true));
+        assertThat(environmentConfig.getAgents().size()).isEqualTo(2);
+        assertThat(environmentConfig.hasAgent("uuid1")).isTrue();
+        assertThat(environmentConfig.hasAgent("uuid2")).isTrue();
         environmentConfig.removeAgent("uuid1");
-        assertThat(environmentConfig.getAgents().size(), is(1));
-        assertThat(environmentConfig.hasAgent("uuid1"), is(false));
-        assertThat(environmentConfig.hasAgent("uuid2"), is(true));
+        assertThat(environmentConfig.getAgents().size()).isEqualTo(1);
+        assertThat(environmentConfig.hasAgent("uuid1")).isFalse();
+        assertThat(environmentConfig.hasAgent("uuid2")).isTrue();
     }
 
     @Test
-    public void shouldAddAgentToEnvironmentIfNotPresent() throws Exception {
+    void shouldAddAgentToEnvironmentIfNotPresent() {
         environmentConfig.addAgent("uuid");
         environmentConfig.addAgentIfNew("uuid");
         environmentConfig.addAgentIfNew("uuid1");
-        assertThat(environmentConfig.getAgents().size(), is(2));
-        assertThat(environmentConfig.hasAgent("uuid"), is(true));
-        assertThat(environmentConfig.hasAgent("uuid1"), is(true));
+        assertThat(environmentConfig.getAgents().size()).isEqualTo(2);
+        assertThat(environmentConfig.hasAgent("uuid")).isTrue();
+        assertThat(environmentConfig.hasAgent("uuid1")).isTrue();
     }
 
     @Test
-    public void twoEnvironmentConfigsShouldBeEqualIfNameIsEqual() throws Exception {
+    void twoEnvironmentConfigsShouldBeEqualIfNameIsEqual() {
         EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("UAT"));
-        assertThat(another, Matchers.is(environmentConfig));
+        assertThat(another).isEqualTo(environmentConfig);
     }
 
     @Test
-    public void twoEnvironmentConfigsShouldNotBeEqualIfnameNotEqual() throws Exception {
+    void twoEnvironmentConfigsShouldNotBeEqualIfnameNotEqual() {
         EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("other"));
-        assertThat(another, Matchers.is(not(environmentConfig)));
+        assertThat(another).isNotEqualTo(environmentConfig);
     }
 
     @Test
-    public void shouldAddEnvironmentVariablesToEnvironmentVariableContext() throws Exception {
+    void shouldAddEnvironmentVariablesToEnvironmentVariableContext() {
         EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("other"));
         another.addEnvironmentVariable("variable-name", "variable-value");
         EnvironmentVariableContext context = another.createEnvironmentContext();
-        assertThat(context.getProperty("variable-name"), is("variable-value"));
+        assertThat(context.getProperty("variable-name")).isEqualTo("variable-value");
     }
 
     @Test
-    public void shouldAddEnvironmentNameToEnvironmentVariableContext() throws Exception {
+    void shouldAddEnvironmentNameToEnvironmentVariableContext() {
         EnvironmentConfig another = new BasicEnvironmentConfig(new CaseInsensitiveString("other"));
         EnvironmentVariableContext context = another.createEnvironmentContext();
-        assertThat(context.getProperty(EnvironmentVariableContext.GO_ENVIRONMENT_NAME), is("other"));
+        assertThat(context.getProperty(EnvironmentVariableContext.GO_ENVIRONMENT_NAME)).isEqualTo("other");
     }
 
     @Test
-    public void shouldReturnPipelineNamesContainedInIt() throws Exception {
+    void shouldReturnPipelineNamesContainedInIt() {
         environmentConfig.addPipeline(new CaseInsensitiveString("deployment"));
         environmentConfig.addPipeline(new CaseInsensitiveString("testing"));
         List<CaseInsensitiveString> pipelineNames = environmentConfig.getPipelineNames();
-        assertThat(pipelineNames.size(), is(2));
-        assertThat(pipelineNames, hasItem(new CaseInsensitiveString("deployment")));
-        assertThat(pipelineNames, hasItem(new CaseInsensitiveString("testing")));
+        assertThat(pipelineNames.size()).isEqualTo(2);
+        assertThat(pipelineNames).contains(new CaseInsensitiveString("deployment"));
+        assertThat(pipelineNames).contains(new CaseInsensitiveString("testing"));
     }
 
     @Test
-    public void shouldUpdatePipelines() {
+    void shouldUpdatePipelines() {
         environmentConfig.addPipeline(new CaseInsensitiveString("baz"));
         environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.PIPELINES_FIELD, Arrays.asList(Collections.singletonMap("name", "foo"), Collections.singletonMap("name", "bar"))));
-        assertThat(environmentConfig.getPipelineNames(), is(Arrays.asList(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar"))));
+        assertThat(environmentConfig.getPipelineNames()).isEqualTo(Arrays.asList(new CaseInsensitiveString("foo"), new CaseInsensitiveString("bar")));
     }
 
     @Test
-    public void shouldUpdateAgents() {
+    void shouldUpdateAgents() {
         environmentConfig.addAgent("uuid-1");
         environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.AGENTS_FIELD, Arrays.asList(Collections.singletonMap("uuid", "uuid-2"), Collections.singletonMap("uuid", "uuid-3"))));
         EnvironmentAgentsConfig expectedAgents = new EnvironmentAgentsConfig();
         expectedAgents.add(new EnvironmentAgentConfig("uuid-2"));
         expectedAgents.add(new EnvironmentAgentConfig("uuid-3"));
-        assertThat(environmentConfig.getAgents(), is(expectedAgents));
+        assertThat(environmentConfig.getAgents()).isEqualTo(expectedAgents);
     }
 
     @Test
-    public void shouldUpdateEnvironmentVariables() {
+    void shouldUpdateEnvironmentVariables() {
         environmentConfig.addEnvironmentVariable("hello", "world");
         environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("foo", "bar"), envVar("baz", "quux"))));
-        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("foo", "bar")));
-        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("baz", "quux")));
-        assertThat(environmentConfig.getVariables().size(), is(2));
+        assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("foo", "bar"));
+        assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("baz", "quux"));
+        assertThat(environmentConfig.getVariables().size()).isEqualTo(2);
     }
 
     @Test
-    public void shouldNotSetEnvironmentVariableFromConfigAttributesIfNameAndValueIsEmpty() {
+    void shouldNotSetEnvironmentVariableFromConfigAttributesIfNameAndValueIsEmpty() {
         environmentConfig.setConfigAttributes(Collections.singletonMap(BasicEnvironmentConfig.VARIABLES_FIELD, Arrays.asList(envVar("", "anything"), envVar("", ""))));
-        assertThat(environmentConfig.errors().isEmpty(), is(true));
-        assertThat(environmentConfig.getVariables(), hasItem(new EnvironmentVariableConfig("", "anything")));
-        assertThat(environmentConfig.getVariables().size(), is(1));
+        assertThat(environmentConfig.errors().isEmpty()).isTrue();
+        assertThat(environmentConfig.getVariables()).contains(new EnvironmentVariableConfig("", "anything"));
+        assertThat(environmentConfig.getVariables().size()).isEqualTo(1);
     }
 
     @Test
-    public void shouldNotUpdateAnythingForNullAttributes() {
+    void shouldNotUpdateAnythingForNullAttributes() {
         EnvironmentConfig beforeUpdate = new Cloner().deepClone(environmentConfig);
         environmentConfig.setConfigAttributes(null);
-        assertThat(environmentConfig, is(beforeUpdate));
+        assertThat(environmentConfig).isEqualTo(beforeUpdate);
     }
 
     protected static Map<String, String> envVar(String name, String value) {

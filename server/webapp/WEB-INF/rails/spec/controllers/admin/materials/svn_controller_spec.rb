@@ -26,11 +26,11 @@ describe Admin::Materials::SvnController do
   it_should_behave_like :material_controller
 
   def new_material
-    SvnMaterialConfig.new("", "", "", false)
+    com.thoughtworks.go.helper.MaterialConfigsMother.svn("", "", "", false)
   end
 
   def assert_successful_create
-    svn_material_config = SvnMaterialConfig.new("new-url", "loser", "secret", true)
+    svn_material_config = com.thoughtworks.go.helper.MaterialConfigsMother.svn("new-url", "loser", "secret", true)
     svn_material_config.setName(CaseInsensitiveString.new('new-some-kinda-material'))
     svn_material_config.setConfigAttributes({SvnMaterialConfig::FOLDER => "folder", SvnMaterialConfig::CHECK_EXTERNALS => 'true'})
     expect(@pipeline.materialConfigs().get(1)).to eq(svn_material_config)

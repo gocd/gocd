@@ -27,6 +27,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
@@ -79,7 +80,7 @@ public abstract class CruiseConfigTestBase {
 
     @Test
     public void shouldLoadPasswordForGivenMaterialFingerprint() {
-        MaterialConfig svnConfig = new SvnMaterialConfig("url", "loser", "boozer", true);
+        MaterialConfig svnConfig = svn("url", "loser", "boozer", true);
         PipelineConfig one = PipelineConfigMother.pipelineConfig("one", svnConfig, new JobConfigs(new JobConfig("job")));
         cruiseConfig.addPipeline("group-1", one);
 
@@ -791,9 +792,9 @@ public abstract class CruiseConfigTestBase {
 
     @Test
     public void shouldReturnAllUniqueSchedulableScmMaterials() {
-        final MaterialConfig svnMaterialConfig = new SvnMaterialConfig("http://svn_url_1", "username", "password", false);
+        final MaterialConfig svnMaterialConfig = svn("http://svn_url_1", "username", "password", false);
         svnMaterialConfig.setAutoUpdate(false);
-        final MaterialConfig svnMaterialConfigWithAutoUpdate = new SvnMaterialConfig("http://svn_url_2", "username", "password", false);
+        final MaterialConfig svnMaterialConfigWithAutoUpdate = svn("http://svn_url_2", "username", "password", false);
         svnMaterialConfigWithAutoUpdate.setAutoUpdate(true);
         final MaterialConfig hgMaterialConfig = hg("http://hg_url", null);
         hgMaterialConfig.setAutoUpdate(false);

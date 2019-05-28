@@ -246,7 +246,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      svn_config = SvnMaterialConfig.new(UrlArgument.new(''), '', '', true, GoCipher.new, true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'))
+      svn_config = com.thoughtworks.go.helper.MaterialConfigsMother.svn(UrlArgument.new(''), '', '', true, GoCipher.new, true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'))
       material_configs = MaterialConfigs.new(svn_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.get(0)

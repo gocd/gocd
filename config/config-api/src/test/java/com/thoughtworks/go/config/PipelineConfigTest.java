@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -728,7 +729,7 @@ public class PipelineConfigTest {
         pipelineConfig.setConfigAttributes(attributeMap);
 
         assertThat(pipelineConfig.name(), is(new CaseInsensitiveString("startup")));
-        assertThat(pipelineConfig.materialConfigs().get(0), is(new SvnMaterialConfig("http://url", "loser", "passwd", false)));
+        assertThat(pipelineConfig.materialConfigs().get(0), is(svn("http://url", "loser", "passwd", false)));
     }
 
     @Test
@@ -884,7 +885,7 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldGetPackageMaterialConfigs() throws Exception {
-        SvnMaterialConfig svn = new SvnMaterialConfig("svn", false);
+        SvnMaterialConfig svn = svn("svn", false);
         PackageMaterialConfig packageMaterialOne = new PackageMaterialConfig();
         PackageMaterialConfig packageMaterialTwo = new PackageMaterialConfig();
 
@@ -897,7 +898,7 @@ public class PipelineConfigTest {
 
     @Test
     public void shouldGetPluggableSCMMaterialConfigs() throws Exception {
-        SvnMaterialConfig svn = new SvnMaterialConfig("svn", false);
+        SvnMaterialConfig svn = svn("svn", false);
         PluggableSCMMaterialConfig pluggableSCMMaterialOne = new PluggableSCMMaterialConfig("scm-id-1");
         PluggableSCMMaterialConfig pluggableSCMMaterialTwo = new PluggableSCMMaterialConfig("scm-id-2");
 

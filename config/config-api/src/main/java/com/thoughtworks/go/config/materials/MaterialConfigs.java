@@ -293,7 +293,12 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     public SvnMaterialConfig getSvnMaterial() {
-        return getExistingOrDefaultMaterial(new SvnMaterialConfig("", "", "", false));
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        svnMaterialConfig.setUrl("");
+        svnMaterialConfig.setUserName("");
+        svnMaterialConfig.setPassword("");
+        svnMaterialConfig.setCheckExternals(false);
+        return getExistingOrDefaultMaterial(svnMaterialConfig);
     }
 
     public TfsMaterialConfig getTfsMaterial() {

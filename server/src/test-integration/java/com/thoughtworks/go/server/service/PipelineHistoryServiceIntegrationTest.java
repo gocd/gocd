@@ -20,6 +20,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
@@ -410,7 +411,7 @@ public class PipelineHistoryServiceIntegrationTest {
 
     @Test public void shouldContainNoRevisionsForNewMaterialsThatHAveNotBeenUpdated() throws Exception {
         pipelineOne.createPipelineWithFirstStageScheduled();
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("new-material", null, null, false);
+        SvnMaterialConfig svnMaterialConfig = svn("new-material", null, null, false);
         svnMaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "new-material"));
         configHelper.addMaterialToPipeline(pipelineOne.pipelineName, svnMaterialConfig);
         configHelper.setViewPermissionForGroup("group1", "username");
@@ -420,7 +421,7 @@ public class PipelineHistoryServiceIntegrationTest {
     }
 
     @Test public void shouldCreateEmptyPipelineIfThePipelineHasNeverBeenRun() throws Exception {
-        SvnMaterialConfig svnMaterial = new SvnMaterialConfig("https://some-url", "new-user", "new-pass", false);
+        SvnMaterialConfig svnMaterial = svn("https://some-url", "new-user", "new-pass", false);
         configHelper.addPipeline("new-pipeline", "new-stage", svnMaterial, "first-job");
         PipelineInstanceModels instanceModels = pipelineHistoryService.loadWithEmptyAsDefault("new-pipeline", Pagination.ONE_ITEM, "username");
         PipelineInstanceModel instanceModel = instanceModels.get(0);

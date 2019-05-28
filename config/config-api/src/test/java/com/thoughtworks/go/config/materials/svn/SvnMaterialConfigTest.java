@@ -36,6 +36,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -44,12 +45,12 @@ class SvnMaterialConfigTest {
 
     @BeforeEach
     void setUp() {
-        svnMaterialConfig = new SvnMaterialConfig();
+        svnMaterialConfig = svn();
     }
 
     @Test
     void shouldSetConfigAttributes() {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("", "", "", false);
+        SvnMaterialConfig svnMaterialConfig = svn("", "", "", false);
 
         Map<String, String> map = new HashMap<>();
         map.put(SvnMaterialConfig.URL, "url");
@@ -73,7 +74,7 @@ class SvnMaterialConfigTest {
 
     @Test
     void setConfigAttributes_shouldUpdatePasswordWhenPasswordChangedBooleanChanged() throws Exception {
-        SvnMaterialConfig svnMaterial = new SvnMaterialConfig("", "", "notSoSecret", false);
+        SvnMaterialConfig svnMaterial = svn("", "", "notSoSecret", false);
         Map<String, String> map = new HashMap<>();
         map.put(SvnMaterialConfig.PASSWORD, "secret");
         map.put(SvnMaterialConfig.PASSWORD_CHANGED, "1");
@@ -103,7 +104,7 @@ class SvnMaterialConfigTest {
     @Test
     void shouldReturnTheUrl() {
         String url = "git@github.com/my/repo";
-        SvnMaterialConfig config = new SvnMaterialConfig();
+        SvnMaterialConfig config = svn();
         config.setUrl(url);
 
         assertThat(config.getUrl()).isEqualTo(url);
@@ -111,14 +112,14 @@ class SvnMaterialConfigTest {
 
     @Test
     void shouldReturnNullIfUrlForMaterialNotSpecified() {
-        SvnMaterialConfig config = new SvnMaterialConfig();
+        SvnMaterialConfig config = svn();
 
         assertThat(config.getUrl()).isNull();
     }
 
     @Test
     void shouldHandleNullWhenSettingUrlForAMaterial() {
-        SvnMaterialConfig config = new SvnMaterialConfig();
+        SvnMaterialConfig config = svn();
 
         config.setUrl(null);
 

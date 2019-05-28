@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
@@ -517,7 +518,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldFindMaterialByPipelineUniqueFingerprint() throws Exception {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("repo", null, null, false);
+        SvnMaterialConfig svnMaterialConfig = svn("repo", null, null, false);
         svnMaterialConfig.setName(new CaseInsensitiveString("foo"));
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(svnMaterialConfig));
         when(goConfigDao.load()).thenReturn(cruiseConfig);
@@ -537,7 +538,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldFindMaterialConfigBasedOnFingerprint() throws Exception {
-        SvnMaterialConfig expected = new SvnMaterialConfig("repo", null, null, false);
+        SvnMaterialConfig expected = svn("repo", null, null, false);
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(expected));
         when(goConfigDao.load()).thenReturn(cruiseConfig);
 
@@ -547,7 +548,7 @@ public class GoConfigServiceTest {
 
     @Test
     public void shouldThrowExceptionWhenUnableToFindMaterialBasedOnFingerprint() throws Exception {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("repo", null, null, false);
+        SvnMaterialConfig svnMaterialConfig = svn("repo", null, null, false);
         cruiseConfig = configWith(GoConfigMother.createPipelineConfigWithMaterialConfig(svnMaterialConfig));
         when(goConfigDao.load()).thenReturn(cruiseConfig);
 

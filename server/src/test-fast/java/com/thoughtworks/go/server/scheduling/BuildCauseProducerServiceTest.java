@@ -28,6 +28,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.MaterialRevision;
@@ -154,7 +155,7 @@ public class BuildCauseProducerServiceTest {
         HgMaterialConfig hgMaterialConfig = hg("url", null);
         HgMaterial hgMaterial = new HgMaterial("url", null);
         SvnMaterial svnMaterial = new SvnMaterial("url", null, null, false);
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", null, null, false);
+        SvnMaterialConfig svnMaterialConfig = svn("url", null, null, false);
         pipelineConfig.addMaterialConfig(hgMaterialConfig);
         pipelineConfig.addMaterialConfig(svnMaterialConfig);
 
@@ -271,7 +272,7 @@ public class BuildCauseProducerServiceTest {
         HgMaterial hgMaterial = new HgMaterial("url", null);
         HgMaterialConfig hgMaterialConfig = hg("url", null);
         SvnMaterial svnMaterial = new SvnMaterial("url", null, null, false);
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", null, null, false);
+        SvnMaterialConfig svnMaterialConfig = svn("url", null, null, false);
         pipelineConfig.addMaterialConfig(hgMaterialConfig);
         pipelineConfig.addMaterialConfig(svnMaterialConfig);
 

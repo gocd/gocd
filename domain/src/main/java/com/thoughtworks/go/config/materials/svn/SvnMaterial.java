@@ -82,7 +82,7 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
     }
 
     public SvnMaterial(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
-        super("SvnMaterial",goCipher);
+        super("SvnMaterial", goCipher);
         bombIfNull(url, "null url");
         setUrl(url);
         this.userName = userName;
@@ -92,7 +92,17 @@ public class SvnMaterial extends ScmMaterial implements PasswordEncrypter, Passw
 
     @Override
     public MaterialConfig config() {
-        return new SvnMaterialConfig(url, userName, getPassword(), checkExternals, goCipher, autoUpdate, filter, invertFilter, folder, name);
+        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig();
+        svnMaterialConfig.setUrl(this.url.originalArgument());
+        svnMaterialConfig.setUserName(this.userName);
+        svnMaterialConfig.setPassword(getPassword());
+        svnMaterialConfig.setCheckExternals(this.checkExternals);
+        svnMaterialConfig.setAutoUpdate(this.autoUpdate);
+        svnMaterialConfig.setFilter(this.filter);
+        svnMaterialConfig.setInvertFilter(this.invertFilter);
+        svnMaterialConfig.setFolder(this.folder);
+        svnMaterialConfig.setName(this.name);
+        return svnMaterialConfig;
     }
 
     private Subversion svn() {

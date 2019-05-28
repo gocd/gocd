@@ -23,6 +23,7 @@ import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
@@ -84,7 +85,7 @@ Above scenario allowed
     @Test
     public void shouldNotAllowAnEmptyDepMaterialWhenOtherMaterialsUseThatPipelineName() throws Exception {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1", "pipeline2", "pipeline3", "go");
-        SvnMaterialConfig one = new SvnMaterialConfig("svn://abc", "", "", false);
+        SvnMaterialConfig one = svn("svn://abc", "", "", false);
         one.setName(new CaseInsensitiveString("pipeline2"));
         DependencyMaterialConfig invalidOne = new DependencyMaterialConfig(new CaseInsensitiveString("pipeline2"), new CaseInsensitiveString("stage"));
 
@@ -139,8 +140,8 @@ Above scenario allowed
         PipelineConfig pipeline2 = goConfigMother.addPipeline(cruiseConfig, "pipeline2", "stage", "build");
         goConfigMother.setDependencyOn(cruiseConfig, pipeline2, "pipeline1", "stage");
 
-        pipeline1.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new SvnMaterialConfig("http://mysvn", false), "myplugin"), "123"));
-        pipeline2.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new SvnMaterialConfig("http://othersvn", false), "myplugin"), "2222"));
+        pipeline1.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(svn("http://mysvn", false), "myplugin"), "123"));
+        pipeline2.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(svn("http://othersvn", false), "myplugin"), "2222"));
 
         pipeline1.materialConfigs().validate(ConfigSaveValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(), pipeline1));
         assertThat(pipeline1.materialConfigs().errors().isEmpty(), is(true));
@@ -449,7 +450,7 @@ Above scenario allowed
         attributeMap.put(SvnMaterialConfig.TYPE, svnAttrMap);
         materialConfigs.setConfigAttributes(attributeMap);
 
-        assertThat(materialConfigs.first(), is(new SvnMaterialConfig("foo", "bar", "baz", false)));
+        assertThat(materialConfigs.first(), is(svn("foo", "bar", "baz", false)));
     }
 
     @Test
@@ -479,7 +480,7 @@ Above scenario allowed
     public void shouldClearExistingAndSetHgConfigAttributesForMaterial() {
         MaterialConfigs materialConfigs = new MaterialConfigs();
         materialConfigs.add(hg("", null));
-        materialConfigs.add(new SvnMaterialConfig("", "", "", false));
+        materialConfigs.add(svn("", "", "", false));
 
         Map<String, String> hashMap = new HashMap<>();
         hashMap.put(HgMaterialConfig.URL, "foo");
@@ -570,7 +571,7 @@ Above scenario allowed
 
     @Test
     public void shouldGetExistingOrDefaultMaterialCorrectly() {
-        SvnMaterialConfig svn = new SvnMaterialConfig("http://test.com", false);
+        SvnMaterialConfig svn = svn("http://test.com", false);
         PackageMaterialConfig p1 = new PackageMaterialConfig("p1");
         PackageMaterialConfig p2 = new PackageMaterialConfig("p2");
 
@@ -598,7 +599,7 @@ Above scenario allowed
 
     @Test
     public void shouldGetExistingOrDefaultPluggableSCMMaterialCorrectly() {
-        SvnMaterialConfig svn = new SvnMaterialConfig("http://test.com", false);
+        SvnMaterialConfig svn = svn("http://test.com", false);
         PluggableSCMMaterialConfig pluggableSCMMaterialOne = new PluggableSCMMaterialConfig("scm-id-1");
         PluggableSCMMaterialConfig pluggableSCMMaterialTwo = new PluggableSCMMaterialConfig("scm-id-2");
 
@@ -611,7 +612,7 @@ Above scenario allowed
     public void shouldValidateTree() {
         GitMaterialConfig git = git();
         git.setName(new CaseInsensitiveString("mat-name"));
-        SvnMaterialConfig svn = new SvnMaterialConfig("url", true);
+        SvnMaterialConfig svn = svn("url", true);
         svn.setName(new CaseInsensitiveString("mat-name"));
         P4MaterialConfig p4 = new P4MaterialConfig();
         TfsMaterialConfig tfs = new TfsMaterialConfig();

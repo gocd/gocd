@@ -23,8 +23,6 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
@@ -52,7 +50,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -61,7 +59,6 @@ import static org.mockito.Mockito.when;
 class ConfigConverterTest {
 
     private ConfigConverter configConverter;
-    private GoCipher goCipher;
     private PartialConfigLoadContext context;
     private List<String> filter = new ArrayList<>();
     private CachedGoConfig cachedGoConfig;
@@ -98,20 +95,13 @@ class ConfigConverterTest {
     }
 
     @BeforeEach
-    void setUp() throws CryptoException {
+    void setUp() {
         cachedGoConfig = mock(CachedGoConfig.class);
-        goCipher = mock(GoCipher.class);
         context = mock(PartialConfigLoadContext.class);
-        configConverter = new ConfigConverter(goCipher, cachedGoConfig);
-        String encryptedText = "secret";
-        when(goCipher.decrypt("encryptedvalue")).thenReturn(encryptedText);
-        when(goCipher.encrypt("secret")).thenReturn("encryptedvalue");
-        when(goCipher.encrypt("")).thenReturn("encryptedEmptyString");
-        when(goCipher.decrypt("encryptedEmptyString")).thenReturn("");
+        configConverter = new ConfigConverter(new GoCipher(), cachedGoConfig);
 
         filter = new ArrayList<>();
         filter.add("filter");
-
 
         CRApproval approval = new CRApproval(CRApprovalCondition.manual);
         approval.addAuthorizedRole("authRole");
@@ -137,11 +127,12 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertEnvironmentVariableToSecureWhenEncryptedValueIsNotBlank() {
-        CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", null, "encryptedvalue");
+    void shouldConvertEnvironmentVariableToSecureWhenEncryptedValueIsNotBlank() throws CryptoException {
+        String encryptedPassword = new GoCipher().encrypt("plain-text-password");
+        CREnvironmentVariable crEnvironmentVariable = new CREnvironmentVariable("key1", null, encryptedPassword);
         EnvironmentVariableConfig result = configConverter.toEnvironmentVariableConfig(crEnvironmentVariable);
         assertThat(result.isSecure()).isTrue();
-        assertThat(result.getValue()).isEqualTo("secret");
+        assertThat(result.getValue()).isEqualTo("plain-text-password");
         assertThat(result.getName()).isEqualTo("key1");
     }
 
@@ -708,9 +699,10 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertP4MaterialWhenEncryptedPassword() {
+    void shouldConvertP4MaterialWhenEncryptedPassword() throws CryptoException {
+        String encryptedPassword = new GoCipher().encrypt("plain-text-password");
         CRP4Material crp4Material1 = new CRP4Material("name", "folder", false, false, "user", filter, "server:port", "view", true);
-        crp4Material1.setEncryptedPassword("encryptedvalue");
+        crp4Material1.setEncryptedPassword(encryptedPassword);
         CRP4Material crp4Material = crp4Material1;
 
         P4MaterialConfig p4MaterialConfig =
@@ -722,7 +714,7 @@ class ConfigConverterTest {
         assertThat(p4MaterialConfig.getFilterAsString()).isEqualTo("filter");
         assertThat(p4MaterialConfig.getUrl()).isEqualTo("server:port");
         assertThat(p4MaterialConfig.getUserName()).isEqualTo("user");
-        assertThat(p4MaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(p4MaterialConfig.getPassword()).isEqualTo("plain-text-password");
         assertThat(p4MaterialConfig.getUseTickets()).isTrue();
         assertThat(p4MaterialConfig.getView()).isEqualTo("view");
 
@@ -748,9 +740,10 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertSvmMaterialWhenEncryptedPassword() {
+    void shouldConvertSvmMaterialWhenEncryptedPassword() throws CryptoException {
+        String encryptedPassword = new GoCipher().encrypt("plain-text-password");
         CRSvnMaterial crSvnMaterial = new CRSvnMaterial("name", "folder", true, false, "username", filter, "url", true);
-        crSvnMaterial.setEncryptedPassword("encryptedvalue");
+        crSvnMaterial.setEncryptedPassword(encryptedPassword);
 
         SvnMaterialConfig svnMaterialConfig = (SvnMaterialConfig) configConverter.toMaterialConfig(crSvnMaterial, context);
 
@@ -760,14 +753,14 @@ class ConfigConverterTest {
         assertThat(svnMaterialConfig.getFilterAsString()).isEqualTo("filter");
         assertThat(svnMaterialConfig.getUrl()).isEqualTo("url");
         assertThat(svnMaterialConfig.getUserName()).isEqualTo("username");
-        assertThat(svnMaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(svnMaterialConfig.getPassword()).isEqualTo("plain-text-password");
         assertThat(svnMaterialConfig.isCheckExternals()).isTrue();
     }
 
     @Test
     void shouldConvertSvmMaterialWhenPlainPassword() {
         CRSvnMaterial crSvnMaterial = new CRSvnMaterial("name", "folder", true, false, "username", filter, "url", true);
-        crSvnMaterial.setPassword("secret");
+        crSvnMaterial.setPassword("password");
 
         SvnMaterialConfig svnMaterialConfig =
                 (SvnMaterialConfig) configConverter.toMaterialConfig(crSvnMaterial, context);
@@ -778,7 +771,7 @@ class ConfigConverterTest {
         assertThat(svnMaterialConfig.getFilterAsString()).isEqualTo("filter");
         assertThat(svnMaterialConfig.getUrl()).isEqualTo("url");
         assertThat(svnMaterialConfig.getUserName()).isEqualTo("username");
-        assertThat(svnMaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(svnMaterialConfig.getPassword()).isEqualTo("password");
         assertThat(svnMaterialConfig.isCheckExternals()).isTrue();
     }
 
@@ -802,9 +795,10 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertTfsMaterialWhenEncryptedPassword() {
+    void shouldConvertTfsMaterialWhenEncryptedPassword() throws CryptoException {
+        String encryptedPassword = new GoCipher().encrypt("plain-text-password");
         CRTfsMaterial crTfsMaterial = new CRTfsMaterial("name", "folder", false, false, "user", filter, "url", "project", "domain");
-        crTfsMaterial.setEncryptedPassword("encryptedvalue");
+        crTfsMaterial.setEncryptedPassword(encryptedPassword);
 
         TfsMaterialConfig tfsMaterialConfig = (TfsMaterialConfig) configConverter.toMaterialConfig(crTfsMaterial, context);
 
@@ -814,7 +808,7 @@ class ConfigConverterTest {
         assertThat(tfsMaterialConfig.getFilterAsString()).isEqualTo("filter");
         assertThat(tfsMaterialConfig.getUrl()).isEqualTo("url");
         assertThat(tfsMaterialConfig.getUserName()).isEqualTo("user");
-        assertThat(tfsMaterialConfig.getPassword()).isEqualTo("secret");
+        assertThat(tfsMaterialConfig.getPassword()).isEqualTo("plain-text-password");
         assertThat(tfsMaterialConfig.getDomain()).isEqualTo("domain");
         assertThat(tfsMaterialConfig.getProjectPath()).isEqualTo("project");
 
@@ -1307,7 +1301,7 @@ class ConfigConverterTest {
         stage.setJobs(new JobConfigs(job));
         pipeline.addStageWithoutValidityAssertion(stage);
 
-        SvnMaterialConfig mat = new SvnMaterialConfig();
+        SvnMaterialConfig mat = svn();
         mat.setName(new CaseInsensitiveString("mat"));
         mat.setUrl("url");
         pipeline.addMaterialConfig(mat);
@@ -1571,7 +1565,7 @@ class ConfigConverterTest {
         P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("server:port", "view");
         p4MaterialConfig.setName(new CaseInsensitiveString("name"));
         p4MaterialConfig.setFolder("folder");
-        p4MaterialConfig.setEncryptedPassword("encryptedvalue");
+        p4MaterialConfig.setEncryptedPassword("plain-text-password");
         p4MaterialConfig.setFilter(Filter.create("filter"));
         p4MaterialConfig.setUserName("user");
         p4MaterialConfig.setUseTickets(true);
@@ -1585,7 +1579,7 @@ class ConfigConverterTest {
         assertThat(crp4Material.getFilterList()).contains("filter");
         assertThat(crp4Material.getPort()).isEqualTo("server:port");
         assertThat(crp4Material.getUsername()).isEqualTo("user");
-        assertThat(crp4Material.getEncryptedPassword()).isEqualTo("encryptedvalue");
+        assertThat(crp4Material.getEncryptedPassword()).isEqualTo("plain-text-password");
         assertThat(crp4Material.getPassword()).isNull();
         assertThat(crp4Material.isUseTickets()).isTrue();
         assertThat(crp4Material.getView()).isEqualTo("view");
@@ -1615,10 +1609,11 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertSvmMaterialConfigWhenEncryptedPassword() {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", true);
+    void shouldConvertSvmMaterialConfigWhenEncryptedPassword() throws CryptoException {
+        String encryptedPassword = new GoCipher().encrypt("plain-text-password");
+        SvnMaterialConfig svnMaterialConfig = svn("url", true);
         svnMaterialConfig.setName(new CaseInsensitiveString("name"));
-        svnMaterialConfig.setEncryptedPassword("encryptedvalue");
+        svnMaterialConfig.setEncryptedPassword(encryptedPassword);
         svnMaterialConfig.setFolder("folder");
         svnMaterialConfig.setFilter(Filter.create("filter"));
         svnMaterialConfig.setUserName("username");
@@ -1631,14 +1626,14 @@ class ConfigConverterTest {
         assertThat(crSvnMaterial.getFilterList()).contains("filter");
         assertThat(crSvnMaterial.getUrl()).isEqualTo("url");
         assertThat(crSvnMaterial.getUsername()).isEqualTo("username");
-        assertThat(crSvnMaterial.getEncryptedPassword()).isEqualTo("encryptedvalue");
+        assertThat(crSvnMaterial.getEncryptedPassword()).isEqualTo(encryptedPassword);
         assertThat(crSvnMaterial.getPassword()).isNull();
         assertThat(crSvnMaterial.isCheckExternals()).isTrue();
     }
 
     @Test
     void shouldConvertSvmMaterialConfigWhenPlainPassword() {
-        SvnMaterialConfig svnMaterialConfig = new SvnMaterialConfig("url", true);
+        SvnMaterialConfig svnMaterialConfig = svn("url", true);
         svnMaterialConfig.setName(new CaseInsensitiveString("name"));
         svnMaterialConfig.setPassword("pass");
         svnMaterialConfig.setFolder("folder");
@@ -1692,7 +1687,7 @@ class ConfigConverterTest {
         tfsMaterialConfig.setDomain("domain");
         tfsMaterialConfig.setProjectPath("project");
         tfsMaterialConfig.setName(new CaseInsensitiveString("name"));
-        tfsMaterialConfig.setEncryptedPassword("encryptedvalue");
+        tfsMaterialConfig.setEncryptedPassword("plain-text-password");
         tfsMaterialConfig.setFolder("folder");
         tfsMaterialConfig.setAutoUpdate(false);
         tfsMaterialConfig.setFilter(Filter.create("filter"));
@@ -1707,7 +1702,7 @@ class ConfigConverterTest {
         assertThat(crTfsMaterial.getFilterList()).contains("filter");
         assertThat(crTfsMaterial.getUrl()).isEqualTo("url");
         assertThat(crTfsMaterial.getUsername()).isEqualTo("user");
-        assertThat(crTfsMaterial.getEncryptedPassword()).isEqualTo("encryptedvalue");
+        assertThat(crTfsMaterial.getEncryptedPassword()).isEqualTo("plain-text-password");
         assertThat(crTfsMaterial.getPassword()).isNull();
         assertThat(crTfsMaterial.getDomain()).isEqualTo("domain");
         assertThat(crTfsMaterial.getProject()).isEqualTo("project");
@@ -1776,10 +1771,10 @@ class ConfigConverterTest {
     void shouldConvertEnvironmentVariableConfigWhenSecure() {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", null);
         environmentVariableConfig.setIsSecure(true);
-        environmentVariableConfig.setEncryptedValue("encryptedvalue");
+        environmentVariableConfig.setEncryptedValue("plain-text-password");
         CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
         assertThat(result.hasEncryptedValue()).isTrue();
-        assertThat(result.getEncryptedValue()).isEqualTo("encryptedvalue");
+        assertThat(result.getEncryptedValue()).isEqualTo("plain-text-password");
         assertThat(result.getValue()).isNull();
         assertThat(result.getName()).isEqualTo("key1");
     }

@@ -31,6 +31,7 @@ import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.server.domain.PluginSettings
 import org.junit.jupiter.api.Test
 
+import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
@@ -72,7 +73,7 @@ class PluginSettingsRepresenterTest {
   def pluginSettingsHash = [
     _links       : [
       doc : [
-        href: "https://api.gocd.org/19.4.0/#plugin-settings"
+        href: apiDocsUrl("#plugin-settings")
       ],
       find: [
         href: "http://test.host/go/api/admin/plugin_settings/:plugin_id"

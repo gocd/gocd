@@ -931,6 +931,57 @@ task newSPA {
   }
 }
 
+
+task removeApi {
+  description = "Helper to create a delete an api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
+
+  doFirst {
+    String apiName = project.apiName
+    String newProjectName = "api-${apiName}-${project.apiVersion}"
+    String moduleDir = file("api/${newProjectName}")
+    String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
+
+    project.delete(moduleDir)
+
+    List<String> springConfigContents = file('server/webapp/WEB-INF/applicationContext-global.xml').readLines("utf-8")
+    file('server/webapp/WEB-INF/applicationContext-global.xml').withWriter { out ->
+      def newContents = springConfigContents
+        .stream()
+        .filter({ eachLine -> !eachLine.contains("base-package=\"${packageName}\"") })
+        .collect(Collectors.joining("\n"))
+        .trim()
+      out.println(newContents)
+    }
+
+    List<String> settingsFileContents = file('settings.gradle').readLines("utf-8")
+    file('settings.gradle').withWriter {out ->
+      def newContents = settingsFileContents
+        .stream()
+        .filter({ eachLine -> !eachLine.contains("api:${newProjectName}") })
+        .collect(Collectors.joining("\n"))
+        .trim()
+      out.println(newContents)
+    }
+
+    List<String> gitIgnoreFileContents = file('.gitignore').readLines("utf-8")
+    file('.gitignore').withWriter {out ->
+      def newContents = gitIgnoreFileContents
+        .stream()
+        .filter({ eachLine -> !eachLine.startsWith("api/${newProjectName}/") })
+        .collect(Collectors.joining("\n"))
+        .trim()
+      out.println(newContents)
+    }
+    
+    project.exec {
+      commandLine = ['git', 'add', '-u']
+    }
+
+    project.exec {
+      commandLine = ['git', 'commit', '-m', "Removed ${apiName} version ${project.apiVersion}"]
+    }
+  }
+}
 task newApi {
   description = "Helper to create a new api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
 
@@ -1164,7 +1215,9 @@ task newApi {
       out.println("")
       out.println("rootProject.name = 'gocd'")
       out.println("")
-      def existingProjects = rootProject.allprojects.findAll { prj -> prj.childProjects.isEmpty() && !prj.path.startsWith(":docker") }.collect { it.path }
+      def existingProjects = rootProject.allprojects.findAll { prj -> prj.childProjects.isEmpty() && !prj.path.startsWith(":docker") }.collect {
+        it.path
+      }
       def newProjects = existingProjects + [":api:${newProjectName}"]
       newProjects.sort().unique().each { out.println "include '${it}'" }
       out.println("")

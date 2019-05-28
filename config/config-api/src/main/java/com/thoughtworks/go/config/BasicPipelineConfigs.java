@@ -31,16 +31,18 @@ import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
-@ConfigTag("pipelines")
+@ConfigTag(value = "pipelines", label = "PipelineGroup")
 @ConfigCollection(PipelineConfig.class)
 public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> implements PipelineConfigs, Serializable {
 
 
-    @ConfigAttribute(value = "group", optional = true) @SkipParameterResolution
+    @ConfigAttribute(value = "group", optional = true)
+    @SkipParameterResolution
     private String group;
 
 
-    @ConfigSubtag @SkipParameterResolution
+    @ConfigSubtag
+    @SkipParameterResolution
     private Authorization authorization = new Authorization();
 
     private ConfigOrigin configOrigin;
@@ -49,6 +51,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     public BasicPipelineConfigs() {
     }
+
     public BasicPipelineConfigs(ConfigOrigin configOrigin) {
         this.configOrigin = configOrigin;
     }
@@ -81,8 +84,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     @Override
     public void setOrigins(ConfigOrigin origins) {
         this.configOrigin = origins;
-        for(PipelineConfig pipe : this)
-        {
+        for (PipelineConfig pipe : this) {
             pipe.setOrigins(origins);
         }
         this.authorization.setOrigins(origins);
@@ -90,7 +92,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public PipelineConfig findBy(final CaseInsensitiveString pipelineName) {
-        for (int i=0; i< this.size(); i++) {
+        for (int i = 0; i < this.size(); i++) {
             PipelineConfig pipelineConfig = this.get(i);
             if (pipelineConfig.name().equals(pipelineName)) {
                 return pipelineConfig;
@@ -286,7 +288,9 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     @Override
     public boolean hasTemplate() {
         for (PipelineConfig pipelineConfig : this) {
-            if (pipelineConfig.hasTemplate()) { return true; }
+            if (pipelineConfig.hasTemplate()) {
+                return true;
+            }
         }
         return false;
     }
@@ -309,12 +313,11 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     @Override
     public void validate(ValidationContext validationContext) {
         this.validateGroupNameAndAddErrorsTo(this.configErrors);
-        if(this.configOrigin != null && //when there is no origin specified we should not check it at all
+        if (this.configOrigin != null && //when there is no origin specified we should not check it at all
                 !(this.configOrigin.isLocal()) &&
-                this.hasAuthorizationDefined())
-        {
+                this.hasAuthorizationDefined()) {
             this.configErrors.add(NO_REMOTE_AUTHORIZATION,
-                "Authorization can be defined only in configuration file");
+                    "Authorization can be defined only in configuration file");
         }
 
         verifyPipelineNameUniqueness();
@@ -322,7 +325,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     private void verifyPipelineNameUniqueness() {
         HashMap<CaseInsensitiveString, PipelineConfig> hashMap = new HashMap<>();
-        for(PipelineConfig pipelineConfig : this){
+        for (PipelineConfig pipelineConfig : this) {
             pipelineConfig.validateNameUniqueness(hashMap);
         }
     }
@@ -352,10 +355,10 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         return configErrors;
     }
 
-	@Override
+    @Override
     public List<PipelineConfig> getPipelines() {
-		return this;
-	}
+        return this;
+    }
 
     @Override
     public void addError(String fieldName, String message) {
@@ -402,8 +405,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
         if (attributeMap.containsKey(AUTHORIZATION)) {
             this.authorization = new Authorization();
             this.authorization.setConfigAttributes(attributeMap.get(AUTHORIZATION));
-        }
-        else {
+        } else {
             this.authorization = new Authorization();
         }
     }
@@ -412,7 +414,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     @Override
     public void cleanupAllUsagesOfRole(Role roleToDelete) {
         getAuthorization().removeAllUsagesOfRole(roleToDelete);
-        for (PipelineConfig pipelineConfig : this){
+        for (PipelineConfig pipelineConfig : this) {
             pipelineConfig.cleanupAllUsagesOfRole(roleToDelete);
         }
     }
@@ -429,7 +431,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
 
     @Override
     public PipelineConfig remove(int i) {
-         return super.remove(i);
+        return super.remove(i);
     }
 
     @Override
@@ -441,7 +443,7 @@ public class BasicPipelineConfigs extends BaseCollection<PipelineConfig> impleme
     }
 
     public PipelineConfigs getLocal() {
-        if(this.isLocal())
+        if (this.isLocal())
             return this;
         return null;
     }

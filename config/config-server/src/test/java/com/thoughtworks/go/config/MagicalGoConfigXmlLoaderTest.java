@@ -4370,7 +4370,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @Test
-    void shouldLoadHgConfigWithBranchAttributeForSchemaVersion123() throws Exception {
+    void shouldLoadHgConfigWithBranchAttributePostSchemaVersion123() throws Exception {
         String content = config(
                 "<config-repos>" +
                         "    <config-repo id=\"Test\" pluginId=\"cd.go.json\">" +
@@ -4396,7 +4396,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         "        </jobs>" +
                         "      </stage>" +
                         "    </pipeline>" +
-                        "</templates>", 123);
+                        "</templates>", CONFIG_SCHEMA_VERSION);
 
         CruiseConfig config = xmlLoader.loadConfigHolder(content).config;
 
@@ -4407,6 +4407,33 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(config.getConfigRepos()).hasSize(1);
         assertThat(((HgMaterialConfig) config.getConfigRepos().get(0).getMaterialConfig()).getBranch()).isEqualTo("feature");
 
+    }
+
+    @Test
+    void shouldLoadRulesConfigWhereActionAndTypeHasWildcardForSchemaVersion124() throws Exception {
+        String content = config(
+                "<secretConfigs>\n" +
+                        " <secretConfig id=\"example\" pluginId=\"vault_based_plugin\">\n" +
+                        "  <description>All secrets for env1</description>\n" +
+                        "  <configuration>\n" +
+                        "   <property>\n" +
+                        "      <key>path</key>\n" +
+                        "     <value>secret/dev/teamA</value>\n" +
+                        "   </property>\n" +
+                        "  </configuration>\n" +
+                        "  <rules>\n" +
+                        "   <deny action=\"*\" type=\"environment\">up42</deny>  \n" +
+                        "   <deny action=\"refer\" type=\"*\">up43</deny>  \n" +
+                        "  </rules>\n" +
+                        " </secretConfig>\n" +
+                        "</secretConfigs>", 124);
+
+        CruiseConfig config = xmlLoader.loadConfigHolder(content).config;
+
+        SecretConfig secretConfig = config.getSecretConfigs().find("example");
+
+        assertThat(secretConfig.getRules().first().action()).isEqualTo("*");
+        assertThat(secretConfig.getRules().get(1).type()).isEqualTo("*");
     }
 
     private void assertConfigProperty(Configuration configuration, String name, String plainTextValue, boolean shouldBeEncrypted) {

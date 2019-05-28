@@ -212,7 +212,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
                 if (secretConfig == null) {
                     missingSecretConfigs.add(secretParam.getSecretConfigId());
                 } else {
-                    if (!secretConfig.canRefer(parent.getType(), parent.getIdentifier())) {
+                    if (parent != null && !secretConfig.canRefer(parent.getType(), parent.getIdentifier())) {
                         canNotReferSecretConfigs.add(secretParam.getSecretConfigId());
                     }
                 }
@@ -391,19 +391,19 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
                 return new PipelineParent(validationContext.getPipelineGroup());
             }
 
-            if (validationContext.isWithinTemplates()) {
-                return new TemplateParent(validationContext.getTemplate());
-            }
-
             if (validationContext.isWithinEnvironment()) {
                 return new EnvironmentParent(validationContext.getEnvironment());
             }
 
-            throw new RuntimeException("Failed to detect parent for environment variable config");
+            return null;
         }
 
         public String getTag() {
-            return parent.getClass().getAnnotation(ConfigTag.class).value();
+            ConfigTag configTag = parent.getClass().getAnnotation(ConfigTag.class);
+            if (StringUtils.isNotBlank(configTag.label())) {
+                return configTag.label();
+            }
+            return configTag.value();
         }
 
         public Class<? extends Validatable> getType() {

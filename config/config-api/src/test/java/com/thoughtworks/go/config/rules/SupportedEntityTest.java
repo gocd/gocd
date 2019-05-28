@@ -48,18 +48,10 @@ class SupportedEntityTest {
     }
 
     @Test
-    void shouldSupportTemplate() {
-        assertThat(TEMPLATE.getType()).isEqualTo("template");
-        assertThat(TEMPLATE.getEntityType()).isEqualTo(PipelineTemplateConfig.class);
-
-        assertThat(TEMPLATE.getEntityType().isAssignableFrom(PipelineTemplateConfig.class)).isTrue();
-    }
-
-    @Test
     void shouldReturnUnmodifiableListOfTheSupportedEntities() {
-        List<String> entities = unmodifiableListOf(PIPELINE_GROUP, TEMPLATE);
+        List<String> entities = unmodifiableListOf(PIPELINE_GROUP, ENVIRONMENT);
 
-        assertThat(entities).hasSize(2).contains(PIPELINE_GROUP.getType(), TEMPLATE.getType());
+        assertThat(entities).hasSize(2).contains(PIPELINE_GROUP.getType(), ENVIRONMENT.getType());
         assertThatCode(() -> entities.add("foo"))
                 .isInstanceOf(UnsupportedOperationException.class);
     }

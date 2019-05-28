@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -43,6 +42,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
@@ -154,7 +154,7 @@ public class PipelineConfigServicePerformanceTest {
             public void run() {
                 JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
                 StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig));
-                PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(Thread.currentThread().getName()), new MaterialConfigs(new GitMaterialConfig("FOO")), stageConfig);
+                PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString(Thread.currentThread().getName()), new MaterialConfigs(git("FOO")), stageConfig);
                 PerfTimer updateTimer = PerfTimer.start("Saving pipelineConfig : " + pipelineConfig.name());
                 pipelineConfigService.createPipelineConfig(user, pipelineConfig, result, "jumbo");
                 updateTimer.stop();
@@ -259,7 +259,7 @@ public class PipelineConfigServicePerformanceTest {
         for (int i = 0; i < numberOfPipelinesToBeCreated; i++) {
             JobConfig jobConfig = new JobConfig(new CaseInsensitiveString("job"));
             StageConfig stageConfig = new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(jobConfig));
-            PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline" + i), new MaterialConfigs(new GitMaterialConfig("FOO")), stageConfig);
+            PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("pipeline" + i), new MaterialConfigs(git("FOO")), stageConfig);
             configForEditing.addPipeline(groupName, pipelineConfig);
         }
 

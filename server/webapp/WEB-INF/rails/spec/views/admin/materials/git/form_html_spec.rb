@@ -21,7 +21,7 @@ describe "_form.html.erb" do
   include FormUI
 
   before(:each) do
-    @material_config = GitMaterialConfig.new("git://foo", "master")
+    @material_config = com.thoughtworks.go.helper.MaterialConfigsMother.git("git://foo", "master")
     @material_config.setFolder("dest")
     @material_config.setName(CaseInsensitiveString.new("Git Material Name"))
     @material_config.setAutoUpdate(true)

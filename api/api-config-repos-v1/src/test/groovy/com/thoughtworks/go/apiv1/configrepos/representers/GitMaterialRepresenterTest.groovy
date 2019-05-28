@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 
@@ -32,7 +33,7 @@ class GitMaterialRepresenterTest {
 
   @Test
   void toJSON() {
-    GitMaterialConfig config = new GitMaterialConfig(REPO_URL, BRANCH)
+    GitMaterialConfig config = git(REPO_URL, BRANCH)
     String json = toObjectString({ w -> GitMaterialRepresenter.toJSON(w, config) })
 
     assertThatJson(json).isEqualTo([
@@ -54,7 +55,7 @@ class GitMaterialRepresenterTest {
         auto_upate: true
       ])
 
-      MaterialConfig expected = new GitMaterialConfig(REPO_URL, BRANCH)
+      MaterialConfig expected = git(REPO_URL, BRANCH)
       assertEquals(expected, GitMaterialRepresenter.fromJSON(json))
     }
 
@@ -67,7 +68,7 @@ class GitMaterialRepresenterTest {
         auto_upate: true
       ])
 
-      MaterialConfig expected = new GitMaterialConfig(null, BRANCH)
+      MaterialConfig expected = git(null, BRANCH)
       assertEquals(expected, GitMaterialRepresenter.fromJSON(json))
     }
 
@@ -79,7 +80,7 @@ class GitMaterialRepresenterTest {
         auto_upate: true
       ])
 
-      MaterialConfig expected = new GitMaterialConfig(null, BRANCH)
+      MaterialConfig expected = git(null, BRANCH)
       assertEquals(expected, GitMaterialRepresenter.fromJSON(json))
     }
   }

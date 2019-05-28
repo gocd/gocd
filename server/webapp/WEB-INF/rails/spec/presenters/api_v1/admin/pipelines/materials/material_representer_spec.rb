@@ -60,8 +60,8 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      git_config = GitMaterialConfig.new(UrlArgument.new(''), nil, nil, '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
-      dup_git_material = GitMaterialConfig.new(UrlArgument.new(''), nil, nil, '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
+      git_config = com.thoughtworks.go.helper.MaterialConfigsMother.git(UrlArgument.new(''), nil, nil, '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
+      dup_git_material = com.thoughtworks.go.helper.MaterialConfigsMother.git(UrlArgument.new(''), nil, nil, '', '', true, nil, false, '', CaseInsensitiveString.new('!nV@l!d'), false)
       material_configs = MaterialConfigs.new(git_config);
       material_configs.add(dup_git_material)
 
@@ -70,7 +70,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should serialize material without name" do
-      git_material = GitMaterialConfig.new("http://funk.com/blank")
+      git_material = com.thoughtworks.go.helper.MaterialConfigsMother.git("http://funk.com/blank")
       git_material.setUserName("user")
       git_material.setPassword("password")
 
@@ -82,7 +82,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
 
 
     it "should serialize material with blank branch" do
-      git_material = GitMaterialConfig.new("http://funk.com/blank", "")
+      git_material = com.thoughtworks.go.helper.MaterialConfigsMother.git("http://funk.com/blank", "")
       git_material.setUserName("user")
       git_material.setPassword("password")
 
@@ -93,7 +93,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should deserialize material without name" do
-      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
+      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(com.thoughtworks.go.helper.MaterialConfigsMother.git)
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {
@@ -105,7 +105,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
                                                     name: nil
                                                   }
                                                 })
-      expected = GitMaterialConfig.new("http://funk.com/blank")
+      expected = com.thoughtworks.go.helper.MaterialConfigsMother.git("http://funk.com/blank")
       expected.setUserName("user")
       expected.setPassword("password")
       expect(deserialized_object.autoUpdate).to eq(expected.autoUpdate)
@@ -114,7 +114,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should deserialize material without invert_filter" do
-      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
+      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(com.thoughtworks.go.helper.MaterialConfigsMother.git)
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {
@@ -127,7 +127,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
                                                     invert_filter: nil
                                                   }
                                                 })
-      expected = GitMaterialConfig.new("http://funk.com/blank")
+      expected = com.thoughtworks.go.helper.MaterialConfigsMother.git("http://funk.com/blank")
       expected.setUserName("user")
       expected.setPassword("password")
       expect(deserialized_object.invertFilter).to eq(expected.invertFilter)
@@ -135,7 +135,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should deserialize material with invert_filter" do
-      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
+      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(com.thoughtworks.go.helper.MaterialConfigsMother.git)
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {
@@ -148,7 +148,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
                                                     invert_filter: true
                                                   }
                                                 })
-      expected = GitMaterialConfig.new("http://funk.com/blank")
+      expected = com.thoughtworks.go.helper.MaterialConfigsMother.git("http://funk.com/blank")
       expected.setUserName("user")
       expected.setPassword("password")
       expected.setInvertFilter(true)
@@ -157,7 +157,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     it "should deserialize material with blank branch" do
-      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(GitMaterialConfig.new)
+      presenter = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(com.thoughtworks.go.helper.MaterialConfigsMother.git)
       deserialized_object = presenter.from_hash({
                                                   type: 'git',
                                                   attributes: {

@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config;
 
 
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -28,6 +27,7 @@ import org.junit.Before;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -38,13 +38,12 @@ import static org.mockito.Mockito.when;
  */
 public class GoConfigDaoMergedTest extends GoConfigDaoTestBase {
 
-    public  GoConfigDaoMergedTest()
-    {
+    public GoConfigDaoMergedTest() {
         GoPartialConfig partials = mock(GoPartialConfig.class);
         List<PartialConfig> parts = new ArrayList<>();
         parts.add(new PartialConfig(new PipelineGroups(
                 PipelineConfigMother.createGroup("part1", PipelineConfigMother.pipelineConfig("remote-pipe")))));
-        parts.get(0).setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("http://config-repo.git"),"someplugin"),"3213455"));
+        parts.get(0).setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(git("http://config-repo.git"), "someplugin"), "3213455"));
 
         when(partials.lastPartials()).thenReturn(parts);
 

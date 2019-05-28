@@ -17,7 +17,6 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.Modification;
@@ -42,6 +41,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static com.thoughtworks.go.config.ConfigReposMaterialParseResultManager.ConfigRepoReparseListener;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -61,7 +61,7 @@ class ConfigReposMaterialParseResultManagerTest {
         initMocks(this);
 
         when(serverHealthService.filterByScope(any())).thenReturn(Collections.emptyList());
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(material, "myplugin");
         when(configRepoService.findByFingerprint(anyString())).thenReturn(configRepoConfig);
 

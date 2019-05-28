@@ -399,7 +399,10 @@ public class ConfigConverter {
             String gitBranch = git.getBranch();
             if (StringUtils.isBlank(gitBranch))
                 gitBranch = GitMaterialConfig.DEFAULT_BRANCH;
-            GitMaterialConfig gitConfig = new GitMaterialConfig(git.getUrl(), gitBranch, git.isShallowClone());
+            GitMaterialConfig gitConfig = new GitMaterialConfig();
+            gitConfig.setUrl(git.getUrl());
+            gitConfig.setBranch(gitBranch);
+            gitConfig.setShallowClone(git.isShallowClone());
             setCommonMaterialMembers(gitConfig, crScmMaterial);
             setCommonScmMaterialMembers(gitConfig, git);
             return gitConfig;

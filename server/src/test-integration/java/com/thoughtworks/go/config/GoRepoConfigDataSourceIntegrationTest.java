@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.server.service.ConfigRepoService;
@@ -40,6 +39,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.DEFAULT_XML_WITH_2_AGENTS;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -86,7 +86,7 @@ public class GoRepoConfigDataSourceIntegrationTest {
         configHelper.addTemplate("t1", "param1", "stage");
         File templateConfigRepo = temporaryFolder.newFolder();
         String latestRevision = setupExternalConfigRepo(templateConfigRepo, "external_git_config_repo_referencing_template_with_params");
-        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig(templateConfigRepo.getAbsolutePath()), "gocd-xml");
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(git(templateConfigRepo.getAbsolutePath()), "gocd-xml");
         configHelper.addConfigRepo(configRepoConfig);
 
         goConfigService.forceNotifyListeners();

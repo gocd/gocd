@@ -15,11 +15,6 @@
  */
 package com.thoughtworks.go.server.domain;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.Queue;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.Filter;
@@ -36,6 +31,11 @@ import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.filteredHgMaterialConfig;
 import static org.hamcrest.Matchers.hasItems;
@@ -56,9 +56,9 @@ public class PipelineConfigDependencyGraphTest {
         PipelineConfig uppest = GoConfigMother.createPipelineConfigWithMaterialConfig("uppest", hgConfig);
 
         PipelineConfigDependencyGraph dependencyGraph = new PipelineConfigDependencyGraph(current,
-                                                            new PipelineConfigDependencyGraph(up1, new PipelineConfigDependencyGraph(uppest)),
-                                                            new PipelineConfigDependencyGraph(up2, new PipelineConfigDependencyGraph(uppest))
-                                                        );
+                new PipelineConfigDependencyGraph(up1, new PipelineConfigDependencyGraph(uppest)),
+                new PipelineConfigDependencyGraph(up2, new PipelineConfigDependencyGraph(uppest))
+        );
 
         Queue<PipelineConfigDependencyGraph.PipelineConfigQueueEntry> queue = new LinkedList<>();
         queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(up1, Arrays.asList(current, up1)));
@@ -77,9 +77,9 @@ public class PipelineConfigDependencyGraphTest {
         PipelineConfig uppest = GoConfigMother.createPipelineConfigWithMaterialConfig("uppest");
 
         PipelineConfigDependencyGraph dependencyGraph = new PipelineConfigDependencyGraph(current,
-                                                            new PipelineConfigDependencyGraph(up1, new PipelineConfigDependencyGraph(upper, new PipelineConfigDependencyGraph(uppest)), new PipelineConfigDependencyGraph(uppest)),
-                                                            new PipelineConfigDependencyGraph(up2, new PipelineConfigDependencyGraph(upper, new PipelineConfigDependencyGraph(uppest)), new PipelineConfigDependencyGraph(uppest))
-                                                        );
+                new PipelineConfigDependencyGraph(up1, new PipelineConfigDependencyGraph(upper, new PipelineConfigDependencyGraph(uppest)), new PipelineConfigDependencyGraph(uppest)),
+                new PipelineConfigDependencyGraph(up2, new PipelineConfigDependencyGraph(upper, new PipelineConfigDependencyGraph(uppest)), new PipelineConfigDependencyGraph(uppest))
+        );
 
         Queue<PipelineConfigDependencyGraph.PipelineConfigQueueEntry> queue = new LinkedList<>();
         queue.add(new PipelineConfigDependencyGraph.PipelineConfigQueueEntry(up1, Arrays.asList(current, up1)));
@@ -156,7 +156,7 @@ public class PipelineConfigDependencyGraphTest {
 
         assertThat(dependencyGraph.allMaterialFingerprints().size(), is(7));
         assertThat(dependencyGraph.allMaterialFingerprints(), hasItems(common.getFingerprint(), firstOrderSVNMaterial.getFingerprint(), firstOrderGitMaterial.getFingerprint(), firstOrderP4Material.getFingerprint(),
-                                                                        up1DependencyMaterial.getFingerprint(), up2DependencyMaterial.getFingerprint(), uppestDependencyMaterial.getFingerprint()));
+                up1DependencyMaterial.getFingerprint(), up2DependencyMaterial.getFingerprint(), uppestDependencyMaterial.getFingerprint()));
     }
 
     @Test

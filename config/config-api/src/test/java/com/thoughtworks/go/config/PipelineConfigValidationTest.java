@@ -33,6 +33,7 @@ import org.junit.Test;
 
 import java.util.List;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
@@ -291,7 +292,7 @@ public class PipelineConfigValidationTest {
     public void shouldFailValidateWhenUpstreamStageForDependencyMaterialDoesNotExist() {
         String upstreamPipeline = "upstream";
         String upstreamStage = "non-existant";
-        PipelineConfig upstream = GoConfigMother.createPipelineConfigWithMaterialConfig(upstreamPipeline, new GitMaterialConfig("url"));
+        PipelineConfig upstream = GoConfigMother.createPipelineConfigWithMaterialConfig(upstreamPipeline, git("url"));
         PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig("downstream",
                 new DependencyMaterialConfig(new CaseInsensitiveString(upstreamPipeline), new CaseInsensitiveString(upstreamStage)));
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig, upstream));
@@ -497,7 +498,7 @@ public class PipelineConfigValidationTest {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1");
         String group = "group";
         cruiseConfig.getGroups().add(new BasicPipelineConfigs(group, new Authorization()));
-        PipelineConfig p1Duplicate = GoConfigMother.createPipelineConfigWithMaterialConfig("p1", new GitMaterialConfig("url"));
+        PipelineConfig p1Duplicate = GoConfigMother.createPipelineConfigWithMaterialConfig("p1", git("url"));
         cruiseConfig.addPipeline(group, p1Duplicate);
         PipelineConfigSaveValidationContext context = PipelineConfigSaveValidationContext.forChain(true, group, cruiseConfig, p1Duplicate);
         p1Duplicate.validateTree(context);

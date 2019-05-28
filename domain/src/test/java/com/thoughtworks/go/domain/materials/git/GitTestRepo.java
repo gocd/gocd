@@ -83,15 +83,18 @@ public class GitTestRepo extends TestRepo {
         return FileUtil.toFileURI(gitRepo);
     }
 
-    @Override public List<Modification> checkInOneFile(String fileName, String comment) throws IOException {
-        return addFileAndPush(fileName ,comment);
+    @Override
+    public List<Modification> checkInOneFile(String fileName, String comment) throws IOException {
+        return addFileAndPush(fileName, comment);
     }
 
-    @Override public List<Modification> latestModification() {
+    @Override
+    public List<Modification> latestModification() {
         return git(gitRepo).latestModification();
     }
 
-    @Override public Material material() {
+    @Override
+    public Material material() {
         return createMaterial();
     }
 

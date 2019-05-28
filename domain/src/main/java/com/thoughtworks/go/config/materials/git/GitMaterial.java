@@ -107,7 +107,19 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
 
     @Override
     public MaterialConfig config() {
-        return new GitMaterialConfig(url, userName, getPassword(), branch, submoduleFolder, autoUpdate, filter, invertFilter, folder, name, shallowClone);
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
+        gitMaterialConfig.setUrl(this.url.originalArgument());
+        gitMaterialConfig.setUserName(this.userName);
+        gitMaterialConfig.setPassword(getPassword());
+        gitMaterialConfig.setSubmoduleFolder(this.submoduleFolder);
+        gitMaterialConfig.setAutoUpdate(this.autoUpdate);
+        gitMaterialConfig.setFilter(this.filter);
+        gitMaterialConfig.setInvertFilter(this.invertFilter);
+        gitMaterialConfig.setFolder(this.folder);
+        gitMaterialConfig.setName(this.name);
+        gitMaterialConfig.setShallowClone(this.shallowClone);
+        Optional.ofNullable(this.branch).ifPresent(gitMaterialConfig::setBranch);
+        return gitMaterialConfig;
     }
 
     public List<Modification> latestModification(File baseDir, final SubprocessExecutionContext execCtx) {

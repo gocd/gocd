@@ -31,6 +31,8 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+
 public class PartialConfigMother {
     public static PartialConfig empty() {
         return new PartialConfig();
@@ -120,7 +122,7 @@ public class PartialConfigMother {
     }
 
     public static RepoConfigOrigin createRepoOrigin() {
-        return new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("http://some.git"), "myplugin", "repo-id"), "1234fed");
+        return new RepoConfigOrigin(new ConfigRepoConfig(git("http://some.git"), "myplugin", "repo-id"), "1234fed");
     }
 
     public static PartialConfig withEnvironment(String name, RepoConfigOrigin repoConfigOrigin) {

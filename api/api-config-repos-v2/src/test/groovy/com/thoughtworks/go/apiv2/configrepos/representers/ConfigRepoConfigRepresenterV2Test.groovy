@@ -25,6 +25,7 @@ import com.thoughtworks.go.spark.Routes
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 
@@ -135,7 +136,7 @@ class ConfigRepoConfigRepresenterV2Test {
     c.addNewConfigurationWithValue("foo", "bar", false)
     c.addNewConfigurationWithValue("baz", "quu", false)
 
-    GitMaterialConfig materialConfig = new GitMaterialConfig(TEST_REPO_URL)
+    GitMaterialConfig materialConfig = git(TEST_REPO_URL)
     ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
     repo.setConfiguration(c)
 

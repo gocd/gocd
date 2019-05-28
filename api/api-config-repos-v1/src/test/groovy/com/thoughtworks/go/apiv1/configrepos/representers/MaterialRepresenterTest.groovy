@@ -20,11 +20,11 @@ import com.thoughtworks.go.api.representers.JsonReader
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.config.materials.PackageMaterialConfig
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.domain.materials.MaterialConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertThrows
@@ -36,7 +36,7 @@ class MaterialRepresenterTest {
 
   @Test
   void toJSON() {
-    MaterialConfig config = new GitMaterialConfig(REPO_URL, BRANCH)
+    MaterialConfig config = git(REPO_URL, BRANCH)
     String json = toObjectString({ w -> MaterialRepresenter.toJSON(w, config) })
 
     assertThatJson(json).isEqualTo([
@@ -72,7 +72,7 @@ class MaterialRepresenterTest {
       ]
     ])
 
-    MaterialConfig expected = new GitMaterialConfig(REPO_URL, BRANCH)
+    MaterialConfig expected = git(REPO_URL, BRANCH)
     assertEquals(expected, MaterialRepresenter.fromJSON(json))
   }
 

@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -37,6 +36,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -58,7 +58,7 @@ public class PipelineConfigServiceTest {
         cruiseConfig = new BasicCruiseConfig(configs);
         cruiseConfig.addEnvironment(environment("foo", "in_env"));
         PipelineConfig remotePipeline = PipelineConfigMother.pipelineConfig("remote");
-        remotePipeline.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(new GitMaterialConfig("url"), "plugin"), "1234"));
+        remotePipeline.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(git("url"), "plugin"), "1234"));
         cruiseConfig.addPipeline("group", remotePipeline);
 
         goConfigService = mock(GoConfigService.class);

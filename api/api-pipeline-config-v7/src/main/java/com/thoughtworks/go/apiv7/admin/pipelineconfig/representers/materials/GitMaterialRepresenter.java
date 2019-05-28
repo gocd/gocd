@@ -33,7 +33,8 @@ public class GitMaterialRepresenter extends ScmMaterialRepresenter<GitMaterialCo
 
     @Override
     public GitMaterialConfig fromJSON(JsonReader jsonReader, ConfigHelperOptions options) {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig(jsonReader.optString("url").orElse(null));
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
+        jsonReader.readStringIfPresent("url", gitMaterialConfig::setUrl);
         super.fromJSON(jsonReader, gitMaterialConfig, options);
         jsonReader.optString("branch").ifPresent(branch -> {
             if (StringUtils.isNotBlank(branch)) {

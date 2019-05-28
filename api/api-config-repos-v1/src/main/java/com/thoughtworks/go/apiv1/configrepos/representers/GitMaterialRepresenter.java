@@ -29,7 +29,8 @@ class GitMaterialRepresenter {
     }
 
     static MaterialConfig fromJSON(JsonReader json) {
-        GitMaterialConfig materialConfig = new GitMaterialConfig(json.optString("url").orElse(null));
+        GitMaterialConfig materialConfig = new GitMaterialConfig();
+        json.readStringIfPresent("url", materialConfig::setUrl);
         json.readStringIfPresent("name", materialConfig::setName);
         json.readBooleanIfPresent("auto_update", materialConfig::setAutoUpdate);
         json.readStringIfPresent("branch", materialConfig::setBranch);

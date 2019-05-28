@@ -58,6 +58,7 @@ import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.FilterMother.filterFor;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.apache.commons.lang3.builder.EqualsBuilder.reflectionEquals;
 import static org.apache.commons.lang3.builder.ToStringBuilder.reflectionToString;
 import static org.hamcrest.Matchers.*;
@@ -76,7 +77,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     @DataPoint
     public static MaterialConfig svnMaterialConfig = new SvnMaterialConfig(url("svn-url"), "user", "pass", true, new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("name1"));
     @DataPoint
-    public static MaterialConfig gitMaterialConfig = new GitMaterialConfig(url("git-url"), null, "pass", "branch", "submodule", true, filterFor("*.doc"), false, "folder", cis("gitMaterial"), false);
+    public static MaterialConfig gitMaterialConfig = git(url("git-url"), null, "pass", "branch", "submodule", true, filterFor("*.doc"), false, "folder", cis("gitMaterial"), false);
     @DataPoint
     public static MaterialConfig hgMaterialConfig = new HgMaterialConfig(new HgUrlArgument("hg-url"), null, "pass", null, true, filterFor("*.png"), false, "folder", cis("hgMaterial"));
     @DataPoint

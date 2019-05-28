@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.SubprocessExecutionContext;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -76,12 +75,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -98,25 +94,43 @@ public class BuildCauseProducerServiceIntegrationTest {
 
     private static final String STAGE_NAME = "dev";
 
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private PipelineDao pipelineDao;
-    @Autowired private PipelineScheduler buildCauseProducer;
-    @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
-    @Autowired private ServerHealthService serverHealthService;
-    @Autowired private ScheduleHelper scheduleHelper;
-	@Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private MaterialDatabaseUpdater materialDatabaseUpdater;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private SubprocessExecutionContext subprocessExecutionContext;
-    @Autowired private PipelinePauseService pipelinePauseService;
-    @Autowired private PipelineTimeline pipelineTimeline;
-    @Autowired private BuildCauseProducerService service;
-    @Autowired private MaterialUpdateStatusNotifier materialUpdateStatusNotifier;
-    @Autowired private TriggerMonitor triggerMonitor;
-    @Autowired private GoPartialConfig goPartialConfig;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private PipelineDao pipelineDao;
+    @Autowired
+    private PipelineScheduler buildCauseProducer;
+    @Autowired
+    private PipelineScheduleQueue pipelineScheduleQueue;
+    @Autowired
+    private ServerHealthService serverHealthService;
+    @Autowired
+    private ScheduleHelper scheduleHelper;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private MaterialDatabaseUpdater materialDatabaseUpdater;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private SubprocessExecutionContext subprocessExecutionContext;
+    @Autowired
+    private PipelinePauseService pipelinePauseService;
+    @Autowired
+    private PipelineTimeline pipelineTimeline;
+    @Autowired
+    private BuildCauseProducerService service;
+    @Autowired
+    private MaterialUpdateStatusNotifier materialUpdateStatusNotifier;
+    @Autowired
+    private TriggerMonitor triggerMonitor;
+    @Autowired
+    private GoPartialConfig goPartialConfig;
 
-    @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
 
     private static GoConfigFileHelper configHelper = new GoConfigFileHelper();
     public Subversion repository;
@@ -151,7 +165,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
         repository = new SvnCommand(null, svnRepository.projectRepositoryUrl());
 
-        PipelineConfig goParentPipelineConfig = configHelper.addPipeline(GO_PIPELINE_UPSTREAM, STAGE_NAME, new MaterialConfigs(new GitMaterialConfig("foo-bar")), "unit");
+        PipelineConfig goParentPipelineConfig = configHelper.addPipeline(GO_PIPELINE_UPSTREAM, STAGE_NAME, new MaterialConfigs(git("foo-bar")), "unit");
 
         goPipelineConfig = configHelper.addPipeline(GO_PIPELINE_NAME, STAGE_NAME, repository, "unit");
 
@@ -164,7 +178,8 @@ public class BuildCauseProducerServiceIntegrationTest {
         materialRevisions.addRevision(anotherSvnMaterial, anotherSvnMaterial.latestModification(null, subprocessExecutionContext));
 
         transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-            @Override protected void doInTransactionWithoutResult(TransactionStatus status) {
+            @Override
+            protected void doInTransactionWithoutResult(TransactionStatus status) {
                 materialRepository.save(svnMaterialRevs);
             }
         });
@@ -194,11 +209,12 @@ public class BuildCauseProducerServiceIntegrationTest {
         configHelper.onTearDown();
     }
 
-    @Test public void manualSchedulePipeline_canProduceShouldNotgetIntoCyclicLoopWithTriggerMonitor() throws Exception {
+    @Test
+    public void manualSchedulePipeline_canProduceShouldNotgetIntoCyclicLoopWithTriggerMonitor() throws Exception {
         OperationResult operationResult = new ServerHealthStateOperationResult();
         buildCauseProducer.manualProduceBuildCauseAndSave(MINGLE_PIPELINE_NAME, Username.ANONYMOUS, new ScheduleOptions(), operationResult);
         scheduleHelper.waitForAnyScheduled(5);
-        assertThat(operationResult.canContinue(),is(true));
+        assertThat(operationResult.canContinue(), is(true));
     }
 
 
@@ -456,7 +472,7 @@ public class BuildCauseProducerServiceIntegrationTest {
 
     @Test
     public void shouldTriggerMDUOfConfigRepoMaterialIfThePipelineIsDefinedRemotelyInAConfigRepo_ManualTriggerOfPipeline_EvenIfMDUOptionIsTurnedOFFInRequest() throws Exception {
-        ConfigRepoConfig repoConfig = new ConfigRepoConfig(new GitMaterialConfig("url2"), "plugin");
+        ConfigRepoConfig repoConfig = new ConfigRepoConfig(git("url2"), "plugin");
         configHelper.addConfigRepo(repoConfig);
         PartialConfig partialConfig = PartialConfigMother.withPipelineMultipleMaterials("remote_pipeline", new RepoConfigOrigin(repoConfig, "4567"));
         PipelineConfig remotePipeline = partialConfig.getGroups().first().getPipelines().get(0);

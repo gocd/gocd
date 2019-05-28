@@ -29,6 +29,7 @@ import com.thoughtworks.go.util.command.UrlArgument
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertNull
@@ -46,8 +47,8 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   def existingMaterialWithErrors() {
-    def gitConfig = new GitMaterialConfig(new UrlArgument(''), null,  null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
-    def dupGitMaterial = new GitMaterialConfig(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
+    def gitConfig = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
+    def dupGitMaterial = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
     def materialConfigs = new MaterialConfigs(gitConfig)
     materialConfigs.add(dupGitMaterial)
 
@@ -57,33 +58,33 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
 
   @Test
   void "should serialize material without name"() {
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, new GitMaterialConfig("http://user:password@funk.com/blank")) })
+    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, git("http://user:password@funk.com/blank")) })
 
     assertThatJson(actualJson).isEqualTo(gitMaterialBasicHash)
   }
 
   @Test
-  void "should serialize material with blank branch" () {
-    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, new GitMaterialConfig("http://user:password@funk.com/blank", "")) })
+  void "should serialize material with blank branch"() {
+    def actualJson = toObjectString({ MaterialRepresenter.toJSON(it, git("http://user:password@funk.com/blank", "")) })
 
     assertThatJson(actualJson).isEqualTo(gitMaterialBasicHash)
   }
 
   @Test
-  void "should deserialize material without name" () {
+  void "should deserialize material without name"() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom([
-      type: 'git',
+      type      : 'git',
       attributes:
-      [
-        url: "http://user:password@funk.com/blank",
-        branch: "master",
-        auto_update: true,
-        name: null
-      ]
+        [
+          url        : "http://user:password@funk.com/blank",
+          branch     : "master",
+          auto_update: true,
+          name       : null
+        ]
     ])
 
     def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
-    def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
+    def expected = git("http://user:password@funk.com/blank")
 
     assertEquals(expected.isAutoUpdate(), deserializedObject.isAutoUpdate())
     assertNull(deserializedObject.getName())
@@ -91,40 +92,40 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   @Test
-  void "should deserialize material without invert_filter" () {
+  void "should deserialize material without invert_filter"() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom([
-      type: 'git',
+      type      : 'git',
       attributes:
-      [
-        url: "http://user:password@funk.com/blank",
-        branch: "master",
-        auto_update: true,
-        name: null,
-        invert_filter: null
-      ]
+        [
+          url          : "http://user:password@funk.com/blank",
+          branch       : "master",
+          auto_update  : true,
+          name         : null,
+          invert_filter: null
+        ]
     ])
     def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
-    def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
+    def expected = git("http://user:password@funk.com/blank")
 
     assertEquals(expected.isInvertFilter(), deserializedObject.isInvertFilter())
     assertEquals(expected, deserializedObject)
   }
 
   @Test
-  void "should deserialize material with invert_filter" () {
+  void "should deserialize material with invert_filter"() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom([
-      type: 'git',
+      type      : 'git',
       attributes:
-      [
-        url: "http://user:password@funk.com/blank",
-        branch: "master",
-        auto_update: true,
-        name: null,
-        invert_filter: true
-      ]
+        [
+          url          : "http://user:password@funk.com/blank",
+          branch       : "master",
+          auto_update  : true,
+          name         : null,
+          invert_filter: true
+        ]
     ])
     def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
-    def expected = new GitMaterialConfig("http://user:password@funk.com/blank")
+    def expected = git("http://user:password@funk.com/blank")
     expected.setInvertFilter(true)
 
     assertEquals(expected.isInvertFilter(), deserializedObject.isInvertFilter())
@@ -132,73 +133,73 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   @Test
-  void "should deserialize material with blank branch" () {
+  void "should deserialize material with blank branch"() {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom([
-      type: 'git',
+      type      : 'git',
       attributes:
-      [
-        url: "http://user:password@funk.com/blank",
-        branch: "",
-        auto_update: true,
-        name: null
-      ]
+        [
+          url        : "http://user:password@funk.com/blank",
+          branch     : "",
+          auto_update: true,
+          name       : null
+        ]
     ])
     def deserializedObject = MaterialRepresenter.fromJSON(jsonReader, getOptions())
     assertEquals("master", ((GitMaterialConfig) deserializedObject).getBranch().toString())
   }
 
   def materialHash =
-  [
-    type: 'git',
-    attributes: [
-      url: "http://user:password@funk.com/blank",
-      destination: "destination",
-      filter: [
-        ignore: ['**/*.html','**/foobar/']
-      ],
-      invert_filter: false,
-      branch: 'branch',
-      submodule_folder: 'sub_module_folder',
-      shallow_clone: true,
-      name: 'AwesomeGitMaterial',
-      auto_update: false
+    [
+      type      : 'git',
+      attributes: [
+        url             : "http://user:password@funk.com/blank",
+        destination     : "destination",
+        filter          : [
+          ignore: ['**/*.html', '**/foobar/']
+        ],
+        invert_filter   : false,
+        branch          : 'branch',
+        submodule_folder: 'sub_module_folder',
+        shallow_clone   : true,
+        name            : 'AwesomeGitMaterial',
+        auto_update     : false
+      ]
     ]
-  ]
 
   def gitMaterialBasicHash =
-  [
-    type: 'git',
-    attributes: [
-      url: "http://user:password@funk.com/blank",
-      destination: null,
-      filter: null,
-      invert_filter: false,
-      name: null,
-      auto_update: true,
-      branch: "master",
-      submodule_folder: null,
-      shallow_clone: false
+    [
+      type      : 'git',
+      attributes: [
+        url             : "http://user:password@funk.com/blank",
+        destination     : null,
+        filter          : null,
+        invert_filter   : false,
+        name            : null,
+        auto_update     : true,
+        branch          : "master",
+        submodule_folder: null,
+        shallow_clone   : false
+      ]
     ]
-  ]
 
-    def expectedMaterialHashWithErrors =
-  [
-    type: "git",
-    attributes: [
-      url: "",
-      destination: "",
-      filter: null,
-      invert_filter: false,
-      name: "!nV@l!d",
-      auto_update: true,
-      branch: "master",
-      submodule_folder: "",
-      shallow_clone: false
-    ],
-    errors: [
-      name: ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
-      destination: ["Destination directory is required when specifying multiple scm materials"],
-      url: ["URL cannot be blank"]
+  def expectedMaterialHashWithErrors =
+    [
+      type      : "git",
+      attributes: [
+        url             : "",
+        destination     : "",
+        filter          : null,
+        invert_filter   : false,
+        name            : "!nV@l!d",
+        auto_update     : true,
+        branch          : "master",
+        submodule_folder: "",
+        shallow_clone   : false
+      ],
+      errors    : [
+        name       : ["You have defined multiple materials called '!nV@l!d'. Material names are case-insensitive and must be unique. Note that for dependency materials the default materialName is the name of the upstream pipeline. You can override this by setting the materialName explicitly for the upstream pipeline.", "Invalid material name '!nV@l!d'. This must be alphanumeric and can contain underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters."],
+        destination: ["Destination directory is required when specifying multiple scm materials"],
+        url        : ["URL cannot be blank"]
+      ]
     ]
-  ]
 }

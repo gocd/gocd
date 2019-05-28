@@ -21,7 +21,6 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
@@ -49,73 +48,75 @@ import org.mockito.Mock;
 import java.util.*;
 
 import static com.thoughtworks.go.domain.valuestreammap.VSMTestHelper.assertDepth;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.ModificationsMother.checkinWithComment;
 import static java.util.Arrays.asList;
 import static javax.servlet.http.HttpServletResponse.*;
 import static junit.framework.TestCase.assertNull;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 public class ValueStreamMapServiceTest {
-	@Mock
-	private PipelineService pipelineService;
-	@Mock
-	private MaterialRepository materialRepository;
-	@Mock
-	private GoConfigService goConfigService;
-	@Mock
-	private RunStagesPopulator runStagesPopulator;
-	@Mock
-	private UnrunStagesPopulator unrunStagesPopulator;
-	@Mock
-	private DownstreamInstancePopulator downstreaminstancepopulator;
-	@Mock
-	private SecurityService securityService;
+    @Mock
+    private PipelineService pipelineService;
+    @Mock
+    private MaterialRepository materialRepository;
+    @Mock
+    private GoConfigService goConfigService;
+    @Mock
+    private RunStagesPopulator runStagesPopulator;
+    @Mock
+    private UnrunStagesPopulator unrunStagesPopulator;
+    @Mock
+    private DownstreamInstancePopulator downstreaminstancepopulator;
+    @Mock
+    private SecurityService securityService;
 
-	private Username user;
-	private ValueStreamMapService valueStreamMapService;
-	private HttpLocalizedOperationResult result;
+    private Username user;
+    private ValueStreamMapService valueStreamMapService;
+    private HttpLocalizedOperationResult result;
 
     @Before
     public void setUp() throws Exception {
-		initMocks(this);
+        initMocks(this);
         user = new Username(new CaseInsensitiveString("poovan"));
 
-		setupExistenceOfPipelines("p1", "p2", "p3", "MYPIPELINE");
+        setupExistenceOfPipelines("p1", "p2", "p3", "MYPIPELINE");
 
-		setupViewPermissionForPipelines("C", "A", "B", "P1", "P2", "P3", "p1", "p2", "p3", "mypipeline", "MYPIPELINE");
+        setupViewPermissionForPipelines("C", "A", "B", "P1", "P2", "P3", "p1", "p2", "p3", "mypipeline", "MYPIPELINE");
 
-		setupViewPermissionForGroups("g1");
+        setupViewPermissionForGroups("g1");
 
         valueStreamMapService = new ValueStreamMapService(pipelineService, materialRepository, goConfigService, downstreaminstancepopulator, runStagesPopulator, unrunStagesPopulator, securityService);
         result = new HttpLocalizedOperationResult();
     }
 
-	private void setupExistenceOfPipelines(String... pipelineNames) {
-		for (String pipelineName : pipelineNames) {
-			when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
-		}
-	}
+    private void setupExistenceOfPipelines(String... pipelineNames) {
+        for (String pipelineName : pipelineNames) {
+            when(goConfigService.hasPipelineNamed(new CaseInsensitiveString(pipelineName))).thenReturn(true);
+        }
+    }
 
-	private void setupViewPermissionForPipelines(String... pipelineNames) {
-		for (String pipelineName : pipelineNames) {
-			when(securityService.hasViewPermissionForPipeline(user, pipelineName)).thenReturn(true);
-		}
-	}
+    private void setupViewPermissionForPipelines(String... pipelineNames) {
+        for (String pipelineName : pipelineNames) {
+            when(securityService.hasViewPermissionForPipeline(user, pipelineName)).thenReturn(true);
+        }
+    }
 
-	private void setupViewPermissionForGroups(String... groups) {
-		for (String group : groups) {
-			when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(user.getUsername()), group)).thenReturn(true);
-		}
-	}
+    private void setupViewPermissionForGroups(String... groups) {
+        for (String group : groups) {
+            when(securityService.hasViewPermissionForGroup(CaseInsensitiveString.str(user.getUsername()), group)).thenReturn(true);
+        }
+    }
 
     @Test
     public void shouldBeCaseInsensitiveWhenGettingPipelineDependencyGraphForAPipeline() {
         /*
-        * svn => P1
-        * */
+         * svn => P1
+         * */
 
         String pipelineName = "myPipeline";
         int counter = 1;
@@ -244,8 +245,8 @@ public class ValueStreamMapServiceTest {
     @Test
     public void shouldGetPipelineDependencyGraphForAPipelineWithNoCrossLevelDependencies() {
         /*
-        * svn => P1
-        * */
+         * svn => P1
+         * */
 
         String pipeline = "P1";
         int counter = 1;
@@ -276,12 +277,12 @@ public class ValueStreamMapServiceTest {
     @Test
     public void shouldGetPipelineDependencyGraphForAPipelineWithDiamondDependency() {
         /*
-        * |----> P1----->
-        * g             |_> p3
-        * |             |
-        * ---- > P2----->
-        *
-        * */
+         * |----> P1----->
+         * g             |_> p3
+         * |             |
+         * ---- > P2----->
+         *
+         * */
 
         GitMaterial git = new GitMaterial("git");
         BuildCause p3buildCause = createBuildCause(asList("p1", "p2"), new ArrayList<>());
@@ -322,76 +323,76 @@ public class ValueStreamMapServiceTest {
         assertNode(0, thirdLevel.get(0), "p3", "p3", 0);
     }
 
-	@Test
-	public void shouldGetPipelineDependencyGraphForAPipelineWithDiamondDependency_VSMForMaterial() {
-		/*
-		* |----> P1----->
-		* g             |_> p3
-		* |             |
-		* ---- > P2----->
-		*
-		* */
+    @Test
+    public void shouldGetPipelineDependencyGraphForAPipelineWithDiamondDependency_VSMForMaterial() {
+        /*
+         * |----> P1----->
+         * g             |_> p3
+         * |             |
+         * ---- > P2----->
+         *
+         * */
 
-		GitMaterial gitMaterial = new GitMaterial("git");
-		MaterialConfig gitConfig = gitMaterial.config();
-		GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("git", null, "master", "submodule", "flyweight");
-		BuildCause p3buildCause = createBuildCause(asList("p1", "p2"), new ArrayList<>());
-		BuildCause p2buildCause = createBuildCause(new ArrayList<>(), asList(gitMaterial));
-		Modification gitModification = p2buildCause.getMaterialRevisions().getRevisions().get(0).getModifications().get(0);
-		String gitRevision = gitModification.getRevision();
-		BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(gitMaterial));
+        GitMaterial gitMaterial = new GitMaterial("git");
+        MaterialConfig gitConfig = gitMaterial.config();
+        GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("git", null, "master", "submodule", "flyweight");
+        BuildCause p3buildCause = createBuildCause(asList("p1", "p2"), new ArrayList<>());
+        BuildCause p2buildCause = createBuildCause(new ArrayList<>(), asList(gitMaterial));
+        Modification gitModification = p2buildCause.getMaterialRevisions().getRevisions().get(0).getModifications().get(0);
+        String gitRevision = gitModification.getRevision();
+        BuildCause p1buildCause = createBuildCause(new ArrayList<>(), asList(gitMaterial));
 
-		when(pipelineService.buildCauseFor("p3", 1)).thenReturn(p3buildCause);
-		when(pipelineService.buildCauseFor("p2", 1)).thenReturn(p2buildCause);
-		when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
+        when(pipelineService.buildCauseFor("p3", 1)).thenReturn(p3buildCause);
+        when(pipelineService.buildCauseFor("p2", 1)).thenReturn(p2buildCause);
+        when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
 
-		PipelineConfig p1Config = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(gitConfig));
-		PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(gitConfig));
-		PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3",
-				new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p2Config.name(), p2Config.getFirstStageConfig().name())));
-		PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("g1", new Authorization(), p1Config, p2Config, p3Config);
-		CruiseConfig cruiseConfig = new BasicCruiseConfig(pipelineConfigs);
+        PipelineConfig p1Config = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(gitConfig));
+        PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(gitConfig));
+        PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3",
+                new MaterialConfigs(new DependencyMaterialConfig(p1Config.name(), p1Config.getFirstStageConfig().name()), new DependencyMaterialConfig(p2Config.name(), p2Config.getFirstStageConfig().name())));
+        PipelineConfigs pipelineConfigs = new BasicPipelineConfigs("g1", new Authorization(), p1Config, p2Config, p3Config);
+        CruiseConfig cruiseConfig = new BasicCruiseConfig(pipelineConfigs);
 
-		when(goConfigService.groups()).thenReturn(new PipelineGroups(pipelineConfigs));
-		when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
-		when(materialRepository.findModificationWithRevision(gitMaterial, gitRevision)).thenReturn(gitModification);
-		when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
+        when(goConfigService.groups()).thenReturn(new PipelineGroups(pipelineConfigs));
+        when(materialRepository.findMaterialInstance(gitConfig)).thenReturn(gitMaterialInstance);
+        when(materialRepository.findModificationWithRevision(gitMaterial, gitRevision)).thenReturn(gitModification);
+        when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
 
-		ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), gitRevision, user, result);
-		List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
+        ValueStreamMapPresentationModel graph = valueStreamMapService.getValueStreamMap(gitMaterial.getFingerprint(), gitRevision, user, result);
+        List<List<Node>> nodesAtEachLevel = graph.getNodesAtEachLevel();
 
-		assertThat(graph.getCurrentPipeline(), is(nullValue()));
-		assertThat(graph.getCurrentMaterial().getId().toString(), is(gitMaterial.getFingerprint()));
-		assertThat(nodesAtEachLevel.size(), is(3));
+        assertThat(graph.getCurrentPipeline(), is(nullValue()));
+        assertThat(graph.getCurrentMaterial().getId().toString(), is(gitMaterial.getFingerprint()));
+        assertThat(nodesAtEachLevel.size(), is(3));
 
-		List<Node> firstLevel = nodesAtEachLevel.get(0);
-		assertThat(firstLevel.size(), is(1));
-		assertNode(0, firstLevel.get(0), gitMaterial.getDisplayName(), gitMaterial.getFingerprint(), 0, new CaseInsensitiveString("p1"), new CaseInsensitiveString("p2"));
-		assertDepth(graph, firstLevel.get(0).getId(), 1);
+        List<Node> firstLevel = nodesAtEachLevel.get(0);
+        assertThat(firstLevel.size(), is(1));
+        assertNode(0, firstLevel.get(0), gitMaterial.getDisplayName(), gitMaterial.getFingerprint(), 0, new CaseInsensitiveString("p1"), new CaseInsensitiveString("p2"));
+        assertDepth(graph, firstLevel.get(0).getId(), 1);
 
-		List<Node> secondLevel = nodesAtEachLevel.get(1);
-		assertThat(secondLevel.size(), is(2));
-		assertNode(1, secondLevel.get(0), "p1", "p1", 0, new CaseInsensitiveString("p3"));
-		assertDepth(graph, secondLevel.get(0).getId(), 1);
-		assertNode(1, secondLevel.get(1), "p2", "p2", 0, new CaseInsensitiveString("p3"));
-		assertDepth(graph, secondLevel.get(1).getId(), 2);
+        List<Node> secondLevel = nodesAtEachLevel.get(1);
+        assertThat(secondLevel.size(), is(2));
+        assertNode(1, secondLevel.get(0), "p1", "p1", 0, new CaseInsensitiveString("p3"));
+        assertDepth(graph, secondLevel.get(0).getId(), 1);
+        assertNode(1, secondLevel.get(1), "p2", "p2", 0, new CaseInsensitiveString("p3"));
+        assertDepth(graph, secondLevel.get(1).getId(), 2);
 
-		List<Node> thirdLevel = nodesAtEachLevel.get(2);
-		assertThat(thirdLevel.size(), is(1));
-		assertNode(2, thirdLevel.get(0), "p3", "p3", 0);
-		assertDepth(graph, thirdLevel.get(0).getId(), 1);
-	}
+        List<Node> thirdLevel = nodesAtEachLevel.get(2);
+        assertThat(thirdLevel.size(), is(1));
+        assertNode(2, thirdLevel.get(0), "p3", "p3", 0);
+        assertDepth(graph, thirdLevel.get(0).getId(), 1);
+    }
 
     @Test
     public void shouldMoveNodeAndIntroduceDummyNodesWhenCurrentLevelIsDeeperThanExistingNodeLevel() throws Exception {
         /*
-        * +-------------+
-        * |             v
-        * g---->p1---->p2 ---> p3
-        *        |             ^
-        *        -------------+
-        *
-        * */
+         * +-------------+
+         * |             v
+         * g---->p1---->p2 ---> p3
+         *        |             ^
+         *        -------------+
+         *
+         * */
 
         GitMaterial git = new GitMaterial("git");
         MaterialConfig gitConfig = git.config();
@@ -442,15 +443,15 @@ public class ValueStreamMapServiceTest {
     @Test
     public void shouldDrawDependenciesIncludingDownstreamBasedOnConfig() {
         /*
-       * These are all the pipelines in the config.
-       *
-       * |----> p1----->
-       * g             |_> p3
-       * |             |
-       * ---- > p2----->
-       *
-       * We are drawing a graph for 'p1' : g -> p1 -> p3
-       * */
+         * These are all the pipelines in the config.
+         *
+         * |----> p1----->
+         * g             |_> p3
+         * |             |
+         * ---- > p2----->
+         *
+         * We are drawing a graph for 'p1' : g -> p1 -> p3
+         * */
 
         CruiseConfig cruiseConfig = GoConfigMother.simpleDiamond();
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
@@ -475,19 +476,19 @@ public class ValueStreamMapServiceTest {
 
     @Test
     public void shouldAddDummyNodesUpstreamAndDownstreamInDependencyGraph() {
-/*
-        * +------------+
-        * |             v
-        * g---->p1---->p2 ---> p3
-        *        |             ^
-        *        --------------+
-        *
-        * Drawing graph for p2, expected graph:
-        *
-        * +------X1------+
-        * |             v
-        * g---->p1---->p2 ---> p3
-        * */
+        /*
+         * +------------+
+         * |             v
+         * g---->p1---->p2 ---> p3
+         *        |             ^
+         *        --------------+
+         *
+         * Drawing graph for p2, expected graph:
+         *
+         * +------X1------+
+         * |             v
+         * g---->p1---->p2 ---> p3
+         * */
 
         String p1 = "p1";
         String p2 = "p2";
@@ -539,13 +540,13 @@ public class ValueStreamMapServiceTest {
     @Test
     public void shouldPushAllAncestorsLeftByOneWhenMovingImmediateParentToLeftOfANode() {
         /*
-        * g1 -> P1--->X------>P2
-        *        \             ^
-        *          \           |
-        *            V         |
-        *       g2-->P3-------+
-        *
-        */
+         * g1 -> P1--->X------>P2
+         *        \             ^
+         *          \           |
+         *            V         |
+         *       g2-->P3-------+
+         *
+         */
 
         CaseInsensitiveString p1 = new CaseInsensitiveString("p1");
         CaseInsensitiveString p2 = new CaseInsensitiveString("p2");
@@ -582,10 +583,10 @@ public class ValueStreamMapServiceTest {
     @Test
     public void shouldPopulateRevisionsForUpstreamPipelines() {
         /*
-        * git---> p1 ---> p3
-        * |      v      ^
-        * +---> p2 -----+
-        * **/
+         * git---> p1 ---> p3
+         * |      v      ^
+         * +---> p2 -----+
+         * **/
 
 
         GitMaterial git = new GitMaterial("git");
@@ -621,10 +622,10 @@ public class ValueStreamMapServiceTest {
     @Test
     public void shouldPopulateAllMaterialRevisionsThatCausedPipelineRun() {
         /*
-        * git---> p1 --->p2
-        *  |             ^
-        *  +-------------+
-        * **/
+         * git---> p1 --->p2
+         *  |             ^
+         *  +-------------+
+         * **/
 
 
         GitMaterial git = new GitMaterial("git");
@@ -657,10 +658,10 @@ public class ValueStreamMapServiceTest {
     @Test
     public void shouldPopulateAllSCMMaterialRevisionsThatCausedPipelineRun_WhenFaninIsNotObeyed() {
         /*
-        * git---> p1 --->p2
-        *  |             ^
-        *  +-------------+
-        * **/
+         * git---> p1 --->p2
+         *  |             ^
+         *  +-------------+
+         * **/
 
 
         GitMaterial git = new GitMaterial("git");
@@ -812,14 +813,14 @@ public class ValueStreamMapServiceTest {
 
         valueStreamMapService.getValueStreamMap(new CaseInsensitiveString(pipelineName), 1, newUser, result);
 
-		assertResult(SC_FORBIDDEN, "You do not have view permissions for pipeline 'p1'.");
+        assertResult(SC_FORBIDDEN, "You do not have view permissions for pipeline 'p1'.");
     }
 
     @Test
     public void shouldPopulateErrorWhenUpstreamPipelineDoesNotExistInCurrentConfig() throws Exception {
         /*
-       * g --> p1 --> p3
-        */
+         * g --> p1 --> p3
+         */
 
         GitMaterial git = new GitMaterial("git");
         BuildCause p3buildCause = createBuildCause(asList("p1"), new ArrayList<>());
@@ -830,7 +831,7 @@ public class ValueStreamMapServiceTest {
         when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
 
 
-        PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3", new MaterialConfigs(new GitMaterialConfig("test")));
+        PipelineConfig p3Config = PipelineConfigMother.pipelineConfig("p3", new MaterialConfigs(git("test")));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p3Config));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);
@@ -848,7 +849,7 @@ public class ValueStreamMapServiceTest {
     @Test
     public void shouldPopulateErrorWhenPipelineNameAndCounterAreMultiple() {
 
-        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("MYPIPELINE", new MaterialConfigs(new GitMaterialConfig("sampleGit")));
+        PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig("MYPIPELINE", new MaterialConfigs(git("sampleGit")));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(pipelineConfig));
 
         when(pipelineService.findPipelineByNameAndCounter("MYPIPELINE", 1)).thenThrow(RuntimeException.class);
@@ -865,8 +866,8 @@ public class ValueStreamMapServiceTest {
     @Test
     public void shouldPopulateEditPermissionsForPipelineDependencyNode() throws Exception {
         /*
-       * g --> p1 --> p2
-        */
+         * g --> p1 --> p2
+         */
 
         GitMaterial git = new GitMaterial("git");
         BuildCause p2buildCause = createBuildCause(asList("p1"), new ArrayList<>());
@@ -877,7 +878,7 @@ public class ValueStreamMapServiceTest {
         when(pipelineService.buildCauseFor("p1", 1)).thenReturn(p1buildCause);
 
 
-        PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(new GitMaterialConfig("test")));
+        PipelineConfig p2Config = PipelineConfigMother.pipelineConfig("p2", new MaterialConfigs(git("test")));
         CruiseConfig cruiseConfig = new BasicCruiseConfig(new BasicPipelineConfigs(p2Config));
 
         when(goConfigService.currentCruiseConfig()).thenReturn(cruiseConfig);

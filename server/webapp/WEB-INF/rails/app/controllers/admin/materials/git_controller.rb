@@ -19,7 +19,9 @@ module Admin::Materials
     private
 
     def load_new_material(cruise_config)
-      assert_load :material, GitMaterialConfig.new("")
+      gitMaterialConfig = GitMaterialConfig.new
+      gitMaterialConfig.setUrl("")
+      assert_load :material, gitMaterialConfig
     end
   end
 end

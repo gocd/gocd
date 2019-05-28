@@ -171,7 +171,9 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
             }
 
             private MaterialConfig dummyMaterial() {
-                return new GitMaterialConfig(UUID.randomUuid());
+                GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
+                gitMaterialConfig.setUrl(UUID.randomUuid());
+                return gitMaterialConfig;
             }
         };
     }

@@ -30,13 +30,14 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class FanInGraphTest {
     @Test
     public void shouldConstructAFaninGraph() throws Exception {
-        GitMaterialConfig git = new GitMaterialConfig("giturl", "dest");
+        GitMaterialConfig git = git("giturl", "dest");
         HgMaterialConfig hg = new HgMaterialConfig("hgurl", "dest");
         PipelineConfig p1 = PipelineConfigMother.pipelineConfig("p1", new MaterialConfigs(git));
         DependencyMaterialConfig p1Dep = new DependencyMaterialConfig(p1.name(), p1.get(0).name());

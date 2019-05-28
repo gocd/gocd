@@ -39,6 +39,7 @@ import org.mockito.ArgumentMatchers;
 
 import java.util.*;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static org.hamcrest.Matchers.startsWith;
@@ -920,11 +921,11 @@ public class PipelineConfigTest {
     public void shouldReturnTrueWhenOneOfPipelineMaterialsIsTheSameAsConfigOriginButDestinationIsDifferent() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
         pipelineConfig.materialConfigs().clear();
-        GitMaterialConfig pipeMaterialConfig = new GitMaterialConfig("http://git");
+        GitMaterialConfig pipeMaterialConfig = git("http://git");
         pipeMaterialConfig.setFolder("dest1");
         pipelineConfig.materialConfigs().add(pipeMaterialConfig);
 
-        GitMaterialConfig repoMaterialConfig = new GitMaterialConfig("http://git");
+        GitMaterialConfig repoMaterialConfig = git("http://git");
 
         pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(repoMaterialConfig, "plugin"), "1233"));
 
@@ -934,7 +935,7 @@ public class PipelineConfigTest {
     @Test
     public void shouldReturnFalseWhenOneOfPipelineMaterialsIsNotTheSameAsConfigOrigin() {
         PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("pipeline", "stage", "build");
-        MaterialConfig material = new GitMaterialConfig("http://git");
+        MaterialConfig material = git("http://git");
         pipelineConfig.setOrigin(new RepoConfigOrigin(new ConfigRepoConfig(material, "plugin"), "1233"));
 
         assertThat(pipelineConfig.isConfigOriginSameAsOneOfMaterials(), is(false));
@@ -1040,7 +1041,7 @@ public class PipelineConfigTest {
     }
 
     private PipelineConfig createAndValidatePipelineLabel(String labelFormat) {
-        GitMaterialConfig git = new GitMaterialConfig("git@github.com:gocd/gocd.git");
+        GitMaterialConfig git = git("git@github.com:gocd/gocd.git");
         git.setName(new CaseInsensitiveString("git"));
 
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("cruise"), new MaterialConfigs(git));

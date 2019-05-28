@@ -25,7 +25,6 @@ import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.materials.PackageMaterialConfig
 import com.thoughtworks.go.config.materials.PasswordDeserializer
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
@@ -48,6 +47,7 @@ import org.mockito.invocation.InvocationOnMock
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.ArgumentMatchers.eq
@@ -389,7 +389,7 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
       @Test
       void "should not update pipeline config when the pipeline is defined remotely"() {
         def pipelineConfig = PipelineConfigMother.pipelineConfig("pipeline1")
-        def gitMaterial = new GitMaterialConfig("https://github.com/config-repos/repo", "master")
+        def gitMaterial = git("https://github.com/config-repos/repo", "master")
         def origin = new RepoConfigOrigin(new ConfigRepoConfig(gitMaterial, "json-plugib"), "revision1")
         pipelineConfig.setOrigin(origin)
 
@@ -577,7 +577,7 @@ class PipelineConfigControllerV7Test implements SecurityServiceTrait, Controller
       void "should not delete pipeline config when the pipeline is defined remotely"() {
         def pipeline = PipelineConfigMother.pipelineConfig("pipeline1")
 
-        def gitMaterial = new GitMaterialConfig("https://github.com/config-repos/repo", "master")
+        def gitMaterial = git("https://github.com/config-repos/repo", "master")
         def origin = new RepoConfigOrigin(new ConfigRepoConfig(gitMaterial, "json-plugin"), "revision1")
         pipeline.setOrigin(origin)
 

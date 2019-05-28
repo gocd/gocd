@@ -305,7 +305,9 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     public GitMaterialConfig getGitMaterial() {
-        return getExistingOrDefaultMaterial(new GitMaterialConfig(""));
+        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
+        gitMaterialConfig.setUrl("");
+        return getExistingOrDefaultMaterial(gitMaterialConfig);
     }
 
     public P4MaterialConfig getP4Material() {

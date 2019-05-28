@@ -26,11 +26,11 @@ describe Admin::Materials::GitController do
   it_should_behave_like :material_controller
 
   def new_material
-    GitMaterialConfig.new("")
+    com.thoughtworks.go.helper.MaterialConfigsMother.git("")
   end
 
   def assert_successful_create
-    git_material_config = GitMaterialConfig.new("new-url", "some-branch")
+    git_material_config = com.thoughtworks.go.helper.MaterialConfigsMother.git("new-url", "some-branch")
     git_material_config.setName(CaseInsensitiveString.new('new-some-kinda-material'))
     git_material_config.setConfigAttributes({GitMaterialConfig::FOLDER => "folder"})
     expect(@pipeline.materialConfigs().get(1)).to eq(git_material_config)

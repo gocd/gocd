@@ -30,6 +30,7 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.PartialConfigMother.createRepoOrigin;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createPipelineConfig;
@@ -58,7 +59,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void shouldMergeWhenSameEnvironmentExistsInManyPartials(){
+    public void shouldMergeWhenSameEnvironmentExistsInManyPartials() {
         BasicCruiseConfig cruiseConfig = GoConfigMother.configWithPipelines("p1", "p2");
         ConfigRepoConfig repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url1"), "plugin");
         ConfigRepoConfig repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), "plugin");
@@ -70,8 +71,8 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         environment2InRepo2.setOrigins(configOrigin);
         partialConfigInRepo2.getEnvironments().add(environment2InRepo2);
         cruiseConfig.merge(new ArrayList<>(Arrays.asList(partialConfigInRepo2, partialConfigInRepo1)), false);
-        assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("environment")),is(true));
-        assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("environment2_in_repo2")),is(true));
+        assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("environment")), is(true));
+        assertThat(cruiseConfig.getEnvironments().hasEnvironmentNamed(new CaseInsensitiveString("environment2_in_repo2")), is(true));
     }
 
     @Test
@@ -92,7 +93,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
                 new Configuration(),
                 configOrigin);
         cruiseConfig.merge(new ArrayList<>(Arrays.asList(partialConfigInRepo2, partialConfigInRepo1)), false);
-        assertThat(cruiseConfig.getSCMs().size() ,is(2));
+        assertThat(cruiseConfig.getSCMs().size(), is(2));
         assertThat(cruiseConfig.validateAfterPreprocess().size(), is(2));
     }
 
@@ -113,21 +114,19 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
                 new Configuration(),
                 new FileConfigOrigin());
         cruiseConfig.merge(new ArrayList<>(Arrays.asList(localSCM, completeSCM)), true);
-        assertThat(cruiseConfig.getSCMs().size() ,is(1));
+        assertThat(cruiseConfig.getSCMs().size(), is(1));
         assertThat(cruiseConfig.getSCMs().contains(localSCM.getScms().first()), is(true));
     }
 
     @Test
     public void mergeShouldThrowWhenCalledSecondTime() {
         cruiseConfig = new BasicCruiseConfig(new BasicCruiseConfig(pipelines), PartialConfigMother.withEnvironment("remote-env"));
-        assertThat(cruiseConfig.getEnvironments().size(),is(1));
+        assertThat(cruiseConfig.getEnvironments().size(), is(1));
         try {
             cruiseConfig.merge(Arrays.asList(PartialConfigMother.withEnvironment("remote-env")), false);
-        }
-        catch (RuntimeException ex)
-        {
+        } catch (RuntimeException ex) {
             //ok
-            assertThat(cruiseConfig.getEnvironments().size(),is(1));
+            assertThat(cruiseConfig.getEnvironments().size(), is(1));
             cruiseConfig.validateAfterPreprocess();
             return;
         }
@@ -140,30 +139,27 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void getAllLocalPipelineConfigs_shouldReturnOnlyLocalPipelinesWhenRemoteExist()
-    {
+    public void getAllLocalPipelineConfigs_shouldReturnOnlyLocalPipelinesWhenRemoteExist() {
         PipelineConfig pipeline1 = createPipelineConfig("local-pipe-1", "stage1");
         cruiseConfig.getGroups().addPipeline("existing_group", pipeline1);
 
         List<PipelineConfig> localPipelines = cruiseConfig.getAllLocalPipelineConfigs(false);
-        assertThat(localPipelines.size(),is(1));
-        assertThat(localPipelines,hasItem(pipeline1));
+        assertThat(localPipelines.size(), is(1));
+        assertThat(localPipelines, hasItem(pipeline1));
     }
 
     @Test
-    public void getAllLocalPipelineConfigs_shouldReturnEmptyListWhenNoLocalPipelines()
-    {
+    public void getAllLocalPipelineConfigs_shouldReturnEmptyListWhenNoLocalPipelines() {
         List<PipelineConfig> localPipelines = cruiseConfig.getAllLocalPipelineConfigs(false);
-        assertThat(localPipelines.size(),is(0));
+        assertThat(localPipelines.size(), is(0));
     }
 
     @Test
-    public void getAllLocalPipelineConfigs_shouldExcludePipelinesReferencedByRemoteEnvironmentWhenRequested()
-    {
+    public void getAllLocalPipelineConfigs_shouldExcludePipelinesReferencedByRemoteEnvironmentWhenRequested() {
         pipelines = new BasicPipelineConfigs("group_main", new Authorization(), PipelineConfigMother.pipelineConfig("local-pipeline-1"));
         cruiseConfig = new BasicCruiseConfig(pipelines);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
-        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplug");
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(git("http://git"), "myplug");
         reposConfig.add(configRepoConfig);
         cruiseConfig.setConfigRepos(reposConfig);
         PartialConfig partialConfig = PartialConfigMother.withPipelineInGroup("remote-pipeline-1", "g2");
@@ -173,13 +169,13 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
         // remote environment declares a local pipeline as member
         remoteEnvironment.addPipeline(new CaseInsensitiveString("local-pipeline-1"));
         partialConfig.getEnvironments().add(remoteEnvironment);
-        partialConfig.setOrigins(new RepoConfigOrigin(configRepoConfig,"123"));
+        partialConfig.setOrigins(new RepoConfigOrigin(configRepoConfig, "123"));
 
-        cruiseConfig.merge(Arrays.asList(partialConfig),true);
-        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("local-pipeline-1")),is(true));
+        cruiseConfig.merge(Arrays.asList(partialConfig), true);
+        assertThat(cruiseConfig.hasPipelineNamed(new CaseInsensitiveString("local-pipeline-1")), is(true));
 
         List<PipelineConfig> localPipelines = cruiseConfig.getAllLocalPipelineConfigs(true);
-        assertThat(localPipelines.size(),is(0));
+        assertThat(localPipelines.size(), is(0));
     }
 
     @Test
@@ -224,11 +220,11 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     @Test
     public void shouldGenerateAMapOfAllPipelinesAndTheirParentDependencies_WhenAllPipelinesInMapAreLocal() {
         /*
-        *    -----+ p2 --> p4
-        *  p1
-        *    -----+ p3
-        *
-        * */
+         *    -----+ p2 --> p4
+         *  p1
+         *    -----+ p3
+         *
+         * */
         PipelineConfig p1 = createPipelineConfig("p1", "s1", "j1");
         PipelineConfig p2 = createPipelineConfig("p2", "s2", "j1");
         p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")));
@@ -251,11 +247,11 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     @Test
     public void shouldGenerateAMapOfAllPipelinesAndTheirParentDependencies_WhenThereAreRemotePipelinesInMap() {
         /*
-        *    -----+ p2 --> p4
-        *  p1
-        *    -----+ p3 --> remote-pipe-1
-        *
-        * */
+         *    -----+ p2 --> p4
+         *  p1
+         *    -----+ p3 --> remote-pipe-1
+         *
+         * */
         PipelineConfig p1 = createPipelineConfig("p1", "s1", "j1");
         PipelineConfig p2 = createPipelineConfig("p2", "s2", "j1");
         p2.addMaterialConfig(new DependencyMaterialConfig(new CaseInsensitiveString("p1"), new CaseInsensitiveString("s1")));
@@ -462,7 +458,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     public void shouldGetUniqueMaterialsWithConfigRepos() {
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
-        GitMaterialConfig configRepo = new GitMaterialConfig("http://git");
+        GitMaterialConfig configRepo = git("http://git");
         reposConfig.add(new ConfigRepoConfig(configRepo, "myplug"));
         mainCruiseConfig.setConfigRepos(reposConfig);
 
@@ -481,7 +477,7 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     public void shouldGetUniqueMaterialsWithoutConfigRepos() {
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
-        GitMaterialConfig configRepo = new GitMaterialConfig("http://git");
+        GitMaterialConfig configRepo = git("http://git");
         reposConfig.add(new ConfigRepoConfig(configRepo, "myplug"));
         mainCruiseConfig.setConfigRepos(reposConfig);
 
@@ -496,11 +492,11 @@ public class MergeCruiseConfigTest extends CruiseConfigTestBase {
     }
 
     @Test
-    public void shouldUpdatePipelineConfigsListWhenAPartialIsMerged(){
+    public void shouldUpdatePipelineConfigsListWhenAPartialIsMerged() {
         cruiseConfig = new BasicCruiseConfig(pipelines);
         PartialConfig partial = PartialConfigMother.withPipeline("pipeline3");
-        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("http://git"), "myplug");
-        partial.setOrigins(new RepoConfigOrigin(configRepoConfig,"123"));
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(git("http://git"), "myplug");
+        partial.setOrigins(new RepoConfigOrigin(configRepoConfig, "123"));
         ConfigReposConfig reposConfig = new ConfigReposConfig();
         reposConfig.add(configRepoConfig);
         cruiseConfig.setConfigRepos(reposConfig);

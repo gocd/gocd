@@ -78,17 +78,17 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 import static com.thoughtworks.go.util.GoConstants.DEFAULT_APPROVED_BY;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -100,18 +100,28 @@ import static org.mockito.Mockito.*;
 })
 public class MaterialRepositoryIntegrationTest {
 
-    @Autowired MaterialRepository repo;
+    @Autowired
+    MaterialRepository repo;
     @Autowired
     GoCache goCache;
-    @Autowired PipelineSqlMapDao pipelineSqlMapDao;
-    @Autowired DatabaseAccessHelper dbHelper;
-    @Autowired SessionFactory sessionFactory;
-    @Autowired TransactionSynchronizationManager transactionSynchronizationManager;
-    @Autowired TransactionTemplate transactionTemplate;
-    @Autowired private InstanceFactory instanceFactory;
-    @Autowired private MaterialConfigConverter materialConfigConverter;
-    @Autowired private MaterialExpansionService materialExpansionService;
-    @Autowired private DatabaseStrategy databaseStrategy;
+    @Autowired
+    PipelineSqlMapDao pipelineSqlMapDao;
+    @Autowired
+    DatabaseAccessHelper dbHelper;
+    @Autowired
+    SessionFactory sessionFactory;
+    @Autowired
+    TransactionSynchronizationManager transactionSynchronizationManager;
+    @Autowired
+    TransactionTemplate transactionTemplate;
+    @Autowired
+    private InstanceFactory instanceFactory;
+    @Autowired
+    private MaterialConfigConverter materialConfigConverter;
+    @Autowired
+    private MaterialExpansionService materialExpansionService;
+    @Autowired
+    private DatabaseStrategy databaseStrategy;
 
     private HibernateTemplate originalTemplate;
     private String md5 = "md5-test";
@@ -1290,7 +1300,7 @@ public class MaterialRepositoryIntegrationTest {
             }
         });
 
-        assertThat(repo.getTotalModificationsFor(materialInstance), is(new Long(count+1)));
+        assertThat(repo.getTotalModificationsFor(materialInstance), is(new Long(count + 1)));
     }
 
     private ArrayList<Modification> getModifications(int count) {

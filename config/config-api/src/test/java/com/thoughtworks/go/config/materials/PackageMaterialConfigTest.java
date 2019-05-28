@@ -15,24 +15,20 @@
  */
 package com.thoughtworks.go.config.materials;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.packagerepository.*;
 import org.junit.Test;
 
-import static org.junit.Assert.assertThat;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 public class PackageMaterialConfigTest {
@@ -82,7 +78,7 @@ public class PackageMaterialConfigTest {
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
         PackageMaterialConfig existingMaterial = new PackageMaterialConfig("package-id");
         nameToMaterialMap.put(new CaseInsensitiveString("package-id"), existingMaterial);
-        nameToMaterialMap.put(new CaseInsensitiveString("foo"), new GitMaterialConfig("url"));
+        nameToMaterialMap.put(new CaseInsensitiveString("foo"), git("url"));
 
         packageMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
@@ -99,7 +95,7 @@ public class PackageMaterialConfigTest {
 
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
         nameToMaterialMap.put(new CaseInsensitiveString("repo-name:pkg-name"), new PackageMaterialConfig("package-id-new"));
-        nameToMaterialMap.put(new CaseInsensitiveString("foo"), new GitMaterialConfig("url"));
+        nameToMaterialMap.put(new CaseInsensitiveString("foo"), git("url"));
 
         packageMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
@@ -138,7 +134,7 @@ public class PackageMaterialConfigTest {
     }
 
     @Test
-    public void shouldSetPackageIdAsNullIfPackageDefinitionIsNull(){
+    public void shouldSetPackageIdAsNullIfPackageDefinitionIsNull() {
         PackageMaterialConfig materialConfig = new PackageMaterialConfig("1");
         materialConfig.setPackageDefinition(null);
         assertThat(materialConfig.getPackageId(), is(nullValue()));

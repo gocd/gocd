@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 ThoughtWorks, Inc.
+ * Copyright 2019 ThoughtWorks, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,13 +34,12 @@ buildscript {
   dependencies {
     classpath 'org.owasp:dependency-check-gradle:4.0.2'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
-    classpath "gradle.plugin.nl.javadude.gradle.plugins:license-gradle-plugin:0.14.0"
+    classpath 'gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.15.0'
     classpath 'gradle.plugin.com.github.jk1:gradle-license-report:1.3'
   }
 }
 
 apply plugin: 'base'
-apply plugin: "com.github.hierynomus.license"
 apply plugin: 'com.github.jk1.dependency-license-report'
 apply plugin: 'org.owasp.dependencycheck'
 
@@ -287,32 +286,100 @@ subprojects {
     return
   }
   apply plugin: 'base'
-  apply plugin: "com.github.hierynomus.license"
   apply plugin: 'com.github.ben-manes.versions'
 
-  license {
-    skipExistingHeaders = true
-    ext.year = project.copyrightYear
-    exclude '**/*.jar'
-    exclude '**/*.json'
-    exclude '**/*.html'
-    header rootProject.file('buildSrc/Apache-2.0.txt')
-    headerDefinitions {
-      intellijStyleXML {
-        firstLine = "<!--"
-        beforeEachLine = '  ~ '
-        endLine = "  -->"
-        afterEachLine = ''
-        skipLinePattern = "^<\\?xml.*>\$"
-        firstLineDetectionPattern = "(\\s|\\t)*<!--.*\$"
-        lastLineDetectionPattern = ".*-->(\\s|\\t)*\$"
-        allowBlankLines = true
-        isMultiline = false
-        padLines = false
+  if (project.path != ':test:http-mocks') {
+    apply plugin: "com.github.hierynomus.license"
+    license {
+      skipExistingHeaders = false
+      strictCheck = true
+      ext.year = project.copyrightYear
+      exclude '**/*.erb'
+      exclude '**/*.ejs'
+      exclude '**/*.keep'
+      exclude '**/*.md'
+      exclude '**/*.jar'
+      exclude '**/*.json'
+      exclude '**/*.html'
+      exclude '**/*.zip'
+      exclude '**/*.png'
+      exclude '**/*.jpg'
+      exclude '**/*.jpeg'
+      exclude '**/*.gif'
+      exclude '**/*.woff'
+      exclude '**/*.woff2'
+      exclude '**/*.ttf'
+      exclude '**/*.eot'
+      exclude '**/*.svg'
+      exclude '**/*.json'
+      exclude '**/*.scss.d.ts'
+      exclude '**/.*.json'
+      exclude '**/hg.template'
+      exclude '**/available.toggles'
+      exclude '**/META-INF/services/*'
+      exclude '**/node_modules/**'
+      exclude '**/javascripts/lib/**'
+      exclude '**/gems/jruby/**'
+      exclude '**/tmp/**'
+      exclude '**/logs/**'
+      exclude '**/log/**'
+      exclude '**/RubyRipper.java'
+      exclude '**/reset-fonts-grids.scss'
+      exclude '**/mock-ajax.js'
+      exclude '**/mithril.js'
+      exclude '**/crel.js'
+      exclude '**/JavaVersion.java'
+      exclude '**/ansi_up.js'
+      exclude '**/robots.txt'
+      exclude '**/rails/bin/**'
+
+      // used by intellij for type hints when editing ftl files, intellij gets confused if it sees a license header in this file
+      exclude '**/freemarker_implicit.ftl'
+      header rootProject.file('buildSrc/Apache-2.0.txt')
+      headerDefinitions {
+        intellijStyleXML {
+          firstLine = "<!--"
+          beforeEachLine = '  ~ '
+          endLine = "  -->"
+          afterEachLine = ''
+          skipLinePattern = "^<\\?xml.*>\$"
+          firstLineDetectionPattern = "(\\s|\\t)*<!--.*\$"
+          lastLineDetectionPattern = ".*-->(\\s|\\t)*\$"
+          allowBlankLines = true
+          isMultiline = true
+          padLines = false
+        }
+
+        intellijStyleFTL {
+          firstLine = "<#--"
+          beforeEachLine = ' '
+          endLine = "  -->"
+          afterEachLine = ''
+          firstLineDetectionPattern = "(\\s|\\t)*<#--.*\$"
+          lastLineDetectionPattern = ".*-->(\\s|\\t)*\$"
+          allowBlankLines = true
+          isMultiline = true
+          padLines = false
+        }
       }
-    }
-    mapping {
-      xml = 'intellijStyleXML'
+      mapping {
+        java = 'SLASHSTAR_STYLE'
+        groovy = 'SLASHSTAR_STYLE'
+        scss = 'SLASHSTAR_STYLE'
+        sass = 'SLASHSTAR_STYLE'
+        css = 'SLASHSTAR_STYLE'
+
+        xml = 'intellijStyleXML'
+        xsl = 'intellijStyleXML'
+        xsd = 'intellijStyleXML'
+
+        ftl = 'intellijStyleFTL'
+        ftlh = 'intellijStyleFTL'
+        ts = 'SLASHSTAR_STYLE'
+        tsx = 'SLASHSTAR_STYLE'
+        msx = 'SLASHSTAR_STYLE'
+        js = 'SLASHSTAR_STYLE'
+      }
     }
   }
 
@@ -377,10 +444,6 @@ subprojects {
           reportTask.inputs.files(config)
         }
       }
-    }
-
-    tasks.withType(License) {
-      outputs.upToDateWhen { false }
     }
 
     task testJar(type: Jar, description: "Assembles a jar archive containing the test classes.") {
@@ -449,9 +512,13 @@ subprojects {
 
   project.afterEvaluate {
     tasks.withType(License) { License thisTask ->
-      thisTask.outputs.upToDateWhen { false }
       def sourceSetName = thisTask.name.replaceFirst('licenseFormat', '').replaceFirst('license', '')
       def mappedSourceSet = sourceSets.find { sourceSet -> sourceSet.name.toLowerCase().equals(sourceSetName.toLowerCase()) }
+
+      if (project.path == ':server' && sourceSetName.toLowerCase() == 'test') {
+        thisTask.source += project.file("webapp/WEB-INF/rails/")
+        return
+      }
 
       if (thisTask.name.toLowerCase().contains('test')) {
         thisTask.source -= mappedSourceSet.resources
@@ -972,7 +1039,7 @@ task removeApi {
         .trim()
       out.println(newContents)
     }
-    
+
     project.exec {
       commandLine = ['git', 'add', '-u']
     }

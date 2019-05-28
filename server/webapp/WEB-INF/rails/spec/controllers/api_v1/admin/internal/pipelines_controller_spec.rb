@@ -22,7 +22,9 @@ describe ApiV1::Admin::Internal::PipelinesController do
 
   before(:each) do
     @pipeline_config_service = double('pipeline_config_service')
+    @entity_hashing_service = double('entity_hashing_service')
     allow(controller).to receive('pipeline_config_service').and_return(@pipeline_config_service)
+    allow(controller).to receive('entity_hashing_service').and_return(@entity_hashing_service)
   end
 
   describe "security" do
@@ -66,10 +68,12 @@ describe ApiV1::Admin::Internal::PipelinesController do
         pipeline_configs_list = Arrays.asList(pipeline_configs)
 
         expect(@pipeline_config_service).to receive(:viewableOrOperatableGroupsFor).with(controller.current_user).and_return(pipeline_configs_list)
+        expect(@entity_hashing_service).to receive(:md5ForEntity).and_return("md5")
 
         get_with_api_header :index
 
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expected_response = expected_response(pipeline_configs_list, ApiV1::Config::PipelineConfigsWithMinimalAttributesRepresenter)
         expect(actual_response).to eq(expected_response)
       end

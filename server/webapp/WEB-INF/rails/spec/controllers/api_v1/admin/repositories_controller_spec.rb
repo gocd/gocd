@@ -23,7 +23,10 @@ describe ApiV1::Admin::RepositoriesController do
   before :each do
     @repo_id = 'npm'
     @package_repository_service = double('package-repository-service')
+    @entity_hashing_service = double('entity_hashing_service')
     allow(controller).to receive(:package_repository_service).and_return(@package_repository_service)
+    allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
+    allow(@entity_hashing_service).to receive(:md5ForEntity).and_return("md5")
   end
 
   describe "index" do
@@ -38,6 +41,7 @@ describe ApiV1::Admin::RepositoriesController do
 
         get_with_api_header :index
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(actual_response).to eq(expected_response(all_repos, ApiV1::Config::PackageRepositoriesRepresenter))
       end
     end

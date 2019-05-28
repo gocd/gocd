@@ -17,9 +17,11 @@
 module ApiV1
   module ProfilesControllerActions
     include JavaImports
+
     def index
-      all_entities_from_config = service.listAll.values.to_a
-      render BaseController::DEFAULT_FORMAT => all_entities_representer.new(all_entities_from_config.to_a).to_hash(url_builder: self)
+      all_entities_from_config = load_all_entities_from_config
+      json = all_entities_representer.new(all_entities_from_config.to_a).to_hash(url_builder: self)
+      render BaseController::DEFAULT_FORMAT => json if stale?(strong_etag: etag_for(all_entities_from_config))
     end
 
     def show

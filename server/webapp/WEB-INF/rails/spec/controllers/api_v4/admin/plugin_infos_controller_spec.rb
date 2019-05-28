@@ -22,7 +22,9 @@ describe ApiV4::Admin::PluginInfosController do
 
   before(:each) do
     @default_plugin_info_finder = double('default_plugin_info_finder')
+    @entity_hashing_service = double('entity_hashing_service')
     allow(controller).to receive('default_plugin_info_finder').and_return(@default_plugin_info_finder)
+    allow(controller).to receive('entity_hashing_service').and_return(@entity_hashing_service)
 
     @default_plugin_manager = double('default_plugin_manager')
     allow(controller).to receive('default_plugin_manager').and_return(@default_plugin_manager)
@@ -30,6 +32,7 @@ describe ApiV4::Admin::PluginInfosController do
     metadata = com.thoughtworks.go.plugin.domain.common.Metadata.new(true, false)
     @plugin_settings = com.thoughtworks.go.plugin.domain.common.PluggableInstanceSettings.new([com.thoughtworks.go.plugin.domain.common.PluginConfiguration.new('memberOf', metadata)], notification_view)
 
+    allow(@entity_hashing_service).to receive(:md5ForEntity).and_return("md5")
   end
 
   describe "security" do
@@ -101,6 +104,7 @@ describe ApiV4::Admin::PluginInfosController do
       get_with_api_header :index
 
       expect(response).to be_ok
+      expect(response.headers["ETag"]).not_to include('W/')
       expect(actual_response).to eq(expected_response([plugin_info], ApiV4::Plugin::PluginInfosRepresenter))
     end
 

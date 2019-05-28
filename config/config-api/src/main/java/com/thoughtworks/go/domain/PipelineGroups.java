@@ -40,7 +40,15 @@ public class PipelineGroups extends BaseCollection<PipelineConfigs> implements V
     public PipelineGroups() {
     }
 
+    public PipelineGroups(List<PipelineConfigs> pipelineConfigs) {
+        addPipelineConfigs(pipelineConfigs);
+    }
+
     public PipelineGroups(PipelineConfigs... configses) {
+        addPipelineConfigs(Arrays.asList(configses));
+    }
+
+    private void addPipelineConfigs(List<PipelineConfigs> configses) {
         for (PipelineConfigs configs : configses) {
             this.add(configs);
         }

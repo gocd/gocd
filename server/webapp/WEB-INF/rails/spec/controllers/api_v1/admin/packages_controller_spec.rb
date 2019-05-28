@@ -31,7 +31,10 @@ describe ApiV1::Admin::PackagesController do
     @package.setRepository(@package_repository)
 
     @package_definition_service = double('package-definition-service')
+    @entity_hashing_service = double('entity_hashing_service')
     allow(controller).to receive(:package_definition_service).and_return(@package_definition_service)
+    allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
+    allow(@entity_hashing_service).to receive(:md5ForEntity).and_return("md5")
   end
 
   describe "index" do
@@ -50,6 +53,7 @@ describe ApiV1::Admin::PackagesController do
 
         get_with_api_header :index
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(actual_response).to eq(expected_response(packages, ApiV1::Config::PackagesRepresenter))
       end
     end

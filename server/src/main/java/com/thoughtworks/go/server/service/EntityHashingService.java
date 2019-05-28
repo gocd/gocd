@@ -140,6 +140,14 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
+    public String md5ForEntity(SecurityAuthConfigs authConfigs) {
+        List<String> md5s = new ArrayList<>();
+        for (SecurityAuthConfig authConfig : authConfigs) {
+            md5s.add(md5ForEntity(authConfig));
+        }
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+    }
+
     public String md5ForEntity(Role config) {
         String cacheKey = cacheKey(config, config.getName());
         return getDomainEntityMd5FromCache(config, cacheKey);

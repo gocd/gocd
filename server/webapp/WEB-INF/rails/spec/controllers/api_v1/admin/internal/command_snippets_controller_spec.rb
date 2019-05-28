@@ -22,6 +22,7 @@ describe ApiV1::Admin::Internal::CommandSnippetsController do
 
   before :each do
     allow(controller).to receive(:command_repository_service).and_return(@command_repository_service = double('command_repository_service'))
+    allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service = double('entity_hashing_service'))
   end
 
   describe "index" do
@@ -63,10 +64,12 @@ describe ApiV1::Admin::Internal::CommandSnippetsController do
         snippet_hash = presenter.to_hash(url_builder: controller, prefix: 'rake')
 
         expect(@command_repository_service).to receive(:lookupCommand).with('rake').and_return([snippet])
+        expect(@entity_hashing_service).to receive(:md5ForEntity).and_return("md5")
 
         get_with_api_header :index, params:{prefix: 'rake'}
 
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(actual_response).to eq(JSON.parse(snippet_hash.to_json).deep_symbolize_keys)
       end
     end

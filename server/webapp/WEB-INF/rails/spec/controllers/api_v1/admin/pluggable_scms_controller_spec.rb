@@ -70,10 +70,12 @@ describe ApiV1::Admin::PluggableScmsController do
         login_as_admin
 
         expect(@pluggable_scm_service).to receive(:listAllScms).and_return([@scm])
+        expect(@entity_hashing_service).to receive(:md5ForEntity).and_return("md5")
 
         get_with_api_header :index
 
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(actual_response).to eq(expected_response([@scm], ApiV1::Scms::PluggableScmsRepresenter))
       end
     end

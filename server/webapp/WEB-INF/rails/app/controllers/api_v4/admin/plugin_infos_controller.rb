@@ -40,7 +40,8 @@ module ApiV4
         if params[:include_bad].to_bool
           plugin_infos += default_plugin_manager.plugins().find_all(&:isInvalid).collect {|descriptor| BadPluginInfo.new(descriptor)}
         end
-        render DEFAULT_FORMAT => Plugin::PluginInfosRepresenter.new(plugin_infos).to_hash(url_builder: self)
+        json = Plugin::PluginInfosRepresenter.new(plugin_infos).to_hash(url_builder: self)
+        render DEFAULT_FORMAT => json if stale?(strong_etag: etag_for(plugin_infos))
       rescue InvalidPluginTypeException
         raise UnprocessableEntity, "Invalid plugins type - `#{params[:type]}` !"
       end

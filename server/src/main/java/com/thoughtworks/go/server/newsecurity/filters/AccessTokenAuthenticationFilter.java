@@ -71,28 +71,30 @@ public class AccessTokenAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
-                                    FilterChain filterChain) throws IOException {
+                                    FilterChain filterChain) throws IOException, ServletException {
+        if (isPreviouslyAuthenticated(request)) {
+            LOGGER.debug("Request is already authenticated.");
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        AccessTokenCredential credential;
         try {
-            if (isPreviouslyAuthenticated(request)) {
-                LOGGER.debug("Request is already authenticated.");
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            final AccessTokenCredential credential = extractAuthTokenCredential(request.getHeader("Authorization"));
-
-            if (credential != null) {
-                LOGGER.debug("[Bearer Authentication] Authorization header found for user '{}'", credential.getAccessToken().getUsername());
-            }
-
-            LOGGER.debug("Security Enabled: " + securityService.isSecurityEnabled());
-            if (securityService.isSecurityEnabled()) {
-                filterWhenSecurityEnabled(request, response, filterChain, credential);
-            } else {
-                filterWhenSecurityDisabled(request, response, filterChain, credential);
-            }
+            credential = extractAuthTokenCredential(request.getHeader("Authorization"));
         } catch (Exception e) {
             onAuthenticationFailure(request, response, e.getMessage());
+            return;
+        }
+
+        if (credential != null) {
+            LOGGER.debug("[Bearer Authentication] Authorization header found for user '{}'", credential.getAccessToken().getUsername());
+        }
+
+        LOGGER.debug("Security Enabled: " + securityService.isSecurityEnabled());
+        if (securityService.isSecurityEnabled()) {
+            filterWhenSecurityEnabled(request, response, filterChain, credential);
+        } else {
+            filterWhenSecurityDisabled(request, response, filterChain, credential);
         }
     }
 

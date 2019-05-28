@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.GoPartialConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
@@ -41,6 +40,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.sql.SQLException;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.IBatisUtil.arguments;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -54,13 +54,20 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class PipelineLabelCorrectorIntegrationTest {
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private PipelineSqlMapDao pipelineSqlMapDao;
-    @Autowired private PipelineLabelCorrector pipelineLabelCorrector;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private GoPartialConfig goPartialConfig;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private PipelineSqlMapDao pipelineSqlMapDao;
+    @Autowired
+    private PipelineLabelCorrector pipelineLabelCorrector;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private GoPartialConfig goPartialConfig;
     private ScheduleTestUtil scheduleUtil;
     private ConfigRepoConfig repoConfig;
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
@@ -71,7 +78,7 @@ public class PipelineLabelCorrectorIntegrationTest {
         configHelper.onSetUp();
         dbHelper.onSetUp();
         scheduleUtil = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
-        repoConfig = new ConfigRepoConfig(new GitMaterialConfig("url1"), "plugin");
+        repoConfig = new ConfigRepoConfig(git("url1"), "plugin");
         configHelper.addConfigRepo(repoConfig);
     }
 
@@ -150,7 +157,7 @@ public class PipelineLabelCorrectorIntegrationTest {
     public void shouldRemoveDuplicateEntriesForPipelineCounterFromDbIfTheConfigRepoPipelineHasNotBeenLoadedUpYetLeavingBehindTheOneWhichMatchesTheCaseOfTheLastRunPipeline() throws SQLException {
         // Such a scenario could be created in pre 18.4 world when the pipeline defined in a config-repo was created/renamed with different cases, and has had a few runs. After this the server is upgraded to a version >= 18.4
         String pipelineName = "Pipeline-Name";
-        ConfigRepoConfig repoConfig = new ConfigRepoConfig(new GitMaterialConfig("url2"), "plugin");
+        ConfigRepoConfig repoConfig = new ConfigRepoConfig(git("url2"), "plugin");
         configHelper.addConfigRepo(repoConfig);
         PipelineConfig pipelineConfig = addConfigRepoPipeline(repoConfig, pipelineName);
         scheduleUtil.runAndPass(new ScheduleTestUtil.AddedPipeline(pipelineConfig, new DependencyMaterial(pipelineConfig.name(), pipelineConfig.first().name())), "svn1r11");

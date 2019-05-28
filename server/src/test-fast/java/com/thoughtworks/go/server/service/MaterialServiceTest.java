@@ -68,9 +68,13 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother.create;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -371,7 +375,7 @@ public class MaterialServiceTest {
 
     @Test
     public void shouldDelegateToMaterialRepository_getTotalModificationsFor() {
-        GitMaterialConfig materialConfig = new GitMaterialConfig("http://test.com");
+        GitMaterialConfig materialConfig = git("http://test.com");
         GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
 
         when(materialRepository.findMaterialInstance(materialConfig)).thenReturn(gitMaterialInstance);
@@ -385,7 +389,7 @@ public class MaterialServiceTest {
 
     @Test
     public void shouldDelegateToMaterialRepository_getModificationsFor() {
-        GitMaterialConfig materialConfig = new GitMaterialConfig("http://test.com");
+        GitMaterialConfig materialConfig = git("http://test.com");
         GitMaterialInstance gitMaterialInstance = new GitMaterialInstance("http://test.com", null, null, null, "flyweight");
         Pagination pagination = Pagination.pageStartingAt(0, 10, 10);
         Modifications modifications = new Modifications();

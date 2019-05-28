@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config.materials.git;
 
 
-import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.RevisionContext;
 import com.thoughtworks.go.domain.materials.TestSubprocessExecutionContext;
@@ -38,10 +37,10 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.*;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -69,9 +68,9 @@ public class GitMaterialShallowCloneTest {
         assertThat(new GitMaterial(repo.projectRepositoryUrl()).isShallowClone(), is(false));
         assertThat(new GitMaterial(repo.projectRepositoryUrl(), null).isShallowClone(), is(false));
         assertThat(new GitMaterial(repo.projectRepositoryUrl(), true).isShallowClone(), is(true));
-        assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl())).isShallowClone(), is(false));
-        assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, true)).isShallowClone(), is(true));
-        assertThat(new GitMaterial(new GitMaterialConfig(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, false)).isShallowClone(), is(false));
+        assertThat(new GitMaterial(git(repo.projectRepositoryUrl())).isShallowClone(), is(false));
+        assertThat(new GitMaterial(git(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, true)).isShallowClone(), is(true));
+        assertThat(new GitMaterial(git(repo.projectRepositoryUrl(), GitMaterialConfig.DEFAULT_BRANCH, false)).isShallowClone(), is(false));
         TestRepo.internalTearDown();
     }
 
@@ -127,6 +126,7 @@ public class GitMaterialShallowCloneTest {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);
         assertThat(material.getAttributesForXml().get("shallowClone"), is(true));
     }
+
     @Test
     public void attributesShouldIncludeShallowFlag() {
         GitMaterial material = new GitMaterial(repo.projectRepositoryUrl(), true);

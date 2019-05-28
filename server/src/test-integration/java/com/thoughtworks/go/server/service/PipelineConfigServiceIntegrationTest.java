@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.PackageMaterialConfig;
 import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.parts.XmlPartialConfigProvider;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
@@ -59,13 +58,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.ByteArrayOutputStream;
 import java.util.UUID;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertTrue;
 import static junit.framework.TestCase.assertFalse;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -124,7 +122,7 @@ public class PipelineConfigServiceIntegrationTest {
         configHelper.onSetUp();
         goConfigService.forceNotifyListeners();
         user = new Username(new CaseInsensitiveString("current"));
-        pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new GitMaterialConfig("FOO"));
+        pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
         goConfigService.addPipeline(pipelineConfig, groupName);
         repoConfig1 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url"), XmlPartialConfigProvider.providerName);
         repoConfig2 = new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig("url2"), XmlPartialConfigProvider.providerName);
@@ -166,7 +164,7 @@ public class PipelineConfigServiceIntegrationTest {
     @Test
     public void shouldCreatePipelineConfigWhenPipelineGroupExists() throws GitAPIException {
         GoConfigHolder goConfigHolderBeforeUpdate = goConfigDao.loadConfigHolder();
-        pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new GitMaterialConfig("FOO"));
+        pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
         pipelineConfigService.createPipelineConfig(user, pipelineConfig, result, groupName);
 
         assertThat(result.toString(), result.isSuccessful(), is(true));
@@ -395,7 +393,7 @@ public class PipelineConfigServiceIntegrationTest {
     @Test
     public void shouldShowPipelineConfigErrorMessageWhenPipelineConfigHasApprovalRelatedErrors() {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
-        StageConfig stageConfig= pipeline.get(0);
+        StageConfig stageConfig = pipeline.get(0);
         stageConfig.setApproval(new Approval(new AuthConfig(new AdminRole(new CaseInsensitiveString("non-existent-role")))));
 
         pipelineConfigService.createPipelineConfig(user, pipeline, result, groupName);
@@ -408,7 +406,7 @@ public class PipelineConfigServiceIntegrationTest {
     @Test
     public void shouldShowPipelineConfigErrorMessageWhenPipelineConfigHasApprovalTypeErrors() {
         PipelineConfig pipeline = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new DependencyMaterialConfig(pipelineConfig.name(), pipelineConfig.first().name()));
-        StageConfig stageConfig= pipeline.get(0);
+        StageConfig stageConfig = pipeline.get(0);
         Approval approval = new Approval();
         approval.setType("not-success-or-manual");
         stageConfig.setApproval(approval);

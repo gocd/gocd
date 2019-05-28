@@ -47,6 +47,7 @@ import org.junit.Test;
 
 import java.util.*;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.helper.PipelineConfigMother.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -98,19 +99,19 @@ public abstract class CruiseConfigTestBase {
 
     @Test
     public void canFindMaterialConfigForUnderGivenPipelineWithMaterialFingerprint() {
-        MaterialConfig fullClone = new GitMaterialConfig("url", "master", false);
+        MaterialConfig fullClone = git("url", "master", false);
         PipelineConfig one = PipelineConfigMother.pipelineConfig("one", fullClone, new JobConfigs(new JobConfig("job")));
         cruiseConfig.addPipeline("group-1", one);
 
-        MaterialConfig shallowClone = new GitMaterialConfig("url", "master", true);
+        MaterialConfig shallowClone = git("url", "master", true);
         PipelineConfig two = PipelineConfigMother.pipelineConfig("two", shallowClone, new JobConfigs(new JobConfig("job")));
         cruiseConfig.addPipeline("group-2", two);
 
-        MaterialConfig others = new GitMaterialConfig("bar", "master", true);
+        MaterialConfig others = git("bar", "master", true);
         PipelineConfig three = PipelineConfigMother.pipelineConfig("three", others, new JobConfigs(new JobConfig("job")));
         cruiseConfig.addPipeline("group-3", three);
 
-        String fingerprint = new GitMaterialConfig("url", "master").getFingerprint();
+        String fingerprint = git("url", "master").getFingerprint();
 
         assertThat(((GitMaterialConfig) cruiseConfig.materialConfigFor(one.name(), fingerprint)).isShallowClone(), is(false));
         assertThat(((GitMaterialConfig) cruiseConfig.materialConfigFor(two.name(), fingerprint)).isShallowClone(), is(true));
@@ -794,7 +795,7 @@ public abstract class CruiseConfigTestBase {
         svnMaterialConfigWithAutoUpdate.setAutoUpdate(true);
         final MaterialConfig hgMaterialConfig = new HgMaterialConfig("http://hg_url", null);
         hgMaterialConfig.setAutoUpdate(false);
-        final MaterialConfig gitMaterialConfig = new GitMaterialConfig("http://git_url");
+        final MaterialConfig gitMaterialConfig = git("http://git_url");
         gitMaterialConfig.setAutoUpdate(false);
         final MaterialConfig tfsMaterialConfig = new TfsMaterialConfig(mock(GoCipher.class), new UrlArgument("http://tfs_url"), "username", "domain", "password", "project_path");
         tfsMaterialConfig.setAutoUpdate(false);
@@ -824,7 +825,7 @@ public abstract class CruiseConfigTestBase {
     public void getAllUniquePostCommitSchedulableMaterials_shouldReturnMaterialsWithAutoUpdateFalse() {
         GitMaterialConfig gitAutoMaterial = MaterialConfigsMother.gitMaterialConfig("url");
         PipelineConfig pipelineAuto = pipelineConfig("pipelineAuto", new MaterialConfigs(gitAutoMaterial));
-        GitMaterialConfig gitNonAutoMaterial = new GitMaterialConfig(new UrlArgument("other-url"), null, null, "master", "dest", false, null, false, null, new CaseInsensitiveString("git"), false);
+        GitMaterialConfig gitNonAutoMaterial = git(new UrlArgument("other-url"), null, null, "master", "dest", false, null, false, null, new CaseInsensitiveString("git"), false);
         PipelineConfig pipelineTriggerable = pipelineConfig("pipelineTriggerable", new MaterialConfigs(gitNonAutoMaterial));
         PipelineConfigs defaultGroup = createGroup("defaultGroup", pipelineAuto, pipelineTriggerable);
         cruiseConfig.getGroups().add(defaultGroup);
@@ -837,13 +838,13 @@ public abstract class CruiseConfigTestBase {
     public void getAllUniquePostCommitSchedulableMaterials_shouldReturnMaterialsWithAutoUpdateFalseAndConfigRepos() {
         GitMaterialConfig gitAutoMaterial = MaterialConfigsMother.gitMaterialConfig("url");
         PipelineConfig pipelineAuto = pipelineConfig("pipelineAuto", new MaterialConfigs(gitAutoMaterial));
-        GitMaterialConfig gitNonAutoMaterial = new GitMaterialConfig(new UrlArgument("other-url"), null, null, "master", "dest", false, null, false, null, new CaseInsensitiveString("git"), false);
+        GitMaterialConfig gitNonAutoMaterial = git(new UrlArgument("other-url"), null, null, "master", "dest", false, null, false, null, new CaseInsensitiveString("git"), false);
         PipelineConfig pipelineTriggerable = pipelineConfig("pipelineTriggerable", new MaterialConfigs(gitNonAutoMaterial));
         PipelineConfigs defaultGroup = createGroup("defaultGroup", pipelineAuto, pipelineTriggerable);
 
         cruiseConfig = new BasicCruiseConfig(defaultGroup);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
-        GitMaterialConfig configRepoMaterial = new GitMaterialConfig("http://git");
+        GitMaterialConfig configRepoMaterial = git("http://git");
         reposConfig.add(new ConfigRepoConfig(configRepoMaterial, "myplug"));
         cruiseConfig.setConfigRepos(reposConfig);
 
@@ -866,7 +867,7 @@ public abstract class CruiseConfigTestBase {
         pipelines.addAll(Arrays.asList(p1, p2, p3));
         BasicCruiseConfig mainCruiseConfig = new BasicCruiseConfig(pipelines);
         ConfigReposConfig reposConfig = new ConfigReposConfig();
-        GitMaterialConfig configRepo = new GitMaterialConfig("http://git");
+        GitMaterialConfig configRepo = git("http://git");
         reposConfig.add(new ConfigRepoConfig(configRepo, "myplug"));
         mainCruiseConfig.setConfigRepos(reposConfig);
 

@@ -29,6 +29,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -56,7 +57,7 @@ public class CreateConfigRepoCommandTest {
         result = new HttpLocalizedOperationResult();
 
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
-        configRepo = new ConfigRepoConfig(new GitMaterialConfig("https://foo.git", "master"), "json-plugin", repoId);
+        configRepo = new ConfigRepoConfig(git("https://foo.git", "master"), "json-plugin", repoId);
         actionFailed = "Could not add config repo " + configRepo.getId();
     }
 
@@ -81,7 +82,7 @@ public class CreateConfigRepoCommandTest {
 
     @Test
     public void isValid_shouldValidateConfigRepo() {
-        GitMaterialConfig material = new GitMaterialConfig("https://foo.git", "master");
+        GitMaterialConfig material = git("https://foo.git", "master");
         material.setAutoUpdate(false);
         configRepo.setMaterialConfig(material);
         when(configRepoExtension.canHandlePlugin(configRepo.getPluginId())).thenReturn(true);

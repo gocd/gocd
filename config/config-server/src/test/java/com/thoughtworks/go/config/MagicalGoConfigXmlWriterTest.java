@@ -57,6 +57,7 @@ import javax.xml.validation.SchemaFactory;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -421,7 +422,7 @@ public class MagicalGoConfigXmlWriterTest {
 
     @Test
     public void shouldWriteGitMaterialToXmlPartial() throws Exception {
-        GitMaterialConfig gitMaterial = new GitMaterialConfig("gitUrl");
+        GitMaterialConfig gitMaterial = git("gitUrl");
         assertThat(xmlWriter.toXmlPartial(gitMaterial), is("<git url=\"gitUrl\" />"));
     }
 

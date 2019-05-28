@@ -19,7 +19,6 @@ import com.thoughtworks.go.ClearSingleton;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -69,12 +68,10 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -350,12 +347,12 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
         PipelineConfig shallowPipeline = PipelineConfigMother.pipelineConfig("shallowPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));
         shallowPipeline.materialConfigs().clear();
-        shallowPipeline.addMaterialConfig(new GitMaterialConfig(testRepo.projectRepositoryUrl(), null, true));
+        shallowPipeline.addMaterialConfig(git(testRepo.projectRepositoryUrl(), true));
         configHelper.addPipeline(shallowPipeline);
 
         PipelineConfig fullPipeline = PipelineConfigMother.pipelineConfig("fullPipeline", new StageConfig(new CaseInsensitiveString("stage"), new JobConfigs(new JobConfig("job-one"))));
         fullPipeline.materialConfigs().clear();
-        fullPipeline.addMaterialConfig(new GitMaterialConfig(testRepo.projectRepositoryUrl(), null, false));
+        fullPipeline.addMaterialConfig(git(testRepo.projectRepositoryUrl(), false));
         configHelper.addPipeline(fullPipeline);
 
         Pipeline shallowPipelineInstance = createAndLoadModifyOneFilePipeline(shallowPipeline);

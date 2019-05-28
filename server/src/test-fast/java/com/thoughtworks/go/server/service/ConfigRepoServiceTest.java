@@ -17,7 +17,6 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
@@ -28,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -56,7 +56,7 @@ class ConfigRepoServiceTest {
 
         this.repoId = "repo-1";
         this.pluginId = "json-config-repo-plugin";
-        MaterialConfig repoMaterial = new GitMaterialConfig("https://foo.git", "master");
+        MaterialConfig repoMaterial = git("https://foo.git", "master");
         this.configRepo = new ConfigRepoConfig(repoMaterial, pluginId, repoId);
     }
 

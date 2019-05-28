@@ -15,11 +15,6 @@
  */
 package com.thoughtworks.go.config.materials;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
@@ -41,14 +36,15 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.util.TestUtils.contains;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.startsWith;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.*;
 
 public class MaterialConfigsTest {
     private GoConfigMother goConfigMother;
@@ -114,6 +110,7 @@ Above scenario allowed
         pipeline2.materialConfigs().validate(ConfigSaveValidationContext.forChain(cruiseConfig));
         assertThat(pipeline2.materialConfigs().errors().isEmpty(), is(true));
     }
+
     @Test
     public void shouldNotAllowToDependOnPipelineDefinedInConfigRepository_WhenDownstreamInFile() throws Exception {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -130,8 +127,9 @@ Above scenario allowed
         pipeline2.materialConfigs().validate(ConfigSaveValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(), pipeline2));
         DependencyMaterialConfig invalidDependency = pipeline2.materialConfigs().findDependencyMaterial(new CaseInsensitiveString("pipeline1"));
         assertThat(invalidDependency.errors().isEmpty(), is(false));
-        assertThat(invalidDependency.errors().on(DependencyMaterialConfig.ORIGIN),startsWith("Dependency from pipeline defined in"));
+        assertThat(invalidDependency.errors().on(DependencyMaterialConfig.ORIGIN), startsWith("Dependency from pipeline defined in"));
     }
+
     @Test
     public void shouldAllowToDependOnPipelineDefinedInConfigRepository_WhenInConfigRepository() throws Exception {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -149,6 +147,7 @@ Above scenario allowed
         DependencyMaterialConfig dep = pipeline2.materialConfigs().findDependencyMaterial(new CaseInsensitiveString("pipeline1"));
         assertThat(dep.errors().isEmpty(), is(true));
     }
+
     @Test
     public void shouldAllowToDependOnPipelineDefinedInFile_WhenInFile() throws Exception {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
@@ -264,12 +263,12 @@ Above scenario allowed
     }
 
     @Test
-    public void shouldAddErrorWhenMatchingScmConfigDoesNotExist(){
+    public void shouldAddErrorWhenMatchingScmConfigDoesNotExist() {
         PluggableSCMMaterialConfig scmMaterialConfig = new PluggableSCMMaterialConfig(null, SCMMother.create("scm-id"), null, null);
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("package-name"), "package-id", PackageDefinitionMother.create("package-id"));
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("one"));
-        MaterialConfigs materialConfigs = new MaterialConfigs(scmMaterialConfig,packageMaterialConfig);
+        MaterialConfigs materialConfigs = new MaterialConfigs(scmMaterialConfig, packageMaterialConfig);
 
         pipelineConfig.setMaterialConfigs(materialConfigs);
         materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", config));
@@ -278,7 +277,7 @@ Above scenario allowed
     }
 
     @Test
-    public void shouldAddErrorWhenMatchingPackageIDDoesNotExist(){
+    public void shouldAddErrorWhenMatchingPackageIDDoesNotExist() {
         PackageMaterialConfig packageMaterialConfig = new PackageMaterialConfig(new CaseInsensitiveString("package-name"), "package-id", PackageDefinitionMother.create("package-id"));
         CruiseConfig config = GoConfigMother.configWithPipelines("one");
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("one"));
@@ -402,10 +401,10 @@ Above scenario allowed
 
     @Test
     public void shouldAllowModifyingTheAutoUpdateFieldOfMaterials() throws Exception {
-        GitMaterialConfig gitMaterial = new GitMaterialConfig("https://url", "master");
+        GitMaterialConfig gitMaterial = git("https://url", "master");
         gitMaterial.setAutoUpdate(true);
 
-        GitMaterialConfig modifiedGitMaterial = new GitMaterialConfig("https://url", "master");
+        GitMaterialConfig modifiedGitMaterial = git("https://url", "master");
         modifiedGitMaterial.setAutoUpdate(false);
 
         MaterialConfigs configs = new MaterialConfigs();
@@ -506,7 +505,7 @@ Above scenario allowed
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs.size(), is(1));
-        GitMaterialConfig expected = new GitMaterialConfig("foo");
+        GitMaterialConfig expected = git("foo");
         expected.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, "master"));
         assertThat(materialConfigs.first(), is(expected));
     }
@@ -607,8 +606,8 @@ Above scenario allowed
     }
 
     @Test
-    public void shouldValidateTree(){
-        GitMaterialConfig git = new GitMaterialConfig();
+    public void shouldValidateTree() {
+        GitMaterialConfig git = git();
         git.setName(new CaseInsensitiveString("mat-name"));
         SvnMaterialConfig svn = new SvnMaterialConfig("url", true);
         svn.setName(new CaseInsensitiveString("mat-name"));
@@ -629,7 +628,7 @@ Above scenario allowed
 
 
     @Test
-    public void shouldFailValidationInNoMaterialPresent(){
+    public void shouldFailValidationInNoMaterialPresent() {
         MaterialConfigs materialConfigs = new MaterialConfigs();
         assertThat(materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new PipelineConfig())), is(false));
         assertThat(materialConfigs.errors().firstError(), is("A pipeline must have at least one material"));

@@ -50,6 +50,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static com.thoughtworks.go.config.PipelineConfig.LOCK_VALUE_LOCK_ON_FAILURE;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static junit.framework.TestCase.fail;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -474,7 +475,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertConfigMaterialWhenConfigRepoIsGitWithUrlOnly() {
         // this url would be configured inside xml config-repo section
-        GitMaterialConfig configRepoMaterial = new GitMaterialConfig("url");
+        GitMaterialConfig configRepoMaterial = git("url");
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial();
 
@@ -496,7 +497,7 @@ class ConfigConverterTest {
     @Test
     void shouldConvertConfigMaterialWhenConfigRepoIsGitWithBlacklist() {
         // this url would be configured inside xml config-repo section
-        GitMaterialConfig configRepoMaterial = new GitMaterialConfig("url");
+        GitMaterialConfig configRepoMaterial = git("url");
         when(context.configMaterial()).thenReturn(configRepoMaterial);
         CRConfigMaterial crConfigMaterial = new CRConfigMaterial();
         crConfigMaterial.setFilter(new CRFilter(filter, false));
@@ -1410,7 +1411,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertGitMaterialConfigToCRGitMaterial() {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("url", "branch", true);
+        GitMaterialConfig gitMaterialConfig = git("url", "branch", true);
         gitMaterialConfig.setName(new CaseInsensitiveString("name"));
         gitMaterialConfig.setFolder("folder");
         gitMaterialConfig.setAutoUpdate(true);
@@ -1432,7 +1433,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertGitMaterialConfigToCRGitMaterialWhenPlainPassword() throws CryptoException {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("url", "branch", true);
+        GitMaterialConfig gitMaterialConfig = git("url", "branch", true);
         gitMaterialConfig.setName(new CaseInsensitiveString("name"));
         gitMaterialConfig.setFolder("folder");
         gitMaterialConfig.setAutoUpdate(true);
@@ -1456,7 +1457,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertGitMaterialConfigToCRGitMaterialWhenEncryptedPassword() throws CryptoException {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("url", "branch", true);
+        GitMaterialConfig gitMaterialConfig = git("url", "branch", true);
         gitMaterialConfig.setName(new CaseInsensitiveString("name"));
         gitMaterialConfig.setFolder("folder");
         gitMaterialConfig.setAutoUpdate(true);
@@ -1479,7 +1480,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertGitMaterialConfigWhenNulls() {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig();
+        GitMaterialConfig gitMaterialConfig = git();
         gitMaterialConfig.setUrl("url");
 
         CRGitMaterial crGitMaterial =

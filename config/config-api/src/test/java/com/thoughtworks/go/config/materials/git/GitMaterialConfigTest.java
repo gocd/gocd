@@ -33,18 +33,19 @@ import java.util.Map;
 
 import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class GitMaterialConfigTest {
     @Test
     void shouldBePasswordAwareMaterial() {
-        assertThat(new GitMaterialConfig()).isInstanceOf(PasswordAwareMaterial.class);
+        assertThat(git()).isInstanceOf(PasswordAwareMaterial.class);
     }
 
     @Test
     void shouldSetConfigAttributes() {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("");
+        GitMaterialConfig gitMaterialConfig = git("");
 
         Map<String, String> map = new HashMap<>();
         map.put(GitMaterialConfig.URL, "url");
@@ -68,7 +69,7 @@ class GitMaterialConfigTest {
 
     @Test
     void setConfigAttributes_shouldUpdatePasswordWhenPasswordChangedBooleanChanged() throws Exception {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("");
+        GitMaterialConfig gitMaterialConfig = git("");
         Map<String, String> map = new HashMap<>();
         map.put(GitMaterialConfig.PASSWORD, "secret");
         map.put(GitMaterialConfig.PASSWORD_CHANGED, "1");
@@ -97,30 +98,30 @@ class GitMaterialConfigTest {
 
     @Test
     void byDefaultShallowCloneShouldBeOff() {
-        assertThat(new GitMaterialConfig("http://url", "foo").isShallowClone()).isFalse();
-        assertThat(new GitMaterialConfig("http://url", "foo", false).isShallowClone()).isFalse();
-        assertThat(new GitMaterialConfig("http://url", "foo", null).isShallowClone()).isFalse();
-        assertThat(new GitMaterialConfig("http://url", "foo", true).isShallowClone()).isTrue();
+        assertThat(git("http://url", "foo").isShallowClone()).isFalse();
+        assertThat(git("http://url", "foo", false).isShallowClone()).isFalse();
+        assertThat(git("http://url", "foo", null).isShallowClone()).isFalse();
+        assertThat(git("http://url", "foo", true).isShallowClone()).isTrue();
     }
 
     @Test
     void shouldReturnIfAttributeMapIsNull() {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("");
+        GitMaterialConfig gitMaterialConfig = git("");
         gitMaterialConfig.setConfigAttributes(null);
-        assertThat(gitMaterialConfig).isEqualTo(new GitMaterialConfig(""));
+        assertThat(gitMaterialConfig).isEqualTo(git(""));
     }
 
     @Test
     void shouldReturnTheUrl() {
         String url = "git@github.com/my/repo";
-        GitMaterialConfig config = new GitMaterialConfig(url);
+        GitMaterialConfig config = git(url);
 
         assertThat(config.getUrl()).isEqualTo(url);
     }
 
     @Test
     void shouldReturnNullIfUrlForMaterialNotSpecified() {
-        GitMaterialConfig config = new GitMaterialConfig();
+        GitMaterialConfig config = git();
 
         assertThat(config.getUrl()).isNull();
     }
@@ -128,7 +129,7 @@ class GitMaterialConfigTest {
     @Test
     void shouldSetUrlForAMaterial() {
         String url = "git@github.com/my/repo";
-        GitMaterialConfig config = new GitMaterialConfig();
+        GitMaterialConfig config = git();
 
         config.setUrl(url);
 
@@ -137,7 +138,7 @@ class GitMaterialConfigTest {
 
     @Test
     void shouldHandleNullWhenSettingUrlForAMaterial() {
-        GitMaterialConfig config = new GitMaterialConfig();
+        GitMaterialConfig config = git();
 
         config.setUrl(null);
 
@@ -146,30 +147,21 @@ class GitMaterialConfigTest {
 
     @Test
     void shouldHandleNullUrlAtTheTimeOfGitMaterialConfigCreation() {
-        GitMaterialConfig config = new GitMaterialConfig(null);
+        GitMaterialConfig config = git(null);
 
         assertThat(config.getUrl()).isNull();
     }
 
     @Test
-    void shouldHandleNullBranchAtTheTimeOfMaterialConfigCreation() {
-        GitMaterialConfig config1 = new GitMaterialConfig("http://url", null);
-        GitMaterialConfig config2 = new GitMaterialConfig(new UrlArgument("http://url"), "bob", "pass", null, "sub1", true, new Filter(), false, "folder", new CaseInsensitiveString("git"), false);
-
-        assertThat(config1.getBranch()).isEqualTo("master");
-        assertThat(config2.getBranch()).isEqualTo("master");
-    }
-
-    @Test
     void shouldHandleNullBranchWhileSettingConfigAttributes() {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://url", "foo");
+        GitMaterialConfig gitMaterialConfig = git("http://url", "foo");
         gitMaterialConfig.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, null));
         assertThat(gitMaterialConfig.getBranch()).isEqualTo("master");
     }
 
     @Test
     void shouldHandleEmptyBranchWhileSettingConfigAttributes() {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://url", "foo");
+        GitMaterialConfig gitMaterialConfig = git("http://url", "foo");
         gitMaterialConfig.setConfigAttributes(Collections.singletonMap(GitMaterialConfig.BRANCH, "     "));
         assertThat(gitMaterialConfig.getBranch()).isEqualTo("master");
     }
@@ -178,14 +170,14 @@ class GitMaterialConfigTest {
     class Validate {
         @Test
         void shouldEnsureUrlIsNotBlank() {
-            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("");
+            GitMaterialConfig gitMaterialConfig = git("");
             gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
             assertThat(gitMaterialConfig.errors().on(GitMaterialConfig.URL)).isEqualTo("URL cannot be blank");
         }
 
         @Test
         void shouldEnsureUserNameIsNotProvidedInBothUrlAsWellAsAttributes() {
-            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com");
+            GitMaterialConfig gitMaterialConfig = git("http://bob:pass@example.com");
             gitMaterialConfig.setUserName("user");
 
             gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
@@ -195,7 +187,7 @@ class GitMaterialConfigTest {
 
         @Test
         void shouldEnsurePasswordIsNotProvidedInBothUrlAsWellAsAttributes() {
-            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com");
+            GitMaterialConfig gitMaterialConfig = git("http://bob:pass@example.com");
             gitMaterialConfig.setPassword("pass");
 
             gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
@@ -205,7 +197,7 @@ class GitMaterialConfigTest {
 
         @Test
         void shouldIgnoreInvalidUrlForCredentialValidation() {
-            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com##dobule-hash-is-invalid-in-url");
+            GitMaterialConfig gitMaterialConfig = git("http://bob:pass@example.com##dobule-hash-is-invalid-in-url");
             gitMaterialConfig.setUserName("user");
             gitMaterialConfig.setPassword("password");
 
@@ -216,7 +208,7 @@ class GitMaterialConfigTest {
 
         @Test
         void shouldBeValidWhenCredentialsAreProvidedOnlyInUrl() {
-            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://bob:pass@example.com");
+            GitMaterialConfig gitMaterialConfig = git("http://bob:pass@example.com");
 
             gitMaterialConfig.validate(new ConfigSaveValidationContext(null));
 
@@ -225,7 +217,7 @@ class GitMaterialConfigTest {
 
         @Test
         void shouldBeValidWhenCredentialsAreProvidedOnlyAsAttributes() {
-            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("http://example.com");
+            GitMaterialConfig gitMaterialConfig = git("http://example.com");
             gitMaterialConfig.setUserName("bob");
             gitMaterialConfig.setPassword("badger");
 
@@ -239,7 +231,7 @@ class GitMaterialConfigTest {
     class ValidateTree {
         @Test
         void shouldCallValidate() {
-            final MaterialConfig materialConfig = spy(new GitMaterialConfig("https://example.repo"));
+            final MaterialConfig materialConfig = spy(git("https://example.repo"));
             final ValidationContext validationContext = mockValidationContextForSecretParams();
 
             materialConfig.validateTree(validationContext);
@@ -249,7 +241,7 @@ class GitMaterialConfigTest {
 
         @Test
         void shouldFailIfSecretConfigCannotBeUsedInPipelineGroupWhereCurrentMaterialIsDefined() {
-            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("https://example.repo");
+            GitMaterialConfig gitMaterialConfig = git("https://example.repo");
             gitMaterialConfig.setUserName("bob");
             gitMaterialConfig.setPassword("{{SECRET:[secret_config_id][pass]}}");
             final Rules directives = new Rules(new Allow("refer", PIPELINE_GROUP.getType(), "group_2"));
@@ -265,7 +257,7 @@ class GitMaterialConfigTest {
 
         @Test
         void shouldPassIfSecretConfigCanBeReferredInPipelineGroupWhereCurrentMaterialIsDefined() {
-            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("https://example.repo");
+            GitMaterialConfig gitMaterialConfig = git("https://example.repo");
             gitMaterialConfig.setUserName("bob");
             gitMaterialConfig.setPassword("{{SECRET:[secret_config_id][pass]}}");
             final Rules directives = new Rules(
@@ -286,11 +278,11 @@ class GitMaterialConfigTest {
     class Equals {
         @Test
         void shouldBeEqualIfObjectsHaveSameUrlBranchAndSubModuleFolder() {
-            final GitMaterialConfig material_1 = new GitMaterialConfig("http://example.com", "master");
+            final GitMaterialConfig material_1 = git("http://example.com", "master");
             material_1.setUserName("bob");
             material_1.setSubmoduleFolder("/var/lib/git");
 
-            final GitMaterialConfig material_2 = new GitMaterialConfig("http://example.com", "master");
+            final GitMaterialConfig material_2 = git("http://example.com", "master");
             material_2.setUserName("alice");
             material_2.setSubmoduleFolder("/var/lib/git");
 
@@ -302,7 +294,7 @@ class GitMaterialConfigTest {
     class Fingerprint {
         @Test
         void shouldGenerateFingerprintForGivenMaterialUrlAndBranch() {
-            GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("https://bob:pass@github.com/gocd", "feature");
+            GitMaterialConfig gitMaterialConfig = git("https://bob:pass@github.com/gocd", "feature");
 
             assertThat(gitMaterialConfig.getFingerprint()).isEqualTo("755da7fb7415c8674bdf5f8a4ba48fc3e071e5de429b1308ccf8949d215bdb08");
         }

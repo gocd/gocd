@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 import static org.junit.jupiter.api.Assertions.assertEquals
@@ -51,8 +52,8 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   def existingMaterialWithErrors() {
-    def gitConfig = new GitMaterialConfig(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
-    def dupGitMaterial = new GitMaterialConfig(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
+    def gitConfig = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
+    def dupGitMaterial = git(new UrlArgument(''), null, null, '', '', true, null, false, '', new CaseInsensitiveString('!nV@l!d'), false)
     def materialConfigs = new MaterialConfigs(gitConfig)
     materialConfigs.add(dupGitMaterial)
 
@@ -63,7 +64,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
   @Test
   void "should serialize material without name"() {
     def actualJson = toObjectString({
-      MaterialsRepresenter.toJSON(it, new GitMaterialConfig("http://funk.com/blank"))
+      MaterialsRepresenter.toJSON(it, git("http://funk.com/blank"))
     })
 
     assertThatJson(actualJson).isEqualTo(gitMaterialBasicHashWithoutCredentials)
@@ -72,7 +73,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
   @Test
   void "should serialize material with blank branch"() {
     def actualJson = toObjectString({
-      MaterialsRepresenter.toJSON(it, new GitMaterialConfig("http://funk.com/blank", ""))
+      MaterialsRepresenter.toJSON(it, git("http://funk.com/blank", ""))
     })
 
     assertThatJson(actualJson).isEqualTo(gitMaterialBasicHashWithoutCredentials)
@@ -94,7 +95,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
       ])
 
       def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-      def expected = new GitMaterialConfig("http://funk.com/blank")
+      def expected = git("http://funk.com/blank")
       expected.setUserName("user")
       expected.setPassword("password")
 
@@ -120,7 +121,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     ])
 
     def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-    def expected = new GitMaterialConfig("http://funk.com/blank")
+    def expected = git("http://funk.com/blank")
     expected.setUserName("user")
     expected.setPassword("password")
 
@@ -145,7 +146,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         ]
     ])
     def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-    def expected = new GitMaterialConfig("http://funk.com/blank")
+    def expected = git("http://funk.com/blank")
     expected.setUserName("user")
     expected.setPassword("password")
 
@@ -169,7 +170,7 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
         ]
     ])
     def deserializedObject = MaterialsRepresenter.fromJSON(jsonReader, getOptions())
-    def expected = new GitMaterialConfig("http://funk.com/blank")
+    def expected = git("http://funk.com/blank")
     expected.setUserName("user")
     expected.setPassword("password")
     expected.setInvertFilter(true)
@@ -235,17 +236,17 @@ class GitMaterialRepresenterTest implements MaterialRepresenterTrait {
     [
       type      : 'git',
       attributes: [
-        url               : "http://user:password@funk.com/blank",
-        destination       : "destination",
-        filter            : [
+        url             : "http://user:password@funk.com/blank",
+        destination     : "destination",
+        filter          : [
           ignore: ['**/*.html', '**/foobar/']
         ],
-        invert_filter     : false,
-        branch            : 'branch',
-        submodule_folder  : 'sub_module_folder',
-        shallow_clone     : true,
-        name              : 'AwesomeGitMaterial',
-        auto_update       : false,
+        invert_filter   : false,
+        branch          : 'branch',
+        submodule_folder: 'sub_module_folder',
+        shallow_clone   : true,
+        name            : 'AwesomeGitMaterial',
+        auto_update     : false,
       ]
     ]
 

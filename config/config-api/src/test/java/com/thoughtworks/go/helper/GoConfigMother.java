@@ -41,6 +41,7 @@ import java.io.File;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.config.PipelineConfigs.DEFAULT_GROUP;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.util.Arrays.asList;
 
 public class GoConfigMother {
@@ -339,7 +340,7 @@ public class GoConfigMother {
     public static CruiseConfig configWithConfigRepo() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(
-                new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git"), "myplugin", "id2"
+                git("https://github.com/tomzo/gocd-indep-config-part.git"), "myplugin", "id2"
         )));
         return cruiseConfig;
     }

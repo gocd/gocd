@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
@@ -31,6 +30,7 @@ import org.junit.Test;
 
 import java.io.File;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -62,7 +62,7 @@ public class GoPartialConfigTest {
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class))).thenReturn(plugin);
 
         cruiseConfig = new BasicCruiseConfig();
-        configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("url"), "plugin");
+        configRepoConfig = new ConfigRepoConfig(git("url"), "plugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
         cachedGoConfig = mock(CachedGoConfig.class);
         when(cachedGoConfig.currentConfig()).thenReturn(cruiseConfig);
@@ -109,7 +109,7 @@ public class GoPartialConfigTest {
     }
 
     private ScmMaterialConfig setOneConfigRepo() {
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
         return material;
@@ -175,7 +175,7 @@ public class GoPartialConfigTest {
         assertThat(partialConfig.lastPartials().get(0), is(part));
 
         // we change current configuration
-        ScmMaterialConfig othermaterial = new GitMaterialConfig("http://myother.git");
+        ScmMaterialConfig othermaterial = git("http://myother.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(othermaterial, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 

@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import org.junit.Test;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -33,7 +34,7 @@ public class ConfigRepoConfigTest {
     public void shouldReturnPluginNameWhenSpecified() {
         ConfigRepoConfig config = new ConfigRepoConfig();
         config.setPluginId("myplugin");
-        assertThat(config.getPluginId(),is("myplugin"));
+        assertThat(config.getPluginId(), is("myplugin"));
     }
 
     @Test
@@ -50,13 +51,13 @@ public class ConfigRepoConfigTest {
         SvnMaterialConfig svn = new SvnMaterialConfig("url", false);
         svn.setAutoUpdate(false);
 
-        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(svn,"plug");
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(svn, "plug");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
 
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
         configRepoConfig.validate(validationContext);
 
-        assertThat(svn.errors().isEmpty(),is(false));
+        assertThat(svn.errors().isEmpty(), is(false));
         assertThat(svn.errors().on("autoUpdate"),
                 is("Configuration repository material 'url' must have autoUpdate enabled."));
     }
@@ -65,14 +66,14 @@ public class ConfigRepoConfigTest {
     public void validate_shouldCheckUniquenessOfId() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
 
-        ConfigRepoConfig configRepoConfig1 = new ConfigRepoConfig(null,"plug", "id_1");
-        ConfigRepoConfig configRepoConfig2 = new ConfigRepoConfig(null,"plug", "id_1");
+        ConfigRepoConfig configRepoConfig1 = new ConfigRepoConfig(null, "plug", "id_1");
+        ConfigRepoConfig configRepoConfig2 = new ConfigRepoConfig(null, "plug", "id_1");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig1, configRepoConfig2));
 
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
         configRepoConfig1.validate(validationContext);
 
-        assertThat(configRepoConfig1.errors().isEmpty(),is(false));
+        assertThat(configRepoConfig1.errors().isEmpty(), is(false));
         assertThat(configRepoConfig1.errors().on("id"),
                 is("You have defined multiple configuration repositories with the same id - 'id_1'."));
     }
@@ -81,10 +82,10 @@ public class ConfigRepoConfigTest {
     public void validate_shouldCheckPresenceOfPluginId() {
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(new BasicCruiseConfig());
 
-        ConfigRepoConfig configRepo = new ConfigRepoConfig(null,null, "id_1");
+        ConfigRepoConfig configRepo = new ConfigRepoConfig(null, null, "id_1");
         configRepo.validate(validationContext);
 
-        assertThat(configRepo.errors().isEmpty(),is(false));
+        assertThat(configRepo.errors().isEmpty(), is(false));
         assertThat(configRepo.errors().on("plugin_id"),
                 is("Configuration repository plugin_id not specified"));
     }
@@ -94,14 +95,14 @@ public class ConfigRepoConfigTest {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         SvnMaterialConfig svn = new SvnMaterialConfig("url", false);
 
-        ConfigRepoConfig configRepoConfig1 = new ConfigRepoConfig(svn,"plug", "id_1");
-        ConfigRepoConfig configRepoConfig2 = new ConfigRepoConfig(svn,"plug", "id_2");
+        ConfigRepoConfig configRepoConfig1 = new ConfigRepoConfig(svn, "plug", "id_1");
+        ConfigRepoConfig configRepoConfig2 = new ConfigRepoConfig(svn, "plug", "id_2");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig1, configRepoConfig2));
 
         ConfigSaveValidationContext validationContext = ConfigSaveValidationContext.forChain(cruiseConfig);
         configRepoConfig1.validate(validationContext);
 
-        assertThat(configRepoConfig1.errors().isEmpty(),is(false));
+        assertThat(configRepoConfig1.errors().isEmpty(), is(false));
         assertThat(configRepoConfig1.errors().on("material"),
                 is("You have defined multiple configuration repositories with the same repository - 'url'."));
     }
@@ -109,7 +110,7 @@ public class ConfigRepoConfigTest {
     @Test
     public void validate_shouldValidateTheMaterialConfig() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
-        GitMaterialConfig materialConfig = new GitMaterialConfig(null, "master");
+        GitMaterialConfig materialConfig = git(null, "master");
 
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(materialConfig, "plug");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
@@ -162,62 +163,62 @@ public class ConfigRepoConfigTest {
         svnInPipelineConfig.setAutoUpdate(false);
         materialConfigs.add(svnInPipelineConfig);
 
-        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(svnInConfigRepo,"plug");
+        ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(svnInConfigRepo, "plug");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
 
         PipelineConfig pipeline1 = mother.addPipeline(cruiseConfig, "badpipe", "build", materialConfigs, "build");
 
         configRepoConfig.validate(ConfigSaveValidationContext.forChain(cruiseConfig, new BasicPipelineConfigs(), pipeline1));
 
-        assertThat(svnInConfigRepo.errors().isEmpty(),is(false));
+        assertThat(svnInConfigRepo.errors().isEmpty(), is(false));
         assertThat(svnInConfigRepo.errors().on("autoUpdate"),
                 is("Material of type Subversion (url) is specified as a configuration repository and pipeline material with disabled autoUpdate. All copies of this material must have autoUpdate enabled or configuration repository must be removed"));
     }
 
     @Test
-    public void hasSameMaterial_shouldReturnTrueWhenFingerprintEquals(){
-        MaterialConfig configRepo = new GitMaterialConfig("url","branch");
-        MaterialConfig someRepo = new GitMaterialConfig("url","branch");
-        ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
+    public void hasSameMaterial_shouldReturnTrueWhenFingerprintEquals() {
+        MaterialConfig configRepo = git("url", "branch");
+        MaterialConfig someRepo = git("url", "branch");
+        ConfigRepoConfig config = new ConfigRepoConfig(configRepo, "myplugin");
 
-        assertThat(config.hasSameMaterial(someRepo),is(true));
+        assertThat(config.hasSameMaterial(someRepo), is(true));
     }
 
     @Test
-    public void hasSameMaterial_shouldReturnFalseWhenFingerprintNotEquals(){
-        MaterialConfig configRepo = new GitMaterialConfig("url","branch");
-        MaterialConfig someRepo = new GitMaterialConfig("url","branch1");
-        ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
+    public void hasSameMaterial_shouldReturnFalseWhenFingerprintNotEquals() {
+        MaterialConfig configRepo = git("url", "branch");
+        MaterialConfig someRepo = git("url", "branch1");
+        ConfigRepoConfig config = new ConfigRepoConfig(configRepo, "myplugin");
 
-        assertThat(config.hasSameMaterial(someRepo),is(false));
+        assertThat(config.hasSameMaterial(someRepo), is(false));
     }
 
     @Test
-    public void hasSameMaterial_shouldReturnTrueWhenFingerprintEquals_AndDestinationDirectoriesAreDifferent(){
-        MaterialConfig configRepo = new GitMaterialConfig("url","branch");
-        GitMaterialConfig someRepo = new GitMaterialConfig("url","branch");
+    public void hasSameMaterial_shouldReturnTrueWhenFingerprintEquals_AndDestinationDirectoriesAreDifferent() {
+        MaterialConfig configRepo = git("url", "branch");
+        GitMaterialConfig someRepo = git("url", "branch");
         someRepo.setFolder("someFolder");
-        ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
+        ConfigRepoConfig config = new ConfigRepoConfig(configRepo, "myplugin");
 
-        assertThat(config.hasSameMaterial(someRepo),is(true));
+        assertThat(config.hasSameMaterial(someRepo), is(true));
     }
 
     @Test
-    public void hasMaterialWithFingerprint_shouldReturnTrueWhenFingerprintEquals(){
-        MaterialConfig configRepo = new GitMaterialConfig("url","branch");
-        GitMaterialConfig someRepo = new GitMaterialConfig("url","branch");
+    public void hasMaterialWithFingerprint_shouldReturnTrueWhenFingerprintEquals() {
+        MaterialConfig configRepo = git("url", "branch");
+        GitMaterialConfig someRepo = git("url", "branch");
         someRepo.setFolder("someFolder");
-        ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
+        ConfigRepoConfig config = new ConfigRepoConfig(configRepo, "myplugin");
 
-        assertThat(config.hasMaterialWithFingerprint(someRepo.getFingerprint()),is(true));
+        assertThat(config.hasMaterialWithFingerprint(someRepo.getFingerprint()), is(true));
     }
 
     @Test
-    public void hasMaterialWithFingerprint_shouldReturnFalseWhenFingerprintNotEquals(){
-        MaterialConfig configRepo = new GitMaterialConfig("url","branch");
-        GitMaterialConfig someRepo = new GitMaterialConfig("url","branch1");
-        ConfigRepoConfig config = new ConfigRepoConfig(configRepo,"myplugin");
+    public void hasMaterialWithFingerprint_shouldReturnFalseWhenFingerprintNotEquals() {
+        MaterialConfig configRepo = git("url", "branch");
+        GitMaterialConfig someRepo = git("url", "branch1");
+        ConfigRepoConfig config = new ConfigRepoConfig(configRepo, "myplugin");
 
-        assertThat(config.hasMaterialWithFingerprint(someRepo.getFingerprint()),is(false));
+        assertThat(config.hasMaterialWithFingerprint(someRepo.getFingerprint()), is(false));
     }
 }

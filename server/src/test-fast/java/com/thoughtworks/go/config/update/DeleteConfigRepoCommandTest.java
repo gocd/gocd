@@ -18,7 +18,6 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.BasicCruiseConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.EntityType;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
@@ -29,6 +28,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
@@ -54,7 +54,7 @@ public class DeleteConfigRepoCommandTest {
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = new GoConfigMother().defaultCruiseConfig();
         repoId = "repo-1";
-        configRepo = new ConfigRepoConfig(new GitMaterialConfig("http://foo.git", "master"), "plugin-id", repoId);
+        configRepo = new ConfigRepoConfig(git("http://foo.git", "master"), "plugin-id", repoId);
         result = new HttpLocalizedOperationResult();
         cruiseConfig.getConfigRepos().add(configRepo);
     }

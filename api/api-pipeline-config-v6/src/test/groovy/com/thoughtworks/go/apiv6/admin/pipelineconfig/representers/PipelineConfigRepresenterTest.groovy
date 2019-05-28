@@ -24,7 +24,6 @@ import com.thoughtworks.go.apiv6.shared.representers.stages.StageRepresenter
 import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.UnprocessableEntityException
 import com.thoughtworks.go.config.materials.PasswordDeserializer
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.helper.EnvironmentVariablesConfigMother
 import com.thoughtworks.go.helper.MaterialConfigsMother
@@ -37,6 +36,7 @@ import org.mockito.Mock
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObject
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.*
 import static org.mockito.Mockito.mock
@@ -591,7 +591,7 @@ class PipelineConfigRepresenterTest {
 
   static def getInvalidPipelineConfig() {
     def materialConfigs = MaterialConfigsMother.defaultMaterialConfigs()
-    def git = new GitMaterialConfig()
+    def git = git()
     git.setFolder(null)
     materialConfigs.add(git)
 

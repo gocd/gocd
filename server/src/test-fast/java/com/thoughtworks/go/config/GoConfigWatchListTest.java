@@ -22,6 +22,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -67,16 +68,16 @@ public class GoConfigWatchListTest {
     public void shouldNotifyConfigListenersWhenSingleConfigRepoHasChanged() throws Exception {
         final ChangedRepoConfigWatchListListener listener = mock(ChangedRepoConfigWatchListListener.class);
         watchList.registerListener(listener);
-        watchList.onEntityConfigChange(new ConfigRepoConfig(new GitMaterialConfig("http://git1"), "myplugin", "id"));
+        watchList.onEntityConfigChange(new ConfigRepoConfig(git("http://git1"), "myplugin", "id"));
 
         verify(listener, times(2)).onChangedRepoConfigWatchList(notNull(ConfigReposConfig.class));
     }
 
     @Test
     public void shouldReturnTrueWhenHasConfigRepoWithFingerprint() {
-        GitMaterialConfig gitrepo = new GitMaterialConfig("http://configrepo.git");
+        GitMaterialConfig gitrepo = git("http://configrepo.git");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
-                new ConfigRepoConfig(gitrepo,"myplugin")));
+                new ConfigRepoConfig(gitrepo, "myplugin")));
 
         watchList = new GoConfigWatchList(cachedGoConfig, goConfigService);
 
@@ -85,20 +86,20 @@ public class GoConfigWatchListTest {
 
     @Test
     public void shouldReturnFalseWhenDoesNotHaveConfigRepoWithFingerprint() {
-        GitMaterialConfig gitrepo = new GitMaterialConfig("http://configrepo.git");
+        GitMaterialConfig gitrepo = git("http://configrepo.git");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
                 new ConfigRepoConfig(gitrepo, "myplugin")));
 
         watchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
 
-        GitMaterialConfig gitrepo2 = new GitMaterialConfig("http://configrepo.git", "dev");
+        GitMaterialConfig gitrepo2 = git("http://configrepo.git", "dev");
         assertFalse(watchList.hasConfigRepoWithFingerprint(gitrepo2.getFingerprint()));
     }
 
 
     @Test
     public void shouldReturnConfigRepoForMaterial() {
-        GitMaterialConfig gitrepo = new GitMaterialConfig("http://configrepo.git");
+        GitMaterialConfig gitrepo = git("http://configrepo.git");
         ConfigRepoConfig repoConfig = new ConfigRepoConfig(gitrepo, "myplugin");
         when(cruiseConfig.getConfigRepos()).thenReturn(new ConfigReposConfig(
                 repoConfig));

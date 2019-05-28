@@ -59,6 +59,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.thoughtworks.go.helper.ConfigFileFixture.configWith;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.lang.String.format;
 import static javax.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
 import static javax.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
@@ -1082,7 +1083,7 @@ public class GoConfigServiceTest {
         expectLoad(cruiseConfig);
         PipelineConfig pipelineConfig = new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group", "pipeline_name", "stage_name", "job_name");
 
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("https://foo");
+        GitMaterialConfig gitMaterialConfig = git("https://foo");
         MaterialConfigs materialConfigs = new MaterialConfigs(gitMaterialConfig);
         pipelineConfig.setMaterialConfigs(materialConfigs);
 
@@ -1097,7 +1098,7 @@ public class GoConfigServiceTest {
         expectLoad(cruiseConfig);
         PipelineConfig pipelineConfig = new GoConfigMother().addPipelineWithGroup(cruiseConfig, "group", "pipeline_name", "stage_name", "job_name");
 
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig("https://foo");
+        GitMaterialConfig gitMaterialConfig = git("https://foo");
         MaterialConfigs materialConfigs = new MaterialConfigs(gitMaterialConfig);
         pipelineConfig.setMaterialConfigs(materialConfigs);
         pipelineConfig.setOrigin(new RepoConfigOrigin());

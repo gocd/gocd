@@ -64,7 +64,7 @@ describe Admin::MaterialsController do
     before :each do
       @cruise_config = BasicCruiseConfig.new()
       @cruise_config_mother = GoConfigMother.new
-      @material_config = GitMaterialConfig.new("http://git.thoughtworks.com")
+      @material_config = com.thoughtworks.go.helper.MaterialConfigsMother.git("http://git.thoughtworks.com")
 
       @pipeline = @cruise_config_mother.addPipeline(@cruise_config, "pipeline-name", "stage-name", MaterialConfigs.new([@material_config].to_java(MaterialConfig)), ["build-name"].to_java(java.lang.String))
 

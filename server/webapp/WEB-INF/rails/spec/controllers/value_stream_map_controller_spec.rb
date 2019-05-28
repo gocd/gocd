@@ -303,7 +303,7 @@ describe ValueStreamMapController do
 
     describe "render html" do
       it "should render html when html format" do
-        material_config = GitMaterialConfig.new('http://some.repo')
+        material_config = com.thoughtworks.go.helper.MaterialConfigsMother.git('http://some.repo')
 
         expect(@user).to receive(:getUsername).and_return(CaseInsensitiveString.new('some_user'))
         expect(@material_config_service).to receive(:getMaterialConfig).with('some_user', 'fingerprint', anything()).and_return(material_config)

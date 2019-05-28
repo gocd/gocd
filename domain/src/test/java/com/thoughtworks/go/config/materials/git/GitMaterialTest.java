@@ -28,7 +28,6 @@ import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.git.GitVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.GitRepoContainingSubmodule;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonValue;
@@ -59,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.thoughtworks.go.domain.materials.git.GitTestRepo.GIT_FOO_BRANCH_BUNDLE;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.matchers.FileExistsMatcher.exists;
 import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -102,7 +102,7 @@ public class GitMaterialTest {
         void shouldUpdatePasswordFromConfig() {
             assertThat(material.getPassword()).isNull();
 
-            material.updateFromConfig(MaterialConfigsMother.git("some-url", "bob", "badger"));
+            material.updateFromConfig(git("some-url", "bob", "badger"));
 
             assertThat(material.getPassword()).isEqualTo("badger");
         }
@@ -603,7 +603,7 @@ public class GitMaterialTest {
     class ConfigToMaterial {
         @Test
         void shouldBuildFromConfigObject() {
-            final GitMaterialConfig materialConfig = new GitMaterialConfig(new UrlArgument("http://example.com"), "bob", "pass", "master", "sub_module_folder",
+            final GitMaterialConfig materialConfig = git(new UrlArgument("http://example.com"), "bob", "pass", "master", "sub_module_folder",
                     true, Filter.create("igrnored"), false, "destination",
                     new CaseInsensitiveString("example"), false);
 

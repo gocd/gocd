@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.google.gson.Gson;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -26,7 +25,6 @@ import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.helper.ConfigFileFixture;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.PartialConfigMother;
-import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.support.ServerStatusService;
@@ -54,6 +52,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Predicate;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
@@ -141,15 +140,15 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
 
         ConfigReposConfig configRepos = new ConfigReposConfig();
         for (int i = 0; i < configRepoAdditionThreadCount; i++) {
-            ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("url" + i), "plugin");
+            ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(git("url" + i), "plugin");
             configRepos.add(configRepoConfig);
             Thread thread = configRepoSaveThread(configRepoConfig, i);
             group3.add(thread);
         }
 
         for (int i = 0; i < configRepoDeletionThreadCount; i++) {
-            ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(new GitMaterialConfig("to-be-deleted-url" + i), "plugin");
-            cachedGoPartials.addOrUpdate(configRepoConfig.getMaterialConfig().getFingerprint(), PartialConfigMother.withPipeline("to-be-deleted"+i, new RepoConfigOrigin(configRepoConfig, "plugin")));
+            ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(git("to-be-deleted-url" + i), "plugin");
+            cachedGoPartials.addOrUpdate(configRepoConfig.getMaterialConfig().getFingerprint(), PartialConfigMother.withPipeline("to-be-deleted" + i, new RepoConfigOrigin(configRepoConfig, "plugin")));
             configRepos.add(configRepoConfig);
             Thread thread = configRepoDeleteThread(configRepoConfig, i);
             group4.add(thread);
@@ -159,7 +158,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
             group5.add(thread);
         }
         configHelper.setConfigRepos(configRepos);
-        for (int i = 0; i < count  ; i++) {
+        for (int i = 0; i < count; i++) {
             Thread timerThread = null;
             try {
                 timerThread = createThread(new Runnable() {
@@ -284,7 +283,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
         return createThread(new Runnable() {
             @Override
             public void run() {
-                PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new GitMaterialConfig("FOO"));
+                PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
                 HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
                 pipelineConfigService.createPipelineConfig(new Username(new CaseInsensitiveString("root")), pipelineConfig, result, "default");
                 assertThat(result.message(), result.isSuccessful(), is(true));
@@ -299,7 +298,7 @@ public class ConfigSaveDeadlockDetectionIntegrationTest {
                 goConfigService.updateConfig(new UpdateConfigCommand() {
                     @Override
                     public CruiseConfig update(CruiseConfig cruiseConfig) throws Exception {
-                        PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), new GitMaterialConfig("FOO"));
+                        PipelineConfig pipelineConfig = GoConfigMother.createPipelineConfigWithMaterialConfig(UUID.randomUUID().toString(), git("FOO"));
                         cruiseConfig.addPipeline("default", pipelineConfig);
                         return cruiseConfig;
                     }

@@ -97,6 +97,7 @@ import java.util.function.Predicate;
 import static com.thoughtworks.go.config.PipelineConfig.*;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
 import static com.thoughtworks.go.helper.ConfigFileFixture.*;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.DO_NOT_RUN_ON;
 import static com.thoughtworks.go.junitext.EnhancedOSChecker.WINDOWS;
 import static com.thoughtworks.go.plugin.api.config.Property.*;
@@ -180,7 +181,7 @@ public class MagicalGoConfigXmlLoaderTest {
         CruiseConfig cruiseConfig = xmlLoader.loadConfigHolder(ONE_CONFIG_REPO).config;
         assertThat(cruiseConfig.getConfigRepos().size()).isEqualTo(1);
         ConfigRepoConfig configRepo = cruiseConfig.getConfigRepos().get(0);
-        assertThat(configRepo.getMaterialConfig()).isEqualTo(new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git"));
+        assertThat(configRepo.getMaterialConfig()).isEqualTo(git("https://github.com/tomzo/gocd-indep-config-part.git"));
     }
 
     @Test
@@ -211,9 +212,9 @@ public class MagicalGoConfigXmlLoaderTest {
         )).config;
         assertThat(cruiseConfig.getConfigRepos().size()).isEqualTo(2);
         ConfigRepoConfig configRepo1 = cruiseConfig.getConfigRepos().get(0);
-        assertThat(configRepo1.getMaterialConfig()).isEqualTo(new GitMaterialConfig("https://github.com/tomzo/gocd-indep-config-part.git"));
+        assertThat(configRepo1.getMaterialConfig()).isEqualTo(git("https://github.com/tomzo/gocd-indep-config-part.git"));
         ConfigRepoConfig configRepo2 = cruiseConfig.getConfigRepos().get(1);
-        assertThat(configRepo2.getMaterialConfig()).isEqualTo(new GitMaterialConfig("https://github.com/tomzo/gocd-refmain-config-part.git"));
+        assertThat(configRepo2.getMaterialConfig()).isEqualTo(git("https://github.com/tomzo/gocd-refmain-config-part.git"));
     }
 
     @Test

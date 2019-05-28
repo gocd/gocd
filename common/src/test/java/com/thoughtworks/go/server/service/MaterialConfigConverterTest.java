@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.materials.TestingMaterialConfig;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
@@ -29,6 +28,7 @@ import com.thoughtworks.go.domain.materials.tfs.TfsMaterialInstance;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import org.junit.Test;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -38,7 +38,7 @@ public class MaterialConfigConverterTest {
         MaterialConfigConverter converter = new MaterialConfigConverter();
 
         assertEquals(SvnMaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.svnMaterialConfig()));
-        assertEquals(GitMaterialInstance.class, converter.getInstanceType(new GitMaterialConfig("abc")));
+        assertEquals(GitMaterialInstance.class, converter.getInstanceType(git("abc")));
         assertEquals(HgMaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.hgMaterialConfig()));
         assertEquals(P4MaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.p4MaterialConfig()));
         assertEquals(TfsMaterialInstance.class, converter.getInstanceType(new TfsMaterialConfig(null)));

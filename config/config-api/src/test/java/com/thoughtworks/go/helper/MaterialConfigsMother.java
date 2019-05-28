@@ -38,6 +38,55 @@ import com.thoughtworks.go.util.command.UrlArgument;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 
 public class MaterialConfigsMother {
+    public static GitMaterialConfig git() {
+        return new GitMaterialConfig();
+    }
+
+    public static GitMaterialConfig git(String url) {
+        GitMaterialConfig gitMaterialConfig = git();
+        gitMaterialConfig.setUrl(url);
+        return gitMaterialConfig;
+    }
+
+    public static GitMaterialConfig git(String url, String branch) {
+        GitMaterialConfig gitMaterialConfig = git(url);
+        gitMaterialConfig.setBranch(branch);
+        return gitMaterialConfig;
+    }
+
+    public static GitMaterialConfig git(String url, boolean shallowClone) {
+        GitMaterialConfig gitMaterialConfig = git(url);
+        gitMaterialConfig.setShallowClone(shallowClone);
+        return gitMaterialConfig;
+    }
+
+    public static GitMaterialConfig git(String url, String branch, boolean shallowClone) {
+        GitMaterialConfig gitMaterialConfig = git(url, branch);
+        gitMaterialConfig.setShallowClone(shallowClone);
+        return gitMaterialConfig;
+    }
+
+    public static GitMaterialConfig git(UrlArgument url, String userName, String password, String branch, String submoduleFolder,
+                                        boolean autoUpdate, Filter filter, boolean invertFilter, String folder,
+                                        CaseInsensitiveString name, Boolean shallowClone) {
+        return git(url.originalArgument(), userName, password, branch, submoduleFolder, autoUpdate, filter, invertFilter, folder, name, shallowClone);
+    }
+
+    public static GitMaterialConfig git(String url, String userName, String password, String branch, String submoduleFolder,
+                                        boolean autoUpdate, Filter filter, boolean invertFilter, String folder,
+                                        CaseInsensitiveString name, Boolean shallowClone) {
+        GitMaterialConfig gitMaterialConfig = git(url, branch, shallowClone);
+        gitMaterialConfig.setUserName(userName);
+        gitMaterialConfig.setPassword(password);
+        gitMaterialConfig.setSubmoduleFolder(submoduleFolder);
+        gitMaterialConfig.setAutoUpdate(autoUpdate);
+        gitMaterialConfig.setFilter(filter);
+        gitMaterialConfig.setInvertFilter(invertFilter);
+        gitMaterialConfig.setFolder(folder);
+        gitMaterialConfig.setName(name);
+        return gitMaterialConfig;
+    }
+
 
     public static MaterialConfigs defaultMaterialConfigs() {
         return defaultSvnMaterialConfigsWithUrl("http://some/svn/url");
@@ -120,7 +169,7 @@ public class MaterialConfigsMother {
     }
 
     public static GitMaterialConfig gitMaterialConfig(String url, String submoduleFolder, String branch, boolean shallowClone) {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig(url, branch);
+        GitMaterialConfig gitMaterialConfig = git(url, branch);
         gitMaterialConfig.setShallowClone(shallowClone);
         gitMaterialConfig.setSubmoduleFolder(submoduleFolder);
         return gitMaterialConfig;
@@ -128,11 +177,11 @@ public class MaterialConfigsMother {
 
     public static GitMaterialConfig gitMaterialConfig() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        return new GitMaterialConfig(new UrlArgument("http://user:password@funk.com/blank"), null, null, "branch", "sub_module_folder", false, filter, false, "destination", new CaseInsensitiveString("AwesomeGitMaterial"), true);
+        return git(new UrlArgument("http://user:password@funk.com/blank"), null, null, "branch", "sub_module_folder", false, filter, false, "destination", new CaseInsensitiveString("AwesomeGitMaterial"), true);
     }
 
     public static GitMaterialConfig gitMaterialConfig(String url) {
-        return new GitMaterialConfig(url);
+        return git(url);
     }
 
     public static P4MaterialConfig p4MaterialConfig() {
@@ -208,7 +257,7 @@ public class MaterialConfigsMother {
     }
 
     public static GitMaterialConfig git(String url, String username, String password) {
-        GitMaterialConfig gitMaterialConfig = new GitMaterialConfig(url);
+        GitMaterialConfig gitMaterialConfig = git(url);
         gitMaterialConfig.setUserName(username);
         gitMaterialConfig.setPassword(password);
         return gitMaterialConfig;

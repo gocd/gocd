@@ -16,7 +16,6 @@
 package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -44,6 +43,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -76,8 +76,8 @@ public class GoPartialConfigIntegrationTest {
         goCache.clear();
         configHelper.usingCruiseConfigDao(goConfigDao);
         configHelper.onSetUp();
-        repoConfig1 = new ConfigRepoConfig(new GitMaterialConfig("url1"), "plugin");
-        repoConfig2 = new ConfigRepoConfig(new GitMaterialConfig("url2"), "plugin");
+        repoConfig1 = new ConfigRepoConfig(git("url1"), "plugin");
+        repoConfig2 = new ConfigRepoConfig(git("url2"), "plugin");
         configHelper.addConfigRepo(repoConfig1);
         configHelper.addConfigRepo(repoConfig2);
 
@@ -107,7 +107,7 @@ public class GoPartialConfigIntegrationTest {
     @Test
     public void shouldNotSaveConfigWhenANewInValidPartialGetsAdded() {
         PartialConfig invalidPartial = PartialConfigMother.invalidPartial("p1");
-        invalidPartial.setOrigins(new RepoConfigOrigin(repoConfig1,"sha-2"));
+        invalidPartial.setOrigins(new RepoConfigOrigin(repoConfig1, "sha-2"));
         goPartialConfig.onSuccessPartialConfig(repoConfig1, invalidPartial);
         assertThat(goConfigDao.loadConfigHolder().config.getAllPipelineNames().contains(new CaseInsensitiveString("p1")), is(false));
         List<ServerHealthState> serverHealthStates = serverHealthService.filterByScope(HealthStateScope.forPartialConfigRepo(repoConfig1));
@@ -171,7 +171,7 @@ public class GoPartialConfigIntegrationTest {
 
     @Test
     public void shouldMarkAnInvalidKnownPartialAsValidWhenLoadingAnotherPartialMakesThisOneValid_InterConfigRepoDependency() {
-        ConfigRepoConfig repoConfig3 = new ConfigRepoConfig(new GitMaterialConfig("url3"), "plugin");
+        ConfigRepoConfig repoConfig3 = new ConfigRepoConfig(git("url3"), "plugin");
         configHelper.addConfigRepo(repoConfig3);
 
         PartialConfig repo1 = PartialConfigMother.withPipeline("p1_repo1", new RepoConfigOrigin(repoConfig1, "1"));

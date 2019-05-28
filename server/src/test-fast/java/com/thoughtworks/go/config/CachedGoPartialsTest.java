@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -27,6 +26,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -45,9 +45,9 @@ public class CachedGoPartialsTest {
     public void setUp() throws Exception {
         serverHealthService = new ServerHealthService();
         partials = new CachedGoPartials(serverHealthService);
-        configRepo1 = new ConfigRepoConfig(new GitMaterialConfig("url1"), "plugin");
+        configRepo1 = new ConfigRepoConfig(git("url1"), "plugin");
         part1 = PartialConfigMother.withPipeline("p1", new RepoConfigOrigin(configRepo1, "1"));
-        configRepo2 = new ConfigRepoConfig(new GitMaterialConfig("url2"), "plugin");
+        configRepo2 = new ConfigRepoConfig(git("url2"), "plugin");
         part2 = PartialConfigMother.withPipeline("p2", new RepoConfigOrigin(configRepo2, "1"));
         partials.addOrUpdate(configRepo1.getMaterialConfig().getFingerprint(), part1);
         partials.addOrUpdate(configRepo2.getMaterialConfig().getFingerprint(), part2);

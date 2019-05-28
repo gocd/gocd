@@ -36,6 +36,7 @@ import org.junit.Test;
 
 import java.io.File;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -70,14 +71,14 @@ public class GoRepoConfigDataSourceTest {
         configWatchList = new GoConfigWatchList(cachedGoConfig, mock(GoConfigService.class));
         repoConfigDataSource = new GoRepoConfigDataSource(configWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
 
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(material, "myplugin");
         when(configRepoService.findByFingerprint(anyString())).thenReturn(configRepoConfig);
     }
 
     @Test
     public void shouldCallPluginLoadOnCheckout_WhenMaterialInWatchList() {
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
@@ -88,7 +89,7 @@ public class GoRepoConfigDataSourceTest {
 
     @Test
     public void shouldAssignConfigOrigin() throws Exception {
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepo = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
         configWatchList.onConfigChange(cruiseConfig);
@@ -103,7 +104,7 @@ public class GoRepoConfigDataSourceTest {
 
     @Test
     public void shouldAssignConfigOriginInPipelines() throws Exception {
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepo = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
         configWatchList.onConfigChange(cruiseConfig);
@@ -125,7 +126,7 @@ public class GoRepoConfigDataSourceTest {
 
     @Test
     public void shouldAssignConfigOriginInEnvironments() throws Exception {
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepo = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepo));
         configWatchList.onConfigChange(cruiseConfig);
@@ -148,7 +149,7 @@ public class GoRepoConfigDataSourceTest {
 
     @Test
     public void shouldProvideParseContextWhenCallingPlugin() throws Exception {
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig repoConfig = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig));
         configWatchList.onConfigChange(cruiseConfig);
@@ -162,7 +163,7 @@ public class GoRepoConfigDataSourceTest {
 
     @Test
     public void shouldProvideConfigurationInParseContextWhenCallingPlugin() throws Exception {
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig repoConfig = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(repoConfig));
         configWatchList.onConfigChange(cruiseConfig);
@@ -198,7 +199,7 @@ public class GoRepoConfigDataSourceTest {
 
     @Test
     public void shouldNotCallPluginLoadOnCheckout_WhenMaterialNotInWatchList() throws Exception {
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
 
         repoConfigDataSource.onCheckoutComplete(material, folder, getModificationFor("7a8f"));
 
@@ -207,7 +208,7 @@ public class GoRepoConfigDataSourceTest {
 
     @Test
     public void shouldReturnLatestPartialConfigForMaterial_WhenPartialExists() throws Exception {
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
@@ -222,7 +223,7 @@ public class GoRepoConfigDataSourceTest {
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class)))
                 .thenReturn(new BrokenConfigPlugin());
 
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
@@ -244,7 +245,7 @@ public class GoRepoConfigDataSourceTest {
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class)))
                 .thenReturn(new BrokenConfigPlugin());
 
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
         configWatchList.onConfigChange(cruiseConfig);
@@ -258,7 +259,7 @@ public class GoRepoConfigDataSourceTest {
 
     @Test
     public void shouldSetOKHealthState_AtConfigRepoScope_WhenPluginHasParsed() {
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(material, "myplugin");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(configRepoConfig));
         configWatchList.onConfigChange(cruiseConfig);
@@ -295,7 +296,7 @@ public class GoRepoConfigDataSourceTest {
         when(configPluginService.partialConfigProviderFor(any(ConfigRepoConfig.class)))
                 .thenThrow(new RuntimeException("Failed to initialize plugin"));
 
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
@@ -312,7 +313,7 @@ public class GoRepoConfigDataSourceTest {
 
     @Test
     public void shouldRemovePartialsWhenRemovedFromWatchList() throws Exception {
-        ScmMaterialConfig material = new GitMaterialConfig("http://my.git");
+        ScmMaterialConfig material = git("http://my.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(material, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
@@ -320,7 +321,7 @@ public class GoRepoConfigDataSourceTest {
         assertNotNull(repoConfigDataSource.latestPartialConfigForMaterial(material));
 
         // we change current configuration
-        ScmMaterialConfig othermaterial = new GitMaterialConfig("http://myother.git");
+        ScmMaterialConfig othermaterial = git("http://myother.git");
         cruiseConfig.setConfigRepos(new ConfigReposConfig(new ConfigRepoConfig(othermaterial, "myplugin")));
         configWatchList.onConfigChange(cruiseConfig);
 
@@ -334,7 +335,7 @@ public class GoRepoConfigDataSourceTest {
 
     @Test
     public void shouldMaintainAListOfConfigReposWhichHaveChangedSinceLastParse() {
-        GitMaterialConfig material = new GitMaterialConfig("http://my.git");
+        GitMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(material, "myplugin");
         GoConfigWatchList goConfigWatchList = mock(GoConfigWatchList.class);
         repoConfigDataSource = new GoRepoConfigDataSource(goConfigWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);
@@ -348,7 +349,7 @@ public class GoRepoConfigDataSourceTest {
 
     @Test
     public void onParseOfConfigRepo_shouldUpdateTheListOfConfigReposWhichHaveChanged() {
-        GitMaterialConfig material = new GitMaterialConfig("http://my.git");
+        GitMaterialConfig material = git("http://my.git");
         ConfigRepoConfig configRepoConfig = new ConfigRepoConfig(material, "myplugin");
         GoConfigWatchList goConfigWatchList = mock(GoConfigWatchList.class);
         repoConfigDataSource = new GoRepoConfigDataSource(goConfigWatchList, configPluginService, serverHealthService, configRepoService, goConfigService);

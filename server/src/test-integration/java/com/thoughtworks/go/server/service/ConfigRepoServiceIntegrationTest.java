@@ -19,7 +19,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.UpdateConfigCommand;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.domain.config.Admin;
@@ -39,8 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.IOException;
-
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertNull;
@@ -90,7 +88,7 @@ public class ConfigRepoServiceIntegrationTest {
 
         this.repoId = "repo-1";
         this.pluginId = "json-config-repo-plugin";
-        MaterialConfig repoMaterial = new GitMaterialConfig("https://foo.git", "master");
+        MaterialConfig repoMaterial = git("https://foo.git", "master");
         this.configRepo = new ConfigRepoConfig(repoMaterial, pluginId, repoId);
 
         configHelper.usingCruiseConfigDao(goConfigDao).initializeConfigFile();
@@ -148,7 +146,7 @@ public class ConfigRepoServiceIntegrationTest {
     public void shouldCreateSpecifiedConfigRepository() throws Exception {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         configHelper.enableSecurity();
-        configRepoService =  new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
+        configRepoService = new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
 
         when(configRepoExtension.canHandlePlugin(any())).thenReturn(true);
 
@@ -162,7 +160,7 @@ public class ConfigRepoServiceIntegrationTest {
 
     @Test
     public void shouldUpdateSpecifiedConfigRepository() throws Exception {
-        configRepoService =  new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
+        configRepoService = new ConfigRepoService(goConfigService, securityService, entityHashingService, configRepoExtension, materialUpdateService, materialConfigConverter);
 
         when(configRepoExtension.canHandlePlugin(any())).thenReturn(true);
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -175,7 +173,7 @@ public class ConfigRepoServiceIntegrationTest {
             }
         });
         String newRepoId = "repo-2";
-        ConfigRepoConfig toUpdateWith = new ConfigRepoConfig(new GitMaterialConfig("http://bar.git", "master"), "yaml-plugin", newRepoId);
+        ConfigRepoConfig toUpdateWith = new ConfigRepoConfig(git("http://bar.git", "master"), "yaml-plugin", newRepoId);
 
         assertThat(configRepoService.getConfigRepos().size(), is(1));
         assertThat(configRepoService.getConfigRepo(repoId), is(configRepo));

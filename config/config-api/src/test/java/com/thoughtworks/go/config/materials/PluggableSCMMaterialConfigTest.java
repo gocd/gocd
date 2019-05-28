@@ -18,7 +18,6 @@ package com.thoughtworks.go.config.materials;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext;
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
@@ -37,11 +36,10 @@ import java.util.Map;
 
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother.create;
-import static org.junit.Assert.assertThat;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 public class PluggableSCMMaterialConfigTest {
@@ -74,7 +72,7 @@ public class PluggableSCMMaterialConfigTest {
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
         PluggableSCMMaterialConfig existingMaterial = new PluggableSCMMaterialConfig("scm-id");
         nameToMaterialMap.put(new CaseInsensitiveString("scm-id"), existingMaterial);
-        nameToMaterialMap.put(new CaseInsensitiveString("foo"), new GitMaterialConfig("url"));
+        nameToMaterialMap.put(new CaseInsensitiveString("foo"), git("url"));
 
         pluggableSCMMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 
@@ -89,7 +87,7 @@ public class PluggableSCMMaterialConfigTest {
     public void shouldPassMaterialUniquenessIfIfNoDuplicateSCMFound() throws Exception {
         Map<CaseInsensitiveString, AbstractMaterialConfig> nameToMaterialMap = new HashMap<>();
         nameToMaterialMap.put(new CaseInsensitiveString("scm-id-new"), new PluggableSCMMaterialConfig("scm-id-new"));
-        nameToMaterialMap.put(new CaseInsensitiveString("foo"), new GitMaterialConfig("url"));
+        nameToMaterialMap.put(new CaseInsensitiveString("foo"), git("url"));
 
         pluggableSCMMaterialConfig.validateNameUniqueness(nameToMaterialMap);
 

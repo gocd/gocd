@@ -15,39 +15,42 @@
  */
 package com.thoughtworks.go.apiv6.shared.representers.configorigin
 
-import com.thoughtworks.go.config.materials.git.GitMaterialConfig
+
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
 class ConfigRepoOriginRepresenterTest {
 
   @Test
   void 'should render remote config origin'() {
-    def gitMaterialConfig = new GitMaterialConfig('https://github.com/config-repos/repo', 'master')
-    def actualJson = toObjectString({ ConfigRepoOriginRepresenter.toJSON(it, new RepoConfigOrigin(new ConfigRepoConfig(gitMaterialConfig, 'json-plugon', 'repo1'), 'revision1'))})
+    def gitMaterialConfig = git('https://github.com/config-repos/repo', 'master')
+    def actualJson = toObjectString({
+      ConfigRepoOriginRepresenter.toJSON(it, new RepoConfigOrigin(new ConfigRepoConfig(gitMaterialConfig, 'json-plugon', 'repo1'), 'revision1'))
+    })
 
     assertThatJson(actualJson).isEqualTo(expectedJson)
   }
 
   def expectedJson =
-  [
-    type: 'config_repo',
-    _links: [
-      self: [
-        href: 'http://test.host/go/api/admin/config_repos/repo1'
+    [
+      type  : 'config_repo',
+      _links: [
+        self: [
+          href: 'http://test.host/go/api/admin/config_repos/repo1'
+        ],
+        doc : [
+          href: apiDocsUrl('#config-repos')
+        ],
+        find: [
+          href: 'http://test.host/go/api/admin/config_repos/:id'
+        ]
       ],
-      doc: [
-        href: apiDocsUrl('#config-repos')
-      ],
-      find: [
-        href: 'http://test.host/go/api/admin/config_repos/:id'
-      ]
-    ],
-    id: 'repo1'
-  ]
+      id    : 'repo1'
+    ]
 }

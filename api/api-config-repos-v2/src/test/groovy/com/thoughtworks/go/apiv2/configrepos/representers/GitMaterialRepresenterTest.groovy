@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.git
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
 
@@ -36,7 +37,7 @@ class GitMaterialRepresenterTest {
   class ToJSON {
     @Test
     void shouldSerializeObjectToJson() {
-      GitMaterialConfig config = new GitMaterialConfig("https://guthib.com/chewbacca", BRANCH)
+      GitMaterialConfig config = git("https://guthib.com/chewbacca", BRANCH)
       config.setUserName("bob")
       config.setPassword("some-pass")
 

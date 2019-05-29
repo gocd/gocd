@@ -174,10 +174,14 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     private void updateAgentObject(Agent agent) {
-        Agent agentInDB = fetchAgentByUuid(agent.getUuid());
+        Long id = (Long) getHibernateTemplate().execute(session -> {
+            Query query = session.createQuery("select id from Agent where uuid = :uuid");
+            query.setString("uuid", agent.getUuid());
+            return query.uniqueResult();
+        });
 
-        if (agentInDB != null && agent.getId() == -1) {
-            agent.setId(agentInDB.getId());
+        if (id != null && agent.getId() == -1) {
+            agent.setId(id);
         }
     }
 
@@ -218,6 +222,46 @@ public class AgentDao extends HibernateDaoSupport {
                 }
             });
         }
+    }
+
+    public void bulkAddEnvironments(final List<String> uuids,  final List<String> environmentsToAdd){
+        List<Agent> agents = getAllAgents(uuids);
+        synchronized (uuids) {
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+
+                    for (Agent agent : agents) {
+                        agent.addEnvironments(environmentsToAdd);
+                        sessionFactory.getCurrentSession().saveOrUpdate(Agent.class.getName(), agent);
+                    }
+
+                    clearCache(synchronizationManager, uuids);
+                }
+            });
+        }
+
+        notifyListener();
+    }
+
+    public void bulkRemoveEnvironments(final List<String> uuids,  final List<String> environmentsToRemove){
+        List<Agent> agents = getAllAgents(uuids);
+        synchronized (uuids) {
+            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                @Override
+                protected void doInTransactionWithoutResult(TransactionStatus status) {
+
+                    for (Agent agent : agents) {
+                        agent.removeEnvironments(environmentsToRemove);
+                        sessionFactory.getCurrentSession().saveOrUpdate(Agent.class.getName(), agent);
+                    }
+
+                    clearCache(synchronizationManager, uuids);
+                }
+            });
+        }
+
+        notifyListener();
     }
 
     public void bulkUpdateAttributes(final List<String> uuids, final List<String> resourcesToAdd, final List<String> resourcesToRemove, final List<String> environmentsToAdd, final List<String> environmentsToRemove, final TriState enable, AgentInstances agentInstances) {

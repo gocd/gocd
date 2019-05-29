@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -130,7 +131,7 @@ public class AgentConfigService {
         Agent agent = agentDao.agentByUuid(uuid);
         bombIfNull(agent, "Unable to set agent ipAddress; Agent [" + uuid + "] not found.");
         agent.setIpaddress(ipAddress);
-        saveOrUpdate(agent,null);
+        saveOrUpdate(agent, null);
     }
 
     public void bulkUpdateAgentAttributes(AgentInstances agentInstances, final Username username, final LocalizedOperationResult result,
@@ -219,14 +220,29 @@ public class AgentConfigService {
         if (hasAgent(agentInstance.getUuid())) {
             LOGGER.warn("Registered agent with the same uuid [{}] already approved.", agentInstance);
         } else {
-            saveOrUpdate(agentInstance.agentConfig(),null);
+            saveOrUpdate(agentInstance.agentConfig(), null);
         }
     }
 
     public void registerAgent(AgentConfig agentConfig, String agentAutoRegisterResources, String agentAutoRegisterEnvironments, HttpOperationResult result) {
         agentConfig.setResourceConfigs(new ResourceConfigs(agentAutoRegisterResources));
         agentConfig.setEnvironments(agentAutoRegisterEnvironments);
-        saveOrUpdate(agentConfig,null);
+        saveOrUpdate(agentConfig, null);
+    }
+
+    public void updateEnvironments(EnvironmentConfig newEnvironmentConfig, List<String> oldAgentsUuids, List<String> newAgentsUuids, HttpLocalizedOperationResult result) {
+        List<String> environmentToRemoveFromAgents = oldAgentsUuids.stream().filter(uuid -> !newAgentsUuids.contains(uuid)).collect(Collectors.toList());
+        List<String> environmentToAddToAgents = newAgentsUuids.stream().filter(uuid -> !oldAgentsUuids.contains(uuid)).collect(Collectors.toList());
+        try {
+            if (!environmentToAddToAgents.isEmpty()) {
+                agentDao.bulkAddEnvironments(environmentToAddToAgents, Arrays.asList(newEnvironmentConfig.name().toString()));
+            }
+            if (!environmentToRemoveFromAgents.isEmpty()) {
+                agentDao.bulkRemoveEnvironments(environmentToRemoveFromAgents, Arrays.asList(newEnvironmentConfig.name().toString()));
+            }
+        } catch (Exception e) {
+            result.unprocessableEntity(String.format("Failed to update environments %s", e.getMessage()));
+        }
     }
 
     /**
@@ -281,14 +297,14 @@ public class AgentConfigService {
     public void updateAgentResources(final String uuid, final ResourceConfigs resourceConfigs) {
         Agent agent = agentDao.agentByUuid(uuid);
         agent.setResources(resourceConfigs);
-        saveOrUpdate(agent,null);
+        saveOrUpdate(agent, null);
 //        updateAgent(new UpdateResourcesCommand(uuid, resourceConfigs), uuid, Username.ANONYMOUS);
     }
 
     public void updateAgentApprovalStatus(final String uuid, final Boolean isDenied, Username currentUser) {
         Agent agent = agentDao.agentByUuid(uuid);
         agent.setDisabled(isDenied);
-        saveOrUpdate(agent,null);
+        saveOrUpdate(agent, null);
     }
 
     public void saveOrUpdate(AgentConfig agentConfig, Username currentUser) {

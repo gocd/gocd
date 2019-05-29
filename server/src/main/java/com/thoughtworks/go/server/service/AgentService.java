@@ -99,7 +99,7 @@ public class AgentService {
 
     public void initialize() {
         this.sync();
-        agentConfigService.register(new AgentChangeListener(this));
+        agentConfigService.register(new AgentChangeListener(this, environmentConfigService));
     }
 
     public void sync() {

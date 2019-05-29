@@ -40,9 +40,9 @@ public class EnvironmentAgentConfig implements Validatable{
     }
 
     public boolean validateUuidPresent(CaseInsensitiveString name, Set<String> uuids) {
-        if (!uuids.contains(uuid)) {
-            this.addError(UUID, format("Environment '%s' has an invalid agent uuid '%s'", name, uuid));
-        }
+//        if (!uuids.contains(uuid)) {
+//            this.addError(UUID, format("Environment '%s' has an invalid agent uuid '%s'", name, uuid));
+//        }
         return errors().isEmpty();
     }
 

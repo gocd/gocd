@@ -17,12 +17,15 @@ package com.thoughtworks.go.listener;
 
 import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.EnvironmentConfigService;
 
-public class AgentChangeListener implements DatabaseEntityChangeListener<Agent>{
+public class AgentChangeListener implements DatabaseEntityChangeListener<Agent> {
     private final AgentService agentService;
+    private final EnvironmentConfigService environmentConfigService;
 
-    public AgentChangeListener(AgentService agentService) {
+    public AgentChangeListener(AgentService agentService, EnvironmentConfigService environmentConfigService) {
         this.agentService = agentService;
+        this.environmentConfigService = environmentConfigService;
     }
 
     @Override

@@ -33,7 +33,6 @@ class Approval extends ValidatableMixin {
 
   constructor() {
     super();
-    ValidatableMixin.call(this);
 
     this.type(ApprovalType.success);
     this.validatePresenceOf("type");
@@ -57,7 +56,6 @@ export class Stage extends ValidatableMixin {
 
   constructor(name: string, jobs: Job[]) {
     super();
-    ValidatableMixin.call(this);
 
     this.name = stream(name);
     this.validatePresenceOf("name");

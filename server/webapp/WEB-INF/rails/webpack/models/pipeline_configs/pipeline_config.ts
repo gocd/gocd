@@ -33,7 +33,6 @@ export class PipelineConfig extends ValidatableMixin {
   constructor(name: string, materials: Material[], stages: Stage[]) {
     super();
 
-    ValidatableMixin.call(this);
     this.name = stream(name);
     this.validatePresenceOf("name");
     this.validateIdFormat("name");

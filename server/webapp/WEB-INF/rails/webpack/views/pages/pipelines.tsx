@@ -15,6 +15,7 @@
  */
 
 // utils
+import * as _ from "lodash";
 import * as m from "mithril";
 import {Page, PageState} from "views/pages/page";
 
@@ -93,7 +94,7 @@ export class PipelineCreatePage extends Page {
         <UserInputPane heading="Part 4: Job and Tasks">
           <JobEditor job={this.job}/>
           <TaskTerminalField label="Type your tasks below at the prompt" property={this.job.tasks} errorText={this.job.errors().errorsForDisplay("tasks")} required={true}/>
-          <AdvancedSettings>
+          <AdvancedSettings forceOpen={_.some(this.job.environmentVariables(), (env) => env.errors().hasErrors())}>
             <EnvironmentVariablesEditor variables={this.job.environmentVariables}  />
           </AdvancedSettings>
         </UserInputPane>

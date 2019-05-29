@@ -76,7 +76,18 @@ public class TfsMaterial extends ScmMaterial implements PasswordAwareMaterial, P
 
     @Override
     public MaterialConfig config() {
-        return new TfsMaterialConfig(url, userName, domain, getPassword(), projectPath, goCipher, autoUpdate, filter, invertFilter, folder, name);
+        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
+        tfsMaterialConfig.setUrl(this.url.originalArgument());
+        tfsMaterialConfig.setUserName(this.userName);
+        tfsMaterialConfig.setDomain(this.domain);
+        tfsMaterialConfig.setPassword(getPassword());
+        tfsMaterialConfig.setProjectPath(this.projectPath);
+        tfsMaterialConfig.setAutoUpdate(this.autoUpdate);
+        tfsMaterialConfig.setFilter(this.filter);
+        tfsMaterialConfig.setInvertFilter(this.invertFilter);
+        tfsMaterialConfig.setFolder(this.folder);
+        tfsMaterialConfig.setName(this.name);
+        return tfsMaterialConfig;
     }
 
     public String getDomain() {

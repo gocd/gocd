@@ -15,15 +15,14 @@
  */
 package com.thoughtworks.go.config.materials;
 
+import com.thoughtworks.go.domain.materials.MaterialConfig;
+import com.thoughtworks.go.helper.MaterialConfigsMother;
+import org.junit.Test;
+
 import java.io.File;
 import java.util.regex.Pattern;
 
-import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
-import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
-import com.thoughtworks.go.security.GoCipher;
-import org.junit.Test;
-
+import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -207,20 +206,20 @@ public class IgnoreTest {
     }
 
     @Test
-    public void shouldEscapeAllValidSpecialCharactersInPattern(){//see mingle #5700
-        hgMaterialConfig = new TfsMaterialConfig(new GoCipher());
+    public void shouldEscapeAllValidSpecialCharactersInPattern() {//see mingle #5700
+        hgMaterialConfig = tfs();
         IgnoredFiles ignore = new IgnoredFiles("$/tfs_repo/Properties/*.*");
         assertThat(ignore.shouldIgnore(hgMaterialConfig, "$/tfs_repo" + separator + "Properties" + separator + "AssemblyInfo.cs"), is(true));
     }
 
     @Test
-    public void understandPatternPunct(){
-        assertThat(Pattern.matches("a\\.doc","a.doc"), is(true));
-        assertThat(Pattern.matches("\\p{Punct}","*"), is(true));
-        assertThat(Pattern.matches("\\p{Punct}","{"), is(true));
-        assertThat(Pattern.matches("\\p{Punct}","]"), is(true));
-        assertThat(Pattern.matches("\\p{Punct}","-"), is(true));
-        assertThat(Pattern.matches("\\p{Punct}","."), is(true));
+    public void understandPatternPunct() {
+        assertThat(Pattern.matches("a\\.doc", "a.doc"), is(true));
+        assertThat(Pattern.matches("\\p{Punct}", "*"), is(true));
+        assertThat(Pattern.matches("\\p{Punct}", "{"), is(true));
+        assertThat(Pattern.matches("\\p{Punct}", "]"), is(true));
+        assertThat(Pattern.matches("\\p{Punct}", "-"), is(true));
+        assertThat(Pattern.matches("\\p{Punct}", "."), is(true));
     }
 
 

@@ -35,6 +35,7 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 
+import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 
 public class MaterialConfigsMother {
@@ -134,6 +135,7 @@ public class MaterialConfigsMother {
         return svnMaterialConfig;
     }
 
+    //there is no need to mock GoCipher as it already using test provider
     public static SvnMaterialConfig svn(String url, String userName, String password, boolean checkExternals, GoCipher goCipher) {
         SvnMaterialConfig svnMaterialConfig = svn();
         svnMaterialConfig.setUrl(url);
@@ -143,6 +145,7 @@ public class MaterialConfigsMother {
         return svnMaterialConfig;
     }
 
+    //there is no need to mock GoCipher as it already using test provider
     public static SvnMaterialConfig svn(UrlArgument url, String userName, String password, boolean checkExternals,
                                         GoCipher goCipher, boolean autoUpdate, Filter filter, boolean invertFilter,
                                         String folder, CaseInsensitiveString name) {
@@ -157,6 +160,46 @@ public class MaterialConfigsMother {
         svnMaterialConfig.setFolder(folder);
         svnMaterialConfig.setName(name);
         return svnMaterialConfig;
+    }
+
+    public static TfsMaterialConfig tfs() {
+        return new TfsMaterialConfig();
+    }
+
+    public static TfsMaterialConfig tfs(GoCipher goCipher, String url, String userName, String domain, String projectPath) {
+        return tfs(goCipher, new UrlArgument(url), userName, domain, null, projectPath);
+    }
+
+    public static TfsMaterialConfig tfs(UrlArgument urlArgument, String password, String encryptedPassword, GoCipher goCipher) {
+        TfsMaterialConfig tfsMaterialConfig = tfs(goCipher, urlArgument, null, null, password);
+        tfsMaterialConfig.setEncryptedPassword(encryptedPassword);
+        return tfsMaterialConfig;
+    }
+
+    public static TfsMaterialConfig tfs(GoCipher goCipher, UrlArgument url, String userName, String domain, String projectPath) {
+        return tfs(goCipher, url.originalArgument(), userName, domain, projectPath);
+    }
+
+    //avoid using GoCipher: there is no need to mock GoCipher as it already using test provider
+    public static TfsMaterialConfig tfs(GoCipher goCipher, UrlArgument url, String userName, String domain, String password, String projectPath) {
+        return tfs(url, userName, domain, password, projectPath, goCipher, true, null, false, null, null);
+    }
+
+    public static TfsMaterialConfig tfs(UrlArgument url, String userName, String domain, String password, String projectPath,
+                                        GoCipher goCipher, boolean autoUpdate, Filter filter, boolean invertFilter,
+                                        String folder, CaseInsensitiveString name) {
+        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
+        tfsMaterialConfig.setUrl(url == null ? null : url.originalArgument());
+        tfsMaterialConfig.setUserName(userName);
+        tfsMaterialConfig.setDomain(domain);
+        tfsMaterialConfig.setPassword(password);
+        tfsMaterialConfig.setProjectPath(projectPath);
+        tfsMaterialConfig.setAutoUpdate(autoUpdate);
+        tfsMaterialConfig.setFilter(filter);
+        tfsMaterialConfig.setInvertFilter(invertFilter);
+        tfsMaterialConfig.setFolder(folder);
+        tfsMaterialConfig.setName(name);
+        return tfsMaterialConfig;
     }
 
     public static MaterialConfigs defaultMaterialConfigs() {
@@ -319,7 +362,7 @@ public class MaterialConfigsMother {
 
     public static TfsMaterialConfig tfsMaterialConfig() {
         Filter filter = new Filter(new IgnoredFiles("**/*.html"), new IgnoredFiles("**/foobar/"));
-        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "some_domain", "passwd", "walk_this_path");
+        TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("http://10.4.4.101:8080/tfs/Sample"), "loser", "some_domain", "passwd", "walk_this_path");
         tfsMaterialConfig.setFilter(filter);
         tfsMaterialConfig.setName(new CaseInsensitiveString("tfs-material"));
         tfsMaterialConfig.setFolder("dest-folder");

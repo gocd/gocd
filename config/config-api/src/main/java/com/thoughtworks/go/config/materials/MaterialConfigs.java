@@ -302,7 +302,12 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     public TfsMaterialConfig getTfsMaterial() {
-        return getExistingOrDefaultMaterial(new TfsMaterialConfig(new GoCipher(), new UrlArgument(""), "", "", "", ""));
+        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
+        tfsMaterialConfig.setUrl("");
+        tfsMaterialConfig.setUserName("");
+        tfsMaterialConfig.setPassword("");
+        tfsMaterialConfig.setProjectPath("");
+        return getExistingOrDefaultMaterial(tfsMaterialConfig);
     }
 
     public HgMaterialConfig getHgMaterial() {

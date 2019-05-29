@@ -22,13 +22,8 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
-import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.config.remote.*;
@@ -50,7 +45,7 @@ import org.junit.Test;
 
 import java.util.*;
 
-import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
 import static com.thoughtworks.go.helper.PipelineConfigMother.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -800,7 +795,7 @@ public abstract class CruiseConfigTestBase {
         hgMaterialConfig.setAutoUpdate(false);
         final MaterialConfig gitMaterialConfig = git("http://git_url");
         gitMaterialConfig.setAutoUpdate(false);
-        final MaterialConfig tfsMaterialConfig = new TfsMaterialConfig(mock(GoCipher.class), new UrlArgument("http://tfs_url"), "username", "domain", "password", "project_path");
+        final MaterialConfig tfsMaterialConfig = tfs(mock(GoCipher.class), new UrlArgument("http://tfs_url"), "username", "domain", "password", "project_path");
         tfsMaterialConfig.setAutoUpdate(false);
         final MaterialConfig p4MaterialConfig = new P4MaterialConfig("http://p4_url", "view", "username");
         p4MaterialConfig.setAutoUpdate(false);

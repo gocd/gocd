@@ -22,18 +22,18 @@ describe Admin::Materials::TfsController do
   import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig unless defined? TfsMaterialConfig
 
   before do
-    @material = TfsMaterialConfig.new(GoCipher.new, UrlArgument.new("http://10.4.4.101:8080/tfs/Sample"), "loser", "domain", "passwd", "walk_this_path")
+    @material = com.thoughtworks.go.helper.MaterialConfigsMother.tfs(GoCipher.new, UrlArgument.new("http://10.4.4.101:8080/tfs/Sample"), "loser", "domain", "passwd", "walk_this_path")
     @short_material_type = 'tfs'
   end
 
   it_should_behave_like :material_controller
 
   def new_material
-    TfsMaterialConfig.new(GoCipher.new, UrlArgument.new(""), "", "", "", "")
+    com.thoughtworks.go.helper.MaterialConfigsMother.tfs(GoCipher.new, UrlArgument.new(""), "", "", "", "")
   end
 
   def assert_successful_create
-    tfs_material_config = TfsMaterialConfig.new(GoCipher.new, UrlArgument.new("http://10.4.4.101:8080/tfs/Sample"), "loser", "domain", "passwd", "walk_this_path")
+    tfs_material_config = com.thoughtworks.go.helper.MaterialConfigsMother.tfs(GoCipher.new, UrlArgument.new("http://10.4.4.101:8080/tfs/Sample"), "loser", "domain", "passwd", "walk_this_path")
     tfs_material_config.setName(CaseInsensitiveString.new('new-some-kinda-material'))
     tfs_material_config.setConfigAttributes({ScmMaterialConfig::FOLDER => "my-folder"})
     expect(@pipeline.materialConfigs().get(1)).to eq(tfs_material_config)

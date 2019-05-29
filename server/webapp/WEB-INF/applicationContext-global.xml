@@ -28,6 +28,7 @@
 
   <context:component-scan base-package="com.thoughtworks.go.apiv1.pluginsettings"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv1.securityauthconfig"/>
+  <context:component-scan base-package="com.thoughtworks.go.apiv4.dashboard"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv6.plugininfos"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv2.configrepos"/>
   <context:component-scan base-package="com.thoughtworks.go.apiv7.admin.pipelineconfig"/>

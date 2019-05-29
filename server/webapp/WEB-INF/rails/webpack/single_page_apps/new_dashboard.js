@@ -27,6 +27,7 @@ const PersonalizeVM   = require('views/dashboard/models/personalization_vm');
 
 $(() => {
   const dashboardElem              = $('#dashboard');
+  const showEmptyPipelineGroups    = JSON.parse(dashboardElem.attr('data-show-empty-pipeline-groups'));
   const shouldShowAnalyticsIcon    = JSON.parse(dashboardElem.attr('data-should-show-analytics-icon'));
   const useNewAddPipelineFlow      = JSON.parse(dashboardElem.attr('data-use-new-add-pipeline-flow'));
   const addPipelineButtonStyling   = JSON.parse(dashboardElem.attr('data-add-pipeline-button-styling'));
@@ -118,7 +119,7 @@ $(() => {
 
   function onResponse(dashboardData, message = undefined) {
     personalizeVM.etag(dashboardData['_personalization']);
-    dashboard.initialize(dashboardData);
+    dashboard.initialize(dashboardData, showEmptyPipelineGroups);
     dashboard.message(message);
   }
 
@@ -180,7 +181,7 @@ $(() => {
       onResponse({}, message);
     };
 
-    return new AjaxPoller(() => Dashboard.get(currentView(), dashboardVM.etag())
+    return new AjaxPoller(() => Dashboard.get(currentView(), dashboardVM.etag(), true)
       .then(onsuccess, onerror)
       .always(() => {
         personalizeVM.loadingView(false);

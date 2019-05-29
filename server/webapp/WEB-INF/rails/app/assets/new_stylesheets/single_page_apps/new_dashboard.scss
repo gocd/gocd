@@ -211,6 +211,10 @@ body {
   padding:                    20px 30px;
   border-bottom-left-radius:  3px;
   border-bottom-right-radius: 3px;
+
+  &:empty {
+    min-height: 300px;
+  }
 }
 
 .dashboard-group_pipeline {

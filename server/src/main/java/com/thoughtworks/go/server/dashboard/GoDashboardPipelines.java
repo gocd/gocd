@@ -40,5 +40,9 @@ public class GoDashboardPipelines {
     public GoDashboardPipeline find(CaseInsensitiveString name) {
         return pipelines.get(name);
     }
+
+    public boolean isEmpty() {
+        return pipelines.isEmpty();
+    }
 }
 

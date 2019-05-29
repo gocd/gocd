@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Everyone;
@@ -38,8 +39,7 @@ import java.util.List;
 import static com.thoughtworks.go.server.dashboard.GoDashboardPipelineMother.pipeline;
 import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -48,6 +48,7 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class GoDashboardServiceTest {
     @Mock private GoDashboardCache cache;
     @Mock private GoDashboardCurrentStateLoader dashboardCurrentStateLoader;
+    @Mock private GoConfigPipelinePermissionsAuthority permissionsAuthority;
     @Mock private GoConfigService goConfigService;
     @Mock private FeatureToggleService featureToggleService;
     @Mock private GoDashboardPipelines pipelines;
@@ -65,7 +66,7 @@ public class GoDashboardServiceTest {
         config = GoConfigMother.defaultCruiseConfig();
         Toggles.initializeWith(featureToggleService);
         when(cache.allEntries()).thenReturn(this.pipelines);
-        service = new GoDashboardService(cache, dashboardCurrentStateLoader, goConfigService);
+        service = new GoDashboardService(cache, dashboardCurrentStateLoader, permissionsAuthority, goConfigService);
 
         GoConfigMother.addUserAsSuperAdmin(config, "superduper");
         configMother.addRoleAsSuperAdmin(config, "supers");

@@ -12,7 +12,12 @@
  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  See the License for the specific language governing permissions and
  limitations under the License.
-  -->
-<div id="dashboard" class="dashboard" data-add-pipeline-button-styling="${addPipelineButtonStyling?c}" data-use-new-add-pipeline-flow="${useNewAddPipelineFlow?c}" data-should-show-analytics-icon="${shouldShowAnalyticsIcon?c}">
+ -->
+
+<div id="dashboard" class="dashboard"
+  data-show-empty-pipeline-groups="${showEmptyPipelineGroups?c}"
+  data-add-pipeline-button-styling="${addPipelineButtonStyling?c}"
+  data-use-new-add-pipeline-flow="${useNewAddPipelineFlow?c}"
+  data-should-show-analytics-icon="${shouldShowAnalyticsIcon?c}">
   <span class="page-spinner"/>
 </div>

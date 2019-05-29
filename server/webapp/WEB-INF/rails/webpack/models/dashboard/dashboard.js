@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const _          = require('lodash');
-const Stream     = require('mithril/stream');
-const AjaxHelper = require('helpers/ajax_helper');
 
-const DashboardGroups = require('models/dashboard/dashboard_groups');
-const Pipelines       = require('models/dashboard/pipelines');
+const _          = require("lodash");
+const Stream     = require("mithril/stream");
+const AjaxHelper = require("helpers/ajax_helper");
+
+const DashboardGroups = require("models/dashboard/dashboard_groups");
+const Pipelines       = require("models/dashboard/pipelines");
 
 import SparkRoutes from "helpers/spark_routes";
 
@@ -35,8 +36,8 @@ function Dashboard() {
   this.allPipelineNames  = () => Object.keys(pipelines.pipelines);
   this.findPipeline      = (pipelineName) => pipelines.find(pipelineName);
 
-  this.initialize = (json) => {
-    const newPipelineGroups = DashboardGroups.fromPipelineGroupsJSON(_.get(json, '_embedded.pipeline_groups', []));
+  this.initialize = (json, showEmptyGroups) => {
+    const newPipelineGroups = DashboardGroups.fromPipelineGroupsJSON(_.get(json, '_embedded.pipeline_groups', []), showEmptyGroups);
     const newEnvironments   = DashboardGroups.fromEnvironmentsJSON(_.get(json, '_embedded.environments', []));
     const newPipelines      = Pipelines.fromJSON(_.get(json, '_embedded.pipelines', []));
 
@@ -50,11 +51,11 @@ function Dashboard() {
   };
 }
 
-Dashboard.API_VERSION = 'v3';
+Dashboard.API_VERSION = "v4";
 
-Dashboard.get = (viewName, etag) => {
+Dashboard.get = (viewName, etag, allowEmpty) => {
   return AjaxHelper.GET({
-    url:        SparkRoutes.showDashboardPath(viewName),
+    url: SparkRoutes.showDashboardPath(viewName, !!allowEmpty),
     apiVersion: Dashboard.API_VERSION,
     etag
   });

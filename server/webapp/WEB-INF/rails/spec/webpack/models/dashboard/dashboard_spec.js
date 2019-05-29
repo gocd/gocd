@@ -66,11 +66,11 @@ describe("Dashboard", () => {
 
     it('should get new dashboard json', () => {
       jasmine.Ajax.withMock(() => {
-        jasmine.Ajax.stubRequest('/go/api/dashboard', undefined, 'GET').andReturn({
+        jasmine.Ajax.stubRequest('/go/api/dashboard?allowEmpty=false', undefined, 'GET').andReturn({
           responseText:    JSON.stringify(dashboardData),
           responseHeaders: {
             ETag:           'etag',
-            'Content-Type': 'application/vnd.go.cd.v3+json'
+            'Content-Type': 'application/vnd.go.cd.v4+json'
           },
           status:          200
         });
@@ -88,11 +88,10 @@ describe("Dashboard", () => {
         expect(jasmine.Ajax.requests.count()).toBe(1);
         const request = jasmine.Ajax.requests.mostRecent();
         expect(request.method).toBe('GET');
-        expect(request.url).toBe('/go/api/dashboard');
-        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v3+json');
+        expect(request.url).toMatch(/^\/go\/api\/dashboard(?:\?|&|$)/);
+        expect(request.requestHeaders['Accept']).toContain('application/vnd.go.cd.v4+json');
       });
     });
-
 
     const dashboardData = {
       "_embedded": {

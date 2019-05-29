@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv3.dashboard.representers
+package com.thoughtworks.go.apiv4.dashboard.representers
 
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.remote.FileConfigOrigin
@@ -66,10 +66,11 @@ class DashboardGroupRepresenterTest {
       def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, pipelineGroup, username) })
 
       assertThatJson(actualJson).isEqualTo([
-        _links        : expectedLinks,
-        name          : 'group1',
-        pipelines     : ['pipeline1', 'pipeline2'],
-        can_administer: true
+        _links           : expectedLinks,
+        name             : 'group1',
+        pipelines        : ['pipeline1', 'pipeline2'],
+        can_administer   : true,
+        defines_pipelines: true
       ])
     }
 
@@ -89,10 +90,11 @@ class DashboardGroupRepresenterTest {
       def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, pipelineGroup, username) })
 
       assertThatJson(actualJson).isEqualTo([
-        _links        : expectedLinks,
-        name          : 'group1',
-        pipelines     : ['pipeline1', 'pipeline2'],
-        can_administer: false
+        _links           : expectedLinks,
+        name             : 'group1',
+        pipelines        : ['pipeline1', 'pipeline2'],
+        can_administer   : false,
+        defines_pipelines: true
       ])
     }
   }
@@ -119,10 +121,11 @@ class DashboardGroupRepresenterTest {
       def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, env, username) })
 
       assertThatJson(actualJson).isEqualTo([
-        _links        : expectedLinks,
-        name          : 'env1',
-        pipelines     : ['pipeline1', 'pipeline2'],
-        can_administer: true
+        _links           : expectedLinks,
+        name             : 'env1',
+        pipelines        : ['pipeline1', 'pipeline2'],
+        can_administer   : true,
+        defines_pipelines: true
       ])
     }
 
@@ -137,10 +140,11 @@ class DashboardGroupRepresenterTest {
       def actualJson = toObjectString({ DashboardGroupRepresenter.toJSON(it, env, username) })
 
       assertThatJson(actualJson).isEqualTo([
-        _links        : expectedLinks,
-        name          : 'env1',
-        pipelines     : ['pipeline1', 'pipeline2'],
-        can_administer: false
+        _links           : expectedLinks,
+        name             : 'env1',
+        pipelines        : ['pipeline1', 'pipeline2'],
+        can_administer   : false,
+        defines_pipelines: true
       ])
     }
   }

@@ -21,8 +21,8 @@ import com.thoughtworks.go.server.domain.Username;
 public class GoDashboardEnvironment extends AbstractDashboardGroup {
     private Users allowedUsers;
 
-    public GoDashboardEnvironment(String name, Users allowedUsers) {
-        super(name);
+    public GoDashboardEnvironment(String name, Users allowedUsers, boolean hasDefinedPipelines) {
+        super(name, hasDefinedPipelines);
         this.allowedUsers = allowedUsers;
     }
 

@@ -21,6 +21,7 @@ public class Toggles {
     public static String BACKUP_PAGE_USING_RAILS = "backup_page_using_rails";
     public static String NEW_ADD_PIPELINE_FLOW = "new_add_pipeline_flow";
     public static String ADD_PIPELINE_BUTTON_STYLING = "add_pipeline_button_styling";
+    public static String ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD = "allow_empty_pipeline_groups_dashboard";
     public static String SHOW_SECRET_CONFIG_SPA = "show_secret_config_spa";
     public static String PLUGIN_SETTINGS_API_USING_RAILS = "plugin_settings_api_using_rails";
     public static String SECURITY_AUTH_CONFIG_USE_RAILS_API = "security_auth_config_use_rails_api";
@@ -29,6 +30,13 @@ public class Toggles {
 
     public static void initializeWith(FeatureToggleService featureToggleService) {
         service = featureToggleService;
+    }
+
+    /**
+     * Used by tests for teardown
+     */
+    public static void deinitialize() {
+        service = null;
     }
 
     public static boolean isToggleOn(String key) {

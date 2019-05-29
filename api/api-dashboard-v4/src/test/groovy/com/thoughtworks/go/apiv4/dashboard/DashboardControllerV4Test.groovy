@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv3.dashboard
+package com.thoughtworks.go.apiv4.dashboard
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.apiv3.dashboard.representers.DashboardFor
-import com.thoughtworks.go.apiv3.dashboard.representers.DashboardRepresenter
+import com.thoughtworks.go.apiv4.dashboard.representers.DashboardFor
+import com.thoughtworks.go.apiv4.dashboard.representers.DashboardRepresenter
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone
 import com.thoughtworks.go.server.dashboard.GoDashboardEnvironment
@@ -28,10 +28,13 @@ import com.thoughtworks.go.server.domain.user.Filters
 import com.thoughtworks.go.server.domain.user.PipelineSelections
 import com.thoughtworks.go.server.service.GoDashboardService
 import com.thoughtworks.go.server.service.PipelineSelectionsService
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
+import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.NormalUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import org.apache.commons.codec.digest.DigestUtils
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -41,7 +44,9 @@ import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait<DashboardControllerV3> {
+class DashboardControllerV4Test implements SecurityServiceTrait, ControllerTrait<DashboardControllerV4> {
+  @Mock
+  private FeatureToggleService featureToggleService;
 
   @Mock
   private GoDashboardService goDashboardService
@@ -52,12 +57,18 @@ class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait
   @BeforeEach
   void setup() {
     initMocks(this)
+    Toggles.initializeWith(featureToggleService);
+    when(featureToggleService.isToggleOn(Toggles.ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD)).thenReturn(false)
+  }
 
+  @AfterEach
+  void teardown() {
+    Toggles.deinitialize();
   }
 
   @Override
-  DashboardControllerV3 createControllerInstance() {
-    new DashboardControllerV3(new ApiAuthenticationHelper(securityService, goConfigService), pipelineSelectionsService, goDashboardService)
+  DashboardControllerV4 createControllerInstance() {
+    new DashboardControllerV4(new ApiAuthenticationHelper(securityService, goConfigService), pipelineSelectionsService, goDashboardService)
   }
 
   @Nested
@@ -88,7 +99,7 @@ class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait
 
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(PipelineSelections.ALL)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([group])
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()), anyBoolean())).thenReturn([group])
         when(goDashboardService.allEnvironmentsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([env])
 
         getWithApiHeader(controller.controllerPath())
@@ -107,7 +118,7 @@ class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait
 
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(PipelineSelections.ALL)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([group])
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()), anyBoolean())).thenReturn([group])
         when(goDashboardService.allEnvironmentsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([env])
 
         def etag = computeEtag([group], [env])
@@ -123,7 +134,7 @@ class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait
       void 'should get empty json when dashboard is empty'() {
         def pipelineSelections = PipelineSelections.ALL
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([])
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()), anyBoolean())).thenReturn([])
         when(goDashboardService.allEnvironmentsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn([])
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
 
@@ -166,7 +177,7 @@ class DashboardControllerV3Test implements SecurityServiceTrait, ControllerTrait
         when(pipelineSelectionsService.load((String) isNull(), any(Long.class))).thenReturn(pipelineSelections)
         when(goDashboardService.hasEverLoadedCurrentState()).thenReturn(true)
         def pipelineGroups = [pipelineGroup]
-        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()))).thenReturn(pipelineGroups)
+        when(goDashboardService.allPipelineGroupsForDashboard(eq(Filters.WILDCARD_FILTER), eq(currentUsername()), anyBoolean())).thenReturn(pipelineGroups)
 
         String etag = computeEtag(pipelineGroups, [])
         getWithApiHeader(controller.controllerBasePath(), ['if-none-match': etag])

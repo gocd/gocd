@@ -46,6 +46,11 @@ public class GoConfigPipelinePermissionsAuthority {
         return pipelinesInGroupsAndTheirPermissions(new PipelineGroups(group)).get(pipelineName);
     }
 
+    public Permissions permissionsForEmptyGroup(PipelineConfigs group) {
+        PipelineGroupsSecurityHelper security = new PipelineGroupsSecurityHelper(goConfigService.security());
+        return groupPermissionsOnPipeline(security, group, null);
+    }
+
     private Map<CaseInsensitiveString, Permissions> pipelinesInGroupsAndTheirPermissions(PipelineGroups groups) {
         final Map<CaseInsensitiveString, Permissions> pipelinesAndTheirPermissions = new HashMap<>();
 
@@ -75,7 +80,7 @@ public class GoConfigPipelinePermissionsAuthority {
                 policy.effectiveViewers(),
                 policy.effectiveOperators(),
                 policy.effectiveAdmins(),
-                policy.operatorsForPipeline(pipeline)
+                null == pipeline ? Everyone.INSTANCE : policy.operatorsForPipeline(pipeline)
         );
     }
 }

@@ -32,7 +32,15 @@ public interface DashboardGroup {
 
     Collection<GoDashboardPipeline> allPipelines();
 
+    /**
+     * @return whether or not this group has viewable pipelines; this accounts for filtering and permissions
+     */
     boolean hasPipelines();
+
+    /**
+     * @return whether or not this group has defined pipelines, regardless of permissions and filtering
+     */
+    boolean hasDefinedPipelines();
 
     void addPipeline(GoDashboardPipeline pipeline);
 }

@@ -28,7 +28,7 @@ import static org.junit.Assert.assertTrue;
 public class GoDashboardEnvironmentTest {
     @Test
     public void shouldKnowWhetherAUserCanAdministerIt() {
-        GoDashboardEnvironment env = new GoDashboardEnvironment("env1", new AllowedUsers(s("admin1"), Collections.emptySet()));
+        GoDashboardEnvironment env = new GoDashboardEnvironment("env1", new AllowedUsers(s("admin1"), Collections.emptySet()), true);
 
         assertTrue(env.canAdminister(new Username("admin1")));
         assertFalse(env.canAdminister(new Username("viewer1")));

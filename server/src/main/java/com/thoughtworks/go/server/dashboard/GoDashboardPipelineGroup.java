@@ -21,8 +21,8 @@ import com.thoughtworks.go.server.domain.Username;
 public class GoDashboardPipelineGroup extends AbstractDashboardGroup {
     private Permissions permissions;
 
-    public GoDashboardPipelineGroup(String name, Permissions permissions) {
-        super(name);
+    public GoDashboardPipelineGroup(String name, Permissions permissions, boolean hasDefinedPipelines) {
+        super(name, hasDefinedPipelines);
         this.permissions = permissions;
     }
 

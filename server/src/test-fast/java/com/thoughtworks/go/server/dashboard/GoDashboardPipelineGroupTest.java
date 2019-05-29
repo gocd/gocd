@@ -36,7 +36,7 @@ public class GoDashboardPipelineGroupTest {
                 new AllowedUsers(s("admin1"), Collections.emptySet()),
                 NoOne.INSTANCE);
 
-        GoDashboardPipelineGroup pipelineGroup = new GoDashboardPipelineGroup("group1", permissions);
+        GoDashboardPipelineGroup pipelineGroup = new GoDashboardPipelineGroup("group1", permissions, true);
 
         assertTrue(pipelineGroup.canAdminister(new Username("admin1")));
         assertFalse(pipelineGroup.canAdminister(new Username("viewer1")));

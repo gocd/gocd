@@ -70,6 +70,7 @@ public class NewDashboardController implements SparkController {
         }
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Dashboard");
+            put("showEmptyPipelineGroups", Toggles.isToggleOn(Toggles.ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD));
             put("shouldShowAnalyticsIcon", showAnalyticsIcon());
             put("useNewAddPipelineFlow", Toggles.isToggleOn(Toggles.NEW_ADD_PIPELINE_FLOW));
             put("addPipelineButtonStyling", Toggles.isToggleOn(Toggles.ADD_PIPELINE_BUTTON_STYLING));

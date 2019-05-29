@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv3.dashboard.representers
+package com.thoughtworks.go.apiv4.dashboard.representers
 
-import com.thoughtworks.go.apiv3.dashboard.GoDashboardPipelineMother
+import com.thoughtworks.go.apiv4.dashboard.GoDashboardPipelineMother
 import com.thoughtworks.go.config.CaseInsensitiveString
 import com.thoughtworks.go.config.security.Permissions
 import com.thoughtworks.go.config.security.users.Everyone

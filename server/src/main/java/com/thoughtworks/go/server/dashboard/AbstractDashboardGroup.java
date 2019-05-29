@@ -26,18 +26,22 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.security.DigestOutputStream;
 import java.security.MessageDigest;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 public abstract class AbstractDashboardGroup implements DashboardGroup {
     private String name;
+    private boolean hasDefinedPipelines;
     private Map<String, GoDashboardPipeline> pipelines = new LinkedHashMap<>();
 
-    AbstractDashboardGroup(String name) {
+    AbstractDashboardGroup(String name, boolean hasDefinedPipelines) {
         this.name = name;
+        this.hasDefinedPipelines = hasDefinedPipelines;
     }
 
     @Override
@@ -58,6 +62,10 @@ public abstract class AbstractDashboardGroup implements DashboardGroup {
     public abstract boolean canAdminister(Username username);
 
     public abstract String etag();
+
+    public boolean hasDefinedPipelines() {
+        return hasDefinedPipelines;
+    }
 
     @Override
     public Collection<GoDashboardPipeline> allPipelines() {

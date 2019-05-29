@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.security.GoConfigPipelinePermissionsAuthority;
 import com.thoughtworks.go.config.security.Permissions;
 import com.thoughtworks.go.config.security.users.AllowedUsers;
 import com.thoughtworks.go.config.security.users.Everyone;
@@ -36,11 +37,13 @@ public class GoDashboardService {
     private final GoDashboardCache cache;
     private final GoDashboardCurrentStateLoader dashboardCurrentStateLoader;
     private final GoConfigService goConfigService;
+    private GoConfigPipelinePermissionsAuthority permissionsAuthority;
 
     @Autowired
-    public GoDashboardService(GoDashboardCache cache, GoDashboardCurrentStateLoader dashboardCurrentStateLoader, GoConfigService goConfigService) {
+    public GoDashboardService(GoDashboardCache cache, GoDashboardCurrentStateLoader dashboardCurrentStateLoader, GoConfigPipelinePermissionsAuthority permissionsAuthority, GoConfigService goConfigService) {
         this.cache = cache;
         this.dashboardCurrentStateLoader = dashboardCurrentStateLoader;
+        this.permissionsAuthority = permissionsAuthority;
         this.goConfigService = goConfigService;
     }
 
@@ -62,12 +65,16 @@ public class GoDashboardService {
     }
 
     public List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(DashboardFilter filter, Username user) {
+        return allPipelineGroupsForDashboard(filter, user, false);
+    }
+
+    public List<GoDashboardPipelineGroup> allPipelineGroupsForDashboard(DashboardFilter filter, Username user, final boolean allowEmpty) {
         GoDashboardPipelines allPipelines = cache.allEntries();
         List<GoDashboardPipelineGroup> pipelineGroups = new ArrayList<>();
 
         goConfigService.groups().accept(group -> {
             GoDashboardPipelineGroup dashboardPipelineGroup = dashboardPipelineGroupFor(group, filter, user, allPipelines);
-            if (dashboardPipelineGroup.hasPipelines()) {
+            if (forceIncludeEmptyGroup(allowEmpty, dashboardPipelineGroup, user) || dashboardPipelineGroup.hasPipelines()) {
                 pipelineGroups.add(dashboardPipelineGroup);
             }
         });
@@ -99,13 +106,13 @@ public class GoDashboardService {
     }
 
     private GoDashboardEnvironment dashboardEnvironmentFor(EnvironmentConfig environment, DashboardFilter filter, Username user, Users allowedUsers, GoDashboardPipelines allPipelines) {
-        GoDashboardEnvironment env = new GoDashboardEnvironment(environment.name().toString(), allowedUsers);
+        List<CaseInsensitiveString> pipelinesInEnv = environment.getPipelineNames();
+        GoDashboardEnvironment env = new GoDashboardEnvironment(environment.name().toString(), allowedUsers, !pipelinesInEnv.isEmpty());
 
-        environment.getPipelineNames().forEach(pipelineName -> {
+        pipelinesInEnv.forEach(pipelineName -> {
             GoDashboardPipeline pipeline = allPipelines.find(pipelineName);
 
-            if (null != pipeline && pipeline.canBeViewedBy(user.getUsername().toString()) &&
-                    filter.isPipelineVisible(pipelineName)) {
+            if (null != pipeline && pipeline.canBeViewedBy(user.getUsername().toString()) && filter.isPipelineVisible(pipelineName)) {
                 env.addPipeline(pipeline);
             }
         });
@@ -114,7 +121,8 @@ public class GoDashboardService {
     }
 
     private GoDashboardPipelineGroup dashboardPipelineGroupFor(PipelineConfigs pipelineGroup, DashboardFilter filter, Username user, GoDashboardPipelines allPipelines) {
-        GoDashboardPipelineGroup goDashboardPipelineGroup = new GoDashboardPipelineGroup(pipelineGroup.getGroup(), resolvePermissionsForPipelineGroup(pipelineGroup, allPipelines));
+        Permissions groupPermissions = resolvePermissionsForPipelineGroup(pipelineGroup, allPipelines);
+        GoDashboardPipelineGroup goDashboardPipelineGroup = new GoDashboardPipelineGroup(pipelineGroup.getGroup(), groupPermissions, !pipelineGroup.isEmpty());
 
         if (goDashboardPipelineGroup.hasPermissions() && goDashboardPipelineGroup.canBeViewedBy(user)) {
             pipelineGroup.accept(pipelineConfig -> {
@@ -149,7 +157,21 @@ public class GoDashboardService {
             }
         }
 
-        return null;
+        return permissionsAuthority.permissionsForEmptyGroup(pipelineGroup);
+    }
+
+    /**
+     * Determines whether or not to include a (potentially) empty pipeline group on the dashboard. This consults the
+     * feature toggle, view permissions, and whether or the not the pipeline group has any defined pipeline regardless
+     * of permissions and personalization filters.
+     *
+     * @param allowEmpty - flag from feature toggle
+     * @param dashboardGroup - the {@link GoDashboardPipelineGroup} instance
+     * @param user - the current user
+     * @return true if it should be included, false otherwise
+     */
+    private boolean forceIncludeEmptyGroup(final boolean allowEmpty, GoDashboardPipelineGroup dashboardGroup, Username user) {
+        return allowEmpty && !dashboardGroup.hasDefinedPipelines() && dashboardGroup.canBeViewedBy(user);
     }
 
     private void updateCache(PipelineConfigs group, PipelineConfig pipelineConfig) {

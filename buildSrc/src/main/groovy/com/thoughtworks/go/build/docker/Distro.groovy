@@ -33,8 +33,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<String> getCreateUserAndGroupCommands() {
       return [
-        'addgroup -g ${GID} go',
-        'adduser -D -u ${UID} -s /bin/bash -G go go'
+        'adduser -D -u ${UID} -s /bin/bash -G root go'
       ]
     }
 
@@ -160,10 +159,7 @@ enum Distro implements DistroBehavior {
 
     @Override
     List<String> getCreateUserAndGroupCommands() {
-      def commands = alpine.getCreateUserAndGroupCommands()
-      commands.add('addgroup go root')
-
-      return commands
+      return alpine.getCreateUserAndGroupCommands()
     }
 
     @Override

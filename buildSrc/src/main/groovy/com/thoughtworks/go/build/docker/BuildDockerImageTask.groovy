@@ -207,12 +207,6 @@ class BuildDockerImageTask extends DefaultTask {
         mode : '0755',
         owner: 'root',
         group: 'root'
-      ],
-      '/usr/local/sbin/gosu': [
-        url  : "https://github.com/tianon/gosu/releases/download/${gosuVersion}/gosu-amd64".toString(),
-        mode : '0755',
-        owner: 'root',
-        group: 'root'
       ]
     ]
   }

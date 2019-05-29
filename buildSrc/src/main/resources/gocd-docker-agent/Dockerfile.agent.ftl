@@ -65,6 +65,7 @@ RUN \
 </#if>
 # add our user and group first to make sure their IDs get assigned consistently,
 # regardless of whatever dependencies get added
+# add user to root group for gocd to work on openshift
 <#list distro.createUserAndGroupCommands as command>
   ${command} && \
 </#list>
@@ -74,15 +75,23 @@ RUN \
 <#list distro.getInstallJavaCommands(project) as command>
   ${command} && \
 </#list>
-  mkdir -p /docker-entrypoint.d
+  mkdir -p /go-agent /docker-entrypoint.d /go /godata
+
+ADD docker-entrypoint.sh /
+
+RUN chown -R go:root /go-agent /docker-entrypoint.d /go /godata /docker-entrypoint.sh \
+    && chmod -R g=u /go-agent /docker-entrypoint.d /go /godata /docker-entrypoint.sh
+
+<#if distro.name() == "docker">
+  ADD run-docker-daemon.sh /
+  RUN chown go:root /run-docker-daemon.sh \
+      && chmod -R g=u /run-docker-daemon.sh
+</#if>
 
 COPY --from=gocd-agent-unzip /go-agent /go-agent
 # ensure that logs are printed to console output
-COPY agent-bootstrapper-logback-include.xml agent-launcher-logback-include.xml agent-logback-include.xml /go-agent/config/
-
-<#if distro.name() == "docker">
-ADD run-docker-daemon.sh /
-</#if>
-ADD docker-entrypoint.sh /
+COPY --chown=go:root agent-bootstrapper-logback-include.xml agent-launcher-logback-include.xml agent-logback-include.xml /go-agent/config/
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+USER go

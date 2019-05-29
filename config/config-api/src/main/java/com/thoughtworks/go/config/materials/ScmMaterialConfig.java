@@ -19,7 +19,6 @@ package com.thoughtworks.go.config.materials;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.config.validation.FilePathTypeValidator;
-import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.FilenameUtil;
@@ -78,21 +77,8 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     public static final String INVERT_FILTER = "invertFilter";
 
     public ScmMaterialConfig(String typeName) {
-        this(typeName, new GoCipher());
-    }
-
-    public ScmMaterialConfig(String typeName, GoCipher goCipher) {
         super(typeName);
-        this.goCipher = goCipher;
-    }
-
-    public ScmMaterialConfig(CaseInsensitiveString name, Filter filter, boolean invertFilter, String folder, boolean autoUpdate, String typeName, ConfigErrors errors) {
-        super(typeName, name, errors);
         this.goCipher = new GoCipher();
-        this.filter = filter;
-        this.invertFilter = invertFilter;
-        this.folder = folder;
-        this.autoUpdate = autoUpdate;
     }
 
     @Override

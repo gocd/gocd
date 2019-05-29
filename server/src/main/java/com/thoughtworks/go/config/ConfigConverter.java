@@ -44,7 +44,6 @@ import com.thoughtworks.go.plugin.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.CommandLine;
-import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -438,11 +437,11 @@ public class ConfigConverter {
             return svnMaterialConfig;
         } else if (crScmMaterial instanceof CRTfsMaterial) {
             CRTfsMaterial crTfsMaterial = (CRTfsMaterial) crScmMaterial;
-            TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(cipher,
-                    new UrlArgument(crTfsMaterial.getUrl()),
-                    crTfsMaterial.getUsername(),
-                    crTfsMaterial.getDomain(),
-                    crTfsMaterial.getProject());
+            TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
+            tfsMaterialConfig.setUrl(crTfsMaterial.getUrl());
+            tfsMaterialConfig.setUserName(crTfsMaterial.getUsername());
+            tfsMaterialConfig.setDomain(crTfsMaterial.getDomain());
+            tfsMaterialConfig.setProjectPath(crTfsMaterial.getProject());
             setCommonMaterialMembers(tfsMaterialConfig, crTfsMaterial);
             setCommonScmMaterialMembers(tfsMaterialConfig, crTfsMaterial);
             return tfsMaterialConfig;

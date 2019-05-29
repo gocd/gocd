@@ -16,12 +16,12 @@
 
 package com.thoughtworks.go.config.materials.tfs;
 
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.Filter;
+import com.thoughtworks.go.config.ConfigAttribute;
+import com.thoughtworks.go.config.ConfigTag;
+import com.thoughtworks.go.config.ParamsAttributeAware;
+import com.thoughtworks.go.config.ValidationContext;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -30,7 +30,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.Map;
 
 @ConfigTag(value = "tfs", label = "TFS")
-public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial, PasswordEncrypter {
+public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial {
     public static final String TYPE = "TfsMaterial";
 
     @ConfigAttribute(value = "url")
@@ -46,47 +46,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     public static final String DOMAIN = "domain";
 
     public TfsMaterialConfig() {
-        this(new GoCipher());
-    }
-
-    public TfsMaterialConfig(GoCipher goCipher) {
-        super(TYPE, goCipher);
-    }
-
-    public TfsMaterialConfig(GoCipher goCipher, UrlArgument url, String userName, String domain, String projectPath) {
-        this(goCipher);
-        this.url = url;
-        this.userName = userName;
-        this.domain = domain;
-        this.projectPath = projectPath;
-    }
-
-    public TfsMaterialConfig(GoCipher goCipher, UrlArgument url, String userName, String domain, String password, String projectPath) {
-        this(goCipher);
-        this.url = url;
-        this.userName = userName;
-        this.domain = domain;
-        setPassword(password);
-        this.projectPath = projectPath;
-    }
-
-    public TfsMaterialConfig(UrlArgument url, String userName, String domain, String password, String projectPath, GoCipher goCipher, boolean autoUpdate,
-                             Filter filter, boolean invertFilter, String folder, CaseInsensitiveString name) {
-        super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
-        this.url = url;
-        this.userName = userName;
-        this.domain = domain;
-        this.goCipher = goCipher;
-        setPassword(password);
-        this.projectPath = projectPath;
-    }
-
-    //for tests only
-    protected TfsMaterialConfig(UrlArgument urlArgument, String password, String encryptedPassword, GoCipher goCipher) {
-        this(goCipher);
-        this.url = urlArgument;
-        this.password = password;
-        this.encryptedPassword = encryptedPassword;
+        super(TYPE);
     }
 
     @Override

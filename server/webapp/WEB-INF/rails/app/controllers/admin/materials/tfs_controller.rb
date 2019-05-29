@@ -19,7 +19,13 @@ module Admin::Materials
     private
 
     def load_new_material(cruise_config)
-      assert_load :material, TfsMaterialConfig.new(GoCipher.new, UrlArgument.new(""), "", "", "", "")
+      tfsMaterialConfig = TfsMaterialConfig.new()
+      tfsMaterialConfig.setUrl("")
+      tfsMaterialConfig.setUserName("")
+      tfsMaterialConfig.setPassword("")
+      tfsMaterialConfig.setDomain("")
+      tfsMaterialConfig.setProjectPath("")
+      assert_load :material, tfsMaterialConfig
     end
   end
 end

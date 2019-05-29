@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.materials.TestingMaterialConfig;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialInstance;
 import com.thoughtworks.go.domain.materials.git.GitMaterialInstance;
@@ -29,26 +28,27 @@ import com.thoughtworks.go.helper.MaterialConfigsMother;
 import org.junit.Test;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class MaterialConfigConverterTest {
     @Test
-    public void shouldFindTheMaterialInstanceTypeGivenAMaterialConfig() throws Exception {
+    public void shouldFindTheMaterialInstanceTypeGivenAMaterialConfig() {
         MaterialConfigConverter converter = new MaterialConfigConverter();
 
         assertEquals(SvnMaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.svnMaterialConfig()));
         assertEquals(GitMaterialInstance.class, converter.getInstanceType(git("abc")));
         assertEquals(HgMaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.hgMaterialConfig()));
         assertEquals(P4MaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.p4MaterialConfig()));
-        assertEquals(TfsMaterialInstance.class, converter.getInstanceType(new TfsMaterialConfig(null)));
+        assertEquals(TfsMaterialInstance.class, converter.getInstanceType(tfs()));
         assertEquals(DependencyMaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.dependencyMaterialConfig()));
         assertEquals(PackageMaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.packageMaterialConfig()));
         assertEquals(PluggableSCMMaterialInstance.class, converter.getInstanceType(MaterialConfigsMother.pluggableSCMMaterialConfig()));
     }
 
     @Test
-    public void shouldThrowIfYouTryToFindTheInstanceTypeOfSomeRandomConfigType() throws Exception {
+    public void shouldThrowIfYouTryToFindTheInstanceTypeOfSomeRandomConfigType() {
         MaterialConfigConverter converter = new MaterialConfigConverter();
 
         try {

@@ -19,11 +19,8 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.FileConfigOrigin;
@@ -44,7 +41,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.*;
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
@@ -470,7 +467,7 @@ Above scenario allowed
         attributeMap.put(TfsMaterialConfig.TYPE, tfsAttrMap);
         materialConfigs.setConfigAttributes(attributeMap);
 
-        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig(new GoCipher(), new UrlArgument("foo"), "bar", "CORPORATE", "baz", "to_hell");
+        TfsMaterialConfig tfsMaterialConfig = tfs(new GoCipher(), new UrlArgument("foo"), "bar", "CORPORATE", "baz", "to_hell");
         tfsMaterialConfig.setName(new CaseInsensitiveString("crapy_material"));
         assertThat(materialConfigs.first(), is(tfsMaterialConfig));
         assertThat(tfsMaterialConfig.getPassword(), is("baz"));
@@ -615,7 +612,7 @@ Above scenario allowed
         SvnMaterialConfig svn = svn("url", true);
         svn.setName(new CaseInsensitiveString("mat-name"));
         P4MaterialConfig p4 = new P4MaterialConfig();
-        TfsMaterialConfig tfs = new TfsMaterialConfig();
+        TfsMaterialConfig tfs = tfs();
         HgMaterialConfig hg = hg();
         MaterialConfigs materialConfigs = new MaterialConfigs(git, svn, p4, tfs, hg);
 

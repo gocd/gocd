@@ -21,11 +21,11 @@ import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PasswordDeserializer
-import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 import com.thoughtworks.go.util.command.HgUrlArgument
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -43,50 +43,50 @@ class TfsMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   def existingMaterialWithErrors() {
-    def tfsConfig = new TfsMaterialConfig(new GoCipher(), new HgUrlArgument(''), '', '', '', '/some-path/')
+    def tfsConfig = tfs(new GoCipher(), new HgUrlArgument(''), '', '', '', '/some-path/')
     def materialConfigs = new MaterialConfigs(tfsConfig);
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.first()
   }
 
   def materialHash =
-  [
-    type: 'tfs',
-    attributes: [
-      url: "http://10.4.4.101:8080/tfs/Sample",
-      destination: "dest-folder",
-      filter: [
-        ignore: ['**/*.html','**/foobar/']
-      ],
-      invert_filter: false,
-      domain: "some_domain",
-      username: "loser",
-      encrypted_password: new GoCipher().encrypt("passwd"),
-      project_path: "walk_this_path",
-      name: "tfs-material",
-      auto_update: true
+    [
+      type      : 'tfs',
+      attributes: [
+        url               : "http://10.4.4.101:8080/tfs/Sample",
+        destination       : "dest-folder",
+        filter            : [
+          ignore: ['**/*.html', '**/foobar/']
+        ],
+        invert_filter     : false,
+        domain            : "some_domain",
+        username          : "loser",
+        encrypted_password: new GoCipher().encrypt("passwd"),
+        project_path      : "walk_this_path",
+        name              : "tfs-material",
+        auto_update       : true
+      ]
     ]
-  ]
 
 
   def expectedMaterialHashWithErrors =
-  [
-    type: "tfs",
-    attributes: [
-    url: "",
-    destination: null,
-    filter: null,
-    invert_filter: false,
-    name: null,
-    auto_update: true,
-    domain: "",
-    username: "",
-    project_path: "/some-path/"
-  ],
-    errors:
     [
-      url: ["URL cannot be blank"],
-      username: ["Username cannot be blank"]
+      type      : "tfs",
+      attributes: [
+        url          : "",
+        destination  : null,
+        filter       : null,
+        invert_filter: false,
+        name         : null,
+        auto_update  : true,
+        domain       : "",
+        username     : "",
+        project_path : "/some-path/"
+      ],
+      errors    :
+        [
+          url     : ["URL cannot be blank"],
+          username: ["Username cannot be blank"]
+        ]
     ]
-  ]
 }

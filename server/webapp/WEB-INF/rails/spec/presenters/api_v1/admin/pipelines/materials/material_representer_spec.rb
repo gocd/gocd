@@ -393,7 +393,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      tfs_config = TfsMaterialConfig.new(GoCipher.new, com.thoughtworks.go.util.command::HgUrlArgument.new(''), '', '', '', '/some-path/')
+      tfs_config = com.thoughtworks.go.helper.MaterialConfigsMother.tfs(GoCipher.new, com.thoughtworks.go.util.command::HgUrlArgument.new(''), '', '', '', '/some-path/')
       material_configs = MaterialConfigs.new(tfs_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.first()

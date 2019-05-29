@@ -24,6 +24,7 @@ import com.thoughtworks.go.util.command.UrlArgument
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
@@ -37,7 +38,7 @@ class TfsMaterialRepresenterTest {
 
   @Test
   void toJSON() {
-    TfsMaterialConfig config = new TfsMaterialConfig(new GoCipher(), REPO_URL, null, DOMAIN, PROJECT_PATH)
+    TfsMaterialConfig config = tfs(new GoCipher(), REPO_URL, null, DOMAIN, PROJECT_PATH)
     String json = toObjectString({ w -> new TfsMaterialRepresenter().toJSON(w, config) })
 
     assertThatJson(json).isEqualTo([
@@ -53,7 +54,7 @@ class TfsMaterialRepresenterTest {
   @Test
   void 'toJSON() with auth'() {
     def goCipher = new GoCipher()
-    TfsMaterialConfig config = new TfsMaterialConfig(goCipher, REPO_URL, USER, DOMAIN, PASSWORD, PROJECT_PATH)
+    TfsMaterialConfig config = tfs(goCipher, REPO_URL, USER, DOMAIN, PASSWORD, PROJECT_PATH)
 
     String json = toObjectString({ w -> new TfsMaterialRepresenter().toJSON(w, config) })
 
@@ -81,7 +82,7 @@ class TfsMaterialRepresenterTest {
     ])
 
     def goCipher = new GoCipher()
-    TfsMaterialConfig expected = new TfsMaterialConfig(goCipher, REPO_URL, USER, DOMAIN, PASSWORD, PROJECT_PATH)
+    TfsMaterialConfig expected = tfs(goCipher, REPO_URL, USER, DOMAIN, PASSWORD, PROJECT_PATH)
 
     def actual = new TfsMaterialRepresenter().fromJSON(json)
     assertEquals(expected, actual)

@@ -1655,7 +1655,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertTfsMaterialConfigWhenPlainPassword() {
-        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
+        TfsMaterialConfig tfsMaterialConfig = tfs();
         tfsMaterialConfig.setUrl("url");
         tfsMaterialConfig.setDomain("domain");
         tfsMaterialConfig.setProjectPath("project");
@@ -1682,7 +1682,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertTfsMaterialConfigWhenEncryptedPassword() {
-        TfsMaterialConfig tfsMaterialConfig = new TfsMaterialConfig();
+        TfsMaterialConfig tfsMaterialConfig = tfs();
         tfsMaterialConfig.setUrl("url");
         tfsMaterialConfig.setDomain("domain");
         tfsMaterialConfig.setProjectPath("project");

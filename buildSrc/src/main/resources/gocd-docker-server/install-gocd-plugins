@@ -8,7 +8,6 @@ GOCD_PLUGIN_EXTERNAL_HOME="/godata/plugins/external"
 
 if [ ! -e "${GOCD_PLUGIN_EXTERNAL_HOME}" ]; then
   try mkdir -p "${GOCD_PLUGIN_EXTERNAL_HOME}"
-  try chown go:go "${GOCD_PLUGIN_EXTERNAL_HOME}"
 fi
 
 (while IFS='=' read -r name value ; do
@@ -25,6 +24,5 @@ fi
       try rm "${plugin_dest}"
     fi
     try curl --silent --location --fail --retry 3 "${plugin_url}" --output "${plugin_dest}"
-    try chown go:go "${plugin_dest}"
   fi
 done) < <(env)

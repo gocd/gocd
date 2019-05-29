@@ -55,7 +55,6 @@ ENV ${key}="${value}"
 </#list>
 
 ARG UID=1000
-ARG GID=1000
 
 RUN \
 <#if additionalFiles?size != 0>
@@ -67,6 +66,7 @@ RUN \
 </#if>
 # add our user and group first to make sure their IDs get assigned consistently,
 # regardless of whatever dependencies get added
+# add user to root group for gocd to work on openshift
 <#list distro.createUserAndGroupCommands as command>
   ${command} && \
 </#list>
@@ -76,14 +76,18 @@ RUN \
 <#list distro.getInstallJavaCommands(project) as command>
   ${command} && \
 </#list>
-  mkdir -p /docker-entrypoint.d
+  mkdir -p /go-server /docker-entrypoint.d /go-working-dir /godata
+
+ADD docker-entrypoint.sh /
+RUN chown -R go:root /go-server /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh \
+    && chmod -R g=u /go-server /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh
 
 COPY --from=gocd-server-unzip /go-server /go-server
 # ensure that logs are printed to console output
-COPY logback-include.xml /go-server/config/logback-include.xml
-COPY install-gocd-plugins /usr/local/sbin/install-gocd-plugins
-COPY git-clone-config /usr/local/sbin/git-clone-config
-
-ADD docker-entrypoint.sh /
+COPY --chown=go:root logback-include.xml /go-server/config/logback-include.xml
+COPY --chown=go:root install-gocd-plugins /usr/local/sbin/install-gocd-plugins
+COPY --chown=go:root git-clone-config /usr/local/sbin/git-clone-config
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
+
+USER go

@@ -33,8 +33,7 @@ trait DistroBehavior {
 
   List<String> getCreateUserAndGroupCommands() {
     return [
-      'groupadd -g ${GID} go',
-      'useradd -u ${UID} -g go -d /home/go -m go'
+      'useradd -u ${UID} -g root -d /home/go -m go'
     ]
   }
 

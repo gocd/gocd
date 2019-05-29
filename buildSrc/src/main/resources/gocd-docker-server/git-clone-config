@@ -14,5 +14,4 @@ if [ ! -z "$CONFIG_GIT_REPO" ] && [ ! `git status` ]; then
   try git remote add origin $CONFIG_GIT_REPO 
   try git fetch
   try git checkout -f $BRANCH
-  try chown -R go:go /godata/config
 fi

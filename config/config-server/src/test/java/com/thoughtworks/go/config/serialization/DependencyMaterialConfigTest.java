@@ -34,11 +34,9 @@ import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 
 public class DependencyMaterialConfigTest {
@@ -90,7 +88,7 @@ public class DependencyMaterialConfigTest {
         mother.addPipeline("pipeline-name", "stage-name", "job-name");
         PipelineConfig pipelineConfig = mother.addPipeline("dependent", "stage-name", "job-name",
                 new DependencyMaterialConfig(new CaseInsensitiveString("pipeline-name"), new CaseInsensitiveString("stage-name")));
-        pipelineConfig.addMaterialConfig(new P4MaterialConfig("localhost:1666", "foo"));
+        pipelineConfig.addMaterialConfig(p4("localhost:1666", "foo"));
 
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         CruiseConfig cruiseConfig = mother.cruiseConfig();
@@ -180,7 +178,7 @@ public class DependencyMaterialConfigTest {
     }
 
     @Test
-    public void shouldValidateTree(){
+    public void shouldValidateTree() {
         DependencyMaterialConfig dependencyMaterialConfig = new DependencyMaterialConfig(new CaseInsensitiveString("upstream_stage"), new CaseInsensitiveString("upstream_pipeline"), new CaseInsensitiveString("stage"));
         PipelineConfig pipeline = new PipelineConfig(new CaseInsensitiveString("p"), new MaterialConfigs());
         pipeline.setOrigin(new FileConfigOrigin());

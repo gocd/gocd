@@ -36,6 +36,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.command.CommandLine.createCommandLine;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
@@ -113,13 +114,13 @@ public class P4TestRepo extends TestRepo {
     public void stop() {
         CommandLine command = createCommandLine("p4").withArgs("-p", serverAndPort(), "admin", "stop").withEncoding("utf-8");
         ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        command.run(outputStreamConsumer,null);
+        command.run(outputStreamConsumer, null);
     }
 
     private ProcessWrapper startP4dInRepo(File tempRepo) throws IOException, CheckedCommandLineException {
         CommandLine command = createCommandLine("p4d").withArgs("-C0", "-r", tempRepo.getAbsolutePath(), "-p", String.valueOf(port)).withEncoding("utf-8");
         ProcessOutputStreamConsumer outputStreamConsumer = inMemoryConsumer();
-        return command.execute(outputStreamConsumer, new EnvironmentVariableContext(),null);
+        return command.execute(outputStreamConsumer, new EnvironmentVariableContext(), null);
     }
 
     public String serverAndPort() {
@@ -129,7 +130,7 @@ public class P4TestRepo extends TestRepo {
     public static P4TestRepo createP4TestRepo(TemporaryFolder temporaryFolder, File clientFolder) throws IOException {
         String repo = "../common/src/test/resources/data/p4repo";
         if (SystemUtils.IS_OS_WINDOWS) {
-           repo = "../common/src/test/resources/data/p4repoWindows";
+            repo = "../common/src/test/resources/data/p4repoWindows";
         }
         return new P4TestRepo(RandomPort.find("P4TestRepo"), repo, "cceuser", null, PerforceFixture.DEFAULT_CLIENT_NAME, false, temporaryFolder, clientFolder);
     }
@@ -151,7 +152,7 @@ public class P4TestRepo extends TestRepo {
     }
 
     public P4MaterialConfig materialConfig(String p4view) {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig(serverAndPort(), p4view);
+        P4MaterialConfig p4MaterialConfig = p4(serverAndPort(), p4view);
         p4MaterialConfig.setConfigAttributes(Collections.singletonMap(P4MaterialConfig.USERNAME, user));
         p4MaterialConfig.setPassword(password);
         p4MaterialConfig.setUseTickets(useTickets);
@@ -228,7 +229,7 @@ public class P4TestRepo extends TestRepo {
         arrays.addAll(Arrays.asList(args));
 
         CommandLine command = createCommandLine("p4").withWorkingDir(workingDir).withArgs("-p", serverAndPort()).withArgs(args).withEncoding("utf-8");
-        command.run(consumer2,null);
+        command.run(consumer2, null);
     }
 
     public String getUser() {

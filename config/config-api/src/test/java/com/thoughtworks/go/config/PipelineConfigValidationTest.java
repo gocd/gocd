@@ -34,6 +34,7 @@ import org.junit.Test;
 import java.util.List;
 
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
@@ -216,7 +217,7 @@ public class PipelineConfigValidationTest {
     @Test
     public void shouldNotAllowAnEmptyView() {
         CruiseConfig config = GoConfigMother.configWithPipelines("pipeline1");
-        P4MaterialConfig materialConfig = new P4MaterialConfig("localhost:1666", "");
+        P4MaterialConfig materialConfig = p4("localhost:1666", "");
 
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline1"));
         pipelineConfig.addMaterialConfig(materialConfig);

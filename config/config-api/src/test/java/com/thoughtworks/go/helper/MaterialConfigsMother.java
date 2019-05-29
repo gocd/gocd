@@ -35,7 +35,6 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import com.thoughtworks.go.util.command.UrlArgument;
 
-import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.DataStructureUtils.m;
 
 public class MaterialConfigsMother {
@@ -202,6 +201,52 @@ public class MaterialConfigsMother {
         return tfsMaterialConfig;
     }
 
+    public static P4MaterialConfig p4() {
+        return new P4MaterialConfig();
+    }
+
+    public static P4MaterialConfig p4(String serverAndPort, String view, GoCipher goCipher) {
+        P4MaterialConfig p4MaterialConfig = p4();
+        p4MaterialConfig.setUrl(serverAndPort);
+        p4MaterialConfig.setView(view);
+        return p4MaterialConfig;
+    }
+
+    public static P4MaterialConfig p4(String serverAndPort, String view) {
+        return p4(serverAndPort, view, new GoCipher());
+    }
+
+    public static P4MaterialConfig p4(String url, String view, String userName) {
+        P4MaterialConfig p4MaterialConfig = p4(url, view);
+        p4MaterialConfig.setUserName(userName);
+        return p4MaterialConfig;
+    }
+
+    public static P4MaterialConfig p4(String serverAndPort, String password, String encryptedPassword, GoCipher goCipher) {
+        P4MaterialConfig p4MaterialConfig = p4();
+        p4MaterialConfig.setUrl(serverAndPort);
+        p4MaterialConfig.setPassword(password);
+        p4MaterialConfig.setEncryptedPassword(encryptedPassword);
+        return p4MaterialConfig;
+    }
+
+    public static P4MaterialConfig p4(String serverAndPort, String userName, String password, Boolean useTickets, String viewStr,
+                                      GoCipher goCipher, CaseInsensitiveString name, boolean autoUpdate, Filter filter,
+                                      boolean invertFilter, String folder) {
+        P4MaterialConfig p4MaterialConfig = p4();
+        p4MaterialConfig.setUrl(serverAndPort);
+        p4MaterialConfig.setUserName(userName);
+        p4MaterialConfig.setPassword(password);
+        p4MaterialConfig.setUseTickets(useTickets);
+        p4MaterialConfig.setView(viewStr);
+        p4MaterialConfig.setAutoUpdate(autoUpdate);
+        p4MaterialConfig.setFilter(filter);
+        p4MaterialConfig.setInvertFilter(invertFilter);
+        p4MaterialConfig.setFolder(folder);
+        p4MaterialConfig.setName(name);
+        return p4MaterialConfig;
+    }
+
     public static MaterialConfigs defaultMaterialConfigs() {
         return defaultSvnMaterialConfigsWithUrl("http://some/svn/url");
     }
@@ -312,7 +357,7 @@ public class MaterialConfigsMother {
     }
 
     public static P4MaterialConfig p4MaterialConfig(String serverAndPort, String userName, String password, String view, boolean useTickets) {
-        final P4MaterialConfig material = new P4MaterialConfig(serverAndPort, view);
+        final P4MaterialConfig material = p4(serverAndPort, view);
         material.setConfigAttributes(m(P4MaterialConfig.USERNAME, userName, P4MaterialConfig.AUTO_UPDATE, "true"));
         material.setPassword(password);
         material.setUseTickets(useTickets);

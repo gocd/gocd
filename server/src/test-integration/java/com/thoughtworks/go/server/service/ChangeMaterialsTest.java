@@ -57,13 +57,19 @@ public class ChangeMaterialsTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private PipelineService pipelineService;
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private ScheduleCheckCompletedTopic topic;
-    @Autowired private ScheduleHelper scheduleHelper;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private ScheduleCheckCompletedTopic topic;
+    @Autowired
+    private ScheduleHelper scheduleHelper;
 
-	@Autowired private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
 
     private GoConfigFileHelper cruiseConfig;
 
@@ -149,7 +155,8 @@ public class ChangeMaterialsTest {
         assertEquals(hgTestRepo.latestModifications().get(0).getModifiedTime(), materialRevisions.getDateOfLatestModification());
     }
 
-    @Test public void p4MaterialFromConfigShouldBeEqualWithP4MaterialFromDb() throws Exception {
+    @Test
+    public void p4MaterialFromConfigShouldBeEqualWithP4MaterialFromDb() throws Exception {
         String p4view = "//depot/... //localhost/...";
         cruiseConfig.replaceMaterialConfigForPipeline(PIPELINE_NAME, p4TestRepo.materialConfig(p4view));
         mingle = goConfigDao.load().pipelineConfigByName(new CaseInsensitiveString(PIPELINE_NAME));

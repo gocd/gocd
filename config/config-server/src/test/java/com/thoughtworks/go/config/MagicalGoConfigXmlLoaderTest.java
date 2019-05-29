@@ -122,7 +122,7 @@ public class MagicalGoConfigXmlLoaderTest {
     private GoConfigMigration goConfigMigration;
 
     @BeforeEach
-    void setup() throws Exception {
+    void setup() {
         RepositoryMetadataStoreHelper.clear();
         ConfigElementImplementationRegistry registry = ConfigElementImplementationRegistryMother.withNoPlugins();
         new ConfigElementImplementationRegistrar(registry).initialize();
@@ -132,7 +132,7 @@ public class MagicalGoConfigXmlLoaderTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception {
+    void tearDown() {
         systemEnvironment.setProperty("go.enforce.server.immutability", "N");
         RepositoryMetadataStoreHelper.clear();
         ArtifactMetadataStore.instance().clear();

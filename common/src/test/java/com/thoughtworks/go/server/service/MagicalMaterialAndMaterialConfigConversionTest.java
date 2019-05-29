@@ -81,7 +81,7 @@ public class MagicalMaterialAndMaterialConfigConversionTest {
     @DataPoint
     public static MaterialConfig hgMaterialConfig = hg(new HgUrlArgument("hg-url"), null, "pass", null, true, filterFor("*.png"), false, "folder", cis("hgMaterial"));
     @DataPoint
-    public static MaterialConfig p4MaterialConfig = new P4MaterialConfig("localhost:9090", "user", "pass", true, "view", new GoCipher(), cis("p4Material"), true, filterFor("*.jpg"), false, "folder");
+    public static MaterialConfig p4MaterialConfig = p4("localhost:9090", "user", "pass", true, "view", new GoCipher(), cis("p4Material"), true, filterFor("*.jpg"), false, "folder");
     @DataPoint
     public static MaterialConfig tfsMaterialConfig = tfs(url("tfs-url"), "user", "domain", "pass", "prj-path", new GoCipher(), true, filterFor("*.txt"), false, "folder", cis("tfsMaterial"));
     @DataPoint

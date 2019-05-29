@@ -421,7 +421,9 @@ public class ConfigConverter {
             return hgConfig;
         } else if (crScmMaterial instanceof CRP4Material) {
             CRP4Material crp4Material = (CRP4Material) crScmMaterial;
-            P4MaterialConfig p4MaterialConfig = new P4MaterialConfig(crp4Material.getPort(), crp4Material.getView(), cipher);
+            P4MaterialConfig p4MaterialConfig = new P4MaterialConfig();
+            p4MaterialConfig.setServerAndPort(crp4Material.getPort());
+            p4MaterialConfig.setView(crp4Material.getView());
             p4MaterialConfig.setUseTickets(crp4Material.isUseTickets());
             setCommonMaterialMembers(p4MaterialConfig, crScmMaterial);
             setCommonScmMaterialMembers(p4MaterialConfig, crp4Material);

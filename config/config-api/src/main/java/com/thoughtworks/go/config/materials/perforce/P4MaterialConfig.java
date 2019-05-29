@@ -17,20 +17,15 @@
 package com.thoughtworks.go.config.materials.perforce;
 
 import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Map;
 
-import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
-
 @ConfigTag(value = "p4", label = "Perforce")
-public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordEncrypter, PasswordAwareMaterial {
+public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttributeAware, PasswordAwareMaterial {
     @ConfigAttribute(value = "port")
     private String serverAndPort;
 
@@ -47,46 +42,7 @@ public class P4MaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     public static final String USE_TICKETS = "useTickets";
 
     public P4MaterialConfig() {
-        this(new GoCipher());
-    }
-
-    private P4MaterialConfig(GoCipher goCipher) {
-        super(TYPE, goCipher);
-    }
-
-    public P4MaterialConfig(String serverAndPort, String view, GoCipher goCipher) {
-        this(goCipher);
-        bombIfNull(serverAndPort, "null serverAndPort");
-        this.serverAndPort = serverAndPort;
-        setView(view);
-    }
-
-    public P4MaterialConfig(String serverAndPort, String view) {
-        this(serverAndPort, view, new GoCipher());
-    }
-
-    public P4MaterialConfig(String url, String view, String userName) {
-        this(url, view);
-        this.userName = userName;
-    }
-
-    public P4MaterialConfig(String serverAndPort, String userName, String password, Boolean useTickets, String viewStr, GoCipher goCipher, CaseInsensitiveString name,
-                            boolean autoUpdate, Filter filter, boolean invertFilter, String folder) {
-        super(name, filter, invertFilter, folder, autoUpdate, TYPE, new ConfigErrors());
-        this.serverAndPort = serverAndPort;
-        this.goCipher = goCipher;
-        setPassword(password);
-        this.userName = userName;
-        this.useTickets = useTickets;
-        setView(viewStr);
-    }
-
-    //for tests only
-    protected P4MaterialConfig(String serverAndPort, String password, String encryptedPassword, GoCipher goCipher) {
-        this(goCipher);
-        this.password = password;
-        this.encryptedPassword = encryptedPassword;
-        this.serverAndPort = serverAndPort;
+        super(TYPE);
     }
 
     @Override

@@ -526,7 +526,7 @@ Above scenario allowed
         materialConfigs.setConfigAttributes(attributeMap);
 
         assertThat(materialConfigs.size(), is(1));
-        P4MaterialConfig expected = new P4MaterialConfig("localhost:1666", "foo", "username");
+        P4MaterialConfig expected = p4("localhost:1666", "foo", "username");
         expected.setPassword("password");
         assertThat(materialConfigs.first(), is(expected));
     }
@@ -611,7 +611,7 @@ Above scenario allowed
         git.setName(new CaseInsensitiveString("mat-name"));
         SvnMaterialConfig svn = svn("url", true);
         svn.setName(new CaseInsensitiveString("mat-name"));
-        P4MaterialConfig p4 = new P4MaterialConfig();
+        P4MaterialConfig p4 = p4();
         TfsMaterialConfig tfs = tfs();
         HgMaterialConfig hg = hg();
         MaterialConfigs materialConfigs = new MaterialConfigs(git, svn, p4, tfs, hg);

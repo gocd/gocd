@@ -19,12 +19,9 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.AbstractMaterialConfig;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig;
 import com.thoughtworks.go.config.materials.perforce.P4MaterialViewConfig;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.merge.MergePipelineConfigs;
 import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
@@ -34,9 +31,9 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.Collections;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static com.thoughtworks.go.util.ReflectionUtil.setField;
 import static org.hamcrest.Matchers.*;
-import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 public class ParamResolverTest {
@@ -198,7 +195,7 @@ public class ParamResolverTest {
         pipelineConfig.setLabelTemplate("2.1-${COUNT}-#{foo}-bar-#{bar}");
         HgMaterialConfig materialConfig = MaterialConfigsMother.hgMaterialConfig("http://#{foo}.com/#{bar}");
         pipelineConfig.addMaterialConfig(materialConfig);
-        MergePipelineConfigs merge = new MergePipelineConfigs(new BasicPipelineConfigs(),new BasicPipelineConfigs(pipelineConfig));
+        MergePipelineConfigs merge = new MergePipelineConfigs(new BasicPipelineConfigs(), new BasicPipelineConfigs(pipelineConfig));
 
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(merge);
 
@@ -216,7 +213,7 @@ public class ParamResolverTest {
 
     @Test
     public void shouldUseValidationErrorKeyAnnotationForFieldNameInCaseOfException() throws NoSuchFieldException {
-        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant","nant");
+        PipelineConfig pipelineConfig = PipelineConfigMother.createPipelineConfig("cruise", "dev", "ant", "nant");
         FetchTask task = new FetchTask(new CaseInsensitiveString("cruise"), new CaseInsensitiveString("dev"), new CaseInsensitiveString("ant"), "#a", "dest");
         pipelineConfig.get(0).getJobs().getJob(new CaseInsensitiveString("nant")).addTask(task);
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(pipelineConfig);
@@ -279,7 +276,7 @@ public class ParamResolverTest {
 
     @Test
     public void shouldErrorOutIfCannotResolveParamForP4View() {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("server:port", "#");
+        P4MaterialConfig p4MaterialConfig = p4("server:port", "#");
         new ParamResolver(new ParamSubstitutionHandlerFactory(params(param("foo", "pavan"), param("bar", "jj"))), fieldCache).resolve(p4MaterialConfig);
         assertThat(p4MaterialConfig.getP4MaterialView().errors().on(P4MaterialConfig.VIEW), is("Error when processing params for '#' used in field 'view', # must be followed by a parameter pattern or escaped by another #"));
     }
@@ -312,21 +309,21 @@ public class ParamResolverTest {
 
     @Test
     public void shouldSkipResolution() throws NoSuchFieldException {
-        Object[] specs = new Object[] {
-            BasicCruiseConfig.class, "serverConfig",
-            BasicCruiseConfig.class, "templatesConfig",
-            BasicCruiseConfig.class, "environments",
-            BasicCruiseConfig.class, "agents",
-            BasicPipelineConfigs.class, "authorization",
-            PipelineConfig.class, "name",
-            PipelineConfig.class, "params",
-            PipelineConfig.class, "templateName",
-            StageConfig.class, "name",
-            AbstractMaterialConfig.class, "name",
-            ArtifactPropertyConfig.class, "name",
-            Approval.class, "type",
-            JobConfig.class, "jobName",
-            RunIfConfig.class, "status",
+        Object[] specs = new Object[]{
+                BasicCruiseConfig.class, "serverConfig",
+                BasicCruiseConfig.class, "templatesConfig",
+                BasicCruiseConfig.class, "environments",
+                BasicCruiseConfig.class, "agents",
+                BasicPipelineConfigs.class, "authorization",
+                PipelineConfig.class, "name",
+                PipelineConfig.class, "params",
+                PipelineConfig.class, "templateName",
+                StageConfig.class, "name",
+                AbstractMaterialConfig.class, "name",
+                ArtifactPropertyConfig.class, "name",
+                Approval.class, "type",
+                JobConfig.class, "jobName",
+                RunIfConfig.class, "status",
         };
         for (int i = 0; i < specs.length; i += 2) {
             Class clz = (Class) specs[i];

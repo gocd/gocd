@@ -18,6 +18,7 @@ import {ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {EnvironmentCRUD} from "models/environments/environment_crud";
 import {PipelineGroupCRUD} from "models/pipeline_configs/pipeline_groups_cache";
 import {Rule, Rules} from "models/secret_configs/rules";
 import {SecretConfig, SecretConfigs} from "models/secret_configs/secret_configs";
@@ -56,7 +57,7 @@ export class SecretConfigsPage extends Page<null, State> {
 
     vnode.state.onAdd = (e) => {
       e.stopPropagation();
-      const id   = vnode.state.pluginInfos()[0].id;
+      const id = vnode.state.pluginInfos()[0].id;
       new CreateSecretConfigModal(vnode.state.secretConfigs,
                                   new SecretConfig("",
                                                    "",
@@ -132,8 +133,7 @@ export class SecretConfigsPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionType.SECRETS}), SecretConfigsCRUD.all()])
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionType.SECRETS}), SecretConfigsCRUD.all(), PipelineGroupCRUD.all()])
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionType.SECRETS}), SecretConfigsCRUD.all(), PipelineGroupCRUD.all(), EnvironmentCRUD.all()])
                   .then((results) => {
                     results[0].do((successResponse) => {
                       vnode.state.pluginInfos = stream(successResponse.body);
@@ -148,6 +148,11 @@ export class SecretConfigsPage extends Page<null, State> {
                     results[2].do((successResponse) => {
                       vnode.state.resourceAutocompleteHelper()
                            .set("pipeline_group", successResponse.body.map((group) => group.name));
+                    }, () => this.setErrorState());
+
+                    results[3].do((successResponse) => {
+                      vnode.state.resourceAutocompleteHelper()
+                           .set("environment", successResponse.body.map((env) => env.name()));
                     }, () => this.setErrorState());
                   });
   }

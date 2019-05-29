@@ -287,4 +287,8 @@ export default class {
     }
     return `/go/api/admin/secret_configs`;
   }
+
+  static apiEnvironmentPath() {
+    return "/go/api/admin/environments";
+  }
 }

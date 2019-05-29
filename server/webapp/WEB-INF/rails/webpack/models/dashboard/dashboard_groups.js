@@ -20,11 +20,14 @@ const Routes = require("gen/js-routes");
 
 class Group {
 
-  constructor({name, can_administer, pipelines}) { // eslint-disable-line camelcase
-    this.name          = name;
-    this.canAdminister = can_administer; // eslint-disable-line camelcase
-    this.pipelines     = pipelines;
+  /* eslint-disable camelcase */
+  constructor({name, can_administer, pipelines, has_defined_pipelines}) {
+    this.name             = name;
+    this.canAdminister    = can_administer;
+    this.pipelines        = pipelines;
+    this.definesPipelines = has_defined_pipelines;
   }
+  /* eslint-enable camelcase */
 
   resolvePipelines(resolver) {
     return _.map(this.pipelines, (pipelineName) => resolver.findPipeline(pipelineName));
@@ -32,6 +35,13 @@ class Group {
 }
 
 class PipelineGroup extends Group {
+  showEmptyGroups = false;
+
+  constructor(data, showEmptyGroups) {
+    super(data);
+    this.showEmptyGroups = showEmptyGroups;
+  }
+
   label() {
     return `Pipeline Group '${this.name}'`;
   }
@@ -73,11 +83,22 @@ class PipelineGroup extends Group {
   }
 
   select(filter) {
+    if (this.showEmptyGroups && !this.definesPipelines) {
+      return this;
+    }
+
     const pipelines = _.filter(this.pipelines, filter);
     if (pipelines.length === 0) {
       return false;
     }
-    return new PipelineGroup({name: this.name, can_administer: this.canAdminister, pipelines}); // eslint-disable-line camelcase
+    return this.subset(pipelines);
+  }
+
+  subset(pipelines) {
+    return new PipelineGroup({
+      name: this.name, pipelines,
+      can_administer: this.canAdminister, has_defined_pipelines: this.definesPipelines // eslint-disable-line camelcase
+    });
   }
 
   routes() {
@@ -133,7 +154,14 @@ class Environment extends Group {
     if (pipelines.length === 0) {
       return false;
     }
-    return new Environment({name: this.name, can_administer: this.canAdminister, pipelines}); // eslint-disable-line camelcase
+    return this.subset(pipelines);
+  }
+
+  subset(pipelines) {
+    return new Environment({
+      name: this.name, pipelines,
+      can_administer: this.canAdminister, has_defined_pipelines: this.definesPipelines // eslint-disable-line camelcase
+    });
   }
 
   routes() {
@@ -157,8 +185,8 @@ function DashboardGroups(groups) {
   };
 }
 
-DashboardGroups.fromPipelineGroupsJSON = (json) => {
-  return new DashboardGroups(_.map(json, (group) => new PipelineGroup(group)));
+DashboardGroups.fromPipelineGroupsJSON = (json, showEmptyGroups) => {
+  return new DashboardGroups(_.map(json, (group) => new PipelineGroup(group, showEmptyGroups)));
 };
 
 DashboardGroups.fromEnvironmentsJSON = (json) => {

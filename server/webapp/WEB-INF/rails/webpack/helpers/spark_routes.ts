@@ -90,11 +90,20 @@ export default class {
     }
   }
 
-  static showDashboardPath(viewName?: string): string {
+  static showDashboardPath(viewName?: string, allowEmpty?: boolean): string {
+    const params: any = {};
+
     if (viewName) {
-      return `/go/api/dashboard?${m.buildQueryString({viewName})}`;
+      Object.assign(params, { viewName });
     }
-    return "/go/api/dashboard";
+
+    if ("boolean" === typeof allowEmpty) {
+      Object.assign(params, { allowEmpty });
+    }
+
+    return Object.keys(params).length ?
+      `/go/api/dashboard?${m.buildQueryString(params)}` :
+      "/go/api/dashboard";
   }
 
   static DataSharingSettingsPath(): string {

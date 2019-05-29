@@ -26,7 +26,7 @@ describe Admin::Materials::P4Controller do
   it_should_behave_like :material_controller
 
   def new_material
-    P4MaterialConfig.new("", "")
+    com.thoughtworks.go.helper.MaterialConfigsMother.p4("", "")
   end
 
   def assert_successful_create
@@ -38,7 +38,7 @@ describe Admin::Materials::P4Controller do
   end
 
   def update_payload
-    {:materialName =>  "new-some-kinda-material", :serverAndPort => "tele.port:8154", :folder => "folder", :userName => "loser", :password => "secret", :view => "through_window", :useTickets => 'true'}
+    {:materialName => "new-some-kinda-material", :serverAndPort => "tele.port:8154", :folder => "folder", :userName => "loser", :password => "secret", :view => "through_window", :useTickets => 'true'}
   end
 
   def assert_successful_update

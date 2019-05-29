@@ -19,7 +19,10 @@ module Admin::Materials
     private
 
     def load_new_material(cruise_config)
-      assert_load :material, P4MaterialConfig.new("", "")
+      p4MaterialConfig = P4MaterialConfig.new
+      p4MaterialConfig.setUrl("")
+      p4MaterialConfig.setView("")
+      assert_load :material, p4MaterialConfig
     end
   end
 end

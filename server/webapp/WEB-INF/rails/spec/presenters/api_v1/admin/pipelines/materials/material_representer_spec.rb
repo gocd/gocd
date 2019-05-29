@@ -455,7 +455,7 @@ describe ApiV1::Admin::Pipelines::Materials::MaterialRepresenter do
     end
 
     def existing_material_with_errors
-      p4_config = P4MaterialConfig.new('', '', '', false, '', GoCipher.new, CaseInsensitiveString.new(''), true, nil, false, '/dest/')
+      p4_config = com.thoughtworks.go.helper.MaterialConfigsMother.p4('', '', '', false, '', GoCipher.new, CaseInsensitiveString.new(''), true, nil, false, '/dest/')
       material_configs = MaterialConfigs.new(p4_config);
       material_configs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", BasicCruiseConfig.new(), PipelineConfig.new()))
       material_configs.first()

@@ -23,10 +23,10 @@ import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.PipelineConfigSaveValidationContext
 import com.thoughtworks.go.config.materials.MaterialConfigs
 import com.thoughtworks.go.config.materials.PasswordDeserializer
-import com.thoughtworks.go.config.materials.perforce.P4MaterialConfig
 import com.thoughtworks.go.helper.MaterialConfigsMother
 import com.thoughtworks.go.security.GoCipher
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.p4
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.mock
 import static org.mockito.Mockito.when
@@ -45,50 +45,50 @@ class PerforceMaterialRepresenterTest implements MaterialRepresenterTrait {
   }
 
   def existingMaterialWithErrors() {
-    def p4Config = new P4MaterialConfig('', '', '', false, '', new GoCipher(), new CaseInsensitiveString(''), true, null, false, '/dest/')
+    def p4Config = p4('', '', '', false, '', new GoCipher(), new CaseInsensitiveString(''), true, null, false, '/dest/')
     def materialConfigs = new MaterialConfigs(p4Config);
     materialConfigs.validateTree(PipelineConfigSaveValidationContext.forChain(true, "group", new BasicCruiseConfig(), new PipelineConfig()))
     return materialConfigs.first()
   }
 
   def materialHash =
-  [
-    type: 'p4',
-    attributes: [
-      destination: "dest-folder",
-      filter: [
-        ignore: ['**/*.html','**/foobar/']
-      ],
-      invert_filter: false,
-      port: "host:9876",
-      username: "user",
-      encrypted_password: new GoCipher().encrypt("password"),
-      use_tickets: true,
-      view: "view",
-      name: "p4-material",
-      auto_update: true
+    [
+      type      : 'p4',
+      attributes: [
+        destination       : "dest-folder",
+        filter            : [
+          ignore: ['**/*.html', '**/foobar/']
+        ],
+        invert_filter     : false,
+        port              : "host:9876",
+        username          : "user",
+        encrypted_password: new GoCipher().encrypt("password"),
+        use_tickets       : true,
+        view              : "view",
+        name              : "p4-material",
+        auto_update       : true
+      ]
     ]
-  ]
 
   def expectedMaterialHashWithErrors =
-  [
-    type: "p4",
-    attributes: [
-      destination: "/dest/",
-      filter: null,
-      invert_filter: false,
-      name: "",
-      auto_update: true,
-      port: "",
-      username: "",
-      use_tickets: false,
-      view: ""
-    ],
-    errors: [
-      view: ["P4 view cannot be empty."],
-      destination: ["Dest folder '/dest/' is not valid. It must be a sub-directory of the working folder."],
-      port: ["P4 port cannot be empty."]
+    [
+      type      : "p4",
+      attributes: [
+        destination  : "/dest/",
+        filter       : null,
+        invert_filter: false,
+        name         : "",
+        auto_update  : true,
+        port         : "",
+        username     : "",
+        use_tickets  : false,
+        view         : ""
+      ],
+      errors    : [
+        view       : ["P4 view cannot be empty."],
+        destination: ["Dest folder '/dest/' is not valid. It must be a sub-directory of the working folder."],
+        port       : ["P4 port cannot be empty."]
+      ]
     ]
-  ]
 
 }

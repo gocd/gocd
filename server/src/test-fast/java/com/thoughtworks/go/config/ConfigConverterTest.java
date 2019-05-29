@@ -1562,7 +1562,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertP4MaterialConfigWhenEncryptedPassword() {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("server:port", "view");
+        P4MaterialConfig p4MaterialConfig = p4("server:port", "view");
         p4MaterialConfig.setName(new CaseInsensitiveString("name"));
         p4MaterialConfig.setFolder("folder");
         p4MaterialConfig.setEncryptedPassword("plain-text-password");
@@ -1587,7 +1587,7 @@ class ConfigConverterTest {
 
     @Test
     void shouldConvertP4MaterialConfigWhenPlainPassword() {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("server:port", "view");
+        P4MaterialConfig p4MaterialConfig = p4("server:port", "view");
         p4MaterialConfig.setName(new CaseInsensitiveString("name"));
         p4MaterialConfig.setFolder("folder");
         p4MaterialConfig.setPassword("password");

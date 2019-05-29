@@ -24,6 +24,7 @@ import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
+import static com.thoughtworks.go.helper.MaterialConfigsMother.p4
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
@@ -35,7 +36,7 @@ class P4MaterialRepresenterTest {
 
   @Test
   void toJSON() {
-    P4MaterialConfig config = new P4MaterialConfig(REPO_URL, VIEW)
+    P4MaterialConfig config = p4(REPO_URL, VIEW)
     String json = toObjectString({ w -> new P4MaterialRepresenter().toJSON(w, config) })
 
     assertThatJson(json).isEqualTo([
@@ -50,7 +51,7 @@ class P4MaterialRepresenterTest {
 
   @Test
   void 'toJSON() with auth'() {
-    P4MaterialConfig config = new P4MaterialConfig(REPO_URL, VIEW)
+    P4MaterialConfig config = p4(REPO_URL, VIEW)
     config.setUserName("user")
     config.setPassword(PASSWORD)
 
@@ -81,7 +82,7 @@ class P4MaterialRepresenterTest {
 
     def goCipher = new GoCipher()
     MaterialConfig materialConfig = new P4MaterialRepresenter().fromJSON(json)
-    P4MaterialConfig expected = new P4MaterialConfig(REPO_URL, VIEW)
+    P4MaterialConfig expected = p4(REPO_URL, VIEW)
     expected.setUserName("user")
     expected.setEncryptedPassword(goCipher.encrypt(PASSWORD))
 

@@ -79,12 +79,12 @@ public abstract class CruiseConfigTestBase {
         PipelineConfig one = PipelineConfigMother.pipelineConfig("one", svnConfig, new JobConfigs(new JobConfig("job")));
         cruiseConfig.addPipeline("group-1", one);
 
-        P4MaterialConfig p4One = new P4MaterialConfig("server_and_port", "outside_the_window");
+        P4MaterialConfig p4One = p4("server_and_port", "outside_the_window");
         p4One.setPassword("abcdef");
         PipelineConfig two = PipelineConfigMother.pipelineConfig("two", p4One, new JobConfigs(new JobConfig("job")));
         cruiseConfig.addPipeline("group-2", two);
 
-        P4MaterialConfig p4Two = new P4MaterialConfig("port_and_server", "inside_yourself");
+        P4MaterialConfig p4Two = p4("port_and_server", "inside_yourself");
         p4Two.setPassword("fedcba");
         PipelineConfig three = PipelineConfigMother.pipelineConfig("three", p4Two, new JobConfigs(new JobConfig("job")));
         cruiseConfig.addPipeline("group-3", three);
@@ -347,7 +347,7 @@ public abstract class CruiseConfigTestBase {
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
         pipelineConfig.errors().add("base", "Some base errors");
 
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("localhost:1999", "view");
+        P4MaterialConfig p4MaterialConfig = p4("localhost:1999", "view");
         p4MaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "p4_folder"));
         pipelineConfig.addMaterialConfig(p4MaterialConfig);
         p4MaterialConfig.errors().add("materialName", "material name does not follow pattern");
@@ -378,7 +378,7 @@ public abstract class CruiseConfigTestBase {
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
         pipelineConfig.errors().add("base", "Some base errors");
 
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("localhost:1999", "view");
+        P4MaterialConfig p4MaterialConfig = p4("localhost:1999", "view");
         pipelineConfig.addMaterialConfig(p4MaterialConfig);
         p4MaterialConfig.errors().add("materialName", "material name does not follow pattern");
 
@@ -406,7 +406,7 @@ public abstract class CruiseConfigTestBase {
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
         pipelineConfig.errors().add("base", "Some base errors");
 
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("localhost:1999", "view");
+        P4MaterialConfig p4MaterialConfig = p4("localhost:1999", "view");
         pipelineConfig.addMaterialConfig(p4MaterialConfig);
         p4MaterialConfig.errors().add("materialName", "material name does not follow pattern");
 
@@ -433,7 +433,7 @@ public abstract class CruiseConfigTestBase {
         PipelineConfig pipelineConfig = config.pipelineConfigByName(new CaseInsensitiveString("pipeline-1"));
         pipelineConfig.errors().add("base", "Some base errors");
 
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("localhost:1999", "view");
+        P4MaterialConfig p4MaterialConfig = p4("localhost:1999", "view");
         pipelineConfig.addMaterialConfig(p4MaterialConfig);
         p4MaterialConfig.errors().add("materialName", "material name does not follow pattern");
 
@@ -556,7 +556,7 @@ public abstract class CruiseConfigTestBase {
         PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         SvnMaterialConfig material = (SvnMaterialConfig) pipeline1.materialConfigs().get(0);
         material.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "svn_dir"));
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("localhost:1999", "view");
+        P4MaterialConfig p4MaterialConfig = p4("localhost:1999", "view");
         p4MaterialConfig.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "p4_folder"));
         pipeline1.addMaterialConfig(p4MaterialConfig);
         PipelineConfig pipeline2 = goConfigMother.addPipeline(cruiseConfig, "pipeline3", "stage", "build");
@@ -797,7 +797,7 @@ public abstract class CruiseConfigTestBase {
         gitMaterialConfig.setAutoUpdate(false);
         final MaterialConfig tfsMaterialConfig = tfs(mock(GoCipher.class), new UrlArgument("http://tfs_url"), "username", "domain", "password", "project_path");
         tfsMaterialConfig.setAutoUpdate(false);
-        final MaterialConfig p4MaterialConfig = new P4MaterialConfig("http://p4_url", "view", "username");
+        final MaterialConfig p4MaterialConfig = p4("http://p4_url", "view", "username");
         p4MaterialConfig.setAutoUpdate(false);
         final MaterialConfig dependencyMaterialConfig = MaterialConfigsMother.dependencyMaterialConfig();
         final PluggableSCMMaterialConfig pluggableSCMMaterialConfig = MaterialConfigsMother.pluggableSCMMaterialConfig("scm-id-1", null, null);

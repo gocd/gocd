@@ -26,9 +26,7 @@ import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ArtifactLogUtil;
-import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -323,7 +321,10 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
     }
 
     public P4MaterialConfig getP4Material() {
-        return getExistingOrDefaultMaterial(new P4MaterialConfig("", ""));
+        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig();
+        p4MaterialConfig.setUrl("");
+        p4MaterialConfig.setView("");
+        return getExistingOrDefaultMaterial(p4MaterialConfig);
     }
 
     public DependencyMaterialConfig getDependencyMaterial() {

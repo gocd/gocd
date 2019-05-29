@@ -21,7 +21,7 @@ describe "_form.html.erb" do
   include FormUI
 
   before(:each) do
-    @material_config = P4MaterialConfig.new("p4:5000", "through_window", "loser")
+    @material_config = com.thoughtworks.go.helper.MaterialConfigsMother.p4("p4:5000", "through_window", "loser")
     @material_config.setFolder("dest")
     @material_config.setPassword("secret")
     @material_config.setUseTickets(true)
@@ -141,7 +141,7 @@ describe "_form.html.erb" do
   end
 
   it "should not generate the id for url, username and view fields" do
-    render partial: "admin/materials/p4/form.html", locals: { scope: { material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo" }}
+    render partial: "admin/materials/p4/form.html", locals: {scope: {material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo"}}
 
     Capybara.string(response.body).all(".form_item .form_item_block").tap do |text_field|
       expect(text_field[1]).to_not have_selector("input[type='text'][class='form_input url'][id]")

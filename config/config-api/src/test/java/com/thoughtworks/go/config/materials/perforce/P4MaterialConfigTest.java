@@ -35,6 +35,7 @@ import java.util.Map;
 
 import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
 import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
+import static com.thoughtworks.go.helper.MaterialConfigsMother.p4;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -43,12 +44,12 @@ class P4MaterialConfigTest {
 
     @BeforeEach
     void setUp() {
-        p4MaterialConfig = new P4MaterialConfig("/foo/bar", "some-view");
+        p4MaterialConfig = p4("/foo/bar", "some-view");
     }
 
     @Test
     void shouldSetConfigAttributes() {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("", "");
+        P4MaterialConfig p4MaterialConfig = p4("", "");
 
         Map<String, String> map = new HashMap<>();
         map.put(P4MaterialConfig.SERVER_AND_PORT, "serverAndPort");
@@ -95,14 +96,14 @@ class P4MaterialConfigTest {
 
     @Test
     void shouldReturnIfAttributeMapIsNull() {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("", "");
+        P4MaterialConfig p4MaterialConfig = p4("", "");
         p4MaterialConfig.setConfigAttributes(null);
-        assertThat(p4MaterialConfig).isEqualTo(new P4MaterialConfig("", ""));
+        assertThat(p4MaterialConfig).isEqualTo(p4("", ""));
     }
 
     @Test
     void setConfigAttributes_shouldUpdatePasswordWhenPasswordChangedBooleanChanged() throws Exception {
-        P4MaterialConfig materialConfig = new P4MaterialConfig("", "");
+        P4MaterialConfig materialConfig = p4("", "");
         materialConfig.setPassword("notSecret");
         Map<String, String> map = new HashMap<>();
         map.put(P4MaterialConfig.PASSWORD, "secret");
@@ -133,7 +134,7 @@ class P4MaterialConfigTest {
 
     @Test
     void shouldNotSetUseTicketsIfNotInConfigAttributesMap() {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig("", "");
+        P4MaterialConfig p4MaterialConfig = p4("", "");
 
         HashMap<String, String> map = new HashMap<>();
         map.put(P4MaterialConfig.USE_TICKETS, "true");
@@ -226,13 +227,13 @@ class P4MaterialConfigTest {
     }
 
     private void assertNoError(String port, String view, String expectedKeyForError) {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig(port, view);
+        P4MaterialConfig p4MaterialConfig = p4(port, view);
         p4MaterialConfig.validate(new ConfigSaveValidationContext(null));
         assertThat(p4MaterialConfig.errors().on(expectedKeyForError)).isNull();
     }
 
     private void assertError(String port, String view, String expectedKeyForError, String expectedErrorMessage) {
-        P4MaterialConfig p4MaterialConfig = new P4MaterialConfig(port, view);
+        P4MaterialConfig p4MaterialConfig = p4(port, view);
         p4MaterialConfig.validate(new ConfigSaveValidationContext(null));
         assertThat(p4MaterialConfig.errors().on(expectedKeyForError)).isEqualTo(expectedErrorMessage);
     }

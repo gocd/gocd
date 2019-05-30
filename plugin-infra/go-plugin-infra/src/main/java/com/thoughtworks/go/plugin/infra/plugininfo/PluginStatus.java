@@ -29,7 +29,7 @@ public class PluginStatus {
         INVALID
     }
 
-    protected PluginStatus(State state) {
+    public PluginStatus(State state) {
         this.state = state;
     }
 
@@ -45,7 +45,7 @@ public class PluginStatus {
         return state;
     }
 
-    protected PluginStatus setMessages(List<String> messages, Exception rootCause) {
+    public PluginStatus setMessages(List<String> messages, Exception rootCause) {
         this.messages = messages;
         this.rootCauseIfInvalid = rootCause;
         return this;

@@ -39,6 +39,9 @@ import org.osgi.framework.Bundle;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_EXTERNAL_PROVIDED_PATH;
@@ -328,6 +331,11 @@ public class DefaultPluginManagerTest {
         @Override
         public PluginPostLoadHook addPostLoadHook(PluginPostLoadHook pluginPostLoadHook) {
             return pluginPostLoadHook;
+        }
+
+        @Override
+        public Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId) {
+            return new HashMap<>();
         }
 
         public void addHasReferenceFor(Class<?> serviceRef, String pluginId, String extensionType, boolean hasReference) {

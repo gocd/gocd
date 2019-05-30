@@ -145,8 +145,7 @@ class RulesWidgetBody {
         </SelectField>,
         <AutocompleteField
           key={rule().type()}
-          minChars={1}
-          autoFirst={true}
+          autoEvaluate={false}
           dataTestId="rule-resource"
           property={rule().resource}
           provider={provider()}

@@ -71,10 +71,10 @@ class Agents extends Array<Agent> {
 }
 
 class Pipeline {
-  uuid: Stream<string>;
+  name: Stream<string>;
 
-  constructor(uuid: string) {
-    this.uuid = stream(uuid);
+  constructor(name: string) {
+    this.name = stream(name);
   }
 
   static fromJSON(data: PipelineJSON) {

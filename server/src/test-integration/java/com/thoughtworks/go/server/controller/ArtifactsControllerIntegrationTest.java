@@ -17,10 +17,7 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.domain.JobIdentifier;
-import com.thoughtworks.go.domain.JobInstance;
-import com.thoughtworks.go.domain.Pipeline;
-import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.StubMultipartHttpServletRequest;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.domain.Username;
@@ -29,6 +26,7 @@ import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.ArtifactsService;
 import com.thoughtworks.go.server.service.ConsoleService;
 import com.thoughtworks.go.server.web.ResponseCodeView;
+import com.thoughtworks.go.util.FileUtil;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TestFileUtil;
 import com.thoughtworks.go.util.ZipUtil;
@@ -534,6 +532,21 @@ public class ArtifactsControllerIntegrationTest {
     }
 
     @Test
+    public void rawConsoleOutShouldReturnTempFileWhenJobIsInProgress() throws Exception {
+        Stage firstStage = pipeline.getFirstStage();
+        JobInstance firstJob = firstStage.getFirstJob();
+        firstJob.setState(JobState.Building);
+        prepareTempConsoleOut(new JobIdentifier(pipeline.getName(), pipeline.getCounter(), pipeline.getLabel(), firstStage.getName(), String.valueOf(firstStage.getCounter()), firstJob.getName()), "fantastic curly coated retriever");
+        ModelAndView view = getFileAsHtml("cruise-output/console.log");
+
+        assertThat(view.getViewName(), is("fileView"));
+        File targetFile = (File) (view.getModel().get("targetFile"));
+        String separator = FileUtil.fileseparator();
+        assertThat(targetFile.getPath(), is(String.format("data%sconsole%s%s.log",
+                separator, separator, DigestUtils.md5Hex(firstJob.buildLocator()))));
+    }
+
+    @Test
     public void shouldSaveChecksumFileInTheCruiseOutputFolder() throws Exception {
         File fooFile = createFile(artifactsRoot, "/tmp/foobar.html");
         FileUtils.writeStringToFile(fooFile, "FooBarBaz...", UTF_8);
@@ -653,6 +666,11 @@ public class ArtifactsControllerIntegrationTest {
     private ModelAndView prepareConsoleOut(String content) throws Exception {
         return postFile("/cruise-output/console.log", "file", new ByteArrayInputStream(content.getBytes()),
                 new MockHttpServletResponse());
+    }
+
+    private void prepareTempConsoleOut(JobIdentifier jobIdentifier, String content) throws Exception {
+        File consoleLogFile = consoleService.consoleLogFile(jobIdentifier);
+        FileUtils.writeStringToFile(consoleLogFile, content, Charset.defaultCharset());
     }
 
     private ModelAndView postZipFolderFromTmp(File root, String folder) throws Exception {

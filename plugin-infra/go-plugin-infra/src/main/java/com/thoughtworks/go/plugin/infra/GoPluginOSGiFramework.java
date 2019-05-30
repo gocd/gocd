@@ -31,13 +31,9 @@ public interface GoPluginOSGiFramework {
 
     void unloadPlugin(GoPluginDescriptor pluginDescriptor);
 
-    void addPluginChangeListener(PluginChangeListener pluginChangeListener);
-
     <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, String extensionType, ActionWithReturn<T, R> action);
 
     <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId, String extensionType);
-
-    PluginPostLoadHook addPostLoadHook(PluginPostLoadHook pluginPostLoadHook);
 
     Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId);
 }

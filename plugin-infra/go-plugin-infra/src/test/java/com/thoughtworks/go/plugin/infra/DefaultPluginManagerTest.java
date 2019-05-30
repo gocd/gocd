@@ -314,11 +314,6 @@ public class DefaultPluginManagerTest {
         }
 
         @Override
-        public void addPluginChangeListener(PluginChangeListener pluginChangeListener) {
-            this.pluginChangeListener = pluginChangeListener;
-        }
-
-        @Override
         public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, String extensionType, ActionWithReturn<T, R> action) {
             return action.execute((T) serviceReferenceInstance, mock(GoPluginDescriptor.class));
         }
@@ -326,11 +321,6 @@ public class DefaultPluginManagerTest {
         @Override
         public <T> boolean hasReferenceFor(Class<T> serviceReferenceClass, String pluginId, String extensionType) {
             return goPluginOSGiFramework.hasReferenceFor(serviceReferenceClass, pluginId, extensionType);
-        }
-
-        @Override
-        public PluginPostLoadHook addPostLoadHook(PluginPostLoadHook pluginPostLoadHook) {
-            return pluginPostLoadHook;
         }
 
         @Override

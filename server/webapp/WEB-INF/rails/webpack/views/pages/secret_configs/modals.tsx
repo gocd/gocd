@@ -123,8 +123,10 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
         </div>
       </div>
       <RulesWidget rules={this.entity().rules} resourceAutocompleteHelper={this.resourceAutocompleteHelper}/>
-      <div>
-        <Buttons.Secondary data-test-id="add-rule-button" onclick={this.addNewRule.bind(this)}>+ New Rule</Buttons.Secondary>
+      <div className={styles.addRule}>
+        <Buttons.Secondary data-test-id="add-rule-button" onclick={this.addNewRule.bind(this)}>
+          + New Rule
+        </Buttons.Secondary>
       </div>
     </div>;
   }

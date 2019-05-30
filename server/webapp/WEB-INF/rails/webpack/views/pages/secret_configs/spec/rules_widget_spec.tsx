@@ -30,7 +30,7 @@ describe("RulesWidget", () => {
     const rules = new Rules();
     mount(rules);
     expect(helper.findByDataTestId("flash-message-info")).toBeInDOM();
-    const infoAboutRules = "Configuring Rules is required to utilize this Secret Configuration. In absence of any rules, the secret configuration is denied access of any GoCD entities.";
+    const infoAboutRules = "The default rule is to deny access to this secret configuration for all GoCD entities. Configure rules below to override that behavior.";
     expect(helper.findByDataTestId("flash-message-info")).toContainText(infoAboutRules);
   });
 

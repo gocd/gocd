@@ -16,3 +16,8 @@
 
 @import "../../global/common.scss";
 @import "./_awesomplete-import.scss";
+
+
+.awesomplete > ul > li {
+  color: $black;
+}

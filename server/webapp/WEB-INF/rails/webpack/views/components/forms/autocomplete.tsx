@@ -33,6 +33,11 @@ interface Attrs {
   // to allow customization of styles and pass this through.
   css?: typeof defaultStyles;
   provider: SuggestionProvider;
+  autoEvaluate?: boolean;
+}
+
+interface State {
+  _asm: Awesomplete;
 }
 
 type AutoCompAttrs = TextFieldAttrs & Attrs & Awesomplete.Options;
@@ -73,49 +78,54 @@ export abstract class SuggestionProvider {
 }
 
 export class AutocompleteField extends MithrilViewComponent<AutoCompAttrs> {
-  private _asm?: Awesomplete;
+  ensureInited(vnode: m.VnodeDOM<AutoCompAttrs, State>): void {
+    const css     = vnode.attrs.css || defaultStyles;
 
-  ensureInited(vnode: m.VnodeDOM<AutoCompAttrs, {}>): void {
-    const css = vnode.attrs.css || defaultStyles;
+    vnode.dom.classList.add(css.awesomplete);
 
-    if (!this._asm && vnode.dom) {
+    if (!vnode.state._asm && vnode.dom) {
       const input = Awesomplete.$("input", vnode.dom!) as HTMLInputElement;
 
-      this._asm = new Awesomplete(input, _.assign({
-        sort: false,
-        minChars: 0,
-        container(input: HTMLElement): Element {
-          vnode.dom.classList.add(css.awesomplete);
-          return vnode.dom!;
-        },
-        replace(text: Awesomplete.Suggestion) {
-          vnode.attrs.property(input.value = text.toString());
-          m.redraw();
-        }
-      }, onlyAwesompleteOpts(vnode.attrs)));
+      const asm = new Awesomplete(input, _.assign(
+        {
+          sort: false,
+          minChars: 0,
+          container(input: HTMLElement): Element {
+            return vnode.dom!;
+          },
+          replace(text: Awesomplete.Suggestion) {
+            input.value = text.toString();
+            vnode.attrs.property(input.value);
+            m.redraw();
+          }
+        }, onlyAwesompleteOpts(vnode.attrs)));
 
-      input.addEventListener("awesomplete-selectcomplete", (e: Event) => {
-        vnode.attrs.property(input.value);
-      });
-
-      this._asm.status.classList.remove("visually-hidden");
-      this._asm.status.classList.add(css.visuallyHidden);
+      asm.status.classList.remove("visually-hidden");
+      asm.status.classList.add(css.visuallyHidden);
 
       vnode.attrs.provider.onData((data: Awesomplete.Suggestion[]) => {
-        this._asm!.list = data;
-        this._asm!.evaluate();
+        asm.list = data;
+        if (vnode.attrs.autoEvaluate === undefined || vnode.attrs.autoEvaluate === true) {
+          asm.evaluate();
+        }
       });
-
       vnode.attrs.provider.update();
+      vnode.state._asm = asm;
     }
   }
 
-  oncreate(vnode: m.VnodeDOM<AutoCompAttrs, {}>) {
+  oncreate(vnode: m.VnodeDOM<AutoCompAttrs, State>) {
     this.ensureInited(vnode);
   }
 
-  onupdate(vnode: m.VnodeDOM<AutoCompAttrs, {}>) {
+  onupdate(vnode: m.VnodeDOM<AutoCompAttrs, State>) {
     this.ensureInited(vnode);
+  }
+
+  onremove(vnode: m.VnodeDOM<AutoCompAttrs, State>): any {
+    if (vnode.state._asm) {
+      vnode.state._asm.destroy();
+    }
   }
 
   view(vnode: m.Vnode<AutoCompAttrs, {}>): m.Children | void | null {

@@ -33,6 +33,7 @@ interface Attrs {
   // to allow customization of styles and pass this through.
   css?: typeof defaultStyles;
   provider: SuggestionProvider;
+  autoEvaluate?: boolean;
 }
 
 type AutoCompAttrs = TextFieldAttrs & Attrs & Awesomplete.Options;
@@ -96,21 +97,18 @@ export class AutocompleteField extends MithrilViewComponent<AutoCompAttrs> {
           replace(text: Awesomplete.Suggestion) {
             input.value = text.toString();
             self.updateProperty(input.value);
-            // vnode.attrs.property(input.value = text.toString());
             m.redraw();
           }
         }, onlyAwesompleteOpts(vnode.attrs)));
-
-      // input.addEventListener("awesomplete-selectcomplete", (e: Event) => {
-      //   vnode.attrs.property(input.value);
-      // });
 
       this._asm.status.classList.remove("visually-hidden");
       this._asm.status.classList.add(css.visuallyHidden);
 
       vnode.attrs.provider.onData((data: Awesomplete.Suggestion[]) => {
         this._asm!.list = data;
-        this._asm!.evaluate();
+        if (vnode.attrs.autoEvaluate === undefined || vnode.attrs.autoEvaluate === true) {
+          this._asm!.evaluate();
+        }
       });
       vnode.attrs.provider.update();
     }

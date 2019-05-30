@@ -129,19 +129,8 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public void unloadPlugin(GoPluginDescriptor pluginDescriptor) {
         Bundle bundle = pluginDescriptor.bundle();
-        if (bundle == null) {
-            return;
-        }
 
-        for (PluginChangeListener listener : pluginChangeListeners) {
-            try {
-                listener.pluginUnLoaded(pluginDescriptor);
-            } catch (Exception e) {
-                LOGGER.warn("A plugin unload listener ({}) failed: {}", listener.toString(), pluginDescriptor, e);
-            }
-        }
-
-        if (bundle.getState() == Bundle.UNINSTALLED) {
+        if (bundle == null || bundle.getState() == Bundle.UNINSTALLED) {
             LOGGER.info(format("Skipping plugin '%s' uninstall as it is already uninstalled.", pluginDescriptor.id()));
             return;
         }

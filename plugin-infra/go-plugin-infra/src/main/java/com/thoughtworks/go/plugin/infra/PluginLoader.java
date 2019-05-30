@@ -69,6 +69,19 @@ public class PluginLoader {
     }
 
     public void unloadPlugin(GoPluginDescriptor descriptorOfRemovedPlugin) {
+        Bundle bundle = descriptorOfRemovedPlugin.bundle();
+        if (bundle == null) {
+            return;
+        }
+
+        for (PluginChangeListener listener : pluginChangeListeners) {
+            try {
+                listener.pluginUnLoaded(descriptorOfRemovedPlugin);
+            } catch (Exception e) {
+                LOGGER.warn("A plugin unload listener ({}) failed: {}", listener.toString(), descriptorOfRemovedPlugin, e);
+            }
+        }
+
         pluginOSGiFramework.unloadPlugin(descriptorOfRemovedPlugin);
     }
 

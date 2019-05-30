@@ -165,23 +165,36 @@ export class Table extends MithrilComponent<Attrs, State> {
       <tbody data-test-id="table-body">
       {
         _.map(vnode.attrs.data, ((rows, index) => {
+          if (!vnode.attrs.draggable) {
+            return (
+              <tr key={index.toString()}
+                  data-id={index}
+                  data-test-id="table-row">
+                {_.map(rows, (row) => <td>{Table.renderedValue(row)}</td>)}
+              </tr>
+            );
+          }
           const dragging = (Number(index) === vnode.state.dragging) ? styles.draggableOver : undefined;
           return (
             <tr key={index.toString()}
                 data-id={index}
                 class={dragging}
                 draggable={true}
-                ondragstart={vnode.attrs.draggable ? vnode.state.dragStart.bind(this) : Table.disableEvent.bind(this)}
-                ondragover={vnode.attrs.draggable ? vnode.state.dragOver.bind(this) : Table.disableEvent.bind(this)}
-                ondragend={vnode.attrs.draggable ? vnode.state.dragEnd.bind(this) : Table.disableEvent.bind(this)}
+                ondragstart={vnode.state.dragStart.bind(this)}
+                ondragover={vnode.state.dragOver.bind(this)}
+                ondragend={vnode.state.dragEnd.bind(this)}
                 data-test-id="table-row">
-              {vnode.attrs.draggable ?
-                <td
-                  data-id={index}
-                  onmouseover={Table.disableEvent.bind(this)}>
-                  <i className={styles.dragIcon}></i>
-                </td> : null}
-              {_.map(rows, ((row) => <td>{Table.renderedValue(row)}</td>))}
+              <td
+                data-id={index}
+                onmouseover={Table.disableEvent.bind(this)}>
+                <i className={styles.dragIcon}></i>
+              </td>
+              {_.map(rows,
+                     ((row) => <td draggable={false}
+                                   ondragstart={Table.disableEvent.bind(this)}
+                                   ondragend={Table.disableEvent.bind(this)}
+                                   ondragover={Table.disableEvent.bind(this)}>
+                       {Table.renderedValue(row)}</td>))}
             </tr>
           );
         }))

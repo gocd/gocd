@@ -24,8 +24,6 @@ import com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
 import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
 import com.thoughtworks.go.util.SystemEnvironment;
-import org.apache.commons.collections4.Closure;
-import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.keyvalue.AbstractKeyValue;
 import org.apache.commons.collections4.keyvalue.DefaultKeyValue;
@@ -41,11 +39,9 @@ import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toMap;
 
 @Component
@@ -54,8 +50,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     private final PluginRegistry registry;
     private Framework framework;
     private SystemEnvironment systemEnvironment;
-    private Collection<PluginChangeListener> pluginChangeListeners = new ConcurrentLinkedQueue<>();
-    private List<PluginPostLoadHook> pluginPostLoadHooks = new ArrayList<>();
 
     @Autowired
     public FelixGoPluginOSGiFramework(PluginRegistry registry, SystemEnvironment systemEnvironment) {
@@ -141,17 +135,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         } catch (Exception e) {
             throw new RuntimeException("Failed to unload plugin: " + bundle, e);
         }
-    }
-
-    @Override
-    public void addPluginChangeListener(PluginChangeListener pluginChangeListener) {
-        pluginChangeListeners.add(pluginChangeListener);
-    }
-
-    @Override
-    public PluginPostLoadHook addPostLoadHook(PluginPostLoadHook pluginPostLoadHook) {
-        pluginPostLoadHooks.add(pluginPostLoadHook);
-        return pluginPostLoadHook;
     }
 
     private void registerInternalServices(BundleContext bundleContext) {

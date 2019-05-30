@@ -51,13 +51,12 @@ public class PluginLoader {
     }
 
     public void addPluginChangeListener(PluginChangeListener pluginChangeListener) {
-        pluginOSGiFramework.addPluginChangeListener(pluginChangeListener);
         pluginChangeListeners.add(pluginChangeListener);
     }
 
     public PluginPostLoadHook addPluginPostLoadHook(PluginPostLoadHook pluginPostLoadHook) {
         pluginPostLoadHooks.add(pluginPostLoadHook);
-        return pluginOSGiFramework.addPostLoadHook(pluginPostLoadHook);
+        return pluginPostLoadHook;
     }
 
     public void loadPlugin(GoPluginDescriptor descriptor) {

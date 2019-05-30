@@ -80,14 +80,17 @@ describe("PipelineConfig model", () => {
         ]), new Stage("oink", [])
       ]);
 
-    pip.consumeErrorsResponse({
+    const unmatched = pip.consumeErrorsResponse({
       errors: { name: ["this name is fugly"] },
-      materials: [{}, { errors: { url: ["you dolt! you can't have a blank url"] } }],
+      materials: [{}, { errors: { url: ["you dolt! you can't have a blank url"], not_exist: ["well, ain't that a doozy"] } }],
       stages: [{ errors: { name: ["yay"] }, jobs: [
         { errors: { name: ["ruh-roh!"] }, tasks: [], environment_variables: [{}, { errors: { name: ["BAR? yes please!"] } }] },
         { tasks: [{ errors: { command: ["who are you?"] } }, {}] }
       ]}, { errors: { name: ["boo"], jobs: ["all them other stages are taking our jobs"] }, jobs: [] }]
-    });
+    }, "pipeline");
+
+    expect(unmatched.hasErrors()).toBe(true);
+    expect(unmatched.errorsForDisplay("pipeline.materials[1].notExist")).toBe("well, ain't that a doozy.");
 
     expect(pip.errors().errorsForDisplay("name")).toBe("this name is fugly.");
 

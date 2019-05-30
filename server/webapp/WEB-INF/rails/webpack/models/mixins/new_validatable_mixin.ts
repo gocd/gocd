@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 import * as _ from "lodash";
-import * as stream from "mithril/stream";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
+import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import * as s from "underscore.string";
 
 export interface ValidatorOptions {
@@ -194,20 +194,11 @@ export interface Validatable {
   errors: (container?: Errors) => Errors;
   isValid: () => boolean;
   validate: (attr?: string) => Errors;
-  consumeErrorsResponse: (response: any & ResponseWithErrors) => void;
 }
 
-export class ValidatableMixin implements Validatable {
-  private __errors                           = stream(new Errors());
+export class ValidatableMixin extends ErrorsConsumer implements Validatable, ErrorsConsumer {
   private __attrToValidators: any            = {};
   private __associationsToValidate: string[] = [];
-
-  errors(newVal?: Errors): Errors {
-    if (arguments.length > 0) {
-      this.__errors(newVal as Errors);
-    }
-    return this.__errors();
-  }
 
   clearErrors(attr?: string) {
     return attr ? this.errors().clear(attr) : this.errors().clear();
@@ -305,33 +296,6 @@ export class ValidatableMixin implements Validatable {
   validateAssociated(association: string): void {
     this.__associationsToValidate.push(association);
   }
-
-  // responsible for reading in an error response from the server and associating errors
-  // returned in the response back to the corresponding fields
-  consumeErrorsResponse(response: any & ResponseWithErrors) {
-    // subclasses are responsible for implementation; optional
-  }
-
-  addErrorsToAssociations(assoc: Validatable[], results?: ResponseWithErrors[]) {
-    if (!results) { return; }
-    for (let i = results.length - 1; i >= 0; i--) {
-      assoc[i].consumeErrorsResponse(results[i]);
-    }
-  }
-
-  addErrorsToModel(model: Validatable, result?: ResponseWithErrors) {
-    if (!result) { return; }
-    if (result.errors) {
-      for (const key of Object.keys(result.errors)) {
-        // by convention, we use camelcase for model attrs, but snakecase for JSON
-        model.errors().add(s.camelize(key, true), result.errors[key][0]);
-      }
-    }
-  }
 }
 
-interface ErrorMap {
-  [key: string]: string[];
-}
-
-export interface ResponseWithErrors { errors?: ErrorMap; }
+ValidatableMixin.prototype.errors = ErrorsConsumer.prototype.errors;

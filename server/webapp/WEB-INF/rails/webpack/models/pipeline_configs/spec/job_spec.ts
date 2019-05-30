@@ -58,11 +58,14 @@ describe("Job model", () => {
       new EnvironmentVariableConfig(false, "BAR", "RAB")
     ]);
 
-    job.consumeErrorsResponse({
+    const unmatched = job.consumeErrorsResponse({
       errors: { name: ["ruh-roh!"] },
-      tasks: [{ errors: { command: ["who are you?"] } }, {}],
+      tasks: [{ errors: { command: ["who are you?"], not_exist: ["well, ain't that a doozy"] } }, {}],
       environment_variables: [{}, { errors: { name: ["BAR? yes please!"] } }]
     });
+
+    expect(unmatched.hasErrors()).toBe(true);
+    expect(unmatched.errorsForDisplay("job.tasks[0].notExist")).toBe("well, ain't that a doozy.");
 
     expect(job.errors().errorsForDisplay("name")).toBe("ruh-roh!.");
 

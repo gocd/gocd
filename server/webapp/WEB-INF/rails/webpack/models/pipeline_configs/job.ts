@@ -21,7 +21,6 @@ import {Stream} from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {Task} from "models/pipeline_configs/task";
-import {JobConfigErrorResponse} from "./error_handling";
 
 export class Job extends ValidatableMixin {
   name: Stream<string>;
@@ -46,13 +45,5 @@ export class Job extends ValidatableMixin {
 
   toApiPayload() {
     return JsonUtils.toSnakeCasedObject(this);
-  }
-
-  consumeErrorsResponse(data: JobConfigErrorResponse) {
-    if (!data) { return; }
-
-    this.addErrorsToModel(this, data);
-    this.addErrorsToAssociations(this.tasks(), data.tasks);
-    this.addErrorsToAssociations(this.environmentVariables(), data.environment_variables);
   }
 }

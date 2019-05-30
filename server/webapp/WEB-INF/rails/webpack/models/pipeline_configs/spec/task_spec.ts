@@ -30,9 +30,12 @@ describe("Task", () => {
   it("adopts errors in server response", () => {
     const task = new ExecTask("whoami", []);
 
-    task.consumeErrorsResponse({
-      errors: { command: ["who are you?"] }
+    const unmatched = task.consumeErrorsResponse({
+      errors: { command: ["who are you?"], not_exist: ["well, ain't that a doozy"] }
     });
+
+    expect(unmatched.hasErrors()).toBe(true);
+    expect(unmatched.errorsForDisplay("execTask.notExist")).toBe("well, ain't that a doozy.");
 
     expect(task.attributes().errors().errorsForDisplay("command")).toBe("who are you?.");
   });

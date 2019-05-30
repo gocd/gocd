@@ -19,7 +19,6 @@ import * as _ from "lodash";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import {ResponseWithErrors} from "models/mixins/new_validatable_mixin";
 
 export class EnvironmentVariableConfig extends ValidatableMixin {
   name: Stream<string>    = stream();
@@ -32,13 +31,7 @@ export class EnvironmentVariableConfig extends ValidatableMixin {
     this.value(value);
     this.secure(secure);
 
-    this.validatePresenceOf("name");
-  }
-
-  consumeErrorsResponse(data: ResponseWithErrors) {
-    if (!data) { return; }
-
-    this.addErrorsToModel(this, data);
+    this.validatePresenceOf("name", { message: "Name is required" });
   }
 
   toApiPayload() {

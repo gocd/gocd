@@ -15,7 +15,6 @@
  */
 
 import {Errors} from "models/mixins/errors";
-import {ResponseWithErrors} from "models/mixins/new_validatable_mixin";
 import {Nameable, NameableSet} from "models/pipeline_configs/nameable_set";
 
 describe("NameableSet", () => {
@@ -140,7 +139,4 @@ class MockNameable implements Nameable {
   isValid(): boolean { return this._result; }
   validate(_?: string): Errors { return this._e; }
   errors(_?: Errors): Errors { return this._e; }
-
-  // tslint:disable-next-line
-  consumeErrorsResponse(data: ResponseWithErrors) {}
 }

@@ -32,7 +32,8 @@ import {
 } from "models/materials/serialization";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
-import {ResponseWithErrors, ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
+import {ErrorsConsumer} from "models/mixins/errors_consumer";
+import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 
 const s        = require("helpers/string-plus");
@@ -112,10 +113,8 @@ export class Material extends ValidatableMixin {
     return this.type() === "p4" ? this.attributes().port() : this.attributes().url();
   }
 
-  consumeErrorsResponse(data: ResponseWithErrors) {
-    if (!data) { return; }
-
-    this.attributes().consumeErrorsResponse(data);
+  errorContainerFor(subkey: string): ErrorsConsumer {
+    return "type" === subkey ? this : this.attributes();
   }
 
   toApiPayload() {
@@ -169,12 +168,6 @@ export abstract class MaterialAttributes extends ValidatableMixin {
       default:
         throw new Error(`Unknown material type ${material.type}`);
     }
-  }
-
-  consumeErrorsResponse(data: any & ResponseWithErrors) {
-    if (!data) { return; }
-
-    this.addErrorsToModel(this, data);
   }
 
   toJSON() {

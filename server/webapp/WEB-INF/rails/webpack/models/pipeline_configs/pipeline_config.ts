@@ -21,7 +21,6 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {Material} from "models/materials/types";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import {PipelineConfigErrorResponse} from "./error_handling";
 import {NameableSet} from "./nameable_set";
 import {Stage} from "./stage";
 
@@ -62,14 +61,6 @@ export class PipelineConfig extends ValidatableMixin {
 
   pause() {
     return ApiRequestBuilder.POST(SparkRoutes.pipelinePausePath(this.name()), ApiVersion.v1);
-  }
-
-  consumeErrorsResponse(data: PipelineConfigErrorResponse) {
-    if (!data) { return; }
-
-    this.addErrorsToModel(this, data);
-    this.addErrorsToAssociations(Array.from(this.materials()), data.materials);
-    this.addErrorsToAssociations(Array.from(this.stages()), data.stages);
   }
 
   toApiPayload(): any {

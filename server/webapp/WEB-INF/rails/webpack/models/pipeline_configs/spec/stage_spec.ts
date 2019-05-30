@@ -68,17 +68,20 @@ describe("Stage model", () => {
       new Job("doo", [new ExecTask("id", ["apache"])], [new EnvironmentVariableConfig(false, "BAR", "RAB")])
     ]);
 
-    stage.consumeErrorsResponse({
+    const unmatched = stage.consumeErrorsResponse({
       errors: { name: ["yay"] },
       jobs: [
         { errors: { name: ["ruh-roh!"] }, tasks: [{ errors: { command: ["who are you?"] } }], environment_variables: [{}] },
-        { tasks: [{}], environment_variables: [{ errors: { name: ["BAR? yes please!"] } }] }
+        { tasks: [{}], environment_variables: [{ errors: { name: ["BAR? yes please!"], not_exist: ["well, ain't that a doozy"] } }] }
       ]
     });
 
-    expect(stage.errors().errorsForDisplay("name")).toBe("yay.");
-    const [job1, job2] = Array.from(stage.jobs());
+    expect(unmatched.hasErrors()).toBe(true);
+    expect(unmatched.errorsForDisplay("stage.jobs[1].environmentVariables[0].notExist")).toBe("well, ain't that a doozy.");
 
+    expect(stage.errors().errorsForDisplay("name")).toBe("yay.");
+
+    const [job1, job2] = Array.from(stage.jobs());
     expect(job1.errors().errorsForDisplay("name")).toBe("ruh-roh!.");
     expect(job2.errors().hasErrors()).toBe(false);
 

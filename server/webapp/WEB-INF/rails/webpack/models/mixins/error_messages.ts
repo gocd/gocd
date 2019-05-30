@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import * as s from "underscore.string";
 
 export namespace ErrorMessages {
@@ -43,19 +44,4 @@ export namespace ErrorMessages {
   function humanize(str: string) {
     return s.capitalize(s.trim(s.underscored(str).replace(/_/g, " ")));
   }
-}
-
-export class Validatable {
-  errors: string[];
-
-  constructor() {
-    this.errors = [];
-  }
-
-  validatePresenceOf(attribute: string, message?: string) {
-    if (s.isBlank(attribute)) {
-      this.errors.push(attribute, message || ErrorMessages.mustBePresent(attribute));
-    }
-  }
-
 }

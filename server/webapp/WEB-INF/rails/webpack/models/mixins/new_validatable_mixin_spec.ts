@@ -16,9 +16,9 @@
 import * as _ from "lodash";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
+import {ErrorMessages} from "models/mixins/error_messages";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin, Validator, ValidatorOptions} from "models/mixins/new_validatable_mixin";
-import {ErrorMessages} from "models/mixins/validatable";
 import * as s from "underscore.string";
 
 describe("Validatable", () => {

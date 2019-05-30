@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 import * as _ from "lodash";
-import {Validatable} from "models/mixins/validatable";
 
 export interface ConfigValue {
   getValue(): string;
@@ -120,13 +119,12 @@ export class Configuration {
   }
 }
 
-export class PluginSettings extends Validatable {
+export class PluginSettings {
   public static readonly API_VERSION: string = "v1";
   readonly plugin_id: string;
   configuration: Configuration[];
 
   constructor(plugin_id: string, configuration?: Configuration[]) {
-    super();
     this.plugin_id     = plugin_id;
     this.configuration = configuration || [];
   }

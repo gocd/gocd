@@ -15,8 +15,8 @@
  */
 import * as _ from "lodash";
 import * as stream from "mithril/stream";
+import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
-import {ErrorMessages} from "models/mixins/validatable";
 import * as s from "underscore.string";
 
 export interface ValidatorOptions {

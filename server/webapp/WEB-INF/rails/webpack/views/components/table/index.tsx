@@ -181,7 +181,12 @@ export class Table extends MithrilComponent<Attrs, State> {
                   onmouseover={Table.disableEvent.bind(this)}>
                   <i className={styles.dragIcon}></i>
                 </td> : null}
-              {_.map(rows, ((row) => <td>{Table.renderedValue(row)}</td>))}
+              {_.map(rows,
+                     ((row) => <td draggable={false}
+                                   ondragstart={Table.disableEvent.bind(this)}
+                                   ondragend={Table.disableEvent.bind(this)}
+                                   ondragover={Table.disableEvent.bind(this)}>
+                       {Table.renderedValue(row)}</td>))}
             </tr>
           );
         }))

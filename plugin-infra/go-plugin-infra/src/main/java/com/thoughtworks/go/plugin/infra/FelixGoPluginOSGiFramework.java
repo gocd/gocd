@@ -99,13 +99,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public Bundle loadPlugin(GoPluginDescriptor pluginDescriptor) {
         File bundleLocation = pluginDescriptor.bundleLocation();
-        final Bundle bundle = getBundle(pluginDescriptor, bundleLocation);
-
-        if (!pluginDescriptor.isInvalid()) {
-            doPostBundleInstallActivities(pluginDescriptor, bundleLocation);
-        }
-
-        return bundle;
+        return getBundle(pluginDescriptor, bundleLocation);
     }
 
     private Bundle getBundle(GoPluginDescriptor pluginDescriptor, File bundleLocation) {
@@ -117,28 +111,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
                 handlePluginInvalidation(pluginDescriptor, bundleLocation);
             }
             return bundle;
-        } catch (Exception e) {
-            pluginDescriptor.markAsInvalid(asList(e.getMessage()), e);
-            LOGGER.error("Failed to load plugin: {}", bundleLocation, e);
-            handlePluginInvalidation(pluginDescriptor, bundleLocation);
-            throw new RuntimeException("Failed to load plugin: " + bundleLocation, e);
-        }
-    }
-
-    private void doPostBundleInstallActivities(GoPluginDescriptor pluginDescriptor, File bundleLocation) {
-        try {
-            for (PluginPostLoadHook pluginPostLoadHook : pluginPostLoadHooks) {
-                final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginDescriptor, getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
-                if (result.isAFailure()) {
-                    pluginDescriptor.markAsInvalid(singletonList(result.getMessage()), null);
-                    LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.getMessage()));
-                    return;
-                }
-            }
-
-            if (!pluginDescriptor.isInvalid()) {
-                IterableUtils.forEach(pluginChangeListeners, notifyPluginLoadedEvent(pluginDescriptor));
-            }
         } catch (Exception e) {
             pluginDescriptor.markAsInvalid(asList(e.getMessage()), e);
             LOGGER.error("Failed to load plugin: {}", bundleLocation, e);
@@ -252,7 +224,8 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         return !matchingServiceReferences.isEmpty();
     }
 
-    Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId) {
+    @Override
+    public Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId) {
         if (framework == null) {
             LOGGER.warn("[Plugin Framework] Plugins are not enabled, so cannot do an action on all implementations of {}", GoPlugin.class);
             return null;
@@ -323,9 +296,4 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
 
         return matchingServiceReferences.iterator().next();
     }
-
-    private Closure<PluginChangeListener> notifyPluginLoadedEvent(final GoPluginDescriptor pluginDescriptor) {
-        return o -> o.pluginLoaded(pluginDescriptor);
-    }
-
 }

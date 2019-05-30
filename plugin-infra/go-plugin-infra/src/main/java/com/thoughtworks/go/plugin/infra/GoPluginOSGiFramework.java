@@ -39,4 +39,5 @@ public interface GoPluginOSGiFramework {
 
     PluginPostLoadHook addPostLoadHook(PluginPostLoadHook pluginPostLoadHook);
 
+    Map<String, List<String>> getExtensionsInfoFromThePlugin(String pluginId);
 }

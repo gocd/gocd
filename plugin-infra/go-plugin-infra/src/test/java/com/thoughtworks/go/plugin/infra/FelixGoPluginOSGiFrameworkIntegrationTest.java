@@ -121,15 +121,6 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListenersWhenPluginLoaded() {
-        PluginChangeListener pluginChangeListener = mock(PluginChangeListener.class);
-        pluginOSGiFramework.addPluginChangeListener(pluginChangeListener);
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(PLUGIN_ID, null, null, null, descriptorBundleDir, true);
-        pluginOSGiFramework.loadPlugin(pluginDescriptor);
-        verify(pluginChangeListener).pluginLoaded(pluginDescriptor);
-    }
-
-    @Test
     public void shouldNotifyListenersWhenPluginUnLoaded() {
         PluginChangeListener pluginChangeListener = mock(PluginChangeListener.class);
         pluginOSGiFramework.addPluginChangeListener(pluginChangeListener);

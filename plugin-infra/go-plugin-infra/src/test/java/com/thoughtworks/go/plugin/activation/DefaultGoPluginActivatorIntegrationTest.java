@@ -125,7 +125,6 @@ public class DefaultGoPluginActivatorIntegrationTest {
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
         assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
-
     }
 
     @Test

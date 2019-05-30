@@ -84,17 +84,35 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
             });
           }
         }, (error: ErrorResponse) => {
+          const errFrag = document.createDocumentFragment();
+          errFrag.appendChild(document.createTextNode(error.message));
+          let unmatched;
+
           if (error.body) {
-            pipelineConfig.consumeErrorsResponse(JSON.parse(error.body).data);
+            unmatched = pipelineConfig.consumeErrorsResponse(JSON.parse(error.body).data);
             m.redraw();
           }
-          this.setError(error.message);
+
+          if (unmatched && unmatched.keys().length) {
+            const list = document.createElement("ol");
+
+            for (const key of unmatched.keys()) {
+              const item = document.createElement("li");
+              item.appendChild(document.createTextNode(`${key}: ${unmatched.errorsForDisplay(key)}`));
+              list.appendChild(item);
+            }
+
+            errFrag.appendChild(document.createTextNode(": "));
+            errFrag.appendChild(list);
+          }
+
+          this.setError(errFrag);
         });
       }).catch((reason) => {
         this.setError(reason);
       });
     } else {
-      this.setError("Please fix the validation errors above before proceeding.");
+      this.setError(document.createTextNode("Please fix the validation errors above before proceeding."));
     }
   }
 
@@ -102,8 +120,8 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
     return empty(document.querySelector(sel.errorResponse)!);
   }
 
-  private setError(text: string) {
-    this.clearError().textContent = text;
+  private setError(contents: Node) {
+    this.clearError().appendChild(contents);
   }
 }
 

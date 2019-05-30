@@ -92,7 +92,7 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
     return <div data-test-id="rules-widget">
       <h2>Rules </h2>
       <FlashMessage type={MessageType.info}
-                    message="Configuring Rules is required to utilize this Secret Configuration. In absence of any rules, the secret configuration is denied access of any GoCD entities."/>
+                    message="The default rule is to deny access to this secret configuration for all GoCD entities. Configure rules below to override that behavior."/>
       <div data-test-id="rules-table" className={styles.rulesTable}>
         <Table headers={RulesWidget.headers()}
                data={new RulesWidgetBody(vnode.attrs.rules,

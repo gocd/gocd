@@ -88,7 +88,7 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
       <FormHeader>
         <Form>
           <TextField label="Id"
-                     placeholder="Enter an Id for the config"
+                     placeholder="Enter any unique identifier"
                      property={this.entity().id}
                      errorText={this.entity().errors().errorsForDisplay("id")}
                      readonly={this.disableId}
@@ -108,8 +108,8 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
         <TextAreaField label={"Description"}
                        property={this.entity().description}
                        resizable={false}
-                       rows={5}
-                       size={TextAreaSize.MEDIUM}
+                       rows={1}
+                       size={TextAreaSize.MATCH_PARENT}
                        errorText={this.entity().errors().errorsForDisplay("description")}
                        placeholder="What's this secret config used for?"/>
       </div>

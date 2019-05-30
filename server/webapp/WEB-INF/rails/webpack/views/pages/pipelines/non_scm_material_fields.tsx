@@ -15,7 +15,7 @@
  */
 
 import * as Awesomplete from "awesomplete";
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
@@ -30,6 +30,11 @@ import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 interface Attrs {
   material: Material;
   cache: SuggestionCache;
+}
+
+interface State {
+  provider: SuggestionProvider;
+  stages: Stream<Option[]>;
 }
 
 // tslint:disable-next-line
@@ -65,28 +70,27 @@ class DependencySuggestionProvider extends SuggestionProvider {
   }
 }
 
-export class DependencyFields extends MithrilViewComponent<Attrs> {
-  private suggestions?: SuggestionProvider;
-  private EMPTY: Option[] = [{id: "", text: "-"}];
-  private stages: Stream<Option[]> = stream(this.EMPTY);
-
-  oninit(vnode: m.Vnode<Attrs, {}>) {
+export class DependencyFields extends MithrilComponent<Attrs, State> {
+  oninit(vnode: m.Vnode<Attrs, State>) {
     const mat = vnode.attrs.material.attributes() as DependencyMaterialAttributes;
     const cache = vnode.attrs.cache;
+    const EMPTY: Option[] = [{id: "", text: "-"}];
+    vnode.state.stages = stream(EMPTY);
 
-    this.suggestions = new DependencySuggestionProvider(vnode.attrs.cache);
-    this.stages = mat.pipeline.map<Option[]>((val: string) => {
+    vnode.state.provider = new DependencySuggestionProvider(vnode.attrs.cache);
+    vnode.state.stages = mat.pipeline.map<Option[]>((val: string) => {
       mat.stage("");
-      return val ? this.EMPTY.concat(cache.stages(val)) : [];
+      return val ? EMPTY.concat(cache.stages(val)) : [];
     });
   }
 
-  view(vnode: m.Vnode<Attrs, {}>): m.Children {
+  view(vnode: m.Vnode<Attrs, State>): m.Children {
     const mat = vnode.attrs.material.attributes() as DependencyMaterialAttributes;
+
     return [
-      <AutocompleteField label="Upstream Pipeline" property={mat.pipeline} errorText={this.errs(mat, "pipeline")} required={true} maxItems={25} css={css} provider={this.suggestions!}/>,
+      <AutocompleteField label="Upstream Pipeline" property={mat.pipeline} errorText={this.errs(mat, "pipeline")} required={true} maxItems={25} css={css} provider={vnode.state.provider}/>,
       <SelectField label="Upstream Stage" property={mat.stage} errorText={this.errs(mat, "stage")} required={true}>
-        <SelectFieldOptions selected={mat.stage()} items={this.stages()}/>
+        <SelectFieldOptions selected={mat.stage()} items={vnode.state.stages()}/>
       </SelectField>,
       <AdvancedSettings forceOpen={mat.errors().hasErrors("name")}>
         <TextField label="Material Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="A human-friendly label for this material" property={mat.name}/>

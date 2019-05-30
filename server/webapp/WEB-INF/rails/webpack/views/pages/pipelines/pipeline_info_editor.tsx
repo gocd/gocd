@@ -55,6 +55,5 @@ export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
       </AdvancedSettings>
       </Form>
     </FormBody>;
-
   }
 }

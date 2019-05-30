@@ -139,6 +139,7 @@ class PluginLoaderTest {
     @Test
     void shouldMarkThePluginAsInvalidAndUnloadItIfAnyPluginChangeListenerThrowsAnExceptionDuringLoad() throws BundleException {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        when(pluginDescriptor.bundle()).thenReturn(mock(Bundle.class));
         when(pluginDescriptor.isInvalid()).thenReturn(false);
         when(pluginDescriptor.getStatus()).thenReturn(new PluginStatus(PluginStatus.State.INVALID).setMessages(singletonList("error"), new RuntimeException("root cause")));
 
@@ -171,5 +172,38 @@ class PluginLoaderTest {
         pluginLoader.loadPlugin(pluginDescriptor);
 
         verifyZeroInteractions(changeListener, postLoadHook);
+    }
+
+    @Test
+    void shouldRunOtherUnloadListenersAndUnloadPluginBundleEvenIfAListenerFails() {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        when(pluginDescriptor.bundle()).thenReturn(mock(Bundle.class));
+
+        PluginChangeListener listenerWhichWorks1 = mock(PluginChangeListener.class, "Listener Which Works: 1");
+        PluginChangeListener listenerWhichWorks2 = mock(PluginChangeListener.class, "Listener Which Works: 2");
+        PluginChangeListener listenerWhichThrowsWhenUnloading = mock(PluginChangeListener.class, "Listener Which Throws");
+        doThrow(new RuntimeException("Fail!")).when(listenerWhichThrowsWhenUnloading).pluginUnLoaded(pluginDescriptor);
+
+        pluginLoader.addPluginChangeListener(listenerWhichWorks1);
+        pluginLoader.addPluginChangeListener(listenerWhichThrowsWhenUnloading);
+        pluginLoader.addPluginChangeListener(listenerWhichWorks2);
+
+        pluginLoader.unloadPlugin(pluginDescriptor);
+
+        verify(listenerWhichWorks1, times(1)).pluginUnLoaded(pluginDescriptor);
+        verify(listenerWhichThrowsWhenUnloading, times(1)).pluginUnLoaded(pluginDescriptor);
+        verify(listenerWhichWorks2, times(1)).pluginUnLoaded(pluginDescriptor);
+
+        verify(pluginOSGiFramework, times(1)).unloadPlugin(pluginDescriptor);
+    }
+
+    @Test
+    void shouldNotUnloadAPluginIfItsBundleIsNull() {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        when(pluginDescriptor.bundle()).thenReturn(null);
+
+        pluginLoader.unloadPlugin(pluginDescriptor);
+
+        verifyZeroInteractions(pluginOSGiFramework);
     }
 }

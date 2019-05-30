@@ -208,45 +208,6 @@ class FelixGoPluginOSGiFrameworkTest {
         }
     }
 
-    @Test
-    void shouldNotFailToUnloadAPluginWhenAPluginUnloadListenerFails() throws BundleException {
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        when(pluginDescriptor.bundle()).thenReturn(bundle);
-
-        PluginChangeListener listenerWhichThrowsWhenUnloading = mock(PluginChangeListener.class);
-        doThrow(new RuntimeException("Fail!")).when(listenerWhichThrowsWhenUnloading).pluginUnLoaded(pluginDescriptor);
-
-        spy.addPluginChangeListener(listenerWhichThrowsWhenUnloading);
-        spy.unloadPlugin(pluginDescriptor);
-
-        verify(bundle, times(1)).stop();
-        verify(bundle, times(1)).uninstall();
-    }
-
-    @Test
-    void shouldRunOtherUnloadListenersEvenIfOneFails() throws BundleException {
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        when(pluginDescriptor.bundle()).thenReturn(bundle);
-
-        PluginChangeListener listenerWhichWorks1 = mock(PluginChangeListener.class, "Listener Which Works: 1");
-        PluginChangeListener listenerWhichWorks2 = mock(PluginChangeListener.class, "Listener Which Works: 2");
-        PluginChangeListener listenerWhichThrowsWhenUnloading = mock(PluginChangeListener.class, "Listener Which Throws");
-        doThrow(new RuntimeException("Fail!")).when(listenerWhichThrowsWhenUnloading).pluginUnLoaded(pluginDescriptor);
-
-        spy.addPluginChangeListener(listenerWhichWorks1);
-        spy.addPluginChangeListener(listenerWhichThrowsWhenUnloading);
-        spy.addPluginChangeListener(listenerWhichWorks2);
-
-        spy.unloadPlugin(pluginDescriptor);
-
-        verify(listenerWhichWorks1, times(1)).pluginUnLoaded(pluginDescriptor);
-        verify(listenerWhichThrowsWhenUnloading, times(1)).pluginUnLoaded(pluginDescriptor);
-        verify(listenerWhichWorks2, times(1)).pluginUnLoaded(pluginDescriptor);
-
-        verify(bundle, times(1)).stop();
-        verify(bundle, times(1)).uninstall();
-    }
-
     @Nested
     class GetExtensionsInfoFromThePlugin {
         @Test

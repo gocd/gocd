@@ -121,18 +121,6 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     }
 
     @Test
-    public void shouldNotifyListenersWhenPluginUnLoaded() {
-        PluginChangeListener pluginChangeListener = mock(PluginChangeListener.class);
-        pluginOSGiFramework.addPluginChangeListener(pluginChangeListener);
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(PLUGIN_ID, null, null, null, descriptorBundleDir, true);
-        Bundle bundle = pluginOSGiFramework.loadPlugin(pluginDescriptor);
-        pluginDescriptor.setBundle(bundle);
-
-        pluginOSGiFramework.unloadPlugin(pluginDescriptor);
-        verify(pluginChangeListener).pluginUnLoaded(pluginDescriptor);
-    }
-
-    @Test
     public void shouldLoadAValidGoPluginOSGiBundleAndShouldBeDiscoverableThroughSymbolicNameFilter() throws Exception {
         Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginDescriptor(PLUGIN_ID, null, null, null, descriptorBundleDir, true));
 

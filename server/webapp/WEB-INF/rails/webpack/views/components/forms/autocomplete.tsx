@@ -36,6 +36,10 @@ interface Attrs {
   autoEvaluate?: boolean;
 }
 
+interface State {
+  _asm: Awesomplete;
+}
+
 type AutoCompAttrs = TextFieldAttrs & Attrs & Awesomplete.Options;
 
 function onlyAwesompleteOpts(config: any): Awesomplete.Options {
@@ -74,20 +78,15 @@ export abstract class SuggestionProvider {
 }
 
 export class AutocompleteField extends MithrilViewComponent<AutoCompAttrs> {
-  private _asm?: Awesomplete;
-  private property?: (newValue?: string) => string;
-
-  ensureInited(vnode: m.VnodeDOM<AutoCompAttrs, {}>): void {
+  ensureInited(vnode: m.VnodeDOM<AutoCompAttrs, State>): void {
     const css     = vnode.attrs.css || defaultStyles;
-    const self    = this;
-    this.property = vnode.attrs.property;
 
     vnode.dom.classList.add(css.awesomplete);
 
-    if (!this._asm && vnode.dom) {
+    if (!vnode.state._asm && vnode.dom) {
       const input = Awesomplete.$("input", vnode.dom!) as HTMLInputElement;
 
-      this._asm = new Awesomplete(input, _.assign(
+      const asm = new Awesomplete(input, _.assign(
         {
           sort: false,
           minChars: 0,
@@ -96,44 +95,41 @@ export class AutocompleteField extends MithrilViewComponent<AutoCompAttrs> {
           },
           replace(text: Awesomplete.Suggestion) {
             input.value = text.toString();
-            self.updateProperty(input.value);
+            vnode.attrs.property(input.value);
             m.redraw();
           }
         }, onlyAwesompleteOpts(vnode.attrs)));
 
-      this._asm.status.classList.remove("visually-hidden");
-      this._asm.status.classList.add(css.visuallyHidden);
+      asm.status.classList.remove("visually-hidden");
+      asm.status.classList.add(css.visuallyHidden);
 
       vnode.attrs.provider.onData((data: Awesomplete.Suggestion[]) => {
-        this._asm!.list = data;
+        asm.list = data;
         if (vnode.attrs.autoEvaluate === undefined || vnode.attrs.autoEvaluate === true) {
-          this._asm!.evaluate();
+          asm.evaluate();
         }
       });
       vnode.attrs.provider.update();
+      vnode.state._asm = asm;
     }
   }
 
-  oncreate(vnode: m.VnodeDOM<AutoCompAttrs, {}>) {
+  oncreate(vnode: m.VnodeDOM<AutoCompAttrs, State>) {
     this.ensureInited(vnode);
   }
 
-  onupdate(vnode: m.VnodeDOM<AutoCompAttrs, {}>) {
+  onupdate(vnode: m.VnodeDOM<AutoCompAttrs, State>) {
     this.ensureInited(vnode);
   }
 
-  onremove(vnode: m.VnodeDOM<AutoCompAttrs, this>): any {
-    if (this._asm) {
-      this._asm.destroy();
+  onremove(vnode: m.VnodeDOM<AutoCompAttrs, State>): any {
+    if (vnode.state._asm) {
+      vnode.state._asm.destroy();
     }
   }
 
   view(vnode: m.Vnode<AutoCompAttrs, {}>): m.Children | void | null {
     const attrs = onlyTextFieldAttrs(vnode.attrs);
     return <TextField {...attrs} />;
-  }
-
-  private updateProperty(value: string): void {
-    this.property!(value);
   }
 }

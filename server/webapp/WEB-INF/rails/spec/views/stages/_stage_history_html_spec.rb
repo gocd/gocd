@@ -185,7 +185,7 @@ describe "_stage_history.html.erb" do
 
     Capybara.string(response.body).find(".stage_history").tap do |f|
       expect(f).to have_selector("div.config_change.counter_6_1 span a", :text => "Config Changed")
-      expect(f).to have_selector("div.config_change.counter_6_1 span a[onclick=\"Modalbox.show('/config_change/between/md5-test/and/changed-md5-test', {overlayClose: false, title: 'Config Changes'})\"]")
+      expect(f).to have_selector("div.config_change.counter_6_1 span a[onclick=\"Modalbox.show('/admin/config_change/between/md5-test/and/changed-md5-test', {overlayClose: false, title: 'Config Changes'})\"]")
       (1..5).each do |i|
         expect(f).to_not have_selector("div.config_change.counter_#{i}_1 span")
       end
@@ -204,7 +204,7 @@ describe "_stage_history.html.erb" do
       expect(f).to have_selector("div.config_change.counter_1_1 span", :text => "Config Changed")
       expect(f).to_not have_selector ("div.config_change.counter_1_1 span a")
       expect(f).to have_selector("div.config_change.counter_10_1 span a", :text => "Config Changed")
-      expect(f).to have_selector("div.config_change.counter_10_1 span a[onclick=\"Modalbox.show('/config_change/between/md5-test/and/changed-md5', {overlayClose: false, title: 'Config Changes'})\"]")
+      expect(f).to have_selector("div.config_change.counter_10_1 span a[onclick=\"Modalbox.show('/admin/config_change/between/md5-test/and/changed-md5', {overlayClose: false, title: 'Config Changes'})\"]")
     end
   end
 

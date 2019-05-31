@@ -27,7 +27,7 @@ describe 'stages/stage.html.erb' do
 
   before(:each) do
     allow(view).to receive(:is_user_an_admin?).and_return(true)
-    allow(view).to receive(:config_change_path)
+    allow(view).to receive(:admin_config_change_path)
     @system_environment = double('system environment')
 
     in_params :pipeline_name => "pipeline_name", :stage_name => "stage_name", :pipeline_counter => 10, :stage_counter => 3

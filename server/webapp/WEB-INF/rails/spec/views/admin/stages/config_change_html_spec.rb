@@ -16,7 +16,7 @@
 
 require 'rails_helper'
 
-describe 'stages/config_change.html.erb' do
+describe 'admin/stages/config_change.html.erb' do
 
   it "should display config changes" do
     assign :changes, "changes_string"

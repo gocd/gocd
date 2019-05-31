@@ -18,7 +18,6 @@ class StagesController < ApplicationController
   helper :all
   include ApplicationHelper
   include StagesHelper
-  include AuthenticationHelper
 
   STAGE_DETAIL_ACTIONS = [:overview, :pipeline, :materials, :jobs, :rerun_jobs, :stats, :stage_config]
   BASE_TIME = Time.parse("00:00:00")
@@ -28,7 +27,6 @@ class StagesController < ApplicationController
   before_action :load_stage_history, :only => STAGE_DETAIL_ACTIONS - [:pipeline, :stats]
   before_action :load_current_config_version, :only => STAGE_DETAIL_ACTIONS << :history
   before_action :load_pipeline_instance, :only => :redirect_to_first_stage
-  before_action :check_admin_user_and_403, only: [:config_change]
 
   STAGE_HISTORY_PAGE_SIZE = 10
 
@@ -64,11 +62,6 @@ class StagesController < ApplicationController
   def stage_config #_need_to_rename #/Users/jyoti/projects/mygocd/server/webapp/WEB-INF/rails/gems/jruby/1.9/gems/actionpack-4.0.4/lib/action_controller/test_case.rb line 656
     @ran_with_config_revision = go_config_service.getConfigAtVersion(@stage.getStage().getConfigVersion())
     render_stage
-  end
-
-  def config_change
-    @changes = go_config_service.configChangesFor(params[:later_md5], params[:earlier_md5], result = HttpLocalizedOperationResult.new)
-    @config_change_error_message = result.isSuccessful ? ('This is the first entry in the config versioning. Please refer config tab to view complete configuration during this run.' if @changes == nil) : result.message()
   end
 
   def materials

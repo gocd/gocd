@@ -12,7 +12,7 @@
             <% current_config_version = stage_in_stage_history.getConfigVersion() -%>
             <div class="config_change <%= "counter_#{stage_in_stage_history.getIdentifier().getPipelineCounter()}_#{stage_in_stage_history.getIdentifier().getStageCounter()}"-%>">
                <% if is_user_an_admin? && current_config_version != nil %>
-                    <% span_text = link_to("Config Changed", "#", :onclick => "Modalbox.show('#{config_change_path(:later_md5 => later_config_version, :earlier_md5 => current_config_version)}', {overlayClose: false, title: 'Config Changes'})") %>
+                    <% span_text = link_to("Config Changed", "#", :onclick => "Modalbox.show('#{admin_config_change_path(:later_md5 => later_config_version, :earlier_md5 => current_config_version)}', {overlayClose: false, title: 'Config Changes'})") %>
                 <% else %>
                     <% span_text = "Config Changed" %>
                 <% end %>

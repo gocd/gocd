@@ -16,7 +16,9 @@
 @import "../../global/common";
 
 .width-small {
-  width: 320px;
+  textarea {
+    width: 320px;
+  }
 }
 
 .info-icon {

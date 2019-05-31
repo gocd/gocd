@@ -34,7 +34,6 @@ import org.osgi.framework.ServiceReference;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.zip.ZipInputStream;
 
@@ -42,8 +41,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class FelixGoPluginOSGiFrameworkIntegrationTest {
     @ClassRule
@@ -144,12 +141,9 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginDescriptor(PLUGIN_ID, null, null, null, errorGeneratingDescriptorBundleDir, true));
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
-        ActionWithReturn<GoPlugin, Object> action = new ActionWithReturn<GoPlugin, Object>() {
-            @Override
-            public Object execute(GoPlugin goPlugin, GoPluginDescriptor goPluginDescriptor) {
-                goPlugin.pluginIdentifier();
-                return null;
-            }
+        ActionWithReturn<GoPlugin, Object> action = (goPlugin, goPluginDescriptor) -> {
+            goPlugin.pluginIdentifier();
+            return null;
         };
 
         try {
@@ -167,13 +161,10 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         registry.loadPlugin(descriptor);
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
-        ActionWithReturn<GoPlugin, Object> action = new ActionWithReturn<GoPlugin, Object>() {
-            @Override
-            public Object execute(GoPlugin plugin, GoPluginDescriptor pluginDescriptor) {
-                assertThat(pluginDescriptor, is(descriptor));
-                plugin.pluginIdentifier();
-                return null;
-            }
+        ActionWithReturn<GoPlugin, Object> action = (plugin, pluginDescriptor) -> {
+            assertThat(pluginDescriptor, is(descriptor));
+            plugin.pluginIdentifier();
+            return null;
         };
         pluginOSGiFramework.doOn(GoPlugin.class, "testplugin.descriptorValidator", "notification", action);
     }
@@ -198,14 +189,15 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     }
 
     @Test
-    public void shouldMarkAPluginInvalidAnUnloadPluginIfAtLoadOfAnyExtensionPointInItFails() throws Exception {
+    public void shouldMarkAPluginInvalidIfAtLoadOfAnyExtensionPointInItFails() {
         String id = "com.tw.go.exception.throwing.at.loadplugin";
         GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(id, null, null, null, exceptionThrowingAtLoadDescriptorBundleDir, true);
         registry.loadPlugin(pluginDescriptor);
         assertThat(pluginDescriptor.isInvalid(), is(false));
-        Bundle bundle = pluginOSGiFramework.loadPlugin(pluginDescriptor);
+
+        pluginOSGiFramework.loadPlugin(pluginDescriptor);
+
         assertThat(pluginDescriptor.isInvalid(), is(true));
-        assertThat(bundle.getState(), is(Bundle.UNINSTALLED));
     }
 
     @Test
@@ -267,7 +259,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
         return new File(getClass().getClassLoader().getResource("defaultFiles/" + filePath).getFile());
     }
 
-    private File explodeBundleIntoDirectory(ZipInputStream src, String destinationDir) throws IOException, URISyntaxException {
+    private File explodeBundleIntoDirectory(ZipInputStream src, String destinationDir) throws IOException {
         File destinationPluginBundleLocation = temporaryFolder.newFolder(destinationDir);
         new ZipUtil().unzip(src, destinationPluginBundleLocation);
         return destinationPluginBundleLocation;

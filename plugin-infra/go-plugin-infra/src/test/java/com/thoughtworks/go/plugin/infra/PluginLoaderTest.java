@@ -32,6 +32,7 @@ import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -141,7 +142,7 @@ class PluginLoaderTest {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         when(pluginDescriptor.bundle()).thenReturn(mock(Bundle.class));
         when(pluginDescriptor.isInvalid()).thenReturn(false);
-        when(pluginDescriptor.getStatus()).thenReturn(new PluginStatus(PluginStatus.State.INVALID).setMessages(singletonList("error"), new RuntimeException("root cause")));
+        when(pluginDescriptor.getStatus()).thenReturn(invalidPluginStatus());
 
         final PluginChangeListener changeListener = mock(PluginChangeListener.class);
         doThrow(new RuntimeException("some error")).when(changeListener).pluginLoaded(pluginDescriptor);
@@ -165,13 +166,17 @@ class PluginLoaderTest {
 
         when(pluginOSGiFramework.loadPlugin(pluginDescriptor)).thenReturn(mock(Bundle.class));
         when(pluginDescriptor.isInvalid()).thenReturn(true);
+        when(pluginDescriptor.bundle()).thenReturn(mock(Bundle.class));
+        when(pluginDescriptor.getStatus()).thenReturn(invalidPluginStatus());
 
         pluginLoader.addPluginChangeListener(changeListener);
         pluginLoader.addPluginPostLoadHook(postLoadHook);
 
         pluginLoader.loadPlugin(pluginDescriptor);
 
-        verifyZeroInteractions(changeListener, postLoadHook);
+        verifyZeroInteractions(postLoadHook);
+        verify(changeListener, times(0)).pluginLoaded(pluginDescriptor);
+        verify(changeListener, times(1)).pluginUnLoaded(pluginDescriptor);
     }
 
     @Test
@@ -205,5 +210,41 @@ class PluginLoaderTest {
         pluginLoader.unloadPlugin(pluginDescriptor);
 
         verifyZeroInteractions(pluginOSGiFramework);
+    }
+
+    @Test
+    void shouldUnloadPluginIfBundleFailsToLoad() {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        when(pluginDescriptor.isInvalid()).thenReturn(true);
+        when(pluginDescriptor.bundle()).thenReturn(mock(Bundle.class));
+        when(pluginDescriptor.getStatus()).thenReturn(invalidPluginStatus());
+
+        pluginLoader.loadPlugin(pluginDescriptor);
+
+        verify(pluginOSGiFramework, times(1)).unloadPlugin(pluginDescriptor);
+    }
+
+    @Test
+    void shouldUnloadPluginIfBundleThrowsExceptionDuringLoad() {
+        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        when(pluginDescriptor.isInvalid()).thenReturn(true);
+        when(pluginDescriptor.bundle()).thenReturn(mock(Bundle.class));
+        when(pluginDescriptor.getStatus()).thenReturn(invalidPluginStatus());
+
+        final UnsupportedOperationException someRuntimeException = new UnsupportedOperationException("Ouch!");
+        when(pluginOSGiFramework.loadPlugin(pluginDescriptor)).thenThrow(someRuntimeException);
+
+        try {
+            pluginLoader.loadPlugin(pluginDescriptor);
+        } catch (RuntimeException e) {
+            assertThat(e.getMessage(), containsString("Failed to load plugin"));
+        }
+
+        verify(pluginDescriptor).markAsInvalid(eq(singletonList("Ouch!")), eq(someRuntimeException));
+        verify(pluginOSGiFramework, times(1)).unloadPlugin(pluginDescriptor);
+    }
+
+    private PluginStatus invalidPluginStatus() {
+        return new PluginStatus(PluginStatus.State.INVALID).setMessages(singletonList("error"), new RuntimeException("root cause"));
     }
 }

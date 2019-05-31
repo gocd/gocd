@@ -63,7 +63,7 @@ export class SecretConfigsPage extends Page<null, State> {
                                                    "",
                                                    id,
                                                    new Configurations([]),
-                                                   new Rules(stream(new Rule("deny", "refer", "pipeline_group", "")))),
+                                                   new Rules(stream(new Rule("deny", "refer", "*", "*")))),
                                   vnode.state.pluginInfos(),
                                   vnode.state.onSuccessfulSave, vnode.state.resourceAutocompleteHelper()).render();
     };

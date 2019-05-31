@@ -75,6 +75,8 @@ export class RulesWidget extends MithrilViewComponent<AutoCompleteAttrs> {
         id: "", text: "Select"
       }
       , {
+        id: "*", text: "All"
+      }, {
         id: "pipeline_group", text: "Pipeline Group"
       }, {
         id: "environment", text: "Environment"

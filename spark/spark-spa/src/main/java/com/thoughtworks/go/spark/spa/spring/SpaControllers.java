@@ -46,12 +46,13 @@ public class SpaControllers implements SparkSpringController {
                           GoConfigService goConfigService,
                           AuthorizationExtensionCacheService authorizationExtensionCacheService,
                           SecurityAuthConfigService securityAuthConfigService,
-                          BackupService backupService,  FeatureToggleService featureToggleService,
-                          Clock clock) {
+                          BackupService backupService, FeatureToggleService featureToggleService,
+                          Clock clock, ArtifactsDirHolder artifactsDirHolder, SystemService systemService) {
 
         LayoutTemplateProvider defaultTemplate = () -> DEFAULT_LAYOUT_PATH;
         LayoutTemplateProvider componentTemplate = () -> COMPONENT_LAYOUT_PATH;
 
+        sparkControllers.add(new ServerInfoController(authenticationHelper, templateEngineFactory.create(ServerInfoController.class, () -> COMPONENT_LAYOUT_PATH), artifactsDirHolder, systemService, pipelineConfigService));
         sparkControllers.add(new LogoutPageController(templateEngineFactory.create(LogoutPageController.class, () -> COMPONENT_LAYOUT_PATH), new LoginLogoutHelper(goConfigService, AuthorizationMetadataStore.instance())));
         sparkControllers.add(new LoginPageController(templateEngineFactory.create(LoginPageController.class, () -> COMPONENT_LAYOUT_PATH), new LoginLogoutHelper(goConfigService, AuthorizationMetadataStore.instance()), securityService, clock, systemEnvironment));
         sparkControllers.add(new AccessTokensController(authenticationHelper, authorizationExtensionCacheService, securityAuthConfigService, templateEngineFactory.create(AccessTokensController.class, () -> COMPONENT_LAYOUT_PATH)));
@@ -71,7 +72,7 @@ public class SpaControllers implements SparkSpringController {
         sparkControllers.add(new ElasticProfilesController(authenticationHelper, templateEngineFactory.create(ElasticProfilesController.class, componentTemplate)));
         sparkControllers.add(new BackupsController(authenticationHelper, templateEngineFactory.create(BackupsController.class, componentTemplate), backupService));
         sparkControllers.add(new PipelinesController(authenticationHelper, templateEngineFactory.create(PipelinesController.class, componentTemplate)));
-        sparkControllers.add(new SecretConfigsController(authenticationHelper,featureToggleService, templateEngineFactory.create(SecretConfigsController.class, componentTemplate)));
+        sparkControllers.add(new SecretConfigsController(authenticationHelper, featureToggleService, templateEngineFactory.create(SecretConfigsController.class, componentTemplate)));
     }
 
     @Override

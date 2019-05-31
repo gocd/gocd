@@ -107,8 +107,8 @@ export abstract class SecretConfigModal extends EntityModal<SecretConfig> {
       <div className={styles.widthSmall}>
         <TextAreaField label={"Description"}
                        property={this.entity().description}
-                       resizable={false}
-                       rows={1}
+                       resizable={true}
+                       rows={2}
                        size={TextAreaSize.MATCH_PARENT}
                        errorText={this.entity().errors().errorsForDisplay("description")}
                        placeholder="What's this secret config used for?"/>

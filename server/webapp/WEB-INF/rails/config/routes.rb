@@ -32,8 +32,6 @@ Rails.application.routes.draw do
   # This is used to generate _url and _path in application_helper#url_for_path
   get '/', to: redirect('/go/pipelines'), as: :root
 
-  get "about", controller: :about, action: :show, as: :about
-
   get "admin/pipelines/snippet" => "admin/pipelines_snippet#index", as: :pipelines_snippet
   get "admin/pipelines/snippet/:group_name" => "admin/pipelines_snippet#show", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_show
   get "admin/pipelines/snippet/:group_name/edit" => "admin/pipelines_snippet#edit", constraints: {group_name: GROUP_NAME_FORMAT}, as: :pipelines_snippet_edit

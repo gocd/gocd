@@ -21,9 +21,12 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.CreateConfigRepoCommand;
 import com.thoughtworks.go.config.update.DeleteConfigRepoCommand;
 import com.thoughtworks.go.config.update.UpdateConfigRepoCommand;
+import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
@@ -35,16 +38,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.function.Predicate;
+
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
 @Service
 public class ConfigRepoService {
+    public static final Logger LOGGER = LoggerFactory.getLogger(PackageDefinitionService.class);
     private final GoConfigService goConfigService;
     private SecurityService securityService;
     private EntityHashingService entityHashingService;
     private ConfigRepoExtension configRepoExtension;
-    public static final Logger LOGGER = LoggerFactory.getLogger(PackageDefinitionService.class);
 
     @Autowired
     public ConfigRepoService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, ConfigRepoExtension configRepoExtension,
@@ -63,23 +68,24 @@ public class ConfigRepoService {
         });
     }
 
-    public ConfigRepoConfig getConfigRepo(String repoId) {
-        return goConfigService.getConfigForEditing().getConfigRepos().getConfigRepo(repoId);
+    public PipelineGroups pipelinesDefinedBy(ConfigRepoConfig repo) {
+        return goConfigService.cruiseConfig().getPartials().parallelStream().
+                filter(definedByRepo(repo)).findFirst().
+                orElse(new PartialConfig(new PipelineGroups())).getGroups();
     }
 
-    private void update(Username username, String repoId, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
-        try {
-            goConfigService.updateConfig(command, username);
-        } catch (Exception e) {
-            if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
-                result.unprocessableEntity(entityConfigValidationFailed(ConfigRepoConfig.class.getAnnotation(ConfigTag.class).value(), repoId, e.getMessage()));
-            } else {
-                if (!result.hasMessage()) {
-                    LOGGER.error(e.getMessage(), e);
-                    result.internalServerError(saveFailedWithReason("An error occurred while saving the package config. Please check the logs for more information."));
-                }
-            }
-        }
+    private Predicate<PartialConfig> definedByRepo(ConfigRepoConfig repo) {
+        return (part) -> part.getOrigin() instanceof RepoConfigOrigin &&
+                ((RepoConfigOrigin) part.getOrigin()).getConfigRepo().equals(repo);
+    }
+
+    public GoConfigService getGoConfigService() {
+
+        return goConfigService;
+    }
+
+    public ConfigRepoConfig getConfigRepo(String repoId) {
+        return goConfigService.getConfigForEditing().getConfigRepos().getConfigRepo(repoId);
     }
 
     public ConfigReposConfig getConfigRepos() {
@@ -115,6 +121,21 @@ public class ConfigRepoService {
         update(username, newConfigRepo.getId(), result, command);
         if (result.isSuccessful()) {
             result.setMessage("The config repo '" + repoIdToUpdate + "' was updated successfully.");
+        }
+    }
+
+    private void update(Username username, String repoId, HttpLocalizedOperationResult result, EntityConfigUpdateCommand command) {
+        try {
+            goConfigService.updateConfig(command, username);
+        } catch (Exception e) {
+            if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
+                result.unprocessableEntity(entityConfigValidationFailed(ConfigRepoConfig.class.getAnnotation(ConfigTag.class).value(), repoId, e.getMessage()));
+            } else {
+                if (!result.hasMessage()) {
+                    LOGGER.error(e.getMessage(), e);
+                    result.internalServerError(saveFailedWithReason("An error occurred while saving the package config. Please check the logs for more information."));
+                }
+            }
         }
     }
 }

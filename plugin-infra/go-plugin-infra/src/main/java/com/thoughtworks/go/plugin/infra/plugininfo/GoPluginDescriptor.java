@@ -192,6 +192,10 @@ public class GoPluginDescriptor implements PluginDescriptor {
         return targetGoVersion.compareTo(currentGoVersion) <= 0;
     }
 
+    public GoPluginBundleDescriptor bundleDescriptor() {
+        return new GoPluginBundleDescriptor(this);
+    }
+
     public static class About implements PluginDescriptor.About {
         private String name;
         private String version;

@@ -32,11 +32,11 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-public class GoPluginDescriptorBuilderTest {
+public class GoPluginBundleDescriptorBuilderTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     private static final String TESTPLUGIN_ID = "testplugin.descriptorValidator";
-    private GoPluginDescriptorBuilder goPluginDescriptorBuilder;
+    private GoPluginBundleDescriptorBuilder goPluginBundleDescriptorBuilder;
     private File pluginDirectory;
     private File bundleDirectory;
 
@@ -46,8 +46,8 @@ public class GoPluginDescriptorBuilderTest {
 
         bundleDirectory = temporaryFolder.newFolder("bundleDir");
 
-        goPluginDescriptorBuilder = spy(new GoPluginDescriptorBuilder());
-        doReturn(bundleDirectory).when(goPluginDescriptorBuilder).bundlePath();
+        goPluginBundleDescriptorBuilder = spy(new GoPluginBundleDescriptorBuilder());
+        doReturn(bundleDirectory).when(goPluginBundleDescriptorBuilder).bundlePath();
 
     }
 
@@ -57,7 +57,8 @@ public class GoPluginDescriptorBuilderTest {
         copyPluginToThePluginDirectory(pluginDirectory, pluginJarName);
         File pluginJarFile = new File(pluginDirectory, pluginJarName);
 
-        GoPluginDescriptor descriptor = goPluginDescriptorBuilder.build(pluginJarFile, true);
+        final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginJarFile, true);
+        GoPluginDescriptor descriptor = bundleDescriptor.descriptor();
 
         GoPluginDescriptor expectedDescriptor = buildExpectedDescriptor
                 (pluginJarName, pluginJarFile.getAbsolutePath());
@@ -72,7 +73,8 @@ public class GoPluginDescriptorBuilderTest {
         copyPluginToThePluginDirectory(pluginDirectory, pluginJarName);
         File pluginJarFile = new File(pluginDirectory, pluginJarName);
 
-        GoPluginDescriptor descriptor = goPluginDescriptorBuilder.build(pluginJarFile, true);
+        final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginJarFile, true);
+        GoPluginDescriptor descriptor = bundleDescriptor.descriptor();
 
         GoPluginDescriptor expectedDescriptor = buildXMLSchemaErrorDescriptor(pluginJarName);
         assertThat(descriptor, is(expectedDescriptor));
@@ -87,7 +89,8 @@ public class GoPluginDescriptorBuilderTest {
         copyPluginToThePluginDirectory(pluginDirectory, pluginJarName);
         File pluginJarFile = new File(pluginDirectory, pluginJarName);
 
-        GoPluginDescriptor descriptor = goPluginDescriptorBuilder.build(pluginJarFile, false);
+        final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginJarFile, false);
+        GoPluginDescriptor descriptor = bundleDescriptor.descriptor();
 
         assertThat(descriptor.isInvalid(), is(false));
         assertThat(descriptor.id(), is(pluginJarName));
@@ -95,7 +98,7 @@ public class GoPluginDescriptorBuilderTest {
 
     @Test(expected = RuntimeException.class)
     public void shouldThrowExceptionForInvalidPluginIfThePluginJarDoesNotExist() throws Exception {
-        goPluginDescriptorBuilder.build(new File(pluginDirectory, "invalid"), true);
+        goPluginBundleDescriptorBuilder.build(new File(pluginDirectory, "invalid"), true);
     }
 
     private void copyPluginToThePluginDirectory(File pluginDir, String destinationFilenameOfPlugin) throws IOException, URISyntaxException {

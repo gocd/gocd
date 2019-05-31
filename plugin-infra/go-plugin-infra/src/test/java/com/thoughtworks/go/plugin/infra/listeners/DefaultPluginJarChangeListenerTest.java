@@ -52,7 +52,7 @@ public class DefaultPluginJarChangeListenerTest {
     private DefaultPluginJarChangeListener listener;
     private PluginLoader pluginLoader;
     private SystemEnvironment systemEnvironment;
-    private GoPluginDescriptorBuilder goPluginDescriptorBuilder;
+    private GoPluginBundleDescriptorBuilder goPluginBundleDescriptorBuilder;
 
     @Before
     public void setUp() throws Exception {
@@ -62,13 +62,13 @@ public class DefaultPluginJarChangeListenerTest {
         registry = mock(DefaultPluginRegistry.class);
         osgiManifestGenerator = mock(GoPluginOSGiManifest.DefaultGoPluginOSGiManifestCreator.class);
         pluginLoader = mock(PluginLoader.class);
-        goPluginDescriptorBuilder = mock(GoPluginDescriptorBuilder.class);
+        goPluginBundleDescriptorBuilder = mock(GoPluginBundleDescriptorBuilder.class);
         systemEnvironment = mock(SystemEnvironment.class);
         when(systemEnvironment.get(PLUGIN_ACTIVATOR_JAR_PATH)).thenReturn("defaultFiles/go-plugin-activator.jar");
         when(systemEnvironment.get(PLUGIN_BUNDLE_PATH)).thenReturn(bundleDir.getAbsolutePath());
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Linux");
 
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginDescriptorBuilder, systemEnvironment);
+        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
     }
 
     @Test
@@ -79,7 +79,7 @@ public class DefaultPluginJarChangeListenerTest {
 
         copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = GoPluginDescriptor.usingId(pluginId, pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true);
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptor));
         when(registry.getPluginByIdOrFileName(pluginId, PLUGIN_JAR_FILE_NAME)).thenReturn(null);
         doNothing().when(registry).loadPlugin(descriptor);
 
@@ -104,7 +104,7 @@ public class DefaultPluginJarChangeListenerTest {
 
         copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true);
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptor));
         doNothing().when(registry).loadPlugin(descriptor);
 
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
@@ -138,7 +138,7 @@ public class DefaultPluginJarChangeListenerTest {
         when(newDescriptor.fileName()).thenReturn(pluginJarFileName);
         when(newDescriptor.isCurrentOSValidForThisPlugin(systemEnvironment.getOperatingSystemFamilyName())).thenReturn(true);
         when(newDescriptor.isCurrentGocdVersionValidForThisPlugin()).thenReturn(true);
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(newDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(newDescriptor));
 
         when(registry.getPluginByIdOrFileName(pluginId, pluginJarFileName)).thenReturn(oldDescriptor);
         when(registry.unloadPlugin(newDescriptor)).thenReturn(oldDescriptor);
@@ -187,7 +187,7 @@ public class DefaultPluginJarChangeListenerTest {
 
         GoPluginDescriptor descriptorForInvalidPlugin = GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true).markAsInvalid(
                 asList("For a test"), null);
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptorForInvalidPlugin);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptorForInvalidPlugin));
         doNothing().when(registry).loadPlugin(descriptorForInvalidPlugin);
 
 
@@ -215,7 +215,7 @@ public class DefaultPluginJarChangeListenerTest {
         Bundle oldBundle = mock(Bundle.class);
         GoPluginDescriptor oldPluginDescriptor = GoPluginDescriptor.usingId("some.old.id", "some/path/to/plugin.jar", bundleDirectoryForOldPlugin, true).setBundle(oldBundle);
 
-        when(goPluginDescriptorBuilder.build(pluginFile, true)).thenReturn(descriptorForInvalidPlugin);
+        when(goPluginBundleDescriptorBuilder.build(pluginFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptorForInvalidPlugin));
         when(registry.getPlugin(pluginId)).thenReturn(oldPluginDescriptor);
         when(registry.unloadPlugin(descriptorForInvalidPlugin)).thenReturn(oldPluginDescriptor);
         doNothing().when(registry).loadPlugin(descriptorForInvalidPlugin);
@@ -243,9 +243,9 @@ public class DefaultPluginJarChangeListenerTest {
 
         copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("some.old.id", pluginJarFile.getAbsolutePath(), bundleDirectory, true);
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptor));
 
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginDescriptorBuilder, systemEnvironment);
+        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
     }
 
@@ -257,7 +257,7 @@ public class DefaultPluginJarChangeListenerTest {
         when(pluginJarFile.getName()).thenReturn(pluginJarFileName);
 
         GoPluginDescriptor externalPluginDescriptor = new GoPluginDescriptor(pluginId, "1.0", null, pluginJarFile.getAbsolutePath(), new File(pluginJarFileName), false);
-        when(goPluginDescriptorBuilder.build(pluginJarFile, false)).thenReturn(externalPluginDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, false)).thenReturn(new GoPluginBundleDescriptor(externalPluginDescriptor));
 
         GoPluginDescriptor bundledPluginDescriptor = new GoPluginDescriptor("bundled", "1.0", null, null, null, true);
         when(registry.getPluginByIdOrFileName(pluginId, pluginJarFileName)).thenReturn(bundledPluginDescriptor);
@@ -280,7 +280,7 @@ public class DefaultPluginJarChangeListenerTest {
         when(pluginJarFile.getName()).thenReturn(pluginJarFileName);
 
         GoPluginDescriptor newPluginDescriptor = new GoPluginDescriptor(pluginId, "1.0", null, pluginJarFile.getAbsolutePath(), new File(pluginJarFileName), true);
-        when(goPluginDescriptorBuilder.build(pluginJarFile, false)).thenReturn(newPluginDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, false)).thenReturn(new GoPluginBundleDescriptor(newPluginDescriptor));
 
         GoPluginDescriptor oldPluginDescriptor = new GoPluginDescriptor(pluginId, "1.0", null, "location-old", new File("location-old"), true);
         when(registry.getPluginByIdOrFileName(pluginId, pluginJarFileName)).thenReturn(oldPluginDescriptor);
@@ -304,7 +304,7 @@ public class DefaultPluginJarChangeListenerTest {
         when(pluginJarFile.getName()).thenReturn(pluginJarFileName);
 
         GoPluginDescriptor newPluginDescriptor = new GoPluginDescriptor(pluginId, "1.0", null, null, new File(pluginJarFileName), false);
-        when(goPluginDescriptorBuilder.build(pluginJarFile, false)).thenReturn(newPluginDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, false)).thenReturn(new GoPluginBundleDescriptor(newPluginDescriptor));
 
         GoPluginDescriptor oldPluginDescriptor = new GoPluginDescriptor(pluginId, "1.0", null, null, null, true);
         when(registry.getPluginByIdOrFileName(pluginId, pluginJarFileName)).thenReturn(oldPluginDescriptor);
@@ -343,9 +343,9 @@ public class DefaultPluginJarChangeListenerTest {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Linux", "Mac OS X")), null,
                 new File(PLUGIN_JAR_FILE_NAME), false);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptor));
 
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginDescriptorBuilder, systemEnvironment);
+        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
         verify(registry, times(1)).loadPlugin(descriptor);
@@ -364,15 +364,15 @@ public class DefaultPluginJarChangeListenerTest {
         String pluginID = "some.id";
         GoPluginDescriptor newPluginDescriptor = new GoPluginDescriptor(pluginID, "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Mac OS X")), null,
                 new File(PLUGIN_JAR_FILE_NAME), true);
-        when(goPluginDescriptorBuilder.build(pluginJarFile, false)).thenReturn(newPluginDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, false)).thenReturn(new GoPluginBundleDescriptor(newPluginDescriptor));
 
         GoPluginDescriptor oldPluginDescriptor = new GoPluginDescriptor(pluginID, "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Linux", "Mac OS X")), null, new File(PLUGIN_JAR_FILE_NAME), true);
         when(registry.getPluginByIdOrFileName(pluginID, PLUGIN_JAR_FILE_NAME)).thenReturn(oldPluginDescriptor);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Linux");
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(newPluginDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(newPluginDescriptor));
         when(registry.unloadPlugin(newPluginDescriptor)).thenReturn(oldPluginDescriptor);
 
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginDescriptorBuilder, systemEnvironment);
+        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
         verify(registry, times(1)).loadPlugin(newPluginDescriptor);
@@ -390,9 +390,9 @@ public class DefaultPluginJarChangeListenerTest {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Windows", "Linux")), null,
                 new File(PLUGIN_JAR_FILE_NAME), false);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptor));
 
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginDescriptorBuilder, systemEnvironment);
+        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
         verify(registry, times(1)).loadPlugin(descriptor);
@@ -406,9 +406,9 @@ public class DefaultPluginJarChangeListenerTest {
         copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, null), null, new File(PLUGIN_JAR_FILE_NAME), false);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptor));
 
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginDescriptorBuilder, systemEnvironment);
+        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
         verify(registry, times(1)).loadPlugin(descriptor);
@@ -422,9 +422,9 @@ public class DefaultPluginJarChangeListenerTest {
         copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, "9999.0.0", null, null, asList("Linux", "Mac OS X")), null,
                 new File(PLUGIN_JAR_FILE_NAME), false);
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptor));
 
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginDescriptorBuilder, systemEnvironment);
+        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
         verify(registry, times(1)).loadPlugin(descriptor);
@@ -442,9 +442,9 @@ public class DefaultPluginJarChangeListenerTest {
         copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, "9999.0.0.1.2", null, null, asList("Linux", "Mac OS X")), null,
                 new File(PLUGIN_JAR_FILE_NAME), false);
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptor));
 
-        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginDescriptorBuilder, systemEnvironment);
+        listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
         verify(registry, times(1)).loadPlugin(descriptor);
@@ -463,7 +463,7 @@ public class DefaultPluginJarChangeListenerTest {
         GoPluginDescriptor descriptor = new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Windows", "Linux")), null,
                 new File(PLUGIN_JAR_FILE_NAME), false);
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(new GoPluginBundleDescriptor(descriptor));
     }
 
     private void copyPluginToTheDirectory(File destinationDir, String destinationFilenameOfPlugin) throws IOException {

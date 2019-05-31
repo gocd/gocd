@@ -31,26 +31,26 @@ import java.util.zip.ZipEntry;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 
 @Component
-public class GoPluginDescriptorBuilder {
+public class GoPluginBundleDescriptorBuilder {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoPluginDescriptorBuilder.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GoPluginBundleDescriptorBuilder.class);
 
     private static final String PLUGIN_XML = "plugin.xml";
     private SystemEnvironment systemEnvironment;
     private File bundlePathLocation;
 
-    protected GoPluginDescriptorBuilder() {
+    protected GoPluginBundleDescriptorBuilder() {
         this.systemEnvironment = new SystemEnvironment();
         bundlePathLocation = bundlePath();
     }
 
     @Autowired
-    public GoPluginDescriptorBuilder(SystemEnvironment systemEnvironment) {
+    public GoPluginBundleDescriptorBuilder(SystemEnvironment systemEnvironment) {
         this.systemEnvironment = systemEnvironment;
         bundlePathLocation = bundlePath();
     }
 
-    public GoPluginDescriptor build(File pluginJarFile, boolean isBundledPlugin) {
+    public GoPluginBundleDescriptor build(File pluginJarFile, boolean isBundledPlugin) {
         if (!pluginJarFile.exists()) {
             throw new RuntimeException(String.format("Plugin jar does not exist: %s", pluginJarFile.getAbsoluteFile()));
         }
@@ -58,17 +58,18 @@ public class GoPluginDescriptorBuilder {
             ZipEntry entry = jarFile.getEntry(PLUGIN_XML);
 
             if (entry == null) {
-                return GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin);
+                return new GoPluginBundleDescriptor(GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin));
             }
 
             try (InputStream pluginXMLStream = jarFile.getInputStream(entry)) {
-                return GoPluginDescriptorParser.parseXML(pluginXMLStream, pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin);
+                return new GoPluginBundleDescriptor(GoPluginDescriptorParser.parseXML(pluginXMLStream, pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin));
             }
+
         } catch (Exception e) {
             LOGGER.warn("Could not load plugin with jar filename:{}", pluginJarFile.getName(), e);
             String cause = e.getCause() != null ? String.format("%s. Cause: %s", e.getMessage(), e.getCause().getMessage()) : e.getMessage();
-            return GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin)
-                    .markAsInvalid(Arrays.asList(String.format("Plugin with ID (%s) is not valid: %s", pluginJarFile.getName(), cause)), e);
+            return new GoPluginBundleDescriptor(GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin)
+                    .markAsInvalid(Arrays.asList(String.format("Plugin with ID (%s) is not valid: %s", pluginJarFile.getName(), cause)), e));
         }
     }
 

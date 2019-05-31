@@ -44,20 +44,21 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     private final GoPluginOSGiManifestGenerator osgiManifestGenerator;
     private final PluginLoader pluginLoader;
     private final SystemEnvironment systemEnvironment;
-    private GoPluginDescriptorBuilder goPluginDescriptorBuilder;
+    private GoPluginBundleDescriptorBuilder goPluginBundleDescriptorBuilder;
 
     @Autowired
-    public DefaultPluginJarChangeListener(DefaultPluginRegistry registry, GoPluginOSGiManifestGenerator osgiManifestGenerator, PluginLoader pluginLoader, GoPluginDescriptorBuilder goPluginDescriptorBuilder, SystemEnvironment systemEnvironment) {
+    public DefaultPluginJarChangeListener(DefaultPluginRegistry registry, GoPluginOSGiManifestGenerator osgiManifestGenerator, PluginLoader pluginLoader, GoPluginBundleDescriptorBuilder goPluginBundleDescriptorBuilder, SystemEnvironment systemEnvironment) {
         this.registry = registry;
         this.osgiManifestGenerator = osgiManifestGenerator;
         this.pluginLoader = pluginLoader;
-        this.goPluginDescriptorBuilder = goPluginDescriptorBuilder;
+        this.goPluginBundleDescriptorBuilder = goPluginBundleDescriptorBuilder;
         this.systemEnvironment = systemEnvironment;
     }
 
     @Override
     public void pluginJarAdded(PluginFileDetails pluginFileDetails) {
-        GoPluginDescriptor descriptor = goPluginDescriptorBuilder.build(pluginFileDetails.file(), pluginFileDetails.isBundledPlugin());
+        final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginFileDetails.file(), pluginFileDetails.isBundledPlugin());
+        GoPluginDescriptor descriptor = bundleDescriptor.descriptor();
         GoPluginDescriptor existingDescriptor = registry.getPluginByIdOrFileName(descriptor.id(), descriptor.fileName());
         validateIfExternalPluginRemovingBundledPlugin(descriptor, existingDescriptor);
         validatePluginCompatibilityWithCurrentOS(descriptor);
@@ -67,7 +68,8 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
 
     @Override
     public void pluginJarUpdated(PluginFileDetails pluginFileDetails) {
-        GoPluginDescriptor descriptor = goPluginDescriptorBuilder.build(pluginFileDetails.file(), pluginFileDetails.isBundledPlugin());
+        final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginFileDetails.file(), pluginFileDetails.isBundledPlugin());
+        GoPluginDescriptor descriptor = bundleDescriptor.descriptor();
         GoPluginDescriptor existingDescriptor = registry.getPluginByIdOrFileName(descriptor.id(), descriptor.fileName());
         validateIfExternalPluginRemovingBundledPlugin(descriptor, existingDescriptor);
         validateIfSamePluginUpdated(descriptor, existingDescriptor);

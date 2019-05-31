@@ -26,4 +26,5 @@
   <bean id="zipUtil" class="com.thoughtworks.go.util.ZipUtil"/>
   <bean id="systemEnvironment" class="com.thoughtworks.go.util.SystemEnvironment"/>
   <bean id="pluginLoader" class="com.thoughtworks.go.plugin.infra.PluginLoader" />
+  <bean id="goPluginDescriptorBuilder" class="com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptorBuilder" />
 </beans>

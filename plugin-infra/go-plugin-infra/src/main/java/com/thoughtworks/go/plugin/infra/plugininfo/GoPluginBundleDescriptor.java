@@ -16,8 +16,13 @@
 
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.osgi.framework.Bundle;
+
+import java.io.File;
+import java.util.List;
 
 public class GoPluginBundleDescriptor {
     private GoPluginDescriptor pluginDescriptor;
@@ -28,6 +33,14 @@ public class GoPluginBundleDescriptor {
 
     public GoPluginDescriptor descriptor() {
         return pluginDescriptor;
+    }
+
+    public boolean isBundledPlugin() {
+        return pluginDescriptor.isBundledPlugin();
+    }
+
+    public boolean isCurrentOSValidForThisPlugin(String currentOS) {
+        return pluginDescriptor.isCurrentOSValidForThisPlugin(currentOS);
     }
 
     @Override
@@ -48,5 +61,61 @@ public class GoPluginBundleDescriptor {
         return new HashCodeBuilder(17, 37)
                 .append(pluginDescriptor)
                 .toHashCode();
+    }
+
+    public PluginDescriptor.About about() {
+        return pluginDescriptor.about();
+    }
+
+    public String id() {
+        return pluginDescriptor.id();
+    }
+
+    public void markAsInvalid(List<String> messages, Exception o) {
+        pluginDescriptor.markAsInvalid(messages, o);
+    }
+
+    public boolean isCurrentGocdVersionValidForThisPlugin() {
+        return pluginDescriptor.isCurrentGocdVersionValidForThisPlugin();
+    }
+
+    public String fileName() {
+        return pluginDescriptor.fileName();
+    }
+
+    public boolean isInvalid() {
+        return pluginDescriptor.isInvalid();
+    }
+
+    public File bundleLocation() {
+        return pluginDescriptor.bundleLocation();
+    }
+
+    public void setBundle(Bundle bundle) {
+        this.pluginDescriptor.setBundle(bundle);
+    }
+
+    public Bundle bundle() {
+        return pluginDescriptor.bundle();
+    }
+
+    public PluginStatus getStatus() {
+        return pluginDescriptor.getStatus();
+    }
+
+    public void updateBundleInformation(String symbolicName, String classPath, String bundleActivator) {
+        pluginDescriptor.updateBundleInformation(symbolicName, classPath, bundleActivator);
+    }
+
+    public String bundleSymbolicName() {
+        return pluginDescriptor.bundleSymbolicName();
+    }
+
+    public String bundleClassPath() {
+        return pluginDescriptor.bundleClassPath();
+    }
+
+    public String bundleActivator() {
+        return pluginDescriptor.bundleActivator();
     }
 }

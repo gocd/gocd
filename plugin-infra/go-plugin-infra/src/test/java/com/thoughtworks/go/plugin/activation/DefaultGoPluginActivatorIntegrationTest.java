@@ -26,6 +26,7 @@ import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.FelixGoPluginOSGiFramework;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.ZipUtil;
@@ -363,8 +364,8 @@ public class DefaultGoPluginActivatorIntegrationTest {
     }
 
     private Bundle installBundleFoundInDirectory(File bundleWithActivator) {
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(GO_TEST_DUMMY_SYMBOLIC_NAME, "1", null, null, bundleWithActivator, true);
-        registry.fakeRegistrationOfPlugin(pluginDescriptor);
+        GoPluginBundleDescriptor pluginDescriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor(GO_TEST_DUMMY_SYMBOLIC_NAME, "1", null, null, bundleWithActivator, true));
+        registry.fakeRegistrationOfPlugin(pluginDescriptor.descriptor());
         return framework.loadPlugin(pluginDescriptor);
     }
 

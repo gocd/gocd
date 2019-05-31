@@ -16,5 +16,5 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 public interface GoPluginOSGiManifestGenerator {
-    void updateManifestOf(GoPluginDescriptor descriptor);
+    void updateManifestOf(GoPluginBundleDescriptor bundleDescriptor);
 }

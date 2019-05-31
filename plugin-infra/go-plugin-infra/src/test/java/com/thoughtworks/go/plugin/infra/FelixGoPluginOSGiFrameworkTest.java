@@ -17,6 +17,7 @@ package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginHealthService;
@@ -29,18 +30,15 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.osgi.framework.*;
 import org.osgi.framework.launch.Framework;
 
-import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
-import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -187,7 +185,7 @@ class FelixGoPluginOSGiFrameworkTest {
 
     @Test
     void shouldUnloadAPlugin() throws BundleException {
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        GoPluginBundleDescriptor pluginDescriptor = mock(GoPluginBundleDescriptor.class);
         when(pluginDescriptor.bundle()).thenReturn(bundle);
 
         spy.unloadPlugin(pluginDescriptor);
@@ -198,7 +196,7 @@ class FelixGoPluginOSGiFrameworkTest {
 
     @Test
     void shouldNotFailToUnloadAPluginWhoseBundleIsNull() {
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        GoPluginBundleDescriptor pluginDescriptor = mock(GoPluginBundleDescriptor.class);
         when(pluginDescriptor.bundle()).thenReturn(null);
 
         try {
@@ -240,7 +238,7 @@ class FelixGoPluginOSGiFrameworkTest {
 
     @Test
     void shouldSkipUninstallIfPluginIsPreviouslyUninstalled() throws BundleException {
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        GoPluginBundleDescriptor pluginDescriptor = mock(GoPluginBundleDescriptor.class);
         when(pluginDescriptor.bundle()).thenReturn(bundle);
         when(bundle.getState()).thenReturn(Bundle.UNINSTALLED);
 

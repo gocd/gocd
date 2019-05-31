@@ -17,6 +17,7 @@ package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.ReflectionUtil;
 import com.thoughtworks.go.util.SystemEnvironment;
@@ -100,7 +101,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @Test
     public void shouldLoadAValidGoPluginOSGiBundle() throws Exception {
-        Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginDescriptor(PLUGIN_ID, null, null, null, descriptorBundleDir, true));
+        Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginBundleDescriptor(new GoPluginDescriptor(PLUGIN_ID, null, null, null, descriptorBundleDir, true)));
 
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
@@ -119,7 +120,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @Test
     public void shouldLoadAValidGoPluginOSGiBundleAndShouldBeDiscoverableThroughSymbolicNameFilter() throws Exception {
-        Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginDescriptor(PLUGIN_ID, null, null, null, descriptorBundleDir, true));
+        Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginBundleDescriptor(new GoPluginDescriptor(PLUGIN_ID, null, null, null, descriptorBundleDir, true)));
 
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
@@ -138,7 +139,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @Test
     public void shouldHandleErrorGeneratedByAValidGoPluginOSGiBundleAtUsageTime() {
-        Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginDescriptor(PLUGIN_ID, null, null, null, errorGeneratingDescriptorBundleDir, true));
+        Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginBundleDescriptor(new GoPluginDescriptor(PLUGIN_ID, null, null, null, errorGeneratingDescriptorBundleDir, true)));
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
         ActionWithReturn<GoPlugin, Object> action = (goPlugin, goPluginDescriptor) -> {
@@ -156,13 +157,13 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @Test
     public void shouldPassInCorrectDescriptorToAction() {
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("testplugin.descriptorValidator", null, null, null, descriptorBundleDir, true);
+        final GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor("testplugin.descriptorValidator", null, null, null, descriptorBundleDir, true));
         Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
         registry.loadPlugin(descriptor);
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
         ActionWithReturn<GoPlugin, Object> action = (plugin, pluginDescriptor) -> {
-            assertThat(pluginDescriptor, is(descriptor));
+            assertThat(pluginDescriptor, is(descriptor.descriptor()));
             plugin.pluginIdentifier();
             return null;
         };
@@ -171,7 +172,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @Test
     public void shouldUnloadALoadedPlugin() throws Exception {
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(PLUGIN_ID, null, null, null, descriptorBundleDir, true);
+        GoPluginBundleDescriptor pluginDescriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor(PLUGIN_ID, null, null, null, descriptorBundleDir, true));
         Bundle bundle = pluginOSGiFramework.loadPlugin(pluginDescriptor);
 
         BundleContext context = bundle.getBundleContext();
@@ -191,7 +192,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     @Test
     public void shouldMarkAPluginInvalidIfAtLoadOfAnyExtensionPointInItFails() {
         String id = "com.tw.go.exception.throwing.at.loadplugin";
-        GoPluginDescriptor pluginDescriptor = new GoPluginDescriptor(id, null, null, null, exceptionThrowingAtLoadDescriptorBundleDir, true);
+        GoPluginBundleDescriptor pluginDescriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor(id, null, null, null, exceptionThrowingAtLoadDescriptorBundleDir, true));
         registry.loadPlugin(pluginDescriptor);
         assertThat(pluginDescriptor.isInvalid(), is(false));
 
@@ -202,7 +203,7 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @Test
     public void shouldLoadAValidPluginWithMultipleExtensions_ImplementingDifferentExtensions() throws Exception {
-        Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginDescriptor(PLUGIN_ID, null, null, null, validMultipleExtensionPluginBundleDir, true));
+        Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginBundleDescriptor(new GoPluginDescriptor(PLUGIN_ID, null, null, null, validMultipleExtensionPluginBundleDir, true)));
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
         BundleContext context = bundle.getBundleContext();
@@ -221,13 +222,13 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     @Test
     public void shouldSetCurrentThreadContextClassLoaderToBundleClassLoaderToAvoidDependenciesFromApplicationClassloaderMessingAroundWithThePluginBehavior() {
         systemEnvironment.setProperty("gocd.plugins.classloader.old", "false");
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadPluginBundleDir, true);
+        final GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadPluginBundleDir, true));
         Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
         registry.loadPlugin(descriptor);
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
         ActionWithReturn<GoPlugin, Object> action = (plugin, pluginDescriptor) -> {
-            assertThat(pluginDescriptor, is(descriptor));
+            assertThat(pluginDescriptor, is(descriptor.descriptor()));
             assertThat(Thread.currentThread().getContextClassLoader().getClass().getCanonicalName(), is(BundleClassLoader.class.getCanonicalName()));
             plugin.pluginIdentifier();
             return null;
@@ -238,13 +239,13 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     @Test
     public void shouldUseOldClassLoaderBehaviourWhenSystemPropertyIsSet() {
         systemEnvironment.setProperty("gocd.plugins.classloader.old", "true");
-        final GoPluginDescriptor descriptor = new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadPluginBundleDir, true);
+        final GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadPluginBundleDir, true));
         Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
         registry.loadPlugin(descriptor);
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
         ActionWithReturn<GoPlugin, Object> action = (plugin, pluginDescriptor) -> {
-            assertThat(pluginDescriptor, is(descriptor));
+            assertThat(pluginDescriptor, is(descriptor.descriptor()));
             assertThat(Thread.currentThread().getContextClassLoader().getClass().getCanonicalName(), not(BundleClassLoader.class.getCanonicalName()));
             return null;
         };

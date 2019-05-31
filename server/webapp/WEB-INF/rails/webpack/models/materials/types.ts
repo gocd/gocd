@@ -30,10 +30,10 @@ import {
   SvnMaterialAttributesJSON,
   TfsMaterialAttributesJSON,
 } from "models/materials/serialization";
+import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
-import {ErrorMessages} from "models/mixins/validatable";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 
 const s        = require("helpers/string-plus");

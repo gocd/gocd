@@ -35,17 +35,17 @@ public class DefaultPluginRegistryTest {
     private DefaultPluginRegistry registry;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         registry = new DefaultPluginRegistry();
     }
 
     @Test
-    public void shouldMarkPluginAsInvalidWithMessage() throws Exception {
+    public void shouldMarkPluginAsInvalidWithMessage() {
         String pluginId = "plugin-id";
         File pluginFile = mock(File.class);
         String message = "random failure";
         DefaultPluginRegistry spy = spy(registry);
-        GoPluginDescriptor descriptor = new GoPluginDescriptor(pluginId, "1.0", null, null, pluginFile, true);
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor(pluginId, "1.0", null, null, pluginFile, true));
         spy.loadPlugin(descriptor);
 
         spy.markPluginInvalid(pluginId, Arrays.asList(message));
@@ -56,7 +56,7 @@ public class DefaultPluginRegistryTest {
     }
 
     @Test
-    public void testThrowExceptionWhenPluginNotFound() throws Exception {
+    public void testThrowExceptionWhenPluginNotFound() {
         try {
             registry.markPluginInvalid("invalid-plugin-id", Arrays.asList("some message"));
             fail("should have thrown exception for plugin not found ");
@@ -67,7 +67,7 @@ public class DefaultPluginRegistryTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenPluginIdIsNull() throws Exception {
+    public void shouldThrowExceptionWhenPluginIdIsNull() {
         try {
             registry.markPluginInvalid(null, Arrays.asList("some message"));
             fail("should have thrown exception for plugin not found ");
@@ -79,77 +79,77 @@ public class DefaultPluginRegistryTest {
     }
 
     @Test
-    public void shouldListAllLoadedPlugins() throws Exception {
-        GoPluginDescriptor descriptor1 = GoPluginDescriptor.usingId("id1", null, null, true);
+    public void shouldListAllLoadedPlugins() {
+        GoPluginBundleDescriptor descriptor1 = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", null, null, true));
         registry.loadPlugin(descriptor1);
 
-        GoPluginDescriptor descriptor2 = GoPluginDescriptor.usingId("id2", null, null, true);
+        GoPluginBundleDescriptor descriptor2 = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id2", null, null, true));
         registry.loadPlugin(descriptor2);
 
         assertThat(registry.plugins().size(), is(2));
-        assertThat(registry.plugins(), hasItems(descriptor1, descriptor2));
+        assertThat(registry.plugins(), hasItems(descriptor1.descriptor(), descriptor2.descriptor()));
     }
 
     @Test
-    public void shouldReturnThePluginWithGivenId() throws Exception {
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("id", null, null, true);
+    public void shouldReturnThePluginWithGivenId() {
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id", null, null, true));
         registry.loadPlugin(descriptor);
-        assertThat(registry.getPlugin("id"), is(descriptor));
+        assertThat(registry.getPlugin("id"), is(descriptor.descriptor()));
     }
 
     @Test
-    public void shouldUnloadPluginFromRegistry() throws Exception {
-        GoPluginDescriptor descriptor1 = GoPluginDescriptor.usingId("id1", "location-one.jar", new File("location-one"), true);
+    public void shouldUnloadPluginFromRegistry() {
+        GoPluginBundleDescriptor descriptor1 = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", "location-one.jar", new File("location-one"), true));
         registry.loadPlugin(descriptor1);
 
-        GoPluginDescriptor descriptor2 = GoPluginDescriptor.usingId("id2", "location-two.jar", new File("location-two"), true);
+        GoPluginBundleDescriptor descriptor2 = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id2", "location-two.jar", new File("location-two"), true));
         registry.loadPlugin(descriptor2);
 
         assertThat(registry.plugins().size(), is(2));
-        assertThat(registry.plugins(), hasItems(descriptor1, descriptor2));
+        assertThat(registry.plugins(), hasItems(descriptor1.descriptor(), descriptor2.descriptor()));
 
         registry.unloadPlugin(descriptor2);
 
         assertThat(registry.plugins().size(), is(1));
-        assertThat(registry.plugins(), hasItems(descriptor1));
+        assertThat(registry.plugins(), hasItems(descriptor1.descriptor()));
     }
 
     @Test
-    public void shouldBeAbleToUnloadThePluginBasedOnFileNameEvenIfTheIDHasBeenChanged() throws Exception {
+    public void shouldBeAbleToUnloadThePluginBasedOnFileNameEvenIfTheIDHasBeenChanged() {
         File bundleLocation = mock(File.class);
         when(bundleLocation.getName()).thenReturn("plugin-id");
-        GoPluginDescriptor descriptor1 = GoPluginDescriptor.usingId("id", "some-plugin.jar", bundleLocation, true);
+        GoPluginBundleDescriptor descriptor1 = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id", "some-plugin.jar", bundleLocation, true));
         registry.loadPlugin(descriptor1);
         assertThat(descriptor1.id(), is("id"));
 
 
-        GoPluginDescriptor descriptorOfPluginToBeUnloaded = GoPluginDescriptor.usingId("plugin-id", "some-plugin.jar", bundleLocation, true);
-        GoPluginDescriptor descriptorOfUnloadedPlugin = registry.unloadPlugin(descriptorOfPluginToBeUnloaded);
+        GoPluginBundleDescriptor descriptorOfPluginToBeUnloaded = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("plugin-id", "some-plugin.jar", bundleLocation, true));
+        GoPluginBundleDescriptor descriptorOfUnloadedPlugin = registry.unloadPlugin(descriptorOfPluginToBeUnloaded);
 
         assertThat(descriptorOfUnloadedPlugin.id(), is("id"));
         assertThat(registry.plugins().size(), is(0));
     }
 
     @Test(expected = RuntimeException.class)
-    public void shouldNotUnloadAPluginIfItWasNotLoadedBefore() throws Exception {
-        registry.unloadPlugin(GoPluginDescriptor.usingId("id1", null, null, true));
+    public void shouldNotUnloadAPluginIfItWasNotLoadedBefore() {
+        registry.unloadPlugin(new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", null, null, true)));
     }
 
     @Test(expected = RuntimeException.class)
-    public void shouldNotLoadPluginIfThereIsOneMorePluginWithTheSameID() throws Exception {
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("id1", null, null, true);
+    public void shouldNotLoadPluginIfThereIsOneMorePluginWithTheSameID() {
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", null, null, true));
         registry.loadPlugin(descriptor);
 
-        GoPluginDescriptor secondPluginBundleLocation = GoPluginDescriptor.usingId("id1", null, null, true);
+        GoPluginBundleDescriptor secondPluginBundleLocation = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", null, null, true));
         registry.loadPlugin(secondPluginBundleLocation);
     }
 
     @Test(expected = RuntimeException.class)
-    public void shouldNotLoadPluginIfThereIsOneMorePluginWithTheSameIDAndDifferentCase() throws Exception {
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("id1", null, null, true);
+    public void shouldNotLoadPluginIfThereIsOneMorePluginWithTheSameIDAndDifferentCase() {
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", null, null, true));
         registry.loadPlugin(descriptor);
 
-        GoPluginDescriptor secondPluginBundleLocation = GoPluginDescriptor.usingId("iD1", null, null, true);
+        GoPluginBundleDescriptor secondPluginBundleLocation = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("iD1", null, null, true));
         registry.loadPlugin(secondPluginBundleLocation);
     }
 

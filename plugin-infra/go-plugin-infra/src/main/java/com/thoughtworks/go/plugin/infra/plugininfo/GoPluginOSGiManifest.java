@@ -17,6 +17,7 @@ package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import com.thoughtworks.go.plugin.activation.DefaultGoPluginActivator;
 import org.apache.commons.io.FileUtils;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,11 +37,11 @@ public class GoPluginOSGiManifest {
     public static final String ACTIVATOR_JAR_NAME = "go-plugin-activator.jar";
     private static final String CLASSPATH_PREFIX = String.format("%s/%s,%s", PLUGIN_DEPENDENCY_DIR, ACTIVATOR_JAR_NAME, BUNDLE_ROOT_DIR);
 
-    private GoPluginDescriptor descriptor;
+    private GoPluginBundleDescriptor descriptor;
     private File manifestLocation;
     private File dependenciesDir;
 
-    public GoPluginOSGiManifest(GoPluginDescriptor descriptor) {
+    public GoPluginOSGiManifest(GoPluginBundleDescriptor descriptor) {
         this.descriptor = descriptor;
         manifestLocation = new File(descriptor.bundleLocation(), "META-INF/MANIFEST.MF");
         dependenciesDir = new File(descriptor.bundleLocation(), PLUGIN_DEPENDENCY_DIR);
@@ -96,4 +97,15 @@ public class GoPluginOSGiManifest {
         return header.toString();
     }
 
+    @Component
+    public static class DefaultGoPluginOSGiManifestCreator implements GoPluginOSGiManifestGenerator {
+        public void updateManifestOf(GoPluginBundleDescriptor bundleDescriptor) {
+            GoPluginOSGiManifest manifest = new GoPluginOSGiManifest(bundleDescriptor);
+            try {
+                manifest.update();
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to update MANIFEST.MF", e);
+            }
+        }
+    }
 }

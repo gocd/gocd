@@ -22,6 +22,7 @@ import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.infra.listeners.DefaultPluginJarChangeListener;
 import com.thoughtworks.go.plugin.infra.monitor.DefaultPluginJarLocationMonitor;
 import com.thoughtworks.go.plugin.infra.plugininfo.DefaultPluginRegistry;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.io.FileUtils;
@@ -305,12 +306,12 @@ public class DefaultPluginManagerTest {
         }
 
         @Override
-        public Bundle loadPlugin(GoPluginDescriptor pluginDescriptor) {
+        public Bundle loadPlugin(GoPluginBundleDescriptor pluginBundleDescriptor) {
             return null;
         }
 
         @Override
-        public void unloadPlugin(GoPluginDescriptor pluginDescriptor) {
+        public void unloadPlugin(GoPluginBundleDescriptor pluginDescriptor) {
         }
 
         @Override

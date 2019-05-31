@@ -58,30 +58,32 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     @Override
     public void pluginJarAdded(PluginFileDetails pluginFileDetails) {
         final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginFileDetails.file(), pluginFileDetails.isBundledPlugin());
-        GoPluginDescriptor descriptor = bundleDescriptor.descriptor();
-        GoPluginDescriptor existingDescriptor = registry.getPluginByIdOrFileName(descriptor.id(), descriptor.fileName());
-        validateIfExternalPluginRemovingBundledPlugin(descriptor, existingDescriptor);
-        validatePluginCompatibilityWithCurrentOS(descriptor);
-        validatePluginCompatibilityWithGoCD(descriptor);
-        addPlugin(pluginFileDetails, descriptor);
+
+        GoPluginBundleDescriptor existingDescriptor = registry.getPluginBundleByIdOrFileName(bundleDescriptor.id(), bundleDescriptor.fileName());
+
+        validateIfExternalPluginRemovingBundledPlugin(bundleDescriptor, existingDescriptor);
+        validatePluginCompatibilityWithCurrentOS(bundleDescriptor);
+        validatePluginCompatibilityWithGoCD(bundleDescriptor);
+        addPlugin(pluginFileDetails, bundleDescriptor);
     }
 
     @Override
     public void pluginJarUpdated(PluginFileDetails pluginFileDetails) {
         final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginFileDetails.file(), pluginFileDetails.isBundledPlugin());
-        GoPluginDescriptor descriptor = bundleDescriptor.descriptor();
-        GoPluginDescriptor existingDescriptor = registry.getPluginByIdOrFileName(descriptor.id(), descriptor.fileName());
-        validateIfExternalPluginRemovingBundledPlugin(descriptor, existingDescriptor);
-        validateIfSamePluginUpdated(descriptor, existingDescriptor);
-        validatePluginCompatibilityWithCurrentOS(descriptor);
-        validatePluginCompatibilityWithGoCD(descriptor);
-        removePlugin(descriptor);
-        addPlugin(pluginFileDetails, descriptor);
+
+        GoPluginBundleDescriptor existingDescriptor = registry.getPluginBundleByIdOrFileName(bundleDescriptor.id(), bundleDescriptor.fileName());
+
+        validateIfExternalPluginRemovingBundledPlugin(bundleDescriptor, existingDescriptor);
+        validateIfSamePluginUpdated(bundleDescriptor, existingDescriptor);
+        validatePluginCompatibilityWithCurrentOS(bundleDescriptor);
+        validatePluginCompatibilityWithGoCD(bundleDescriptor);
+        removePlugin(bundleDescriptor);
+        addPlugin(pluginFileDetails, bundleDescriptor);
     }
 
     @Override
     public void pluginJarRemoved(PluginFileDetails pluginFileDetails) {
-        GoPluginDescriptor existingDescriptor = registry.getPluginByIdOrFileName(null, pluginFileDetails.file().getName());
+        GoPluginBundleDescriptor existingDescriptor = registry.getPluginBundleByIdOrFileName(null, pluginFileDetails.file().getName());
         if (existingDescriptor == null) {
             return;
         }
@@ -95,15 +97,15 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         removePlugin(existingDescriptor);
     }
 
-    private void addPlugin(PluginFileDetails pluginFileDetails, GoPluginDescriptor descriptor) {
-        explodePluginJarToBundleDir(pluginFileDetails.file(), descriptor.bundleLocation());
-        installActivatorJarToBundleDir(descriptor.bundleLocation());
-        registry.loadPlugin(descriptor);
-        refreshBundle(descriptor);
+    private void addPlugin(PluginFileDetails pluginFileDetails, GoPluginBundleDescriptor bundleDescriptor) {
+        explodePluginJarToBundleDir(pluginFileDetails.file(), bundleDescriptor.bundleLocation());
+        installActivatorJarToBundleDir(bundleDescriptor.bundleLocation());
+        registry.loadPlugin(bundleDescriptor);
+        refreshBundle(bundleDescriptor);
     }
 
-    private void removePlugin(GoPluginDescriptor descriptor) {
-        GoPluginDescriptor descriptorOfRemovedPlugin = registry.unloadPlugin(descriptor);
+    private void removePlugin(GoPluginBundleDescriptor descriptor) {
+        final GoPluginBundleDescriptor descriptorOfRemovedPlugin = registry.unloadPlugin(descriptor);
         pluginLoader.unloadPlugin(descriptorOfRemovedPlugin);
         boolean bundleLocationHasBeenDeleted = FileUtils.deleteQuietly(descriptorOfRemovedPlugin.bundleLocation());
         if (!bundleLocationHasBeenDeleted) {
@@ -111,19 +113,19 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         }
     }
 
-    private void validateIfExternalPluginRemovingBundledPlugin(GoPluginDescriptor newDescriptor, GoPluginDescriptor existingDescriptor) {
+    private void validateIfExternalPluginRemovingBundledPlugin(GoPluginBundleDescriptor newDescriptor, GoPluginBundleDescriptor existingDescriptor) {
         if (existingDescriptor != null && existingDescriptor.isBundledPlugin() && !newDescriptor.isBundledPlugin()) {
             throw new RuntimeException(String.format("Found bundled plugin with ID: [%s], external plugin could not be loaded", existingDescriptor.id()));
         }
     }
 
-    private void validateIfSamePluginUpdated(GoPluginDescriptor descriptor, GoPluginDescriptor existingDescriptor) {
+    private void validateIfSamePluginUpdated(GoPluginBundleDescriptor descriptor, GoPluginBundleDescriptor existingDescriptor) {
         if (existingDescriptor != null && !existingDescriptor.fileName().equals(descriptor.fileName())) {
             throw new RuntimeException("Found another plugin with ID: " + existingDescriptor.id());
         }
     }
 
-    private void validatePluginCompatibilityWithCurrentOS(GoPluginDescriptor descriptor) {
+    private void validatePluginCompatibilityWithCurrentOS(GoPluginBundleDescriptor descriptor) {
         String currentOS = systemEnvironment.getOperatingSystemFamilyName();
 
         if (!descriptor.isCurrentOSValidForThisPlugin(currentOS)) {
@@ -133,7 +135,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         }
     }
 
-    private void validatePluginCompatibilityWithGoCD(GoPluginDescriptor descriptor) {
+    private void validatePluginCompatibilityWithGoCD(GoPluginBundleDescriptor descriptor) {
         try {
             if (!descriptor.isCurrentGocdVersionValidForThisPlugin()) {
                 List<String> messages = Arrays.asList(String.format("Plugin with ID (%s) is not valid: Incompatible with GoCD version '%s'. Compatible version is: %s.",
@@ -146,7 +148,7 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         }
     }
 
-    private void refreshBundle(GoPluginDescriptor descriptor) {
+    private void refreshBundle(GoPluginBundleDescriptor descriptor) {
         if (!descriptor.isInvalid()) {
             osgiManifestGenerator.updateManifestOf(descriptor);
             pluginLoader.loadPlugin(descriptor);

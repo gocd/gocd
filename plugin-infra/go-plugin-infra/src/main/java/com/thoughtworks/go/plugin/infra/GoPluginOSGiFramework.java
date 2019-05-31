@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.plugin.infra;
 
-import com.thoughtworks.go.plugin.api.GoPlugin;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.osgi.framework.Bundle;
 
@@ -27,9 +27,9 @@ public interface GoPluginOSGiFramework {
 
     void stop();
 
-    Bundle loadPlugin(GoPluginDescriptor pluginDescriptor);
+    Bundle loadPlugin(GoPluginBundleDescriptor pluginBundleDescriptor);
 
-    void unloadPlugin(GoPluginDescriptor pluginDescriptor);
+    void unloadPlugin(GoPluginBundleDescriptor pluginBundleDescriptor);
 
     <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, String extensionType, ActionWithReturn<T, R> action);
 

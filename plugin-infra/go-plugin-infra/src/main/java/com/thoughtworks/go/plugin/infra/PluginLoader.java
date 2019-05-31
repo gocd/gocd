@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra;
 
-import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import org.apache.commons.collections4.IterableUtils;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -59,7 +59,7 @@ public class PluginLoader {
         return pluginPostLoadHook;
     }
 
-    public void loadPlugin(GoPluginDescriptor descriptor) {
+    public void loadPlugin(GoPluginBundleDescriptor descriptor) {
         try {
             pluginOSGiFramework.loadPlugin(descriptor);
 
@@ -78,7 +78,7 @@ public class PluginLoader {
         }
     }
 
-    public void unloadPlugin(GoPluginDescriptor descriptorOfRemovedPlugin) {
+    public void unloadPlugin(GoPluginBundleDescriptor descriptorOfRemovedPlugin) {
         Bundle bundle = descriptorOfRemovedPlugin.bundle();
         if (bundle == null) {
             return;
@@ -86,7 +86,7 @@ public class PluginLoader {
 
         for (PluginChangeListener listener : pluginChangeListeners) {
             try {
-                listener.pluginUnLoaded(descriptorOfRemovedPlugin);
+                listener.pluginUnLoaded(descriptorOfRemovedPlugin.descriptor());
             } catch (Exception e) {
                 LOGGER.warn("A plugin unload listener ({}) failed: {}", listener.toString(), descriptorOfRemovedPlugin, e);
             }
@@ -95,22 +95,22 @@ public class PluginLoader {
         pluginOSGiFramework.unloadPlugin(descriptorOfRemovedPlugin);
     }
 
-    private void doPostBundleInstallActivities(GoPluginDescriptor pluginDescriptor) {
+    private void doPostBundleInstallActivities(GoPluginBundleDescriptor pluginBundleDescriptor) {
         for (PluginPostLoadHook pluginPostLoadHook : pluginPostLoadHooks) {
-            final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginDescriptor, pluginOSGiFramework.getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
+            final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginBundleDescriptor.descriptor(), pluginOSGiFramework.getExtensionsInfoFromThePlugin(pluginBundleDescriptor.descriptor().id()));
             if (result.isAFailure()) {
-                pluginDescriptor.markAsInvalid(singletonList(result.getMessage()), null);
+                pluginBundleDescriptor.markAsInvalid(singletonList(result.getMessage()), null);
                 LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.getMessage()));
                 return;
             }
         }
 
-        if (!pluginDescriptor.isInvalid()) {
-            IterableUtils.forEach(pluginChangeListeners, listener -> listener.pluginLoaded(pluginDescriptor));
+        if (!pluginBundleDescriptor.isInvalid()) {
+            IterableUtils.forEach(pluginChangeListeners, listener -> listener.pluginLoaded(pluginBundleDescriptor.descriptor()));
         }
     }
 
-    private void handlePluginInvalidation(GoPluginDescriptor pluginDescriptor, File bundleLocation) {
+    private void handlePluginInvalidation(GoPluginBundleDescriptor pluginDescriptor, File bundleLocation) {
         String failureMsg = format("Failed to load plugin: %s. Plugin is invalid. Reasons %s",
                 bundleLocation, pluginDescriptor.getStatus().getMessages());
         LOGGER.error(failureMsg);

@@ -75,7 +75,7 @@ public class GoPluginOSGiManifestTest {
         assertThat(valueFor(BUNDLE_SYMBOLICNAME), is(nullValue()));
         assertThat(valueFor(BUNDLE_CLASSPATH), is(nullValue()));
 
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true);
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         GoPluginOSGiManifest manifest = new GoPluginOSGiManifest(descriptor);
         manifest.update();
 
@@ -95,7 +95,7 @@ public class GoPluginOSGiManifestTest {
         }
         FileUtils.writeStringToFile(new File(bundleLocation, "lib/go-plugin-activator.jar"), "Some data", UTF_8);
 
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true);
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
         String classpathEntry = valueFor(BUNDLE_CLASSPATH);
@@ -111,7 +111,7 @@ public class GoPluginOSGiManifestTest {
         FileUtils.writeStringToFile(new File(bundleLocation, "lib/dependency-2.jar"), "Some data", UTF_8);
         FileUtils.writeStringToFile(new File(bundleLocation, "lib/dependency-3.jar"), "Some data", UTF_8);
 
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true);
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
         assertThat(valueFor(BUNDLE_SYMBOLICNAME), is("pluginId"));
@@ -131,7 +131,7 @@ public class GoPluginOSGiManifestTest {
         }
         FileUtils.deleteDirectory(bundleDependencyDir);
 
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true);
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
         assertThat(valueFor(BUNDLE_CLASSPATH), is("lib/go-plugin-activator.jar,."));
@@ -147,7 +147,7 @@ public class GoPluginOSGiManifestTest {
         assertThat(valueFor(BUNDLE_SYMBOLICNAME), is(not(nullValue())));
         assertThat(valueFor(BUNDLE_CLASSPATH), is(nullValue()));
 
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true);
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
         assertThat(valueFor(BUNDLE_SYMBOLICNAME), is("Dummy Value"));
@@ -164,7 +164,7 @@ public class GoPluginOSGiManifestTest {
         assertThat(valueFor(BUNDLE_SYMBOLICNAME), is(nullValue()));
         assertThat(valueFor(BUNDLE_CLASSPATH), is(not(nullValue())));
 
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true);
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
         assertThat(valueFor(BUNDLE_CLASSPATH), is("lib/go-plugin-activator.jar,.,lib/dependency.jar"));
@@ -179,7 +179,7 @@ public class GoPluginOSGiManifestTest {
         addHeaderToManifest(BUNDLE_ACTIVATOR, "Dummy Value");
         assertThat(valueFor(BUNDLE_ACTIVATOR), is(not(nullValue())));
 
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true);
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
         assertThat(valueFor(BUNDLE_ACTIVATOR), is(DefaultGoPluginActivator.class.getCanonicalName()));
@@ -194,7 +194,7 @@ public class GoPluginOSGiManifestTest {
         FileUtils.deleteQuietly(new File(bundleLocation, "lib/dependency.jar"));
         assertThat(bundleDependencyDir.listFiles().length, is(0));
 
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true);
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
         assertThat(valueFor(BUNDLE_CLASSPATH), is("lib/go-plugin-activator.jar,."));
@@ -208,7 +208,7 @@ public class GoPluginOSGiManifestTest {
         assertThat(valueFor(BUNDLE_SYMBOLICNAME), is(nullValue()));
         assertThat(valueFor(BUNDLE_CLASSPATH), is(nullValue()));
 
-        GoPluginDescriptor descriptor = GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true);
+        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("pluginId", "some-plugin.jar", bundleLocation, true));
         goPluginOSGiManifestGenerator.updateManifestOf(descriptor);
 
         assertThat(valueFor(BUNDLE_SYMBOLICNAME), is("pluginId"));
@@ -216,7 +216,7 @@ public class GoPluginOSGiManifestTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         if (WINDOWS.satisfy()) {
             return;
         }

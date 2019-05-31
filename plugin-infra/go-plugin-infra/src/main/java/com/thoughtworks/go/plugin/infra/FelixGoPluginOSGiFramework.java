@@ -17,6 +17,7 @@ package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginHealthService;
@@ -90,11 +91,11 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     @Override
-    public Bundle loadPlugin(GoPluginDescriptor pluginDescriptor) {
-        File bundleLocation = pluginDescriptor.bundleLocation();
+    public Bundle loadPlugin(GoPluginBundleDescriptor pluginBundleDescriptor) {
+        File bundleLocation = pluginBundleDescriptor.bundleLocation();
         try {
             Bundle bundle = framework.getBundleContext().installBundle("reference:" + bundleLocation.toURI());
-            pluginDescriptor.setBundle(bundle);
+            pluginBundleDescriptor.setBundle(bundle);
             bundle.start();
             return bundle;
         } catch (Exception e) {
@@ -103,7 +104,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     @Override
-    public void unloadPlugin(GoPluginDescriptor pluginDescriptor) {
+    public void unloadPlugin(GoPluginBundleDescriptor pluginDescriptor) {
         Bundle bundle = pluginDescriptor.bundle();
 
         if (bundle == null || bundle.getState() == Bundle.UNINSTALLED) {

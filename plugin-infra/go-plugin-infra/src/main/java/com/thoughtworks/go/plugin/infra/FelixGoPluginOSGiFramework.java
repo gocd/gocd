@@ -41,7 +41,6 @@ import java.io.File;
 import java.util.*;
 
 import static java.lang.String.format;
-import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toMap;
 
 @Component
@@ -93,31 +92,14 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     @Override
     public Bundle loadPlugin(GoPluginDescriptor pluginDescriptor) {
         File bundleLocation = pluginDescriptor.bundleLocation();
-        return getBundle(pluginDescriptor, bundleLocation);
-    }
-
-    private Bundle getBundle(GoPluginDescriptor pluginDescriptor, File bundleLocation) {
         try {
             Bundle bundle = framework.getBundleContext().installBundle("reference:" + bundleLocation.toURI());
             pluginDescriptor.setBundle(bundle);
             bundle.start();
-            if (pluginDescriptor.isInvalid()) {
-                handlePluginInvalidation(pluginDescriptor, bundleLocation);
-            }
             return bundle;
         } catch (Exception e) {
-            pluginDescriptor.markAsInvalid(asList(e.getMessage()), e);
-            LOGGER.error("Failed to load plugin: {}", bundleLocation, e);
-            handlePluginInvalidation(pluginDescriptor, bundleLocation);
-            throw new RuntimeException("Failed to load plugin: " + bundleLocation, e);
+            throw new RuntimeException(e);
         }
-    }
-
-    private void handlePluginInvalidation(GoPluginDescriptor pluginDescriptor, File bundleLocation) {
-        String failureMsg = format("Failed to load plugin: %s. Plugin is invalid. Reasons %s",
-                bundleLocation, pluginDescriptor.getStatus().getMessages());
-        LOGGER.error(failureMsg);
-        unloadPlugin(pluginDescriptor);
     }
 
     @Override

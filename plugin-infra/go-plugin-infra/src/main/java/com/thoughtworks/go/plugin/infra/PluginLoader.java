@@ -60,10 +60,21 @@ public class PluginLoader {
     }
 
     public void loadPlugin(GoPluginDescriptor descriptor) {
-        pluginOSGiFramework.loadPlugin(descriptor);
+        try {
+            pluginOSGiFramework.loadPlugin(descriptor);
 
-        if (!descriptor.isInvalid()) {
-            doPostBundleInstallActivities(descriptor, descriptor.bundleLocation());
+            if (descriptor.isInvalid()) {
+                handlePluginInvalidation(descriptor, descriptor.bundleLocation());
+                return;
+            }
+
+            doPostBundleInstallActivities(descriptor);
+        } catch (Exception e) {
+            File bundleLocation = descriptor.bundleLocation();
+            descriptor.markAsInvalid(asList(e.getMessage()), e);
+            LOGGER.error("Failed to load plugin: {}", bundleLocation, e);
+            handlePluginInvalidation(descriptor, bundleLocation);
+            throw new RuntimeException("Failed to load plugin: " + bundleLocation, e);
         }
     }
 
@@ -84,25 +95,18 @@ public class PluginLoader {
         pluginOSGiFramework.unloadPlugin(descriptorOfRemovedPlugin);
     }
 
-    private void doPostBundleInstallActivities(GoPluginDescriptor pluginDescriptor, File bundleLocation) {
-        try {
-            for (PluginPostLoadHook pluginPostLoadHook : pluginPostLoadHooks) {
-                final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginDescriptor, pluginOSGiFramework.getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
-                if (result.isAFailure()) {
-                    pluginDescriptor.markAsInvalid(singletonList(result.getMessage()), null);
-                    LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.getMessage()));
-                    return;
-                }
+    private void doPostBundleInstallActivities(GoPluginDescriptor pluginDescriptor) {
+        for (PluginPostLoadHook pluginPostLoadHook : pluginPostLoadHooks) {
+            final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginDescriptor, pluginOSGiFramework.getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
+            if (result.isAFailure()) {
+                pluginDescriptor.markAsInvalid(singletonList(result.getMessage()), null);
+                LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.getMessage()));
+                return;
             }
+        }
 
-            if (!pluginDescriptor.isInvalid()) {
-                IterableUtils.forEach(pluginChangeListeners, listener -> listener.pluginLoaded(pluginDescriptor));
-            }
-        } catch (Exception e) {
-            pluginDescriptor.markAsInvalid(asList(e.getMessage()), e);
-            LOGGER.error("Failed to load plugin: {}", bundleLocation, e);
-            handlePluginInvalidation(pluginDescriptor, bundleLocation);
-            throw new RuntimeException("Failed to load plugin: " + bundleLocation, e);
+        if (!pluginDescriptor.isInvalid()) {
+            IterableUtils.forEach(pluginChangeListeners, listener -> listener.pluginLoaded(pluginDescriptor));
         }
     }
 

@@ -27,6 +27,19 @@ describe("Task", () => {
     expect(new ExecTask("ls", ["-lA"]).isValid());
   });
 
+  it("adopts errors in server response", () => {
+    const task = new ExecTask("whoami", []);
+
+    const unmatched = task.consumeErrorsResponse({
+      errors: { command: ["who are you?"], not_exist: ["well, ain't that a doozy"] }
+    });
+
+    expect(unmatched.hasErrors()).toBe(true);
+    expect(unmatched.errorsForDisplay("execTask.notExist")).toBe("well, ain't that a doozy.");
+
+    expect(task.attributes().errors().errorsForDisplay("command")).toBe("who are you?.");
+  });
+
   it("serializes", () => {
     expect(new ExecTask("ls", ["-la"]).toJSON()).toEqual({
       type: "exec",

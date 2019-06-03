@@ -17,6 +17,7 @@
 import JsonUtils from "helpers/json_utils";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
+import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 type ValidTypes = "exec" | "fetchArtifact";
@@ -40,6 +41,10 @@ abstract class AbstractTask extends ValidatableMixin implements Task {
   constructor() {
     super();
     this.validateAssociated("attributes");
+  }
+
+  errorContainerFor(subkey: string): ErrorsConsumer {
+    return "type" === subkey ? this : this.attributes();
   }
 
   toJSON(): any {

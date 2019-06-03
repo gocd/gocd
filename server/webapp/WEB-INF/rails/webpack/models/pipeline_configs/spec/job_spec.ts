@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {Job} from "models/pipeline_configs/job";
 import {ExecTask} from "models/pipeline_configs/task";
 
@@ -46,6 +47,35 @@ describe("Job model", () => {
     expect(job.errors().count()).toBe(1);
     expect(job.errors().keys()).toEqual(["tasks"]);
     expect(job.errors().errorsForDisplay("tasks")).toBe("Tasks must be present. A job must have at least one task.");
+  });
+
+  it("adopts errors in server response", () => {
+    const job = new Job("scooby", [
+      new ExecTask("whoami", []),
+      new ExecTask("id", ["apache"])
+    ], [
+      new EnvironmentVariableConfig(false, "FOO", "OOF"),
+      new EnvironmentVariableConfig(false, "BAR", "RAB")
+    ]);
+
+    const unmatched = job.consumeErrorsResponse({
+      errors: { name: ["ruh-roh!"] },
+      tasks: [{ errors: { command: ["who are you?"], not_exist: ["well, ain't that a doozy"] } }, {}],
+      environment_variables: [{}, { errors: { name: ["BAR? yes please!"] } }]
+    });
+
+    expect(unmatched.hasErrors()).toBe(true);
+    expect(unmatched.errorsForDisplay("job.tasks[0].notExist")).toBe("well, ain't that a doozy.");
+
+    expect(job.errors().errorsForDisplay("name")).toBe("ruh-roh!.");
+
+    const tasks = job.tasks();
+    expect(tasks[0].attributes().errors().errorsForDisplay("command")).toBe("who are you?.");
+    expect(tasks[1].attributes().errors().hasErrors()).toBe(false);
+
+    const envs = job.environmentVariables();
+    expect(envs[0].errors().hasErrors()).toBe(false);
+    expect(envs[1].errors().errorsForDisplay("name")).toBe("BAR? yes please!.");
   });
 
   it("should serialize correctly", () => {

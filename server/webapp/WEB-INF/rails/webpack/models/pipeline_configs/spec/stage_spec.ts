@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {Job} from "models/pipeline_configs/job";
 import {Stage} from "models/pipeline_configs/stage";
 import {ExecTask} from "models/pipeline_configs/task";
@@ -59,6 +60,36 @@ describe("Stage model", () => {
 
     stage.approval().state(true);
     expect(stage.toApiPayload().approval.type).toBe("success");
+  });
+
+  it("adopts errors in server response", () => {
+    const stage = new Stage("meow", [
+      new Job("scooby", [new ExecTask("whoami", [])], [new EnvironmentVariableConfig(false, "FOO", "OOF")]),
+      new Job("doo", [new ExecTask("id", ["apache"])], [new EnvironmentVariableConfig(false, "BAR", "RAB")])
+    ]);
+
+    const unmatched = stage.consumeErrorsResponse({
+      errors: { name: ["yay"] },
+      jobs: [
+        { errors: { name: ["ruh-roh!"] }, tasks: [{ errors: { command: ["who are you?"] } }], environment_variables: [{}] },
+        { tasks: [{}], environment_variables: [{ errors: { name: ["BAR? yes please!"], not_exist: ["well, ain't that a doozy"] } }] }
+      ]
+    });
+
+    expect(unmatched.hasErrors()).toBe(true);
+    expect(unmatched.errorsForDisplay("stage.jobs[1].environmentVariables[0].notExist")).toBe("well, ain't that a doozy.");
+
+    expect(stage.errors().errorsForDisplay("name")).toBe("yay.");
+
+    const [job1, job2] = Array.from(stage.jobs());
+    expect(job1.errors().errorsForDisplay("name")).toBe("ruh-roh!.");
+    expect(job2.errors().hasErrors()).toBe(false);
+
+    expect(job1.tasks()[0].attributes().errors().errorsForDisplay("command")).toBe("who are you?.");
+    expect(job1.environmentVariables()[0].errors().hasErrors()).toBe(false);
+
+    expect(job2.tasks()[0].attributes().errors().hasErrors()).toBe(false);
+    expect(job2.environmentVariables()[0].errors().errorsForDisplay("name")).toBe("BAR? yes please!.");
   });
 
   it("should serialize correctly", () => {

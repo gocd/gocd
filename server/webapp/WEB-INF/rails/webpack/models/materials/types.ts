@@ -32,7 +32,7 @@ import {
 } from "models/materials/serialization";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
-import {applyMixins} from "models/mixins/mixins";
+import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
 import {EncryptedValue} from "views/components/forms/encrypted_value";
 
@@ -77,16 +77,16 @@ export class Materials {
   }
 }
 
-export class Material implements ValidatableMixin {
+export class Material extends ValidatableMixin {
   private static API_VERSION_HEADER = ApiVersion.v1;
 
   type: Stream<string>;
   attributes: Stream<MaterialAttributes>;
 
   constructor(type?: string, attributes?: MaterialAttributes) {
+    super();
     this.attributes = stream(attributes);
     this.type       = stream(type);
-    ValidatableMixin.call(this);
     this.validateAssociated("attributes");
   }
 
@@ -113,6 +113,10 @@ export class Material implements ValidatableMixin {
     return this.type() === "p4" ? this.attributes().port() : this.attributes().url();
   }
 
+  errorContainerFor(subkey: string): ErrorsConsumer {
+    return "type" === subkey ? this : this.attributes();
+  }
+
   toApiPayload() {
     const raw = JsonUtils.toSnakeCasedObject(this);
 
@@ -136,16 +140,14 @@ export class Material implements ValidatableMixin {
   }
 }
 
-applyMixins(Material, ValidatableMixin);
-
-export abstract class MaterialAttributes implements ValidatableMixin {
+export abstract class MaterialAttributes extends ValidatableMixin {
   name: Stream<string>;
   autoUpdate: Stream<boolean>;
 
   protected constructor(name?: string, autoUpdate?: boolean) {
+    super();
     this.name       = stream(name);
     this.autoUpdate = stream(autoUpdate);
-    ValidatableMixin.call(this);
     this.validateIdFormat("name");
   }
 
@@ -187,8 +189,6 @@ export abstract class MaterialAttributes implements ValidatableMixin {
     return serialized;
   }
 }
-
-applyMixins(MaterialAttributes, ValidatableMixin);
 
 export abstract class ScmMaterialAttributes extends MaterialAttributes {
   static readonly DESTINATION_REGEX = new RegExp(
@@ -264,8 +264,6 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
   }
 }
 
-applyMixins(GitMaterialAttributes, ValidatableMixin);
-
 interface PasswordLike {
   cipherText?: string;
   plainText?: string;
@@ -315,8 +313,6 @@ export class SvnMaterialAttributes extends ScmMaterialAttributes {
   }
 }
 
-applyMixins(SvnMaterialAttributes, ValidatableMixin);
-
 export class HgMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string>;
   branch: Stream<string>;
@@ -351,8 +347,6 @@ export class HgMaterialAttributes extends ScmMaterialAttributes {
     return attrs;
   }
 }
-
-applyMixins(HgMaterialAttributes, ValidatableMixin);
 
 export class P4MaterialAttributes extends ScmMaterialAttributes {
   port: Stream<string>;
@@ -395,8 +389,6 @@ export class P4MaterialAttributes extends ScmMaterialAttributes {
     return attrs;
   }
 }
-
-applyMixins(P4MaterialAttributes, ValidatableMixin);
 
 export class TfsMaterialAttributes extends ScmMaterialAttributes {
   url: Stream<string>;
@@ -441,8 +433,6 @@ export class TfsMaterialAttributes extends ScmMaterialAttributes {
   }
 }
 
-applyMixins(TfsMaterialAttributes, ValidatableMixin);
-
 export class DependencyMaterialAttributes extends MaterialAttributes {
   pipeline: Stream<string>;
   stage: Stream<string>;
@@ -467,5 +457,3 @@ export class DependencyMaterialAttributes extends MaterialAttributes {
     return attrs;
   }
 }
-
-applyMixins(DependencyMaterialAttributes, ValidatableMixin);

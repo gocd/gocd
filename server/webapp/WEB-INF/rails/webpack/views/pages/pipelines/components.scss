@@ -21,6 +21,7 @@
 
 $diagram-width: 485px;
 $diagram-caption-width: 300px;
+$error-container-width: 450px;
 
 .fillable, .actions {
   background-color: $white;
@@ -40,9 +41,16 @@ $diagram-caption-width: 300px;
   .error-response {
     margin-right: 2ex;
     color: $go-danger;
+    display: inline-block;
+    max-width: $error-container-width;
 
     &:empty {
       margin-right: 0;
+    }
+
+    ol {
+      float: left;
+      max-width: inherit;
     }
   }
 }

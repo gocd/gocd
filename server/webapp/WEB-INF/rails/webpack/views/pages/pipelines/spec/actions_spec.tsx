@@ -115,6 +115,27 @@ describe("AddPipeline: Actions Section", () => {
     });
   });
 
+  it("Displays errors for unimplemented fields", (done) => {
+    config.isValid = jasmine.createSpy("isValid").and.returnValue(true);
+    const createPromise = createFailedRespWithUnboundErrors(config).
+      catch(() => done.fail("shouldn't have gotten here; 400 responses are handled in then()"));
+
+    config.create = jasmine.createSpy("create").and.returnValue(createPromise);
+
+    helper.click(sel.btnPrimary);
+    expect(config.create).toHaveBeenCalled();
+
+    createPromise.then(() => {
+      setTimeout(() => { // allow the outer promise.then() wrapping createPromise to finish
+        expect(helper.text(sel.errorResponse)).toBe("uh-oh!: pipelineConfig.materials[0].something: unknown. error.");
+        const mat = Array.from(config.materials()).pop()!;
+        expect(mat.attributes().errors().hasErrors("url")).toBe(true);
+        expect(mat.attributes().errors().errorsForDisplay("url")).toBe("This url is bogus.");
+        done();
+      }, 0);
+    });
+  });
+
   it("Save and Run creates a pipeline and goes to the dashboard when successful", (done) => {
     config.isValid = jasmine.createSpy("isValid").and.returnValue(true);
     config.create = jasmine.createSpy("create").and.
@@ -175,6 +196,20 @@ function createFailedResp(config: PipelineConfig): Promise<ApiResult<string>> {
       data: {
         materials: [
           {errors: {url: ["This url is bogus"]}}
+        ],
+        stages: []
+      }
+    }), "uh-oh!", 422));
+  });
+}
+
+function createFailedRespWithUnboundErrors(config: PipelineConfig): Promise<ApiResult<string>> {
+  return new Promise<ApiResult<string>>((resolve) => {
+    resolve(ApiResult.error(JSON.stringify({
+      message: "uh-oh!",
+      data: {
+        materials: [
+          {errors: {url: ["This url is bogus"], something: ["unknown", "error"]}}
         ],
         stages: []
       }

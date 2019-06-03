@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 import * as _ from "lodash";
-import * as stream from "mithril/stream";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
+import {BaseErrorsConsumer, ErrorsConsumer} from "models/mixins/errors_consumer";
 import * as s from "underscore.string";
 
 export interface ValidatorOptions {
@@ -196,17 +196,9 @@ export interface Validatable {
   validate: (attr?: string) => Errors;
 }
 
-export class ValidatableMixin implements Validatable {
-  private __errors                           = stream(new Errors());
+export class ValidatableMixin extends BaseErrorsConsumer implements Validatable, ErrorsConsumer {
   private __attrToValidators: any            = {};
   private __associationsToValidate: string[] = [];
-
-  errors(newVal?: Errors): Errors {
-    if (arguments.length > 0) {
-      this.__errors(newVal as Errors);
-    }
-    return this.__errors();
-  }
 
   clearErrors(attr?: string) {
     return attr ? this.errors().clear(attr) : this.errors().clear();
@@ -305,3 +297,5 @@ export class ValidatableMixin implements Validatable {
     this.__associationsToValidate.push(association);
   }
 }
+
+ValidatableMixin.prototype.errors = BaseErrorsConsumer.prototype.errors;

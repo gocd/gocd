@@ -146,3 +146,8 @@ $spinner-wrapper-height: 200px;
 .spinner-wrapper {
   min-height: $spinner-wrapper-height;
 }
+
+$error-message-margin-bottom: 40px;
+.error-wrapper {
+  margin-bottom: $error-message-margin-bottom;
+}

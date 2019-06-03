@@ -68,7 +68,8 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
 
   body(): m.Children {
     const flashMessage = this.errorMessage() ?
-      <FlashMessage type={MessageType.alert} message={this.errorMessage()}/> : null;
+      <div className={styles.errorWrapper}><FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
+      </div> : null;
 
     if (!this.entity || this.isStale()) {
       return <div className={styles.spinnerWrapper}><Spinner/></div>;

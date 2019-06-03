@@ -17,6 +17,7 @@
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import {Errors} from "models/mixins/errors";
+import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 import {Rules} from "models/secret_configs/rules";
 import {SecretConfigJSON, SecretConfigsJSON} from "models/secret_configs/secret_configs_json";
@@ -46,6 +47,7 @@ export class SecretConfig extends ValidatableMixin {
     this.validatePresenceOf("id");
     this.validateIdFormat("id");
     this.validatePresenceOf("pluginId");
+    this.validateEach("rules");
   }
 
   static fromJSON(data: SecretConfigJSON) {
@@ -65,6 +67,8 @@ export class SecretConfig extends ValidatableMixin {
     };
   }
 }
+
+applyMixins(SecretConfig, ValidatableMixin);
 
 export class SecretConfigs extends Array<Stream<SecretConfig>> {
 

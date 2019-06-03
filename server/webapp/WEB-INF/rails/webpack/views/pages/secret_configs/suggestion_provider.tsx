@@ -30,13 +30,13 @@ export class ResourceSuggestionProvider extends SuggestionProvider {
 
   getData(): Promise<Awesomplete.Suggestion[]> {
     if (this.rule().type() === "*") {
-      const allSuggestions: string[] = [];
+      const allSuggestions: Set<string> = new Set();
       this.suggestion.forEach((value, key) => {
-        allSuggestions.push(...value);
+        value.forEach((val) => allSuggestions.add(val));
       });
 
       return new Promise<Awesomplete.Suggestion[]>((resolve) => {
-        resolve(allSuggestions);
+        resolve(Array.from(allSuggestions.values()));
       });
     }
     if (this.suggestion.has(this.rule().type())) {

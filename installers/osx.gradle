@@ -34,7 +34,7 @@ task downloadOsxJreChecksum(type: DownloadFile) {
   dest destFile(srcUrl)
 }
 
-task downloadOSXJre(type: DownloadFile) {
+task downloadOsxJre(type: DownloadFile) {
   dependsOn downloadOsxJreChecksum
   def srcUrl = AdoptOpenJDKUrlHelper.downloadURL(
     com.thoughtworks.go.build.OperatingSystem.mac,
@@ -100,7 +100,7 @@ class ConcatFileReader extends FilterReader {
 def configureOSXZip(Zip zipTask,
                     Type type) {
   zipTask.with {
-    dependsOn downloadOSXJre
+    dependsOn downloadOsxJre
     dependsOn extractDeltaPack
     destinationDirectory = file("${project.buildDir}/${project.distsDirName}/osx")
     archiveBaseName = type.baseName
@@ -241,7 +241,7 @@ def configureOSXZip(Zip zipTask,
     }
 
     // puts the content of the tar under `go-agent-XXX/jre`
-    from(tarTree(downloadOSXJre.outputs.files.singleFile)) {
+    from(tarTree(downloadOsxJre.outputs.files.singleFile)) {
       eachFile { FileCopyDetails fcd ->
         List<String> segments = fcd.relativePath.segments
         segments.set(1, "jre")

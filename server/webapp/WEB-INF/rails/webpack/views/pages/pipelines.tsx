@@ -17,11 +17,14 @@
 // utils
 import * as _ from "lodash";
 import * as m from "mithril";
+import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
 import {Page, PageState} from "views/pages/page";
 
 // models
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {Job} from "models/pipeline_configs/job";
+import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
 
@@ -47,7 +50,8 @@ export class PipelineCreatePage extends Page {
   private material: Material = new Material("git", new GitMaterialAttributes());
   private job: Job = new Job("", [], []);
   private stage: Stage = new Stage("", [this.job]);
-  private model: PipelineConfig = new PipelineConfig("", [this.material], [this.stage]);
+  private model: PipelineConfig = new PipelineConfig("", [this.material], []);
+  private isUsingTemplate: Stream<boolean> = stream(false);
 
   pageName(): string {
     return "Add a New Pipeline";
@@ -62,7 +66,7 @@ export class PipelineCreatePage extends Page {
   }
 
   componentToDisplay(vnode: m.Vnode): m.Children {
-    return [
+    const components = [
       <FillableSection>
         <UserInputPane heading="Part 1: Material">
           <MaterialEditor material={this.material}/>
@@ -74,22 +78,26 @@ export class PipelineCreatePage extends Page {
 
       <FillableSection>
         <UserInputPane heading="Part 2: Pipeline Name">
-          <PipelineInfoEditor pipelineConfig={this.model}/>
+          <PipelineInfoEditor pipelineConfig={this.model} isUsingTemplate={this.isUsingTemplate}/>
         </UserInputPane>
         <ConceptDiagram image={pipelineImg}>
           In GoCD, a <strong>pipeline</strong> is a representation of a <strong>workflow</strong>. Pipelines consist of one or more <strong>stages</strong>.
         </ConceptDiagram>
-      </FillableSection>,
+      </FillableSection>];
 
-      <FillableSection>
-        <UserInputPane heading="Part 3: Stage Details">
-          <StageEditor stage={this.stage} />
-        </UserInputPane>
-        <ConceptDiagram image={stageImg}>
-          A <strong>stage</strong> is a group of jobs, and a <strong>job</strong> is a piece of work to execute.
-        </ConceptDiagram>
-      </FillableSection>,
-
+    if (!this.isUsingTemplate() ) {
+      if (!this.model.stages().has(this.stage)) {
+        this.model.stages(new NameableSet([this.stage]));
+      }
+      components.push(
+        <FillableSection>
+          <UserInputPane heading="Part 3: Stage Details">
+            <StageEditor stage={this.stage} />
+          </UserInputPane>
+          <ConceptDiagram image={stageImg}>
+            A <strong>stage</strong> is a group of jobs, and a <strong>job</strong> is a piece of work to execute.
+          </ConceptDiagram>
+        </FillableSection>,
       <FillableSection>
         <UserInputPane heading="Part 4: Job and Tasks">
           <JobEditor job={this.job}/>
@@ -101,10 +109,13 @@ export class PipelineCreatePage extends Page {
         <ConceptDiagram image={jobImg}>
           A <strong>job</strong> is like a script, where each sequential step is called a <strong>task</strong>. Typically, a task is a single command.
         </ConceptDiagram>
-      </FillableSection>,
+      </FillableSection>
+      );
+    }
 
-      <PipelineActions pipelineConfig={this.model}/>
-    ];
+    components.push(<PipelineActions pipelineConfig={this.model}/>);
+
+    return components;
   }
 
   fetchData(vnode: m.Vnode): Promise<any> {

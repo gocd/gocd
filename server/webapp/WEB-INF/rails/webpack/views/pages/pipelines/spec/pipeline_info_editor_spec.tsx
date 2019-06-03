@@ -15,8 +15,10 @@
  */
 
 import * as m from "mithril";
+import * as stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineGroupCache} from "models/pipeline_configs/pipeline_groups_cache";
+import {TemplateCache} from "models/pipeline_configs/templates_cache";
 import {Option} from "views/components/forms/input_fields";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PipelineInfoEditor} from "../pipeline_info_editor";
@@ -27,7 +29,7 @@ describe("AddPipeline: PipelineInfoEditor", () => {
 
   beforeEach(() => {
     config = new PipelineConfig("", [], []);
-    helper.mount(() => <PipelineInfoEditor pipelineConfig={config} cache={new DummyCache()}/>);
+    helper.mount(() => <PipelineInfoEditor pipelineConfig={config} cache={new TestCache()} isUsingTemplate={stream(false)} templatesCache={new EmptyTemplatesTestCache()}/>);
   });
 
   afterEach(helper.unmount.bind(helper));
@@ -47,12 +49,21 @@ describe("AddPipeline: PipelineInfoEditor", () => {
   });
 });
 
-class DummyCache implements PipelineGroupCache<Option> {
+class TestCache implements PipelineGroupCache<Option> {
   ready() { return true; }
   // tslint:disable-next-line
   prime(onComplete: () => void) {}
   pipelineGroups() { return []; }
   stages(pipeline: string) { return []; }
+  failureReason() { return undefined; }
+  failed() { return false; }
+}
+
+class EmptyTemplatesTestCache implements TemplateCache<Option> {
+  ready() { return true; }
+  // tslint:disable-next-line
+  prime(onComplete: () => void) { onComplete(); }
+  templates() { return []; }
   failureReason() { return undefined; }
   failed() { return false; }
 }

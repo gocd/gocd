@@ -44,22 +44,21 @@ describe("PipelineConfig model", () => {
     expect(pip.errors().errorsForDisplay("name")).toBe("Invalid name. This must be alphanumeric and can contain hyphens, underscores and periods (however, it cannot start with a period). The maximum allowed length is 255 characters.");
   });
 
+  it("should validate mutual exclusivity of template and stages", () => {
+    const pip = new PipelineConfig("name", defaultMaterials, defaultStages);
+    expect(pip.isValid()).toBe(true);
+    pip.template("wubba_lubba_dub_dub");
+    expect(pip.isValid()).toBe(false);
+    pip.stages().clear();
+    expect(pip.isValid()).toBe(true);
+  });
+
   it("should include a material", () => {
     let pip = new PipelineConfig("name", defaultMaterials, defaultStages);
     expect(pip.isValid()).toBe(true);
     expect(pip.errors().count()).toBe(0);
 
     pip = new PipelineConfig("name", [], defaultStages);
-    expect(pip.isValid()).toBe(false);
-    expect(pip.errors().count()).toBe(1);
-  });
-
-  it("should include a stage", () => {
-    let pip = new PipelineConfig("name", defaultMaterials, defaultStages);
-    expect(pip.isValid()).toBe(true);
-    expect(pip.errors().count()).toBe(0);
-
-    pip = new PipelineConfig("name", defaultMaterials, []);
     expect(pip.isValid()).toBe(false);
     expect(pip.errors().count()).toBe(1);
   });

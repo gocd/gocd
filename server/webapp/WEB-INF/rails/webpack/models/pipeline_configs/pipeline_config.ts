@@ -27,6 +27,7 @@ import {Stage} from "./stage";
 export class PipelineConfig extends ValidatableMixin {
   group: Stream<string> = stream("defaultGroup");
   name: Stream<string>;
+  template: Stream<string> = stream();
   materials: Stream<NameableSet<Material>>;
   stages: Stream<NameableSet<Stage>>;
 
@@ -45,8 +46,9 @@ export class PipelineConfig extends ValidatableMixin {
     this.validateAssociated("materials");
 
     this.stages = stream(new NameableSet(stages));
-    this.validateNonEmptyCollection("stages", {message: `A pipeline must have at least one stage`});
     this.validateAssociated("stages");
+
+    this.validateMutualExclusivityOf("template", "stages", {message: `A pipeline cannot use a template when stages are configured`});
   }
 
   create() {

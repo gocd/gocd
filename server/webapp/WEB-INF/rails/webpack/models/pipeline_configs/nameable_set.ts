@@ -29,6 +29,10 @@ export class NameableSet<T extends Nameable> extends ValidatableMixin implements
     return this._members.size;
   }
 
+  get length(): number {
+    return this._members.size;
+  }
+
   [Symbol.toStringTag]: string = `NameableSet`;
   private _members: Map<string, T> = new Map(); // preserves insertion order
 

@@ -20,14 +20,18 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {DefaultCache, PipelineGroupCache} from "models/pipeline_configs/pipeline_groups_cache";
+import {TemplateCache} from "models/pipeline_configs/templates_cache";
 import {Form, FormBody} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
+import {TemplateEditor} from "views/pages/pipelines/template_editor";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
   cache?: PipelineGroupCache<Option>;
+  isUsingTemplate: Stream<boolean>;
+  templatesCache?: TemplateCache<Option>;
 }
 
 export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
@@ -45,15 +49,20 @@ export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
-    return <FormBody>
+    return (<FormBody>
       <Form last={true} compactForm={true}>
         <TextField label="Pipeline Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., My-New-Pipeline" property={vnode.attrs.pipelineConfig.name} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("name")} required={true}/>
       <AdvancedSettings>
         <SelectField label="Pipeline Group" property={vnode.attrs.pipelineConfig.group} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("group")} required={true}>
           <SelectFieldOptions selected={vnode.attrs.pipelineConfig.group()} items={this.pipelineGroups()}/>
         </SelectField>
+        <TemplateEditor
+          pipelineConfig={vnode.attrs.pipelineConfig}
+          cache={vnode.attrs.templatesCache}
+          isUsingTemplate={vnode.attrs.isUsingTemplate}
+        />
       </AdvancedSettings>
       </Form>
-    </FormBody>;
+    </FormBody>);
   }
 }

@@ -45,7 +45,8 @@ export abstract class Validator {
 class AssociatedListValidator extends Validator {
   protected doValidate(entity: any, attr: string): void {
     _.forEach(entity[attr](), (p) => {
-      if (!p.isValid()) {
+      const isValid = ("function" === typeof p) ? p().isValid() : p.isValid();
+      if (!isValid) {
         entity.errors().add(attr, this.options.message);
       }
     });

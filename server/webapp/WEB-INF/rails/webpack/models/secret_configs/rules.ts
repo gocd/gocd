@@ -17,6 +17,7 @@
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
+import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
 
 export interface RuleJSON {
@@ -44,6 +45,7 @@ export class Rule extends ValidatableMixin {
     this.validatePresenceOf("directive");
     this.validatePresenceOf("action");
     this.validatePresenceOf("type");
+    this.validatePresenceOf("resource");
   }
 
   static fromJSON(ruleJSON: RuleJSON) {
@@ -51,6 +53,8 @@ export class Rule extends ValidatableMixin {
     return new Rule(ruleJSON.directive, ruleJSON.action, ruleJSON.type, ruleJSON.resource, errors);
   }
 }
+
+applyMixins(Rule, ValidatableMixin);
 
 export class Rules extends Array<Stream<Rule>> {
   constructor(...rules: Array<Stream<Rule>>) {

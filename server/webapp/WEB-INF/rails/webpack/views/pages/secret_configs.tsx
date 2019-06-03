@@ -147,12 +147,12 @@ export class SecretConfigsPage extends Page<null, State> {
 
                     results[2].do((successResponse) => {
                       vnode.state.resourceAutocompleteHelper()
-                           .set("pipeline_group", successResponse.body.map((group) => group.name));
+                           .set("pipeline_group", ["*"].concat(successResponse.body.map((group) => group.name)));
                     }, () => this.setErrorState());
 
                     results[3].do((successResponse) => {
                       vnode.state.resourceAutocompleteHelper()
-                           .set("environment", successResponse.body.map((env) => env.name()));
+                           .set("environment", ["*"].concat(successResponse.body.map((env) => env.name())));
                     }, () => this.setErrorState());
                   });
   }

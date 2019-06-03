@@ -231,7 +231,7 @@ describe("ConfigReposWidget", () => {
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     helper.redraw();
-    expect(helper.findByDataTestId("flash-message-alert")).toHaveText("This configuration repository was never parsed.");
+    expect(helper.findByDataTestId("flash-message-info")).toHaveText("This configuration repository has not been parsed yet.");
   });
 
   it("should render a warning message when parsing failed and there is no latest modification", () => {

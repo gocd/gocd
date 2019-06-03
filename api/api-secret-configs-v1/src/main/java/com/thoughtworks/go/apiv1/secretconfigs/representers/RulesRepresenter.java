@@ -22,12 +22,8 @@ import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.api.util.HaltApiResponses;
-import com.thoughtworks.go.config.rules.Allow;
-import com.thoughtworks.go.config.rules.Deny;
-import com.thoughtworks.go.config.rules.Directive;
-import com.thoughtworks.go.config.rules.DirectiveType;
-import com.thoughtworks.go.config.rules.Rules;
+import com.thoughtworks.go.config.Validatable;
+import com.thoughtworks.go.config.rules.*;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -44,7 +40,12 @@ public class RulesRepresenter {
                     });
                 }
 
-                directiveWriter.add("directive", directive.getDirectiveType().type());
+                if (directive instanceof Unknown) {
+                    directiveWriter.add("directive", ((Unknown) directive).getDirective());
+                } else {
+                    directiveWriter.add("directive", directive.getDirectiveType().type());
+                }
+
                 directiveWriter.add("action", directive.action());
                 directiveWriter.add("type", directive.type());
                 directiveWriter.add("resource", directive.resource());
@@ -65,15 +66,15 @@ public class RulesRepresenter {
 
     private static Directive getDirective(JsonElement directiveJson) {
         JsonReader reader = GsonTransformer.getInstance().jsonReaderFrom(directiveJson.toString());
-        String directive = reader.getString("directive");
-        String action = reader.getString("action");
-        String type = reader.getString("type");
-        String resource = reader.getString("resource");
+        String directive = reader.optString("directive").orElse(null);
+        String action = reader.optString("action").orElse(null);
+        String type = reader.optString("type").orElse(null);
+        String resource = reader.optString("resource").orElse(null);
 
         Optional<DirectiveType> directiveType = fromString(directive);
 
         if (!directiveType.isPresent()) {
-            HaltApiResponses.haltBecauseOfReason("Invalid rule directive '%s' in JSON payload '%s'.", directive, directiveJson.toString());
+            return new Unknown(directive, action, type, resource);
         }
 
         switch (directiveType.get()) {
@@ -82,9 +83,26 @@ public class RulesRepresenter {
             case DENY:
                 return new Deny(action, type, resource);
             default:
-                HaltApiResponses.haltBecauseOfReason("Invalid rule directive '%s' in JSON payload '%s'.", directive, directiveJson.toString());
-                break;
+                return new Unknown(directive, action, type, resource);
         }
-        return null;
+    }
+
+    static class Unknown extends AbstractDirective {
+        private final String directive;
+
+        public Unknown(String directive, String action, String type, String resource) {
+            super(null, action, type, resource);
+            this.directive = directive;
+            addError("directive", "Invalid directive, must be either 'allow' or 'deny'.");
+        }
+
+        public String getDirective() {
+            return directive;
+        }
+
+        @Override
+        public Result apply(String refer, Class<? extends Validatable> aClass, String group) {
+            return null;
+        }
     }
 }

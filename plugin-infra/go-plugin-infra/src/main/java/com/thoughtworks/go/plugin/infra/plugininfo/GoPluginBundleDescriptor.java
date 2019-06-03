@@ -26,9 +26,14 @@ import java.util.List;
 
 public class GoPluginBundleDescriptor {
     private GoPluginDescriptor pluginDescriptor;
+    private Bundle bundle;
+    private String bundleSymbolicName;
+    private String bundleClassPath;
+    private String bundleActivator;
 
     public GoPluginBundleDescriptor(GoPluginDescriptor pluginDescriptor) {
         this.pluginDescriptor = pluginDescriptor;
+        this.pluginDescriptor.setBundleDescriptor(this);
     }
 
     public GoPluginDescriptor descriptor() {
@@ -91,12 +96,13 @@ public class GoPluginBundleDescriptor {
         return pluginDescriptor.bundleLocation();
     }
 
-    public void setBundle(Bundle bundle) {
-        this.pluginDescriptor.setBundle(bundle);
+    public GoPluginBundleDescriptor setBundle(Bundle bundle) {
+        this.bundle = bundle;
+        return this;
     }
 
     public Bundle bundle() {
-        return pluginDescriptor.bundle();
+        return bundle;
     }
 
     public PluginStatus getStatus() {
@@ -104,18 +110,20 @@ public class GoPluginBundleDescriptor {
     }
 
     public void updateBundleInformation(String symbolicName, String classPath, String bundleActivator) {
-        pluginDescriptor.updateBundleInformation(symbolicName, classPath, bundleActivator);
+        this.bundleSymbolicName = symbolicName;
+        this.bundleClassPath = classPath;
+        this.bundleActivator = bundleActivator;
     }
 
     public String bundleSymbolicName() {
-        return pluginDescriptor.bundleSymbolicName();
+        return bundleSymbolicName;
     }
 
     public String bundleClassPath() {
-        return pluginDescriptor.bundleClassPath();
+        return bundleClassPath;
     }
 
     public String bundleActivator() {
-        return pluginDescriptor.bundleActivator();
+        return bundleActivator;
     }
 }

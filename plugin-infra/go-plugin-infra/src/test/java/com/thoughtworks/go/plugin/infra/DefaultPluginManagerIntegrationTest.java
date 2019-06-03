@@ -77,9 +77,9 @@ public class DefaultPluginManagerIntegrationTest {
         GoPluginDescriptor plugin = pluginManager.getPluginDescriptorFor(PLUGIN_ID_1);
         assertThat(plugin.id(), is(PLUGIN_ID_1));
 
-        assertThat(plugin.bundleSymbolicName(), is(PLUGIN_ID_1));
-        assertThat(plugin.bundleClassPath(), is("lib/go-plugin-activator.jar,.,lib/dependency.jar"));
-        assertThat(plugin.bundleActivator(), is(DefaultGoPluginActivator.class.getCanonicalName()));
+        assertThat(plugin.bundleDescriptor().bundleSymbolicName(), is(PLUGIN_ID_1));
+        assertThat(plugin.bundleDescriptor().bundleClassPath(), is("lib/go-plugin-activator.jar,.,lib/dependency.jar"));
+        assertThat(plugin.bundleDescriptor().bundleActivator(), is(DefaultGoPluginActivator.class.getCanonicalName()));
         assertThat(plugin.isInvalid(), is(false));
 
         String extensionType = "notification";

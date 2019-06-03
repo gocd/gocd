@@ -56,7 +56,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
         if (existingDescriptor == null) {
             throw new RuntimeException("Could not find existing plugin with ID: " + bundleDescriptor.id());
         }
-        return idToDescriptorMap.remove(existingDescriptor.descriptor().id()).bundleDescriptor();
+        return new GoPluginBundleDescriptor(idToDescriptorMap.remove(existingDescriptor.descriptor().id()));
     }
 
     private GoPluginDescriptor getPluginByIdOrFileName(String pluginID, final String fileName) {
@@ -72,7 +72,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
 
     public GoPluginBundleDescriptor getPluginBundleByIdOrFileName(String bundleID, final String fileName) {
         final GoPluginDescriptor pluginDescriptor = getPluginByIdOrFileName(bundleID, fileName);
-        return pluginDescriptor == null ? null : pluginDescriptor.bundleDescriptor();
+        return pluginDescriptor == null ? null : new GoPluginBundleDescriptor(pluginDescriptor);
     }
 
     public void markPluginInvalid(String pluginId, List<String> messages) {

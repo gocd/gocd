@@ -39,10 +39,7 @@ public class GoPluginDescriptor implements PluginDescriptor {
     private String pluginJarFileLocation;
     private File bundleLocation;
     private boolean bundledPlugin;
-    private String bundleSymbolicName;
-    private String bundleClassPath;
-    private String bundleActivator;
-    private Bundle bundle;
+    private GoPluginBundleDescriptor bundleDescriptor;
 
     public GoPluginDescriptor(String id, String version, About about, String pluginJarFileLocation, File bundleLocation, boolean isBundledPlugin) {
         this(id, pluginJarFileLocation, bundleLocation, isBundledPlugin);
@@ -105,18 +102,6 @@ public class GoPluginDescriptor implements PluginDescriptor {
         return bundleLocation;
     }
 
-    public String bundleSymbolicName() {
-        return bundleSymbolicName;
-    }
-
-    public String bundleClassPath() {
-        return bundleClassPath;
-    }
-
-    public String bundleActivator() {
-        return bundleActivator;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -142,26 +127,7 @@ public class GoPluginDescriptor implements PluginDescriptor {
                 ", pluginJarFileLocation='" + pluginJarFileLocation + '\'' +
                 ", bundleLocation=" + bundleLocation +
                 ", bundledPlugin=" + bundledPlugin +
-                ", bundleSymbolicName='" + bundleSymbolicName + '\'' +
-                ", bundleClassPath='" + bundleClassPath + '\'' +
-                ", bundleActivator='" + bundleActivator + '\'' +
-                ", bundle=" + bundle +
                 '}';
-    }
-
-    public void updateBundleInformation(String symbolicName, String classPath, String bundleActivator) {
-        this.bundleSymbolicName = symbolicName;
-        this.bundleClassPath = classPath;
-        this.bundleActivator = bundleActivator;
-    }
-
-    public GoPluginDescriptor setBundle(Bundle bundle) {
-        this.bundle = bundle;
-        return this;
-    }
-
-    public Bundle bundle() {
-        return bundle;
     }
 
     public boolean isBundledPlugin() {
@@ -193,7 +159,11 @@ public class GoPluginDescriptor implements PluginDescriptor {
     }
 
     public GoPluginBundleDescriptor bundleDescriptor() {
-        return new GoPluginBundleDescriptor(this);
+        return bundleDescriptor;
+    }
+
+    public void setBundleDescriptor(GoPluginBundleDescriptor bundleDescriptor) {
+        this.bundleDescriptor = bundleDescriptor;
     }
 
     public static class About implements PluginDescriptor.About {

@@ -213,7 +213,7 @@ public class DefaultPluginJarChangeListenerTest {
                 asList("For a test"), null));
 
         Bundle oldBundle = mock(Bundle.class);
-        GoPluginBundleDescriptor oldPluginDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("some.old.id", "some/path/to/plugin.jar", bundleDirectoryForOldPlugin, true).setBundle(oldBundle));
+        GoPluginBundleDescriptor oldPluginDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("some.old.id", "some/path/to/plugin.jar", bundleDirectoryForOldPlugin, true)).setBundle(oldBundle);
 
         when(goPluginBundleDescriptorBuilder.build(pluginFile, true)).thenReturn(descriptorForInvalidPlugin);
         when(registry.getPlugin(pluginId)).thenReturn(oldPluginDescriptor.descriptor());

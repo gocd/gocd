@@ -41,11 +41,13 @@
             <div class="no_pipeline_in_group">
               <div class="information">No pipelines associated with this group</div>
             </div>
-            <% if use_new_add_pipeline_flow? %>
-              <%= link_to 'Create a new pipeline within this group', new_pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
-            <% else %>
-              <%= link_to 'Create a new pipeline within this group', pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
-            <% end %>
+            <div class="add_first_pipeline_in_group">
+              <% if use_new_add_pipeline_flow? %>
+                <%= link_to 'Create a new pipeline within this group', new_pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
+              <% else %>
+                <%= link_to 'Create a new pipeline within this group', pipeline_new_path(:group => group.getGroup()), :class => "add_link add_pipeline_to_group" -%>
+              <% end %>
+            </div>
         <% else %>
 
             <table class="list_table">

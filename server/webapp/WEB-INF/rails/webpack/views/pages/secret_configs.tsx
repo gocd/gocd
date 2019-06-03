@@ -129,9 +129,6 @@ export class SecretConfigsPage extends Page<null, State> {
   }
 
   fetchData(vnode: m.Vnode<null, State>): Promise<any> {
-    // vnode.state.pluginInfos = stream([PluginInfo.fromJSON(SecretPluginInfoTest.file()), PluginInfo.fromJSON(
-    //   SecretPluginInfoTest.aws())]);
-
     return Promise.all([PluginInfoCRUD.all({type: ExtensionType.SECRETS}), SecretConfigsCRUD.all()])
                   .then((results) => {
                     results[0].do((successResponse) => {
@@ -148,8 +145,10 @@ export class SecretConfigsPage extends Page<null, State> {
   }
 
   protected headerPanel(vnode: m.Vnode<null, State>): any {
+    const disabled = !vnode.state.pluginInfos || vnode.state.pluginInfos().length === 0;
     return <HeaderPanel title={this.pageName()}
                         buttons={<Buttons.Primary data-test-id="add-secret-config"
+                                                  disabled={disabled}
                                                   onclick={vnode.state.onAdd.bind(this)}>Add</Buttons.Primary>}/>;
   }
 }

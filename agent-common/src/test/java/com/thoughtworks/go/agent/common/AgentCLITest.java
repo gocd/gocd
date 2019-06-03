@@ -70,18 +70,6 @@ public class AgentCLITest {
     }
 
     @Test
-    public void serverURLMustBeSSL() throws Exception {
-        try {
-            agentCLI.parse("-serverUrl", "http://go.example.com:8154/go");
-            Assert.fail("Was expecting an exception!");
-        } catch (ExitException e) {
-            assertThat(e.getStatus(), is(1));
-            assertThat(errorStream.toString(), containsString("serverUrl must be an HTTPS url and must begin with https://"));
-            assertThat(errorStream.toString(), containsString("Usage: java -jar agent-bootstrapper.jar"));
-        }
-    }
-
-    @Test
     public void shouldPassIfCorrectArgumentsAreProvided() throws Exception {
         AgentBootstrapperArgs agentBootstrapperArgs = agentCLI.parse("-serverUrl", "https://go.example.com:8154/go", "-sslVerificationMode", "NONE");
         assertThat(agentBootstrapperArgs.getServerUrl().toString(), is("https://go.example.com:8154/go"));

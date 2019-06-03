@@ -17,8 +17,6 @@ package com.thoughtworks.go.agent;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.config.DefaultAgentRegistry;
-import com.thoughtworks.go.config.GuidService;
-import com.thoughtworks.go.config.TokenService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;

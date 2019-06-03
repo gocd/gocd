@@ -17,6 +17,7 @@ package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClientBuilder;
+import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.FetchHandler;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
@@ -41,6 +42,8 @@ import java.util.Properties;
 
 @Component
 public class HttpService {
+    private final AgentRegistry agentRegistry;
+    private final boolean useMutualTLS;
     private HttpClientFactory httpClientFactory;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HttpService.class);
@@ -48,16 +51,18 @@ public class HttpService {
     public static final String GO_ARTIFACT_PAYLOAD_SIZE = "X-GO-ARTIFACT-SIZE";
 
     public HttpService() {
-        this(new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(new SystemEnvironment())));
+        this(new GoAgentServerHttpClient(new GoAgentServerHttpClientBuilder(new SystemEnvironment())), null);
     }
 
     @Autowired(required = false)
-    public HttpService(GoAgentServerHttpClient httpClient) {
-        this(new HttpClientFactory(httpClient));
+    public HttpService(GoAgentServerHttpClient httpClient, AgentRegistry agentRegistry) {
+        this(new HttpClientFactory(httpClient), agentRegistry, !"true".equalsIgnoreCase(System.getenv("GO_USE_TOKEN_AUTH")));
     }
 
-    HttpService(HttpClientFactory httpClientFactory) {
+    HttpService(HttpClientFactory httpClientFactory, AgentRegistry agentRegistry, boolean useMutualTLS) {
         this.httpClientFactory = httpClientFactory;
+        this.agentRegistry = agentRegistry;
+        this.useMutualTLS = useMutualTLS;
     }
 
     public int upload(String url, long size, File artifactFile, Properties artifactChecksums) throws IOException {
@@ -133,10 +138,17 @@ public class HttpService {
 
     public CloseableHttpResponse execute(HttpRequestBase httpMethod) throws IOException {
         GoAgentServerHttpClient client = httpClientFactory.httpClient();
+
+        if (!useMutualTLS) {
+            httpMethod.setHeader("X-Agent-GUID", agentRegistry.uuid());
+            httpMethod.setHeader("Authorization", agentRegistry.token());
+        }
+
         CloseableHttpResponse response = client.execute(httpMethod);
         LOGGER.info("Got back {} from server", response.getStatusLine().getStatusCode());
         return response;
     }
+
 
     public static void setSizeHeader(HttpRequestBase method, long size) {
         method.setHeader(GO_ARTIFACT_PAYLOAD_SIZE, String.valueOf(size));

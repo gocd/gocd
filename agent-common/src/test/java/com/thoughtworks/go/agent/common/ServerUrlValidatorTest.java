@@ -16,38 +16,42 @@
 package com.thoughtworks.go.agent.common;
 
 import com.beust.jcommander.ParameterException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
-public class ServerUrlValidatorTest {
+import static org.assertj.core.api.Assertions.assertThatCode;
 
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
+class ServerUrlValidatorTest {
 
     @Test
-    public void shouldValidateByParsingUrl() throws Exception {
-        expectedEx.expect(ParameterException.class);
-        expectedEx.expectMessage("is not a valid url");
-        new ServerUrlValidator().validate("foo", "bad-url");
+    void shouldValidateByParsingUrl() {
+        assertThatCode(() -> {
+            new ServerUrlValidator().validate("foo", "bad-url");
+        })
+                .isOfAnyClassIn(ParameterException.class)
+                .hasMessageContaining("is not a valid url");
     }
 
     @Test
-    public void shouldNotAllowUrlEndingWithoutGo() throws Exception {
-        expectedEx.expect(ParameterException.class);
-        expectedEx.expectMessage("must end with '/go' (https://localhost:8154/go)");
-        new ServerUrlValidator().validate("foo", "https://example.com");
+    void shouldNotAllowUrlEndingWithoutGo() {
+        assertThatCode(() -> {
+            new ServerUrlValidator().validate("foo", "https://example.com");
+        })
+                .isOfAnyClassIn(ParameterException.class)
+                .hasMessageContaining("must end with '/go' (https://localhost:8154/go)");
     }
 
     @Test
-    public void shouldAllowSslUrlEndingWithGo() throws Exception {
+    void shouldAllowHttpOrHttpsUrlEndingWithGo() {
         new ServerUrlValidator().validate("foo", "https://example.com/go");
+        new ServerUrlValidator().validate("foo", "http://example.com/go");
     }
 
     @Test
-    public void shouldNotAllowPlainTextUrlEndingWithGo() throws Exception {
-        expectedEx.expect(ParameterException.class);
-        expectedEx.expectMessage("must be an HTTPS url and must begin with https://");
-        new ServerUrlValidator().validate("foo", "http://example.com/go");
+    void shouldNotAllowNonHttpUrlEndingWithGo() {
+        assertThatCode(() -> {
+            new ServerUrlValidator().validate("foo", "file://example.com/go");
+        })
+                .isOfAnyClassIn(ParameterException.class)
+                .hasMessageContaining("foo must use http or https protocol");
     }
 }

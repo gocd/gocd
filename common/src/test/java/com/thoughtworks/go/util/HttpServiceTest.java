@@ -16,6 +16,7 @@
 package com.thoughtworks.go.util;
 
 import com.thoughtworks.go.agent.common.ssl.GoAgentServerHttpClient;
+import com.thoughtworks.go.config.AgentRegistry;
 import com.thoughtworks.go.domain.FetchHandler;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpVersion;
@@ -45,8 +46,6 @@ public class HttpServiceTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private static final String NOT_EXIST_URL = "http://bjcruiselablablab";
-
     private File folderToSaveDowloadFiles;
     private HttpService service;
     private HttpService.HttpClientFactory httpClientFactory;
@@ -59,7 +58,10 @@ public class HttpServiceTest {
         httpClient = mock(GoAgentServerHttpClient.class);
         when(httpClientFactory.httpClient()).thenReturn(httpClient);
 
-        service = new HttpService(httpClientFactory);
+        AgentRegistry agentRegistry = mock(AgentRegistry.class);
+        when(agentRegistry.token()).thenReturn("some-token");
+        when(agentRegistry.uuid()).thenReturn("some-guid");
+        service = new HttpService(httpClientFactory, agentRegistry, false);
     }
 
     @Test
@@ -81,6 +83,8 @@ public class HttpServiceTest {
 
         verify(mockPostMethod).setHeader(GO_ARTIFACT_PAYLOAD_SIZE, "100");
         verify(mockPostMethod).setHeader("Confirm", "true");
+        verify(mockPostMethod).setHeader("X-Agent-GUID", "some-guid");
+        verify(mockPostMethod).setHeader("Authorization", "some-token");
         verify(httpClientFactory).createMultipartRequestEntity(uploadingFile, checksums);
         verify(httpClient).execute(mockPostMethod);
     }

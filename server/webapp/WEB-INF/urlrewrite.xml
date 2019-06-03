@@ -24,6 +24,12 @@
 
 <urlrewrite>
   <rule>
+    <name>Server Info About SPA</name>
+    <from>^/about(/?)$</from>
+    <to last="true">/spark/about</to>
+  </rule>
+
+  <rule>
     <name>secret_configs UI</name>
     <from>^/admin/secret_configs(/?)$</from>
     <to last="true">/spark/admin/secret_configs</to>

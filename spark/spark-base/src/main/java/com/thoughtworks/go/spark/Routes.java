@@ -617,4 +617,8 @@ public class Routes {
     public class ClusterProfiles {
         public static final String SPA_BASE = "/admin/cluster_profiles";
     }
+
+    public class ServerInfo {
+        public static final String SPA_BASE = "/about";
+    }
 }

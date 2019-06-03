@@ -19,12 +19,12 @@ package com.thoughtworks.go.build
 class GithubArtifact {
   String user
   String repo
-  String release
+  String tagName
   String asset
   String checksum
 
   GString getName() {
-    "${user}/${repo}/releases/download/${release}/${asset}"
+    "${user}/${repo}/releases/download/${tagName}/${asset}"
   }
 
   GString getDownloadUrl() {

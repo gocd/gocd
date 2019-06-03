@@ -24,8 +24,7 @@ module ApiV1
           pipelines = pipeline_config_service.viewableOrOperatableGroupsFor(current_user)
 
           json = ApiV1::Config::PipelineConfigsWithMinimalAttributesRepresenter.new(pipelines).to_hash(url_builder: self)
-
-          render json_hal_v1: json
+          render json_hal_v1: json if(stale?(strong_etag: etag_for(PipelineGroups.new pipelines)))
         end
       end
     end

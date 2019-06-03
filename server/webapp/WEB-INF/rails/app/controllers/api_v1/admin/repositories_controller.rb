@@ -27,7 +27,9 @@ module ApiV1
       end
 
       def index
-        render DEFAULT_FORMAT => ApiV1::Config::PackageRepositoriesRepresenter.new(package_repository_service.getPackageRepositories()).to_hash(url_builder: self)
+        package_repositories = package_repository_service.getPackageRepositories()
+        json = ApiV1::Config::PackageRepositoriesRepresenter.new(package_repositories).to_hash(url_builder: self)
+        render DEFAULT_FORMAT => json if stale?(strong_etag: etag_for(package_repositories))
       end
 
       def create

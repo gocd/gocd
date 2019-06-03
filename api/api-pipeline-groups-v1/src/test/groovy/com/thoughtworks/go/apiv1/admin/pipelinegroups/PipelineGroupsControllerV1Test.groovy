@@ -92,7 +92,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       void 'should list all pipeline groups'() {
         def configs = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
         configs.setGroup("group")
-        def expectedPipelineGroups = new PipelineGroups(configs)
+        def expectedPipelineGroups = new PipelineGroups([configs])
         when(entityHashingService.md5ForEntity(expectedPipelineGroups)).thenReturn("some-etag")
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(expectedPipelineGroups)
 
@@ -109,7 +109,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       void 'should render 304 if etag matches'() {
         def configs = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
         configs.setGroup("group")
-        def expectedPipelineGroups = new PipelineGroups(configs)
+        def expectedPipelineGroups = new PipelineGroups([configs])
 
         when(entityHashingService.md5ForEntity(expectedPipelineGroups)).thenReturn("some-etag")
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(expectedPipelineGroups)
@@ -229,7 +229,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       void 'should show pipeline config for an admin'() {
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
         group.setGroup("group")
-        def pipelineGroups = new PipelineGroups(group)
+        def pipelineGroups = new PipelineGroups([group])
         def group_md5 = 'md5_for_group'
 
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(pipelineGroups)
@@ -247,7 +247,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       void "should return 304 for show pipeline config if etag sent in request is fresh"() {
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
         group.setGroup("group")
-        def pipelineGroups = new PipelineGroups(group)
+        def pipelineGroups = new PipelineGroups([group])
         def group_md5 = 'md5_for_group'
 
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(pipelineGroups)
@@ -276,7 +276,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       void "should show pipeline config if etag sent in request is stale"() {
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
         group.setGroup("group")
-        def pipelineGroups = new PipelineGroups(group)
+        def pipelineGroups = new PipelineGroups([group])
         def group_md5 = 'md5_for_group'
 
         when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(pipelineGroups)
@@ -330,7 +330,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"))
         group.setGroup("group1")
         when(entityHashingService.md5ForEntity(group)).thenReturn('md5')
-        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups(group))
+        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
         when(pipelineConfigsService.updateGroupAuthorization(any(), any(), any(), any(), any(), any())).thenReturn(group)
 
         def headers = [
@@ -350,7 +350,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       void "should not update group if etag passed does not match the one on server"() {
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"))
         group.setGroup("group1")
-        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups(group))
+        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
 
         def headers = [
           'If-Match': 'old-etag',
@@ -369,7 +369,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       void "should not update group if no etag is passed"() {
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"))
         group.setGroup("group1")
-        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups(group))
+        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
 
         putWithApiHeader(controller.controllerPath("/group1"), toObjectString({
           PipelineGroupRepresenter.toJSON(it, group)
@@ -386,7 +386,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"))
         group.setGroup("group1")
         when(entityHashingService.md5ForEntity(group)).thenReturn('md5')
-        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups(group))
+        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
 
         group.addError("authorization", "Invalid authorization")
 
@@ -428,7 +428,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       void "should not allow renaming a pipeline"() {
         def group = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig("pipeline1"))
         group.setGroup("group1")
-        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups(group))
+        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
 
         def headers = [
           'If-Match': 'md5',
@@ -475,7 +475,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       @Test
       void "should delete empty pipeline group for an admin"() {
         def group = new BasicPipelineConfigs("group1", new Authorization())
-        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups(group))
+        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.arguments.last()
@@ -504,7 +504,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
       @Test
       void "should not delete pipeline group when the group is not empty"() {
         def group = new BasicPipelineConfigs("group1", new Authorization(), PipelineConfigMother.pipelineConfig("pipeline1"))
-        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups(group))
+        when(pipelineConfigsService.getGroupsForUser(currentUserLoginName().toString())).thenReturn(new PipelineGroups([group]))
 
         doAnswer({ InvocationOnMock invocation ->
           HttpLocalizedOperationResult result = invocation.arguments.last()

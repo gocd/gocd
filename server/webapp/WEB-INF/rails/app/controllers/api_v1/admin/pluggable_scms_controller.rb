@@ -23,7 +23,8 @@ module ApiV1
 
       def index
         scms = pluggable_scm_service.listAllScms
-        render DEFAULT_FORMAT => ApiV1::Scms::PluggableScmsRepresenter.new(scms).to_hash(url_builder: self)
+        json = ApiV1::Scms::PluggableScmsRepresenter.new(scms).to_hash(url_builder: self)
+        render DEFAULT_FORMAT => json if (stale?(strong_etag: etag_for(scms)))
       end
 
       def show

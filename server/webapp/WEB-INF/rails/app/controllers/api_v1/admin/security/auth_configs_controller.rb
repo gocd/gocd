@@ -64,6 +64,10 @@ module ApiV1
           SecurityAuthConfig.new
         end
 
+        def load_all_entities_from_config
+          security_auth_config_service.getPluginProfiles
+        end
+
         def load_entity_from_config
           security_auth_config_service.findProfile(params[:auth_config_id]) || (raise RecordNotFound)
         end

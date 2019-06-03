@@ -67,11 +67,13 @@ describe ApiV1::Admin::Security::AuthConfigsController do
         login_as_admin
 
         auth_config = SecurityAuthConfig.new('foo', 'cd.go.ldap')
-        expect(@security_auth_config_service).to receive(:listAll).and_return({'foo' => auth_config})
+        expect(@security_auth_config_service).to receive(:getPluginProfiles).and_return([auth_config])
+        expect(@entity_hashing_service).to receive(:md5ForEntity).and_return("md5")
 
         get_with_api_header :index
 
         expect(response).to be_ok
+        expect(response.headers["ETag"]).not_to include('W/')
         expect(actual_response).to eq(expected_response([auth_config], ApiV1::Security::AuthConfigsRepresenter))
       end
     end

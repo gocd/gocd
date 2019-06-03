@@ -23,7 +23,9 @@ module ApiV1
       before_action :check_for_repository, only: [:create, :update]
 
       def index
-        render DEFAULT_FORMAT => ApiV1::Config::PackagesRepresenter.new(package_definition_service.getPackages).to_hash(url_builder: self)
+        packages = package_definition_service.getPackages
+        json = ApiV1::Config::PackagesRepresenter.new(packages).to_hash(url_builder: self)
+        render DEFAULT_FORMAT => json if(stale?(strong_etag: etag_for(packages)))
       end
 
       def show

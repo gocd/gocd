@@ -48,18 +48,6 @@ task downloadOSXJre(type: DownloadFile) {
   checksum = { downloadOsxJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
-task downloadTanukiDeltaPack(type: DownloadFile) {
-  def srcUrl = System.getenv("TANKUK_WRAPPER_URL") ?: "https://nexus.gocd.io/repository/s3-mirrors/local/tanuki/wrapper-delta-pack-${project.versions.tanuki}-st.tar.gz"
-  src srcUrl
-  dest destFile(srcUrl)
-  checksum 'c640701769c140ad5e05f3e6058b3650dd44c6abc0f2d456180307ba076340d2'
-}
-
-task extractDeltaPack(type: Copy) {
-  dependsOn downloadTanukiDeltaPack
-  from(project.tarTree(downloadTanukiDeltaPack.outputs.files.singleFile))
-  into project.buildDir
-}
 
 enum Type {
 

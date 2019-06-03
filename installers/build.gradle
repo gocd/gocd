@@ -1,5 +1,4 @@
 import groovy.json.JsonOutput
-
 /*
  * Copyright 2016 ThoughtWorks, Inc.
  *
@@ -64,6 +63,7 @@ task versionFile {
 
 assemble.dependsOn(':installers:versionFile')
 
+apply from: 'tanuki.gradle'
 apply from: 'osx.gradle'
 apply from: 'generic.gradle'
 apply from: 'linux.gradle'

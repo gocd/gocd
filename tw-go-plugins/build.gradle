@@ -27,37 +27,44 @@ def dependencies = [
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-ldap-authentication-plugin',
-    release: '2.0.0',
+    tagName: '2.0.0',
     asset: 'gocd-ldap-authentication-plugin-2.0.0-65.jar',
     checksum: '8bdd9a9de6e53f0dc1ccb03f6b4b1bbb21e179d581e435fa466541ac7e4d0be4'
   ),
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-filebased-authentication-plugin',
-    release: '2.0.0',
+    tagName: '2.0.0',
     asset: 'gocd-filebased-authentication-plugin-2.0.0-63.jar',
     checksum: '0095d3a3db8059e6406ef71269cd0ca29cc1f9411f3583fc73e28aea218110f7'
   ),
   new GithubArtifact(
     user: 'gocd',
     repo: 'gocd-yum-repository-poller-plugin',
-    release: 'v2.0.5-13',
+    tagName: 'v2.0.5-13',
     asset: 'gocd-yum-repo-plugin-2.0.5-13.jar',
     checksum: '405c0d3507b1621df517b2b164087615c4355d68935172d07fdd1e12bf4bf7b1'
   ),
   new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-yaml-config-plugin',
-    release: '0.10.2',
+    tagName: '0.10.2',
     asset: 'yaml-config-plugin-0.10.2.jar',
     checksum: 'c94f0b4ae7ed374e35cf8ed04e8db2f9113249d36ace16f494839d7ab2a85b16'
   ),
   new GithubArtifact(
     user: 'tomzo',
     repo: 'gocd-json-config-plugin',
-    release: '0.3.9',
+    tagName: '0.3.9',
     asset: 'json-config-plugin-0.3.9.jar',
     checksum: 'c83541a9761b00634e3b77d1d4d7b6f77c2ad877378f1e42348002f048c5c793'
+  ),
+  new GithubArtifact(
+    user: 'gocd',
+    repo: 'gocd-file-based-secrets-plugin',
+    tagName: 'v0.0.1-21',
+    asset: 'gocd-file-based-secrets-plugin-0.0.1-21.jar',
+    checksum: '9448d4cc2f5925c85a550c4d8f82cb52c756623271c1818739e4122520189674'
   )
 ]
 

@@ -33,8 +33,8 @@
     },
     {
       "key": "show_secret_config_spa",
-      "description": "Show Secret Config SPA in menu for admin. Default: false",
-      "value": false
+      "description": "Show Secret Config SPA in menu for admin. Default: true",
+      "value": true
     },
     {
       "key": "plugin_settings_api_using_rails",

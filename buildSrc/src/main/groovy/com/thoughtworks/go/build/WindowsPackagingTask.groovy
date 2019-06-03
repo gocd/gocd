@@ -66,11 +66,6 @@ class WindowsPackagingTask extends DefaultTask {
       project.copy {
         from project.zipTree(openJdkZipFile)
         into buildRoot()
-
-        // exclude jdk specific stuff
-        exclude 'jdk*/lib/src.zip'
-        exclude 'jdk*/include/**/*.*'
-        exclude 'jdk*/jmods/**/*.*'
         includeEmptyDirs = false
       }
 

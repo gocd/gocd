@@ -14,8 +14,8 @@
 * limitations under the License.
 */
 
-import * as m from "mithril";
 import {MithrilViewComponent} from "jsx/mithril-component";
+import * as m from "mithril";
 import {Table} from "views/components/table";
 import {MetaJSON} from "views/pages/server_info";
 import * as styles from "./index.scss";
@@ -23,7 +23,7 @@ import * as styles from "./index.scss";
 const filesize = require("filesize");
 
 interface Attrs {
-  meta: MetaJSON
+  meta: MetaJSON;
 }
 
 export class ServerInfoWidget extends MithrilViewComponent<Attrs> {

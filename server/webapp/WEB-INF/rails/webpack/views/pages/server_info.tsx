@@ -15,23 +15,20 @@
 */
 
 import * as m from "mithril";
-import {ServerInfoWidget} from "views/pages/server_info/server_info_widget.tsx";
 import {Page} from "views/pages/page";
-
-interface State {
-}
+import {ServerInfoWidget} from "views/pages/server_info/server_info_widget.tsx";
 
 export interface MetaJSON {
-  database_schema_version: string,
-  go_server_version: string,
-  jvm_version: string,
-  pipeline_count: number,
-  usable_space_in_artifacts_repository: number,
-  os_information: string,
+  database_schema_version: string;
+  go_server_version: string;
+  jvm_version: string;
+  pipeline_count: number;
+  usable_space_in_artifacts_repository: number;
+  os_information: string;
 }
 
-export class ServerInfoPage extends Page<null, State> {
-  componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
+export class ServerInfoPage extends Page<null, {}> {
+  componentToDisplay(vnode: m.Vnode<null, {}>): m.Children {
     const metaInformation = JSON.parse(document.body.getAttribute("data-meta") || "{}") as MetaJSON;
     return <ServerInfoWidget meta={metaInformation}/>;
   }
@@ -40,7 +37,7 @@ export class ServerInfoPage extends Page<null, State> {
     return "Server Details";
   }
 
-  fetchData(vnode: m.Vnode<null, State>): Promise<any> {
+  fetchData(vnode: m.Vnode<null, {}>): Promise<any> {
     return Promise.resolve();
   }
 }

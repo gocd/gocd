@@ -16,7 +16,7 @@
 
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
-import {ErrorsConsumer} from "models/mixins/errors_consumer";
+import {BaseErrorsConsumer, ErrorsConsumer} from "models/mixins/errors_consumer";
 
 describe("ErrorsConsumer", () => {
   describe("consumeErrorsResponse()", () => {
@@ -202,7 +202,7 @@ describe("ErrorsConsumer", () => {
       expect(unmatched.errorsForDisplay("me.unknown")).toBe("hello.");
     });
 
-    class Dummy extends ErrorsConsumer {
+    class Dummy extends BaseErrorsConsumer {
       one: Stream<Sub1> = stream();
       many: Stream<Sub2[]> = stream();
 
@@ -216,7 +216,7 @@ describe("ErrorsConsumer", () => {
       }
     }
 
-    class Sub1 extends ErrorsConsumer {
+    class Sub1 extends BaseErrorsConsumer {
       name: Stream<string> = stream("subby 1");
       sub: Stream<Sub2> = stream();
       readonly kind: string = "sub-1";
@@ -227,7 +227,7 @@ describe("ErrorsConsumer", () => {
       }
     }
 
-    class Sub2 extends ErrorsConsumer {
+    class Sub2 extends BaseErrorsConsumer {
       name: Stream<string> = stream("subby 2");
       readonly kind: string = "sub-2";
     }
@@ -250,11 +250,11 @@ describe("ErrorsConsumer", () => {
       expect(model.bar().attrs().errors().errorsForDisplay("name")).toBe("boom.");
     });
 
-    class Foo extends ErrorsConsumer {
+    class Foo extends BaseErrorsConsumer {
       bar = stream(new Bar());
     }
 
-    class Bar extends ErrorsConsumer {
+    class Bar extends BaseErrorsConsumer {
       attrs = stream(new Baz());
 
       errorContainerFor(key: string): ErrorsConsumer {
@@ -262,7 +262,7 @@ describe("ErrorsConsumer", () => {
       }
     }
 
-    class Baz extends ErrorsConsumer {
+    class Baz extends BaseErrorsConsumer {
       name = "baz";
     }
   });

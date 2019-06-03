@@ -16,7 +16,7 @@
 import * as _ from "lodash";
 import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
-import {ErrorsConsumer} from "models/mixins/errors_consumer";
+import {BaseErrorsConsumer, ErrorsConsumer} from "models/mixins/errors_consumer";
 import * as s from "underscore.string";
 
 export interface ValidatorOptions {
@@ -196,7 +196,7 @@ export interface Validatable {
   validate: (attr?: string) => Errors;
 }
 
-export class ValidatableMixin extends ErrorsConsumer implements Validatable, ErrorsConsumer {
+export class ValidatableMixin extends BaseErrorsConsumer implements Validatable, ErrorsConsumer {
   private __attrToValidators: any            = {};
   private __associationsToValidate: string[] = [];
 
@@ -298,4 +298,4 @@ export class ValidatableMixin extends ErrorsConsumer implements Validatable, Err
   }
 }
 
-ValidatableMixin.prototype.errors = ErrorsConsumer.prototype.errors;
+ValidatableMixin.prototype.errors = BaseErrorsConsumer.prototype.errors;

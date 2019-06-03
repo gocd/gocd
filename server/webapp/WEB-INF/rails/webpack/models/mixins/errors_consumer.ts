@@ -12,7 +12,7 @@ import * as s from "underscore.string";
  * allows one to bind server errors back to the respective JS model fields so that the user
  * can be made aware of errors that prevent the success of user-initiated operations.
  */
-export class ErrorsConsumer implements ErrorsConsumer {
+export class BaseErrorsConsumer implements ErrorsConsumer {
   // Exposes `consume()` as a static method
   static consume = consume;
 
@@ -42,7 +42,7 @@ export class ErrorsConsumer implements ErrorsConsumer {
    */
   consumeErrorsResponse(response: ResponseWithErrors, path: string = pathName(this)): Errors {
     const unmatched = new Errors();
-    ErrorsConsumer.consume(response, this, path, unmatched);
+    BaseErrorsConsumer.consume(response, this, path, unmatched);
     return unmatched;
   }
 }

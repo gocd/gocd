@@ -26,9 +26,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toArrayString
+import static com.thoughtworks.go.apiv1.secretconfigs.representers.RulesRepresenter.*
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.assertj.core.api.Assertions.assertThat
-import static org.junit.jupiter.api.Assertions.assertThrows
 
 class RulesRepresenterTest {
 
@@ -42,7 +42,7 @@ class RulesRepresenterTest {
       rules.add(new Deny("refer", "PipelineGroup", "TestPipelines"))
       rules.add(new Deny("view", "Environment", "TestEnvironment"))
 
-      def json = toArrayString({ RulesRepresenter.toJSON(it, rules) })
+      def json = toArrayString({ toJSON(it, rules) })
 
       assertThatJson(json).isEqualTo(
         [
@@ -81,7 +81,7 @@ class RulesRepresenterTest {
 
       Rules rules = new Rules(allow)
 
-      def json = toArrayString({ RulesRepresenter.toJSON(it, rules) })
+      def json = toArrayString({ toJSON(it, rules) })
 
       assertThatJson(json).isEqualTo(
         [
@@ -100,11 +100,33 @@ class RulesRepresenterTest {
 
     @Test
     void shouldSerializeEmptyRules() {
-      def json = toArrayString({ RulesRepresenter.toJSON(it, new Rules()) })
+      def json = toArrayString({ toJSON(it, new Rules()) })
 
       assertThatJson(json).isEqualTo("[]")
     }
 
+    @Test
+    void shouldSerializeUnknownRule() {
+      def json = toArrayString({
+        Rules rules = new Rules()
+        rules.add(new Unknown("invalid", "refer", "pipeline_group", "*"))
+        toJSON(it, rules)
+      })
+
+      assertThatJson(json).isEqualTo([
+        [
+          "errors"   : [
+            "directive": [
+              "Invalid directive, must be either 'allow' or 'deny'."
+            ]
+          ],
+          "directive": "invalid",
+          "action"   : "refer",
+          "type"     : "pipeline_group",
+          "resource" : "*"
+        ]
+      ])
+    }
   }
 
   @Nested
@@ -143,7 +165,7 @@ class RulesRepresenterTest {
 
       def jsonRequest = new Gson().toJson(request).toString()
       def jsonObject = GsonTransformer.instance.jsonReaderFrom(jsonRequest)
-      def rules = RulesRepresenter.fromJSON(jsonObject.optJsonArray("rules").get())
+      def rules = fromJSON(jsonObject.optJsonArray("rules").get())
 
       assertThat(rules).hasSize(4)
 
@@ -154,9 +176,16 @@ class RulesRepresenterTest {
         new Deny("view", "Environment", "TestEnvironment")
       )
     }
+    
+    @Test
+    void shouldDeSerializeEmptyRules() {
+      def rules = fromJSON(new JsonArray())
+
+      assertThat(rules).hasSize(0)
+    }
 
     @Test
-    void shouldReturn422WhenInvalidDirectiveIsSpecifiedInJson() {
+    void shouldDeSerializeToUnknownRuleWhenDirectiveTypeIsNotValidInJsonPayload() {
       def request = [
         "rules": [
           [
@@ -171,20 +200,19 @@ class RulesRepresenterTest {
       def jsonRequest = new Gson().toJson(request).toString()
       def jsonObject = GsonTransformer.instance.jsonReaderFrom(jsonRequest)
 
-      def error = (spark.HaltException) assertThrows(spark.HaltException.class, {
-        RulesRepresenter.fromJSON(jsonObject.optJsonArray("rules").get())
-      })
+      Rules rules = fromJSON(jsonObject.optJsonArray("rules").get())
 
-      assertThatJson(error.body()).isEqualTo([
-        "message" : "Invalid rule directive 'foobar' in JSON payload '{\"directive\":\"foobar\",\"action\":\"refer\",\"type\":\"PipelineGroup\",\"resource\":\"DeployPipelines\"}'."
-      ])
-    }
+      assertThat(rules).hasSize(1)
+      assertThat(rules.first()).isInstanceOf(Unknown.class)
 
-    @Test
-    void shouldDeSerializeEmptyRules() {
-      def rules = RulesRepresenter.fromJSON(new JsonArray())
-
-      assertThat(rules).hasSize(0)
+      Unknown rule = rules.first()
+      assertThat(rule.getDirective()).isEqualTo("foobar")
+      assertThat(rule.action()).isEqualTo("refer")
+      assertThat(rule.type()).isEqualTo("PipelineGroup")
+      assertThat(rule.resource()).isEqualTo("DeployPipelines")
+      assertThat(rule.errors().getAllOn("directive"))
+        .hasSize(1)
+        .contains("Invalid directive, must be either 'allow' or 'deny'.")
     }
   }
 }

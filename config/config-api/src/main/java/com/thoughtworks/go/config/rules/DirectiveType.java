@@ -35,7 +35,7 @@ public enum DirectiveType {
 
     public static Optional<DirectiveType> fromString(String directive) {
         if (StringUtils.isBlank(directive)) {
-            Optional.empty();
+            return Optional.empty();
         }
 
         switch (directive) {

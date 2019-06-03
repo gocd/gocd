@@ -48,7 +48,6 @@ task downloadOSXJre(type: DownloadFile) {
   checksum = { downloadOsxJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
-
 enum Type {
 
   agent("Go Agent", "go-agent", "agent-bootstrapper.jar", "go-agent-bootstrapper-wrapper.log",
@@ -156,7 +155,7 @@ def configureOSXZip(Zip zipTask,
           ]
 
           type.additionalEnvVars.forEach { k, v ->
-            newLines.add("set.${k}=${v}")
+            newLines.add("set.default.${k}=${v}")
           }
 
           eachLine = newLines.join('\n')

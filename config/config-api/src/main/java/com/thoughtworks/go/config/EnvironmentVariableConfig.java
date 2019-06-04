@@ -223,7 +223,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
             }
 
             if (!canNotReferSecretConfigs.isEmpty()) {
-                addError(VALUE, format("Secret config with ids '%s' is not allowed to use in %s '%s'.", join(", ", canNotReferSecretConfigs), parent.getTag(), parent.getIdentifier()));
+                addError(VALUE, format("Secret config with ids '%s' is not allowed to be used in %s '%s'.", join(", ", canNotReferSecretConfigs), parent.getTag(), parent.getIdentifier()));
             }
 
         } catch (Exception e) {

@@ -197,7 +197,7 @@ class P4MaterialConfigTest {
             assertThat(p4MaterialConfig.validateTree(validationContext)).isFalse();
 
             assertThat(p4MaterialConfig.errors().get("encryptedPassword"))
-                    .contains("Secret config with ids `secret_config_id` is not allowed to use in `pipelines` with name `group_1`.");
+                    .contains("Secret config with ids `secret_config_id` is not allowed to be used in `pipelines` with name `group_1`.");
         }
 
         @Test

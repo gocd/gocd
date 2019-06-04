@@ -252,7 +252,7 @@ class GitMaterialConfigTest {
             assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
 
             assertThat(gitMaterialConfig.errors().get("encryptedPassword"))
-                    .contains("Secret config with ids `secret_config_id` is not allowed to use in `pipelines` with name `group_1`.");
+                    .contains("Secret config with ids `secret_config_id` is not allowed to be used in `pipelines` with name `group_1`.");
         }
 
         @Test

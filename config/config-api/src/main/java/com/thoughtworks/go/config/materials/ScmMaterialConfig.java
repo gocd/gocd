@@ -427,7 +427,7 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
         }
 
         if (!canNotReferSecretConfigs.isEmpty()) {
-            addError(key, format("Secret config with ids `%s` is not allowed to use in `%s` with name `%s`.", join(", ", canNotReferSecretConfigs), pipelineGroup.getClass().getAnnotation(ConfigTag.class).value(), pipelineGroup.getGroup()));
+            addError(key, format("Secret config with ids `%s` is not allowed to be used in `%s` with name `%s`.", join(", ", canNotReferSecretConfigs), pipelineGroup.getClass().getAnnotation(ConfigTag.class).value(), pipelineGroup.getGroup()));
         }
     }
 }

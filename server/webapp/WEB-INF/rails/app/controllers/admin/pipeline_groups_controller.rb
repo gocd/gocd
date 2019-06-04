@@ -102,7 +102,13 @@ class Admin::PipelineGroupsController < AdminController
   end
 
   def move
-    save_page(params[:config_md5], pipeline_groups_url, {:action => :index}, Class.new(::ConfigUpdate::SaveAsPipelineAdmin) do
+    create_failure_handler = proc do |result, all_errors|
+      @errors = flatten_all_errors(all_errors)
+      handle_secret_config_error(@subject.getAllErrors())
+      performed? || render_error_with_options({:status => result.httpCode(), :action => :index})
+    end
+
+    save_page(params[:config_md5], pipeline_groups_url, create_failure_handler, Class.new(::ConfigUpdate::SaveAsPipelineAdmin) do
       include ::ConfigUpdate::CruiseConfigNode
       include ::ConfigUpdate::LoadConfig
 
@@ -128,7 +134,7 @@ class Admin::PipelineGroupsController < AdminController
   end
 
   def update
-    new_group_name =  params[:group][:group]
+    new_group_name = params[:group][:group]
     save_page(params[:config_md5], nil, {:action => :edit}, Class.new(::ConfigUpdate::SaveAsPipelineAdmin) do
       include ::ConfigUpdate::PipelineGroupNode
       include ::ConfigUpdate::NodeAsSubject
@@ -164,6 +170,15 @@ class Admin::PipelineGroupsController < AdminController
   end
 
   private
+
+  def handle_secret_config_error(errorList)
+    errors = flatten_all_errors(errorList)[0]
+    if !@errors
+      @errors = []
+    end
+    @errors.concat [errors]
+  end
+
   def is_group_admin(group)
     security_service.isUserAdminOfGroup(current_user.getUsername(), group)
   end

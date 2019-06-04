@@ -1,5 +1,6 @@
 import com.thoughtworks.go.build.AdoptOpenJDKUrlHelper
 import com.thoughtworks.go.build.DownloadFile
+import com.thoughtworks.go.build.InstallerType
 import org.apache.commons.codec.digest.DigestUtils
 
 /*
@@ -48,49 +49,6 @@ task downloadOsxJre(type: DownloadFile) {
   checksum = { downloadOsxJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
-enum Type {
-
-  agent("Go Agent", "go-agent", "agent-bootstrapper.jar", "go-agent-bootstrapper-wrapper.log",
-    [
-      AGENT_STARTUP_ARGS: '-Xms128m -Xmx256m'
-    ],
-    [], true),
-
-  sever("Go Server", "go-server", "go.jar", "go-server-wrapper.log",
-    [:],
-    [
-      '-Xms512m',
-      '-Xmx1024m',
-      '-XX:MaxMetaspaceSize=400m',
-      '-Duser.language=en',
-      '-Duser.country=US',
-    ], false)
-
-  final String appName
-  final String baseName
-  final String jarFileName
-  final String logFileName
-  final Map<String, String> additionalEnvVars
-  final List<String> jvmArgs
-  final boolean allowPassthrough
-
-  Type(String appName,
-       String baseName,
-       String jarFileName,
-       String logFileName,
-       Map<String, String> additionalEnvVars,
-       List<String> jvmArgs,
-       boolean allowPassthrough) {
-    this.jvmArgs = jvmArgs
-    this.additionalEnvVars = additionalEnvVars
-    this.logFileName = logFileName
-    this.jarFileName = jarFileName
-    this.baseName = baseName
-    this.appName = appName
-    this.allowPassthrough = allowPassthrough
-  }
-}
-
 class ConcatFileReader extends FilterReader {
   ConcatFileReader(Reader reader) {
     super(new StringReader("${reader.text}\n\n# Create this file and specify any overrides for environment/jvm args\n#include ../conf/wrapper-properties.conf\n"))
@@ -98,7 +56,7 @@ class ConcatFileReader extends FilterReader {
 }
 
 def configureOSXZip(Zip zipTask,
-                    Type type) {
+                    InstallerType type) {
   zipTask.with {
     dependsOn downloadOsxJre
     dependsOn extractDeltaPack
@@ -252,7 +210,7 @@ def configureOSXZip(Zip zipTask,
 }
 
 task agentOSXZip(type: Zip) { Zip thisTask ->
-  configureOSXZip(thisTask, Type.agent)
+  configureOSXZip(thisTask, InstallerType.agent)
 
   from(configurations.agentBootstrapperJar) {
     rename "(.*)-${project.version}.(.*)", '$1.$2'
@@ -267,7 +225,7 @@ task agentOSXZip(type: Zip) { Zip thisTask ->
 }
 
 task serverOSXZip(type: Zip) { Zip thisTask ->
-  configureOSXZip(thisTask, Type.sever)
+  configureOSXZip(thisTask, InstallerType.sever)
 
   from(configurations.serverJar) {
     rename "(.*)-${project.version}.(.*)", 'go.jar'

@@ -118,6 +118,7 @@ describe ApiV1::Admin::Internal::MaterialTestController do
         @go_config_service = double(GoConfigService)
         allow(@go_config_service).to receive(:cruise_config)
         allow(controller).to receive(:go_config_service).and_return(@go_config_service)
+        allow(@go_config_service).to receive(:findGroupNameByPipeline).with(CaseInsensitiveString.new('BuildLinux')).and_return('groupName')
         @go_config_validity = double(GoConfigValidity)
         allow(@go_config_validity).to receive(:isValid).and_return(true)
         allow(@go_config_service).to receive(:checkConfigFileValid).and_return(@go_config_validity)

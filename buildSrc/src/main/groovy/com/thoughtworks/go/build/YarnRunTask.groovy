@@ -105,7 +105,7 @@ class YarnRunTask extends DefaultTask {
 
         execSpec.workingDir = this.getWorkingDir()
         execSpec.commandLine = [OperatingSystem.current().isWindows() ? "yarn.cmd" : "yarn", "run"] + getYarnCommand()
-        println "[${this.getWorkingDir()}]\$ ${execSpec.executable} ${execSpec.args.join(' ')}"
+        println "[${execSpec.workingDir}]\$ ${execSpec.executable} ${execSpec.args.join(' ')}"
       }
     }
 

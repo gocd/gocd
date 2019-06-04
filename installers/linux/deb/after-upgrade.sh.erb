@@ -24,5 +24,5 @@
 
     if [ -e /var/run/<%= name %>-running-check-from-deb-package ]; then
         rm -rf /var/run/<%= name %>-running-check-from-deb-package
-        invoke-rc.d <%= name %> start
+        /usr/share/<%= name %>/bin/<%= name %> start
     fi

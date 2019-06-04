@@ -17,6 +17,6 @@
 -%>
 
     # initialize init script symlinks on first install
-    /sbin/chkconfig --add <%= name %>
+    /usr/share/<%= name %>/bin/<%= name %> install
 
     <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}_post_install_message.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>

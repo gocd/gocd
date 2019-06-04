@@ -79,14 +79,15 @@ RUN \
   mkdir -p /go-server /docker-entrypoint.d /go-working-dir /godata
 
 ADD docker-entrypoint.sh /
-RUN chown -R go:root /go-server /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh \
-    && chmod -R g=u /go-server /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh
 
 COPY --from=gocd-server-unzip /go-server /go-server
 # ensure that logs are printed to console output
 COPY --chown=go:root logback-include.xml /go-server/config/logback-include.xml
 COPY --chown=go:root install-gocd-plugins /usr/local/sbin/install-gocd-plugins
 COPY --chown=go:root git-clone-config /usr/local/sbin/git-clone-config
+
+RUN chown -R go:root /go-server /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh \
+    && chmod -R g=u /go-server /docker-entrypoint.d /go-working-dir /godata /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 

@@ -16,4 +16,5 @@
 #########################################################################
 -%>
 
-    /etc/init.d/<%= name %> stop 2>&1
+    /usr/share/<%= name %>/bin/<%= name %> stop 2>&1 || true
+    /usr/share/<%= name %>/bin/<%= name %> remove 2>&1 || true

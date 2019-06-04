@@ -1,9 +1,0 @@
-# This is an example configuration file to override any GoCD configuration.
-# Rename this file to `wrapper-properties.conf`.
-
-#set.SOME_ENVIRONMENT_VARIABLE=some-value
-#set.GRADLE_HOME=/path/to/gradle
-
-# Set any JVM arguments. We recommend that you begin with the index `100`
-#wrapper.java.additional.100=-Dproperty1=value1
-#wrapper.java.additional.101=-Dproperty2=value2

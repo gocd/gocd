@@ -16,45 +16,31 @@
 
 package com.thoughtworks.go.build
 
-enum InstallerType {
+interface InstallerType {
 
-  agent("Go Agent", "go-agent", "agent-bootstrapper.jar", "go-agent-bootstrapper-wrapper.log",
-    [
-      AGENT_STARTUP_ARGS: '-Xms128m -Xmx256m'
-    ],
-    [], true),
+  public static agent = new InstallerTypeAgent()
+  public static server = new InstallerTypeServer()
 
-  sever("Go Server", "go-server", "go.jar", "go-server-wrapper.log",
-    [:],
-    [
-      '-Xms512m',
-      '-Xmx1024m',
-      '-XX:MaxMetaspaceSize=400m',
-      '-Duser.language=en',
-      '-Duser.country=US',
-    ], false)
+  String getBaseName()
 
-  final String appName
-  final String baseName
-  final String jarFileName
-  final String logFileName
-  final Map<String, String> additionalEnvVars
-  final List<String> jvmArgs
-  final boolean allowPassthrough
+  String getJarFileName()
 
-  InstallerType(String appName,
-                String baseName,
-                String jarFileName,
-                String logFileName,
-                Map<String, String> additionalEnvVars,
-                List<String> jvmArgs,
-                boolean allowPassthrough) {
-    this.jvmArgs = jvmArgs
-    this.additionalEnvVars = additionalEnvVars
-    this.logFileName = logFileName
-    this.jarFileName = jarFileName
-    this.baseName = baseName
-    this.appName = appName
-    this.allowPassthrough = allowPassthrough
-  }
+  String getLogFileName()
+
+  Map<String, String> getAdditionalEnvVars()
+  Map<String, String> getAdditionalLinuxEnvVars()
+
+  List<String> getJvmArgs()
+
+  List<String> getLinuxJvmArgs()
+
+  boolean getAllowPassthrough()
+
+  Map<String, Object> getDirectories()
+
+  Map<String, Object> getFiles()
+
+  String getPackageDescription()
+
+  String getWindowsAndOSXServiceName()
 }

@@ -18,6 +18,11 @@ yell() { echo "$0: $*" >&2; }
 die() { yell "$*"; exit 111; }
 try() { echo "$ $@" 1>&2; "$@" || die "cannot $*"; }
 
+declare -a _stringToArgs
+function stringToArgsArray() {
+  _stringToArgs=("$@")
+}
+
 setup_autoregister_properties_file_for_elastic_agent() {
   echo "agent.auto.register.key=${GO_EA_AUTO_REGISTER_KEY}" >> $1
   echo "agent.auto.register.environments=${GO_EA_AUTO_REGISTER_ENVIRONMENT}" >> $1
@@ -48,68 +53,96 @@ setup_autoregister_properties_file() {
   fi
 }
 
-[ -z "${VOLUME_DIR}" ] && VOLUME_DIR="/godata"
+if [ -e /run-docker-daemon.sh ]; then
+  source /run-docker-daemon.sh
+fi
 
 AGENT_WORK_DIR="/go"
 
-if [ -e /run-docker-daemon.sh ]; then
-  /run-docker-daemon.sh
-fi
-
-# no arguments are passed so assume user wants to run the gocd server
-# we prepend "/go-agent/agent.sh" to the argument list
+# no arguments are passed so assume user wants to run the gocd agent
+# we prepend "/${AGENT_WORK_DIR}/bin/go-agent console" to the argument list
 if [[ $# -eq 0 ]] ; then
-  set -- /go-agent/agent.sh "$@"
+  set -- "${AGENT_WORK_DIR}/bin/go-agent" console "$@"
 fi
 
-# if running go server as root, then initialize directory structure and call ourselves as `go` user
-if [ "$1" = '/go-agent/agent.sh' ]; then
+if [ "$1" = "${AGENT_WORK_DIR}/bin/go-agent" ]; then
 
-    server_dirs=(config logs pipelines)
+  [ -z "${VOLUME_DIR}" ] && VOLUME_DIR="/godata"
 
-    yell "Creating directories and symlinks to hold GoCD configuration, data, and logs"
+  agent_data_dirs=(config logs pipelines)
 
-    for each_dir in "${server_dirs[@]}"; do
-      if [ ! -e "${VOLUME_DIR}/${each_dir}" ]; then
-        try mkdir -v "${VOLUME_DIR}/${each_dir}"
-      fi
+  yell "Creating directories and symlinks to hold GoCD configuration, data, and logs"
 
-      if [ ! -e "${AGENT_WORK_DIR}/${each_dir}" ]; then
-        try ln -sv "${VOLUME_DIR}/${each_dir}" "${AGENT_WORK_DIR}/${each_dir}"
-      fi
-    done
-
-    if [ ! -e "${AGENT_WORK_DIR}/config/agent-bootstrapper-logback-include.xml" ]; then
-      try cp -rfv "/go-agent/config/agent-bootstrapper-logback-include.xml" "${AGENT_WORK_DIR}/config/agent-bootstrapper-logback-include.xml"
+  for each_dir in "${agent_data_dirs[@]}"; do
+    if [ ! -e "${VOLUME_DIR}/${each_dir}" ]; then
+      try mkdir -v "${VOLUME_DIR}/${each_dir}"
     fi
 
-    if [ ! -e "${AGENT_WORK_DIR}/config/agent-launcher-logback-include.xml" ]; then
-      try cp -rfv "/go-agent/config/agent-launcher-logback-include.xml" "${AGENT_WORK_DIR}/config/agent-launcher-logback-include.xml"
+    if [ ! -e "${AGENT_WORK_DIR}/${each_dir}" ]; then
+      try ln -sv "${VOLUME_DIR}/${each_dir}" "${AGENT_WORK_DIR}/${each_dir}"
     fi
+  done
 
-    if [ ! -e "${AGENT_WORK_DIR}/config/agent-logback-include.xml" ]; then
-      try cp -rfv "/go-agent/config/agent-logback-include.xml" "${AGENT_WORK_DIR}/config/agent-logback-include.xml"
+  wrapper_dirs=(bin lib run wrapper wrapper-config)
+
+  yell "Creating directories and symlinks to hold GoCD wrapper binaries"
+
+  for each_dir in "${wrapper_dirs[@]}"; do
+    if [ ! -e "${AGENT_WORK_DIR}/${each_dir}" ]; then
+      try ln -sv "/go-agent/${each_dir}" "${AGENT_WORK_DIR}/${each_dir}"
     fi
+  done
 
-    setup_autoregister_properties_file "${AGENT_WORK_DIR}/config/autoregister.properties"
+  if [ ! -e "${AGENT_WORK_DIR}/config/agent-bootstrapper-logback-include.xml" ]; then
+    try cp -rfv "/go-agent/config/agent-bootstrapper-logback-include.xml" "${AGENT_WORK_DIR}/config/agent-bootstrapper-logback-include.xml"
+  fi
 
-    yell "Running custom scripts in /docker-entrypoint.d/ ..."
+  if [ ! -e "${AGENT_WORK_DIR}/config/agent-launcher-logback-include.xml" ]; then
+    try cp -rfv "/go-agent/config/agent-launcher-logback-include.xml" "${AGENT_WORK_DIR}/config/agent-launcher-logback-include.xml"
+  fi
 
-    # to prevent expansion to literal string `/docker-entrypoint.d/*` when there is nothing matching the glob
-    shopt -s nullglob
+  if [ ! -e "${AGENT_WORK_DIR}/config/agent-logback-include.xml" ]; then
+    try cp -rfv "/go-agent/config/agent-logback-include.xml" "${AGENT_WORK_DIR}/config/agent-logback-include.xml"
+  fi
 
-    for file in /docker-entrypoint.d/*; do
-      if [ -f "$file" ] && [ -x "$file" ]; then
-        try "$file"
-      else
-        yell "Ignoring $file, it is either not a file or is not executable"
-      fi
-    done
+  setup_autoregister_properties_file "${AGENT_WORK_DIR}/config/autoregister.properties"
+
+  yell "Running custom scripts in /docker-entrypoint.d/ ..."
+
+  # to prevent expansion to literal string `/docker-entrypoint.d/*` when there is nothing matching the glob
+  shopt -s nullglob
+
+  for file in /docker-entrypoint.d/*; do
+    if [ -f "$file" ] && [ -x "$file" ]; then
+      try "$file"
+    else
+      yell "Ignoring $file, it is either not a file or is not executable"
+    fi
+  done
+
+  # setup the java binary and wrapper log
+  try sed -i \
+    -e "s@wrapper.logfile=.*@/wrapper.logfile=${AGENT_WORK_DIR}/logs/go-agent-bootstrapper-wrapper.log@g" \
+    -e "s@wrapper.java.command=.*@wrapper.java.command=${GO_JAVA_HOME}/bin/java@g" \
+    -e "s@wrapper.working.dir=.*@wrapper.working.dir=${AGENT_WORK_DIR}@g" \
+    /go-agent/wrapper-config/wrapper.conf
+
+  echo "wrapper.app.parameter.100=-serverUrl" > /go-agent/wrapper-config/wrapper-properties.conf
+  echo "wrapper.app.parameter.101=${GO_SERVER_URL}" >> /go-agent/wrapper-config/wrapper-properties.conf
+
+  # parse/split an environment var to an array like how it should pass to the CLI
+  # AGENT_BOOTSTRAPPER_JVM_ARGS is mostly for advanced users.
+  eval stringToArgsArray "$AGENT_BOOTSTRAPPER_JVM_ARGS"
+  AGENT_BOOTSTRAPPER_JVM_ARGS=("${_stringToArgs[@]}")
+
+  AGENT_BOOTSTRAPPER_JVM_ARGS+=("-Dgo.console.stdout=true")
+  for array_index in "${!AGENT_BOOTSTRAPPER_JVM_ARGS[@]}"
+  do
+    tanuki_index=$(($array_index + 100))
+    echo "wrapper.java.additional.${tanuki_index}=${AGENT_BOOTSTRAPPER_JVM_ARGS[$array_index]}" >> /go-agent/wrapper-config/wrapper-properties.conf
+  done
+
+  echo "set.AGENT_STARTUP_ARGS=%AGENT_STARTUP_ARGS% -Dgo.console.stdout=true %GO_AGENT_SYSTEM_PROPERTIES%"
 fi
 
-# these 3 vars are used by `/go-agent/agent.sh`, so we export
-export AGENT_WORK_DIR
-export GO_AGENT_SYSTEM_PROPERTIES="${GO_AGENT_SYSTEM_PROPERTIES}${GO_AGENT_SYSTEM_PROPERTIES:+ }-Dgo.console.stdout=true"
-export AGENT_BOOTSTRAPPER_JVM_ARGS="${AGENT_BOOTSTRAPPER_JVM_ARGS}${AGENT_BOOTSTRAPPER_JVM_ARGS:+ }-Dgo.console.stdout=true"
-
-try exec /usr/local/sbin/tini "$@"
+try exec /usr/local/sbin/tini -- "$@"

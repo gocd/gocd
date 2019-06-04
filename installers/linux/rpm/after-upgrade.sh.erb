@@ -22,5 +22,5 @@
 
     if [ -e %{_localstatedir}/lib/rpm-state/<%= name %>/running ]; then
         rm %{_localstatedir}/lib/rpm-state/<%= name %>/running
-        /etc/init.d/<%= name %> start
+        /usr/share/<%= name %>/bin/<%= name %> start
     fi

@@ -14,102 +14,397 @@
  * limitations under the License.
  */
 
-import com.thoughtworks.go.build.DebPackagingTask
-import com.thoughtworks.go.build.RpmPackagingTask
 
-def agent = [
-  dirs       : [
-    '/etc/default'             : [ownedByPackage: false],
-    '/etc/init.d'              : [ownedByPackage: false],
-    '/usr/share/doc/go-agent'  : [mode: 0755, owner: 'root', group: 'root', ownedByPackage: true],
-    '/usr/share/go-agent'      : [mode: 0755, owner: 'root', group: 'root', ownedByPackage: true],
-    '/var/lib/go-agent'        : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
-    '/var/lib/go-agent/config/': [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
-    '/var/log/go-agent'        : [mode: 0770, owner: 'go', group: 'go', ownedByPackage: true],
-    '/var/run/go-agent'        : [mode: 0770, owner: 'go', group: 'go', ownedByPackage: true]
-  ],
-  files      : [
-    '/etc/default/go-agent'                                  : [mode: 0640, owner: 'root', group: 'go', source: file('go-agent/release/go-agent.default').path, confFile: true],
-    '/etc/init.d/go-agent'                                   : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/go-agent.init').path],
-    '/usr/share/doc/go-agent/LICENSE'                        : [mode: 0644, owner: 'root', group: 'root', source: rootProject.file('LICENSE').path],
-    '/usr/share/go-agent/agent-bootstrapper.jar'             : [mode: 0644, owner: 'root', group: 'root', source: configurations.agentBootstrapperJar.singleFile.path],
-    '/usr/share/go-agent/agent.sh'                           : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/agent.sh').path],
-    '/usr/share/go-agent/stop-agent.sh'                      : [mode: 0755, owner: 'root', group: 'root', source: file('go-agent/release/stop-agent.sh').path]
-  ],
-  description: '''
-      Go Agent Component
-      Next generation continuous integration and release management server from ThoughtWorks.
-      '''.stripIndent().trim()
-]
+import com.thoughtworks.go.build.AdoptOpenJDKUrlHelper
+import com.thoughtworks.go.build.DownloadFile
+import com.thoughtworks.go.build.InstallerType
+import groovy.json.JsonOutput
+import org.apache.commons.codec.digest.DigestUtils
+import org.apache.tools.ant.filters.ConcatFilter
 
-def server = [
-  dirs       : [
-    '/etc/default'            : [ownedByPackage: false],
-    '/etc/go'                 : [mode: 0770, owner: 'go', group: 'go', ownedByPackage: true],
-    '/etc/init.d'             : [ownedByPackage: false],
-    '/usr/share/doc/go-server': [mode: 0755, owner: 'root', group: 'root', ownedByPackage: true],
-    '/usr/share/go-server'    : [mode: 0755, owner: 'root', group: 'root', ownedByPackage: true],
-    '/var/lib/go-server'      : [mode: 0750, owner: 'go', group: 'go', ownedByPackage: true],
-    '/var/log/go-server'      : [mode: 0770, owner: 'go', group: 'go', ownedByPackage: true],
-    '/var/run/go-server'      : [mode: 0770, owner: 'go', group: 'go', ownedByPackage: true]
-  ],
-  files      :
-    [
-      '/etc/default/go-server'             : [mode: 0640, owner: 'root', group: 'go', source: file('go-server/release/go-server.default').path, confFile: true],
-      '/etc/init.d/go-server'              : [mode: 0755, owner: 'root', group: 'root', source: file('go-server/release/go-server.init').path],
-      '/usr/share/doc/go-server/LICENSE'   : [mode: 0644, owner: 'root', group: 'root', source: rootProject.file('LICENSE').path],
-      '/usr/share/go-server/go.jar'        : [mode: 0644, owner: 'root', group: 'root', source: configurations.serverJar.singleFile.path],
-      '/usr/share/go-server/server.sh'     : [mode: 0755, owner: 'root', group: 'root', source: file('go-server/release/server.sh').path],
-      '/usr/share/go-server/stop-server.sh': [mode: 0755, owner: 'root', group: 'root', source: file('go-server/release/stop-server.sh').path]
-    ],
-  description: '''
-      Go Server Component
-      Next generation continuous integration and release management server from ThoughtWorks.
-      '''.stripIndent().trim()
-]
+enum OsType {
 
-task agentPackageDeb(dependsOn: [':agent-bootstrapper:fatJar'], type: DebPackagingTask) {
-  group project.name
-  description 'Build the go-agent deb package'
-  packageName 'go-agent'
-  version rootProject.goVersion
-  distVersion rootProject.distVersion
-  packageDescription agent.description
-  files agent.files
-  directories agent.dirs
+  deb{
+    List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {
+      List<String> fpmArgs = []
+      fpmArgs += ['-t', 'deb']
+      fpmArgs += ['--deb-no-default-config-files']
+
+      // for basic stuff like `ls`, `id`
+      fpmArgs += ['--depends', 'coreutils']
+      // for `pidof`
+      fpmArgs += ['--depends', 'sysvinit-utils']
+
+      // HACK: for debian packages :(, since manifests cannot contain fine grained ownership
+      def tmpDir = project.file("${project.buildDir}/tmp")
+      tmpDir.mkdirs()
+
+      File dirPermissons = File.createTempFile("dirPermissions-", ".json", tmpDir)
+      File filePermissions = File.createTempFile("filePermissions-", ".json", tmpDir)
+
+      fpmArgs += ['--template-value', "dir_permissions=${dirPermissons}"]
+      fpmArgs += ['--template-value', "file_permissions=${filePermissions}"]
+
+      dirPermissons.write(JsonOutput.toJson(installerType.directories))
+      filePermissions.write(JsonOutput.toJson(installerType.files))
+      return fpmArgs
+    }
+  },
+  rpm{
+    List<String> configureFpm(Project project, File buildRoot, InstallerType installerType) {
+      List<String> fpmArgs = []
+
+      fpmArgs += ['-t', 'rpm']
+      fpmArgs += ['--rpm-os', 'linux'] // allows running fpm on osx
+
+      // for basic stuff like `ls`, `id`
+      fpmArgs += ['--depends', 'coreutils']
+
+      // for `pidof`
+      fpmArgs += ['--depends', 'sysvinit-tools']
+      fpmArgs += ['--rpm-defattrfile', '0444']
+      fpmArgs += ['--rpm-defattrdir', '0755']
+
+      installerType.directories.each {
+        dirName, permissions ->
+          if (permissions.ownedByPackage) {
+            fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${dirName}"]
+          }
+      }
+
+      project.fileTree(buildRoot).files.forEach({ File eachFile ->
+        if (eachFile.canExecute()) {
+          def relativePath = buildRoot.toURI().relativize(eachFile.toURI()).getPath()
+          fpmArgs += ['--rpm-attr', "0755,root,root:/${relativePath}"]
+        }
+      })
+
+      installerType.files.each {
+        fileName, permissions ->
+          // set ownership and mode on the rpm manifest
+          fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${fileName}"]
+      }
+
+      return fpmArgs
+
+    }
+  }
+
+  abstract List<String> configureFpm(Project project, File buildRoot, InstallerType installerType);
 }
 
-task agentPackageRpm(dependsOn: [':agent-bootstrapper:fatJar'], type: RpmPackagingTask) {
-  packageName 'go-agent'
-  description 'Build the go-agent rpm package'
-  group project.name
-  version rootProject.goVersion
-  distVersion rootProject.distVersion
-  packageDescription agent.description
-  files agent.files
-  directories agent.dirs
+private File destFile(String url) {
+  new File(gradle.gradleUserHomeDir, "download-cache/${DigestUtils.md5Hex(url)}/${new File(new URL(url).path).name}")
 }
 
-task serverPackageDeb(dependsOn: [':server-launcher:fatJar'], type: DebPackagingTask) {
-  group project.name
-  description 'Build the go-server deb package'
-  packageName 'go-server'
-  version rootProject.goVersion
-  distVersion rootProject.distVersion
-  packageDescription server.description
-  files server.files
-  directories server.dirs
+task downloadLinuxJreChecksum(type: DownloadFile) {
+  def srcUrl = AdoptOpenJDKUrlHelper.sha256sumURL(
+    com.thoughtworks.go.build.OperatingSystem.linux,
+    project.versions.adoptOpenjdk.featureVersion,
+    project.versions.adoptOpenjdk.interimVersion,
+    project.versions.adoptOpenjdk.updateVersion,
+    project.versions.adoptOpenjdk.buildVersion
+  )
+  src srcUrl
+  dest destFile(srcUrl)
 }
 
-task serverPackageRpm(dependsOn: [':server-launcher:fatJar'], type: RpmPackagingTask) {
-  group project.name
-  description 'Build the go-server rpm package'
-  packageName 'go-server'
-  version rootProject.goVersion
-  distVersion rootProject.distVersion
-  packageDescription server.description
-  files server.files
-  directories server.dirs
+task downloadLinuxJre(type: DownloadFile) {
+
+  dependsOn downloadLinuxJreChecksum
+  def srcUrl = AdoptOpenJDKUrlHelper.downloadURL(
+    com.thoughtworks.go.build.OperatingSystem.linux,
+    project.versions.adoptOpenjdk.featureVersion,
+    project.versions.adoptOpenjdk.interimVersion,
+    project.versions.adoptOpenjdk.updateVersion,
+    project.versions.adoptOpenjdk.buildVersion
+  )
+  src srcUrl
+  dest destFile(srcUrl)
+  checksum = { downloadLinuxJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
+}
+
+def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, OsType osType, File buildRoot, Configuration configuration, File destDir) {
+  packageTask.with {
+    dependsOn configuration
+    dependsOn downloadLinuxJre
+    dependsOn extractDeltaPack
+
+    doFirst {
+      project.delete(buildRoot)
+      project.mkdir(destDir)
+      project.mkdir(project.file("${project.convention.plugins.get("base").distsDir}/${osType}"))
+
+      project.copy {
+        from(configuration.singleFile) {
+          rename "(.*)", installerType.jarFileName
+        }
+        into project.file("${buildRoot}/usr/share/${installerType.baseName}/lib")
+      }
+
+      installerType.directories.each { dirName, permissions ->
+        project.file("${buildRoot}/${dirName}").mkdirs()
+      }
+
+      project.copy {
+        from("${rootProject.projectDir}/LICENSE")
+        into "${buildRoot}/usr/share/doc/${installerType.baseName}"
+      }
+
+      project.copy {
+        into "${buildRoot}/usr/share/${installerType.baseName}/bin"
+        fileMode = 0755
+
+        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/sh.script.in") {
+          filter({ String eachLine ->
+            eachLine = eachLine
+              .replaceAll('@app.name@', installerType.baseName)
+              .replaceAll('@app.long.name@', installerType.baseName)
+              .replaceAll('@app.description@', installerType.baseName)
+
+            if (eachLine == 'WRAPPER_CMD="./wrapper"') {
+              eachLine = 'WRAPPER_CMD="../wrapper/wrapper"'
+            }
+
+            if (eachLine == 'WRAPPER_CONF="../conf/wrapper.conf"') {
+              eachLine = "WRAPPER_CONF=\"/usr/share/${installerType.baseName}/wrapper-config/wrapper.conf\""
+            }
+
+            if (eachLine == 'PIDDIR="."') {
+              eachLine = "PIDDIR=\"/var/run/${installerType.baseName}\""
+            }
+
+            if (eachLine =~ /^#PASS_THROUGH=/ && installerType.allowPassthrough) {
+              eachLine = 'PASS_THROUGH=true'
+            }
+
+            if (eachLine == '#RUN_AS_USER=go') {
+              eachLine = 'RUN_AS_USER=go'
+            }
+
+            return eachLine
+          })
+          rename 'sh.script.in', installerType.baseName
+        }
+      }
+
+      project.copy {
+        into "${buildRoot}/usr/share/${installerType.baseName}/wrapper-config"
+        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/conf/wrapper.conf.in") {
+          filter({ String eachLine ->
+            eachLine = eachLine
+              .replaceAll('@app.name@', installerType.baseName)
+              .replaceAll('@app.long.name@', installerType.baseName)
+              .replaceAll('@app.description@', installerType.baseName)
+
+//            uncomment the lines below to enable debugging of installers
+//            if (eachLine == '# wrapper.debug=TRUE') {
+//              eachLine = 'wrapper.debug=TRUE'
+//            }
+//            if (eachLine == '##include.debug') {
+//              eachLine = '#include.debug'
+//            }
+//            if (eachLine == '#wrapper.license.debug=TRUE') {
+//              eachLine = 'wrapper.license.debug=TRUE'
+//            }
+
+            if (eachLine == 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperSimpleApp') {
+              eachLine = 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperJarApp'
+            }
+
+            if (eachLine == '#encoding=UTF-8') {
+              def newLines = [
+                '#encoding=UTF-8',
+                "wrapper.working.dir=/var/lib/${installerType.baseName}"
+              ]
+
+              installerType.additionalEnvVars.forEach { k, v ->
+                newLines.add("set.default.${k}=${v}")
+              }
+
+              eachLine = newLines.join('\n')
+            }
+
+            def allJvmArgs = installerType.jvmArgs + installerType.linuxJvmArgs
+
+            if (eachLine == 'wrapper.java.additional.1=' && !allJvmArgs.isEmpty()) {
+              def newLines = []
+
+              allJvmArgs.eachWithIndex { String eachArg, int index ->
+                newLines << "wrapper.java.additional.${index + 1}=${eachArg}"
+              }
+
+
+              eachLine = newLines.join('\n')
+            }
+
+            if (eachLine == 'wrapper.java.additional.auto_bits=TRUE') {
+              eachLine = 'wrapper.java.additional.auto_bits=FALSE'
+            }
+
+            if (eachLine == 'wrapper.java.command=java') {
+              eachLine = "wrapper.java.command=/usr/share/${installerType.baseName}/jre/bin/java"
+            }
+
+            if (eachLine == 'wrapper.java.classpath.1=../lib/wrapper.jar') {
+              eachLine = [
+                "wrapper.java.classpath.1=/usr/share/${installerType.baseName}/wrapper/wrapper.jar",
+                "wrapper.java.classpath.2=/usr/share/${installerType.baseName}/lib/${installerType.jarFileName}",
+              ].join("\n")
+            }
+
+            if (eachLine == 'wrapper.java.library.path.1=../lib') {
+              eachLine = "wrapper.java.library.path.1=/usr/share/${installerType.baseName}/wrapper"
+            }
+
+            if (eachLine == 'wrapper.app.parameter.1=<YourMainClass>') {
+              eachLine = "wrapper.app.parameter.1=/usr/share/${installerType.baseName}/lib/${installerType.jarFileName}"
+            }
+
+            if (eachLine == 'wrapper.logfile=../logs/wrapper.log') {
+              eachLine = "wrapper.logfile=/var/log/${installerType.baseName}/${installerType.logFileName}"
+            }
+
+            if (eachLine == 'wrapper.logfile.maxsize=0') {
+              eachLine = "wrapper.logfile.maxsize=10m"
+            }
+
+            if (eachLine == 'wrapper.logfile.maxfiles=0') {
+              eachLine = "wrapper.logfile.maxfiles=4"
+            }
+
+            return eachLine
+          })
+
+          filter(ConcatFilter, append: file("include/wrapper-license-linux-${installerType.baseName}.conf"))
+          filter(ConcatFilter, append: file("include/additional-properties.conf"))
+
+          rename 'wrapper.conf.in', 'wrapper.conf'
+        }
+
+        // the example properties file for reference
+        from("include/wrapper-properties.conf.example")
+
+        // the actual default config file
+        from("include/wrapper-properties-${installerType.baseName}.conf") {
+          rename ".*", "wrapper-properties.conf"
+        }
+      }
+
+      project.copy {
+        into "${buildRoot}/usr/share/${installerType.baseName}/wrapper"
+        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/bin") {
+          include 'wrapper-linux-x86-*'
+        }
+
+        from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/lib") {
+          include 'wrapper.jar'
+          include 'libwrapper-linux-x86-*'
+        }
+      }
+
+      project.copy {
+        into "${buildRoot}/usr/share/${installerType.baseName}/jre"
+        from(tarTree(downloadLinuxJre.outputs.files.singleFile)) {
+          eachFile { FileCopyDetails fcd ->
+            List<String> segments = fcd.relativePath.segments
+            segments.remove(0)
+            fcd.relativePath = new RelativePath(!fcd.isDirectory(), (segments as String[]))
+          }
+          includeEmptyDirs = false
+        }
+      }
+
+      project.exec {
+        List<String> cmd = []
+        cmd += ['fpm']
+
+        cmd += ['--debug']
+//  cmd += ['-e']
+//  cmd += ['--debug-workspace']
+        cmd += ['--conflicts', installerType.baseName.replaceFirst(/^go-/, 'cruise-')]
+        cmd += ['--replaces', installerType.baseName.replaceFirst(/^go-/, 'cruise-')]
+        cmd += ['--force']
+        cmd += ['-s', 'dir']
+        cmd += ['-C', buildRoot]
+        cmd += ['--name', installerType.baseName]
+        cmd += ['--description', installerType.packageDescription]
+        cmd += ['--version', project.goVersion]
+        cmd += ['--iteration', distVersion]
+        cmd += ['--license', 'Apache-2.0']
+        cmd += ['--vendor', 'ThoughtWorks, Inc.']
+        cmd += ['--category', 'Development/Build Tools']
+        cmd += ['--architecture', 'all']
+        cmd += ['--maintainer', 'ThoughtWorks, Inc.']
+        cmd += ['--url', 'https://gocd.org']
+        cmd += ['--before-install', project.file('linux/shared/before-install.sh.erb')]
+        cmd += ['--before-upgrade', project.file("linux/${osType}/before-upgrade.sh.erb")]
+        cmd += ['--after-upgrade', project.file("linux/${osType}/after-upgrade.sh.erb")]
+        cmd += ['--after-install', project.file("linux/${osType}/after-install.sh.erb")]
+        cmd += ['--before-remove', project.file("linux/${osType}/before-remove.sh.erb")]
+        cmd += ['--template-value', "install_scripts_dir=${project.file('linux')}"]
+        cmd += ['--template-scripts']
+
+        installerType.directories.each { dirName, permissions ->
+          if (permissions.ownedByPackage) {
+            cmd += ['--directories', dirName]
+          }
+        }
+
+//        installerType.files.each { fileName, permissions ->
+//          if (permissions.confFile) {
+//            cmd += ['--config-files', fileName.replaceAll(/^\//, '')]
+//          }
+//        }
+
+        cmd += osType.configureFpm(project, buildRoot, installerType)
+
+        commandLine = cmd
+
+        workingDir "${project.convention.plugins.get("base").distsDir}/${osType}"
+
+        standardOutput = System.out
+        errorOutput = System.err
+      }
+
+    }
+  }
+}
+
+task agentPackageRpm { DefaultTask thisTask ->
+  def installerType = InstallerType.agent
+  def osType = OsType.rpm
+  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/${osType}")
+
+  configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.agentBootstrapperJar, destDir)
+}
+
+task agentPackageDeb { DefaultTask thisTask ->
+  def installerType = InstallerType.agent
+  def osType = OsType.deb
+  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/${osType}")
+
+  configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.agentBootstrapperJar, destDir)
+}
+
+task serverPackageRpm { DefaultTask thisTask ->
+  def installerType = InstallerType.server
+  def osType = OsType.rpm
+  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/${osType}")
+
+  configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.serverJar, destDir)
+}
+
+task serverPackageDeb { DefaultTask thisTask ->
+  def installerType = InstallerType.server
+  def osType = OsType.deb
+  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/${osType}")
+
+  configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.serverJar, destDir)
 }
 
 assemble.dependsOn(":installers:agentPackageRpm", ":installers:serverPackageRpm", ":installers:agentPackageDeb", ":installers:serverPackageDeb")

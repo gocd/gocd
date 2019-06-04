@@ -17,7 +17,8 @@ package com.thoughtworks.gocd;
 
 import com.thoughtworks.gocd.onejar.Handler;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
 import java.net.MalformedURLException;
@@ -40,10 +41,6 @@ public class Boot {
     }
 
     public static void main(String... args) {
-        if (shouldRedirectStdOutAndErr()) {
-            redirectStdOutAndErr();
-        }
-
         log("Starting process: ");
         log("  Working directory    : " + System.getProperty("user.dir"));
         log("  Application arguments: " + Arrays.asList(args));
@@ -63,18 +60,6 @@ public class Boot {
         return "Y".equalsIgnoreCase(shouldLog) || "true".equalsIgnoreCase(shouldLog);
     }
 
-    private static void redirectStdOutAndErr() {
-        try {
-            PrintStream out = new PrintStream(new FileOutputStream(getOutFile(), true), true);
-            System.setErr(out);
-            System.setOut(out);
-        } catch (FileNotFoundException ignore) {
-            // cannot redirect out and err to file, so we don't
-            log("Unable to redirect stdout/stderr to file " + getOutFile() + ". Will continue without redirecting stdout/stderr.");
-            ignore.printStackTrace();
-        }
-    }
-
     private static List<String> jvmArgs() {
         RuntimeMXBean bean = ManagementFactory.getRuntimeMXBean();
         return bean.getInputArguments();
@@ -82,14 +67,6 @@ public class Boot {
 
     private static void log(String message) {
         System.err.println("[" + new Date() + "] " + message);
-    }
-
-    private static String getOutFile() {
-        return System.getProperty("gocd.redirect.stdout.to.file");
-    }
-
-    private static boolean shouldRedirectStdOutAndErr() {
-        return getOutFile() != null;
     }
 
     private void run() {

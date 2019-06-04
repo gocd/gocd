@@ -17,7 +17,7 @@
 
 import com.thoughtworks.go.build.AdoptOpenJDKUrlHelper
 import com.thoughtworks.go.build.DownloadFile
-import com.thoughtworks.go.build.WindowsPackagingTask
+import com.thoughtworks.go.build.InstallerType
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.tools.ant.filters.FixCrLfFilter
 
@@ -51,93 +51,144 @@ task downloadWindowsJre(type: DownloadFile) {
   checksum = { downloadWindowsJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
-task agentWindows64bitExe(type: WindowsPackagingTask) {
-  dependsOn configurations.agentBootstrapperJar
-  dependsOn downloadWindowsJre
+def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installerType, Zip genericZipTask, File buildRoot) {
+  windowsInstallerTask.with {
+    group project.name
+    description "Build the ${installerType.baseName} windows (exe) installer"
 
-  group project.name
-  description 'Build the go-agent windows installer'
+    dependsOn downloadWindowsJre
+    dependsOn genericZipTask
 
-  packageName 'go-agent'
-  version rootProject.goVersion
-  distVersion rootProject.distVersion
+    doFirst {
+      project.delete(buildRoot)
+      project.mkdir(project.file("${project.convention.plugins.get("base").distsDir}/win"))
 
-  openJdkZipFile downloadWindowsJre.outputs.files.singleFile
+      def genericZipTree = zipTree(genericZipTask.archiveFile)
 
-  beforePackage {
-    copyAgentSpecificFiles(versionedDir(), buildRoot(), flavour())
+      project.copy {
+        into buildRoot
+
+        // dont include the wrapper.conf, and tanuki wrappers for OSes other than windows
+        from(genericZipTree) {
+          exclude "${installerType.baseName}-${project.goVersion}/wrapper/wrapper-*"
+          exclude "${installerType.baseName}-${project.goVersion}/wrapper/libwrapper-*"
+          exclude "${installerType.baseName}-${project.goVersion}/bin/*"
+        }
+
+        from(genericZipTree) {
+          include "${installerType.baseName}-${project.goVersion}/wrapper/*.dll"
+          include "${installerType.baseName}-${project.goVersion}/wrapper/*.exe"
+          include "${installerType.baseName}-${project.goVersion}/bin/*.bat"
+        }
+
+        // include the wrapper.conf, but replace the java command
+        from(genericZipTree) {
+          include "${installerType.baseName}-${project.goVersion}/wrapper-config/*"
+          filter { String eachLine ->
+            if (eachLine == 'wrapper.java.command=java') {
+              eachLine = 'wrapper.java.command=jre/bin/java'
+            }
+            eachLine
+          }
+
+          filter { String eachLine ->
+            eachLine = eachLine.replaceAll("=${installerType.baseName}".toString(), "=${installerType.windowsAndOSXServiceName}".toString())
+            return eachLine
+          }
+
+          filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.DOS)
+        }
+
+        from(zipTree(downloadWindowsJre.outputs.files.singleFile)) {
+          eachFile { FileCopyDetails fcd ->
+            List<String> segments = fcd.relativePath.segments
+            segments.set(1, "jre")
+            fcd.relativePath = new RelativePath(!fcd.isDirectory(), (segments as String[]))
+          }
+          includeEmptyDirs = false
+          // relative to parent copy task's `into`
+          into "${installerType.baseName}-${project.goVersion}"
+        }
+      }
+    }
   }
 }
 
-task serverWindows64bitExe(type: WindowsPackagingTask) {
-  dependsOn configurations.serverJar
-  dependsOn downloadWindowsJre
-  group project.name
-  description 'Build the go-server windows installer'
+def executeNSIS(InstallerType installerType, File buildRoot, File destDir) {
 
-  packageName 'go-server'
-  version rootProject.goVersion
-  distVersion rootProject.distVersion
+  project.mkdir(destDir)
 
-  openJdkZipFile downloadWindowsJre.outputs.files.singleFile
+  def flavor = "64bit"
 
-  beforePackage {
-    copyServerSpecificFiles(versionedDir(), buildRoot(), flavour())
+  def outputFile = project.file("${destDir}/${installerType.baseName}-${project.fullVersion}-jre-${flavor}-setup.exe")
+
+  // pad enough zeros to be able to convert the version string using simple numbers, instead of version numbers
+  def registryVersionString = "${project.goVersion.split(/\./).collect { it.padLeft(2, '0') }.join()}${project.distVersion.padRight(5, '0')}"
+
+  def installerContents = project.file("${buildRoot}/${installerType.baseName}-${project.goVersion}")
+
+  def unInstallManifestFile = project.file("${buildRoot}/uninstall-manifest.nsi")
+
+  unInstallManifestFile.withWriter { out ->
+    project.fileTree(installerContents).forEach({ File eachFile ->
+      out.println("Delete \"\$INSTDIR\\${installerContents.relativePath(eachFile).replaceAll("/", "\\\\")}\"")
+    })
+  }
+
+  List<String> cmdArgs = [
+    "-DADDITIONAL_PLUGINS_DIR=${project.file("windows/nsis-plugins")}",
+    "-DCOMPONENT_FULL_VERSION=${project.fullVersion}",
+    "-DCOMPONENT_NAME=${installerType.baseName.replace("go-", "").capitalize()}",
+    "-DCOMPONENT_REGISTRY_VERSION=${registryVersionString}",
+    "-DCOMPONENT_VERSION=${project.goVersion}",
+    "-DCUSTOM_PAGES=${installerType.baseName}-custom-page.nsi",
+    "-DENABLE_LOGGING=true",
+    "-DGOCD_ICON=${project.file('windows/gocd.ico')}",
+    "-DGOCD_LICENSE_FILE=${rootProject.file("LICENSE")}",
+    "-DINSTALLER_CONTENTS=${installerContents}",
+    "-DOUTPUT_FILE=${outputFile}",
+    "-DUNINSTALL_MANIFEST_FILE=${unInstallManifestFile}",
+    "-DWINDOWS_PRODUCT_VERSION=${project.goVersion}.${project.distVersion}",
+  ]
+
+  cmdArgs += ["-V4"] // verbose
+
+  project.exec { ExecSpec execSpec ->
+    commandLine = (["makensis"] + cmdArgs + [project.file("windows/${installerType.baseName}.nsi")])
+
+    standardOutput = System.out
+    errorOutput = System.err
+
+    println "[${execSpec.workingDir}]\$ ${execSpec.executable} ${execSpec.args.join(' ')}"
   }
 }
 
-def copyAgentSpecificFiles(versionedDir, buildRoot, flavour) {
-  copyCommonFiles(versionedDir, buildRoot, flavour)
-  project.copy { from('go-agent/win/ServerURL.ini') into(buildRoot) }
+task agentWindows64bitExe { DefaultTask thisTask ->
+  def installerType = InstallerType.agent
+  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/win/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/win")
 
-  project.copy {
-    from(configurations.agentBootstrapperJar)
-    into(versionedDir)
-    rename "(.*)-${project.version}.(.*)", '$1.$2'
+  configureWindowsFilesystem(thisTask, installerType, agentGenericZip, buildRoot)
+
+  doLast {
+    project.copy { from('go-agent/win/ServerURL.ini') into(buildRoot) }
   }
-  project.copy { from('go-agent/release/agent.cmd') into(versionedDir) }
-  project.copy { from('go-agent/release/start-agent.bat') into(versionedDir) }
-  project.copy { from('go-agent/release/stop-agent.bat') into(versionedDir) }
-  project.copy { from('go-agent/release/README.md') into(versionedDir) }
-  project.copy { from('go-agent/win/config') into("${versionedDir}/config") }
-  project.file("${versionedDir}/tmp").mkdirs()
+
+  doLast {
+    executeNSIS(installerType, buildRoot, destDir)
+  }
 }
 
-private void copyServerSpecificFiles(versionedDir, buildRoot, flavour) {
-  copyCommonFiles(versionedDir, buildRoot, flavour)
+task serverWindows64bitExe { DefaultTask thisTask ->
+  def installerType = InstallerType.server
+  def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/win/BUILD_ROOT")
+  def destDir = project.file("${project.convention.plugins.get("base").distsDir}/win")
 
-  project.copy {
-    from(configurations.serverJar)
-    into(versionedDir)
-    rename "(.*)-${project.version}.(.*)", 'go.jar'
+  configureWindowsFilesystem(thisTask, installerType, serverGenericZip, buildRoot)
+
+  doLast {
+    executeNSIS(installerType, buildRoot, destDir)
   }
-
-  project.copy { from('go-server/release/server.cmd') into(versionedDir) }
-  project.copy { from('go-server/release/start-server.bat') into(versionedDir) }
-  project.copy { from('go-server/release/stop-server.bat') into(versionedDir) }
-  project.copy { from('go-server/win/config') into("${versionedDir}/config") }
-  project.file("${versionedDir}/tmp").mkdirs()
 }
-
-private void copyCommonFiles(versionedDir, buildRoot, flavour) {
-  project.copy {
-    from project.rootProject.file('LICENSE')
-    into(versionedDir)
-  }
-
-  project.copy {
-    from project.rootProject.file('LICENSE')
-    into(versionedDir)
-    filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.DOS)
-    rename "LICENSE", "LICENSE.DOS"
-  }
-
-  project.copy { from('windows-shared/JavaHome.ini') into(buildRoot) }
-  project.copy { from("windows-shared/tanuki/${flavour}/cruisewrapper.exe") into(versionedDir) }
-  project.copy { from("windows-shared/tanuki/lib") into("${versionedDir}/lib") }
-  // create an empty log dir so tanuki wrapper can write to the logs
-  project.file("${versionedDir}/logs").mkdirs()
-}
-
 
 assemble.dependsOn(":installers:agentWindows64bitExe", ":installers:serverWindows64bitExe")

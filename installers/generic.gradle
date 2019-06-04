@@ -1,3 +1,7 @@
+import com.thoughtworks.go.build.InstallerType
+import org.apache.tools.ant.filters.ConcatFilter
+import org.apache.tools.ant.filters.FixCrLfFilter
+
 /*
  * Copyright 2018 ThoughtWorks, Inc.
  *
@@ -14,53 +18,225 @@
  * limitations under the License.
  */
 
-task agentGenericZip(type: Zip) {
-  destinationDirectory = file("${project.buildDir}/${project.distsDirName}/zip")
-  archiveBaseName  = "go-agent"
-  into("go-agent-${project.goVersion}")
-  group project.name
-  description 'Build the go-agent zip installer'
-
-  // add atleast one file during the configuration phase, or gradle will crib about the task being up-to-date
-  from("${rootProject.projectDir}/LICENSE")
-
-  from("${project.projectDir}/go-agent/release") {
-    exclude "*.sh"
-  }
-
-  from("${project.projectDir}/go-agent/release") {
-    include "*.sh"
-    fileMode = 0755
-  }
+task agentGenericZip(type: Zip) { Zip thisTask ->
+  configureGenericZip(thisTask, InstallerType.agent)
 
   from(configurations.agentBootstrapperJar) {
     rename "(.*)-${project.version}.(.*)", '$1.$2'
+    into "lib"
   }
 
+  from("go-agent/release/README-running-multiple-agents.md")
 }
 
-task serverGenericZip(type: Zip) {
-  destinationDirectory = file("${project.buildDir}/${project.distsDirName}/zip")
-  archiveBaseName  = "go-server"
-  into("go-server-${project.goVersion}")
-  group project.name
-  description = 'Build the go-server zip installer'
-
-  // add atleast one file during the configuration phase, or gradle will crib about the task being up-to-date
-  from("${rootProject.projectDir}/LICENSE")
-
-  from("${project.projectDir}/go-server/release") {
-    include "*.sh"
-    fileMode = 0755
-  }
-
-  from("${project.projectDir}/go-server/release") {
-    exclude "cruise-config.xml"
-  }
+task serverGenericZip(type: Zip) { Zip thisTask ->
+  configureGenericZip(thisTask, InstallerType.server)
 
   from(configurations.serverJar) {
     rename "(.*)-${project.version}.(.*)", 'go.jar'
+    into "lib"
   }
 }
 
 assemble.dependsOn(":installers:agentGenericZip", ":installers:serverGenericZip")
+
+def configureGenericZip(Zip zipTask, InstallerType installerType) {
+  zipTask.with {
+    dependsOn extractDeltaPack
+    destinationDirectory = file("${project.buildDir}/${project.distsDirName}/zip")
+    archiveBaseName = installerType.baseName
+
+    into("${installerType.baseName}-${project.goVersion}")
+
+    from("${rootProject.projectDir}/LICENSE")
+
+    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/sh.script.in") {
+      filter({ String eachLine ->
+        eachLine = eachLine
+          .replaceAll('@app.name@', installerType.baseName)
+          .replaceAll('@app.long.name@', installerType.baseName)
+          .replaceAll('@app.description@', installerType.baseName)
+
+        if (eachLine == 'WRAPPER_CMD="./wrapper"') {
+          eachLine = 'WRAPPER_CMD="../wrapper/wrapper"'
+        }
+
+        if (eachLine == 'WRAPPER_CONF="../conf/wrapper.conf"') {
+          eachLine = 'WRAPPER_CONF="../wrapper-config/wrapper.conf"'
+        }
+
+        if (eachLine == 'PIDDIR="."') {
+          eachLine = 'PIDDIR="../run"'
+        }
+
+        if (eachLine =~ /^#PASS_THROUGH=/ && installerType.allowPassthrough) {
+          eachLine = 'PASS_THROUGH=true'
+        }
+
+        return eachLine
+      })
+
+      filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.UNIX)
+      rename 'sh.script.in', installerType.baseName
+      into "bin"
+      fileMode = 0755
+    }
+
+    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin") {
+      // See https://wrapper.tanukisoftware.com/doc/english/launch-win.html#dedicated-setup
+      include 'App.bat.in' // to run app as a console app
+      rename 'App.bat.in', "${installerType.baseName}.bat"
+
+      include 'InstallApp-NT.bat.in' // to install gocd as a service
+      rename 'InstallApp-NT.bat.in', "install-${installerType.baseName}-service.bat"
+
+      include 'UninstallApp-NT.bat.in' // to remove gocd as a service
+      rename 'UninstallApp-NT.bat.in', "uninstall-${installerType.baseName}-service.bat"
+
+      include 'StartApp-NT.bat.in' // to start the gocd service
+      rename 'StartApp-NT.bat.in', "start-${installerType.baseName}-service.bat"
+
+      include 'StopApp-NT.bat.in' // to stop the gocd service
+      rename 'StopApp-NT.bat.in', "stop-${installerType.baseName}-service.bat"
+
+      include 'PauseApp-NT.bat.in' // to pause the gocd service
+      rename 'PauseApp-NT.bat.in', "pause-${installerType.baseName}-service.bat"
+
+      include 'ResumeApp-NT.bat.in' // to resume the gocd service
+      rename 'ResumeApp-NT.bat.in', "resume-${installerType.baseName}-service.bat"
+
+      include 'QueryApp-NT.bat.in' // to get the status of the gocd service
+      rename 'QueryApp-NT.bat.in', "query-${installerType.baseName}-service.bat"
+
+      into "bin"
+
+      filter({ String eachLine ->
+        if (eachLine == 'set _WRAPPER_DIR=') {
+          eachLine = 'set _WRAPPER_DIR="../wrapper"'
+        }
+
+        if (eachLine == 'set _WRAPPER_CONF_DEFAULT="../conf/%_WRAPPER_BASE%.conf"') {
+          eachLine = 'set _WRAPPER_CONF_DEFAULT="../wrapper-config/%_WRAPPER_BASE%.conf"'
+        }
+
+        if (eachLine =~ /^rem set _PASS_THROUGH=/ && installerType.allowPassthrough) {
+          eachLine = 'set _PASS_THROUGH=true'
+        }
+
+        return eachLine
+      })
+
+      filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.DOS)
+    }
+
+    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/conf/wrapper.conf.in") {
+      filter({ String eachLine ->
+        eachLine = eachLine
+          .replaceAll('@app.name@', installerType.baseName)
+          .replaceAll('@app.long.name@', installerType.baseName)
+          .replaceAll('@app.description@', installerType.baseName)
+
+        if (eachLine == 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperSimpleApp') {
+          eachLine = 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperJarApp'
+        }
+
+        if (eachLine == '#encoding=UTF-8') {
+          def newLines = [
+            '#encoding=UTF-8',
+            'wrapper.working.dir=..'
+          ]
+
+          installerType.additionalEnvVars.forEach { k, v ->
+            newLines.add("set.default.${k}=${v}")
+          }
+
+          eachLine = newLines.join('\n')
+        }
+
+        if (eachLine == 'wrapper.java.additional.1=' && !installerType.jvmArgs.isEmpty()) {
+          def newLines = []
+
+          installerType.jvmArgs.eachWithIndex { String eachArg, int index ->
+            newLines << "wrapper.java.additional.${index + 1}=${eachArg}"
+          }
+
+          eachLine = newLines.join('\n')
+        }
+
+        if (eachLine == 'wrapper.java.additional.auto_bits=TRUE') {
+          eachLine = 'wrapper.java.additional.auto_bits=FALSE'
+        }
+
+        if (eachLine == 'wrapper.java.classpath.1=../lib/wrapper.jar') {
+          eachLine = [
+            'wrapper.java.classpath.1=wrapper/wrapper.jar',
+            "wrapper.java.classpath.2=lib/${installerType.jarFileName}",
+          ].join("\n")
+        }
+
+        if (eachLine == 'wrapper.java.library.path.1=../lib') {
+          eachLine = 'wrapper.java.library.path.1=wrapper'
+        }
+
+        if (eachLine == 'wrapper.app.parameter.1=<YourMainClass>') {
+          eachLine = "wrapper.app.parameter.1=lib/${installerType.jarFileName}"
+        }
+
+        if (eachLine == 'wrapper.logfile=../logs/wrapper.log') {
+          eachLine = "wrapper.logfile=logs/${installerType.logFileName}"
+        }
+
+        if (eachLine == 'wrapper.logfile.maxsize=0') {
+          eachLine = "wrapper.logfile.maxsize=10m"
+        }
+
+        if (eachLine == 'wrapper.logfile.maxfiles=0') {
+          eachLine = "wrapper.logfile.maxfiles=4"
+        }
+
+        return eachLine
+      })
+
+      filter(ConcatFilter, append: file("include/wrapper-license-relative-path-${installerType.baseName}.conf"))
+      filter(ConcatFilter, append: file("include/additional-properties.conf"))
+      filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.UNIX)
+
+      into 'wrapper-config'
+      rename 'wrapper.conf.in', 'wrapper.conf'
+    }
+
+
+    // the example properties file for reference
+    from("include/wrapper-properties.conf.example") {
+      into 'wrapper-config'
+    }
+
+    // the actual default config file
+    from("include/wrapper-properties-${installerType.baseName}.conf") {
+      into 'wrapper-config'
+      rename ".*", "wrapper-properties.conf"
+    }
+
+    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/bin") {
+      include 'wrapper-*'
+      into "wrapper"
+    }
+
+    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/lib") {
+      into "wrapper"
+      include 'libwrapper-*'
+      include 'wrapper.jar'
+      include 'wrapper-*.dll'
+    }
+
+    from('empty-ignore-file') {
+      into "logs"
+      rename ".*", ".ignore"
+    }
+
+    from('empty-ignore-file') {
+      into "run"
+      rename ".*", ".ignore"
+    }
+  }
+}

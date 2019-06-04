@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Copyright 2018 ThoughtWorks, Inc.
+# Copyright 2019 ThoughtWorks, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,55 +18,88 @@ yell() { echo "$0: $*" >&2; }
 die() { yell "$*"; exit 111; }
 try() { echo "$ $@" 1>&2; "$@" || die "cannot $*"; }
 
-VOLUME_DIR="/godata"
+declare -a _stringToArgs
+function stringToArgsArray() {
+  _stringToArgs=("$@")
+}
+
+SERVER_WORK_DIR="/go-working-dir"
 
 # no arguments are passed so assume user wants to run the gocd server
-# we prepend "/go-server/server.sh" to the argument list
+# we prepend "${SERVER_WORK_DIR}/bin/go-server console" to the argument list
 if [[ $# -eq 0 ]] ; then
-  set -- /go-server/server.sh "$@"
+  set -- "${SERVER_WORK_DIR}/bin/go-server" console "$@"
 fi
 
-# Initialize working directories and symlinks as `go` user
-if [ "$1" = '/go-server/server.sh' ]; then
-    export SERVER_WORK_DIR="/go-working-dir"
-    export GO_CONFIG_DIR="/go-working-dir/config"
+if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
+  VOLUME_DIR="/godata"
 
-    server_dirs=(artifacts config db logs plugins addons)
+  server_data_dirs=(artifacts config db logs plugins addons)
 
-    yell "Creating directories and symlinks to hold GoCD configuration, data, and logs"
+  yell "Creating directories and symlinks to hold GoCD configuration, data, and logs"
 
-    for each_dir in "${server_dirs[@]}"; do
-      if [ ! -e "${VOLUME_DIR}/${each_dir}" ]; then
-        try mkdir -v "${VOLUME_DIR}/${each_dir}"
-      fi
-
-      if [ ! -e "${SERVER_WORK_DIR}/${each_dir}" ]; then
-        try ln -sv "${VOLUME_DIR}/${each_dir}" "${SERVER_WORK_DIR}/${each_dir}"
-      fi
-    done
-
-    if [ ! -e "${SERVER_WORK_DIR}/config/logback-include.xml" ]; then
-      try cp -rfv "/go-server/config/logback-include.xml" "${SERVER_WORK_DIR}/config/logback-include.xml"
+  for each_dir in "${server_data_dirs[@]}"; do
+    if [ ! -e "${VOLUME_DIR}/${each_dir}" ]; then
+      try mkdir -v "${VOLUME_DIR}/${each_dir}"
     fi
 
-    try install-gocd-plugins
-    try git-clone-config
+    if [ ! -e "${SERVER_WORK_DIR}/${each_dir}" ]; then
+      try ln -sv "${VOLUME_DIR}/${each_dir}" "${SERVER_WORK_DIR}/${each_dir}"
+    fi
+  done
 
-    yell "Running custom scripts in /docker-entrypoint.d/ ..."
+  wrapper_dirs=(bin lib run wrapper wrapper-config)
 
-    # to prevent expansion to literal string `/docker-entrypoint.d/*` when there is nothing matching the glob
-    shopt -s nullglob
+  yell "Creating directories and symlinks to hold GoCD wrapper binaries"
 
-    for file in /docker-entrypoint.d/*; do
-      if [ -f "$file" ] && [ -x "$file" ]; then
-        try "$file"
-      else
-        yell "Ignoring $file, it is either not a file or is not executable"
-      fi
-    done
+  for each_dir in "${wrapper_dirs[@]}"; do
+    if [ ! -e "${SERVER_WORK_DIR}/${each_dir}" ]; then
+      try ln -sv "/go-server/${each_dir}" "${SERVER_WORK_DIR}/${each_dir}"
+    fi
+  done
+
+  if [ ! -e "${SERVER_WORK_DIR}/config/logback-include.xml" ]; then
+    try cp -rfv "/go-server/config/logback-include.xml" "${SERVER_WORK_DIR}/config/logback-include.xml"
+  fi
+
+  try install-gocd-plugins
+  try git-clone-config
+
+  yell "Running custom scripts in /docker-entrypoint.d/ ..."
+
+  # to prevent expansion to literal string `/docker-entrypoint.d/*` when there is nothing matching the glob
+  shopt -s nullglob
+
+  for file in /docker-entrypoint.d/*; do
+    if [ -f "$file" ] && [ -x "$file" ]; then
+      try "$file"
+    else
+      yell "Ignoring $file, it is either not a file or is not executable"
+    fi
+  done
+
+  # setup the java binary and wrapper log
+  try sed -i \
+    -e "s@wrapper.logfile=.*@/wrapper.logfile=${SERVER_WORK_DIR}/logs/go-server-wrapper.log@g" \
+    -e "s@wrapper.java.command=.*@wrapper.java.command=${GO_JAVA_HOME}/bin/java@g" \
+    -e "s@wrapper.working.dir=.*@wrapper.working.dir=${SERVER_WORK_DIR}@g" \
+    /go-server/wrapper-config/wrapper.conf
+
+  # parse/split an environment var to an array like how it should pass to the CLI
+  # GO_SERVER_SYSTEM_PROPERTIES is mostly for advanced users.
+  eval stringToArgsArray "$GO_SERVER_SYSTEM_PROPERTIES"
+  GO_SERVER_SYSTEM_PROPERTIES=("${_stringToArgs[@]}")
+
+
+  GO_SERVER_SYSTEM_PROPERTIES+=("-Dgo.console.stdout=true")
+
+  # write out each system property using its own index
+  for array_index in "${!GO_SERVER_SYSTEM_PROPERTIES[@]}"
+  do
+    tanuki_index=$(($array_index + 100))
+    echo "wrapper.java.additional.${tanuki_index}=${GO_SERVER_SYSTEM_PROPERTIES[$array_index]}" >> /go-server/wrapper-config/wrapper-properties.conf
+  done
+
 fi
 
-# these 3 vars are used by `/go-server/server.sh`, so we export
-export GO_SERVER_SYSTEM_PROPERTIES="${GO_SERVER_SYSTEM_PROPERTIES}${GO_SERVER_SYSTEM_PROPERTIES:+ }-Dgo.console.stdout=true"
-
-try exec /usr/local/sbin/tini "$@"
+try exec /usr/local/sbin/tini -- "$@"

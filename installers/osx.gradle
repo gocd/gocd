@@ -49,193 +49,61 @@ task downloadOsxJre(type: DownloadFile) {
   checksum = { downloadOsxJreChecksum.outputs.files.singleFile.getText("utf-8").trim().split(" ").first() }
 }
 
-class ConcatFileReader extends FilterReader {
-  ConcatFileReader(Reader reader) {
-    super(new StringReader("${reader.text}\n\n# Create this file and specify any overrides for environment/jvm args\n#include ../conf/wrapper-properties.conf\n"))
-  }
-}
-
-def configureOSXZip(Zip zipTask,
-                    InstallerType type) {
+def configureOSXZip(Zip zipTask, InstallerType installerType, Zip genericZipTask) {
   zipTask.with {
+    group project.name
+    description "Build the ${installerType.baseName} osx (zip) installer"
+
     dependsOn downloadOsxJre
-    dependsOn extractDeltaPack
+    dependsOn genericZipTask
     destinationDirectory = file("${project.buildDir}/${project.distsDirName}/osx")
-    archiveBaseName = type.baseName
+    archiveBaseName = installerType.baseName
     archiveClassifier = 'osx'
 
-    def baseDirInsideArchive = "${type.baseName}-${project.goVersion}"
-    into(baseDirInsideArchive)
+    def genericZipTree = zipTree(genericZipTask.archiveFile)
 
-    from("${rootProject.projectDir}/LICENSE")
-
-    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/bin/sh.script.in") {
-      filter({ String eachLine ->
-        eachLine = eachLine
-          .replaceAll('@app.name@', type.appName)
-          .replaceAll('@app.long.name@', type.appName)
-          .replaceAll('@app.description@', type.appName)
-
-        if (eachLine == 'WRAPPER_CMD="./wrapper"') {
-          eachLine = 'WRAPPER_CMD="../tanuki/wrapper"'
-        }
-
-        if (eachLine == 'PIDDIR="."') {
-          eachLine = 'PIDDIR="../run"'
-        }
-
-        if (eachLine == '#PASS_THROUGH=true' && type.allowPassthrough) {
-          eachLine = 'PASS_THROUGH=true'
-        }
-
-        return eachLine
-      })
-      rename 'sh.script.in', type.baseName
-      into "bin"
-      fileMode = 0755
+    // dont include the wrapper.conf, and tanuki wrappers for OSes other than osx
+    from(genericZipTree) {
+      exclude "${installerType.baseName}-${project.goVersion}/config/wrapper.conf"
+      exclude "${installerType.baseName}-${project.goVersion}/tanuki/wrapper-*"
+      exclude "${installerType.baseName}-${project.goVersion}/tanuki/libwrapper-*"
+      exclude "${installerType.baseName}-${project.goVersion}/bin/*.bat"
     }
 
-    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/src/conf/wrapper.conf.in") {
-      filter({ String eachLine ->
-        eachLine = eachLine
-          .replaceAll('@app.name@', type.appName)
-          .replaceAll('@app.long.name@', type.appName)
-          .replaceAll('@app.description@', type.appName)
+    from(genericZipTree) {
+      include "${installerType.baseName}-${project.goVersion}/tanuki/wrapper-macosx-*"
+      include "${installerType.baseName}-${project.goVersion}/tanuki/libwrapper-macosx-*"
+    }
 
-        if (eachLine == 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperSimpleApp') {
-          eachLine = 'wrapper.java.mainclass=org.tanukisoftware.wrapper.WrapperJarApp'
-        }
-
-        if (eachLine == '#encoding=UTF-8') {
-          def newLines = [
-            '#encoding=UTF-8',
-            'wrapper.working.dir=..'
-          ]
-
-          type.additionalEnvVars.forEach { k, v ->
-            newLines.add("set.default.${k}=${v}")
-          }
-
-          eachLine = newLines.join('\n')
-        }
-
-        if (eachLine == 'wrapper.java.additional.1=' && !type.jvmArgs.isEmpty()) {
-          def newLines = []
-
-          type.jvmArgs.eachWithIndex { String eachArg, int index ->
-            newLines << "wrapper.java.additional.${index + 1}=${eachArg}"
-          }
-
-          eachLine = newLines.join('\n')
-        }
-
-        if (eachLine == 'wrapper.java.additional.auto_bits=TRUE') {
-          eachLine = 'wrapper.java.additional.auto_bits=FALSE'
-        }
-
+    // include the wrapper.conf, but replace the java command
+    from(genericZipTree) {
+      include "${installerType.baseName}-${project.goVersion}/config/wrapper.conf"
+      filter { String eachLine ->
         if (eachLine == 'wrapper.java.command=java') {
           eachLine = 'wrapper.java.command=jre/Contents/Home/bin/java'
         }
-
-        if (eachLine == 'wrapper.java.classpath.1=../lib/wrapper.jar') {
-          eachLine = [
-            'wrapper.java.classpath.1=tanuki/wrapper.jar',
-            "wrapper.java.classpath.2=lib/${type.jarFileName}",
-          ].join("\n")
-        }
-
-        if (eachLine == 'wrapper.java.library.path.1=../lib') {
-          eachLine = 'wrapper.java.library.path.1=tanuki'
-        }
-
-        if (eachLine == 'wrapper.app.parameter.1=<YourMainClass>') {
-          eachLine = "wrapper.app.parameter.1=lib/${type.jarFileName}"
-        }
-
-        if (eachLine == 'wrapper.logfile=../logs/wrapper.log') {
-          eachLine = "wrapper.logfile=../logs/${type.logFileName}"
-        }
-
-        if (eachLine == 'wrapper.logfile.maxsize=0') {
-          eachLine = "wrapper.logfile.maxsize=10m"
-        }
-
-        if (eachLine == 'wrapper.logfile.maxfiles=0') {
-          eachLine = "wrapper.logfile.maxfiles=4"
-        }
-
-        return eachLine
-      })
-
-      filter(ConcatFileReader)
-
-      into "conf"
-      rename 'wrapper.conf.in', 'wrapper.conf'
+        eachLine
+      }
     }
 
-    from("wrapper-properties.conf.example") {
-      into 'conf'
-    }
-
-    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/bin") {
-      include 'wrapper-macosx-*'
-      into "tanuki"
-    }
-
-    from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/lib") {
-      include 'wrapper.jar'
-      include 'libwrapper-macosx-*'
-      into "tanuki"
-    }
-
-    from('empty-ignore-file') {
-      into "logs"
-      rename ".*", ".ignore"
-    }
-
-    from('empty-ignore-file') {
-      into "run"
-      rename ".*", ".ignore"
-    }
-
-    // puts the content of the tar under `go-agent-XXX/jre`
+    // puts the content of the tar under `go-{agent,server}-XXX/jre`
     from(tarTree(downloadOsxJre.outputs.files.singleFile)) {
       eachFile { FileCopyDetails fcd ->
         List<String> segments = fcd.relativePath.segments
         segments.set(1, "jre")
         fcd.relativePath = new RelativePath(!fcd.isDirectory(), (segments as String[]))
       }
+      into("${installerType.baseName}-${project.goVersion}")
     }
   }
 }
 
 task agentOSXZip(type: Zip) { Zip thisTask ->
-  configureOSXZip(thisTask, InstallerType.agent)
-
-  from(configurations.agentBootstrapperJar) {
-    rename "(.*)-${project.version}.(.*)", '$1.$2'
-    into "lib"
-  }
-
-  from('wrapper-license-agent.conf') {
-    into "conf"
-    rename 'wrapper-license-agent.conf', 'wrapper-license.conf'
-  }
-
+  configureOSXZip(thisTask, InstallerType.agent, agentGenericZip)
 }
 
 task serverOSXZip(type: Zip) { Zip thisTask ->
-  configureOSXZip(thisTask, InstallerType.sever)
-
-  from(configurations.serverJar) {
-    rename "(.*)-${project.version}.(.*)", 'go.jar'
-    into "lib"
-  }
-
-  from('wrapper-license-server.conf') {
-    into "conf"
-    rename 'wrapper-license-server.conf', 'wrapper-license.conf'
-  }
+  configureOSXZip(thisTask, InstallerType.server, serverGenericZip)
 }
 
 assemble.dependsOn(":installers:agentOSXZip", ":installers:serverOSXZip")

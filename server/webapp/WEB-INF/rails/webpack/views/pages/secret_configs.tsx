@@ -113,6 +113,10 @@ export class SecretConfigsPage extends Page<null, State> {
     vnode.state.onSuccessfulSave = (msg: m.Children) => {
       this.flashMessage.setMessage(MessageType.success, msg);
     };
+
+    vnode.state.onError = (msg: m.Children) => {
+      this.flashMessage.setMessage(MessageType.alert, msg);
+    };
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {

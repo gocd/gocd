@@ -15,7 +15,7 @@
  *#
 ## layout level variable
 #set ($title = "$presenter.buildName Job Details - Go")
-#set($extra_css_list = ['build_common', 'build_detail_summary','build_detail', 'sub_tab',
+#set($extra_css_list = ['build_common', 'build_detail', 'sub_tab',
     'transparent_message'])
 #set($current_tab='build')
 ## page level variable

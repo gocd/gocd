@@ -26,14 +26,14 @@
  * The order in which the files are added below is the order in which they would be added in the concatenated application.css file.
  *
  *= require_self
- *= require "structure/reset"
+ *= require "structure/_reset"
  *= require_tree ./css_sass
- *= require "main"
- *= require "layout"
- *= require "structure"
- *= require "ie_hacks"
- *= require "structure/application"
- *= require "module"
+ *= require "_main"
+ *= require "_layout"
+ *= require "./_structure"
+ *= require "./_ie_hacks"
+ *= require "structure/_application"
+ *= require "_module"
  *= require_tree ./plugins
  *= require_tree ./views
  *= require '_new-footer-with-old-css'

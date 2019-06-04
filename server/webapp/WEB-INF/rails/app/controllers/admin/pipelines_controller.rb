@@ -66,7 +66,7 @@ module Admin
         end
 
         def update(cruise_config)
-          if(!@pipeline.hasTemplate())
+          if (!@pipeline.hasTemplate())
             task = @pipeline.getFirstStageConfig().getJobs().first().getTasks().first()
             @pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
             @pluggable_task_service.validate(task.cancelTask()) if (!task.cancelTask().nil?) && (task.cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
@@ -114,7 +114,7 @@ module Admin
         assert_load(:all_pipelines, go_config_service.getCurrentConfig().getAllPipelineNames())
         load_pause_info
         load_autocomplete_suggestions
-        set_save_redirect_url(pipeline_edit_path(:pipeline_name => @pipeline.name(), :stage_parent=>"pipelines", :current_tab => "general")) if @update_result.isSuccessful()
+        set_save_redirect_url(pipeline_edit_path(:pipeline_name => @pipeline.name(), :stage_parent => "pipelines", :current_tab => "general")) if @update_result.isSuccessful()
 
         pipeline_pause_service.pause(@pipeline.name().to_s, "Under construction", current_user) if @update_result.isSuccessful() #The if check is important now as we want consistency across config and db save. If config save fails, we do not want to insert it in the DB.
 
@@ -186,7 +186,13 @@ module Admin
         end
       end.new(params, current_user, security_service, dup_pipeline)
 
-      save_popup(params[:config_md5],save_action,{:action => :clone, :layout => false}, {:controller => "admin/pipelines", :action => 'edit', :pipeline_name => params[:pipeline_group][:pipeline][:name], :current_tab => 'general', :stage_parent => "pipelines"}, "Cloned successfully.")do
+      create_failure_handler = proc do |result, all_errors|
+        @errors = flatten_all_errors(all_errors)
+        handle_secret_config_error(@subject.getAllErrors())
+        performed? || render_error_with_options({:status => result.httpCode(), :action => :clone, :layout => false})
+      end
+
+      save_popup(params[:config_md5], save_action, create_failure_handler, {:controller => "admin/pipelines", :action => 'edit', :pipeline_name => params[:pipeline_group][:pipeline][:name], :current_tab => 'general', :stage_parent => "pipelines"}, "Cloned successfully.") do
         assert_load :pipeline, @subject
         assert_load(:pipeline_group, save_action.group)
         assert_load(:group_name, save_action.group.getGroup())
@@ -200,6 +206,14 @@ module Admin
     end
 
     private
+
+    def handle_secret_config_error(errorList)
+      errors = flatten_all_errors(errorList)[0]
+      if !@errors
+        @errors = []
+      end
+      @errors.concat [errors]
+    end
 
     def update_other_tab
       save_tab({:action => params[:current_tab]})
@@ -221,7 +235,7 @@ module Admin
 
     def save_tab(error_rendering_options_or_proc)
       @original_params = Struct.new(:params).new
-      save_page(params[:config_md5], pipeline_edit_path(:pipeline_name => params[:pipeline_name], :stage_parent=>"pipelines", :current_tab => params[:current_tab]), error_rendering_options_or_proc, Class.new(::ConfigUpdate::SaveAsPipelineAdmin) do
+      save_page(params[:config_md5], pipeline_edit_path(:pipeline_name => params[:pipeline_name], :stage_parent => "pipelines", :current_tab => params[:current_tab]), error_rendering_options_or_proc, Class.new(::ConfigUpdate::SaveAsPipelineAdmin) do
         include ConfigUpdate::PipelineNode
         include ConfigUpdate::NodeAsSubject
 
@@ -256,19 +270,19 @@ module Admin
     end
 
     def renamed_param?(param_name, request_params)
-      request_params.find { |p| p[:original_name] == param_name }
+      request_params.find {|p| p[:original_name] == param_name}
     end
 
     def param_deleted?(param_name, request_params)
-      !(request_params.any? { |p| p[:name] == param_name })
+      !(request_params.any? {|p| p[:name] == param_name})
     end
 
     def config_param_errors_matching(pattern)
       @cruise_config.getAllErrors().
-              collect { |config_error| config_error.getAll().to_a }.
-              flatten.
-              collect { |err_msg| err_msg =~ pattern ? $1 : nil }.
-              compact
+        collect {|config_error| config_error.getAll().to_a}.
+        flatten.
+        collect {|err_msg| err_msg =~ pattern ? $1 : nil}.
+        compact
     end
 
     def load_config_for_edit

@@ -167,7 +167,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     }
 
     public String passwordForCommandLine() {
-        return secretParamsForPassword.isEmpty() ? getPassword() : secretParamsForPassword.substitute(getPassword());
+        return secretParamsForPassword == null || secretParamsForPassword.isEmpty() ? getPassword() : secretParamsForPassword.substitute(getPassword());
     }
 
     @Override

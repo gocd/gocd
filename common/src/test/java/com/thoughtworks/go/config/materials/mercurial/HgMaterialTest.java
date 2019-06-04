@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.materials.mercurial;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
 import com.thoughtworks.go.domain.MaterialInstance;
@@ -25,12 +26,14 @@ import com.thoughtworks.go.domain.materials.mercurial.HgCommand;
 import com.thoughtworks.go.domain.materials.mercurial.HgVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
 import com.thoughtworks.go.helper.HgTestRepo;
-import com.thoughtworks.go.helper.MaterialConfigsMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.TestRepo;
 import com.thoughtworks.go.util.JsonValue;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.command.*;
+import com.thoughtworks.go.util.command.ConsoleResult;
+import com.thoughtworks.go.util.command.HgUrlArgument;
+import com.thoughtworks.go.util.command.InMemoryStreamConsumer;
+import com.thoughtworks.go.util.command.UrlArgument;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.jupiter.api.AfterEach;
@@ -623,6 +626,19 @@ public class HgMaterialTest {
             hgMaterial.setPassword("p@ssw:rd");
 
             assertThat(hgMaterial.urlForCommandLine()).isEqualTo("http://bob%40example.com:p%40ssw:rd@exampele.com");
+        }
+
+        @Test
+        void shouldHaveResolvedUserInfoIfSecretParamsIsPresent() {
+            final HgMaterial gitMaterial = new HgMaterial("http://exampele.com", "destination");
+            gitMaterial.setUserName("bob@example.com");
+            String password = "{{SECRET:[test][id]}}";
+            gitMaterial.setPassword(password);
+
+            SecretParam secretParam = gitMaterial.getSecretParams().get(0);
+            secretParam.setValue("p@ssw:rd");
+
+            assertThat(gitMaterial.urlForCommandLine()).isEqualTo("http://bob%40example.com:p%40ssw:rd@exampele.com");
         }
     }
 

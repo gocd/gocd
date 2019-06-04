@@ -17,6 +17,7 @@
 package com.thoughtworks.go.config.materials.git;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.Materials;
 import com.thoughtworks.go.config.materials.PasswordAwareMaterial;
@@ -46,7 +47,6 @@ import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestName;
-import org.mockito.Mockito;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,6 +64,7 @@ import static com.thoughtworks.go.util.JsonUtils.from;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @EnableRuleMigrationSupport
@@ -194,7 +195,7 @@ public class GitMaterialTest {
 
         @Test
         void shouldNotCheckingOutWorkingCopyUponCallingModificationsSinceARevision() {
-            SystemEnvironment mockSystemEnvironment = Mockito.mock(SystemEnvironment.class);
+            SystemEnvironment mockSystemEnvironment = mock(SystemEnvironment.class);
             GitMaterial material = new GitMaterial(repositoryUrl, true);
             when(mockSystemEnvironment.get(SystemEnvironment.GO_SERVER_SHALLOW_CLONE)).thenReturn(false);
 
@@ -691,6 +692,19 @@ public class GitMaterialTest {
             final GitMaterial gitMaterial = new GitMaterial("http://exampele.com");
             gitMaterial.setUserName("bob@example.com");
             gitMaterial.setPassword("p@ssw:rd");
+
+            assertThat(gitMaterial.urlForCommandLine()).isEqualTo("http://bob%40example.com:p%40ssw:rd@exampele.com");
+        }
+
+        @Test
+        void shouldHaveResolvedUserInfoIfSecretParamsIsPresent() {
+            final GitMaterial gitMaterial = new GitMaterial("http://exampele.com");
+            gitMaterial.setUserName("bob@example.com");
+            String password = "{{SECRET:[test][id]}}";
+            gitMaterial.setPassword(password);
+
+            SecretParam secretParam = gitMaterial.getSecretParams().get(0);
+            secretParam.setValue("p@ssw:rd");
 
             assertThat(gitMaterial.urlForCommandLine()).isEqualTo("http://bob%40example.com:p%40ssw:rd@exampele.com");
         }

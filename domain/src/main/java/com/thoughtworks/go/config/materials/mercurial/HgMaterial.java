@@ -262,7 +262,7 @@ public class HgMaterial extends ScmMaterial implements PasswordAwareMaterial {
             }
 
             return new URIBuilder(this.url.originalArgument())
-                    .setUserInfo(new UrlUserInfo(this.userName, this.getPassword()).asString())
+                    .setUserInfo(new UrlUserInfo(this.userName, this.passwordForCommandLine()).asString())
                     .build().toString();
 
         } catch (URISyntaxException e) {

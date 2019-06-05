@@ -30,7 +30,7 @@ const GroupHeading = {
     const useNewAddPipelineFlow = vnode.attrs.useNewAddPipelineFlow;
     let addPipeline = "";
 
-    if (paths.newPipeline && vm.canAdminister) {
+    if (paths.newPipeline && vm.canAdminister && !vnode.attrs.universalAddPipelineButton) {
       if (vnode.attrs.addPipelineButtonStyling) {
         addPipeline = <Buttons.Primary align="right" icon={Buttons.ButtonIcon.ADD} disabled={!vm.canAdminister} aria-label={vm.ariaLabelForNewPipeline()} title={vm.titleForNewPipeline()} onclick={this.goToAddPipeline.bind(null, useNewAddPipelineFlow? paths.new : paths.newPipeline)}>New Pipeline</Buttons.Primary>;
       } else {

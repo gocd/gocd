@@ -95,6 +95,7 @@ const DashboardWidget = {
           <DashboardGroupsWidget scheme={vm.scheme()}
                                  useNewAddPipelineFlow={args.useNewAddPipelineFlow}
                                  addPipelineButtonStyling={args.addPipelineButtonStyling}
+                                 universalAddPipelineButton={args.universalAddPipelineButton}
                                  invalidateEtag={vm.invalidateEtag}
                                  resolver={dashboard} {...sharedGroupArgs}
                                  groups={vm.filteredGroups(personalizeVM.currentFilter())}/>

@@ -59,7 +59,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
         return new GoPluginBundleDescriptor(idToDescriptorMap.remove(existingDescriptor.descriptor().id()));
     }
 
-    private GoPluginDescriptor getPluginByIdOrFileName(String pluginID, final String fileName) {
+    public GoPluginDescriptor getPluginByIdOrFileName(String pluginID, final String fileName) {
         if (pluginID != null) {
             GoPluginDescriptor descriptor = idToDescriptorMap.get(pluginID);
             if (descriptor != null) {
@@ -70,7 +70,7 @@ public class DefaultPluginRegistry implements PluginRegistry {
         return IterableUtils.find(idToDescriptorMap.values(), object -> object.fileName().equals(fileName));
     }
 
-    public GoPluginBundleDescriptor getPluginBundleByIdOrFileName(String bundleID, final String fileName) {
+    private GoPluginBundleDescriptor getPluginBundleByIdOrFileName(String bundleID, final String fileName) {
         final GoPluginDescriptor pluginDescriptor = getPluginByIdOrFileName(bundleID, fileName);
         return pluginDescriptor == null ? null : new GoPluginBundleDescriptor(pluginDescriptor);
     }

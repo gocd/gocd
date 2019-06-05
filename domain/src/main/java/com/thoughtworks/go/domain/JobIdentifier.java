@@ -61,8 +61,8 @@ public class JobIdentifier implements Serializable, LocatableEntity {
                 stage.getStageCounter(), jobName, jobId);
     }
 
-    public JobIdentifier(String pipelineName, int pipelineCounter, String pipelineLabel, String staqeName, String stageCounter, String jobName) {
-        this(pipelineName, pipelineCounter, pipelineLabel, staqeName, stageCounter, jobName, -1L);
+    public JobIdentifier(String pipelineName, int pipelineCounter, String pipelineLabel, String stageName, String stageCounter, String jobName) {
+        this(pipelineName, pipelineCounter, pipelineLabel, stageName, stageCounter, jobName, -1L);
     }
 
     public static JobIdentifier invalidIdentifier(String pipelineName, String pipelineLabel, String stageName,

@@ -398,7 +398,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
     private class StubOfDefaultPluginRegistry extends DefaultPluginRegistry {
         void fakeRegistrationOfPlugin(GoPluginDescriptor pluginDescriptor) {
-            idToDescriptorMap.putIfAbsent(pluginDescriptor.id(), pluginDescriptor);
+            idToDescriptorMap.putIfAbsent(pluginDescriptor.id().toLowerCase(), pluginDescriptor);
         }
     }
 }

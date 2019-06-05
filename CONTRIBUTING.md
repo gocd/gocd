@@ -7,3 +7,6 @@ A lot of useful information like links to user documentation, design documentati
 
 Signing the [Contributor License Agreement (CLA)](https://www.gocd.org/contribute/cla.html) is required before any of your code or pull-requests are accepted.
 
+## Issue triage [![Open Source Helpers](https://www.codetriage.com/gocd/gocd/badges/users.svg)](https://www.codetriage.com/gocd/gocd)
+
+You can contribute by triaging issues which may include reproducing bug reports or asking for vital information, such as version numbers or reproduction instructions. If you would like to start triaging issues, one easy way to get started is to [subscribe to gocd on CodeTriage](https://www.codetriage.com/gocd/gocd).

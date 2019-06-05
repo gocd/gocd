@@ -40,6 +40,7 @@ public class GoPluginDescriptor implements PluginDescriptor {
     private File bundleLocation;
     private boolean bundledPlugin;
     private GoPluginBundleDescriptor bundleDescriptor;
+    private List<String> extensionClasses = new ArrayList<>();
 
     public GoPluginDescriptor(String id, String version, About about, String pluginJarFileLocation, File bundleLocation, boolean isBundledPlugin) {
         this(id, pluginJarFileLocation, bundleLocation, isBundledPlugin);
@@ -164,6 +165,15 @@ public class GoPluginDescriptor implements PluginDescriptor {
 
     public void setBundleDescriptor(GoPluginBundleDescriptor bundleDescriptor) {
         this.bundleDescriptor = bundleDescriptor;
+    }
+
+    List<String> extensionClasses() {
+        return extensionClasses;
+    }
+
+    GoPluginDescriptor addExtensionClasses(List<String> extensionClasses) {
+        this.extensionClasses = extensionClasses;
+        return this;
     }
 
     public static class About implements PluginDescriptor.About {

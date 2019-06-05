@@ -36,6 +36,8 @@ public class GoPluginBundleDescriptorBuilder {
     private static final Logger LOGGER = LoggerFactory.getLogger(GoPluginBundleDescriptorBuilder.class);
 
     private static final String PLUGIN_XML = "plugin.xml";
+    private static final String BUNDLE_XML = "gocd-bundle.xml";
+
     private SystemEnvironment systemEnvironment;
     private File bundlePathLocation;
 
@@ -55,14 +57,20 @@ public class GoPluginBundleDescriptorBuilder {
             throw new RuntimeException(String.format("Plugin jar does not exist: %s", pluginJarFile.getAbsoluteFile()));
         }
         try (JarFile jarFile = new JarFile(pluginJarFile)) {
-            ZipEntry entry = jarFile.getEntry(PLUGIN_XML);
+            ZipEntry bundleXMLEntry = jarFile.getEntry(BUNDLE_XML);
+            if (bundleXMLEntry != null) {
+                try (InputStream bundleXMLStream = jarFile.getInputStream(bundleXMLEntry)) {
+                    return GoPluginBundleDescriptorParser.parseXML(bundleXMLStream, pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin);
+                }
+            }
 
-            if (entry == null) {
+            ZipEntry pluginXMLEntry = jarFile.getEntry(PLUGIN_XML);
+            if (pluginXMLEntry == null) {
                 return new GoPluginBundleDescriptor(GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin));
             }
 
-            try (InputStream pluginXMLStream = jarFile.getInputStream(entry)) {
-                return new GoPluginBundleDescriptor(GoPluginDescriptorParser.parseXML(pluginXMLStream, pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin));
+            try (InputStream pluginXMLStream = jarFile.getInputStream(pluginXMLEntry)) {
+                return GoPluginDescriptorParser.parseXML(pluginXMLStream, pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin);
             }
 
         } catch (Exception e) {

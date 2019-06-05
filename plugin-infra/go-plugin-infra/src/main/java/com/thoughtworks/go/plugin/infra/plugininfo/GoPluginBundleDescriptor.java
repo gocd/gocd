@@ -22,30 +22,38 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.osgi.framework.Bundle;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 public class GoPluginBundleDescriptor {
-    private GoPluginDescriptor pluginDescriptor;
     private Bundle bundle;
     private String bundleSymbolicName;
     private String bundleClassPath;
     private String bundleActivator;
 
-    public GoPluginBundleDescriptor(GoPluginDescriptor pluginDescriptor) {
-        this.pluginDescriptor = pluginDescriptor;
-        this.pluginDescriptor.setBundleDescriptor(this);
+    private List<GoPluginDescriptor> pluginDescriptors;
+
+    public GoPluginBundleDescriptor(GoPluginDescriptor... pluginDescriptors) {
+        this.pluginDescriptors = Arrays.asList(pluginDescriptors);
+        for (GoPluginDescriptor goPluginDescriptor : pluginDescriptors) {
+            goPluginDescriptor.setBundleDescriptor(this);
+        }
     }
 
     public GoPluginDescriptor descriptor() {
-        return pluginDescriptor;
+        return pluginDescriptors.get(0);
+    }
+
+    public List<GoPluginDescriptor> descriptors() {
+        return pluginDescriptors;
     }
 
     public boolean isBundledPlugin() {
-        return pluginDescriptor.isBundledPlugin();
+        return pluginDescriptors.get(0).isBundledPlugin();
     }
 
     public boolean isCurrentOSValidForThisPlugin(String currentOS) {
-        return pluginDescriptor.isCurrentOSValidForThisPlugin(currentOS);
+        return pluginDescriptors.get(0).isCurrentOSValidForThisPlugin(currentOS);
     }
 
     @Override
@@ -57,43 +65,64 @@ public class GoPluginBundleDescriptor {
         GoPluginBundleDescriptor that = (GoPluginBundleDescriptor) o;
 
         return new EqualsBuilder()
-                .append(pluginDescriptor, that.pluginDescriptor)
+                .append(bundle, that.bundle)
+                .append(bundleSymbolicName, that.bundleSymbolicName)
+                .append(bundleClassPath, that.bundleClassPath)
+                .append(bundleActivator, that.bundleActivator)
+                .append(pluginDescriptors, that.pluginDescriptors)
                 .isEquals();
     }
 
     @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37)
-                .append(pluginDescriptor)
+                .append(bundle)
+                .append(bundleSymbolicName)
+                .append(bundleClassPath)
+                .append(bundleActivator)
+                .append(pluginDescriptors)
                 .toHashCode();
     }
 
+    @Override
+    public String toString() {
+        return "GoPluginBundleDescriptor{" +
+                "bundle=" + bundle +
+                ", bundleSymbolicName='" + bundleSymbolicName + '\'' +
+                ", bundleClassPath='" + bundleClassPath + '\'' +
+                ", bundleActivator='" + bundleActivator + '\'' +
+                ", pluginDescriptors=" + pluginDescriptors +
+                '}';
+    }
+
     public PluginDescriptor.About about() {
-        return pluginDescriptor.about();
+        return pluginDescriptors.get(0).about();
     }
 
     public String id() {
-        return pluginDescriptor.id();
+        return pluginDescriptors.get(0).id();
     }
 
     public void markAsInvalid(List<String> messages, Exception o) {
-        pluginDescriptor.markAsInvalid(messages, o);
+        for (GoPluginDescriptor pluginDescriptor : pluginDescriptors) {
+            pluginDescriptor.markAsInvalid(messages, o);
+        }
     }
 
     public boolean isCurrentGocdVersionValidForThisPlugin() {
-        return pluginDescriptor.isCurrentGocdVersionValidForThisPlugin();
+        return pluginDescriptors.get(0).isCurrentGocdVersionValidForThisPlugin();
     }
 
     public String fileName() {
-        return pluginDescriptor.fileName();
+        return pluginDescriptors.get(0).fileName();
     }
 
     public boolean isInvalid() {
-        return pluginDescriptor.isInvalid();
+        return pluginDescriptors.get(0).isInvalid();
     }
 
     public File bundleLocation() {
-        return pluginDescriptor.bundleLocation();
+        return pluginDescriptors.get(0).bundleLocation();
     }
 
     public GoPluginBundleDescriptor setBundle(Bundle bundle) {
@@ -106,7 +135,7 @@ public class GoPluginBundleDescriptor {
     }
 
     public PluginStatus getStatus() {
-        return pluginDescriptor.getStatus();
+        return pluginDescriptors.get(0).getStatus();
     }
 
     public void updateBundleInformation(String symbolicName, String classPath, String bundleActivator) {

@@ -26,7 +26,10 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.doReturn;
@@ -96,6 +99,20 @@ public class GoPluginBundleDescriptorBuilderTest {
         assertThat(descriptor.id(), is(pluginJarName));
     }
 
+    @Test
+    public void shouldCheckForBundleXMLFirst() throws Exception {
+        String pluginJarName = "test-plugin-with-both-bundle-and-plugin-xmls.jar";
+        copyPluginToThePluginDirectory(pluginDirectory, pluginJarName);
+        File pluginJarFile = new File(pluginDirectory, pluginJarName);
+
+        final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginJarFile, true);
+
+        GoPluginBundleDescriptor expectedDescriptor = buildExpectedMultiPluginBundleDescriptor(pluginJarName, pluginJarFile.getAbsolutePath());
+        assertThat(bundleDescriptor, is(expectedDescriptor));
+        assertThat(bundleDescriptor.isInvalid(), is(false));
+        assertThat(bundleDescriptor.isBundledPlugin(), is(true));
+    }
+
     @Test(expected = RuntimeException.class)
     public void shouldThrowExceptionForInvalidPluginIfThePluginJarDoesNotExist() throws Exception {
         goPluginBundleDescriptorBuilder.build(new File(pluginDirectory, "invalid"), true);
@@ -131,6 +148,22 @@ public class GoPluginBundleDescriptorBuilderTest {
                         new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows", "Mac OS X")), pluginJarFileLocation,
                 new File(bundleDirectory, name),
                 true);
+    }
+
+    private GoPluginBundleDescriptor buildExpectedMultiPluginBundleDescriptor(String name, String pluginJarFileLocation) {
+        final GoPluginDescriptor descriptor1 = new GoPluginDescriptor("testplugin.multipluginbundle.plugin1", "1",
+                new GoPluginDescriptor.About("Plugin 1", "1.0.0", "19.5", "Example plugin 1",
+                        new GoPluginDescriptor.Vendor("ThoughtWorks GoCD Team", "www.thoughtworks.com"), Arrays.asList("Linux", "Windows")), pluginJarFileLocation,
+                new File(bundleDirectory, name), true);
+        descriptor1.addExtensionClasses(asList("cd.go.contrib.package1.TaskExtension", "cd.go.contrib.package1.ElasticAgentExtension"));
+
+        final GoPluginDescriptor descriptor2 = new GoPluginDescriptor("testplugin.multipluginbundle.plugin2", "1",
+                new GoPluginDescriptor.About("Plugin 2", "2.0.0", "19.5", "Example plugin 2",
+                        new GoPluginDescriptor.Vendor("Some other org", "www.example.com"), singletonList("Linux")), pluginJarFileLocation,
+                new File(bundleDirectory, name), true);
+        descriptor2.addExtensionClasses(asList("cd.go.contrib.package2.TaskExtension", "cd.go.contrib.package2.AnalyticsExtension"));
+
+        return new GoPluginBundleDescriptor(descriptor1, descriptor2);
     }
 
     private GoPluginDescriptor buildXMLSchemaErrorDescriptor(String name) {

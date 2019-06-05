@@ -49,7 +49,7 @@ public final class GoPluginDescriptorParser {
 
     private GoPluginDescriptor.Vendor vendor;
     private GoPluginDescriptor.About about;
-    private GoPluginDescriptor descriptor;
+    private GoPluginBundleDescriptor descriptor;
     private File pluginBundleLocation;
     private boolean isBundledPlugin;
     private List<String> targetOperatingSystems = new ArrayList<>();
@@ -61,7 +61,7 @@ public final class GoPluginDescriptorParser {
         this.isBundledPlugin = isBundledPlugin;
     }
 
-    public static GoPluginDescriptor parseXML(InputStream pluginXML, String pluginJarFileLocation, File pluginBundleLocation, boolean isBundledPlugin) throws IOException, SAXException {
+    public static GoPluginBundleDescriptor parseXML(InputStream pluginXML, String pluginJarFileLocation, File pluginBundleLocation, boolean isBundledPlugin) throws IOException, SAXException {
         Digester digester = initDigester();
         GoPluginDescriptorParser parserForThisXML = new GoPluginDescriptorParser(pluginJarFileLocation, pluginBundleLocation, isBundledPlugin);
         digester.push(parserForThisXML);
@@ -116,7 +116,7 @@ public final class GoPluginDescriptorParser {
 
     //used by digester
     public void createPlugin(String id, String version) {
-        descriptor = new GoPluginDescriptor(id, version, about, pluginJarFileLocation, pluginBundleLocation, isBundledPlugin);
+        descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor(id, version, about, pluginJarFileLocation, pluginBundleLocation, isBundledPlugin));
     }
 
     //used by digester

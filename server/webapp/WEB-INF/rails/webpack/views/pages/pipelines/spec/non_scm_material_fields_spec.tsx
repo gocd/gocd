@@ -51,8 +51,11 @@ class DummyCache implements SuggestionCache {
   ready() { return true; }
   // tslint:disable-next-line
   prime(onSuccess: () => void, onError?: () => void) {}
+  contents() { return []; }
   pipelines() { return []; }
   stages(pipeline: string) { return []; }
   failureReason() { return undefined; }
   failed() { return false; }
+  // tslint:disable-next-line
+  invalidate() {}
 }

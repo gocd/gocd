@@ -17,90 +17,47 @@
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
 import * as _ from "lodash";
+import {AbstractObjCache, ObjectCache, rejectAsString} from "models/base/cache";
 
 interface PipelineSuggestion {
   name: string;
   stages: string[];
 }
 
-export interface PipelineNameCache<P, S> {
-  ready: () => boolean;
-  prime: (onSuccess: () => void, onError?: () => void) => void;
+export interface PipelineNameCache<P, S> extends ObjectCache<PipelineSuggestion[]> {
   pipelines: () => P[];
   stages: (pipeline: string) => S[];
-  failureReason: () => string | undefined;
-  failed: () => boolean;
 }
 
-export class DependencyMaterialAutocomplete<P, S> implements PipelineNameCache<P, S> {
-  private syncing: boolean = false;
-  private data?: PipelineSuggestion[];
-  private error?: string;
+export class DependencyMaterialAutocomplete<P, S> extends AbstractObjCache<PipelineSuggestion[]> implements PipelineNameCache<P, S> {
   private toPipeline: (pipelineName: string) => P;
   private toStage: (stageName: string) => S;
 
   constructor(toPipeline: (pipelineName: string) => P, toStage: (stage: string) => S) {
+    super();
     this.toPipeline = toPipeline;
     this.toStage = toStage;
   }
 
-  prime(onSuccess: () => void, onError?: () => void) {
-    if (this.busy()) {
-      return;
-    }
-
-    this.lock();
-
-    delete this.error;
-
+  doFetch(resolve: (data: PipelineSuggestion[]) => void, reject: (reason: string) => void) {
     ApiRequestBuilder.GET(SparkRoutes.internalDependencyMaterialSuggestionsPath(), ApiVersion.v1).then((res) => {
       res.do((s) => {
-        this.data = JSON.parse(s.body) as PipelineSuggestion[];
-        onSuccess();
+        resolve(JSON.parse(s.body));
       }, (e) => {
-        this.error = e.message;
-        if (onError) {
-          onError();
-        }
+        reject(e.message);
       });
-    }).finally(() => {
-      this.release();
-    });
+    }).catch(rejectAsString(reject));
   }
 
   pipelines(): P[] {
-    return this.ready() ? _.map(this.data!, (entry) => this.toPipeline(entry.name)) : [];
+    return this.ready() ? _.map(this.contents(), (entry) => this.toPipeline(entry.name)) : [];
   }
 
   stages(pipeline: string): S[] {
     if (!this.ready()) {
       return [];
     }
-    const current = _.find(this.data!, (entry) => entry.name === pipeline);
+    const current = _.find(this.contents(), (entry) => entry.name === pipeline);
     return current ? _.map(current!.stages, this.toStage) : [];
-  }
-
-  failed(): boolean {
-    return !!this.error;
-  }
-
-  failureReason(): string | undefined {
-    return this.error;
-  }
-
-  ready(): boolean {
-    return !!this.data;
-  }
-
-  private busy(): boolean {
-    return this.syncing;
-  }
-
-  private lock(): void {
-    this.syncing = true;
-  }
-
-  private release(): void {
-    this.syncing = false;
   }
 }

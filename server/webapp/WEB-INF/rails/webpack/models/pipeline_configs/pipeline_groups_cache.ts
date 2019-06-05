@@ -17,80 +17,39 @@
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
 import * as _ from "lodash";
+import {AbstractObjCache, ObjectCache, rejectAsString} from "models/base/cache";
 import {Option} from "views/components/forms/input_fields";
 
 interface PipelineGroup {
   name: string;
 }
 
-export interface PipelineGroupCache<G> {
-  ready: () => boolean;
-  prime: (onSuccess: () => void, onError?: () => void) => void;
+const API_VERSION_HEADER = ApiVersion.v1;
+
+export interface PipelineGroupCache<G> extends ObjectCache<PipelineGroup[]> {
   pipelineGroups: () => G[];
-  failureReason: () => string | undefined;
-  failed: () => boolean;
 }
 
-export class PipelineGroupsCache<G> implements PipelineGroupCache<G> {
-  private syncing: boolean = false;
-  private data?: PipelineGroup[];
-  private error?: string;
+export class PipelineGroupsCache<G> extends AbstractObjCache<PipelineGroup[]> {
   private toPipelineGroup: (groupName: string) => G;
 
   constructor(toPipelineGroup: (groupName: string) => G) {
+    super();
     this.toPipelineGroup = toPipelineGroup;
   }
 
-  prime(onSuccess: () => void, onError?: () => void) {
-    if (this.busy()) {
-      return;
-    }
-
-    this.lock();
-
-    delete this.error;
-
-    ApiRequestBuilder.GET(SparkRoutes.pipelineGroupsListPath(), ApiVersion.v1).then((res) => {
+  doFetch(resolve: (data: PipelineGroup[]) => void, reject: (reason: string) => void) {
+    PipelineGroupCRUD.all().then((res) => {
       res.do((s) => {
-        this.data = JSON.parse(s.body)._embedded.groups as PipelineGroup[];
-        onSuccess();
+        resolve(s.body);
       }, (e) => {
-        this.error = e.message;
-        if (onError) {
-          onError();
-        }
+        reject(e.message);
       });
-    }).finally(() => {
-      this.release();
-    });
+    }).catch(rejectAsString(reject));
   }
 
   pipelineGroups(): G[] {
-    return this.ready() ? _.map(this.data!, (entry) => this.toPipelineGroup(entry.name)) : [];
-  }
-
-  failed(): boolean {
-    return !!this.error;
-  }
-
-  failureReason(): string | undefined {
-    return this.error;
-  }
-
-  ready(): boolean {
-    return !!this.data;
-  }
-
-  private busy(): boolean {
-    return this.syncing;
-  }
-
-  private lock(): void {
-    this.syncing = true;
-  }
-
-  private release(): void {
-    this.syncing = false;
+    return this.ready() ? _.map(this.contents(), (entry) => this.toPipelineGroup(entry.name)) : [];
   }
 }
 
@@ -101,10 +60,8 @@ export class DefaultCache extends PipelineGroupsCache<Option> {
 }
 
 export class PipelineGroupCRUD {
-  private static API_VERSION_HEADER = ApiVersion.v1;
-
   static all(): Promise<ApiResult<PipelineGroup[]>> {
-    return ApiRequestBuilder.GET(SparkRoutes.pipelineGroupsListPath(), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.pipelineGroupsListPath(), API_VERSION_HEADER)
                             .then((result: ApiResult<string>) => {
                               return result.map((str) => {
                                 const data = JSON.parse(str);

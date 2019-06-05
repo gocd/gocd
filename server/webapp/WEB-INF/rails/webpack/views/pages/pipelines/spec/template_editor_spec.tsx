@@ -66,6 +66,9 @@ class TestCache implements TemplateCache<Option> {
   ready() { return true; }
   // tslint:disable-next-line
   prime(onComplete: () => void) { onComplete(); }
+   // tslint:disable-next-line
+  invalidate() {}
+  contents() { return [{name: "one"}, {name: "two"}]; }
   templates() { return [{id: "one", text: "one"}, {id: "two", text: "two"}]; }
   failureReason() { return undefined; }
   failed() { return false; }
@@ -75,6 +78,9 @@ class EmptyTestCache implements TemplateCache<Option> {
   ready() { return true; }
   // tslint:disable-next-line
   prime(onComplete: () => void) { onComplete(); }
+  // tslint:disable-next-line
+  invalidate() {}
+  contents() { return []; }
   templates() { return []; }
   failureReason() { return undefined; }
   failed() { return false; }

@@ -17,79 +17,37 @@
 import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
 import * as _ from "lodash";
+import {AbstractObjCache, ObjectCache, rejectAsString} from "models/base/cache";
 import {Option} from "views/components/forms/input_fields";
 
 interface Template {
   name: string;
 }
 
-export interface TemplateCache<G> {
-  ready: () => boolean;
-  prime: (onComplete: () => void) => void;
+export interface TemplateCache<G> extends ObjectCache<Template[]> {
   templates: () => G[];
-  failureReason: () => string | undefined;
-  failed: () => boolean;
 }
 
-export class TemplatesCache<G> implements TemplateCache<G> {
-  private syncing: boolean = false;
-  private data?: Template[];
-  private error?: string;
+export class TemplatesCache<G> extends AbstractObjCache<Template[]> {
   private toTemplate: (templateName: string) => G;
 
   constructor(toTemplate: (templateName: string) => G) {
+    super();
     this.toTemplate = toTemplate;
   }
 
-  prime(onComplete: () => void, onError?: () => void) {
-    if (this.busy()) {
-      return;
-    }
-
-    this.lock();
-
+  doFetch(resolve: (data: Template[]) => void, reject: (reason: string) => void) {
     ApiRequestBuilder.GET(SparkRoutes.templatesPath(), ApiVersion.v4).then((res) => {
       res.do((s) => {
-        delete this.error;
-        this.data = JSON.parse(s.body)._embedded.templates as Template[];
-        onComplete();
+        resolve(JSON.parse(s.body)._embedded.templates);
       }, (e) => {
-        this.error = e.message;
-        if (onError) {
-          onError();
-        }
+        reject(e.message);
       });
-    }).finally(() => {
-      this.release();
-    });
+    }).catch(rejectAsString(reject));
   }
 
   templates(): G[] {
-    return this.ready() ? _.map(this.data!, (entry) => this.toTemplate(entry.name)) : [];
-  }
-
-  failed(): boolean {
-    return !!this.error;
-  }
-
-  failureReason(): string | undefined {
-    return this.error;
-  }
-
-  ready(): boolean {
-    return !!this.data;
-  }
-
-  private busy(): boolean {
-    return this.syncing;
-  }
-
-  private lock(): void {
-    this.syncing = true;
-  }
-
-  private release(): void {
-    this.syncing = false;
+    return this.ready() ? _.map(this.contents(), (entry) => this.toTemplate(entry.name)) : [];
   }
 }
 

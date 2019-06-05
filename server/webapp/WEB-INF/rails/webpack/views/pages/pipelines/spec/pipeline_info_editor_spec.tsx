@@ -53,6 +53,9 @@ class TestCache implements PipelineGroupCache<Option> {
   ready() { return true; }
   // tslint:disable-next-line
   prime(onComplete: () => void) {}
+  // tslint:disable-next-line
+  invalidate() {}
+  contents() { return []; }
   pipelineGroups() { return []; }
   stages(pipeline: string) { return []; }
   failureReason() { return undefined; }
@@ -63,6 +66,9 @@ class EmptyTemplatesTestCache implements TemplateCache<Option> {
   ready() { return true; }
   // tslint:disable-next-line
   prime(onComplete: () => void) { onComplete(); }
+  // tslint:disable-next-line
+  invalidate() {}
+  contents() { return []; }
   templates() { return []; }
   failureReason() { return undefined; }
   failed() { return false; }

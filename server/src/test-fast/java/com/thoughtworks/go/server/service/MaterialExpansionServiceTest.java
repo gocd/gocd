@@ -197,11 +197,11 @@ public class MaterialExpansionServiceTest {
             SecretParams secretParams = invocation.getArgument(0);
             secretParams.get(0).setValue("pass1");
             return null;
-        }).when(secretParamResolver).resolve(any());
+        }).when(secretParamResolver).resolve(any(SecretParams.class));
 
         materialExpansionService.expandForScheduling(svn, new Materials());
 
-        verify(secretParamResolver).resolve(any());
+        verify(secretParamResolver).resolve(any(SecretParams.class));
     }
 
     @Test

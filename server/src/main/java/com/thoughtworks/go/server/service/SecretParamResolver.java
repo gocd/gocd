@@ -16,9 +16,8 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.SecretConfig;
-import com.thoughtworks.go.config.SecretParam;
-import com.thoughtworks.go.config.SecretParams;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import org.slf4j.Logger;
@@ -39,12 +38,21 @@ public class SecretParamResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(SecretParamResolver.class);
     private SecretsExtension secretsExtension;
     private GoConfigService goConfigService;
+    private RulesService rulesService;
 
     @Autowired
-    public SecretParamResolver(SecretsExtension secretsExtension, GoConfigService goConfigService) {
+    public SecretParamResolver(SecretsExtension secretsExtension, GoConfigService goConfigService, RulesService rulesService) {
         this.secretsExtension = secretsExtension;
         this.goConfigService = goConfigService;
+        this.rulesService = rulesService;
     }
+
+    public void resolve(ScmMaterial scmMaterial) {
+        rulesService.validateSecretConfigReferences(scmMaterial);
+
+        resolve(scmMaterial.getSecretParams());
+    }
+
 
     public void resolve(SecretParams secretParams) {
         if (secretParams == null || secretParams.isEmpty()) {

@@ -75,11 +75,11 @@ class MaterialNotifyControllerV1Test implements SecurityServiceTrait, Controller
 
       @Test
       void 'should notify SVN material'() {
-        def payload = [uuid: "smiling-red-panda"]
+        def payload = [repository_url: "ssh+svn://smiling-red-panda"]
 
         postWithApiHeader(Routes.MaterialNotify.BASE + Routes.MaterialNotify.SVN, payload)
 
-        def expectedParams = [(MaterialUpdateService.TYPE): "svn", uuid: "smiling-red-panda"]
+        def expectedParams = [(MaterialUpdateService.TYPE): "svn", repository_url: "ssh+svn://smiling-red-panda"]
         verify(materialUpdateService).notifyMaterialsForUpdate(
           eq(currentUsername()), eq(expectedParams), any(HttpLocalizedOperationResult.class))
       }

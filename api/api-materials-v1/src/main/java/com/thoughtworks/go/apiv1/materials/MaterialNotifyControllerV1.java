@@ -73,27 +73,26 @@ public class MaterialNotifyControllerV1 extends ApiController implements SparkSp
     }
 
     public String svnNotify(Request req, Response res) throws IOException {
-        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-        String uuid = jsonReader.getString("uuid");
-        return notify(req, res, "svn", "uuid", uuid);
+        return notifyWithRepoUrl(req, res, "svn");
     }
 
     public String gitNotify(Request req, Response res) throws IOException {
-        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-        String repoUrl = jsonReader.getString("repository_url");
-        return notify(req, res, "git", "repository_url", repoUrl);
+        return notifyWithRepoUrl(req, res, "git");
     }
 
     public String hgNotify(Request req, Response res) throws IOException {
-        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
-        String repoUrl = jsonReader.getString("repository_url");
-        return notify(req, res, "hg", "repository_url", repoUrl);
+        return notifyWithRepoUrl(req, res, "hg");
     }
 
     public String scmNotify(Request req, Response res) throws IOException {
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
         String repoUrl = jsonReader.getString("scm_name");
         return notify(req, res, "scm", "scm_name", repoUrl);
+    }
+
+    private String notifyWithRepoUrl(Request req, Response res, String materialType) throws IOException {
+        String repoUrl = getRepoUrl(req);
+        return notify(req, res, materialType, "repository_url", repoUrl);
     }
 
     private String notify(Request req, Response res, String materialType, String paramName, String paramValue) throws IOException {
@@ -107,4 +106,8 @@ public class MaterialNotifyControllerV1 extends ApiController implements SparkSp
         return renderHTTPOperationResult(result, req, res);
     }
 
+    private String getRepoUrl(Request req) {
+        JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+        return jsonReader.getString("repository_url");
+    }
 }

@@ -95,6 +95,31 @@ class SvnPostCommitHookImplementerTest {
     }
 
     @Test
+    void shouldPruneListToGiveOutOnlySvnMaterialsWhichMatchTheRepositoryUrl() {
+        SvnMaterial svnMaterial1 = new SvnMaterial("http://user:pass@example.com/svn1", "user", "pass", true);
+        SvnMaterial svnMaterial2 = new SvnMaterial("http://admin@example.com/svn2", "admin", "discreetbluewhale", true);
+        GitMaterial gitMaterial = new GitMaterial("http://admin@example.com/svn2");
+        final HashSet<Material> allMaterials = new HashSet<>(Arrays.asList(svnMaterial1, svnMaterial2, gitMaterial));
+        final HashMap<Object, Object> params = new HashMap<>();
+        final SvnPostCommitHookImplementer svnPostCommitHookImplementer = new SvnPostCommitHookImplementer();
+        params.put(SvnPostCommitHookImplementer.REPO_URL_PARAM_KEY, "http://example.com/svn1");
+        Set<Material> prunedList = svnPostCommitHookImplementer.prune(allMaterials, params);
+
+        assertThat(prunedList).contains(svnMaterial1);
+        assertThat(prunedList).hasSize(1);
+
+        params.put(SvnPostCommitHookImplementer.REPO_URL_PARAM_KEY, "http://admin@example.com/svn2");
+        prunedList = svnPostCommitHookImplementer.prune(allMaterials, params);
+
+        assertThat(prunedList).contains(svnMaterial2);
+        assertThat(prunedList).hasSize(1);
+
+        params.put(SvnPostCommitHookImplementer.REPO_URL_PARAM_KEY, "http://example.com/svn42");
+        prunedList = svnPostCommitHookImplementer.prune(allMaterials, params);
+        assertThat(prunedList).isEmpty();
+    }
+
+    @Test
     void shouldReturnEmptyListWhenUUIDIsNotPresent() {
         final SvnMaterial svnMaterial1 = mock(SvnMaterial.class);
         final HashSet<Material> allMaterials = new HashSet<>();

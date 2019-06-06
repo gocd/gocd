@@ -91,11 +91,11 @@ h4 {
 }
 
 .environment-listview .environment-header {
-  display:    flex;
-  height:     30px;
-  cursor:     pointer;
-  padding:    10px 50px 10px 20px;
-  overflow:   hidden;
+  display:  flex;
+  height:   30px;
+  cursor:   pointer;
+  padding:  10px 50px 10px 20px;
+  overflow: hidden;
 
   &:after {
     content:     "\f105";
@@ -125,6 +125,7 @@ h4 {
     line-height:  30px;
     min-width:    250px;
     max-width:    250px;
+
     .key {
       min-width: auto;
     }
@@ -144,6 +145,7 @@ h4 {
 
   .added_item ul {
     margin-left: 23px;
+
     li {
       margin-top: 10px;
       font-size:  rem-calc(13px);
@@ -178,10 +180,12 @@ h4 {
   padding:    0 30px;
   height:     $main-nav-height;
   box-sizing: border-box;
+
   .header {
     background: $header-bg;
     padding:    0;
   }
+
   #application_logo {
     float:      left;
     background: image-url('go_logo.svg') no-repeat 0 0;
@@ -198,6 +202,7 @@ h4 {
     background: $go-primary !important;
     color:      $go-white !important;
     border:     0;
+
     &:hover {
       color:  $go-white;
       border: 0;
@@ -223,6 +228,7 @@ h4 {
     border-width: 1px 0 0 0;
     overflow:     visible;
   }
+
   .secure-variables {
     margin: 30px 0;
   }
@@ -272,10 +278,12 @@ h4 {
   h2.entity_title {
     font-weight: 600;
     margin:      10px 0 0;
+
     a {
       font-weight: 600;
     }
   }
+
   .pipelines_selector {
     width:      370px;
     position:   relative;
@@ -301,6 +309,7 @@ h4 {
   box-sizing:      border-box;
   padding:         7px 30px;
   box-shadow:      0 0 10px rgba(0, 0, 0, 0.21);
+
   h1 {
     display: inline-block;
   }
@@ -322,19 +331,23 @@ h1.entity_title {
       @extend %boxshadow;
       margin-top: 1px;
       width:      25em;
+
       .add_panel button.primary {
         margin-left:      10px;
         margin-right:     10px;
         width:            auto;
         background-color: $go-primary !important;
       }
+
       .select_all_none_panel {
         background: $personalize-header-bg;
       }
+
       .selector_pipeline .label {
         font-size: rem-calc(13px);
       }
     }
+
     .search-with-clear {
       #pipeline-search {
         margin-right:  0px;
@@ -346,10 +359,12 @@ h1.entity_title {
         border:        1px solid $border-color;
       }
     }
+
     .count {
       right: 0 !important;
       top:   31px !important;
     }
+
     .icon-pipeline.clear {
       right: 9px;
       top:   9px;
@@ -373,10 +388,12 @@ h1.entity_title {
       height:           30px;
       background-color: $input-btn-bg-hover;
     }
+
     &:active, &:focus {
       color:   #000;
       outline: 0;
     }
+
     span {
       line-height:    16px;
       text-transform: none;
@@ -393,15 +410,18 @@ h1.entity_title {
     font-size:   rem-calc(12px);
     font-weight: normal !important;
   }
+
   #show_new_pipelines_container {
     margin: 3px 10px;
   }
+
   .link_as_button {
     font-size:  11px !important;
     margin:     2px 0 0 0;
     padding:    4px 7px;
     background: $btn-bg;
     color:      $btn-txt !important;
+
     &:hover {
       margin:     2px 0 0 0;
       font-size:  11px !important;
@@ -409,14 +429,17 @@ h1.entity_title {
       background: $btn-bg-hover;
       color:      $btn-txt;
     }
+
     &#select_all_pipelines {
       border-radius: $global-border-radius 0 0 $global-border-radius;
       margin-right:  1px;
     }
+
     &#select_no_pipelines {
       border-radius: 0 $global-border-radius $global-border-radius 0;
     }
   }
+
   #show_new_pipelines_container {
     float: left !important;
     clear: both;
@@ -438,14 +461,17 @@ h1.entity_title {
   .pipeline {
     border:     0;
     box-shadow: none;
+
     &:hover {
       box-shadow: 0 0 6px 0px rgba(0, 0, 0, 0.41);
       border:     0;
     }
+
     .status {
       .label {
         font-size: 12px;
         margin:    3px 10px 4px 0;
+
         a {
           font-weight: 700;
         }
@@ -533,11 +559,14 @@ h1.entity_title {
 span.pipeline-buttons a.link_as_button {
   margin:    0;
   min-width: 40px;
+
   span {
     font-size: rem-calc(10px) !important;
   }
+
   &:hover {
     color: #333;
+
     span {
       font-size: rem-calc(10px) !important;
     }
@@ -634,28 +663,34 @@ span.pipeline-buttons a.link_as_button {
     border:        1px solid $stage-history-head-bg;
     border-radius: $global-border-radius $global-border-radius 0 0;
   }
+
   .stage {
     border:       1px dotted #ccc;
     border-width: 1px 1px 0px 1px;
   }
+
   div.stage a.selected, .stage_history div.stage a.selected:hover {
     box-shadow:    none;
     border-radius: 0;
   }
+
   .stage > a {
     background:    linear-gradient(to bottom, #fff 0%, #fff 100%);
     font-weight:   600;
     border-radius: 0;
+
     &:hover {
       background: linear-gradient(to bottom, #fff 0%, #fff 100%);
 
     }
   }
+
   .config_change {
     padding:      8px 10px;
     border:       1px dotted #ccc;
     border-width: 1px 1px 0px 1px;
   }
+
   .pagination {
     font-size:     rem-calc(13px);
     margin:        0;
@@ -663,10 +698,12 @@ span.pipeline-buttons a.link_as_button {
     background:    $stage-history-pagination-bg;
     border-radius: 0 0 $global-border-radius $global-border-radius;
     border:        1px solid $stage-history-pagination-bg;
+
     a {
       font-weight: 600;
     }
   }
+
   .compare_pipeline {
     bottom: 10px;
   }
@@ -718,6 +755,7 @@ $arrow-border-active-color: lighten(#000, 50%);
   background:      transparent;
   text-decoration: none;
   color:           transparent;
+
   &:before {
     display: block;
     content: "";
@@ -728,10 +766,12 @@ $arrow-border-active-color: lighten(#000, 50%);
       left: 2px solid $arrow-border-color;
     }
   }
+
   &.prev {
     transform: rotate(-45deg);
     left:      0;
   }
+
   &.next {
     transform: rotate(135deg);
     right:     0;
@@ -745,6 +785,7 @@ $arrow-border-active-color: lighten(#000, 50%);
 .stages {
   .pipeline_flow {
     padding-bottom: 0;
+
     .pipeline {
       border:        1px solid $border-color;
       border-bottom: 0;
@@ -759,6 +800,7 @@ $arrow-border-active-color: lighten(#000, 50%);
       }
     }
   }
+
   .page_title_bar {
     background:    #fff;
     padding:       10px 30px;
@@ -782,6 +824,7 @@ table.pipeline-history-group {
   background: #fff;
   position:   relative;
   margin:     0 !important;
+
   thead {
     th {
       border: 0;
@@ -824,6 +867,7 @@ input.pipeline-comment-button {
   font-size:   rem-calc(13px);
   font-weight: 600;
   box-shadow:  0px -1px 2px 1px rgba(0, 0, 0, 0.1);
+
   &:hover {
     background: $current-tab-bg;
 
@@ -835,17 +879,21 @@ input.pipeline-comment-button {
   background: none;
   padding:    0;
   margin:     0;
+
   .clear {
     display: none;
   }
+
   ul {
     float:         none;
     overflow:      hidden;
     padding:       10px 20px 0;
     background:    $tab-header-bg;
     border-radius: $global-border-radius $global-border-radius 0 0;
+
     li {
       position: relative;
+
       a {
         background:    $tab-bg;
         padding:       7px 15px;
@@ -860,17 +908,20 @@ input.pipeline-comment-button {
         background: $tab-header-bg-hover;
         color:      #333;
       }
+
       &.current {
         a {
           background: $current-tab-bg;
 
         }
+
         &:hover {
           background: transparent;
         }
       }
     }
   }
+
   &.project_management,
   &.general,
   &.materials,
@@ -896,10 +947,12 @@ div#tab_container {
     border-radius: $global-border-radius $global-border-radius 0 0;
     box-sizing:    border-box;
     border:        0;
+
     li {
       position: relative;
       border:   0;
       margin:   0 5px 0 0;
+
       a {
         background:    $tab-bg;
         padding:       7px 15px;
@@ -909,6 +962,7 @@ div#tab_container {
         font-weight:   600;
         color:         #333;
       }
+
       &.active {
         a {
           background: $current-tab-bg;
@@ -925,8 +979,10 @@ div#tab_container {
   border-bottom: 2px solid #ccc;
   background:    transparent;
   margin:        0;
+
   thead {
     border: 0;
+
     tr {
       background:   $table-header-bg;
       color:        $txt-color;
@@ -935,9 +991,11 @@ div#tab_container {
       border-right: 1px solid $table-header-bg;
     }
   }
+
   tr.agent_header {
     border-bottom: 3px solid $table-header-border;
   }
+
   th {
     background-color: $table-header-bg !important;
     background-image: none !important;
@@ -948,12 +1006,15 @@ div#tab_container {
     font-weight:      600;
 
   }
+
   tbody {
     background: #fff;
+
     tr {
       border-right: 1px dotted #ddd;
       border-left:  1px dotted #ddd;
       font-size:    rem-calc(13px);
+
       &:nth-child(even) {
         background-color: #f1f1f1;
       }
@@ -983,6 +1044,7 @@ span.contextual_help {
       margin-top: 10px;
     }
   }
+
   .instructions {
     margin-top: 0;
   }
@@ -1025,6 +1087,7 @@ ul#pipeline_config_tree {
   border:      0;
   min-width:   inherit;
   transition:  background-color 0.25s ease-out, color 0.25s ease-out;
+
   &:hover {
     background: #666;
     color:      #fff !important;
@@ -1050,6 +1113,7 @@ ul#pipeline_config_tree {
   position:         relative;
   margin:           0 10px;
   top:              -2px;
+
   &:hover {
     transition:       all 0.3s ease-in-out;
     background-color: $primary-btn-bg-hover;
@@ -1082,12 +1146,15 @@ ul#pipeline_config_tree {
   border-right-color:  #ccc;
   margin-top:          -37px;
   @extend %boxshadow;
+
   li:hover {
     background-color: #efefef;
   }
+
   a.lookup_icon {
     background-position: calc(100% - 10px) center;
   }
+
   &.agent_edit_popup {
     margin-top: auto;
   }
@@ -1115,6 +1182,7 @@ input.new_resource {
   background:      #333;
   border-radius:   3px;
   padding:         3px 5px;
+
   &:hover {
     text-decoration: none;
   }
@@ -1132,6 +1200,7 @@ input.new_resource {
     border-radius: $global-border-radius;
     box-shadow:    none;
     border:        0;
+
     &:hover {
       border-radius: $global-border-radius;
 
@@ -1176,6 +1245,7 @@ button#confirm-pause-up42 {
 .sub_tab_container_content {
   background: #fff;
   padding:    0;
+
   #tab-content-of-configuration-xml & {
     padding: 20px 0;
   }
@@ -1219,19 +1289,23 @@ input.new_resource {
       border-radius: 0 3px 3px 0;
       width:         66px;
       background:    $btn-light-bg !important;
+
       span {
         color: $txt-color !important;
 
       }
+
       &:hover {
         background-color: $btn-light-bg-hover !important;
         color:            $go-white !important;
+
         span {
           color: $go-white !important;
 
         }
       }
     }
+
     input[type="text"] {
       border-radius: 3px 0 0 3px;
     }
@@ -1354,14 +1428,17 @@ button.primary, a.primary_link_as_button, .link_as_button.primary {
   font-size:        rem-calc(13px) !important;
   font-weight:      700;
   border:           1px solid $go-primary;
+
   &:hover {
     background-color: darken($go-primary, 4%) !important;
     background-image: none;
     font-size:        rem-calc(13px);
   }
+
   &:focus, &:active {
     outline: 0;
   }
+
   span {
     font-size: rem-calc(13px) !important;
   }
@@ -1378,8 +1455,10 @@ button.submit, a.link_as_button {
     font-weight: bold;
     font-size:   rem-calc(13px);
   }
+
   &:hover {
     background: #666;
+
     span {
       color: $btn-txt;
 
@@ -1424,9 +1503,11 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   padding:        6px 10px;
   text-transform: uppercase;
   border-radius:  $global-border-radius;
+
   &:hover {
     background: $btn-bg-hover;
     color:      $btn-txt !important;
+
     span {
       color:     $btn-txt !important;
       font-size: rem-calc(13px) !important;
@@ -1475,6 +1556,7 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
     color:       white;
     line-height: 0;
     font-size:   12px;
+
     span {
       display: none;
     }
@@ -1548,6 +1630,7 @@ input[type='submit'], input[type='submit']:hover, button.submit, button.submit:h
   background-image: none;
   background-color: $building;
   position:         relative;
+
   &:after {
     content:          "";
     background-image: linear-gradient(-45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent);
@@ -1680,6 +1763,7 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
   border-radius: 3px;
   overflow:      visible;
   @include clearfix;
+
   .page-wrap {
     &:before {
       height: 0;
@@ -1691,9 +1775,11 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
   overflow:       visible !important;
   padding-bottom: 51px;
   box-sizing:     border-box;
+
   .flash {
     position: static;
   }
+
   .task.fieldset {
     padding: 1.25em 0;
   }
@@ -1740,6 +1826,7 @@ a:link#link-to-this-page, a:visited#link-to-this-page {
   button.submit:hover span, button.submit_hover span, a.link_as_button:hover span, a.link_as_button_hover span {
     color: #333;
   }
+
   .add_panel {
     .add_panel {
       span {
@@ -1789,11 +1876,13 @@ form#package_repositories_edit_form {
   background-color: transparent !important;
   background-image: none !important;
   margin-bottom:    0;
+
   li {
     margin-right: 0;
 
     a {
       background: $tab-bg;
+
       &:hover {
         background: $tab-bg;
       }
@@ -1891,6 +1980,7 @@ form#notification_form fieldset {
   color:      $go-white !important;
   height:     27px;
   min-width:  75px;
+
   &:hover {
     color: darken($go-primary, 4%);
   }
@@ -1912,6 +2002,7 @@ button#signin2 {
   background-image: none;
   color:            #fff !important;
   height:           35px;
+
   span {
     font-size: 12px !important;
     color:     #fff;
@@ -1991,12 +2082,14 @@ a:link.help, a:visited.help {
     float:       none;
     margin-left: 10px;
   }
+
   margin-top: 5px;
 }
 
 .flash {
   position: absolute;
   width:    100%;
+
   .messaging_wrapper & {
     position: static;
   }
@@ -2032,16 +2125,19 @@ a:link.help, a:visited.help {
   float:         left;
   border:        0;
   color:         $go-white !important;
+
   span {
     color:       $go-white !important;
     font-weight: 600;
 
   }
+
   .apply_resources {
     span {
       color: $txt-color !important;
     }
   }
+
   &:hover {
     background:  $agent-header-button-bg !important;
     height:      30px;
@@ -2049,12 +2145,14 @@ a:link.help, a:visited.help {
     box-shadow:  none;
     border:      0;
     color:       $go-white !important;
+
     span {
       color: $go-white !important;
 
     }
 
   }
+
   &:focus, &:active {
     outline: 0;
   }
@@ -2073,6 +2171,7 @@ a:link.help, a:visited.help {
   h3 {
     margin-left: 15px;
   }
+
   .variables .variable {
     clear:         both;
     margin-bottom: 10px;
@@ -2087,6 +2186,7 @@ a:link.help, a:visited.help {
 #show_resources_panel, #show_environments_panel, .show_panel {
   position:      relative;
   padding-right: 25px !important;
+
   &:after {
     content:      "";
     position:     absolute;
@@ -2099,6 +2199,7 @@ a:link.help, a:visited.help {
     transition:   all 0.3s ease-in-out;
     right:        10px;
   }
+
   span {
     img {
       display: none;
@@ -2109,6 +2210,7 @@ a:link.help, a:visited.help {
 .show_panel {
   position:      relative;
   padding-right: 25px !important;
+
   &:after {
     content:      "";
     position:     absolute;
@@ -2121,6 +2223,7 @@ a:link.help, a:visited.help {
     transition:   all 0.3s ease-in-out;
     right:        10px;
   }
+
   span {
     img {
       display: none;
@@ -2130,6 +2233,7 @@ a:link.help, a:visited.help {
 
 .agent_edit_popup {
   @extend %boxshadow;
+
   &:before {
     content:      "";
     position:     absolute;
@@ -2143,6 +2247,7 @@ a:link.help, a:visited.help {
     border-color: $go-primary transparent transparent transparent;
 
   }
+
   &.environments_panel {
     &:before {
       left: 50px;
@@ -2158,6 +2263,7 @@ a:link.help, a:visited.help {
 
   .scrollable_panel {
     padding: 10px;
+
     .selectors {
       padding:       10px 0;
       font-size:     13px;
@@ -2186,6 +2292,7 @@ a:link.help, a:visited.help {
     top:            5px;
     font-weight:    600;
   }
+
   .content_wrapper_inner {
     > span {
       display:       block;
@@ -2197,11 +2304,13 @@ a:link.help, a:visited.help {
 .change_materials {
   dl {
     font-size: 13px;
+
     dt {
       float:       left;
       font-weight: bold;
       width:       160px;
     }
+
     dd {
       margin:     0;
       float:      left;
@@ -2209,6 +2318,7 @@ a:link.help, a:visited.help {
       width:      calc(100% - 200px);
     }
   }
+
   .material_summaries {
     position:         relative;
     border-radius:    0;
@@ -2221,12 +2331,14 @@ a:link.help, a:visited.help {
     width:            220px;
     clear:            both;
     box-sizing:       border-box;
+
     .selected {
       background-color:   #fff;
       border:             1px dotted #fff;
       -moz-box-shadow:    none;
       -webkit-box-shadow: none;
       box-shadow:         none;
+
       &:hover {
         -moz-box-shadow:    none;
         -webkit-box-shadow: none;
@@ -2236,6 +2348,7 @@ a:link.help, a:visited.help {
       }
     }
   }
+
   .variables {
     clear:         both;
     margin-bottom: 10px;
@@ -2253,6 +2366,7 @@ a:link.help, a:visited.help {
     border:    1px solid #ccc;
     float:     left;
     width:     100%;
+
     &:before {
       content:    "";
       position:   absolute;
@@ -2263,6 +2377,7 @@ a:link.help, a:visited.help {
       display:    block;
       background: #ccc;
     }
+
     .material_details {
       padding: 20px 20px;
       float:   left;
@@ -2284,9 +2399,11 @@ a:link.help, a:visited.help {
     border-bottom: 1px dotted #fff;
     padding:       10px;
     border-radius: 0;
+
     &:hover {
       background: #eee;
     }
+
     .revision_number {
       word-break: break-all;
     }
@@ -2310,9 +2427,11 @@ input.compare_pipeline_input {
     background:   $btn-light-bg !important;;
     color:        #333 !important;
     border-color: $border-color;
+
     span {
       color: #333 !important;
     }
+
     &:hover {
       background: $btn-light-bg-hover !important;
 
@@ -2321,17 +2440,21 @@ input.compare_pipeline_input {
       }
     }
   }
+
   button.submit.primary {
     background:   $go-primary !important;
     color:        #fff !important;
     border-color: $go-primary;
+
     span {
       color: #fff !important;
     }
+
     &:hover {
       background: $go-primary !important;
     }
   }
+
   button.submit.primary[disabled] {
     background: $btn-light-bg !important;
     border:     1px solid $btn-light-bg !important;
@@ -2342,6 +2465,7 @@ input.compare_pipeline_input {
   background-color: #666 !important;
   height:           22px;
   border:           1px solid #666;
+
   &:hover {
     background-color: #666 !important;
   }
@@ -2430,6 +2554,7 @@ $new-theme-material-popup-width: ($new-theme-material-popup-user-width + $new-th
   .popup {
     max-width: $new-theme-material-popup-width;
     width:     $new-theme-material-popup-width;
+
     .build-cause-summary-container {
       table {
         @include new-theme-changes-table;
@@ -2445,9 +2570,11 @@ $new-theme-material-popup-width: ($new-theme-material-popup-user-width + $new-th
   .build_cause.list_table {
     .change {
       @include new-theme-changes-table;
+
       td.revision {
         width:     $new-theme-material-popup-revision-width;
         max-width: $new-theme-material-popup-revision-width;
+
         span.wrapped_word {
           vertical-align: text-bottom;
           font-family:    "courier new", monospace !important;
@@ -2475,15 +2602,19 @@ $new-theme-material-popup-width: ($new-theme-material-popup-user-width + $new-th
 
 .vsm-entity.pipeline ul.instances {
   height: 61px;
+
   .instance {
     margin-top: 0px;
   }
+
   ul.stages {
     margin-top: 10px;
   }
+
   .duration {
     font-size: 11px;
   }
+
   .message {
     padding: 0 7px;
   }
@@ -2496,23 +2627,29 @@ ul.plugins .plugin {
   border-top:    0;
   border-bottom: 1px dotted #ccc;
   position:      relative;
+
   .plugin-details {
     margin-bottom: 10px;
   }
+
   .plugin-logo {
     background-color: transparent;
   }
+
   .description {
     font-size: 14px;
   }
+
   .key {
     color:        #6b6b6b;
     font-weight:  500;
     margin-right: 10px;
   }
+
   .more-info-detail {
     font-size: 13px;
   }
+
   .plugin-messages li {
     font-size:   12px;
     line-height: 18px;
@@ -2540,6 +2677,7 @@ button.check_connection + .connection_test_message pre {
   margin:      0;
   padding-top: 20px;
   color:       #333;
+
   strong {
     color: #333;
 
@@ -2549,6 +2687,7 @@ button.check_connection + .connection_test_message pre {
 .enhanced_dropdown {
   .list_table {
     font-weight: 600;
+
     tbody {
       background: transparent;
 
@@ -2568,6 +2707,7 @@ button.check_connection + .connection_test_message pre {
   height:     12px;
   position:   relative;
   background: #fff;
+
   > span {
     display:          block;
     height:           100%;
@@ -2653,6 +2793,7 @@ button.check_connection + .connection_test_message pre {
 
 .promote_button {
   background-color: transparent;
+
   .promote_up, .promote_down {
     background-color: transparent;
 
@@ -2675,6 +2816,7 @@ table.variables th {
 .artifacts_plan_section {
   table.artifact {
     margin-bottom: 10px;
+
     h4 {
       margin-bottom: 10px;
     }
@@ -2698,6 +2840,7 @@ table.variables th {
     position: relative;
     padding:  10px 10px 10px 30px !important;;
   }
+
   .color_code_small {
     position: absolute;
     left:     10px;
@@ -2726,6 +2869,7 @@ table.variables th {
     display:       inline-block;
     margin-bottom: 5px;
   }
+
   textarea.exec-task-arguments {
     height: 100px;
   }
@@ -2758,6 +2902,7 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
 .old-agent-button-group {
   li {
     position: static;
+
     .button {
       border-radius: 0;
     }
@@ -2767,6 +2912,7 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
 .pagination {
   border: 0;
   margin: 0 30px;
+
   .pages {
     border-radius: 3px;
   }
@@ -2808,8 +2954,10 @@ pre, code, #admin-holder-for-admin-config-source-xml textarea {
     border-bottom:  1px dotted #ccc;
     padding-bottom: 10px;
   }
+
   .added_item ul {
     margin-left: 23px;
+
     li {
       margin-top: 10px;
       font-size:  rem-calc(13px);
@@ -2847,6 +2995,7 @@ button.edit-environment {
 .job_details_content .build_detail_container {
   margin-right: 0px !important;
   clear:        left;
+
   #tab-content-of-materials .material_revision {
     padding:       20px !important;
     margin-bottom: 0;
@@ -2866,6 +3015,7 @@ button.edit-environment {
     margin:        0 20px 0 0;
     border-bottom: 1px dotted $border-color;
     padding:       6px 0;
+
     .color_code_small {
       &.Active, &.Cancelled {
         margin-top: 0;
@@ -2880,6 +3030,7 @@ button.edit-environment {
 
 .content #tab_container div.jobs {
   width: 225px;
+
   .wrapped_word {
     font-size: 13px;
   }
@@ -2897,15 +3048,18 @@ button.edit-environment {
   transition:  all 0.1s ease-in-out;
   color:       $icon-txt;
   font-weight: 600;
+
   &:before {
     color:       $icon-color;
     margin:      0 5px;
     font-weight: 600;
     transition:  all 0.1s ease-in-out;
   }
+
   &:visited {
     color: $icon-txt;
   }
+
   &:hover {
     color:      $icon-txt-hover;
     transition: all 0.1s ease-in-out;
@@ -2937,6 +3091,7 @@ button.edit-environment {
   color:      #999;
   cursor:     default;
   font-size:  rem-calc(13px);
+
   &:before {
     font-size: rem-calc(13px);
     color:     #999;
@@ -2955,6 +3110,7 @@ button.edit-environment {
   color:      #ccc;
   font-size:  rem-calc(13px);
   cursor:     not-allowed;
+
   &:before {
     color:     #ccc;
     font-size: rem-calc(13px);
@@ -2968,6 +3124,7 @@ button.edit-environment {
   color:      #999;
   cursor:     default;
   font-size:  rem-calc(13px);
+
   &:before {
     font-size: rem-calc(13px);
     color:     #999;
@@ -2989,11 +3146,13 @@ button.edit-environment {
   height:     auto;
   width:      auto;
   margin:     10px 0 0 5px;
+
   &:before {
     color:     $icon--secondary-color;
     font-size: 16px;
     margin:    0 5px;
   }
+
   &:hover {
     background: none;
   }
@@ -3018,14 +3177,17 @@ a.add_item {
   font-weight: 600;
   color:       $icon-txt;
   padding:     5px 0;
+
   &:before {
     margin:      0 5px;
     font-weight: 600;
     transition:  all 0.1s ease-in-out;
   }
+
   &:visited {
     color: $icon-txt;
   }
+
   &:hover {
     color:      $icon-txt;
     transition: all 0.1s ease-in-out;
@@ -3043,13 +3205,16 @@ a.add_item {
   color:       $disabled-icon-color;
   padding:     5px 0;
   cursor:      not-allowed;
+
   &:before {
     margin:      0 5px;
     font-weight: 600;
   }
+
   &:visited {
     color: $disabled-icon-color;
   }
+
   &:hover {
     color:      $disabled-icon-color;
     background: none;
@@ -3082,6 +3247,7 @@ a.add_item {
   color:      #999;
   cursor:     default;
   font-size:  rem-calc(13px);
+
   &:before {
     font-size: rem-calc(13px);
     color:     #999;
@@ -3109,6 +3275,7 @@ a.add_item {
   padding:       20px;
   border-radius: 3px;
   background:    #fff;
+
   .fieldset {
     padding: 0;
   }
@@ -3129,38 +3296,48 @@ a.add_item {
 .config-container {
   @include clearfix;
   padding: 0 20px 30px;
+
   label {
     font-size: 14px;
   }
+
   .form_item_block {
     padding-bottom: 0;
   }
+
   h3 {
     font-weight: 600;
   }
+
   .checkbox_row {
     margin-bottom: 20px;
   }
+
   .form_item {
     margin-bottom: 30px;
   }
+
   .checkbox_label_wrapper {
     margin-bottom: 5px;
+
     .contextual_help {
       top:  2px;
       left: -16px;
     }
   }
+
   .inline_instruction {
     display:    block;
     font-style: normal;
     font-size:  rem-calc(12px);
   }
+
   .form_buttons {
     margin:        20px 0 0 0;
     padding:       0;
     background:    none;
     border-radius: $global-border-radius;
+
     a.skip_dirty_stop {
       margin-left: 0;
     }
@@ -3174,9 +3351,11 @@ a.add_item {
 
 .help-wrapper {
   @include clearfix;
+
   .contextual_help, div.contextual_help, span.contextual_help {
     margin-top: 9px;
   }
+
   .checkbox_row & {
     span.contextual_help {
       margin-left: -10px;
@@ -3211,6 +3390,7 @@ a.add_item {
     position: relative;
     top:      5px;
   }
+
   .radio_button_row .contextual_help {
     top: 0px;
   }
@@ -3224,9 +3404,11 @@ a.add_item {
     position: relative;
     top:      -10px;
   }
+
   .checkbox_row {
     margin-bottom: 0;
   }
+
   input#job_timeout {
     float: none;
   }
@@ -3247,6 +3429,7 @@ a.add_item {
 
 .admin-tab-contents {
   padding: 20px 30px;
+
   h1 {
     font-weight:    600;
     margin:         20px 0 40px 0;
@@ -3254,25 +3437,31 @@ a.add_item {
     font-size:      20px;
     padding-bottom: 10px;
   }
+
   .title_secondary_info {
     float: right;
   }
+
   .title_action_wrapper {
     ul {
       margin-top:  1px;
       margin-left: 10px;
+
       li {
         a {
           margin-left:  0px;
           padding-left: 10px;
         }
+
         .delete_icon_disabled {
           margin-top: 3px;
         }
+
         .delete_icon {
           margin-left:  10px;
           padding-left: 0;
         }
+
         > span {
           padding-left: 10px;
 
@@ -3291,6 +3480,7 @@ a.add_item {
     background-size:     40px 40px;
     background-position: -8px -10px;
   }
+
   .list_table {
     .actions {
       .delete_icon_disabled {
@@ -3298,31 +3488,39 @@ a.add_item {
       }
     }
   }
+
   .heading {
     border-bottom:  1px solid $border-color;
     padding-bottom: 10px;
     margin-bottom:  20px;
+
     h2 {
       font-size: 20px;
     }
+
     span {
       margin-top: 12px;
     }
   }
+
   .fieldset {
     padding: 20px 0;
   }
+
   .permissions .instructions {
     margin: -10px 0 0 0;
   }
+
   .fieldset .form_item {
     border-bottom:  0;
     margin-bottom:  0;
     padding-bottom: 0;
   }
+
   .button_row_with_help {
     margin-top: 20px;
   }
+
   .roles {
     white-space: nowrap;
   }
@@ -3334,6 +3532,7 @@ a.add_item {
 
 #tab-content-of-templates .template .title_action_wrapper {
   float: left;
+
   li {
     margin-left: 0px;
   }
@@ -3409,6 +3608,7 @@ form#package_repositories_edit_form {
 
 .path_textbox {
   box-shadow: none;
+
   label {
     padding:    7px 4px 7px 6px;
     background: #e5e5e5;
@@ -3425,6 +3625,7 @@ form#package_repositories_edit_form {
   .fieldset {
     padding: 10px 0;
   }
+
   h3 {
     margin: 0 0 20px 0;
   }
@@ -3434,19 +3635,24 @@ form#package_repositories_edit_form {
       float:        none;
       margin-right: 10px;
     }
+
     label {
       margin: 0 10px 0 0;
     }
+
     input.in_between_text {
       margin-left: 0;
     }
   }
+
   p.required {
     margin-top:    -35px;
     margin-bottom: 30px;
   }
+
   .form_item {
     padding-bottom: 0;
+
     .fieldset {
       margin-bottom: 0;
     }
@@ -3472,9 +3678,11 @@ form#package_repositories_edit_form {
 #links {
   margin:  7px 0 0 10px;
   display: inline-block;
+
   .action_icon {
     padding-left: 0;
   }
+
   span, a {
     margin-left: 10px;
   }
@@ -3484,6 +3692,7 @@ body#login-page {
   .page-wrap:before {
     height: 0;
   }
+
   #error-container {
     margin-top: -50px;
   }
@@ -3506,6 +3715,7 @@ body#login-page {
   font-size:     14px;
   font-weight:   600;
   background:    #b66fc2 !important;
+
   &:hover, &:visited {
     text-decoration: none;
     color:           #fff;
@@ -3532,11 +3742,13 @@ body#login-page {
 
 ul.entity_title {
   @extend %page-title;
+
   li {
     background:    none;
     margin-right:  0;
     line-height:   normal;
     padding-right: 0px;
+
     &:after {
       content:    "";
       background: image_url("g9/backgrounds/icon_breadcrumb_arrow.png") no-repeat scroll 0 0 transparent;
@@ -3545,19 +3757,23 @@ ul.entity_title {
       width:      10px;
       height:     10px;
     }
+
     a {
       font-size:   rem-calc(15px);
       font-weight: 600 !important;
       line-height: normal;
+
       &:hover {
         text-decoration: underline;
       }
 
     }
+
     &.last {
       &:after {
         display: none;
       }
+
       h1 {
         margin:      0 10px 0 0 !important;
         color:       #666 !important;
@@ -3581,6 +3797,7 @@ ul.entity_title {
     font-size:   rem-calc(17px);
     font-weight: 600;
     position:    relative;
+
     &:after {
       content:      "";
       position:     absolute;
@@ -3591,22 +3808,27 @@ ul.entity_title {
       border-right: 2px solid #ccc;
     }
   }
+
   ul.entity_title {
     margin-top: 10px;
+
     li {
       position: relative;
+
       &.last {
         label {
           font-size: rem-calc(10px) !important;
         }
       }
     }
+
     .label {
       position:  absolute;
       font-size: rem-calc(10px);
       top:       -8px;
 
     }
+
     .run_no {
       color:       #666;
       font-size:   15px;
@@ -3638,6 +3860,7 @@ ul.entity_title {
   margin-bottom: 5px;
   font-weight:   600;
   color:         #333;
+
   .vsm-entity & {
     float:         left;
     font-size:     11px;
@@ -3645,6 +3868,7 @@ ul.entity_title {
     overflow:      hidden;
     text-overflow: ellipsis;
   }
+
   .vsm-entity.current & {
     width: 230px;
   }
@@ -3653,11 +3877,13 @@ ul.entity_title {
 .vsm_link_wrapper {
   margin-left: 5px;
   font-size:   11px;
+
   .vsm-entity & {
     font-weight: 600;
     margin-top:  1px;
     float:       right;
   }
+
   a {
     text-decoration: underline;
   }
@@ -3665,6 +3891,7 @@ ul.entity_title {
 
 .dashboard_pipeline_instance {
   margin-bottom: 5px;
+
   .pipeline_run_label {
     display: inline-block;
   }
@@ -3736,9 +3963,11 @@ ul.entity_title {
 .artifact {
   border-bottom: 1px solid $border-color;
   padding:       25px 0 5px;
+
   .type_label {
     font-weight: bold;
   }
+
   .icon_remove {
     display: inline-block;
   }
@@ -3834,4 +4063,43 @@ ul.entity_title {
 
 .hide {
   display: none;
+}
+
+//edit material
+
+.password_field {
+  position: relative;
+
+  .form_input {
+    padding-right: 35px;
+  }
+}
+
+.hide_password {
+  @include icon-before($type: eye-slash);
+  position:   absolute;
+  left:       212px;
+  background: transparent;
+  top:        5px;
+  font-size:  17px;
+}
+
+.show_password {
+  @include icon-before($type: eye);
+  position:   absolute;
+  left:       212px;
+  background: transparent;
+  top:        5px;
+  font-size:  17px;
+}
+
+.change_password {
+  clear:         both;
+  font-size:     13px;
+  display:       block;
+  margin-bottom: 10px;
+}
+
+button#allow_edit_password {
+  outline: none;
 }

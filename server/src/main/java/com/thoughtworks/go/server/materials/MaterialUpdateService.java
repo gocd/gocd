@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.materials;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -141,7 +142,7 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
             final PostCommitHookImplementer materialTypeImplementer = materialType.getImplementer();
             final CruiseConfig cruiseConfig = goConfigService.currentCruiseConfig();
             Set<Material> allUniquePostCommitSchedulableMaterials = materialConfigConverter.toMaterials(cruiseConfig.getAllUniquePostCommitSchedulableMaterials());
-            resolveSecretParams(allUniquePostCommitSchedulableMaterials);
+            resolveSecretForSvnMaterials(allUniquePostCommitSchedulableMaterials);
             final Set<Material> prunedMaterialList = materialTypeImplementer.prune(allUniquePostCommitSchedulableMaterials, attributes);
 
             if (prunedMaterialList.isEmpty()) {
@@ -198,12 +199,12 @@ public class MaterialUpdateService implements GoMessageListener<MaterialUpdateCo
         }
     }
 
-    private void resolveSecretParams(Set<Material> allUniquePostCommitSchedulableMaterials) {
-        final SecretParams secretParams = allUniquePostCommitSchedulableMaterials.stream()
-                .filter(material -> material instanceof SecretParamAware)
-                .map(material -> ((SecretParamAware) material).getSecretParams())
-                .collect(SecretParams.toFlatSecretParams());
-        secretParamResolver.resolve(secretParams);
+    private void resolveSecretForSvnMaterials(Set<Material> allUniquePostCommitSchedulableMaterials) {
+//      Secrets are resolved only for SvnMaterials, since only SvnMaterial prune requires resolved password.
+
+        allUniquePostCommitSchedulableMaterials.stream()
+                .filter(material -> material instanceof SvnMaterial)
+                .forEach(material -> secretParamResolver.resolve((SvnMaterial) material));
     }
 
     public void registerMaterialSources(MaterialSource materialSource) {

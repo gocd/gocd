@@ -19,6 +19,7 @@ package com.thoughtworks.go.server.materials;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
@@ -55,10 +56,14 @@ import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.thoughtworks.go.helper.MaterialUpdateMessageMatcher.matchMaterialUpdateMessage;
+import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.util.Arrays.asList;
 import static org.mockito.Mockito.*;
 
 public class MaterialUpdateServiceTest {
@@ -352,28 +357,29 @@ public class MaterialUpdateServiceTest {
         }
 
         @Test
-        void shouldResolveSecretParamsInMaterials() {
-            final HashMap params = new HashMap();
+        void shouldResolveSecretParamsOnlyForSvnMaterials() {
+            final Map params = new HashMap();
             params.put(MaterialUpdateService.TYPE, "svn");
             final PostCommitHookImplementer svnPostCommitHookImplementer = mock(PostCommitHookImplementer.class);
             final SvnMaterial svnMaterial = new SvnMaterial("http://url.com", "bob", "{{SECRET:[config_id][username]}}", false);
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            Set<Material> allUniquePostCommitSchedulableMaterials = Stream.of(svnMaterial, gitMaterial).collect(toSet());
 
             when(goConfigService.currentCruiseConfig()).thenReturn(mock(CruiseConfig.class));
             when(goConfigService.isUserAdmin(username)).thenReturn(true);
             when(postCommitHookMaterialType.toType("svn")).thenReturn(validMaterialType);
             when(validMaterialType.getImplementer()).thenReturn(svnPostCommitHookImplementer);
-            when(materialConfigConverter.toMaterials(anySet())).thenReturn(Collections.singleton(svnMaterial));
+            when(materialConfigConverter.toMaterials(anySet())).thenReturn(allUniquePostCommitSchedulableMaterials);
 
             service.notifyMaterialsForUpdate(username, params, result);
 
-            final ArgumentCaptor<SecretParams> secretParamsArgumentCaptor = ArgumentCaptor.forClass(SecretParams.class);
+            final ArgumentCaptor<SvnMaterial> materialArgumentCaptor = ArgumentCaptor.forClass(SvnMaterial.class);
             InOrder inOrder = inOrder(secretParamResolver, svnPostCommitHookImplementer);
-            inOrder.verify(secretParamResolver).resolve(secretParamsArgumentCaptor.capture());
-            inOrder.verify(svnPostCommitHookImplementer).prune(Collections.singleton(svnMaterial), params);
+            inOrder.verify(secretParamResolver).resolve(materialArgumentCaptor.capture());
+            inOrder.verify(svnPostCommitHookImplementer).prune(allUniquePostCommitSchedulableMaterials, params);
 
-            final SecretParams secretParams = secretParamsArgumentCaptor.getValue();
-            assertThat(secretParams).hasSize(1)
-                    .contains(new SecretParam("config_id", "username"));
+            assertThat(materialArgumentCaptor.getValue()).isEqualTo(svnMaterial);
+            verify(secretParamResolver, never()).resolve(gitMaterial);
         }
     }
 

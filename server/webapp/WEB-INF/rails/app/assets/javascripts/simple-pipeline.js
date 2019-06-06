@@ -33,8 +33,12 @@ var WizardPage = new (Class.create({
 
     var messageBox = jQuery('#vcsconnection-message_' + scm);
 
+    var urlParams = new URLSearchParams(window.location.search);
+    var pipelineGroup = urlParams.get('group');
+
     var requestBody = {
       type: scm,
+      pipeline_group: pipelineGroup,
       pipeline_name: pipelineName,
       attributes: {
         username: username,

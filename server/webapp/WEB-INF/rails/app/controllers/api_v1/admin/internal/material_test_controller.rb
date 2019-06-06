@@ -26,7 +26,10 @@ module ApiV1
 
         def test
           material_config = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.get_material_type(params[:type]).new).from_hash(params)
-          group_name = go_config_service.findGroupNameByPipeline(CaseInsensitiveString.new(params[:pipeline_name]))
+          group_name = params[:pipeline_group]
+          if group_name == nil
+            group_name = go_config_service.findGroupNameByPipeline(CaseInsensitiveString.new(params[:pipeline_name]))
+          end
           material_config.validateConcreteScmMaterial(PipelineConfigSaveValidationContext.forChain(false, group_name, go_config_service.cruise_config(), material_config))
           if material_config.errors.any?
             json = ApiV1::Admin::Pipelines::Materials::MaterialRepresenter.new(material_config).to_hash(url_builder: self)

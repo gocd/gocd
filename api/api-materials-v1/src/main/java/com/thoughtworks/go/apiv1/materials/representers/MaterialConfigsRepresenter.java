@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv1.materials.representers;
 import com.thoughtworks.go.api.base.OutputLinkWriter;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.apiv1.materials.representers.materials.MaterialsRepresenter;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.spark.Routes;
 
@@ -38,7 +39,6 @@ public class MaterialConfigsRepresenter {
     }
 
     private static Consumer<OutputListWriter> children(MaterialConfigs materialConfigs) {
-        return outputListWriter -> materialConfigs.forEach(materialConfig ->
-                outputListWriter.addChild(MaterialConfigRepresenter.toJSON(materialConfig)));
+        return MaterialsRepresenter.toJSONArray(materialConfigs);
     }
 }

@@ -14,21 +14,13 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.materials.representers;
+package com.thoughtworks.go.apiv1.materials.representers.materials;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 
 import java.util.function.Consumer;
 
-public class MaterialConfigRepresenter {
-    public static void toJSON(OutputWriter writer, MaterialConfig materialConfig) {
-        writer.add("fingerprint", materialConfig.getFingerprint());
-        writer.add("type", materialConfig.getTypeForDisplay());
-        writer.add("description", materialConfig.getLongDescription());
-    }
-
-    public static Consumer<OutputWriter> toJSON(MaterialConfig materialConfig) {
-        return outputWriter -> toJSON(outputWriter, materialConfig);
-    }
+public interface MaterialRepresenter<T extends MaterialConfig> {
+    Consumer<OutputWriter> toJSON(T gitMaterialConfig);
 }

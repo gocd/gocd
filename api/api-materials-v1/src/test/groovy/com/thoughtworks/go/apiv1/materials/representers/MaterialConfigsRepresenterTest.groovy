@@ -43,25 +43,42 @@ class MaterialConfigsRepresenterTest {
     def actualJSON = JsonUtils.toObjectString({ MaterialConfigsRepresenter.toJSON(it, materialConfigs) })
 
     assertThatJson(actualJSON).isEqualTo([
-      _links: [
+      _links   : [
         doc : [href: apiDocsUrl('#materials')],
         self: [href: 'http://test.host/go/api/config/materials']
       ],
       _embedded: [
         materials: [
           [
-            fingerprint: materialConfigs[0].fingerprint,
-            type: materialConfigs[0].typeForDisplay,
-            description: materialConfigs[0].longDescription
+            type       : "git",
+            fingerprint: gitMaterialConfig.fingerprint,
+            attributes : [
+              url             : gitMaterialConfig.url,
+              destination     : null,
+              filter          : null,
+              invert_filter   : false,
+              name            : null,
+              auto_update     : true,
+              branch          : "master",
+              submodule_folder: null,
+              shallow_clone   : true,
+            ]
           ],
           [
-            fingerprint: materialConfigs[1].getFingerprint(),
-            type: materialConfigs[1].typeForDisplay,
-            description: materialConfigs[1].longDescription
-          ],
+            type       : "hg",
+            fingerprint: hgMaterialConfig.fingerprint,
+            attributes : [
+              url          : hgMaterialConfig.url,
+              destination  : null,
+              filter       : null,
+              invert_filter: false,
+              name         : null,
+              auto_update  : true,
+              branch       : "test",
+            ]
+          ]
         ]
       ]
     ])
-
   }
 }

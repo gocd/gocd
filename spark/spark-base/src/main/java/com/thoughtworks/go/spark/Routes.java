@@ -141,6 +141,7 @@ public class Routes {
     public static class MaterialModifications {
         public static final String BASE = "/api/materials/:fingerprint/modifications";
         public static final String OFFSET = "/:offset";
+        public static final String FIND = BASE + "/{offset}";
 
         public static String modification(String fingerprint) {
             return BASE.replaceAll(":fingerprint", fingerprint);

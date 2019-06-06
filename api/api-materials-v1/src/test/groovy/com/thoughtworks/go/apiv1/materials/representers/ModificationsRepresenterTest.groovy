@@ -45,7 +45,7 @@ class ModificationsRepresenterTest {
       _links   : [
         self: [href: "http://test.host/go/api/materials/some-fingerprint/modifications"],
         doc : [href: apiDocsUrl("#materials")],
-        find: [href: "http://test.host/go/api/materials/:fingerprint/modifications"],
+        find: [href: "http://test.host/go/api/materials/:fingerprint/modifications/{offset}"],
       ],
       _embedded: [
         modifications: [
@@ -87,7 +87,7 @@ class ModificationsRepresenterTest {
       _links   : [
         self: [href: "http://test.host/go/api/materials/some-fingerprint/modifications"],
         doc : [href: apiDocsUrl("#materials")],
-        find: [href: "http://test.host/go/api/materials/:fingerprint/modifications"],
+        find: [href: "http://test.host/go/api/materials/:fingerprint/modifications/{offset}"],
       ],
       _embedded: [
         modifications: [],

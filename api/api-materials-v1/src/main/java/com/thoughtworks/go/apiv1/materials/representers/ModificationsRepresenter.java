@@ -51,6 +51,6 @@ public class ModificationsRepresenter {
     private static Consumer<OutputLinkWriter> links(String fingerprint) {
         return outputLinkWriter -> outputLinkWriter.addLink("self", Routes.MaterialModifications.modification(fingerprint))
                 .addAbsoluteLink("doc", Routes.MaterialConfig.DOC)
-                .addLink("find", Routes.MaterialModifications.BASE);
+                .addLink("find", Routes.MaterialModifications.FIND);
     }
 }

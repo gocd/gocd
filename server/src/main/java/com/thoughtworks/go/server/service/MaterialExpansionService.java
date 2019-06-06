@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.Materials;
+import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -105,8 +106,8 @@ public class MaterialExpansionService {
             synchronized (cacheKey) {
                 svnLazyLoaded = (SvnCommand) goCache.get(cacheKey);
                 if (svnLazyLoaded == null || !svnLazyLoaded.getUrl().originalArgument().equals(materialConfig.getUrl())) {
-                    svnLazyLoaded = new SvnCommand(materialConfig.getFingerprint(), getResolvedUrl(materialConfig.getUrl()),
-                            materialConfig.getUserName(), getResolvedPassword(materialConfig.getPassword()), materialConfig.isCheckExternals());
+                    svnLazyLoaded = new SvnCommand(materialConfig.getFingerprint(), materialConfig.getUrl(),
+                            materialConfig.getUserName(), getResolvedPassword(materialConfig), materialConfig.isCheckExternals());
                     goCache.put(cacheKeyForSubversionMaterialCommand(materialConfig.getFingerprint()), svnLazyLoaded);
                 }
             }
@@ -114,23 +115,13 @@ public class MaterialExpansionService {
         return svnLazyLoaded;
     }
 
-    private String getResolvedUrl(String configUrl) {
-        return resolve(configUrl);
-    }
-
-    private String getResolvedPassword(String password) {
-        return resolve(password);
-    }
-
-    private String resolve(String str) {
-        SecretParams secretParams = SecretParams.parse(str);
-        if (!secretParams.isEmpty()) {
-            secretParamResolver.resolve(secretParams);
-
-            return secretParams.substitute(str);
+    private String getResolvedPassword(SvnMaterialConfig materialConfig) {
+        SvnMaterial svnMaterial = new SvnMaterial(materialConfig);
+        if (svnMaterial.hasSecretParams()) {
+            secretParamResolver.resolve(svnMaterial);
         }
 
-        return str;
+        return svnMaterial.passwordForCommandLine();
     }
 
     String cacheKeyForSubversionMaterialCommand(String svnMaterialConfigFingerprint) {

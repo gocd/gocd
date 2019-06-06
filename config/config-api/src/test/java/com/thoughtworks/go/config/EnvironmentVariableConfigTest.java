@@ -266,6 +266,28 @@ class EnvironmentVariableConfigTest {
         }
 
         @Test
+        void shouldErrorOutIfSecretConfigCannotBeRefered() {
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
+            SecretConfig secretConfig = mock(SecretConfig.class);
+            CruiseConfig cruiseConfig = mock(CruiseConfig.class);
+            PipelineConfigs group = mock(BasicPipelineConfigs.class);
+
+            when(secretConfig.getId()).thenReturn("secret_config_id");
+            when(secretConfig.canRefer(any(), any())).thenReturn(false);
+            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
+            when(validationContext.isWithinPipelines()).thenReturn(true);
+            when(validationContext.getPipelineGroup()).thenReturn(group);
+            when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs(secretConfig));
+            when(group.getGroup()).thenReturn("example");
+
+            environmentVariableConfig.validate(validationContext);
+
+            assertThat(environmentVariableConfig.errors()).isNotEmpty();
+            assertThat(environmentVariableConfig.errors().getAllOn(EnvironmentVariableConfig.VALUE))
+                    .contains("Secret config with ids 'secret_config_id' is not allowed to be used in PipelineGroup 'example'.");
+        }
+
+        @Test
         void shouldBeValidIfSecretParamContainsAExistentSecretConfigId() {
             EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
             SecretConfig secretConfig = mock(SecretConfig.class);

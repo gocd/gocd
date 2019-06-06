@@ -176,7 +176,10 @@ class Admin::PipelineGroupsController < AdminController
     if !@errors
       @errors = []
     end
-    @errors.concat [errors]
+    if errors != nil && errors.length > 0
+      @errors.concat [errors]
+    end
+
   end
 
   def is_group_admin(group)

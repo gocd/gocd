@@ -5,9 +5,7 @@
   <h1>
     Pipelines
     <span class="title_secondary_info">
-      <% if @groups.size() == 0 %>
-        <%= link_to 'Create a new pipeline', pipeline_new_path(:group => com.thoughtworks.go.config.PipelineConfigs::DEFAULT_GROUP), :class => "link_as_button primary add_pipeline_to_group" -%>
-      <% end %>
+      <%= link_to 'Add new pipeline', pipeline_new_path(:group => com.thoughtworks.go.config.PipelineConfigs::DEFAULT_GROUP), :class => "link_as_button primary add_pipeline_to_group" -%>
       <% if is_user_an_admin? %>
         <a href="#" class="link_as_button primary" onclick="Modalbox.show('<%= pipeline_group_new_path -%>', {overlayClose: false,title: 'Add New Pipeline Group'})">
           Add New Pipeline Group

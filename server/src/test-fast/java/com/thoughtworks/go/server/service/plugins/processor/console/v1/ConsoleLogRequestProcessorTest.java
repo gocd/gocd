@@ -61,7 +61,6 @@ public class ConsoleLogRequestProcessorTest {
         Map<String, String> requestMap = new HashMap<>();
         requestMap.put("pipelineName", "p1");
         requestMap.put("pipelineCounter", "1");
-        requestMap.put("pipelineLabel", "label1");
         requestMap.put("stageName", "s1");
         requestMap.put("stageCounter", "2");
         requestMap.put("jobName", "j1");
@@ -75,7 +74,7 @@ public class ConsoleLogRequestProcessorTest {
 
         assertThat(response.responseCode(), is(DefaultGoApiResponse.SUCCESS_RESPONSE_CODE));
 
-        final JobIdentifier jobIdentifier = new JobIdentifier("p1", 1, "label1", "s1", "2", "j1");
+        final JobIdentifier jobIdentifier = new JobIdentifier("p1", 1, null, "s1", "2", "j1");
         verify(consoleService).appendToConsoleLog(jobIdentifier, "message1");
     }
 

@@ -32,9 +32,6 @@ public class ConsoleLogAppendRequest1_0 implements ConsoleLogAppendRequest {
     private Integer pipelineCounter;
 
     @Expose
-    private String pipelineLabel;
-
-    @Expose
     private String stageName;
 
     @Expose
@@ -52,7 +49,7 @@ public class ConsoleLogAppendRequest1_0 implements ConsoleLogAppendRequest {
 
     @Override
     public JobIdentifier jobIdentifier() {
-        return new JobIdentifier(pipelineName, pipelineCounter, pipelineLabel, stageName, stageCounter, jobName);
+        return new JobIdentifier(pipelineName, pipelineCounter, null, stageName, stageCounter, jobName);
     }
 
     @Override

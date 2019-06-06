@@ -29,11 +29,13 @@ import org.osgi.framework.Bundle;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
@@ -381,20 +383,27 @@ public class DefaultPluginJarChangeListenerTest {
         File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
 
         copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
-        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Linux", "Mac OS X")), null,
-                new File(PLUGIN_JAR_FILE_NAME), false));
+
+        final GoPluginDescriptor pluginDescriptor1 = new GoPluginDescriptor("some.old.id.1", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, singletonList("Windows")), null,
+                new File(PLUGIN_JAR_FILE_NAME), false);
+        final GoPluginDescriptor pluginDescriptor2 = new GoPluginDescriptor("some.old.id.2", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Linux", "Mac OS X")), null,
+                new File(PLUGIN_JAR_FILE_NAME), false);
+        GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
+
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Windows");
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(bundleDescriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
-        verify(registry, times(1)).loadPlugin(descriptor);
+        verify(registry, times(1)).loadPlugin(bundleDescriptor);
         verifyZeroInteractions(pluginLoader);
 
-        assertThat(descriptor.getStatus().getMessages().size(), is(1));
-        assertThat(descriptor.getStatus().getMessages().get(0),
-                is("Plugin with ID (some.old.id) is not valid: Incompatible with current operating system 'Windows'. Valid operating systems are: [Linux, Mac OS X]."));
+        assertThat(pluginDescriptor1.getStatus().getMessages().size(), is(1));
+        assertThat(pluginDescriptor1.getStatus().getMessages().get(0), is("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Windows'. Valid operating systems are: [Linux, Mac OS X]."));
+
+        assertThat(pluginDescriptor2.getStatus().getMessages().size(), is(1));
+        assertThat(pluginDescriptor2.getStatus().getMessages().get(0), is("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Windows'. Valid operating systems are: [Linux, Mac OS X]."));
     }
 
     @Test
@@ -403,23 +412,32 @@ public class DefaultPluginJarChangeListenerTest {
         copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
 
         String pluginID = "some.id";
-        GoPluginBundleDescriptor newPluginDescriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor(pluginID, "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Mac OS X")), null,
-                new File(PLUGIN_JAR_FILE_NAME), true));
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, false)).thenReturn(newPluginDescriptor);
+
+        final GoPluginDescriptor pluginDescriptor1 = new GoPluginDescriptor("some.old.id.1", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, singletonList("Linux")), null,
+                new File(PLUGIN_JAR_FILE_NAME), true);
+        final GoPluginDescriptor pluginDescriptor2 = new GoPluginDescriptor("some.old.id.2", "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Windows", "Mac OS X")), null,
+                new File(PLUGIN_JAR_FILE_NAME), true);
+        GoPluginBundleDescriptor newBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
+
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, false)).thenReturn(newBundleDescriptor);
 
         GoPluginBundleDescriptor oldPluginDescriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor(pluginID, "1.0", new GoPluginDescriptor.About(null, null, null, null, null, asList("Linux", "Mac OS X")), null, new File(PLUGIN_JAR_FILE_NAME), true));
         when(systemEnvironment.getOperatingSystemFamilyName()).thenReturn("Linux");
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(newPluginDescriptor);
-        when(registry.unloadPlugin(newPluginDescriptor)).thenReturn(oldPluginDescriptor);
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(newBundleDescriptor);
+        when(registry.unloadPlugin(newBundleDescriptor)).thenReturn(oldPluginDescriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
-        verify(registry, times(1)).loadPlugin(newPluginDescriptor);
+        verify(registry, times(1)).loadPlugin(newBundleDescriptor);
 
-        assertThat(newPluginDescriptor.getStatus().getMessages().size(), is(1));
-        assertThat(newPluginDescriptor.getStatus().getMessages().get(0),
-                is("Plugin with ID (some.id) is not valid: Incompatible with current operating system 'Linux'. Valid operating systems are: [Mac OS X]."));
+        assertThat(pluginDescriptor1.getStatus().getMessages().size(), is(1));
+        assertThat(pluginDescriptor1.getStatus().getMessages().get(0),
+                is("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Linux'. Valid operating systems are: [Windows, Mac OS X]."));
+
+        assertThat(pluginDescriptor2.getStatus().getMessages().size(), is(1));
+        assertThat(pluginDescriptor2.getStatus().getMessages().get(0),
+                is("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with current operating system 'Linux'. Valid operating systems are: [Windows, Mac OS X]."));
     }
 
     @Test

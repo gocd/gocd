@@ -52,10 +52,6 @@ public class GoPluginBundleDescriptor {
         return pluginDescriptors.get(0).isBundledPlugin();
     }
 
-    public boolean isCurrentOSValidForThisPlugin(String currentOS) {
-        return pluginDescriptors.get(0).isCurrentOSValidForThisPlugin(currentOS);
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

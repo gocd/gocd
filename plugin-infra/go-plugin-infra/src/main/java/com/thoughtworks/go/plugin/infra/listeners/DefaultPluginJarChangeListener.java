@@ -32,9 +32,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
+import static java.util.Collections.singletonList;
 
 @Component
 public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
@@ -125,13 +127,14 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         }
     }
 
-    private void validatePluginCompatibilityWithCurrentOS(GoPluginBundleDescriptor descriptor) {
+    private void validatePluginCompatibilityWithCurrentOS(GoPluginBundleDescriptor bundleDescriptor) {
         String currentOS = systemEnvironment.getOperatingSystemFamilyName();
 
-        if (!descriptor.isCurrentOSValidForThisPlugin(currentOS)) {
-            List<String> messages = Arrays.asList(String.format("Plugin with ID (%s) is not valid: Incompatible with current operating system '%s'. Valid operating systems are: %s.",
-                    descriptor.id(), currentOS, descriptor.about().targetOperatingSystems()));
-            descriptor.markAsInvalid(messages, null);
+        for (GoPluginDescriptor pluginDescriptor : bundleDescriptor.descriptors()) {
+            if (!pluginDescriptor.isCurrentOSValidForThisPlugin(currentOS)) {
+                markAllPluginsInBundleAsInvalid(bundleDescriptor, "Incompatible with current operating system '%s'. Valid operating systems are: %s.",
+                        currentOS, pluginDescriptor.about().targetOperatingSystems());
+            }
         }
     }
 
@@ -191,4 +194,8 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         return activatorJar;
     }
 
+    private void markAllPluginsInBundleAsInvalid(GoPluginBundleDescriptor bundleDescriptor, String format, Object... values) {
+        String prefix = String.format(bundleDescriptor.descriptors().size() > 1 ? "Plugins with IDs (%s) are not valid: " : "Plugin with ID (%s) is not valid: ", bundleDescriptor.pluginIDs());
+        bundleDescriptor.markAsInvalid(singletonList(String.format(prefix + format, values)), null);
+    }
 }

@@ -345,7 +345,7 @@ class BuildAssignmentServiceTest {
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
             when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(new EnvironmentVariableContext());
-            doThrow(new SecretResolutionFailureException("Failed resolving params for keys: 'key1'")).when(secretParamResolver).resolve(any());
+            doThrow(new SecretResolutionFailureException("Failed resolving params for keys: 'key1'")).when(secretParamResolver).resolve(any(SecretParams.class));
             when(jobInstanceService.buildById(jobPlan1.getJobId())).thenReturn(jobInstance);
             when(agentInstance.getUuid()).thenReturn("agent_uuid");
             when(jobInstance.getState()).thenReturn(JobState.Completed);

@@ -19,10 +19,12 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.SecretParams;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
@@ -32,8 +34,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 class SecretParamResolverTest {
@@ -41,31 +43,66 @@ class SecretParamResolverTest {
     private SecretsExtension secretsExtension;
     @Mock
     private GoConfigService goConfigService;
+    @Mock
+    private RulesService rulesService;
     private SecretParamResolver secretParamResolver;
 
     @BeforeEach
     void setUp() {
         initMocks(this);
 
-        secretParamResolver = new SecretParamResolver(secretsExtension, goConfigService);
+        secretParamResolver = new SecretParamResolver(secretsExtension, goConfigService, rulesService);
     }
 
-    @Test
-    void shouldDoNothingWhenGivenListIsNull() {
-        secretParamResolver.resolve(null);
+    @Nested
+    class ResolveSecretsForMaterials {
+        @Test
+        void shouldResolveSecretParamsForASCMMaterial() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
 
-        verifyZeroInteractions(secretsExtension);
-        verifyZeroInteractions(goConfigService);
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig())
+                    .thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(asList("password"))))
+                    .thenReturn(asList(new Secret("password", "some-password")));
+
+            secretParamResolver.resolve(gitMaterial);
+
+            assertThat(gitMaterial.passwordForCommandLine()).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldValidateIfMaterialsHavePersmissionToReferToAGivenSecretConfig() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig())
+                    .thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(asList("password"))))
+                    .thenReturn(asList(new Secret("password", "some-password")));
+
+            secretParamResolver.resolve(gitMaterial);
+
+            verify(rulesService).validateSecretConfigReferences(gitMaterial);
+        }
+
+        @Test
+        void shouldErrorOutIfMaterialsDoNotHavePermissionToReferToASecretConfig() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
+
+            doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(gitMaterial);
+
+            assertThatCode(() -> secretParamResolver.resolve(gitMaterial))
+                    .isInstanceOf(RuntimeException.class);
+
+            verifyZeroInteractions(goConfigService);
+            verifyZeroInteractions(secretsExtension);
+        }
     }
-
-    @Test
-    void shouldDoNothingWhenGivenListIsEmpty() {
-        secretParamResolver.resolve(new SecretParams());
-
-        verifyZeroInteractions(secretsExtension);
-        verifyZeroInteractions(goConfigService);
-    }
-
+    
     @Test
     void shouldResolveSecretParamsOfVariousSecretConfig() {
         final SecretParams allSecretParams = new SecretParams(

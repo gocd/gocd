@@ -84,11 +84,13 @@ const DashboardWidget = {
 
           <section class="dashboard-modifiers">
             <GroupingSwitch vm={vm}/>
+            <div class="dashboard-actions">
+            {args.universalAddPipelineButton && dashboard.canAddPipeline() ? <Buttons.Primary align="right" icon={Buttons.ButtonIcon.ADD} aria-label="Create a new pipeline" title="Create a new pipeline" onclick={this.goToAddPipeline}>New Pipeline</Buttons.Primary> : null}
             <SearchBox width="350"
                        class="pipeline-search_dashboard"
                        model={vm} attrName="searchText"
                        placeholder="Search pipelines"/>
-            {args.universalAddPipelineButton ? <Buttons.Primary icon={Buttons.ButtonIcon.ADD} aria-label="Create a new pipeline" title="Create a new pipeline" onclick={this.goToAddPipeline}>New Pipeline</Buttons.Primary> : null}
+            </div>
           </section>
 
           {messageView}

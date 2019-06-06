@@ -150,6 +150,15 @@ body {
   z-index:         5;
 }
 
+.dashboard-actions {
+  display:     flex;
+  align-items: center;
+
+  button {
+    margin-right: 10px;
+  }
+}
+
 .grouping_select {
   margin:  0 0 0 10px;
   width:   145px;

@@ -162,7 +162,7 @@ project.ext.compilerOptions = [
 ]
 
 rootProject.ext.versions = [
-  tanuki              : '3.5.37',
+  tanuki              : '3.5.39',
   apacheHttpComponents: '4.5.6',
   assertJ             : '3.11.1',
   bouncyCastle        : '1.59', // bouncycastle version has to be compatible with the jruby version

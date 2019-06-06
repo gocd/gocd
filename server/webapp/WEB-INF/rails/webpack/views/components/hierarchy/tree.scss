@@ -1,0 +1,78 @@
+/*
+ * Copyright 2019 ThoughtWorks, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+$indent-width:             15px;
+$under-label-indent-width: (2 * $indent-width) / 3;
+$tree-connector-color:     #ddd;
+$tick-width:               $under-label-indent-width;
+
+.tree, .tree-datum, .tree-child, .tree-children, .tree-children ul, .tree-children-label {
+  margin: 0;
+  padding: 0;
+}
+
+// NOTE: Selectors are intentionally not nested to make them easy to override.
+.tree {
+  line-height: 2em;
+}
+
+.tree-children-label + ul {
+  margin-left: $under-label-indent-width;
+}
+
+.tree-datum {
+  font-weight: bold;
+}
+
+.tree-children {
+  margin-left: $under-label-indent-width;
+
+  ul {
+    list-style: none;
+  }
+}
+
+
+.tree-child {
+  position: relative;
+  margin-left: $indent-width;
+
+  &:before {
+    position:      absolute;
+    left:          -$indent-width;
+    top:           0;
+    height:        1em;
+    width:         $tick-width;
+    display:       block;
+    border-left:   1px solid $tree-connector-color;
+    border-bottom: 1px solid $tree-connector-color;
+    content:       "";
+  }
+
+  &:after{
+    position:    absolute;
+    left:        -$indent-width;
+    bottom:      0;
+    height:      100%;
+    display:     block;
+    border-left: 1px solid $tree-connector-color;
+    content:     "";
+  }
+
+  &:last-child:after {
+    display: none;
+  }
+}

@@ -25,10 +25,12 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_BUNDLE_PATH;
+import static java.util.Collections.singletonList;
 
 @Component
 public class GoPluginBundleDescriptorBuilder {
@@ -76,8 +78,8 @@ public class GoPluginBundleDescriptorBuilder {
         } catch (Exception e) {
             LOGGER.warn("Could not load plugin with jar filename:{}", pluginJarFile.getName(), e);
             String cause = e.getCause() != null ? String.format("%s. Cause: %s", e.getMessage(), e.getCause().getMessage()) : e.getMessage();
-            return new GoPluginBundleDescriptor(GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin)
-                    .markAsInvalid(Arrays.asList(String.format("Plugin with ID (%s) is not valid: %s", pluginJarFile.getName(), cause)), e));
+            return new GoPluginBundleDescriptor(GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), getBundleLocation(bundlePathLocation, pluginJarFile.getName()), isBundledPlugin))
+                    .markAsInvalid(singletonList(String.format("Plugin with ID (%s) is not valid: %s", pluginJarFile.getName(), cause)), e);
         }
     }
 

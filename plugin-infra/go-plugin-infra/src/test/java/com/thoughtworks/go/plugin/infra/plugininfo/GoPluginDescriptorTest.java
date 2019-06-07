@@ -16,9 +16,11 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.Test;
 
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -48,5 +50,22 @@ public class GoPluginDescriptorTest {
 
     private GoPluginDescriptor descriptorWithTargetOSes(String... oses) {
         return new GoPluginDescriptor(null, null, new GoPluginDescriptor.About(null, null, null, null, null, Arrays.asList(oses)), null, null, false);
+    }
+
+    @Test
+    public void shouldMarkAllPluginsInBundleAsInvalidIfAPluginIsMarkedInvalid() {
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+
+        final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
+
+        pluginDescriptor1.markAsInvalid(singletonList("Ouch!"), new RuntimeException("Failure ..."));
+
+        assertThat(bundleDescriptor.isInvalid(), is(true));
+        assertThat(pluginDescriptor1.isInvalid(), is(true));
+        assertThat(pluginDescriptor2.isInvalid(), is(true));
+
+        assertThat(pluginDescriptor1.getStatus().getMessages(), is(singletonList("Ouch!")));
+        assertThat(pluginDescriptor2.getStatus().getMessages(), is(singletonList("Ouch!")));
     }
 }

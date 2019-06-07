@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
+import org.apache.commons.collections4.IterableUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -88,10 +89,11 @@ public class GoPluginBundleDescriptor {
                 '}';
     }
 
-    public void markAsInvalid(List<String> messages, Exception o) {
+    public GoPluginBundleDescriptor markAsInvalid(List<String> messages, Exception e) {
         for (GoPluginDescriptor pluginDescriptor : pluginDescriptors) {
-            pluginDescriptor.markAsInvalid(messages, o);
+            pluginDescriptor.markAsInvalidWithoutUpdatingBundleDescriptor(messages, e);
         }
+        return this;
     }
 
     public String fileName() {
@@ -99,7 +101,7 @@ public class GoPluginBundleDescriptor {
     }
 
     public boolean isInvalid() {
-        return pluginDescriptors.get(0).isInvalid();
+        return IterableUtils.matchesAny(pluginDescriptors, GoPluginDescriptor::isInvalid);
     }
 
     public File bundleLocation() {

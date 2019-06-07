@@ -17,7 +17,6 @@ package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
-import org.osgi.framework.Bundle;
 import org.osgi.framework.Version;
 
 import java.io.File;
@@ -75,7 +74,7 @@ public class GoPluginDescriptor implements PluginDescriptor {
     }
 
     public GoPluginDescriptor markAsInvalid(List<String> messages, Exception rootCause) {
-        status = new PluginStatus(INVALID).setMessages(messages, rootCause);
+        bundleDescriptor().markAsInvalid(messages, rootCause);
         return this;
     }
 
@@ -87,8 +86,8 @@ public class GoPluginDescriptor implements PluginDescriptor {
         return status;
     }
 
-    public void setStatus(PluginStatus status) {
-        this.status = status;
+    void markAsInvalidWithoutUpdatingBundleDescriptor(List<String> messages, Exception rootCause) {
+        status = new PluginStatus(INVALID).setMessages(messages, rootCause);
     }
 
     public String pluginFileLocation() {

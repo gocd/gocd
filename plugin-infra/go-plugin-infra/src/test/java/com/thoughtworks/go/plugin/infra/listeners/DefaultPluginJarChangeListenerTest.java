@@ -178,8 +178,10 @@ public class DefaultPluginJarChangeListenerTest {
         copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
         File expectedBundleDirectory = new File(bundleDir, PLUGIN_JAR_FILE_NAME);
 
-        GoPluginBundleDescriptor descriptorForInvalidPlugin = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true).markAsInvalid(
-                asList("For a test"), null));
+        GoPluginBundleDescriptor descriptorForInvalidPlugin = new GoPluginBundleDescriptor(
+                GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginJarFile.getAbsolutePath(), expectedBundleDirectory, true))
+                .markAsInvalid(singletonList("For a test"), null);
+
         when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptorForInvalidPlugin);
         doNothing().when(registry).loadPlugin(descriptorForInvalidPlugin);
 
@@ -201,9 +203,9 @@ public class DefaultPluginJarChangeListenerTest {
         File bundleDirectoryForOldPlugin = new File(bundleDir, "descriptor-aware-test-plugin-old.jar");
         FileUtils.forceMkdir(bundleDirectoryForOldPlugin);
 
-        GoPluginBundleDescriptor descriptorForInvalidPlugin = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginFile.getAbsolutePath(), expectedBundleDirectoryForInvalidPlugin,
-                true).markAsInvalid(
-                asList("For a test"), null));
+        GoPluginBundleDescriptor descriptorForInvalidPlugin = new GoPluginBundleDescriptor(
+                GoPluginDescriptor.usingId("testplugin.descriptorValidator", pluginFile.getAbsolutePath(), expectedBundleDirectoryForInvalidPlugin, true))
+                .markAsInvalid(singletonList("For a test"), null);
 
         Bundle oldBundle = mock(Bundle.class);
         final GoPluginDescriptor oldPluginDescriptor = GoPluginDescriptor.usingId("some.old.id", "some/path/to/plugin.jar", bundleDirectoryForOldPlugin, true);

@@ -196,9 +196,10 @@ public class GoPluginBundleDescriptorBuilderTest {
         */
         File pluginJarFile = new File(pluginDirectory, name);
 
-        return GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), new File(bundleDirectory, name), true)
-                .markAsInvalid(Arrays.asList(String.format("Plugin with ID (%s) is not valid: %s.", pluginJarFile.getName(),
-                        "XML Schema validation of Plugin Descriptor(plugin.xml) failed. Cause: cvc-complex-type.2.4.d: Invalid content was found starting with element 'target-os'. No child element is expected at this point")                       ),
-                        null);
+        final String message = String.format("Plugin with ID (%s) is not valid: %s.", pluginJarFile.getName(),
+                "XML Schema validation of Plugin Descriptor(plugin.xml) failed. Cause: cvc-complex-type.2.4.d: Invalid content was found starting with element 'target-os'. No child element is expected at this point");
+
+        final GoPluginDescriptor goPluginDescriptor = GoPluginDescriptor.usingId(pluginJarFile.getName(), pluginJarFile.getAbsolutePath(), new File(bundleDirectory, name), true);
+        return new GoPluginBundleDescriptor(goPluginDescriptor).markAsInvalid(singletonList(message), null).descriptors().get(0);
     }
 }

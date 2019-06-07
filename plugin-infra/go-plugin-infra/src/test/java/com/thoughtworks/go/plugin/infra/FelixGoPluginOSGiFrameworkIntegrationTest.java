@@ -139,18 +139,22 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @Test
     public void shouldHandleErrorGeneratedByAValidGoPluginOSGiBundleAtUsageTime() {
-        Bundle bundle = pluginOSGiFramework.loadPlugin(new GoPluginBundleDescriptor(new GoPluginDescriptor(PLUGIN_ID, null, null, null, errorGeneratingDescriptorBundleDir, true)));
+        final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor(PLUGIN_ID, null, null, null, errorGeneratingDescriptorBundleDir, true));
+        Bundle bundle = pluginOSGiFramework.loadPlugin(bundleDescriptor);
+
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
+        assertThat(bundleDescriptor.isInvalid(), is(false));
 
         ActionWithReturn<GoPlugin, Object> action = (goPlugin, goPluginDescriptor) -> {
-            goPlugin.pluginIdentifier();
+            goPlugin.initializeGoApplicationAccessor(null);
             return null;
         };
 
         try {
-            pluginOSGiFramework.doOn(GoPlugin.class, "testplugin.descriptorValidator", "CANNOT_FIND_EXTENSION_TYPE", action);
+            pluginOSGiFramework.doOn(GoPlugin.class, "testplugin.descriptorValidator", "extension-1", action);
             fail("Should Throw An Exception");
         } catch (Exception ex) {
+            ex.printStackTrace();
             assertThat(ex.getCause() instanceof AbstractMethodError, is(true));
         }
     }

@@ -478,19 +478,28 @@ public class DefaultPluginJarChangeListenerTest {
         File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
 
         copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
-        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, "9999.0.0", null, null, asList("Linux", "Mac OS X")), null,
-                new File(PLUGIN_JAR_FILE_NAME), false));
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+
+        final GoPluginDescriptor pluginDescriptor1 = new GoPluginDescriptor("some.old.id.1", "1.0", new GoPluginDescriptor.About(null, null, "17.5.0", null, null, asList("Linux", "Mac OS X")), null,
+                new File(PLUGIN_JAR_FILE_NAME), false);
+        final GoPluginDescriptor pluginDescriptor2 = new GoPluginDescriptor("some.old.id.2", "1.0", new GoPluginDescriptor.About(null, null, "9999.0.0", null, null, asList("Linux", "Mac OS X")), null,
+                new File(PLUGIN_JAR_FILE_NAME), false);
+        GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
+
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(bundleDescriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
-        verify(registry, times(1)).loadPlugin(descriptor);
+        verify(registry, times(1)).loadPlugin(bundleDescriptor);
         verifyZeroInteractions(pluginLoader);
 
-        assertThat(descriptor.getStatus().getMessages().size(), is(1));
-        assertThat(descriptor.getStatus().getMessages().get(0),
-                is("Plugin with ID (some.old.id) is not valid: Incompatible with GoCD version '" + CurrentGoCDVersion.getInstance().goVersion() + "'. Compatible version is: 9999.0.0."));
+        assertThat(pluginDescriptor1.getStatus().getMessages().size(), is(1));
+        assertThat(pluginDescriptor1.getStatus().getMessages().get(0),
+                is("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with GoCD version '" + CurrentGoCDVersion.getInstance().goVersion() + "'. Compatible version is: 9999.0.0."));
+
+        assertThat(pluginDescriptor2.getStatus().getMessages().size(), is(1));
+        assertThat(pluginDescriptor2.getStatus().getMessages().get(0),
+                is("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incompatible with GoCD version '" + CurrentGoCDVersion.getInstance().goVersion() + "'. Compatible version is: 9999.0.0."));
     }
 
     @Test
@@ -498,19 +507,28 @@ public class DefaultPluginJarChangeListenerTest {
         File pluginJarFile = new File(pluginDir, PLUGIN_JAR_FILE_NAME);
 
         copyPluginToTheDirectory(pluginDir, PLUGIN_JAR_FILE_NAME);
-        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor("some.old.id", "1.0", new GoPluginDescriptor.About(null, null, "9999.0.0.1.2", null, null, asList("Linux", "Mac OS X")), null,
-                new File(PLUGIN_JAR_FILE_NAME), false));
-        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(descriptor);
+
+        final GoPluginDescriptor pluginDescriptor1 = new GoPluginDescriptor("some.old.id.1", "1.0", new GoPluginDescriptor.About(null, null, "17.5.0", null, null, asList("Linux", "Mac OS X")), null,
+                new File(PLUGIN_JAR_FILE_NAME), false);
+        final GoPluginDescriptor pluginDescriptor2 = new GoPluginDescriptor("some.old.id.2", "1.0", new GoPluginDescriptor.About(null, null, "9999.0.0.1.2", null, null, asList("Linux", "Mac OS X")), null,
+                new File(PLUGIN_JAR_FILE_NAME), false);
+        GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
+
+        when(goPluginBundleDescriptorBuilder.build(pluginJarFile, true)).thenReturn(bundleDescriptor);
 
         listener = new DefaultPluginJarChangeListener(registry, osgiManifestGenerator, pluginLoader, goPluginBundleDescriptorBuilder, systemEnvironment);
         listener.pluginJarAdded(new PluginFileDetails(pluginJarFile, true));
 
-        verify(registry, times(1)).loadPlugin(descriptor);
+        verify(registry, times(1)).loadPlugin(bundleDescriptor);
         verifyZeroInteractions(pluginLoader);
 
-        assertThat(descriptor.getStatus().getMessages().size(), is(1));
-        assertThat(descriptor.getStatus().getMessages().get(0),
-                is("Plugin with ID (some.old.id) is not valid: Incorrect target gocd version(9999.0.0.1.2) specified."));
+        assertThat(pluginDescriptor1.getStatus().getMessages().size(), is(1));
+        assertThat(pluginDescriptor1.getStatus().getMessages().get(0),
+                is("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incorrect target GoCD version (17.5.0 & 9999.0.0.1.2) specified."));
+
+        assertThat(pluginDescriptor2.getStatus().getMessages().size(), is(1));
+        assertThat(pluginDescriptor2.getStatus().getMessages().get(0),
+                is("Plugins with IDs ([some.old.id.1, some.old.id.2]) are not valid: Incorrect target GoCD version (17.5.0 & 9999.0.0.1.2) specified."));
     }
 
     @Test

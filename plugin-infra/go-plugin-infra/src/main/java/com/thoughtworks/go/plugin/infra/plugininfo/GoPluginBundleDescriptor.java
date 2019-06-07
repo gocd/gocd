@@ -22,8 +22,10 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.osgi.framework.Bundle;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GoPluginBundleDescriptor {
     private Bundle bundle;
@@ -105,10 +107,6 @@ public class GoPluginBundleDescriptor {
         }
     }
 
-    public boolean isCurrentGocdVersionValidForThisPlugin() {
-        return pluginDescriptors.get(0).isCurrentGocdVersionValidForThisPlugin();
-    }
-
     public String fileName() {
         return pluginDescriptors.get(0).fileName();
     }
@@ -150,5 +148,9 @@ public class GoPluginBundleDescriptor {
 
     public String bundleActivator() {
         return bundleActivator;
+    }
+
+    public List<String> pluginIDs() {
+        return descriptors().stream().map(GoPluginDescriptor::id).collect(Collectors.toList());
     }
 }

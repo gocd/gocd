@@ -16,13 +16,12 @@
 
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
-import com.thoughtworks.go.plugin.api.info.PluginDescriptor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.osgi.framework.Bundle;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -93,14 +92,6 @@ public class GoPluginBundleDescriptor {
                 '}';
     }
 
-    public PluginDescriptor.About about() {
-        return pluginDescriptors.get(0).about();
-    }
-
-    public String id() {
-        return pluginDescriptors.get(0).id();
-    }
-
     public void markAsInvalid(List<String> messages, Exception o) {
         for (GoPluginDescriptor pluginDescriptor : pluginDescriptors) {
             pluginDescriptor.markAsInvalid(messages, o);
@@ -152,5 +143,10 @@ public class GoPluginBundleDescriptor {
 
     public List<String> pluginIDs() {
         return descriptors().stream().map(GoPluginDescriptor::id).collect(Collectors.toList());
+    }
+
+    /* TODO: Temporary symbolic name for bundle. Get rid of it. */
+    public String generateSymbolicName() {
+        return StringUtils.join(pluginIDs(), "--");
     }
 }

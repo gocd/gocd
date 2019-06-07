@@ -46,15 +46,6 @@ public class DefaultPluginRegistry implements PluginRegistry {
         }
     }
 
-    private boolean containsKey(Map<String, ?> map, String id) {
-        for (String key : map.keySet()) {
-            if (key.equalsIgnoreCase(id)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public GoPluginBundleDescriptor unloadPlugin(GoPluginBundleDescriptor bundleDescriptor) {
         final GoPluginDescriptor firstPluginDescriptor = bundleDescriptor.descriptors().get(0);
         final GoPluginDescriptor pluginInBundle = getPluginByIdOrFileName(firstPluginDescriptor.id(), firstPluginDescriptor.fileName());

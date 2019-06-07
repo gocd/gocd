@@ -108,7 +108,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         Bundle bundle = pluginDescriptor.bundle();
 
         if (bundle == null || bundle.getState() == Bundle.UNINSTALLED) {
-            LOGGER.info(format("Skipping plugin '%s' uninstall as it is already uninstalled.", pluginDescriptor.id()));
+            LOGGER.info(format("Skipping plugin '%s' uninstall as it is already uninstalled.", pluginDescriptor));
             return;
         }
 

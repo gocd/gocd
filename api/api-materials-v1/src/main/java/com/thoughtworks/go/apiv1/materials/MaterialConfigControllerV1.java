@@ -40,15 +40,12 @@ public class MaterialConfigControllerV1 extends ApiController implements SparkSp
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final MaterialConfigService materialConfigService;
-    private final MaterialService materialService;
 
     @Autowired
-    public MaterialConfigControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, MaterialConfigService materialConfigService,
-                                      MaterialService materialService) {
+    public MaterialConfigControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, MaterialConfigService materialConfigService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.materialConfigService = materialConfigService;
-        this.materialService = materialService;
     }
 
     @Override

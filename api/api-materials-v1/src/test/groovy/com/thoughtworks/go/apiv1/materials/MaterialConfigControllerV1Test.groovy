@@ -54,8 +54,8 @@ class MaterialConfigControllerV1Test implements SecurityServiceTrait, Controller
 
   @Override
   MaterialConfigControllerV1 createControllerInstance() {
-    return new MaterialConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService,
-      materialService)
+    return new MaterialConfigControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), materialConfigService
+    )
   }
 
   @Nested

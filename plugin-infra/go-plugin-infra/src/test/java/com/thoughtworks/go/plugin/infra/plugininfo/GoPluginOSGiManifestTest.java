@@ -84,8 +84,6 @@ public class GoPluginOSGiManifestTest {
         assertThat(valueFor(BUNDLE_CLASSPATH), is("lib/go-plugin-activator.jar,.,lib/dependency.jar"));
 
         assertThat(descriptor.bundleSymbolicName(), is("pluginId"));
-        assertThat(descriptor.bundleClassPath(), is("lib/go-plugin-activator.jar,.,lib/dependency.jar"));
-        assertThat(descriptor.bundleActivator(), is(DefaultGoPluginActivator.class.getCanonicalName()));
     }
 
     @Test

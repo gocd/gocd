@@ -88,8 +88,6 @@ public class MultipleExtensionPluginWithPluginManagerIntegrationTest {
         assertThat(plugin.id(), is(PLUGIN_ID));
 
         assertThat(plugin.bundleDescriptor().bundleSymbolicName(), is(PLUGIN_ID));
-        assertThat(plugin.bundleDescriptor().bundleClassPath(), is("lib/go-plugin-activator.jar,."));
-        assertThat(plugin.bundleDescriptor().bundleActivator(), is(DefaultGoPluginActivator.class.getCanonicalName()));
         assertThat(plugin.isInvalid(), is(false));
 
         DefaultGoPluginApiRequest request = new DefaultGoPluginApiRequest("task", "1.0", "request1");

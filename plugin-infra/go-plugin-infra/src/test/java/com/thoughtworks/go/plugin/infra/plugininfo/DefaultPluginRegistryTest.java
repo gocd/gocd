@@ -160,14 +160,14 @@ public class DefaultPluginRegistryTest {
     public void shouldBeAbleToUnloadThePluginBasedOnFileNameEvenIfTheIDHasBeenChanged() {
         File bundleLocation = mock(File.class);
         when(bundleLocation.getName()).thenReturn("plugin-id");
-        GoPluginBundleDescriptor descriptor1 = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id", "some-plugin.jar", bundleLocation, true));
-        registry.loadPlugin(descriptor1);
+        GoPluginBundleDescriptor oldBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("old-plugin-id", "some-plugin.jar", bundleLocation, true));
+        registry.loadPlugin(oldBundleDescriptor);
 
 
-        GoPluginBundleDescriptor descriptorOfPluginToBeUnloaded = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("plugin-id", "some-plugin.jar", bundleLocation, true));
+        GoPluginBundleDescriptor descriptorOfPluginToBeUnloaded = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("new-plugin-id", "some-plugin.jar", bundleLocation, true));
         GoPluginBundleDescriptor descriptorOfUnloadedPlugin = registry.unloadPlugin(descriptorOfPluginToBeUnloaded);
 
-        assertThat(descriptorOfUnloadedPlugin.id(), is("id"));
+        assertThat(descriptorOfUnloadedPlugin, is(oldBundleDescriptor));
         assertThat(registry.plugins().size(), is(0));
     }
 

@@ -31,9 +31,6 @@ import org.springframework.stereotype.Component;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
@@ -122,9 +119,11 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
     }
 
     private void validateIfSamePluginUpdated(GoPluginBundleDescriptor newBundleDescriptor) {
-        final GoPluginDescriptor existingDescriptor = registry.getPluginByIdOrFileName(newBundleDescriptor.id(), newBundleDescriptor.fileName());
-        if (existingDescriptor != null && !existingDescriptor.fileName().equals(newBundleDescriptor.fileName())) {
-            throw new RuntimeException("Found another plugin with ID: " + existingDescriptor.id());
+        for (GoPluginDescriptor pluginDescriptor : newBundleDescriptor.descriptors()) {
+            final GoPluginDescriptor existingDescriptor = registry.getPluginByIdOrFileName(pluginDescriptor.id(), pluginDescriptor.fileName());
+            if (existingDescriptor != null && !existingDescriptor.fileName().equals(pluginDescriptor.fileName())) {
+                throw new RuntimeException("Found another plugin with ID: " + existingDescriptor.id());
+            }
         }
     }
 

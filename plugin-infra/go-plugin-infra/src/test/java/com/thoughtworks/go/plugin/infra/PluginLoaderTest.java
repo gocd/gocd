@@ -108,7 +108,6 @@ class PluginLoaderTest {
         GoPluginBundleDescriptor pluginBundleDescriptor = mock(GoPluginBundleDescriptor.class);
         when(pluginBundleDescriptor.isInvalid()).thenReturn(false);
         when(pluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
-        when(pluginBundleDescriptor.id()).thenReturn("some-id");
 
         final Map<String, List<String>> extensionsInfo = singletonMap("elastic-agent", singletonList("1.0"));
         when(pluginOSGiFramework.getExtensionsInfoFromThePlugin("some-id")).thenReturn(extensionsInfo);

@@ -297,7 +297,9 @@ public class DefaultPluginJarChangeListenerTest {
         File pluginJarFile = mock(File.class);
         when(pluginJarFile.getName()).thenReturn(pluginJarFileName);
 
-        GoPluginBundleDescriptor newPluginDescriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor(pluginId, "1.0", null, pluginJarFile.getAbsolutePath(), new File(pluginJarFileName), true));
+        final GoPluginDescriptor pluginDescriptor1 = new GoPluginDescriptor("some-new-plugin-id", "1.0", null, pluginJarFile.getAbsolutePath(), new File(pluginJarFileName), true);
+        final GoPluginDescriptor pluginDescriptor2 = new GoPluginDescriptor(pluginId, "1.0", null, pluginJarFile.getAbsolutePath(), new File(pluginJarFileName), true);
+        GoPluginBundleDescriptor newPluginDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
         when(goPluginBundleDescriptorBuilder.build(pluginJarFile, false)).thenReturn(newPluginDescriptor);
 
         final GoPluginDescriptor oldPluginDescriptor = new GoPluginDescriptor(pluginId, "1.0", null, "location-old", new File("location-old"), true);
@@ -311,7 +313,6 @@ public class DefaultPluginJarChangeListenerTest {
             assertThat(e.getMessage(), is("Found another plugin with ID: plugin-id"));
         }
         verify(spy, never()).explodePluginJarToBundleDir(pluginJarFile, newPluginDescriptor.bundleLocation());
-
     }
 
     @Test

@@ -48,7 +48,7 @@ public class GoPluginOSGiManifest {
     }
 
     public void update() throws IOException {
-        String symbolicName = descriptor.id();
+        String symbolicName = descriptor.generateSymbolicName();
         String classPath = buildClassPath();
         String bundleActivator = DefaultGoPluginActivator.class.getCanonicalName();
 

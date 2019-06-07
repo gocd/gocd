@@ -27,6 +27,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -61,13 +62,14 @@ public class GoPluginBundleDescriptorBuilderTest {
         File pluginJarFile = new File(pluginDirectory, pluginJarName);
 
         final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginJarFile, true);
-        GoPluginDescriptor descriptor = bundleDescriptor.descriptor();
+        final List<GoPluginDescriptor> descriptors = bundleDescriptor.descriptors();
 
-        GoPluginDescriptor expectedDescriptor = buildExpectedDescriptor
-                (pluginJarName, pluginJarFile.getAbsolutePath());
-        assertThat(descriptor, is(expectedDescriptor));
-        assertThat(descriptor.isInvalid(), is(false));
-        assertThat(descriptor.isBundledPlugin(), is(true));
+        GoPluginDescriptor expectedDescriptor = buildExpectedDescriptor(pluginJarName, pluginJarFile.getAbsolutePath());
+
+        assertThat(descriptors.size(), is(1));
+        assertThat(descriptors.get(0), is(expectedDescriptor));
+        assertThat(descriptors.get(0).isInvalid(), is(false));
+        assertThat(descriptors.get(0).isBundledPlugin(), is(true));
     }
 
     @Test
@@ -77,13 +79,14 @@ public class GoPluginBundleDescriptorBuilderTest {
         File pluginJarFile = new File(pluginDirectory, pluginJarName);
 
         final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginJarFile, true);
-        GoPluginDescriptor descriptor = bundleDescriptor.descriptor();
+        List<GoPluginDescriptor> descriptors = bundleDescriptor.descriptors();
 
         GoPluginDescriptor expectedDescriptor = buildXMLSchemaErrorDescriptor(pluginJarName);
-        assertThat(descriptor, is(expectedDescriptor));
-        assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.isBundledPlugin(), is(true));
-        assertThat(descriptor.getStatus().getMessages(), is(expectedDescriptor.getStatus().getMessages()));
+        assertThat(descriptors.size(), is(1));
+        assertThat(descriptors.get(0), is(expectedDescriptor));
+        assertThat(descriptors.get(0).isInvalid(), is(true));
+        assertThat(descriptors.get(0).isBundledPlugin(), is(true));
+        assertThat(descriptors.get(0).getStatus().getMessages(), is(expectedDescriptor.getStatus().getMessages()));
     }
 
     @Test
@@ -93,10 +96,11 @@ public class GoPluginBundleDescriptorBuilderTest {
         File pluginJarFile = new File(pluginDirectory, pluginJarName);
 
         final GoPluginBundleDescriptor bundleDescriptor = goPluginBundleDescriptorBuilder.build(pluginJarFile, false);
-        GoPluginDescriptor descriptor = bundleDescriptor.descriptor();
 
-        assertThat(descriptor.isInvalid(), is(false));
-        assertThat(descriptor.id(), is(pluginJarName));
+        final List<GoPluginDescriptor> descriptors = bundleDescriptor.descriptors();
+        assertThat(descriptors.size(), is(1));
+        assertThat(descriptors.get(0).isInvalid(), is(false));
+        assertThat(descriptors.get(0).id(), is(pluginJarName));
     }
 
     @Test

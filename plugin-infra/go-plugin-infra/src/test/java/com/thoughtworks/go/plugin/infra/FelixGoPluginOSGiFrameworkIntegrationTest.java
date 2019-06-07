@@ -157,13 +157,14 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
 
     @Test
     public void shouldPassInCorrectDescriptorToAction() {
-        final GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor("testplugin.descriptorValidator", null, null, null, descriptorBundleDir, true));
-        Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
-        registry.loadPlugin(descriptor);
+        final GoPluginDescriptor goPluginDescriptor = new GoPluginDescriptor("testplugin.descriptorValidator", null, null, null, descriptorBundleDir, true);
+        final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(goPluginDescriptor);
+        Bundle bundle = pluginOSGiFramework.loadPlugin(bundleDescriptor);
+        registry.loadPlugin(bundleDescriptor);
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
         ActionWithReturn<GoPlugin, Object> action = (plugin, pluginDescriptor) -> {
-            assertThat(pluginDescriptor, is(descriptor.descriptor()));
+            assertThat(pluginDescriptor, is(goPluginDescriptor));
             plugin.pluginIdentifier();
             return null;
         };
@@ -222,13 +223,14 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     @Test
     public void shouldSetCurrentThreadContextClassLoaderToBundleClassLoaderToAvoidDependenciesFromApplicationClassloaderMessingAroundWithThePluginBehavior() {
         systemEnvironment.setProperty("gocd.plugins.classloader.old", "false");
-        final GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadPluginBundleDir, true));
-        Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
-        registry.loadPlugin(descriptor);
+        final GoPluginDescriptor goPluginDescriptor = new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadPluginBundleDir, true);
+        final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(goPluginDescriptor);
+        Bundle bundle = pluginOSGiFramework.loadPlugin(bundleDescriptor);
+        registry.loadPlugin(bundleDescriptor);
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
         ActionWithReturn<GoPlugin, Object> action = (plugin, pluginDescriptor) -> {
-            assertThat(pluginDescriptor, is(descriptor.descriptor()));
+            assertThat(pluginDescriptor, is(goPluginDescriptor));
             assertThat(Thread.currentThread().getContextClassLoader().getClass().getCanonicalName(), is(BundleClassLoader.class.getCanonicalName()));
             plugin.pluginIdentifier();
             return null;
@@ -239,13 +241,14 @@ public class FelixGoPluginOSGiFrameworkIntegrationTest {
     @Test
     public void shouldUseOldClassLoaderBehaviourWhenSystemPropertyIsSet() {
         systemEnvironment.setProperty("gocd.plugins.classloader.old", "true");
-        final GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadPluginBundleDir, true));
+        final GoPluginDescriptor goPluginDescriptor = new GoPluginDescriptor("plugin.to.test.classloader", null, null, null, pluginToTestClassloadPluginBundleDir, true);
+        final GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(goPluginDescriptor);
         Bundle bundle = pluginOSGiFramework.loadPlugin(descriptor);
         registry.loadPlugin(descriptor);
         assertThat(bundle.getState(), is(Bundle.ACTIVE));
 
         ActionWithReturn<GoPlugin, Object> action = (plugin, pluginDescriptor) -> {
-            assertThat(pluginDescriptor, is(descriptor.descriptor()));
+            assertThat(pluginDescriptor, is(goPluginDescriptor));
             assertThat(Thread.currentThread().getContextClassLoader().getClass().getCanonicalName(), not(BundleClassLoader.class.getCanonicalName()));
             return null;
         };

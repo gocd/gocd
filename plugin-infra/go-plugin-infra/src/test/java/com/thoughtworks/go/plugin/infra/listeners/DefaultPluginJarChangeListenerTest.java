@@ -206,11 +206,12 @@ public class DefaultPluginJarChangeListenerTest {
                 asList("For a test"), null));
 
         Bundle oldBundle = mock(Bundle.class);
-        GoPluginBundleDescriptor oldPluginDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("some.old.id", "some/path/to/plugin.jar", bundleDirectoryForOldPlugin, true)).setBundle(oldBundle);
+        final GoPluginDescriptor oldPluginDescriptor = GoPluginDescriptor.usingId("some.old.id", "some/path/to/plugin.jar", bundleDirectoryForOldPlugin, true);
+        GoPluginBundleDescriptor oldBundleDescriptor = new GoPluginBundleDescriptor(oldPluginDescriptor).setBundle(oldBundle);
 
         when(goPluginBundleDescriptorBuilder.build(pluginFile, true)).thenReturn(descriptorForInvalidPlugin);
-        when(registry.getPlugin(pluginId)).thenReturn(oldPluginDescriptor.descriptor());
-        when(registry.unloadPlugin(descriptorForInvalidPlugin)).thenReturn(oldPluginDescriptor);
+        when(registry.getPlugin(pluginId)).thenReturn(oldPluginDescriptor);
+        when(registry.unloadPlugin(descriptorForInvalidPlugin)).thenReturn(oldBundleDescriptor);
         doNothing().when(registry).loadPlugin(descriptorForInvalidPlugin);
 
 
@@ -219,7 +220,7 @@ public class DefaultPluginJarChangeListenerTest {
         assertThat(expectedBundleDirectoryForInvalidPlugin.exists(), is(true));
         assertThat(bundleDirectoryForOldPlugin.exists(), is(false));
         verify(registry).unloadPlugin(descriptorForInvalidPlugin);
-        verify(pluginLoader).unloadPlugin(oldPluginDescriptor);
+        verify(pluginLoader).unloadPlugin(oldBundleDescriptor);
         verify(registry).loadPlugin(descriptorForInvalidPlugin);
         verifyNoMoreInteractions(osgiManifestGenerator);
         verifyNoMoreInteractions(pluginLoader);

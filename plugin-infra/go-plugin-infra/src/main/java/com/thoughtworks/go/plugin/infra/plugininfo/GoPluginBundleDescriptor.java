@@ -41,10 +41,6 @@ public class GoPluginBundleDescriptor {
         }
     }
 
-    public GoPluginDescriptor descriptor() {
-        return pluginDescriptors.get(0);
-    }
-
     public List<GoPluginDescriptor> descriptors() {
         return pluginDescriptors;
     }

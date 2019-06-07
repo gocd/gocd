@@ -187,16 +187,17 @@ class PluginLoaderTest {
 
     @Test
     void shouldNotCallPostLoadHooksAndListenersIfBundleFailsToLoad() {
-        GoPluginBundleDescriptor goPluginBundleDescriptor = mock(GoPluginBundleDescriptor.class);
-        final GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
         PluginChangeListener changeListener = mock(PluginChangeListener.class);
         PluginPostLoadHook postLoadHook = mock(PluginPostLoadHook.class);
 
-        when(goPluginBundleDescriptor.isInvalid()).thenReturn(true);
-        when(goPluginBundleDescriptor.bundle()).thenReturn(mock(Bundle.class));
-        when(goPluginBundleDescriptor.descriptors()).thenReturn(singletonList(pluginDescriptor));
-        when(goPluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
-        when(pluginOSGiFramework.loadPlugin(goPluginBundleDescriptor)).thenReturn(mock(Bundle.class));
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("plugin1", null, null, false);
+        GoPluginBundleDescriptor goPluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
+
+        when(pluginOSGiFramework.loadPlugin(goPluginBundleDescriptor)).then(invocation -> {
+            goPluginBundleDescriptor.markAsInvalid(singletonList("Ouch!"), null);
+            goPluginBundleDescriptor.setBundle(mock(Bundle.class));
+            return goPluginBundleDescriptor.bundle();
+        });
 
         pluginLoader.addPluginChangeListener(changeListener);
         pluginLoader.addPluginPostLoadHook(postLoadHook);
@@ -261,41 +262,38 @@ class PluginLoaderTest {
 
     @Test
     void shouldUnloadPluginIfBundleFailsToLoad() {
-        GoPluginBundleDescriptor pluginBundleDescriptor = mock(GoPluginBundleDescriptor.class);
-        when(pluginBundleDescriptor.bundle()).thenReturn(mock(Bundle.class));
-        final GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        when(pluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
-        when(pluginBundleDescriptor.isInvalid()).thenReturn(true);
-        when(pluginBundleDescriptor.bundle()).thenReturn(mock(Bundle.class));
+        GoPluginBundleDescriptor goPluginBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("plugin1", null, null, false));
 
-        pluginLoader.loadPlugin(pluginBundleDescriptor);
+        when(pluginOSGiFramework.loadPlugin(goPluginBundleDescriptor)).then(invocation -> {
+            goPluginBundleDescriptor.markAsInvalid(singletonList("Ouch!"), null);
+            goPluginBundleDescriptor.setBundle(mock(Bundle.class));
+            return goPluginBundleDescriptor.bundle();
+        });
 
-        verify(pluginOSGiFramework, times(1)).unloadPlugin(pluginBundleDescriptor);
+        pluginLoader.loadPlugin(goPluginBundleDescriptor);
+
+        verify(pluginOSGiFramework, times(1)).unloadPlugin(goPluginBundleDescriptor);
     }
 
     @Test
     void shouldUnloadPluginIfBundleThrowsExceptionDuringLoad() {
-        GoPluginBundleDescriptor pluginBundleDescriptor = mock(GoPluginBundleDescriptor.class);
-        final GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("plugin1", null, null, false);
+        GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
 
-        when(pluginBundleDescriptor.isInvalid()).thenReturn(true);
-        when(pluginBundleDescriptor.bundle()).thenReturn(mock(Bundle.class));
-        when(pluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
-
-        final UnsupportedOperationException someRuntimeException = new UnsupportedOperationException("Ouch!");
-        when(pluginOSGiFramework.loadPlugin(pluginBundleDescriptor)).thenThrow(someRuntimeException);
+        when(pluginOSGiFramework.loadPlugin(pluginBundleDescriptor)).then(invocation -> {
+            pluginBundleDescriptor.setBundle(mock(Bundle.class));
+            throw new UnsupportedOperationException("Ouch!");
+        });
 
         try {
             pluginLoader.loadPlugin(pluginBundleDescriptor);
+            fail("Should have failed to load the plugin");
         } catch (RuntimeException e) {
             assertThat(e.getMessage(), containsString("Failed to load plugin"));
         }
 
-        verify(pluginBundleDescriptor).markAsInvalid(eq(singletonList("Ouch!")), eq(someRuntimeException));
+        assertThat(pluginDescriptor.isInvalid(), is(true));
+        assertThat(pluginDescriptor.getStatus().getMessages(), is(singletonList("Ouch!")));
         verify(pluginOSGiFramework, times(1)).unloadPlugin(pluginBundleDescriptor);
-    }
-
-    private PluginStatus invalidPluginStatus() {
-        return new PluginStatus(PluginStatus.State.INVALID).setMessages(singletonList("error"), new RuntimeException("root cause"));
     }
 }

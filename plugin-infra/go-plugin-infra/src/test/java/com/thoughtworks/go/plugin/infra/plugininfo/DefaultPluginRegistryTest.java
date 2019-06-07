@@ -110,12 +110,12 @@ public class DefaultPluginRegistryTest {
 
     @Test
     public void shouldReturnThePluginWithGivenId() {
-        GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id", null, null, true));
-        registry.loadPlugin(descriptor);
+        final GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("id", null, null, true);
+        registry.loadPlugin(new GoPluginBundleDescriptor(pluginDescriptor));
 
-        assertThat(registry.getPlugin("id"), is(descriptor.descriptor()));
-        assertThat(registry.getPlugin("ID"), is(descriptor.descriptor()));
-        assertThat(registry.getPlugin("Id"), is(descriptor.descriptor()));
+        assertThat(registry.getPlugin("id"), is(pluginDescriptor));
+        assertThat(registry.getPlugin("ID"), is(pluginDescriptor));
+        assertThat(registry.getPlugin("Id"), is(pluginDescriptor));
     }
 
     @Test

@@ -79,13 +79,13 @@ public class DefaultPluginRegistry implements PluginRegistry {
         return IterableUtils.find(idToDescriptorMap.values(), object -> object.fileName().equals(fileName));
     }
 
-    public void markPluginInvalid(String pluginId, List<String> messages) {
-        if (pluginId == null || (!idToDescriptorMap.containsKey(pluginId.toLowerCase()))) {
-            throw new RuntimeException(String.format("Invalid plugin identifier '%s'", pluginId));
+    public void markPluginInvalid(String bundleSymbolicName, List<String> messages) {
+        final GoPluginBundleDescriptor bundleDescriptor = getBundleDescriptor(bundleSymbolicName);
+        if (bundleDescriptor == null) {
+            throw new RuntimeException(String.format("Invalid bundle symbolic name '%s'", bundleSymbolicName));
         }
 
-        GoPluginBundleDescriptor goPluginBundleDescriptor = idToDescriptorMap.get(pluginId.toLowerCase()).bundleDescriptor();
-        goPluginBundleDescriptor.markAsInvalid(messages, null);
+        bundleDescriptor.markAsInvalid(messages, null);
     }
 
     @Override
@@ -96,5 +96,16 @@ public class DefaultPluginRegistry implements PluginRegistry {
     @Override
     public void clear() {
         idToDescriptorMap.clear();
+    }
+
+    @Override
+    public GoPluginBundleDescriptor getBundleDescriptor(String bundleSymbolicName) {
+        final GoPluginDescriptor descriptor = IterableUtils.find(idToDescriptorMap.values(),
+                pluginDescriptor -> pluginDescriptor.bundleDescriptor().bundleSymbolicName().equals(bundleSymbolicName));
+
+        if (descriptor == null) {
+            return null;
+        }
+        return descriptor.bundleDescriptor();
     }
 }

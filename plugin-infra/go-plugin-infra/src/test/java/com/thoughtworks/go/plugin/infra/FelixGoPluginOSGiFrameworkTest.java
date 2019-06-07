@@ -20,10 +20,10 @@ import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
-import com.thoughtworks.go.plugin.infra.service.DefaultPluginHealthService;
+import com.thoughtworks.go.plugin.infra.service.DefaultPluginRegistryService;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
-import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
+import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.felix.framework.util.FelixConstants;
 import org.junit.jupiter.api.AfterEach;
@@ -86,7 +86,7 @@ class FelixGoPluginOSGiFrameworkTest {
     void shouldRegisterAnInstanceOfEachOfTheRequiredPluginServicesAfterOSGiFrameworkIsInitialized() {
         spy.start();
 
-        verify(bundleContext).registerService(eq(PluginHealthService.class), any(DefaultPluginHealthService.class), isNull(Dictionary.class));
+        verify(bundleContext).registerService(eq(PluginRegistryService.class), any(DefaultPluginRegistryService.class), isNull(Dictionary.class));
         verify(bundleContext).registerService(eq(LoggingService.class), any(DefaultPluginLoggingService.class), isNull(Dictionary.class));
     }
 

@@ -26,4 +26,6 @@ public interface PluginRegistry {
     GoPluginDescriptor getPlugin(String pluginId);
 
     void clear();
+
+    GoPluginBundleDescriptor getBundleDescriptor(String bundleSymbolicName);
 }

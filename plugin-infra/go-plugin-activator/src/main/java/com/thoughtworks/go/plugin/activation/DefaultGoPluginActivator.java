@@ -23,7 +23,7 @@ import com.thoughtworks.go.plugin.api.annotation.UnLoad;
 import com.thoughtworks.go.plugin.api.info.PluginContext;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
-import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
+import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
@@ -41,7 +41,8 @@ import java.util.*;
 public class DefaultGoPluginActivator implements GoPluginActivator {
     private List<String> errors = new ArrayList<>();
     private List<UnloadMethodInvoker> unloadMethodInvokers = new ArrayList<>();
-    private PluginHealthService pluginHealthService;
+    private PluginRegistryService pluginRegistryService;
+    private static String bundleSymbolicName;
     private static String pluginId;
     private static PluginContext DUMMY_PLUGIN_CONTEXT = new PluginContext() {
     };
@@ -49,8 +50,10 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     @Override
     public void start(BundleContext bundleContext) throws Exception {
         Bundle bundle = bundleContext.getBundle();
-        pluginId = bundle.getSymbolicName();
-        pluginHealthService = bundleContext.getService(bundleContext.getServiceReference(PluginHealthService.class));
+        pluginRegistryService = bundleContext.getService(bundleContext.getServiceReference(PluginRegistryService.class));
+
+        bundleSymbolicName = bundle.getSymbolicName();
+        pluginId = pluginRegistryService.getPluginIDOfFirstPluginInBundle(bundleSymbolicName);
 
         LoggingService loggingService = bundleContext.getService(bundleContext.getServiceReference(LoggingService.class));
         Logger.initialize(loggingService);
@@ -62,12 +65,12 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
 
     private void reportErrorsToHealthService() {
         if (!errors.isEmpty()) {
-            pluginHealthService.reportErrorAndInvalidate(pluginId, errors);
+            pluginRegistryService.reportErrorAndInvalidate(bundleSymbolicName, errors);
         }
     }
 
     private void reportWarningToHealthService(String message) {
-        pluginHealthService.warning(pluginId, message);
+        pluginRegistryService.reportWarning(bundleSymbolicName, message);
     }
 
     //invoked using reflection
@@ -117,7 +120,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
                     String extensionType = findTypeOfExtensionOrAddErrorIfNotFound(serviceImplementation);
                     if (extensionType != null) {
                         Hashtable<String, String> serviceProperties = new Hashtable<>();
-                        serviceProperties.put(Constants.BUNDLE_SYMBOLICNAME, pluginId);
+                        serviceProperties.put(Constants.BUNDLE_SYMBOLICNAME, bundleSymbolicName);
                         serviceProperties.put(Constants.BUNDLE_CATEGORY, extensionType);
                         bundleContext.registerService(serviceInterface, serviceImplementation, serviceProperties);
                     }

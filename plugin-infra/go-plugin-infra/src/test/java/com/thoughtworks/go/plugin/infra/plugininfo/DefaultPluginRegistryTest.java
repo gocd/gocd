@@ -23,9 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static java.util.Collections.singletonList;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasItems;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
@@ -51,7 +49,7 @@ public class DefaultPluginRegistryTest {
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
         registry.loadPlugin(descriptor);
 
-        registry.markPluginInvalid("plugin-id_2", singletonList(message));
+        registry.markPluginInvalid(descriptor.bundleSymbolicName(), singletonList(message));
 
         GoPluginDescriptor loadedDescriptor1 = registry.plugins().get(0);
         assertThat(loadedDescriptor1.isInvalid(), is(true));
@@ -63,24 +61,24 @@ public class DefaultPluginRegistryTest {
     }
 
     @Test
-    public void testThrowExceptionWhenPluginNotFound() {
+    public void testThrowExceptionWhenBundleSymbolicNameNotFound() {
         try {
-            registry.markPluginInvalid("invalid-plugin-id", singletonList("some message"));
+            registry.markPluginInvalid("invalid-bundle-symbolic-name", singletonList("some message"));
             fail("should have thrown exception for plugin not found ");
         } catch (Exception e) {
             assertThat(e instanceof RuntimeException, is(true));
-            assertThat(e.getMessage(), is("Invalid plugin identifier 'invalid-plugin-id'"));
+            assertThat(e.getMessage(), is("Invalid bundle symbolic name 'invalid-bundle-symbolic-name'"));
         }
     }
 
     @Test
-    public void shouldThrowExceptionWhenPluginIdIsNull() {
+    public void shouldThrowExceptionWhenBundleSymbolicNameIsNull() {
         try {
             registry.markPluginInvalid(null, singletonList("some message"));
             fail("should have thrown exception for plugin not found ");
         } catch (Exception e) {
             assertThat(e instanceof RuntimeException, is(true));
-            assertThat(e.getMessage(), is("Invalid plugin identifier 'null'"));
+            assertThat(e.getMessage(), is("Invalid bundle symbolic name 'null'"));
         }
 
     }
@@ -203,4 +201,21 @@ public class DefaultPluginRegistryTest {
         registry.loadPlugin(secondPluginBundleLocation);
     }
 
+    @Test
+    public void shouldFindABundleBySymbolicName() {
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+        final GoPluginBundleDescriptor bundleDescriptor1 = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
+
+        final GoPluginDescriptor pluginDescriptor3 = GoPluginDescriptor.usingId("plugin.3", null, null, false);
+        final GoPluginDescriptor pluginDescriptor4 = GoPluginDescriptor.usingId("plugin.4", null, null, false);
+        final GoPluginBundleDescriptor bundleDescriptor2 = new GoPluginBundleDescriptor(pluginDescriptor3, pluginDescriptor4);
+
+        registry.loadPlugin(bundleDescriptor1);
+        registry.loadPlugin(bundleDescriptor2);
+
+        assertThat(registry.getBundleDescriptor(bundleDescriptor1.bundleSymbolicName()), is(bundleDescriptor1));
+        assertThat(registry.getBundleDescriptor(bundleDescriptor2.bundleSymbolicName()), is(bundleDescriptor2));
+        assertThat(registry.getBundleDescriptor("NON_EXISTENT"), is(nullValue()));
+    }
 }

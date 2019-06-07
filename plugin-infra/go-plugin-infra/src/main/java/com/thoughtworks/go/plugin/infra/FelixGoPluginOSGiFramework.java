@@ -20,10 +20,10 @@ import com.thoughtworks.go.plugin.api.GoPluginApiMarker;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
-import com.thoughtworks.go.plugin.infra.service.DefaultPluginHealthService;
+import com.thoughtworks.go.plugin.infra.service.DefaultPluginRegistryService;
 import com.thoughtworks.go.plugin.infra.service.DefaultPluginLoggingService;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
-import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
+import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.collections4.IteratorUtils;
 import org.apache.commons.collections4.keyvalue.AbstractKeyValue;
@@ -121,7 +121,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     private void registerInternalServices(BundleContext bundleContext) {
-        bundleContext.registerService(PluginHealthService.class, new DefaultPluginHealthService(registry), null);
+        bundleContext.registerService(PluginRegistryService.class, new DefaultPluginRegistryService(registry), null);
         bundleContext.registerService(LoggingService.class, new DefaultPluginLoggingService(systemEnvironment), null);
     }
 
@@ -133,7 +133,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         String osgiFrameworkPackage = Bundle.class.getPackage().getName();
         String goPluginApiPackage = GoPluginApiMarker.class.getPackage().getName();
         String subPackagesOfGoPluginApiPackage = goPluginApiPackage + ".*";
-        String internalServicesPackage = PluginHealthService.class.getPackage().getName();
+        String internalServicesPackage = PluginRegistryService.class.getPackage().getName();
         String javaxPackages = "javax.*";
         String orgXmlSaxPackages = "org.xml.sax, org.xml.sax.*";
         String orgW3cDomPackages = "org.w3c.dom, org.w3c.dom.*";

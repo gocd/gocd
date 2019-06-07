@@ -17,8 +17,10 @@ package com.thoughtworks.go.plugin.internal.api;
 
 import java.util.List;
 
-public interface PluginHealthService {
-    public void reportErrorAndInvalidate(String pluginId, List<String> message);
+public interface PluginRegistryService {
+    void reportErrorAndInvalidate(String bundleSymbolicName, List<String> message);
 
-    public void warning(String pluginId, String message);
+    void reportWarning(String bundleSymbolicName, String message);
+
+    String getPluginIDOfFirstPluginInBundle(String bundleSymbolicName);
 }

@@ -24,7 +24,7 @@ import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
 import com.thoughtworks.go.plugin.internal.api.LoggingService;
-import com.thoughtworks.go.plugin.internal.api.PluginHealthService;
+import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,14 +54,15 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class DefaultGoPluginActivatorTest {
     private static final String CONSTRUCTOR_FAIL_MSG = "Ouch! Failed construction";
     private static final String PLUGIN_ID = "plugin-id";
+    private static final String SYMBOLIC_NAME = "plugin-id";
     private static final String NO_EXT_ERR_MSG = "No extensions found in this plugin.Please check for @Extension annotations";
 
     private DefaultGoPluginActivator activator;
     @Captor private ArgumentCaptor<List<String>> errorMessageCaptor;
     @Mock private BundleContext context;
     @Mock private Bundle bundle;
-    @Mock private ServiceReference<PluginHealthService> pluginHealthServiceReference;
-    @Mock private PluginHealthService pluginHealthService;
+    @Mock private ServiceReference<PluginRegistryService> pluginRegistryServiceReference;
+    @Mock private PluginRegistryService pluginRegistryService;
     @Mock private ServiceReference<LoggingService> loggingServiceReference;
     @Mock private LoggingService loggingService;
     private Enumeration<URL> emptyListOfClassesInBundle = new Hashtable<URL, String>().keys();
@@ -70,14 +71,15 @@ public class DefaultGoPluginActivatorTest {
     public void setUp() {
         initMocks(this);
 
-        when(context.getServiceReference(PluginHealthService.class)).thenReturn(pluginHealthServiceReference);
+        when(context.getServiceReference(PluginRegistryService.class)).thenReturn(pluginRegistryServiceReference);
         when(context.getServiceReference(LoggingService.class)).thenReturn(loggingServiceReference);
-        when(context.getService(pluginHealthServiceReference)).thenReturn(pluginHealthService);
+        when(context.getService(pluginRegistryServiceReference)).thenReturn(pluginRegistryService);
         when(context.getService(loggingServiceReference)).thenReturn(loggingService);
 
         when(context.getBundle()).thenReturn(bundle);
         when(bundle.getSymbolicName()).thenReturn(PLUGIN_ID);
         when(bundle.findEntries("/", "*.class", true)).thenReturn(emptyListOfClassesInBundle);
+        when(pluginRegistryService.getPluginIDOfFirstPluginInBundle(SYMBOLIC_NAME)).thenReturn(PLUGIN_ID);
 
         activator = new DefaultGoPluginActivator();
     }
@@ -320,8 +322,9 @@ public class DefaultGoPluginActivatorTest {
 
     private void verifyThatOneOfTheErrorMessagesIsPresent(String expectedErrorMessage1, String expectedErrorMessage2) {
         ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
-        verify(pluginHealthService).reportErrorAndInvalidate(eq(PLUGIN_ID), captor.capture());
-        verifyNoMoreInteractions(pluginHealthService);
+        verify(pluginRegistryService).getPluginIDOfFirstPluginInBundle(SYMBOLIC_NAME);
+        verify(pluginRegistryService).reportErrorAndInvalidate(eq(PLUGIN_ID), captor.capture());
+        verifyNoMoreInteractions(pluginRegistryService);
 
         String actualErrorMessage = (String) captor.getValue().get(0);
         assertTrue(expectedErrorMessage1.equals(actualErrorMessage) || expectedErrorMessage2.equals(actualErrorMessage));
@@ -336,12 +339,13 @@ public class DefaultGoPluginActivatorTest {
     }
 
     private void verifyErrorsReported(String... errors) {
-        verify(pluginHealthService).reportErrorAndInvalidate(PLUGIN_ID, asList(errors));
-        verifyNoMoreInteractions(pluginHealthService);
+        verify(pluginRegistryService).getPluginIDOfFirstPluginInBundle(SYMBOLIC_NAME);
+        verify(pluginRegistryService).reportErrorAndInvalidate(PLUGIN_ID, asList(errors));
+        verifyNoMoreInteractions(pluginRegistryService);
     }
 
     private void verifyErrorReportedContains(String expectedPartOfErrorMessage) {
-        verify(pluginHealthService).reportErrorAndInvalidate(eq(PLUGIN_ID), errorMessageCaptor.capture());
+        verify(pluginRegistryService).reportErrorAndInvalidate(eq(PLUGIN_ID), errorMessageCaptor.capture());
         List<String> errors = errorMessageCaptor.getValue();
         for (String errorMessage : errors) {
             if (errorMessage.contains(expectedPartOfErrorMessage)) {

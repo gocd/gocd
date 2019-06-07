@@ -48,7 +48,7 @@ public class GoPluginOSGiManifest {
     }
 
     public void update() throws IOException {
-        String symbolicName = descriptor.generateSymbolicName();
+        String symbolicName = descriptor.bundleSymbolicName();
         String classPath = buildClassPath();
         String bundleActivator = DefaultGoPluginActivator.class.getCanonicalName();
 
@@ -71,8 +71,6 @@ public class GoPluginOSGiManifest {
             mainAttributes.put(new Attributes.Name(BUNDLE_SYMBOLICNAME), symbolicName);
             mainAttributes.put(new Attributes.Name(BUNDLE_CLASSPATH), classPath);
             mainAttributes.put(new Attributes.Name(BUNDLE_ACTIVATOR), bundleActivator);
-
-            descriptor.updateBundleInformation(symbolicName, classPath, bundleActivator);
 
             try (FileOutputStream manifestOutputStream = new FileOutputStream(manifestLocation)) {
                 manifest.write(manifestOutputStream);

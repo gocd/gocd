@@ -33,6 +33,7 @@ import static java.util.Collections.singletonMap;
 import static org.assertj.core.api.Assertions.fail;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
@@ -48,10 +49,8 @@ class PluginLoaderTest {
 
     @Test
     void shouldMarkPluginDescriptorInvalidAndNotNotifyPluginChangeListenersWhenPostLoadHookFails() {
-        GoPluginBundleDescriptor pluginBundleDescriptor = mock(GoPluginBundleDescriptor.class);
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        when(pluginBundleDescriptor.isInvalid()).thenReturn(false);
-        when(pluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("some.id.1", null, null, false);
+        GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
 
         final PluginPostLoadHook postLoadHook = mock(PluginPostLoadHook.class);
         when(postLoadHook.run(eq(pluginDescriptor), any())).thenReturn(new PluginPostLoadHook.Result(true, "Something went wrong"));
@@ -65,17 +64,16 @@ class PluginLoaderTest {
 
         verifyZeroInteractions(listener);
 
-        verify(pluginBundleDescriptor).markAsInvalid(eq(singletonList("Something went wrong")), eq(null));
+        assertThat(pluginDescriptor.isInvalid(), is(true));
+        assertThat(pluginDescriptor.getStatus().getMessages(), is(singletonList("Something went wrong")));
         verify(postLoadHook, times(1)).run(eq(pluginDescriptor), any());
         verify(pluginOSGiFramework, times(0)).unloadPlugin(pluginBundleDescriptor);
     }
 
     @Test
     void shouldRunPostLoadHooksInOrderOfRegistration() {
-        GoPluginBundleDescriptor pluginBundleDescriptor = mock(GoPluginBundleDescriptor.class);
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        when(pluginBundleDescriptor.isInvalid()).thenReturn(false);
-        when(pluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("some.id.1", null, null, false);
+        GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
 
         final PluginPostLoadHook postLoadHook1 = mock(PluginPostLoadHook.class);
         when(postLoadHook1.run(eq(pluginDescriptor), anyMap())).thenReturn(new PluginPostLoadHook.Result(false, null));
@@ -93,7 +91,8 @@ class PluginLoaderTest {
 
         verifyZeroInteractions(listener1);
 
-        verify(pluginBundleDescriptor).markAsInvalid(eq(singletonList("Something went wrong")), eq(null));
+        assertThat(pluginDescriptor.isInvalid(), is(true));
+        assertThat(pluginDescriptor.getStatus().getMessages(), is(singletonList("Something went wrong")));
 
         final InOrder inOrder = inOrder(postLoadHook1, postLoadHook2);
         inOrder.verify(postLoadHook1).run(eq(pluginDescriptor), anyMap());
@@ -103,11 +102,8 @@ class PluginLoaderTest {
     @Test
     void shouldSendExtensionsInfoToPostLoadHooksDuringLoad() {
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
+        GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
         when(pluginDescriptor.id()).thenReturn("some-id");
-
-        GoPluginBundleDescriptor pluginBundleDescriptor = mock(GoPluginBundleDescriptor.class);
-        when(pluginBundleDescriptor.isInvalid()).thenReturn(false);
-        when(pluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
 
         final Map<String, List<String>> extensionsInfo = singletonMap("elastic-agent", singletonList("1.0"));
         when(pluginOSGiFramework.getExtensionsInfoFromThePlugin("some-id")).thenReturn(extensionsInfo);
@@ -125,10 +121,8 @@ class PluginLoaderTest {
 
     @Test
     void shouldNotifyAllPluginChangeListenerOncePluginIsLoaded() {
-        GoPluginBundleDescriptor pluginBundleDescriptor = mock(GoPluginBundleDescriptor.class);
         GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        when(pluginBundleDescriptor.isInvalid()).thenReturn(false);
-        when(pluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
+        GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
 
         PluginChangeListener listener1 = mock(PluginChangeListener.class);
         PluginChangeListener listener2 = mock(PluginChangeListener.class);
@@ -147,13 +141,33 @@ class PluginLoaderTest {
     }
 
     @Test
+    void shouldNotifyPluginPostLoadHooksAndChangeListenersForEachPluginInBundleOncePluginIsLoaded() {
+        PluginChangeListener listener = mock(PluginChangeListener.class);
+        PluginPostLoadHook postLoadHook = mock(PluginPostLoadHook.class);
+
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+        GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
+
+        when(postLoadHook.run(eq(pluginDescriptor1), anyMap())).thenReturn(new PluginPostLoadHook.Result(false, null));
+        when(postLoadHook.run(eq(pluginDescriptor2), anyMap())).thenReturn(new PluginPostLoadHook.Result(false, null));
+
+        pluginLoader.addPluginChangeListener(listener);
+        pluginLoader.addPluginPostLoadHook(postLoadHook);
+        pluginLoader.loadPlugin(pluginBundleDescriptor);
+
+        final InOrder inOrder = inOrder(listener, postLoadHook);
+        inOrder.verify(postLoadHook, times(1)).run(eq(pluginDescriptor1), anyMap());
+        inOrder.verify(postLoadHook, times(1)).run(eq(pluginDescriptor2), anyMap());
+        inOrder.verify(listener, times(1)).pluginLoaded(pluginDescriptor1);
+        inOrder.verify(listener, times(1)).pluginLoaded(pluginDescriptor2);
+    }
+
+    @Test
     void shouldMarkThePluginAsInvalidAndUnloadItIfAnyPluginChangeListenerThrowsAnExceptionDuringLoad() {
-        GoPluginBundleDescriptor pluginBundleDescriptor = mock(GoPluginBundleDescriptor.class);
-        GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        when(pluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
-        when(pluginBundleDescriptor.bundle()).thenReturn(mock(Bundle.class));
-        when(pluginBundleDescriptor.isInvalid()).thenReturn(false);
-        when(pluginBundleDescriptor.getStatus()).thenReturn(invalidPluginStatus());
+        GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("some.id.1", null, null, false);
+        GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
+        pluginBundleDescriptor.setBundle(mock(Bundle.class));
 
         final PluginChangeListener changeListener = mock(PluginChangeListener.class);
         doThrow(new RuntimeException("some error")).when(changeListener).pluginLoaded(pluginDescriptor);
@@ -163,8 +177,10 @@ class PluginLoaderTest {
             pluginLoader.loadPlugin(pluginBundleDescriptor);
             fail("should have thrown an exception");
         } catch (Exception e) {
+            assertThat(pluginDescriptor.isInvalid(), is(true));
+            assertThat(pluginDescriptor.getStatus().getMessages(), is(singletonList("some error")));
+
             assertThat(e.getMessage(), containsString("Failed to load plugin:"));
-            verify(pluginBundleDescriptor, times(1)).markAsInvalid(eq(singletonList("some error")), any());
             verify(pluginOSGiFramework, times(1)).unloadPlugin(pluginBundleDescriptor);
         }
     }
@@ -179,7 +195,6 @@ class PluginLoaderTest {
         when(goPluginBundleDescriptor.isInvalid()).thenReturn(true);
         when(goPluginBundleDescriptor.bundle()).thenReturn(mock(Bundle.class));
         when(goPluginBundleDescriptor.descriptors()).thenReturn(singletonList(pluginDescriptor));
-        when(goPluginBundleDescriptor.getStatus()).thenReturn(invalidPluginStatus());
         when(goPluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
         when(pluginOSGiFramework.loadPlugin(goPluginBundleDescriptor)).thenReturn(mock(Bundle.class));
 
@@ -252,7 +267,6 @@ class PluginLoaderTest {
         when(pluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
         when(pluginBundleDescriptor.isInvalid()).thenReturn(true);
         when(pluginBundleDescriptor.bundle()).thenReturn(mock(Bundle.class));
-        when(pluginBundleDescriptor.getStatus()).thenReturn(invalidPluginStatus());
 
         pluginLoader.loadPlugin(pluginBundleDescriptor);
 
@@ -266,7 +280,6 @@ class PluginLoaderTest {
 
         when(pluginBundleDescriptor.isInvalid()).thenReturn(true);
         when(pluginBundleDescriptor.bundle()).thenReturn(mock(Bundle.class));
-        when(pluginBundleDescriptor.getStatus()).thenReturn(invalidPluginStatus());
         when(pluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
 
         final UnsupportedOperationException someRuntimeException = new UnsupportedOperationException("Ouch!");

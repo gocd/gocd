@@ -119,8 +119,8 @@ public class GoPluginBundleDescriptor {
         return bundle;
     }
 
-    public PluginStatus getStatus() {
-        return pluginDescriptors.get(0).getStatus();
+    public List<String> getMessages() {
+        return descriptors().stream().flatMap(descriptor -> descriptor.getStatus().getMessages().stream()).collect(Collectors.toList());
     }
 
     public void updateBundleInformation(String symbolicName, String classPath, String bundleActivator) {

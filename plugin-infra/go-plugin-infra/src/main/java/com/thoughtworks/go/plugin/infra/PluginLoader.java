@@ -99,23 +99,27 @@ public class PluginLoader {
     }
 
     private void doPostBundleInstallActivities(GoPluginBundleDescriptor pluginBundleDescriptor) {
-        for (PluginPostLoadHook pluginPostLoadHook : pluginPostLoadHooks) {
-            final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginBundleDescriptor.descriptor(), pluginOSGiFramework.getExtensionsInfoFromThePlugin(pluginBundleDescriptor.descriptor().id()));
-            if (result.isAFailure()) {
-                pluginBundleDescriptor.markAsInvalid(singletonList(result.getMessage()), null);
-                LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.getMessage()));
-                return;
+        for (GoPluginDescriptor pluginDescriptor : pluginBundleDescriptor.descriptors()) {
+            for (PluginPostLoadHook pluginPostLoadHook : pluginPostLoadHooks) {
+                final PluginPostLoadHook.Result result = pluginPostLoadHook.run(pluginDescriptor, pluginOSGiFramework.getExtensionsInfoFromThePlugin(pluginDescriptor.id()));
+                if (result.isAFailure()) {
+                    pluginBundleDescriptor.markAsInvalid(singletonList(result.getMessage()), null);
+                    LOGGER.error(format("Skipped notifying all %s because of error: %s", PluginChangeListener.class.getSimpleName(), result.getMessage()));
+                    return;
+                }
             }
         }
 
         if (!pluginBundleDescriptor.isInvalid()) {
-            IterableUtils.forEach(pluginChangeListeners, listener -> listener.pluginLoaded(pluginBundleDescriptor.descriptor()));
+            IterableUtils.forEach(pluginBundleDescriptor.descriptors(), descriptor -> {
+                IterableUtils.forEach(pluginChangeListeners, listener -> listener.pluginLoaded(descriptor));
+            });
         }
     }
 
     private void handlePluginInvalidation(GoPluginBundleDescriptor bundleDescriptor, File bundleLocation) {
         String failureMsg = format("Failed to load plugin: %s. Plugin is invalid. Reasons %s",
-                bundleLocation, bundleDescriptor.getStatus().getMessages());
+                bundleLocation, bundleDescriptor.getMessages());
         LOGGER.error(failureMsg);
         unloadPlugin(bundleDescriptor);
     }

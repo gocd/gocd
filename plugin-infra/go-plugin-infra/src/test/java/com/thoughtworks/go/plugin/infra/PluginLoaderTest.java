@@ -178,6 +178,7 @@ class PluginLoaderTest {
 
         when(goPluginBundleDescriptor.isInvalid()).thenReturn(true);
         when(goPluginBundleDescriptor.bundle()).thenReturn(mock(Bundle.class));
+        when(goPluginBundleDescriptor.descriptors()).thenReturn(singletonList(pluginDescriptor));
         when(goPluginBundleDescriptor.getStatus()).thenReturn(invalidPluginStatus());
         when(goPluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
         when(pluginOSGiFramework.loadPlugin(goPluginBundleDescriptor)).thenReturn(mock(Bundle.class));
@@ -194,10 +195,9 @@ class PluginLoaderTest {
 
     @Test
     void shouldRunOtherUnloadListenersAndUnloadPluginBundleEvenIfAListenerFails() {
-        GoPluginBundleDescriptor pluginBundleDescriptor = mock(GoPluginBundleDescriptor.class);
-        when(pluginBundleDescriptor.bundle()).thenReturn(mock(Bundle.class));
         final GoPluginDescriptor pluginDescriptor = mock(GoPluginDescriptor.class);
-        when(pluginBundleDescriptor.descriptor()).thenReturn(pluginDescriptor);
+        GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
+        pluginBundleDescriptor.setBundle(mock(Bundle.class));
 
         PluginChangeListener listenerWhichWorks1 = mock(PluginChangeListener.class, "Listener Which Works: 1");
         PluginChangeListener listenerWhichWorks2 = mock(PluginChangeListener.class, "Listener Which Works: 2");
@@ -214,6 +214,23 @@ class PluginLoaderTest {
         verify(listenerWhichThrowsWhenUnloading, times(1)).pluginUnLoaded(pluginDescriptor);
         verify(listenerWhichWorks2, times(1)).pluginUnLoaded(pluginDescriptor);
 
+        verify(pluginOSGiFramework, times(1)).unloadPlugin(pluginBundleDescriptor);
+    }
+
+    @Test
+    void shouldCallUnloadListenersForEveryPluginInBundle() {
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+        GoPluginBundleDescriptor pluginBundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
+        pluginBundleDescriptor.setBundle(mock(Bundle.class));
+
+        PluginChangeListener pluginChangeListener = mock(PluginChangeListener.class, "Listener Which Works: 1");
+
+        pluginLoader.addPluginChangeListener(pluginChangeListener);
+        pluginLoader.unloadPlugin(pluginBundleDescriptor);
+
+        verify(pluginChangeListener, times(1)).pluginUnLoaded(pluginDescriptor1);
+        verify(pluginChangeListener, times(1)).pluginUnLoaded(pluginDescriptor2);
         verify(pluginOSGiFramework, times(1)).unloadPlugin(pluginBundleDescriptor);
     }
 

@@ -17,6 +17,7 @@
 package com.thoughtworks.go.plugin.infra;
 
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import org.apache.commons.collections4.IterableUtils;
 import org.osgi.framework.Bundle;
 import org.slf4j.Logger;
@@ -84,11 +85,13 @@ public class PluginLoader {
             return;
         }
 
-        for (PluginChangeListener listener : pluginChangeListeners) {
-            try {
-                listener.pluginUnLoaded(descriptorOfRemovedPlugin.descriptor());
-            } catch (Exception e) {
-                LOGGER.warn("A plugin unload listener ({}) failed: {}", listener.toString(), descriptorOfRemovedPlugin, e);
+        for (GoPluginDescriptor pluginDescriptor : descriptorOfRemovedPlugin.descriptors()) {
+            for (PluginChangeListener listener : pluginChangeListeners) {
+                try {
+                    listener.pluginUnLoaded(pluginDescriptor);
+                } catch (Exception e) {
+                    LOGGER.warn("A plugin unload listener ({}) failed: {}", listener.toString(), pluginDescriptor, e);
+                }
             }
         }
 
@@ -110,10 +113,10 @@ public class PluginLoader {
         }
     }
 
-    private void handlePluginInvalidation(GoPluginBundleDescriptor pluginDescriptor, File bundleLocation) {
+    private void handlePluginInvalidation(GoPluginBundleDescriptor bundleDescriptor, File bundleLocation) {
         String failureMsg = format("Failed to load plugin: %s. Plugin is invalid. Reasons %s",
-                bundleLocation, pluginDescriptor.getStatus().getMessages());
+                bundleLocation, bundleDescriptor.getStatus().getMessages());
         LOGGER.error(failureMsg);
-        unloadPlugin(pluginDescriptor);
+        unloadPlugin(bundleDescriptor);
     }
 }

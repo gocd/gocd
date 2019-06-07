@@ -56,7 +56,7 @@ describe "_form.html.erb" do
     render :partial => "admin/materials/svn/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO", :edit_mode => true}}
 
     expect(response.body).to have_selector(".popup_form input[disabled='disabled'][type='password'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD}]'][value='']")
-    expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD_CHANGED}]']")
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material[#{com.thoughtworks.go.config.materials.svn.SvnMaterialConfig::PASSWORD_CHANGED}]']", :visible => false)
   end
 
   it "should display the password field as textbox in new mode" do
@@ -125,7 +125,7 @@ describe "_form.html.erb" do
   end
 
   it "should not generate the id for url and username fields" do
-    render partial: "admin/materials/svn/form.html", locals: { scope: { material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo" }}
+    render partial: "admin/materials/svn/form.html", locals: {scope: {material: @material_config, url: "http://google.com", method: "POST", submit_label: "foo"}}
 
     Capybara.string(response.body).all(".form_item .form_item_block").tap do |text_field|
       expect(text_field[1]).to_not have_selector("input[type='text'][class='form_input url'][id]")

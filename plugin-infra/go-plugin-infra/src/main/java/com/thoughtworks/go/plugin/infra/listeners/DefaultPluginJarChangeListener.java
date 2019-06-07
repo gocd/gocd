@@ -34,6 +34,7 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.util.SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH;
 import static java.util.Collections.singletonList;
@@ -138,16 +139,16 @@ public class DefaultPluginJarChangeListener implements PluginJarChangeListener {
         }
     }
 
-    private void validatePluginCompatibilityWithGoCD(GoPluginBundleDescriptor descriptor) {
+    private void validatePluginCompatibilityWithGoCD(GoPluginBundleDescriptor bundleDescriptor) {
         try {
-            if (!descriptor.isCurrentGocdVersionValidForThisPlugin()) {
-                List<String> messages = Arrays.asList(String.format("Plugin with ID (%s) is not valid: Incompatible with GoCD version '%s'. Compatible version is: %s.",
-                        descriptor.id(), CurrentGoCDVersion.getInstance().goVersion(), descriptor.about().targetGoVersion()));
-                descriptor.markAsInvalid(messages, null);
+            for (GoPluginDescriptor pluginDescriptor : bundleDescriptor.descriptors()) {
+                if (!pluginDescriptor.isCurrentGocdVersionValidForThisPlugin()) {
+                    markAllPluginsInBundleAsInvalid(bundleDescriptor, "Incompatible with GoCD version '%s'. Compatible version is: %s.", CurrentGoCDVersion.getInstance().goVersion(), pluginDescriptor.about().targetGoVersion());
+                }
             }
         } catch (IllegalArgumentException e) {
-            List<String> messages = Arrays.asList(String.format("Plugin with ID (%s) is not valid: Incorrect target gocd version(%s) specified.", descriptor.id(), descriptor.about().targetGoVersion()));
-            descriptor.markAsInvalid(messages, null);
+            String targetVersions = bundleDescriptor.descriptors().stream().map(descriptor -> descriptor.about().targetGoVersion()).collect(Collectors.joining(" & "));
+            markAllPluginsInBundleAsInvalid(bundleDescriptor, "Incorrect target GoCD version (%s) specified.", targetVersions);
         }
     }
 

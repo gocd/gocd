@@ -327,6 +327,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
         ServiceReference<?>[] references = installedBundleContext.getServiceReferences(GoPlugin.class.getName(), null);
         assertEquals("No service registered for GoPlugin class", 1, references.length);
         assertEquals("Symbolic Name property should be present", GO_TEST_DUMMY_SYMBOLIC_NAME, references[0].getProperty(Constants.BUNDLE_SYMBOLICNAME));
+        assertEquals("Plugin ID property should be present", GO_TEST_DUMMY_SYMBOLIC_NAME, references[0].getProperty("PLUGIN_ID"));
         assertEquals(extensionClass.getName(), installedBundleContext.getService(references[0]).getClass().getName());
     }
 

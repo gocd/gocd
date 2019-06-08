@@ -110,24 +110,24 @@ class FelixGoPluginOSGiFrameworkTest {
     }
 
     @Test
-    void doOnShouldThrowAnExceptionWhenThereAreMultipleServicesWithSamePluginIdAndSameExtensionType_IdeallyThisShouldNotHappenInProductionSincePluginIdIsSymbolicName() throws Exception {
+    void doOnShouldThrowAnExceptionWhenThereAreMultipleServicesWithSamePluginIdAndSameExtensionType_IdeallyThisShouldNotHappenInProduction() throws Exception {
         SomeInterface firstService = mock(SomeInterface.class);
         SomeInterface secondService = mock(SomeInterface.class);
 
-        String symbolicName = "same_symbolic_name";
-        registerServicesWithSameSymbolicName(symbolicName, "test-extension", firstService, secondService);
+        String pluginID = "same_symbolic_name";
+        registerServicesWithSamePluginID(pluginID, "test-extension", firstService, secondService);
         spy.start();
 
         try {
-            spy.doOn(SomeInterface.class, symbolicName, "test-extension", (obj, pluginDescriptor) -> {
-                assertThat(pluginDescriptor).isEqualTo(buildExpectedDescriptor(symbolicName));
+            spy.doOn(SomeInterface.class, pluginID, "test-extension", (obj, pluginDescriptor) -> {
+                assertThat(pluginDescriptor).isEqualTo(buildExpectedDescriptor(pluginID));
                 return obj.someMethodWithReturn();
             });
             fail("Should throw plugin framework exception");
         } catch (GoPluginFrameworkException ex) {
             assertThat(ex.getMessage().startsWith("More than one reference found")).isTrue();
             assertThat(ex.getMessage().contains(SomeInterface.class.getCanonicalName())).isTrue();
-            assertThat(ex.getMessage().contains(symbolicName)).isTrue();
+            assertThat(ex.getMessage().contains(pluginID)).isTrue();
         }
 
         verify(firstService, never()).someMethodWithReturn();
@@ -141,13 +141,13 @@ class FelixGoPluginOSGiFrameworkTest {
         SomeInterface firstService = mock(SomeInterface.class);
         SomeInterface secondService = mock(SomeInterface.class);
 
-        String symbolicName = "dummy_symbolic_name";
-        registerServicesWithSameSymbolicName(symbolicName, "test-extension", firstService, secondService);
+        String pluginID = "dummy_symbolic_name";
+        registerServicesWithSamePluginID(pluginID, "test-extension", firstService, secondService);
         spy.start();
 
         try {
-            spy.doOn(SomeOtherInterface.class, symbolicName, "test-extension", (obj, pluginDescriptor) -> {
-                assertThat(pluginDescriptor).isEqualTo(buildExpectedDescriptor(symbolicName));
+            spy.doOn(SomeOtherInterface.class, pluginID, "test-extension", (obj, pluginDescriptor) -> {
+                assertThat(pluginDescriptor).isEqualTo(buildExpectedDescriptor(pluginID));
                 throw new RuntimeException("Should Not Be invoked");
             });
             fail("Should throw plugin framework exception");
@@ -155,7 +155,7 @@ class FelixGoPluginOSGiFrameworkTest {
         } catch (GoPluginFrameworkException ex) {
             assertThat(ex.getMessage().startsWith("No reference found")).isTrue();
             assertThat(ex.getMessage().contains(SomeOtherInterface.class.getCanonicalName())).isTrue();
-            assertThat(ex.getMessage().contains(symbolicName)).isTrue();
+            assertThat(ex.getMessage().contains(pluginID)).isTrue();
         }
 
         verify(firstService, never()).someMethodWithReturn();
@@ -248,32 +248,30 @@ class FelixGoPluginOSGiFrameworkTest {
         verify(bundle, never()).uninstall();
     }
 
-    private void registerServicesWithSameSymbolicName(String symbolicName, String extensionType, SomeInterface... someInterfaces) throws InvalidSyntaxException {
+    private void registerServicesWithSamePluginID(String pluginID, String extensionType, SomeInterface... someInterfaces) throws InvalidSyntaxException {
         ArrayList<ServiceReference<SomeInterface>> references = new ArrayList<>();
 
         for (SomeInterface someInterface : someInterfaces) {
             ServiceReference<SomeInterface> reference = mock(ServiceReference.class);
             Bundle bundle = mock(Bundle.class);
             when(reference.getBundle()).thenReturn(bundle);
-            when(bundle.getSymbolicName()).thenReturn(symbolicName);
             when(bundleContext.getService(reference)).thenReturn(someInterface);
             references.add(reference);
         }
 
-        String propertyFormat = String.format("(&(%s=%s)(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, symbolicName, Constants.BUNDLE_CATEGORY, extensionType);
+        String propertyFormat = String.format("(&(%s=%s)(%s=%s))", "PLUGIN_ID", pluginID, Constants.BUNDLE_CATEGORY, extensionType);
         when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(references);
-        when(registry.getPlugin(symbolicName)).thenReturn(buildExpectedDescriptor(symbolicName));
+        when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
     }
 
     private void registerService(SomeInterface someInterface, String pluginID, String extension) throws InvalidSyntaxException {
         ServiceReference<SomeInterface> reference = mock(ServiceReference.class);
 
         when(reference.getBundle()).thenReturn(bundle);
-        when(bundle.getSymbolicName()).thenReturn(pluginID);
         when(bundleContext.getService(reference)).thenReturn(someInterface);
         when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
 
-        String propertyFormat = String.format("(&(%s=%s)(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginID, Constants.BUNDLE_CATEGORY, extension);
+        String propertyFormat = String.format("(&(%s=%s)(%s=%s))", "PLUGIN_ID", pluginID, Constants.BUNDLE_CATEGORY, extension);
         when(bundleContext.getServiceReferences(SomeInterface.class, propertyFormat)).thenReturn(singletonList(reference));
 
         when(bundleContext.getServiceReferences(SomeInterface.class, null)).thenReturn(singletonList(reference));
@@ -283,13 +281,12 @@ class FelixGoPluginOSGiFrameworkTest {
         final List<ServiceReference<GoPlugin>> serviceReferences = Arrays.stream(someInterfaces).map(someInterface -> {
             ServiceReference<GoPlugin> reference = mock(ServiceReference.class);
             when(reference.getBundle()).thenReturn(bundle);
-            when(bundle.getSymbolicName()).thenReturn(pluginID);
             when(bundleContext.getService(reference)).thenReturn(someInterface);
             when(registry.getPlugin(pluginID)).thenReturn(buildExpectedDescriptor(pluginID));
             return reference;
         }).collect(Collectors.toList());
 
-        String propertyFormat = String.format("(&(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginID);
+        String propertyFormat = String.format("(&(%s=%s))", "PLUGIN_ID", pluginID);
         when(bundleContext.getServiceReferences(GoPlugin.class, propertyFormat)).thenReturn(serviceReferences);
     }
 

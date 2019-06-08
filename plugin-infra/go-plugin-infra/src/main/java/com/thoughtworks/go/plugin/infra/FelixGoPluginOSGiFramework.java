@@ -148,11 +148,6 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         return config;
     }
 
-    private <T> GoPluginDescriptor getDescriptorFor(ServiceReference<T> serviceReference) {
-        String symbolicName = serviceReference.getBundle().getSymbolicName();
-        return registry.getPlugin(symbolicName);
-    }
-
     @Override
     public <T, R> R doOn(Class<T> serviceReferenceClass, String pluginId, String extensionType, ActionWithReturn<T, R> action) {
         if (framework == null) {
@@ -164,7 +159,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         Collection<ServiceReference<T>> matchingServiceReferences = findServiceReferenceWithPluginIdAndExtensionType(serviceReferenceClass, pluginId, extensionType, bundleContext);
         ServiceReference<T> serviceReference = validateAndGetTheOnlyReferenceWithGivenSymbolicName(matchingServiceReferences, serviceReferenceClass, pluginId);
         T service = bundleContext.getService(serviceReference);
-        return executeActionOnTheService(action, service, getDescriptorFor(serviceReference));
+        return executeActionOnTheService(action, service, registry.getPlugin(pluginId));
     }
 
     @Override
@@ -194,7 +189,7 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
         return serviceReferences.stream()
                 .map(serviceReference -> {
                     GoPlugin service = bundleContext.getService(serviceReference);
-                    return executeActionOnTheService(action, service, getDescriptorFor(serviceReference));
+                    return executeActionOnTheService(action, service, registry.getPlugin(pluginId));
                 }).collect(toMap(AbstractKeyValue::getKey, AbstractKeyValue::getValue));
     }
 
@@ -217,12 +212,12 @@ public class FelixGoPluginOSGiFramework implements GoPluginOSGiFramework {
     }
 
     private <T> Collection<ServiceReference<T>> findServiceReferenceWithPluginIdAndExtensionType(Class<T> serviceReferenceClass, String pluginId, String extensionType, BundleContext bundleContext) {
-        String filter = format("(&(%s=%s)(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginId, Constants.BUNDLE_CATEGORY, extensionType);
+        String filter = format("(&(%s=%s)(%s=%s))", "PLUGIN_ID", pluginId, Constants.BUNDLE_CATEGORY, extensionType);
         return getServiceReferences(serviceReferenceClass, bundleContext, filter);
     }
 
     private <T> Collection<ServiceReference<T>> findServiceReferenceByPluginId(Class<T> serviceReferenceClass, String pluginId, BundleContext bundleContext) {
-        String filter = format("(&(%s=%s))", Constants.BUNDLE_SYMBOLICNAME, pluginId);
+        String filter = format("(&(%s=%s))", "PLUGIN_ID", pluginId);
         return getServiceReferences(serviceReferenceClass, bundleContext, filter);
     }
 

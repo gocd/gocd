@@ -170,7 +170,7 @@ public class GoPluginDescriptor implements PluginDescriptor {
         return extensionClasses;
     }
 
-    GoPluginDescriptor addExtensionClasses(List<String> extensionClasses) {
+    public GoPluginDescriptor addExtensionClasses(List<String> extensionClasses) {
         this.extensionClasses = extensionClasses;
         return this;
     }

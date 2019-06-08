@@ -24,6 +24,7 @@ import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
 import org.junit.Before;
 import org.junit.Test;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -44,7 +45,7 @@ public class DefaultPluginRegistryServiceTest {
     public void shouldMarkPluginAsInvalidWhenServiceReportsAnError() {
         String bundleSymbolicName = "plugin-id";
         String message = "plugin is broken beyond repair";
-        List<String> reasons = Arrays.asList(message);
+        List<String> reasons = asList(message);
         doNothing().when(pluginRegistry).markPluginInvalid(bundleSymbolicName, reasons);
         serviceDefault.reportErrorAndInvalidate(bundleSymbolicName, reasons);
         verify(pluginRegistry).markPluginInvalid(bundleSymbolicName, reasons);
@@ -54,7 +55,7 @@ public class DefaultPluginRegistryServiceTest {
     public void shouldNotThrowExceptionWhenPluginIsNotFound() {
         String bundleSymbolicName = "invalid-plugin";
         String message = "some msg";
-        List<String> reasons = Arrays.asList(message);
+        List<String> reasons = asList(message);
         doThrow(new RuntimeException()).when(pluginRegistry).markPluginInvalid(bundleSymbolicName, reasons);
         try {
             serviceDefault.reportErrorAndInvalidate(bundleSymbolicName, reasons);
@@ -74,5 +75,12 @@ public class DefaultPluginRegistryServiceTest {
         final String pluginIDOfFirstPluginInBundle = serviceDefault.getPluginIDOfFirstPluginInBundle(bundleDescriptor.bundleSymbolicName());
 
         assertThat(pluginIDOfFirstPluginInBundle, is("plugin.1"));
+    }
+
+    @Test
+    public void shouldGetPluginIDForAGivenBundleAndExtensionClass() {
+        when(pluginRegistry.pluginIDFor("SYM_1", "com.path.to.MyClass")).thenReturn("plugin_1");
+
+        assertThat(serviceDefault.pluginIDFor("SYM_1", "com.path.to.MyClass"), is("plugin_1"));
     }
 }

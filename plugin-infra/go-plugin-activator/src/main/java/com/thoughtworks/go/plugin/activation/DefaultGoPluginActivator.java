@@ -34,6 +34,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.*;
 
 /* Added as a part of the go-plugin-activator dependency JAR into each plugin.
@@ -118,10 +119,19 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
                 Class serviceInterface = entry.getKey();
                 for (Object serviceImplementation : entry.getValue()) {
                     String extensionType = findTypeOfExtensionOrAddErrorIfNotFound(serviceImplementation);
+
+                    final String extensionClassCannonicalName = serviceImplementation.getClass().getCanonicalName();
+                    final String pluginID = pluginRegistryService.pluginIDFor(bundleSymbolicName, extensionClassCannonicalName);
+                    if (pluginID == null) {
+                        errors.add(MessageFormat.format("Unable to find plugin ID for extension class ({0}) in bundle {1}", extensionClassCannonicalName, bundleSymbolicName));
+                        continue;
+                    }
+
                     if (extensionType != null) {
                         Hashtable<String, String> serviceProperties = new Hashtable<>();
                         serviceProperties.put(Constants.BUNDLE_SYMBOLICNAME, bundleSymbolicName);
                         serviceProperties.put(Constants.BUNDLE_CATEGORY, extensionType);
+                        serviceProperties.put("PLUGIN_ID", pluginID);
                         bundleContext.registerService(serviceInterface, serviceImplementation, serviceProperties);
                     }
                 }

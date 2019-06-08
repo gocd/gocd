@@ -28,4 +28,6 @@ public interface PluginRegistry {
     void clear();
 
     GoPluginBundleDescriptor getBundleDescriptor(String bundleSymbolicName);
+
+    String pluginIDFor(String bundleSymbolicName, String extensionClassCannonicalName);
 }

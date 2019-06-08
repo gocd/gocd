@@ -108,4 +108,19 @@ public class DefaultPluginRegistry implements PluginRegistry {
         }
         return descriptor.bundleDescriptor();
     }
+
+    @Override
+    public String pluginIDFor(String bundleSymbolicName, String extensionClassCannonicalName) {
+        final GoPluginBundleDescriptor bundleDescriptor = getBundleDescriptor(bundleSymbolicName);
+
+        final GoPluginDescriptor firstPluginDescriptor = bundleDescriptor.descriptors().get(0);
+        if (firstPluginDescriptor.extensionClasses().isEmpty()) {
+            return firstPluginDescriptor.id();
+        }
+
+        final GoPluginDescriptor descriptorWithExtension = IterableUtils.find(bundleDescriptor.descriptors(),
+                pluginDescriptor -> pluginDescriptor.extensionClasses().contains(extensionClassCannonicalName));
+
+        return descriptorWithExtension == null ? null : descriptorWithExtension.id();
+    }
 }

@@ -22,6 +22,7 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Test;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -217,5 +218,34 @@ public class DefaultPluginRegistryTest {
         assertThat(registry.getBundleDescriptor(bundleDescriptor1.bundleSymbolicName()), is(bundleDescriptor1));
         assertThat(registry.getBundleDescriptor(bundleDescriptor2.bundleSymbolicName()), is(bundleDescriptor2));
         assertThat(registry.getBundleDescriptor("NON_EXISTENT"), is(nullValue()));
+    }
+
+    @Test
+    public void shouldGetPluginIDForAGivenBundleExtensionClass() {
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
+        pluginDescriptor1.addExtensionClasses(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2"));
+
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+        pluginDescriptor2.addExtensionClasses(singletonList("com.path.to.ExtensionClass3"));
+
+        final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
+
+        registry.loadPlugin(bundleDescriptor);
+
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass1"), is("plugin.1"));
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass2"), is("plugin.1"));
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass3"), is("plugin.2"));
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.DOES_NOT_EXIST"), is(nullValue()));
+    }
+
+    @Test
+    public void shouldHandleLegacyPluginWhichHasNoDefinedExtensions_WhenAskedForPluginID() {
+        final GoPluginDescriptor pluginDescriptor = GoPluginDescriptor.usingId("plugin.1", null, null, false);
+        final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor);
+
+        registry.loadPlugin(bundleDescriptor);
+
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass1"), is("plugin.1"));
+        assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.DOES_NOT_EXIST"), is("plugin.1"));
     }
 }

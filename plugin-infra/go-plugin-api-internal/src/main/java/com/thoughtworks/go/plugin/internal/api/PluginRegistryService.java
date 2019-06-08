@@ -23,4 +23,6 @@ public interface PluginRegistryService {
     void reportWarning(String bundleSymbolicName, String message);
 
     String getPluginIDOfFirstPluginInBundle(String bundleSymbolicName);
+
+    String pluginIDFor(String bundleSymbolicName, String extensionClassCannonicalName);
 }

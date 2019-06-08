@@ -38,12 +38,14 @@ import org.osgi.framework.ServiceReference;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -77,7 +79,7 @@ public class DefaultGoPluginActivatorTest {
         when(context.getService(loggingServiceReference)).thenReturn(loggingService);
 
         when(context.getBundle()).thenReturn(bundle);
-        when(bundle.getSymbolicName()).thenReturn(PLUGIN_ID);
+        when(bundle.getSymbolicName()).thenReturn(SYMBOLIC_NAME);
         when(bundle.findEntries("/", "*.class", true)).thenReturn(emptyListOfClassesInBundle);
         when(pluginRegistryService.getPluginIDOfFirstPluginInBundle(SYMBOLIC_NAME)).thenReturn(PLUGIN_ID);
 
@@ -85,7 +87,7 @@ public class DefaultGoPluginActivatorTest {
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         Logger.initialize(null);
     }
 
@@ -263,6 +265,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
         assertThat(activator.hasErrors(), is(true));
+        verify(pluginRegistryService).pluginIDFor(eq(SYMBOLIC_NAME), anyString());
         verifyThatOneOfTheErrorMessagesIsPresent(expectedErrorMessageWithMethodsWithIncreasingOrder, expectedErrorMessageWithMethodsWithDecreasingOrder);
 
         activator.stop(context);
@@ -273,8 +276,13 @@ public class DefaultGoPluginActivatorTest {
     public void shouldHandleExceptionGeneratedByLoadMethodAtPluginStart() throws Exception {
         setupClassesInBundle("GoExtensionWithLoadAnnotationMethodThrowingException.class");
         when(bundle.loadClass(contains("GoExtensionWithLoadAnnotationMethodThrowingException"))).thenReturn((Class) GoExtensionWithLoadAnnotationMethodThrowingException.class);
+        when(pluginRegistryService.pluginIDFor(eq(SYMBOLIC_NAME), anyString())).thenReturn(PLUGIN_ID);
+
         activator.start(context);
+
         assertThat(activator.hasErrors(), is(true));
+
+        verify(pluginRegistryService).pluginIDFor(eq(SYMBOLIC_NAME), anyString());
         verifyErrorsReported("Class [GoExtensionWithLoadAnnotationMethodThrowingException] is annotated with @Extension but cannot be registered. "
                 + "Reason: java.io.IOException: Load Dummy Checked Exception.");
     }
@@ -282,11 +290,16 @@ public class DefaultGoPluginActivatorTest {
     @Test
     public void shouldHandleExceptionGeneratedByUnLoadMethodAtPluginStop() throws Exception {
         setupClassesInBundle("GoExtensionWithUnloadAnnotationMethodThrowingException.class");
+        when(pluginRegistryService.pluginIDFor(eq(SYMBOLIC_NAME), anyString())).thenReturn(PLUGIN_ID);
         when(bundle.loadClass(contains("GoExtensionWithUnloadAnnotationMethodThrowingException"))).thenReturn((Class) GoExtensionWithUnloadAnnotationMethodThrowingException.class);
+
         activator.start(context);
+
         assertThat(activator.hasErrors(), is(false));
         activator.stop(context);
+
         assertThat(activator.hasErrors(), is(true));
+        verify(pluginRegistryService).pluginIDFor(eq(SYMBOLIC_NAME), anyString());
         verifyErrorsReported("Invocation of unload method [public int com.thoughtworks.go.plugin.activation.GoExtensionWithUnloadAnnotationMethodThrowingException"
                 + ".throwExceptionAgain(com.thoughtworks.go.plugin.api.info.PluginContext) "
                 + "throws java.io.IOException]. "
@@ -294,18 +307,70 @@ public class DefaultGoPluginActivatorTest {
     }
 
     @Test
-    public void shouldRegisterServiceWithBothPluginIDAndExtensionTypeAsProperties() throws Exception {
+    public void shouldRegisterServiceWithBundleSymbolicNamePluginIDAndExtensionTypeAsProperties() throws Exception {
         setupClassesInBundle("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class");
         when(bundle.loadClass("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier")).thenReturn((Class) PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class);
+        when(pluginRegistryService.pluginIDFor(eq(SYMBOLIC_NAME), anyString())).thenReturn(PLUGIN_ID);
 
         Hashtable<String, String> expectedPropertiesUponRegistration = new Hashtable<>();
         expectedPropertiesUponRegistration.put(Constants.BUNDLE_SYMBOLICNAME, PLUGIN_ID);
         expectedPropertiesUponRegistration.put(Constants.BUNDLE_CATEGORY, "test-extension");
+        expectedPropertiesUponRegistration.put("PLUGIN_ID", PLUGIN_ID);
 
         activator.start(context);
 
         assertThat(activator.hasErrors(), is(false));
         verify(context).registerService(eq(GoPlugin.class), any(GoPlugin.class), eq(expectedPropertiesUponRegistration));
+    }
+
+    @Test
+    public void shouldRegisterEachServiceWithTheCorrespondingPluginIDAsProperty() throws Exception {
+        setupClassesInBundle("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class", "PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class");
+        when(bundle.loadClass("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier")).thenReturn((Class) PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class);
+        when(bundle.loadClass("PublicGoExtensionClassWhichWillAlsoLoadSuccessfully")).thenReturn((Class) PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class);
+
+        when(pluginRegistryService.pluginIDFor(SYMBOLIC_NAME, PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class.getCanonicalName())).thenReturn("plugin_id_1");
+        when(pluginRegistryService.pluginIDFor(SYMBOLIC_NAME, PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class.getCanonicalName())).thenReturn("plugin_id_2");
+
+        Dictionary<String, String> expectedPropertiesUponRegistrationForPlugin1 = new Hashtable<>();
+        expectedPropertiesUponRegistrationForPlugin1.put(Constants.BUNDLE_SYMBOLICNAME, SYMBOLIC_NAME);
+        expectedPropertiesUponRegistrationForPlugin1.put(Constants.BUNDLE_CATEGORY, "test-extension");
+        expectedPropertiesUponRegistrationForPlugin1.put("PLUGIN_ID", "plugin_id_1");
+
+        Dictionary<String, String> expectedPropertiesUponRegistrationForPlugin2 = new Hashtable<>();
+        expectedPropertiesUponRegistrationForPlugin2.put(Constants.BUNDLE_SYMBOLICNAME, SYMBOLIC_NAME);
+        expectedPropertiesUponRegistrationForPlugin2.put(Constants.BUNDLE_CATEGORY, "test-extension-2");
+        expectedPropertiesUponRegistrationForPlugin2.put("PLUGIN_ID", "plugin_id_2");
+
+        activator.start(context);
+
+        assertThat(activator.hasErrors(), is(false));
+        verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), eq(expectedPropertiesUponRegistrationForPlugin1));
+        verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class), eq(expectedPropertiesUponRegistrationForPlugin2));
+    }
+
+    @Test
+    public void shouldReportErrorsIfAPluginIDCannotBeFoundForAGivenExtensionClass() throws Exception {
+        setupClassesInBundle("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class", "PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class");
+        when(bundle.loadClass("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier")).thenReturn((Class) PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class);
+        when(bundle.loadClass("PublicGoExtensionClassWhichWillAlsoLoadSuccessfully")).thenReturn((Class) PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class);
+
+        when(pluginRegistryService.pluginIDFor(SYMBOLIC_NAME, PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class.getCanonicalName())).thenReturn("plugin_id_1");
+        when(pluginRegistryService.pluginIDFor(SYMBOLIC_NAME, PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class.getCanonicalName())).thenReturn(null);
+
+        Dictionary<String, String> expectedPropertiesUponRegistrationForPlugin1 = new Hashtable<>();
+        expectedPropertiesUponRegistrationForPlugin1.put(Constants.BUNDLE_SYMBOLICNAME, SYMBOLIC_NAME);
+        expectedPropertiesUponRegistrationForPlugin1.put(Constants.BUNDLE_CATEGORY, "test-extension");
+        expectedPropertiesUponRegistrationForPlugin1.put("PLUGIN_ID", "plugin_id_1");
+
+        activator.start(context);
+
+        verify(pluginRegistryService, times(2)).pluginIDFor(eq(SYMBOLIC_NAME), any());
+        verify(context).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), eq(expectedPropertiesUponRegistrationForPlugin1));
+        verify(context, never()).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class), any());
+
+        assertThat(activator.hasErrors(), is(true));
+        verifyErrorsReported("Unable to find plugin ID for extension class (com.thoughtworks.go.plugin.activation.PublicGoExtensionClassWhichWillAlsoLoadSuccessfully) in bundle plugin-id");
     }
 
     @Test

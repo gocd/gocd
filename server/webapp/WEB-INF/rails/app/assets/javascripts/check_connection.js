@@ -24,7 +24,7 @@ var CheckConnection = function() {
             var isEncrypted = false;
             var finalPass = '';
             if (password) {
-                if (encryptedPassword === "false" || jQuery(isChanged).is(':checked')) {
+                if (encryptedPassword === "false" || jQuery(isChanged).is(':checked') || jQuery(isChanged).val() === "1") {
                     finalPass = valueOf(password);
                 } else {
                     finalPass = valueOf(encryptedPassword);

@@ -22,7 +22,7 @@ import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.PipelineConfi
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.TimerRepresenter
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialsRepresenter
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.trackingtool.TrackingToolRepresenter
-import com.thoughtworks.go.apiv7.admin.shared.representers.EnvironmentVariableRepresenter
+
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.StageRepresenter
 import com.thoughtworks.go.config.*

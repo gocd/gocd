@@ -28,12 +28,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static java.lang.String.format;
-import static java.lang.String.join;
 
 /**
  * @understands an environment variable value that will be passed to a job when it is run
@@ -195,37 +192,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
 
     public void validate(ValidationContext validationContext) {
         try {
-            SecretParams secretParams = SecretParams.parse(getValue());
-
-            if (!secretParams.hasSecretParams()) {
-                return;
-            }
-
-            final Set<String> missingSecretConfigs = new HashSet<>();
-            final Set<String> canNotReferSecretConfigs = new HashSet<>();
-
-            SecretConfigs secretConfigs = validationContext.getCruiseConfig().getSecretConfigs();
-            Parent parent = Parent.from(validationContext);
-
-            secretParams.forEach(secretParam -> {
-                final SecretConfig secretConfig = secretConfigs.find(secretParam.getSecretConfigId());
-                if (secretConfig == null) {
-                    missingSecretConfigs.add(secretParam.getSecretConfigId());
-                } else {
-                    if (parent != null && !secretConfig.canRefer(parent.getType(), parent.getIdentifier())) {
-                        canNotReferSecretConfigs.add(secretParam.getSecretConfigId());
-                    }
-                }
-            });
-
-            if (!missingSecretConfigs.isEmpty()) {
-                addError(VALUE, String.format("Secret config with ids '%s' does not exist.", String.join(", ", missingSecretConfigs)));
-            }
-
-            if (!canNotReferSecretConfigs.isEmpty()) {
-                addError(VALUE, format("Secret config with ids '%s' is not allowed to use in %s '%s'.", join(", ", canNotReferSecretConfigs), parent.getTag(), parent.getIdentifier()));
-            }
-
+            getValue();
         } catch (Exception e) {
             errors().add(VALUE, String.format("Encrypted value for variable named '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.", getName()));
         }
@@ -377,76 +344,5 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
     @Override
     public SecretParams getSecretParams() {
         return SecretParams.parse(getValue());
-    }
-
-    static abstract class Parent<T extends Validatable> {
-        private T parent;
-
-        Parent(T parent) {
-            this.parent = parent;
-        }
-
-        public static Parent from(ValidationContext validationContext) {
-            if (validationContext.isWithinPipelines()) {
-                return new PipelineParent(validationContext.getPipelineGroup());
-            }
-
-            if (validationContext.isWithinEnvironment()) {
-                return new EnvironmentParent(validationContext.getEnvironment());
-            }
-
-            return null;
-        }
-
-        public String getTag() {
-            ConfigTag configTag = parent.getClass().getAnnotation(ConfigTag.class);
-            if (StringUtils.isNotBlank(configTag.label())) {
-                return configTag.label();
-            }
-            return configTag.value();
-        }
-
-        public Class<? extends Validatable> getType() {
-            return parent.getClass();
-        }
-
-        public T getParent() {
-            return parent;
-        }
-
-        public abstract String getIdentifier();
-    }
-
-    static class PipelineParent extends Parent<PipelineConfigs> {
-        PipelineParent(PipelineConfigs pipelineConfigs) {
-            super(pipelineConfigs);
-        }
-
-        @Override
-        public String getIdentifier() {
-            return getParent().getGroup();
-        }
-    }
-
-    static class TemplateParent extends Parent<PipelineTemplateConfig> {
-        TemplateParent(PipelineTemplateConfig template) {
-            super(template);
-        }
-
-        @Override
-        public String getIdentifier() {
-            return getParent().name().toString();
-        }
-    }
-
-    static class EnvironmentParent extends Parent<EnvironmentConfig> {
-        EnvironmentParent(EnvironmentConfig environment) {
-            super(environment);
-        }
-
-        @Override
-        public String getIdentifier() {
-            return getParent().name().toString();
-        }
     }
 }

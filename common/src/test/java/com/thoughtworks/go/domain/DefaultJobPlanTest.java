@@ -16,10 +16,9 @@
 package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,26 +26,18 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.utils.SerializationTester.serializeAndDeserialize;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultJobPlanTest {
-
-    @Rule
-    public final TemporaryFolder temporaryFolder = new TemporaryFolder();
-    private File workingFolder;
-
-    @Before
-    public void setUp() throws IOException {
-        workingFolder = temporaryFolder.newFolder("workingFolder");
-        File file = new File(workingFolder, "cruise-output/log.xml");
+class DefaultJobPlanTest {
+    @BeforeEach
+    void setUp(@TempDir File testDir) throws IOException {
+        File file = new File(testDir, "cruise-output/log.xml");
         file.getParentFile().mkdirs();
         file.createNewFile();
     }
 
     @Test
-    public void shouldApplyEnvironmentVariablesWhenRunningTheJob() {
+    void shouldApplyEnvironmentVariablesWhenRunningTheJob() {
         EnvironmentVariables variables = new EnvironmentVariables();
         variables.add("VARIABLE_NAME", "variable value");
         DefaultJobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, null, null,
@@ -54,11 +45,11 @@ public class DefaultJobPlanTest {
 
         EnvironmentVariableContext variableContext = new EnvironmentVariableContext();
         plan.applyTo(variableContext);
-        assertThat(variableContext.getProperty("VARIABLE_NAME"), is("variable value"));
+        assertThat(variableContext.getProperty("VARIABLE_NAME")).isEqualTo("variable value");
     }
 
     @Test
-    public void shouldRespectTriggerVariablesOverConfigVariables() {
+    void shouldRespectTriggerVariablesOverConfigVariables() {
         final EnvironmentVariables environmentVariables = new EnvironmentVariables(Arrays.asList(
                 new EnvironmentVariable("blah", "value"), new EnvironmentVariable("foo", "bar")));
         final EnvironmentVariables triggerEnvironmentVariables = new EnvironmentVariables(Arrays.asList(
@@ -68,17 +59,17 @@ public class DefaultJobPlanTest {
                 new ArrayList<>(), 0, new JobIdentifier(), "uuid", environmentVariables, triggerEnvironmentVariables, null, null);
         EnvironmentVariableContext variableContext = new EnvironmentVariableContext();
         original.applyTo(variableContext);
-        assertThat(variableContext.getProperty("blah"), is("override"));
-        assertThat(variableContext.getProperty("foo"), is("bar"));
+        assertThat(variableContext.getProperty("blah")).isEqualTo("override");
+        assertThat(variableContext.getProperty("foo")).isEqualTo("bar");
         //becuase its a security issue to let operator set values for unconfigured variables
-        assertThat(variableContext.getProperty("another"), is(nullValue()));
+        assertThat(variableContext.getProperty("another")).isNull();
     }
 
     @Test
-    public void shouldBeAbleToSerializeAndDeserialize() throws ClassNotFoundException, IOException {
+    void shouldBeAbleToSerializeAndDeserialize() throws ClassNotFoundException, IOException {
         DefaultJobPlan original = new DefaultJobPlan(new Resources(), new ArrayList<>(),
                 new ArrayList<>(), 0, new JobIdentifier(), "uuid", new EnvironmentVariables(), new EnvironmentVariables(), null, null);
         DefaultJobPlan clone = (DefaultJobPlan) serializeAndDeserialize(original);
-        assertThat(clone, is(original));
+        assertThat(clone).isEqualTo(original);
     }
 }

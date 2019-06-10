@@ -57,7 +57,7 @@ public abstract class ScmMaterial extends AbstractMaterial implements SecretPara
     protected String userName;
     protected String password;
     protected String encryptedPassword;
-    private SecretParams secretParamsForPassword;
+    protected SecretParams secretParamsForPassword;
 
     public ScmMaterial(String typeName, GoCipher goCipher) {
         super(typeName);

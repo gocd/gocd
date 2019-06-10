@@ -435,7 +435,7 @@ public class GitMaterial extends ScmMaterial implements PasswordAwareMaterial {
         GitMaterialConfig config = (GitMaterialConfig) config();
         config.setShallowClone(value);
         GitMaterial gitMaterial = new GitMaterial(config);
-        gitMaterial.url = this.url;
+        gitMaterial.secretParamsForPassword = this.secretParamsForPassword;
 
         return gitMaterial;
     }

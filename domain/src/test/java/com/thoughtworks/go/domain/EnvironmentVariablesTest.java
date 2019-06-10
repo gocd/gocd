@@ -19,30 +19,28 @@ import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-public class EnvironmentVariablesTest {
+class EnvironmentVariablesTest {
 
     @Test
-    public void add_shouldAddEnvironmentVariable() {
+    void add_shouldAddEnvironmentVariable() {
         final EnvironmentVariables environmentVariables = new EnvironmentVariables();
-        assertThat(environmentVariables, hasSize(0));
+        assertThat(environmentVariables).hasSize(0);
 
         environmentVariables.add("foo", "bar");
 
-        assertThat(environmentVariables, hasSize(1));
-        assertThat(environmentVariables, contains(new EnvironmentVariable("foo", "bar")));
+        assertThat(environmentVariables).hasSize(1);
+        assertThat(environmentVariables).containsExactly(new EnvironmentVariable("foo", "bar"));
     }
 
     @Test
-    public void toEnvironmentVariables_shouldConvertEnvironmentVariablesConfigToEnvironmentVariable() {
+    void toEnvironmentVariables_shouldConvertEnvironmentVariablesConfigToEnvironmentVariable() {
         final EnvironmentVariablesConfig environmentVariableConfigs = new EnvironmentVariablesConfig(Arrays.asList(
                 new EnvironmentVariableConfig("foo", "bar"),
                 new EnvironmentVariableConfig(new GoCipher(), "baz", "car", true)
@@ -50,14 +48,11 @@ public class EnvironmentVariablesTest {
 
         final EnvironmentVariables environmentVariables = EnvironmentVariables.toEnvironmentVariables(environmentVariableConfigs);
 
-        assertThat(environmentVariables, containsInAnyOrder(
-                new EnvironmentVariable("foo", "bar", false),
-                new EnvironmentVariable("baz", "car", true)
-        ));
+        assertThat(environmentVariables).contains(new EnvironmentVariable("foo", "bar", false), new EnvironmentVariable("baz", "car", true));
     }
 
     @Test
-    public void addTo_shouldAddEnvironmentVariablesToEnvironmentVariableContext() {
+    void addTo_shouldAddEnvironmentVariablesToEnvironmentVariableContext() {
         final EnvironmentVariableContext environmentVariableContext = mock(EnvironmentVariableContext.class);
         final EnvironmentVariables environmentVariables = new EnvironmentVariables(
                 new EnvironmentVariable("foo", "bar"),
@@ -71,7 +66,7 @@ public class EnvironmentVariablesTest {
     }
 
     @Test
-    public void addToIfExists_shouldAddEnvironmentVariableToEnvironmentVariableContext() {
+    void addToIfExists_shouldAddEnvironmentVariableToEnvironmentVariableContext() {
         final EnvironmentVariableContext environmentVariableContext = mock(EnvironmentVariableContext.class);
         final EnvironmentVariables environmentVariables = new EnvironmentVariables(
                 new EnvironmentVariable("foo", "bar"),
@@ -88,19 +83,19 @@ public class EnvironmentVariablesTest {
     }
 
     @Test
-    public void shouldGetOnlyInsecureValues() {
+    void shouldGetOnlyInsecureValues() {
         EnvironmentVariables variables = new EnvironmentVariables(
                 new EnvironmentVariable("key1", "value1", true),
                 new EnvironmentVariable("key2", "value2")
         );
 
-        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key1", "def1"), is("def1"));
-        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key2", null), is("value2"));
-        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key3", null), is(nullValue()));
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key1", "def1")).isEqualTo("def1");
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key2", null)).isEqualTo("value2");
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key3", null)).isNull();
     }
 
     @Test
-    public void shouldOverrideWithProvidedOverrideValues() {
+    void shouldOverrideWithProvidedOverrideValues() {
         EnvironmentVariables variables = new EnvironmentVariables(
                 new EnvironmentVariable("key1", "value1"),
                 new EnvironmentVariable("key2", "value2")
@@ -112,8 +107,8 @@ public class EnvironmentVariablesTest {
 
         variables.overrideWith(variablesForOverride);
 
-        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key1", null), is("value1"));
-        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key2", null), is("value2-new"));
-        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key3", null), is(nullValue()));
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key1", null)).isEqualTo("value1");
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key2", null)).isEqualTo("value2-new");
+        assertThat(variables.getInsecureEnvironmentVariableOrDefault("key3", null)).isNull();
     }
 }

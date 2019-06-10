@@ -93,7 +93,9 @@ public class EnvironmentVariable extends PersistentObject {
     }
 
     public String getDisplayValue() {
-        if (isSecure()) return "****";
+        if (isSecure()) {
+            return "****";
+        }
         return getValue();
     }
 

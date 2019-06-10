@@ -86,14 +86,14 @@ class EnvironmentVariableRepresenterTest {
     assertThatJson(json).isEqualTo([
       "environment_variables": [
         [
-          "name": "JAVA_HOME",
+          "name"  : "JAVA_HOME",
           "secure": false,
-          "value": "/bin/java"
+          "value" : "/bin/java"
         ],
         [
-          "name": "GROOVY_HOME",
+          "name"  : "GROOVY_HOME",
           "secure": false,
-          "value": "/bin/groovy"
+          "value" : "/bin/groovy"
         ]
       ]
     ])
@@ -139,7 +139,7 @@ class EnvironmentVariableRepresenterTest {
       name           : 'PASSWORD',
       secure         : true,
       value          : 'plainText',
-      encrypted_value: 'c!ph3rt3xt'
+      encrypted_value: new GoCipher().encrypt('c!ph3rt3xt')
     ])
     def actualEnvironmentVariableConfig = EnvironmentVariableRepresenter.fromJSON(jsonReader)
 

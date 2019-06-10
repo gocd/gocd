@@ -46,7 +46,7 @@ describe ApiV1::Shared::EnvironmentVariableRepresenter do
   it 'should deserialize an ambiguous encrypted variable (with both value and encrypted_value) to a variable with errors' do
     config    = EnvironmentVariableConfig.new
     presenter = ApiV1::Shared::EnvironmentVariableRepresenter.new(config)
-    config = presenter.from_hash(name: 'PASSWORD', secure: true, value: 'plainText', encrypted_value: 'c!ph3rt3xt')
+    config = presenter.from_hash(name: 'PASSWORD', secure: true, value: 'plainText', encrypted_value: GoCipher.new.encrypt('c!ph3rt3xt'))
     expect(config.errors.getAllOn('value').to_a).to eq(['You may only specify `value` or `encrypted_value`, not both!'])
     expect(config.errors.getAllOn('encryptedValue').to_a).to eq(['You may only specify `value` or `encrypted_value`, not both!'])
   end
@@ -59,7 +59,7 @@ describe ApiV1::Shared::EnvironmentVariableRepresenter do
 
     config    = EnvironmentVariableConfig.new
     presenter = ApiV1::Shared::EnvironmentVariableRepresenter.new(config)
-    config = presenter.from_hash(name: 'PASSWORD', secure: true, encrypted_value: 'c!ph3rt3xt')
+    config = presenter.from_hash(name: 'PASSWORD', secure: true, encrypted_value: GoCipher.new.encrypt('c!ph3rt3xt'))
     expect(config.errors).to be_empty
   end
 

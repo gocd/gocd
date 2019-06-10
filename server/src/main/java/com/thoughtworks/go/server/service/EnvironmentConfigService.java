@@ -109,6 +109,10 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return null;
     }
 
+    public EnvironmentConfig environmentForPipeline(String pipelineName) {
+        return environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
+    }
+
     public EnvironmentVariableContext environmentVariableContextFor(String pipelineName) {
         EnvironmentConfig environment = environments.findEnvironmentForPipeline(new CaseInsensitiveString(pipelineName));
         if (environment != null) {

@@ -19,15 +19,17 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
+import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.*;
 import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
+import com.thoughtworks.go.remote.work.BuildAssignment;
 import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.messaging.JobStatusMessage;
 import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
@@ -271,10 +273,10 @@ class BuildAssignmentServiceTest {
     @Nested
     class assignWorkToAgent {
         @Test
-        void shouldResolveSecretParamsInEnvironmentVariableContext() {
-            final EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
-            environmentVariableContext.setProperty("Foo", "{{SECRET:[secret_config_id][lookup_password]}}", true);
-            environmentVariableContext.setProperty("Bar", "some-value", false);
+        void shouldResolveSecretParamsFromEnvironmentConfig() {
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig();
+            environmentConfig.addEnvironmentVariable("GIT_USERNAME", "bob");
+            environmentConfig.addEnvironmentVariable("GIT_TOKEN", "{{SECRET:[secret_config_id][GIT_TOKEN]}}");
 
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
@@ -290,20 +292,28 @@ class BuildAssignmentServiceTest {
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
-            when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(environmentVariableContext);
+            when(environmentConfigService.environmentForPipeline(anyString())).thenReturn(environmentConfig);
+            doAnswer(invocation -> {
+                BasicEnvironmentConfig config = invocation.getArgument(0);
+                config.getSecretParams().findFirst("GIT_TOKEN").ifPresent(param -> param.setValue("some-token"));
+                return config;
+            }).when(secretParamResolver).resolve(environmentConfig);
 
             BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agentInstance);
-
-            verify(secretParamResolver).resolve(work.getAssignment().initialEnvironmentVariableContext().getSecretParams());
+            EnvironmentVariableContext environmentVariableContext = work.getAssignment().initialEnvironmentVariableContext();
+            assertThat(environmentVariableContext.getProperty("GIT_USERNAME")).isEqualTo("bob");
+            assertThat(environmentVariableContext.getProperty("GIT_TOKEN")).isEqualTo("some-token");
+            assertThat(environmentVariableContext.getSecureEnvironmentVariables())
+                    .contains(new EnvironmentVariableContext.EnvironmentVariable("GIT_TOKEN", "some-token"));
         }
 
         @Test
         void shouldResolveSecretParamsInMaterials() {
-            final SvnMaterial svnMaterial = MaterialsMother.svnMaterial("http://foo.com");
-            svnMaterial.setUserName("username");
-            svnMaterial.setPassword("{{SECRET:[secret_config_id][lookup_password]}}");
+            final GitMaterial gitMaterial = MaterialsMother.gitMaterial("http://foo.com");
+            gitMaterial.setUserName("bob");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][GIT_PASSWORD]}}");
             final Modification modification = new Modification("user", null, null, null, "rev1");
-            final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(svnMaterial, modification));
+            final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(gitMaterial, modification));
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
             final AgentInstance agentInstance = mock(AgentInstance.class);
@@ -319,14 +329,20 @@ class BuildAssignmentServiceTest {
             when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
             when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(new EnvironmentVariableContext());
+            doAnswer(invocation -> {
+                BuildAssignment assignment = invocation.getArgument(0);
+                assignment.getSecretParams().findFirst("GIT_PASSWORD").ifPresent(param -> param.setValue("some-password"));
+                return assignment;
+            }).when(secretParamResolver).resolve(any(BuildAssignment.class));
 
-            buildAssignmentService.assignWorkToAgent(agentInstance);
+            BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agentInstance);
 
-            assertThat(svnMaterial.hasSecretParams()).isTrue();
-            verify(secretParamResolver).resolve(svnMaterial.getSecretParams());
+            assertThat(gitMaterial.hasSecretParams()).isTrue();
             verify(scheduleService, never()).failJob(any());
             verifyZeroInteractions(consoleService);
             verifyZeroInteractions(jobStatusTopic);
+            ScmMaterial material = (ScmMaterial) work.getAssignment().materialRevisions().getMaterialRevision(0).getMaterial();
+            assertThat(material.passwordForCommandLine()).isEqualTo("some-password");
         }
 
         @Test
@@ -345,10 +361,11 @@ class BuildAssignmentServiceTest {
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
             when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(new EnvironmentVariableContext());
-            doThrow(new SecretResolutionFailureException("Failed resolving params for keys: 'key1'")).when(secretParamResolver).resolve(any(SecretParams.class));
             when(jobInstanceService.buildById(jobPlan1.getJobId())).thenReturn(jobInstance);
             when(agentInstance.getUuid()).thenReturn("agent_uuid");
             when(jobInstance.getState()).thenReturn(JobState.Completed);
+            doThrow(new SecretResolutionFailureException("Failed resolving params for keys: 'key1'"))
+                    .when(secretParamResolver).resolve(any(BuildAssignment.class));
 
             assertThatCode(() -> buildAssignmentService.assignWorkToAgent(agentInstance))
                     .isInstanceOf(SecretResolutionFailureException.class);
@@ -360,33 +377,36 @@ class BuildAssignmentServiceTest {
         }
 
         @Test
-        void shouldIgnoreIfMaterialHasNoSecretParam() {
-            final GitMaterial svnMaterial = MaterialsMother.gitMaterial("http://foo.com", null, null);
-            final Modification modification = new Modification("user", null, null, null, "rev1");
-            final MaterialRevisions materialRevisions = new MaterialRevisions(new MaterialRevision(svnMaterial, modification));
+        void shouldFailJobIfEnvironmentVariableInEnvironmentConfigCanNotReferToSecretConfig() throws Exception {
             final PipelineConfig pipelineConfig = PipelineConfigMother.pipelineConfig(UUID.randomUUID().toString());
             pipelineConfig.get(0).getJobs().add(JobConfigMother.jobWithNoResourceRequirement());
             final AgentInstance agentInstance = mock(AgentInstance.class);
             final Pipeline pipeline = mock(Pipeline.class);
             final JobPlan jobPlan1 = getJobPlan(pipelineConfig.getName(), pipelineConfig.get(0).name(), pipelineConfig.get(0).getJobs().last());
+            JobInstance jobInstance = mock(JobInstance.class);
 
+            when(jobInstance.getState()).thenReturn(JobState.Completed);
             when(agentInstance.isRegistered()).thenReturn(true);
+            when(agentInstance.getUuid()).thenReturn("agent_uuid");
             when(agentInstance.agentConfig()).thenReturn(mock(AgentConfig.class));
             when(agentInstance.firstMatching(anyList())).thenReturn(jobPlan1);
-            when(pipeline.getBuildCause()).thenReturn(BuildCause.createWithModifications(materialRevisions, "bob"));
+            when(pipeline.getBuildCause()).thenReturn(BuildCause.createNeverRun());
             when(environmentConfigService.filterJobsByAgent(any(), any())).thenReturn(singletonList(jobPlan1));
             when(scheduledPipelineLoader.pipelineWithPasswordAwareBuildCauseByBuildId(anyLong())).thenReturn(pipeline);
             when(scheduleService.updateAssignedInfo(anyString(), any())).thenReturn(false);
             when(goConfigService.artifactStores()).thenReturn(new ArtifactStores());
-            when(environmentConfigService.environmentVariableContextFor(anyString())).thenReturn(new EnvironmentVariableContext());
+            when(environmentConfigService.environmentForPipeline(anyString())).thenReturn(new BasicEnvironmentConfig());
+            when(jobInstanceService.buildById(anyLong())).thenReturn(jobInstance);
+            doThrow(new RulesViolationException("Failed resolving params for keys: 'key1'"))
+                    .when(secretParamResolver).resolve(any(EnvironmentConfig.class));
 
-            buildAssignmentService.assignWorkToAgent(agentInstance);
+            assertThatCode(() -> buildAssignmentService.assignWorkToAgent(agentInstance))
+                    .isInstanceOf(RulesViolationException.class);
 
-            assertThat(svnMaterial.hasSecretParams()).isFalse();
-            verify(scheduleService, never()).failJob(any());
-            verify(secretParamResolver).resolve(new SecretParams());
-            verifyZeroInteractions(consoleService);
-            verifyZeroInteractions(jobStatusTopic);
+            InOrder inOrder = inOrder(scheduleService, jobStatusTopic, consoleService);
+            inOrder.verify(consoleService, times(1)).appendToConsoleLog(eq(jobPlan1.getIdentifier()), anyString());
+            inOrder.verify(scheduleService).failJob(jobInstance);
+            inOrder.verify(jobStatusTopic).post(new JobStatusMessage(jobPlan1.getIdentifier(), JobState.Completed, "agent_uuid"));
         }
     }
 

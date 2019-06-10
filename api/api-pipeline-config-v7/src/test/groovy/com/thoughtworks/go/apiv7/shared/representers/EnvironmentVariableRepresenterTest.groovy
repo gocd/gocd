@@ -64,7 +64,7 @@ class EnvironmentVariableRepresenterTest {
       name: 'PASSWORD',
       secure: true,
       value: 'plainText',
-      encrypted_value: 'c!ph3rt3xt'
+      encrypted_value: new GoCipher().encrypt('c!ph3rt3xt')
     ])
     def actualEnvironmentVariableConfig = EnvironmentVariableRepresenter.fromJSON(jsonReader)
 

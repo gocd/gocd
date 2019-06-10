@@ -16,9 +16,12 @@
 package com.thoughtworks.go.remote.work;
 
 import com.thoughtworks.go.config.ArtifactStores;
+import com.thoughtworks.go.config.SecretParamAware;
+import com.thoughtworks.go.config.SecretParams;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.builder.Builder;
+import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 
@@ -27,7 +30,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BuildAssignment implements Serializable {
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.StreamSupport.stream;
+
+public class BuildAssignment implements Serializable, SecretParamAware {
     private final boolean fetchMaterials;
     private final boolean cleanWorkingDirectory;
     private final List<Builder> builders;
@@ -171,5 +177,32 @@ public class BuildAssignment implements Serializable {
         result = 31 * result + (materialRevisions != null ? materialRevisions.hashCode() : 0);
         result = 31 * result + (approver != null ? approver.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public boolean hasSecretParams() {
+        return !SecretParams.union(secretParamsInEnvironmentVariables(), secretParamsInMaterials()).isEmpty();
+    }
+
+    @Override
+    public SecretParams getSecretParams() {
+        return SecretParams.union(secretParamsInEnvironmentVariables(), secretParamsInMaterials());
+    }
+
+    private SecretParams secretParamsInEnvironmentVariables() {
+        return this.initialEnvironmentVariableContext().getSecretParams()
+                .stream()
+                .collect(SecretParams.toSecretParams());
+    }
+
+    private SecretParams secretParamsInMaterials() {
+        final List<Material> materials = stream(this.materialRevisions().spliterator(), true)
+                .map(MaterialRevision::getMaterial).collect(toList());
+
+        return materials.stream()
+                .filter(material -> material instanceof SecretParamAware)
+                .filter(material -> ((SecretParamAware) material).hasSecretParams())
+                .map(material -> ((SecretParamAware) material).getSecretParams())
+                .collect(SecretParams.toFlatSecretParams());
     }
 }

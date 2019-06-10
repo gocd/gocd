@@ -15,9 +15,6 @@
  */
 package com.thoughtworks.go.helper;
 
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.*;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
@@ -26,18 +23,17 @@ import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
-import com.thoughtworks.go.domain.packagerepository.ConfigurationPropertyMother;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
-import com.thoughtworks.go.domain.packagerepository.PackageDefinitionMother;
-import com.thoughtworks.go.domain.packagerepository.PackageRepository;
-import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother;
+import com.thoughtworks.go.domain.materials.Material;
+import com.thoughtworks.go.domain.packagerepository.*;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMMother;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.UrlArgument;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class MaterialsMother {
 
@@ -151,7 +147,7 @@ public class MaterialsMother {
         return new Materials(gitMaterial(url, submoduleFolder, branch));
     }
 
-    public static ScmMaterial gitMaterial(String url) {
+    public static GitMaterial gitMaterial(String url) {
         return gitMaterial(url, null, null);
     }
 

@@ -18,6 +18,9 @@ package com.thoughtworks.go.remote.work;
 import com.google.gson.Gson;
 import com.thoughtworks.go.config.ArtifactStores;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.SecretParam;
+import com.thoughtworks.go.config.SecretParams;
+import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
@@ -29,17 +32,18 @@ import com.thoughtworks.go.domain.builder.NullBuilder;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.helper.HgTestRepo;
-import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.helper.TestRepo;
+import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.utils.SvnRepoFixture;
-import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.migrationsupport.rules.EnableRuleMigrationSupport;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
@@ -47,10 +51,11 @@ import java.io.IOException;
 import java.util.*;
 
 import static com.thoughtworks.go.config.materials.svn.SvnMaterial.createSvnMaterialWithMock;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static com.thoughtworks.go.helper.MaterialsMother.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.MockitoAnnotations.initMocks;
 
+@EnableRuleMigrationSupport
 public class BuildAssignmentTest {
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -68,9 +73,10 @@ public class BuildAssignmentTest {
     private DependencyMaterial dependencyMaterialWithName;
     private SvnRepoFixture svnRepoFixture;
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    void setUp() throws IOException {
         initMocks(this);
+        temporaryFolder.create();
         dir = temporaryFolder.newFolder("someFolder");
         svnRepoFixture = new SvnRepoFixture("../common/src/test/resources/data/svnrepo", temporaryFolder);
         svnRepoFixture.createRepository();
@@ -82,14 +88,15 @@ public class BuildAssignmentTest {
         setupHgRepo();
     }
 
-    @After
-    public void teardown() throws Exception {
+    @AfterEach
+    void teardown() {
         TestRepo.internalTearDown();
         hgTestRepo.tearDown();
+        temporaryFolder.delete();
     }
 
     @Test
-    public void shouldInitializeEnvironmentContextFromJobPlan() throws Exception {
+    void shouldInitializeEnvironmentContextFromJobPlan() {
         DefaultJobPlan defaultJobPlan = jobForPipeline("foo");
 
         EnvironmentVariables variables = new EnvironmentVariables();
@@ -101,13 +108,13 @@ public class BuildAssignmentTest {
         BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, null, new ArtifactStores());
         EnvironmentVariableContext context = buildAssignment.initialEnvironmentVariableContext();
 
-        assertThat(context.getProperties().size(), is(9));
-        assertThat(context.getProperty("key1"), is("value1"));
-        assertThat(context.getProperty("key2"), is("value2"));
+        assertThat(context.getProperties().size()).isEqualTo(9);
+        assertThat(context.getProperty("key1")).isEqualTo("value1");
+        assertThat(context.getProperty("key2")).isEqualTo("value2");
     }
 
     @Test
-    public void shouldInitializeEnvironmentContextFromJobPlanWithTriggerVariablesOverridingEnvVariablesFromJob() throws Exception {
+    void shouldInitializeEnvironmentContextFromJobPlanWithTriggerVariablesOverridingEnvVariablesFromJob() {
         DefaultJobPlan defaultJobPlan = jobForPipeline("foo");
         EnvironmentVariables triggerVariables = new EnvironmentVariables();
         triggerVariables.add("key1", "override");
@@ -123,13 +130,13 @@ public class BuildAssignmentTest {
         BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, null, new ArtifactStores());
         EnvironmentVariableContext context = buildAssignment.initialEnvironmentVariableContext();
 
-        assertThat(context.getProperties().size(), is(9));
-        assertThat(context.getProperty("key1"), is("override"));
-        assertThat(context.getProperty("key2"), is("value2"));
+        assertThat(context.getProperties().size()).isEqualTo(9);
+        assertThat(context.getProperty("key1")).isEqualTo("override");
+        assertThat(context.getProperty("key2")).isEqualTo("value2");
     }
 
     @Test
-    public void shouldIntializeEnvironmentContextWithJobPlanEnvironmentVariablesOveridingEnvVariablesFromTheEnvironment() throws Exception {
+    void shouldIntializeEnvironmentContextWithJobPlanEnvironmentVariablesOveridingEnvVariablesFromTheEnvironment() {
         DefaultJobPlan defaultJobPlan = jobForPipeline("foo");
 
         EnvironmentVariables variables = new EnvironmentVariables();
@@ -144,31 +151,31 @@ public class BuildAssignmentTest {
         BuildAssignment buildAssignment = BuildAssignment.create(defaultJobPlan, BuildCause.createManualForced(), new ArrayList<>(), null, contextFromEnvironment, new ArtifactStores());
         EnvironmentVariableContext context = buildAssignment.initialEnvironmentVariableContext();
 
-        assertThat(context.getProperties().size(), is(10));
-        assertThat(context.getProperty("key1"), is("value_from_job_plan"));
-        assertThat(context.getProperty("key2"), is("value2"));
-        assertThat(context.getProperty("key3"), is("value3"));
+        assertThat(context.getProperties().size()).isEqualTo(10);
+        assertThat(context.getProperty("key1")).isEqualTo("value_from_job_plan");
+        assertThat(context.getProperty("key2")).isEqualTo("value2");
+        assertThat(context.getProperty("key3")).isEqualTo("value3");
     }
 
     @Test
-    public void shouldNotHaveReferenceToModifiedFilesSinceLargeCommitsCouldCauseBothServerAndAgentsToRunOutOfMemory_MoreoverThisInformationIsNotRequiredOnAgentSide() {
+    void shouldNotHaveReferenceToModifiedFilesSinceLargeCommitsCouldCauseBothServerAndAgentsToRunOutOfMemory_MoreoverThisInformationIsNotRequiredOnAgentSide() {
         List<Modification> modificationsForSvn = ModificationsMother.multipleModificationList();
         List<Modification> modificationsForHg = ModificationsMother.multipleModificationList();
-        MaterialRevision svn = new MaterialRevision(MaterialsMother.svnMaterial(), modificationsForSvn);
-        MaterialRevision hg = new MaterialRevision(MaterialsMother.hgMaterial(), modificationsForHg);
+        MaterialRevision svn = new MaterialRevision(svnMaterial(), modificationsForSvn);
+        MaterialRevision hg = new MaterialRevision(hgMaterial(), modificationsForHg);
         MaterialRevisions materialRevisions = new MaterialRevisions(svn, hg);
         BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, "user1");
 
         BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null, null, new ArtifactStores());
 
-        assertThat(buildAssignment.getBuildApprover(), is("user1"));
-        assertThat(buildAssignment.materialRevisions().getRevisions().size(), is(materialRevisions.getRevisions().size()));
+        assertThat(buildAssignment.getBuildApprover()).isEqualTo("user1");
+        assertThat(buildAssignment.materialRevisions().getRevisions().size()).isEqualTo(materialRevisions.getRevisions().size());
         assertRevisions(buildAssignment, svn);
         assertRevisions(buildAssignment, hg);
     }
 
     @Test
-    public void shouldCopyAdditionalDataToBuildAssignment() {
+    void shouldCopyAdditionalDataToBuildAssignment() {
         MaterialRevision packageMaterialRevision = ModificationsMother.createPackageMaterialRevision("revision");
         Map<String, String> additionalData = new HashMap<>();
         additionalData.put("a1", "v1");
@@ -180,35 +187,110 @@ public class BuildAssignmentTest {
 
         BuildAssignment buildAssignment = BuildAssignment.create(jobForPipeline("foo"), buildCause, new ArrayList<>(), null, null, new ArtifactStores());
 
-        assertThat(buildAssignment.getBuildApprover(), is("user1"));
-        assertThat(buildAssignment.materialRevisions().getRevisions().size(), is(materialRevisions.getRevisions().size()));
+        assertThat(buildAssignment.getBuildApprover()).isEqualTo("user1");
+        assertThat(buildAssignment.materialRevisions().getRevisions().size()).isEqualTo(materialRevisions.getRevisions().size());
         assertRevisions(buildAssignment, packageMaterialRevision);
         Modification actualModification = buildAssignment.materialRevisions().getRevisions().get(0).getModification(0);
-        assertThat(actualModification.getAdditionalData(), is(additionalDataAsString));
-        assertThat(actualModification.getAdditionalDataMap(), is(additionalData));
+        assertThat(actualModification.getAdditionalData()).isEqualTo(additionalDataAsString);
+        assertThat(actualModification.getAdditionalDataMap()).isEqualTo(additionalData);
     }
 
     @Test
-    public void shouldSetUpGoGeneratedEnvironmentContextCorrectly() throws Exception {
+    void shouldSetUpGoGeneratedEnvironmentContextCorrectly() throws Exception {
         new SystemEnvironment().setProperty("serviceUrl", "some_random_place");
         BuildAssignment buildAssigment = createAssignment(null);
         EnvironmentVariableContext environmentVariableContext = buildAssigment.initialEnvironmentVariableContext();
-        assertThat(environmentVariableContext.getProperty("GO_REVISION"), Matchers.is("3"));
-        assertThat(environmentVariableContext.getProperty("GO_PIPELINE_NAME"), Matchers.is(PIPELINE_NAME));
-        assertThat(environmentVariableContext.getProperty("GO_PIPELINE_LABEL"), Matchers.is("1"));
-        assertThat(environmentVariableContext.getProperty("GO_STAGE_NAME"), Matchers.is(STAGE_NAME));
-        assertThat(environmentVariableContext.getProperty("GO_STAGE_COUNTER"), Matchers.is("1"));
-        assertThat(environmentVariableContext.getProperty("GO_JOB_NAME"), Matchers.is(JOB_NAME));
-        assertThat(environmentVariableContext.getProperty("GO_TRIGGER_USER"), Matchers.is(TRIGGERED_BY_USER));
+        assertThat(environmentVariableContext.getProperty("GO_REVISION")).isEqualTo("3");
+        assertThat(environmentVariableContext.getProperty("GO_PIPELINE_NAME")).isEqualTo(PIPELINE_NAME);
+        assertThat(environmentVariableContext.getProperty("GO_PIPELINE_LABEL")).isEqualTo("1");
+        assertThat(environmentVariableContext.getProperty("GO_STAGE_NAME")).isEqualTo(STAGE_NAME);
+        assertThat(environmentVariableContext.getProperty("GO_STAGE_COUNTER")).isEqualTo("1");
+        assertThat(environmentVariableContext.getProperty("GO_JOB_NAME")).isEqualTo(JOB_NAME);
+        assertThat(environmentVariableContext.getProperty("GO_TRIGGER_USER")).isEqualTo(TRIGGERED_BY_USER);
     }
 
-    private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) throws IOException {
+    @Nested
+    class HasSecretParams {
+
+        @Test
+        void shouldBeFalseWhenNoneOfTheEnvironmentVariablesIsDefinedAsSecretParam() throws IOException {
+            BuildAssignment buildAssigment = createAssignment(null);
+
+            boolean result = buildAssigment.hasSecretParams();
+
+            assertThat(result).isFalse();
+        }
+
+        @Test
+        void shouldBeTrueWhenOneOfTheEnvironmentVariableIsDefinedAsSecretParam() throws IOException {
+            EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+            environmentVariableContext.setProperty("Token", "{{SECRET:[secret_config_id][token]}}", false);
+            BuildAssignment buildAssigment = createAssignment(environmentVariableContext);
+
+            boolean result = buildAssigment.hasSecretParams();
+
+            assertThat(result).isTrue();
+        }
+    }
+
+    @Nested
+    class GetSecretParams {
+        @Test
+        void shouldReturnEmptyIfNoneOfTheEnvironmentVariablesIsDefinedAsSecretParam() throws IOException {
+            BuildAssignment buildAssigment = createAssignment(null);
+
+            SecretParams secretParams = buildAssigment.getSecretParams();
+
+            assertThat(secretParams).isEmpty();
+        }
+
+        @Test
+        void shouldReturnSecretParamsIfTheEnvironmentVariablesIsDefinedAsSecretParam() {
+            EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+            environmentVariableContext.setProperty("Token", "{{SECRET:[secret_config_id][token]}}", false);
+
+            ScmMaterial gitMaterial = gitMaterial("https://example.org");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][GIT_PASSWORD]}}");
+            MaterialRevision gitRevision = new MaterialRevision(gitMaterial, new Modification());
+            BuildCause buildCause = BuildCause.createManualForced(new MaterialRevisions(gitRevision), Username.ANONYMOUS);
+
+            BuildAssignment buildAssigment = createAssignment(environmentVariableContext, buildCause);
+
+            SecretParams secretParams = buildAssigment.getSecretParams();
+
+            assertThat(secretParams)
+                    .hasSize(2)
+                    .contains(new SecretParam("secret_config_id", "token"),
+                            new SecretParam("secret_config_id", "GIT_PASSWORD"));
+        }
+
+
+        @Test
+        void shouldIgnoreIfMaterialHasNoSecretParam() {
+            EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+            environmentVariableContext.setProperty("Version", "1.0.0", false);
+
+            ScmMaterial gitMaterial = gitMaterial("https://example.org");
+            MaterialRevision gitRevision = new MaterialRevision(gitMaterial, new Modification());
+            BuildCause buildCause = BuildCause.createManualForced(new MaterialRevisions(gitRevision), Username.ANONYMOUS);
+
+            BuildAssignment buildAssigment = createAssignment(environmentVariableContext, buildCause);
+
+            assertThat(buildAssigment.hasSecretParams()).isFalse();
+        }
+    }
+
+    private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext, BuildCause buildCause) {
         JobPlan plan = new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, new JobIdentifier(PIPELINE_NAME, 1, "1", STAGE_NAME, "1", JOB_NAME, 123L), null, new EnvironmentVariables(), new EnvironmentVariables(), null, null);
-        MaterialRevisions materialRevisions = materialRevisions();
-        BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
         List<Builder> builders = new ArrayList<>();
         builders.add(new CommandBuilder("ls", "", dir, new RunIfConfigs(), new NullBuilder(), ""));
         return BuildAssignment.create(plan, buildCause, builders, dir, environmentVariableContext, new ArtifactStores());
+    }
+
+    private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) throws IOException {
+        MaterialRevisions materialRevisions = materialRevisions();
+        BuildCause buildCause = BuildCause.createWithModifications(materialRevisions, TRIGGERED_BY_USER);
+        return createAssignment(environmentVariableContext, buildCause);
     }
 
     private MaterialRevisions materialRevisions() throws IOException {
@@ -240,13 +322,13 @@ public class BuildAssignmentTest {
 
     private void assertRevisions(BuildAssignment buildAssignment, MaterialRevision expectedRevision) {
         MaterialRevision actualRevision = buildAssignment.materialRevisions().findRevisionFor(expectedRevision.getMaterial());
-        assertThat(actualRevision.getMaterial(), is(expectedRevision.getMaterial()));
-        assertThat(actualRevision.getModifications().size(), is(expectedRevision.getModifications().size()));
+        assertThat(actualRevision.getMaterial()).isEqualTo(expectedRevision.getMaterial());
+        assertThat(actualRevision.getModifications().size()).isEqualTo(expectedRevision.getModifications().size());
         for (int i = 0; i < actualRevision.getModifications().size(); i++) {
             final Modification actualModification = actualRevision.getModifications().get(i);
             final Modification expectedModification = expectedRevision.getModifications().get(i);
-            assertThat(actualModification.getRevision(), is(expectedModification.getRevision()));
-            assertThat(actualModification.getModifiedFiles().isEmpty(), is(true));
+            assertThat(actualModification.getRevision()).isEqualTo(expectedModification.getRevision());
+            assertThat(actualModification.getModifiedFiles().isEmpty()).isTrue();
         }
     }
 
@@ -257,7 +339,7 @@ public class BuildAssignmentTest {
 
     private void setupHgRepo() throws IOException {
         hgTestRepo = new HgTestRepo("hgTestRepo1", temporaryFolder);
-        hgMaterial = MaterialsMother.hgMaterial(hgTestRepo.projectRepositoryUrl(), "hg_Dir");
+        hgMaterial = hgMaterial(hgTestRepo.projectRepositoryUrl(), "hg_Dir");
     }
 
 }

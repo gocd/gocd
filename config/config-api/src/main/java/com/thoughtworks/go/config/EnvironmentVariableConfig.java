@@ -55,9 +55,11 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
     private final ConfigErrors configErrors = new ConfigErrors();
     private final GoCipher goCipher;
     private ConfigOrigin origin;
+    private SecretParams secretParamsForValue;
 
     public EnvironmentVariableConfig() {
         this.goCipher = new GoCipher();
+        this.secretParamsForValue = new SecretParams();
     }
 
     public EnvironmentVariableConfig(String name, String value) {
@@ -226,18 +228,30 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         } else {
             this.value = new VariableValueConfig(value);
         }
+        this.secretParamsForValue = parseSecretParams();
     }
 
     public void setEncryptedValue(String encrypted) {
         this.encryptedValue = new EncryptedVariableValueConfig(encrypted);
+        this.secretParamsForValue = parseSecretParams();
     }
 
     public void setValue(VariableValueConfig value) {
         this.value = value;
+        this.secretParamsForValue = parseSecretParams();
     }
 
     public void setEncryptedValue(EncryptedVariableValueConfig encryptedValue) {
         this.encryptedValue = encryptedValue;
+        this.secretParamsForValue = parseSecretParams();
+    }
+
+    private SecretParams parseSecretParams() {
+        try {
+            return SecretParams.parse(getValue());
+        } catch (Exception e) {
+            return new SecretParams();
+        }
     }
 
     public String getValue() {
@@ -248,12 +262,14 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
                 throw new RuntimeException(format("Could not decrypt secure environment variable value for name %s", getName()), e);
             }
         } else {
-            return value.getValue();
+            return value == null ? null : value.getValue();
         }
     }
 
     public String getDisplayValue() {
-        if (isSecure()) return "****";
+        if (isSecure() || hasSecretParams()) {
+            return "****";
+        }
         return getValue();
     }
 
@@ -275,6 +291,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         } else {
             this.value = new VariableValueConfig(value);
         }
+        this.secretParamsForValue = parseSecretParams();
     }
 
     @PostConstruct
@@ -288,6 +305,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
             String encryptedValue = this.encryptedValue.getValue();
             setEncryptedValue(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedValue));
         }
+        this.secretParamsForValue = parseSecretParams();
     }
 
     public void deserialize(String name, String value, boolean isSecure, String encryptedValue) throws CryptoException {
@@ -338,11 +356,19 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
 
     @Override
     public boolean hasSecretParams() {
-        return !SecretParams.parse(getValue()).isEmpty();
+        return !this.secretParamsForValue.isEmpty();
     }
 
     @Override
     public SecretParams getSecretParams() {
-        return SecretParams.parse(getValue());
+        return this.secretParamsForValue;
+    }
+
+    public String valueForCommandline() {
+        if (hasSecretParams()) {
+            return getSecretParams().substitute(getValue());
+        }
+
+        return getValue();
     }
 }

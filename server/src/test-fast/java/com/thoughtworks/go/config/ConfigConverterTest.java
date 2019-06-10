@@ -1768,13 +1768,14 @@ class ConfigConverterTest {
     }
 
     @Test
-    void shouldConvertEnvironmentVariableConfigWhenSecure() {
+    void shouldConvertEnvironmentVariableConfigWhenSecure() throws CryptoException {
         EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("key1", null);
         environmentVariableConfig.setIsSecure(true);
-        environmentVariableConfig.setEncryptedValue("plain-text-password");
+        String encryptedValue = new GoCipher().encrypt("plain-text-password");
+        environmentVariableConfig.setEncryptedValue(encryptedValue);
         CREnvironmentVariable result = configConverter.environmentVariableConfigToCREnvironmentVariable(environmentVariableConfig);
         assertThat(result.hasEncryptedValue()).isTrue();
-        assertThat(result.getEncryptedValue()).isEqualTo("plain-text-password");
+        assertThat(result.getEncryptedValue()).isEqualTo(encryptedValue);
         assertThat(result.getValue()).isNull();
         assertThat(result.getName()).isEqualTo("key1");
     }

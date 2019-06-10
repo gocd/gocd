@@ -168,5 +168,4 @@ class BasicEnvironmentConfigTest extends EnvironmentConfigTestBase {
 
         assertThat(reference.errors().isEmpty()).isTrue();
     }
-
 }

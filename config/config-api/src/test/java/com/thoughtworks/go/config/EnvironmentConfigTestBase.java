@@ -184,6 +184,55 @@ public abstract class EnvironmentConfigTestBase {
         }
     }
 
+
+    @Nested
+    class HasSecretParams {
+        @Test
+        void shouldReturnTrueIfEnvironmentConfigHasEnvironmentVariablesDefinedUsingSecretParams() {
+            environmentConfig.addEnvironmentVariable("var1", "var_value1");
+            environmentConfig.addEnvironmentVariable("var2", "{{SECRET:[secret_config_id][token]}}");
+
+            boolean result = environmentConfig.hasSecretParams();
+
+            assertThat(result).isTrue();
+        }
+
+        @Test
+        void shouldReturnFalseIfEnvironmentConfigHasNoneOfTheEnvironmentVariablesDefinedUsingSecretParams() {
+            environmentConfig.addEnvironmentVariable("var1", "var_value1");
+            environmentConfig.addEnvironmentVariable("var2", "var_value2");
+
+            boolean result = environmentConfig.hasSecretParams();
+
+            assertThat(result).isFalse();
+        }
+    }
+
+    @Nested
+    class getSecretParams {
+        @Test
+        void shouldReturnEmptyIfEnvironmentConfigHasNoneOfTheEnvironmentVariablesDefinedUsingSecretParams() {
+            environmentConfig.addEnvironmentVariable("var1", "var_value1");
+            environmentConfig.addEnvironmentVariable("var2", "var_value2");
+
+            SecretParams secretParams = environmentConfig.getSecretParams();
+
+            assertThat(secretParams).isEmpty();
+        }
+
+        @Test
+        void shouldReturnSecretParamsIfEnvironmentConfigHasOneOfTheEnvironmentVariablesDefinedUsingSecretParams() {
+            environmentConfig.addEnvironmentVariable("var1", "var_value1");
+            environmentConfig.addEnvironmentVariable("var2", "{{SECRET:[secret_config_id][token]}}");
+
+            SecretParams secretParams = environmentConfig.getSecretParams();
+
+            assertThat(secretParams)
+                    .hasSize(1)
+                    .contains(new SecretParam("secret_config_id", "token"));
+        }
+    }
+
     protected static Map<String, String> envVar(String name, String value) {
         Map<String, String> map = new HashMap<>();
         map.put(EnvironmentVariableConfig.NAME, name);

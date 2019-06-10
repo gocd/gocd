@@ -302,7 +302,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
               "secure"         : true,
               "name"           : "JAVA_HOME",
               "value"          : "/bin/java",
-              "encrypted_value": "some_encrypted_text"
+              "encrypted_value": new GoCipher().encrypt("some_encrypted_text")
             ]
           ]
         ]
@@ -513,7 +513,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
                          "secure"         : true,
                          "name"           : "JAVA_HOME",
                          "value"          : "/bin/java",
-                         "encrypted_value": "some_encrypted_text"
+                         "encrypted_value": new GoCipher().encrypt("some_encrypted_text")
                        ]],
             "remove": [
               "URL"
@@ -612,7 +612,7 @@ class EnvironmentsControllerV2Test implements SecurityServiceTrait, ControllerTr
               "secure"         : true,
               "name"           : "JAVA_HOME",
               "value"          : "/bin/java",
-              "encrypted_value": "some_encrypted_text"
+              "encrypted_value": new GoCipher().encrypt("some_encrypted_text")
             ]
           ]
         ]

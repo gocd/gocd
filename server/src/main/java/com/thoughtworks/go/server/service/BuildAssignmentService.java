@@ -21,13 +21,13 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.builder.Builder;
 import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
-import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.*;
 import com.thoughtworks.go.server.domain.BuildComposer;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.messaging.JobStatusMessage;
 import com.thoughtworks.go.server.messaging.JobStatusTopic;
@@ -52,7 +52,6 @@ import java.util.*;
 import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.StreamSupport.stream;
 import static org.apache.commons.collections4.CollectionUtils.forAllDo;
 
 
@@ -342,12 +341,12 @@ public class BuildAssignmentService implements ConfigChangedListener {
                         return NO_WORK;
                     }
 
-                    EnvironmentVariableContext contextFromEnvironment = environmentConfigService.environmentVariableContextFor(job.getIdentifier().getPipelineName());
+                    final EnvironmentVariableContext contextFromEnvironment = getEnvironmentVariableContextFromEnvironment(job.getIdentifier().getPipelineName());
 
                     final ArtifactStores requiredArtifactStores = goConfigService.artifactStores().getArtifactStores(getArtifactStoreIdsRequiredByArtifactPlans(job.getArtifactPlans()));
                     BuildAssignment buildAssignment = BuildAssignment.create(job, pipeline.getBuildCause(), builders, pipeline.defaultWorkingFolder(), contextFromEnvironment, requiredArtifactStores);
 
-                    resolveSecretParams(buildAssignment);
+                    secretParamResolver.resolve(buildAssignment);
 
                     return new BuildWork(buildAssignment, systemEnvironment.consoleLogCharset());
                 });
@@ -357,46 +356,51 @@ public class BuildAssignmentService implements ConfigChangedListener {
             throw e;
         } catch (SecretResolutionFailureException e) {
             JobInstance instance = jobInstanceService.buildById(job.getJobId());
-            logSecretsResolutionFailure(job, e);
+            logSecretsResolutionFailure(job.getIdentifier(), e);
             scheduleService.failJob(instance);
             jobStatusTopic.post(new JobStatusMessage(job.getIdentifier(), instance.getState(), agent.getUuid()));
-
+            throw e;
+        } catch (RulesViolationException e) {
+            JobInstance instance = jobInstanceService.buildById(job.getJobId());
+            logRulesViolation(job.getIdentifier(), e);
+            scheduleService.failJob(instance);
+            jobStatusTopic.post(new JobStatusMessage(job.getIdentifier(), instance.getState(), agent.getUuid()));
             throw e;
         }
     }
 
-    private void logSecretsResolutionFailure(JobPlan job, SecretResolutionFailureException e) {
+    private EnvironmentVariableContext getEnvironmentVariableContextFromEnvironment(String pipelineName) {
+        EnvironmentConfig environmentConfig = environmentConfigService.environmentForPipeline(pipelineName);
+        if (environmentConfig == null) {
+            return null;
+        }
+
+        secretParamResolver.resolve(environmentConfig);
+
+        EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+        environmentConfig.getVariables().forEach(variable -> {
+            environmentVariableContext.setProperty(variable.getName(), variable.valueForCommandline(), variable.isSecure() || variable.hasSecretParams());
+        });
+        return environmentVariableContext;
+    }
+
+    private void logSecretsResolutionFailure(JobIdentifier jobIdentifier, SecretResolutionFailureException e) {
         try {
-            final String description = format("\nJob for pipeline '%s' failed due to errors while resolving secret params.", job.getIdentifier().buildLocator());
-            consoleService.appendToConsoleLog(job.getIdentifier(), description);
-            consoleService.appendToConsoleLog(job.getIdentifier(), format("\nReason: %s\n", e.getMessage()));
+            final String description = format("\nJob for pipeline '%s' failed due to errors while resolving secret params.", jobIdentifier.buildLocator());
+            consoleService.appendToConsoleLog(jobIdentifier, description);
+            consoleService.appendToConsoleLog(jobIdentifier, format("\nReason: %s\n", e.getMessage()));
         } catch (IllegalArtifactLocationException | IOException e1) {
             LOGGER.error(e1.getMessage(), e1);
         }
     }
 
-    private void resolveSecretParams(BuildAssignment buildAssignment) {
-        final SecretParams allSecretParams = SecretParams.union(
-                secretParamsInMaterials(buildAssignment),
-                secretParamsInEnvironmentVariables(buildAssignment)
-        );
-
-        secretParamResolver.resolve(allSecretParams);
-    }
-
-    private SecretParams secretParamsInEnvironmentVariables(BuildAssignment buildAssignment) {
-        return buildAssignment.initialEnvironmentVariableContext().getSecretParams();
-    }
-
-    private SecretParams secretParamsInMaterials(BuildAssignment buildAssignment) {
-        final List<Material> materials = stream(buildAssignment.materialRevisions().spliterator(), true)
-                .map(MaterialRevision::getMaterial).collect(toList());
-
-        return materials.stream()
-                .filter(material -> material instanceof SecretParamAware)
-                .filter(material -> ((SecretParamAware) material).hasSecretParams())
-                .map(material -> ((SecretParamAware) material).getSecretParams())
-                .collect(SecretParams.toFlatSecretParams());
+    private void logRulesViolation(JobIdentifier jobIdentifier, RulesViolationException e) {
+        try {
+            final String description = format("\nJob for pipeline '%s' failed due to errors: %s", jobIdentifier.buildLocator(), e.getMessage());
+            consoleService.appendToConsoleLog(jobIdentifier, description);
+        } catch (IllegalArtifactLocationException | IOException e1) {
+            LOGGER.error(e1.getMessage(), e1);
+        }
     }
 
     private Set<String> getArtifactStoreIdsRequiredByArtifactPlans(List<ArtifactPlan> artifactPlans) {

@@ -17,6 +17,7 @@ package com.thoughtworks.go.config.materials.mercurial;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.*;
+import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
 import com.thoughtworks.go.config.rules.Allow;
 import com.thoughtworks.go.config.rules.Rules;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -308,37 +309,15 @@ class HgMaterialConfigTest {
         }
 
         @Test
-        void shouldFailIfSecretConfigCannotBeUsedInPipelineGroupWhereCurrentMaterialIsDefined() {
-            HgMaterialConfig material = hg("https://example.repo", null);
-            material.setUserName("bob");
-            material.setPassword("{{SECRET:[secret_config_id][pass]}}");
-            final Rules directives = new Rules(new Allow("refer", PIPELINE_GROUP.getType(), "group_2"));
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
+        void shouldFailIfEncryptedPasswordIsIncorrect() {
+            HgMaterialConfig hgMaterialConfig = hg("http://example.com", null);
+            hgMaterialConfig.setEncryptedPassword("encryptedPassword");
 
-            assertThat(material.validateTree(validationContext)).isFalse();
+            final boolean validationResult = hgMaterialConfig.validateTree(new ConfigSaveValidationContext(null));
 
-            assertThat(material.errors().get("encryptedPassword"))
-                    .contains("Secret config with ids `secret_config_id` is not allowed to use in `pipelines` with name `group_1`.");
-        }
-
-        @Test
-        void shouldPassIfSecretConfigCanBeReferredInPipelineGroupWhereCurrentMaterialIsDefined() {
-            HgMaterialConfig material = hg("https://example.repo", null);
-            material.setUserName("bob");
-            material.setPassword("{{SECRET:[secret_config_id][pass]}}");
-            final Rules directives = new Rules(
-                    new Allow("refer", PIPELINE_GROUP.getType(), "group_2"),
-                    new Allow("refer", PIPELINE_GROUP.getType(), "group_1")
-            );
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
-
-            assertThat(material.validateTree(validationContext)).isTrue();
-
-            assertThat(material.errors().getAll()).isEmpty();
+            assertThat(validationResult).isFalse();
+            assertThat(hgMaterialConfig.errors().on("encryptedPassword"))
+                    .isEqualTo("Encrypted password value for HgMaterial with url 'http://example.com' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
         }
     }
 

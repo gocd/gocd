@@ -125,9 +125,9 @@ public class HgMaterialConfig extends ScmMaterialConfig implements ParamsAttribu
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
         validateMaterialUrl(this.url, validationContext);
-        validateSecretParams(validationContext);
         validateCredentials();
         validateBranch();
+        validateEncryptedPassword();
     }
 
     private void validateBranch() {

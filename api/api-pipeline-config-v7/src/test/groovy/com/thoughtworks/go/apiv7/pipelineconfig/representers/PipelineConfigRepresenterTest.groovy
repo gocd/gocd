@@ -16,6 +16,7 @@
 
 package com.thoughtworks.go.apiv7.pipelineconfig.representers
 
+import com.thoughtworks.go.api.representers.EnvironmentVariableRepresenter
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.ParamRepresenter
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.PipelineConfigRepresenter

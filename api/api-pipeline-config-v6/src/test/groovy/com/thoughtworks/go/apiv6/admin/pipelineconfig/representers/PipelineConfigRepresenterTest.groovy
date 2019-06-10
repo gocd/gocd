@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.apiv6.admin.pipelineconfig.representers
 
+import com.thoughtworks.go.api.representers.EnvironmentVariableRepresenter
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.materials.MaterialRepresenter
 import com.thoughtworks.go.apiv6.admin.pipelineconfig.representers.trackingtool.TrackingToolRepresenter

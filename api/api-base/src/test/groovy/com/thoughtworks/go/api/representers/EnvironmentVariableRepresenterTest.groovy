@@ -28,8 +28,7 @@ import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 import static org.hamcrest.MatcherAssert.assertThat
 import static org.hamcrest.Matchers.is
-import static org.junit.jupiter.api.Assertions.assertEquals
-import static org.junit.jupiter.api.Assertions.assertThrows
+import static org.junit.jupiter.api.Assertions.*
 
 class EnvironmentVariableRepresenterTest {
 
@@ -160,5 +159,37 @@ class EnvironmentVariableRepresenterTest {
     })
 
     JsonFluentAssert.assertThatJson(haltException.body()).isEqualTo("{\"message\" : \"Environment variable must contain either 'value' or 'encrypted_value'\"}")
+  }
+
+  @Test
+  void 'should deserialize an unambiguous encrypted variable (with encrypted_value) to a variable without errors'() {
+    def encryptedPassword = new GoCipher().encrypt("c!ph3rt3xt")
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom([
+      name           : 'PASSWORD',
+      secure         : true,
+      encrypted_value: encryptedPassword
+    ])
+    def actualEnvironmentVariableConfig = EnvironmentVariableRepresenter.fromJSON(jsonReader)
+
+    assertTrue(actualEnvironmentVariableConfig.errors().isEmpty())
+    assertEquals(encryptedPassword, actualEnvironmentVariableConfig.encryptedValue)
+    assertEquals("PASSWORD", actualEnvironmentVariableConfig.name)
+    assertEquals(true, actualEnvironmentVariableConfig.isSecure)
+  }
+
+  @Test
+  void 'should deserialize an unambiguous encrypted variable (with value) to a variable without errors'() {
+    def encryptedPassword = new GoCipher().encrypt("c!ph3rt3xt")
+    def jsonReader = GsonTransformer.instance.jsonReaderFrom([
+      name  : 'PASSWORD',
+      secure: true,
+      value : 'c!ph3rt3xt'
+    ])
+    def actualEnvironmentVariableConfig = EnvironmentVariableRepresenter.fromJSON(jsonReader)
+
+    assertTrue(actualEnvironmentVariableConfig.errors().isEmpty())
+    assertEquals(encryptedPassword, actualEnvironmentVariableConfig.encryptedValue)
+    assertEquals("PASSWORD", actualEnvironmentVariableConfig.name)
+    assertEquals(true, actualEnvironmentVariableConfig.isSecure)
   }
 }

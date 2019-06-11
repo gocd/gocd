@@ -592,6 +592,7 @@ public class ConfigConverter {
         else
             approval = Approval.automaticApproval();
 
+        approval.setAllowOnlyOnSuccess(crApproval.isAllowOnlyOnSuccess());
         AuthConfig authConfig = approval.getAuthConfig();
         for (String user : crApproval.getUsers()) {
             authConfig.add(new AdminUser(new CaseInsensitiveString(user)));

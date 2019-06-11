@@ -765,6 +765,12 @@ public class GoConfigFileHelper {
         updateApproval(pipelineName, stage, Approval.manualApproval());
     }
 
+    public void configureStageAsManualApproval(String pipelineName, String stage, boolean allowOnlyOnSuccess) {
+        Approval manualApproval = Approval.manualApproval();
+        manualApproval.setAllowOnlyOnSuccess(allowOnlyOnSuccess);
+        updateApproval(pipelineName, stage, manualApproval);
+    }
+
     public void addAuthorizedUserForStage(String pipelineName, String stageName, String... users) {
         configureStageAsManualApproval(pipelineName, stageName);
         CruiseConfig cruiseConfig = loadForEdit();

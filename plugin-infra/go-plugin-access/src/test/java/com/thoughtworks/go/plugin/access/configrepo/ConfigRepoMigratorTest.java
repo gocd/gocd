@@ -142,4 +142,18 @@ class ConfigRepoMigratorTest {
             assertThatJson(transformedJSON).isEqualTo(newJSON);
         }
     }
+
+    @Nested
+    class MigrateV5ToV6 {
+        @Test
+        void shouldDoNothing() {
+            ConfigRepoDocumentMother documentMother = new ConfigRepoDocumentMother();
+
+            String oldJSON = documentMother.v5Pipeline();
+            String newJSON = documentMother.v6Pipeline();
+            String transformedJSON = migrator.migrate(oldJSON, 6);
+
+            assertThatJson(transformedJSON).isEqualTo(newJSON);
+        }
+    }
 }

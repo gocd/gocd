@@ -207,6 +207,12 @@ public class PipelineWithTwoStages implements PreCondition {
         return pipeline;
     }
 
+    public Pipeline createPipelineWithFirstStageFailedAndSecondStageHasNotStarted() {
+        Pipeline pipeline = createPipelineWithFirstStageScheduled();
+        dbHelper.failStage(pipeline.getFirstStage());
+        return pipeline;
+    }
+
     public Pipeline createdPipelineWithAllStagesPassed() {
         return createdPipelineWithAllStagesCompleted(JobResult.Passed);
     }

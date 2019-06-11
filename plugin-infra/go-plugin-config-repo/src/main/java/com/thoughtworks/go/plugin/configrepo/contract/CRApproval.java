@@ -38,6 +38,10 @@ public class CRApproval extends CRBase {
     @Expose
     private Collection<String> roles = new ArrayList<>();
 
+    @SerializedName("allow_only_on_success")
+    @Expose
+    private boolean allowOnlyOnSuccess = false;
+
     public CRApproval() {
     }
 

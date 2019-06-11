@@ -43,10 +43,9 @@ import java.util.concurrent.Semaphore;
 
 import static com.thoughtworks.go.util.DataStructureUtils.a;
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class JobRerunScheduleServiceTest {
@@ -163,8 +162,7 @@ public class JobRerunScheduleServiceTest {
 
         stub(mingleConfig, pipeline, lastStage);
 
-        when(goConfigService.hasPreviousStage("mingle", lastStage.getIdentifier().getStageName())).thenReturn(true);
-        when(goConfigService.previousStage("mingle", lastStage.getIdentifier().getStageName())).thenReturn(mingleConfig.get(1));
+        when(schedulingChecker.shouldAllowSchedulingStage(pipeline, lastStage.getName())).thenReturn(ScheduleStageResult.PreviousStageNotRan);
 
         assertScheduleFailure("dev", lastStage, "Can not run stage [test] in pipeline [mingle] because its previous stage has not been run.", 400);
     }
@@ -225,7 +223,7 @@ public class JobRerunScheduleServiceTest {
 
         final boolean[] secondReqGotInAfterFirstFinished = new boolean[]{false};
 
-        schedulingChecker = new SchedulingCheckerService(null, null, null, null, null, null, null, null) {
+        schedulingChecker = new SchedulingCheckerService(null, null, null, null, null, null, null, null, null) {
             @Override
             public boolean canSchedule(OperationResult result) {
                 if (requestNumber.get() == 0) {//is first request, and has lock
@@ -358,6 +356,7 @@ public class JobRerunScheduleServiceTest {
 
         when(schedulingChecker.canSchedule(any(OperationResult.class))).thenReturn(true);
         when(schedulingChecker.canRerunStage(eq(pipeline.getIdentifier()), eq(lastStage.getName()), eq("anonymous"), any(OperationResult.class))).thenReturn(true);
+        when(schedulingChecker.shouldAllowSchedulingStage(pipeline, lastStage.getName())).thenReturn(ScheduleStageResult.CanSchedule);
 
         when(securityService.hasOperatePermissionForStage(eq("mingle"), eq(lastStage.getName()), any(String.class))).thenReturn(true);
 

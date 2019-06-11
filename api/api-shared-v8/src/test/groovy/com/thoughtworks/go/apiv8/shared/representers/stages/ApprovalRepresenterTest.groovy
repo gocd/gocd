@@ -19,12 +19,12 @@ package com.thoughtworks.go.apiv8.shared.representers.stages
 import com.thoughtworks.go.api.util.GsonTransformer
 import com.thoughtworks.go.apiv8.admin.shared.representers.stages.ApprovalRepresenter
 import com.thoughtworks.go.config.*
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
-import static org.junit.jupiter.api.Assertions.assertEquals
-
+import static org.assertj.core.api.Assertions.assertThat
 
 class ApprovalRepresenterTest {
 
@@ -40,7 +40,7 @@ class ApprovalRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(approvalHash)
     def approval = ApprovalRepresenter.fromJSON(jsonReader)
 
-    assertEquals(getApproval().getType(), approval.getType())
+    assertThat(getApproval().getType()).isEqualTo(approval.getType())
   }
 
   @Test
@@ -52,7 +52,7 @@ class ApprovalRepresenterTest {
     authConfig.addError("name", "error")
     approval.addError("type", "You have defined approval type as 'junk'. Approval can only be of the type 'manual' or 'success'.")
 
-    def actualJson = toObjectString({ ApprovalRepresenter.toJSON(it, approval)})
+    def actualJson = toObjectString({ ApprovalRepresenter.toJSON(it, approval) })
     assertThatJson(actualJson).isEqualTo(approvalHashWithErrors)
   }
 
@@ -61,17 +61,92 @@ class ApprovalRepresenterTest {
     def jsonReader = GsonTransformer.instance.jsonReaderFrom(approvalHash)
     def approval = ApprovalRepresenter.fromJSON(jsonReader)
 
-    assertEquals(getApproval(), approval)
+    assertThat(getApproval()).isEqualTo(approval)
+  }
+
+  @Nested
+  class AllowOnlyOnSuccess {
+    @Test
+    void 'should convert hash with allow_only_on_success'() {
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom(inputHash)
+      def actualObject = ApprovalRepresenter.fromJSON(jsonReader)
+
+      assertThat(approvalObject().getType()).isEqualTo(actualObject.getType())
+      assertThat(actualObject.allowOnlyOnSuccess).isTrue()
+    }
+
+    @Test
+    void 'should serialize approval object'() {
+      def actualJson = toObjectString({ ApprovalRepresenter.toJSON(it, approvalObject()) })
+
+      assertThatJson(actualJson).isEqualTo(inputHash)
+    }
+
+    @Test
+    void 'should not serialize allow_only_on_success if type is success'() {
+      Approval successApproval = Approval.automaticApproval()
+      def expectedJSON = [
+        type         : "success",
+        authorization: [
+          roles: [],
+          users: []
+        ]
+      ]
+
+      def actualJson = toObjectString({ ApprovalRepresenter.toJSON(it, successApproval) })
+
+      assertThatJson(actualJson).isEqualTo(expectedJSON)
+    }
+
+    @Test
+    void 'should not serialize allow_only_on_success if it is not set'() {
+      def approval = approvalObject()
+      approval.allowOnlyOnSuccess = false
+      def actualJson = toObjectString({ ApprovalRepresenter.toJSON(it, approval) })
+
+      def expectedJSON = inputHash
+      expectedJSON.remove("allow_only_on_success")
+
+      assertThatJson(actualJson).isEqualTo(expectedJSON)
+
+    }
+
+    @Test
+    void 'should deserialize allow_only_on_success if type is success'() {
+      def inputJSON = inputHash
+      inputJSON.replace("type", "success")
+
+      def jsonReader = GsonTransformer.instance.jsonReaderFrom(inputJSON)
+      def actualObject = ApprovalRepresenter.fromJSON(jsonReader)
+
+      assertThat(actualObject.getType()).isEqualTo("success")
+      assertThat(actualObject.isAllowOnlyOnSuccess()).isTrue()
+    }
+
+    def inputHash = [
+      type               : "manual",
+      allow_only_on_success: true,
+      authorization      : [
+        roles: [],
+        users: []
+      ]
+    ]
+
+    static def approvalObject() {
+      def manualApproval = Approval.manualApproval()
+      manualApproval.allowOnlyOnSuccess = true
+      return manualApproval;
+    }
   }
 
   def approvalHash =
-  [
-    type: "manual",
-    authorization: [
-      roles: ["role1", "role2"],
-      users: ["user1", "user2"]
+    [
+      type         : "manual",
+      authorization: [
+        roles: ["role1", "role2"],
+        users: ["user1", "user2"]
+      ]
     ]
-  ]
 
   static def getApproval() {
     def authConfig = new AuthConfig(new AdminRole(new CaseInsensitiveString("role1")), new AdminRole(new CaseInsensitiveString("role2")),
@@ -80,17 +155,17 @@ class ApprovalRepresenterTest {
   }
 
   def approvalHashWithErrors =
-  [
-    type: "junk",
-    authorization: [
-      roles: ["role1"],
-      users: ["user1"],
-      errors: [
-        name: ["error"]
+    [
+      type         : "junk",
+      authorization: [
+        roles : ["role1"],
+        users : ["user1"],
+        errors: [
+          name: ["error"]
+        ]
+      ],
+      errors       : [
+        type: ["You have defined approval type as 'junk'. Approval can only be of the type 'manual' or 'success'."]
       ]
-    ],
-    errors: [
-      type: ["You have defined approval type as 'junk'. Approval can only be of the type 'manual' or 'success'."]
     ]
-  ]
 }

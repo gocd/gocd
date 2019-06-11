@@ -19,51 +19,55 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.config.Admin;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.StageConfigMother;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ApprovalTest {
 
     public static final String DEFAULT_GROUP = "defaultGroup";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
 
     @Test
-    public void shouldNotAssignType() throws Exception {
+    void shouldSetDefaultValues() {
+        Approval approval = new Approval();
+
+        assertThat(approval.getType()).isEqualTo(Approval.MANUAL);
+        assertThat(approval.getAuthConfig()).isEmpty();
+        assertThat(approval.getDisplayName()).isEqualTo("Manual");
+    }
+
+    @Test
+    public void shouldNotAssignType() {
         Approval approval = new Approval();
         approval.setConfigAttributes(Collections.singletonMap(Approval.TYPE, Approval.SUCCESS));
-        assertThat(approval.getType(), is(Approval.SUCCESS));
+        assertThat(approval.getType()).isEqualTo(Approval.SUCCESS);
         approval.setConfigAttributes(new HashMap());
-        assertThat(approval.getType(), is(Approval.SUCCESS));
+        assertThat(approval.getType()).isEqualTo(Approval.SUCCESS);
 
         approval.setConfigAttributes(Collections.singletonMap(Approval.TYPE, Approval.MANUAL));
-        assertThat(approval.getType(), is(Approval.MANUAL));
+        assertThat(approval.getType()).isEqualTo(Approval.MANUAL);
         approval.setConfigAttributes(new HashMap());
-        assertThat(approval.getType(), is(Approval.MANUAL));
+        assertThat(approval.getType()).isEqualTo(Approval.MANUAL);
     }
 
     @Test
-    public void shouldValidateApprovalType() throws Exception {
+    void shouldValidateApprovalType() {
         Approval approval = new Approval();
         approval.setConfigAttributes(Collections.singletonMap(Approval.TYPE, "not-manual-or-success"));
-        assertThat(approval.getType(), is("not-manual-or-success"));
+        assertThat(approval.getType()).isEqualTo("not-manual-or-success");
         approval.validate(ConfigSaveValidationContext.forChain(new BasicCruiseConfig(), new BasicPipelineConfigs()));
-        assertThat(approval.errors().firstError(), is("You have defined approval type as 'not-manual-or-success'. Approval can only be of the type 'manual' or 'success'."));
+        assertThat(approval.errors().firstError()).isEqualTo("You have defined approval type as 'not-manual-or-success'. Approval can only be of the type 'manual' or 'success'.");
     }
 
     @Test
-    public void shouldFailValidateWhenUsersWithoutOperatePermissionOnGroupAreAuthorizedToApproveStage_WithPipelineConfigSaveValidationContext() {
+    void shouldFailValidateWhenUsersWithoutOperatePermissionOnGroupAreAuthorizedToApproveStage_WithPipelineConfigSaveValidationContext() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -78,12 +82,12 @@ public class ApprovalTest {
         approval.validate(PipelineConfigSaveValidationContext.forChain(true, DEFAULT_GROUP, cruiseConfig, pipeline, stage));
 
         AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(false));
-        assertThat(user.errors().on("name"), is("User \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage"));
+        assertThat(user.errors().isEmpty()).isFalse();
+        assertThat(user.errors().on("name")).isEqualTo("User \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage");
     }
 
     @Test
-    public void shouldPassValidateWhenNoPermissionAreSetupOnGroupAndUserIsAuthorizedToApproveStage_WithPipelineConfigSaveValidationContext() {
+    void shouldPassValidateWhenNoPermissionAreSetupOnGroupAndUserIsAuthorizedToApproveStage_WithPipelineConfigSaveValidationContext() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"),
                         new RoleUser(new CaseInsensitiveString("first")),
@@ -102,7 +106,7 @@ public class ApprovalTest {
     }
 
     @Test
-    public void shouldPassValidateWhenARoleIsAdminOnGroupAndThatRoleIsAuthorizedToApproveStage_WithPipelineConfigSaveValidationContext() {
+    void shouldPassValidateWhenARoleIsAdminOnGroupAndThatRoleIsAuthorizedToApproveStage_WithPipelineConfigSaveValidationContext() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"),
                         new RoleUser(new CaseInsensitiveString("first")),
@@ -123,15 +127,15 @@ public class ApprovalTest {
     }
 
     @Test
-    public void shouldReturnDisplayNameForApprovalType() {
+    void shouldReturnDisplayNameForApprovalType() {
         Approval approval = Approval.automaticApproval();
-        assertThat(approval.getDisplayName(), is("On Success"));
+        assertThat(approval.getDisplayName()).isEqualTo("On Success");
         approval = Approval.manualApproval();
-        assertThat(approval.getDisplayName(), is("Manual"));
+        assertThat(approval.getDisplayName()).isEqualTo("Manual");
     }
 
     @Test
-    public void shouldOverwriteExistingUsersWhileSettingNewUsers() {
+    void shouldOverwriteExistingUsersWhileSettingNewUsers() {
         Approval approval = Approval.automaticApproval();
         approval.getAuthConfig().add(new AdminUser(new CaseInsensitiveString("sachin")));
         approval.getAuthConfig().add(new AdminRole(new CaseInsensitiveString("admin")));
@@ -149,37 +153,37 @@ public class ApprovalTest {
 
         approval.setOperatePermissions(names, roles);
 
-        assertThat(approval.getAuthConfig().size(), is(4));
-        assertThat(approval.getAuthConfig(), hasItem((Admin) new AdminUser(new CaseInsensitiveString("awesome_shilpa"))));
-        assertThat(approval.getAuthConfig(), hasItem((Admin) new AdminUser(new CaseInsensitiveString("youth"))));
-        assertThat(approval.getAuthConfig(), hasItem((Admin) new AdminRole(new CaseInsensitiveString("role1"))));
-        assertThat(approval.getAuthConfig(), hasItem((Admin) new AdminRole(new CaseInsensitiveString("role2"))));
+        assertThat(approval.getAuthConfig().size()).isEqualTo(4);
+        assertThat(approval.getAuthConfig()).contains((Admin) new AdminUser(new CaseInsensitiveString("awesome_shilpa")));
+        assertThat(approval.getAuthConfig()).contains((Admin) new AdminUser(new CaseInsensitiveString("youth")));
+        assertThat(approval.getAuthConfig()).contains((Admin) new AdminRole(new CaseInsensitiveString("role1")));
+        assertThat(approval.getAuthConfig()).contains((Admin) new AdminRole(new CaseInsensitiveString("role2")));
     }
 
     @Test
-    public void shouldClearAllPermissions() {
+    void shouldClearAllPermissions() {
         Approval approval = Approval.automaticApproval();
         approval.getAuthConfig().add(new AdminUser(new CaseInsensitiveString("sachin")));
         approval.getAuthConfig().add(new AdminRole(new CaseInsensitiveString("admin")));
 
         approval.removeOperatePermissions();
 
-        assertThat(approval.getAuthConfig().isEmpty(), is(true));
+        assertThat(approval.getAuthConfig().isEmpty()).isTrue();
     }
 
     @Test
-    public void shouldClearAllPermissionsWhenTheAttributesAreNull() {
+    void shouldClearAllPermissionsWhenTheAttributesAreNull() {
         Approval approval = Approval.automaticApproval();
         approval.getAuthConfig().add(new AdminUser(new CaseInsensitiveString("sachin")));
         approval.getAuthConfig().add(new AdminRole(new CaseInsensitiveString("admin")));
 
         approval.setOperatePermissions(null, null);
 
-        assertThat(approval.getAuthConfig().isEmpty(), is(true));
+        assertThat(approval.getAuthConfig().isEmpty()).isTrue();
     }
 
     @Test
-    public void validate_shouldNotAllow_UserInApprovalListButNotInOperationList() {
+    void validate_shouldNotAllow_UserInApprovalListButNotInOperationList() {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -193,12 +197,12 @@ public class ApprovalTest {
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
         AdminUser user = approval.getAuthConfig().getUsers().get(0);
-        assertThat(user.errors().isEmpty(), is(false));
-        assertThat(user.errors().on("name"), is("User \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage"));
+        assertThat(user.errors().isEmpty()).isFalse();
+        assertThat(user.errors().on("name")).isEqualTo("User \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage");
     }
 
     @Test
-    public void validate_shouldNotAllowRoleInApprovalListButNotInOperationList() throws Exception {
+    void validate_shouldNotAllowRoleInApprovalListButNotInOperationList() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -212,12 +216,12 @@ public class ApprovalTest {
         approval.validate(ConfigSaveValidationContext.forChain(cruiseConfig, group, pipeline, stage));
 
         AdminRole user = approval.getAuthConfig().getRoles().get(0);
-        assertThat(user.errors().isEmpty(), is(false));
-        assertThat(user.errors().on("name"), is("Role \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage"));
+        assertThat(user.errors().isEmpty()).isFalse();
+        assertThat(user.errors().on("name")).isEqualTo("Role \"not-present\" who is not authorized to operate pipeline group `defaultGroup` can not be authorized to approve stage");
     }
 
     @Test
-    public void validate_shouldAllowUserWhoseRoleHasOperatePermission() throws Exception {
+    void validate_shouldAllowUserWhoseRoleHasOperatePermission() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -234,7 +238,7 @@ public class ApprovalTest {
     }
 
     @Test
-    public void validate_shouldAllowUserWhoIsDefinedInGroup() throws Exception {
+    void validate_shouldAllowUserWhoIsDefinedInGroup() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -251,7 +255,7 @@ public class ApprovalTest {
     }
 
     @Test
-    public void validate_shouldAllowUserWhenSecurityIsNotDefinedInGroup() throws Exception {
+    void validate_shouldAllowUserWhenSecurityIsNotDefinedInGroup() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -268,7 +272,7 @@ public class ApprovalTest {
     }
 
     @Test
-    public void validate_shouldAllowAdminToOperateOnAStage() throws Exception {
+    void validate_shouldAllowAdminToOperateOnAStage() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -285,7 +289,7 @@ public class ApprovalTest {
     }
 
     @Test
-    public void shouldShowBugWhichAllowsAUserWithoutOperatePermissionToOperateAStage() throws Exception {
+    void shouldShowBugWhichAllowsAUserWithoutOperatePermissionToOperateAStage() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"),
                         new RoleUser(new CaseInsensitiveString("first")),
@@ -308,7 +312,7 @@ public class ApprovalTest {
     }
 
     @Test
-    public void validate_shouldNotTryAndValidateWhenWithinTemplate() throws Exception {
+    void validate_shouldNotTryAndValidateWhenWithinTemplate() throws Exception {
         CruiseConfig cruiseConfig = cruiseConfigWithSecurity(
                 new RoleConfig(new CaseInsensitiveString("role"), new RoleUser(new CaseInsensitiveString("first")), new RoleUser(new CaseInsensitiveString("second"))), new AdminUser(
                         new CaseInsensitiveString("admin")));
@@ -324,15 +328,39 @@ public class ApprovalTest {
     }
 
     @Test
-    public void shouldValidateTree() {
+    void shouldValidateTree() {
         Approval approval = new Approval(new AuthConfig(new AdminRole(new CaseInsensitiveString("role"))));
         BasicCruiseConfig cruiseConfig = GoConfigMother.defaultCruiseConfig();
         cruiseConfig.server().security().adminsConfig().addRole(new AdminRole(new CaseInsensitiveString("super-admin")));
         PipelineConfig pipelineConfig = new PipelineConfig(new CaseInsensitiveString("p1"), new MaterialConfigs());
         cruiseConfig.addPipeline("g1", pipelineConfig);
 
-        assertThat(approval.validateTree(PipelineConfigSaveValidationContext.forChain(true, "g1", cruiseConfig, pipelineConfig)), is(false));
-        assertThat(approval.getAuthConfig().errors().isEmpty(), is(false));
+        assertThat(approval.validateTree(PipelineConfigSaveValidationContext.forChain(true, "g1", cruiseConfig, pipelineConfig))).isFalse();
+        assertThat(approval.getAuthConfig().errors().isEmpty()).isFalse();
+    }
+
+    @Test
+    void shouldSetAllowOnSuccessOnlyOnManualApproval() {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("allowOnlyOnSuccess", "true");
+        attributes.put(Approval.TYPE, "manual");
+        Approval approval = new Approval();
+        approval.setConfigAttributes(attributes);
+
+        assertThat(approval.getType()).isEqualTo("manual");
+        assertThat(approval.isAllowOnlyOnSuccess()).isTrue();
+    }
+
+    @Test
+    void shouldSetAllowOnSuccessOnlyOnSuccessApproval() {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("allowOnlyOnSuccess", "true");
+        attributes.put(Approval.TYPE, "success");
+        Approval approval = new Approval();
+        approval.setConfigAttributes(attributes);
+
+        assertThat(approval.getType()).isEqualTo("success");
+        assertThat(approval.isAllowOnlyOnSuccess()).isTrue();
     }
 
     private CruiseConfig cruiseConfigWithSecurity(Role roleDefinition, Admin admins) {
@@ -375,6 +403,6 @@ public class ApprovalTest {
     }
 
     private void assertNoErrors(Admin userOrRole) {
-        assertThat(userOrRole.errors().getAll().toString(), userOrRole.errors().isEmpty(), is(true));
+        assertThat(userOrRole.errors().isEmpty()).as(userOrRole.errors().getAll().toString()).isTrue();
     }
 }

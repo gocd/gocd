@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.exceptions.StageNotFoundException;
@@ -304,17 +301,21 @@ public class ScheduleService {
             if (!securityService.hasOperatePermissionForStage(pipelineName, stageName, username)) {
                 errorHandler.noOperatePermission(pipelineName, stageName);
             }
+
             Pipeline pipeline = pipelineService.fullPipelineByCounter(pipelineName, counter);
-            if (pipeline == null) {
-                errorHandler.nullPipeline(pipelineName, counter, stageName);
-            }
-            if (!pipeline.hasStageBeenRun(stageName)) {
-                if (goConfigService.hasPreviousStage(pipelineName, stageName)) {
-                    CaseInsensitiveString previousStageName = goConfigService.previousStage(pipelineName, stageName).name();
-                    if (!pipeline.hasStageBeenRun(CaseInsensitiveString.str(previousStageName))) {
-                        errorHandler.previousStageNotRun(pipeline.getName(), stageName);
-                    }
-                }
+            ScheduleStageResult canScheduleStage = schedulingChecker.shouldAllowSchedulingStage(pipeline, stageName);
+            switch (canScheduleStage) {
+                case PipelineNotFound:
+                    errorHandler.nullPipeline(pipelineName, counter, stageName);
+                    break;
+                case PreviousStageNotRan:
+                    errorHandler.previousStageNotRun(pipelineName, stageName);
+                    break;
+                case PreviousStageNotPassed:
+                    String errorMessage = String.format("Cannot schedule %s as the previous stage %s has %s!", stageName, canScheduleStage.getPreviousStageName(), canScheduleStage.getPreviousStageResult());
+
+                    errorHandler.cantSchedule(errorMessage, pipelineName, stageName);
+                    break;
             }
 
             Stage stage = internalRerun(pipeline, stageName, username, creator, errorHandler);
@@ -531,11 +532,15 @@ public class ScheduleService {
     }
 
     public boolean canRun(PipelineIdentifier pipelineIdentifier, String stageName, String username, boolean hasPreviousStageBeenScheduled) {
+        ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
+        return canRun(pipelineIdentifier, stageName, username, hasPreviousStageBeenScheduled, result);
+    }
+
+    public boolean canRun(PipelineIdentifier pipelineIdentifier, String stageName, String username, boolean hasPreviousStageBeenScheduled, ServerHealthStateOperationResult result) {
         if (!goConfigService.hasStageConfigNamed(pipelineIdentifier.getName(), stageName)) {
             return false;
         }
 
-        ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
         schedulingChecker.canScheduleStage(pipelineIdentifier, stageName, username, result);
         return result.getServerHealthState().isSuccess() && hasPreviousStageBeenScheduled;
     }

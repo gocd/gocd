@@ -15,7 +15,10 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.domain.PipelineIdentifier;
+import com.thoughtworks.go.config.Approval;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.cronjob.GoDiskSpaceMonitor;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
@@ -23,8 +26,9 @@ import com.thoughtworks.go.server.service.result.OperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
 import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 
@@ -32,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
@@ -39,18 +44,18 @@ import static org.mockito.MockitoAnnotations.initMocks;
 public class SchedulingCheckerServiceUnitTest {
 
     private SchedulingCheckerService schedulingChecker;
+    private GoConfigService goConfigService;
     private CompositeChecker compositeChecker;
     private OperationResult operationResult;
     @Captor
     private ArgumentCaptor<List<SchedulingChecker>> argumentCaptor;
 
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         initMocks(this);
-        schedulingChecker = spy(new SchedulingCheckerService(mock(GoConfigService.class), mock(StageService.class),
-                mock(SecurityService.class), mock(PipelineLockService.class), mock(TriggerMonitor.class), mock(PipelineScheduleQueue.class),
-                mock(PipelinePauseService.class), new OutOfDiskSpaceChecker(mock(GoDiskSpaceMonitor.class))));
+        goConfigService = mock(GoConfigService.class);
+        schedulingChecker = spy(new SchedulingCheckerService(goConfigService, mock(StageService.class),
+                mock(SecurityService.class), mock(PipelineLockService.class), mock(TriggerMonitor.class), mock(PipelineScheduleQueue.class), mock(PipelinePauseService.class), mock(PipelineService.class), new OutOfDiskSpaceChecker(mock(GoDiskSpaceMonitor.class))));
 
         compositeChecker = mock(CompositeChecker.class);
         operationResult = mock(OperationResult.class);
@@ -91,7 +96,7 @@ public class SchedulingCheckerServiceUnitTest {
 
     @Test
     public void shouldCheckIfScheduleCheckersCalledOnScheduleStage() {
-        schedulingChecker.canScheduleStage(new PipelineIdentifier("name",1),"stage","user",operationResult );
+        schedulingChecker.canScheduleStage(new PipelineIdentifier("name", 1), "stage", "user", operationResult);
 
         verify(schedulingChecker).buildScheduleCheckers(argumentCaptor.capture());
         verify(compositeChecker).check(operationResult);
@@ -106,7 +111,7 @@ public class SchedulingCheckerServiceUnitTest {
 
     @Test
     public void shouldCheckIfScheduleCheckersCalledOnSchedule() {
-        schedulingChecker.canSchedule(operationResult );
+        schedulingChecker.canSchedule(operationResult);
 
         verify(schedulingChecker).buildScheduleCheckers(argumentCaptor.capture());
         verify(compositeChecker).check(operationResult);
@@ -166,6 +171,118 @@ public class SchedulingCheckerServiceUnitTest {
         assertFor(argumentCaptor.getValue(), PipelinePauseChecker.class);
         assertFor(argumentCaptor.getValue(), StageActiveChecker.class);
         assertFor(argumentCaptor.getValue(), OutOfDiskSpaceChecker.class);
+    }
+
+    @Nested
+    class AllowSchedulingStage {
+        private String stageName;
+        private Pipeline pipeline;
+        private CaseInsensitiveString previousStageName;
+        private String pipelineName;
+        private StageConfig previousStageConfig;
+        private StageConfig nextStageConfig;
+        private Approval approval;
+        private Stage previousStage;
+
+        @BeforeEach
+        void setUp() {
+            pipelineName = "pipeline";
+            stageName = "current_stage";
+            pipeline = mock(Pipeline.class);
+            previousStageConfig = mock(StageConfig.class);
+            nextStageConfig = mock(StageConfig.class);
+            approval = mock(Approval.class);
+            Stages stages = mock(Stages.class);
+            previousStage = mock(Stage.class);
+            previousStageName = new CaseInsensitiveString("previous_stage");
+
+            when(pipeline.getName()).thenReturn(pipelineName);
+            when(pipeline.hasStageBeenRun(stageName)).thenReturn(false);
+            when(goConfigService.hasPreviousStage(pipelineName, stageName)).thenReturn(true);
+
+            when(goConfigService.previousStage(pipelineName, stageName)).thenReturn(previousStageConfig);
+            when(previousStageConfig.name()).thenReturn(previousStageName);
+            when(pipeline.hasStageBeenRun(previousStageName.toString())).thenReturn(true);
+            when(goConfigService.nextStage(pipelineName, previousStageName.toString())).thenReturn(nextStageConfig);
+            when(nextStageConfig.getApproval()).thenReturn(approval);
+
+            when(pipeline.getStages()).thenReturn(stages);
+            when(stages.byName(previousStageName.toString())).thenReturn(previousStage);
+        }
+
+        @Test
+        void shouldReturnPipelineNotFoundIfPipelineSpecifiedIsNull() {
+            ScheduleStageResult scheduleStageResult = schedulingChecker.shouldAllowSchedulingStage(null, stageName);
+
+            assertEquals(ScheduleStageResult.PipelineNotFound, scheduleStageResult);
+        }
+
+        @Test
+        void shouldNotAllowToScheduleIfPreviousStageHasNotRanYet() {
+            when(pipeline.hasStageBeenRun(previousStageName.toString())).thenReturn(false);
+            ScheduleStageResult scheduleStageResult = schedulingChecker.shouldAllowSchedulingStage(pipeline, stageName);
+
+            assertEquals(ScheduleStageResult.PreviousStageNotRan, scheduleStageResult);
+        }
+
+        @Test
+        void shouldNotAllowToScheduleIfPreviousStageFailedAndAllowOnlyOnSuccessWasSet() {
+            when(approval.isAllowOnlyOnSuccess()).thenReturn(true);
+            when(previousStage.getResult()).thenReturn(StageResult.Failed);
+
+            ScheduleStageResult scheduleStageResult = schedulingChecker.shouldAllowSchedulingStage(pipeline, stageName);
+
+            assertEquals(ScheduleStageResult.PreviousStageNotPassed, scheduleStageResult);
+        }
+
+        @Nested
+        class CanSchedule {
+            @Test
+            void shouldAllowScheduleIfTheStageHasAlreadyRan() {
+                when(pipeline.hasStageBeenRun(stageName)).thenReturn(true);
+
+                ScheduleStageResult scheduleStageResult = schedulingChecker.shouldAllowSchedulingStage(pipeline, stageName);
+
+                assertEquals(ScheduleStageResult.CanSchedule, scheduleStageResult);
+            }
+
+            @Test
+            void shouldAllowScheduleIfTheStageIsTheFirstStage() {
+                when(goConfigService.hasPreviousStage(pipelineName, stageName)).thenReturn(false);
+
+                ScheduleStageResult scheduleStageResult = schedulingChecker.shouldAllowSchedulingStage(pipeline, stageName);
+
+                assertEquals(ScheduleStageResult.CanSchedule, scheduleStageResult);
+            }
+
+            @Test
+            void shouldAllowScheduleIfPreviousStageRanAndAllowOnlyOnSuccessWasNotSet() {
+                when(approval.isAllowOnlyOnSuccess()).thenReturn(false);
+                ScheduleStageResult scheduleStageResult = schedulingChecker.shouldAllowSchedulingStage(pipeline, stageName);
+
+                assertEquals(ScheduleStageResult.CanSchedule, scheduleStageResult);
+            }
+
+            @Test
+            void shouldAllowScheduleEvenIfPreviousStageRanUnSuccessfullyAndAllowOnlyOnSuccessWasNotSet() {
+                when(approval.isAllowOnlyOnSuccess()).thenReturn(false);
+                when(previousStage.getResult()).thenReturn(StageResult.Failed);
+
+                ScheduleStageResult scheduleStageResult = schedulingChecker.shouldAllowSchedulingStage(pipeline, stageName);
+
+                assertEquals(ScheduleStageResult.CanSchedule, scheduleStageResult);
+            }
+
+            @Test
+            void shouldAllowScheduleIfPreviousStageRanSuccessfullyAndAllowOnlyOnSuccessWasSet() {
+                when(approval.isAllowOnlyOnSuccess()).thenReturn(true);
+                when(previousStage.getResult()).thenReturn(StageResult.Passed);
+
+                ScheduleStageResult scheduleStageResult = schedulingChecker.shouldAllowSchedulingStage(pipeline, stageName);
+
+                assertEquals(ScheduleStageResult.CanSchedule, scheduleStageResult);
+            }
+        }
     }
 
     private void assertFor(List<SchedulingChecker> checkerList, Class typeOfScheduleChecker) {

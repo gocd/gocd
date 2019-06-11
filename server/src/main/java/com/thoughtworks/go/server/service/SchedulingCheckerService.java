@@ -15,9 +15,14 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.Approval;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.domain.Pipeline;
 import com.thoughtworks.go.domain.PipelineIdentifier;
+import com.thoughtworks.go.domain.Stage;
+import com.thoughtworks.go.domain.StageResult;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
@@ -38,6 +43,7 @@ public class SchedulingCheckerService {
     private final PipelineLockService pipelineLockService;
     private final TriggerMonitor triggerMonitor;
     private final PipelineScheduleQueue pipelineScheduleQueue;
+    private final PipelineService pipelineService;
     private final OutOfDiskSpaceChecker outOfDiskSpaceChecker;
     private PipelinePauseService pipelinePauseService;
 
@@ -47,7 +53,7 @@ public class SchedulingCheckerService {
                                     SecurityService securityService,
                                     PipelineLockService pipelineLockService,
                                     TriggerMonitor triggerMonitor, PipelineScheduleQueue pipelineScheduleQueue,
-                                    PipelinePauseService pipelinePauseService, OutOfDiskSpaceChecker outOfDiskSpaceChecker) {
+                                    PipelinePauseService pipelinePauseService, PipelineService pipelineService, OutOfDiskSpaceChecker outOfDiskSpaceChecker) {
         this.goConfigService = goConfigService;
         this.stageService = stageService;
         this.securityService = securityService;
@@ -55,6 +61,7 @@ public class SchedulingCheckerService {
         this.triggerMonitor = triggerMonitor;
         this.pipelineScheduleQueue = pipelineScheduleQueue;
         this.pipelinePauseService = pipelinePauseService;
+        this.pipelineService = pipelineService;
         this.outOfDiskSpaceChecker = outOfDiskSpaceChecker;
     }
 
@@ -149,9 +156,37 @@ public class SchedulingCheckerService {
                 new PipelinePauseChecker(pipelineName, pipelinePauseService),
                 new PipelineActiveChecker(stageService, pipelineIdentifier),
                 new StageActiveChecker(pipelineName, stageName, stageService),
+                new StageManualTriggerChecker(pipelineName, pipelineIdentifier.getCounter(), stageName, this, pipelineService),
                 diskCheckers()));
         checker.check(result);
         return result.canContinue();
+    }
+
+    ScheduleStageResult shouldAllowSchedulingStage(Pipeline pipeline, String stageName) {
+        if (pipeline == null) {
+            return ScheduleStageResult.PipelineNotFound;
+        }
+        if (pipeline.hasStageBeenRun(stageName)) {
+            return ScheduleStageResult.CanSchedule;
+        }
+        String pipelineName = pipeline.getName();
+        if (!goConfigService.hasPreviousStage(pipelineName, stageName)) {
+            return ScheduleStageResult.CanSchedule;
+        }
+        CaseInsensitiveString previousStageName = goConfigService.previousStage(pipelineName, stageName).name();
+        if (!pipeline.hasStageBeenRun(CaseInsensitiveString.str(previousStageName))) {
+            return ScheduleStageResult.PreviousStageNotRan;
+        }
+        StageConfig currentStageConfig = goConfigService.nextStage(pipelineName, previousStageName.toString());
+        Approval approval = currentStageConfig.getApproval();
+        if (approval.isAllowOnlyOnSuccess()) {
+            Stage previousStage = pipeline.getStages().byName(previousStageName.toString());
+            StageResult previousStageResult = previousStage.getResult();
+            if (previousStageResult != StageResult.Passed) {
+                return ScheduleStageResult.PreviousStageNotPassed.setPreviousStageValues(previousStageName.toString(), previousStageResult.name());
+            }
+        }
+        return ScheduleStageResult.CanSchedule;
     }
 
     CompositeChecker buildScheduleCheckers(List<SchedulingChecker> schedulingCheckers) {

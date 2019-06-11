@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
+import static com.thoughtworks.go.api.util.HaltApiMessages.errorWhileEncryptingMessage;
 
 public class EnvironmentVariableRepresenter {
     public static void toJSON(OutputListWriter jsonWriter, List<EnvironmentVariableConfig> environmentVariableConfigs) {
@@ -86,7 +87,7 @@ public class EnvironmentVariableRepresenter {
         try {
             environmentVariableConfig.deserialize(name, value, secure, encryptedValue);
         } catch (CryptoException e) {
-            environmentVariableConfig.addError(name, e.getMessage());
+            environmentVariableConfig.addError(name, errorWhileEncryptingMessage());
         }
 
         return environmentVariableConfig;

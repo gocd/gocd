@@ -15,38 +15,26 @@
  */
 package com.thoughtworks.go.helper;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.JobConfig;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
-import com.thoughtworks.go.domain.DefaultSchedulingContext;
-import com.thoughtworks.go.domain.JobResult;
-import com.thoughtworks.go.domain.JobState;
-import com.thoughtworks.go.domain.MaterialRevision;
-import com.thoughtworks.go.domain.MaterialRevisions;
-import com.thoughtworks.go.domain.PipelinePauseInfo;
-import com.thoughtworks.go.domain.StageIdentifier;
-import com.thoughtworks.go.domain.StageResult;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.domain.materials.ModifiedAction;
-import com.thoughtworks.go.presentation.pipelinehistory.JobHistory;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels;
-import com.thoughtworks.go.presentation.pipelinehistory.PipelineModel;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModel;
-import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
+import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.InstanceFactory;
 import com.thoughtworks.go.server.service.MaterialConfigConverter;
 import com.thoughtworks.go.util.GoConstants;
 import com.thoughtworks.go.util.TimeProvider;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 public class PipelineHistoryMother {
     public static final String REVISION = "svn.100";
@@ -83,6 +71,46 @@ public class PipelineHistoryMother {
         return history;
     }
 
+    public static PipelineInstanceModels pipelineHistoryWithErrorMessage(PipelineConfig pipelineConfig, Date modificationDate) {
+        PipelineInstanceModels history = PipelineInstanceModels.createPipelineInstanceModels();
+        Modification modification = new Modification("user", "Comment", "email", modificationDate, REVISION);
+        modification.createModifiedFile("file", "dir", ModifiedAction.added);
+        MaterialRevisions revisions = new MaterialRevisions();
+        Material material = new MaterialConfigConverter().toMaterial(pipelineConfig.materialConfigs().first());
+        material.setId(10);
+        revisions.addRevision(material, modification);
+        BuildCause buildCause = BuildCause.createManualForced(revisions, Username.ANONYMOUS);
+        PipelineInstanceModel item = PipelineInstanceModel.createPipeline(CaseInsensitiveString.str(pipelineConfig.name()), -1, "1", buildCause, stageHistoryWithErrorMessage(pipelineConfig, modificationDate));
+        item.setCounter(1);
+        item.setId(1);
+        item.setComment("build comment");
+        history.add(item);
+        return history;
+    }
+
+    public static StageInstanceModels stageHistoryWithErrorMessage(PipelineConfig pipelineConfig, Date modificationDate) {
+        StageInstanceModels history = new StageInstanceModels();
+        StageConfig devConfig = pipelineConfig.get(0);
+        StageInstanceModel devModel = new StageInstanceModel(CaseInsensitiveString.str(devConfig.name()), "1", buildCancelledHistory(devConfig, modificationDate));
+        devModel.setCounter("1");
+        devModel.setCanRun(true);
+        devModel.setApprovalType("success");
+        devModel.setApprovedBy(GoConstants.DEFAULT_APPROVED_BY);
+        history.add(devModel);
+
+
+        StageConfig ftConfig = pipelineConfig.get(1);
+        StageInstanceModel ftModel = new StageInstanceModel(CaseInsensitiveString.str(ftConfig.name()), "1", buildUnknownHistory(ftConfig, modificationDate));
+        ftModel.setCounter("1");
+        ftModel.setApprovalType("manual");
+        ftModel.setApprovedBy("");
+        ftModel.setErrorMessage("Cannot schedule ft as the previous stage dev has Cancelled!");
+        ftModel.setScheduled(false);
+        history.add(ftModel);
+
+        return history;
+    }
+
     public static StageInstanceModels stageHistory(PipelineConfig pipelineConfig, Date modificationDate) {
         StageInstanceModels history = new StageInstanceModels();
         for (StageConfig stageConfig : pipelineConfig) {
@@ -107,9 +135,25 @@ public class PipelineHistoryMother {
         return history;
     }
 
+    public static JobHistory buildCancelledHistory(StageConfig stageConfig, Date modificationDate) {
+        JobHistory history = new JobHistory();
+        for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
+            history.addJob(CaseInsensitiveString.str(jobConfig.name()), JobState.Unknown, JobResult.Cancelled, modificationDate);
+        }
+        return history;
+    }
+
+    public static JobHistory buildUnknownHistory(StageConfig stageConfig, Date modificationDate) {
+        JobHistory history = new JobHistory();
+        for (JobConfig jobConfig : stageConfig.allBuildPlans()) {
+            history.addJob(CaseInsensitiveString.str(jobConfig.name()), JobState.Unknown, JobResult.Unknown, modificationDate);
+        }
+        return history;
+    }
+
     public static PipelineInstanceModel pipelineHistoryItemWithOneStage(String pipelineName, String stageName, Date modifiedDate) {
         StageInstanceModels stageHistory = new StageInstanceModels();
-        stageHistory.add(new StageInstanceModel(stageName, "1", StageResult.Passed, new StageIdentifier(pipelineName,1,"1", stageName,"1")));
+        stageHistory.add(new StageInstanceModel(stageName, "1", StageResult.Passed, new StageIdentifier(pipelineName, 1, "1", stageName, "1")));
         return singlePipeline(pipelineName, stageHistory, modifiedDate);
     }
 
@@ -169,7 +213,7 @@ public class PipelineHistoryMother {
         return pipelineModel;
     }
 
-    public static PipelineModel pipelineWithLatestRevisionAndMaterialRevision(MaterialRevisions latest,MaterialRevisions revision) {
+    public static PipelineModel pipelineWithLatestRevisionAndMaterialRevision(MaterialRevisions latest, MaterialRevisions revision) {
         PipelineModel pipelineModel = pipelineWithLatestRevision(latest);
         pipelineModel.getLatestPipelineInstance().setMaterialRevisionsOnBuildCause(revision);
         return pipelineModel;

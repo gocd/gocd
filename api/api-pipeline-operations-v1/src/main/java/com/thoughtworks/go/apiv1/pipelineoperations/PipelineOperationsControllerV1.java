@@ -21,12 +21,9 @@ import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.api.util.HaltApiMessages;
-import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.PipelineScheduleOptionsRepresenter;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerOptions;
 import com.thoughtworks.go.apiv1.pipelineoperations.representers.TriggerWithOptionsViewRepresenter;
-import com.thoughtworks.go.apiv6.shared.exceptions.InvalidGoCipherTextRuntimeException;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModel;
 import com.thoughtworks.go.server.domain.PipelineScheduleOptions;
@@ -37,7 +34,6 @@ import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import spark.Request;
 import spark.Response;
@@ -90,11 +86,6 @@ public class PipelineOperationsControllerV1 extends ApiController implements Spa
             post(Routes.Pipeline.UNLOCK_PATH, mimeType, this::unlock);
             get(Routes.Pipeline.TRIGGER_OPTIONS_PATH, mimeType, this::triggerOptions);
             post(Routes.Pipeline.SCHEDULE_PATH, mimeType, this::schedule);
-
-            exception(InvalidGoCipherTextRuntimeException.class, (InvalidGoCipherTextRuntimeException exception, Request request, Response response) -> {
-                response.status(HttpStatus.INTERNAL_SERVER_ERROR.value());
-                response.body(MessageJson.create(HaltApiMessages.errorWhileEncryptingMessage()));
-            });
         });
     }
 

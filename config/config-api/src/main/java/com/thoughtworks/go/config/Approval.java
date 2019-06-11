@@ -18,95 +18,63 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.config.Admin;
+import lombok.*;
+import lombok.experimental.Accessors;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Getter
+@Setter
+@EqualsAndHashCode
+@Accessors(chain = true)
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
+@AllArgsConstructor(access = AccessLevel.NONE)
 @ConfigTag(value = "approval")
 //TODO: ChrisS: Make this a proper enumeration
 public class Approval implements Validatable, ParamsAttributeAware {
+    public static final String ALLOW_ONLY_ON_SUCCESS = "allow_only_on_success";
+    public static final String MANUAL = "manual";
+    public static final String SUCCESS = "success";
+    public static final String TYPE = "type";
+
     @ConfigSubtag(optional = true)
     private AuthConfig authConfig = new AuthConfig();
 
     @ConfigAttribute(value = "type", optional = false, alwaysWrite = true)
     @SkipParameterResolution
-    private String type = SUCCESS;
+    private String type = MANUAL;
 
-    public static final String MANUAL = "manual";
-    public static final String SUCCESS = "success";
-    public static final String TYPE = "type";
+    @ConfigAttribute(value = "allowOnlyOnSuccess")
+    @SkipParameterResolution
+    private boolean allowOnlyOnSuccess = false;
 
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    @EqualsAndHashCode.Exclude
     private ConfigErrors errors = new ConfigErrors();
 
-    public static final Approval automaticApproval() {
-        return new Approval(SUCCESS);
+    public static Approval automaticApproval() {
+        return new Approval().setType(SUCCESS);
     }
 
-    public static final Approval manualApproval() {
-        return new Approval(MANUAL);
-    }
-
-    public Approval() {
-        this(MANUAL);
-    }
-
-    private Approval(String type) {
-        this.type = type;
+    public static Approval manualApproval() {
+        return new Approval().setType(MANUAL);
     }
 
     //for test
     public Approval(AuthConfig authConfig) {
-        this(MANUAL);
-        this.authConfig = authConfig;
+        setType(MANUAL).setAuthConfig(authConfig);
     }
 
     public boolean isManual() {
         return type.equals(MANUAL);
     }
 
-    public AuthConfig getAuthConfig() {
-        return authConfig;
-    }
-    public void setAuthConfig(AuthConfig authConfig) {
-        this.authConfig = authConfig;
-    }
-
     public boolean isAuthorizationDefined() {
         return !this.authConfig.isEmpty();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Approval approval = (Approval) o;
-        if (!authConfig.equals(approval.authConfig)) {
-            return false;
-        }
-        if (!type.equals(approval.type)) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = authConfig.hashCode();
-        result = 31 * result + type.hashCode();
-        return result;
-    }
-
-    public String getType() {
-        return type;
-    }
-    public void setType(String type) {
-        this.type= type;
     }
 
     public boolean validateTree(ValidationContext validationContext) {
@@ -165,6 +133,10 @@ public class Approval implements Validatable, ParamsAttributeAware {
         Map attributeMap = (Map) attributes;
         if (attributeMap.containsKey(TYPE)) {
             type = (String) attributeMap.get(TYPE);
+        }
+
+        if (attributeMap.containsKey("allowOnlyOnSuccess")) {
+            this.allowOnlyOnSuccess = attributeMap.get("allowOnlyOnSuccess").equals("true");
         }
     }
 

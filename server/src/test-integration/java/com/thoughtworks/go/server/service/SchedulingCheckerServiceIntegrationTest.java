@@ -33,6 +33,8 @@ import com.thoughtworks.go.server.scheduling.TriggerMonitor;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
@@ -45,10 +47,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import java.io.File;
 import java.io.IOException;
 
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -57,18 +60,30 @@ import static org.junit.Assert.assertTrue;
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
 public class SchedulingCheckerServiceIntegrationTest {
-    @Autowired private GoConfigDao goConfigDao;
-    @Autowired private GoConfigService goConfigService;
-    @Autowired private SchedulingCheckerService schedulingChecker;
-    @Autowired private DatabaseAccessHelper dbHelper;
-    @Autowired private MaterialRepository materialRepository;
-    @Autowired private PipelineService pipelineService;
-    @Autowired private StageService stageService;
-    @Autowired private ScheduleService scheduleService;
-    @Autowired private PipelineScheduleQueue pipelineScheduleQueue;
-    @Autowired private TriggerMonitor triggerMonitor;
-    @Autowired private TransactionTemplate transactionTemplate;
-    @Autowired private PipelinePauseService pipelinePauseService;
+    @Autowired
+    private GoConfigDao goConfigDao;
+    @Autowired
+    private GoConfigService goConfigService;
+    @Autowired
+    private SchedulingCheckerService schedulingChecker;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
+    @Autowired
+    private MaterialRepository materialRepository;
+    @Autowired
+    private PipelineService pipelineService;
+    @Autowired
+    private StageService stageService;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private PipelineScheduleQueue pipelineScheduleQueue;
+    @Autowired
+    private TriggerMonitor triggerMonitor;
+    @Autowired
+    private TransactionTemplate transactionTemplate;
+    @Autowired
+    private PipelinePauseService pipelinePauseService;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -138,6 +153,32 @@ public class SchedulingCheckerServiceIntegrationTest {
         assertThat(schedulingChecker.canManuallyTrigger(pipelineConfig, "blahUser", operationResult), is(false));
         assertThat(operationResult.canContinue(), is(false));
         assertThat(operationResult.message(), is("Failed to trigger pipeline: blahPipeline"));
+    }
+
+    @Test
+    public void shouldFailCheckIfTheStageHasAllowOnlyOnSuccessSetAndPreviousStageFailed() {
+        configFileHelper.configureStageAsManualApproval(pipelineFixture.pipelineName, pipelineFixture.stageName(2), true);
+        configFileHelper.lockPipeline(pipelineFixture.pipelineName);
+        Pipeline pipeline = pipelineFixture.schedulePipeline();
+        firstStageFailedAndSecondStageNotStarted(pipeline);
+        ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
+        schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.stageName(2), APPROVED_USER, result);
+        ServerHealthState serverHealthState = result.getServerHealthState();
+        assertThat(serverHealthState.isSuccess(), is(false));
+        assertThat(serverHealthState.getDescription(), is("Cannot schedule ft as the previous stage dev has Failed!"));
+        assertThat(serverHealthState.getMessage(), is("Cannot schedule ft as the previous stage dev has Failed!"));
+        assertThat(serverHealthState.getType(), is(HealthStateType.forbidden()));
+    }
+
+    @Test
+    public void shouldReturnSuccessIfTheStageHasAllowOnlyOnSuccessUnSetAndPreviousStageFailed() {
+        configFileHelper.lockPipeline(pipelineFixture.pipelineName);
+        Pipeline pipeline = pipelineFixture.schedulePipeline();
+        firstStageFailedAndSecondStageNotStarted(pipeline);
+        ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
+        schedulingChecker.canScheduleStage(pipeline.getIdentifier(), pipelineFixture.stageName(2), APPROVED_USER, result);
+        ServerHealthState serverHealthState = result.getServerHealthState();
+        assertThat(serverHealthState.isSuccess(), is(true));
     }
 
     @Test
@@ -211,6 +252,15 @@ public class SchedulingCheckerServiceIntegrationTest {
         stage.building();
         stageService.updateResult(stage);
         dbHelper.completeAllJobs(stage, JobResult.Passed);
+        stageService.updateResult(stage);
+    }
+
+    private void firstStageFailedAndSecondStageNotStarted(Pipeline pipeline) {
+        pipelineService.save(pipeline);
+        Stage stage = pipeline.getFirstStage();
+        stage.building();
+        stageService.updateResult(stage);
+        dbHelper.completeAllJobs(stage, JobResult.Failed);
         stageService.updateResult(stage);
     }
 

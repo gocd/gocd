@@ -63,6 +63,10 @@ describe "admin/stages/new.html.erb" do
       expect(form).to have_selector("input#manual[type='radio'][name='stage[#{StageConfig::APPROVAL}][#{Approval::TYPE}]'][value='#{Approval::MANUAL}']")
       expect(form.find("span.stage_approval.contextual_help.has_go_tip_right")['title']).to eq("'On Success' option will automatically schedule the stage after the preceding stage completes successfully. The 'Manual' option will require a user to manually trigger the stage. For the first stage in a pipeline, setting type to 'on success' is the same as checking 'Automatic Pipeline Scheduling' on the pipeline config.")
 
+      expect(form).to have_selector("input#stage_approval_allowOnlyOnSuccess[type='checkbox']")
+      expect(form).to have_selector("label[for='stage_approval_allowOnlyOnSuccess']", :text => "Allow Only On Success")
+      expect(form.find("span.stage_approval_allowOnlyOnSuccess.contextual_help.has_go_tip_right")['title']).to eq("Only allow stage to be scheduled if the previous stage run is successful.")
+
       expect(form).to have_selector("input[name='stage[#{StageConfig::JOBS}][][#{JobConfig::NAME}]'][value='job-name']")
 
       form.find("select[name='stage[#{StageConfig::JOBS}][][#{JobConfig::TASKS}][#{com.thoughtworks.go.config.Tasks::TASK_OPTIONS}]']") do |select|

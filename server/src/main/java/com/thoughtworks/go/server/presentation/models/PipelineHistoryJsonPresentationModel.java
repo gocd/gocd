@@ -189,6 +189,9 @@ public class PipelineHistoryJsonPresentationModel implements JsonAware {
                     stageHistoryItem.getName(), stageHistoryItem.getCounter());
             jsonMap.put("stageLocator", encodeInUtf8(stageIdentifier.stageLocator()));
             jsonMap.put("getCanRun", Boolean.toString(stageHistoryItem.getCanRun()));
+            if (!stageHistoryItem.getCanRun()) {
+                jsonMap.put("errorMessage", stageHistoryItem.getErrorMessage());
+            }
             jsonMap.put("getCanCancel", Boolean.toString(stageHistoryItem.getCanCancel()));
             jsonMap.put("scheduled", Boolean.toString(stageHistoryItem.isScheduled()));
             jsonMap.put("stageCounter", stageHistoryItem.getCounter());

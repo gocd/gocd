@@ -199,11 +199,15 @@ public class PipelineHistoryService {
 
     private void populateCanRunStatus(Username username, PipelineInstanceModel pipelineInstanceModel) {
         for (StageInstanceModel stageHistoryItem : pipelineInstanceModel.getStageHistory()) {
+            ServerHealthStateOperationResult result = new ServerHealthStateOperationResult();
             boolean canRun = scheduleService.canRun(
                     pipelineInstanceModel.getPipelineIdentifier(), stageHistoryItem.getName(),
                     CaseInsensitiveString.str(username.getUsername()), pipelineInstanceModel.hasPreviousStageBeenScheduled(
-                            stageHistoryItem.getName()));
+                            stageHistoryItem.getName()), result);
             stageHistoryItem.setCanRun(canRun);
+            if (!canRun && result.getServerHealthState() != null && result.getServerHealthState().getType().equals(HealthStateType.forbidden())) {
+                stageHistoryItem.setErrorMessage(result.getServerHealthState().getMessage());
+            }
         }
         populatePipelineCanRunStatus(username, pipelineInstanceModel);
     }

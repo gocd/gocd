@@ -4438,6 +4438,43 @@ public class MagicalGoConfigXmlLoaderTest {
         assertThat(secretConfig.getRules().get(1).type()).isEqualTo("*");
     }
 
+    @Test
+    void shouldLoadAllowOnlySuccessOnManualApprovalType() throws Exception {
+        Approval approval = xmlLoader.fromXmlPartial("<approval type=\"manual\" allowOnlyOnSuccess=\"true\" />", Approval.class);
+
+        assertThat(approval.getType()).isEqualTo("manual");
+        assertThat(approval.isAllowOnlyOnSuccess()).isEqualTo(true);
+    }
+
+    @Test
+    void shouldLoadAllowOnlySuccessOnSuccessApprovalType() throws Exception {
+        String content = config(
+                "<pipelines group=\"first\">"
+                        + "<pipeline name=\"pipeline\">"
+                        + "  <materials>"
+                        + "    <hg url=\"/hgrepo\"/>"
+                        + "  </materials>"
+                        + "  <stage name=\"mingle\">" +
+                        "      <approval type=\"success\" allowOnlyOnSuccess=\"true\" /> "
+                        + "    <jobs>"
+                        + "      <job name=\"functional\">"
+                        + "      </job>"
+                        + "    </jobs>"
+                        + "  </stage>"
+                        + "</pipeline>"
+                        + "</pipelines>", CONFIG_SCHEMA_VERSION);
+
+        CruiseConfig config = xmlLoader.loadConfigHolder(goConfigMigration.upgradeIfNecessary(content)).config;
+
+        Approval approval = config
+                .getPipelineConfigByName(new CaseInsensitiveString("pipeline"))
+                .getStage("mingle")
+                .getApproval();
+
+        assertThat(approval.getType()).isEqualTo("success");
+        assertThat(approval.isAllowOnlyOnSuccess()).isEqualTo(true);
+    }
+
     private void assertConfigProperty(Configuration configuration, String name, String plainTextValue, boolean shouldBeEncrypted) {
         assertThat(configuration.getProperty(name).getValue()).isEqualTo(plainTextValue);
         if (shouldBeEncrypted) {

@@ -16,6 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.GoConfigDao;
+import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.exceptions.NotAuthorizedException;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
@@ -60,8 +61,10 @@ import org.springframework.transaction.TransactionStatus;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
@@ -334,6 +337,20 @@ public class ScheduleServiceStageTriggerTest {
         assertThat(cancelledStage.stageState(), is(StageState.Cancelled));
         assertThat(mostRecent.getStages().byName(preCondition.ftStage).stageState(), is(StageState.Building));
         assertThat(result.message(), is("Stage cancelled successfully."));
+    }
+
+    @Test
+    public void shouldNotAllowManualTriggerIfPreviousStageFails() {
+        Pipeline pipeline = preCondition.createPipelineWithFirstStageFailedAndSecondStageHasNotStarted();
+        StageConfig stageConfig = preCondition.ftStage();
+        configHelper.configureStageAsManualApproval(pipeline.getName(), stageConfig.name().toString(), true);
+
+        Throwable exception = assertThrows(RuntimeException.class, () -> {
+            scheduleService.rerunStage(pipeline.getName(), 1, stageConfig.name().toString());
+        });
+
+        assertThat(exception.getClass(), is(RuntimeException.class));
+        assertThat(exception.getMessage(), is("Cannot schedule ft as the previous stage dev has Failed!"));
     }
 
     private void reOrderTwoStages() throws Exception {

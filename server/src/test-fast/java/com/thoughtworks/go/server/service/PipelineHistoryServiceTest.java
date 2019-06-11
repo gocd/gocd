@@ -20,7 +20,10 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
-import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.helper.ConfigFileFixture;
+import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.helper.PipelineHistoryMother;
+import com.thoughtworks.go.helper.PipelineMaterialModificationMother;
 import com.thoughtworks.go.presentation.PipelineStatusModel;
 import com.thoughtworks.go.presentation.pipelinehistory.*;
 import com.thoughtworks.go.server.dao.PipelineDao;
@@ -43,15 +46,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.thoughtworks.go.presentation.pipelinehistory.PipelineInstanceModels.createPipelineInstanceModels;
 import static javax.servlet.http.HttpServletResponse.SC_NOT_IMPLEMENTED;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -78,16 +82,26 @@ public class PipelineHistoryServiceTest {
             + "  </pipelines>"
             + "</cruise>").config;
 
-    @Mock private PipelineDao pipelineDao;
-    @Mock private GoConfigService goConfigService;
-    @Mock private SecurityService securityService;
-    @Mock private ScheduleService scheduleService;
-    @Mock private PipelineTimeline pipelineTimeline;
-    @Mock private PipelineUnlockApiService pipelineUnlockService;
-    @Mock private SchedulingCheckerService schedulingCheckerService;
-    @Mock private PipelineLockService pipelineLockService;
-    @Mock public PipelinePauseService pipelinePauseService;
-    @Mock public FeatureToggleService featureToggleService;
+    @Mock
+    private PipelineDao pipelineDao;
+    @Mock
+    private GoConfigService goConfigService;
+    @Mock
+    private SecurityService securityService;
+    @Mock
+    private ScheduleService scheduleService;
+    @Mock
+    private PipelineTimeline pipelineTimeline;
+    @Mock
+    private PipelineUnlockApiService pipelineUnlockService;
+    @Mock
+    private SchedulingCheckerService schedulingCheckerService;
+    @Mock
+    private PipelineLockService pipelineLockService;
+    @Mock
+    public PipelinePauseService pipelinePauseService;
+    @Mock
+    public FeatureToggleService featureToggleService;
     private PipelineHistoryService pipelineHistoryService;
     private static final Username USERNAME = new Username(new CaseInsensitiveString("bar"));
     private PipelineConfig config;
@@ -589,8 +603,7 @@ public class PipelineHistoryServiceTest {
         stubConfigServiceToReturnPipeline("pipeline", config);
 
         StageInstanceModel firstStage = instanceModel.getStageHistory().get(0);
-        when(scheduleService.canRun(instanceModel.getPipelineIdentifier(), firstStage.getName(), CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()),
-                instanceModel.hasPreviousStageBeenScheduled(firstStage.getName()))).thenReturn(true);
+        when(scheduleService.canRun(eq(instanceModel.getPipelineIdentifier()), eq(firstStage.getName()), eq(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), eq(instanceModel.hasPreviousStageBeenScheduled(firstStage.getName())), any(ServerHealthStateOperationResult.class))).thenReturn(true);
         StageInstanceModel secondStage = instanceModel.getStageHistory().get(1);
         when(scheduleService.canRun(instanceModel.getPipelineIdentifier(), secondStage.getName(), CaseInsensitiveString.str(Username.ANONYMOUS.getUsername()),
                 instanceModel.hasPreviousStageBeenScheduled(secondStage.getName()))).thenReturn(false);

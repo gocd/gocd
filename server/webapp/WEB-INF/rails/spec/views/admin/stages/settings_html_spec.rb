@@ -45,6 +45,11 @@ describe "admin/stages/settings.html.erb" do
         expect(form).to have_selector("input#auto[type='radio'][name='stage[approval][type]'][value='success']")
         expect(form).to have_selector("label[for='manual']", :text => "Manual")
         expect(form).to have_selector("input#manual[type='radio'][name='stage[approval][type]'][value='manual']")
+
+        expect(form).to have_selector("input#stage_approval_allowOnlyOnSuccess[type='checkbox']")
+        expect(form).to have_selector("label[for='stage_approval_allowOnlyOnSuccess']", :text => "Allow Only On Success")
+        expect(form.find("span.stage_approval_allowOnlyOnSuccess.contextual_help.has_go_tip_right")['title']).to eq("Only allow stage to be scheduled if the previous stage run is successful.")
+
       end
     end
   end

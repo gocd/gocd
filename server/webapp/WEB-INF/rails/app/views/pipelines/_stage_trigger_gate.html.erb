@@ -1,15 +1,17 @@
 <%
-title = if com.thoughtworks.go.util.GoConstants::DEFAULT_APPROVED_BY == scope[:stage_in_status_bar].getApprovedBy()
-    "Automatically approved"
-elsif scope[:stage_in_status_bar].getApprovedBy().blank?
-    "Awaiting approval"
-else
-    "Approved by #{scope[:stage_in_status_bar].getApprovedBy()}"
-end
+  title = if !scope[:stage_in_status_bar].canRun() && scope[:stage_in_status_bar].getErrorMessage()
+            scope[:stage_in_status_bar].getErrorMessage()
+          elsif com.thoughtworks.go.util.GoConstants::DEFAULT_APPROVED_BY == scope[:stage_in_status_bar].getApprovedBy()
+            "Automatically approved"
+          elsif scope[:stage_in_status_bar].getApprovedBy().blank?
+            "Awaiting approval"
+          else
+            "Approved by #{scope[:stage_in_status_bar].getApprovedBy()}"
+          end
 
-clazz = scope[:stage_in_status_bar].isAutoApproved() ?
-        "auto" :
-        "manual"
+  clazz = scope[:stage_in_status_bar].isAutoApproved() ?
+            "auto" :
+            "manual"
 
 stage_name = scope[:stage_in_status_bar].getName()
 trigger_id = "stage_bar_trigger_" + stage_name

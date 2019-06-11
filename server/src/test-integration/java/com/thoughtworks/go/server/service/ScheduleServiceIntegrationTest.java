@@ -46,6 +46,8 @@ import com.thoughtworks.go.server.scheduling.ScheduleOptions;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.serverhealth.HealthStateType;
+import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.GoConfigFileHelper;
 import com.thoughtworks.go.util.TimeProvider;
 import org.apache.commons.io.FileUtils;
@@ -562,6 +564,25 @@ public class ScheduleServiceIntegrationTest {
         verify(createAgentQueueHandler, times(1)).post(message, 110000L);
     }
 
+    @Test
+    public void shouldThrowErrorIfAllowOnlyOnSuccessIsSetAndPreviousStageFailed() {
+        configHelper.configureStageAsManualApproval(pipelineFixture.pipelineName, pipelineFixture.ftStage, true);
+        configHelper.lockPipeline(pipelineFixture.pipelineName);
+        Pipeline pipeline = pipelineFixture.schedulePipeline();
+        firstStageFailedAndSecondStageNotStarted(pipeline);
+        HttpOperationResult result = new HttpOperationResult();
+        scheduleService.rerunStage(pipeline.getName(), 1, pipelineFixture.ftStage, result);
+
+        assertThat(result.isSuccess(), is(false));
+        assertThat(result.message(), is("Cannot schedule ft as the previous stage dev has Failed!"));
+        assertThat(result.httpCode(), is(409));
+
+        ServerHealthState serverHealthState = result.getServerHealthState();
+        assertThat(serverHealthState.isSuccess(), is(false));
+        assertThat(serverHealthState.getDescription(), is("Cannot schedule ft as the previous stage dev has Failed!"));
+        assertThat(serverHealthState.getMessage(), is("Cannot schedule ft as the previous stage dev has Failed!"));
+    }
+
     private AgentIdentifier agent(AgentConfig agentConfig) {
         agentService.sync(new Agents(agentConfig));
         agentService.approve(agentConfig.getUuid());
@@ -596,5 +617,14 @@ public class ScheduleServiceIntegrationTest {
         buildCauseProducer.manualProduceBuildCauseAndSave(pipelineName, new Username(new CaseInsensitiveString("some user name")), new ScheduleOptions(revisions, environmentVariables, secureEnvironmentVariables), new ServerHealthStateOperationResult());
         scheduleService.autoSchedulePipelinesFromRequestBuffer();
         return pipelineService.mostRecentFullPipelineByName(pipelineName);
+    }
+
+    private void firstStageFailedAndSecondStageNotStarted(Pipeline pipeline) {
+        pipelineService.save(pipeline);
+        Stage stage = pipeline.getFirstStage();
+        stage.building();
+        stageService.updateResult(stage);
+        dbHelper.completeAllJobs(stage, JobResult.Failed);
+        stageService.updateResult(stage);
     }
 }

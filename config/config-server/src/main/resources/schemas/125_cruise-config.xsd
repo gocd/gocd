@@ -89,7 +89,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="126"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="125"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -311,10 +311,10 @@
     <xsd:attribute name="admin" type="emailType" use="required"/>
   </xsd:complexType>
   <xsd:complexType name="backupType">
-    <xsd:attribute name="schedule" type="xsd:string"/>
+    <xsd:attribute name="schedule" type="xsd:string" />
     <xsd:attribute name="postBackupScript" type="xsd:string"/>
-    <xsd:attribute name="emailOnSuccess" type="xsd:boolean"/>
-    <xsd:attribute name="emailOnFailure" type="xsd:boolean"/>
+    <xsd:attribute name="emailOnSuccess" type="xsd:boolean" />
+    <xsd:attribute name="emailOnFailure" type="xsd:boolean" />
   </xsd:complexType>
   <xsd:complexType name="elasticConfigType">
     <xsd:all>
@@ -497,7 +497,6 @@
         </xsd:restriction>
       </xsd:simpleType>
     </xsd:attribute>
-    <xsd:attribute name="allowOnlyOnSuccess" type="xsd:boolean"/>
   </xsd:complexType>
   <xsd:complexType name="materialsType">
     <xsd:choice minOccurs="1" maxOccurs="unbounded">

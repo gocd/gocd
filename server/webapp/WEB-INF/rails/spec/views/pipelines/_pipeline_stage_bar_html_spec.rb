@@ -41,6 +41,7 @@ describe 'pipelines/_pipeline_stage_bar.html.erb' do
     allow(@sim).to receive(:getId).and_return(42)
     allow(@sim).to receive(:getApprovedBy).and_return("admin")
     allow(@sim).to receive(:isAutoApproved).and_return(true)
+    allow(@sim).to receive(:getErrorMessage).and_return("")
 
     render :partial => 'pipelines/pipeline_stage_bar', :locals => {:scope => {:stage_in_status_bar => @sim, :idx_in_status_bar => 1, :stage_name => 'stage_name'}}
     Capybara.string(response.body).find("#operate_stage_name").tap do |f|

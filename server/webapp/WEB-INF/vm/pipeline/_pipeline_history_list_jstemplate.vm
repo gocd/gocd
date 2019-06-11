@@ -130,16 +130,22 @@
                 <td {if stage_index == pipeline.stages.length - 1} class="last-stage"{/if}>
                     <div class="wrapper">
                         {if stage_index != 0}
-                            {if stage.getCanRun == 'true' && stage.scheduled == 'false'}
-                                 <button class="${% pipelineHistoryPage.getApprovalType(group.config, stage_index) %}-gate" title="Awaiting approval"
-                                         id="approve-${% pipeline.counterOrLabel %}-${% stage.stageName %}"
-                                         onclick="stageActions.runStage('${% data.pipelineName %}', '${% pipeline.counterOrLabel %}', '${% stage.stageName %}');"></button>
-                            {elseif stage.approvedBy == 'changes'}
-                                 <button class="disabled-${% pipelineHistoryPage.getApprovalType(group.config, stage_index) %}-gate"
-                                         title="{if stage.approvedBy}Automatically approved {/if}"></button>
+                            {if stage.getCanRun == 'false'}
+                                <button class="disabled-${% pipelineHistoryPage.getApprovalType(group.config, stage_index) %}-gate"
+                                        title="${% stage.errorMessage || 'Awaiting approval' %}"
+                                        id="approve-${% pipeline.counterOrLabel %}-${% stage.stageName %}"></button>
                             {else}
-                                 <button class="disabled-${% pipelineHistoryPage.getApprovalType(group.config, stage_index) %}-gate"
-                                         title="Approved by ${% stage.approvedBy %}"></button>
+                                {if stage.scheduled == 'false'}
+                                     <button class="${% pipelineHistoryPage.getApprovalType(group.config, stage_index) %}-gate" title="Awaiting approval"
+                                             id="approve-${% pipeline.counterOrLabel %}-${% stage.stageName %}"
+                                             onclick="stageActions.runStage('${% data.pipelineName %}', '${% pipeline.counterOrLabel %}', '${% stage.stageName %}');"></button>
+                                {elseif stage.approvedBy == 'changes'}
+                                     <button class="disabled-${% pipelineHistoryPage.getApprovalType(group.config, stage_index) %}-gate"
+                                             title="{if stage.approvedBy}Automatically approved {/if}"></button>
+                                {else}
+                                     <button class="disabled-${% pipelineHistoryPage.getApprovalType(group.config, stage_index) %}-gate"
+                                             title="Approved by ${% stage.approvedBy %}"></button>
+                                {/if}
                             {/if}
                         {/if}
                         {if stage.scheduled == 'true'}

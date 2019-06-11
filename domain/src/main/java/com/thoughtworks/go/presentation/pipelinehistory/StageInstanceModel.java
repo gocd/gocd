@@ -39,6 +39,7 @@ public class StageInstanceModel implements StageConfigurationModel {
     private StageResult result;
     private StageIdentifier identifier;
     private Integer rerunOfCounter;
+    private String errorMessage;
 
     public boolean hasOperatePermission() {
         return operatePermission;
@@ -158,6 +159,14 @@ public class StageInstanceModel implements StageConfigurationModel {
 
     public boolean getCanRun() {
         return this.canRun;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 
     public boolean getCanReRun() {

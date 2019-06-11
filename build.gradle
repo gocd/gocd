@@ -108,9 +108,9 @@ List<String> partitionFiles(Collection originalFiles) {
   return currentPartition ?: []
 }
 
-def GO_VERSION_PREVIOUS = '19.4.0'
-def GO_VERSION_SEGMENTS = [year: 19, releaseInYear: 5, patch: 0]
-def GO_VERSION_NEXT = '19.6.0'
+def GO_VERSION_PREVIOUS = '19.5.0'
+def GO_VERSION_SEGMENTS = [year: 19, releaseInYear: 6, patch: 0]
+def GO_VERSION_NEXT = '19.7.0'
 
 def GO_VERSION = [GO_VERSION_SEGMENTS.year, GO_VERSION_SEGMENTS.releaseInYear, GO_VERSION_SEGMENTS.patch].join('.')
 def DIST_VERSION = releaseRevision()
@@ -833,13 +833,13 @@ task newSPA {
         """
           import Page from "helpers/spa_base";
           import {${entityName}Page} from "views/pages/${spaName}";
-          
+
           export class ${entityName}SPA extends Page {
             constructor() {
               super(${entityName}Page);
             }
           }
-          
+
           //tslint:disable-next-line
           new ${entityName}SPA();
         """
@@ -853,20 +853,20 @@ task newSPA {
           import {${entityName}} from "models/${spaName}/${spaName}";
           import {${entityName}Widget} from "views/pages/${spaName}/${spaName}_widget";
           import {Page} from "views/pages/page";
-          
+
           interface State {
             dummy?: ${entityName};
           }
-          
+
           export class ${entityName}Page extends Page<null, State> {
             componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
               return <${entityName}Widget/>;
             }
-          
+
             pageName(): string {
               return "SPA Name goes here!";
             }
-          
+
             fetchData(vnode: m.Vnode<null, State>): Promise<any> {
               // to be implemented
               return Promise.resolve();
@@ -903,11 +903,11 @@ task newSPA {
             dummy?: boolean;
             // to be implemented
           }
-          
+
           interface ${entityName}JSON {
             _embedded: EmbeddedJSON;
           }
-          
+
           export class ${entityName} {
             // to be implemented
             static fromJSON(data: ${entityName}JSON) {
@@ -940,12 +940,12 @@ task newSPA {
               this.authenticationHelper = authenticationHelper;
               this.engine = engine;
             }
-             
+
             @Override
             public String controllerBasePath() {
                   return Routes.${entityName}.SPA_BASE;
             }
-              
+
             @Override
             public void setupRoutes() {
                path(controllerBasePath(), () -> {
@@ -1135,9 +1135,9 @@ task newApi {
           import org.springframework.beans.factory.annotation.Autowired;
           import org.springframework.stereotype.Component;
           import spark.Request;
-          
+
           import java.util.function.Consumer;
-          
+
           import static spark.Spark.*;
 
           @Component
@@ -1146,7 +1146,7 @@ task newApi {
         }> {
 
               private final ApiAuthenticationHelper apiAuthenticationHelper;
-              
+
               @Autowired
               public ${controllerClassName}(ApiAuthenticationHelper apiAuthenticationHelper) {
                   super(ApiVersion.${project.apiVersion});
@@ -1165,11 +1165,11 @@ task newApi {
                       // before("", mimeType, this::setContentType);
                       // uncomment the line below to set the content type on nested routes
                       // before("/*", mimeType, this::setContentType);
-                      
+
                       // change the line below to enable appropriate security
                       before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
                       // to be implemented
-                      
+
                       exception(HttpException.class, this::httpException);
                   });
               }
@@ -1178,22 +1178,22 @@ task newApi {
               public String etagFor(${entityClassName} entityFromServer) {
                   return null;
               }
-          
+
               @Override
               public EntityType getEntityType() {
                   return null;
               }
-          
+
               @Override
               public ${entityClassName} doFetchEntityFromConfig(String name) {
                   return null;
               }
-          
+
               @Override
               public ${entityClassName} buildEntityFromRequestBody(Request req) {
                   return null;
               }
-          
+
               @Override
               public Consumer<OutputWriter> jsonWriter(${entityClassName} configurationProperties) {
                   return null;

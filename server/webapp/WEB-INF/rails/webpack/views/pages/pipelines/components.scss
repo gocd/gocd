@@ -36,6 +36,7 @@ $error-container-width: 450px;
 .actions {
   .save-btns {
     white-space: nowrap;
+    height: 35px;
   }
 
   .error-response {
@@ -43,6 +44,8 @@ $error-container-width: 450px;
     color: $go-danger;
     display: inline-block;
     max-width: $error-container-width;
+    white-space: normal;
+    float: left;
 
     &:empty {
       margin-right: 0;

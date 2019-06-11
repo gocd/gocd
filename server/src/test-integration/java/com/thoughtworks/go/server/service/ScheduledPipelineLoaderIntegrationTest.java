@@ -153,11 +153,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
         Pipeline pipeline = dbHelper.savePipelineWithMaterials(building);
 
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
-        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
-            }
-        });
+        Pipeline loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
         assertThat(((SvnMaterial) revisions.findRevisionFor(onDirOne).getMaterial()).getPassword(), is("boozer"));
@@ -179,11 +175,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
 
         final long jobId = rerunJob(jobName, pipelineConfig, previousSuccessfulBuildWithOlderScmConfig);
 
-        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
-            }
-        });
+        Pipeline loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
         Configuration updatedConfiguration = ((PluggableSCMMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().first()).getMaterial()).getScmConfig().getConfiguration();
@@ -205,11 +197,7 @@ public class ScheduledPipelineLoaderIntegrationTest {
             }
         });
         final long jobId = rerunJob(jobName, pipelineConfig, previousSuccessfulBuildWithOlderPackageConfig);
-        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
-            }
-        });
+        Pipeline loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
 
         MaterialRevisions revisions = loadedPipeline.getBuildCause().getMaterialRevisions();
         PackageMaterial updatedMaterial = (PackageMaterial) revisions.findRevisionFor(updatedPipelineConfig.materialConfigs().first()).getMaterial();
@@ -291,19 +279,15 @@ public class ScheduledPipelineLoaderIntegrationTest {
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
 
         Date currentTime = new Date(System.currentTimeMillis() - 1);
-        Pipeline loadedPipeline = (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                Pipeline loadedPipeline = null;
-                try {
-                    loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
-                    fail("should not have loaded pipeline with build-cause as one of the necessary materials was not found");
-                } catch (Exception e) {
-                    assertThat(e, is(instanceOf(StaleMaterialsOnBuildCause.class)));
-                    assertThat(e.getMessage(), is("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config."));
-                }
-                return loadedPipeline;
-            }
-        });
+
+        Pipeline loadedPipeline = null;
+        try {
+            loadedPipeline = loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
+            fail("should not have loaded pipeline with build-cause as one of the necessary materials was not found");
+        } catch (Exception e) {
+            assertThat(e, is(instanceOf(StaleMaterialsOnBuildCause.class)));
+            assertThat(e.getMessage(), is("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config."));
+        }
 
         assertThat(loadedPipeline, is(nullValue()));
 
@@ -311,7 +295,8 @@ public class ScheduledPipelineLoaderIntegrationTest {
         assertThat(reloadedJobInstance.getState(), is(JobState.Completed));
         assertThat(reloadedJobInstance.getResult(), is(JobResult.Failed));
 
-        assertThat(serverHealthService.filterByScope(HealthStateScope.forJob("last", "stage", "job-one")).size(), is(1));
+        HealthStateScope scope = HealthStateScope.forJob("last", "stage", "job-one");
+        assertThat(serverHealthService.filterByScope(scope).size(), is(1));
         ServerHealthState error = serverHealthService.filterByScope(HealthStateScope.forJob("last", "stage", "job-one")).get(0);
         assertThat(error, is(ServerHealthState.error("Cannot load job 'last/" + pipeline.getCounter() + "/stage/1/job-one' because material " + onDirTwo + " was not found in config.", "Job for pipeline 'last/" + pipeline.getCounter() + "/stage/1/job-one' has been failed as one or more material configurations were either changed or removed.", HealthStateType.general(HealthStateScope.forJob("last", "stage", "job-one")))));
         DateTime expiryTime = (DateTime) ReflectionUtil.getField(error, "expiryTime");
@@ -370,10 +355,6 @@ public class ScheduledPipelineLoaderIntegrationTest {
         Pipeline building = PipelineMother.buildingWithRevisions(pipelineConfig, materialRevisions);
         Pipeline pipeline = dbHelper.savePipelineWithMaterials(building);
         final long jobId = pipeline.getStages().get(0).getJobInstances().get(0).getId();
-        return (Pipeline) transactionTemplate.execute(new TransactionCallback() {
-            public Object doInTransaction(TransactionStatus status) {
-                return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
-            }
-        });
+        return loader.pipelineWithPasswordAwareBuildCauseByBuildId(jobId);
     }
 }

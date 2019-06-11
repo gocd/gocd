@@ -28,14 +28,16 @@ import com.thoughtworks.go.server.dao.PipelineSqlMapDao;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
-import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.utils.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+
+import static com.thoughtworks.go.serverhealth.HealthStateScope.forJob;
+import static com.thoughtworks.go.serverhealth.HealthStateType.general;
+import static com.thoughtworks.go.serverhealth.ServerHealthState.error;
 
 /**
  * @understands loads scheduled pipeline for creating work
@@ -78,21 +80,25 @@ public class ScheduledPipelineLoader {
                 scheduleService.failJob(jobInstance);
                 final String message = "Cannot load job '" + jobInstance.buildLocator() + "' because material " + usedMaterial.config() + " was not found in config.";
                 final String description = "Job for pipeline '" + jobInstance.buildLocator() + "' has been failed as one or more material configurations were either changed or removed.";
-                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override public void afterCommit() {
-                        final ServerHealthState error = ServerHealthState.error(message, description, HealthStateType.general(HealthStateScope.forJob(jobInstance.getPipelineName(), jobInstance.getStageName(), jobInstance.getName())));
-                        error.setTimeout(Timeout.FIVE_MINUTES);
-                        serverHealthService.update(error);
-                        appendToConsoleLog(jobInstance, message);
-                        appendToConsoleLog(jobInstance, description);
-                    }
-                });
+
+                updateServerHealthStateToError(jobInstance, message, description);
+
+                appendToConsoleLog(jobInstance, message);
+                appendToConsoleLog(jobInstance, description);
+
                 throw new StaleMaterialsOnBuildCause(message);
             }
 
             usedMaterial.updateFromConfig(materialConfig);
         }
         return pipeline;
+    }
+
+    private void updateServerHealthStateToError(JobInstance jobInstance, String message, String description) {
+        HealthStateScope scope = forJob(jobInstance.getPipelineName(), jobInstance.getStageName(), jobInstance.getName());
+        final ServerHealthState error = error(message, description, general(scope));
+        error.setTimeout(Timeout.FIVE_MINUTES);
+        serverHealthService.update(error);
     }
 
     private MaterialConfig materialFrom(MaterialConfigs knownMaterials, MaterialRevision materialRevision) {

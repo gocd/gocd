@@ -13,25 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.api;
 
-public enum ApiVersion {
-    v1(),
-    v2(),
-    v3(),
-    v4(),
-    v5(),
-    v6(),
-    v7(),
-    v8();
+package com.thoughtworks.go.apiv8.admin.shared.exceptions;
 
-    private final String mimeType;
+public class InvalidGoCipherTextRuntimeException extends RuntimeException {
 
-    ApiVersion() {
-        this.mimeType = "application/vnd.go.cd." + this.name() + "+json";
+    public InvalidGoCipherTextRuntimeException(String message, Throwable throwable) {
+        super(message, throwable);
     }
 
-    public String mimeType() {
-        return this.mimeType;
-    }
 }

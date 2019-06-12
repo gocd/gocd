@@ -15,7 +15,6 @@
  *#
 ## layout level variable
 #set ($title = "Pipeline Activity - Go")
-#set($extra_css_list = ['pipeline-tab','pipeline-history'])
 #set($current_tab='build')
 ## page level variable
 #set($_hide_collapse-sidebar-button = true)

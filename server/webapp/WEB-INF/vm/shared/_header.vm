@@ -23,14 +23,6 @@
   <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$pathResolver.getAssetPath("css/application.css")" media="all"/>
   <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$pathResolver.getAssetPath("vm/application.css")" media="all"/>
 
-## Some VM pages specify extra CSS files they need.
-    #if($extra_css_list)
-        #foreach($css_name in $extra_css_list)
-          <link href="$req.getContextPath()/$pathResolver.getAssetPath("css/${css_name}.css")" rel="stylesheet"
-                type="text/css"/>
-        #end
-    #end
-
   <link rel="stylesheet" type="text/css" href="$req.getContextPath()/$pathResolver.getAssetPath("new-theme.css")" media="all"/>
   <script type="text/javascript" src="$req.getContextPath()/$pathResolver.getAssetPath("application.js")"></script>
   <script type="text/javascript"> var contextPath = "$req.getContextPath()"; </script>

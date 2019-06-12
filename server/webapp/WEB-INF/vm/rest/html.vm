@@ -15,7 +15,6 @@
  *#
 ## layout level variable
 #set ($title = "Artifacts for $jobIdentifier.pipelineName > $jobIdentifier.pipelineLabel > $jobIdentifier.stageName > $jobIdentifier.stageCounter > $jobIdentifier.buildName")
-#set($extra_css_list = ['pipeline-tab'])
 #set($_hide_collapse-sidebar-button = true)
 #parse("shared/_header.vm")
 

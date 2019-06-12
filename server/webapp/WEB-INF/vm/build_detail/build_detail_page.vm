@@ -15,8 +15,6 @@
  *#
 ## layout level variable
 #set ($title = "$presenter.buildName Job Details - Go")
-#set($extra_css_list = ['build_common', 'build_detail', 'sub_tab',
-    'transparent_message'])
 #set($current_tab='build')
 ## page level variable
 #set($_page_title="Job Details for ${presenter.buildLocatorForDisplay}")

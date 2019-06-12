@@ -13,25 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.api;
 
-public enum ApiVersion {
-    v1(),
-    v2(),
-    v3(),
-    v4(),
-    v5(),
-    v6(),
-    v7(),
-    v8();
+package com.thoughtworks.go.apiv8.admin.pipelineconfig.representers.materials;
 
-    private final String mimeType;
+import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv8.admin.shared.representers.stages.ConfigHelperOptions;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-    ApiVersion() {
-        this.mimeType = "application/vnd.go.cd." + this.name() + "+json";
-    }
+public interface MaterialRepresenter<T extends MaterialConfig> {
+    void toJSON(OutputWriter jsonWriter, T gitMaterialConfig);
 
-    public String mimeType() {
-        return this.mimeType;
-    }
+    T fromJSON(JsonReader jsonReader, ConfigHelperOptions configHelperOptions);
 }

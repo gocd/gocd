@@ -264,7 +264,7 @@ allprojects {
   buildDir = "${projectDir}/target"
 
   repositories {
-    jcenter()
+    mavenCentral()
 
     maven { url "https://dl.bintray.com/gocd-maven-repo/generic/gocd" }
   }

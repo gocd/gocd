@@ -58,6 +58,13 @@ def dependencies = [
     tagName: '0.3.9',
     asset: 'json-config-plugin-0.3.9.jar',
     checksum: 'c83541a9761b00634e3b77d1d4d7b6f77c2ad877378f1e42348002f048c5c793'
+  ),
+  new GithubArtifact(
+    user: 'gocd',
+    repo: 'gocd-file-based-secrets-plugin',
+    tagName: 'v0.0.2-26',
+    asset: 'gocd-file-based-secrets-plugin-0.0.2-26.jar',
+    checksum: '9eff896c4d00a93eb562595f004d33fe578b76e60b1f1419f4d80f05b577f96c'
   )
 ]
 

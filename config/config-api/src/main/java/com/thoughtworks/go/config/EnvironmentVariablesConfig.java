@@ -30,7 +30,7 @@ import java.util.Map;
  */
 @ConfigTag("environmentvariables")
 @ConfigCollection(EnvironmentVariableConfig.class)
-public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariableConfig> implements Serializable, ParamsAttributeAware, Validatable {
+public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariableConfig> implements Serializable, ParamsAttributeAware, Validatable, SecretParamAware {
     private final ConfigErrors configErrors = new ConfigErrors();
 
     public EnvironmentVariablesConfig() {
@@ -157,4 +157,14 @@ public class EnvironmentVariablesConfig extends BaseCollection<EnvironmentVariab
 
     }
 
+    @Override
+    public boolean hasSecretParams() {
+        return this.stream().anyMatch(EnvironmentVariableConfig::hasSecretParams);
+    }
+
+    @Override
+    public SecretParams getSecretParams() {
+        return this.stream().map(EnvironmentVariableConfig::getSecretParams)
+                .collect(SecretParams.toFlatSecretParams());
+    }
 }

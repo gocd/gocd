@@ -22,7 +22,7 @@ describe "_form.html.erb" do
   include ReflectiveUtil
 
   before(:each) do
-    @material_config = com.thoughtworks.go.helper.MaterialConfigsMother.tfs(GoCipher.new, UrlArgument.new("http://10.4.4.101:8080/tfs/Sample"), "loser", "domain" ,"passwd", "walk_this_path")
+    @material_config = com.thoughtworks.go.helper.MaterialConfigsMother.tfs(GoCipher.new, UrlArgument.new("http://10.4.4.101:8080/tfs/Sample"), "loser", "domain", "passwd", "walk_this_path")
     @material_config.setAutoUpdate(true)
     @material_config.setName(CaseInsensitiveString.new("Tfs Material Name"))
     @material_config.setFolder("boulder")
@@ -61,7 +61,7 @@ describe "_form.html.erb" do
     render :partial => "admin/materials/tfs/form.html", :locals => {:scope => {:material => @material_config, :url => "http://google.com", :method => "POST", :submit_label => "FOO", :edit_mode => true}}
 
     expect(response.body).to have_selector(".popup_form input[disabled='disabled'][type='password'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD}]'][value='']")
-    expect(response.body).to have_selector(".popup_form input[type='checkbox'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD_CHANGED}]']")
+    expect(response.body).to have_selector(".popup_form input[type='hidden'][name='material[#{com.thoughtworks.go.config.materials.ScmMaterialConfig::PASSWORD_CHANGED}]']", :visible => false)
   end
 
   it "should display the password field as textbox in new mode" do

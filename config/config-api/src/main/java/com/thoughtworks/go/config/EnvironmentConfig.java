@@ -28,7 +28,7 @@ import java.util.Set;
 /**
  * @understands the current persistent information related to a logical grouping of machines
  */
-public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, EnvironmentVariableScope, ConfigOriginTraceable {
+public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, EnvironmentVariableScope, ConfigOriginTraceable, SecretParamAware {
 
     static final String NAME_FIELD = "name";
     static final String PIPELINES_FIELD = "pipelines";
@@ -113,5 +113,16 @@ public interface EnvironmentConfig extends ParamsAttributeAware, Validatable, En
 
     default List<ConfigErrors> getAllErrors() {
         return ErrorCollector.getAllErrors(this);
+    }
+
+
+    @Override
+    default boolean hasSecretParams() {
+        return getVariables().hasSecretParams();
+    }
+
+    @Override
+    default SecretParams getSecretParams() {
+        return getVariables().getSecretParams();
     }
 }

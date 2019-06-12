@@ -21,9 +21,9 @@ import com.thoughtworks.go.config.EnvironmentVariableConfig
 import com.thoughtworks.go.security.GoCipher
 import org.junit.jupiter.api.Test
 
-import static org.junit.jupiter.api.Assertions.assertEquals
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
+import static org.junit.jupiter.api.Assertions.assertEquals
 import static org.junit.jupiter.api.Assertions.assertTrue
 
 class EnvironmentVariableRepresenterTest {
@@ -63,7 +63,7 @@ class EnvironmentVariableRepresenterTest {
       name: 'PASSWORD',
       secure: true,
       value: 'plainText',
-      encrypted_value: 'c!ph3rt3xt'
+      encrypted_value: new GoCipher().encrypt('c!ph3rt3xt')
     ])
     def actualEnvironmentVariableConfig = EnvironmentVariableRepresenter.fromJSON(jsonReader)
 

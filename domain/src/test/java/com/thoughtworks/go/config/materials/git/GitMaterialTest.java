@@ -725,6 +725,24 @@ public class GitMaterialTest {
         }
     }
 
+    @Nested
+    class WithShallowClone {
+        @Test
+        void shouldCopyOverSecretResolvedParams() {
+            GitMaterial gitMaterial = new GitMaterial("http://exampele.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][git_password]}}");
+            gitMaterial.getSecretParams().findFirst("git_password").ifPresent(param -> param.setValue("resolved-password"));
+
+            assertThat(gitMaterial.passwordForCommandLine()).isEqualTo("resolved-password");
+            assertThat(gitMaterial.isShallowClone()).isFalse();
+
+            GitMaterial copyWithShallowClone = gitMaterial.withShallowClone(true);
+
+            assertThat(copyWithShallowClone.passwordForCommandLine()).isEqualTo("resolved-password");
+            assertThat(copyWithShallowClone.isShallowClone()).isTrue();
+        }
+    }
+
     private void assertWorkingCopyNotCheckedOut(File localWorkingDir) {
         assertThat(localWorkingDir.listFiles()).isEqualTo(new File[]{new File(localWorkingDir, ".git")});
     }

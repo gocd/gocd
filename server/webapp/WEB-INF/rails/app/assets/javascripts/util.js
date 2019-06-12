@@ -145,16 +145,22 @@ Util = function() {
             return Math.round(((new Date()).getTime() - Date.UTC(1970, 0, 1)) / 1000);
         },
 
-        bindPasswordField: function(checkBox, passwordField) {
+        bindPasswordField: function(checkBox, passwordField, showPasswordToggle) {
             passwordField.val("**********");
             checkBox.click(function() {
                 var isChecked = checkBox.is(":checked");
                 if (isChecked) {
                     passwordField.removeAttr("disabled");
                     passwordField.val("");
+                    if(showPasswordToggle) {
+                        showPasswordToggle.removeAttr("disabled");
+                    }
                 } else {
                     passwordField.attr("disabled", true);
                     passwordField.val("**********");
+                    if(showPasswordToggle) {
+                        showPasswordToggle.attr("disabled", true);
+                    }
                 }
             });
         },

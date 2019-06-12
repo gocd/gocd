@@ -27,13 +27,10 @@ import com.thoughtworks.go.util.command.UrlUserInfo;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static java.lang.String.format;
-import static java.lang.String.join;
 import static org.apache.commons.lang3.StringUtils.*;
 
 /**
@@ -381,53 +378,27 @@ public abstract class ScmMaterialConfig extends AbstractMaterialConfig implement
     }
 
     protected void validateCredentials() {
-        if (isBlank(getUrl()) || isAllBlank(userName, getPassword())) {
-            return;
-        }
+        try {
+            if (isBlank(getUrl()) || isAllBlank(userName, getPassword())) {
+                return;
+            }
 
-        if (UrlUserInfo.hasUserInfo(getUrl())) {
-            errors().add(URL, "Ambiguous credentials, must be provided either in URL or as attributes.");
+            if (UrlUserInfo.hasUserInfo(getUrl())) {
+                errors().add(URL, "Ambiguous credentials, must be provided either in URL or as attributes.");
+            }
+        } catch (Exception e) {
+            //ignore
         }
     }
 
-    protected void validateSecretParams(ValidationContext validationContext) {
+
+    protected void validateEncryptedPassword() {
         if (isNotEmpty(getEncryptedPassword())) {
             try {
-                validateSecretParamsConfig("encryptedPassword", SecretParams.parse(getPassword()), validationContext);
+                getPassword();
             } catch (Exception e) {
                 addError("encryptedPassword", format("Encrypted password value for %s with url '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.", this.getType(), this.getUriForDisplay()));
             }
-        }
-    }
-
-    protected void validateSecretParamsConfig(String key, SecretParams secretParams, ValidationContext validationContext) {
-        if (!secretParams.hasSecretParams()) {
-            return;
-        }
-
-        final SecretConfigs secretConfigs = validationContext.getCruiseConfig().getSecretConfigs();
-        final PipelineConfigs pipelineGroup = validationContext.getPipelineGroup();
-
-        final Set<String> missingSecretConfigs = new HashSet<>();
-        final Set<String> canNotReferSecretConfigs = new HashSet<>();
-
-        secretParams.forEach(secretParam -> {
-            final SecretConfig secretConfig = secretConfigs.find(secretParam.getSecretConfigId());
-            if (secretConfig == null) {
-                missingSecretConfigs.add(secretParam.getSecretConfigId());
-            } else {
-                if (!secretConfig.canRefer(pipelineGroup.getClass(), pipelineGroup.getGroup())) {
-                    canNotReferSecretConfigs.add(secretParam.getSecretConfigId());
-                }
-            }
-        });
-
-        if (!missingSecretConfigs.isEmpty()) {
-            addError(key, format("Secret config with ids `%s` does not exist.", join(", ", missingSecretConfigs)));
-        }
-
-        if (!canNotReferSecretConfigs.isEmpty()) {
-            addError(key, format("Secret config with ids `%s` is not allowed to use in `%s` with name `%s`.", join(", ", canNotReferSecretConfigs), pipelineGroup.getClass().getAnnotation(ConfigTag.class).value(), pipelineGroup.getGroup()));
         }
     }
 }

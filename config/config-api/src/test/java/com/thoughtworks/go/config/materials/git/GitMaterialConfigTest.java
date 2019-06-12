@@ -18,12 +18,9 @@ package com.thoughtworks.go.config.materials.git;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.*;
-import com.thoughtworks.go.config.rules.Allow;
-import com.thoughtworks.go.config.rules.Rules;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
-import com.thoughtworks.go.util.command.UrlArgument;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -31,8 +28,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
-import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.git;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -240,37 +235,15 @@ class GitMaterialConfigTest {
         }
 
         @Test
-        void shouldFailIfSecretConfigCannotBeUsedInPipelineGroupWhereCurrentMaterialIsDefined() {
-            GitMaterialConfig gitMaterialConfig = git("https://example.repo");
-            gitMaterialConfig.setUserName("bob");
-            gitMaterialConfig.setPassword("{{SECRET:[secret_config_id][pass]}}");
-            final Rules directives = new Rules(new Allow("refer", PIPELINE_GROUP.getType(), "group_2"));
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
+        void shouldFailIfEncryptedPasswordIsIncorrect() {
+            GitMaterialConfig gitMaterialConfig = git("http://example.com");
+            gitMaterialConfig.setEncryptedPassword("encryptedPassword");
 
-            assertThat(gitMaterialConfig.validateTree(validationContext)).isFalse();
+            final boolean validationResult = gitMaterialConfig.validateTree(new ConfigSaveValidationContext(null));
 
-            assertThat(gitMaterialConfig.errors().get("encryptedPassword"))
-                    .contains("Secret config with ids `secret_config_id` is not allowed to use in `pipelines` with name `group_1`.");
-        }
-
-        @Test
-        void shouldPassIfSecretConfigCanBeReferredInPipelineGroupWhereCurrentMaterialIsDefined() {
-            GitMaterialConfig gitMaterialConfig = git("https://example.repo");
-            gitMaterialConfig.setUserName("bob");
-            gitMaterialConfig.setPassword("{{SECRET:[secret_config_id][pass]}}");
-            final Rules directives = new Rules(
-                    new Allow("refer", PIPELINE_GROUP.getType(), "group_2"),
-                    new Allow("refer", PIPELINE_GROUP.getType(), "group_1")
-            );
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
-
-            assertThat(gitMaterialConfig.validateTree(validationContext)).isTrue();
-
-            assertThat(gitMaterialConfig.errors().getAll()).isEmpty();
+            assertThat(validationResult).isFalse();
+            assertThat(gitMaterialConfig.errors().on("encryptedPassword"))
+                    .isEqualTo("Encrypted password value for GitMaterial with url 'http://example.com' is invalid. This usually happens when the cipher text is modified to have an invalid value.");
         }
     }
 

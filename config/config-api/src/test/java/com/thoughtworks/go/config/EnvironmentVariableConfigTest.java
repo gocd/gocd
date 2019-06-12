@@ -16,8 +16,7 @@
 
 package com.thoughtworks.go.config;
 
-import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
-import com.thoughtworks.go.config.merge.MergePipelineConfigs;
+import com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.security.CryptoException;
@@ -98,7 +97,7 @@ class EnvironmentVariableConfigTest {
 
         assertThat(environmentVariableConfig.getValue()).isEqualTo(plainText);
 
-        verify(mockGoCipher).decrypt(cipherText);
+        verify(mockGoCipher, atLeastOnce()).decrypt(cipherText);
     }
 
     @Test
@@ -248,24 +247,6 @@ class EnvironmentVariableConfigTest {
         }
 
         @Test
-        void shouldBeInvalidIfSecretParamContainsANonExistentSecretConfigId() {
-            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
-            CruiseConfig cruiseConfig = mock(CruiseConfig.class);
-            PipelineConfigs group = mock(BasicPipelineConfigs.class);
-
-            when(validationContext.getCruiseConfig()).thenReturn(cruiseConfig);
-            when(validationContext.isWithinPipelines()).thenReturn(true);
-            when(validationContext.getPipelineGroup()).thenReturn(group);
-            when(cruiseConfig.getSecretConfigs()).thenReturn(new SecretConfigs());
-
-            environmentVariableConfig.validate(validationContext);
-
-            assertThat(environmentVariableConfig.errors()).isNotEmpty();
-            assertThat(environmentVariableConfig.errors().getAllOn(EnvironmentVariableConfig.VALUE))
-                    .contains("Secret config with ids 'secret_config_id' does not exist.");
-        }
-
-        @Test
         void shouldBeValidIfSecretParamContainsAExistentSecretConfigId() {
             EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
             SecretConfig secretConfig = mock(SecretConfig.class);
@@ -283,91 +264,6 @@ class EnvironmentVariableConfigTest {
             environmentVariableConfig.validate(validationContext);
 
             assertThat(environmentVariableConfig.errors()).isEmpty();
-        }
-
-        @Test
-        void shouldCallCanReferForPipelineGroup() {
-            final SecretConfig secretConfig = mock(SecretConfig.class);
-            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
-            validationContext.getCruiseConfig().getSecretConfigs().add(secretConfig);
-            PipelineConfigs group = mock(BasicPipelineConfigs.class);
-
-            when(validationContext.isWithinPipelines()).thenReturn(true);
-            when(validationContext.getPipelineGroup()).thenReturn(group);
-            when(secretConfig.getId()).thenReturn("secret_config_id");
-            when(group.getGroup()).thenReturn("example");
-
-            environmentVariableConfig.validateTree(validationContext);
-
-            verify(secretConfig).canRefer(group.getClass(), "example");
-        }
-
-        @Test
-        void shouldCallCanReferForMergePipelineGroup() {
-            final SecretConfig secretConfig = mock(SecretConfig.class);
-            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
-            validationContext.getCruiseConfig().getSecretConfigs().add(secretConfig);
-            PipelineConfigs group = mock(MergePipelineConfigs.class);
-
-            when(validationContext.isWithinPipelines()).thenReturn(true);
-            when(validationContext.getPipelineGroup()).thenReturn(group);
-            when(secretConfig.getId()).thenReturn("secret_config_id");
-            when(group.getGroup()).thenReturn("example");
-
-            environmentVariableConfig.validateTree(validationContext);
-
-            verify(secretConfig).canRefer(group.getClass(), "example");
-        }
-
-        @Test
-        void shouldCallCanReferForEnvironmentConfig() {
-            final SecretConfig secretConfig = mock(SecretConfig.class);
-            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
-            validationContext.getCruiseConfig().getSecretConfigs().add(secretConfig);
-            EnvironmentConfig environmentConfig = mock(BasicEnvironmentConfig.class);
-
-            when(validationContext.isWithinEnvironment()).thenReturn(true);
-            when(validationContext.getEnvironment()).thenReturn(environmentConfig);
-            when(secretConfig.getId()).thenReturn("secret_config_id");
-            when(environmentConfig.name()).thenReturn(new CaseInsensitiveString("example-env"));
-
-            environmentVariableConfig.validateTree(validationContext);
-
-            verify(secretConfig).canRefer(environmentConfig.getClass(), "example-env");
-        }
-
-        @Test
-        void shouldCallCanReferForMergeEnvironmentConfig() {
-            final SecretConfig secretConfig = mock(SecretConfig.class);
-            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
-            validationContext.getCruiseConfig().getSecretConfigs().add(secretConfig);
-            EnvironmentConfig environmentConfig = mock(MergeEnvironmentConfig.class);
-
-            when(validationContext.isWithinEnvironment()).thenReturn(true);
-            when(validationContext.getEnvironment()).thenReturn(environmentConfig);
-            when(secretConfig.getId()).thenReturn("secret_config_id");
-            when(environmentConfig.name()).thenReturn(new CaseInsensitiveString("example-env"));
-
-            environmentVariableConfig.validateTree(validationContext);
-
-            verify(secretConfig).canRefer(environmentConfig.getClass(), "example-env");
-        }
-
-        @Test
-        void shouldNotCallCanReferForTemplate() {
-            final SecretConfig secretConfig = mock(SecretConfig.class);
-            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig(goCipher, "plain_key", "{{SECRET:[secret_config_id][token]}}", false);
-            validationContext.getCruiseConfig().getSecretConfigs().add(secretConfig);
-            PipelineTemplateConfig pipelineTemplateConfig = mock(PipelineTemplateConfig.class);
-
-            when(validationContext.isWithinTemplates()).thenReturn(true);
-            when(validationContext.getTemplate()).thenReturn(pipelineTemplateConfig);
-            when(secretConfig.getId()).thenReturn("secret_config_id");
-            when(pipelineTemplateConfig.name()).thenReturn(new CaseInsensitiveString("example-env"));
-
-            environmentVariableConfig.validateTree(validationContext);
-
-            verify(secretConfig, never()).canRefer(pipelineTemplateConfig.getClass(), "example-env");
         }
     }
 
@@ -414,7 +310,7 @@ class EnvironmentVariableConfigTest {
     @Test
     void shouldDeserializeWithErrorFlagIfAnEncryptedVarialeHasBothClearTextAndCipherText() throws Exception {
         EnvironmentVariableConfig variable = new EnvironmentVariableConfig();
-        variable.deserialize("PASSWORD", "clearText", true, "c!ph3rt3xt");
+        variable.deserialize("PASSWORD", "clearText", true, new GoCipher().encrypt("c!ph3rt3xt"));
         assertThat(variable.errors().getAllOn("value")).isEqualTo(Arrays.asList("You may only specify `value` or `encrypted_value`, not both!"));
         assertThat(variable.errors().getAllOn("encryptedValue")).isEqualTo(Arrays.asList("You may only specify `value` or `encrypted_value`, not both!"));
     }
@@ -427,7 +323,7 @@ class EnvironmentVariableConfigTest {
     }
 
     @Test
-    void shouldDeserializeWithNoErrorFlagIfAnEncryptedVarialeHasEitherClearTextWithSecureFalse() throws Exception {
+    void shouldDeserializeWithNoErrorFlagIfAnEncryptedVariableHasEitherClearTextWithSecureFalse() throws Exception {
         EnvironmentVariableConfig variable = new EnvironmentVariableConfig();
         variable.deserialize("PASSWORD", "clearText", false, null);
         assertThat(variable.errors().isEmpty()).isTrue();
@@ -436,16 +332,97 @@ class EnvironmentVariableConfigTest {
     @Test
     void shouldDeserializeWithNoErrorFlagIfAnEncryptedVariableHasCipherTextSetWithSecureTrue() throws Exception {
         EnvironmentVariableConfig variable = new EnvironmentVariableConfig();
-        variable.deserialize("PASSWORD", null, true, "cipherText");
+        variable.deserialize("PASSWORD", null, true, new GoCipher().encrypt("cipherText"));
         assertThat(variable.errors().isEmpty()).isTrue();
     }
 
     @Test
     void shouldErrorOutForEncryptedValueBeingSetWhenSecureIsFalse() throws Exception {
         EnvironmentVariableConfig variable = new EnvironmentVariableConfig();
-        variable.deserialize("PASSWORD", null, false, "cipherText");
+        variable.deserialize("PASSWORD", null, false, new GoCipher().encrypt("cipherText"));
         variable.validateTree(null);
 
         assertThat(variable.errors().getAllOn("encryptedValue")).isEqualTo(Arrays.asList("You may specify encrypted value only when option 'secure' is true."));
+    }
+
+    @Nested
+    class HasSecretParams {
+        @Test
+        void shouldBeFalseWhenNoneOfTheEnvironmentVariableIsDefinedAsSecretParam() {
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("var2", "var_value2");
+
+            boolean result = environmentVariableConfig.hasSecretParams();
+
+            assertThat(result).isFalse();
+        }
+
+        @Test
+        void shouldBeTrueWhenOneOfTheEnvironmentVariableIsDefinedAsSecretParam() {
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("Token", "{{SECRET:[secret_config_id][token]}}");
+
+            boolean result = environmentVariableConfig.hasSecretParams();
+
+            assertThat(result).isTrue();
+        }
+    }
+
+    @Nested
+    class GetSecretParams {
+        @Test
+        void shouldReturnEmptyIfNoneOfTheEnvironmentVariablesIsDefinedAsSecretParam() {
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("var2", "var_value2");
+
+            SecretParams secretParams = environmentVariableConfig.getSecretParams();
+
+            assertThat(secretParams).isEmpty();
+        }
+
+        @Test
+        void shouldReturnSecretParamsIfTheEnvironmentVariablesIsDefinedAsSecretParam() {
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("var2", "{{SECRET:[secret_config_id][token]}}");
+
+            SecretParams secretParams = environmentVariableConfig.getSecretParams();
+
+            assertThat(secretParams)
+                    .hasSize(1)
+                    .contains(new SecretParam("secret_config_id", "token"));
+        }
+    }
+
+    @Nested
+    class valueForCommandline {
+        @Test
+        void shouldReturnResolvesSecretParamsValue() {
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("Token", "ZYX-{{SECRET:[secret_config_id][token]}}");
+
+            environmentVariableConfig.getSecretParams().findFirst("token").ifPresent(param -> param.setValue("resolved-value"));
+
+            assertThat(environmentVariableConfig.valueForCommandline()).isEqualTo("ZYX-resolved-value");
+        }
+
+        @Test
+        void shouldErrorOutWhenCalledBeforeResolvingSecretParams() {
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("Token", "ZYX-{{SECRET:[secret_config_id][token]}}");
+
+            assertThatCode(environmentVariableConfig::valueForCommandline)
+                    .isInstanceOf(UnresolvedSecretParamException.class);
+        }
+
+        @Test
+        void shouldReturnValueWhenItIsConfiguredUsingPlainTextValue() {
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("Token", "plain-text-value");
+
+            assertThat(environmentVariableConfig.valueForCommandline()).isEqualTo("plain-text-value");
+        }
+
+        @Test
+        void shouldReturnValueWhenItIsConfiguredUsingEncryptedValue() throws CryptoException {
+            String plainTextValue = "plain-text-value";
+            EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("Token", null);
+            environmentVariableConfig.setIsSecure(true);
+            environmentVariableConfig.setEncryptedValue(new GoCipher().encrypt(plainTextValue));
+
+            assertThat(environmentVariableConfig.valueForCommandline()).isEqualTo(plainTextValue);
+        }
     }
 }

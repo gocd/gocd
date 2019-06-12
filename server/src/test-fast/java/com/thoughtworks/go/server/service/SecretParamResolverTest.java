@@ -16,24 +16,37 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.SecretConfig;
-import com.thoughtworks.go.config.SecretParam;
-import com.thoughtworks.go.config.SecretParams;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.config.materials.git.GitMaterial;
+import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.buildcause.BuildCause;
+import com.thoughtworks.go.domain.builder.Builder;
+import com.thoughtworks.go.domain.builder.CommandBuilder;
+import com.thoughtworks.go.domain.builder.NullBuilder;
+import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
+import com.thoughtworks.go.remote.work.BuildAssignment;
+import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 
+import static com.thoughtworks.go.helper.MaterialsMother.gitMaterial;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
 class SecretParamResolverTest {
@@ -41,29 +54,135 @@ class SecretParamResolverTest {
     private SecretsExtension secretsExtension;
     @Mock
     private GoConfigService goConfigService;
+    @Mock
+    private RulesService rulesService;
     private SecretParamResolver secretParamResolver;
 
     @BeforeEach
     void setUp() {
         initMocks(this);
 
-        secretParamResolver = new SecretParamResolver(secretsExtension, goConfigService);
+        secretParamResolver = new SecretParamResolver(secretsExtension, goConfigService, rulesService);
     }
 
-    @Test
-    void shouldDoNothingWhenGivenListIsNull() {
-        secretParamResolver.resolve(null);
+    @Nested
+    class ResolveSecretsForMaterials {
+        @Test
+        void shouldResolveSecretParams_IfAMaterialCanReferToASecretConfig() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
 
-        verifyZeroInteractions(secretsExtension);
-        verifyZeroInteractions(goConfigService);
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig())
+                    .thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(asList("password"))))
+                    .thenReturn(asList(new Secret("password", "some-password")));
+
+            secretParamResolver.resolve(gitMaterial);
+
+            verify(rulesService).validateSecretConfigReferences(gitMaterial);
+            assertThat(gitMaterial.passwordForCommandLine()).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldErrorOut_IfMaterialsDoNotHavePermissionToReferToASecretConfig() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
+
+            doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(gitMaterial);
+
+            assertThatCode(() -> secretParamResolver.resolve(gitMaterial))
+                    .isInstanceOf(RuntimeException.class);
+
+            verifyZeroInteractions(goConfigService);
+            verifyZeroInteractions(secretsExtension);
+        }
     }
 
-    @Test
-    void shouldDoNothingWhenGivenListIsEmpty() {
-        secretParamResolver.resolve(new SecretParams());
+    @Nested
+    class ResolveSecretsForBuildAssignment {
+        @Test
+        void shouldResolveSecretParams_IfBuildAssignmentCanReferSecretConfig() {
+            EnvironmentVariables jobEnvironmentVariables = new EnvironmentVariables();
+            jobEnvironmentVariables.add("Token", "{{SECRET:[secret_config_id][password]}}");
+            BuildAssignment buildAssigment = createAssignment(null, jobEnvironmentVariables);
 
-        verifyZeroInteractions(secretsExtension);
-        verifyZeroInteractions(goConfigService);
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig())
+                    .thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(asList("password"))))
+                    .thenReturn(asList(new Secret("password", "some-password")));
+
+            secretParamResolver.resolve(buildAssigment);
+
+            verify(rulesService).validateSecretConfigReferences(buildAssigment);
+            assertThat(buildAssigment.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldErrorOut_IfBuildAssignmentDoNotHavePermissionToReferToASecretConfig() {
+            EnvironmentVariableContext environmentVariableContext = new EnvironmentVariableContext();
+            environmentVariableContext.setProperty("Token", "{{SECRET:[secret_config_id][password]}}", false);
+
+            BuildAssignment buildAssigment = createAssignment(environmentVariableContext);
+
+            doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(buildAssigment);
+
+            assertThatCode(() -> secretParamResolver.resolve(buildAssigment))
+                    .isInstanceOf(RuntimeException.class);
+
+            verifyZeroInteractions(goConfigService);
+            verifyZeroInteractions(secretsExtension);
+        }
+
+        private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext) {
+            return createAssignment(environmentVariableContext, new EnvironmentVariables());
+        }
+
+        private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext, EnvironmentVariables jobEnvironmentVariables) {
+            ScmMaterial gitMaterial = gitMaterial("https://example.org");
+            MaterialRevision gitRevision = new MaterialRevision(gitMaterial, new Modification());
+            BuildCause buildCause = BuildCause.createManualForced(new MaterialRevisions(gitRevision), Username.ANONYMOUS);
+
+            JobPlan plan = defaultJobPlan(jobEnvironmentVariables, new EnvironmentVariables());
+            List<Builder> builders = new ArrayList<>();
+            builders.add(new CommandBuilder("ls", "", null, new RunIfConfigs(), new NullBuilder(), ""));
+            return BuildAssignment.create(plan, buildCause, builders, null, environmentVariableContext, new ArtifactStores());
+        }
+    }
+
+    @Nested
+    class ResolveEnvironmentConfig {
+        @Test
+        void shouldResolveSecretParams_IfJobPlanCanReferSecretConfig() {
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
+            environmentConfig.addEnvironmentVariable("key", "{{SECRET:[secret_config_id][password]}}");
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file");
+            when(goConfigService.cruiseConfig())
+                    .thenReturn(GoConfigMother.configWithSecretConfig(secretConfig));
+            when(secretsExtension.lookupSecrets("cd.go.file", secretConfig, new HashSet<>(asList("password"))))
+                    .thenReturn(asList(new Secret("password", "some-password")));
+
+            secretParamResolver.resolve(environmentConfig);
+
+            verify(rulesService).validateSecretConfigReferences(environmentConfig);
+            assertThat(environmentConfig.getSecretParams().get(0).getValue()).isEqualTo("some-password");
+        }
+
+        @Test
+        void shouldErrorOut_IfJobPlanDoNotHavePermissionToReferToASecretConfig() {
+            BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString("dev"));
+            environmentConfig.addEnvironmentVariable("key", "{{SECRET:[secret_config_id][password]}}");
+
+            doThrow(new RuntimeException()).when(rulesService).validateSecretConfigReferences(environmentConfig);
+
+            assertThatCode(() -> secretParamResolver.resolve(environmentConfig))
+                    .isInstanceOf(RuntimeException.class);
+
+            verifyZeroInteractions(goConfigService);
+            verifyZeroInteractions(secretsExtension);
+        }
     }
 
     @Test
@@ -115,5 +234,11 @@ class SecretParamResolverTest {
         assertThat(allSecretParams).hasSize(2);
         assertThat(allSecretParams.get(0).getValue()).isEqualTo("some-username");
         assertThat(allSecretParams.get(1).getValue()).isEqualTo("some-username");
+    }
+
+    private JobPlan defaultJobPlan(EnvironmentVariables variables, EnvironmentVariables triggerVariables) {
+        JobIdentifier identifier = new JobIdentifier("Up42", 1, "1", "test", "1", "unit_test", 123L);
+        return new DefaultJobPlan(new Resources(), new ArrayList<>(), new ArrayList<>(), -1, identifier, null,
+                variables, triggerVariables, null, null);
     }
 }

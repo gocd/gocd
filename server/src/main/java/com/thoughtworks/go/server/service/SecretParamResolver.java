@@ -16,11 +16,14 @@
 
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.SecretConfig;
 import com.thoughtworks.go.config.SecretParam;
 import com.thoughtworks.go.config.SecretParams;
+import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
+import com.thoughtworks.go.remote.work.BuildAssignment;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,14 +42,32 @@ public class SecretParamResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(SecretParamResolver.class);
     private SecretsExtension secretsExtension;
     private GoConfigService goConfigService;
+    private RulesService rulesService;
 
     @Autowired
-    public SecretParamResolver(SecretsExtension secretsExtension, GoConfigService goConfigService) {
+    public SecretParamResolver(SecretsExtension secretsExtension, GoConfigService goConfigService, RulesService rulesService) {
         this.secretsExtension = secretsExtension;
         this.goConfigService = goConfigService;
+        this.rulesService = rulesService;
     }
 
-    public void resolve(SecretParams secretParams) {
+    public void resolve(ScmMaterial scmMaterial) {
+        rulesService.validateSecretConfigReferences(scmMaterial);
+
+        resolve(scmMaterial.getSecretParams());
+    }
+
+    public void resolve(BuildAssignment buildAssignment) {
+        rulesService.validateSecretConfigReferences(buildAssignment);
+        resolve(buildAssignment.getSecretParams());
+    }
+
+    public void resolve(EnvironmentConfig environmentConfig) {
+        rulesService.validateSecretConfigReferences(environmentConfig);
+        resolve(environmentConfig.getSecretParams());
+    }
+
+    protected void resolve(SecretParams secretParams) {
         if (secretParams == null || secretParams.isEmpty()) {
             LOGGER.debug("No secret params to resolve.");
             return;

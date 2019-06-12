@@ -84,7 +84,6 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
     @Override
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
         validateMaterialUrl(this.url, validationContext);
-        validateSecretParams(validationContext);
 
         if (StringUtils.isBlank(userName)) {
             errors().add(USERNAME, "Username cannot be blank");
@@ -92,7 +91,7 @@ public class TfsMaterialConfig extends ScmMaterialConfig implements ParamsAttrib
         if (StringUtils.isBlank(projectPath)) {
             errors().add(PROJECT_PATH, "Project Path cannot be blank");
         }
-
+        validateEncryptedPassword();
     }
 
     @Override

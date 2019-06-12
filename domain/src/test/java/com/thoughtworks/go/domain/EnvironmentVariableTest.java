@@ -18,25 +18,25 @@ package com.thoughtworks.go.domain;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.junit.Test;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 
-public class EnvironmentVariableTest {
+class EnvironmentVariableTest {
     @Test
-    public void shouldCreateEnvironmentVariableFromEnvironmentVariableConfig() {
+    void shouldCreateEnvironmentVariableFromEnvironmentVariableConfig() {
         final EnvironmentVariableConfig environmentVariableConfig = new EnvironmentVariableConfig("foo", "bar");
-        assertThat(new EnvironmentVariable(environmentVariableConfig), is(new EnvironmentVariable("foo", "bar")));
+        assertThat(new EnvironmentVariable(environmentVariableConfig)).isEqualTo(new EnvironmentVariable("foo", "bar"));
 
         final EnvironmentVariableConfig secureEnvironmentVariableConfig = new EnvironmentVariableConfig(new GoCipher(), "foo", "bar", true);
-        assertThat(new EnvironmentVariable(secureEnvironmentVariableConfig), is(new EnvironmentVariable("foo", "bar", true)));
+        assertThat(new EnvironmentVariable(secureEnvironmentVariableConfig)).isEqualTo(new EnvironmentVariable("foo", "bar", true));
     }
 
     @Test
-    public void addTo_shouldAddEnvironmentVariableToEnvironmentVariableContext() {
+    void addTo_shouldAddEnvironmentVariableToEnvironmentVariableContext() {
         final EnvironmentVariableContext environmentVariableContext = mock(EnvironmentVariableContext.class);
         final EnvironmentVariable environmentVariable = new EnvironmentVariable("foo", "bar");
 
@@ -46,7 +46,7 @@ public class EnvironmentVariableTest {
     }
 
     @Test
-    public void addToIfExists_shouldAddEnvironmentVariableToEnvironmentVariableContextWhenVariableIsAlreadyExistInContext() {
+    void addToIfExists_shouldAddEnvironmentVariableToEnvironmentVariableContextWhenVariableIsAlreadyExistInContext() {
         final EnvironmentVariableContext environmentVariableContext = mock(EnvironmentVariableContext.class);
         final EnvironmentVariable environmentVariable = new EnvironmentVariable("foo", "bar");
 
@@ -58,7 +58,7 @@ public class EnvironmentVariableTest {
     }
 
     @Test
-    public void addToIfExists_shouldNotAddEnvironmentVariableToEnvironmentVariableContextWhenVariableIDoesNotExistInContext() {
+    void addToIfExists_shouldNotAddEnvironmentVariableToEnvironmentVariableContextWhenVariableIDoesNotExistInContext() {
         final EnvironmentVariableContext environmentVariableContext = mock(EnvironmentVariableContext.class);
         final EnvironmentVariable environmentVariable = new EnvironmentVariable("foo", "bar");
 
@@ -69,17 +69,27 @@ public class EnvironmentVariableTest {
         verify(environmentVariableContext, times(0)).setProperty("foo", "bar", false);
     }
 
-    @Test
-    public void getDisplayValue_shouldReturnMaskedValueIfVariableIsSecure() {
-        final EnvironmentVariable environmentVariable = new EnvironmentVariable("foo", "bar", true);
+    @Nested
+    class GetDisplayValue {
+        @Test
+        void shouldReturnMaskedValueIfVariableIsSecure() {
+            final EnvironmentVariable environmentVariable = new EnvironmentVariable("foo", "bar", true);
 
-        assertThat(environmentVariable.getDisplayValue(), is("****"));
-    }
+            assertThat(environmentVariable.getDisplayValue()).isEqualTo("****");
+        }
 
-    @Test
-    public void getDisplayValue_shouldReturnOriginalValueIfVariableIsNotSecure() {
-        final EnvironmentVariable environmentVariable = new EnvironmentVariable("foo", "bar", false);
+        @Test
+        void shouldReturnMaskedValueIfVariableIsSecretParam() {
+            final EnvironmentVariable environmentVariable = new EnvironmentVariable("foo", "{{SECRET:[secret_config_id][token]}}", false);
 
-        assertThat(environmentVariable.getDisplayValue(), is("bar"));
+            assertThat(environmentVariable.getDisplayValue()).isEqualTo("{{SECRET:[secret_config_id][token]}}");
+        }
+
+        @Test
+        void shouldReturnOriginalValueIfVariableIsNotSecure() {
+            final EnvironmentVariable environmentVariable = new EnvironmentVariable("foo", "bar", false);
+
+            assertThat(environmentVariable.getDisplayValue()).isEqualTo("bar");
+        }
     }
 }

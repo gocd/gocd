@@ -283,17 +283,15 @@ public class MaterialServiceTest {
         GitMaterial gitMaterial = spy(new GitMaterial("https://example.com"));
         MaterialService spy = spy(materialService);
         GitPoller gitPoller = mock(GitPoller.class);
-        SecretParams secretParams = mock(SecretParams.class);
 
         doReturn(GitMaterial.class).when(spy).getMaterialClass(gitMaterial);
         doReturn(true).when(gitMaterial).hasSecretParams();
-        doReturn(secretParams).when(gitMaterial).getSecretParams();
         doReturn(gitPoller).when(spy).getPollerImplementation(gitMaterial);
         when(gitPoller.latestModification(any(), any(), any())).thenReturn(new ArrayList<>());
 
         spy.latestModification(gitMaterial, null, null);
 
-        verify(secretParamResolver).resolve(secretParams);
+        verify(secretParamResolver).resolve(gitMaterial);
     }
 
     @Test
@@ -306,13 +304,12 @@ public class MaterialServiceTest {
 
         doReturn(toBeReturned).when(spy).getMaterialClass(gitMaterial);
         doReturn(true).when(gitMaterial).hasSecretParams();
-        doReturn(secretParams).when(gitMaterial).getSecretParams();
         doReturn(gitPoller).when(spy).getPollerImplementation(gitMaterial);
         when(gitPoller.modificationsSince(any(), any(), any(), any())).thenReturn(new ArrayList<>());
 
         spy.modificationsSince(gitMaterial, null, null, null);
 
-        verify(secretParamResolver).resolve(secretParams);
+        verify(secretParamResolver).resolve(gitMaterial);
     }
 
     @Test

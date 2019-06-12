@@ -194,14 +194,15 @@ public class MaterialExpansionServiceTest {
         when(materialConfigConverter.toMaterials(new MaterialConfigs(svn.config(), expectedExternalSvnMaterial.config()))).thenReturn(new Materials(svn, expectedExternalSvnMaterial));
 
         doAnswer(invocation -> {
-            SecretParams secretParams = invocation.getArgument(0);
+            SvnMaterial svnMaterial = invocation.getArgument(0);
+            SecretParams secretParams = svnMaterial.getSecretParams();
             secretParams.get(0).setValue("pass1");
             return null;
-        }).when(secretParamResolver).resolve(any());
+        }).when(secretParamResolver).resolve(svn);
 
         materialExpansionService.expandForScheduling(svn, new Materials());
 
-        verify(secretParamResolver).resolve(any());
+        verify(secretParamResolver).resolve(svn);
     }
 
     @Test

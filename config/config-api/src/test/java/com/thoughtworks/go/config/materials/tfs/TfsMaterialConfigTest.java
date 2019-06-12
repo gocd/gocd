@@ -19,8 +19,6 @@ import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.Filter;
 import com.thoughtworks.go.config.materials.IgnoredFiles;
 import com.thoughtworks.go.config.materials.ScmMaterialConfig;
-import com.thoughtworks.go.config.rules.Allow;
-import com.thoughtworks.go.config.rules.Rules;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
@@ -37,9 +35,7 @@ import java.util.Map;
 import static com.thoughtworks.go.config.materials.AbstractMaterialConfig.MATERIAL_NAME;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.FOLDER;
 import static com.thoughtworks.go.config.materials.ScmMaterialConfig.URL;
-import static com.thoughtworks.go.config.rules.SupportedEntity.PIPELINE_GROUP;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.tfs;
-import static com.thoughtworks.go.helper.PipelineConfigMother.createGroup;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
@@ -281,48 +277,6 @@ class TfsMaterialConfigTest {
             tfsMaterialConfig.setPassword("badger");
 
             assertThat(tfsMaterialConfig.validateTree(null)).isTrue();
-            assertThat(tfsMaterialConfig.errors().getAll()).isEmpty();
-        }
-
-        @Test
-        void shouldFailIfSecretConfigForPasswordSpecifiedAsSecretParamDoesNotExist() {
-            final ValidationContext validationContext = mockValidationContextForSecretParams();
-            tfsMaterialConfig.setPassword("{{SECRET:[secret_config_id][password]}}");
-
-            assertThat(tfsMaterialConfig.validateTree(validationContext)).isFalse();
-            assertThat(tfsMaterialConfig.errors().on("encryptedPassword")).isEqualTo("Secret config with ids `secret_config_id` does not exist.");
-        }
-
-
-        @Test
-        void shouldFailIfSecretConfigCannotBeUsedInPipelineGroupWhereCurrentMaterialIsDefined() {
-            tfsMaterialConfig.setUserName("bob");
-            tfsMaterialConfig.setPassword("{{SECRET:[secret_config_id][pass]}}");
-            final Rules directives = new Rules(new Allow("refer", PIPELINE_GROUP.getType(), "group_2"));
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
-
-            assertThat(tfsMaterialConfig.validateTree(validationContext)).isFalse();
-
-            assertThat(tfsMaterialConfig.errors().get("encryptedPassword"))
-                    .contains("Secret config with ids `secret_config_id` is not allowed to use in `pipelines` with name `group_1`.");
-        }
-
-        @Test
-        void shouldPassIfSecretConfigCanBeReferredInPipelineGroupWhereCurrentMaterialIsDefined() {
-            tfsMaterialConfig.setUserName("bob");
-            tfsMaterialConfig.setPassword("{{SECRET:[secret_config_id][pass]}}");
-            final Rules directives = new Rules(
-                    new Allow("refer", PIPELINE_GROUP.getType(), "group_2"),
-                    new Allow("refer", PIPELINE_GROUP.getType(), "group_1")
-            );
-            final SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.secret.file", directives);
-            final ValidationContext validationContext = mockValidationContextForSecretParams(secretConfig);
-            when(validationContext.getPipelineGroup()).thenReturn(createGroup("group_1", "up42"));
-
-            assertThat(tfsMaterialConfig.validateTree(validationContext)).isTrue();
-
             assertThat(tfsMaterialConfig.errors().getAll()).isEmpty();
         }
     }

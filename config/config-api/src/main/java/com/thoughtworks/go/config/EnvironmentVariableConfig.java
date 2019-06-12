@@ -28,12 +28,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.annotation.PostConstruct;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static java.lang.String.format;
-import static java.lang.String.join;
 
 /**
  * @understands an environment variable value that will be passed to a job when it is run
@@ -58,9 +55,11 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
     private final ConfigErrors configErrors = new ConfigErrors();
     private final GoCipher goCipher;
     private ConfigOrigin origin;
+    private SecretParams secretParamsForValue;
 
     public EnvironmentVariableConfig() {
         this.goCipher = new GoCipher();
+        this.secretParamsForValue = new SecretParams();
     }
 
     public EnvironmentVariableConfig(String name, String value) {
@@ -195,37 +194,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
 
     public void validate(ValidationContext validationContext) {
         try {
-            SecretParams secretParams = SecretParams.parse(getValue());
-
-            if (!secretParams.hasSecretParams()) {
-                return;
-            }
-
-            final Set<String> missingSecretConfigs = new HashSet<>();
-            final Set<String> canNotReferSecretConfigs = new HashSet<>();
-
-            SecretConfigs secretConfigs = validationContext.getCruiseConfig().getSecretConfigs();
-            Parent parent = Parent.from(validationContext);
-
-            secretParams.forEach(secretParam -> {
-                final SecretConfig secretConfig = secretConfigs.find(secretParam.getSecretConfigId());
-                if (secretConfig == null) {
-                    missingSecretConfigs.add(secretParam.getSecretConfigId());
-                } else {
-                    if (parent != null && !secretConfig.canRefer(parent.getType(), parent.getIdentifier())) {
-                        canNotReferSecretConfigs.add(secretParam.getSecretConfigId());
-                    }
-                }
-            });
-
-            if (!missingSecretConfigs.isEmpty()) {
-                addError(VALUE, String.format("Secret config with ids '%s' does not exist.", String.join(", ", missingSecretConfigs)));
-            }
-
-            if (!canNotReferSecretConfigs.isEmpty()) {
-                addError(VALUE, format("Secret config with ids '%s' is not allowed to use in %s '%s'.", join(", ", canNotReferSecretConfigs), parent.getTag(), parent.getIdentifier()));
-            }
-
+            getValue();
         } catch (Exception e) {
             errors().add(VALUE, String.format("Encrypted value for variable named '%s' is invalid. This usually happens when the cipher text is modified to have an invalid value.", getName()));
         }
@@ -259,18 +228,30 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         } else {
             this.value = new VariableValueConfig(value);
         }
+        this.secretParamsForValue = parseSecretParams();
     }
 
     public void setEncryptedValue(String encrypted) {
         this.encryptedValue = new EncryptedVariableValueConfig(encrypted);
+        this.secretParamsForValue = parseSecretParams();
     }
 
     public void setValue(VariableValueConfig value) {
         this.value = value;
+        this.secretParamsForValue = parseSecretParams();
     }
 
     public void setEncryptedValue(EncryptedVariableValueConfig encryptedValue) {
         this.encryptedValue = encryptedValue;
+        this.secretParamsForValue = parseSecretParams();
+    }
+
+    private SecretParams parseSecretParams() {
+        try {
+            return SecretParams.parse(getValue());
+        } catch (Exception e) {
+            return new SecretParams();
+        }
     }
 
     public String getValue() {
@@ -281,12 +262,14 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
                 throw new RuntimeException(format("Could not decrypt secure environment variable value for name %s", getName()), e);
             }
         } else {
-            return value.getValue();
+            return value == null ? null : value.getValue();
         }
     }
 
     public String getDisplayValue() {
-        if (isSecure()) return "****";
+        if (isSecure() || hasSecretParams()) {
+            return "****";
+        }
         return getValue();
     }
 
@@ -308,6 +291,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
         } else {
             this.value = new VariableValueConfig(value);
         }
+        this.secretParamsForValue = parseSecretParams();
     }
 
     @PostConstruct
@@ -321,6 +305,7 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
             String encryptedValue = this.encryptedValue.getValue();
             setEncryptedValue(goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedValue));
         }
+        this.secretParamsForValue = parseSecretParams();
     }
 
     public void deserialize(String name, String value, boolean isSecure, String encryptedValue) throws CryptoException {
@@ -371,82 +356,19 @@ public class EnvironmentVariableConfig implements Serializable, Validatable, Par
 
     @Override
     public boolean hasSecretParams() {
-        return !SecretParams.parse(getValue()).isEmpty();
+        return !this.secretParamsForValue.isEmpty();
     }
 
     @Override
     public SecretParams getSecretParams() {
-        return SecretParams.parse(getValue());
+        return this.secretParamsForValue;
     }
 
-    static abstract class Parent<T extends Validatable> {
-        private T parent;
-
-        Parent(T parent) {
-            this.parent = parent;
+    public String valueForCommandline() {
+        if (hasSecretParams()) {
+            return getSecretParams().substitute(getValue());
         }
 
-        public static Parent from(ValidationContext validationContext) {
-            if (validationContext.isWithinPipelines()) {
-                return new PipelineParent(validationContext.getPipelineGroup());
-            }
-
-            if (validationContext.isWithinEnvironment()) {
-                return new EnvironmentParent(validationContext.getEnvironment());
-            }
-
-            return null;
-        }
-
-        public String getTag() {
-            ConfigTag configTag = parent.getClass().getAnnotation(ConfigTag.class);
-            if (StringUtils.isNotBlank(configTag.label())) {
-                return configTag.label();
-            }
-            return configTag.value();
-        }
-
-        public Class<? extends Validatable> getType() {
-            return parent.getClass();
-        }
-
-        public T getParent() {
-            return parent;
-        }
-
-        public abstract String getIdentifier();
-    }
-
-    static class PipelineParent extends Parent<PipelineConfigs> {
-        PipelineParent(PipelineConfigs pipelineConfigs) {
-            super(pipelineConfigs);
-        }
-
-        @Override
-        public String getIdentifier() {
-            return getParent().getGroup();
-        }
-    }
-
-    static class TemplateParent extends Parent<PipelineTemplateConfig> {
-        TemplateParent(PipelineTemplateConfig template) {
-            super(template);
-        }
-
-        @Override
-        public String getIdentifier() {
-            return getParent().name().toString();
-        }
-    }
-
-    static class EnvironmentParent extends Parent<EnvironmentConfig> {
-        EnvironmentParent(EnvironmentConfig environment) {
-            super(environment);
-        }
-
-        @Override
-        public String getIdentifier() {
-            return getParent().name().toString();
-        }
+        return getValue();
     }
 }

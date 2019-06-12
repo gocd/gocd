@@ -119,7 +119,7 @@ public class GitMaterialConfig extends ScmMaterialConfig implements PasswordAwar
     public void validateConcreteScmMaterial(ValidationContext validationContext) {
         validateMaterialUrl(this.url, validationContext);
         validateCredentials();
-        validateSecretParams(validationContext);
+        validateEncryptedPassword();
     }
 
     @Override

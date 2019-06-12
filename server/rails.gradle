@@ -142,7 +142,10 @@ task initializeRailsGems {
   }
 }
 
+
 task yarnInstall(type: YarnInstallTask) {
+  // delete this in the compile phase, because otherwise the yarnInstall detects a new folder and reinstalls.
+  project.delete(project.file("${project.railsRoot}/node_modules/.cache"))
   workingDir = project.railsRoot
 }
 

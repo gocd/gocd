@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv1.stageoperations.representers;
+package com.thoughtworks.go.api.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.server.util.Pagination;
+
+import java.util.function.Consumer;
 
 public class PaginationRepresenter {
     public static void toJSON(OutputWriter jsonWriter, Pagination pagination) {
         jsonWriter.add("page_size", pagination.getPageSize())
                 .add("offset", pagination.getOffset())
                 .add("total", pagination.getTotal());
+    }
+
+    public static Consumer<OutputWriter> toJSON(Pagination pagination) {
+        return outputWriter -> PaginationRepresenter.toJSON(outputWriter, pagination);
     }
 }

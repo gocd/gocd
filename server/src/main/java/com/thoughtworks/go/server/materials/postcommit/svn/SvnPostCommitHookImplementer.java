@@ -19,6 +19,8 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.server.materials.postcommit.PostCommitHookImplementer;
+import com.thoughtworks.go.server.materials.postcommit.UrlMatchers;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,6 +30,8 @@ import java.util.Set;
 public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
 
     static final String UUID = "uuid";
+    static final String REPO_URL_PARAM_KEY = "repository_url";
+    private final UrlMatchers validators = new UrlMatchers();
 
     @Override
     public Set<Material> prune(Set<Material> materials, Map params) {
@@ -39,6 +43,15 @@ public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
             for (Material material : materials) {
                 if (material instanceof SvnMaterial && isQualified(targetUUID, (SvnMaterial) material, urlToRemoteUUIDMap)) {
                     prunedMaterials.add(material);
+                }
+            }
+        } else if (params.containsKey(REPO_URL_PARAM_KEY)) {
+            String paramRepoUrl = (String) params.get(REPO_URL_PARAM_KEY);
+            if (StringUtils.isNotBlank(paramRepoUrl)) {
+                for (Material material : materials) {
+                    if (material instanceof SvnMaterial && isUrlEqual(paramRepoUrl, (SvnMaterial) material)) {
+                        prunedMaterials.add(material);
+                    }
                 }
             }
         }
@@ -65,5 +78,10 @@ public class SvnPostCommitHookImplementer implements PostCommitHookImplementer {
 
     SvnCommand getEmptySvnCommand() {
         return new SvnCommand(null, ".");
+    }
+
+    private boolean isUrlEqual(String paramRepoUrl, SvnMaterial material) {
+        String materialUrl = material.getUrlArgument().originalArgument();
+        return validators.perform(paramRepoUrl, materialUrl);
     }
 }

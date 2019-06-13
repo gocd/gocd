@@ -403,3 +403,7 @@ api/api-scms-v1/config/
 api/api-scms-v1/logs/
 api/api-scms-v1/out/
 api/api-scms-v1/target/
+api/api-materials-v1/out/
+api/api-materials-v1/target/
+api/api-materials-v1/logs/
+api/api-materials-v1/config/

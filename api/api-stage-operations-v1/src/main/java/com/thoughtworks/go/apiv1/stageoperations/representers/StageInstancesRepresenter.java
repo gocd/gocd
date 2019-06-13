@@ -16,6 +16,7 @@
 package com.thoughtworks.go.apiv1.stageoperations.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.PaginationRepresenter;
 import com.thoughtworks.go.presentation.pipelinehistory.StageInstanceModels;
 import com.thoughtworks.go.server.util.Pagination;
 

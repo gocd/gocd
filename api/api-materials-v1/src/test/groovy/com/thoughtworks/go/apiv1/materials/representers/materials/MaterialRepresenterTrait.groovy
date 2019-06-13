@@ -13,28 +13,36 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.thoughtworks.go.apiv1.stageoperations.representers
 
-import com.thoughtworks.go.server.util.Pagination
+package com.thoughtworks.go.apiv1.materials.representers.materials
+
+import com.thoughtworks.go.domain.materials.MaterialConfig
 import org.junit.jupiter.api.Test
 
 import static com.thoughtworks.go.api.base.JsonUtils.toObjectString
 import static net.javacrumbs.jsonunit.fluent.JsonFluentAssert.assertThatJson
 
-class PaginationRepresenterTest {
+trait MaterialRepresenterTrait<T extends MaterialConfig> {
+
+  abstract T existingMaterial()
+
+  abstract T existingMaterialWithErrors()
+
+  abstract Object materialHash()
+
+  abstract Object expectedMaterialHashWithErrors()
 
   @Test
-  void 'should represent pagination with hal'() {
-    def pagination = new Pagination(1, 20, 10)
+  void 'should render material with hal representation'() {
+    def actualJson = toObjectString(MaterialsRepresenter.toJSON(existingMaterial()))
 
-    def actualJson = toObjectString({PaginationRepresenter.toJSON(it, pagination) })
-
-    assertThatJson(actualJson).isEqualTo(paginationHash)
+    assertThatJson(actualJson).isEqualTo(materialHash())
   }
 
-  def paginationHash = [
-    offset: 1,
-    page_size: 10,
-    total: 20
-  ]
+  @Test
+  void "should render errors"() {
+    def actualJson = toObjectString(MaterialsRepresenter.toJSON(existingMaterialWithErrors()))
+
+    assertThatJson(actualJson).isEqualTo(expectedMaterialHashWithErrors())
+  }
 }

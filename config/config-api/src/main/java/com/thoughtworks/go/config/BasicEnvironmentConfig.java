@@ -73,7 +73,6 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
     public boolean validateTree(ConfigSaveValidationContext validationContext, CruiseConfig preprocessedConfig) {
         validate(validationContext);
         preprocessedConfig.getEnvironments().validate(validationContext);
-        validateContainsOnlyUuids(preprocessedConfig.agents().acceptedUuids());
 
         boolean isValid = ErrorCollector.getAllErrors(this).isEmpty();
 

@@ -20,6 +20,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.ErrorCollection;
 import com.thoughtworks.go.plugin.configrepo.contract.CREnvironment;
 import com.thoughtworks.go.plugin.configrepo.contract.CRParseResult;
 import com.thoughtworks.go.plugin.configrepo.contract.CRPipeline;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +50,7 @@ public class GoConfigPluginServiceTest {
     {
         extension = mock(ConfigRepoExtension.class);
         service = new GoConfigPluginService(extension,mock(ConfigCache.class), ConfigElementImplementationRegistryMother.withNoPlugins(),
-                mock(CachedGoConfig.class));
+                mock(CachedGoConfig.class), mock(AgentService.class));
         parseResult = new CRParseResult(environments,pipelines,errors);
 
         when(extension.parseDirectory(any(String.class), any(String.class), any(Collection.class)))

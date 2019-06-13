@@ -52,7 +52,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static java.lang.String.format;
@@ -369,5 +368,9 @@ public class AgentService {
 
     public AgentConfig agentByUuid(String agentUuid) {
         return agentDao.agentConfigByUuid(agentUuid);
+    }
+
+    public List<String> allAgentUuids() {
+        return agentDao.allAgentUuids();
     }
 }

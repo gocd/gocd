@@ -44,6 +44,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.util.command.CommandLine;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -60,12 +61,14 @@ public class ConfigConverter {
 
     private final GoCipher cipher;
     private final CachedGoConfig cachedGoConfig;
+    private AgentService agentService;
     private Cloner cloner = new Cloner();
     private SCMs newSCMs = new SCMs();
 
-    public ConfigConverter(GoCipher goCipher, CachedGoConfig cachedGoConfig) {
+    public ConfigConverter(GoCipher goCipher, CachedGoConfig cachedGoConfig, AgentService agentService) {
         this.cipher = goCipher;
         this.cachedGoConfig = cachedGoConfig;
+        this.agentService = agentService;
     }
 
     public PartialConfig toPartialConfig(CRParseResult crPartialConfig, PartialConfigLoadContext context) {
@@ -75,6 +78,7 @@ public class ConfigConverter {
             EnvironmentConfig environment = toEnvironmentConfig(crEnvironment);
             partialConfig.getEnvironments().add(environment);
         }
+        validatePartialConfigEnvironments(partialConfig);
         Map<String, List<CRPipeline>> pipesByGroup = groupPipelinesByGroupName(crPartialConfig.getPipelines());
         for (Map.Entry<String, List<CRPipeline>> crPipelineGroup : pipesByGroup.entrySet()) {
             BasicPipelineConfigs pipelineConfigs = toBasicPipelineConfigs(crPipelineGroup, context);
@@ -82,6 +86,13 @@ public class ConfigConverter {
         }
         partialConfig.setScms(newSCMs);
         return partialConfig;
+    }
+
+    private void validatePartialConfigEnvironments(PartialConfig partialConfig) {
+        HashSet<String> uniqueAgentUuids = new HashSet<>(agentService.allAgentUuids());
+        partialConfig.getEnvironments().forEach(environmentConfig -> {
+            environmentConfig.validateContainsOnlyUuids(uniqueAgentUuids);
+        });
     }
 
     public Map<String, List<CRPipeline>> groupPipelinesByGroupName(Collection<CRPipeline> pipelines) {

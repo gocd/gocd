@@ -2720,7 +2720,8 @@ public class MagicalGoConfigXmlLoaderTest {
         List<String> list = (List<String>) CollectionUtils.collect(MagicalGoConfigXmlLoader.VALIDATORS, o -> o.getClass().getCanonicalName());
 
         assertThat(list).contains(ArtifactDirValidator.class.getCanonicalName());
-        assertThat(list).contains(EnvironmentAgentValidator.class.getCanonicalName());
+        // TODO:Remove this vrushali
+//        assertThat(list).contains(EnvironmentAgentValidator.class.getCanonicalName());
         assertThat(list).contains(ServerIdImmutabilityValidator.class.getCanonicalName());
         assertThat(list).contains(CommandRepositoryLocationValidator.class.getCanonicalName());
         assertThat(list).contains(TokenGenerationKeyImmutabilityValidator.class.getCanonicalName());

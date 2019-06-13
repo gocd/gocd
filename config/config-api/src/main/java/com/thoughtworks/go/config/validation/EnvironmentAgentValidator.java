@@ -28,29 +28,30 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * @understands ensuring environment-agents refer to existing, enabled agents
  */
+// TODO:Remove this vrushali
 public class EnvironmentAgentValidator implements GoConfigValidator {
     @Override
     public void validate(CruiseConfig cruiseConfig) {
         List<ConfigErrors> errors = validateConfig(cruiseConfig);
-        List<String> errorMessages = new ArrayList<>();
-        for (ConfigErrors error : errors) {
-            errorMessages.addAll(error.getAll());
-        }
-        if (!errors.isEmpty()) throw new RuntimeException(StringUtils.join(errorMessages, ", "));
+//        List<String> errorMessages = new ArrayList<>();
+//        for (ConfigErrors error : errors) {
+//            errorMessages.addAll(error.getAll());
+//        }
+//        if (!errors.isEmpty()) throw new RuntimeException(StringUtils.join(errorMessages, ", "));
     }
-
+//
     public List<ConfigErrors> validateConfig(CruiseConfig cruiseConfig) {
         List<ConfigErrors> errors = new ArrayList<>();
-        Set<String> uuids = cruiseConfig.agents().acceptedUuids();
-        if (!cruiseConfig.getEnvironments().validateContainOnlyUuids(uuids)) {
-            for (EnvironmentConfig environmentConfig : cruiseConfig.getEnvironments()) {
-                for (EnvironmentAgentConfig environmentAgentConfig : environmentConfig.getAgents()) {
-                    if (!environmentAgentConfig.errors().isEmpty()) {
-                        errors.add(environmentAgentConfig.errors());
-                    }
-                }
-            }
-        }
+//        Set<String> uuids = cruiseConfig.agents().acceptedUuids();
+//        if (!cruiseConfig.getEnvironments().validateContainOnlyUuids(uuids)) {
+//            for (EnvironmentConfig environmentConfig : cruiseConfig.getEnvironments()) {
+//                for (EnvironmentAgentConfig environmentAgentConfig : environmentConfig.getAgents()) {
+//                    if (!environmentAgentConfig.errors().isEmpty()) {
+//                        errors.add(environmentAgentConfig.errors());
+//                    }
+//                }
+//            }
+//        }
         return errors;
     }
 }

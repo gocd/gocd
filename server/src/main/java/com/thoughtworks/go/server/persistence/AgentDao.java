@@ -349,4 +349,8 @@ public class AgentDao extends HibernateDaoSupport {
             }
         });
     }
+
+    public List<String> allAgentUuids() {
+        return (List<String>) getHibernateTemplate().execute(session -> session.createQuery("select uuid from Agent where deleted = false").list());
+    }
 }

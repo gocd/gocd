@@ -72,14 +72,6 @@ public class EnvironmentsConfig extends BaseCollection<EnvironmentConfig> implem
         configErrors.add(fieldName, message);
     }
 
-    public boolean validateContainOnlyUuids(Set<String> uuids) {
-        boolean isValid = true;
-        for (EnvironmentConfig environmentConfig : this) {
-            isValid = environmentConfig.validateContainsOnlyUuids(uuids) && isValid;
-        }
-        return isValid;
-    }
-
     public void addAgentsToEnvironment(String environmentName, String... uuids) {
         EnvironmentConfig environment = getOrCreateEnvironment(environmentName);
         for (String uuid : uuids) {

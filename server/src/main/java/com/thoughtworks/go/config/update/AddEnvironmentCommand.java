@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 
@@ -28,8 +29,8 @@ public class AddEnvironmentCommand extends EnvironmentCommand  {
 
     private final LocalizedOperationResult result;
 
-    public AddEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, String actionFailed, LocalizedOperationResult result) {
-        super(actionFailed, environmentConfig, result, goConfigService, username);
+    public AddEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, String actionFailed, LocalizedOperationResult result, AgentConfigService agentConfigService) {
+        super(actionFailed, environmentConfig, result, goConfigService, username, agentConfigService);
         this.result = result;
     }
 

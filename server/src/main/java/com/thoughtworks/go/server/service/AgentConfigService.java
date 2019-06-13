@@ -440,4 +440,7 @@ public class AgentConfigService {
         }
     }
 
+    public List<String> allAgentUuids() {
+        return agentDao.allAgentUuids();
+    }
 }

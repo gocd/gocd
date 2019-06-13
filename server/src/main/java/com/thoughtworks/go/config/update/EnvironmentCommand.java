@@ -24,9 +24,14 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.AgentConfigService;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateType;
+
+import java.util.HashSet;
+import java.util.List;
 
 
 public abstract class EnvironmentCommand implements EntityConfigUpdateCommand<EnvironmentConfig> {
@@ -35,19 +40,24 @@ public abstract class EnvironmentCommand implements EntityConfigUpdateCommand<En
     protected LocalizedOperationResult result;
     protected GoConfigService goConfigService;
     protected Username username;
+    private AgentConfigService agentConfigService;
 
-    public EnvironmentCommand(String actionFailed, EnvironmentConfig environmentConfig, LocalizedOperationResult result, GoConfigService goConfigService, Username username) {
+    public EnvironmentCommand(String actionFailed, EnvironmentConfig environmentConfig, LocalizedOperationResult result, GoConfigService goConfigService, Username username, AgentConfigService agentConfigService) {
         this.actionFailed = actionFailed;
         this.environmentConfig = environmentConfig;
         this.result = result;
         this.goConfigService = goConfigService;
         this.username = username;
+        this.agentConfigService = agentConfigService;
     }
 
     @Override
     public boolean isValid(CruiseConfig preprocessedConfig) {
         EnvironmentConfig config = preprocessedConfig.getEnvironments().find(this.environmentConfig.name());
         boolean isValid = config.validateTree(ConfigSaveValidationContext.forChain(preprocessedConfig), preprocessedConfig);
+
+        HashSet<String> uniqueAgentUuids = new HashSet<>(agentConfigService.allAgentUuids());
+        isValid = config.validateContainsOnlyUuids(uniqueAgentUuids) && isValid;
 
         if (!isValid) {
             String allErrors = new AllConfigErrors(preprocessedConfig.getAllErrors()).asString();

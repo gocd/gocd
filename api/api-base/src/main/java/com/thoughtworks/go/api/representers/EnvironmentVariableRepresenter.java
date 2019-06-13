@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv2.shared.representers;
+package com.thoughtworks.go.api.representers;
 
+import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.ErrorGetter;
-import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.util.HaltApiResponses;
 import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
@@ -26,10 +25,18 @@ import com.thoughtworks.go.security.CryptoException;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 
 public class EnvironmentVariableRepresenter {
+    public static void toJSON(OutputListWriter jsonWriter, List<EnvironmentVariableConfig> environmentVariableConfigs) {
+        environmentVariableConfigs.forEach(environmentVariableConfig -> {
+            jsonWriter.addChild(envVarWriter -> toJSON(envVarWriter, environmentVariableConfig));
+        });
+
+    }
+
     public static void toJSON(OutputWriter outputWriter, EnvironmentVariableConfig environmentVariableConfig) {
         if (!environmentVariableConfig.errors().isEmpty()) {
             outputWriter.addChild("errors", errorWriter -> {

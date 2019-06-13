@@ -17,11 +17,11 @@
 package com.thoughtworks.go.apiv7.admin.pipelineconfig.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.api.representers.ErrorGetter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.materials.MaterialsRepresenter;
 import com.thoughtworks.go.apiv7.admin.pipelineconfig.representers.trackingtool.TrackingToolRepresenter;
-import com.thoughtworks.go.apiv7.admin.shared.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.apiv7.admin.shared.representers.configorigin.ConfigRepoOriginRepresenter;
 import com.thoughtworks.go.apiv7.admin.shared.representers.configorigin.ConfigXmlOriginRepresenter;
 import com.thoughtworks.go.apiv7.admin.shared.representers.stages.ConfigHelperOptions;

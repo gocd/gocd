@@ -16,7 +16,7 @@
 
 import * as Routes from "gen/ts-routes";
 import {ApiResult} from "helpers/api_request_builder";
-import asSelector from "helpers/selector_proxy";
+import {asSelector} from "helpers/css_proxies";
 import * as m from "mithril";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";

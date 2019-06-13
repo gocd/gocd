@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import asSelector from "helpers/selector_proxy";
+import {asSelector} from "helpers/css_proxies";
 import * as m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
 import * as css from "../components.scss";

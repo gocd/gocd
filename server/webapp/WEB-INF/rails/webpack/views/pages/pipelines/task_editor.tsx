@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import asSelector from "helpers/selector_proxy";
+import {asSelector} from "helpers/css_proxies";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";

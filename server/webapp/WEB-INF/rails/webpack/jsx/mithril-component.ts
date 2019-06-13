@@ -36,6 +36,31 @@ export abstract class MithrilViewComponent<Attrs = {}> implements m.ClassCompone
   abstract view(vnode: m.Vnode<Attrs, this>): m.Children | null | void;
 }
 
+export interface RestyleAttrs<T> {
+  [key: string]: any;
+  css?: T;
+}
+
+export abstract class RestyleViewComponent<S, Attrs extends RestyleAttrs<S>> extends MithrilViewComponent<Attrs> {
+  abstract css: S;
+
+  oninit(vnode: m.Vnode<Attrs, {}>) {
+    if (vnode.attrs.css) {
+      this.css = vnode.attrs.css;
+    }
+  }
+}
+
+export abstract class RestyleComponent<S, Attrs extends RestyleAttrs<S>, State= {}> extends MithrilComponent<Attrs, State> {
+  abstract css: S;
+
+  oninit(vnode: m.Vnode<Attrs, State>) {
+    if (vnode.attrs.css) {
+      this.css = vnode.attrs.css;
+    }
+  }
+}
+
 // Set up type checks
 declare global {
   namespace JSX {

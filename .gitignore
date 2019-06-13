@@ -403,3 +403,7 @@ api/api-scms-v1/config/
 api/api-scms-v1/logs/
 api/api-scms-v1/out/
 api/api-scms-v1/target/
+api/api-pipeline-config-v8/out/
+api/api-pipeline-config-v8/target/
+api/api-pipeline-config-v8/logs/
+api/api-pipeline-config-v8/config/

@@ -73,6 +73,11 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
 
     EDITOR.addEventListener("blur", (e: Event) => {
       self.saveCommand(EDITOR, true);
+
+      // allow click through for button actions
+      if (isMouseEvent(e) && isHtmlElement(e.relatedTarget) && e.relatedTarget.closest(sel.button)) {
+        e.relatedTarget.click();
+      }
     });
 
     this.$(`${sel.caveats} span`).addEventListener("click", (e) => {
@@ -96,10 +101,10 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
 
       const el = e.target as HTMLElement;
 
-      if (el.matches(`.${css.task},.${css.task} *`)) {
+      if (el.matches(`${sel.task},${sel.task} *`)) {
         e.stopPropagation();
 
-        self.editCommand(closest(el, sel.task), EDITOR);
+        self.editCommand(el.closest(sel.task) as HTMLElement, EDITOR);
       } else {
         EDITOR.focus();
       }
@@ -231,9 +236,10 @@ function empty(el: HTMLElement): HTMLElement {
   return el;
 }
 
-function closest(el: HTMLElement, selector: string): HTMLElement {
-  while (!el.matches(selector)) {
-    el = el.parentNode as HTMLElement;
-  }
-  return el;
+function isHtmlElement(el: any): el is HTMLElement {
+  return !!(el as HTMLElement).classList;
+}
+
+function isMouseEvent(e: Event): e is MouseEvent {
+  return !!(e as MouseEvent).relatedTarget;
 }

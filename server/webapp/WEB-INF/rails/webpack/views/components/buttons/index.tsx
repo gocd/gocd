@@ -13,13 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
-import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
+import classnames from "classnames";
+import {RestyleAttrs, RestyleComponent, RestyleViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import * as defaultStyles from "./index.scss";
-
-const defaultClassnames = bind(defaultStyles);
 
 type Styles = typeof defaultStyles;
 
@@ -36,11 +34,7 @@ export interface OnClickHandler {
   onclick?: (e: MouseEvent) => void;
 }
 
-interface Restyleable<T> {
-  css?: T;
-}
-
-export interface Attrs extends OnClickHandler, Restyleable<Styles> {
+export interface Attrs extends OnClickHandler, RestyleAttrs<Styles> {
   icon?: ButtonIcon;
   small?: boolean;
   disabled?: boolean;
@@ -48,35 +42,45 @@ export interface Attrs extends OnClickHandler, Restyleable<Styles> {
   align?: Alignment;
 }
 
-abstract class Button extends MithrilViewComponent<Attrs> {
-  protected cls = defaultClassnames;
-  private stylesheet: Styles = defaultStyles;
+abstract class Button extends RestyleViewComponent<Styles, Attrs> {
+  css: Styles = defaultStyles;
 
-  abstract type(): string;
-
-  css(): Styles {
-    return this.stylesheet;
-  }
-
-  oninit(vnode: m.Vnode<Attrs, {}>) {
-    if (vnode.attrs.css) {
-      this.stylesheet = vnode.attrs.css;
-      this.cls = bind(vnode.attrs.css);
+  static isHtmlAttr(key: string): boolean {
+    switch (key) {
+      case "icon":
+      case "small":
+      case "dropdown":
+      case "align":
+      case "css":
+        return false;
+      default:
+        return true;
     }
   }
+
+  static onlyHtmlAttrs(attrs: Attrs): any {
+    const result: any = {};
+    for (const key in attrs) {
+      if (Button.isHtmlAttr(key)) {
+        result[key] = attrs[key];
+      }
+    }
+    return result;
+  }
+
+  abstract type(): string;
 
   view(vnode: m.Vnode<Attrs>) {
     const isSmall    = vnode.attrs.small;
     const isDropdown = vnode.attrs.dropdown;
 
     return (
-      <button {...vnode.attrs}
-              onclick={vnode.attrs.onclick}
-              class={this.cls(
-                this.css().button,
-                {[this.css().btnSmall]: isSmall, [this.css().btnDropdown]: isDropdown},
-                Button.iconClass(vnode.attrs.icon, this.css()),
-                Button.alignClass(vnode.attrs.align, this.css()),
+      <button {...Button.onlyHtmlAttrs(vnode.attrs)}
+              class={classnames(
+                this.css.button,
+                {[this.css.btnSmall]: isSmall, [this.css.btnDropdown]: isDropdown},
+                Button.iconClass(vnode.attrs.icon, this.css),
+                Button.alignClass(vnode.attrs.align, this.css),
                 this.type()
               )}>
         {vnode.children}
@@ -115,75 +119,67 @@ abstract class Button extends MithrilViewComponent<Attrs> {
 
 export class Danger extends Button {
   type(): string {
-    return this.css().btnDanger;
+    return this.css.btnDanger;
   }
 }
 
 export class Primary extends Button {
   type(): string {
-    return this.css().btnPrimary;
+    return this.css.btnPrimary;
   }
 }
 
 export class Secondary extends Button {
   type(): string {
-    return this.css().btnSecondary;
+    return this.css.btnSecondary;
   }
 }
 
 export class Reset extends Button {
   type(): string {
-    return this.css().btnReset;
+    return this.css.btnReset;
   }
 }
 
 export class Cancel extends Button {
   type(): string {
-    return this.css().btnCancel;
+    return this.css.btnCancel;
   }
 }
 
 export class Link extends Button {
   type(): string {
-    return this.css().btnLink;
+    return this.css.btnLink;
   }
 }
 
 export class Default extends Button {
   type(): string {
-    return this.css().btnDefault;
+    return this.css.btnDefault;
   }
 }
 
-export class ButtonGroup extends MithrilViewComponent<Restyleable<Styles>> {
-  view(vnode: m.Vnode<Restyleable<Styles>>) {
-    const css = vnode.attrs.css || defaultStyles;
+export class ButtonGroup extends RestyleViewComponent<Styles, RestyleAttrs<Styles>> {
+  css: Styles = defaultStyles;
 
+  view(vnode: m.Vnode<RestyleAttrs<Styles>>) {
     return (
-      <div class={css.buttonGroup} aria-label="actions">
+      <div class={this.css.buttonGroup} aria-label="actions">
         {vnode.children}
       </div>
     );
   }
 }
 
-export interface DropdownAttrs extends Restyleable<Styles> {
+export interface DropdownAttrs extends RestyleAttrs<Styles> {
   show: Stream<boolean>;
 }
 
-export abstract class Dropdown<V = {}> extends MithrilComponent<DropdownAttrs & V> {
-  private cls = defaultClassnames;
-  private stylesheet: Styles = defaultStyles;
-
-  css(): Styles {
-    return this.stylesheet;
-  }
+export abstract class Dropdown<V = {}> extends RestyleComponent<Styles, DropdownAttrs & V> {
+  css: Styles = defaultStyles;
 
   oninit(vnode: m.Vnode<DropdownAttrs & V>) {
-    if (vnode.attrs.css) {
-      this.stylesheet = vnode.attrs.css;
-      this.cls = bind(vnode.attrs.css);
-    }
+    super.oninit(vnode);
     document.body.addEventListener("click", this.closeDropdown.bind(this, vnode));
   }
 
@@ -208,7 +204,7 @@ export abstract class Dropdown<V = {}> extends MithrilComponent<DropdownAttrs & 
 
   view(vnode: m.Vnode<DropdownAttrs & V>) {
     return (
-      <div class={this.cls(this.classNames(), this.css().btnDropdownContainer)}
+      <div class={classnames(this.classNames(), this.css.btnDropdownContainer)}
            onclick={this.stopPropogation}>
         {this.doRenderButton(vnode)}
         {this.doRenderDropdownContent(vnode)}

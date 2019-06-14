@@ -37,8 +37,27 @@ interface Attrs {
 export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
   private pipelineGroups: Stream<Option[]> = stream();
   private cache: PipelineGroupCache<Option> = new DefaultCache();
+  private universalAddPipeline?: boolean;
+
+  readToggle(): boolean {
+    return JSON.parse(document.querySelector("[data-universal-add-pipeline-button]")!.getAttribute("data-universal-add-pipeline-button")!);
+  }
+
+  getFirstGroup(): string {
+    if (this.pipelineGroups() && this.pipelineGroups().length) {
+      return this.pipelineGroups()[0].id;
+    }
+    return "";
+  }
+
+  getSelected(vnode: m.Vnode<Attrs>): string {
+    const currentGroup = vnode.attrs.pipelineConfig.group() || this.getFirstGroup();
+    vnode.attrs.pipelineConfig.group(currentGroup);
+    return currentGroup;
+  }
 
   oninit(vnode: m.Vnode<Attrs, {}>) {
+    this.universalAddPipeline = this.readToggle();
     if (vnode.attrs.cache) {
       this.cache = vnode.attrs.cache;
     }
@@ -48,21 +67,51 @@ export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
     });
   }
 
-  view(vnode: m.Vnode<Attrs>) {
+  universalAddPipelineButtonForm(vnode: m.Vnode<Attrs>) {
     return (<FormBody>
       <Form last={true} compactForm={true}>
-        <TextField label="Pipeline Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., My-New-Pipeline" property={vnode.attrs.pipelineConfig.name} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("name")} required={true}/>
+        {[this.pipelineName(vnode), this.pipelineGroup(vnode)]}
       <AdvancedSettings>
-        <SelectField label="Pipeline Group" property={vnode.attrs.pipelineConfig.group} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("group")} required={true}>
-          <SelectFieldOptions selected={vnode.attrs.pipelineConfig.group()} items={this.pipelineGroups()}/>
-        </SelectField>
-        <TemplateEditor
-          pipelineConfig={vnode.attrs.pipelineConfig}
-          cache={vnode.attrs.templatesCache}
-          isUsingTemplate={vnode.attrs.isUsingTemplate}
-        />
+        {this.templateEditor(vnode)}
       </AdvancedSettings>
       </Form>
     </FormBody>);
+  }
+
+  pipelineForm(vnode: m.Vnode<Attrs>) {
+    return (<FormBody>
+      <Form last={true} compactForm={true}>
+        {this.pipelineName(vnode)}
+      <AdvancedSettings>
+        {[this.pipelineGroup(vnode), this.templateEditor(vnode)]}
+      </AdvancedSettings>
+      </Form>
+    </FormBody>);
+  }
+
+  pipelineName(vnode: m.Vnode<Attrs>) {
+    return <TextField label="Pipeline Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., My-New-Pipeline" property={vnode.attrs.pipelineConfig.name} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("name")} required={true}/>;
+  }
+
+  pipelineGroup(vnode: m.Vnode<Attrs>) {
+    return <SelectField label="Pipeline Group" property={vnode.attrs.pipelineConfig.group} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("group")} required={true}>
+          <SelectFieldOptions selected={this.getSelected(vnode)} items={this.pipelineGroups()}/>
+        </SelectField>;
+  }
+
+  templateEditor(vnode: m.Vnode<Attrs>) {
+    return <TemplateEditor
+          pipelineConfig={vnode.attrs.pipelineConfig}
+          cache={vnode.attrs.templatesCache}
+          isUsingTemplate={vnode.attrs.isUsingTemplate}
+        />;
+  }
+
+  view(vnode: m.Vnode<Attrs>) {
+    if (this.universalAddPipeline) {
+      return this.universalAddPipelineButtonForm(vnode);
+    } else {
+      return this.pipelineForm(vnode);
+    }
   }
 }

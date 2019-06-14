@@ -25,7 +25,7 @@ import {NameableSet} from "./nameable_set";
 import {Stage} from "./stage";
 
 export class PipelineConfig extends ValidatableMixin {
-  group: Stream<string> = stream("defaultGroup");
+  group: Stream<string> = stream();
   name: Stream<string>;
   template: Stream<string> = stream();
   materials: Stream<NameableSet<Material>>;

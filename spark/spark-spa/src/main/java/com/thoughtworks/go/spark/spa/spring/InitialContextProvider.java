@@ -76,6 +76,7 @@ public class InitialContextProvider {
         context.put("showAnalyticsDashboard", showAnalyticsDashboard());
         context.put("devMode", !new SystemEnvironment().useCompressedJs());
         context.put("showSecretConfigSpa", Toggles.isToggleOn(Toggles.SHOW_SECRET_CONFIG_SPA));
+        context.put("universalAddPipelineButton", Toggles.isToggleOn(Toggles.UNIVERSAL_ADD_PIPELINE_BUTTON));
         return context;
     }
 

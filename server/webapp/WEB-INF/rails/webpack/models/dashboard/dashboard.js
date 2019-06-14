@@ -27,7 +27,6 @@ function Dashboard() {
   let pipelineGroups = DashboardGroups.fromPipelineGroupsJSON([]);
   let environments   = DashboardGroups.fromEnvironmentsJSON([]);
   let pipelines      = Pipelines.fromJSON([]);
-  let canAddPipeline;
 
   this.message           = Stream();
   this.getPipelineGroups = () => pipelineGroups;
@@ -36,7 +35,7 @@ function Dashboard() {
   this.getPipelines      = () => pipelines.pipelines;
   this.allPipelineNames  = () => Object.keys(pipelines.pipelines);
   this.findPipeline      = (pipelineName) => pipelines.find(pipelineName);
-  this.canAddPipeline    = () => canAddPipeline;
+  this.canAddPipeline    = () => _.some(pipelineGroups.groups, (pipGroup) => pipGroup.canAdminister);
 
   this.initialize = (json, showEmptyGroups) => {
     const newPipelineGroups = DashboardGroups.fromPipelineGroupsJSON(_.get(json, '_embedded.pipeline_groups', []), showEmptyGroups);
@@ -50,8 +49,6 @@ function Dashboard() {
     pipelineGroups = newPipelineGroups;
     environments   = newEnvironments;
     pipelines      = newPipelines;
-
-    canAddPipeline = Stream(_.some(pipelines.pipelines, (pip) => pip.canAdminister));
   };
 }
 

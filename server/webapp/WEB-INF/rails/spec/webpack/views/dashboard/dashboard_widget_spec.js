@@ -299,13 +299,14 @@ describe("Dashboard Widget", () => {
   it("should show universal add pipeline button when permitted", () => {
     unmount();
     mount(true, Stream(false), true);
+
     let button = helper.q(".dashboard-actions>button");
-    expect(button).toExist;
+    expect(button).toExist();
 
     unmount();
     mount(false, Stream(false), true);
     button = helper.q(".dashboard-actions>button");
-    expect(button).toBeNull;
+    expect(button).toBeNull();
   });
 
   it("should show pipeline group icon which links to pipeline group settings page for admin users", () => {

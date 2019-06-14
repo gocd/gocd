@@ -44,6 +44,7 @@
       data-is-user-group-admin="${securityService.isUserGroupAdmin(currentUser)?c}"
       data-can-user-view-templates="${securityService.isAuthorizedToViewTemplates(currentUser)?c}"
       data-show-analytics-dashboard="${showAnalyticsDashboard?c}"
+      data-universal-add-pipeline-button="${universalAddPipelineButton?c}"
       data-user-display-name="${currentUser.displayName}"
       data-user-anonymous="${currentUser.anonymous?c}"
       data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()?c}"

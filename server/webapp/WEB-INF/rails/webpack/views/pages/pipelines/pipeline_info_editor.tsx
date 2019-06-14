@@ -52,7 +52,7 @@ export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
     return (<FormBody>
       <Form last={true} compactForm={true}>
         <TextField label="Pipeline Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., My-New-Pipeline" property={vnode.attrs.pipelineConfig.name} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("name")} required={true}/>
-      <AdvancedSettings>
+      <AdvancedSettings forceOpen={vnode.attrs.pipelineConfig.errors().hasErrors("group") || vnode.attrs.pipelineConfig.errors().hasErrors("template")}>
         <SelectField label="Pipeline Group" property={vnode.attrs.pipelineConfig.group} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("group")} required={true}>
           <SelectFieldOptions selected={vnode.attrs.pipelineConfig.group()} items={this.pipelineGroups()}/>
         </SelectField>

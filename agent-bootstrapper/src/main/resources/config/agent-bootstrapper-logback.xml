@@ -24,7 +24,7 @@
 >
 
   <appender name="FileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${gocd.agent.log.dir:-${LOG_DIR:-logs}}/go-agent-bootstrapper.log</file>
+    <file>${gocd.agent.log.dir:-logs}/go-agent-bootstrapper.log</file>
     <encoder>
       <pattern>
         ${gocd.agentBootstrapper.logback.defaultPattern:-%date{ISO8601} %-5level [%thread] %logger{0}:%line - %msg%n}
@@ -33,7 +33,7 @@
 
     <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
       <fileNamePattern>
-        ${gocd.agent.log.dir:-${LOG_DIR:-logs}}/go-agent-bootstrapper.log.%d{yyyy-MM-dd}.%i.gz
+        ${gocd.agent.log.dir:-logs}/go-agent-bootstrapper.log.%d{yyyy-MM-dd}.%i.gz
       </fileNamePattern>
       <maxFileSize>${gocd.agentBootstrapper.logback.defaultRollingFileAppender.rotation.maxFileSize:-5 MB}</maxFileSize>
       <maxHistory>${gocd.agentBootstrapper.logback.defaultRollingFileAppender.rotation.maxHistory:-4}</maxHistory>

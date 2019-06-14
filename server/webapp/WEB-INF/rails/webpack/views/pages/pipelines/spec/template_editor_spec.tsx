@@ -41,7 +41,7 @@ describe("AddPipeline: TemplateEditor", () => {
   it("should display flash when no templates are defined", () => {
     helper.click(helper.byTestId("switch-paddle"));
     expect(isUsingTemplate()).toBeTruthy();
-    const flash = helper.byTestId("flash-message-info");
+    const flash = helper.byTestId("flash-message-warning");
     expect(flash).toBeTruthy();
     expect(helper.text("pre", flash)).toBe("There are no pipeline templates configured. Add one via the templates page.");
   });

@@ -20,6 +20,7 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {DefaultTemplatesCache, TemplateCache} from "models/pipeline_configs/templates_cache";
+import * as s from "underscore.string";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {SwitchBtn} from "views/components/switch/index";
@@ -47,9 +48,11 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
 
   view(vnode: m.Vnode<Attrs>) {
     let templateOptions;
+    let hasErrors = false;
     if (vnode.attrs.isUsingTemplate()) {
       if (this.templates().length === 0) {
-        templateOptions = <FlashMessage type={MessageType.info} message={<pre>There are no pipeline templates configured. Add one via the <a href="/go/admin/templates" title="Pipeline Templates">templates page</a>.</pre>}/>;
+        hasErrors = !s.isBlank(vnode.attrs.pipelineConfig.errors().errorsForDisplay("template"));
+        templateOptions = <FlashMessage type={hasErrors ? MessageType.alert : MessageType.warning} message={<pre>There are no pipeline templates configured. Add one via the <a href="/go/admin/templates" title="Pipeline Templates">templates page</a>.</pre>}/>;
       } else {
         templateOptions = (
           <SelectField label="Template" property={vnode.attrs.pipelineConfig.template} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("template")} required={true}>
@@ -59,7 +62,7 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
       }
     }
     return (
-      <div>
+      <div class={hasErrors ? css.errorText : ""}>
         <SwitchBtn small={true}
           label={<div class={css.switchLabelText}>Use Template:</div>}
           field={vnode.attrs.isUsingTemplate}

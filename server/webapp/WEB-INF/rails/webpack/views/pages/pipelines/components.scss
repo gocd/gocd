@@ -225,6 +225,13 @@ $error-container-width: 450px;
   }
 }
 
+$error-color: #fa2d2d;
+
+.error-text {
+  font-size: 15px;
+  color: $error-color;
+}
+
 .switch-label-text {
   font-weight: normal;
   cursor: pointer;

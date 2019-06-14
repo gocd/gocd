@@ -111,7 +111,7 @@ class MaxLengthValidator extends Validator {
   }
 }
 
-class MutualExclusivityValidator extends Validator {
+class MutualExclusivityValidator<T = {}> extends Validator {
   private attrTwo: string;
   constructor(attrTwo: string, options: ValidatorOptions = {}) {
     super(options);
@@ -119,13 +119,31 @@ class MutualExclusivityValidator extends Validator {
   }
 
   protected doValidate(entity: any, attrName: string): void {
-    if ((entity[attrName]() === undefined) || (entity[this.attrTwo]() === undefined)) {
+    if (this.isEmpty(entity[attrName]()) && this.isEmpty(entity[this.attrTwo]())) {
+      entity.errors().add(attrName, this.options.message || ErrorMessages.mutuallyExclusive(attrName, this.attrTwo));
       return;
     }
 
-    if (!(entity[attrName]().length === 0) && !(entity[this.attrTwo]().length === 0)) {
+    if (!this.isEmpty(entity[attrName]()) && !this.isEmpty(entity[this.attrTwo]())) {
       entity.errors().add(attrName, this.options.message || ErrorMessages.mutuallyExclusive(attrName, this.attrTwo));
     }
+  }
+
+  private isEmpty(i: Iterable<T>): boolean {
+    if (i === undefined) {
+      return true;
+    }
+
+    if ("string" === typeof i || "length" in i) {
+      return (i as { length: number }).length === 0;
+    }
+
+    if ("size" in i) {
+      return (i as { size: number }).size === 0;
+    }
+
+    // last resort
+    return Array.from(i).length === 0;
   }
 }
 

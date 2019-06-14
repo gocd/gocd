@@ -48,7 +48,7 @@ export class PipelineConfig extends ValidatableMixin {
     this.stages = stream(new NameableSet(stages));
     this.validateAssociated("stages");
 
-    this.validateMutualExclusivityOf("template", "stages", {message: `A pipeline cannot use a template when stages are configured`});
+    this.validateMutualExclusivityOf("template", "stages");
   }
 
   create() {

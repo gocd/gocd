@@ -48,6 +48,8 @@ public class Boot {
         log("  Working directory    : " + System.getProperty("user.dir"));
         log("  Application arguments: " + Arrays.asList(args));
         log("           GoCD Version: " + Boot.class.getPackage().getImplementationVersion());
+        log("           Java Version: " + System.getProperty("java.version"));
+        log("       Operating System: " + System.getProperty("os.name") + "(" + System.getProperty("os.version") + ")");
         if (shouldLogJVMArgsAndEnvVars()) {
             log("  JVM arguments        : " + jvmArgs());
             log("         JVM properties: " + System.getProperties());

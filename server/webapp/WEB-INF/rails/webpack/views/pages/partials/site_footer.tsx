@@ -20,6 +20,8 @@ import {Link} from "views/components/link";
 import * as styles from "./site_footer.scss";
 
 export interface Attrs {
+  updatedOn: string;
+  updatedBy: string;
   isServerInMaintenanceMode: boolean;
   isSupportedBrowser: boolean;
 }
@@ -60,8 +62,9 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
 
   private static maintenanceModeOrLegacyBrowserBanner(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.isServerInMaintenanceMode) {
+      const updatedByMessage = `${vnode.attrs.updatedBy} turned on maintenance mode at ${vnode.attrs.updatedOn.toLocaleString()}.`;
       return (<div data-test-id="maintenance-mode-banner" class={styles.footerWarningBanner}>
-        GoCD Server is in maintenance mode.
+        {updatedByMessage}
         &nbsp;
         <Link target="_blank" href={docsUrl("/advanced_usage/maintenance_mode.html")}>Learn more..</Link>
       </div>);

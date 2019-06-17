@@ -18,6 +18,8 @@ package com.thoughtworks.go.apiv6.plugininfos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.apiv6.plugininfos.representers.extensions.ExtensionRepresenter;
+
+
 import com.thoughtworks.go.plugin.domain.common.CombinedPluginInfo;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginStatus;

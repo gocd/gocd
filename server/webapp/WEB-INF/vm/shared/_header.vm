@@ -55,9 +55,13 @@
   data-show-analytics-dashboard="$showAnalyticsDashboard"
   data-user-display-name="$principal"
   data-user-anonymous="$isAnonymousUser"
+  data-show-secret-config-spa="$show_secret_config_spa"
   data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()}"
-  data-show-secret-config-spa="$show_secret_config_spa">
-
+  #if($maintenanceModeService.isMaintenanceMode())
+      data-maintenance-mode-updated-on = "${maintenanceModeService.updatedOn()}"
+      data-maintenance-mode-updated-by = "${maintenanceModeService.updatedBy()}"
+  #end
+  >
 <div class="page-wrap">
   <div id="body_bg">
     <div id="body_bg_highlight">

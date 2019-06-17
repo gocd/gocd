@@ -28,6 +28,8 @@ describe("SiteFooter", () => {
 
   it("should render footer", () => {
     const attrs = {
+      updatedOn: '1234',
+      updatedBy: 'bob',
       isServerInMaintenanceMode: false,
       isSupportedBrowser: true
     };
@@ -48,11 +50,14 @@ describe("SiteFooter", () => {
       fullVersion: "x.y.z-1234",
       goVersion: "x.y.z",
       isServerInMaintenanceMode: true,
-      isSupportedBrowser: true
+      isSupportedBrowser: true,
+      updatedOn: '1234',
+      updatedBy: 'bob'
     };
     mount(attrs);
 
     expect(helper.findByDataTestId("maintenance-mode-banner")).toBeInDOM();
+    expect(helper.findByDataTestId("maintenance-mode-banner")).toContainText("bob turned on maintenance mode at 1234");
     expect(helper.root).toContainText("maintenance");
     expect(helper.root).not.toContainText("unsupported browser");
   });
@@ -64,7 +69,9 @@ describe("SiteFooter", () => {
       fullVersion: "x.y.z-1234",
       goVersion: "x.y.z",
       isServerInMaintenanceMode: false,
-      isSupportedBrowser: false
+      isSupportedBrowser: false,
+      updatedOn: '1234',
+      updatedBy: 'bob'
     };
     mount(attrs);
 

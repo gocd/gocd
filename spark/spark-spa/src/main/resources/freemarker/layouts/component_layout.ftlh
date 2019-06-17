@@ -47,8 +47,13 @@
       data-user-display-name="${currentUser.displayName}"
       data-user-anonymous="${currentUser.anonymous?c}"
       data-is-server-in-maintenance-mode="${maintenanceModeService.isMaintenanceMode()?c}"
+      <#if maintenanceModeService.isMaintenanceMode() >
+      data-maintenance-mode-updated-on="${maintenanceModeService.updatedOn()}"
+      data-maintenance-mode-updated-by="${maintenanceModeService.updatedBy()}"
+      </#if>
       data-show-secret-config-spa="${showSecretConfigSpa?c}"
-      data-meta="${meta}">
+      data-meta="${meta}"
+      >
     <#if devMode>
     <script>
       var oldManifestValue = null;

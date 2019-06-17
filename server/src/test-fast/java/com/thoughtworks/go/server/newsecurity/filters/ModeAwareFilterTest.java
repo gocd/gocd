@@ -139,6 +139,8 @@ class ModeAwareFilterTest {
     @Test
     void shouldBlockNonGetRequestWhenInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
+        when(maintenanceModeService.updatedBy()).thenReturn("Bob");
+        when(maintenanceModeService.updatedOn()).thenReturn("date");
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/foo").build();
@@ -209,6 +211,8 @@ class ModeAwareFilterTest {
     @Test
     public void shouldReturn503WhenPOSTCallIsMadeWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
+        when(maintenanceModeService.updatedBy()).thenReturn("Bob");
+        when(maintenanceModeService.updatedOn()).thenReturn("date");
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/pipelines").build();
@@ -321,6 +325,8 @@ class ModeAwareFilterTest {
     @Test
     public void shouldReturn503WhenPOSTAPICallIsMadeWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
+        when(maintenanceModeService.updatedBy()).thenReturn("Bob");
+        when(maintenanceModeService.updatedOn()).thenReturn("date");
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
 
         request = HttpRequestBuilder.POST("/api/state/active").withHeader("content-type", "application/json").build();

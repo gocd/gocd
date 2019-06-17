@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
+import com.thoughtworks.go.server.exceptions.ServerNotInMaintenanceModeException;
 import com.thoughtworks.go.util.TimeProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -51,6 +53,26 @@ public class MaintenanceModeService {
 
     public boolean isMaintenanceMode() {
         return get().isMaintenanceMode();
+    }
+
+    private Timestamp updatedOnTimeStamp() {
+        if (get().isMaintenanceMode()) {
+            return get().updatedOn();
+        }
+        throw new ServerNotInMaintenanceModeException();
+    }
+
+    public String updatedOn() {
+        String LOCAL_TIME_FORMAT = "dd MMM, yyyy 'at' HH:mm:ss 'Local Time'";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(LOCAL_TIME_FORMAT);
+        return simpleDateFormat.format(updatedOnTimeStamp());
+    }
+
+    public String updatedBy() {
+        if (get().isMaintenanceMode()) {
+            return get().updatedBy();
+        }
+        throw new ServerNotInMaintenanceModeException();
     }
 
     public Collection<MaterialPerformingMDU> getRunningMDUs() {

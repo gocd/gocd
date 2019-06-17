@@ -647,6 +647,38 @@ describe ApplicationHelper do
     end
   end
 
+  describe "site_footer" do
+    it 'should return maintenance approver when server is in maintenance mode' do
+      expect(maintenance_mode_service).to receive(:isMaintenanceMode).and_return(true)
+      expect(maintenance_mode_service).to receive(:updatedOn).and_return("date")
+
+      expected = "date"
+      expect(maintenance_mode_updated_on).to eq(expected)
+    end
+
+    it 'should not return maintenance approver when server is in maintenance mode' do
+      expect(maintenance_mode_service).to receive(:isMaintenanceMode).and_return(false)
+
+      expected = nil
+      expect(maintenance_mode_updated_on).to eq(expected)
+    end
+
+    it 'should return maintenance mode update time when server is in maintenance mode' do
+      expect(maintenance_mode_service).to receive(:isMaintenanceMode).and_return(true)
+      expect(maintenance_mode_service).to receive(:updatedBy).and_return("bob")
+
+      expected = "bob"
+      expect(maintenance_mode_updated_by).to eq(expected)
+    end
+
+    it 'should not return maintenance mode update time when server is in maintenance mode' do
+      expect(maintenance_mode_service).to receive(:isMaintenanceMode).and_return(false)
+
+      expected = nil
+      expect(maintenance_mode_updated_by).to eq(expected)
+    end
+  end
+
   it 'should encode cruise-config-md5 before allowing it to be displayed.' do
     allow(self).to receive(:cruise_config_md5).and_return("<foo>")
     expect(config_md5_field).to eq('<input type="hidden" name="cruise_config_md5" id="cruise_config_md5" value="&lt;foo&gt;" />')

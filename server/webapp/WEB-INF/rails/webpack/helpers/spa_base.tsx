@@ -102,8 +102,12 @@ export default abstract class Page {
       const isServerInMaintenanceMode  = this.extractBoolean(body, "data-is-server-in-maintenance-mode");
       const showSecretConfigSpa        = this.extractBoolean(body, "data-show-secret-config-spa");
       const userDisplayName            = body.getAttribute("data-user-display-name") || "";
+      const updatedOn                  = body.getAttribute("data-maintenance-mode-updated-on") || "";
+      const updatedBy                  = body.getAttribute("data-maintenance-mode-updated-by") || "";
 
       const footerData = {
+        updatedOn,
+        updatedBy,
         isServerInMaintenanceMode,
         isSupportedBrowser: !/(MSIE|Trident)/i.test(navigator.userAgent)
       } as SiteFooterAttrs;

@@ -84,8 +84,10 @@ public class ModeAwareFilter implements Filter {
     String generateHTMLResponse() throws IOException {
         String path = "server_in_maintenance_mode.html";
         try (InputStream resourceAsStream = getClass().getClassLoader().getResourceAsStream(path)) {
-            //todo: Provide additional info maintenance_mode approver, time and link to maintenance mode spa
-            return IOUtils.toString(resourceAsStream, UTF_8).replaceAll("%docsBaseUrl%", CurrentGoCDVersion.getInstance().baseDocsUrl());
+            return IOUtils.toString(resourceAsStream, UTF_8)
+                    .replaceAll("%updatedBy%", maintenanceModeService.updatedBy())
+                    .replaceAll("%updatedOn%", maintenanceModeService.updatedOn())
+                    .replaceAll("%docsBaseUrl%", CurrentGoCDVersion.getInstance().baseDocsUrl());
         }
     }
 

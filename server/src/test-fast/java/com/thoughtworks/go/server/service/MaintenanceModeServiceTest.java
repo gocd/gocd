@@ -18,17 +18,22 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
+import com.thoughtworks.go.server.exceptions.ServerNotInMaintenanceModeException;
 import com.thoughtworks.go.util.TimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class MaintenanceModeServiceTest {
     private TimeProvider timeProvider;
     private MaintenanceModeService maintenanceModeService;
+    private String LOCAL_TIME_FORMAT = "dd MMM, yyyy 'at' HH:mm:ss 'Local Time'";
+    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(LOCAL_TIME_FORMAT);
 
     @BeforeEach
     void setUp() {
@@ -67,5 +72,32 @@ public class MaintenanceModeServiceTest {
 
         maintenanceModeService.mduFinishedForMaterial(svnMaterial);
         assertThat(maintenanceModeService.getRunningMDUs()).hasSize(0);
+    }
+
+    @Test
+    void shouldReturnUpdatedOnTimeWhenServerIsInMaintenanceMode() {
+        Date updatedOn = new Date();
+        maintenanceModeService.update(new ServerMaintenanceMode(true, "admin", updatedOn));
+        assertThat(maintenanceModeService.updatedOn()).isEqualTo(simpleDateFormat.format(updatedOn));
+    }
+
+    @Test
+    void shouldThrowServerNotInMaintenanceModeExceptionForUpdatedOnWhenServerIsNotInMaintenanceMode() {
+        assertThatCode(maintenanceModeService::updatedOn)
+                .isInstanceOf(ServerNotInMaintenanceModeException.class)
+                .hasMessage("GoCD server is not in maintenance mode!");
+    }
+
+    @Test
+    void shouldReturnUsernameWhenServerIsInMaintenanceMode() {
+        maintenanceModeService.update(new ServerMaintenanceMode(true, "admin", new Date()));
+        assertThat(maintenanceModeService.updatedBy()).isEqualTo("admin");
+    }
+
+    @Test
+    void shouldThrowServerNotInMaintenanceModeExceptionForUpdatedByWhenServerIsNotInMaintenanceMode() {
+        assertThatCode(maintenanceModeService::updatedBy)
+                .isInstanceOf(ServerNotInMaintenanceModeException.class)
+                .hasMessage("GoCD server is not in maintenance mode!");
     }
 }

@@ -19,6 +19,7 @@ package com.thoughtworks.go.build
 enum NonSpdxLicense {
 
   EDL_1_0("EDL-1.0", "Eclipse Distribution License - v1.0", "Eclipse Distribution License v1.0", "Eclipse Distribution License (New BSD License)"),
+  PUBLIC_DOMAIN("Public Domain"),
 
   public final Set<String> names
   public final String id

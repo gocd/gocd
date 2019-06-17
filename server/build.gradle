@@ -949,10 +949,12 @@ task verifyWar(type: VerifyJarTask) {
 task licenseReportAggregate {
   if (!project.hasProperty('fastBuild')) {
     rootProject.subprojects.each { eachProject ->
-      def reportTasks = eachProject.tasks.withType(ReportTask)
-      if (!reportTasks.isEmpty()) {
-        licenseReportAggregate.dependsOn reportTasks
-        licenseReportAggregate.inputs.dir(eachProject.licenseReport.outputDir)
+      eachProject.afterEvaluate {
+        def reportTasks = eachProject.tasks.withType(ReportTask)
+        if (!reportTasks.isEmpty()) {
+          licenseReportAggregate.dependsOn reportTasks
+          licenseReportAggregate.inputs.dir(eachProject.licenseReport.outputDir)
+        }
       }
     }
     dependsOn generateLicenseReport

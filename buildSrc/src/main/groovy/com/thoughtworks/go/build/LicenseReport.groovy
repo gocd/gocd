@@ -23,7 +23,7 @@ import org.gradle.api.Project
 
 import java.util.concurrent.atomic.AtomicInteger
 
-import static com.thoughtworks.go.build.NonSpdxLicense.EDL_1_0
+import static com.thoughtworks.go.build.NonSpdxLicense.*
 import static com.thoughtworks.go.build.SpdxLicense.*
 
 class LicenseReport {
@@ -31,18 +31,19 @@ class LicenseReport {
   private static Set<String> LICENSE_EXCEPTIONS = [
     'Apple License',
     'Bouncy Castle Licence',
+    'The MIT License (MIT)',
     'BSD',
     'Custom: https://raw.github.com/bjoerge/deferred.js/master/dist/dfrrd.js',
     'dom4j BSD license',
-    'Public Domain',
     'Similar to Apache License but with the acknowledgment clause removed',
     'The H2 License, Version 1.0',
     'The OpenSymphony Software License 1.1',
     '(OFL-1.1 AND MIT)',
-    "GPLv2 with the Classpath Exception"
+    "GPLv2 with the Classpath Exception",
+    "GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1"
   ]
 
-  private static Set<String> ALLOWED_LICENSES = LICENSE_EXCEPTIONS + [
+  private static Set<String> ALLOWED_LICENSES = (LICENSE_EXCEPTIONS + [
     APACHE_1_1,
     APACHE_2_0,
     BSD_2_CLAUSE_FREEBSD,
@@ -57,7 +58,8 @@ class LicenseReport {
     MIT,
     MPL_1_1,
     UNLICENSE,
-  ].collect { it.id }
+    PUBLIC_DOMAIN,
+  ].collect { it.id })
 
   private final Project project
   private final Map<String, Map<String, Object>> licensesForPackagedJarDependencies
@@ -201,11 +203,19 @@ class LicenseReport {
 
   private checkIfLicensesAreAllowed(List<Map<String, String>> moduleLicenses, String moduleName, String moduleVersion) {
     Set<String> licenseNames = moduleLicenses.collect { it.moduleLicense }
-    Set<String> normalizedLicenseNames = licenseNames.collect { normalizeLicense(it, moduleName) }
+    Set<String> normalizedLicenseNames = licenseNames
+      .collect { normalizeLicense(it, moduleName) }
+      .findAll { it != null }
 
-    def intersect = ALLOWED_LICENSES.intersect(normalizedLicenseNames)
+    def intersect = ALLOWED_LICENSES.intersect(normalizedLicenseNames, new Comparator<String>() {
+      @Override
+      int compare(String o1, String o2) {
+        return o1.toLowerCase() <=> o2.toLowerCase()
+      }
+    })
+
     if (intersect.isEmpty()) {
-      throw new GradleException("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' are not approved!")
+      throw new GradleException("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' are not approved! Allowed licenses are:\n ${ALLOWED_LICENSES.collect{"  - ${it}"}.join("\n")}")
     } else {
       project.getLogger().debug("License '${licenseNames}' (normalized to '${normalizedLicenseNames}') used by '${moduleName}:${moduleVersion}' is approved because of ${intersect}")
     }

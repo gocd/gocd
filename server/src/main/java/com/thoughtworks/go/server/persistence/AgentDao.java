@@ -34,6 +34,7 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -224,44 +225,29 @@ public class AgentDao extends HibernateDaoSupport {
         }
     }
 
-    public void bulkAddEnvironments(final List<String> uuids,  final List<String> environmentsToAdd){
-        List<Agent> agents = getAllAgents(uuids);
-        synchronized (uuids) {
-            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
+    public void bulkUpdateEnvironments(final List<String> environments, final List<String> agentUuidsToAdd, final List<String> agentUuidsToRemove){
+        ArrayList<String> allUuids = new ArrayList<>();
+        allUuids.addAll(agentUuidsToAdd);
+        allUuids.addAll(agentUuidsToRemove);
+        List<Agent> agents = getAllAgents(allUuids);
+//        synchronized (allUuids) {
+//            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+//                @Override
+//                protected void doInTransactionWithoutResult(TransactionStatus status) {
 
                     for (Agent agent : agents) {
-                        agent.addEnvironments(environmentsToAdd);
+                        if(agentUuidsToAdd.contains(agent.getUuid())) {
+                            agent.addEnvironments(environments);
+                        }
+                        if(agentUuidsToRemove.contains(agent.getUuid())) {
+                            agent.removeEnvironments(environments);
+                        }
                         sessionFactory.getCurrentSession().saveOrUpdate(Agent.class.getName(), agent);
                     }
-
-                    clearCache(synchronizationManager, uuids);
-                }
-            });
-        }
-
-        notifyListener();
-    }
-
-    public void bulkRemoveEnvironments(final List<String> uuids,  final List<String> environmentsToRemove){
-        List<Agent> agents = getAllAgents(uuids);
-        synchronized (uuids) {
-            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-
-                    for (Agent agent : agents) {
-                        agent.removeEnvironments(environmentsToRemove);
-                        sessionFactory.getCurrentSession().saveOrUpdate(Agent.class.getName(), agent);
-                    }
-
-                    clearCache(synchronizationManager, uuids);
-                }
-            });
-        }
-
-        notifyListener();
+                    clearCache(synchronizationManager, allUuids);
+//                }
+//            });
+//        }
     }
 
     public void bulkUpdateAttributes(final List<String> uuids, final List<String> resourcesToAdd, final List<String> resourcesToRemove, final List<String> environmentsToAdd, final List<String> environmentsToRemove, final TriState enable, AgentInstances agentInstances) {

@@ -23,9 +23,12 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.ConfigElementForEdit;
 import com.thoughtworks.go.helper.PartialConfigMother;
 import com.thoughtworks.go.helper.PipelineConfigMother;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.util.GoConfigFileHelper;
+import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +65,10 @@ public class EnvironmentConfigServiceIntegrationTest {
     private EnvironmentConfigService service;
     @Autowired
     private ConfigRepoService configRepoService;
+    @Autowired
+    private UuidGenerator uuidGenerator;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
 
     private GoConfigFileHelper configHelper = new GoConfigFileHelper();
 
@@ -72,11 +79,14 @@ public class EnvironmentConfigServiceIntegrationTest {
         configHelper.onSetUp();
 
         goConfigService.forceNotifyListeners();
+
+        dbHelper.onSetUp();
     }
 
     @After
     public void tearDown() throws Exception {
         configHelper.onTearDown();
+        dbHelper.onTearDown();
     }
 
     @Test
@@ -228,6 +238,53 @@ public class EnvironmentConfigServiceIntegrationTest {
         service.updateEnvironment("foo-env", env("foo env", new ArrayList<String>(), new ArrayList<Map<String, String>>(), new ArrayList<String>()), new Username(new CaseInsensitiveString("any")), md5, result);
         assertThat(result.httpCode(), is(HttpServletResponse.SC_BAD_REQUEST));
         assertThat(result.message(), containsString("Failed to update environment 'foo-env'."));
+    }
+
+    @Test
+    public void shouldUpdateAgentAssociationWhileUpdatingEnvironment() throws InterruptedException {
+        BasicEnvironmentConfig uat = environmentConfig("uat");
+        Username user = Username.ANONYMOUS;
+        goConfigService.addEnvironment(uat);
+        String uuid = uuidGenerator.randomUuid();
+        agentConfigService.saveOrUpdate(new Agent(uuid, uuidGenerator.randomUuid(), "hostname", "127.0.0.1"), user);
+
+        AgentConfig agent = agentConfigService.agentByUuid(uuid);
+        assertNotNull(agent);
+
+        EnvironmentConfig newUat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+        newUat.addAgent(uuid);
+        newUat.addEnvironmentVariable("env-three", "THREE");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        String md5 = entityHashingService.md5ForEntity(uat);
+        environmentConfigService.updateEnvironment(uat.name().toString(), newUat, new Username(new CaseInsensitiveString("foo")), md5, result);
+
+        agent = agentConfigService.agentByUuid(uuid);
+        assertThat(agent.getEnvironments(), is("uat"));
+    }
+
+    @Test
+    public void shouldNotUpdateAgentAssociationWhileUpdatingEnvironmentIfConfigSaveFailed() throws InterruptedException {
+        BasicEnvironmentConfig uat = environmentConfig("uat");
+        Username user = Username.ANONYMOUS;
+        goConfigService.addEnvironment(uat);
+        String uuid = uuidGenerator.randomUuid();
+        agentConfigService.saveOrUpdate(new Agent(uuid, uuidGenerator.randomUuid(), "hostname", "127.0.0.1"), user);
+
+        AgentConfig agent = agentConfigService.agentByUuid(uuid);
+        assertNotNull(agent);
+
+        EnvironmentConfig newUat = new BasicEnvironmentConfig(new CaseInsensitiveString("uat"));
+        newUat.addAgent(uuid);
+        newUat.addAgent("some-non-existent-agent");
+        newUat.addEnvironmentVariable("env-three", "THREE");
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        String md5 = entityHashingService.md5ForEntity(uat);
+        environmentConfigService.updateEnvironment(uat.name().toString(), newUat, new Username(new CaseInsensitiveString("foo")), md5, result);
+
+        agent = agentConfigService.agentByUuid(uuid);
+        assertNull(agent.getEnvironments());
+        assertThat(result.httpCode(), is(422));
+        assertThat(result.message(), is("Failed to update environment 'uat'. Environment 'uat' has an invalid agent uuid 'some-non-existent-agent'"));
     }
 
     @Test

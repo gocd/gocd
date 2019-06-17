@@ -230,19 +230,16 @@ public class AgentConfigService {
         saveOrUpdate(agentConfig, null);
     }
 
-    public void updateEnvironments(EnvironmentConfig newEnvironmentConfig, List<String> oldAgentsUuids, List<String> newAgentsUuids, HttpLocalizedOperationResult result) {
-        List<String> environmentToRemoveFromAgents = oldAgentsUuids.stream().filter(uuid -> !newAgentsUuids.contains(uuid)).collect(Collectors.toList());
-        List<String> environmentToAddToAgents = newAgentsUuids.stream().filter(uuid -> !oldAgentsUuids.contains(uuid)).collect(Collectors.toList());
+    public void updateEnvironments(EnvironmentConfig newEnvironmentConfig, List<String> environmentToAddToAgents, List<String> environmentToRemoveFromAgents, HttpLocalizedOperationResult result) {
         try {
-            if (!environmentToAddToAgents.isEmpty()) {
-                agentDao.bulkAddEnvironments(environmentToAddToAgents, Arrays.asList(newEnvironmentConfig.name().toString()));
-            }
-            if (!environmentToRemoveFromAgents.isEmpty()) {
-                agentDao.bulkRemoveEnvironments(environmentToRemoveFromAgents, Arrays.asList(newEnvironmentConfig.name().toString()));
-            }
+            agentDao.bulkUpdateEnvironments(Arrays.asList(newEnvironmentConfig.name().toString()), environmentToAddToAgents, environmentToRemoveFromAgents);
         } catch (Exception e) {
             result.unprocessableEntity(String.format("Failed to update environments %s", e.getMessage()));
         }
+    }
+
+    public List<Agent> getAllAgents(ArrayList<String> allUuids) {
+        return agentDao.getAllAgents(allUuids);
     }
 
     /**

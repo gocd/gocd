@@ -96,7 +96,7 @@ public class AgentConfigServiceTest {
         agentConfig.disable();
         AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), null);
         when(goConfigService.currentCruiseConfig()).thenReturn(mock(CruiseConfig.class));
-        when(goConfigService.hasAgent(agentConfig.getUuid())).thenReturn(true);
+        when(agentConfigService.hasAgent(agentConfig.getUuid())).thenReturn(true);
 
         AgentInstances agentInstances = new AgentInstances(null, null, instance);
         agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, new HttpLocalizedOperationResult(), Arrays.asList(instance.getUuid()), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);

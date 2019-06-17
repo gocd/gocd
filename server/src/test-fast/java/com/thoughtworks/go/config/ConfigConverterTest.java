@@ -43,6 +43,7 @@ import com.thoughtworks.go.plugin.configrepo.contract.material.*;
 import com.thoughtworks.go.plugin.configrepo.contract.tasks.*;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.util.command.HgUrlArgument;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,6 +66,7 @@ class ConfigConverterTest {
 
     private CRStage crStage;
     private CRGitMaterial git;
+    private AgentService agentService;
 
     private CRJob buildJob() {
         CRJob crJob = new CRJob("name");
@@ -98,7 +100,8 @@ class ConfigConverterTest {
     void setUp() {
         cachedGoConfig = mock(CachedGoConfig.class);
         context = mock(PartialConfigLoadContext.class);
-        configConverter = new ConfigConverter(new GoCipher(), cachedGoConfig);
+        agentService = mock(AgentService.class);
+        configConverter = new ConfigConverter(new GoCipher(), cachedGoConfig, agentService);
 
         filter = new ArrayList<>();
         filter.add("filter");

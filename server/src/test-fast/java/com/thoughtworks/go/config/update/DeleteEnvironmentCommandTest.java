@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
@@ -43,6 +44,9 @@ public class DeleteEnvironmentCommandTest {
     @Mock
     private GoConfigService goConfigService;
 
+    @Mock
+    private AgentConfigService agentConfigService;
+
     @Before
     public void setup() throws Exception {
         initMocks(this);
@@ -57,7 +61,7 @@ public class DeleteEnvironmentCommandTest {
 
     @Test
     public void shouldDeleteTheSpecifiedEnvironment() throws Exception {
-        DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
+        DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result, agentConfigService);
         assertTrue(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
         command.update(cruiseConfig);
         assertFalse(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
@@ -65,7 +69,7 @@ public class DeleteEnvironmentCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserDoesNotHavePermissionsToOperateOnEnvironments() throws Exception {
-        DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
+        DeleteEnvironmentCommand command = new DeleteEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result, agentConfigService);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         assertFalse(result.isSuccessful());

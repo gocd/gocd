@@ -30,13 +30,18 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
-import com.thoughtworks.go.presentation.TriStateSelection;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.EnvironmentViewModel;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,7 +53,7 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFa
  */
 @Service
 public class EnvironmentConfigService implements ConfigChangedListener {
-
+    private static final Logger LOG = LoggerFactory.getLogger(EnvironmentConfigService.class.getName());
     public final GoConfigService goConfigService;
     private final SecurityService securityService;
     private EntityHashingService entityHashingService;
@@ -58,12 +63,15 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     private EnvironmentPipelineMatchers matchers;
     private static final Cloner cloner = new Cloner();
 
+    private final TransactionTemplate transactionTemplate;
+
     @Autowired
-    public EnvironmentConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, AgentConfigService agentConfigService) {
+    public EnvironmentConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, AgentConfigService agentConfigService, TransactionTemplate transactionTemplate) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
         this.agentConfigService = agentConfigService;
+        this.transactionTemplate = transactionTemplate;
     }
 
     public void initialize() {
@@ -222,6 +230,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         String actionFailed = "Failed to add environment '" + environmentConfig.name() + "'.";
         AddEnvironmentCommand addEnvironmentCommand = new AddEnvironmentCommand(goConfigService, environmentConfig, user, actionFailed, result, agentConfigService);
         update(addEnvironmentCommand, environmentConfig, user, result, actionFailed);
+        agentConfigService.updateEnvironments(environmentConfig, environmentConfig.getAgents().getUuids(), Collections.emptyList(), result);
     }
 
     public List<EnvironmentPipelineModel> getAllLocalPipelinesForUser(Username user) {
@@ -261,12 +270,29 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     public void updateEnvironment(final String oldEnvironmentConfigName, final EnvironmentConfig newEnvironmentConfig, final Username username, String md5, final HttpLocalizedOperationResult result) {
         List<String> oldAgentsUuids = getEnvironmentConfig(oldEnvironmentConfigName).getAgents().getUuids();
         List<String> newAgentsUuids = newEnvironmentConfig.getAgents().getUuids();
-        String actionFailed = "Failed to update environment '" + oldEnvironmentConfigName + "'.";
-        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfigName, newEnvironmentConfig, username, actionFailed, md5, entityHashingService, result, agentConfigService);
-        agentConfigService.updateEnvironments(newEnvironmentConfig, oldAgentsUuids, newAgentsUuids, result);
-        update(updateEnvironmentCommand, newEnvironmentConfig, username, result, actionFailed);
-        if (result.isSuccessful()) {
-            result.setMessage("Updated environment '" + oldEnvironmentConfigName + "'.");
+        List<String> environmentToRemoveFromAgents = oldAgentsUuids.stream().filter(uuid -> !newAgentsUuids.contains(uuid)).collect(Collectors.toList());
+        List<String> environmentToAddToAgents = newAgentsUuids.stream().filter(uuid -> !oldAgentsUuids.contains(uuid)).collect(Collectors.toList());
+        ArrayList<String> allUuids = new ArrayList<>();
+        allUuids.addAll(environmentToAddToAgents);
+        allUuids.addAll(environmentToRemoveFromAgents);
+        synchronized (allUuids) {
+            try {
+                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+                    @Override
+                    protected void doInTransactionWithoutResult(TransactionStatus status) {
+                        String actionFailed = "Failed to update environment '" + oldEnvironmentConfigName + "'.";
+                        agentConfigService.updateEnvironments(newEnvironmentConfig, environmentToAddToAgents, environmentToRemoveFromAgents, result);
+
+                        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfigName, newEnvironmentConfig, username, actionFailed, md5, entityHashingService, result, agentConfigService);
+                        update(updateEnvironmentCommand, newEnvironmentConfig, username, result, actionFailed);
+                        if (result.isSuccessful()) {
+                            result.setMessage("Updated environment '" + oldEnvironmentConfigName + "'.");
+                        }
+                    }
+                });
+            } catch(Exception e){
+                LOG.error("Error while updating environment and its agent association", e.getMessage());
+            }
         }
     }
 
@@ -274,6 +300,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         String actionFailed = "Failed to update environment '" + environmentConfig.name() + "'.";
         PatchEnvironmentCommand patchEnvironmentCommand = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, username, actionFailed, result, agentConfigService);
         update(patchEnvironmentCommand, environmentConfig, username, result, actionFailed);
+        agentConfigService.updateEnvironments(environmentConfig, agentsToAdd, agentsToRemove, result);
         if (result.isSuccessful()) {
             result.setMessage("Updated environment '" + environmentConfig.name() + "'.");
         }
@@ -298,6 +325,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
             } else if (!result.hasMessage()) {
                 result.badRequest(LocalizedMessage.composite(actionFailed, e.getMessage()));
             }
+            throw e;
         }
     }
 }

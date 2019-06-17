@@ -26,6 +26,9 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
+import com.thoughtworks.go.server.transaction.TransactionTemplate;
+import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,14 +50,19 @@ class EnvironmentConfigServiceTest {
     private EnvironmentConfigService environmentConfigService;
     private SecurityService securityService;
     private AgentConfigService agentConfigService;
+    private TransactionSynchronizationManager transactionSynchronizationManager;
+    private TransactionTemplate transactionTemplate;
 
     @BeforeEach
     void setUp() throws Exception {
         mockGoConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
         agentConfigService = mock(AgentConfigService.class);
+        transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
+        transactionTemplate = mock(TransactionTemplate.class);
+
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
-        environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService, agentConfigService);
+        environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService, agentConfigService, transactionTemplate);
     }
 
     @Test
@@ -234,6 +242,7 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void shouldReturnEnvironmentConfigsForAnAgent() {
+        when(agentConfigService.agents()).thenReturn(new Agents());
         environmentConfigService.sync(environments("uat", "prod"));
         Set<EnvironmentConfig> envForUat = environmentConfigService.environmentConfigsFor("uat-agent");
         assertThat(envForUat.size()).isEqualTo(1);

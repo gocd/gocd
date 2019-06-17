@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
+import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import org.junit.Before;
@@ -43,6 +44,8 @@ public class AddEnvironmentCommandTest {
     @Mock
     private GoConfigService goConfigService;
 
+    @Mock
+    private AgentConfigService agentConfigService;
 
     @Before
     public void setup() throws Exception {
@@ -57,7 +60,7 @@ public class AddEnvironmentCommandTest {
 
     @Test
     public void shouldAddTheSpecifiedEnvironment() throws Exception {
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result, agentConfigService);
         assertFalse(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
         command.update(cruiseConfig);
         assertTrue(cruiseConfig.getEnvironments().hasEnvironmentNamed(environmentName));
@@ -66,7 +69,7 @@ public class AddEnvironmentCommandTest {
     @Test
     public void shouldValidateInvalidAgentUUID() throws Exception {
         environmentConfig.addAgent("Invalid-agent-uuid");
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result, agentConfigService);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unprocessableEntity("Could not add environment Dev Environment 'Dev' has an invalid agent uuid 'Invalid-agent-uuid'");
@@ -78,7 +81,7 @@ public class AddEnvironmentCommandTest {
     @Test
     public void shouldValidateInvalidPipelineName() throws Exception {
         environmentConfig.addPipeline(new CaseInsensitiveString("Invalid-pipeline-name"));
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result, agentConfigService);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
         expectedResult.unprocessableEntity("Could not add environment Dev Environment 'Dev' refers to an unknown pipeline 'Invalid-pipeline-name'.");
@@ -91,7 +94,7 @@ public class AddEnvironmentCommandTest {
     public void shouldValidateDuplicateEnvironmentVariables() throws Exception {
         environmentConfig.addEnvironmentVariable("foo", "bar");
         environmentConfig.addEnvironmentVariable("foo", "baz");
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result, agentConfigService);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
 
@@ -102,7 +105,7 @@ public class AddEnvironmentCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result, agentConfigService);
         when(goConfigService.isUserAdmin(currentUser)).thenReturn(false);
 
         assertThat(command.canContinue(cruiseConfig), is(false));
@@ -112,7 +115,7 @@ public class AddEnvironmentCommandTest {
 
     @Test
     public void shouldNotContinueIfEnvironmentWithSameNameAlreadyExists() throws Exception {
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
+        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result, agentConfigService);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
         when(goConfigService.hasEnvironmentNamed(environmentName)).thenReturn(true);
         HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();

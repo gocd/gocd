@@ -20,6 +20,7 @@ import com.github.jk1.license.filter.LicenseBundleNormalizer
 import com.github.jk1.license.render.JsonReportRenderer
 import groovy.io.FileType
 import nl.javadude.gradle.plugins.license.License
+import org.apache.tools.ant.filters.FixCrLfFilter
 
 import java.security.SecureRandom
 import java.util.stream.Collectors
@@ -1067,25 +1068,29 @@ task removeApi {
     }
   }
 }
+
 task newApi {
   description = "Helper to create a new api module. Pass `-PapiName=roles-config -PapiVersion=v1`"
 
   doFirst {
     String apiName = project.apiName
     String newProjectName = "api-${apiName}-${project.apiVersion}"
+    String oldProjectName = "api-${apiName}-v${project.apiVersion.replaceFirst('v', '').toInteger() - 1}"
+    File oldModuleDir = file("api/${oldProjectName}")
+    if (oldModuleDir.exists()) {
+      throw new GradleException("Please use `upgradeApi` task instead of `newApi`")
+    }
     String moduleDir = file("api/${newProjectName}")
     String basePackage = "${moduleDir}/src/main/java/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
     String testPackage = "${moduleDir}/src/test/groovy/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
     String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
     String entityClassName = toCamelCase(apiName)
     String controllerClassName = "${entityClassName}Controller${project.apiVersion.capitalize()}"
-    String[] ignoredFiles = ["api/${newProjectName}/out/", "api/${newProjectName}/target/", "api/${newProjectName}/logs/", "api/${newProjectName}/config/"]
 
     project.delete(moduleDir)
     project.mkdir(moduleDir)
     project.mkdir(basePackage)
     project.mkdir(testPackage)
-
 
     file("${moduleDir}/build.gradle").withWriter { out ->
       def contents =
@@ -1267,18 +1272,93 @@ task newApi {
       out.println(contents.stripIndent().trim())
     }
 
-    List<String> lines = file('server/webapp/WEB-INF/applicationContext-global.xml').readLines()
-    int insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*<context:component-scan /).find() }
-    lines.add(insertionIdx, "  <context:component-scan base-package=\"${packageName}\"/>")
+    addPackageToSpringClasspathScanning(packageName)
+    addProjectToSettingsGradle(newProjectName, it)
+    addProjectToGitIgnore(newProjectName)
+  }
+}
 
-    file('server/webapp/WEB-INF/applicationContext-global.xml').withWriter { out ->
-      out.println(lines.join("\n").trim())
+task upgradeApi {
+  description = "Helper to upgrade an new api module. Pass `-PapiName=roles-config`"
+
+  doFirst {
+    String apiName = project.apiName
+    List<Integer> allApiVersions = rootProject.project(':api').allprojects
+      .findAll { Project eachProject -> eachProject.name.startsWith("api-${apiName}-v") }
+      .collect { Project eachProject -> eachProject.name.replaceFirst("^api-${apiName}-v", "").toInteger() }
+
+    Integer currentMaxApiVersion = allApiVersions.max()
+
+    if (currentMaxApiVersion == null) {
+      throw new GradleException("Unable to find any projects with path prefix `:api:api-${apiName}-v`".toString())
     }
 
-    file('settings.gradle').withWriter { out ->
+    Project oldProject = rootProject.project("api:api-${apiName}-v${currentMaxApiVersion}")
+    Integer apiVersion = currentMaxApiVersion + 1
 
-      def contents =
-        """
+    String newProjectName = "api-${apiName}-v${apiVersion}"
+    File moduleDir = file("api/${newProjectName}")
+
+    String oldPackagePrefix = "com.thoughtworks.go.apiv${currentMaxApiVersion}"
+    String newPackagePrefix = "com.thoughtworks.go.apiv${apiVersion}"
+
+    String oldControllerClassSuffix = "ControllerV${currentMaxApiVersion}"
+    String newControllerClassSuffix = "ControllerV${apiVersion}"
+
+    project.delete(moduleDir)
+
+    project.copy {
+      from oldProject.projectDir
+      into moduleDir
+
+      exclude "out/**/*.*", "target/**/*.*"
+
+      filter { String eachLine ->
+        eachLine
+          .replace(oldPackagePrefix, newPackagePrefix)
+          .replace(oldControllerClassSuffix, newControllerClassSuffix)
+          .replaceAll("ApiVersion\\.v${currentMaxApiVersion}", "ApiVersion.v${apiVersion}")
+      }
+      filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.UNIX)
+
+      eachFile { FileCopyDetails fcd ->
+        List<String> segments = fcd.relativePath.segments
+        segments.replaceAll({ String eachSegment ->
+          if (eachSegment == "apiv${currentMaxApiVersion}") {
+            return "apiv${apiVersion}"
+          } else if (eachSegment.endsWith("${oldControllerClassSuffix}.java")) {
+            return eachSegment.replace(oldControllerClassSuffix, newControllerClassSuffix)
+          } else {
+            return eachSegment
+          }
+        })
+        fcd.relativePath = new RelativePath(!fcd.isDirectory(), (segments as String[]))
+      }
+      includeEmptyDirs = false
+    }
+
+    addPackageToSpringClasspathScanning(newPackagePrefix)
+    addProjectToSettingsGradle(newProjectName, it)
+    addProjectToGitIgnore(newProjectName)
+  }
+
+}
+
+private void addPackageToSpringClasspathScanning(String packageName) {
+  List<String> lines = file('server/webapp/WEB-INF/applicationContext-global.xml').readLines()
+  int insertionIdx = lines.findIndexOf { l -> (l =~ /^\s*<context:component-scan /).find() }
+  lines.add(insertionIdx, "  <context:component-scan base-package=\"${packageName}\"/>")
+
+  file('server/webapp/WEB-INF/applicationContext-global.xml').withWriter { out ->
+    out.println(lines.join("\n").trim())
+  }
+}
+
+private Object addProjectToSettingsGradle(String newProjectName, it) {
+  file('settings.gradle').withWriter { out ->
+
+    def contents =
+      """
           /*
            * Copyright ${project.copyrightYear} ThoughtWorks, Inc.
            *
@@ -1296,23 +1376,25 @@ task newApi {
            */
         """
 
-      out.println(contents.stripIndent().trim())
-      out.println("")
-      out.println("rootProject.name = 'gocd'")
-      out.println("")
-      def existingProjects = rootProject.allprojects.findAll { prj -> prj.childProjects.isEmpty() && !prj.path.startsWith(":docker") }.collect {
-        it.path
-      }
-      def newProjects = existingProjects + [":api:${newProjectName}"]
-      newProjects.sort().unique().each { out.println "include '${it}'" }
-      out.println("")
-      out.println("apply from: 'settings-docker.gradle'")
+    out.println(contents.stripIndent().trim())
+    out.println("")
+    out.println("rootProject.name = 'gocd'")
+    out.println("")
+    def existingProjects = rootProject.allprojects.findAll { prj -> prj.childProjects.isEmpty() && !prj.path.startsWith(":docker") }.collect {
+      it.path
     }
+    def newProjects = existingProjects + [":api:${newProjectName}"]
+    newProjects.sort().unique().each { out.println "include '${it}'" }
+    out.println("")
+    out.println("apply from: 'settings-docker.gradle'")
+  }
+}
 
-    file('.gitignore').withWriterAppend { out ->
-      ignoredFiles.each { line ->
-        out.println(line)
-      }
+private void addProjectToGitIgnore(String newProjectName) {
+  String[] ignoredFiles = ["api/${newProjectName}/out/", "api/${newProjectName}/target/", "api/${newProjectName}/logs/", "api/${newProjectName}/config/"]
+  rootProject.file('.gitignore').withWriterAppend { out ->
+    ignoredFiles.each { line ->
+      out.println(line)
     }
   }
 }

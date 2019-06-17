@@ -24,7 +24,6 @@ import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -53,8 +52,8 @@ public class AgentConfig extends PersistentObject implements Validatable {
     private String cookie;
     private boolean deleted;
 
-    @ConfigSubtag
-    private ResourceConfigs resourceConfigs = new ResourceConfigs();
+//    @ConfigSubtag
+//    private ResourceConfigs resourceConfigs = new ResourceConfigs();
 
     private transient Boolean cachedIsFromLocalHost;
     private ConfigErrors errors = new ConfigErrors();
@@ -76,7 +75,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
         this.hostName = hostName;
         this.ipAddress = ipAddress;
         this.uuid = uuid;
-        this.resourceConfigs = resourceConfigs;
+        this.resources = StringUtils.join(resourceConfigs.resourceNames(), ",");
     }
 
     public AgentConfig(String uuid, String hostName, String ipAddress, String cookie) {
@@ -87,7 +86,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
     public boolean validateTree(ValidationContext validationContext) {
         validate(validationContext);
         boolean isValid = errors().isEmpty();
-        isValid = resourceConfigs.validateTree(validationContext) && isValid;
+        isValid = getResources().validateTree(validationContext) && isValid;
         return isValid;
     }
     @Override
@@ -100,7 +99,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
     }
 
     private void validateResources() {
-        if (isElastic() && !resourceConfigs.isEmpty()) {
+        if (isElastic() && !getResources().isEmpty()) {
             errors.add("elasticAgentId", "Elastic agents cannot have resources.");
         }
     }
@@ -132,23 +131,23 @@ public class AgentConfig extends PersistentObject implements Validatable {
     }
 
     public boolean hasAllResources(Collection<ResourceConfig> required) {
-        return this.resourceConfigs.containsAll(required);
+        return this.getResources().containsAll(required);
     }
 
     public ResourceConfigs getResourceConfigs() {
-        return resourceConfigs;
+        return new ResourceConfigs(resources);
     }
 
     public void addResourceConfig(ResourceConfig resourceConfig) {
-        this.resourceConfigs.add(resourceConfig);
+        this.getResources().add(resourceConfig);
     }
 
     public void removeResource(ResourceConfig resourceConfig) {
-        resourceConfigs.remove(resourceConfig);
+        this.getResources().remove(resourceConfig);
     }
 
     public void setResourceConfigs(ResourceConfigs resourceConfigs) {
-        this.resourceConfigs = resourceConfigs;
+        resources = resourceConfigs.toString();
     }
 
     public boolean isEnabled() {
@@ -285,43 +284,12 @@ public class AgentConfig extends PersistentObject implements Validatable {
         this.setEnvironments(String.join(",", environments));
     }
 
-    public void removeEnvironments(List<String> environmentsToRemove) {
-        if (this.getEnvironments() != null) {
-            List<String> environments = Arrays.stream(this.getEnvironments().split(","))
-                    .filter(environment -> !environmentsToRemove.contains(environment))
-                    .collect(Collectors.toList());
-
-            this.setEnvironments(String.join(",", environments));
-        }
-    }
-
     public ResourceConfigs getResources() {
         return new ResourceConfigs(resources == null ? "" : resources);
     }
 
     public void setResources(ResourceConfigs resourceConfigs) {
         this.resources = StringUtils.join(resourceConfigs.resourceNames(), ",");
-    }
-
-    public void addResources(List<String> resourcesToAdd) {
-        LinkedHashSet<String> resources = new LinkedHashSet<>();
-        if (getResources() != null) {
-            resources.addAll(getResources().stream().map(ResourceConfig::getName).collect(Collectors.toList()));
-        }
-        resources.addAll(resourcesToAdd);
-        setResources(new ResourceConfigs(String.join(",", resources)));
-    }
-
-    public void removeResources(List<String> resourcesToRemove) {
-        if (getResources() != null) {
-            List<String> resources = getResources()
-                    .stream()
-                    .map(ResourceConfig::getName)
-                    .filter(resource -> !resourcesToRemove.contains(resource))
-                    .collect(Collectors.toList());
-
-            setResources(new ResourceConfigs(String.join(",", resources)));
-        }
     }
 
     public String getCookie() {

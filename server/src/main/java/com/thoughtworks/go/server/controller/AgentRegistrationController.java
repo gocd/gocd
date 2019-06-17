@@ -18,11 +18,7 @@ package com.thoughtworks.go.server.controller;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.ErrorCollector;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.update.UpdateEnvironmentsCommand;
-import com.thoughtworks.go.config.update.UpdateResourceCommand;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.security.Registration;

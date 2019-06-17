@@ -90,7 +90,11 @@ public class AgentDao extends HibernateDaoSupport {
 
     public AgentConfig agentConfigByUuid(String uuid) {
         Agent agent = agentByUuid(uuid);
-        return agentConfigFromAgent(agent);
+        if (agent != null) {
+            return agentConfigFromAgent(agent);
+        } else {
+            return null;
+        }
     }
 
     public void associateCookie(final AgentIdentifier agentIdentifier, final String cookie) {
@@ -225,7 +229,7 @@ public class AgentDao extends HibernateDaoSupport {
         }
     }
 
-    public void bulkUpdateEnvironments(final List<String> environments, final List<String> agentUuidsToAdd, final List<String> agentUuidsToRemove){
+    public void bulkUpdateEnvironments(final List<String> environments, final List<String> agentUuidsToAdd, final List<String> agentUuidsToRemove) {
         ArrayList<String> allUuids = new ArrayList<>();
         allUuids.addAll(agentUuidsToAdd);
         allUuids.addAll(agentUuidsToRemove);
@@ -235,16 +239,16 @@ public class AgentDao extends HibernateDaoSupport {
 //                @Override
 //                protected void doInTransactionWithoutResult(TransactionStatus status) {
 
-                    for (Agent agent : agents) {
-                        if(agentUuidsToAdd.contains(agent.getUuid())) {
-                            agent.addEnvironments(environments);
-                        }
-                        if(agentUuidsToRemove.contains(agent.getUuid())) {
-                            agent.removeEnvironments(environments);
-                        }
-                        sessionFactory.getCurrentSession().saveOrUpdate(Agent.class.getName(), agent);
-                    }
-                    clearCache(synchronizationManager, allUuids);
+        for (Agent agent : agents) {
+            if (agentUuidsToAdd.contains(agent.getUuid())) {
+                agent.addEnvironments(environments);
+            }
+            if (agentUuidsToRemove.contains(agent.getUuid())) {
+                agent.removeEnvironments(environments);
+            }
+            sessionFactory.getCurrentSession().saveOrUpdate(Agent.class.getName(), agent);
+        }
+        clearCache(synchronizationManager, allUuids);
 //                }
 //            });
 //        }

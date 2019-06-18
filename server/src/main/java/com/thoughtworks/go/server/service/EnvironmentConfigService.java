@@ -230,7 +230,6 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         String actionFailed = "Failed to add environment '" + environmentConfig.name() + "'.";
         AddEnvironmentCommand addEnvironmentCommand = new AddEnvironmentCommand(goConfigService, environmentConfig, user, actionFailed, result, agentConfigService);
         update(addEnvironmentCommand, environmentConfig, user, result, actionFailed);
-        agentConfigService.updateEnvironments(environmentConfig, environmentConfig.getAgents().getUuids(), Collections.emptyList(), result);
     }
 
     public List<EnvironmentPipelineModel> getAllLocalPipelinesForUser(Username user) {
@@ -267,32 +266,13 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         return pipelines;
     }
 
-    public void updateEnvironment(final String oldEnvironmentConfigName, final EnvironmentConfig newEnvironmentConfig, final Username username, String md5, final HttpLocalizedOperationResult result) {
-        List<String> oldAgentsUuids = getEnvironmentConfig(oldEnvironmentConfigName).getAgents().getUuids();
-        List<String> newAgentsUuids = newEnvironmentConfig.getAgents().getUuids();
-        List<String> environmentToRemoveFromAgents = oldAgentsUuids.stream().filter(uuid -> !newAgentsUuids.contains(uuid)).collect(Collectors.toList());
-        List<String> environmentToAddToAgents = newAgentsUuids.stream().filter(uuid -> !oldAgentsUuids.contains(uuid)).collect(Collectors.toList());
-        ArrayList<String> allUuids = new ArrayList<>();
-        allUuids.addAll(environmentToAddToAgents);
-        allUuids.addAll(environmentToRemoveFromAgents);
-        synchronized (allUuids) {
-            try {
-                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                    @Override
-                    protected void doInTransactionWithoutResult(TransactionStatus status) {
-                        String actionFailed = "Failed to update environment '" + oldEnvironmentConfigName + "'.";
-                        agentConfigService.updateEnvironments(newEnvironmentConfig, environmentToAddToAgents, environmentToRemoveFromAgents, result);
+    public void updateEnvironment(final String oldEnvName, final EnvironmentConfig env, final Username username, String md5, final HttpLocalizedOperationResult result) {
+        String failureMsg = "Failed to update environment '" + oldEnvName + "'.";
+        UpdateEnvironmentCommand updateEnvCmd = new UpdateEnvironmentCommand(goConfigService, oldEnvName, env, username, failureMsg, md5, entityHashingService, result, agentConfigService);
+        update(updateEnvCmd, env, username, result, failureMsg);
 
-                        UpdateEnvironmentCommand updateEnvironmentCommand = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfigName, newEnvironmentConfig, username, actionFailed, md5, entityHashingService, result, agentConfigService);
-                        update(updateEnvironmentCommand, newEnvironmentConfig, username, result, actionFailed);
-                        if (result.isSuccessful()) {
-                            result.setMessage("Updated environment '" + oldEnvironmentConfigName + "'.");
-                        }
-                    }
-                });
-            } catch (Exception e) {
-                LOG.error("Error while updating environment and its agent association", e.getMessage());
-            }
+        if (result.isSuccessful()) {
+            result.setMessage("Updated environment '" + oldEnvName + "'.");
         }
     }
 
@@ -300,7 +280,6 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         String actionFailed = "Failed to update environment '" + environmentConfig.name() + "'.";
         PatchEnvironmentCommand patchEnvironmentCommand = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, username, actionFailed, result, agentConfigService);
         update(patchEnvironmentCommand, environmentConfig, username, result, actionFailed);
-        agentConfigService.updateEnvironments(environmentConfig, agentsToAdd, agentsToRemove, result);
         if (result.isSuccessful()) {
             result.setMessage("Updated environment '" + environmentConfig.name() + "'.");
         }
@@ -316,16 +295,15 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         }
     }
 
-    private void update(EntityConfigUpdateCommand command, EnvironmentConfig config, Username currentUser, HttpLocalizedOperationResult result, String actionFailed) {
+    private void update(EntityConfigUpdateCommand updateEnvCmd, EnvironmentConfig config, Username currentUser, HttpLocalizedOperationResult result, String actionFailed) {
         try {
-            goConfigService.updateConfig(command, currentUser);
+            goConfigService.updateConfig(updateEnvCmd, currentUser);
         } catch (Exception e) {
             if ((e instanceof GoConfigInvalidException) && !result.hasMessage()) {
                 result.unprocessableEntity(entityConfigValidationFailed(config.getClass().getAnnotation(ConfigTag.class).value(), config.name(), e.getMessage()));
             } else if (!result.hasMessage()) {
                 result.badRequest(LocalizedMessage.composite(actionFailed, e.getMessage()));
             }
-            throw e;
         }
     }
 }

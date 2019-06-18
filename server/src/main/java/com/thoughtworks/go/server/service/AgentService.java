@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.domain.NullAgent;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
@@ -367,10 +368,18 @@ public class AgentService {
     }
 
     public AgentConfig agentByUuid(String agentUuid) {
-        return agentDao.agentConfigByUuid(agentUuid);
+        AgentConfig agentConfig = agentDao.agentConfigByUuid(agentUuid);
+        if(agentConfig == null){
+            agentConfig = NullAgent.createNullAgent();
+        }
+        return agentConfig;
     }
 
     public List<String> allAgentUuids() {
         return agentDao.allAgentUuids();
+    }
+
+    public void saveOrUpdate(AgentConfig agentConfig) {
+        agentConfigService.saveOrUpdate(agentConfig, null);
     }
 }

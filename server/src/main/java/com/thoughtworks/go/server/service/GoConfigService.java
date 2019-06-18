@@ -203,9 +203,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return true;
     }
 
-    public Agents agents() {
-        return getCurrentConfig().agents();
-    }
 
     public CruiseConfig currentCruiseConfig() {
         return getCurrentConfig();
@@ -230,10 +227,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     CruiseConfig cruiseConfig() {
         return goConfigDao.load();
-    }
-
-    public AgentConfig agentByUuid(String uuid) {
-        return agents().getAgentByUuid(uuid);
     }
 
     public StageConfig stageConfigNamed(String pipelineName, String stageName) {

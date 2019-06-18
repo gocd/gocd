@@ -1051,7 +1051,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void testShouldNotUpdateHostnameOrResourcesOrEnvironmentsIfNoneAreSpecified() throws Exception {
+    public void testShouldNotUpdateHostnameOrEnvironmentsIfNoneAreSpecified() throws Exception {
         createEnvironment("a", "b");
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
         String originalHostname = agent.getHostName();
@@ -1060,7 +1060,6 @@ public class AgentServiceIntegrationTest {
         agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), Collections.emptyList(), Collections.emptyList(), Arrays.asList("a","b"), Collections.emptyList(), TriState.TRUE);
 
         goConfigDao.load();
-        agentConfigService.updateAgentResources(agent.getUuid(), new ResourceConfigs("linux,java"));
 
         assertThat(agentService.agents().size(), is(1));
 

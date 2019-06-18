@@ -78,6 +78,10 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
         return found;
     }
 
+    public EnvironmentConfig getFirstEditablePartWithoutThrowingException() {
+        return getFirstEditablePartOrNull();
+    }
+
 
     @Override
     public void validate(ValidationContext validationContext) {
@@ -200,7 +204,10 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
 
     @Override
     public void addAgent(String uuid) {
-        this.getFirstEditablePart().addAgent(uuid);
+        EnvironmentConfig editablePart = this.getFirstEditablePartWithoutThrowingException();
+        if (editablePart != null) {
+            editablePart.addAgent(uuid);
+        }
     }
 
     @Override
@@ -210,7 +217,10 @@ public class MergeEnvironmentConfig extends BaseCollection<EnvironmentConfig> im
                 return;
             }
         }
-        this.getFirstEditablePart().addAgentIfNew(uuid);
+        EnvironmentConfig editablePart = this.getFirstEditablePartWithoutThrowingException();
+        if (editablePart != null) {
+            editablePart.addAgentIfNew(uuid);
+        }
     }
 
     @Override

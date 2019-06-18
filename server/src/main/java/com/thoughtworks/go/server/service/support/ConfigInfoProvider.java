@@ -55,7 +55,6 @@ public class ConfigInfoProvider implements ServerInfoProvider {
 
         LinkedHashMap<String, Object> validConfig = new LinkedHashMap<>();
         validConfig.put("Number of pipelines", goConfigService.getAllPipelineConfigs().size());
-        validConfig.put("Number of agents", goConfigService.agents().size());
         validConfig.put("Number of environments", currentConfig.getEnvironments().size());
         validConfig.put("Number of unique materials", currentConfig.getAllUniqueMaterials().size());
         validConfig.put("Number of schedulable materials", goConfigService.getSchedulableMaterials().size());

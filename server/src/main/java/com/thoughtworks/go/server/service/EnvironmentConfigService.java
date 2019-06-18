@@ -101,7 +101,6 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     public void sync(EnvironmentsConfig environments) {
-        matchers = environments.matchers();
         this.environments = environments;
         agentConfigService.agents().forEach(agentConfig -> {
             String agentEnvironments = agentConfig.getEnvironments();
@@ -115,6 +114,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
             }
 
         });
+        matchers = this.environments.matchers();
     }
 
     @Override
@@ -290,7 +290,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
                         }
                     }
                 });
-            } catch(Exception e){
+            } catch (Exception e) {
                 LOG.error("Error while updating environment and its agent association", e.getMessage());
             }
         }
@@ -318,7 +318,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     private void update(EntityConfigUpdateCommand command, EnvironmentConfig config, Username currentUser, HttpLocalizedOperationResult result, String actionFailed) {
         try {
-                goConfigService.updateConfig(command, currentUser);
+            goConfigService.updateConfig(command, currentUser);
         } catch (Exception e) {
             if ((e instanceof GoConfigInvalidException) && !result.hasMessage()) {
                 result.unprocessableEntity(entityConfigValidationFailed(config.getClass().getAnnotation(ConfigTag.class).value(), config.name(), e.getMessage()));

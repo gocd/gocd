@@ -63,6 +63,14 @@ class EnvironmentConfigServiceTest {
 
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
         environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService, agentConfigService, transactionTemplate);
+
+        AgentConfig agentUat = new AgentConfig("uat-agent", "host1", "127.0.0.1", "cookie1");
+        agentUat.setEnvironments("uat");
+        AgentConfig agentProd = new AgentConfig("prod-agent", "host2", "127.0.0.1", "cookie2");
+        agentProd.setEnvironments("prod");
+        AgentConfig omnipresentAgent = new AgentConfig(OMNIPRESENT_AGENT, "host3", "127.0.0.1", "cookie3");
+        omnipresentAgent.setEnvironments("uat,prod");
+        when(agentConfigService.agents()).thenReturn(new Agents(agentUat, agentProd, omnipresentAgent));
     }
 
     @Test
@@ -193,8 +201,8 @@ class EnvironmentConfigServiceTest {
         AgentConfig agentUnderEnv = new AgentConfig("uat-agent", "localhost", "127.0.0.1");
         AgentConfig omnipresentAgent = new AgentConfig(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2");
 
-        Mockito.when(mockGoConfigService.agentByUuid("uat-agent")).thenReturn(agentUnderEnv);
-        Mockito.when(mockGoConfigService.agentByUuid(EnvironmentConfigMother.OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
+        Mockito.when(agentConfigService.agentByUuid("uat-agent")).thenReturn(agentUnderEnv);
+        Mockito.when(agentConfigService.agentByUuid(EnvironmentConfigMother.OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
 
         assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).size()).isEqualTo(2);
         assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline"))).contains(agentUnderEnv);
@@ -209,7 +217,7 @@ class EnvironmentConfigServiceTest {
         Agents agents = new Agents();
         agents.add(noEnvAgent);
         agents.add(new AgentConfig(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2"));
-        Mockito.when(mockGoConfigService.agents()).thenReturn(agents);
+        Mockito.when(agentConfigService.agents()).thenReturn(agents);
 
 
         assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")).size()).isEqualTo(1);
@@ -242,18 +250,18 @@ class EnvironmentConfigServiceTest {
 
     @Test
     void shouldReturnEnvironmentConfigsForAnAgent() {
-        when(agentConfigService.agents()).thenReturn(new Agents());
-        environmentConfigService.sync(environments("uat", "prod"));
+        EnvironmentsConfig environmentConfigs = environments("uat", "prod");
+        environmentConfigService.sync(environmentConfigs);
         Set<EnvironmentConfig> envForUat = environmentConfigService.environmentConfigsFor("uat-agent");
         assertThat(envForUat.size()).isEqualTo(1);
-        assertThat(envForUat).contains(environment("uat"));
+        assertThat(envForUat).contains(environmentConfigs.named(new CaseInsensitiveString("uat")));
         Set<EnvironmentConfig> envForProd = environmentConfigService.environmentConfigsFor("prod-agent");
         assertThat(envForProd.size()).isEqualTo(1);
-        assertThat(envForProd).contains(environment("prod"));
+        assertThat(envForProd).contains(environmentConfigs.named(new CaseInsensitiveString("prod")));
         Set<EnvironmentConfig> envForOmniPresent = environmentConfigService.environmentConfigsFor(EnvironmentConfigMother.OMNIPRESENT_AGENT);
         assertThat(envForOmniPresent.size()).isEqualTo(2);
-        assertThat(envForOmniPresent).contains(environment("uat"));
-        assertThat(envForOmniPresent).contains(environment("prod"));
+        assertThat(envForOmniPresent).contains(environmentConfigs.named(new CaseInsensitiveString("uat")));
+        assertThat(envForOmniPresent).contains(environmentConfigs.named(new CaseInsensitiveString("prod")));
     }
 
     @Test
@@ -403,6 +411,7 @@ class EnvironmentConfigServiceTest {
         String environmentName = "env_name";
         EnvironmentConfig environmentConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
         Username user = new Username(new CaseInsensitiveString("user"));
+        environmentConfigService.sync(environments("uat", "prod", "env_name"));
 
         when(securityService.isUserAdmin(user)).thenReturn(true);
         when(mockGoConfigService.updateConfig(any(UpdateConfigCommand.class))).thenReturn(ConfigSaveState.MERGED);

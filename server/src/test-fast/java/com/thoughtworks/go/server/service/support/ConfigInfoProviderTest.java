@@ -110,7 +110,6 @@ public class ConfigInfoProviderTest {
 
         when(goConfigService.getCurrentConfig()).thenReturn(cruiseConfig);
         when(goConfigService.getAllPipelineConfigs()).thenReturn(emptyList());
-        when(goConfigService.agents()).thenReturn(new Agents());
         when(cruiseConfig.getEnvironments()).thenReturn(new EnvironmentsConfig());
         when(cruiseConfig.getAllUniqueMaterials()).thenReturn(emptySet());
         when(goConfigService.getSchedulableMaterials()).thenReturn(emptySet());

@@ -132,31 +132,12 @@ public class AgentConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateAgentResourcesToDatabase() throws Exception {
-        AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new ResourceConfigs("java"));
-        agentConfigService.saveOrUpdate(agentConfig, Username.ANONYMOUS);
-        ResourceConfigs newResourceConfigs = new ResourceConfigs("firefox");
-        agentConfigService.updateAgentResources(agentConfig.getUuid(), newResourceConfigs);
-        assertThat(agentDao.agentByUuid(agentConfig.getUuid()).getResources(), is(newResourceConfigs));
-    }
-
-    @Test
     public void shouldUpdateAgentApprovalStatusByUuidToDatabase() throws Exception {
         AgentConfig agentConfig = new AgentConfig("uuid", "test", "127.0.0.1", new ResourceConfigs("java"));
         agentConfigService.saveOrUpdate(agentConfig, Username.ANONYMOUS);
         agentConfigService.updateAgentApprovalStatus(agentConfig.getUuid(), Boolean.TRUE, Username.ANONYMOUS);
 
         assertTrue(agentDao.agentByUuid(agentConfig.getUuid()).isDisabled());
-    }
-
-    @Test
-    public void shouldRemoveAgentResourcesInDatabase() throws Exception {
-        AgentConfig agentConfig = new AgentConfig(UUID.randomUUID().toString(), "test", "127.0.0.1", new ResourceConfigs("java, resource1, resource2"));
-        agentConfigService.saveOrUpdate(agentConfig, Username.ANONYMOUS);
-        assertNotNull(agentDao.agentByUuid(agentConfig.getUuid()));
-        agentConfigService.updateAgentResources(agentConfig.getUuid(), new ResourceConfigs("java"));
-        assertThat(agentDao.agentByUuid(agentConfig.getUuid()).getResources().size(), is(1));
-        assertThat(agentDao.agentByUuid(agentConfig.getUuid()).getResources().first(), is(new ResourceConfig("java")));
     }
 
     @Test

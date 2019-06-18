@@ -14,96 +14,122 @@
  * limitations under the License.
  */
 var EnvironmentVariableEdit = function (options) {
-    var $ = jQuery;
+  var $ = jQuery;
 
-    var defaultOptions = {
-        tableRowSelector:      '.environment-variable-edit-row',
-        editSelector:          '.edit',
-        resetSelector:         '.reset',
-        passwordFieldSelector: '[type=password]',
-        changedFieldSelector:  '.is-changed-field',
-        originalValueSelector: '.original-secure-variable-value',
-        parentRowSelector:     'tr'
-    };
+  var defaultOptions = {
+    tableRowSelector:      '.environment-variable-edit-row',
+    editSelector:          '.edit',
+    resetSelector:         '.reset',
+    passwordFieldSelector: '[type=password]',
+    changedFieldSelector:  '.is-changed-field',
+    originalValueSelector: '.original-secure-variable-value',
+    parentRowSelector:     'tr',
+    displayToggleSelector: '#password_display_toggle'
+  };
 
-    options = $.extend({}, defaultOptions, options);
+  options = $.extend({}, defaultOptions, options);
 
-    var editSelector  = options.tableRowSelector + ' ' + options.editSelector;
-    var resetSelector = options.tableRowSelector + ' ' + options.resetSelector;
+  var editSelector          = options.tableRowSelector + ' ' + options.editSelector;
+  var resetSelector         = options.tableRowSelector + ' ' + options.resetSelector;
+  var toggleDisplaySelector = options.tableRowSelector + ' ' + options.displayToggleSelector;
 
-    var existingHooks = $.data(document.body, 'reset-environment-variable-on');
+  var existingHooks = $.data(document.body, 'reset-environment-variable-on');
 
-    if (!existingHooks) {
-        existingHooks = $.data(document.body, 'reset-environment-variable-on', {});
-    }
+  if (!existingHooks) {
+    existingHooks = $.data(document.body, 'reset-environment-variable-on', {});
+  }
 
-    if (existingHooks[editSelector] && existingHooks[resetSelector]) {
-        return;
+  if (existingHooks[editSelector] && existingHooks[resetSelector] && existingHooks[toggleDisplaySelector]) {
+    return;
+  } else {
+    existingHooks[editSelector]          = true;
+    existingHooks[resetSelector]         = true;
+    existingHooks[toggleDisplaySelector] = true;
+  }
+
+  $(document).on('click.resetEnvironmentVariableOn', editSelector, function (evt) {
+    evt.preventDefault();
+    var element                     = $(evt.target),
+        environmentVariableRow      = element.parents(options.parentRowSelector),
+        passwordField               = environmentVariableRow.find(options.passwordFieldSelector),
+        editLink                    = environmentVariableRow.find(options.editSelector),
+        resetLink                   = environmentVariableRow.find(options.resetSelector),
+        isChangedHiddenField        = environmentVariableRow.find(options.changedFieldSelector),
+        secureVariableOriginalValue = environmentVariableRow.find(options.originalValueSelector),
+        toggleDisplayField          = environmentVariableRow.find(options.displayToggleSelector);
+
+    toggleDisplayField.removeClass("hidden");
+    passwordField.removeAttr("readonly");
+    isChangedHiddenField.val(true);
+    passwordField.val('').focus();
+    editLink.toggle();
+    resetLink.toggle();
+  });
+
+  $(document).on('click.resetEnvironmentVariableOn', resetSelector, function (evt) {
+    evt.preventDefault();
+    var element                     = $(evt.target),
+        environmentVariableRow      = element.parents(options.parentRowSelector),
+        passwordField               = environmentVariableRow.find(options.passwordFieldSelector),
+        editLink                    = environmentVariableRow.find(options.editSelector),
+        resetLink                   = environmentVariableRow.find(options.resetSelector),
+        isChangedHiddenField        = environmentVariableRow.find(options.changedFieldSelector),
+        secureVariableOriginalValue = environmentVariableRow.find(options.originalValueSelector),
+        toggleDisplayField          = environmentVariableRow.find(options.displayToggleSelector);
+
+    toggleDisplayField.addClass("hidden");
+    passwordField.attr("readonly", "readonly");
+    passwordField.get(0).setAttribute('type', 'password');
+    isChangedHiddenField.val(false);
+    passwordField.val(secureVariableOriginalValue.val());
+    editLink.toggle();
+    resetLink.toggle();
+  });
+
+  $(document).on('click.resetEnvironmentVariableOn', toggleDisplaySelector, function (evt) {
+    evt.preventDefault();
+    var element                = $(evt.target),
+        environmentVariableRow = element.parents(options.parentRowSelector),
+        passwordField          = environmentVariableRow.find(options.passwordFieldSelector),
+        toggleDisplayField     = environmentVariableRow.find(options.displayToggleSelector);
+
+    if (toggleDisplayField.hasClass("hide_password")) {
+      passwordField.get(0).setAttribute('type', 'text');
+      toggleDisplayField.removeClass("hide_password");
+      toggleDisplayField.addClass("show_password");
     } else {
-        existingHooks[editSelector]  = true;
-        existingHooks[resetSelector] = true;
+      passwordField.get(0).setAttribute('type', 'password');
+      toggleDisplayField.removeClass("show_password");
+      toggleDisplayField.addClass("hide_password");
     }
-
-    $(document).on('click.resetEnvironmentVariableOn', editSelector, function (evt) {
-        evt.preventDefault();
-        var element                     = $(evt.target),
-            environmentVariableRow      = element.parents(options.parentRowSelector),
-            passwordField               = environmentVariableRow.find(options.passwordFieldSelector),
-            editLink                    = environmentVariableRow.find(options.editSelector),
-            resetLink                   = environmentVariableRow.find(options.resetSelector),
-            isChangedHiddenField        = environmentVariableRow.find(options.changedFieldSelector),
-            secureVariableOriginalValue = environmentVariableRow.find(options.originalValueSelector);
-
-        passwordField.removeAttr("readonly");
-        isChangedHiddenField.val(true);
-        passwordField.val('').focus();
-        editLink.toggle();
-        resetLink.toggle();
-    });
-
-    $(document).on('click.resetEnvironmentVariableOn', resetSelector, function (evt) {
-        evt.preventDefault();
-        var element                     = $(evt.target),
-            environmentVariableRow      = element.parents(options.parentRowSelector),
-            passwordField               = environmentVariableRow.find(options.passwordFieldSelector),
-            editLink                    = environmentVariableRow.find(options.editSelector),
-            resetLink                   = environmentVariableRow.find(options.resetSelector),
-            isChangedHiddenField        = environmentVariableRow.find(options.changedFieldSelector),
-            secureVariableOriginalValue = environmentVariableRow.find(options.originalValueSelector);
-
-        passwordField.attr("readonly", "readonly");
-        isChangedHiddenField.val(false);
-        passwordField.val(secureVariableOriginalValue.val()).focus();
-        editLink.toggle();
-        resetLink.toggle();
-    })
+  });
 };
 
-var EnvironmentVariableAddRemove = function(parentElement, options) {
+var EnvironmentVariableAddRemove = function (parentElement, options) {
   var $ = jQuery;
 
   options = $.extend({}, options);
 
   var addButton = $(parentElement).find('.add_item');
-  var template = $(parentElement).find('.template').html();
-  var addRowTo = $(parentElement).find('.variables tbody');
+  var template  = $(parentElement).find('.template').html();
+  var addRowTo  = $(parentElement).find('.variables tbody');
 
   // add a blank row
   addRowTo.append(template);
 
-  addButton.on('click.environmentVariableTemplateCopy', function(evt){
+  addButton.on('click.environmentVariableTemplateCopy', function (evt) {
     evt.preventDefault();
     addRowTo.append(template);
-    if(options.onAdd){
+    if (options.onAdd) {
       options.onAdd(addButton);
     }
   });
 
-  $(parentElement).on('click.environmentVariableTemplateCopy', '.delete_parent', function(evt){
+  $(parentElement).on('click.environmentVariableTemplateCopy', '.delete_parent', function (evt) {
     evt.preventDefault();
     var deleteLink = $(evt.target);
     deleteLink.parents('.environment-variable-edit-row').remove();
-    if(options.onRemove){
+    if (options.onRemove) {
       options.onRemove(deleteLink);
     }
 

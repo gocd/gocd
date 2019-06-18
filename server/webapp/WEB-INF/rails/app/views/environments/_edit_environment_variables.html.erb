@@ -28,7 +28,7 @@
         <tbody>
         <% scope[:form].object.getSecureVariables().each do |variable| -%>
           <%= scope[:form].fields_for :variables, variable, :index => "" do |var_form| %>
-            <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true, :is_changed => false,:is_readonly =>true, :disabled => variable.isRemote()}} -%>
+            <%= render :partial => "environment_variable_entry", :locals => {:scope => {:var_form => var_form, :is_secure => true, :is_changed => false, :is_readonly => true, :disabled => variable.isRemote()}} -%>
           <% end %>
         <%- end -%>
         </tbody>
@@ -48,7 +48,10 @@
 <script type="text/javascript">
   (function ($) {
     $(function () {
-      EnvironmentVariableEdit({tableRowSelector: '.environment-variable-edit-row'});
+      EnvironmentVariableEdit({
+        tableRowSelector:      '.environment-variable-edit-row',
+        passwordFieldSelector: '.environment_variable_value'
+      });
       EnvironmentVariableAddRemove($('.secure-variables'));
       EnvironmentVariableAddRemove($('.plain-text-variables'));
     });

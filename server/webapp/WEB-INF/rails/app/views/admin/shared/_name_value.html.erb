@@ -11,7 +11,7 @@
           <th></th>
         </tr>
         </thead>
-        <tbody class="<%= scope[:collection_name] -%>" >
+        <tbody class="<%= scope[:collection_name] -%>">
         <% scope[:collection].each do |variable| -%>
           <%= scope[:form].fields_for scope[:collection_name], variable, :index => "" do |var_form| %>
             <tr class="environment-variable-edit-row">
@@ -26,10 +26,13 @@
               <td class="name_value_cell">
                 <div>
                   <% if scope[:secure] %>
-                    <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil, :readonly => 'readonly' -%>
-                    <%= hidden_field_tag("#{scope[:form].object_name}[variables][][originalValue]", variable.getValueForDisplay(), :class => "original-secure-variable-value") -%>
-                    <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][secure]", true %>
-                    <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]", false, :class => "is-changed-field" %>
+                    <div class="password_field">
+                      <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil, :readonly => 'readonly' -%>
+                      <button type="button" id="password_display_toggle" class="hide_password hidden"></button>
+                      <%= hidden_field_tag("#{scope[:form].object_name}[variables][][originalValue]", variable.getValueForDisplay(), :class => "original-secure-variable-value") -%>
+                      <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][secure]", true %>
+                      <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]", false, :class => "is-changed-field" %>
+                    </div>
                   <% else %>
                     <%= var_form.text_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
                   <% end %>
@@ -54,30 +57,33 @@
       <%= action_icon({:type => "add", :text => 'Add', :href => "#", :class => "skip_dirty_stop add_item", :id => 'add_variables'}) %>
       <table style="display: none;">
         <tbody class="template">
-          <tr class="environment-variable-edit-row">
-            <%= scope[:form].fields_for scope[:collection_name], :index => "" do |var_form| %>
-              <td class="name_value_cell">
-                <%= var_form.text_field :name, :class => "form_input environment_variable_name", :id => nil -%>
-              </td>
-              <td class="name_value_cell">
-                <span class="equals_sign">=</span>
-              </td>
-              <td class="name_value_cell">
-                <div>
-                  <% if scope[:secure] %>
+        <tr class="environment-variable-edit-row">
+          <%= scope[:form].fields_for scope[:collection_name], :index => "" do |var_form| %>
+            <td class="name_value_cell">
+              <%= var_form.text_field :name, :class => "form_input environment_variable_name", :id => nil -%>
+            </td>
+            <td class="name_value_cell">
+              <span class="equals_sign">=</span>
+            </td>
+            <td class="name_value_cell">
+              <div>
+                <% if scope[:secure] %>
+                  <div class="password_field">
                     <%= var_form.password_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil, :autocomplete => 'off' -%>
+                    <button type="button" id="password_display_toggle" class="hide_password"></button>
                     <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][secure]", true %>
                     <%= hidden_field_tag "#{scope[:form].object_name}[#{scope[:collection_name]}][][#{com.thoughtworks.go.config.EnvironmentVariableConfig::ISCHANGED}]", true, class: 'is-changed-field' %>
-                  <% else %>
-                    <%= var_form.text_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
-                  <% end %>
-                </div>
-              </td>
-              <td class="name_value_cell">
-                <span class="icon_remove delete_parent"></span>
-              </td>
-            <% end %>
-          </tr>
+                  </div>
+                <% else %>
+                  <%= var_form.text_field :valueForDisplay, :class => "form_input environment_variable_value", :id => nil -%>
+                <% end %>
+              </div>
+            </td>
+            <td class="name_value_cell">
+              <span class="icon_remove delete_parent"></span>
+            </td>
+          <% end %>
+        </tr>
         </tbody>
       </table>
     </div>
@@ -88,12 +94,15 @@
 <script type="text/javascript">
   (function ($) {
     $(function () {
-      EnvironmentVariableEdit({tableRowSelector: '.environment-variable-edit-row'});
+      EnvironmentVariableEdit({
+        tableRowSelector:      '.environment-variable-edit-row',
+        passwordFieldSelector: '.environment_variable_value'
+      });
       EnvironmentVariableAddRemove($('#<%=template_row_id_prefix-%>'), {
-        onAdd: function(addButton){
+        onAdd:    function (addButton) {
           addButton.parents('form.dirtyform').data('dirty', true);
         },
-        onRemove: function(deleteLink){
+        onRemove: function (deleteLink) {
           deleteLink.parents('form.dirtyform').data('dirty', true);
         }
       });

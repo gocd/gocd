@@ -77,10 +77,10 @@ docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-v /path/t
 
 ## Tweaking JVM options (memory, heap etc)
 
-JVM options can be tweaked using the environment variable `GO_AGENT_SYSTEM_PROPERTIES`.
+JVM options can be tweaked using the environment variable `GOCD_AGENT_JVM_OPTS`.
 
 ```
-docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-e GO_AGENT_SYSTEM_PROPERTIES="-Dfoo=bar" gocd/${imageName}:v${goVersion}
+docker run ${distro.privilegedModeSupport ?then('--privileged ' , '')}-e GOCD_AGENT_JVM_OPTS="-Dfoo=bar" gocd/${imageName}:v${goVersion}
 ```
 
 # Under the hood

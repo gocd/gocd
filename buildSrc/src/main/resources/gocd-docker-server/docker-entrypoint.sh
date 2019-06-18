@@ -86,18 +86,18 @@ if [ "$1" = "${SERVER_WORK_DIR}/bin/go-server" ]; then
     /go-server/wrapper-config/wrapper.conf
 
   # parse/split an environment var to an array like how it should pass to the CLI
-  # GO_SERVER_SYSTEM_PROPERTIES is mostly for advanced users.
-  eval stringToArgsArray "$GO_SERVER_SYSTEM_PROPERTIES"
-  GO_SERVER_SYSTEM_PROPERTIES=("${_stringToArgs[@]}")
+  # GOCD_SERVER_JVM_OPTS is mostly for advanced users.
+  eval stringToArgsArray "$GOCD_SERVER_JVM_OPTS"
+  GOCD_SERVER_JVM_OPTS=("${_stringToArgs[@]}")
 
 
-  GO_SERVER_SYSTEM_PROPERTIES+=("-Dgo.console.stdout=true")
+  GOCD_SERVER_JVM_OPTS+=("-Dgo.console.stdout=true")
 
   # write out each system property using its own index
-  for array_index in "${!GO_SERVER_SYSTEM_PROPERTIES[@]}"
+  for array_index in "${!GOCD_SERVER_JVM_OPTS[@]}"
   do
     tanuki_index=$(($array_index + 100))
-    echo "wrapper.java.additional.${tanuki_index}=${GO_SERVER_SYSTEM_PROPERTIES[$array_index]}" >> /go-server/wrapper-config/wrapper-properties.conf
+    echo "wrapper.java.additional.${tanuki_index}=${GOCD_SERVER_JVM_OPTS[$array_index]}" >> /go-server/wrapper-config/wrapper-properties.conf
   done
 
 fi

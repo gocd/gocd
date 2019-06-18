@@ -105,10 +105,10 @@ chown -R 1000 /path/to/godata/addons
 
 ## Tweaking JVM options (memory, heap etc)
 
-JVM options can be tweaked using the environment variable `GO_SERVER_SYSTEM_PROPERTIES`.
+JVM options can be tweaked using the environment variable `GOCD_SERVER_JVM_OPTS`.
 
 ```shell
-docker run -e GO_SERVER_SYSTEM_PROPERTIES="-Xmx4096mb -Dfoo=bar" gocd/${imageName}:v${goVersion}
+docker run -e GOCD_SERVER_JVM_OPTS="-Xmx4096mb -Dfoo=bar" gocd/${imageName}:v${goVersion}
 ```
 
 # Under the hood

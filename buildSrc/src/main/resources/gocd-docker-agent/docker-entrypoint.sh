@@ -142,7 +142,7 @@ if [ "$1" = "${AGENT_WORK_DIR}/bin/go-agent" ]; then
     echo "wrapper.java.additional.${tanuki_index}=${AGENT_BOOTSTRAPPER_JVM_ARGS[$array_index]}" >> /go-agent/wrapper-config/wrapper-properties.conf
   done
 
-  echo "set.AGENT_STARTUP_ARGS=%AGENT_STARTUP_ARGS% -Dgo.console.stdout=true %GO_AGENT_SYSTEM_PROPERTIES%"
+  echo "set.AGENT_STARTUP_ARGS=%AGENT_STARTUP_ARGS% -Dgo.console.stdout=true %GOCD_AGENT_JVM_OPTS%"
 fi
 
 try exec /usr/local/sbin/tini -- "$@"

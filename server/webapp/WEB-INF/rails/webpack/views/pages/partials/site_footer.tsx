@@ -19,9 +19,11 @@ import * as m from "mithril";
 import {Link} from "views/components/link";
 import * as styles from "./site_footer.scss";
 
+const TimeFormatter = require("helpers/time_formatter");
+
 export interface Attrs {
-  updatedOn: string;
-  updatedBy: string;
+  maintenanceModeUpdatedOn: string | null;
+  maintenanceModeUpdatedBy: string | null;
   isServerInMaintenanceMode: boolean;
   isSupportedBrowser: boolean;
 }
@@ -62,7 +64,8 @@ export class SiteFooter extends MithrilViewComponent<Attrs> {
 
   private static maintenanceModeOrLegacyBrowserBanner(vnode: m.Vnode<Attrs>) {
     if (vnode.attrs.isServerInMaintenanceMode) {
-      const updatedByMessage = `${vnode.attrs.updatedBy} turned on maintenance mode at ${vnode.attrs.updatedOn.toLocaleString()}.`;
+      const updatedOnLocalTime = TimeFormatter.format(vnode.attrs.maintenanceModeUpdatedOn);
+      const updatedByMessage   = `${vnode.attrs.maintenanceModeUpdatedBy} turned on maintenance mode at ${updatedOnLocalTime}.`;
       return (<div data-test-id="maintenance-mode-banner" class={styles.footerWarningBanner}>
         {updatedByMessage}
         &nbsp;

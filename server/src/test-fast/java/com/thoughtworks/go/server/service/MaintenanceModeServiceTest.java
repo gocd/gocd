@@ -18,12 +18,12 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
-import com.thoughtworks.go.server.exceptions.ServerNotInMaintenanceModeException;
 import com.thoughtworks.go.util.TimeProvider;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -32,8 +32,6 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 public class MaintenanceModeServiceTest {
     private TimeProvider timeProvider;
     private MaintenanceModeService maintenanceModeService;
-    private String LOCAL_TIME_FORMAT = "dd MMM, yyyy 'at' HH:mm:ss 'Local Time'";
-    private SimpleDateFormat simpleDateFormat = new SimpleDateFormat(LOCAL_TIME_FORMAT);
 
     @BeforeEach
     void setUp() {
@@ -76,15 +74,15 @@ public class MaintenanceModeServiceTest {
 
     @Test
     void shouldReturnUpdatedOnTimeWhenServerIsInMaintenanceMode() {
-        Date updatedOn = new Date();
-        maintenanceModeService.update(new ServerMaintenanceMode(true, "admin", updatedOn));
-        assertThat(maintenanceModeService.updatedOn()).isEqualTo(simpleDateFormat.format(updatedOn));
+        DateTime dateTime = new DateTime(2019, 6, 18, 14, 30, 15, DateTimeZone.UTC);
+        maintenanceModeService.update(new ServerMaintenanceMode(true, "admin", dateTime.toDate()));
+        assertThat(maintenanceModeService.updatedOn()).isEqualTo("2019-06-18T14:30:15Z");
     }
 
     @Test
     void shouldThrowServerNotInMaintenanceModeExceptionForUpdatedOnWhenServerIsNotInMaintenanceMode() {
         assertThatCode(maintenanceModeService::updatedOn)
-                .isInstanceOf(ServerNotInMaintenanceModeException.class)
+                .isInstanceOf(IllegalStateException.class)
                 .hasMessage("GoCD server is not in maintenance mode!");
     }
 
@@ -97,7 +95,7 @@ public class MaintenanceModeServiceTest {
     @Test
     void shouldThrowServerNotInMaintenanceModeExceptionForUpdatedByWhenServerIsNotInMaintenanceMode() {
         assertThatCode(maintenanceModeService::updatedBy)
-                .isInstanceOf(ServerNotInMaintenanceModeException.class)
+                .isInstanceOf(IllegalStateException.class)
                 .hasMessage("GoCD server is not in maintenance mode!");
     }
 }

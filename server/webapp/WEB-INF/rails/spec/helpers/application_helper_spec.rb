@@ -648,7 +648,7 @@ describe ApplicationHelper do
   end
 
   describe "site_footer" do
-    it 'should return maintenance approver when server is in maintenance mode' do
+    it 'should return maintenance mode update time when server is in maintenance mode' do
       expect(maintenance_mode_service).to receive(:isMaintenanceMode).and_return(true)
       expect(maintenance_mode_service).to receive(:updatedOn).and_return("date")
 
@@ -656,14 +656,14 @@ describe ApplicationHelper do
       expect(maintenance_mode_updated_on).to eq(expected)
     end
 
-    it 'should not return maintenance approver when server is in maintenance mode' do
+    it 'should not return maintenance mode update time when server is in maintenance mode' do
       expect(maintenance_mode_service).to receive(:isMaintenanceMode).and_return(false)
 
       expected = nil
       expect(maintenance_mode_updated_on).to eq(expected)
     end
 
-    it 'should return maintenance mode update time when server is in maintenance mode' do
+    it 'should return maintenance approver when server is in maintenance mode' do
       expect(maintenance_mode_service).to receive(:isMaintenanceMode).and_return(true)
       expect(maintenance_mode_service).to receive(:updatedBy).and_return("bob")
 
@@ -671,7 +671,7 @@ describe ApplicationHelper do
       expect(maintenance_mode_updated_by).to eq(expected)
     end
 
-    it 'should not return maintenance mode update time when server is in maintenance mode' do
+    it 'should not return maintenance approver when server is in maintenance mode' do
       expect(maintenance_mode_service).to receive(:isMaintenanceMode).and_return(false)
 
       expected = nil

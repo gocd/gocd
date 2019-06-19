@@ -24,8 +24,8 @@ $arrow-horiz:          ($arrow-size + $inline-spacing) / 2;
 $stage-color:          #4ad9d9;
 $fg-color:             #023550;
 $label-color-group:    #dee;
-$label-color-pipeline: #edf;
-$label-color-stage:    #f8efa0;
+$label-color-pipeline: #ede7f3;
+$label-color-stage:    #ffe099;
 
 @mixin type-label {
   display:          inline-block;

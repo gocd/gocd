@@ -17,14 +17,15 @@
 // a generic function
 type fn = (args?: any) => any;
 
-/** Provides message-passing capabilities to instances. Use as a mixin or base class. */
-export class EventAware {
-  // interface
+export interface EventAware {
   on: (type: string, fn: fn) => void;
   off: (type: string, fn?: fn) => void;
   notify: (type: string, ...data: any[]) => void;
   reset: () => void;
+}
 
+/** Provides message-passing capabilities to instances. Use as a mixin or base class. */
+export class EventAware {
   // Forming a closure here means there's never a need to `Function.bind()` for
   // `on()`, `notify()`, etc. It also means the internal event map will never get
   // serialized and is truly private.

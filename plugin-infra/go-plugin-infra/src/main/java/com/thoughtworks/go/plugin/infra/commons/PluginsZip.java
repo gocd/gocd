@@ -17,6 +17,7 @@ package com.thoughtworks.go.plugin.infra.commons;
 
 import com.thoughtworks.go.plugin.infra.PluginChangeListener;
 import com.thoughtworks.go.plugin.infra.PluginManager;
+import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginBundleDescriptor;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.binary.Hex;
@@ -50,7 +51,7 @@ public class PluginsZip implements PluginChangeListener {
 
     private final Predicate<GoPluginDescriptor> predicate;
     private String md5DigestOfPlugins;
-    private List<GoPluginDescriptor> agentPlugins = new CopyOnWriteArrayList<>();
+    private List<GoPluginBundleDescriptor> agentPlugins = new CopyOnWriteArrayList<>();
     private final File destZipFile;
     private final File bundledPlugins;
     private final File externalPlugins;
@@ -75,15 +76,15 @@ public class PluginsZip implements PluginChangeListener {
 
         MessageDigest md5Digest = DigestUtils.getMd5Digest();
         try (ZipOutputStream zos = new ZipOutputStream(new DigestOutputStream(new BufferedOutputStream(new FileOutputStream(destZipFile)), md5Digest))) {
-            for (GoPluginDescriptor agentPlugins : agentPlugins()) {
+            for (GoPluginBundleDescriptor agentPlugins : agentPlugins()) {
                 String zipEntryPrefix = "external/";
 
                 if (agentPlugins.isBundledPlugin()) {
                     zipEntryPrefix = "bundled/";
                 }
 
-                zos.putNextEntry(new ZipEntry(zipEntryPrefix + new File(agentPlugins.pluginFileLocation()).getName()));
-                Files.copy(new File(agentPlugins.pluginFileLocation()).toPath(), zos);
+                zos.putNextEntry(new ZipEntry(zipEntryPrefix + new File(agentPlugins.bundleJARFileLocation()).getName()));
+                Files.copy(new File(agentPlugins.bundleJARFileLocation()).toPath(), zos);
                 zos.closeEntry();
             }
         } catch (Exception e) {
@@ -102,11 +103,13 @@ public class PluginsZip implements PluginChangeListener {
         return md5DigestOfPlugins;
     }
 
-    private List<GoPluginDescriptor> agentPlugins() {
+    private List<GoPluginBundleDescriptor> agentPlugins() {
         if (agentPlugins.isEmpty()) {
-            List<GoPluginDescriptor> agentPlugins = pluginManager.plugins().stream().
+            List<GoPluginBundleDescriptor> agentPlugins = pluginManager.plugins().stream().
                     filter(predicate).
                     sorted(PLUGIN_COMPARATOR).
+                    map(GoPluginDescriptor::bundleDescriptor).
+                    distinct().
                     collect(Collectors.toList());
             this.agentPlugins.addAll(agentPlugins);
         }
@@ -131,7 +134,7 @@ public class PluginsZip implements PluginChangeListener {
 
     @Override
     public void pluginUnLoaded(GoPluginDescriptor pluginDescriptor) {
-        if (agentPlugins().contains(pluginDescriptor)) {
+        if (agentPlugins().contains(pluginDescriptor.bundleDescriptor())) {
             create();
         }
     }

@@ -57,6 +57,10 @@ public class GoPluginBundleDescriptor {
         return pluginDescriptors.get(0).fileName();
     }
 
+    public String bundleJARFileLocation() {
+        return descriptors().get(0).pluginFileLocation();
+    }
+
     public boolean isInvalid() {
         return IterableUtils.matchesAny(pluginDescriptors, GoPluginDescriptor::isInvalid);
     }

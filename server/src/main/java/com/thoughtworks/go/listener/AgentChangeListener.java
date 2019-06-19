@@ -31,10 +31,12 @@ public class AgentChangeListener implements DatabaseEntityChangeListener<Agent> 
     @Override
     public void onBulkEntityChange() {
         agentService.sync();
+        environmentConfigService.syncAssociatedAgentsFromDB();
     }
 
     @Override
     public void onEntityChange(Agent entity) {
         agentService.sync();
+        environmentConfigService.syncAssociatedAgentsFromDB();
     }
 }

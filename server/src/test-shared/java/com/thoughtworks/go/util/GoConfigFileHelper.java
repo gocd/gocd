@@ -611,16 +611,6 @@ public class GoConfigFileHelper {
         writeConfigFile(cruiseConfig);
     }
 
-    public void addAgent(String hostname, String uuid) {
-        addAgent(new AgentConfig(uuid, hostname, "127.0.0.1"));
-    }
-
-    public void addAgent(AgentConfig newAgentConfig) {
-        CruiseConfig cruiseConfig = loadForEdit();
-        cruiseConfig.agents().add(newAgentConfig);
-        writeConfigFile(cruiseConfig);
-    }
-
     public void makeJobRunOnAllAgents(String pipeline, String stageName, String jobName) {
         CruiseConfig cruiseConfig = currentConfig();
         cruiseConfig.jobConfigByName(pipeline, stageName, jobName, true).setRunOnAllAgents(true);

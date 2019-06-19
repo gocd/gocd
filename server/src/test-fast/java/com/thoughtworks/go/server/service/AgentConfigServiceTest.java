@@ -16,8 +16,10 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.CruiseConfig;
-import com.thoughtworks.go.config.update.AgentsEntityConfigUpdateCommand;
+import com.thoughtworks.go.config.EnvironmentsConfig;
+import com.thoughtworks.go.config.update.AgentsUpdateValidator;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -63,14 +65,11 @@ public class AgentConfigServiceTest {
         AgentInstances agentInstances = new AgentInstances(null, null, instance);
         List<String> uuids = Arrays.asList(agentId);
 
+        when(goConfigService.isAdministrator(any(CaseInsensitiveString.class))).thenReturn(true);
+        when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
         agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, new HttpLocalizedOperationResult(), uuids, environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
-        shouldPerformCommand();
-    }
-
-    private void shouldPerformCommand() {
-        ArgumentCaptor<AgentsEntityConfigUpdateCommand> captor = ArgumentCaptor.forClass(AgentsEntityConfigUpdateCommand.class);
-        verify(goConfigService).updateConfig(captor.capture(), eq(Username.ANONYMOUS));
+        verify(agentDao).bulkUpdateAttributes(eq(Arrays.asList(agentConfig.getUuid())), eq(Collections.emptyList()),eq(Collections.emptyList()),eq(Collections.emptyList()),eq(Collections.emptyList()), eq(TriState.TRUE), eq(agentInstances));
     }
 
     @Test
@@ -84,6 +83,8 @@ public class AgentConfigServiceTest {
 
         AgentInstances agentInstances = new AgentInstances(null, null, fromConfigFile, pending);
 
+        when(goConfigService.isAdministrator(any(CaseInsensitiveString.class))).thenReturn(true);
+        when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
         agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, new HttpLocalizedOperationResult(), Arrays.asList(pending.getUuid(), fromConfigFile.getUuid()), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
         verify(agentDao).bulkUpdateAttributes(eq(Arrays.asList(pending.getUuid(),fromConfigFile.getUuid())), eq(Collections.emptyList()),eq(Collections.emptyList()),eq(Collections.emptyList()),eq(Collections.emptyList()), eq(TriState.TRUE), eq(agentInstances));
@@ -96,9 +97,12 @@ public class AgentConfigServiceTest {
         agentConfig.disable();
         AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), null);
         when(goConfigService.currentCruiseConfig()).thenReturn(mock(CruiseConfig.class));
-        when(agentConfigService.hasAgent(agentConfig.getUuid())).thenReturn(true);
+
+        when(goConfigService.isAdministrator(any(CaseInsensitiveString.class))).thenReturn(true);
+        when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
 
         AgentInstances agentInstances = new AgentInstances(null, null, instance);
+
         agentConfigService.bulkUpdateAgentAttributes(agentInstances, Username.ANONYMOUS, new HttpLocalizedOperationResult(), Arrays.asList(instance.getUuid()), environmentConfigService, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
         verify(agentDao).bulkUpdateAttributes(eq(Arrays.asList(agentConfig.getUuid())), eq(Collections.emptyList()),eq(Collections.emptyList()),eq(Collections.emptyList()),eq(Collections.emptyList()), eq(TriState.TRUE), eq(agentInstances));

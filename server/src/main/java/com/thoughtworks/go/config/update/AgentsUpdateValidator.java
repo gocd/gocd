@@ -15,8 +15,9 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
-import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
+import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agents;
+import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
@@ -24,14 +25,10 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.TriState;
-import com.thoughtworks.go.validation.AgentConfigsUpdateValidator;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -41,12 +38,11 @@ import java.util.Set;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 
-public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateCommand<Agents> {
+public class AgentsUpdateValidator {
     private AgentInstances agentInstances;
     private final Username username;
     private final LocalizedOperationResult result;
     private final List<String> uuids;
-    private final EnvironmentConfigService environmentConfigService;
     private final List<String> environmentsToAdd;
     private final List<String> environmentsToRemove;
     private final TriState state;
@@ -54,19 +50,15 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
     private final List<String> resourcesToRemove;
     private GoConfigService goConfigService;
     public Agents agents;
-    private static final Logger LOGGER = LoggerFactory.getLogger(AgentsEntityConfigUpdateCommand.class);
 
-    public AgentsEntityConfigUpdateCommand(AgentInstances agentInstances, Username username, LocalizedOperationResult result,
-                                           List<String> uuids, EnvironmentConfigService environmentConfigService,
-                                           List<String> environmentsToAdd, List<String> environmentsToRemove,
-                                           TriState state,
-                                           List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                           GoConfigService goConfigService) {
+    public AgentsUpdateValidator(AgentInstances agentInstances, Username username, LocalizedOperationResult result,
+                                 List<String> uuids, List<String> environmentsToAdd, List<String> environmentsToRemove,
+                                 TriState state, List<String> resourcesToAdd, List<String> resourcesToRemove,
+                                 GoConfigService goConfigService) {
         this.agentInstances = agentInstances;
         this.username = username;
         this.result = result;
         this.uuids = uuids;
-        this.environmentConfigService = environmentConfigService;
         this.environmentsToAdd = environmentsToAdd;
         this.environmentsToRemove = environmentsToRemove;
         this.state = state;
@@ -75,8 +67,7 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         this.goConfigService = goConfigService;
     }
 
-    @Override
-    public boolean canContinue(CruiseConfig cruiseConfig) {
+    public boolean canContinue() {
         if (!isAuthorized()) {
             return false;
         }
@@ -103,56 +94,6 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
         checkIfResourcesAreBeingUpdatedOnElasticAgents();
         List<AgentConfig> pendingAgents = findPendingAgents();
         validateOperationOnPendingAgents(pendingAgents);
-    }
-
-    @Override
-    public void update(CruiseConfig modifiedConfig) throws Exception {
-        validate();
-
-        // add pending agents to the config
-        List<AgentConfig> pendingAgents = findPendingAgents();
-        modifiedConfig.agents().addAll(pendingAgents);
-
-        // update all agents specified by uuids
-        Agents agents = modifiedConfig.agents().filter(uuids);
-        for (AgentConfig agentConfig : agents) {
-            if (state.isFalse()) {
-                agentConfig.disable();
-            }
-
-            if (state.isTrue()) {
-                agentConfig.enable();
-            }
-
-            for (String r : resourcesToAdd) {
-                agentConfig.addResourceConfig(new ResourceConfig(r));
-            }
-
-            for (String r : resourcesToRemove) {
-                agentConfig.removeResource(new ResourceConfig(r));
-            }
-
-            for (String environment : environmentsToAdd) {
-                EnvironmentConfig environmentConfig = modifiedConfig.getEnvironments().find(new CaseInsensitiveString(environment));
-                if (environmentConfig == null || agentIsAssociatedInConfigRepo(environment, agentConfig.getUuid())) {
-                    LOGGER.debug("Not adding Agent %s to Environment %s. It is associated from a Config Repo (or the Environment is null)",
-                            agentConfig.getUuid(), environment);
-                } else {
-                    environmentConfig.addAgentIfNew(agentConfig.getUuid());
-                }
-            }
-
-            for (String environment : environmentsToRemove) {
-                EnvironmentConfig environmentConfig = modifiedConfig.getEnvironments().find(new CaseInsensitiveString(environment));
-                if (environmentConfig != null) {
-                    environmentConfig.removeAgent(agentConfig.getUuid());
-                }
-            }
-        }
-    }
-
-    private boolean agentIsAssociatedInConfigRepo(String environment, String agentUuid) {
-        return environmentConfigService.getEnvironmentConfig(environment).containsAgentRemotely(agentUuid);
     }
 
     private void validatePresenceOfAgentUuidsInConfig() {
@@ -246,26 +187,5 @@ public class AgentsEntityConfigUpdateCommand implements EntityConfigUpdateComman
             }
         }
         return elasticAgentUUIDs;
-    }
-
-    @Override
-    public boolean isValid(CruiseConfig preprocessedConfig) {
-        agents = preprocessedConfig.agents();
-        AgentConfigsUpdateValidator validator = new AgentConfigsUpdateValidator(uuids);
-        boolean isValid = validator.isValid(preprocessedConfig);
-        if (!isValid) {
-            result.unprocessableEntity("Validations failed for bulk update of agents. Error(s): " + agents.getAllErrors());
-        }
-        return isValid;
-    }
-
-    @Override
-    public void clearErrors() {
-        BasicCruiseConfig.clearErrors(agents);
-    }
-
-    @Override
-    public Agents getPreprocessedEntityConfig() {
-        return agents;
     }
 }

@@ -76,17 +76,11 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public void initialize() {
         goConfigService.register(this);
-        goConfigService.register(new EntityConfigChangedListener<Agents>() {
-            @Override
-            public void onEntityConfigChange(Agents entity) {
-                sync(goConfigService.getEnvironments());
-            }
-        });
 
         goConfigService.register(new EntityConfigChangedListener<EnvironmentConfig>() {
             @Override
             public void onEntityConfigChange(EnvironmentConfig entity) {
-                sync(goConfigService.getEnvironments());
+                syncEnvironmentsFromConfig(goConfigService.getEnvironments());
             }
         });
 
@@ -98,6 +92,27 @@ public class EnvironmentConfigService implements ConfigChangedListener {
                 }
             }
         });
+    }
+
+    public void syncEnvironmentsFromConfig(EnvironmentsConfig environments){
+        this.environments = environments;
+        matchers = this.environments.matchers();
+    }
+
+    public void syncAssociatedAgentsFromDB(){
+        agentConfigService.agents().forEach(agentConfig -> {
+            String agentEnvironments = agentConfig.getEnvironments();
+            if (agentEnvironments != null) {
+                Arrays.stream(agentEnvironments.split(",")).forEach(env -> {
+                    EnvironmentConfig environmentConfig = this.environments.find(new CaseInsensitiveString(env));
+                    if (environmentConfig != null && !environmentConfig.hasAgent(agentConfig.getUuid())) {
+                        environmentConfig.addAgent(agentConfig.getUuid());
+                    }
+                });
+            }
+
+        });
+        matchers = this.environments.matchers();
     }
 
     public void sync(EnvironmentsConfig environments) {

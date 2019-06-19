@@ -28,12 +28,11 @@ import static org.junit.Assert.assertThat;
 public class AgentConfigTest {
 
     @Test
-    public void agentWithNoIpAddressShouldBeValid() throws Exception {
-        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+    public void agentWithNoIpAddressShouldBeValid() {
         AgentConfig agent = new AgentConfig("uuid", null, null);
-        cruiseConfig.agents().add(agent);
 
-        assertThat(cruiseConfig.validateAfterPreprocess().isEmpty(), is(true));
+        agent.validate(null);
+        assertThat(agent.errors().isEmpty(), is(true));
     }
 
     @Test

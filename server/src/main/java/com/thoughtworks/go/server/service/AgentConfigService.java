@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.update.AgentsEntityConfigUpdateCommand;
+import com.thoughtworks.go.config.update.AgentsUpdateValidator;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgent;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -113,12 +113,11 @@ public class AgentConfigService {
                                           final List<String> resourcesToAdd, final List<String> resourcesToRemove,
                                           final List<String> environmentsToAdd, final List<String> environmentsToRemove,
                                           final TriState enable) {
-        AgentsEntityConfigUpdateCommand agentsEntityConfigUpdateCommand = new AgentsEntityConfigUpdateCommand(agentInstances,
-                username, result, uuids, environmentConfigService, environmentsToAdd, environmentsToRemove, enable,
-                resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsUpdateValidator agentsUpdateValidator = new AgentsUpdateValidator(agentInstances,
+                username, result, uuids, environmentsToAdd, environmentsToRemove, enable, resourcesToAdd, resourcesToRemove, goConfigService);
         try {
-            if (agentsEntityConfigUpdateCommand.canContinue(goConfigService.cruiseConfig())) {
-                agentsEntityConfigUpdateCommand.validate();
+            if (agentsUpdateValidator.canContinue()) {
+                agentsUpdateValidator.validate();
                 agentDao.bulkUpdateAttributes(uuids, resourcesToAdd, resourcesToRemove, environmentsToAdd, environmentsToRemove, enable, agentInstances);
                 result.setMessage("Updated agent(s) with uuid(s): [" + StringUtils.join(uuids, ", ") + "].");
             }

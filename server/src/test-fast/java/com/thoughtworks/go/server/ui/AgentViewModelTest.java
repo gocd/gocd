@@ -179,6 +179,9 @@ public class AgentViewModelTest {
         AgentViewModel model = new AgentViewModel(AgentInstance.createFromConfig(agentConfig, mock(SystemEnvironment.class), null));
         assertThat(model.errors().isEmpty(), is(false));
         assertThat(model.errors().on(AgentConfig.IP_ADDRESS), is("bad ip"));
+
+
+        //TODO Vrushali/Saurabh: Incorporate this test in Agent DB related tests.
         assertThat(model.errors().getAllOn(ResourceConfig.NAME).contains("bad name for resource1"), is(true));
         assertThat(model.errors().getAllOn(ResourceConfig.NAME).contains("bad name for resource2"), is(true));
     }

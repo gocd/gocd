@@ -33,6 +33,7 @@ import com.thoughtworks.go.helper.PipelineConfigMother;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.UsageStatistics;
+import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
@@ -52,6 +53,10 @@ public class DataSharingUsageDataServiceTest {
     private DataSharingUsageDataService service;
     @Mock
     private GoConfigService goConfigService;
+
+    @Mock
+    private AgentConfigService agentConfigService;
+
     @Mock
     private JobInstanceSqlMapDao jobInstanceSqlMapDao;
 
@@ -69,7 +74,7 @@ public class DataSharingUsageDataServiceTest {
         initMocks(this);
         Toggles.initializeWith(featureToggleService);
         when(featureToggleService.isToggleOn(Toggles.TEST_DRIVE)).thenReturn(false);
-        service = new DataSharingUsageDataService(goConfigService, jobInstanceSqlMapDao, dataSharingUsageStatisticsReportingService, goCache);
+        service = new DataSharingUsageDataService(goConfigService, jobInstanceSqlMapDao, dataSharingUsageStatisticsReportingService, goCache,agentConfigService);
         goConfig = GoConfigMother.configWithPipelines("p1", "p2");
         goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("docker-profile", "prod-cluster-2"));
         goConfig.getElasticConfig().getProfiles().add(new ElasticProfile("ecs-profile", "prod-cluster-1"));

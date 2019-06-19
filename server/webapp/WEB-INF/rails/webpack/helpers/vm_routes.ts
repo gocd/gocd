@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module.exports = {
-  pipelineHistoryPath: (pipelineName) => {
+
+export default class VMRoutes {
+  static pipelineHistoryPath(pipelineName: string) {
     return `/go/tab/pipeline/history/${pipelineName}`;
-  },
+  }
 
-  vsmPath: (pipelineName, pipelineCounter) => {
+  static vsmPath(pipelineName: string, pipelineCounter: string) {
     return `/go/pipelines/value_stream_map/${pipelineName}/${pipelineCounter}`;
-  },
+  }
 
-  comparePath: (pipelineName, fromCounter, toCounter) => {
+  static comparePath(pipelineName: string, fromCounter: string, toCounter: string) {
     return `/go/compare/${pipelineName}/${fromCounter}/with/${toCounter}`;
-  },
-};
+  }
+}

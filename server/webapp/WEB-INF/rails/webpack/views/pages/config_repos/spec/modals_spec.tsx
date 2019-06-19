@@ -21,7 +21,7 @@ import {ConfigRepo} from "models/config_repos/types";
 import {GitMaterialAttributes, Material} from "models/materials/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {ConfigRepoModal} from "views/pages/config_repos/modals";
-import {configRepoPluginInfo, createConfigRepo} from "views/pages/config_repos/spec/test_data";
+import {configRepoPluginInfo, createConfigRepoParsedWithError} from "views/pages/config_repos/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 class TestConfigRepoModal extends ConfigRepoModal {
@@ -49,7 +49,7 @@ class TestConfigRepoModal extends ConfigRepoModal {
     const configRepo = new ConfigRepo(undefined,
                                     this.pluginInfos()[0].id,
                                     new Material("git", new GitMaterialAttributes()));
-    return this.isNew ? configRepo : createConfigRepo();
+    return this.isNew ? configRepo : createConfigRepoParsedWithError();
   }
 
 }

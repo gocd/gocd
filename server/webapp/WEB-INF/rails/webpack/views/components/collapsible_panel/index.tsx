@@ -31,6 +31,8 @@ export interface Attrs<Header, Actions> {
   error?: boolean;
   warning?: boolean;
   expanded?: boolean;
+  onexpand?: () => void;
+  oncollapse?: () => void;
 }
 
 export interface State {
@@ -43,6 +45,15 @@ export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<He
     vnode.state.expanded = stream(vnode.attrs.expanded || false);
     vnode.state.toggle   = () => {
       vnode.state.expanded(!vnode.state.expanded());
+      if (vnode.state.expanded()) {
+        if ("function" === typeof vnode.attrs.onexpand) {
+          vnode.attrs.onexpand();
+        }
+      } else {
+        if ("function" === typeof vnode.attrs.oncollapse) {
+          vnode.attrs.oncollapse();
+        }
+      }
     };
   }
 

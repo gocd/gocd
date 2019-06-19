@@ -28,13 +28,14 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
 import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {ConfigReposWidget, Operations, SearchOperation} from "views/pages/config_repos/config_repos_widget";
+import {Operations} from "views/pages/config_repos/config_repo_view_model";
+import {ConfigReposWidget, SearchOperation} from "views/pages/config_repos/config_repos_widget";
 import {EditConfigRepoModal, NewConfigRepoModal} from "views/pages/config_repos/modals";
 import {Page, PageState} from "views/pages/page";
 import {AddOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 import * as styles from "./config_repos/index.scss";
 
-interface State extends AddOperation<ConfigRepo>, SaveOperation, Operations<ConfigRepo>, SearchOperation<ConfigRepo>, RequiresPluginInfos {
+interface State extends AddOperation<ConfigRepo>, SaveOperation, Operations, SearchOperation<ConfigRepo>, RequiresPluginInfos {
 }
 
 export class ConfigReposPage extends Page<null, State> {

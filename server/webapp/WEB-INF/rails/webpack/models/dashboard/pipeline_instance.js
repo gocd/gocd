@@ -17,7 +17,7 @@ import sparkRoutes from "helpers/spark_routes";
 
 const _                = require('lodash');
 const Routes           = require('gen/js-routes');
-const VMRoutes         = require('helpers/vm_routes');
+const VMRoutes         = require('helpers/vm_routes').default;
 const AjaxHelper       = require('helpers/ajax_helper');
 const MaterialRevision = require('models/dashboard/material_revision');
 

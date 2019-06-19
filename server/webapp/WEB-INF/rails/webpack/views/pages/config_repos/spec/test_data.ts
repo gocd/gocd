@@ -18,7 +18,7 @@ import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as uuid from "uuid/v4";
 
-export function createConfigRepo(overrides?: any) {
+export function createConfigRepoParsedWithError(overrides?: any) {
   const parameters = {
     id: uuid(),
     repoId: uuid(),
@@ -30,43 +30,93 @@ export function createConfigRepo(overrides?: any) {
   };
 
   return ConfigRepo.fromJSON({
-                               material: {
-                                 type: "git",
-                                 attributes: {
-                                   url: "https://example.com/git/" + (parameters.repoId),
-                                   name: "foo",
-                                   username: "bob",
-                                   encrypted_password: "AES:foo:bar",
-                                   auto_update: true,
-                                   branch: "master",
-                                   destination: ""
-                                 }
-                               },
-                               configuration: [{
-                                 key: "file_pattern",
-                                 value: "*.json"
-                               }],
-                               parse_info: {
-                                 latest_parsed_modification: {
-                                   username: parameters.latestCommitUsername,
-                                   email_address: "mahesh@gmail.com",
-                                   revision: parameters.latestCommitRevision,
-                                   comment: parameters.latestCommitMessage,
-                                   modified_time: "2019-01-14T05:39:40Z"
-                                 },
-                                 good_modification: {
-                                   username: "GaneshSPatil <ganeshpl@gmail.com>",
-                                   email_address: "ganeshpl@gmail.com",
-                                   revision: "1234",
-                                   comment: "Revert \"Delete this\"\n\nThis reverts commit 9b402012ea5c24ce032c8ef4582c0a9ce2d14ade.",
-                                   modified_time: "2019-01-11T11:24:08Z"
-                                 },
-                                 error: "blah!"
-                               },
-                               id: parameters.id,
-                               plugin_id: "json.config.plugin",
-                               material_update_in_progress: parameters.material_update_in_progress
-                             });
+    material: {
+      type: "git",
+      attributes: {
+        url: "https://example.com/git/" + (parameters.repoId),
+        name: "foo",
+        username: "bob",
+        encrypted_password: "AES:foo:bar",
+        auto_update: true,
+        branch: "master",
+        destination: ""
+      }
+    },
+    configuration: [{
+      key: "file_pattern",
+      value: "*.json"
+    }],
+    parse_info: {
+      latest_parsed_modification: {
+        username: parameters.latestCommitUsername,
+        email_address: "mahesh@gmail.com",
+        revision: parameters.latestCommitRevision,
+        comment: parameters.latestCommitMessage,
+        modified_time: "2019-01-14T05:39:40Z"
+      },
+      good_modification: {
+        username: "GaneshSPatil <ganeshpl@gmail.com>",
+        email_address: "ganeshpl@gmail.com",
+        revision: "1234",
+        comment: "Revert \"Delete this\"\n\nThis reverts commit 9b402012ea5c24ce032c8ef4582c0a9ce2d14ade.",
+        modified_time: "2019-01-11T11:24:08Z"
+      },
+      error: "blah!"
+    },
+    id: parameters.id,
+    plugin_id: "json.config.plugin",
+    material_update_in_progress: parameters.material_update_in_progress
+  });
+}
+
+export function createConfigRepoParsed(overrides?: any) {
+  const parameters = {
+    id: uuid(),
+    repoId: uuid(),
+    material_update_in_progress: false,
+    latestCommitMessage: "Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d344fbbb9b1.",
+    latestCommitUsername: "Mahesh <mahesh@gmail.com>",
+    latestCommitRevision: "5432",
+    ...overrides
+  };
+
+  return ConfigRepo.fromJSON({
+    material: {
+      type: "git",
+      attributes: {
+        url: "https://example.com/git/" + (parameters.repoId),
+        name: "foo",
+        username: "bob",
+        encrypted_password: "AES:foo:bar",
+        auto_update: true,
+        branch: "master",
+        destination: ""
+      }
+    },
+    configuration: [{
+      key: "file_pattern",
+      value: "*.json"
+    }],
+    parse_info: {
+      latest_parsed_modification: {
+        username: parameters.latestCommitUsername,
+        email_address: "mahesh@gmail.com",
+        revision: parameters.latestCommitRevision,
+        comment: parameters.latestCommitMessage,
+        modified_time: "2019-01-14T05:39:40Z"
+      },
+      good_modification: {
+        username: parameters.latestCommitUsername,
+        email_address: "mahesh@gmail.com",
+        revision: parameters.latestCommitRevision,
+        comment: parameters.latestCommitMessage,
+        modified_time: "2019-01-14T05:39:40Z"
+      }
+    },
+    id: parameters.id,
+    plugin_id: "json.config.plugin",
+    material_update_in_progress: parameters.material_update_in_progress
+  });
 }
 
 export function createConfigRepoWithError(id?: string, repoId?: string) {

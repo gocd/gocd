@@ -190,9 +190,9 @@ class BuildDockerImageTask extends DefaultTask {
       }
     }
     if (distro == Distro.alpine) {
-      return "docker-gocd-server"
+      return "gocd-server"
     } else {
-      return "docker-gocd-server-${distro.name()}-${distroVersion.version}"
+      return "gocd-server-${distro.name()}-${distroVersion.version}"
     }
   }
 

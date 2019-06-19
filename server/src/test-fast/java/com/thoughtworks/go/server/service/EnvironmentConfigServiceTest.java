@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.google.common.collect.ImmutableMap;
 import com.rits.cloning.Cloner;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
@@ -492,6 +493,105 @@ class EnvironmentConfigServiceTest {
         return environments;
     }
 
+    @Nested
+    class EnvironmentConfigSynchTest {
+
+        @Test
+        void shouldSyncEnvironmentsFromAgentAssociationInDB1() {
+            shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
+                "dev", "uuid1",
+                "test", "uuid2",
+                "stage", "uuid1",
+                "prod", "uuid2"
+            ));
+        }
+
+        @Test
+        void shouldSyncEnvironmentsFromAgentAssociationInDB2() {
+            shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
+                "dev", "uuid2",
+                "test", "uuid2",
+                "stage", "uuid1",
+                "prod", "uuid1"
+            ));
+        }
+
+        @Test
+        void shouldSyncEnvironmentsFromAgentAssociationInDB3() {
+            shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
+                    "dev", "uuid1",
+                    "test", "uuid1",
+                    "stage", "uuid1",
+                    "prod", "uuid2"
+            ));
+        }
+
+        @Test
+        void shouldSyncEnvironmentsFromAgentAssociationInDB4() {
+            shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
+                    "dev", "uuid2",
+                    "test", "uuid2",
+                    "stage", "uuid2",
+                    "prod", "uuid2"
+            ));
+        }
+
+        @Test
+        void shouldSyncEnvironmentsFromAgentAssociationInDB5() {
+            shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
+                    "dev", "uuid1",
+                    "test", "uuid1",
+                    "stage", "uuid1",
+                    "prod", "uuid1"
+            ));
+        }
+
+        void shouldSyncEnvironmentsFromAgentAssociationInDB(Map<String, String> envNameToAgentMap) {
+            initializeAgents();
+            String uuid1 = "uuid1";
+            String uuid2 = "uuid2";
+
+            environmentConfigService.syncEnvironmentsFromConfig(createEnvironments(envNameToAgentMap));
+            environmentConfigService.syncAssociatedAgentsFromDB();
+            assertThatAgentAndEnvsAssociationsAreInSync(uuid1, uuid2);
+        }
+
+        private EnvironmentsConfig createEnvironments(Map<String, String> envNameToAgentMap){
+            EnvironmentsConfig environments = new EnvironmentsConfig();
+            envNameToAgentMap.keySet().forEach(envName -> {
+                BasicEnvironmentConfig env = env(envName, null, null, Arrays.asList(envNameToAgentMap.get(envName)));
+                environments.add(env);
+            });
+
+            return environments;
+        }
+
+        private void initializeAgents(){
+            AgentConfig agentConf1 = new AgentConfig("uuid1");
+            agentConf1.setEnvironments("dev,test");
+            AgentConfig agentConf2 = new AgentConfig("uuid2");
+            agentConf2.setEnvironments("stage,prod");
+
+            Agents agents = new Agents(agentConf1, agentConf2);
+            when(agentConfigService.agents()).thenReturn(agents);
+            when(agentConfigService.agents()).thenReturn(agents);
+        }
+
+        private void assertThatAgentAndEnvsAssociationsAreInSync(String uuid1, String uuid2) {
+            Set<EnvironmentConfig> envConfigs = environmentConfigService.getEnvironments();
+            envConfigs.forEach(env -> {
+                String envName = env.name().toString();
+                if (envName.equalsIgnoreCase("dev") || envName.equalsIgnoreCase("test")) {
+                    assertThat(env.hasAgent(uuid1)).isTrue();
+                    assertThat(env.hasAgent(uuid2)).isFalse();
+                } else if (envName.equalsIgnoreCase("stage") || envName.equalsIgnoreCase("prod")) {
+                    assertThat(env.hasAgent(uuid2)).isTrue();
+                    assertThat(env.hasAgent(uuid1)).isFalse();
+                }
+            });
+        }
+    }
+
     private List<JobPlan> jobs(String... envNames) {
         ArrayList<JobPlan> plans = new ArrayList<>();
         for (String envName : envNames) {
@@ -507,15 +607,25 @@ class EnvironmentConfigServiceTest {
 
     private static BasicEnvironmentConfig env(String name, List<String> selectedPipelines, List<Map<String, String>> environmentVariables, List<String> selectedAgents) {
         BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
-        for (String selectedPipeline : selectedPipelines) {
-            config.addPipeline(new CaseInsensitiveString(selectedPipeline));
+
+        if(selectedPipelines != null) {
+            for (String selectedPipeline : selectedPipelines) {
+                config.addPipeline(new CaseInsensitiveString(selectedPipeline));
+            }
         }
-        for (String selectedAgent : selectedAgents) {
-            config.addAgent(selectedAgent);
+
+        if(selectedAgents != null) {
+            for (String selectedAgent : selectedAgents) {
+                config.addAgent(selectedAgent);
+            }
         }
-        for (Map<String, String> environmentVariable : environmentVariables) {
-            config.getVariables().add(environmentVariable.get("name"), environmentVariable.get("value"));
+
+        if(environmentVariables != null) {
+            for (Map<String, String> environmentVariable : environmentVariables) {
+                config.getVariables().add(environmentVariable.get("name"), environmentVariable.get("value"));
+            }
         }
+
         return config;
     }
 }

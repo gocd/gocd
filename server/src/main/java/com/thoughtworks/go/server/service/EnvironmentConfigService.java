@@ -40,8 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -100,19 +98,34 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     public void syncAssociatedAgentsFromDB(){
-        agentConfigService.agents().forEach(agentConfig -> {
-            String agentEnvironments = agentConfig.getEnvironments();
-            if (agentEnvironments != null) {
-                Arrays.stream(agentEnvironments.split(",")).forEach(env -> {
-                    EnvironmentConfig environmentConfig = this.environments.find(new CaseInsensitiveString(env));
-                    if (environmentConfig != null && !environmentConfig.hasAgent(agentConfig.getUuid())) {
-                        environmentConfig.addAgent(agentConfig.getUuid());
-                    }
+        agentConfigService
+                .agents()
+                .forEach(agent -> {
+                    List<String> associatedEnvNames = agent.getEnvironmentsAsList();
+                    addAgentToAssociatedEnvs(agent.getUuid(), associatedEnvNames);
+                    removeAgentFromDissociatedEnvs(associatedEnvNames, agent.getUuid());
                 });
-            }
-
-        });
         matchers = this.environments.matchers();
+    }
+
+    private void removeAgentFromDissociatedEnvs(List<String> associatedEnvNameList, String agentUuid) {
+        this.environments
+            .stream()
+            .filter(env -> !(associatedEnvNameList.contains(env.name().toString())))
+            .forEach(env -> {
+                if(env.hasAgent(agentUuid)){
+                    env.removeAgent(agentUuid);
+                }
+            });
+    }
+
+    private void addAgentToAssociatedEnvs(String agentUuid, List<String> associatedEnvNames) {
+        associatedEnvNames.forEach(associatedEnvName -> {
+            EnvironmentConfig env = this.environments.find(new CaseInsensitiveString(associatedEnvName));
+            if (env != null && !env.hasAgent(agentUuid)) {
+                env.addAgent(agentUuid);
+            }
+        });
     }
 
     public void sync(EnvironmentsConfig environments) {

@@ -271,6 +271,10 @@ public class AgentConfig extends PersistentObject implements Validatable {
         return environments;
     }
 
+    public List<String> getEnvironmentsAsList(){
+        return (this.environments == null ? new ArrayList<>() : Arrays.asList(this.environments.split(",")));
+    }
+
     public void setEnvironments(String environments) {
         this.environments = environments;
     }

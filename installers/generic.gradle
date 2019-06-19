@@ -199,7 +199,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
 
       filter(ConcatFilter, append: file("include/wrapper-license-relative-path-${installerType.baseName}.conf"))
       filter(ConcatFilter, append: file("include/additional-properties.conf"))
-      filter(FixCrLfFilter.class, eol: FixCrLfFilter.CrLf.UNIX)
+      filter(FixCrLfFilter, eol: FixCrLfFilter.CrLf.UNIX)
 
       into 'wrapper-config'
       rename 'wrapper.conf.in', 'wrapper.conf'
@@ -215,6 +215,7 @@ def configureGenericZip(Zip zipTask, InstallerType installerType) {
     from("include/wrapper-properties-${installerType.baseName}.conf") {
       into 'wrapper-config'
       rename ".*", "wrapper-properties.conf"
+      filter(ConcatFilter, append: file("include/wrapper-properties.conf.example"))
     }
 
     from("${extractDeltaPack.outputs.files.singleFile}/wrapper-delta-pack-${project.versions.tanuki}-st/bin") {

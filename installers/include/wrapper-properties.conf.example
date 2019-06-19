@@ -1,5 +1,4 @@
 # This is an example configuration file to override any GoCD configuration.
-# Rename this file to `wrapper-properties.conf`.
 
 # For a detailed description about setting various environment variables, see the page at
 # https://wrapper.tanukisoftware.com/doc/english/props-envvars.html

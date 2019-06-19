@@ -315,6 +315,9 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
         }
       }
 
+    }
+
+    doLast {
       project.exec {
         List<String> cmd = []
         cmd += ['fpm']
@@ -371,14 +374,26 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
   }
 }
 
+def copyMultipleAgentsReadme(DefaultTask packageTask, File buildRoot, InstallerType installerType) {
+  packageTask.doFirst {
+    project.copy {
+      from "go-agent/release/README-running-multiple-agents.md"
+      into "${buildRoot}/usr/share/doc/${installerType.baseName}"
+    }
+  }
+}
+
 task agentPackageRpm { DefaultTask thisTask ->
   def installerType = InstallerType.agent
   def osType = OsType.rpm
   def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
   def destDir = project.file("${project.convention.plugins.get("base").distsDir}/${osType}")
 
+  copyMultipleAgentsReadme(thisTask, buildRoot, installerType)
   configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.agentBootstrapperJar, destDir)
+
 }
+
 
 task agentPackageDeb { DefaultTask thisTask ->
   def installerType = InstallerType.agent
@@ -386,6 +401,7 @@ task agentPackageDeb { DefaultTask thisTask ->
   def buildRoot = project.file("${project.buildDir}/${installerType.baseName}/${osType.toString()}/BUILD_ROOT")
   def destDir = project.file("${project.convention.plugins.get("base").distsDir}/${osType}")
 
+  copyMultipleAgentsReadme(thisTask, buildRoot, installerType)
   configureLinuxPackage(thisTask, installerType, osType, buildRoot, configurations.agentBootstrapperJar, destDir)
 }
 

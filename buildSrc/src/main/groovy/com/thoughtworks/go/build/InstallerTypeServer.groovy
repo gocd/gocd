@@ -34,10 +34,7 @@ class InstallerTypeServer implements InstallerType {
 
   @Override
   Map<String, String> getAdditionalEnvVars() {
-    [
-      AGENT_STARTUP_ARGS:
-        '-Xms128m -Xmx256m'
-    ]
+    [:]
   }
 
   @Override

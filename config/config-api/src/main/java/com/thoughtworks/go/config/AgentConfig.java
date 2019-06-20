@@ -24,6 +24,7 @@ import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -130,6 +131,10 @@ public class AgentConfig extends PersistentObject implements Validatable {
         return errors;
     }
 
+    public boolean hasErrors() {
+        return errors != null && !errors.isEmpty();
+    }
+
     public boolean hasAllResources(Collection<ResourceConfig> required) {
         return this.getResources().containsAll(required);
     }
@@ -139,7 +144,13 @@ public class AgentConfig extends PersistentObject implements Validatable {
     }
 
     public void addResourceConfig(ResourceConfig resourceConfig) {
-        this.getResources().add(resourceConfig);
+        LinkedHashSet<String> resourcesList = new LinkedHashSet<>();
+        if (this.getEnvironments() != null) {
+            resourcesList.addAll(Arrays.asList(this.resources.split(",")));
+        }
+        resourcesList.add(resourceConfig.getName());
+        this.setEnvironments(String.join(",", environments));
+        this.resources = String.join(",", resourcesList);
     }
 
     public void removeResource(ResourceConfig resourceConfig) {
@@ -271,7 +282,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
         return environments;
     }
 
-    public List<String> getEnvironmentsAsList(){
+    public List<String> getEnvironmentsAsList() {
         return (this.environments == null ? new ArrayList<>() : Arrays.asList(this.environments.split(",")));
     }
 

@@ -91,7 +91,6 @@ import static org.mockito.Mockito.*;
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
 
-//TODO: Vrushali and Viraj need to fix this
 public class BuildAssignmentServiceIntegrationTest {
     @Autowired private BuildAssignmentService buildAssignmentService;
     @Autowired private GoConfigService goConfigService;
@@ -241,7 +240,8 @@ public class BuildAssignmentServiceIntegrationTest {
     @Test
     public void shouldUpdateNumberOfActiveRemoteAgentsAfterAssigned() {
         AgentConfig agentConfig = AgentMother.remoteAgent();
-        configHelper.addAgent(agentConfig);
+        agentService.saveOrUpdate(agentConfig);
+
         fixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
 
@@ -589,8 +589,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
 
     private AgentIdentifier agent(AgentConfig agentConfig) {
-        agentService.sync();
-        agentService.approve(agentConfig.getUuid());
+        agentService.saveOrUpdate(agentConfig);
         return agentService.findAgent(agentConfig.getUuid()).getAgentIdentifier();
     }
 
@@ -786,6 +785,153 @@ public class BuildAssignmentServiceIntegrationTest {
         BuildCause buildCauseForRenamedPipeline = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, "h2")), "user");
         Pipeline p1_2 = scheduleService.schedulePipeline(renamedPipeline.config.name(), buildCauseForRenamedPipeline);
         assertThat(p1_2, is(nullValue()));
+    }
+
+    @Test
+    public void shouldAssignMatchedJobToAgentsRegisteredInAgentRemoteHandler() throws Exception {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        agentService.saveOrUpdate(agentConfig);
+        fixture.createPipelineWithFirstStageScheduled();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+        info.setCookie(agentConfig.getCookie());
+
+        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
+
+        AgentInstance agent = agentService.findAgent(agentConfig.getUuid());
+        assertFalse(agent.isBuilding());
+
+        buildAssignmentService.onTimer();
+
+        assertThat(this.agent.messages.size(), is(1));
+        assertThat(MessageEncoding.decodeWork(this.agent.messages.get(0).getData()), instanceOf(BuildWork.class));
+        assertTrue(agent.isBuilding());
+    }
+
+    @Test
+    public void shouldNotAssignNoWorkToAgentsRegisteredInAgentRemoteHandler() throws Exception {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        agentService.saveOrUpdate(agentConfig);
+        fixture.createdPipelineWithAllStagesPassed();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+        info.setCookie(agentConfig.getCookie());
+
+        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
+
+        buildAssignmentService.onTimer();
+
+        assertThat(agent.messages.size(), is(0));
+    }
+
+    @Test
+    public void shouldNotAssignDeniedAgentWorkToAgentsRegisteredInAgentRemoteHandler() throws Exception {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        agentConfig.disable();
+
+        agentService.saveOrUpdate(agentConfig);
+        fixture.createPipelineWithFirstStageScheduled();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+        info.setCookie(agentConfig.getCookie());
+
+        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
+        buildAssignmentService.onTimer();
+
+        assertThat(agent.messages.size(), is(0));
+    }
+
+    @Test
+    public void shouldOnlyAssignWorkToIdleAgentsRegisteredInAgentRemoteHandler() throws Exception {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        agentService.saveOrUpdate(agentConfig);
+        fixture.createPipelineWithFirstStageScheduled();
+
+        AgentStatus[] statuses = new AgentStatus[]{
+                AgentStatus.Building, AgentStatus.Pending,
+                AgentStatus.Disabled,
+                AgentStatus.LostContact, AgentStatus.Missing
+        };
+        for (AgentStatus status : statuses) {
+            AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+            info.setCookie(agentConfig.getCookie());
+            info.setStatus(status);
+            agent = new AgentStub();
+
+            agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
+            buildAssignmentService.onTimer();
+
+            assertThat("Should not assign work when agent status is " + status, agent.messages.size(), is(0));
+        }
+    }
+
+    @Test
+    public void shouldNotAssignWorkToCanceledAgentsRegisteredInAgentRemoteHandler() throws Exception {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        agentService.saveOrUpdate(agentConfig);
+        fixture.createPipelineWithFirstStageScheduled();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+        info.setCookie(agentConfig.getCookie());
+
+        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
+
+        AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(info.getUUId());
+        agentInstance.cancel();
+
+        buildAssignmentService.onTimer();
+
+        assertThat("Should not assign work when agent status is Canceled", agent.messages.size(), is(0));
+    }
+
+    @Test
+    public void shouldCallForReregisterIfAgentInstanceIsNotRegistered() throws Exception {
+        AgentConfig agentConfig = AgentMother.remoteAgent();
+        fixture.createPipelineWithFirstStageScheduled();
+        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
+        agentService.requestRegistration(new Username("bob"), info);
+
+        assertThat(agentService.findAgent(info.getUUId()).isRegistered(), is(false));
+
+        info.setCookie(agentConfig.getCookie());
+        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
+        buildAssignmentService.onTimer();
+
+        assertThat(agent.messages.size(), is(1));
+        assertThat(agent.messages.get(0).getAction(), is(Action.reregister));
+    }
+
+    @Test
+    public void shouldAssignAgentsWhenThereAreAgentsAreDisabledOrNeedReregister() throws Exception {
+        fixture.createPipelineWithFirstStageScheduled();
+
+        AgentConfig canceledAgentConfig = AgentMother.remoteAgent();
+        agentService.saveOrUpdate(canceledAgentConfig);
+        AgentRuntimeInfo canceledAgentInfo = AgentRuntimeInfo.fromServer(canceledAgentConfig, true, "location", 1000000l, "OS", false);
+        canceledAgentInfo.setCookie(canceledAgentConfig.getCookie());
+        AgentStub canceledAgent = new AgentStub();
+        agentRemoteHandler.process(canceledAgent, new Message(Action.ping, MessageEncoding.encodeData(canceledAgentInfo)));
+        AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(canceledAgentInfo.getUUId());
+        agentInstance.cancel();
+
+        AgentConfig needRegisterAgentConfig = AgentMother.remoteAgent();
+        AgentRuntimeInfo needRegisterAgentInfo = AgentRuntimeInfo.fromServer(needRegisterAgentConfig, true, "location", 1000000l, "OS", false);
+        agentService.requestRegistration(new Username("bob"), needRegisterAgentInfo);
+        needRegisterAgentInfo.setCookie(needRegisterAgentConfig.getCookie());
+        AgentStub needRegisterAgent = new AgentStub();
+        agentRemoteHandler.process(needRegisterAgent, new Message(Action.ping, MessageEncoding.encodeData(needRegisterAgentInfo)));
+
+        AgentConfig assignedAgent = AgentMother.remoteAgent();
+        agentService.saveOrUpdate(assignedAgent);
+        AgentRuntimeInfo assignedAgentInfo = AgentRuntimeInfo.fromServer(assignedAgent, true, "location", 1000000l, "OS", false);
+        assignedAgentInfo.setCookie(assignedAgent.getCookie());
+        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(assignedAgentInfo)));
+
+        buildAssignmentService.onTimer();
+
+        assertThat(canceledAgent.messages.size(), is(0));
+
+        assertThat(needRegisterAgent.messages.size(), is(1));
+        assertThat(needRegisterAgent.messages.get(0).getAction(), is(Action.reregister));
+
+        assertThat(agent.messages.size(), is(1));
+        assertThat(MessageEncoding.decodeWork(agent.messages.get(0).getData()), instanceOf(BuildWork.class));
     }
 
     private JobInstance buildOf(Pipeline pipeline) {

@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -60,6 +61,7 @@ public class GoPropertiesTestTest {
     @Autowired private PipelineService pipelineDao;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired private AgentService agentService;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -70,8 +72,7 @@ public class GoPropertiesTestTest {
         configHelper.onSetUp();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
-        // TODO: Vrushali & Viraj need to fix this
-        configHelper.addAgent(HOSTNAME, AGENT_UUID);
+        agentService.saveOrUpdate(new AgentConfig(AGENT_UUID, HOSTNAME, "127.0.0.1", "cookie"));
     }
 
     @After

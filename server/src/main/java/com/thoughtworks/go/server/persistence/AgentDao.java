@@ -229,31 +229,6 @@ public class AgentDao extends HibernateDaoSupport {
         }
     }
 
-    public void bulkUpdateEnvironments(final List<String> environments, final List<String> agentUuidsToAdd, final List<String> agentUuidsToRemove) {
-        ArrayList<String> allUuids = new ArrayList<>();
-        allUuids.addAll(agentUuidsToAdd);
-        allUuids.addAll(agentUuidsToRemove);
-        List<Agent> agents = getAllAgents(allUuids);
-//        synchronized (allUuids) {
-//            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-//                @Override
-//                protected void doInTransactionWithoutResult(TransactionStatus status) {
-
-        for (Agent agent : agents) {
-            if (agentUuidsToAdd.contains(agent.getUuid())) {
-                agent.addEnvironments(environments);
-            }
-            if (agentUuidsToRemove.contains(agent.getUuid())) {
-                agent.removeEnvironments(environments);
-            }
-            sessionFactory.getCurrentSession().saveOrUpdate(Agent.class.getName(), agent);
-        }
-        clearCache(synchronizationManager, allUuids);
-//                }
-//            });
-//        }
-    }
-
     public void bulkUpdateAttributes(final List<String> uuids, final List<String> resourcesToAdd, final List<String> resourcesToRemove, final List<String> environmentsToAdd, final List<String> environmentsToRemove, final TriState enable, AgentInstances agentInstances) {
         List<Agent> agents = getAllAgents(uuids);
         // Add all pending agents to the list of agents

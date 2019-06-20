@@ -264,7 +264,7 @@ public class AgentRegistrationController {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
                 HttpOperationResult result = new HttpOperationResult();
                 agentService.register(agentConfig, agentAutoRegisterResources, agentAutoRegisterEnvironments, result);
-                if (!agentConfig.errors().isEmpty()) {
+                if (agentConfig.hasErrors()) {
                     List<ConfigErrors> errors = ErrorCollector.getAllErrors(agentConfig);
 
                     ConfigErrors e = new ConfigErrors();

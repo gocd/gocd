@@ -55,8 +55,6 @@ public class MagicalGoConfigXmlLoader {
     private static final SystemEnvironment systemEnvironment = new SystemEnvironment();
     public static final List<GoConfigValidator> VALIDATORS = Arrays.asList(
             new ArtifactDirValidator(),
-// TODO:Remove this vrushali
-//            new EnvironmentAgentValidator(),
             new ServerIdImmutabilityValidator(),
             new CommandRepositoryLocationValidator(systemEnvironment),
             new TokenGenerationKeyImmutabilityValidator(systemEnvironment)

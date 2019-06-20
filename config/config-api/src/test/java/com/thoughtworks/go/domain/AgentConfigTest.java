@@ -22,8 +22,7 @@ import org.junit.Test;
 import static com.thoughtworks.go.util.TestUtils.contains;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
 
 public class AgentConfigTest {
 
@@ -32,7 +31,7 @@ public class AgentConfigTest {
         AgentConfig agent = new AgentConfig("uuid", null, null);
 
         agent.validate(null);
-        assertThat(agent.errors().isEmpty(), is(true));
+        assertFalse(agent.hasErrors());
     }
 
     @Test

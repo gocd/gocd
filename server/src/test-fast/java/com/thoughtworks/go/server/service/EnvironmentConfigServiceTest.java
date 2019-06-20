@@ -45,7 +45,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
 
-//TODO: Vrushali and Viraj need to fix this
 class EnvironmentConfigServiceTest {
     private GoConfigService mockGoConfigService;
     private EnvironmentConfigService environmentConfigService;

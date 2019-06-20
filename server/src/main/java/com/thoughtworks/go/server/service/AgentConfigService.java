@@ -167,7 +167,7 @@ public class AgentConfigService {
         try {
             saveOrUpdate(agentConfig, username);
 
-            if (!agentConfig.errors().isEmpty()) {
+            if (agentConfig.hasErrors()) {
                 result.unprocessibleEntity("Updating agent failed:", "", HealthStateType.general(HealthStateScope.GLOBAL));
             }
         }catch (Exception e){
@@ -203,14 +203,6 @@ public class AgentConfigService {
         saveOrUpdate(agentConfig, null);
     }
 
-    public void updateEnvironments(EnvironmentConfig newEnvironmentConfig, List<String> environmentToAddToAgents, List<String> environmentToRemoveFromAgents, HttpLocalizedOperationResult result) {
-        try {
-            agentDao.bulkUpdateEnvironments(Arrays.asList(newEnvironmentConfig.name().toString()), environmentToAddToAgents, environmentToRemoveFromAgents);
-        } catch (Exception e) {
-            result.unprocessableEntity(String.format("Failed to update environments %s", e.getMessage()));
-        }
-    }
-
     public void updateAgentApprovalStatus(final String uuid, final Boolean isDenied, Username currentUser) {
         Agent agent = agentDao.agentByUuid(uuid);
         agent.setDisabled(isDenied);
@@ -219,14 +211,14 @@ public class AgentConfigService {
 
     public void saveOrUpdate(AgentConfig agentConfig, Username currentUser) {
         agentConfig.validate(null);
-        if (agentConfig.errors().isEmpty()) {
+        if (!agentConfig.hasErrors()) {
             agentDao.saveOrUpdate(agentConfig);
         }
     }
 
     public void saveOrUpdate(Agent agent, Username currentUser) {
         agent.validate(null);
-        if (agent.errors().isEmpty()) {
+        if (!agent.hasErrors()) {
             agentDao.saveOrUpdate(agent);
         }
     }

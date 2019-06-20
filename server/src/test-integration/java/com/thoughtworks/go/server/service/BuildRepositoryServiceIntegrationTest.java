@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.GoConfigDao;
-import com.thoughtworks.go.config.PipelineConfig;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
 import com.thoughtworks.go.domain.exception.StageAlreadyBuildingException;
@@ -104,6 +101,8 @@ public class BuildRepositoryServiceIntegrationTest {
     private StageDao stageDao;
     @Autowired
     private InstanceFactory instanceFactory;
+    @Autowired
+    private AgentService agentService;
 
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
@@ -137,8 +136,7 @@ public class BuildRepositoryServiceIntegrationTest {
         svnRepo = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
         config.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");
         mingle = config.addStageToPipeline(PIPELINE_NAME, FT_STAGE, "bar");
-        // TODO: Vrushali & Viraj need to fix this
-        config.addAgent(HOSTNAME, AGENT_UUID);
+        agentService.saveOrUpdate(new AgentConfig(AGENT_UUID, HOSTNAME, "127.0.0.1", "cookie"));
         pipeline = dbHelper.newPipelineWithAllStagesPassed(mingle);
         goCache.clear();
     }

@@ -89,7 +89,7 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
         boolean validity = validateDuplicateElasticAgentIds();
         for (AgentConfig agentConfig : this) {
             agentConfig.validate(validationContext);
-            validity = agentConfig.errors().isEmpty() && validity;
+            validity = !agentConfig.hasErrors() && validity;
         }
     }
 

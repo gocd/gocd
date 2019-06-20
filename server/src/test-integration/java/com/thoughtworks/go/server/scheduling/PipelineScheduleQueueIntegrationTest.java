@@ -29,6 +29,7 @@ import com.thoughtworks.go.helper.ModificationsMother;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.PipelineDao;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.PipelineScheduleQueue;
@@ -89,6 +90,8 @@ public class PipelineScheduleQueueIntegrationTest {
     private MaterialRepository materialRepository;
     @Autowired
     private TransactionTemplate transactionTemplate;
+    @Autowired
+    private AgentService agentService;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -373,10 +376,11 @@ public class PipelineScheduleQueueIntegrationTest {
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.nextRevision());
         saveRev(cause);
 
-        configFileEditor.addAgent("localhost", "uuid1");
-        configFileEditor.addAgent("localhost", "uuid2");
-        configFileEditor.addAgent("localhost", "uuid3");
-        configFileEditor.addAgentToEnvironment("env", "uuid1");
+        AgentConfig agentConfigWithUuid1 = new AgentConfig("uuid1", "localhost", null, "cookie1");
+        agentConfigWithUuid1.setEnvironments("dev");
+        agentService.saveOrUpdate(agentConfigWithUuid1);
+        agentService.saveOrUpdate(new AgentConfig("uuid2", "localhost", null, "cookie2"));
+        agentService.saveOrUpdate(new AgentConfig("uuid3", "localhost", null, "cookie3"));
         configFileEditor.addPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stage.name()));
 
         queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), configFileEditor.currentConfig().agents()), "md5-test", new TimeProvider());

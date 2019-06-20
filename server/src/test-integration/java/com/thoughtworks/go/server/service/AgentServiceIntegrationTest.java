@@ -1122,7 +1122,7 @@ public class AgentServiceIntegrationTest {
     }
 
     private AgentConfig createEnabledAgent(String uuid) {
-        AgentConfig agentConfig = new AgentConfig(uuid, "agentName", "127.0.0.9");
+        AgentConfig agentConfig = new AgentConfig(uuid, "agentName", "127.0.0.9", uuid);
         addAgent(agentConfig);
         return agentConfig;
     }

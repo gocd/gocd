@@ -267,7 +267,7 @@ public class AgentService {
                 agentConfig.setCookie(cookie);
             }
             agentConfigService.saveOrUpdateAgent(agentInstance, username);
-            if (!agentConfig.errors().isEmpty()) {
+            if (agentConfig.hasErrors()) {
                 List<ConfigErrors> errors = ErrorCollector.getAllErrors(agentConfig);
 
                 throw new GoConfigInvalidException(null, new AllConfigErrors(errors));

@@ -25,7 +25,6 @@ import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.service.ConfigRepository;
@@ -43,8 +42,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
-import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -55,7 +54,6 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
 
-//TODO: Vrushali and Viraj need to fix this
 public class UpdateAgentStatusTest {
     @Autowired
     private AgentService agentService;
@@ -86,8 +84,7 @@ public class UpdateAgentStatusTest {
         preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         preCondition.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         agentService.clearAll();
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(new AgentConfig(agentId, "CCEDev01", "10.81.2.1"), false, "/var/lib", 0L, "linux"));
-        agentService.approve(agentId);
+        agentService.saveOrUpdate(new AgentConfig(agentId, "CCEDev01", "10.81.2.1", "cookie"));
     }
 
     @After
@@ -97,8 +94,7 @@ public class UpdateAgentStatusTest {
 
     @Test
     public void shouldUpdateAgentIPAddressWhenItChanges_asAgent() throws Exception {
-        CruiseConfig oldConfig = goConfigDao.load();
-        String oldIp = oldConfig.agents().getAgentByUuid("uuid").getIpAddress();
+        String oldIp = agentService.agentByUuid("uuid").getIpAddress();
         assertThat(oldIp, is("10.81.2.1"));
 
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
@@ -107,11 +103,8 @@ public class UpdateAgentStatusTest {
 
         agentService.updateRuntimeInfo(agentRuntimeInfo1);
 
-        CruiseConfig newConfig = goConfigDao.load();
-        String newIp = newConfig.agents().getAgentByUuid("uuid").getIpAddress();
+        String newIp = agentService.agentByUuid("uuid").getIpAddress();
         assertThat(newIp, is("10.18.3.95"));
-        GoConfigRevision rev = configRepo.getRevision(newConfig.getMd5());
-        assertThat(rev.getUsername(), is("agent_uuid_10.18.3.95_CCEDev01"));
     }
 
     @Test

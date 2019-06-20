@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -58,6 +59,7 @@ public class StageIntegrationTest {
     @Autowired private StageDao stageDao;
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private ScheduleHelper scheduleHelper;
+    @Autowired private AgentService agentService;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -88,8 +90,7 @@ public class StageIntegrationTest {
         svnRepo = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
         CONFIG_HELPER.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");
         mingle = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, FT_STAGE, "bar");
-        // TODO: Vrushali & Viraj need to fix this
-        CONFIG_HELPER.addAgent(HOSTNAME, AGENT_UUID);
+        agentService.saveOrUpdate(new AgentConfig(AGENT_UUID, HOSTNAME, "127.0.0.1", "cookie1"));
     }
 
     @After

@@ -84,6 +84,7 @@ public class PipelineScheduleServiceTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private SubprocessExecutionContext subprocessExecutionContext;
     @Autowired private InstanceFactory instanceFactory;
+    @Autowired private AgentService agentService;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -176,11 +177,12 @@ public class PipelineScheduleServiceTest {
 
     @Test
     public void shouldScheduleJobForAllAgentsWhenToBeRunOnAllAgents() throws Exception {
-        //TODO: Vrushali and Viraj need to fix this
-        configHelper.addAgent("localhost", "uuid1");
-        configHelper.addAgent("localhost", "uuid2");
-        configHelper.addAgent("localhost", "uuid3");
-        configHelper.addAgentToEnvironment("dev", "uuid1");
+        configHelper.addEnvironments("dev");
+        AgentConfig agentConfigWithUuid1 = new AgentConfig("uuid1", "localhost", "127.0.0.1", "cookie1");
+        agentConfigWithUuid1.setEnvironments("dev");
+        agentService.saveOrUpdate(agentConfigWithUuid1);
+        agentService.saveOrUpdate(new AgentConfig("uuid2", "localhost", "127.0.0.1", "cookie2"));
+        agentService.saveOrUpdate(new AgentConfig("uuid3", "localhost", "127.0.0.1", "cookie3"));
         configHelper.setRunOnAllAgents(CaseInsensitiveString.str(evolveConfig.name()), STAGE_NAME, "unit", true);
 
         Material stubMaterial = new TestingMaterial();

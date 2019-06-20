@@ -249,4 +249,8 @@ public class Agent extends PersistentObject implements Validatable {
     public ConfigErrors errors() {
         return errors;
     }
+
+    public boolean hasErrors() {
+        return errors != null && !errors.isEmpty();
+    }
 }

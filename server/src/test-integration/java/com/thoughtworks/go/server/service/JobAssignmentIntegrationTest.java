@@ -25,6 +25,7 @@ import com.thoughtworks.go.remote.work.BuildWork;
 import com.thoughtworks.go.remote.work.NoWork;
 import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
+import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.GoConfigFileHelper;
@@ -52,13 +53,13 @@ import static org.junit.Assert.assertThat;
         "classpath:WEB-INF/spring-all-servlet.xml",
 })
 
-//TODO: Vrushali and Viraj need to fix this
 public class JobAssignmentIntegrationTest {
     @Autowired private DatabaseAccessHelper dbHelper;
     @Autowired private GoConfigDao cruiseConfigDao;
     @Autowired private BuildAssignmentService assignmentService;
     @Autowired private MaterialRepository materialRepository;
     @Autowired private TransactionTemplate transactionTemplate;
+    @Autowired private AgentService agentService;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
@@ -126,7 +127,7 @@ public class JobAssignmentIntegrationTest {
 
     private AgentInstance setupRemoteAgent() {
         AgentConfig agentConfig = AgentMother.remoteAgent();
-        configHelper.addAgent(agentConfig);
+        agentService.saveOrUpdate(agentConfig);
         AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, agentStatusChangeListener());
         instance.enable();
         return instance;
@@ -134,7 +135,7 @@ public class JobAssignmentIntegrationTest {
 
     private AgentInstance setupLocalAgent() throws UnknownHostException {
         AgentConfig agentConfig = AgentMother.localAgent();
-        configHelper.addAgent(agentConfig);
+        agentService.saveOrUpdate(agentConfig);
         return AgentInstance.createFromConfig(agentConfig, systemEnvironment, agentStatusChangeListener());
     }
 

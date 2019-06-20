@@ -122,6 +122,16 @@ Each agent needs to be configured to run in its own separate directory so that e
     done
     ```
 
-## Package installed on any OS using the generic ".zip" installer
+## Package installed on other OSes using the generic ".zip" installer
 
-  - TBD, any takers?
+  - To run multiple agent instances, extract a copy of the agent zip in a new location and execute it.
+  - If you would like to run these agent processes as windows or Linux/Unix services that start when the machine boots up:
+
+    On windows:
+
+      - Edit the `wrapper-config/wrapper.conf` file to set the properties `wrapper.name`, `wrapper.displayname`, `wrapper.console.title` and `wrapper.description` and set different values for each agent process
+
+    On linux:
+
+      - Edit the `wrapper-config/wrapper.conf` file to set the properties `wrapper.name`, `wrapper.displayname`, `wrapper.console.title` and `wrapper.description` and set different values for each agent process
+      - Edit the file `bin/go-agent` and replace all occurances of `go-agent` with a different value for each agent process.

@@ -63,7 +63,7 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
 
         BasicHttpContext context = null;
 
-        if (useMutualTLS()) {
+        if (useMutualTLS() && config.getServiceUrl().startsWith("https://")) {
             if (environment.useSslContext()) {
                 context = new BasicHttpContext();
                 context.setAttribute(HttpClientContext.USER_TOKEN, goAgentServerHttpClient.principal());

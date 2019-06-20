@@ -139,7 +139,7 @@ public class HttpService {
     public CloseableHttpResponse execute(HttpRequestBase httpMethod) throws IOException {
         GoAgentServerHttpClient client = httpClientFactory.httpClient();
 
-        if (!useMutualTLS) {
+        if (httpMethod.getURI().getScheme().equals("http") || !useMutualTLS) {
             httpMethod.setHeader("X-Agent-GUID", agentRegistry.uuid());
             httpMethod.setHeader("Authorization", agentRegistry.token());
         }

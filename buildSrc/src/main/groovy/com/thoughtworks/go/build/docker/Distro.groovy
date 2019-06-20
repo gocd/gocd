@@ -144,7 +144,7 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands() {
       return [
         'apt-get update',
-        'apt-get install -y git subversion mercurial openssh-client bash unzip curl locales',
+        'apt-get install -y git subversion mercurial openssh-client bash unzip curl locales procps sysvinit-utils coreutils',
         'apt-get autoclean',
         'echo \'en_US.UTF-8 UTF-8\' > /etc/locale.gen && /usr/sbin/locale-gen'
       ]

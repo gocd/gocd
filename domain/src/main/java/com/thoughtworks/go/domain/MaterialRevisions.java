@@ -17,21 +17,9 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.materials.Materials;
-import com.thoughtworks.go.config.materials.PackageMaterial;
-import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
-import com.thoughtworks.go.config.materials.git.GitMaterial;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
-import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.domain.materials.*;
 import com.thoughtworks.go.domain.materials.dependency.DependencyMaterialRevision;
-import com.thoughtworks.go.domain.materials.git.GitMaterialUpdater;
-import com.thoughtworks.go.domain.materials.mercurial.HgMaterialUpdater;
-import com.thoughtworks.go.domain.materials.svn.SvnMaterialUpdater;
-import com.thoughtworks.go.domain.materials.tfs.TfsMaterialUpdater;
-import com.thoughtworks.go.config.materials.perforce.P4Material;
-import com.thoughtworks.go.domain.materials.perforce.P4MaterialUpdater;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -386,36 +374,6 @@ public class MaterialRevisions implements Serializable, Iterable<MaterialRevisio
             }
         }
         return false;
-    }
-
-    public BuildCommand updateToCommand(String baseDir) {
-        List<BuildCommand> commands = new ArrayList<>();
-        for (MaterialRevision revision : revisions) {
-            Material material = revision.getMaterial();
-            if (material instanceof ScmMaterial) {
-                if (material instanceof GitMaterial) {
-                    GitMaterialUpdater updater = new GitMaterialUpdater((GitMaterial) material);
-                    commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));
-                } else if (material instanceof HgMaterial) {
-                    HgMaterialUpdater updater = new HgMaterialUpdater((HgMaterial) material);
-                    commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));
-                } else if (material instanceof SvnMaterial) {
-                    SvnMaterialUpdater updater = new SvnMaterialUpdater((SvnMaterial) material);
-                    commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));
-                } else if (material instanceof PackageMaterial) {
-                    //do nothing
-                } else if (material instanceof TfsMaterial) {
-                    TfsMaterialUpdater updater = new TfsMaterialUpdater((TfsMaterial) material);
-                    commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));
-                } else if (material instanceof P4Material) {
-                    P4MaterialUpdater updater = new P4MaterialUpdater((P4Material) material);
-                    commands.add(updater.updateTo(baseDir, revision.toRevisionContext()));
-                } else {
-                    commands.add(BuildCommand.fail("%s Material is not supported for new build command agent", material.getTypeForDisplay()));
-                }
-            }
-        }
-        return BuildCommand.compose(commands);
     }
 
 }

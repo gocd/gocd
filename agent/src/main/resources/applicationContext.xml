@@ -68,16 +68,8 @@
     <constructor-arg ref="systemEnvironment"/>
   </bean>
 
-  <bean id="webSocketClientBuilder" class="com.thoughtworks.go.agent.common.ssl.GoAgentServerWebSocketClientBuilder">
-    <constructor-arg ref="systemEnvironment"/>
-  </bean>
 
-  <bean id="webSocketClientHandler" class="com.thoughtworks.go.agent.WebSocketClientHandler"/>
-  <bean id="webSocketSessionHandler" class="com.thoughtworks.go.agent.WebSocketSessionHandler"/>
-
-  <bean id="agentControllerFactory" class="com.thoughtworks.go.agent.AgentControllerFactory"/>
-  <bean id="agentController" class="com.thoughtworks.go.agent.AgentController" factory-bean="agentControllerFactory"
-        factory-method="createInstance"/>
+  <bean id="agentController" class="com.thoughtworks.go.agent.AgentHTTPClientController"/>
 
   <bean id="clock" class="com.thoughtworks.go.util.SystemTimeClock"/>
 

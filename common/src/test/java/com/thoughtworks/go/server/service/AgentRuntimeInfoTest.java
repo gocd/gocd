@@ -18,7 +18,6 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -144,10 +143,4 @@ public class AgentRuntimeInfoTest {
         assertThat(agentRuntimeInfo.getOperatingSystem(), is(newRuntimeInfo.getOperatingSystem()));
     }
 
-    @Test
-    public void dataMapEncodingAndDecoding() {
-        AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("go02", "10.10.10.1", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", true);
-        AgentRuntimeInfo clonedInfo = MessageEncoding.decodeData(MessageEncoding.encodeData(info), AgentRuntimeInfo.class);
-        assertThat(clonedInfo, is(info));
-    }
 }

@@ -17,7 +17,6 @@ package com.thoughtworks.go.domain.builder;
 
 import java.io.File;
 
-import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.util.command.CommandLine;
 import org.apache.commons.lang3.StringUtils;
@@ -117,13 +116,4 @@ public class CommandBuilder extends BaseCommandBuilder {
                 "} " + super.toString();
     }
 
-    @Override
-    public BuildCommand buildCommand() {
-        String[] argsArray = CommandLine.translateCommandLine(args);
-        BuildCommand exec = BuildCommand.exec(command, argsArray);
-        if (workingDir != null) {
-            exec.setWorkingDirectory(workingDir.getPath());
-        }
-        return exec;
-    }
 }

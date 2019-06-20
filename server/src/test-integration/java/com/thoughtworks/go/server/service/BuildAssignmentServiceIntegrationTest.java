@@ -23,7 +23,7 @@ import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
-import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
@@ -58,13 +58,8 @@ import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
-import com.thoughtworks.go.server.websocket.AgentStub;
 import com.thoughtworks.go.util.*;
 import com.thoughtworks.go.utils.SerializationTester;
-import com.thoughtworks.go.websocket.Action;
-import com.thoughtworks.go.websocket.Message;
-import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.io.FileUtils;
 import org.hamcrest.Matchers;
 import org.junit.*;
@@ -117,7 +112,6 @@ public class BuildAssignmentServiceIntegrationTest {
     @Autowired private TransactionTemplate transactionTemplate;
     @Autowired private BuilderFactory builderFactory;
     @Autowired private InstanceFactory instanceFactory;
-    @Autowired private AgentRemoteHandler agentRemoteHandler;
     @Autowired private PipelineConfigService pipelineConfigService;
     @Autowired private ElasticAgentPluginService elasticAgentPluginService;
     @Autowired private DependencyMaterialUpdateNotifier notifier;
@@ -136,7 +130,6 @@ public class BuildAssignmentServiceIntegrationTest {
     private PipelineWithTwoStages fixture;
     private String md5 = "md5-test";
     private Username loserUser = new Username(new CaseInsensitiveString("loser"));
-    private AgentStub agent;
     private ConfigCache configCache;
     private ConfigElementImplementationRegistry registry;
 
@@ -174,7 +167,6 @@ public class BuildAssignmentServiceIntegrationTest {
         goCache.clear();
         u = new ScheduleTestUtil(transactionTemplate, materialRepository, dbHelper, configHelper);
 
-        agent = new AgentStub();
         notifier.disableUpdates();
     }
 
@@ -188,7 +180,6 @@ public class BuildAssignmentServiceIntegrationTest {
         configHelper.onTearDown();
         FileUtils.deleteQuietly(goConfigService.artifactsDir());
         agentAssignment.clear();
-        agentRemoteHandler.connectedAgents().clear();
     }
 
     @Test
@@ -401,7 +392,7 @@ public class BuildAssignmentServiceIntegrationTest {
         };
 
         final BuildAssignmentService buildAssignmentServiceUnderTest = new BuildAssignmentService(goConfigService, mockJobInstanceService, scheduleService,
-                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler,
+                agentService, environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory,
                 maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver, jobStatusTopic, consoleService);
 
         final Throwable[] fromThread = new Throwable[1];
@@ -443,7 +434,7 @@ public class BuildAssignmentServiceIntegrationTest {
         when(mockGoConfigService.getCurrentConfig()).thenReturn(config);
 
         buildAssignmentService = new BuildAssignmentService(mockGoConfigService, jobInstanceService, scheduleService, agentService, environmentConfigService,
-                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, agentRemoteHandler, maintenanceModeService, elasticAgentPluginService,
+                transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory, maintenanceModeService, elasticAgentPluginService,
                 systemEnvironment, secretParamResolver, jobStatusTopic, consoleService);
         buildAssignmentService.onTimer();
 
@@ -794,153 +785,6 @@ public class BuildAssignmentServiceIntegrationTest {
         BuildCause buildCauseForRenamedPipeline = BuildCause.createWithModifications(u.mrs(u.mr(u.m(hgMaterial).material, true, "h2")), "user");
         Pipeline p1_2 = scheduleService.schedulePipeline(renamedPipeline.config.name(), buildCauseForRenamedPipeline);
         assertThat(p1_2, is(nullValue()));
-    }
-
-    @Test
-    public void shouldAssignMatchedJobToAgentsRegisteredInAgentRemoteHandler() throws Exception {
-        AgentConfig agentConfig = AgentMother.remoteAgent();
-        configHelper.addAgent(agentConfig);
-        fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
-        info.setCookie("cookie");
-
-        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
-
-        AgentInstance agent = agentService.findAgent(agentConfig.getUuid());
-        assertFalse(agent.isBuilding());
-
-        buildAssignmentService.onTimer();
-
-        assertThat(this.agent.messages.size(), is(1));
-        assertThat(MessageEncoding.decodeWork(this.agent.messages.get(0).getData()), instanceOf(BuildWork.class));
-        assertTrue(agent.isBuilding());
-    }
-
-    @Test
-    public void shouldNotAssignNoWorkToAgentsRegisteredInAgentRemoteHandler() throws Exception {
-        AgentConfig agentConfig = AgentMother.remoteAgent();
-        configHelper.addAgent(agentConfig);
-        fixture.createdPipelineWithAllStagesPassed();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
-        info.setCookie("cookie");
-
-        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
-
-        buildAssignmentService.onTimer();
-
-        assertThat(agent.messages.size(), is(0));
-    }
-
-    @Test
-    public void shouldNotAssignDeniedAgentWorkToAgentsRegisteredInAgentRemoteHandler() throws Exception {
-        AgentConfig agentConfig = AgentMother.remoteAgent();
-        agentConfig.disable();
-
-        configHelper.addAgent(agentConfig);
-        fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
-        info.setCookie("cookie");
-
-        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
-        buildAssignmentService.onTimer();
-
-        assertThat(agent.messages.size(), is(0));
-    }
-
-    @Test
-    public void shouldOnlyAssignWorkToIdleAgentsRegisteredInAgentRemoteHandler() throws Exception {
-        AgentConfig agentConfig = AgentMother.remoteAgent();
-        configHelper.addAgent(agentConfig);
-        fixture.createPipelineWithFirstStageScheduled();
-
-        AgentStatus[] statuses = new AgentStatus[]{
-                AgentStatus.Building, AgentStatus.Pending,
-                AgentStatus.Disabled,
-                AgentStatus.LostContact, AgentStatus.Missing
-        };
-        for (AgentStatus status : statuses) {
-            AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
-            info.setCookie("cookie");
-            info.setStatus(status);
-            agent = new AgentStub();
-
-            agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
-            buildAssignmentService.onTimer();
-
-            assertThat("Should not assign work when agent status is " + status, agent.messages.size(), is(0));
-        }
-    }
-
-    @Test
-    public void shouldNotAssignWorkToCanceledAgentsRegisteredInAgentRemoteHandler() throws Exception {
-        AgentConfig agentConfig = AgentMother.remoteAgent();
-        configHelper.addAgent(agentConfig);
-        fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
-        info.setCookie("cookie");
-
-        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
-
-        AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(info.getUUId());
-        agentInstance.cancel();
-
-        buildAssignmentService.onTimer();
-
-        assertThat("Should not assign work when agent status is Canceled", agent.messages.size(), is(0));
-    }
-
-    @Test
-    public void shouldCallForReregisterIfAgentInstanceIsNotRegistered() throws Exception {
-        AgentConfig agentConfig = AgentMother.remoteAgent();
-        fixture.createPipelineWithFirstStageScheduled();
-        AgentRuntimeInfo info = AgentRuntimeInfo.fromServer(agentConfig, true, "location", 1000000l, "OS", false);
-        agentService.requestRegistration(new Username("bob"), info);
-
-        assertThat(agentService.findAgent(info.getUUId()).isRegistered(), is(false));
-
-        info.setCookie("cookie");
-        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(info)));
-        buildAssignmentService.onTimer();
-
-        assertThat(agent.messages.size(), is(1));
-        assertThat(agent.messages.get(0).getAction(), is(Action.reregister));
-    }
-
-    @Test
-    public void shouldAssignAgentsWhenThereAreAgentsAreDisabledOrNeedReregister() throws Exception {
-        fixture.createPipelineWithFirstStageScheduled();
-
-        AgentConfig canceledAgentConfig = AgentMother.remoteAgent();
-        configHelper.addAgent(canceledAgentConfig);
-        AgentRuntimeInfo canceledAgentInfo = AgentRuntimeInfo.fromServer(canceledAgentConfig, true, "location", 1000000l, "OS", false);
-        canceledAgentInfo.setCookie("cookie1");
-        AgentStub canceledAgent = new AgentStub();
-        agentRemoteHandler.process(canceledAgent, new Message(Action.ping, MessageEncoding.encodeData(canceledAgentInfo)));
-        AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(canceledAgentInfo.getUUId());
-        agentInstance.cancel();
-
-        AgentConfig needRegisterAgentConfig = AgentMother.remoteAgent();
-        AgentRuntimeInfo needRegisterAgentInfo = AgentRuntimeInfo.fromServer(needRegisterAgentConfig, true, "location", 1000000l, "OS", false);
-        agentService.requestRegistration(new Username("bob"), needRegisterAgentInfo);
-        needRegisterAgentInfo.setCookie("cookie2");
-        AgentStub needRegisterAgent = new AgentStub();
-        agentRemoteHandler.process(needRegisterAgent, new Message(Action.ping, MessageEncoding.encodeData(needRegisterAgentInfo)));
-
-        AgentConfig assignedAgent = AgentMother.remoteAgent();
-        configHelper.addAgent(assignedAgent);
-        AgentRuntimeInfo assignedAgentInfo = AgentRuntimeInfo.fromServer(assignedAgent, true, "location", 1000000l, "OS", false);
-        assignedAgentInfo.setCookie("cookie3");
-        agentRemoteHandler.process(agent, new Message(Action.ping, MessageEncoding.encodeData(assignedAgentInfo)));
-
-        buildAssignmentService.onTimer();
-
-        assertThat(canceledAgent.messages.size(), is(0));
-
-        assertThat(needRegisterAgent.messages.size(), is(1));
-        assertThat(needRegisterAgent.messages.get(0).getAction(), is(Action.reregister));
-
-        assertThat(agent.messages.size(), is(1));
-        assertThat(MessageEncoding.decodeWork(agent.messages.get(0).getData()), instanceOf(BuildWork.class));
     }
 
     private JobInstance buildOf(Pipeline pipeline) {

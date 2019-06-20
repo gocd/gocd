@@ -38,7 +38,6 @@ public class AuthorizeFilterChain extends FilterChainProxy {
                 .addAuthorityFilterChain("/remoting/files/**", apiAccessDeniedHandler, ROLE_AGENT)
                 .addAuthorityFilterChain("/remoting/properties/**", apiAccessDeniedHandler, ROLE_AGENT)
                 .addFilterChain("/remoting/**", new DenyAllAccessFilter())
-                .addAuthorityFilterChain("/agent-websocket/**", apiAccessDeniedHandler, ROLE_AGENT)
 
                 // authentication urls, allow everyone
                 .addFilterChain("/auth/*", allowAllAccessFilter)

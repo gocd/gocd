@@ -26,30 +26,25 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.remote.work.*;
-import com.thoughtworks.go.server.domain.BuildComposer;
 import com.thoughtworks.go.server.exceptions.RulesViolationException;
 import com.thoughtworks.go.server.materials.StaleMaterialsOnBuildCause;
 import com.thoughtworks.go.server.messaging.JobStatusMessage;
 import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.websocket.Agent;
-import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
 import com.thoughtworks.go.util.SystemEnvironment;
-import com.thoughtworks.go.util.URLService;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.websocket.Action;
-import com.thoughtworks.go.websocket.Message;
-import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.collections4.IterableUtils;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import static com.thoughtworks.go.util.ArtifactLogUtil.getConsoleOutputFolderAndFileNameUrl;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.collections4.CollectionUtils.forAllDo;
@@ -74,7 +69,6 @@ public class BuildAssignmentService implements ConfigChangedListener {
     private List<JobPlan> jobPlans = new ArrayList<>();
     private final UpstreamPipelineResolver resolver;
     private final BuilderFactory builderFactory;
-    private AgentRemoteHandler agentRemoteHandler;
     private MaintenanceModeService maintenanceModeService;
     private final ElasticAgentPluginService elasticAgentPluginService;
     private final SystemEnvironment systemEnvironment;
@@ -87,7 +81,7 @@ public class BuildAssignmentService implements ConfigChangedListener {
                                   ScheduleService scheduleService, AgentService agentService,
                                   EnvironmentConfigService environmentConfigService, TransactionTemplate transactionTemplate,
                                   ScheduledPipelineLoader scheduledPipelineLoader, PipelineService pipelineService,
-                                  BuilderFactory builderFactory, AgentRemoteHandler agentRemoteHandler,
+                                  BuilderFactory builderFactory,
                                   MaintenanceModeService maintenanceModeService, ElasticAgentPluginService elasticAgentPluginService,
                                   SystemEnvironment systemEnvironment, SecretParamResolver secretParamResolver, JobStatusTopic jobStatusTopic,
                                   ConsoleService consoleService) {
@@ -100,7 +94,6 @@ public class BuildAssignmentService implements ConfigChangedListener {
         this.scheduledPipelineLoader = scheduledPipelineLoader;
         this.resolver = pipelineService;
         this.builderFactory = builderFactory;
-        this.agentRemoteHandler = agentRemoteHandler;
         this.maintenanceModeService = maintenanceModeService;
         this.elasticAgentPluginService = elasticAgentPluginService;
         this.systemEnvironment = systemEnvironment;
@@ -222,7 +215,6 @@ public class BuildAssignmentService implements ConfigChangedListener {
         }
 
         reloadJobPlans();
-        matchingJobForRegisteredAgents();
     }
 
     private void reloadJobPlans() {
@@ -237,53 +229,6 @@ public class BuildAssignmentService implements ConfigChangedListener {
                 elasticAgentPluginService.createAgentsFor(old, newPlan);
             }
         }
-    }
-
-    private void matchingJobForRegisteredAgents() {
-        Map<String, Agent> agents = agentRemoteHandler.connectedAgents();
-        if (agents.isEmpty()) {
-            return;
-        }
-        Long start = System.currentTimeMillis();
-        for (Map.Entry<String, Agent> entry : agents.entrySet()) {
-            String agentUUId = entry.getKey();
-            Agent agent = entry.getValue();
-            AgentInstance agentInstance = agentService.findAgentAndRefreshStatus(agentUUId);
-            if (!agentInstance.isRegistered()) {
-                agent.send(new Message(Action.reregister));
-                continue;
-            }
-            if (agentInstance.isDisabled() || !agentInstance.isIdle()) {
-                LOGGER.debug("Ignore agent [{}] that is {} and {}", agentInstance.getAgentIdentifier(), agentInstance.getRuntimeStatus(), agentInstance.getAgentConfigStatus());
-                continue;
-            }
-            Work work = assignWorkToAgent(agentInstance);
-            if (work != NO_WORK) {
-                if (agentInstance.getSupportsBuildCommandProtocol()) {
-                    BuildSettings buildSettings = createBuildSettings(((BuildWork) work).getAssignment());
-                    agent.send(new Message(Action.build, MessageEncoding.encodeData(buildSettings)));
-                } else {
-                    agent.send(new Message(Action.assignWork, MessageEncoding.encodeWork(work)));
-                }
-            }
-        }
-        LOGGER.debug("Matching {} agents with {} jobs took: {}ms", agents.size(), jobPlans.size(), System.currentTimeMillis() - start);
-    }
-
-    private BuildSettings createBuildSettings(BuildAssignment assignment) {
-        URLService urlService = new URLService(""); // generate path only url
-        JobIdentifier jobIdentifier = assignment.getJobIdentifier();
-
-        BuildSettings buildSettings = new BuildSettings();
-        buildSettings.setConsoleLogCharset(systemEnvironment.consoleLogCharset());
-        buildSettings.setBuildId(String.valueOf(jobIdentifier.getBuildId()));
-        buildSettings.setBuildLocatorForDisplay(jobIdentifier.buildLocatorForDisplay());
-        buildSettings.setBuildLocator(jobIdentifier.buildLocator());
-        buildSettings.setBuildCommand(new BuildComposer(assignment).compose());
-        buildSettings.setConsoleUrl(urlService.getUploadUrlOfAgent(jobIdentifier, getConsoleOutputFolderAndFileNameUrl()));
-        buildSettings.setArtifactUploadBaseUrl(urlService.getUploadBaseUrlOfAgent(jobIdentifier));
-        buildSettings.setPropertyBaseUrl(urlService.getPropertiesUrl(jobIdentifier, ""));
-        return buildSettings;
     }
 
     public void onConfigChange(CruiseConfig newCruiseConfig) {

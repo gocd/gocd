@@ -19,9 +19,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
 import com.thoughtworks.go.plugin.infra.PluginRequestProcessorRegistry;
-import com.thoughtworks.go.util.ArtifactLogUtil;
 import com.thoughtworks.go.util.URLService;
-import com.thoughtworks.go.util.command.CruiseControlException;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import com.thoughtworks.go.work.DefaultGoPublisher;
 
@@ -90,11 +88,4 @@ public class FetchArtifactBuilder extends Builder {
         return jobIdentifier;
     }
 
-    @Override
-    public BuildCommand buildCommand() {
-        String checksumUrl = String.format("/remoting/files/%s/%s/%s", jobIdentifier.buildLocator(), ArtifactLogUtil.CRUISE_OUTPUT_FOLDER, ArtifactLogUtil.MD5_CHECKSUM_FILENAME);
-        return BuildCommand.compose(
-                BuildCommand.echoWithPrefix(String.format("Fetching artifact [%s] from [%s]", getSrc(), jobLocatorForDisplay())),
-                handler.toDownloadCommand(artifactLocator(), checksumUrl, checksumFileHandler.getChecksumFile()));
-    }
 }

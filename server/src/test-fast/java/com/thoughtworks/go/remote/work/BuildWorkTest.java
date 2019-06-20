@@ -35,7 +35,6 @@ import com.thoughtworks.go.util.ConfigElementImplementationRegistryMother;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.SystemUtil;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import com.thoughtworks.go.websocket.MessageEncoding;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -699,10 +698,4 @@ class BuildWorkTest {
         assertThat(consoleOut).doesNotContain("i am a secret");
     }
 
-    @Test
-    void encodeAndDecodeBuildWorkAsMessageData() throws Exception {
-        Work original = getWork(WILL_FAIL, PIPELINE_NAME);
-        Work clone = MessageEncoding.decodeWork(MessageEncoding.encodeWork(original));
-        assertThat(clone).isEqualTo(original);
-    }
 }

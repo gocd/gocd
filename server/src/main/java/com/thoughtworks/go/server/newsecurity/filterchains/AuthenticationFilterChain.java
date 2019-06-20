@@ -36,9 +36,8 @@ public class AuthenticationFilterChain extends FilterChainProxy {
             @Qualifier("accessTokenAuthenticationFilter") Filter accessTokenAuthenticationFilter,
             @Qualifier("assumeAnonymousUserFilter") Filter assumeAnonymousUserFilter) {
         super(FilterChainBuilder.newInstance()
-                // X509 for agent remoting and agent-websocket
+                // X509 for agent remoting
                 .addFilterChain("/remoting/**", x509AuthenticationFilter)
-                .addFilterChain("/agent-websocket/**", x509AuthenticationFilter)
 
                 // For addons
                 .addFilterChain("/add-on/**", assumeAnonymousUserFilter)

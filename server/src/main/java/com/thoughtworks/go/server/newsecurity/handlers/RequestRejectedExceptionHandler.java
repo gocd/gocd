@@ -29,7 +29,6 @@ public class RequestRejectedExceptionHandler {
     private static final ContentTypeNegotiationMessageRenderer CONTENT_TYPE_NEGOTIATION_MESSAGE_HANDLER = new ContentTypeNegotiationMessageRenderer();
     private static final OrRequestMatcher API_REQUEST_MATCHER = new OrRequestMatcher(
             new AntPathRequestMatcher("/remoting/**"),
-            new AntPathRequestMatcher("/agent-websocket/**"),
             new AntPathRequestMatcher("/add-on/*/api/**"),
             new AntPathRequestMatcher("/api/**"),
             new AntPathRequestMatcher("/cctray.xml")

@@ -99,7 +99,7 @@ public class AuthenticationFilterChainTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"/remoting/blah", "/agent-websocket/blah"})
+        @ValueSource(strings = {"/remoting/blah"})
         void shouldAuthenticateAgentUsingX509Certificate(String url) throws IOException, ServletException {
             final Registration registration = createRegistration("blah");
             final X509AuthenticationFilter x509AuthenticationFilter = new X509AuthenticationFilter(null, clock);
@@ -118,7 +118,7 @@ public class AuthenticationFilterChainTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"/remoting/blah", "/agent-websocket/blah"})
+        @ValueSource(strings = {"/remoting/blah"})
         void shouldErrorOutWithStatusCode403WhenNoX509CertificateProvidedInRequest(String url) throws IOException, ServletException {
             request = HttpRequestBuilder.GET(url)
                     .build();
@@ -308,7 +308,7 @@ public class AuthenticationFilterChainTest {
         }
 
         @ParameterizedTest
-        @ValueSource(strings = {"/remoting/foo", "/agent-websocket/bar"})
+        @ValueSource(strings = {"/remoting/foo"})
         void shouldNotApplyAnonymousAuthenticationFilterOnUrls(String url) throws IOException, ServletException {
             request = HttpRequestBuilder.GET(url).build();
 

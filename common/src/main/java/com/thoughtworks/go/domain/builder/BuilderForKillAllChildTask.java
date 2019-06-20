@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.domain.builder;
 
-import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.javasysmon.wrapper.DefaultCurrentProcess;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
@@ -34,8 +33,4 @@ public class BuilderForKillAllChildTask extends Builder {
         new DefaultCurrentProcess().infanticide();
     }
 
-    @Override
-    public BuildCommand buildCommand() {
-        return BuildCommand.noop(); //killing sub process is built in for build command protocol agent
-    }
 }

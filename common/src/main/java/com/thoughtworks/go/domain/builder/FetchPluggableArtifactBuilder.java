@@ -134,8 +134,4 @@ public class FetchPluggableArtifactBuilder extends Builder {
         return jobIdentifier;
     }
 
-    @Override
-    public BuildCommand buildCommand() {
-        throw new UnsupportedOperationException("Not supported yet!");
-    }
 }

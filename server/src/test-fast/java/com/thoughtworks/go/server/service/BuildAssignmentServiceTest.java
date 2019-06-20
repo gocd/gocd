@@ -34,7 +34,6 @@ import com.thoughtworks.go.server.messaging.JobStatusMessage;
 import com.thoughtworks.go.server.messaging.JobStatusTopic;
 import com.thoughtworks.go.server.service.builders.BuilderFactory;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
-import com.thoughtworks.go.server.websocket.AgentRemoteHandler;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,8 +67,6 @@ class BuildAssignmentServiceTest {
     private ElasticAgentPluginService elasticAgentPluginService;
     @Mock
     private SystemEnvironment systemEnvironment;
-    @Mock
-    private AgentRemoteHandler agentRemoteHandler;
     @Mock
     private BuilderFactory builderFactory;
     @Mock
@@ -107,7 +104,7 @@ class BuildAssignmentServiceTest {
         transactionTemplate = dummy();
         buildAssignmentService = new BuildAssignmentService(goConfigService, jobInstanceService, scheduleService, agentService,
                 environmentConfigService, transactionTemplate, scheduledPipelineLoader, pipelineService, builderFactory,
-                agentRemoteHandler, maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver,
+                maintenanceModeService, elasticAgentPluginService, systemEnvironment, secretParamResolver,
                 jobStatusTopic, consoleService);
         elasticProfileId1 = "elastic.profile.id.1";
         elasticProfileId2 = "elastic.profile.id.2";

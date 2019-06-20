@@ -17,7 +17,6 @@ package com.thoughtworks.go.domain;
 
 import com.thoughtworks.go.work.GoPublisher;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -31,5 +30,4 @@ public interface FetchHandler extends Serializable {
 
     void useArtifactMd5Checksums(ArtifactMd5Checksums artifactMd5Checksums);
 
-    BuildCommand toDownloadCommand(String locator, String checksumUrl, File checksumPath);
 }

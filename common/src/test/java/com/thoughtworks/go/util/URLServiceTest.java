@@ -87,8 +87,4 @@ public class URLServiceTest {
         assertThat(new URLService().serverUrlFor("someSubPath/xyz"), is(BASE_URL + "/someSubPath/xyz"));
     }
 
-    @Test
-    public void agentRemoteWebSocketUrl() {
-        assertThat(urlService.getAgentRemoteWebSocketUrl(), is("wss://localhost:8443/go/agent-websocket"));
-    }
 }

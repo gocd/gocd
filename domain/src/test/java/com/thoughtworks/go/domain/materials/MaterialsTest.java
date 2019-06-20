@@ -24,11 +24,8 @@ import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterial;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import com.thoughtworks.go.config.materials.perforce.P4Material;
 import com.thoughtworks.go.config.materials.svn.SvnMaterial;
-import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.util.command.ConsoleOutputStreamConsumer;
@@ -46,6 +43,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
@@ -288,22 +286,4 @@ public class MaterialsTest {
         temporaryFolder.delete();
     }
 
-    @Test
-    void shouldGenerateCleanupCommandForRemovingJunkFoldersWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsFalse() throws Exception {
-        Materials materials = new Materials();
-        GitMaterial gitMaterial = new GitMaterial("http://some-url.com", "some-branch", "some-folder");
-        materials.add(gitMaterial);
-
-        BuildCommand command = materials.cleanUpCommand("basedir");
-        assertThat(command.getName()).isEqualTo("cleandir");
-        assertThat(command.getStringArg("path")).isEqualTo("basedir");
-        assertThat(command.getArrayArg("allowed")).isEqualTo(new String[]{"some-folder", "cruise-output"});
-    }
-
-    @Test
-    void shouldGenerateNoopCommandWhenCleanUpIsCalled_hasOneMaterialUseBaseFolderReturnsTrue() throws Exception {
-        Materials materials = new Materials();
-        materials.add(new GitMaterial("http://some-url.com", "some-branch"));
-        assertThat(materials.cleanUpCommand("foo")).isEqualTo(BuildCommand.noop());
-    }
 }

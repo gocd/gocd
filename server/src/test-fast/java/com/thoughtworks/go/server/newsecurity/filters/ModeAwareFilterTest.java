@@ -307,18 +307,6 @@ class ModeAwareFilterTest {
     }
 
     @Test
-    public void shouldAllowAgentWebsocketCallInvokedViaAgentWhileServerIsInMaintenanceMode() throws Exception {
-        when(systemEnvironment.isServerActive()).thenReturn(true);
-        when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);
-
-        request = HttpRequestBuilder.POST("/agent-websocket/foo").build();
-
-        filter.doFilter(request, response, filterChain);
-
-        verify(filterChain, times(1)).doFilter(request, response);
-    }
-
-    @Test
     public void shouldReturn503WhenPOSTAPICallIsMadeWhileServerIsInMaintenanceMode() throws Exception {
         when(systemEnvironment.isServerActive()).thenReturn(true);
         when(maintenanceModeService.isMaintenanceMode()).thenReturn(true);

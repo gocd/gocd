@@ -159,13 +159,6 @@
   </servlet>
 
   <servlet>
-    <servlet-name>agent-websocket</servlet-name>
-    <servlet-class>com.thoughtworks.go.server.websocket.AgentRemoteServlet</servlet-class>
-    <load-on-startup>1</load-on-startup>
-    <async-supported>true</async-supported>
-  </servlet>
-
-  <servlet>
     <servlet-name>console-websocket</servlet-name>
     <servlet-class>com.thoughtworks.go.server.websocket.ConsoleLogSocketServlet</servlet-class>
     <load-on-startup>1</load-on-startup>
@@ -202,11 +195,6 @@
   <servlet-mapping>
     <servlet-name>spring-cruise-remoting</servlet-name>
     <url-pattern>/remoting/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>agent-websocket</servlet-name>
-    <url-pattern>/agent-websocket/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

@@ -27,7 +27,6 @@ public class RememberLastRequestUrlFilterChain extends FilterChainProxy {
                 .addFilterChain("/cctray.xml")
                 .addFilterChain("/api/**")
                 .addFilterChain("/remoting/**")
-                .addFilterChain("/agent-websocket/**")
                 .addFilterChain("/auth/**")
                 .addFilterChain("/plugin/*/authenticate")
                 .addFilterChain("/plugin/*/login")

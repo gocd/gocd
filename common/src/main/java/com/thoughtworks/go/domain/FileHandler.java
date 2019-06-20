@@ -91,17 +91,6 @@ public class FileHandler implements FetchHandler {
     }
 
     @Override
-    public BuildCommand toDownloadCommand(String locator, String checksumUrl, File checksumPath) {
-        return BuildCommand.downloadFile(map(
-                "url", format("/remoting/files/%s", locator),
-                "checksumUrl", checksumUrl,
-                "checksumFile", checksumPath.getPath(),
-                "dest", artifact.getPath(),
-                "src", srcFile
-        ));
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

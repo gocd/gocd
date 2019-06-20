@@ -33,7 +33,6 @@ public class ServerUnavailabilityResponse {
     private final static Logger LOGGER = LoggerFactory.getLogger(ServerUnavailabilityResponse.class);
     private static final OrRequestMatcher API_REQUEST_MATCHER = new OrRequestMatcher(
             new AntPathRequestMatcher("/remoting/**"),
-            new AntPathRequestMatcher("/agent-websocket/**"),
             new AntPathRequestMatcher("/add-on/*/api/**"),
             new AntPathRequestMatcher("/api/**"),
             new AntPathRequestMatcher("/cctray.xml")

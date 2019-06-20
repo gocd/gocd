@@ -77,16 +77,6 @@ public class DirHandler implements FetchHandler {
     }
 
     @Override
-    public BuildCommand toDownloadCommand(String locator, String checksumUrl, File checksumPath) {
-        return BuildCommand.downloadDir(map(
-                "url", format("/remoting/files/%s.zip", locator),
-                "src", srcFile,
-                "dest", destOnAgent.getPath(),
-                "checksumUrl", checksumUrl,
-                "checksumFile", checksumPath.getPath()));
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

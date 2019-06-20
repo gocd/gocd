@@ -29,7 +29,6 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterial;
 import com.thoughtworks.go.config.materials.tfs.TfsMaterialConfig;
 import com.thoughtworks.go.domain.BaseCollection;
-import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.ConfigVisitor;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.*;
@@ -43,8 +42,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import static com.thoughtworks.go.domain.BuildCommand.*;
 
 public class Materials extends BaseCollection<Material> {
     private static final int DEFAULT_INTERVAL = 100;
@@ -280,13 +277,5 @@ public class Materials extends BaseCollection<Material> {
         return false;
     }
 
-
-    public BuildCommand cleanUpCommand(String baseDir) {
-        if (hasMaterialsWithNoDestinationFolder()) {
-            return noop();
-        }
-        List<String> allowed = allowedFolders();
-        return cleandir(baseDir, allowed.toArray(new String[allowed.size()]));
-    }
 
 }

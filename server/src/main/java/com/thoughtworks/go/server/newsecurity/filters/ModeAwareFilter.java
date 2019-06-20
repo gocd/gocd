@@ -45,7 +45,6 @@ public class ModeAwareFilter implements Filter {
 
     private static final OrRequestMatcher ALLOWED_MAINTENANCE_MODE_REQUEST_MATCHER = new OrRequestMatcher(
             new AntPathRequestMatcher("/remoting/**"),
-            new AntPathRequestMatcher("/agent-websocket/**"),
             new AntPathRequestMatcher("/api/backups", "POST", true),
             new AntPathRequestMatcher("/admin/backup", "POST", true),
             new RegexRequestMatcher("/api/stages/[0-9]*/cancel", "POST", true),

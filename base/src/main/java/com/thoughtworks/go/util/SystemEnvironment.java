@@ -194,14 +194,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<Integer> GO_ELASTIC_PLUGIN_SERVER_PING_THREADS = new GoIntSystemProperty("go.elasticplugin.serverping.threads", 1);
     public static GoSystemProperty<Integer> GO_ENCRYPTION_API_MAX_REQUESTS = new GoIntSystemProperty("go.encryption.api.max.requests", 30);
 
-    public static GoSystemProperty<Boolean> WEBSOCKET_ENABLED = new GoBooleanSystemProperty("go.agent.websocket.enabled", false);
-    public static GoSystemProperty<Boolean> CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED = new GoBooleanSystemProperty("go.agent.console.logs.websocket.enabled", false);
-
     public static GoSystemProperty<Boolean> AUTO_REGISTER_LOCAL_AGENT_ENABLED = new GoBooleanSystemProperty("go.auto.register.local.agent.enabled", true);
-    public static GoSystemProperty<Long> GO_WEBSOCKET_ACK_MESSAGE_TIMEOUT = new GoLongSystemProperty("go.websocket.ack.message.timeout", 300 * 1000L);
-    public static GoSystemProperty<Integer> GO_WEBSOCKET_SEND_RETRY_COUNT = new GoIntSystemProperty("go.websocket.send.retry.count", 5);
 
-    public static GoSystemProperty<Long> GO_WEBSOCKET_MAX_IDLE_TIME = new GoLongSystemProperty("go.websocket.max.idle.time", 60 * 1000L);
     public static GoSystemProperty<Boolean> GO_SERVER_SHALLOW_CLONE = new GoBooleanSystemProperty("go.server.shallowClone", false);
     public static GoSystemProperty<Boolean> GO_SERVER_SCHEDULED_PIPELINE_LOADER_GLOBAL_MATERIAL_LOOKUP = new GoBooleanSystemProperty("go.server.scheduledPipelineLoader.globalMaterialLookup", false);
 
@@ -789,28 +783,8 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
         return GO_DATA_SHARING_GET_ENCRYPTION_KEYS_URL.getValue();
     }
 
-    public boolean isWebsocketsForAgentsEnabled() {
-        return WEBSOCKET_ENABLED.getValue();
-    }
-
-    public boolean isConsoleLogsThroughWebsocketEnabled() {
-        return CONSOLE_LOGS_THROUGH_WEBSOCKET_ENABLED.getValue();
-    }
-
     public boolean isAutoRegisterLocalAgentEnabled() {
         return AUTO_REGISTER_LOCAL_AGENT_ENABLED.getValue();
-    }
-
-    public Long getWebsocketMaxIdleTime() {
-        return GO_WEBSOCKET_MAX_IDLE_TIME.getValue();
-    }
-
-    public Long getWebsocketAckMessageTimeout() {
-        return GO_WEBSOCKET_ACK_MESSAGE_TIMEOUT.getValue();
-    }
-
-    public Integer getWebsocketSendRetryCount() {
-        return GO_WEBSOCKET_SEND_RETRY_COUNT.getValue();
     }
 
     public Long getConfigGitGCExpireTime() {

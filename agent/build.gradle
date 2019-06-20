@@ -65,9 +65,6 @@ dependencies {
   compile group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle
   compile group: 'org.bouncycastle', name: 'bcpkix-jdk15on', version: project.versions.bouncyCastle
   compile group: 'org.apache.commons', name: 'commons-configuration2', version: project.versions.commonsConfiguration
-  compile(group: 'org.eclipse.jetty.websocket', name: 'websocket-client', version: versions.jetty) {
-    exclude module: 'jetty-xml'
-  }
 
   compile group: 'org.nanohttpd', name: 'nanohttpd', version: versions.nanohttpd
 
@@ -168,10 +165,6 @@ task verifyJar(type: VerifyJarTask) {
       "jcl-over-slf4j-${project.versions.slf4j}.jar",
       "jcommander-${project.versions.jcommander}.jar",
       "jdom2-${project.versions.jdom}.jar",
-      "jetty-client-${versions.jetty}.jar",
-      "jetty-http-${versions.jetty}.jar",
-      "jetty-io-${versions.jetty}.jar",
-      "jetty-util-${versions.jetty}.jar",
       "joda-time-${project.versions.jodaTime}.jar",
       "jolt-core-${project.versions.jolt}.jar",
       "json-utils-${project.versions.jolt}.jar",
@@ -192,10 +185,7 @@ task verifyJar(type: VerifyJarTask) {
       "spring-tx-${project.versions.spring}.jar",
       "spring-web-${project.versions.spring}.jar",
       "spring-webmvc-${project.versions.spring}.jar",
-      "util-${project.version}.jar",
-      "websocket-api-${versions.jetty}.jar",
-      "websocket-client-${versions.jetty}.jar",
-      "websocket-common-${versions.jetty}.jar",
+      "util-${project.version}.jar"
     ]
   ]
 }

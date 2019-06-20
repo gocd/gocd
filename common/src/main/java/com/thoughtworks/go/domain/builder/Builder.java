@@ -16,7 +16,6 @@
 package com.thoughtworks.go.domain.builder;
 
 import com.thoughtworks.go.config.RunIfConfig;
-import com.thoughtworks.go.domain.BuildCommand;
 import com.thoughtworks.go.domain.RunIfConfigs;
 import com.thoughtworks.go.plugin.access.artifact.ArtifactExtension;
 import com.thoughtworks.go.plugin.access.pluggabletask.TaskExtension;
@@ -28,8 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
-
-import static java.lang.String.format;
 
 public abstract class Builder implements Serializable {
     private static final Logger LOGGER = LoggerFactory.getLogger(Builder.class);
@@ -120,10 +117,6 @@ public abstract class Builder implements Serializable {
         publisher.taggedConsumeLine(DefaultGoPublisher.ERR, message);
         LOGGER.error(message);
         throw new CruiseControlException(message);
-    }
-
-    public BuildCommand buildCommand() {
-        return BuildCommand.fail(format("\"%s\" does not support new build command agent", this.getClass().getName()));
     }
 
     public RunIfConfig resolvedRunIfConfig() {

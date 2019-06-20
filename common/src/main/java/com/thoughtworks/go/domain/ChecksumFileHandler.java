@@ -67,11 +67,6 @@ public class ChecksumFileHandler implements FetchHandler {
     }
 
     @Override
-    public BuildCommand toDownloadCommand(String locator, String checksumUrl, File checksumPath) {
-        throw new UnsupportedOperationException("not supported for checksum handler");
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

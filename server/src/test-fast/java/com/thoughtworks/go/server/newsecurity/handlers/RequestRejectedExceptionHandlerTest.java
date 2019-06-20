@@ -30,7 +30,7 @@ import static com.thoughtworks.go.http.mocks.MockHttpServletResponseAssert.asser
 class RequestRejectedExceptionHandlerTest {
 
     @ParameterizedTest
-    @ValueSource(strings = {"/remoting/foo", "/agent-websocket/foo", "/add-on/bar/api/foo", "/api/foo", "/cctray.xml"})
+    @ValueSource(strings = {"/remoting/foo", "/add-on/bar/api/foo", "/api/foo", "/cctray.xml"})
     void shouldHandleUrlsAsApiRequest(String url) throws IOException {
         final MockHttpServletRequest request = HttpRequestBuilder.GET(url)
                 .withHeader("Accept", "application/json")

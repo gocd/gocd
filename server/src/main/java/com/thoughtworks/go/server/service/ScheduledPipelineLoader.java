@@ -33,15 +33,17 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.utils.Timeout;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 /**
  * @understands loads scheduled pipeline for creating work
  */
 @Component
 public class ScheduledPipelineLoader {
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(BuildAssignmentService.class.getName());
+
     final private PipelineSqlMapDao pipelineDao;
     final private GoConfigService goConfigService;
     final private JobInstanceService jobInstanceService;
@@ -78,16 +80,11 @@ public class ScheduledPipelineLoader {
                 scheduleService.failJob(jobInstance);
                 final String message = "Cannot load job '" + jobInstance.buildLocator() + "' because material " + usedMaterial.config() + " was not found in config.";
                 final String description = "Job for pipeline '" + jobInstance.buildLocator() + "' has been failed as one or more material configurations were either changed or removed.";
-                transactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                    @Override public void afterCommit() {
-                        final ServerHealthState error = ServerHealthState.error(message, description, HealthStateType.general(HealthStateScope.forJob(jobInstance.getPipelineName(), jobInstance.getStageName(), jobInstance.getName())));
-                        error.setTimeout(Timeout.FIVE_MINUTES);
-                        serverHealthService.update(error);
-                        appendToConsoleLog(jobInstance, message);
-                        appendToConsoleLog(jobInstance, description);
-                    }
-                });
-                throw new StaleMaterialsOnBuildCause(message);
+                final ServerHealthState error = ServerHealthState.error(message, description, HealthStateType.general(HealthStateScope.forJob(jobInstance.getPipelineName(), jobInstance.getStageName(), jobInstance.getName())));
+                error.setTimeout(Timeout.FIVE_MINUTES);
+                serverHealthService.update(error);
+                appendToConsoleLog(jobInstance, message, description);
+                throw new StaleMaterialsOnBuildCause(joinTwoStringsWithNewLine(message, description));
             }
 
             usedMaterial.updateFromConfig(materialConfig);
@@ -133,11 +130,15 @@ public class ScheduledPipelineLoader {
         return knownMaterials;
     }
 
-    private void appendToConsoleLog(JobInstance jobInstance, String message) {
+    private void appendToConsoleLog(JobInstance jobInstance, String message, String description) {
         try {
-            consoleService.appendToConsoleLog(jobInstance.getIdentifier(), "\n" + message + "\n");
+            consoleService.appendToConsoleLog(jobInstance.getIdentifier(), "\n" + message + "\n\n" + description + "\n");
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String joinTwoStringsWithNewLine(String str1, String str2){
+        return String.format("%s.%n%s", str1, str2);
     }
 }

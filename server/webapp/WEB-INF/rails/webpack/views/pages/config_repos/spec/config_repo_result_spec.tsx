@@ -41,6 +41,17 @@ describe("<CRResult/>", () => {
     expect(helper.text(fl.alert)).toBe("Failed to load pipelines defined in this repository: outta cache.");
   });
 
+  it("displays error message when contents are empty", () => {
+    const fl = asSelector<typeof flashCss>(flashCss);
+    helper.mount(() => <CRResult cache={new MockCache({content: []})} repo="my-repo" vm={new EventAware()}/>);
+
+    expect(helper.q(sel.tree)).not.toBeInDOM();
+    expect(helper.q(sel.treeDatum)).not.toBeInDOM();
+    expect(helper.q(sel.loading)).not.toBeInDOM();
+    expect(helper.q(fl.alert)).toBeInDOM();
+    expect(helper.text(fl.alert)).toBe("This repository does not define any pipelines.");
+  });
+
   it("displays loading message when data has not been fetched", () => {
     helper.mount(() => <CRResult cache={new MockCache({ready: false})} repo="my-repo" vm={new EventAware()}/>);
 

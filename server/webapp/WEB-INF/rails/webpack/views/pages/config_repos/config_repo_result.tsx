@@ -72,6 +72,10 @@ export class CRResult extends MithrilComponent<Attrs, State> {
     }
 
     if (vnode.state.cache.ready()) {
+      if (!vnode.state.cache.contents().length) {
+        return <FlashMessage type={MessageType.alert} message="This repository does not define any pipelines."/>;
+      }
+
       return <Tree datum="Groups, pipelines, and stages defined by this repository:">
         {_.map(vnode.state.cache.contents(), (node: NamedTree) => treeMap<NamedTree, m.Vnode>(node, tree))}
       </Tree>;

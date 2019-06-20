@@ -256,7 +256,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public void createEnvironment(final BasicEnvironmentConfig environmentConfig, final Username user, final HttpLocalizedOperationResult result) {
         String actionFailed = "Failed to add environment '" + environmentConfig.name() + "'.";
-        AddEnvironmentCommand addEnvironmentCommand = new AddEnvironmentCommand(goConfigService, environmentConfig, user, actionFailed, result, agentConfigService);
+        AddEnvironmentCommand addEnvironmentCommand = new AddEnvironmentCommand(goConfigService, environmentConfig, user, actionFailed, result);
         update(addEnvironmentCommand, environmentConfig, user, result, actionFailed);
     }
 
@@ -296,7 +296,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public void updateEnvironment(final String oldEnvName, final EnvironmentConfig env, final Username username, String md5, final HttpLocalizedOperationResult result) {
         String failureMsg = "Failed to update environment '" + oldEnvName + "'.";
-        UpdateEnvironmentCommand updateEnvCmd = new UpdateEnvironmentCommand(goConfigService, oldEnvName, env, username, failureMsg, md5, entityHashingService, result, agentConfigService);
+        UpdateEnvironmentCommand updateEnvCmd = new UpdateEnvironmentCommand(goConfigService, oldEnvName, env, username, failureMsg, md5, entityHashingService, result);
         update(updateEnvCmd, env, username, result, failureMsg);
 
         if (result.isSuccessful()) {
@@ -306,7 +306,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public void patchEnvironment(final EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd, List<String> envVarsToRemove, final Username username, final HttpLocalizedOperationResult result) {
         String actionFailed = "Failed to update environment '" + environmentConfig.name() + "'.";
-        PatchEnvironmentCommand patchEnvironmentCommand = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, username, actionFailed, result, agentConfigService);
+        PatchEnvironmentCommand patchEnvironmentCommand = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, username, actionFailed, result);
         update(patchEnvironmentCommand, environmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
             result.setMessage("Updated environment '" + environmentConfig.name() + "'.");
@@ -316,7 +316,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     public void deleteEnvironment(final EnvironmentConfig environmentConfig, final Username username, final HttpLocalizedOperationResult result) {
         String environmentName = environmentConfig.name().toString();
         String actionFailed = "Failed to delete environment '" + environmentConfig.name() + "'.";
-        DeleteEnvironmentCommand deleteEnvironmentCommand = new DeleteEnvironmentCommand(goConfigService, environmentConfig, username, actionFailed, result, agentConfigService);
+        DeleteEnvironmentCommand deleteEnvironmentCommand = new DeleteEnvironmentCommand(goConfigService, environmentConfig, username, actionFailed, result);
         update(deleteEnvironmentCommand, environmentConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
             result.setMessage(EntityType.Environment.deleteSuccessful(environmentName));

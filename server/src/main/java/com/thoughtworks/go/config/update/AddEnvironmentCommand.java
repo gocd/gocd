@@ -29,8 +29,8 @@ public class AddEnvironmentCommand extends EnvironmentCommand  {
 
     private final LocalizedOperationResult result;
 
-    public AddEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, String actionFailed, LocalizedOperationResult result, AgentConfigService agentConfigService) {
-        super(actionFailed, environmentConfig, result, goConfigService, username, agentConfigService);
+    public AddEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, String actionFailed, LocalizedOperationResult result) {
+        super(actionFailed, environmentConfig, result, goConfigService, username);
         this.result = result;
     }
 

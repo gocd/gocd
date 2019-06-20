@@ -15,16 +15,16 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.CruiseConfig;
+import com.thoughtworks.go.config.EnvironmentConfig;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
 public class DeleteEnvironmentCommand extends EnvironmentCommand {
 
-    public DeleteEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, String actionFailed, HttpLocalizedOperationResult result, AgentConfigService agentConfigService) {
-        super(actionFailed, environmentConfig, result, goConfigService, username, agentConfigService);
+    public DeleteEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, Username username, String actionFailed, HttpLocalizedOperationResult result) {
+        super(actionFailed, environmentConfig, result, goConfigService, username);
     }
 
     @Override

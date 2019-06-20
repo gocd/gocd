@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.EnvironmentVariableConfig;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 
@@ -36,8 +35,8 @@ public class PatchEnvironmentCommand extends EnvironmentCommand {
     private final List<EnvironmentVariableConfig> envVarsToAdd;
     private final List<String> envVarsToRemove;
 
-    public PatchEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd, List<String> envVarsToRemove, Username username, String actionFailed, HttpLocalizedOperationResult result, AgentConfigService agentConfigService) {
-        super(actionFailed, environmentConfig, result, goConfigService, username, agentConfigService);
+    public PatchEnvironmentCommand(GoConfigService goConfigService, EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd, List<String> envVarsToRemove, Username username, String actionFailed, HttpLocalizedOperationResult result) {
+        super(actionFailed, environmentConfig, result, goConfigService, username);
         this.pipelinesToAdd = pipelinesToAdd;
         this.pipelinesToRemove = pipelinesToRemove;
         this.agentsToAdd = agentsToAdd;

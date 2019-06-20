@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -53,9 +52,6 @@ public class UpdateEnvironmentCommandTest {
     @Mock
     private EntityHashingService entityHashingService;
 
-    @Mock
-    private AgentConfigService agentConfigService;
-
     @Before
     public void setup() throws Exception {
         initMocks(this);
@@ -73,7 +69,7 @@ public class UpdateEnvironmentCommandTest {
 
     @Test
     public void shouldUpdateTheSpecifiedEnvironment() throws Exception {
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result, agentConfigService);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
 
         assertFalse(cruiseConfig.getEnvironments().hasEnvironmentNamed(newEnvironmentName));
         command.update(cruiseConfig);
@@ -83,7 +79,7 @@ public class UpdateEnvironmentCommandTest {
     @Test
     public void shouldValidateInvalidAgentUUID() throws Exception {
         newEnvironmentConfig.addAgent("Invalid-agent-uuid");
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result, agentConfigService);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.unprocessableEntity(actionFailed + " Environment 'Test' has an invalid agent uuid 'Invalid-agent-uuid'");
@@ -95,7 +91,7 @@ public class UpdateEnvironmentCommandTest {
     @Test
     public void shouldValidateInvalidPipelines() throws Exception {
         newEnvironmentConfig.addPipeline(new CaseInsensitiveString("Invalid-pipeline-name"));
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result, agentConfigService);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         command.update(cruiseConfig);
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
         expectResult.unprocessableEntity(actionFailed + " Environment 'Test' refers to an unknown pipeline 'Invalid-pipeline-name'.");
@@ -108,7 +104,7 @@ public class UpdateEnvironmentCommandTest {
     public void shouldValidateDuplicateEnvironmentVariables() throws Exception {
         newEnvironmentConfig.addEnvironmentVariable("foo", "bar");
         newEnvironmentConfig.addEnvironmentVariable("foo", "baz");
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result, agentConfigService);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         command.update(cruiseConfig);
 
         assertThat(command.isValid(cruiseConfig), is(false));
@@ -123,7 +119,7 @@ public class UpdateEnvironmentCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserDontHavePermissionsToOperateOnEnvironments() throws Exception {
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result, agentConfigService);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
         assertThat(command.canContinue(cruiseConfig), is(false));
         HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
@@ -134,7 +130,7 @@ public class UpdateEnvironmentCommandTest {
 
     @Test
     public void shouldNotContinueIfTheUserSubmittedStaleEtag() throws Exception {
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result, agentConfigService);
+        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
         when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
         when(entityHashingService.md5ForEntity(oldEnvironmentConfig)).thenReturn("foo");
         assertThat(command.canContinue(cruiseConfig), is(false));

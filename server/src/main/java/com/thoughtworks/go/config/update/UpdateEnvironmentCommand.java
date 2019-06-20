@@ -22,7 +22,6 @@ import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.merge.MergeEnvironmentConfig;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.EntityHashingService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
@@ -33,8 +32,8 @@ public class UpdateEnvironmentCommand extends EnvironmentCommand {
     private String md5;
     private EntityHashingService hashingService;
 
-    public UpdateEnvironmentCommand(GoConfigService goConfigService, String oldEnvironmentConfigName, EnvironmentConfig newEnvironmentConfig, Username username, String actionFailed, String md5, EntityHashingService hashingService, HttpLocalizedOperationResult result, AgentConfigService agentConfigService) {
-        super(actionFailed, newEnvironmentConfig, result, goConfigService, username, agentConfigService);
+    public UpdateEnvironmentCommand(GoConfigService goConfigService, String oldEnvironmentConfigName, EnvironmentConfig newEnvironmentConfig, Username username, String actionFailed, String md5, EntityHashingService hashingService, HttpLocalizedOperationResult result) {
+        super(actionFailed, newEnvironmentConfig, result, goConfigService, username);
         this.oldEnvironmentConfigName = oldEnvironmentConfigName;
         this.md5 = md5;
         this.hashingService = hashingService;

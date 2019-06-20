@@ -24,7 +24,6 @@ import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -32,29 +31,17 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 /**
  * @understands the current persistent information related to an Agent
  */
-@ConfigTag("agent")
 public class AgentConfig extends PersistentObject implements Validatable {
-    @ConfigAttribute(value = "hostname", allowNull = true)
-    private String hostName;
-    @ConfigAttribute(value = "ipaddress", allowNull = true)
+    private String hostname;
     private String ipAddress;
-    @ConfigAttribute(value = "uuid", allowNull = true)
     private String uuid;
-
-    @ConfigAttribute(value = "elasticAgentId", allowNull = true, optional = true)
     private String elasticAgentId;
-
-    @ConfigAttribute(value = "elasticPluginId", allowNull = true, optional = true)
     private String elasticPluginId;
-
     private boolean disabled;
     private String environments;
     private String resources;
     private String cookie;
     private boolean deleted;
-
-//    @ConfigSubtag
-//    private ResourceConfigs resourceConfigs = new ResourceConfigs();
 
     private transient Boolean cachedIsFromLocalHost;
     private ConfigErrors errors = new ConfigErrors();
@@ -68,28 +55,22 @@ public class AgentConfig extends PersistentObject implements Validatable {
         this(uuid, "", "");
     }
 
-    public AgentConfig(String uuid, String hostName, String ipAddress) {
-        this(uuid, hostName, ipAddress, new ResourceConfigs());
+    public AgentConfig(String uuid, String hostname, String ipAddress) {
+        this(uuid, hostname, ipAddress, new ResourceConfigs());
     }
 
-    public AgentConfig(String uuid, String hostName, String ipAddress, ResourceConfigs resourceConfigs) {
-        this.hostName = hostName;
+    public AgentConfig(String uuid, String hostname, String ipAddress, ResourceConfigs resourceConfigs) {
+        this.hostname = hostname;
         this.ipAddress = ipAddress;
         this.uuid = uuid;
         this.resources = StringUtils.join(resourceConfigs.resourceNames(), ",");
     }
 
-    public AgentConfig(String uuid, String hostName, String ipAddress, String cookie) {
-        this(uuid, hostName, ipAddress);
+    public AgentConfig(String uuid, String hostname, String ipAddress, String cookie) {
+        this(uuid, hostname, ipAddress);
         this.cookie = cookie;
     }
 
-    public boolean validateTree(ValidationContext validationContext) {
-        validate(validationContext);
-        boolean isValid = errors().isEmpty();
-        isValid = getResources().validateTree(validationContext) && isValid;
-        return isValid;
-    }
     @Override
     public void validate(ValidationContext validationContext) {
         validateIpAddress();
@@ -199,14 +180,14 @@ public class AgentConfig extends PersistentObject implements Validatable {
     @Override
     public String toString() {
         if (isElastic()) {
-            return format("ElasticAgent [%s, %s, %s, %s, %s]", hostName, ipAddress, uuid, elasticAgentId, elasticPluginId);
+            return format("ElasticAgent [%s, %s, %s, %s, %s]", hostname, ipAddress, uuid, elasticAgentId, elasticPluginId);
         } else {
-            return format("Agent [%s, %s, %s]", hostName, ipAddress, uuid);
+            return format("Agent [%s, %s, %s]", hostname, ipAddress, uuid);
         }
     }
 
     public AgentIdentifier getAgentIdentifier() {
-        return new AgentIdentifier(this.getHostName(), getIpAddress(), getUuid());
+        return new AgentIdentifier(this.getHostname(), getIpAddress(), getUuid());
     }
 
     @Override
@@ -215,7 +196,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
         if (o == null || getClass() != o.getClass()) return false;
         AgentConfig that = (AgentConfig) o;
         return disabled == that.disabled &&
-                Objects.equals(hostName, that.hostName) &&
+                Objects.equals(hostname, that.hostname) &&
                 Objects.equals(ipAddress, that.ipAddress) &&
                 Objects.equals(uuid, that.uuid) &&
                 Objects.equals(elasticAgentId, that.elasticAgentId) &&
@@ -227,15 +208,15 @@ public class AgentConfig extends PersistentObject implements Validatable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(hostName, ipAddress, uuid, elasticAgentId, elasticPluginId, disabled, environments, resources, cookie);
+        return Objects.hash(hostname, ipAddress, uuid, elasticAgentId, elasticPluginId, disabled, environments, resources, cookie);
     }
 
-    public String getHostName() {
-        return hostName;
+    public String getHostname() {
+        return hostname;
     }
 
-    public void setHostName(String hostName) {
-        this.hostName = hostName;
+    public void setHostname(String hostname) {
+        this.hostname = hostname;
     }
 
     public String getIpAddress() {

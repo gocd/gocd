@@ -70,7 +70,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public String getHostname() {
-        return agentConfig().getHostName();
+        return agentConfig().getHostname();
     }
 
     public String getUuid() {
@@ -217,7 +217,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
             return Registration.createNullPrivateKeyEntry();
         }
         X509CertificateGenerator certificateGenerator = new X509CertificateGenerator();
-        Registration entry = certificateGenerator.createAgentCertificate(new SystemEnvironment().agentkeystore(), agentConfig.getHostName());
+        Registration entry = certificateGenerator.createAgentCertificate(new SystemEnvironment().agentkeystore(), agentConfig.getHostname());
         return new Registration(entry.getPrivateKey(), entry.getChain());
     }
 

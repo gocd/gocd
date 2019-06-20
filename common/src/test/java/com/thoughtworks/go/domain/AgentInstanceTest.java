@@ -455,7 +455,7 @@ public class AgentInstanceTest {
         AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(buildingRuntimeInfo());
 
-        AgentConfig newAgentConfig = new AgentConfig(agentConfig.getUuid(), agentConfig.getHostName(), agentConfig.getIpAddress());
+        AgentConfig newAgentConfig = new AgentConfig(agentConfig.getUuid(), agentConfig.getHostname(), agentConfig.getIpAddress());
         newAgentConfig.disable();
 
         original.syncConfig(newAgentConfig);

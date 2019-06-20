@@ -245,7 +245,7 @@ public class AgentService {
         AgentInstance agentInstance = findAgentAndRefreshStatus(info.getUUId());
         if (agentInstance.isIpChangeRequired(info.getIpAdress())) {
             AgentConfig agentConfig = agentInstance.agentConfig();
-            Username userName = agentUsername(info.getUUId(), info.getIpAdress(), agentConfig.getHostName());
+            Username userName = agentUsername(info.getUUId(), info.getIpAdress(), agentConfig.getHostname());
             LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", info.getUUId(), agentConfig.getIpAddress(), info.getIpAdress());
             agentConfigService.updateAgentIpByUuid(agentConfig.getUuid(), info.getIpAdress(), userName);
         }

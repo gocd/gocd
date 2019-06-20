@@ -72,16 +72,6 @@ public class AgentConfigTest {
     }
 
     @Test
-    public void shouldValidateTree() {
-        ResourceConfig resourceConfig = new ResourceConfig("junk%");
-        AgentConfig agentConfig = new AgentConfig("uuid", "junk", "junk", new ResourceConfigs(resourceConfig));
-        boolean isValid = agentConfig.validateTree(ConfigSaveValidationContext.forChain(agentConfig));
-        assertThat(agentConfig.errors().on(AgentConfig.IP_ADDRESS), is("'junk' is an invalid IP address."));
-        assertThat(resourceConfig.errors().on(JobConfig.RESOURCES), contains("Resource name 'junk%' is not valid."));
-        assertThat(isValid, is(false));
-    }
-
-    @Test
     public void shouldPassValidationWhenUUidIsAvailable() {
         AgentConfig agentConfig = new AgentConfig("uuid");
         agentConfig.validate(ConfigSaveValidationContext.forChain(agentConfig));

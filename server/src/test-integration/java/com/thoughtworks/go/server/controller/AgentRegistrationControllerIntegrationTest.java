@@ -93,7 +93,7 @@ public class AgentRegistrationControllerIntegrationTest {
         final ResponseEntity responseEntity = controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, token(uuid, goConfigService.serverConfig().getTokenGenerationKey()), request);
         AgentConfig agentConfig = agentService.agentByUuid(uuid);
 
-        assertThat(agentConfig.getHostName(), is("hostname"));
+        assertThat(agentConfig.getHostname(), is("hostname"));
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getHeaders().getContentType(), is(MediaType.APPLICATION_JSON));
         assertTrue(RegistrationJSONizer.fromJson(responseEntity.getBody().toString()).isValid());

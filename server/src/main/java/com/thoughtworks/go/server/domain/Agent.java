@@ -23,6 +23,8 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
@@ -32,6 +34,8 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
+@Getter
+@Setter
 public class Agent extends PersistentObject implements Validatable {
     private String uuid;
     private String cookie;
@@ -60,7 +64,7 @@ public class Agent extends PersistentObject implements Validatable {
     }
 
     public static Agent fromConfig(AgentConfig config) {
-        Agent agent = new Agent(config.getUuid(), null, config.getHostName(), config.getIpAddress());
+        Agent agent = new Agent(config.getUuid(), null, config.getHostname(), config.getIpAddress());
         agent.setDisabled(config.isDisabled());
         agent.setElasticAgentId(config.getElasticAgentId());
         agent.setElasticPluginId(config.getElasticPluginId());
@@ -132,84 +136,12 @@ public class Agent extends PersistentObject implements Validatable {
         }
     }
 
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public String getCookie() {
-        return cookie;
-    }
-
-    public void setCookie(String cookie) {
-        this.cookie = cookie;
-    }
-
-    public String getHostname() {
-        return hostname;
-    }
-
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    public String getIpaddress() {
-        return ipaddress;
-    }
-
-    public void setIpaddress(String ipaddress) {
-        this.ipaddress = ipaddress;
-    }
-
-    public String getElasticAgentId() {
-        return elasticAgentId;
-    }
-
-    public void setElasticAgentId(String elasticAgentId) {
-        this.elasticAgentId = elasticAgentId;
-    }
-
-    public String getElasticPluginId() {
-        return elasticPluginId;
-    }
-
-    public void setElasticPluginId(String elasticPluginId) {
-        this.elasticPluginId = elasticPluginId;
-    }
-
-    public boolean isDisabled() {
-        return disabled;
-    }
-
-    public void setDisabled(boolean disabled) {
-        this.disabled = disabled;
-    }
-
-    public String getEnvironments() {
-        return environments;
-    }
-
-    public void setEnvironments(String environments) {
-        this.environments = environments;
-    }
-
     public ResourceConfigs getResources() {
         return new ResourceConfigs(resources == null ? "" : resources);
     }
 
     public void setResources(ResourceConfigs resourceConfigs) {
         this.resources = StringUtils.join(resourceConfigs.resourceNames(), ",");
-    }
-
-    public void setResources(String resources) {
-        this.resources = resources;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
     }
 
     public void validate(ValidationContext validationContext) {

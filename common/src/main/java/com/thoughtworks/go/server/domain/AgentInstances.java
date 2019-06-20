@@ -138,7 +138,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public AgentInstance findFirstByHostname(String hostname) {
         for (AgentInstance agentInstance : currentInstances()) {
-            if (agentInstance.agentConfig().getHostName().equals(hostname)) {
+            if (agentInstance.agentConfig().getHostname().equals(hostname)) {
                 return agentInstance;
             }
         }

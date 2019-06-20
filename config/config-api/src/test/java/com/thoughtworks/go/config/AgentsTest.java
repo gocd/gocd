@@ -29,7 +29,7 @@ public class AgentsTest {
     public void shouldFindAgentByUuid() {
         Agents agents = new Agents();
         agents.add(new AgentConfig("1", "localhost", "2"));
-        assertThat(agents.getAgentByUuid("1").getHostName(), is("localhost"));
+        assertThat(agents.getAgentByUuid("1").getHostname(), is("localhost"));
     }
 
     @Test

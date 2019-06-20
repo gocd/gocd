@@ -63,7 +63,7 @@ public class AgentTest {
 
         agent.removeResources(Arrays.asList("resource2"));
 
-        assertNull(agent.getResources());
+        assertTrue(agent.getResources().resourceNames().isEmpty());
     }
 
     @Test

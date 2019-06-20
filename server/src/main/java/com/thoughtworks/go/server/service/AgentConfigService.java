@@ -25,7 +25,6 @@ import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.serverhealth.HealthStateScope;
@@ -153,7 +152,7 @@ public class AgentConfigService {
         }
 
         if (hostname != null) {
-            agentConfig.setHostName(hostname);
+            agentConfig.setHostname(hostname);
         }
 
         if (resources != null) {

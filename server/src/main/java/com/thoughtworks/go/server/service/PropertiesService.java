@@ -178,7 +178,7 @@ public class PropertiesService implements JobPropertiesReader {
     }
 
     private void saveBuildAgent(JobInstance instance) {
-        propertyDao.save(instance.getId(), new Property(CRUISE_AGENT, agentService.agentByUuid(instance.getAgentUuid()).getHostName()));
+        propertyDao.save(instance.getId(), new Property(CRUISE_AGENT, agentService.agentByUuid(instance.getAgentUuid()).getHostname()));
     }
 
     @Override

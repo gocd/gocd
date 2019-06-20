@@ -738,12 +738,12 @@ public class AgentServiceIntegrationTest {
 
         AgentInstances approvedAgents = agentService.findEnabledAgents();
         assertThat(approvedAgents.size(), is(1));
-        assertThat(approvedAgents.findAgentAndRefreshStatus("uuid3").agentConfig().getHostName(), is("approvedAgent1"));
+        assertThat(approvedAgents.findAgentAndRefreshStatus("uuid3").agentConfig().getHostname(), is("approvedAgent1"));
 
         AgentInstances deniedAgents = agentService.findDisabledAgents();
         assertThat(deniedAgents.size(), is(2));
-        assertThat(deniedAgents.findAgentAndRefreshStatus("uuid1").agentConfig().getHostName(), is("deniedAgent1"));
-        assertThat(deniedAgents.findAgentAndRefreshStatus("uuid2").agentConfig().getHostName(), is("deniedAgent2"));
+        assertThat(deniedAgents.findAgentAndRefreshStatus("uuid1").agentConfig().getHostname(), is("deniedAgent1"));
+        assertThat(deniedAgents.findAgentAndRefreshStatus("uuid2").agentConfig().getHostname(), is("deniedAgent2"));
     }
 
     @Test
@@ -1054,7 +1054,7 @@ public class AgentServiceIntegrationTest {
     public void testShouldNotUpdateHostnameOrEnvironmentsIfNoneAreSpecified() throws Exception {
         createEnvironment("a", "b");
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
-        String originalHostname = agent.getHostName();
+        String originalHostname = agent.getHostname();
 
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), Collections.emptyList(), Collections.emptyList(), Arrays.asList("a","b"), Collections.emptyList(), TriState.TRUE);
@@ -1078,7 +1078,7 @@ public class AgentServiceIntegrationTest {
     @Test
     public void testShouldThrowErrorOnUpdatingAgentOnInvalidInputs() throws Exception {
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
-        String originalHostname = agent.getHostName();
+        String originalHostname = agent.getHostname();
         List<String> originalResourceNames = agent.getResourceConfigs().resourceNames();
 
         goConfigDao.load();

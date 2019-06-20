@@ -358,7 +358,6 @@ public class PipelineScheduleQueueIntegrationTest {
         }
     }
 
-    //TODO: Vrushali and Viraj, need to fix this test according to DB implementations
     @Test
     public void shouldCreateJobsMatchingRealAgentsIfRunOnAllAgentsIsSet() {
 
@@ -376,14 +375,17 @@ public class PipelineScheduleQueueIntegrationTest {
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.nextRevision());
         saveRev(cause);
 
-        AgentConfig agentConfigWithUuid1 = new AgentConfig("uuid1", "localhost", null, "cookie1");
-        agentConfigWithUuid1.setEnvironments("dev");
+        AgentConfig agentConfigWithUuid1 = new AgentConfig("uuid1", "localhost", "127.0.0.1", "cookie1");
+        configFileEditor.addEnvironments(Arrays.asList("env"));
+        agentConfigWithUuid1.setEnvironments("env");
         agentService.saveOrUpdate(agentConfigWithUuid1);
-        agentService.saveOrUpdate(new AgentConfig("uuid2", "localhost", null, "cookie2"));
-        agentService.saveOrUpdate(new AgentConfig("uuid3", "localhost", null, "cookie3"));
+        AgentConfig agentConfigWithUuid2 = new AgentConfig("uuid2", "localhost", "127.0.0.1", "cookie2");
+        agentService.saveOrUpdate(agentConfigWithUuid2);
+        AgentConfig agentConfigWithUuid3 = new AgentConfig("uuid3", "localhost", "127.0.0.1", "cookie3");
+        agentService.saveOrUpdate(agentConfigWithUuid3);
         configFileEditor.addPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stage.name()));
 
-        queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), configFileEditor.currentConfig().agents()), "md5-test", new TimeProvider());
+        queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), new Agents(agentConfigWithUuid1, agentConfigWithUuid2, agentConfigWithUuid3)), "md5-test", new TimeProvider());
 
         List<JobPlan> plans = jobService.orderedScheduledBuilds();
         assertThat(plans.toArray(), hasItemInArray(hasProperty("name", is(RunOnAllAgents.CounterBasedJobNameGenerator.appendMarker("test-job", 1)))));

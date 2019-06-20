@@ -131,7 +131,7 @@ Each agent needs to be configured to run in its own separate directory so that e
 
       - Edit the `wrapper-config/wrapper.conf` file to set the properties `wrapper.name`, `wrapper.displayname`, `wrapper.console.title` and `wrapper.description` and set different values for each agent process
 
-    On linux:
+    On Linux/Unix:
 
       - Edit the `wrapper-config/wrapper.conf` file to set the properties `wrapper.name`, `wrapper.displayname`, `wrapper.console.title` and `wrapper.description` and set different values for each agent process
-      - Edit the file `bin/go-agent` and replace all occurances of `go-agent` with a different value for each agent process.
+      - Edit the file `bin/go-agent` and replace all occurances of `go-agent` with a different value for each agent process. Set the envionment variable `RUN_AS_USER=go` to ensure that the service runs as the `go` user.

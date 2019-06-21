@@ -40,11 +40,6 @@
       "key": "show_secret_config_spa",
       "description": "Show Secret Config SPA in menu for admin. Default: true",
       "value": true
-    },
-    {
-      "key": "security_auth_config_use_rails_api",
-      "description": "Switch to rails based api. Defaults to spark",
-      "value": false
     }
   ]
 }

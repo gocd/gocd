@@ -24,7 +24,6 @@ public class Toggles {
     public static String ALLOW_EMPTY_PIPELINE_GROUPS_DASHBOARD = "allow_empty_pipeline_groups_dashboard";
     public static String TEST_DRIVE = "test_drive";
     public static String SHOW_SECRET_CONFIG_SPA = "show_secret_config_spa";
-    public static String SECURITY_AUTH_CONFIG_USE_RAILS_API = "security_auth_config_use_rails_api";
 
     private static FeatureToggleService service;
 

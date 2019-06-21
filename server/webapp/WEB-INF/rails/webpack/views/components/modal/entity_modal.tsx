@@ -32,6 +32,10 @@ import * as styles from "./index.scss";
 
 const foundationClassNames = bind(foundationStyles);
 
+enum ModalState {
+  OK, LOADING
+}
+
 export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected entity: Stream<T>;
   protected readonly pluginInfos: Array<PluginInfo<Extension>>;
@@ -39,6 +43,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly isStale: Stream<boolean>     = stream(true);
   protected readonly etag: Stream<string>         = stream();
+  private readonly modalState                     = stream(ModalState.OK);
 
   constructor(entity: T,
               pluginInfos: Array<PluginInfo<any>>,
@@ -54,6 +59,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     super.render();
 
     if (this.isStale()) {
+      this.modalState(ModalState.LOADING);
       this.performFetch(this.entity()).then(this.onFetchResult.bind(this));
     }
   }
@@ -63,6 +69,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       return;
     }
 
+    this.modalState(ModalState.LOADING);
     this.operationPromise().then(this.onSaveResult.bind(this));
   }
 
@@ -71,7 +78,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       <div className={styles.errorWrapper}><FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
       </div> : null;
 
-    if (!this.entity || this.isStale()) {
+    if (!this.entity || this.modalState() === ModalState.LOADING) {
       return <div className={styles.spinnerWrapper}><Spinner/></div>;
     }
 
@@ -88,7 +95,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       <ButtonGroup>
         <Buttons.Cancel data-test-id="button-cancel" onclick={(e) => this.close()}>Cancel</Buttons.Cancel>
         <Buttons.Primary data-test-id="button-save"
-                         disabled={this.isStale()}
+                         disabled={this.isStale() || this.modalState() === ModalState.LOADING}
                          onclick={this.performOperation.bind(this)}>Save</Buttons.Primary>
       </ButtonGroup>
     ];
@@ -132,6 +139,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   }
 
   private onFetchResult(result: ApiResult<ObjectWithEtag<T>>) {
+    this.modalState(ModalState.OK);
     result.do(this.onSuccessfulFetch.bind(this), (e) => this.onError.bind(this, e, result.getStatusCode()));
   }
 
@@ -143,6 +151,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   }
 
   private onSaveResult(result: ApiResult<ObjectWithEtag<T>>) {
+    this.modalState(ModalState.OK);
     result.do(this.onSuccess.bind(this),
               this.onError.bind(this, result.unwrap() as ErrorResponse, result.getStatusCode()));
   }

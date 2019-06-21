@@ -16,10 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.SecretConfig;
-import com.thoughtworks.go.config.SecretParam;
-import com.thoughtworks.go.config.SecretParams;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
@@ -35,6 +32,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static java.lang.String.format;
 import static java.util.stream.Collectors.groupingBy;
 
 @Component
@@ -54,6 +52,12 @@ public class SecretParamResolver {
     public void resolve(ScmMaterial scmMaterial) {
         rulesService.validateSecretConfigReferences(scmMaterial);
 
+        resolve(scmMaterial.getSecretParams());
+    }
+
+    // Method used for check_connection in new pipeline flow
+    public void resolve(ScmMaterial scmMaterial, String pipelineGroupName) {
+        rulesService.validateSecretConfigReferences(scmMaterial.getSecretParams(), PipelineConfigs.class, pipelineGroupName, format("Material with url: '%s' in Pipeline Group:", scmMaterial.getUriForDisplay()));
         resolve(scmMaterial.getSecretParams());
     }
 

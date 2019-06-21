@@ -168,13 +168,13 @@ describe ApiV1::Admin::Internal::MaterialTestController do
 
         @secret_params = com.thoughtworks.go.config.SecretParams.parse('')
 
-        @secret_param_resolver = double(SecretParamResolver)
-        allow(@secret_param_resolver).to receive(:resolve)
-        allow(controller).to receive(:secret_param_resolver).and_return(@secret_param_resolver)
-
         @svn_material = double(com.thoughtworks.go.config.materials.svn.SvnMaterial)
-        allow(@svn_material).to receive(:is_a?).with(ScmMaterial).and_return(true)
         allow(@svn_material).to receive(:getSecretParams).and_return(@secret_params)
+        allow(@svn_material).to receive(:is_a?).with(ScmMaterial).and_return(true)
+
+        @secret_param_resolver = double(SecretParamResolver)
+        allow(@secret_param_resolver).to receive(:resolve).with(@svn_material, "default")
+        allow(controller).to receive(:secret_param_resolver).and_return(@secret_param_resolver)
       end
 
       it 'should resolve secret param before performing check connection for material' do
@@ -188,6 +188,7 @@ describe ApiV1::Admin::Internal::MaterialTestController do
 
         post_with_api_header :test, params: {
           type: 'svn',
+          pipeline_group: "default",
           attributes: {
             url: 'https://example.com/git/FooBarWidgets.git',
             password: 'password'
@@ -195,7 +196,7 @@ describe ApiV1::Admin::Internal::MaterialTestController do
         }
 
         expect(response).to have_api_message_response(200, 'Connection OK.')
-        expect(@secret_param_resolver).to have_received(:resolve).with(@secret_params).once
+        expect(@secret_param_resolver).to have_received(:resolve).with(@svn_material, "default").once
       end
 
       it 'should handle unresolved secret params exception and return the error message' do
@@ -208,6 +209,7 @@ describe ApiV1::Admin::Internal::MaterialTestController do
 
         post_with_api_header :test, params: {
           type: 'svn',
+          pipeline_group: "default",
           attributes: {
             url: 'https://example.com/git/FooBarWidgets.git',
             password: 'password'
@@ -227,6 +229,7 @@ describe ApiV1::Admin::Internal::MaterialTestController do
 
         post_with_api_header :test, params: {
           type: 'svn',
+          pipeline_group: "default",
           attributes: {
             url: 'https://example.com/git/FooBarWidgets.git',
             password: 'password'
@@ -249,6 +252,7 @@ describe ApiV1::Admin::Internal::MaterialTestController do
 
         post_with_api_header :test, params: {
           type: 'svn',
+          pipeline_group: "default",
           attributes: {
             url: 'https://example.com/git/FooBarWidgets.git',
             password: 'password'

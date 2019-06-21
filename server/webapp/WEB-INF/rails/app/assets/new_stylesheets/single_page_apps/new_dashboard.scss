@@ -66,51 +66,7 @@ body {
 
 %building {
   position:   relative;
-  background: #fff;
-
-  > span {
-    display:          block;
-    height:           100%;
-    background-color: $building;
-    position:         relative;
-    overflow:         hidden;
-  }
-
-  > span:after, .animate > span > span {
-    content:          "";
-    position:         absolute;
-    top:              0;
-    left:             0;
-    bottom:           0;
-    right:            0;
-    background-image: linear-gradient(
-                          -45deg,
-                          rgba(255, 255, 255, 0.3) 25%,
-                          transparent 25%,
-                          transparent 50%,
-                          rgba(255, 255, 255, 0.3) 50%,
-                          rgba(255, 255, 255, 0.3) 75%,
-                          transparent 75%,
-                          transparent
-                      );
-    z-index:          1;
-    background-size:  50px 50px;
-    overflow:         hidden;
-  }
-}
-
-.animate > span:after {
-  display: none;
-}
-
-@keyframes move {
-  0% {
-    background-position: 0 0;
-  }
-
-  100% {
-    background-position: 50px 50px;
-  }
+  background: transparent image_url('building.gif') repeat-x 50% 50%;
 }
 
 .dashboard {
@@ -267,10 +223,11 @@ body {
     float:      right;
     background: #fff;
     padding:    2px 10px;
+
     .icon_add {
-      color:        $icon-color;
-      font-weight:  600;
-      line-height:  25px;
+      color:       $icon-color;
+      font-weight: 600;
+      line-height: 25px;
     }
   }
 }
@@ -575,8 +532,7 @@ body {
 
     &.building {
       @extend %building;
-
-      background: $building;
+      background-color: $building;
     }
 
     &.unknown {

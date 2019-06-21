@@ -3,12 +3,12 @@
     <div style='width: <%= stage_width_percent(scope[:pipeline].numberOfStages(), false, 97) %>' class="stage">
         <div class="stage_bar_wrapper">
             <% if placeholder_stage?(sim_for_pipeline) %>
-                <div <%= scope[:html_options] -%>><span><span></span></span></div>
+                <div <%= scope[:html_options] -%>></div>
             <% else %>
                 <a href="<%= scope[:disable_stage_bar_href] ? '#' : stage_detail_tab_path_for(:pipeline_name => scope[:pipeline].getName(), :pipeline_counter => scope[:pipeline].getCounter(), :stage_name => sim_for_pipeline.getName(), :stage_counter => sim_for_pipeline.getCounter()) -%>">
                     <div <%= scope[:html_options] -%>>
                     </div>
-                  <span><span></span></span></a>
+                  </a>
             <% end %>
         </div>
     </div>

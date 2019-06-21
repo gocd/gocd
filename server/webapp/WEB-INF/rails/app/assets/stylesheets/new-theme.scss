@@ -2706,38 +2706,7 @@ button.check_connection + .connection_test_message pre {
 .Building, .building-stage {
   height:     12px;
   position:   relative;
-  background: #fff;
-
-  > span {
-    display:          block;
-    height:           100%;
-    background-color: $building;
-    position:         relative;
-    overflow:         hidden;
-  }
-
-  > span:after {
-    content:          "";
-    position:         absolute;
-    top:              0;
-    left:             0;
-    bottom:           0;
-    right:            0;
-    background-image: linear-gradient(
-                          -45deg,
-                          rgba(255, 255, 255, .2) 25%,
-                          transparent 25%,
-                          transparent 50%,
-                          rgba(255, 255, 255, .2) 50%,
-                          rgba(255, 255, 255, .2) 75%,
-                          transparent 75%,
-                          transparent
-                      );
-    z-index:          1;
-    background-size:  50px 50px;
-    border-radius:    20px 8px 8px 20px;
-    overflow:         hidden;
-  }
+  background: transparent image_url('building.svg') repeat-x 50% 50%;
 }
 
 @keyframes move {

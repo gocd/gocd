@@ -155,7 +155,6 @@
                                 <a id="stage-detail-${% pipeline.pipelineId %}-${% stage.stageName %}-link" class="detail" title="see the details of this stage"
                                         href="$req.getContextPath()/pipelines/${% stage.stageLocator %}{if 'failed' == stage.stageStatus}#tab-failures{/if}{if 'passed' == stage.stageStatus}#tab-artifacts{/if}">
                                         Details</a>
-                              <span><span></span></span>
                             </div>
                         {else}
                             <a class="empty-stage" href="javascript:void(0);"></a>

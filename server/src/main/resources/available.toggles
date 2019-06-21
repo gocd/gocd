@@ -42,11 +42,6 @@
       "value": true
     },
     {
-      "key": "plugin_settings_api_using_rails",
-      "description": "Switch Plugin Settings API to use rails.",
-      "value": false
-    },
-    {
       "key": "security_auth_config_use_rails_api",
       "description": "Switch to rails based api. Defaults to spark",
       "value": false

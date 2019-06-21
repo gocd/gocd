@@ -19,12 +19,15 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterial;
 import com.thoughtworks.go.helper.MaterialsMother;
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
 import com.thoughtworks.go.util.TimeProvider;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class MaintenanceModeServiceTest {
     private TimeProvider timeProvider;
@@ -67,5 +70,32 @@ public class MaintenanceModeServiceTest {
 
         maintenanceModeService.mduFinishedForMaterial(svnMaterial);
         assertThat(maintenanceModeService.getRunningMDUs()).hasSize(0);
+    }
+
+    @Test
+    void shouldReturnUpdatedOnTimeWhenServerIsInMaintenanceMode() {
+        DateTime dateTime = new DateTime(2019, 6, 18, 14, 30, 15, DateTimeZone.UTC);
+        maintenanceModeService.update(new ServerMaintenanceMode(true, "admin", dateTime.toDate()));
+        assertThat(maintenanceModeService.updatedOn()).isEqualTo("2019-06-18T14:30:15Z");
+    }
+
+    @Test
+    void shouldThrowServerNotInMaintenanceModeExceptionForUpdatedOnWhenServerIsNotInMaintenanceMode() {
+        assertThatCode(maintenanceModeService::updatedOn)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("GoCD server is not in maintenance mode!");
+    }
+
+    @Test
+    void shouldReturnUsernameWhenServerIsInMaintenanceMode() {
+        maintenanceModeService.update(new ServerMaintenanceMode(true, "admin", new Date()));
+        assertThat(maintenanceModeService.updatedBy()).isEqualTo("admin");
+    }
+
+    @Test
+    void shouldThrowServerNotInMaintenanceModeExceptionForUpdatedByWhenServerIsNotInMaintenanceMode() {
+        assertThatCode(maintenanceModeService::updatedBy)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("GoCD server is not in maintenance mode!");
     }
 }

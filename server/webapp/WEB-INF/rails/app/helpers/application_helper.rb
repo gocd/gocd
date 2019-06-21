@@ -501,6 +501,14 @@ module ApplicationHelper
     maintenance_mode_service.isMaintenanceMode
   end
 
+  def maintenance_mode_updated_on
+    maintenance_mode_service.updatedOn if is_server_in_maintenance_mode?
+  end
+
+  def maintenance_mode_updated_by
+    maintenance_mode_service.updatedBy if is_server_in_maintenance_mode?
+  end
+
   def edit_path_for_pipeline(pipeline_name)
     pipeline_edit_path(:pipeline_name => pipeline_name, :current_tab => 'general')
   end

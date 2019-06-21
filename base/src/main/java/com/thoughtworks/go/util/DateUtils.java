@@ -28,9 +28,9 @@ import java.util.TimeZone;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class DateUtils {
+    public static final TimeZone UTC = TimeZone.getTimeZone("UTC");
     private static final DateTimeFormatter formatter = ISODateTimeFormat.dateTimeNoMillis();
     private static final DateTimeFormatter formatterUtc = formatter.withZoneUTC();
-    private static final TimeZone UTC = TimeZone.getTimeZone("UTC");
 
     public static String formatISO8601(Date from) {
         return formatter.print(from.getTime());

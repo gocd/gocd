@@ -46,8 +46,12 @@ $(() => {
     const isServerInMaintenanceMode  = extractBoolean(body, "data-is-server-in-maintenance-mode");
     const userDisplayName            = body.getAttribute("data-user-display-name") || "";
     const showSecretConfigSpa        = extractBoolean(body, "data-show-secret-config-spa");
+    const maintenanceModeUpdatedOn   = body.getAttribute("data-maintenance-mode-updated-on");
+    const maintenanceModeUpdatedBy   = body.getAttribute("data-maintenance-mode-updated-by");
 
     const footerData = {
+      maintenanceModeUpdatedOn,
+      maintenanceModeUpdatedBy,
       isServerInMaintenanceMode,
       isSupportedBrowser: !/(MSIE|Trident)/i.test(navigator.userAgent)
     };

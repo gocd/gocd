@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.google.gson.internal.bind.util.ISO8601Utils;
 import com.thoughtworks.go.domain.materials.Material;
 import com.thoughtworks.go.server.domain.ServerMaintenanceMode;
 import com.thoughtworks.go.util.TimeProvider;
@@ -26,6 +27,8 @@ import org.springframework.stereotype.Service;
 import java.sql.Timestamp;
 import java.util.Collection;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.thoughtworks.go.util.DateUtils.UTC;
 
 @Service
 public class MaintenanceModeService {
@@ -51,6 +54,24 @@ public class MaintenanceModeService {
 
     public boolean isMaintenanceMode() {
         return get().isMaintenanceMode();
+    }
+
+    private Timestamp updatedOnTimeStamp() {
+        if (get().isMaintenanceMode()) {
+            return get().updatedOn();
+        }
+        throw new IllegalStateException("GoCD server is not in maintenance mode!");
+    }
+
+    public String updatedOn() {
+        return ISO8601Utils.format(updatedOnTimeStamp(), false, UTC);
+    }
+
+    public String updatedBy() {
+        if (get().isMaintenanceMode()) {
+            return get().updatedBy();
+        }
+        throw new IllegalStateException("GoCD server is not in maintenance mode!");
     }
 
     public Collection<MaterialPerformingMDU> getRunningMDUs() {

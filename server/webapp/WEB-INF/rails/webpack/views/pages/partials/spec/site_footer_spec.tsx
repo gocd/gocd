@@ -17,6 +17,7 @@ import {GoCDVersion} from "gen/gocd_version";
 import * as m from "mithril";
 import {Attrs, SiteFooter} from "views/pages/partials/site_footer";
 import {TestHelper} from "views/pages/spec/test_helper";
+const TimeFormatter          = require('helpers/time_formatter');
 
 describe("SiteFooter", () => {
   const helper = new TestHelper();
@@ -28,6 +29,8 @@ describe("SiteFooter", () => {
 
   it("should render footer", () => {
     const attrs = {
+      maintenanceModeUpdatedOn: '2019-06-18T14:30:15Z',
+      maintenanceModeUpdatedBy: 'bob',
       isServerInMaintenanceMode: false,
       isSupportedBrowser: true
     };
@@ -48,11 +51,14 @@ describe("SiteFooter", () => {
       fullVersion: "x.y.z-1234",
       goVersion: "x.y.z",
       isServerInMaintenanceMode: true,
-      isSupportedBrowser: true
+      isSupportedBrowser: true,
+      maintenanceModeUpdatedOn: '2019-06-18T14:30:15Z',
+      maintenanceModeUpdatedBy: 'bob'
     };
     mount(attrs);
 
     expect(helper.findByDataTestId("maintenance-mode-banner")).toBeInDOM();
+    expect(helper.findByDataTestId("maintenance-mode-banner")).toContainText(`bob turned on maintenance mode at ${TimeFormatter.format(attrs.maintenanceModeUpdatedOn)}`);
     expect(helper.root).toContainText("maintenance");
     expect(helper.root).not.toContainText("unsupported browser");
   });
@@ -64,7 +70,9 @@ describe("SiteFooter", () => {
       fullVersion: "x.y.z-1234",
       goVersion: "x.y.z",
       isServerInMaintenanceMode: false,
-      isSupportedBrowser: false
+      isSupportedBrowser: false,
+      maintenanceModeUpdatedOn: '2019-06-18T14:30:15Z',
+      maintenanceModeUpdatedBy: 'bob'
     };
     mount(attrs);
 

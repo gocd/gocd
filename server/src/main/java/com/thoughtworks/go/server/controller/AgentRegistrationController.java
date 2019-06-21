@@ -66,7 +66,6 @@ public class AgentRegistrationController {
     private final GoConfigService goConfigService;
     private final SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
-    private final AgentConfigService agentConfigService;
     private volatile String agentChecksum;
     private volatile String agentLauncherChecksum;
     private volatile String tfsSdkChecksum;
@@ -79,12 +78,11 @@ public class AgentRegistrationController {
     private final InputStreamSrc agentPluginsZipSrc;
 
     @Autowired
-    public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment, PluginsZip pluginsZip, AgentConfigService agentConfigService) throws IOException {
+    public AgentRegistrationController(AgentService agentService, GoConfigService goConfigService, SystemEnvironment systemEnvironment, PluginsZip pluginsZip) throws IOException {
         this.agentService = agentService;
         this.goConfigService = goConfigService;
         this.systemEnvironment = systemEnvironment;
         this.pluginsZip = pluginsZip;
-        this.agentConfigService = agentConfigService;
         this.agentJarSrc = JarDetector.create(systemEnvironment, "agent.jar");
         this.agentLauncherSrc = JarDetector.create(systemEnvironment, "agent-launcher.jar");
         this.agentPluginsZipSrc = JarDetector.createFromFile(systemEnvironment.get(SystemEnvironment.ALL_PLUGINS_ZIP_PATH));

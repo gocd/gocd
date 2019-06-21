@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.listener.AgentChangeListener;
+import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.Agent;
@@ -34,7 +34,6 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,7 +46,7 @@ public class AgentDao extends HibernateDaoSupport {
     private final TransactionTemplate transactionTemplate;
     private final TransactionSynchronizationManager synchronizationManager;
     private final SessionFactory sessionFactory;
-    private AgentChangeListener agentChangeListener;
+    private DatabaseEntityChangeListener dbEntityChangeListener;
     private final UuidGenerator uuidGenerator;
 
     @Autowired
@@ -60,8 +59,8 @@ public class AgentDao extends HibernateDaoSupport {
         setSessionFactory(sessionFactory);
     }
 
-    public void registerListener(AgentChangeListener agentChangeListener) {
-        this.agentChangeListener = agentChangeListener;
+    public void registerListener(DatabaseEntityChangeListener<Agent> dbEntityChangeListener) {
+        this.dbEntityChangeListener = dbEntityChangeListener;
     }
 
     public String cookieFor(final AgentIdentifier agentIdentifier) {
@@ -174,7 +173,7 @@ public class AgentDao extends HibernateDaoSupport {
                     sessionFactory.getCurrentSession().saveOrUpdate(agent);
                 }
             });
-            this.agentChangeListener.onEntityChange(agent);
+            this.dbEntityChangeListener.onEntityChange(agent);
         }
     }
 
@@ -208,7 +207,7 @@ public class AgentDao extends HibernateDaoSupport {
                     sessionFactory.getCurrentSession().saveOrUpdate(Agent.class.getName(), agent);
                 }
             });
-            this.agentChangeListener.onEntityChange(agent);
+            this.dbEntityChangeListener.onEntityChange(agent);
         }
     }
 
@@ -300,7 +299,7 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
     private synchronized void notifyListener() {
-        this.agentChangeListener.onBulkEntityChange();
+        this.dbEntityChangeListener.onBulkEntityChange();
     }
 
     private void clearCache(TransactionSynchronizationManager synchronizationManager, List<String> uuids) {

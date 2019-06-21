@@ -243,7 +243,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
         when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(true, currentUsernameString(), testingClock.currentTime()))
         when(maintenanceModeService.getRunningMDUs()).thenReturn(runningMDUs)
         when(goDashboardCache.allEntries()).thenReturn(new GoDashboardPipelines(new HashMap<>(), new TimeStampBasedCounter(testingClock)))
-        when(agentService.agents()).thenReturn(new AgentInstances(null))
+        when(agentService.agentInstances()).thenReturn(new AgentInstances(null))
 
         getWithApiHeader(controller.controllerPath('/info'))
 
@@ -298,7 +298,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
         when(maintenanceModeService.get()).thenReturn(new ServerMaintenanceMode(true, currentUsernameString(), testingClock.currentTime()))
         when(maintenanceModeService.getRunningMDUs()).thenReturn(runningMDUs)
         when(goDashboardCache.allEntries()).thenReturn(dashboardPipelines)
-        when(agentService.agents()).thenReturn(agentInstances)
+        when(agentService.agentInstances()).thenReturn(agentInstances)
 
         getWithApiHeader(controller.controllerPath('/info'))
 

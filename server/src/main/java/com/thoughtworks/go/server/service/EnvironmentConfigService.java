@@ -55,7 +55,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     public final GoConfigService goConfigService;
     private final SecurityService securityService;
     private EntityHashingService entityHashingService;
-    private AgentConfigService agentConfigService;
+    private AgentService agentService;
 
     private EnvironmentsConfig environments;
     private EnvironmentPipelineMatchers matchers;
@@ -64,11 +64,11 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     private final TransactionTemplate transactionTemplate;
 
     @Autowired
-    public EnvironmentConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, AgentConfigService agentConfigService, TransactionTemplate transactionTemplate) {
+    public EnvironmentConfigService(GoConfigService goConfigService, SecurityService securityService, EntityHashingService entityHashingService, AgentService agentService, TransactionTemplate transactionTemplate) {
         this.goConfigService = goConfigService;
         this.securityService = securityService;
         this.entityHashingService = entityHashingService;
-        this.agentConfigService = agentConfigService;
+        this.agentService = agentService;
         this.transactionTemplate = transactionTemplate;
     }
 
@@ -98,7 +98,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
     }
 
     public void syncAssociatedAgentsFromDB(){
-        agentConfigService
+        agentService
                 .agents()
                 .forEach(agent -> {
                     List<String> associatedEnvNames = agent.getEnvironmentsAsList();
@@ -130,7 +130,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     public void sync(EnvironmentsConfig environments) {
         this.environments = environments;
-        agentConfigService.agents().forEach(agentConfig -> {
+        agentService.agents().forEach(agentConfig -> {
             String agentEnvironments = agentConfig.getEnvironments();
             if (agentEnvironments != null) {
                 Arrays.stream(agentEnvironments.split(",")).forEach(env -> {
@@ -178,11 +178,11 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         if (environments.isPipelineAssociatedWithAnyEnvironment(pipelineName)) {
             EnvironmentConfig forPipeline = environments.findEnvironmentForPipeline(pipelineName);
             for (EnvironmentAgentConfig environmentAgentConfig : forPipeline.getAgents()) {
-                configs.add(agentConfigService.agentByUuid(environmentAgentConfig.getUuid()));
+                configs.add(agentService.agentByUuid(environmentAgentConfig.getUuid()));
             }
 
         } else {
-            for (AgentConfig agentConfig : agentConfigService.agents()) {
+            for (AgentConfig agentConfig : agentService.agents()) {
                 if (!environments.isAgentUnderEnvironment(agentConfig.getUuid())) {
                     configs.add(agentConfig);
                 }

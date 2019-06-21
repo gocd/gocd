@@ -25,7 +25,7 @@ import com.thoughtworks.go.domain.JobStateTransition;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.UsageStatistics;
-import com.thoughtworks.go.server.service.AgentConfigService;
+import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,24 +44,24 @@ public class DataSharingUsageDataService {
     private final GoCache goCache;
     public static String ADD_PIPELINE_CTA = "add-pipeline-cta";
     public static String SAVE_AND_RUN_CTA = "save-and-run-cta";
-    private AgentConfigService agentConfService;
+    private AgentService agentService;
 
 
     @Autowired
     public DataSharingUsageDataService(GoConfigService goConfigService, JobInstanceSqlMapDao jobInstanceSqlMapDao,
-                                       DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService, GoCache goCache, AgentConfigService agentConfService) {
+                                       DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService,GoCache goCache, AgentService agentService) {
         this.goConfigService = goConfigService;
         this.jobInstanceSqlMapDao = jobInstanceSqlMapDao;
         this.dataSharingUsageStatisticsReportingService = dataSharingUsageStatisticsReportingService;
         this.goCache = goCache;
-        this.agentConfService = agentConfService;
+        this.agentService = agentService;
     }
 
     public UsageStatistics get() {
         CruiseConfig config = goConfigService.getCurrentConfig();
         JobStateTransition jobStateTransition = jobInstanceSqlMapDao.oldestBuild();
         long oldestPipelineExecutionTime = jobStateTransition == null ? 0l : jobStateTransition.getStateChangeTime().getTime();
-        long nonElasticAgentCount = agentConfService.agents().parallelStream().filter(agentConfig -> !agentConfig.isElastic()).count();
+        long nonElasticAgentCount = agentService.agents().parallelStream().filter(agentConfig -> !agentConfig.isElastic()).count();
         List<PipelineConfig> pipelineConfigs = config.getAllPipelineConfigs();
         long pipelineCount = pipelineConfigs.size();
         long configRepoPipelineCount = pipelineConfigs.stream().filter(PipelineConfig::isConfigDefinedRemotely).count();

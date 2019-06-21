@@ -59,7 +59,7 @@ public class EnvironmentConfigServiceIntegrationTest {
     @Autowired
     private EntityHashingService entityHashingService;
     @Autowired
-    private AgentConfigService agentConfigService;
+    private AgentService agentService;
     @Autowired
     private EnvironmentConfigService service;
     @Autowired

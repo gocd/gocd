@@ -23,8 +23,8 @@ import com.thoughtworks.go.plugin.api.request.DefaultGoApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoApiResponse;
 import com.thoughtworks.go.plugin.infra.plugininfo.GoPluginDescriptor;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
-import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentService;
+import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -43,8 +43,6 @@ public class ElasticAgentRequestProcessorV1Test {
     @Mock
     private AgentService agentService;
     @Mock
-    private AgentConfigService agentConfigService;
-    @Mock
     private GoPluginDescriptor pluginDescriptor;
     @Mock
     DefaultGoApiRequest request;
@@ -57,7 +55,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
         when(pluginDescriptor.id()).thenReturn("cd.go.example.plugin");
 
-        processor = new ElasticAgentRequestProcessorV1(agentService, agentConfigService);
+        processor = new ElasticAgentRequestProcessorV1(agentService);
     }
 
     @Test
@@ -84,7 +82,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
         processor.process(pluginDescriptor, request);
 
-        verify(agentConfigService).disableAgents(processor.usernameFor(pluginDescriptor.id()), agentInstance);
+        verify(agentService).disableAgents(processor.usernameFor(pluginDescriptor.id()), agentInstance);
     }
 
     @Test
@@ -95,7 +93,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
         processor.process(pluginDescriptor, request);
 
-        verifyZeroInteractions(agentConfigService);
+        verifyZeroInteractions(agentService);
     }
 
     @Test
@@ -108,7 +106,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
         processor.process(pluginDescriptor, request);
 
-        verify(agentConfigService).deleteAgents(processor.usernameFor(pluginDescriptor.id()), agentInstance);
+        verify(agentService).deleteAgents(processor.usernameFor(pluginDescriptor.id()), new HttpOperationResult(), Arrays.asList(agentInstance.getUuid()));
     }
 
     @Test
@@ -119,6 +117,6 @@ public class ElasticAgentRequestProcessorV1Test {
 
         processor.process(pluginDescriptor, request);
 
-        verifyZeroInteractions(agentConfigService);
+        verifyZeroInteractions(agentService);
     }
 }

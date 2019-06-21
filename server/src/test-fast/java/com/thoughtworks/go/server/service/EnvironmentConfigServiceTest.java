@@ -27,7 +27,6 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,20 +48,18 @@ class EnvironmentConfigServiceTest {
     private GoConfigService mockGoConfigService;
     private EnvironmentConfigService environmentConfigService;
     private SecurityService securityService;
-    private AgentConfigService agentConfigService;
-    private TransactionSynchronizationManager transactionSynchronizationManager;
+    private AgentService agentService;
     private TransactionTemplate transactionTemplate;
 
     @BeforeEach
     void setUp() throws Exception {
         mockGoConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
-        agentConfigService = mock(AgentConfigService.class);
-        transactionSynchronizationManager = mock(TransactionSynchronizationManager.class);
+        agentService = mock(AgentService.class);
         transactionTemplate = mock(TransactionTemplate.class);
 
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
-        environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService, agentConfigService, transactionTemplate);
+        environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService, agentService, transactionTemplate);
 
         AgentConfig agentUat = new AgentConfig("uat-agent", "host1", "127.0.0.1", "cookie1");
         agentUat.setEnvironments("uat");
@@ -70,7 +67,7 @@ class EnvironmentConfigServiceTest {
         agentProd.setEnvironments("prod");
         AgentConfig omnipresentAgent = new AgentConfig(OMNIPRESENT_AGENT, "host3", "127.0.0.1", "cookie3");
         omnipresentAgent.setEnvironments("uat,prod");
-        when(agentConfigService.agents()).thenReturn(new Agents(agentUat, agentProd, omnipresentAgent));
+        when(agentService.agents()).thenReturn(new Agents(agentUat, agentProd, omnipresentAgent));
     }
 
     @Test
@@ -201,8 +198,8 @@ class EnvironmentConfigServiceTest {
         AgentConfig agentUnderEnv = new AgentConfig("uat-agent", "localhost", "127.0.0.1");
         AgentConfig omnipresentAgent = new AgentConfig(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2");
 
-        Mockito.when(agentConfigService.agentByUuid("uat-agent")).thenReturn(agentUnderEnv);
-        Mockito.when(agentConfigService.agentByUuid(EnvironmentConfigMother.OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
+        Mockito.when(agentService.agentByUuid("uat-agent")).thenReturn(agentUnderEnv);
+        Mockito.when(agentService.agentByUuid(EnvironmentConfigMother.OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
 
         assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline")).size()).isEqualTo(2);
         assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("uat-pipeline"))).contains(agentUnderEnv);
@@ -217,7 +214,7 @@ class EnvironmentConfigServiceTest {
         Agents agents = new Agents();
         agents.add(noEnvAgent);
         agents.add(new AgentConfig(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2"));
-        Mockito.when(agentConfigService.agents()).thenReturn(agents);
+        Mockito.when(agentService.agents()).thenReturn(agents);
 
 
         assertThat(environmentConfigService.agentsForPipeline(new CaseInsensitiveString("no-env-pipeline")).size()).isEqualTo(1);
@@ -572,8 +569,7 @@ class EnvironmentConfigServiceTest {
             agentConf2.setEnvironments("stage,prod");
 
             Agents agents = new Agents(agentConf1, agentConf2);
-            when(agentConfigService.agents()).thenReturn(agents);
-            when(agentConfigService.agents()).thenReturn(agents);
+            when(agentService.agents()).thenReturn(agents);
         }
 
         private void assertThatAgentAndEnvsAssociationsAreInSync(String uuid1, String uuid2) {

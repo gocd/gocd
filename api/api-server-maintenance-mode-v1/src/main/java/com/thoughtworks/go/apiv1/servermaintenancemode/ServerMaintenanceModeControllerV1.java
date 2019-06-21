@@ -181,7 +181,7 @@ public class ServerMaintenanceModeControllerV1 extends ApiController implements 
     }
 
     private HashMap<String, String> getBuildLocatorToAgentUUIDMap() {
-        AgentInstances agents = agentService.agents();
+        AgentInstances agents = agentService.agentInstances();
 
         HashMap<String, String> buildToAgentUUIDMap = new HashMap<>();
         for (AgentInstance agent : agents) {

@@ -20,16 +20,13 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.config.UpdateConfigCommand;
-import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JarDetector;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.plugin.infra.commons.PluginsZip;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
-import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -75,13 +72,11 @@ public class AgentRegistrationControllerTest {
     private AgentRegistrationController controller;
     private SystemEnvironment systemEnvironment;
     private PluginsZip pluginsZip;
-    private AgentConfigService agentConfigService;
     private File pluginZipFile;
 
     @Before
     public void setUp() throws Exception {
         agentService = mock(AgentService.class);
-        agentConfigService = mock(AgentConfigService.class);
         systemEnvironment = mock(SystemEnvironment.class);
         goConfigService = mock(GoConfigService.class);
         pluginZipFile = temporaryFolder.newFile("plugins.zip");
@@ -90,7 +85,7 @@ public class AgentRegistrationControllerTest {
         when(systemEnvironment.getSslServerPort()).thenReturn(8443);
         when(systemEnvironment.get(AGENT_EXTRA_PROPERTIES)).thenReturn("");
         pluginsZip = mock(PluginsZip.class);
-        controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip, agentConfigService);
+        controller = new AgentRegistrationController(agentService, goConfigService, systemEnvironment, pluginsZip);
         controller.populateAgentChecksum();
         controller.populateLauncherChecksum();
         controller.populateTFSSDKChecksum();
@@ -365,7 +360,6 @@ public class AgentRegistrationControllerTest {
 
         verify(serverConfig, times(0)).shouldAutoRegisterAgentWith("someKey");
         verifyZeroInteractions(agentService);
-        verifyZeroInteractions(agentConfigService);
     }
 
     private String token(String uuid, String tokenGenerationKey) {

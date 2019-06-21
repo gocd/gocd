@@ -57,8 +57,8 @@ public class AgentServiceTest {
     private AgentIdentifier agentIdentifier;
     private UuidGenerator uuidGenerator;
     private ServerHealthService serverHealthService;
-    private AgentConfigService agentConfigService;
     AgentConfig agentConfig;
+    private GoConfigService goConfigService;
 
     @Before
     public void setUp() {
@@ -66,10 +66,10 @@ public class AgentServiceTest {
         agentConfig = new AgentConfig("uuid", "host", "192.168.1.1");
         when(agentInstances.findAgentAndRefreshStatus("uuid")).thenReturn(AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), null));
         agentDao = mock(AgentDao.class);
+        goConfigService = mock(GoConfigService.class);
         uuidGenerator = mock(UuidGenerator.class);
-        agentConfigService = mock(AgentConfigService.class);
-        agentService = new AgentService(agentConfigService, new SystemEnvironment(), agentInstances, mock(EnvironmentConfigService.class),
-                mock(SecurityService.class), agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
+        agentService = new AgentService(new SystemEnvironment(), agentInstances, mock(EnvironmentConfigService.class),
+                mock(SecurityService.class), agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null, goConfigService);
         agentIdentifier = agentConfig.getAgentIdentifier();
         when(agentDao.cookieFor(agentIdentifier)).thenReturn("cookie");
     }
@@ -143,9 +143,8 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldFailWhenDeleteIsNotSuccessful() throws Exception {
+    public void shouldFailWhenDeleteIsNotSuccessful() {
         SecurityService securityService = mock(SecurityService.class);
-        AgentConfigService agentConfigService = mock(AgentConfigService.class);
         AgentInstance agentInstance = mock(AgentInstance.class);
         String uuid = "1234";
         Username username = new Username(new CaseInsensitiveString("test"));
@@ -155,12 +154,10 @@ public class AgentServiceTest {
 
         when(agentInstance.canBeDeleted()).thenReturn(true);
 
-        doThrow(new RuntimeException()).when(agentConfigService).deleteAgents(username, agentInstance);
-
         when(agentInstances.findAgentAndRefreshStatus(uuid)).thenReturn(agentInstance);
 
-        AgentService agentService = new AgentService(agentConfigService, new SystemEnvironment(), agentInstances, mock(EnvironmentConfigService.class),
-                securityService, agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null);
+        AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances, mock(EnvironmentConfigService.class),
+                securityService, agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null, goConfigService);
 
         agentService.deleteAgents(username, operationResult, Arrays.asList(uuid));
 

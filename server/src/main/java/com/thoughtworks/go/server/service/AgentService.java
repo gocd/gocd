@@ -15,16 +15,15 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.EnvironmentConfig;
-import com.thoughtworks.go.config.ErrorCollector;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.update.AgentsUpdateValidator;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AllConfigErrors;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.NullAgent;
 import com.thoughtworks.go.listener.AgentChangeListener;
+import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
 import com.thoughtworks.go.server.domain.Agent;
@@ -46,6 +45,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.utils.Timeout;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,21 +53,23 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
+import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 
 
 @Service
-public class AgentService {
-
+public class AgentService implements DatabaseEntityChangeListener<Agent> {
     private final SystemEnvironment systemEnvironment;
-    private final AgentConfigService agentConfigService;
     private final SecurityService securityService;
     private final EnvironmentConfigService environmentConfigService;
     private final UuidGenerator uuidGenerator;
     private final ServerHealthService serverHealthService;
     private AgentStatusChangeNotifier agentStatusChangeNotifier;
+    private GoConfigService goConfigService;
     private final AgentDao agentDao;
 
     private AgentInstances agentInstances;
@@ -75,19 +77,18 @@ public class AgentService {
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentService.class);
 
     @Autowired
-    public AgentService(AgentConfigService agentConfigService, SystemEnvironment systemEnvironment, final EnvironmentConfigService environmentConfigService,
+    public AgentService(SystemEnvironment systemEnvironment, final EnvironmentConfigService environmentConfigService,
                         SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator, ServerHealthService serverHealthService,
-                        final EmailSender emailSender, AgentStatusChangeNotifier agentStatusChangeNotifier) {
-        this(agentConfigService, systemEnvironment, null, environmentConfigService, securityService, agentDao, uuidGenerator, serverHealthService,
-                agentStatusChangeNotifier);
+                        final EmailSender emailSender, AgentStatusChangeNotifier agentStatusChangeNotifier, GoConfigService goConfigService) {
+        this(systemEnvironment, null, environmentConfigService, securityService, agentDao, uuidGenerator, serverHealthService,
+                agentStatusChangeNotifier, goConfigService);
         this.agentInstances = new AgentInstances(agentStatusChangeNotifier);
     }
 
-    AgentService(AgentConfigService agentConfigService, SystemEnvironment systemEnvironment, AgentInstances agentInstances,
+    AgentService(SystemEnvironment systemEnvironment, AgentInstances agentInstances,
                  EnvironmentConfigService environmentConfigService, SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator,
-                 ServerHealthService serverHealthService, AgentStatusChangeNotifier agentStatusChangeNotifier) {
+                 ServerHealthService serverHealthService, AgentStatusChangeNotifier agentStatusChangeNotifier, GoConfigService goConfigService) {
         this.systemEnvironment = systemEnvironment;
-        this.agentConfigService = agentConfigService;
         this.environmentConfigService = environmentConfigService;
         this.securityService = securityService;
         this.agentInstances = agentInstances;
@@ -95,19 +96,24 @@ public class AgentService {
         this.uuidGenerator = uuidGenerator;
         this.serverHealthService = serverHealthService;
         this.agentStatusChangeNotifier = agentStatusChangeNotifier;
+        this.goConfigService = goConfigService;
     }
 
     public void initialize() {
         this.sync();
-        agentConfigService.register(new AgentChangeListener(this, environmentConfigService));
+        agentDao.registerListener(this);
     }
 
     public void sync() {
         agentInstances.sync(new Agents(agentDao.getAllAgentConfigs()));
     }
 
-    public AgentInstances agents() {
+    public AgentInstances agentInstances() {
         return agentInstances;
+    }
+
+    public Agents agents() {
+        return new Agents(agentDao.getAllAgentConfigs());
     }
 
     public Map<AgentInstance, Collection<String>> agentEnvironmentMap() {
@@ -178,7 +184,45 @@ public class AgentService {
             return null;
         }
 
-        AgentConfig agentConfig = agentConfigService.updateAgentAttributes(uuid, username, newHostname, resources, environments, enable, agentInstances, result);
+        AgentConfig agentConfig;
+        if (!hasAgent(uuid) && enable.isTrue()) {
+            agentInstance = this.agentInstances.findAgent(uuid);
+            agentConfig = agentInstance.agentConfig();
+        } else {
+            agentConfig = agentDao.agentConfigByUuid(uuid);
+        }
+
+        if (enable.isTrue()) {
+            agentConfig.enable();
+        }
+
+        if (enable.isFalse()) {
+            agentConfig.disable();
+        }
+
+        if (newHostname != null) {
+            agentConfig.setHostname(newHostname);
+        }
+
+        if (resources != null) {
+            agentConfig.setResources(new ResourceConfigs(resources));
+        }
+
+        if (environments != null) {
+            agentConfig.setEnvironments(environments);
+        }
+
+        try {
+            saveOrUpdate(agentConfig);
+
+            if (agentConfig.hasErrors()) {
+                result.unprocessibleEntity("Updating agent failed:", "", HealthStateType.general(HealthStateScope.GLOBAL));
+            }
+        } catch (Exception e){
+            result.internalServerError("Updating agent failed: " + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
+            return null;
+        }
+
         if (agentConfig != null) {
             return AgentInstance.createFromConfig(agentConfig, systemEnvironment, agentStatusChangeNotifier);
         }
@@ -189,8 +233,22 @@ public class AgentService {
                                           List<String> resourcesToAdd, List<String> resourcesToRemove,
                                           List<String> environmentsToAdd, List<String> environmentsToRemove,
                                           TriState enable) {
-        agentConfigService.bulkUpdateAgentAttributes(agentInstances, username, result, uuids, environmentConfigService,
-                resourcesToAdd, resourcesToRemove, environmentsToAdd, environmentsToRemove, enable);
+        AgentsUpdateValidator agentsUpdateValidator = new AgentsUpdateValidator(agentInstances,
+                username, result, uuids, environmentsToAdd, environmentsToRemove, enable, resourcesToAdd, resourcesToRemove, goConfigService);
+        try {
+            if (agentsUpdateValidator.canContinue()) {
+                agentsUpdateValidator.validate();
+                agentDao.bulkUpdateAttributes(uuids, resourcesToAdd, resourcesToRemove, environmentsToAdd, environmentsToRemove, enable, agentInstances);
+                result.setMessage("Updated agent(s) with uuid(s): [" + StringUtils.join(uuids, ", ") + "].");
+            }
+        } catch (Exception e) {
+            LOGGER.error("There was an error bulk updating agents", e);
+            if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
+                result.unprocessableEntity(entityConfigValidationFailed(Agents.class.getAnnotation(ConfigTag.class).value(), StringUtils.join(uuids, ","), e.getMessage()));
+            } else if (!result.hasMessage()) {
+                result.internalServerError("Server error occured. Check log for details.");
+            }
+        }
     }
 
     private boolean populateAgentInstancesForUUIDs(OperationResult operationResult, List<String> uuids, List<AgentInstance> agents) {
@@ -222,7 +280,16 @@ public class AgentService {
         }
 
         try {
-            agentConfigService.deleteAgents(username, agents.toArray(new AgentInstance[0]));
+            List<Agent> allAgents = agentDao.getAllAgents(uuids);
+            if (allAgents.size() != uuids.size()) {
+                List<String> uuidsOfAgentsInDatabase = allAgents.stream().map(agent -> agent.getUuid()).collect(Collectors.toList());
+                List<String> nonExistentAgentIds = uuids.stream().filter(uuid -> !uuidsOfAgentsInDatabase.contains(uuid)).collect(Collectors.toList());
+                //TODO : Revisit this for checking whether to throw this error
+//                if (nonExistentAgentIds != null) {
+//                    bomb("Unable to delete agent; Agent [" + uuid + "] not found.");
+//                }
+            }
+            agentDao.bulkSoftDelete(uuids);
             operationResult.ok(String.format("Deleted %s agent(s).", agents.size()));
         } catch (Exception e) {
             operationResult.internalServerError("Deleting agents failed:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
@@ -245,12 +312,17 @@ public class AgentService {
         AgentInstance agentInstance = findAgentAndRefreshStatus(info.getUUId());
         if (agentInstance.isIpChangeRequired(info.getIpAdress())) {
             AgentConfig agentConfig = agentInstance.agentConfig();
-            Username userName = agentUsername(info.getUUId(), info.getIpAdress(), agentConfig.getHostname());
             LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", info.getUUId(), agentConfig.getIpAddress(), info.getIpAdress());
-            agentConfigService.updateAgentIpByUuid(agentConfig.getUuid(), info.getIpAdress(), userName);
+            String uuid = agentConfig.getUuid();
+
+            Agent agent = agentDao.agentByUuid(uuid);
+            bombIfNull(agent, "Unable to set agent ipAddress; Agent [" + uuid + "] not found.");
+            agent.setIpaddress(info.getIpAdress());
+            saveOrUpdate(agent);
         }
         agentInstances.updateAgentRuntimeInfo(info);
     }
+
 
     public Username agentUsername(String uuId, String ipAddress, String hostNameForDisplay) {
         return new Username(String.format("agent_%s_%s_%s", uuId, ipAddress, hostNameForDisplay));
@@ -266,7 +338,7 @@ public class AgentService {
                 String cookie = uuidGenerator.randomUuid();
                 agentConfig.setCookie(cookie);
             }
-            agentConfigService.saveOrUpdateAgent(agentInstance, username);
+            saveOrUpdateAgentInstance(agentInstance, username);
             if (agentConfig.hasErrors()) {
                 List<ConfigErrors> errors = ErrorCollector.getAllErrors(agentConfig);
 
@@ -277,10 +349,30 @@ public class AgentService {
         return registration;
     }
 
+    public void updateAgentApprovalStatus(final String uuid, final Boolean isDenied, Username currentUser) {
+        Agent agent = agentDao.agentByUuid(uuid);
+        agent.setDisabled(isDenied);
+        saveOrUpdate(agent);
+    }
+
+    public void saveOrUpdateAgentInstance(AgentInstance agentInstance, Username currentUser) {
+        AgentConfig agentConfig = agentInstance.agentConfig();
+        if (agentDao.agentByUuid(agentConfig.getUuid()) != null) {
+            this.updateAgentApprovalStatus(agentConfig.getUuid(), agentConfig.isDisabled(), currentUser);
+        } else {
+            saveOrUpdate(agentConfig);
+        }
+    }
+
     @Deprecated
     public void approve(String uuid) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
-        agentConfigService.approvePendingAgent(agentInstance);
+        agentInstance.enable();
+        if (hasAgent(agentInstance.getUuid())) {
+            LOGGER.warn("Registered agent with the same uuid [{}] already approved.", agentInstance);
+        } else {
+            saveOrUpdate(agentInstance.agentConfig());
+        }
     }
 
     public void notifyJobCancelledEvent(String agentId) {
@@ -317,14 +409,7 @@ public class AgentService {
     }
 
     public Agent findAgentObjectByUuid(String uuid) {
-        Agent agent;
-        AgentConfig agentFromConfig = agentConfigService.agents().getAgentByUuid(uuid);
-        if (agentFromConfig != null && !agentFromConfig.isNull()) {
-            agent = Agent.fromConfig(agentFromConfig);
-        } else {
-            agent = agentDao.agentByUuid(uuid);
-        }
-        return agent;
+        return agentDao.agentByUuid(uuid);
     }
 
     public AgentsViewModel filter(List<String> uuids) {
@@ -360,7 +445,9 @@ public class AgentService {
             String cookie = uuidGenerator.randomUuid();
             agentConfig.setCookie(cookie);
         }
-        agentConfigService.registerAgent(agentConfig, agentAutoRegisterResources, agentAutoRegisterEnvironments, result);
+        agentConfig.setResourceConfigs(new ResourceConfigs(agentAutoRegisterResources));
+        agentConfig.setEnvironments(agentAutoRegisterEnvironments);
+        saveOrUpdate(agentConfig);
     }
 
     public boolean hasAgent(String uuid) {
@@ -378,8 +465,36 @@ public class AgentService {
     public List<String> allAgentUuids() {
         return agentDao.allAgentUuids();
     }
+    public void disableAgents(Username currentUser, AgentInstance... agentInstance) {
+        disableAgents(true, currentUser, agentInstance);
+    }
+
+    private void disableAgents(boolean disabled, Username currentUser, AgentInstance... instances) {
+        List<String> uuids = Arrays.stream(instances).map(instance -> instance.getUuid()).collect(Collectors.toList());
+        agentDao.changeDisabled(uuids, disabled);
+    }
 
     public void saveOrUpdate(AgentConfig agentConfig) {
-        agentConfigService.saveOrUpdate(agentConfig, null);
+        agentConfig.validate(null);
+        if (!agentConfig.hasErrors()) {
+            agentDao.saveOrUpdate(agentConfig);
+        }
+    }
+
+    public void saveOrUpdate(Agent agent) {
+        agent.validate(null);
+        if (!agent.hasErrors()) {
+            agentDao.saveOrUpdate(agent);
+        }
+    }
+
+    @Override
+    public void onBulkEntityChange() {
+
+    }
+
+    @Override
+    public void onEntityChange(Agent entity) {
+
     }
 }

@@ -20,8 +20,6 @@ import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.security.RegistrationJSONizer;
-import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.AgentConfigService;
 import com.thoughtworks.go.server.service.AgentRuntimeInfo;
 import com.thoughtworks.go.server.service.AgentService;
 import com.thoughtworks.go.server.service.GoConfigService;
@@ -67,8 +65,6 @@ public class AgentRegistrationControllerIntegrationTest {
     private GoConfigService goConfigService;
     @Autowired
     private AgentService agentService;
-    @Autowired
-    private AgentConfigService agentConfigService;
     @Autowired
     private UuidGenerator uuidGenerator;
 
@@ -236,7 +232,7 @@ public class AgentRegistrationControllerIntegrationTest {
     public void shouldRejectGenerateTokenRequestIfAgentIsInConfig() throws Exception {
         System.setProperty(SystemEnvironment.AUTO_REGISTER_LOCAL_AGENT_ENABLED.propertyName(), "false");
         final String uuid = UUID.randomUUID().toString();
-        agentConfigService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()), Username.ANONYMOUS);
+        agentService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()));
         assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
 
         final ResponseEntity responseEntity = controller.getToken(uuid);
@@ -269,7 +265,7 @@ public class AgentRegistrationControllerIntegrationTest {
     @Test
     public void shouldReIssueCertificateIfRegisteredAgentAsksForRegistrationWithoutAutoRegisterKeys() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        agentConfigService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()), Username.ANONYMOUS);
+        agentService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()));
         assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -285,7 +281,7 @@ public class AgentRegistrationControllerIntegrationTest {
     @Test
     public void shouldReIssueCertificateIfRegisteredAgentAsksForRegistrationWithAutoRegisterKeys() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        agentConfigService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()), Username.ANONYMOUS);
+        agentService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()));
         assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
 
         MockHttpServletRequest request = new MockHttpServletRequest();

@@ -22,6 +22,8 @@
   <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-cleanup_temp_files_from_previous_version.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
 <% end -%>
 
+    /usr/share/<%= name %>/bin/<%= name %> install 2>&1 || true
+
     if [ -e /var/run/<%= name %>-running-check-from-deb-package ]; then
         rm -rf /var/run/<%= name %>-running-check-from-deb-package
         /usr/share/<%= name %>/bin/<%= name %> start

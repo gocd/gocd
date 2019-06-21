@@ -41,7 +41,7 @@ module ApiV1
 
           material = MaterialConfigConverter.new.toMaterial(material_config)
           if material.respond_to?(:checkConnection)
-            validation_bean = check_connection_for_material material
+            validation_bean = check_connection_for_material(material, group_name)
             if validation_bean.isValid
               render_message('Connection OK.', :ok)
             else
@@ -74,11 +74,11 @@ module ApiV1
           "There was an error with the material configuration.\n" + combined_error_message
         end
 
-        def check_connection_for_material material
+        def check_connection_for_material(material, group_name)
           begin
-            secret_param_resolver.resolve(material.getSecretParams()) if material.is_a?(ScmMaterial)
+            secret_param_resolver.resolve(material, group_name) if material.is_a?(ScmMaterial)
             material.checkConnection(subprocess_execution_context)
-          rescue com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException, com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException => e
+          rescue com.thoughtworks.go.config.exceptions.UnresolvedSecretParamException, com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException, com.thoughtworks.go.server.exceptions.RulesViolationException => e
             com.thoughtworks.go.domain.materials.ValidationBean.notValid(e.message);
           end
         end

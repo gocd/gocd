@@ -4,6 +4,6 @@
 <script type="text/javascript">
     Util.on_load(function() {
         new CheckConnection().hookupCheckConnection("#<%=check_connection_button_id-%>", "<%=params[:pipeline_name]-%>", "<%= scope[:type] %>", "<%=scope[:url]-%>", "<%=scope[:username]-%>",
-                "<%=scope[:password]-%>", "<%=scope[:encrypted_password]-%>", "<%=scope[:password_changed]-%>", "<%= scope[:project_path] -%>", "<%= scope[:domain] -%>", "<%= scope[:view] -%>", "<%= scope[:branch] -%>", "<%= scope[:port] -%>");
+                "<%=scope[:password]-%>", "<%=scope[:encrypted_password]-%>", "<%=scope[:password_changed]-%>", "<%= scope[:project_path] -%>", "<%= scope[:domain] -%>", "<%= scope[:view] -%>", "<%= scope[:branch] -%>", "<%= scope[:port] -%>", "#pipeline_group_name_text_field");
     });
 </script>

@@ -109,7 +109,7 @@ public class RulesService {
         validateSecretConfigReferences(secretParams, group.getClass(), group.getGroup(), errorMessagePrefix);
     }
 
-    private void validateSecretConfigReferences(SecretParams secretParams, Class<? extends Validatable> entityClass, String entityName, String entityNameOrErrorMessagePrefix) {
+    protected void validateSecretConfigReferences(SecretParams secretParams, Class<? extends Validatable> entityClass, String entityName, String entityNameOrErrorMessagePrefix) {
         secretParams.forEach(secretParam -> {
             SecretConfig secretConfig = goConfigService.cruiseConfig().getSecretConfigs().find(secretParam.getSecretConfigId());
 

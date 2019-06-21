@@ -15,7 +15,7 @@
  */
 var WizardPage = new (Class.create({
 
-  checkConnection: function (pipelineName, username, password, url, scm, isEncrypted, projectPath, domain, view, branch, port) {
+  checkConnection: function (pipelineName, username, password, url, scm, isEncrypted, projectPath, domain, view, branch, port, pipelineGroupName) {
 
     // copied verbatim from string-plus.js
     var snakeCaser = function (key, value) {
@@ -33,12 +33,9 @@ var WizardPage = new (Class.create({
 
     var messageBox = jQuery('#vcsconnection-message_' + scm);
 
-    var urlParams = new URLSearchParams(window.location.search);
-    var pipelineGroup = urlParams.get('group');
-
     var requestBody = {
       type: scm,
-      pipeline_group: pipelineGroup,
+      pipeline_group: pipelineGroupName,
       pipeline_name: pipelineName,
       attributes: {
         username: username,

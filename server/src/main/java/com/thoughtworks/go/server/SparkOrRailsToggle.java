@@ -25,10 +25,6 @@ public class SparkOrRailsToggle {
         basedOnToggle(Toggles.SECURITY_AUTH_CONFIG_USE_RAILS_API, request);
     }
 
-    public void pluginSettingsAPIUsingRails(HttpServletRequest request, HttpServletResponse response) {
-        basedOnToggle(Toggles.PLUGIN_SETTINGS_API_USING_RAILS, request);
-    }
-
     public void pluggableScmsUsingRails(HttpServletRequest request, HttpServletResponse response) {
         basedOnToggle(Toggles.USE_OLD_PLUGGABLE_SCMS_API, request);
     }

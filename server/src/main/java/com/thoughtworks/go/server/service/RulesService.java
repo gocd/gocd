@@ -46,57 +46,6 @@ public class RulesService {
         this.goConfigService = goConfigService;
     }
 
-    public boolean validateSecretConfigReferences1(ScmMaterial scmMaterial) {
-        List<CaseInsensitiveString> pipelines = goConfigService.pipelinesWithMaterial(scmMaterial.getFingerprint());
-        SecretParams secretParams = scmMaterial.getSecretParams();
-
-        List<String> missingSecretConfigs = secretParams.stream()
-                .filter(secretParam -> goConfigService.cruiseConfig().getSecretConfigs().find(secretParam.getSecretConfigId()) == null)
-                .map(SecretParam::getSecretConfigId)
-                .collect(Collectors.toList());
-
-        if (!missingSecretConfigs.isEmpty()) {
-            throwSecretConfigNotFound("ScmMaterial", scmMaterial.getUriForDisplay(), String.join(", ", missingSecretConfigs));
-        }
-
-        HashMap<CaseInsensitiveString, List<String>> pipelinesWithViolatedSecretConfigIds = new HashMap<>();
-        secretParams.stream()
-                .map(secretParam -> goConfigService.cruiseConfig().getSecretConfigs().find(secretParam.getSecretConfigId()))
-                .forEach(secretConfig -> {
-                    pipelines.forEach(pipelineName -> {
-                        MaterialConfig materialConfig = goConfigService
-                                .findPipelineByName(pipelineName)
-                                .materialConfigs()
-                                .getByMaterialFingerPrint(scmMaterial.getFingerprint());
-                        if (materialConfig != null) {
-                            PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
-                            if (!secretConfig.canRefer(group.getClass(), group.getGroup())) {
-                                if (!pipelinesWithViolatedSecretConfigIds.containsKey(pipelineName)) {
-                                    pipelinesWithViolatedSecretConfigIds.put(pipelineName, new ArrayList<>());
-                                }
-                                String errorMessage = format("Pipeline '%s' does not have permission to refer to secrets using SecretConfig: '%s'", pipelineName.toString(), secretConfig.getId());
-                                LOGGER.error("[Material Update] Failure: {}", errorMessage);
-                                pipelinesWithViolatedSecretConfigIds.get(pipelineName).add(secretConfig.getId());
-
-                            }
-                        }
-                    });
-                });
-
-        if (pipelinesWithViolatedSecretConfigIds.size() == pipelines.size()) {
-            String errorMessageFormat = "Pipeline(s) '%s' are using the material with URL: '%s', and do not have permissions to refer secret config '%s'.";
-            StringBuilder errorMessage = new StringBuilder();
-            Iterator<Map.Entry<CaseInsensitiveString, List<String>>> iterator = pipelinesWithViolatedSecretConfigIds.entrySet().iterator();
-            while (iterator.hasNext()) {
-                Map.Entry<CaseInsensitiveString, List<String>> entry = iterator.next();
-                errorMessage.append(format(errorMessageFormat, entry.getKey().toString(), scmMaterial.getUriForDisplay(), entry.getValue().toString()));
-            }
-            LOGGER.error("[Material Update] Failure: {}", errorMessage.toString());
-            throw new RulesViolationException(errorMessage.toString());
-        }
-        return true;
-    }
-
     public boolean validateSecretConfigReferences(ScmMaterial scmMaterial) {
         List<CaseInsensitiveString> pipelines = goConfigService.pipelinesWithMaterial(scmMaterial.getFingerprint());
 

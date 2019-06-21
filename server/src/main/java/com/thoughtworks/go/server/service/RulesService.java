@@ -18,14 +18,19 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.remote.work.BuildAssignment;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwCannotRefer;
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwSecretConfigNotFound;
@@ -41,16 +46,101 @@ public class RulesService {
         this.goConfigService = goConfigService;
     }
 
-    public boolean validateSecretConfigReferences(ScmMaterial scmMaterial) {
+    public boolean validateSecretConfigReferences1(ScmMaterial scmMaterial) {
         List<CaseInsensitiveString> pipelines = goConfigService.pipelinesWithMaterial(scmMaterial.getFingerprint());
         SecretParams secretParams = scmMaterial.getSecretParams();
-        pipelines.forEach(pipeline -> {
-            PipelineConfigs group = goConfigService.findGroupByPipeline(pipeline);
-            String errorMessagePrefix = format("Material with url: '%s' in Pipeline: '%s' and Pipeline Group:", scmMaterial.getUriForDisplay(), pipeline);
-            validateSecretConfigReferences(secretParams, group.getClass(), group.getGroup(), errorMessagePrefix);
-        });
 
+        List<String> missingSecretConfigs = secretParams.stream()
+                .filter(secretParam -> goConfigService.cruiseConfig().getSecretConfigs().find(secretParam.getSecretConfigId()) == null)
+                .map(SecretParam::getSecretConfigId)
+                .collect(Collectors.toList());
+
+        if (!missingSecretConfigs.isEmpty()) {
+            throwSecretConfigNotFound("ScmMaterial", scmMaterial.getUriForDisplay(), String.join(", ", missingSecretConfigs));
+        }
+
+        HashMap<CaseInsensitiveString, List<String>> pipelinesWithViolatedSecretConfigIds = new HashMap<>();
+        secretParams.stream()
+                .map(secretParam -> goConfigService.cruiseConfig().getSecretConfigs().find(secretParam.getSecretConfigId()))
+                .forEach(secretConfig -> {
+                    pipelines.forEach(pipelineName -> {
+                        MaterialConfig materialConfig = goConfigService
+                                .findPipelineByName(pipelineName)
+                                .materialConfigs()
+                                .getByMaterialFingerPrint(scmMaterial.getFingerprint());
+                        if (materialConfig != null) {
+                            PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
+                            if (!secretConfig.canRefer(group.getClass(), group.getGroup())) {
+                                if (!pipelinesWithViolatedSecretConfigIds.containsKey(pipelineName)) {
+                                    pipelinesWithViolatedSecretConfigIds.put(pipelineName, new ArrayList<>());
+                                }
+                                String errorMessage = format("Pipeline '%s' does not have permission to refer to secrets using SecretConfig: '%s'", pipelineName.toString(), secretConfig.getId());
+                                LOGGER.error("[Material Update] Failure: {}", errorMessage);
+                                pipelinesWithViolatedSecretConfigIds.get(pipelineName).add(secretConfig.getId());
+
+                            }
+                        }
+                    });
+                });
+
+        if (pipelinesWithViolatedSecretConfigIds.size() == pipelines.size()) {
+            String errorMessageFormat = "Pipeline(s) '%s' are using the material with URL: '%s', and do not have permissions to refer secret config '%s'.";
+            StringBuilder errorMessage = new StringBuilder();
+            Iterator<Map.Entry<CaseInsensitiveString, List<String>>> iterator = pipelinesWithViolatedSecretConfigIds.entrySet().iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<CaseInsensitiveString, List<String>> entry = iterator.next();
+                errorMessage.append(format(errorMessageFormat, entry.getKey().toString(), scmMaterial.getUriForDisplay(), entry.getValue().toString()));
+            }
+            LOGGER.error("[Material Update] Failure: {}", errorMessage.toString());
+            throw new RulesViolationException(errorMessage.toString());
+        }
         return true;
+    }
+
+    public boolean validateSecretConfigReferences(ScmMaterial scmMaterial) {
+        List<CaseInsensitiveString> pipelines = goConfigService.pipelinesWithMaterial(scmMaterial.getFingerprint());
+
+        HashMap<CaseInsensitiveString, StringBuilder> pipelinesWithErrors = new HashMap<>();
+        pipelines.forEach(pipelineName -> {
+            MaterialConfig materialConfig = goConfigService
+                    .findPipelineByName(pipelineName)
+                    .materialConfigs()
+                    .getByMaterialFingerPrint(scmMaterial.getFingerprint());
+            if (materialConfig instanceof ScmMaterialConfig) {
+                PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
+                ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) materialConfig;
+                SecretParams secretParams = SecretParams.parse(scmMaterialConfig.getPassword());
+                secretParams.forEach(secretParam -> {
+                    String secretConfigId = secretParam.getSecretConfigId();
+                    SecretConfig secretConfig = goConfigService.getSecretConfigById(secretConfigId);
+                    if (secretConfig == null) {
+                        addError(pipelinesWithErrors, pipelineName, format("\nPipeline '%s' is referring to none-existent secret config '%s'.", pipelineName, secretConfigId));
+                    } else if (!secretConfig.canRefer(group.getClass(), group.getGroup())) {
+                        addError(pipelinesWithErrors, pipelineName, format("\nPipeline '%s' does not have permission to refer to secrets using secret config '%s'", pipelineName, secretConfigId));
+                    }
+                });
+            }
+        });
+        StringBuilder errorMessage = new StringBuilder();
+        if (!pipelinesWithErrors.isEmpty()) {
+            errorMessage.append(StringUtils.join(pipelinesWithErrors.values(), '\n').trim());
+            LOGGER.error("[Material Update] Failure: {}", errorMessage.toString());
+        }
+        if (pipelines.size() == pipelinesWithErrors.size()) {
+            throw new RulesViolationException(errorMessage.toString());
+        }
+        return true;
+    }
+
+    private void addError(HashMap<CaseInsensitiveString, StringBuilder> pipelinesWithErrors, CaseInsensitiveString pipelineName, String message) {
+        if (pipelinesWithErrors == null) {
+            pipelinesWithErrors = new HashMap<>();
+        }
+        if (!pipelinesWithErrors.containsKey(pipelineName)) {
+            pipelinesWithErrors.put(pipelineName, new StringBuilder());
+        }
+        StringBuilder stringBuilder = pipelinesWithErrors.get(pipelineName).append(message);
+        pipelinesWithErrors.put(pipelineName, stringBuilder);
     }
 
     public boolean validateSecretConfigReferences(EnvironmentConfig environmentConfig) {

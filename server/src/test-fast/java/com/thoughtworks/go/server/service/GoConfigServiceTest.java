@@ -26,6 +26,8 @@ import com.thoughtworks.go.config.materials.svn.SvnMaterialConfig;
 import static com.thoughtworks.go.helper.MaterialConfigsMother.svn;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.rules.Allow;
+import com.thoughtworks.go.config.rules.Rules;
 import com.thoughtworks.go.config.update.ConfigUpdateResponse;
 import com.thoughtworks.go.config.update.FullConfigUpdateCommand;
 import com.thoughtworks.go.config.update.UiBasedConfigUpdateCommand;
@@ -1128,6 +1130,54 @@ public class GoConfigServiceTest {
         assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline1")).getGroup(), is("group1"));
         assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline2")).getGroup(), is("group1"));
         assertThat(goConfigService.findGroupByPipeline(new CaseInsensitiveString("pipeline3")).getGroup(), is("group2"));
+    }
+
+    @Test
+    public void shouldFindPipelineByPipelineName() throws Exception {
+        GoConfigMother configMother = new GoConfigMother();
+        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        configMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1", "job1");
+        configMother.addPipelineWithGroup(config, "group2", "pipeline3", "stage1", "job1");
+
+        expectLoad(config);
+        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("pipeline1")).name().toString(), is("pipeline1"));
+        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("pipeline2")).name().toString(), is("pipeline2"));
+        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("pipeline3")).name().toString(), is("pipeline3"));
+    }
+
+    @Test
+    public void shouldReturnNullIfNoPipelineExistByPipelineName() throws Exception {
+        GoConfigMother configMother = new GoConfigMother();
+        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+        configMother.addPipelineWithGroup(config, "group1", "pipeline2", "stage1", "job1");
+        configMother.addPipelineWithGroup(config, "group2", "pipeline3", "stage1", "job1");
+
+        expectLoad(config);
+        assertThat(goConfigService.findPipelineByName(new CaseInsensitiveString("invalid")), is(nullValue()));
+    }
+
+    @Test
+    public void shouldReturnSecretConfigBySecretConfigId() throws Exception {
+        Rules rules = new Rules(new Allow("refer", "pipeline_group", "default"));
+        SecretConfig secretConfig = new SecretConfig("secret_config_id", "plugin_id", rules);
+        GoConfigMother configMother = new GoConfigMother();
+        CruiseConfig config = GoConfigMother.configWithSecretConfig(secretConfig);
+        configMother.addPipelineWithGroup(config, "default", "pipeline1", "stage1", "job1");
+
+        expectLoad(config);
+        assertThat(goConfigService.getSecretConfigById("secret_config_id"), is(secretConfig));
+    }
+
+    @Test
+    public void shouldReturnNullIfNoSecretConfigExistBySecretConfigId() throws Exception {
+        GoConfigMother configMother = new GoConfigMother();
+        BasicCruiseConfig config = GoConfigMother.defaultCruiseConfig();
+        configMother.addPipelineWithGroup(config, "group1", "pipeline1", "stage1", "job1");
+
+        expectLoad(config);
+        assertThat(goConfigService.getSecretConfigById("invalid"), is(nullValue()));
     }
 
     @Test

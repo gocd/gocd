@@ -30,6 +30,7 @@ import com.thoughtworks.go.util.ArtifactLogUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @ConfigTag("materials")
 @ConfigCollection(MaterialConfig.class)
@@ -406,5 +407,16 @@ public class MaterialConfigs extends BaseCollection<MaterialConfig> implements V
 
     public boolean hasDependencyMaterial(PipelineConfig pipeline) {
         return findDependencyMaterial(pipeline.name()) != null;
+    }
+
+    public MaterialConfig getByMaterialFingerPrint(String materialFingerprint) {
+        List<MaterialConfig> materialConfigs = this
+                .stream()
+                .filter(materialConfig -> materialConfig.getFingerprint().equals(materialFingerprint))
+                .collect(Collectors.toList());
+        if (!materialConfigs.isEmpty()) {
+            return materialConfigs.get(0);
+        }
+        return null;
     }
 }

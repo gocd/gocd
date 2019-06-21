@@ -35,6 +35,8 @@ import org.mockito.ArgumentCaptor;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 
 import static com.thoughtworks.go.util.HttpService.GO_ARTIFACT_PAYLOAD_SIZE;
@@ -65,11 +67,11 @@ public class HttpServiceTest {
     }
 
     @Test
-    public void shouldPostArtifactsAlongWithMD5() throws IOException {
+    public void shouldPostArtifactsAlongWithMD5() throws IOException, URISyntaxException {
         File uploadingFile = mock(File.class);
         java.util.Properties checksums = new java.util.Properties();
 
-        String uploadUrl = "url";
+        String uploadUrl = "http://url";
 
         HttpPost mockPostMethod = mock(HttpPost.class);
         CloseableHttpResponse response = mock(CloseableHttpResponse.class);
@@ -78,6 +80,7 @@ public class HttpServiceTest {
 
         when(uploadingFile.exists()).thenReturn(true);
         when(httpClientFactory.createPost(uploadUrl)).thenReturn(mockPostMethod);
+        when(mockPostMethod.getURI()).thenReturn(new URI(uploadUrl));
 
         service.upload(uploadUrl, 100L, uploadingFile, checksums);
 
@@ -90,7 +93,7 @@ public class HttpServiceTest {
     }
 
     @Test
-    public void shouldDownloadArtifact() throws IOException {
+    public void shouldDownloadArtifact() throws IOException, URISyntaxException {
         String url = "http://blah";
         FetchHandler fetchHandler = mock(FetchHandler.class);
 
@@ -99,6 +102,8 @@ public class HttpServiceTest {
         when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
         when(httpClient.execute(mockGetMethod)).thenReturn(response);
         when(httpClientFactory.createGet(url)).thenReturn(mockGetMethod);
+
+        when(mockGetMethod.getURI()).thenReturn(new URI(url));
 
         service.download(url, fetchHandler);
         verify(httpClient).execute(mockGetMethod);
@@ -111,7 +116,7 @@ public class HttpServiceTest {
         File artifact = new File(folderToSaveDowloadFiles, "artifact");
         artifact.createNewFile();
         try {
-            factory.createMultipartRequestEntity(artifact,null);
+            factory.createMultipartRequestEntity(artifact, null);
         } catch (FileNotFoundException e) {
             fail("Nulitpart should be created even in the absence of checksum file");
         }
@@ -120,16 +125,18 @@ public class HttpServiceTest {
     @Test
     public void shouldSetTheAcceptHeaderWhilePostingProperties() throws Exception {
         HttpPost post = mock(HttpPost.class);
-        when(httpClientFactory.createPost("url")).thenReturn(post);
+        String url = "http://url";
+        when(httpClientFactory.createPost(url)).thenReturn(post);
+        when(post.getURI()).thenReturn(new URI(url));
         CloseableHttpResponse response = mock(CloseableHttpResponse.class);
         when(response.getStatusLine()).thenReturn(new BasicStatusLine(HttpVersion.HTTP_1_1, 200, "OK"));
         when(httpClient.execute(post)).thenReturn(response);
 
         ArgumentCaptor<UrlEncodedFormEntity> entityCaptor = ArgumentCaptor.forClass(UrlEncodedFormEntity.class);
 
-        service.postProperty("url", "value");
+        service.postProperty(url, "value");
 
-        verify(post).setHeader("Confirm","true");
+        verify(post).setHeader("Confirm", "true");
         verify(post).setEntity(entityCaptor.capture());
 
         UrlEncodedFormEntity expected = new UrlEncodedFormEntity(Arrays.asList(new BasicNameValuePair("value", "value")));
@@ -150,7 +157,7 @@ public class HttpServiceTest {
         artifact.createNewFile();
         try {
             java.util.Properties artifactChecksums = new java.util.Properties();
-            artifactChecksums.setProperty("foo.txt","323233333");
+            artifactChecksums.setProperty("foo.txt", "323233333");
 
             factory.createMultipartRequestEntity(artifact, artifactChecksums);
 

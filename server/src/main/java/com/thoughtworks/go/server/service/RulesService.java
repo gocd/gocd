@@ -29,8 +29,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwCannotRefer;
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwSecretConfigNotFound;
@@ -55,20 +55,18 @@ public class RulesService {
                     .findPipelineByName(pipelineName)
                     .materialConfigs()
                     .getByMaterialFingerPrint(scmMaterial.getFingerprint());
-            if (materialConfig instanceof ScmMaterialConfig) {
-                PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
-                ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) materialConfig;
-                SecretParams secretParams = SecretParams.parse(scmMaterialConfig.getPassword());
-                secretParams.forEach(secretParam -> {
-                    String secretConfigId = secretParam.getSecretConfigId();
-                    SecretConfig secretConfig = goConfigService.getSecretConfigById(secretConfigId);
-                    if (secretConfig == null) {
-                        addError(pipelinesWithErrors, pipelineName, format("\nPipeline '%s' is referring to none-existent secret config '%s'.", pipelineName, secretConfigId));
-                    } else if (!secretConfig.canRefer(group.getClass(), group.getGroup())) {
-                        addError(pipelinesWithErrors, pipelineName, format("\nPipeline '%s' does not have permission to refer to secrets using secret config '%s'", pipelineName, secretConfigId));
-                    }
-                });
-            }
+            PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
+            ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) materialConfig;
+            SecretParams secretParams = SecretParams.parse(scmMaterialConfig.getPassword());
+            secretParams.forEach(secretParam -> {
+                String secretConfigId = secretParam.getSecretConfigId();
+                SecretConfig secretConfig = goConfigService.getSecretConfigById(secretConfigId);
+                if (secretConfig == null) {
+                    addError(pipelinesWithErrors, pipelineName, format("Pipeline '%s' is referring to none-existent secret config '%s'.", pipelineName, secretConfigId));
+                } else if (!secretConfig.canRefer(group.getClass(), group.getGroup())) {
+                    addError(pipelinesWithErrors, pipelineName, format("Pipeline '%s' does not have permission to refer to secrets using secret config '%s'", pipelineName, secretConfigId));
+                }
+            });
         });
         StringBuilder errorMessage = new StringBuilder();
         if (!pipelinesWithErrors.isEmpty()) {

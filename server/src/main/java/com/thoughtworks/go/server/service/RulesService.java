@@ -18,13 +18,18 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.config.materials.ScmMaterialConfig;
 import com.thoughtworks.go.domain.JobIdentifier;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.remote.work.BuildAssignment;
+import com.thoughtworks.go.server.exceptions.RulesViolationException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 
 import static com.thoughtworks.go.server.exceptions.RulesViolationException.throwCannotRefer;
@@ -43,14 +48,46 @@ public class RulesService {
 
     public boolean validateSecretConfigReferences(ScmMaterial scmMaterial) {
         List<CaseInsensitiveString> pipelines = goConfigService.pipelinesWithMaterial(scmMaterial.getFingerprint());
-        SecretParams secretParams = scmMaterial.getSecretParams();
-        pipelines.forEach(pipeline -> {
-            PipelineConfigs group = goConfigService.findGroupByPipeline(pipeline);
-            String errorMessagePrefix = format("Material with url: '%s' in Pipeline: '%s' and Pipeline Group:", scmMaterial.getUriForDisplay(), pipeline);
-            validateSecretConfigReferences(secretParams, group.getClass(), group.getGroup(), errorMessagePrefix);
-        });
 
+        HashMap<CaseInsensitiveString, StringBuilder> pipelinesWithErrors = new HashMap<>();
+        pipelines.forEach(pipelineName -> {
+            MaterialConfig materialConfig = goConfigService
+                    .findPipelineByName(pipelineName)
+                    .materialConfigs()
+                    .getByMaterialFingerPrint(scmMaterial.getFingerprint());
+            PipelineConfigs group = goConfigService.findGroupByPipeline(pipelineName);
+            ScmMaterialConfig scmMaterialConfig = (ScmMaterialConfig) materialConfig;
+            SecretParams secretParams = SecretParams.parse(scmMaterialConfig.getPassword());
+            secretParams.forEach(secretParam -> {
+                String secretConfigId = secretParam.getSecretConfigId();
+                SecretConfig secretConfig = goConfigService.getSecretConfigById(secretConfigId);
+                if (secretConfig == null) {
+                    addError(pipelinesWithErrors, pipelineName, format("Pipeline '%s' is referring to none-existent secret config '%s'.", pipelineName, secretConfigId));
+                } else if (!secretConfig.canRefer(group.getClass(), group.getGroup())) {
+                    addError(pipelinesWithErrors, pipelineName, format("Pipeline '%s' does not have permission to refer to secrets using secret config '%s'", pipelineName, secretConfigId));
+                }
+            });
+        });
+        StringBuilder errorMessage = new StringBuilder();
+        if (!pipelinesWithErrors.isEmpty()) {
+            errorMessage.append(StringUtils.join(pipelinesWithErrors.values(), '\n').trim());
+            LOGGER.error("[Material Update] Failure: {}", errorMessage.toString());
+        }
+        if (pipelines.size() == pipelinesWithErrors.size()) {
+            throw new RulesViolationException(errorMessage.toString());
+        }
         return true;
+    }
+
+    private void addError(HashMap<CaseInsensitiveString, StringBuilder> pipelinesWithErrors, CaseInsensitiveString pipelineName, String message) {
+        if (pipelinesWithErrors == null) {
+            pipelinesWithErrors = new HashMap<>();
+        }
+        if (!pipelinesWithErrors.containsKey(pipelineName)) {
+            pipelinesWithErrors.put(pipelineName, new StringBuilder());
+        }
+        StringBuilder stringBuilder = pipelinesWithErrors.get(pipelineName).append(message);
+        pipelinesWithErrors.put(pipelineName, stringBuilder);
     }
 
     public boolean validateSecretConfigReferences(EnvironmentConfig environmentConfig) {

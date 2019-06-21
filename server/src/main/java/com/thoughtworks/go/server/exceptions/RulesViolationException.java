@@ -24,10 +24,10 @@ public class RulesViolationException extends RuntimeException {
     }
 
     public static void throwSecretConfigNotFound(String entityType, String entityName, String secretConfigId) {
-        throw new RulesViolationException(format("%s '%s' is referring to none existing secret config '%s'.", entityType, entityName, secretConfigId));
+        throw new RulesViolationException(format("%s '%s' is referring to none-existent secret config '%s'.", entityType, entityName, secretConfigId));
     }
 
     public static void throwCannotRefer(String entityType, String entityName, String secretConfigId) {
-        throw new RulesViolationException(format("%s '%s' does not have permission to refer to secrets using SecretConfig: '%s'", entityType, entityName, secretConfigId));
+        throw new RulesViolationException(format("%s '%s' does not have permission to refer to secrets using secret config '%s'", entityType, entityName, secretConfigId));
     }
 }

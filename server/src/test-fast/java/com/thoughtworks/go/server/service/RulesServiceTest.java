@@ -21,6 +21,7 @@ import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.ScmMaterial;
 import com.thoughtworks.go.config.materials.git.GitMaterial;
 import com.thoughtworks.go.config.rules.Allow;
+import com.thoughtworks.go.config.rules.Deny;
 import com.thoughtworks.go.config.rules.Rules;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -39,6 +40,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.config.rules.SupportedEntity.ENVIRONMENT;
@@ -82,15 +84,15 @@ class RulesServiceTest {
             when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(asList(new CaseInsensitiveString("up42")));
             when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(gitMaterial))
                     .isInstanceOf(RulesViolationException.class)
-                    .hasMessage("Material with url: 'http://example.com' in Pipeline: 'up42' and " +
-                            "Pipeline Group: 'some_group' does not have permission to refer to secrets using SecretConfig: 'secret_config_id'");
+                    .hasMessage("Pipeline 'up42' is referring to none-existent secret config 'secret_config_id'.");
         }
 
         @Test
-        void forAMaterialReferredInMultiplePipelineGroups_shouldErrorOutEvenIfOneOfThePipelineDoesNotHavePermissionToReferASecretConfig() {
+        void forAMaterialReferredInMultiplePipelineGroups_shouldNotErrorOutEvenIfOneOfThePipelineHavePermissionToReferASecretConfig() {
             GitMaterial gitMaterial = new GitMaterial("http://example.com");
             gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
 
@@ -108,11 +110,39 @@ class RulesServiceTest {
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(asList(new CaseInsensitiveString("up42"), new CaseInsensitiveString("up43")));
             when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
             when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up43"))).thenReturn(someGroup);
+            when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up43"))).thenReturn(up43);
+
+            assertThat(rulesService.validateSecretConfigReferences(gitMaterial)).isEqualTo(true);
+        }
+
+        @Test
+        void forAMaterialReferredInMultiplePipelineGroups_shouldErrorOutIfAllThePipelineDontHavePermissionToReferASecretConfig() {
+            GitMaterial gitMaterial = new GitMaterial("http://example.com");
+            gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
+
+            Rules rules = new Rules(new Deny("refer", "pipeline_group", "*"));
+
+            SecretConfig secretConfig = new SecretConfig("secret_config_id", "cd.go.file", rules);
+            PipelineConfig up42 = PipelineConfigMother.pipelineConfig("up42", new MaterialConfigs(gitMaterial.config()));
+            PipelineConfig up43 = PipelineConfigMother.pipelineConfig("up43", new MaterialConfigs(gitMaterial.config()));
+            PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("default", up42);
+            PipelineConfigs someGroup = PipelineConfigMother.createGroup("some_group", up43);
+            CruiseConfig cruiseConfig = configWithSecretConfig(secretConfig);
+            cruiseConfig.setGroup(new PipelineGroups(defaultGroup, someGroup));
+
+            when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
+            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(asList(new CaseInsensitiveString("up42"), new CaseInsensitiveString("up43")));
+            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
+            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up43"))).thenReturn(someGroup);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up43"))).thenReturn(up43);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(gitMaterial))
                     .isInstanceOf(RulesViolationException.class)
-                    .hasMessage("Material with url: 'http://example.com' in Pipeline: 'up43' and " +
-                            "Pipeline Group: 'some_group' does not have permission to refer to secrets using SecretConfig: 'secret_config_id'");
+                    .hasMessageContaining("Pipeline 'up42' is referring to none-existent secret config 'secret_config_id'.")
+                    .hasMessageContaining("Pipeline 'up43' is referring to none-existent secret config 'secret_config_id'.");
         }
 
         @Test
@@ -131,6 +161,8 @@ class RulesServiceTest {
             when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(asList(new CaseInsensitiveString("up42")));
             when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
+            when(goConfigService.getSecretConfigById("secret_config_id")).thenReturn(secretConfig);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
 
             assertThat(rulesService.validateSecretConfigReferences(gitMaterial)).isEqualTo(true);
 
@@ -142,21 +174,18 @@ class RulesServiceTest {
             gitMaterial.setPassword("{{SECRET:[secret_config_id][password]}}");
 
             PipelineConfig up42 = PipelineConfigMother.pipelineConfig("up42", new MaterialConfigs(gitMaterial.config()));
-            PipelineConfig up43 = PipelineConfigMother.pipelineConfig("up43", new MaterialConfigs(gitMaterial.config()));
             PipelineConfigs defaultGroup = PipelineConfigMother.createGroup("default", up42);
-            PipelineConfigs someGroup = PipelineConfigMother.createGroup("some_group", up43);
             CruiseConfig cruiseConfig = defaultCruiseConfig();
-            cruiseConfig.setGroup(new PipelineGroups(defaultGroup, someGroup));
+            cruiseConfig.setGroup(new PipelineGroups(defaultGroup));
 
             when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
-            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(asList(new CaseInsensitiveString("up42"), new CaseInsensitiveString("up43")));
+            when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(Collections.singletonList(new CaseInsensitiveString("up42")));
             when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up42"))).thenReturn(defaultGroup);
-            when(goConfigService.findGroupByPipeline(new CaseInsensitiveString("up43"))).thenReturn(someGroup);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(gitMaterial))
                     .isInstanceOf(RulesViolationException.class)
-                    .hasMessage("Material with url: 'http://example.com' in Pipeline: 'up42' and Pipeline Group: 'default'" +
-                            " is referring to none existing secret config 'secret_config_id'.");
+                    .hasMessage("Pipeline 'up42' is referring to none-existent secret config 'secret_config_id'.");
         }
 
         @Test
@@ -172,6 +201,7 @@ class RulesServiceTest {
             when(goConfigService.cruiseConfig()).thenReturn(cruiseConfig);
             when(goConfigService.pipelinesWithMaterial(gitMaterial.getFingerprint())).thenReturn(asList(new CaseInsensitiveString("up42")));
             when(goConfigService.findGroupByPipeline(any())).thenReturn(defaultGroup);
+            when(goConfigService.findPipelineByName(new CaseInsensitiveString("up42"))).thenReturn(up42);
 
             assertThat(rulesService.validateSecretConfigReferences(gitMaterial)).isEqualTo(true);
         }
@@ -243,7 +273,7 @@ class RulesServiceTest {
             assertThatCode(() -> rulesService.validateSecretConfigReferences(buildAssigment))
                     .isInstanceOf(RulesViolationException.class)
                     .hasMessage("Job: 'unit_test' in Pipeline: 'up42' and Pipeline Group: 'some_group' does not have " +
-                            "permission to refer to secrets using SecretConfig: 'secret_config_id'");
+                            "permission to refer to secrets using secret config 'secret_config_id'");
         }
 
         @Test
@@ -263,7 +293,7 @@ class RulesServiceTest {
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(buildAssigment))
                     .isInstanceOf(RulesViolationException.class)
-                    .hasMessage("Job: 'job1' in Pipeline: 'up42' and Pipeline Group: 'some_group' is referring to none existing secret config 'secret_config_id'.");
+                    .hasMessage("Job: 'job1' in Pipeline: 'up42' and Pipeline Group: 'some_group' is referring to none-existent secret config 'secret_config_id'.");
         }
 
         private BuildAssignment createAssignment(EnvironmentVariableContext environmentVariableContext, JobIdentifier identifier) {
@@ -313,7 +343,7 @@ class RulesServiceTest {
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(environmentConfig))
                     .isInstanceOf(RulesViolationException.class)
-                    .hasMessage("Environment 'dev' does not have permission to refer to secrets using SecretConfig: 'secret_config_id'");
+                    .hasMessage("Environment 'dev' does not have permission to refer to secrets using secret config 'secret_config_id'");
         }
 
         @Test
@@ -325,7 +355,7 @@ class RulesServiceTest {
 
             assertThatCode(() -> rulesService.validateSecretConfigReferences(environmentConfig))
                     .isInstanceOf(RulesViolationException.class)
-                    .hasMessage("Environment 'dev' is referring to none existing secret config 'secret_config_id'.");
+                    .hasMessage("Environment 'dev' is referring to none-existent secret config 'secret_config_id'.");
         }
     }
 

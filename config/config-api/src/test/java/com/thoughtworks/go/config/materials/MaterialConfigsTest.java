@@ -246,6 +246,13 @@ Above scenario allowed
     }
 
     @Test
+    public void shouldReturnNullWhenMaterialNotFoundForTheGivenMaterialFingerPrint() {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        PipelineConfig pipeline = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
+        assertThat(pipeline.materialConfigs().getByMaterialFingerPrint("invalid"), is(nullValue()));
+    }
+
+    @Test
     public void shouldFailIfMultipleMaterialsDoNotHaveDestinationFolderSet() {
         HgMaterialConfig materialConfigOne = hg("http://url1", null);
         materialConfigOne.setConfigAttributes(Collections.singletonMap(ScmMaterialConfig.FOLDER, "folder"));
@@ -360,7 +367,7 @@ Above scenario allowed
     }
 
     @Test
-    public void shouldReturnMaterialBasedOnPiplineUniqueFingerPrint() {
+    public void shouldReturnMaterialBasedOnPipelineUniqueFingerPrint() {
         CruiseConfig cruiseConfig = new BasicCruiseConfig();
         PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
         HgMaterialConfig expectedMaterial = MaterialConfigsMother.hgMaterialConfig();
@@ -369,6 +376,19 @@ Above scenario allowed
         pipeline1.addMaterialConfig(MaterialConfigsMother.svnMaterialConfig("url", "folder"));
 
         MaterialConfig actualMaterialConfig = pipeline1.materialConfigs().getByFingerPrint(expectedMaterial.getPipelineUniqueFingerprint());
+        assertThat(actualMaterialConfig, is(expectedMaterial));
+    }
+
+    @Test
+    public void shouldReturnMaterialBasedOnMaterialFingerPrint() {
+        CruiseConfig cruiseConfig = new BasicCruiseConfig();
+        PipelineConfig pipeline1 = goConfigMother.addPipeline(cruiseConfig, "pipeline1", "stage", "build");
+        HgMaterialConfig expectedMaterial = MaterialConfigsMother.hgMaterialConfig();
+        pipeline1.addMaterialConfig(expectedMaterial);
+        pipeline1.addMaterialConfig(MaterialConfigsMother.gitMaterialConfig("url"));
+        pipeline1.addMaterialConfig(MaterialConfigsMother.svnMaterialConfig("url", "folder"));
+
+        MaterialConfig actualMaterialConfig = pipeline1.materialConfigs().getByMaterialFingerPrint(expectedMaterial.getFingerprint());
         assertThat(actualMaterialConfig, is(expectedMaterial));
     }
 

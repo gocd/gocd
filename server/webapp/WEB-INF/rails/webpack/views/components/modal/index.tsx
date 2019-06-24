@@ -86,8 +86,9 @@ export abstract class Modal extends MithrilViewComponent<any> {
       <div
         className={classnames(styles.overlayContent, {[styles.spinnerWrapper]: this.isLoading()})}
         data-test-id="modal-body">
-        <div className={classnames({[styles.modalBodyOverlay]: this.isLoading()})}/>
-        {spinner}
+        <div className={classnames({[styles.modalBodyOverlay]: this.isLoading()})}>
+          {spinner}
+        </div>
         {this.body()}
       </div>
       <footer className={styles.overlayFooter}>

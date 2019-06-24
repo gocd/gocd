@@ -15,17 +15,13 @@
  */
 package com.thoughtworks.go.server.persistence;
 
-import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TriState;
@@ -41,12 +37,14 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -80,75 +78,68 @@ public class AgentDaoTest {
     }
 
     @Test
-    public void shouldReturnNullIfNoCookie() throws Exception {
+    public void shouldGetAgentByUUID(){
+        AgentConfig agentConfig = new AgentConfig("uuid", "localhost", "127.0.0.1", "cookie");
+        agentDao.saveOrUpdate(agentConfig);
+
+        AgentConfig agentConfigFromDB = agentDao.agentByUuid(agentConfig.getUuid());
+        assertThat(agentConfig, is(agentConfigFromDB));
+    }
+
+    @Test
+    public void shouldAssociateCookieWithAnAgent() {
+        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
+        DatabaseEntityChangeListener<AgentConfig> mockListener = mock(DatabaseEntityChangeListener.class);
+        agentDao.registerListener(mockListener);
+        agentDao.associateCookie(agentIdentifier, "cookie");
+        assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
+        verify(mockListener).entityChanged(any(AgentConfig.class));
+    }
+
+    @Test
+    public void shouldReturnNullIfNoCookieIsAssociatedWithAnAgent() {
         AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
         assertThat(agentDao.cookieFor(agentIdentifier), is(nullValue()));
     }
 
     @Test
-    public void shouldAssociateInformationForAGivenAgent() throws Exception {
+    public void shouldUpdateExistingAgentMappingIfOneExists() {
         AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
         agentDao.associateCookie(agentIdentifier, "cookie");
-        assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
-        Agent agent = getAgentByUuid(agentIdentifier);
+        AgentConfig agent = getAgentByUuid(agentIdentifier);
         assertThat(agent.getCookie(), is("cookie"));
-        assertThat(agent.getHostname(), is(agentIdentifier.getHostName()));
-        assertThat(agent.getIpaddress(), is(agentIdentifier.getIpAddress()));
-    }
 
-    @Test
-    public void shouldUpdateExistingAgentMappingIfOneExists() throws Exception {
-        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
-        agentDao.associateCookie(agentIdentifier, "cookie");
         agentDao.associateCookie(agentIdentifier, "cookie_updated");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie_updated"));
-        Agent agent = getAgentByUuid(agentIdentifier);
+
+        agent = getAgentByUuid(agentIdentifier);
         assertThat(agent.getCookie(), is("cookie_updated"));
         assertThat(agent.getHostname(), is(agentIdentifier.getHostName()));
         assertThat(agent.getIpaddress(), is(agentIdentifier.getIpAddress()));
     }
 
     @Test
-    public void shouldCacheCookieForAgent() throws Exception {
-        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
-        agentDao.associateCookie(agentIdentifier, "cookie");
-        assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
-        hibernateTemplate.execute(new HibernateCallback() {
-            @Override
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid'").uniqueResult();
-                agent.update("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
-                session.update(agent);
-                return null;
-            }
-        });
-        Agent agent = getAgentByUuid(agentIdentifier);
-        assertThat(agent.getCookie(), is("updated_cookie"));
-        assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
-        goCache.clear();
-        assertThat(agentDao.cookieFor(agentIdentifier), is("updated_cookie"));
-    }
-
-    @Test
-    public void shouldNotClearCacheIfTransactionFails() throws Exception {
+    public void shouldNotClearCacheAndCallListenersIfTransactionFails() {
         HibernateTemplate originalTemplate = agentDao.getHibernateTemplate();
         AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
         agentDao.associateCookie(agentIdentifier, "cookie");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
         hibernateTemplate.execute(new HibernateCallback() {
             @Override
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Agent agent = (Agent) session.createQuery("from Agent where uuid = 'uuid'").uniqueResult();
-                agent.update("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
+            public Object doInHibernate(Session session) throws HibernateException {
+                AgentConfig agent = (AgentConfig) session.createQuery("from AgentConfig where uuid = 'uuid'").uniqueResult();
+                agent.setFieldValues("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                 session.update(agent);
                 return null;
             }
         });
-        Agent agent = getAgentByUuid(agentIdentifier);
+        AgentConfig agent = getAgentByUuid(agentIdentifier);
         assertThat(agent.getCookie(), is("updated_cookie"));
 
         agentDao.setHibernateTemplate(mockHibernateTemplate);
-        doThrow(new RuntimeException("holy smoke")).when(mockHibernateTemplate).saveOrUpdate(any(Agent.class));
+        doThrow(new RuntimeException("holy smoke")).when(mockHibernateTemplate).saveOrUpdate(any(AgentConfig.class));
+        DatabaseEntityChangeListener<AgentConfig> mockListener = mock(DatabaseEntityChangeListener.class);
+        agentDao.registerListener(mockListener);
         try {
             agentDao.associateCookie(agentIdentifier, "cookie");
             fail("should have propagated saveOrUpdate exception");
@@ -156,62 +147,80 @@ public class AgentDaoTest {
             assertThat(e.getMessage(), is("holy smoke"));
         }
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
+        verify(mockListener, never()).entityChanged(any(AgentConfig.class));
         agentDao.setHibernateTemplate(originalTemplate);
     }
 
     @Test
     public void shouldGetAgentsForGivenUuidsExcludingSoftDeletedAgents() {
-        Agent agent1 = new Agent("uuid", "cookie", "localhost", "127.0.0.1");
-        Agent agent2 = new Agent("uuid2", "cookie2", "localhost2", "127.0.0.2");
-        Agent agent3 = new Agent("uuid3", "cookie3", "localhost3", "127.0.0.3");
-        agent3.setDeleted(true);
+        AgentConfig agent1 = new AgentConfig("uuid", "localhost", "127.0.0.1", "cookie");
+        AgentConfig agent2 = new AgentConfig("uuid2", "localhost2", "127.0.0.2", "cookie2");
+        agent2.setDeleted(true);
+
         agentDao.saveOrUpdate(agent1);
         agentDao.saveOrUpdate(agent2);
-        agentDao.saveOrUpdate(agent3);
 
-        List<String> uuids = Arrays.asList("uuid", "uuid3");
+        List<String> uuids = Arrays.asList("uuid", "uuid2");
 
-        List<Agent> allAgents = agentDao.getAllAgents(uuids);
+        List<AgentConfig> allAgents = agentDao.agentsByUUIds(uuids);
 
         assertThat(allAgents.size(), is(1));
         assertThat(allAgents.get(0).getUuid(), is("uuid"));
     }
 
     @Test
+    public void shouldReturnSameCacheKeyForDifferentStringsHoldingSameValue(){
+        String uuid1 = "uuid";
+        String uuid2 = new String("uuid");
+        String uuid3 = String.valueOf("uuid");
+        String uuid4 = "u" + "u" + "i" + "d";
+
+        String key1 = agentDao.agentCacheKey(uuid1);
+        String key2 = agentDao.agentCacheKey(uuid2);
+        String key3 = agentDao.agentCacheKey(uuid3);
+        String key4 = agentDao.agentCacheKey(uuid4);
+
+        assertEquals(key1, key2);
+        assertEquals(key2, key3);
+        assertEquals(key1, key3);
+        assertEquals(key1, key4);
+    }
+
+    @Test
     public void shouldGetAllAgentsExcludingSoftDeletedAgents() {
-        Agent agent1 = new Agent("uuid", "cookie", "localhost", "127.0.0.1");
-        Agent agent2 = new Agent("uuid2", "cookie2", "localhost2", "127.0.0.2");
-        Agent agent3 = new Agent("uuid3", "cookie3", "localhost3", "127.0.0.3");
-        agent3.setDeleted(true);
+        AgentConfig agent1 = new AgentConfig("uuid", "localhost", "127.0.0.1", "cookie");
+        AgentConfig agent2 = new AgentConfig("uuid2", "localhost2", "127.0.0.2", "cookie2");
+        agent2.setDeleted(true);
+
         agentDao.saveOrUpdate(agent1);
         agentDao.saveOrUpdate(agent2);
-        agentDao.saveOrUpdate(agent3);
 
-        List<Agent> allAgents = agentDao.getAllAgents();
+        List<AgentConfig> allAgents = agentDao.allAgents();
 
-        assertThat(allAgents.size(), is(2));
+        assertThat(allAgents.size(), is(1));
         assertThat(allAgents.get(0).getUuid(), is("uuid"));
-        assertThat(allAgents.get(1).getUuid(), is("uuid2"));
     }
 
     @Test
     public void shouldChangeAgentDisabledFlag() {
-        Agent agent1 = new Agent("uuid", "cookie", "localhost", "127.0.0.1");
-        Agent agent2 = new Agent("uuid2", "cookie2", "localhost2", "127.0.0.2");
-        Agent agent3 = new Agent("uuid3", "cookie3", "localhost3", "127.0.0.3");
+        AgentConfig agent1 = new AgentConfig("uuid", "localhost", "127.0.0.1", "cookie");
+        AgentConfig agent2 = new AgentConfig("uuid2", "localhost2", "127.0.0.2", "cookie2");
+        AgentConfig agent3 = new AgentConfig("uuid3", "localhost3", "127.0.0.3", "cookie3");
+
         agentDao.saveOrUpdate(agent1);
         agentDao.saveOrUpdate(agent2);
         agentDao.saveOrUpdate(agent3);
 
-        List<String> uuidsForDisabledAgents = Arrays.asList("uuid", "uuid3");
-        List<String> uuidsForEnabledAgents = Arrays.asList("uuid2");
+        List<String> disabledUuids = Arrays.asList("uuid", "uuid3");
+        List<String> enabledUuids = Arrays.asList("uuid2");
 
-        agentDao.changeDisabled(uuidsForDisabledAgents, true);
-        agentDao.changeDisabled(uuidsForEnabledAgents, false);
+        agentDao.changeDisabled(disabledUuids, true);
+        agentDao.changeDisabled(enabledUuids, false);
 
-        assertThat(agentDao.agentByUuid("uuid").isDisabled(), is(true));
-        assertThat(agentDao.agentByUuid("uuid3").isDisabled(), is(true));
-        assertThat(agentDao.agentByUuid("uuid2").isDisabled(), is(false));
+        assertThat(agentDao.agentByUuid(disabledUuids.get(0)).isDisabled(), is(true));
+        assertThat(agentDao.agentByUuid(disabledUuids.get(1)).isDisabled(), is(true));
+
+        assertThat(agentDao.agentByUuid(enabledUuids.get(0)).isDisabled(), is(false));
     }
 
     @Test
@@ -220,13 +229,16 @@ public class AgentDaoTest {
         agentConfig1.setResourceConfigs(new ResourceConfigs("resource1,resource2"));
         AgentInstance agentInstance1 = AgentInstance.createFromConfig(agentConfig1, new SystemEnvironment(), null);
         agentConfig1.setEnvironments("env1,env2,env3");
+
         AgentConfig agentConfig2 = new AgentConfig("uuid2", "localhost2", "127.0.0.2", "cookie2");
         agentConfig2.setResourceConfigs(new ResourceConfigs("resource1"));
         AgentInstance agentInstance2 = AgentInstance.createFromConfig(agentConfig2, new SystemEnvironment(), null);
+
         AgentConfig agentConfig3 = new AgentConfig("uuid3", "localhost3", "127.0.0.3", "cookie3");
         agentConfig3.setResourceConfigs(new ResourceConfigs("resource1"));
         agentConfig3.setEnvironments("env1,env3");
         AgentInstance agentInstance3 = AgentInstance.createFromConfig(agentConfig3, new SystemEnvironment(), null);
+
         agentDao.saveOrUpdate(agentConfig1);
         agentDao.saveOrUpdate(agentConfig2);
         agentDao.saveOrUpdate(agentConfig3);
@@ -251,8 +263,8 @@ public class AgentDaoTest {
 
     @Test
     public void shouldBulkDeleteAgent() {
-        Agent agent1 = new Agent("uuid", "cookie", "localhost", "127.0.0.1");
-        Agent agent2 = new Agent("uuid2", "cookie2", "localhost2", "127.0.0.2");
+        AgentConfig agent1 = new AgentConfig("uuid", "localhost", "127.0.0.1", "cookie");
+        AgentConfig agent2 = new AgentConfig("uuid2", "localhost2", "127.0.0.2", "cookie2");
         agentDao.saveOrUpdate(agent1);
         agentDao.saveOrUpdate(agent2);
 
@@ -263,12 +275,31 @@ public class AgentDaoTest {
     }
 
 
-    private Agent getAgentByUuid(AgentIdentifier agentIdentifier) {
-        return (Agent) hibernateTemplate.execute(new HibernateCallback() {
-            @Override
-            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                return session.createSQLQuery("SELECT * from agents where uuid = '" + agentIdentifier.getUuid() + "'").addEntity(Agent.class).uniqueResult();
-            }
+    private AgentConfig getAgentByUuid(AgentIdentifier agentIdentifier) {
+        return (AgentConfig) hibernateTemplate.execute(session -> session.createSQLQuery("SELECT * from Agents where uuid = '" + agentIdentifier.getUuid() + "'")
+                .addEntity(AgentConfig.class).uniqueResult());
+    }
+
+    private AgentConfig getAgentByUuid(String uuid) {
+        return (AgentConfig) hibernateTemplate.execute(session -> session.createSQLQuery("SELECT * from Agents where uuid = '" + uuid + "'")
+                .addEntity(AgentConfig.class).uniqueResult());
+    }
+
+    @Test
+    public void shouldCacheCookieForAgent() {
+        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
+        agentDao.associateCookie(agentIdentifier, "cookie");
+        assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
+        hibernateTemplate.execute(session -> {
+            AgentConfig agent = (AgentConfig) session.createQuery("from AgentConfig where uuid = 'uuid'").uniqueResult();
+            agent.setFieldValues("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
+            session.update(agent);
+            return null;
         });
+        AgentConfig agent = getAgentByUuid(agentIdentifier);
+        assertThat(agent.getCookie(), is("updated_cookie"));
+        assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
+        goCache.clear();
+        assertThat(agentDao.cookieFor(agentIdentifier), is("updated_cookie"));
     }
 }

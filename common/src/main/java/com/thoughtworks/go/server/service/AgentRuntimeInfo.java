@@ -70,7 +70,7 @@ public class AgentRuntimeInfo implements Serializable {
             throw new RuntimeException("Agent should not register without installation path.");
         }
         AgentStatus status = AgentStatus.Pending;
-        if (SystemUtil.isLocalIpAddress(agentConfig.getIpAddress()) || registeredAlready) {
+        if (SystemUtil.isLocalIpAddress(agentConfig.getIpaddress()) || registeredAlready) {
             status = AgentStatus.Idle;
         }
 

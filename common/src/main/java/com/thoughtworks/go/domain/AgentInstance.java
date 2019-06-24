@@ -233,12 +233,12 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     private void syncIp(AgentRuntimeInfo info) {
-        String ipAddress = (agentType == AgentType.LOCAL || agentType == AgentType.REMOTE) ? info.getIpAdress() : agentConfig.getIpAddress();
-        this.agentConfig.setIpAddress(ipAddress);
+        String ipAddress = (agentType == AgentType.LOCAL || agentType == AgentType.REMOTE) ? info.getIpAdress() : agentConfig.getIpaddress();
+        this.agentConfig.setIpaddress(ipAddress);
     }
 
     public boolean isIpChangeRequired(String newIpAdress) {
-        return !StringUtils.equals(this.agentConfig.getIpAddress(), newIpAdress) && this.isRegistered();
+        return !StringUtils.equals(this.agentConfig.getIpaddress(), newIpAdress) && this.isRegistered();
     }
 
     public String getLocation() {
@@ -290,7 +290,7 @@ public class AgentInstance implements Comparable<AgentInstance> {
     }
 
     public String getIpAddress() {
-        return agentConfig.getIpAddress();
+        return agentConfig.getIpaddress();
     }
 
     public JobPlan firstMatching(List<JobPlan> jobPlans) {

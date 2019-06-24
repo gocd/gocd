@@ -17,10 +17,8 @@ package com.thoughtworks.go.server.service;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.GoConfigRevision;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -94,7 +92,7 @@ public class UpdateAgentStatusTest {
 
     @Test
     public void shouldUpdateAgentIPAddressWhenItChanges_asAgent() throws Exception {
-        String oldIp = agentService.agentByUuid("uuid").getIpAddress();
+        String oldIp = agentService.agentByUuid("uuid").getIpaddress();
         assertThat(oldIp, is("10.81.2.1"));
 
         AgentIdentifier agentIdentifier1 = new AgentIdentifier("localhost", "10.18.3.95", "uuid");
@@ -103,7 +101,7 @@ public class UpdateAgentStatusTest {
 
         agentService.updateRuntimeInfo(agentRuntimeInfo1);
 
-        String newIp = agentService.agentByUuid("uuid").getIpAddress();
+        String newIp = agentService.agentByUuid("uuid").getIpaddress();
         assertThat(newIp, is("10.18.3.95"));
     }
 

@@ -371,7 +371,7 @@ public class GoConfigServiceTest {
 
 
     @Test
-    public void shouldRegisterListenerWithTheConfigDAO() throws Exception {
+    public void shouldRegisterListenerWithTheConfigDAO() {
         final ConfigChangedListener listener = mock(ConfigChangedListener.class);
         goConfigService.register(listener);
         verify(goConfigDao).registerListener(listener);

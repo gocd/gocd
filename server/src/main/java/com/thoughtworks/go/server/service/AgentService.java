@@ -18,15 +18,11 @@ package com.thoughtworks.go.server.service;
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.update.AgentsUpdateValidator;
-import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.AllConfigErrors;
-import com.thoughtworks.go.domain.ConfigErrors;
-import com.thoughtworks.go.domain.NullAgent;
+import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.listener.AgentChangeListener;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.security.Registration;
-import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.ElasticAgentMetadata;
 import com.thoughtworks.go.server.domain.Username;
@@ -44,6 +40,7 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TriState;
+import com.thoughtworks.go.util.comparator.AlphaAsciiComparator;
 import com.thoughtworks.go.utils.Timeout;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -62,7 +59,7 @@ import static java.lang.String.format;
 
 
 @Service
-public class AgentService implements DatabaseEntityChangeListener<Agent> {
+public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
     private final SystemEnvironment systemEnvironment;
     private final SecurityService securityService;
     private final EnvironmentConfigService environmentConfigService;
@@ -74,6 +71,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     private AgentInstances agentInstances;
 
+    private List<AgentChangeListener> listeners = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentService.class);
 
     @Autowired
@@ -104,8 +102,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         agentDao.registerListener(this);
     }
 
-    public void sync() {
-        agentInstances.sync(new Agents(agentDao.getAllAgentConfigs()));
+    private void sync() {
+        agentInstances.sync(new Agents(agentDao.allAgents()));
     }
 
     public AgentInstances agentInstances() {
@@ -113,21 +111,16 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public Agents agents() {
-        return new Agents(agentDao.getAllAgentConfigs());
+        List<AgentConfig> agentConfigs = agentInstances.values().stream().map(agentInstance -> agentInstance.agentConfig()).collect(Collectors.toList());
+        return new Agents(agentConfigs);
     }
 
-    public Map<AgentInstance, Collection<String>> agentEnvironmentMap() {
+    public Map<AgentInstance, Collection<String>> agentsToEnvNameMap() {
         Map<AgentInstance, Collection<String>> allAgents = new LinkedHashMap<>();
-        for (AgentInstance agentInstance : agentInstances.allAgents()) {
-            allAgents.put(agentInstance, environmentConfigService.environmentsFor(agentInstance.getUuid()));
-        }
-        return allAgents;
-    }
-
-    public Map<AgentInstance, Collection<EnvironmentConfig>> agentEnvironmentConfigsMap() {
-        Map<AgentInstance, Collection<EnvironmentConfig>> allAgents = new LinkedHashMap<>();
-        for (AgentInstance agentInstance : agentInstances.allAgents()) {
-            allAgents.put(agentInstance, environmentConfigService.environmentConfigsFor(agentInstance.getUuid()));
+        for (AgentInstance agentInstance : agentInstances.sort()) {
+            TreeSet<String> sortedEnvSet = new TreeSet<>(new AlphaAsciiComparator());
+            sortedEnvSet.addAll(agentInstance.agentConfig().getEnvironmentsAsList());
+            allAgents.put(agentInstance, sortedEnvSet);
         }
         return allAgents;
     }
@@ -145,15 +138,11 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private AgentViewModel toAgentViewModel(AgentInstance instance) {
-        return new AgentViewModel(instance, environmentConfigService.environmentsFor(instance.getUuid()));
+        return new AgentViewModel(instance, instance.agentConfig().getEnvironmentsAsList());
     }
 
     public AgentInstances findRegisteredAgents() {
         return agentInstances.findRegisteredAgents();
-    }
-
-    public List<Agent> findRegisteredAgentsInDB() {
-        return agentDao.getAllAgents();
     }
 
     private boolean isUnknownAgent(AgentInstance agentInstance, OperationResult operationResult) {
@@ -184,13 +173,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             return null;
         }
 
-        AgentConfig agentConfig;
-        if (!hasAgent(uuid) && enable.isTrue()) {
-            agentInstance = this.agentInstances.findAgent(uuid);
-            agentConfig = agentInstance.agentConfig();
-        } else {
-            agentConfig = agentDao.agentConfigByUuid(uuid);
-        }
+        AgentConfig agentConfig = AgentConfig.newInstanceFrom(agentInstance.agentConfig());
 
         if (enable.isTrue()) {
             agentConfig.enable();
@@ -217,8 +200,10 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
             if (agentConfig.hasErrors()) {
                 result.unprocessibleEntity("Updating agent failed:", "", HealthStateType.general(HealthStateScope.GLOBAL));
+            }else{
+                result.ok(String.format("Updated agent with uuid %s.", agentConfig.getUuid()));
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             result.internalServerError("Updating agent failed: " + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
             return null;
         }
@@ -243,7 +228,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             }
         } catch (Exception e) {
             LOGGER.error("There was an error bulk updating agents", e);
-            if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
+            if (e instanceof IllegalArgumentException && !result.hasMessage()) {
                 result.unprocessableEntity(entityConfigValidationFailed(Agents.class.getAnnotation(ConfigTag.class).value(), StringUtils.join(uuids, ","), e.getMessage()));
             } else if (!result.hasMessage()) {
                 result.internalServerError("Server error occured. Check log for details.");
@@ -280,7 +265,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
 
         try {
-            List<Agent> allAgents = agentDao.getAllAgents(uuids);
+            List<AgentConfig> allAgents = filterAgents(uuids);
             if (allAgents.size() != uuids.size()) {
                 List<String> uuidsOfAgentsInDatabase = allAgents.stream().map(agent -> agent.getUuid()).collect(Collectors.toList());
                 List<String> nonExistentAgentIds = uuids.stream().filter(uuid -> !uuidsOfAgentsInDatabase.contains(uuid)).collect(Collectors.toList());
@@ -294,6 +279,12 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         } catch (Exception e) {
             operationResult.internalServerError("Deleting agents failed:" + e.getMessage(), HealthStateType.general(HealthStateScope.GLOBAL));
         }
+    }
+
+    private List<AgentConfig> filterAgents(List<String> uuids) {
+        return agentInstances.values().stream().filter(agentInstance -> uuids.contains(agentInstance.getUuid()))
+                .map(AgentInstance::agentConfig)
+                .collect(Collectors.toList());
     }
 
     public void updateRuntimeInfo(AgentRuntimeInfo info) {
@@ -312,10 +303,10 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         AgentInstance agentInstance = findAgentAndRefreshStatus(info.getUUId());
         if (agentInstance.isIpChangeRequired(info.getIpAdress())) {
             AgentConfig agentConfig = agentInstance.agentConfig();
-            LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", info.getUUId(), agentConfig.getIpAddress(), info.getIpAdress());
+            LOGGER.warn("Agent with UUID [{}] changed IP Address from [{}] to [{}]", info.getUUId(), agentConfig.getIpaddress(), info.getIpAdress());
             String uuid = agentConfig.getUuid();
 
-            Agent agent = agentDao.agentByUuid(uuid);
+            AgentConfig agent = (agentInstance.isRegistered() ? agentConfig : null);
             bombIfNull(agent, "Unable to set agent ipAddress; Agent [" + uuid + "] not found.");
             agent.setIpaddress(info.getIpAdress());
             saveOrUpdate(agent);
@@ -350,14 +341,16 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public void updateAgentApprovalStatus(final String uuid, final Boolean isDenied, Username currentUser) {
-        Agent agent = agentDao.agentByUuid(uuid);
+        AgentInstance agentInstance = agentInstances.findAgent(uuid);
+        AgentConfig agent = (agentInstance.isRegistered() ? agentInstance.agentConfig() : null);
+        bombIfNull(agent, "Unable to update agent approval status; Agent [" + uuid + "] not found.");
         agent.setDisabled(isDenied);
         saveOrUpdate(agent);
     }
 
     public void saveOrUpdateAgentInstance(AgentInstance agentInstance, Username currentUser) {
         AgentConfig agentConfig = agentInstance.agentConfig();
-        if (agentDao.agentByUuid(agentConfig.getUuid()) != null) {
+        if (!agentInstance.isRegistered()) {
             this.updateAgentApprovalStatus(agentConfig.getUuid(), agentConfig.isDisabled(), currentUser);
         } else {
             saveOrUpdate(agentConfig);
@@ -367,11 +360,17 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     @Deprecated
     public void approve(String uuid) {
         AgentInstance agentInstance = findAgentAndRefreshStatus(uuid);
+        boolean hasAgent = hasAgent(agentInstance.getUuid());
         agentInstance.enable();
-        if (hasAgent(agentInstance.getUuid())) {
+        if (hasAgent) {
             LOGGER.warn("Registered agent with the same uuid [{}] already approved.", agentInstance);
         } else {
-            saveOrUpdate(agentInstance.agentConfig());
+            AgentConfig agentConfig = agentInstance.agentConfig();
+            if (agentConfig.getCookie() == null) {
+                String cookie = uuidGenerator.randomUuid();
+                agentConfig.setCookie(cookie);
+            }
+            saveOrUpdate(agentConfig);
         }
     }
 
@@ -408,8 +407,12 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         return cookie;
     }
 
-    public Agent findAgentObjectByUuid(String uuid) {
-        return agentDao.agentByUuid(uuid);
+    public AgentConfig findAgentObjectByUuid(String uuid) {
+        AgentInstance agentInstance = agentInstances.findAgent(uuid);
+        if (agentInstance != null && agentInstance.isRegistered()) {
+            return agentInstance.agentConfig();
+        }
+        return null;
     }
 
     public AgentsViewModel filter(List<String> uuids) {
@@ -451,27 +454,30 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     public boolean hasAgent(String uuid) {
-        return agentDao.agentByUuid(uuid) != null;
+        AgentInstance agentInstance = agentInstances.findAgent(uuid);
+        return agentInstance != null && agentInstance.isRegistered();
     }
 
     public AgentConfig agentByUuid(String agentUuid) {
-        AgentConfig agentConfig = agentDao.agentConfigByUuid(agentUuid);
-        if(agentConfig == null){
+        AgentConfig agentConfig = agentInstances.findAgent(agentUuid).agentConfig();
+        if (agentConfig == null) {
             agentConfig = NullAgent.createNullAgent();
         }
         return agentConfig;
     }
 
     public List<String> allAgentUuids() {
-        return agentDao.allAgentUuids();
-    }
-    public void disableAgents(Username currentUser, AgentInstance... agentInstance) {
-        disableAgents(true, currentUser, agentInstance);
+        return agentInstances.values().stream().filter(AgentInstance::isRegistered)
+                .map(AgentInstance::getUuid)
+                .collect(Collectors.toList());
     }
 
-    private void disableAgents(boolean disabled, Username currentUser, AgentInstance... instances) {
-        List<String> uuids = Arrays.stream(instances).map(instance -> instance.getUuid()).collect(Collectors.toList());
-        agentDao.changeDisabled(uuids, disabled);
+    public void disableAgents(List<String> uuids) {
+        agentDao.changeDisabled(uuids, true);
+    }
+
+    public void disableAgents(String... uuids) {
+        agentDao.changeDisabled(Arrays.asList(uuids), true);
     }
 
     public void saveOrUpdate(AgentConfig agentConfig) {
@@ -481,20 +487,32 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
-    public void saveOrUpdate(Agent agent) {
-        agent.validate(null);
-        if (!agent.hasErrors()) {
-            agentDao.saveOrUpdate(agent);
+    @Override
+    public void bulkEntitiesChanged(List<AgentConfig> agentConfigs) {
+        agentConfigs.stream().forEach(this::entityChanged);
+    }
+
+    @Override
+    public void entityChanged(AgentConfig newAgentConfig) {
+        AgentInstance oldAgentInstance = agentInstances.findAgent(newAgentConfig.getUuid());
+
+        // this is the case when agent is created in DB newly and it has not been cached yet.
+        if (oldAgentInstance instanceof NullAgentInstance) {
+            oldAgentInstance = AgentInstance.createFromConfig(newAgentConfig, new SystemEnvironment(), agentStatusChangeNotifier);
+            this.agentInstances.add(oldAgentInstance);
+        } else {
+            AgentConfig oldAgentConfig = oldAgentInstance.agentConfig();
+            notifyAgentChangeListener(oldAgentConfig, newAgentConfig);
+            oldAgentInstance.syncConfig(newAgentConfig);
         }
     }
 
-    @Override
-    public void onBulkEntityChange() {
-
+    private void notifyAgentChangeListener(AgentConfig oldAgent, AgentConfig newAgent) {
+        AgentChangedEvent event = new AgentChangedEvent(oldAgent, newAgent);
+        listeners.stream().forEach(listener -> listener.agentChanged(event));
     }
 
-    @Override
-    public void onEntityChange(Agent entity) {
-
+    public void registerAgentChangeListeners(AgentChangeListener listener) {
+        listeners.add(listener);
     }
 }

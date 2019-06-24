@@ -111,4 +111,8 @@ public abstract class HaltApiMessages {
         }
         return message;
     }
+
+    public static String unsupportedAPIVersion(String apiVersionAcceptHeader, String apiName) {
+        return "The accept header [" + apiVersionAcceptHeader + "] is not supported anymore. Please use the latest version of " + apiName + " API.";
+    }
 }

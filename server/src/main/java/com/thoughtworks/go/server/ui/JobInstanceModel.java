@@ -15,8 +15,8 @@
  */
 package com.thoughtworks.go.server.ui;
 
+import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.*;
-import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import org.joda.time.Duration;
 
@@ -36,7 +36,7 @@ public class JobInstanceModel {
         return result;
     };
 
-    public JobInstanceModel(JobInstance instance, JobDurationStrategy jobDurationStrategy, Agent agent) {
+    public JobInstanceModel(JobInstance instance, JobDurationStrategy jobDurationStrategy, AgentConfig agent) {
         this(instance, jobDurationStrategy, agent == null? null: new AgentInfo(agent.getHostname(), agent.getIpaddress(), agent.getUuid(), false));
     }
 

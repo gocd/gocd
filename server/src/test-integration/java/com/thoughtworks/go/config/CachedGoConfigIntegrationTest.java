@@ -1256,17 +1256,6 @@ public class CachedGoConfigIntegrationTest {
         return null;
     }
 
-    private UpdateConfigCommand updateFirstAgentResources(final String resources) {
-        return new UpdateConfigCommand() {
-            @Override
-            public CruiseConfig update(CruiseConfig cruiseConfig) {
-                AgentConfig agentConfig = cruiseConfig.agents().get(0);
-                agentConfig.setResourceConfigs(new ResourceConfigs(resources));
-                return cruiseConfig;
-            }
-        };
-    }
-
     private UpdateConfigCommand updateEnvironmentVariables(final String name, final String value) {
         return new UpdateConfigCommand() {
             @Override

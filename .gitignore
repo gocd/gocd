@@ -144,6 +144,10 @@ api/api-environments-v2/config/
 api/api-environments-v2/logs/
 api/api-environments-v2/out/
 api/api-environments-v2/target/
+api/api-environments-v3/config/
+api/api-environments-v3/logs/
+api/api-environments-v3/out/
+api/api-environments-v3/target/
 api/api-export-v1/config/
 api/api-export-v1/out/
 api/api-server-maintenance-mode-v1/logs/

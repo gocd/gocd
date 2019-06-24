@@ -82,7 +82,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
         processor.process(pluginDescriptor, request);
 
-        verify(agentService).disableAgents(processor.usernameFor(pluginDescriptor.id()), agentInstance);
+        verify(agentService).disableAgents(agentInstance.getUuid());
     }
 
     @Test

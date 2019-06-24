@@ -159,7 +159,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance updateIpAddress(AgentInstance agentInstance, String ip) {
-        agentInstance.agentConfig().setIpAddress(ip);
+        agentInstance.agentConfig().setIpaddress(ip);
         return agentInstance;
     }
 
@@ -172,7 +172,7 @@ public class AgentInstanceMother {
 
     public static AgentInstance updateHostname(AgentInstance agentInstance, String hostname) {
         AgentConfig original = agentInstance.agentConfig();
-        agentInstance.syncConfig(new AgentConfig(original.getUuid(), hostname, original.getIpAddress(), original.getResourceConfigs()));
+        agentInstance.syncConfig(new AgentConfig(original.getUuid(), hostname, original.getIpaddress(), original.getResourceConfigs()));
         return agentInstance;
     }
 

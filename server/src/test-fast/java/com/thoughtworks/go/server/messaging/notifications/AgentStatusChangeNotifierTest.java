@@ -61,7 +61,7 @@ public class AgentStatusChangeNotifierTest {
         AgentConfig agentConfig = new AgentConfig();
         agentConfig.setElasticAgentId("42");
         agentConfig.setElasticPluginId("go.cd.elastic-agent-plugin.docker");
-        agentConfig.setIpAddress("127.0.0.1");
+        agentConfig.setIpaddress("127.0.0.1");
         AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
         agentInstance.update(agentRuntimeInfo);
 

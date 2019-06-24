@@ -50,7 +50,7 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFa
  * @understands grouping of agents and pipelines within an environment
  */
 @Service
-public class EnvironmentConfigService implements ConfigChangedListener {
+public class EnvironmentConfigService implements ConfigChangedListener, AgentChangeListener<AgentConfig> {
     private static final Logger LOG = LoggerFactory.getLogger(EnvironmentConfigService.class.getName());
     public final GoConfigService goConfigService;
     private final SecurityService securityService;
@@ -86,10 +86,12 @@ public class EnvironmentConfigService implements ConfigChangedListener {
             @Override
             public void onEntityConfigChange(ConfigRepoConfig entity) {
                 if(!goConfigService.getCurrentConfig().getConfigRepos().hasConfigRepo(entity.getId())) {
-                    sync(goConfigService.getEnvironments());
+                    syncEnvironmentsFromConfig(goConfigService.getEnvironments());
                 }
             }
         });
+
+        agentService.registerAgentChangeListeners(this);
     }
 
     public void syncEnvironmentsFromConfig(EnvironmentsConfig environments){
@@ -110,13 +112,13 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     private void removeAgentFromDissociatedEnvs(List<String> associatedEnvNameList, String agentUuid) {
         this.environments
-            .stream()
-            .filter(env -> !(associatedEnvNameList.contains(env.name().toString())))
-            .forEach(env -> {
-                if(env.hasAgent(agentUuid)){
-                    env.removeAgent(agentUuid);
-                }
-            });
+                .stream()
+                .filter(env -> !(associatedEnvNameList.contains(env.name().toString())))
+                .forEach(env -> {
+                    if(env.hasAgent(agentUuid)){
+                        env.removeAgent(agentUuid);
+                    }
+                });
     }
 
     private void addAgentToAssociatedEnvs(String agentUuid, List<String> associatedEnvNames) {
@@ -128,8 +130,7 @@ public class EnvironmentConfigService implements ConfigChangedListener {
         });
     }
 
-    public void sync(EnvironmentsConfig environments) {
-        this.environments = environments;
+    public void syncAgentsFromDB() {
         agentService.agents().forEach(agentConfig -> {
             String agentEnvironments = agentConfig.getEnvironments();
             if (agentEnvironments != null) {
@@ -147,7 +148,8 @@ public class EnvironmentConfigService implements ConfigChangedListener {
 
     @Override
     public void onConfigChange(CruiseConfig newCruiseConfig) {
-        sync(newCruiseConfig.getEnvironments());
+        syncEnvironmentsFromConfig(newCruiseConfig.getEnvironments());
+        syncAgentsFromDB();
     }
 
     public List<JobPlan> filterJobsByAgent(List<JobPlan> jobPlans, String agentUuid) {
@@ -333,5 +335,44 @@ public class EnvironmentConfigService implements ConfigChangedListener {
                 result.badRequest(LocalizedMessage.composite(actionFailed, e.getMessage()));
             }
         }
+    }
+
+    @Override
+    public void agentChanged(AgentChangedEvent event) {
+        AgentConfig oldAgent = event.getOldAgent();
+        AgentConfig newAgent = event.getNewAgent();
+
+        List<String> oldEnvs = oldAgent.getEnvironmentsAsList();
+        List<String> newEnvs = newAgent.getEnvironmentsAsList();
+
+        List<String> removedEnvs = oldEnvs.stream().filter(env -> !newEnvs.contains(env)).collect(Collectors.toList());
+        List<String> addedEnvs = newEnvs.stream().filter(env -> !oldEnvs.contains(env)).collect(Collectors.toList());
+
+        removeAgentAssociationFromEnvs(oldAgent, removedEnvs);
+        addAgentAssociationToEnvs(newAgent, addedEnvs);
+
+        matchers = this.environments.matchers();
+    }
+
+    private void addAgentAssociationToEnvs(AgentConfig agentToAdd, List<String> envs) {
+        envs.forEach(env -> {
+            try {
+                EnvironmentConfig environmentConfig = named(env);
+                environmentConfig.addAgent(agentToAdd.getUuid());
+            } catch (RecordNotFoundException e) {
+                LOG.warn("Environment [" + env + "] does not exist, so its not associated with agent [" + agentToAdd.getUuid() + "]");
+            }
+        });
+    }
+
+    private void removeAgentAssociationFromEnvs(AgentConfig agentToRemove, List<String> envs) {
+        envs.forEach(env -> {
+            try {
+                EnvironmentConfig environmentConfig = named(env);
+                environmentConfig.removeAgent(agentToRemove.getUuid());
+            } catch (RecordNotFoundException e) {
+                LOG.warn("Environment [" + env + "] does not exist, so its associated with agent [" + agentToRemove.getUuid() + "] is not removed");
+            }
+        });
     }
 }

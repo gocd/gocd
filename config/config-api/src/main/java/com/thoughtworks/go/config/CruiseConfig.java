@@ -86,8 +86,6 @@ public interface CruiseConfig extends Validatable, ConfigOriginTraceable {
 
     JobConfig jobConfigByName(String pipelineName, String stageName, String jobInstanceName, boolean ignoreCase);
 
-    Agents agents();
-
     ServerConfig server();
 
     MailHost mailHost();

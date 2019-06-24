@@ -411,7 +411,7 @@ public class PipelineScheduleQueueIntegrationTest {
 
         configFileEditor.addPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stage.name()));
 
-        queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), configFileEditor.currentConfig().agents()), "md5-test", new TimeProvider());
+        queue.createPipeline(cause, pipelineConfig, new DefaultSchedulingContext(cause.getApprover(), agentService.agents()), "md5-test", new TimeProvider());
 
         List<JobPlan> plans = jobService.orderedScheduledBuilds();
         assertThat(plans.size(), is(3));

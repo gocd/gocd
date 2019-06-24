@@ -267,7 +267,7 @@ public class AgentInstanceTest {
         AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.update(new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
 
-        assertThat(agentInstance.agentConfig().getIpAddress(), is("10.18.7.52"));
+        assertThat(agentInstance.agentConfig().getIpaddress(), is("10.18.7.52"));
     }
 
     @Test
@@ -455,7 +455,7 @@ public class AgentInstanceTest {
         AgentInstance original = AgentInstance.createFromConfig(agentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(buildingRuntimeInfo());
 
-        AgentConfig newAgentConfig = new AgentConfig(agentConfig.getUuid(), agentConfig.getHostname(), agentConfig.getIpAddress());
+        AgentConfig newAgentConfig = new AgentConfig(agentConfig.getUuid(), agentConfig.getHostname(), agentConfig.getIpaddress());
         newAgentConfig.disable();
 
         original.syncConfig(newAgentConfig);

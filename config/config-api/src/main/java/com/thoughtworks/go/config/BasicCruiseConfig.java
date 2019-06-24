@@ -714,11 +714,6 @@ public class BasicCruiseConfig implements CruiseConfig {
     }
 
     @Override
-    public Agents agents() {
-        return agents;
-    }
-
-    @Override
     public ServerConfig server() {
         return serverConfig;
     }

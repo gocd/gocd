@@ -20,11 +20,14 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.util.CommaSeparatedString;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
+import static com.thoughtworks.go.util.CommaSeparatedString.*;
+import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -33,7 +36,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
  */
 public class AgentConfig extends PersistentObject implements Validatable {
     private String hostname;
-    private String ipAddress;
+    private String ipaddress;
     private String uuid;
     private String elasticAgentId;
     private String elasticPluginId;
@@ -51,24 +54,63 @@ public class AgentConfig extends PersistentObject implements Validatable {
     public AgentConfig() {
     }
 
+    public static AgentConfig newInstanceFrom(AgentConfig original) {
+        AgentConfig copy = new AgentConfig(original.getUuid(), original.getHostname(), original.getIpaddress(), original.getCookie());
+
+        copy.setDisabled(original.isDisabled());
+        copy.setElasticAgentId(original.getElasticAgentId());
+        copy.setElasticPluginId(original.getElasticPluginId());
+        copy.setEnvironments(original.getEnvironments());
+        copy.setResources(original.getResourceConfigs());
+        copy.setId(original.getId());
+
+        if (original.getCookie() != null) {
+            copy.setCookie(original.getCookie());
+        }
+
+        return copy;
+    }
+
     public AgentConfig(String uuid) {
         this(uuid, "", "");
     }
 
-    public AgentConfig(String uuid, String hostname, String ipAddress) {
-        this(uuid, hostname, ipAddress, new ResourceConfigs());
+    public AgentConfig(String uuid, String hostname, String ipaddress) {
+        this(uuid, hostname, ipaddress, new ResourceConfigs());
     }
 
-    public AgentConfig(String uuid, String hostname, String ipAddress, ResourceConfigs resourceConfigs) {
+    public AgentConfig(String uuid, String hostname, String ipaddress, ResourceConfigs resourceConfigs) {
         this.hostname = hostname;
-        this.ipAddress = ipAddress;
+        this.ipaddress = ipaddress;
         this.uuid = uuid;
         this.resources = StringUtils.join(resourceConfigs.resourceNames(), ",");
     }
 
-    public AgentConfig(String uuid, String hostname, String ipAddress, String cookie) {
-        this(uuid, hostname, ipAddress);
+    public AgentConfig(String uuid, String hostname, String ipaddress, String cookie) {
+        this(uuid, hostname, ipaddress);
         this.cookie = cookie;
+    }
+
+    public static AgentConfig blankAgent(String uuid) {
+        return new AgentConfig(uuid, "Unknown", "Unknown", "Unknown");
+    }
+
+    public void setFieldValues(String cookie, String hostname, String ipaddress) {
+        this.setCookie(cookie);
+        this.setHostname(hostname);
+        this.setIpaddress(ipaddress);
+    }
+
+    public void addResources(List<String> resourcesToAdd) {
+        setResources(new ResourceConfigs(append(getResourceConfigs().getCommaSeparatedResourceNames(), resourcesToAdd)));
+    }
+
+    public void removeResources(List<String> resourcesToRemove) {
+        setResources(new ResourceConfigs(remove(getResourceConfigs().getCommaSeparatedResourceNames(), resourcesToRemove)));
+    }
+
+    public void removeEnvironments(List<String> environmentsToRemove) {
+        this.setEnvironments(remove(this.getEnvironments(), environmentsToRemove));
     }
 
     @Override
@@ -81,13 +123,19 @@ public class AgentConfig extends PersistentObject implements Validatable {
     }
 
     private void validateResources() {
-        if (isElastic() && !getResources().isEmpty()) {
+        ResourceConfigs resourceConfigs = getResources();
+        if (isElastic() && !resourceConfigs.isEmpty()) {
             errors.add("elasticAgentId", "Elastic agents cannot have resources.");
+        } else {
+            resourceConfigs.validate(null);
+            if(!resourceConfigs.errors().isEmpty()){
+                errors.add("resources", resourceConfigs.errors().toString());
+            }
         }
     }
 
     private void validateIpAddress() {
-        String address = getIpAddress();
+        String address = getIpaddress();
         if (address == null) {
             return;
         }
@@ -139,7 +187,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
     }
 
     public void setResourceConfigs(ResourceConfigs resourceConfigs) {
-        resources = resourceConfigs.toString();
+        resources = resourceConfigs.getCommaSeparatedResourceNames();
     }
 
     public boolean isEnabled() {
@@ -168,7 +216,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
 
     public boolean isFromLocalHost() {
         if (cachedIsFromLocalHost == null) {
-            cachedIsFromLocalHost = SystemUtil.isLocalhost(ipAddress);
+            cachedIsFromLocalHost = SystemUtil.isLocalhost(ipaddress);
         }
         return cachedIsFromLocalHost.booleanValue();
     }
@@ -180,14 +228,14 @@ public class AgentConfig extends PersistentObject implements Validatable {
     @Override
     public String toString() {
         if (isElastic()) {
-            return format("ElasticAgent [%s, %s, %s, %s, %s]", hostname, ipAddress, uuid, elasticAgentId, elasticPluginId);
+            return format("ElasticAgent [%s, %s, %s, %s, %s]", hostname, ipaddress, uuid, elasticAgentId, elasticPluginId);
         } else {
-            return format("Agent [%s, %s, %s]", hostname, ipAddress, uuid);
+            return format("Agent [%s, %s, %s]", hostname, ipaddress, uuid);
         }
     }
 
     public AgentIdentifier getAgentIdentifier() {
-        return new AgentIdentifier(this.getHostname(), getIpAddress(), getUuid());
+        return new AgentIdentifier(this.getHostname(), getIpaddress(), getUuid());
     }
 
     @Override
@@ -197,7 +245,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
         AgentConfig that = (AgentConfig) o;
         return disabled == that.disabled &&
                 Objects.equals(hostname, that.hostname) &&
-                Objects.equals(ipAddress, that.ipAddress) &&
+                Objects.equals(ipaddress, that.ipaddress) &&
                 Objects.equals(uuid, that.uuid) &&
                 Objects.equals(elasticAgentId, that.elasticAgentId) &&
                 Objects.equals(elasticPluginId, that.elasticPluginId) &&
@@ -208,7 +256,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(hostname, ipAddress, uuid, elasticAgentId, elasticPluginId, disabled, environments, resources, cookie);
+        return Objects.hash(hostname, ipaddress, uuid, elasticAgentId, elasticPluginId, disabled, environments, resources, cookie);
     }
 
     public String getHostname() {
@@ -219,12 +267,12 @@ public class AgentConfig extends PersistentObject implements Validatable {
         this.hostname = hostname;
     }
 
-    public String getIpAddress() {
-        return ipAddress;
+    public String getIpaddress() {
+        return ipaddress;
     }
 
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
+    public void setIpaddress(String ipaddress) {
+        this.ipaddress = ipaddress;
     }
 
     public String getUuid() {
@@ -272,12 +320,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
     }
 
     public void addEnvironments(List<String> environmentsToAdd) {
-        LinkedHashSet<String> environments = new LinkedHashSet<>();
-        if (this.getEnvironments() != null) {
-            environments.addAll(Arrays.asList(this.getEnvironments().split(",")));
-        }
-        environments.addAll(environmentsToAdd);
-        this.setEnvironments(String.join(",", environments));
+        this.setEnvironments(append(this.getEnvironments(), environmentsToAdd));
     }
 
     public ResourceConfigs getResources() {

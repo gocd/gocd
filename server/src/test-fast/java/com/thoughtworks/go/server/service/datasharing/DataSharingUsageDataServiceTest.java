@@ -16,10 +16,7 @@
 package com.thoughtworks.go.server.service.datasharing;
 
 import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.JobConfig;
-import com.thoughtworks.go.config.PipelineConfig;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.remote.RepoConfigOrigin;
@@ -87,7 +84,6 @@ public class DataSharingUsageDataServiceTest {
         configRepoPipeline.getFirstStageConfig().getJobs().addAll(Arrays.asList(elasticJob1, elasticJob2));
         configRepoPipeline.setOrigin(new RepoConfigOrigin());
         goConfig.addPipeline("first", configRepoPipeline);
-        goConfig.agents().add(new AgentConfig("agent1"));
         when(goConfigService.getCurrentConfig()).thenReturn(goConfig);
         when(goConfigService.getElasticConfig()).thenReturn(goConfig.getElasticConfig());
         oldestBuild = new JobStateTransition(JobState.Scheduled, new Date());
@@ -97,6 +93,7 @@ public class DataSharingUsageDataServiceTest {
 
     @Test
     public void shouldGetUsageStatistics() {
+        when(agentService.agents()).thenReturn(new Agents(AgentMother.localAgent(), AgentMother.elasticAgent()));
         UsageStatistics usageStatistics = service.get();
         assertThat(usageStatistics.pipelineCount()).isEqualTo(3L);
         assertThat(usageStatistics.configRepoPipelineCount()).isEqualTo(1L);
@@ -114,6 +111,7 @@ public class DataSharingUsageDataServiceTest {
     @Test
     public void shouldReturnOldestPipelineExecutionTimeAsZeroIfNoneOfThePipelinesHaveEverRun() {
         when(jobInstanceSqlMapDao.oldestBuild()).thenReturn(null);
+        when(agentService.agents()).thenReturn(new Agents(AgentMother.localAgent(), AgentMother.elasticAgent()));
         UsageStatistics usageStatistics = service.get();
         assertThat(usageStatistics.pipelineCount()).isEqualTo(3L);
         assertThat(usageStatistics.agentCount()).isEqualTo(1L);
@@ -122,7 +120,7 @@ public class DataSharingUsageDataServiceTest {
 
     @Test
     public void shouldNotIncludeElasticAgentsInTheCount() {
-        goConfig.agents().add(AgentMother.elasticAgent());
+        when(agentService.agents()).thenReturn(new Agents(AgentMother.localAgent(), AgentMother.elasticAgent()));
         UsageStatistics usageStatistics = service.get();
         assertThat(usageStatistics.agentCount()).isEqualTo(1L);
     }

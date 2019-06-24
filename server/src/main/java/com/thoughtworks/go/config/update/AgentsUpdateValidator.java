@@ -18,6 +18,7 @@ package com.thoughtworks.go.config.update;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
@@ -89,11 +90,18 @@ public class AgentsUpdateValidator {
 
         validatePresenceOfAgentUuidsInConfig();
         checkIfResourcesAreBeingUpdatedOnElasticAgents();
+        validateResources(resourcesToAdd);
 
-        validatePresenceOfAgentUuidsInConfig();
-        checkIfResourcesAreBeingUpdatedOnElasticAgents();
         List<AgentConfig> pendingAgents = findPendingAgents();
         validateOperationOnPendingAgents(pendingAgents);
+    }
+
+    private void validateResources(List<String> resourcesToAdd) {
+        ResourceConfigs resourceConfigs = new ResourceConfigs(StringUtils.join(resourcesToAdd, ","));
+        resourceConfigs.validate(null);
+        if(!resourceConfigs.errors().isEmpty()){
+            throw new IllegalArgumentException("Validations failed for bulk update of agents. Error(s): " + resourceConfigs.errors());
+        }
     }
 
     private void validatePresenceOfAgentUuidsInConfig() {

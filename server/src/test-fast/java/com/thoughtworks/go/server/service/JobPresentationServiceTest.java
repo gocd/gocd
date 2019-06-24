@@ -15,10 +15,10 @@
  */
 package com.thoughtworks.go.server.service;
 
+import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
-import com.thoughtworks.go.server.domain.Agent;
 import com.thoughtworks.go.server.domain.JobDurationStrategy;
 import com.thoughtworks.go.server.ui.JobInstanceModel;
 import org.junit.Before;
@@ -45,7 +45,7 @@ public class JobPresentationServiceTest {
     }
 
     @Test
-    public void shouldReturnJobModel() throws Exception {
+    public void shouldReturnJobModel() {
         JobInstance dev = assignedWithAgentId("dev", "agent1");
         JobInstance DEv = assignedWithAgentId("DEv", "agent1");
         JobInstance bev = assignedWithAgentId("bev", "agent2");
@@ -73,11 +73,11 @@ public class JobPresentationServiceTest {
     }
 
     @Test
-    public void shouldReturnJobModelForAnAgentThatIsNoMoreAvailableInTheConfig() throws Exception {
+    public void shouldReturnJobModelForAnAgentThatIsNoMoreAvailableInTheConfig() {
         String deletedAgentUuid = "deleted_agent";
         JobInstance jobWithDeletedAgent = assignedWithAgentId("dev", deletedAgentUuid);
         when(agentService.findAgentAndRefreshStatus(deletedAgentUuid)).thenReturn(null);
-        Agent agentFromDb = new Agent(deletedAgentUuid, "cookie", "hostname", "1.2.3.4");
+        AgentConfig agentFromDb = new AgentConfig(deletedAgentUuid,"hostname", "1.2.3.4", "cookie");
         when(agentService.findAgentObjectByUuid(deletedAgentUuid)).thenReturn(agentFromDb);
         List<JobInstanceModel> models = new JobPresentationService(jobDurationStrategy, agentService).jobInstanceModelFor(new JobInstances(jobWithDeletedAgent));
         assertThat(models.size(), is(1));

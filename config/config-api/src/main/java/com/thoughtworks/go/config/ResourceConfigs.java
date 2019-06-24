@@ -17,6 +17,7 @@ package com.thoughtworks.go.config;
 
 import com.thoughtworks.go.domain.BaseCollection;
 import com.thoughtworks.go.domain.ConfigErrors;
+import com.thoughtworks.go.util.CommaSeparatedString;
 import com.thoughtworks.go.util.StringUtil;
 import com.thoughtworks.go.util.comparator.AlphaAsciiCollectionComparator;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +26,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
+
+import static com.thoughtworks.go.util.CommaSeparatedString.append;
 
 @ConfigTag("resources")
 @ConfigCollection(ResourceConfig.class)
@@ -39,14 +43,20 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
     }
 
     public ResourceConfigs(String resources) {
-        String[] resourceArray = resources.split(",");
-        for (String resource : resourceArray) {
-            try {
-                add(new ResourceConfig(resource));
-            } catch (Exception e) {
-                continue;
+        if (StringUtils.isNotEmpty(resources)) {
+            String[] resourceArray = resources.split(",");
+            for (String resource : resourceArray) {
+                try {
+                    add(new ResourceConfig(resource));
+                } catch (Exception e) {
+                    continue;
+                }
             }
         }
+    }
+
+    public String getCommaSeparatedResourceNames() {
+        return append("", resourceNames());
     }
 
     public ResourceConfigs(List<ResourceConfig> resourceConfigs) {
@@ -90,10 +100,15 @@ public class ResourceConfigs extends BaseCollection<ResourceConfig> implements C
 
     @Override
     public void validate(ValidationContext validationContext) {
+        for (ResourceConfig resourceConfig : this) {
+            resourceConfig.validate(validationContext);
+        }
     }
 
     @Override
     public ConfigErrors errors() {
+        this.stream().filter(resourceConfig -> !resourceConfig.errors().isEmpty())
+                .forEach(resourceConfig -> configErrors.addAll(resourceConfig.errors()));
         return configErrors;
     }
 

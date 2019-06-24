@@ -184,7 +184,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
               eachLine = 'PASS_THROUGH=true'
             }
 
-            if (eachLine == '#RUN_AS_USER=go') {
+            if (eachLine == '#RUN_AS_USER=') {
               eachLine = 'RUN_AS_USER=go'
             }
 

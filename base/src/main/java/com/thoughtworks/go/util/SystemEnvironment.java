@@ -570,7 +570,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     }
 
     public Integer getConsolePublishInterval() {
-        return Integer.valueOf(getPropertyImpl(INTERVAL, "5"));
+        return Integer.valueOf(getPropertyImpl(INTERVAL, "10"));
     }
 
     public String getServiceUrl() {

@@ -16,7 +16,7 @@
 @import "../../global/common";
 
 $overlay-bg: rgba(0, 0, 0, 0.8);
-$modal-overlay-bg: rgba(33, 33, 33, 0.4);
+$modal-overlay-bg: rgba(200, 200, 200, 0.4);
 $overlay-header-bg: $go-darkblue;
 $overlay-width: 500px;
 $overlay-height: 500px;
@@ -145,14 +145,16 @@ $spinner-wrapper-height: 200px;
 }
 
 .modal-body-overlay {
+  $modal_header_height: 51px;
+  $modal_footer_height: 55px;
   z-index:    map_get($zindex, 'modal-overlay-bg');
   background: $modal-overlay-bg;
   position:   fixed;
   width:      100%;
-  height:     calc(100% - 55px);
-  top:        0;
+  top:        $modal_header_height;
   left:       0;
   right:      0;
+  bottom:     $modal_footer_height;
 }
 
 .spinner-wrapper {

@@ -17,6 +17,7 @@ import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
+import {Spinner} from "views/components/spinner";
 import * as Buttons from "../buttons";
 import * as styles from "./index.scss";
 import {ModalManager} from "./modal_manager";
@@ -28,10 +29,15 @@ const classnames = bind(styles);
 //todo: Remove extraLargeHackForEAProfiles once we fix plugins view to provide the modal container dimensions
 export enum Size {small, medium, large, extraLargeHackForEaProfiles}
 
+export enum ModalState {
+  OK, LOADING
+}
+
 export abstract class Modal extends MithrilViewComponent<any> {
   public id: string;
   private readonly size: Size;
   protected closeModalOnOverlayClick: boolean = true;
+  protected modalState                        = ModalState.OK;
 
   protected constructor(size = Size.medium) {
     super();
@@ -70,13 +76,18 @@ export abstract class Modal extends MithrilViewComponent<any> {
   }
 
   view() {
+    const spinner = this.isLoading() ? (<Spinner/>) : null;
     return <div className={classnames(styles.overlay, Size[this.size])}>
       <header className={styles.overlayHeader}>
         <h3 data-test-id="modal-title">{this.title()}</h3>
         <button className={styles.overlayClose} onclick={this.close.bind(this)}><i className={styles.closeIcon}/>
         </button>
       </header>
-      <div className={styles.overlayContent} data-test-id="modal-body">
+      <div
+        className={classnames(styles.overlayContent, {[styles.spinnerWrapper]: this.isLoading()})}
+        data-test-id="modal-body">
+        <div className={classnames({[styles.modalBodyOverlay]: this.isLoading()})}/>
+        {spinner}
         {this.body()}
       </div>
       <footer className={styles.overlayFooter}>
@@ -91,5 +102,9 @@ export abstract class Modal extends MithrilViewComponent<any> {
 
   shouldCloseModalOnOverlayClick(): boolean {
     return this.closeModalOnOverlayClick;
+  }
+
+  protected isLoading() {
+    return this.modalState === ModalState.LOADING;
   }
 }

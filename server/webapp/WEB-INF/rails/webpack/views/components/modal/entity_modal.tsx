@@ -25,16 +25,11 @@ import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as Buttons from "views/components/buttons";
 import {ButtonGroup} from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
-import {Modal, Size} from "views/components/modal/index";
-import {Spinner} from "views/components/spinner";
+import {Modal, ModalState, Size} from "views/components/modal/index";
 import * as foundationStyles from "views/pages/new_plugins/foundation_hax.scss";
 import * as styles from "./index.scss";
 
 const foundationClassNames = bind(foundationStyles);
-
-enum ModalState {
-  OK, LOADING
-}
 
 export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected entity: Stream<T>;
@@ -43,7 +38,6 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
   protected readonly isStale: Stream<boolean>     = stream(true);
   protected readonly etag: Stream<string>         = stream();
-  private readonly modalState                     = stream(ModalState.OK);
 
   constructor(entity: T,
               pluginInfos: Array<PluginInfo<any>>,
@@ -59,7 +53,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     super.render();
 
     if (this.isStale()) {
-      this.modalState(ModalState.LOADING);
+      this.modalState = ModalState.LOADING;
       this.performFetch(this.entity()).then(this.onFetchResult.bind(this));
     }
   }
@@ -69,7 +63,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       return;
     }
 
-    this.modalState(ModalState.LOADING);
+    this.modalState = ModalState.LOADING;
     this.operationPromise().then(this.onSaveResult.bind(this));
   }
 
@@ -77,11 +71,6 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
     const flashMessage = this.errorMessage() ?
       <div className={styles.errorWrapper}><FlashMessage type={MessageType.alert} message={this.errorMessage()}/>
       </div> : null;
-
-    if (!this.entity || this.modalState() === ModalState.LOADING) {
-      return <div className={styles.spinnerWrapper}><Spinner/></div>;
-    }
-
     return [
       flashMessage,
       <div className={foundationClassNames(foundationStyles.foundationGridHax, foundationStyles.foundationFormHax)}>
@@ -95,7 +84,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
       <ButtonGroup>
         <Buttons.Cancel data-test-id="button-cancel" onclick={(e) => this.close()}>Cancel</Buttons.Cancel>
         <Buttons.Primary data-test-id="button-save"
-                         disabled={this.isStale() || this.modalState() === ModalState.LOADING}
+                         disabled={this.isLoading()}
                          onclick={this.performOperation.bind(this)}>Save</Buttons.Primary>
       </ButtonGroup>
     ];
@@ -107,6 +96,10 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
 
   operationError(errorResponse: any, statusCode: number) {
     //implement if needed
+  }
+
+  protected isLoading(): boolean {
+    return super.isLoading() || !this.entity;
   }
 
   protected abstract onPluginChange(entity: Stream<T>, pluginInfo: PluginInfo<any>): void;
@@ -139,7 +132,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   }
 
   private onFetchResult(result: ApiResult<ObjectWithEtag<T>>) {
-    this.modalState(ModalState.OK);
+    this.modalState = ModalState.OK;
     result.do(this.onSuccessfulFetch.bind(this), (e) => this.onError.bind(this, e, result.getStatusCode()));
   }
 
@@ -151,7 +144,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   }
 
   private onSaveResult(result: ApiResult<ObjectWithEtag<T>>) {
-    this.modalState(ModalState.OK);
+    this.modalState = ModalState.OK;
     result.do(this.onSuccess.bind(this),
               this.onError.bind(this, result.unwrap() as ErrorResponse, result.getStatusCode()));
   }

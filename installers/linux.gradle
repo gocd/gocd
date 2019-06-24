@@ -52,7 +52,7 @@ enum OsType {
       fpmArgs += ['--template-value', "file_permissions=${filePermissions}"]
 
       dirPermissons.write(JsonOutput.toJson(installerType.directories))
-      filePermissions.write(JsonOutput.toJson(installerType.files))
+      filePermissions.write(JsonOutput.toJson(installerType.configFiles))
       return fpmArgs
     }
   },
@@ -85,7 +85,7 @@ enum OsType {
         }
       })
 
-      installerType.files.each {
+      installerType.configFiles.each {
         fileName, permissions ->
           // set ownership and mode on the rpm manifest
           fpmArgs += ['--rpm-attr', "${Integer.toOctalString(permissions.mode)},${permissions.owner},${permissions.group}:${fileName}"]
@@ -361,11 +361,11 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
           }
         }
 
-//        installerType.files.each { fileName, permissions ->
-//          if (permissions.confFile) {
-//            cmd += ['--config-files', fileName.replaceAll(/^\//, '')]
-//          }
-//        }
+        installerType.configFiles.each { fileName, permissions ->
+          if (permissions.confFile) {
+            cmd += ['--config-files', fileName.replaceAll(/^\//, '')]
+          }
+        }
 
         cmd += osType.configureFpm(project, buildRoot, installerType)
 

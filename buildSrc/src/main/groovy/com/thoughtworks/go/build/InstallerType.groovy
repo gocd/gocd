@@ -38,7 +38,7 @@ interface InstallerType {
 
   Map<String, Object> getDirectories()
 
-  Map<String, Object> getFiles()
+  Map<String, Object> getConfigFiles()
 
   String getPackageDescription()
 

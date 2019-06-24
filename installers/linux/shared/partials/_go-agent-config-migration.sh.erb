@@ -1,0 +1,91 @@
+
+# the options in the defaults file fall into 5 broad categories:
+#   - agent bootstrapper JVM args (specified by AGENT_BOOTSTRAPPER_JVM_ARGS)
+#   - agent bootstrapper args (specified by AGENT_BOOTSTRAPPER_ARGS and GO_SERVER_URL)
+#   - agent JVM args (specified by AGENT_MEM, AGENT_MAX_MEM and GO_AGENT_SYSTEM_PROPERTIES)
+#   - the GO_JAVA_HOME used to determine the JVM
+#   - any other environment variables (explicitly exported) that are inherited by the agent processes
+
+
+# in this script we attempt to construct the various arguments (and environment variables) that must be inherited by child processes.
+# Note the difference in `SOME_VAR=bar` and `export ANOTHER_VAR=bar`. SOME_VAR is a local variable, whereas ANOTHER_VAR is an exported variable and is visible to children.
+
+    if [ -f "/etc/default/<%= name %>" ]; then
+        # do this in a subshell to avoid polluting this shell
+        MIGRATION_FILE="/var/run/<%= name %>.pre-19.6-migration"
+        rm -rf "${MIGRATION_FILE}"
+
+        (
+            MIGRATED_AGENT_STARTUP_ARGS=""
+            MIGRATED_AGENT_BOOTSTRAPPER_ARGS=""
+            MIGRATED_GO_JAVA_HOME=""
+
+            OLD_ENV_FILE=$(mktemp /tmp/<%= name %>.old-env.XXXXXX)
+            NEW_ENV_FILE=$(mktemp /tmp/<%= name %>.new-env.XXXXXX)
+
+            env | sort > $OLD_ENV_FILE
+
+            . "/etc/default/<%= name %>"
+
+            mv "/etc/default/<%= name %>" "/etc/default/<%= name %>.pre-migration"
+
+            # these variables are not to be exported (even if users explicitly `export`ed them), so we filter them out
+            env | sort | grep -v -E "^(AGENT_WORK_DIR|AGENT_MEM|AGENT_MAX_MEM|GO_AGENT_SYSTEM_PROPERTIES|GO_SERVER_URL|AGENT_BOOTSTRAPPER_ARGS|AGENT_BOOTSTRAPPER_JVM_ARGS|GO_JAVA_HOME)=" > $NEW_ENV_FILE
+
+            # migrate any JVM args to be passed to the agent process
+            if [ ! -z "${AGENT_MEM}" ]; then
+                MIGRATED_AGENT_STARTUP_ARGS="${MIGRATED_AGENT_STARTUP_ARGS}${MIGRATED_AGENT_STARTUP_ARGS:+ }-Xms${AGENT_MEM}"
+            fi
+
+            if [ ! -z "${AGENT_MAX_MEM}" ]; then
+                MIGRATED_AGENT_STARTUP_ARGS="${MIGRATED_AGENT_STARTUP_ARGS}${MIGRATED_AGENT_STARTUP_ARGS:+ }-Xmx${AGENT_MAX_MEM}"
+            fi
+
+            if [ ! -z "${GO_AGENT_SYSTEM_PROPERTIES}" ]; then
+                MIGRATED_AGENT_STARTUP_ARGS="${MIGRATED_AGENT_STARTUP_ARGS}${MIGRATED_AGENT_STARTUP_ARGS:+ }${GO_AGENT_SYSTEM_PROPERTIES}"
+            fi
+
+            if [ ! -z "${GO_JAVA_HOME}" ]; then
+                MIGRATED_GO_JAVA_HOME="${GO_JAVA_HOME}"
+            fi
+
+            if [ ! -z "$GO_SERVER_URL" ]; then
+                MIGRATED_AGENT_BOOTSTRAPPER_ARGS="${MIGRATED_AGENT_BOOTSTRAPPER_ARGS}${MIGRATED_AGENT_BOOTSTRAPPER_ARGS:+ }-serverUrl $GO_SERVER_URL"
+            fi
+
+            if [ ! -z "AGENT_BOOTSTRAPPER_ARGS" ]; then
+                MIGRATED_AGENT_BOOTSTRAPPER_ARGS="${MIGRATED_AGENT_BOOTSTRAPPER_ARGS}${MIGRATED_AGENT_BOOTSTRAPPER_ARGS:+ }$AGENT_BOOTSTRAPPER_ARGS"
+            fi
+
+            if [ ! -z "${MIGRATED_GO_JAVA_HOME}" ]; then
+                /bin/echo -E "wrapper.java.command=${MIGRATED_GO_JAVA_HOME}/bin/java" >> ${MIGRATION_FILE}
+            fi
+
+            if [ ! -z "${MIGRATED_AGENT_STARTUP_ARGS}" ]; then
+                /bin/echo -E "set.AGENT_STARTUP_ARGS=%AGENT_STARTUP_ARGS% ${MIGRATED_AGENT_STARTUP_ARGS}" >> ${MIGRATION_FILE}
+            fi
+
+            index=100
+            # https://superuser.com/questions/1066455/how-to-split-a-string-with-quotes-like-command-arguments-in-bash
+            eval 'for word in '$AGENT_BOOTSTRAPPER_JVM_ARGS'; do
+              /bin/echo -E "wrapper.java.additional.${index}=$word" >> ${MIGRATION_FILE}
+              index=$((index+1))
+            done'
+
+            index=100
+            # https://superuser.com/questions/1066455/how-to-split-a-string-with-quotes-like-command-arguments-in-bash
+            eval 'for word in '$MIGRATED_AGENT_BOOTSTRAPPER_ARGS'; do
+              /bin/echo -E "wrapper.app.parameter.${index}=$word" >> ${MIGRATION_FILE}
+              index=$((index+1))
+            done'
+
+            grep -v -F -x -f $OLD_ENV_FILE $NEW_ENV_FILE | (
+                while IFS= read -r line || [ -n "$line" ]; do
+                # echo the line (do not escape anything)
+                /bin/echo -E "set.$line" >> ${MIGRATION_FILE}
+                done
+            )
+
+            rm -rf $OLD_ENV_FILE $NEW_ENV_FILE
+        )
+    fi

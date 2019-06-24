@@ -24,6 +24,22 @@
 
     /usr/share/<%= name %>/bin/<%= name %> install 2>&1 || true
 
+    # recall if migration of pre 19.6 config needs to happen
+    MIGRATION_FILE="/var/run/<%= name %>.pre-19.6-migration"
+
+    if [ -f "${MIGRATION_FILE}" ]; then
+      echo "" >> /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf
+
+      echo "###### begin auto-migrated content ######" >> /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf
+      echo "# These lines have been added automatically on upgrade of the <%= name %> package" >> /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf
+      cat "${MIGRATION_FILE}" >> /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf
+      echo "###### end auto-migrated content ######" >> /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf
+
+      echo "The contents of /etc/default/<%= name %> have been migrated to /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf"
+      echo "The following lines have been appended to /usr/share/<%= name %>/wrapper-config/wrapper-properties.conf:"
+      cat "${MIGRATION_FILE}" | sed -e 's/^/  /g'
+    fi
+
     if [ -e /var/run/<%= name %>-running-check-from-deb-package ]; then
         rm -rf /var/run/<%= name %>-running-check-from-deb-package
         /usr/share/<%= name %>/bin/<%= name %> start

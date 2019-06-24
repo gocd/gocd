@@ -1,0 +1,92 @@
+# the options in the defaults file fall into 2 broad categories:
+#   - server JVM args (specified by vars like SERVER_MEM, GO_SERVER_PORT, GO_SERVER_SYSTEM_PROPERTIES, among others)
+#   - the GO_JAVA_HOME used to determine the JVM
+#   - any other environment variables (explicitly exported) that are inherited by the agent processes
+
+# in this script we attempt to construct the various arguments (and environment variables) that must be inherited by child processes.
+# Note the difference in `SOME_VAR=bar` and `export ANOTHER_VAR=bar`. SOME_VAR is a local variable, whereas ANOTHER_VAR is an exported variable and is visible to children.
+
+    if [ -f "/etc/default/<%= name %>" ]; then
+        # do this in a subshell to avoid polluting this shell
+        MIGRATION_FILE="/var/run/<%= name %>.pre-19.6-migration"
+        rm -rf "${MIGRATION_FILE}"
+
+        (
+            MIGRATED_SERVER_JVM_ARGS=""
+            MIGRATED_GO_JAVA_HOME=""
+
+            OLD_ENV_FILE=$(mktemp /tmp/<%= name %>.old-env.XXXXXX)
+            NEW_ENV_FILE=$(mktemp /tmp/<%= name %>.new-env.XXXXXX)
+
+            env | sort > $OLD_ENV_FILE
+
+            . "/etc/default/<%= name %>"
+
+            # these variables are not to be exported (even if users explicitly `export`ed them), so we filter them out
+            env | sort | grep -v -E "^(GO_SERVER_PORT|GO_SERVER_SSL_PORT|SERVER_WORK_DIR|SERVER_MEM|SERVER_MAX_MEM|SERVER_MAX_PERM_GEN|GO_SERVER_PORT|GO_SERVER_SSL_PORT|GO_SERVER_SYSTEM_PROPERTIES|GO_JAVA_HOME)=" > $NEW_ENV_FILE
+
+            # migrate any JVM args to be passed to the agent process
+
+            if [ ! -z "${SERVER_MEM}" ]; then
+                MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-Xms${SERVER_MEM}"
+            fi
+
+            if [ ! -z "${SERVER_MAX_MEM}" ]; then
+                MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-Xmx${SERVER_MAX_MEM}"
+            fi
+
+            if [ ! -z "${SERVER_MAX_PERM_GEN}" ]; then
+                MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-XX:MaxMetaspaceSize=${SERVER_MAX_PERM_GEN}"
+            fi
+
+            if [ ! -z "${GO_CONFIG_DIR}" ]; then
+                MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-Dcruise.config.dir=${GO_CONFIG_DIR} -Dcruise.config.file=${GO_CONFIG_DIR}/cruise-config.xml"
+            fi
+
+            if [ ! -z "${SERVER_LISTEN_HOST}" ]; then
+                MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-Dcruise.listen.host=${SERVER_LISTEN_HOST}"
+            fi
+
+            if [ ! -z "${GO_SERVER_PORT}" ]; then
+                # non default port
+                if [ "${GO_SERVER_PORT}" != "8153" ]; then
+                  MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-Dcruise.server.port${GO_SERVER_PORT}"
+                fi
+            fi
+
+            if [ ! -z "${GO_SERVER_SSL_PORT}" ]; then
+                # non default port
+                if [ "${GO_SERVER_SSL_PORT}" != "8154" ]; then
+                  MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }-Dcruise.server.ssl.port${GO_SERVER_SSL_PORT}"
+                fi
+            fi
+
+            if [ ! -z "${GO_SERVER_SYSTEM_PROPERTIES}" ]; then
+                MIGRATED_SERVER_JVM_ARGS="${MIGRATED_SERVER_JVM_ARGS}${MIGRATED_SERVER_JVM_ARGS:+ }${GO_SERVER_SYSTEM_PROPERTIES}"
+            fi
+
+            if [ ! -z "${GO_JAVA_HOME}" ]; then
+                MIGRATED_GO_JAVA_HOME="${GO_JAVA_HOME}"
+            fi
+
+            if [ ! -z "${MIGRATED_GO_JAVA_HOME}" ]; then
+                /bin/echo -E "wrapper.java.command=${MIGRATED_GO_JAVA_HOME}/bin/java" >> ${MIGRATION_FILE}
+            fi
+
+            index=100
+            # https://superuser.com/questions/1066455/how-to-split-a-string-with-quotes-like-command-arguments-in-bash
+            eval 'for word in '$MIGRATED_SERVER_JVM_ARGS'; do
+              /bin/echo -E "wrapper.java.additional.${index}=$word" >> ${MIGRATION_FILE}
+              index=$((index+1))
+            done'
+
+            grep -v -F -x -f $OLD_ENV_FILE $NEW_ENV_FILE | (
+                while IFS= read -r line || [ -n "$line" ]; do
+                # echo the line (do not escape anything)
+                /bin/echo -E "set.$line" >> ${MIGRATION_FILE}
+                done
+            )
+
+            rm -rf $OLD_ENV_FILE $NEW_ENV_FILE
+        )
+    fi

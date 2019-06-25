@@ -225,11 +225,9 @@ $error-container-width: 450px;
   }
 }
 
-$error-color: #fa2d2d;
-
 .error-text {
   font-size: 15px;
-  color: $error-color;
+  color: $go-danger;
 }
 
 .switch-label-text {

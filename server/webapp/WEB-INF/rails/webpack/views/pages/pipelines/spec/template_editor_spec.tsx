@@ -43,7 +43,7 @@ describe("AddPipeline: TemplateEditor", () => {
     expect(isUsingTemplate()).toBeTruthy();
     const flash = helper.byTestId("flash-message-warning");
     expect(flash).toBeTruthy();
-    expect(helper.text("pre", flash)).toBe("There are no pipeline templates configured. Add one via the templates page.");
+    expect(helper.text("code", flash)).toBe("There are no pipeline templates configured. Add one via the templates page.");
   });
 
   it("should show dropdown of templates when defined", () => {

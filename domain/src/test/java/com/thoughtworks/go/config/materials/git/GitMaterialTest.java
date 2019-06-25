@@ -25,6 +25,7 @@ import com.thoughtworks.go.domain.MaterialInstance;
 import com.thoughtworks.go.domain.MaterialRevision;
 import com.thoughtworks.go.domain.MaterialRevisions;
 import com.thoughtworks.go.domain.materials.*;
+import com.thoughtworks.go.domain.materials.git.GitCommand;
 import com.thoughtworks.go.domain.materials.git.GitTestRepo;
 import com.thoughtworks.go.domain.materials.git.GitVersion;
 import com.thoughtworks.go.domain.materials.mercurial.StringRevision;
@@ -154,12 +155,17 @@ public class GitMaterialTest {
 
         @Test
         void shouldGetLatestModificationUsingPassword() {
+            GitCommand git = new GitCommand(null, new File(""), GitMaterialConfig.DEFAULT_BRANCH, false, null);
+
             GitMaterial gitMaterial = new GitMaterial("http://username:password@0.0.0.0");
             try {
                 gitMaterial.latestModification(workingDir, new TestSubprocessExecutionContext());
                 fail("should throw exception because url is not reachable");
             } catch (Exception e) {
-                assertThat(e.getMessage()).contains("******");
+                if (!git.version().requiresSubmoduleCommandFix()) {
+                    //ugly hack for git >= 2.22. The error message has changed and shows 'connection refused' without any password
+                    assertThat(e.getMessage()).contains("******");
+                }
                 assertThat(e.getMessage()).doesNotContain("password");
             }
         }

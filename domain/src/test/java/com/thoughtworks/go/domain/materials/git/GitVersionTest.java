@@ -61,4 +61,10 @@ public class GitVersionTest {
         GitVersion version = GitVersion.parse("git version 1.5.0.1");
         assertThat(version.isMinimumSupportedVersionOrHigher()).isFalse();
     }
+
+    @Test
+    void shouldReturnTrueIfVersionRequiresSubmoduleCommandFix() {
+        GitVersion version = GitVersion.parse("git version 2.22.0");
+        assertThat(version.requiresSubmoduleCommandFix()).isTrue();
+    }
 }

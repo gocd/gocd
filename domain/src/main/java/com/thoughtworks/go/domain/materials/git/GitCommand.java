@@ -37,6 +37,7 @@ import static com.thoughtworks.go.domain.materials.ModifiedAction.parseGitAction
 import static com.thoughtworks.go.util.DateUtils.formatRFC822;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.command.ProcessOutputStreamConsumer.inMemoryConsumer;
+import static java.util.Arrays.asList;
 
 public class GitCommand extends SCMCommand {
     private static final Logger LOG = LoggerFactory.getLogger(GitCommand.class);
@@ -163,7 +164,8 @@ public class GitCommand extends SCMCommand {
 
     private void checkoutAllModifiedFilesInSubmodules(ConsoleOutputStreamConsumer outputStreamConsumer) {
         log(outputStreamConsumer, "Removing modified files in submodules");
-        runOrBomb(git().withArgs("submodule", "foreach", "--recursive", "git", "checkout", ".").withWorkingDir(workingDir));
+        List<String> submoduleForEachRecursive = submoduleForEachRecursive(asList("git", "checkout", "."));
+        runOrBomb(git().withArgs(submoduleForEachRecursive).withWorkingDir(workingDir));
     }
 
     private void cleanAllUnversionedFiles(ConsoleOutputStreamConsumer outputStreamConsumer) {
@@ -253,7 +255,7 @@ public class GitCommand extends SCMCommand {
     }
 
     private boolean updateSubmoduleWithDepth(int depth) {
-        List<String> updateArgs = new ArrayList<>(Arrays.asList("submodule", "update"));
+        List<String> updateArgs = new ArrayList<>(asList("submodule", "update"));
         updateArgs.add("--depth=" + depth);
         CommandLine commandLine = git().withArgs(updateArgs).withWorkingDir(workingDir);
         try {
@@ -273,9 +275,9 @@ public class GitCommand extends SCMCommand {
     }
 
     private void cleanUnversionedFilesInAllSubmodules() {
+        List<String> args = submoduleForEachRecursive(asList("git", "clean", gitCleanArgs()));
         CommandLine gitCmd = git()
-                .withArgs("submodule", "foreach", "--recursive")
-                .withArgs("git", "clean", gitCleanArgs())
+                .withArgs(args)
                 .withWorkingDir(workingDir);
         runOrBomb(gitCmd);
     }
@@ -494,7 +496,7 @@ public class GitCommand extends SCMCommand {
         CommandLine syncCmd = git().withArgs(syncArgs).withWorkingDir(workingDir);
         runOrBomb(syncCmd);
 
-        String[] foreachArgs = new String[]{"submodule", "foreach", "--recursive", "git", "submodule", "sync"};
+        List<String> foreachArgs = submoduleForEachRecursive(asList("git", "submodule", "sync"));
         CommandLine foreachCmd = git().withArgs(foreachArgs).withWorkingDir(workingDir);
         runOrBomb(foreachCmd);
     }
@@ -519,4 +521,13 @@ public class GitCommand extends SCMCommand {
         outputStreamConsumer.stdOutput(String.format("[GIT] " + message, args));
     }
 
+    private List<String> submoduleForEachRecursive(List<String> args) {
+        List<String> forEachArgs = new ArrayList<>(asList("submodule", "foreach", "--recursive"));
+        if (version().requiresSubmoduleCommandFix()) {
+            forEachArgs.add(StringUtils.join(args, " "));
+        } else {
+            forEachArgs.addAll(args);
+        }
+        return forEachArgs;
+    }
 }

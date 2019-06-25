@@ -47,8 +47,11 @@ describe("PipelineConfig model", () => {
   it("should validate mutual exclusivity of template and stages", () => {
     const pip = new PipelineConfig("name", defaultMaterials, defaultStages);
     expect(pip.isValid()).toBe(true);
+
     pip.template("wubba_lubba_dub_dub");
     expect(pip.isValid()).toBe(false);
+    expect(pip.errors().errorsForDisplay("template")).toBe("Pipeline stages must not be defined when using a pipeline template.");
+
     pip.stages().clear();
     expect(pip.isValid()).toBe(true);
   });

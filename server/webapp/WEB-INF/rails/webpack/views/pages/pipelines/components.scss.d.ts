@@ -48,4 +48,5 @@ export const envVars: string;
 export const summary: string;
 export const details: string;
 export const lockOpen: string;
+export const errorText: string;
 export const switchLabelText: string;

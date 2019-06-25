@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+import classnames from "classnames";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
@@ -46,29 +47,35 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
-    let templateOptions;
-    if (vnode.attrs.isUsingTemplate()) {
-      if (this.templates().length === 0) {
-        templateOptions = <FlashMessage type={MessageType.info} message={<pre>There are no pipeline templates configured. Add one via the <a href="/go/admin/templates" title="Pipeline Templates">templates page</a>.</pre>}/>;
+    const errors = vnode.attrs.pipelineConfig.errors();
+    return <div class={classnames({[css.errorText]: errors.hasErrors("template")})}>
+      <SwitchBtn small={true}
+        label={<div class={css.switchLabelText}>Use Template:</div>}
+        field={vnode.attrs.isUsingTemplate}
+        onclick={this.toggleTemplate.bind(this, vnode.attrs.pipelineConfig)}
+      />
+      {this.templateOptions(vnode.attrs)}
+    </div>;
+  }
+
+  templateOptions(attrs: Attrs): m.Children {
+    const config = attrs.pipelineConfig;
+    const errors = config.errors();
+
+    if (attrs.isUsingTemplate()) {
+      if (!this.templates().length) {
+        return <FlashMessage type={errors.hasErrors("template") ? MessageType.alert : MessageType.warning}>
+          <code>
+            There are no pipeline templates configured.
+            Add one via the <a href="/go/admin/templates" title="Pipeline Templates">templates page</a>.
+          </code>
+        </FlashMessage>;
       } else {
-        templateOptions = (
-          <SelectField label="Template" property={vnode.attrs.pipelineConfig.template} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("template")} required={true}>
-            <SelectFieldOptions items={this.templates()}/>
-          </SelectField>
-        );
+        return <SelectField label="Template" property={config.template} errorText={errors.errorsForDisplay("template")} required={true}>
+          <SelectFieldOptions items={this.templates()}/>
+        </SelectField>;
       }
     }
-    return (
-      <div>
-        <SwitchBtn small={true}
-          label={<div class={css.switchLabelText}>Use Template:</div>}
-          field={vnode.attrs.isUsingTemplate}
-          onclick={this.toggleTemplate.bind(this, vnode.attrs.pipelineConfig)}
-        />
-        {templateOptions}
-      </div>
-    );
-
   }
 
   toggleTemplate(pipelineConfig: PipelineConfig, event: MouseEvent): void {

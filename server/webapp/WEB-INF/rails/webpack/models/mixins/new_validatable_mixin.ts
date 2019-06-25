@@ -57,22 +57,9 @@ class NonEmptyCollectionValidator<T = {}> extends Validator {
   protected doValidate(entity: any, attr: string): void {
     const property: Iterable<T> = ("function" === typeof entity[attr] ? entity[attr]() : entity[attr]) as Iterable<T>;
 
-    if (this.isEmpty(property)) {
+    if (isEmpty(property)) {
       entity.errors().add(attr, this.options.message || `${attr} cannot be empty`);
     }
-  }
-
-  private isEmpty(i: Iterable<T>): boolean {
-    if ("string" === typeof i || "length" in i) {
-      return (i as { length: number }).length === 0;
-    }
-
-    if ("size" in i) {
-      return (i as { size: number }).size === 0;
-    }
-
-    // last resort
-    return Array.from(i).length === 0;
   }
 }
 
@@ -113,17 +100,19 @@ class MaxLengthValidator extends Validator {
 
 class MutualExclusivityValidator extends Validator {
   private attrTwo: string;
+
   constructor(attrTwo: string, options: ValidatorOptions = {}) {
     super(options);
     this.attrTwo = attrTwo;
   }
 
   protected doValidate(entity: any, attrName: string): void {
-    if ((entity[attrName]() === undefined) || (entity[this.attrTwo]() === undefined)) {
+    if (isEmpty(entity[attrName]()) && isEmpty(entity[this.attrTwo]())) {
+      entity.errors().add(attrName, this.options.message || ErrorMessages.mutuallyExclusive(attrName, this.attrTwo));
       return;
     }
 
-    if (!(entity[attrName]().length === 0) && !(entity[this.attrTwo]().length === 0)) {
+    if (!isEmpty(entity[attrName]()) && !isEmpty(entity[this.attrTwo]())) {
       entity.errors().add(attrName, this.options.message || ErrorMessages.mutuallyExclusive(attrName, this.attrTwo));
     }
   }
@@ -206,6 +195,22 @@ class UrlPatternValidator extends Validator {
       entity.errors().add(attrName, this.options.message || ErrorMessages.mustBeAUrl(attrName));
     }
   }
+}
+
+/** Works for Set and Map instances too */
+function isEmpty<T>(i: Iterable<T>): boolean {
+  if (void 0 === i) { return true; }
+
+  if ("string" === typeof i || "length" in i) {
+    return (i as { length: number }).length === 0;
+  }
+
+  if ("size" in i) {
+    return (i as { size: number }).size === 0;
+  }
+
+  // last resort, but if `i` does not implement Iterable, this test will return true
+  return Array.from(i).length === 0;
 }
 
 export interface Validatable {

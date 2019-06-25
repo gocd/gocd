@@ -49,10 +49,10 @@ export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
   }
 
   view(vnode: m.Vnode<Attrs>) {
-    return (<FormBody>
+    return <FormBody>
       <Form last={true} compactForm={true}>
         <TextField label="Pipeline Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., My-New-Pipeline" property={vnode.attrs.pipelineConfig.name} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("name")} required={true}/>
-      <AdvancedSettings>
+      <AdvancedSettings forceOpen={this.hasErrors(vnode)}>
         <SelectField label="Pipeline Group" property={vnode.attrs.pipelineConfig.group} errorText={vnode.attrs.pipelineConfig.errors().errorsForDisplay("group")} required={true}>
           <SelectFieldOptions selected={vnode.attrs.pipelineConfig.group()} items={this.pipelineGroups()}/>
         </SelectField>
@@ -63,6 +63,11 @@ export class PipelineInfoEditor extends MithrilViewComponent<Attrs> {
         />
       </AdvancedSettings>
       </Form>
-    </FormBody>);
+    </FormBody>;
+  }
+
+  hasErrors(vnode: m.Vnode<Attrs>): boolean {
+    const errors = vnode.attrs.pipelineConfig.errors();
+    return errors.hasErrors("group") || errors.hasErrors("template");
   }
 }

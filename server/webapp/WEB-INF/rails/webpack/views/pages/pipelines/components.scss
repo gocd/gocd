@@ -225,6 +225,11 @@ $error-container-width: 450px;
   }
 }
 
+.error-text {
+  font-size: 15px;
+  color: $go-danger;
+}
+
 .switch-label-text {
   font-weight: normal;
   cursor: pointer;

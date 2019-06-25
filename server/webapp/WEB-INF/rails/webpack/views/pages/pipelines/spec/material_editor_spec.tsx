@@ -27,7 +27,7 @@ describe("AddPipeline: Material Editor", () => {
     material = new Material();
 
     helper.mount(() => {
-      return <MaterialEditor material={material}/>;
+      return <MaterialEditor material={material} group={"default"}/>;
     });
   });
 
@@ -37,7 +37,8 @@ describe("AddPipeline: Material Editor", () => {
     expect(helper.q("select")).toBeTruthy();
     expect(helper.q("label")).toBeTruthy();
     expect(helper.q("label").textContent).toBe("Material Type*");
-    expect(helper.textAll("option")).toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline"]);
+    expect(helper.textAll("option"))
+      .toEqual(["Git", "Mercurial", "Subversion", "Perforce", "Team Foundation Server", "Another Pipeline"]);
   });
 
   it("Selecting a material updates the model type", () => {

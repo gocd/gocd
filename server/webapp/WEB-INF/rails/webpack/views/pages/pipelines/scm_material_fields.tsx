@@ -35,6 +35,7 @@ import {DESTINATION_DIR_HELP_MESSAGE, IDENTIFIER_FORMAT_HELP_MESSAGE} from "./me
 
 interface Attrs {
   material: Material;
+  group: string;
 }
 
 abstract class ScmFields extends MithrilViewComponent<Attrs> {
@@ -46,7 +47,7 @@ abstract class ScmFields extends MithrilViewComponent<Attrs> {
     const mattrs = vnode.attrs.material.attributes() as ScmMaterialAttributes;
     return [
       this.requiredFields(mattrs),
-      <TestConnection material={vnode.attrs.material}/>,
+      <TestConnection material={vnode.attrs.material} group={vnode.attrs.group}/>,
       <AdvancedSettings forceOpen={mattrs.errors().hasErrors("name") || mattrs.errors().hasErrors("destination")}>
         {this.extraFields(mattrs)}
         <TextField label={[

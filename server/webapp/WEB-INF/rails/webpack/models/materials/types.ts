@@ -131,11 +131,15 @@ export class Material extends ValidatableMixin {
     return raw;
   }
 
-  checkConnection() {
+  checkConnection(pipelineGroup?: string) {
+    const payload = this.toApiPayload();
+    if (pipelineGroup) {
+      payload.pipeline_group = pipelineGroup;
+    }
     return ApiRequestBuilder.POST(
       SparkRoutes.materialConnectionCheck(),
       Material.API_VERSION_HEADER,
-      {payload: this.toApiPayload()}
+      {payload}
     );
   }
 }

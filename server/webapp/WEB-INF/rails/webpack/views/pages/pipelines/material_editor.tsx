@@ -15,9 +15,16 @@
  */
 
 import {MithrilViewComponent} from "jsx/mithril-component";
-import * as _ from "lodash";
 import * as m from "mithril";
-import {DependencyMaterialAttributes, GitMaterialAttributes, HgMaterialAttributes, Material, P4MaterialAttributes, SvnMaterialAttributes, TfsMaterialAttributes} from "models/materials/types";
+import {
+  DependencyMaterialAttributes,
+  GitMaterialAttributes,
+  HgMaterialAttributes,
+  Material,
+  P4MaterialAttributes,
+  SvnMaterialAttributes,
+  TfsMaterialAttributes
+} from "models/materials/types";
 import {Form, FormBody} from "views/components/forms/form";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {DefaultCache, DependencyFields, SuggestionCache} from "./non_scm_material_fields";
@@ -25,6 +32,7 @@ import {GitFields, HgFields, P4Fields, SvnFields, TfsFields} from "./scm_materia
 
 interface Attrs {
   material: Material;
+  group: string;
   cache?: SuggestionCache;
 }
 
@@ -44,7 +52,7 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
       </SelectField>
 
       <Form last={true} compactForm={true}>
-        {this.fieldsForType(vnode.attrs.material, this.cache)}
+        {this.fieldsForType(vnode.attrs.material, this.cache, vnode.attrs.group)}
       </Form>
     </FormBody>;
   }
@@ -60,37 +68,37 @@ export class MaterialEditor extends MithrilViewComponent<Attrs> {
     ];
   }
 
-  fieldsForType(material: Material, cacheable: SuggestionCache): m.Children {
+  fieldsForType(material: Material, cacheable: SuggestionCache, group: string): m.Children {
     switch (material.type()) {
       case "git":
         if (!(material.attributes() instanceof GitMaterialAttributes)) {
           material.attributes(new GitMaterialAttributes());
         }
-        return <GitFields material={material}/>;
+        return <GitFields material={material} group={group}/>;
         break;
       case "hg":
         if (!(material.attributes() instanceof HgMaterialAttributes)) {
           material.attributes(new HgMaterialAttributes());
         }
-        return <HgFields material={material}/>;
+        return <HgFields material={material} group={group}/>;
         break;
       case "svn":
         if (!(material.attributes() instanceof SvnMaterialAttributes)) {
           material.attributes(new SvnMaterialAttributes());
         }
-        return <SvnFields material={material}/>;
+        return <SvnFields material={material} group={group}/>;
         break;
       case "p4":
         if (!(material.attributes() instanceof P4MaterialAttributes)) {
           material.attributes(new P4MaterialAttributes());
         }
-        return <P4Fields material={material}/>;
+        return <P4Fields material={material} group={group}/>;
         break;
       case "tfs":
         if (!(material.attributes() instanceof TfsMaterialAttributes)) {
           material.attributes(new TfsMaterialAttributes());
         }
-        return <TfsFields material={material}/>;
+        return <TfsFields material={material} group={group}/>;
         break;
       case "dependency":
         if (!(material.attributes() instanceof DependencyMaterialAttributes)) {

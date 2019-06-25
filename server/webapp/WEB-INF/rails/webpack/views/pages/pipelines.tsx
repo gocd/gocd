@@ -69,7 +69,7 @@ export class PipelineCreatePage extends Page {
     const components = [
       <FillableSection>
         <UserInputPane heading="Part 1: Material">
-          <MaterialEditor material={this.material}/>
+          <MaterialEditor material={this.material} group={this.model.group()}/>
         </UserInputPane>
         <ConceptDiagram image={materialImg}>
           A <strong>material</strong> triggers your pipeline to run. Typically this is a <strong>source repository</strong> or an <strong>upstream pipeline</strong>.

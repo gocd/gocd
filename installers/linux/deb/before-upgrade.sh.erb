@@ -19,8 +19,22 @@
 <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-config-migration.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
 
     rm -rf /var/run/<%= name %>-running-check-from-deb-package
-    if invoke-rc.d <%= name %> status > /dev/null 2>&1; then
-        mkdir -p /var/run/<%= name %>-running-check-from-deb-package
-        touch /var/run/<%= name %>-running-check-from-deb-package/running
-        invoke-rc.d <%= name %> stop || true
+
+    stopGoAgentServiceOnUpgrade() {
+      mkdir -p /var/run/<%= name %>-running-check-from-deb-package
+      touch /var/run/<%= name %>-running-check-from-deb-package/running
+      invoke-rc.d <%= name %> stop || true
+    }
+
+    # Prior to GoCD v19.6.0 Check if go-agent is running using /etc/init.d
+    if [ -f "/etc/init.d/<%= name %>" ]; then
+      # Use /etc/init.d/SCRIPT status to determine service is running or not.
+      if /etc/init.d/<%= name %> status > /dev/null 2>&1; then
+        stopGoAgentServiceOnUpgrade
+      fi
+    else
+      # Use invoke-rc.d SCRIPT status to determine service is running or not.
+      if invoke-rc.d <%= name %> status > /dev/null 2>&1; then
+        stopGoAgentServiceOnUpgrade
+      fi
     fi

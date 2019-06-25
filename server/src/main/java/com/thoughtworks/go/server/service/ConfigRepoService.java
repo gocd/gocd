@@ -19,6 +19,7 @@ import com.thoughtworks.go.config.ConfigTag;
 import com.thoughtworks.go.config.commands.EntityConfigUpdateCommand;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
 import com.thoughtworks.go.config.remote.ConfigReposConfig;
 import com.thoughtworks.go.config.remote.PartialConfig;
@@ -26,7 +27,6 @@ import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.config.update.CreateConfigRepoCommand;
 import com.thoughtworks.go.config.update.DeleteConfigRepoCommand;
 import com.thoughtworks.go.config.update.UpdateConfigRepoCommand;
-import com.thoughtworks.go.domain.PipelineGroups;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.plugin.access.configrepo.ConfigRepoExtension;
 import com.thoughtworks.go.server.domain.Username;
@@ -42,6 +42,7 @@ import java.util.function.Predicate;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
+import static java.lang.String.format;
 
 @Service
 public class ConfigRepoService {
@@ -68,10 +69,11 @@ public class ConfigRepoService {
         });
     }
 
-    public PipelineGroups pipelinesDefinedBy(ConfigRepoConfig repo) {
+    public PartialConfig partialConfigDefinedBy(ConfigRepoConfig repo) {
         return goConfigService.cruiseConfig().getPartials().parallelStream().
-                filter(definedByRepo(repo)).findFirst().
-                orElse(new PartialConfig(new PipelineGroups())).getGroups();
+                filter(definedByRepo(repo)).findFirst().orElseThrow(
+                () -> new RecordNotFoundException(format("Repository `%s` does not define any configurations", repo.getId()))
+        );
     }
 
     private Predicate<PartialConfig> definedByRepo(ConfigRepoConfig repo) {

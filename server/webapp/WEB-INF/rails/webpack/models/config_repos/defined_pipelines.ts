@@ -46,7 +46,7 @@ export class DefinedStructures extends Array<NamedTree> {
 
   static fetch(repoId: string): Promise<DefinedStructures> {
     return new Promise<DefinedStructures>((resolve, reject) => {
-      ApiRequestBuilder.GET(SparkRoutes.configRepoDefinedPipelinesPath(repoId), ApiVersion.v2).
+      ApiRequestBuilder.GET(SparkRoutes.configRepoDefinedConfigsPath(repoId), ApiVersion.v2).
         then((result: ApiResult<string>) => {
           result.do((resp) => {
             resolve(DefinedStructures.fromJSON(JSON.parse(resp.body)));

@@ -91,7 +91,7 @@ public class Routes {
         public static final String CREATE_PATH = INDEX_PATH;
         public static final String UPDATE_PATH = REPO_PATH;
         public static final String DELETE_PATH = REPO_PATH;
-        public static final String PIPELINES_PATH = REPO_PATH + "/pipelines";
+        public static final String DEFINITIONS_PATH = REPO_PATH + "/definitions";
 
         // For building _links entry in API response
         public static String find() {

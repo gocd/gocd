@@ -17,13 +17,13 @@
 package com.thoughtworks.go.apiv2.configrepos.representers;
 
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.EnvironmentConfig;
 
-class StageConfigRepresenter {
-    private StageConfigRepresenter() {
+public class EnvironmentConfigRepresenter {
+    private EnvironmentConfigRepresenter() {
     }
 
-    static void toJSON(OutputWriter json, StageConfig stage) {
-        json.add("name", stage.name().toString());
+    public static void toJSON(OutputWriter json, EnvironmentConfig env) {
+        json.add("name", env.name());
     }
 }

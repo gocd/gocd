@@ -24,10 +24,7 @@ public class PipelineConfigRepresenter {
     }
 
     static void toJSON(OutputWriter json, PipelineConfig pipe) {
-        json.add("name", pipe.name().toString()).
-                addChildList("stages", w -> pipe.getStages().forEach(
-                        stage -> w.addChild(sw -> StageConfigRepresenter.toJSON(sw, stage))
-                ));
+        json.add("name", pipe.name().toString());
     }
 
 }

@@ -158,8 +158,8 @@ export default class {
     return `/go/api/internal/config_repos/${id}/status`;
   }
 
-  static configRepoDefinedPipelinesPath(id: string): string {
-    return `/go/api/internal/config_repos/${id}/pipelines`;
+  static configRepoDefinedConfigsPath(id: string): string {
+    return `/go/api/internal/config_repos/${id}/definitions`;
   }
 
   static elasticProfilePath(profileId: string): string {

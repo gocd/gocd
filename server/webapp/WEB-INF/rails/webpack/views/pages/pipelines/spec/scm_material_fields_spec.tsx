@@ -33,7 +33,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("GitFields structure", () => {
     const material = new Material("git", new GitMaterialAttributes());
-    helper.mount(() => <GitFields material={material}/>);
+    helper.mount(() => <GitFields material={material} group={"default"}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -49,7 +49,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("HgFields structure", () => {
     const material = new Material("hg", new HgMaterialAttributes());
-    helper.mount(() => <HgFields material={material}/>);
+    helper.mount(() => <HgFields material={material} group={"default"}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -64,7 +64,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("SvnFields structure", () => {
     const material = new Material("svn", new SvnMaterialAttributes());
-    helper.mount(() => <SvnFields material={material}/>);
+    helper.mount(() => <SvnFields material={material} group={"default"}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",
@@ -80,7 +80,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("P4Fields structure", () => {
     const material = new Material("p4", new P4MaterialAttributes());
-    helper.mount(() => <P4Fields material={material}/>);
+    helper.mount(() => <P4Fields material={material} group={"default"}/>);
 
     assertLabelledInputsPresent({
       "p4-protocol-host-port":     "P4 [Protocol:][Host:]Port*",
@@ -97,7 +97,7 @@ describe("AddPipeline: SCM Material Fields", () => {
 
   it("TfsFields structure", () => {
     const material = new Material("tfs", new TfsMaterialAttributes());
-    helper.mount(() => <TfsFields material={material}/>);
+    helper.mount(() => <TfsFields material={material} group={"default"}/>);
 
     assertLabelledInputsPresent({
       "repository-url":          "Repository URL*",

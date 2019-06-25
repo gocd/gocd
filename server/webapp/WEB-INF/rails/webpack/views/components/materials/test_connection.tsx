@@ -24,6 +24,7 @@ import * as styles from "./test_connection.scss";
 
 interface Attrs {
   material: Material;
+  group?: string;
 
   // extra handlers will be fired in addition to defaults
   success?: (...args: any[]) => any;
@@ -41,13 +42,13 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
   private complete?: (...args: any[]) => any;
 
   view(vnode: m.Vnode<Attrs>): m.Children | void | null {
-    this.success = vnode.attrs.success;
-    this.failure = vnode.attrs.failure;
+    this.success  = vnode.attrs.success;
+    this.failure  = vnode.attrs.failure;
     this.complete = vnode.attrs.complete;
 
     return <div className={styles.testConnectionButtonWrapper}>
       <Buttons.Secondary data-test-id="test-connection-button"
-                         onclick={() => this.testConnection(vnode.attrs.material)}>
+                         onclick={() => this.testConnection(vnode.attrs.material, vnode.attrs.group)}>
         <span className={this.testConnectionButtonIcon} data-test-id="test-connection-icon"/>
         {this.testConnectionButtonText}
       </Buttons.Secondary>
@@ -55,10 +56,10 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
     </div>;
   }
 
-  private testConnection(material: Material) {
+  private testConnection(material: Material, pipelineGroup?: string) {
     this.testConnectionInProgress();
 
-    material.checkConnection().then((result: ApiResult<any>) => {
+    material.checkConnection(pipelineGroup).then((result: ApiResult<any>) => {
       result.do(() => {
         this.testConnectionSuccessful();
         if (!!this.success) {
@@ -80,18 +81,18 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
 
   private testConnectionFailed(err: ErrorResponse) {
     this.testConnectionButtonIcon = styles.testConnectionFailure;
-    this.testConnectionMessage = <FlashMessage type={MessageType.alert} message={<pre>{err.message}</pre>}/>;
+    this.testConnectionMessage    = <FlashMessage type={MessageType.alert} message={<pre>{err.message}</pre>}/>;
   }
 
   private testConnectionSuccessful() {
     this.testConnectionButtonIcon = styles.testConnectionSuccess;
-    this.testConnectionMessage = <FlashMessage type={MessageType.success} message="Connection OK"/>;
+    this.testConnectionMessage    = <FlashMessage type={MessageType.success} message="Connection OK"/>;
   }
 
   private testConnectionInProgress() {
     this.testConnectionButtonIcon = styles.testConnectionInProgress;
     this.testConnectionButtonText = "Testing Connection...";
-    this.testConnectionMessage = undefined;
+    this.testConnectionMessage    = undefined;
   }
 
   private testConnectionComplete() {

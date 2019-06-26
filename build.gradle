@@ -198,7 +198,7 @@ rootProject.ext.versions = [
   jodaTime            : '2.9.9', // joda-time version has to be compatible with the jruby version
   jolt                : '0.1.1',
   jruby               : '9.2.0.0',
-  jsonUnit            : '2.6.1',
+  jsonUnit            : '2.7.0',
   jsoup               : '1.11.3',
   junit               : '4.12',
   junit5              : '5.4.2',
@@ -224,8 +224,8 @@ rootProject.ext.versions = [
   tinybundles         : '3.0.0',
   tokenBucket         : '1.7',
   velocityToolsView   : '1.4',
-  xmlunitassertj      : '2.6.2',
-  xmlUnitMatchers     : '2.6.2',
+  xmlunitassertj      : '2.6.3',
+  xmlUnitMatchers     : '2.6.3',
   seleniumDrivers     : [
     chromedriver  : '2.41',
     geckodriver   : '0.21.0',

@@ -62,7 +62,8 @@ class InstallerTypeServer implements InstallerType {
   List<String> getLinuxJvmArgs() {
     [
       '-Dgocd.server.log.dir=/var/log/go-server',
-      '-Dcruise.config.dir=/etc/go'
+      '-Dcruise.config.dir=/etc/go',
+      '-Dcruise.config.file=/etc/go/cruise-config.xml'
     ]
   }
 

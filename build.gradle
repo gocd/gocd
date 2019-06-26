@@ -189,6 +189,7 @@ rootProject.ext.versions = [
   h2db                : '1.3.168',
   hamcrest            : '2.1',
   hibernate           : '3.6.10.Final',
+  jackson             : '2.9.9',
   javaAssist          : '3.12.1.GA',
   javaxAnnotation     : '1.3.2',
   jcommander          : '1.72',
@@ -642,7 +643,22 @@ subprojects {
   }
 
   configurations.all { configuration ->
+
+    def versionOverrides = [
+      "com.fasterxml.jackson.core:jackson-annotations": project.versions.jackson,
+      "com.fasterxml.jackson.core:jackson-core"       : project.versions.jackson,
+      "com.fasterxml.jackson.core:jackson-databind"   : project.versions.jackson,
+    ]
+
+
     configuration.resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+      def overrideVersion = versionOverrides[details.requested.group + ":" + details.requested.name]
+
+      if (overrideVersion != null && details.requested.version != overrideVersion) {
+        logger.info "Overriding dependency ${details.requested.group}:${details.requested.name} version ${details.requested.version} --> $overrideVersion"
+        details.useVersion overrideVersion
+      }
+
       // replace log4j and commons-logging implementations with the slf4j apis that redirect logs to slf4j
       // see https://www.slf4j.org/legacy.html
       if (details.requested.name == 'log4j' && details.requested.group == 'log4j') {
@@ -1021,7 +1037,7 @@ task removeApi {
     }
 
     List<String> settingsFileContents = file('settings.gradle').readLines("utf-8")
-    file('settings.gradle').withWriter {out ->
+    file('settings.gradle').withWriter { out ->
       def newContents = settingsFileContents
         .stream()
         .filter({ eachLine -> !eachLine.contains("api:${newProjectName}") })
@@ -1031,7 +1047,7 @@ task removeApi {
     }
 
     List<String> gitIgnoreFileContents = file('.gitignore').readLines("utf-8")
-    file('.gitignore').withWriter {out ->
+    file('.gitignore').withWriter { out ->
       def newContents = gitIgnoreFileContents
         .stream()
         .filter({ eachLine -> !eachLine.startsWith("api/${newProjectName}/") })

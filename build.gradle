@@ -167,6 +167,7 @@ rootProject.ext.versions = [
   assertJ             : '3.12.2',
   bouncyCastle        : '1.59', // bouncycastle version has to be compatible with the jruby version
   cloning             : '1.9.11',
+  commonsBeanutils    : '1.9.3',
   commonsCodec        : '1.12',
   commonsCollections  : '3.2.2',
   commonsCollections4 : '4.3',
@@ -646,6 +647,7 @@ subprojects {
       "com.fasterxml.jackson.core:jackson-annotations": project.versions.jackson,
       "com.fasterxml.jackson.core:jackson-core"       : project.versions.jackson,
       "com.fasterxml.jackson.core:jackson-databind"   : project.versions.jackson,
+      "commons-beanutils:commons-beanutils"           : project.versions.commonsBeanutils
     ]
 
 

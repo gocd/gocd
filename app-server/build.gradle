@@ -21,10 +21,6 @@ dependencies {
   compile project(':base')
   compile group: 'javax.servlet', name: 'javax.servlet-api', version: project.versions.servletApi
   compile group: 'ch.qos.logback', name: 'logback-classic', version: project.versions.logback
-  compile(group: 'commons-beanutils', name: 'commons-beanutils-core', version: '1.7.0') {
-    exclude(module: 'commons-logging')
-    exclude(module: 'commons-collections')
-  }
   compile group: 'org.apache.commons', name: 'commons-dbcp2', version: project.versions.commonsDbcp
   compile group: 'org.apache.commons', name: 'commons-pool2', version: project.versions.commonsPool
   compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby

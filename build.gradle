@@ -177,7 +177,7 @@ rootProject.ext.versions = [
   commonsFileUpload   : '1.4',
   commonsIO           : '2.6',
   commonsLang         : '2.6',
-  commonsLang3        : '3.8.1',
+  commonsLang3        : '3.9',
   commonsPool         : '2.6.1',
   dbunit              : '2.6.0',
   ehcache             : '2.10.6',

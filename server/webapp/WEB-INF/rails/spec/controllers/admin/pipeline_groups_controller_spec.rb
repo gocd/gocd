@@ -100,7 +100,7 @@ describe Admin::PipelineGroupsController do
       allow(@go_config_service).to receive(:checkConfigFileValid).and_return(com.thoughtworks.go.config.validation.GoConfigValidity.valid())
       allow(@security_service).to receive(:isUserAdminOfGroup).and_return(true)
       @user = current_user
-      @groups = PipelineConfigMother.createGroups(["group1", "group2", "group3"].to_java(java.lang.String))
+      @groups = PipelineConfigMother.createGroups(["group1", "dev", "Docs", "group2", "ApiDocs", "group3", "api"].to_java(java.lang.String))
       @config = BasicCruiseConfig.new(@groups.to_a.to_java(PipelineConfigs))
       group_for_edit = ConfigForEdit.new(@groups.get(0), @config, @config)
       allow(@go_config_service).to receive(:loadGroupForEditing).and_return(group_for_edit)
@@ -188,10 +188,14 @@ describe Admin::PipelineGroupsController do
         expect(@security_service).to receive(:isUserAdminOfGroup).with(@user.getUsername(), "group1").and_return(true)
         expect(@security_service).to receive(:isUserAdminOfGroup).with(@user.getUsername(), "group2").and_return(false)
         expect(@security_service).to receive(:isUserAdminOfGroup).with(@user.getUsername(), "group3").and_return(true)
+        expect(@security_service).to receive(:isUserAdminOfGroup).with(@user.getUsername(), "dev").and_return(false)
+        expect(@security_service).to receive(:isUserAdminOfGroup).with(@user.getUsername(), "Docs").and_return(false)
+        expect(@security_service).to receive(:isUserAdminOfGroup).with(@user.getUsername(), "ApiDocs").and_return(false)
+        expect(@security_service).to receive(:isUserAdminOfGroup).with(@user.getUsername(), "api").and_return(false)
 
         get :index
 
-        expect(assigns[:groups]).to eq([@groups.get(0), @groups.get(2)])
+        expect(assigns[:groups]).to eq([@groups.get(0), @groups.get(5)])
       end
     end
 
@@ -395,7 +399,7 @@ describe Admin::PipelineGroupsController do
 
         get :possible_groups, params:{:pipeline_name => "pipeline_1", :config_md5 => "my_md5"}
 
-        expect(assigns[:possible_groups]).to eq(["group2", "group3"])
+        expect(assigns[:possible_groups]).to eq(["api", "ApiDocs", "dev", "Docs", "group2", "group3"])
         expect(assigns[:pipeline_name]).to eq("pipeline_1")
         expect(assigns[:md5_match]).to eq(true)
         assert_template "possible_groups"

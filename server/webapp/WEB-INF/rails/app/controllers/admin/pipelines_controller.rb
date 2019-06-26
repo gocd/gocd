@@ -286,6 +286,10 @@ module Admin
         group_array.push({:group => group})
         group_list.push(group)
       end
+
+      group_array = group_array.sort_by { |group| group[:group].downcase }
+      group_list = group_list.sort_by(&:downcase)
+
       assert_load :groups_json, group_array.to_json
       assert_load :groups_list, group_list
     end

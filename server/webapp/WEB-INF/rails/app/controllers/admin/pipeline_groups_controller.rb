@@ -156,6 +156,8 @@ class Admin::PipelineGroupsController < AdminController
       target_groups.push(group.getGroup()) if group.findBy(pipeline_to_be_moved).nil?
     end
 
+    target_groups = target_groups.sort_by(&:downcase)
+
     @possible_groups = target_groups
     @pipeline_name = pipeline_to_be_moved.toString()
     @md5_match = match

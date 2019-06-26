@@ -35,13 +35,18 @@ abstract class NamedConcept implements NamedTree {
   }
 }
 
-export class DefinedStructures extends Array<NamedTree> {
-  constructor(...items: DefinedGroup[]) {
-    super(...items);
+export class DefinedStructures implements NamedTree {
+  children: NamedTree[];
+
+  constructor(groups: DefinedGroup[], envs: DefinedEnvironment[]) {
+    this.children = envs.concat(groups);
   }
 
-  static fromJSON(json: GroupJson[]) {
-    return new DefinedStructures(..._.map(json, (g) => DefinedGroup.fromJSON(g)));
+  static fromJSON(json: RootJson) {
+    return new DefinedStructures(
+      _.map(json.groups || [], (j) => DefinedGroup.fromJSON(j)),
+      _.map(json.environments || [], (j) => DefinedEnvironment.fromJSON(j))
+    );
   }
 
   static fetch(repoId: string): Promise<DefinedStructures> {
@@ -56,12 +61,16 @@ export class DefinedStructures extends Array<NamedTree> {
         }).catch(reject);
     });
   }
+
+  name(): string {
+    return "PartialConfig";
+  }
 }
 
 export class DefinedGroup extends NamedConcept {
   children: DefinedPipeline[];
 
-  constructor(name: string, pipelines: PipelineJson[]) {
+  constructor(name: string, pipelines: NamedJson[]) {
     super(name);
     this.children = _.map(pipelines, (json) => DefinedPipeline.fromJSON(json));
   }
@@ -72,40 +81,38 @@ export class DefinedGroup extends NamedConcept {
 }
 
 export class DefinedPipeline extends NamedConcept {
-  children: DefinedStage[];
-
-  constructor(name: string, stages: StageJson[]) {
-    super(name);
-    this.children = _.map(stages, (json) => DefinedStage.fromJSON(json));
-  }
-
-  static fromJSON(json: PipelineJson) {
-    return new DefinedPipeline(json.name, json.stages);
-  }
-}
-
-export class DefinedStage extends NamedConcept {
   readonly children: NamedTree[] = [];
 
   constructor(name: string) {
     super(name);
   }
 
-  static fromJSON(json: StageJson) {
-    return new DefinedStage(json.name);
+  static fromJSON(json: NamedJson) {
+    return new DefinedPipeline(json.name);
   }
 }
 
-interface StageJson {
+export class DefinedEnvironment extends NamedConcept {
+  readonly children: NamedTree[] = [];
+
+  constructor(name: string) {
+    super(name);
+  }
+
+  static fromJSON(json: NamedJson) {
+    return new DefinedEnvironment(json.name);
+  }
+}
+
+interface NamedJson {
   name: string;
 }
 
-interface PipelineJson {
-  name: string;
-  stages: StageJson[];
+interface GroupJson extends NamedJson {
+  pipelines: NamedJson[];
 }
 
-interface GroupJson {
-  name: string;
-  pipelines: PipelineJson[];
+interface RootJson {
+  environments?: NamedJson[];
+  groups?: GroupJson[];
 }

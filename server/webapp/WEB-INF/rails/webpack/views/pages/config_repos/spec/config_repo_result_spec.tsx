@@ -1,18 +1,18 @@
 /*
- * Copyright 2019 ThoughtWorks, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2019 ThoughtWorks, Inc.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 import {asSelector} from "helpers/css_proxies";
 import * as m from "mithril";
@@ -43,13 +43,13 @@ describe("<CRResult/>", () => {
 
   it("displays error message when contents are empty", () => {
     const fl = asSelector<typeof flashCss>(flashCss);
-    helper.mount(() => <CRResult cache={new MockCache({content: []})} repo="my-repo" vm={new EventAware()}/>);
+    helper.mount(() => <CRResult cache={new MockCache({content: void 0})} repo="my-repo" vm={new EventAware()}/>);
 
     expect(helper.q(sel.tree)).not.toBeInDOM();
     expect(helper.q(sel.treeDatum)).not.toBeInDOM();
     expect(helper.q(sel.loading)).not.toBeInDOM();
     expect(helper.q(fl.alert)).toBeInDOM();
-    expect(helper.text(fl.alert)).toBe("This repository does not define any pipelines.");
+    expect(helper.text(fl.alert)).toBe("This repository does not define any pipelines or environments.");
   });
 
   it("displays loading message when data has not been fetched", () => {
@@ -67,16 +67,15 @@ describe("<CRResult/>", () => {
     expect(helper.q(sel.tree)).toBeInDOM();
     expect(helper.q(sel.loading)).not.toBeInDOM();
     expect(helper.textAll(sel.treeDatum)).toEqual([ // (in order of traversal)
+      "Groups, pipelines, and environments defined by this repository:",
+      "env-1",
+      "env-2",
       "group-1",
-        "pipeline-1",
-          "p1-s1", "p1-s2",
-        "pipeline-2",
-          "p2-s1", "p2-s2",
+      "pipeline-1",
+      "pipeline-2",
       "group-2",
-        "pipeline-3",
-          "p3-s1", "p3-s2",
-        "pipeline-4",
-          "p4-s1", "p4-s2",
+      "pipeline-3",
+      "pipeline-4",
     ]);
   });
 
@@ -108,20 +107,23 @@ describe("<CRResult/>", () => {
 });
 
 function testData(): DefinedStructures {
-  return DefinedStructures.fromJSON([
-    {
-      name: "group-1", pipelines: [
-        { name: "pipeline-1", stages: [{ name: "p1-s1" }, { name: "p1-s2" }] },
-        { name: "pipeline-2", stages: [{ name: "p2-s1" }, { name: "p2-s2" }] },
-      ]
-    },
-    {
-      name: "group-2", pipelines: [
-        { name: "pipeline-3", stages: [{ name: "p3-s1" }, { name: "p3-s2" }] },
-        { name: "pipeline-4", stages: [{ name: "p4-s1" }, { name: "p4-s2" }] },
-      ]
-    }
-  ]);
+  return DefinedStructures.fromJSON({
+    environments: [{ name: "env-1"}, { name: "env-2" }],
+    groups: [
+      {
+        name: "group-1", pipelines: [
+          { name: "pipeline-1" },
+          { name: "pipeline-2" },
+        ]
+      },
+      {
+        name: "group-2", pipelines: [
+          { name: "pipeline-3" },
+          { name: "pipeline-4" },
+        ]
+      }
+    ]
+  });
 }
 
 class MockCache implements ObjectCache<DefinedStructures> {
@@ -137,7 +139,7 @@ class MockCache implements ObjectCache<DefinedStructures> {
     ready?: boolean
   }) {
     this.failureReason = () => options.failureReason;
-    this.contents = () => options.content || [];
+    this.contents = () => options.content || new DefinedStructures([], []);
     this.ready = () => void 0 === options.ready ? true : options.ready;
   }
 

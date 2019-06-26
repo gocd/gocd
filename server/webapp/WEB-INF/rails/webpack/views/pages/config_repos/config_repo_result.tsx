@@ -22,12 +22,15 @@ import * as _ from "lodash";
 import * as m from "mithril";
 import {AbstractObjCache, ObjectCache, rejectAsString} from "models/base/cache";
 import {treeMap} from "models/base/traversable";
-import {DefinedGroup, DefinedPipeline, DefinedStage, DefinedStructures, NamedTree} from "models/config_repos/defined_pipelines";
+import {DefinedEnvironment, DefinedGroup, DefinedPipeline, DefinedStructures, NamedTree} from "models/config_repos/defined_pipelines";
 import {EventAware} from "models/mixins/event_aware";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Tree} from "views/components/hierarchy/tree";
 import {Spinner} from "views/components/icons/index";
 import * as css from "./defined_structs.scss";
+
+// @ts-ignore
+import * as Routes from "gen/js-routes";
 
 type Styles = typeof css;
 
@@ -72,13 +75,13 @@ export class CRResult extends MithrilComponent<Attrs, State> {
     }
 
     if (vnode.state.cache.ready()) {
-      if (!vnode.state.cache.contents().length) {
-        return <FlashMessage type={MessageType.alert} message="This repository does not define any pipelines."/>;
+      const root = vnode.state.cache.contents();
+
+      if (!root.children.length) {
+        return <FlashMessage type={MessageType.alert} message="This repository does not define any pipelines or environments."/>;
       }
 
-      return <Tree datum="Groups, pipelines, and stages defined by this repository:">
-        {_.map(vnode.state.cache.contents(), (node: NamedTree) => treeMap<NamedTree, m.Vnode>(node, tree))}
-      </Tree>;
+      return treeMap<NamedTree, m.Vnode>(root, tree);
     }
 
     return <div class={css.loading}><Spinner iconOnly={true}/> Loading pipelines defined by repository&hellip;</div>;
@@ -94,12 +97,11 @@ class Css {
   static readonly pipelines: Styles = override<Styles>(css, {
     ["tree"]:      classnames(css.pipeline, css.tree),
     ["treeDatum"]: classnames(css.pipelineDatum, css.treeDatum),
-    ["treeChild"]: classnames(css.pipelineStage, css.treeChild),
   });
 
-  static readonly stages: Styles = override<Styles>(css, {
-    ["tree"]:      classnames(css.stage, css.tree),
-    ["treeDatum"]: classnames(css.stageDatum, css.treeDatum),
+  static readonly envs: Styles = override<Styles>(css, {
+    ["tree"]:      classnames(css.environment, css.tree),
+    ["treeDatum"]: classnames(css.environmentDatum, css.treeDatum),
   });
 
   static for(node: NamedTree): Styles | undefined {
@@ -111,8 +113,8 @@ class Css {
       return Css.pipelines;
     }
 
-    if (node instanceof DefinedStage) {
-      return Css.stages;
+    if (node instanceof DefinedEnvironment) {
+      return Css.envs;
     }
 
     return css;
@@ -121,9 +123,22 @@ class Css {
 
 class Link {
   static for(node: NamedTree): m.Child {
+    if (node instanceof DefinedStructures) {
+      return "Groups, pipelines, and environments defined by this repository:";
+    }
+
+    if (node instanceof DefinedGroup) {
+      return <a href={Routes.pipelineGroupShowPath(node.name())}>{node.name()}</a>;
+    }
+
     if (node instanceof DefinedPipeline) {
       return <a href={VMRoutes.pipelineHistoryPath(node.name())}>{node.name()}</a>;
     }
+
+    if (node instanceof DefinedEnvironment) {
+      return <a href={Routes.environmentShowPath(node.name())}>{node.name()}</a>;
+    }
+
     return node.name();
   }
 }

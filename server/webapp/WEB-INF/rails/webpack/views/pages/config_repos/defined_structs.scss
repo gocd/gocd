@@ -25,7 +25,7 @@ $stage-color:          #4ad9d9;
 $fg-color:             #023550;
 $label-color-group:    #dee;
 $label-color-pipeline: #ede7f3;
-$label-color-stage:    #ffe099;
+$label-color-env:    #ffe099;
 
 @mixin type-label {
   display:          inline-block;
@@ -50,6 +50,19 @@ $label-color-stage:    #ffe099;
 
       content:          "Group:";
       background-color: $label-color-group;
+    }
+  }
+}
+
+.environment {
+  color: $fg-color;
+
+  .environment-datum {
+    &:before {
+      @include type-label;
+
+      content:          "Environment:";
+      background-color: $label-color-env;
     }
   }
 }
@@ -79,56 +92,6 @@ $label-color-stage:    #ffe099;
       content:          "Pipeline:";
       background-color: $label-color-pipeline;
     }
-  }
-
-  .pipeline-stage {
-    display:      inline-block;
-    margin:       0;
-    margin-right: $inline-spacing;
-
-    &:before {
-      display: none;
-    }
-
-    &:after {
-      top:           calc(50% - #{$arrow-size});
-      right:         -$arrow-horiz;
-      left:          auto;
-      bottom:        auto;
-      width:         0;
-      height:        0;
-      border:        none;
-      border-top:    $arrow-size solid transparent;
-      border-bottom: $arrow-size solid transparent;
-      border-left:   $arrow-size solid $go-disabled;
-    }
-
-    &:first-child {
-      margin-left: $indent-width;
-
-      &:before { display: block; }
-
-      .stage {
-        &:before {
-          @include type-label;
-
-          content:          "Stages:";
-          background-color: $label-color-stage;
-        }
-      }
-    }
-  }
-
-  .stage {
-    .stage-datum {
-      display:          inline-block;
-      padding:          0 5px;
-      border:           none;
-      border-radius:    $inline-radius;
-      line-height:      1.75em;
-    }
-
-    .tree-children { display: none; }
   }
 }
 

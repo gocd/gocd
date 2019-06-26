@@ -170,7 +170,7 @@ rootProject.ext.versions = [
   commonsCodec        : '1.12',
   commonsCollections  : '3.2.2',
   commonsCollections4 : '4.3',
-  commonsConfiguration: '2.4',
+  commonsConfiguration: '2.5',
   commonsDbcp         : '2.6.0',
   commonsDigester     : '2.1',
   commonsDigester3    : '3.2',

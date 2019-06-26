@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import * as m from "mithril";
-import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
+import * as stream from "mithril/stream";
 import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import * as simulateEvent from "simulate-event";
 import * as collapsiblePanelStyles from "views/components/collapsible_panel/index.scss";
 import * as headerIconStyles from "views/components/header_icon/index.scss";
-import {Attrs, ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
+import {ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
 import * as styles from "views/pages/config_repos/index.scss";
 import {
   configRepoPluginInfo,
-  createConfigRepo,
+  createConfigRepoParsed,
+  createConfigRepoParsedWithError,
   createConfigRepoWithError
 } from "views/pages/config_repos/spec/test_data";
 import {TestHelper} from "views/pages/spec/test_helper";
 
 describe("ConfigReposWidget", () => {
-  let attrs: Attrs<ConfigRepo>;
   let onDelete: jasmine.Spy;
   let onEdit: jasmine.Spy;
   let onRefresh: jasmine.Spy;
@@ -47,17 +47,13 @@ describe("ConfigReposWidget", () => {
     configRepos = stream();
     pluginInfos = stream();
 
-    attrs = {
+    helper.mount(() => <ConfigReposWidget {...{
       objects: configRepos,
       pluginInfos,
       onDelete,
       onEdit,
       onRefresh
-    };
-  });
-
-  beforeEach(() => {
-    helper.mount(() => <ConfigReposWidget {...attrs}/>);
+    }}/>);
   });
 
   afterEach(helper.unmount.bind(helper));
@@ -65,38 +61,38 @@ describe("ConfigReposWidget", () => {
   it("should render a message when there are no config repos", () => {
     configRepos([]);
     helper.redraw();
-    expect(helper.findByDataTestId("flash-message-info"))
+    expect(helper.byTestId("flash-message-info"))
       .toContainText("There are no config repositories setup. Click the \"Add\" button to add one.");
   });
 
   describe("Expanded config repo details", () => {
 
     it("should render material details section", () => {
-      configRepos([createConfigRepo()]);
+      configRepos([createConfigRepoParsedWithError()]);
       helper.redraw();
-      const materialPanel = helper.findByDataTestId("config-repo-material-panel");
-      const title         = materialPanel.children().get(0);
-      const keyValuePair  = materialPanel.children().get(1).children[0];
+      const materialPanel = helper.byTestId("config-repo-material-panel");
+      const title         = materialPanel.children.item(0);
+      const keyValuePair  = materialPanel.children.item(1)!.children.item(0)!;
 
       expect(title).toHaveText("Material");
-      expect(findByTestId(keyValuePair, "key-value-key-type")).toContainText("Type");
-      expect(findByTestId(keyValuePair, "key-value-value-type")).toContainText("git");
-      expect(findByTestId(keyValuePair, "key-value-key-username")).toContainText("Username");
-      expect(findByTestId(keyValuePair, "key-value-value-username")).toContainText("bob");
-      expect(findByTestId(keyValuePair, "key-value-key-password")).toContainText("Password");
-      expect(findByTestId(keyValuePair, "key-value-value-password")).toContainText("*******");
-      expect(findByTestId(keyValuePair, "key-value-key-url")).toContainText("URL");
-      expect(findByTestId(keyValuePair, "key-value-value-url")).toContainText("https://example.com/git");
-      expect(findByTestId(keyValuePair, "key-value-key-branch")).toContainText("Branch");
-      expect(findByTestId(keyValuePair, "key-value-value-branch")).toContainText("master");
+      expect(helper.byTestId("key-value-key-type", keyValuePair)).toContainText("Type");
+      expect(helper.byTestId("key-value-value-type", keyValuePair)).toContainText("git");
+      expect(helper.byTestId("key-value-key-username", keyValuePair)).toContainText("Username");
+      expect(helper.byTestId("key-value-value-username", keyValuePair)).toContainText("bob");
+      expect(helper.byTestId("key-value-key-password", keyValuePair)).toContainText("Password");
+      expect(helper.byTestId("key-value-value-password", keyValuePair)).toContainText("*******");
+      expect(helper.byTestId("key-value-key-url", keyValuePair)).toContainText("URL");
+      expect(helper.byTestId("key-value-value-url", keyValuePair)).toContainText("https://example.com/git");
+      expect(helper.byTestId("key-value-key-branch", keyValuePair)).toContainText("Branch");
+      expect(helper.byTestId("key-value-value-branch", keyValuePair)).toContainText("master");
     });
 
     it("should render config repository configuration details section", () => {
-      configRepos([createConfigRepo({id: "testPlugin"})]);
+      configRepos([createConfigRepoParsedWithError({id: "testPlugin"})]);
       helper.redraw();
-      const materialPanel = helper.findByDataTestId("config-repo-plugin-panel");
-      const title         = materialPanel.children().get(0);
-      const keyValuePair  = materialPanel.children().get(1).children[0].children;
+      const materialPanel = helper.byTestId("config-repo-plugin-panel");
+      const title         = materialPanel.children.item(0);
+      const keyValuePair  = materialPanel.children.item(1)!.children.item(0)!.children;
 
       expect(title).toHaveText("Config Repository Configurations");
       expect(keyValuePair[0]).toContainText("Id");
@@ -105,13 +101,26 @@ describe("ConfigReposWidget", () => {
       expect(keyValuePair[1]).toContainText("json.config.plugin");
     });
 
-    it("should render good modification details section", () => {
-      configRepos([createConfigRepo()]);
+    it("should ONLY render latest modification wheb good === latest", () => {
+      configRepos([createConfigRepoParsed()]);
       helper.redraw();
-      const materialPanel = helper.findByDataTestId("config-repo-good-modification-panel");
-      const icon          = materialPanel.find(`.${styles.goodModificationIcon}`);
-      const title         = materialPanel.find(`.${styles.sectionHeaderTitle}`);
-      const keyValuePair  = materialPanel.find(`.${styles.configRepoProperties} li`);
+      const materialPanel = helper.byTestId("config-repo-latest-modification-panel");
+      const icon          = materialPanel.querySelector(`.${styles.goodModificationIcon}`);
+      const title         = materialPanel.querySelector(`.${styles.sectionHeaderTitle}`);
+
+      expect(materialPanel).toBeInDOM();
+      expect(helper.byTestId("config-repo-good-modification-panel")).toBeNull();
+      expect(title).toHaveText("Latest commit in the repository");
+      expect(icon).toBeInDOM();
+    });
+
+    it("should render good modification details section", () => {
+      configRepos([createConfigRepoParsedWithError()]);
+      helper.redraw();
+      const materialPanel = helper.byTestId("config-repo-good-modification-panel");
+      const icon          = materialPanel.querySelector(`.${styles.goodModificationIcon}`);
+      const title         = materialPanel.querySelector(`.${styles.sectionHeaderTitle}`);
+      const keyValuePair  = Array.from(materialPanel.querySelectorAll(`.${styles.configRepoProperties} li`));
 
       expect(title).toHaveText("Last known good commit currently being used");
       expect(icon).toHaveClass(styles.goodModificationIcon);
@@ -129,12 +138,12 @@ describe("ConfigReposWidget", () => {
     });
 
     it("should render latest modification details section", () => {
-      configRepos([createConfigRepo()]);
+      configRepos([createConfigRepoParsedWithError()]);
       helper.redraw();
-      const materialPanel = helper.findByDataTestId("config-repo-latest-modification-panel");
-      const icon          = materialPanel.find(`.${styles.errorLastModificationIcon}`);
-      const title         = materialPanel.find(`.${styles.sectionHeaderTitle}`);
-      const keyValuePair  = materialPanel.find(`.${styles.configRepoProperties} li`);
+      const materialPanel = helper.byTestId("config-repo-latest-modification-panel");
+      const icon          = materialPanel.querySelector(`.${styles.errorLastModificationIcon}`);
+      const title         = materialPanel.querySelector(`.${styles.sectionHeaderTitle}`);
+      const keyValuePair  = materialPanel.querySelectorAll(`.${styles.configRepoProperties} li`);
 
       expect(title).toHaveText("Latest commit in the repository");
       expect(icon).toHaveClass(styles.errorLastModificationIcon);
@@ -156,49 +165,49 @@ describe("ConfigReposWidget", () => {
   });
 
   it("should render a list of config repos", () => {
-    const repo1 = createConfigRepo();
-    const repo2 = createConfigRepo();
+    const repo1 = createConfigRepoParsedWithError();
+    const repo2 = createConfigRepoParsedWithError();
     configRepos([repo1, repo2]);
     pluginInfos([configRepoPluginInfo()]);
     helper.redraw();
 
-    const repoIds = helper.findByDataTestId("collapse-header");
+    const repoIds = Array.from(helper.allByTestId("collapse-header"));
     expect(repoIds).toHaveLength(2);
-    expect(helper.findByDataTestId("plugin-icon")).toHaveLength(2);
-    expect(helper.findByDataTestId("plugin-icon").get(0))
+    expect(helper.allByTestId("plugin-icon")).toHaveLength(2);
+    expect(helper.byTestId("plugin-icon"))
       .toHaveAttr("src", "http://localhost:8153/go/api/plugin_images/json.config.plugin/f787");
 
-    expect(repoIds.get(0)).toContainText(repo1.id());
-    expect(repoIds.get(1)).toContainText(repo2.id());
+    expect(repoIds[0]).toContainText(repo1.id());
+    expect(repoIds[1]).toContainText(repo2.id());
   });
 
   it("should render config repo's plugin-id, material url, commit-message, username and revision in header", () => {
-    const repo1 = createConfigRepo({
+    const repo1 = createConfigRepoParsedWithError({
                                      id: "Repo1",
                                      repoId: "90d9f82c-bbfd-4f70-ab09-fd72dee42427"
                                    });
-    const repo2 = createConfigRepo({
+    const repo2 = createConfigRepoParsedWithError({
                                      id: "Repo2",
                                      repoId: "0b4243ff-7431-48e1-a60e-a79b7b80b654"
                                    });
     configRepos([repo1, repo2]);
     helper.redraw();
 
-    expect(helper.find(`.${styles.headerTitleText}`)[0]).toContainText("Repo1");
-    expect(helper.find(`.${styles.headerTitleUrl}`)[0])
+    expect(helper.q(`.${styles.headerTitleText}`)).toContainText("Repo1");
+    expect(helper.q(`.${styles.headerTitleUrl}`))
       .toContainText("https://example.com/git/90d9f82c-bbfd-4f70-ab09-fd72dee42427");
-    expect(helper.find(`.${styles.comment}`)[0])
+    expect(helper.q(`.${styles.comment}`))
       .toContainText("Revert \"Revert \"Delete this\"\"\n\nThis reverts commit 2daccbb7389e87c9eb789f6188065d...");
-    expect(helper.find(`.${styles.committerInfo}`)[0]).toContainText("Mahesh <mahesh@gmail.com> | 5432");
+    expect(helper.q(`.${styles.committerInfo}`)).toContainText("Mahesh <mahesh@gmail.com> | 5432");
 
-    expect(helper.find(`.${styles.headerTitleText}`)[1]).toContainText("Repo2");
-    expect(helper.find(`.${styles.headerTitleUrl}`)[1])
+    expect(helper.qa(`.${styles.headerTitleText}`).item(1)).toContainText("Repo2");
+    expect(helper.qa(`.${styles.headerTitleUrl}`).item(1))
       .toContainText("https://example.com/git/0b4243ff-7431-48e1-a60e-a79b7b80b654");
   });
 
   it("should render config repo's trimmed commit-message, username and revision if they are too long to fit in header",
      () => {
-       const repo1 = createConfigRepo({
+       const repo1 = createConfigRepoParsedWithError({
                                         id: "Repo1",
                                         repoId: "https://example.com/",
                                         latestCommitMessage: "A very very long commit message which will be trimmed after 82 characters and this is being tested",
@@ -209,29 +218,29 @@ describe("ConfigReposWidget", () => {
        configRepos([repo1]);
        helper.redraw();
 
-       expect(helper.find(`.${styles.headerTitleText}`)).toContainText("Repo1");
-       expect(helper.find(`.${styles.headerTitleUrl}`)).toContainText("https://example.com/");
-       expect(helper.find(`.${styles.comment}`))
+       expect(helper.q(`.${styles.headerTitleText}`)).toContainText("Repo1");
+       expect(helper.q(`.${styles.headerTitleUrl}`)).toContainText("https://example.com/");
+       expect(helper.q(`.${styles.comment}`))
          .toContainText("A very very long commit message which will be trimmed after 82 characters and thi...");
-       expect(helper.find(`.${styles.committerInfo}`))
+       expect(helper.q(`.${styles.committerInfo}`))
          .toContainText("A_Long_username_with_a_long_long_long... | df31759540dc28f75a20f443a19b1148df317...");
      });
 
   it("should render a warning message when plugin is missing", () => {
-    const repo = createConfigRepo();
+    const repo = createConfigRepoParsedWithError();
     configRepos([repo]);
     helper.redraw();
-    expect(helper.findByDataTestId("flash-message-alert")).toHaveText("This plugin is missing.");
-    expect(helper.find(`.${headerIconStyles.unknownIcon}`)).toBeInDOM();
+    expect(helper.byTestId("flash-message-alert")).toHaveText("This plugin is missing.");
+    expect(helper.q(`.${headerIconStyles.unknownIcon}`)).toBeInDOM();
   });
 
   it("should render a warning message when parsing did not finish", () => {
-    const repo = createConfigRepo();
+    const repo = createConfigRepoParsedWithError();
     repo.lastParse(null);
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     helper.redraw();
-    expect(helper.findByDataTestId("flash-message-alert")).toHaveText("This configuration repository was never parsed.");
+    expect(helper.byTestId("flash-message-info")).toHaveText("This configuration repository has not been parsed yet.");
   });
 
   it("should render a warning message when parsing failed and there is no latest modification", () => {
@@ -239,76 +248,72 @@ describe("ConfigReposWidget", () => {
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     helper.redraw();
-    expect(helper.findByDataTestId("flash-message-alert")).toContainText("There was an error parsing this configuration repository:");
-    expect(helper.findByDataTestId("flash-message-alert")).toContainText("blah!");
+    expect(helper.byTestId("flash-message-alert")).toContainText("There was an error parsing this configuration repository:");
+    expect(helper.byTestId("flash-message-alert")).toContainText("blah!");
   });
 
   it("should render in-progress icon when material update is in progress", () => {
-    const repo = createConfigRepo({material_update_in_progress: true});
+    const repo = createConfigRepoParsedWithError({material_update_in_progress: true});
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     helper.redraw();
-    expect(helper.findByDataTestId("repo-update-in-progress-icon")).toBeInDOM();
-    expect(helper.findByDataTestId("repo-update-in-progress-icon")).toHaveClass(styles.configRepoUpdateInProgress);
+    expect(helper.byTestId("repo-update-in-progress-icon")).toBeInDOM();
+    expect(helper.byTestId("repo-update-in-progress-icon")).toHaveClass(styles.configRepoUpdateInProgress);
   });
 
   it("should render red top border and expand the widget to indicate error in config repo parsing", () => {
-    const repo = createConfigRepo();
+    const repo = createConfigRepoParsedWithError();
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     helper.redraw();
-    const detailsPanel = helper.findByDataTestId("config-repo-details-panel");
+    const detailsPanel = helper.byTestId("config-repo-details-panel");
     expect(detailsPanel).toBeInDOM();
     expect(detailsPanel).toHaveClass(collapsiblePanelStyles.error);
     expect(detailsPanel).toHaveAttr("data-test-element-state", "expanded");
   });
 
   it("should not render top border and keep the widget collapsed when there is no error", () => {
-    const repo = createConfigRepo({});
+    const repo = createConfigRepoParsedWithError({});
     if (repo.lastParse()) {
       repo.lastParse()!.error(null);
     }
     configRepos([repo]);
     pluginInfos([configRepoPluginInfo()]);
     helper.redraw();
-    const detailsPanel = helper.findByDataTestId("config-repo-details-panel");
+    const detailsPanel = helper.byTestId("config-repo-details-panel");
     expect(detailsPanel).toBeInDOM();
     expect(detailsPanel).not.toHaveClass(collapsiblePanelStyles.error);
     expect(detailsPanel).toHaveAttr("data-test-element-state", "collapsed");
   });
 
   it("should callback the delete function when delete button is clicked", () => {
-    const repo = createConfigRepo();
+    const repo = createConfigRepoParsedWithError();
     configRepos([repo]);
     helper.redraw();
 
-    simulateEvent.simulate(helper.findByDataTestId("config-repo-delete").get(0), "click");
+    helper.clickByDataTestId("config-repo-delete");
 
     expect(onDelete).toHaveBeenCalledWith(repo, jasmine.any(MouseEvent));
   });
 
   it("should callback the edit function when edit button is clicked", () => {
-    const repo = createConfigRepo();
+    const repo = createConfigRepoParsedWithError();
     configRepos([repo]);
     helper.redraw();
 
-    simulateEvent.simulate(helper.findByDataTestId("config-repo-edit").get(0), "click");
+    helper.clickByDataTestId("config-repo-edit");
 
     expect(onEdit).toHaveBeenCalledWith(repo, jasmine.any(MouseEvent));
   });
 
   it("should callback the refresh function when refresh button is clicked", () => {
-    const repo = createConfigRepo();
+    const repo = createConfigRepoParsedWithError();
     configRepos([repo]);
     helper.redraw();
 
-    simulateEvent.simulate(helper.findByDataTestId("config-repo-refresh").get(0), "click");
+    helper.clickByDataTestId("config-repo-refresh");
 
     expect(onRefresh).toHaveBeenCalledWith(repo, jasmine.any(MouseEvent));
   });
 
 });
-
-function findByTestId(el: Element, id: string): Element | null {
-  return el.querySelector(`[data-test-id="${id}"]`);
-}

@@ -23,6 +23,16 @@ import static com.thoughtworks.go.CurrentGoCDVersion.apiDocsUrl;
 
 public class Routes {
 
+    public interface FindUrlBuilder<Identifier> {
+        String find();
+
+        String find(Identifier id);
+
+        String doc();
+
+        String base();
+    }
+
     public static class Backups {
         public static final String BASE = "/api/backups";
         public static final String DOC = apiDocsUrl("#backups");
@@ -81,6 +91,7 @@ public class Routes {
         public static final String CREATE_PATH = INDEX_PATH;
         public static final String UPDATE_PATH = REPO_PATH;
         public static final String DELETE_PATH = REPO_PATH;
+        public static final String DEFINITIONS_PATH = REPO_PATH + "/definitions";
 
         // For building _links entry in API response
         public static String find() {
@@ -403,7 +414,6 @@ public class Routes {
         public static final String SPA_BASE = "/admin/secret_configs";
     }
 
-
     public static class ClusterProfilesAPI {
         public static final String BASE = "/api/admin/elastic/cluster_profiles";
         public static final String ID = "/:cluster_id";
@@ -476,6 +486,74 @@ public class Routes {
         }
     }
 
+    public static class Version {
+        public static final String BASE = "/api/version";
+        public static final String DOC = apiDocsUrl("#version");
+        public static final String COMMIT_URL = "https://github.com/gocd/gocd/commit/";
+    }
+
+    public static class Users {
+        public static final String BASE = "/api/users";
+        public static final String USER_NAME = "/:login_name";
+        public static final String SPA_BASE = "/admin/users";
+        public static final String DOC = apiDocsUrl("#users");
+        public static final String USER_STATE = "/operations/state";
+    }
+
+    public static class CurrentUserAccessToken implements FindUrlBuilder<Long> {
+        public static final String BASE = "/api/current_user/access_tokens";
+        public static final String ID = "/:id";
+        public static final String REVOKE = ID + "/revoke";
+        private static final String DOC = apiDocsUrl("#access-tokens");
+
+        @Override
+        public String find() {
+            return BASE + ID;
+        }
+
+        @Override
+        public String find(Long id) {
+            return find().replaceAll(":id", String.valueOf(id));
+        }
+
+        @Override
+        public String doc() {
+            return DOC;
+        }
+
+        @Override
+        public String base() {
+            return BASE;
+        }
+    }
+
+    public static class AdminUserAccessToken implements FindUrlBuilder<Long> {
+        public static final String BASE = "/api/admin/access_tokens";
+        public static final String ID = "/:id";
+        public static final String REVOKE = ID + "/revoke";
+        private static final String DOC = apiDocsUrl("#access-tokens");
+
+        @Override
+        public String find() {
+            return BASE + ID;
+        }
+
+        @Override
+        public String find(Long id) {
+            return find().replaceAll(":id", String.valueOf(id));
+        }
+
+        @Override
+        public String doc() {
+            return DOC;
+        }
+
+        @Override
+        public String base() {
+            return BASE;
+        }
+    }
+
     public class ServerHealthMessages {
         public static final String BASE = "/api/server_health_messages";
     }
@@ -539,90 +617,12 @@ public class Routes {
         public static final String SPA_BASE = "/kitchen-sink";
     }
 
-    public static class Version {
-        public static final String BASE = "/api/version";
-        public static final String DOC = apiDocsUrl("#version");
-        public static final String COMMIT_URL = "https://github.com/gocd/gocd/commit/";
-    }
-
     public class AuthConfigs {
         public static final String SPA_BASE = "/admin/security/auth_configs";
     }
 
-    public static class Users {
-        public static final String BASE = "/api/users";
-        public static final String USER_NAME = "/:login_name";
-        public static final String SPA_BASE = "/admin/users";
-        public static final String DOC = apiDocsUrl("#users");
-        public static final String USER_STATE = "/operations/state";
-    }
-
     public class ArtifactStores {
         public static final String SPA_BASE = "/admin/artifact_stores";
-    }
-
-    public interface FindUrlBuilder<Identifier> {
-        String find();
-
-        String find(Identifier id);
-
-        String doc();
-
-        String base();
-    }
-
-    public static class CurrentUserAccessToken implements FindUrlBuilder<Long> {
-        public static final String BASE = "/api/current_user/access_tokens";
-        public static final String ID = "/:id";
-        public static final String REVOKE = ID + "/revoke";
-        private static final String DOC = apiDocsUrl("#access-tokens");
-
-        @Override
-        public String find() {
-            return BASE + ID;
-        }
-
-        @Override
-        public String find(Long id) {
-            return find().replaceAll(":id", String.valueOf(id));
-        }
-
-        @Override
-        public String doc() {
-            return DOC;
-        }
-
-        @Override
-        public String base() {
-            return BASE;
-        }
-    }
-
-    public static class AdminUserAccessToken implements FindUrlBuilder<Long> {
-        public static final String BASE = "/api/admin/access_tokens";
-        public static final String ID = "/:id";
-        public static final String REVOKE = ID + "/revoke";
-        private static final String DOC = apiDocsUrl("#access-tokens");
-
-        @Override
-        public String find() {
-            return BASE + ID;
-        }
-
-        @Override
-        public String find(Long id) {
-            return find().replaceAll(":id", String.valueOf(id));
-        }
-
-        @Override
-        public String doc() {
-            return DOC;
-        }
-
-        @Override
-        public String base() {
-            return BASE;
-        }
     }
 
     public class AccessTokens {

@@ -70,7 +70,11 @@ export class TestHelper {
 
   // native implementations - prefer these
   byTestId(id: string, context?: Element): Element {
-    return this.q(`[data-test-id='${id}']`, context);
+    return this.q(dataTestIdSelector(id), context);
+  }
+
+  allByTestId(id: string, context?: Element): NodeListOf<Element> {
+    return this.qa(dataTestIdSelector(id), context);
   }
 
   q(selector: string, context?: Element): Element {
@@ -138,7 +142,7 @@ export class TestHelper {
   }
 
   clickByDataTestId(id: string) {
-    this.click(this.dataTestIdSelector(id));
+    this.click(dataTestIdSelector(id));
   }
 
   findByClass(className: string) {
@@ -155,7 +159,7 @@ export class TestHelper {
   }
 
   findIn(elem: any, id: string) {
-    return $(elem).find(this.dataTestIdSelector(id));
+    return $(elem).find(dataTestIdSelector(id));
   }
 
   private _el(selector: string | Element, context?: Element): Element {
@@ -170,8 +174,8 @@ export class TestHelper {
     this.root = document.createElement("root");
     document.body.appendChild(this.root);
   }
+}
 
-  private dataTestIdSelector(id: string) {
-    return `[data-test-id='${id}']`;
-  }
+function dataTestIdSelector(id: string): string {
+  return `[data-test-id="${id}"]`;
 }

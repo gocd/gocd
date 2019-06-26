@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-module.exports = {
-  pipelineHistoryPath: (pipelineName) => {
-    return `/go/tab/pipeline/history/${pipelineName}`;
-  },
 
-  vsmPath: (pipelineName, pipelineCounter) => {
-    return `/go/pipelines/value_stream_map/${pipelineName}/${pipelineCounter}`;
-  },
+package com.thoughtworks.go.apiv2.configrepos.representers;
 
-  comparePath: (pipelineName, fromCounter, toCounter) => {
-    return `/go/compare/${pipelineName}/${fromCounter}/with/${toCounter}`;
-  },
-};
+import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.config.PipelineConfig;
+
+public class PipelineConfigRepresenter {
+    private PipelineConfigRepresenter() {
+    }
+
+    static void toJSON(OutputWriter json, PipelineConfig pipe) {
+        json.add("name", pipe.name().toString());
+    }
+
+}

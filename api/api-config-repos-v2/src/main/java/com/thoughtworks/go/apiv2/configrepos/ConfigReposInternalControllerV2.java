@@ -22,12 +22,14 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv2.configrepos.representers.ConfigRepoWithResultListRepresenter;
 import com.thoughtworks.go.apiv2.configrepos.representers.ConfigRepoWithResultRepresenter;
+import com.thoughtworks.go.apiv2.configrepos.representers.PartialConfigRepresenter;
 import com.thoughtworks.go.config.GoRepoConfigDataSource;
 import com.thoughtworks.go.config.PartialConfigParseResult;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
 import com.thoughtworks.go.server.materials.MaterialUpdateService;
 import com.thoughtworks.go.server.service.ConfigRepoService;
@@ -86,6 +88,8 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
             get(ConfigRepos.REPO_PATH, mimeType, this::showRepo);
             get(ConfigRepos.STATUS_PATH, mimeType, this::inProgress);
             post(ConfigRepos.TRIGGER_UPDATE_PATH, mimeType, this::triggerUpdate);
+            get(ConfigRepos.DEFINITIONS_PATH, mimeType, this::definedConfigs);
+
             exception(HttpException.class, this::httpException);
         });
     }
@@ -133,6 +137,12 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
         MaterialConfig materialConfig = repoFromRequest(req).getMaterialConfig();
         final boolean state = mus.isInProgress(converter.toMaterial(materialConfig));
         return String.format("{\"inProgress\":%b}", state);
+    }
+
+    String definedConfigs(Request req, Response res) {
+        ConfigRepoConfig repo = repoFromRequest(req);
+        PartialConfig def = service.partialConfigDefinedBy(repo);
+        return jsonizeAsTopLevelObject(req, (w) -> PartialConfigRepresenter.toJSON(w, def));
     }
 
     private String etagFor(Object entity) {

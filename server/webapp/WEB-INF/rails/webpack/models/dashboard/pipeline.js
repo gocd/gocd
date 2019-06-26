@@ -18,7 +18,7 @@ import SparkRoutes from "helpers/spark_routes";
 
 const _           = require('lodash');
 const Stream      = require('mithril/stream');
-const VMRoutes    = require('helpers/vm_routes');
+const VMRoutes    = require('helpers/vm_routes').default;
 const AjaxHelper  = require('helpers/ajax_helper');
 const Routes      = require('gen/js-routes');
 

@@ -18,13 +18,12 @@ package com.thoughtworks.go.apiv2.configrepos
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
-import com.thoughtworks.go.config.GoRepoConfigDataSource
-import com.thoughtworks.go.config.PartialConfigParseResult
+import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig
-import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.ConfigReposConfig
 import com.thoughtworks.go.config.remote.PartialConfig
+import com.thoughtworks.go.domain.PipelineGroups
 import com.thoughtworks.go.domain.materials.Material
 import com.thoughtworks.go.domain.materials.MaterialConfig
 import com.thoughtworks.go.domain.materials.Modification
@@ -40,6 +39,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
 
+import java.util.stream.Collectors
+
+import static com.thoughtworks.go.helper.MaterialConfigsMother.hg
 import static org.mockito.ArgumentMatchers.any
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
@@ -220,6 +222,72 @@ class ConfigReposInternalControllerV2Test implements SecurityServiceTrait, Contr
     ConfigRepoConfig repo = new ConfigRepoConfig(materialConfig, TEST_PLUGIN_ID, id)
 
     return repo
+  }
+
+  @Nested
+  class Definitions {
+    @Nested
+    class Security implements SecurityTestTrait, AdminUserSecurity {
+      @Override
+      String getControllerMethodUnderTest() {
+        return "definedConfigs"
+      }
+
+      @Override
+      void makeHttpCall() {
+        getWithApiHeader(controller.controllerPath(ID_1, "definitions"), [:])
+      }
+    }
+
+    @Nested
+    class Requests {
+      @BeforeEach
+      void setUp() {
+        loginAsAdmin()
+      }
+
+      @Test
+      void 'serializes partial config'() {
+        ConfigRepoConfig config = mock(ConfigRepoConfig.class)
+        EnvironmentsConfig envs = new EnvironmentsConfig()
+        envs.addPipelinesToEnvironment("env-1", "pip-1", "pip-2")
+        envs.addPipelinesToEnvironment("env-2", "pip-3", "pip-4")
+        PipelineGroups groups = new PipelineGroups()
+        groups.add(groupWithPipelines("group-1", "pip-5", "pip-6"))
+        groups.add(groupWithPipelines("group-2", "pip-7", "pip-8"))
+
+        when(service.getConfigRepo(ID_1)).thenReturn(config)
+        when(service.partialConfigDefinedBy(config)).thenReturn(new PartialConfig(envs, groups))
+
+        getWithApiHeader(controller.controllerPath(ID_1, "definitions"), [:])
+
+        assertThatResponse().
+          isOk().
+          hasJsonBody([
+            environments: [[name: "env-1"], [name: "env-2"]],
+            groups      : [
+              [
+                name     : "group-1",
+                pipelines: [[name: "pip-5"], [name: "pip-6"]]
+              ],
+              [
+                name     : "group-2",
+                pipelines: [[name: "pip-7"], [name: "pip-8"]]
+              ]
+            ]
+          ])
+      }
+
+      private PipelineConfigs groupWithPipelines(String groupName, String... pipelineNames) {
+        PipelineConfig[] pipelines = Arrays.stream(pipelineNames).map({ String s ->
+          PipelineConfig p = mock(PipelineConfig.class)
+          when(p.name()).thenReturn(new CaseInsensitiveString(s))
+          p
+        }).collect(Collectors.toList()).toArray([] as PipelineConfig[])
+
+        return new BasicPipelineConfigs(groupName, null, pipelines)
+      }
+    }
   }
 
   @Nested

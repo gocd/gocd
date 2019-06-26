@@ -500,7 +500,7 @@
 
   <rule>
     <name>Spark Config Repos Internal Operations API</name>
-    <from>^/api/internal/config_repos/([^/]+)/(trigger_update|status)(/?)</from>
+    <from>^/api/internal/config_repos/([^/]+)/(trigger_update|status|definitions)(/?)</from>
     <to last="true">/spark/api/internal/config_repos/${escape:$1}/${escape:$2}</to>
   </rule>
 

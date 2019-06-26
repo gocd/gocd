@@ -967,7 +967,7 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return clonedConfigForEdit();
     }
 
-    private CruiseConfig clonedConfigForEdit() {
+    public CruiseConfig clonedConfigForEdit() {
         return cloner.deepClone(getConfigForEditing());
     }
 

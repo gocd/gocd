@@ -24,6 +24,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobPlan;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentMetadataStore;
 import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
 import com.thoughtworks.go.plugin.access.elastic.models.AgentMetadata;
@@ -50,6 +51,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
@@ -71,6 +73,8 @@ public class ElasticAgentPluginService {
     private final TimeProvider timeProvider;
     private final ServerHealthService serverHealthService;
     private final ConcurrentHashMap<Long, Long> jobCreationTimeMap = new ConcurrentHashMap<>();
+    private final ScheduleService scheduleService;
+    private ConsoleService consoleService;
     private JobInstanceSqlMapDao jobInstanceSqlMapDao = null;
 
     @Value("${go.elasticplugin.heartbeat.interval}")
@@ -88,10 +92,13 @@ public class ElasticAgentPluginService {
             PluginManager pluginManager, ElasticAgentPluginRegistry elasticAgentPluginRegistry,
             AgentService agentService, EnvironmentConfigService environmentConfigService,
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
-            GoConfigService goConfigService, TimeProvider timeProvider, ClusterProfilesService clusterProfilesService, ServerHealthService serverHealthService, JobInstanceSqlMapDao jobInstanceSqlMapDao) {
+            GoConfigService goConfigService, TimeProvider timeProvider, ClusterProfilesService clusterProfilesService,
+            ServerHealthService serverHealthService, JobInstanceSqlMapDao jobInstanceSqlMapDao, ScheduleService scheduleService,
+            ConsoleService consoleService) {
 
         this(pluginManager, elasticAgentPluginRegistry, agentService, environmentConfigService, createAgentQueue,
-                serverPingQueue, goConfigService, timeProvider, serverHealthService, ElasticAgentMetadataStore.instance(), clusterProfilesService, jobInstanceSqlMapDao);
+                serverPingQueue, goConfigService, timeProvider, serverHealthService, ElasticAgentMetadataStore.instance(),
+                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService);
     }
 
     ElasticAgentPluginService(
@@ -99,7 +106,8 @@ public class ElasticAgentPluginService {
             AgentService agentService, EnvironmentConfigService environmentConfigService,
             CreateAgentQueueHandler createAgentQueue, ServerPingQueueHandler serverPingQueue,
             GoConfigService goConfigService, TimeProvider timeProvider, ServerHealthService serverHealthService,
-            ElasticAgentMetadataStore elasticAgentMetadataStore, ClusterProfilesService clusterProfilesService, JobInstanceSqlMapDao jobInstanceSqlMapDao) {
+            ElasticAgentMetadataStore elasticAgentMetadataStore, ClusterProfilesService clusterProfilesService,
+            JobInstanceSqlMapDao jobInstanceSqlMapDao, ScheduleService scheduleService, ConsoleService consoleService) {
         this.pluginManager = pluginManager;
         this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
         this.agentService = agentService;
@@ -112,6 +120,8 @@ public class ElasticAgentPluginService {
         this.elasticAgentMetadataStore = elasticAgentMetadataStore;
         this.clusterProfilesService = clusterProfilesService;
         this.jobInstanceSqlMapDao = jobInstanceSqlMapDao;
+        this.scheduleService = scheduleService;
+        this.consoleService = consoleService;
     }
 
     public void heartbeat() {
@@ -170,7 +180,14 @@ public class ElasticAgentPluginService {
             jobCreationTimeMap.put(plan.getJobId(), timeProvider.currentTimeMillis());
             ElasticProfile elasticProfile = plan.getElasticProfile();
             ClusterProfile clusterProfile = plan.getClusterProfile();
-            if (elasticAgentPluginRegistry.has(clusterProfile.getPluginId())) {
+            if (clusterProfile == null) {
+                String cancellationMessage = "\nThis job was cancelled by GoCD. The version of your GoCD server requires elastic profiles to be associated with a cluster(required from Version 19.3.0). " +
+                        "This job is configured to run on an Elastic Agent, but the associated elastic profile does not have information about the cluster.  \n\n" +
+                        "The possible reason for the missing cluster information on the elastic profile could be, an upgrade of the GoCD server to a version >= 19.3.0 before the completion of the job.\n\n" +
+                        "A re-run of this job should fix this issue.";
+                logToJobConsole(plan.getIdentifier(), cancellationMessage);
+                scheduleService.cancelJob(plan.getIdentifier());
+            } else if (elasticAgentPluginRegistry.has(clusterProfile.getPluginId())) {
                 String environment = environmentConfigService.envForPipeline(plan.getPipelineName());
                 createAgentQueue.post(new CreateAgentMessage(goConfigService.serverConfig().getAgentAutoRegisterKey(), environment, elasticProfile, clusterProfile, plan.getIdentifier()), messageTimeToLive);
                 serverHealthService.removeByScope(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()));
@@ -183,6 +200,14 @@ public class ElasticAgentPluginService {
                         jobConfigIdentifier), description, HealthStateType.general(HealthStateScope.forJob(plan.getIdentifier().getPipelineName(), plan.getIdentifier().getStageName(), plan.getIdentifier().getBuildName()))));
                 LOGGER.error(description);
             }
+        }
+    }
+
+    private void logToJobConsole(JobIdentifier identifier, String message) {
+        try {
+            consoleService.appendToConsoleLog(identifier, message);
+        } catch (IllegalArtifactLocationException | IOException e) {
+            LOGGER.error(format("Failed to add message(%s) to the job(%s) console", message, identifier), e);
         }
     }
 

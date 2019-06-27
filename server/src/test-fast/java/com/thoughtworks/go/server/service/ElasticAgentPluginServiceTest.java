@@ -26,6 +26,7 @@ import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.config.ConfigurationKey;
 import com.thoughtworks.go.domain.config.ConfigurationProperty;
 import com.thoughtworks.go.domain.config.ConfigurationValue;
+import com.thoughtworks.go.domain.exception.IllegalArtifactLocationException;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
@@ -55,8 +56,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.springframework.util.LinkedMultiValueMap;
 
-import java.util.*;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -81,6 +88,10 @@ class ElasticAgentPluginServiceTest {
     private CreateAgentQueueHandler createAgentQueue;
     @Mock
     private ClusterProfilesService clusterProfilesService;
+    @Mock
+    private ScheduleService scheduleService;
+    @Mock
+    private ConsoleService consoleService;
 
     private TimeProvider timeProvider;
     private String autoRegisterKey = "key";
@@ -106,7 +117,9 @@ class ElasticAgentPluginServiceTest {
         timeProvider = new TimeProvider();
 
         jobInstanceSqlMapDao = mock(JobInstanceSqlMapDao.class);
-        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService, createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService, elasticAgentMetadataStore, clusterProfilesService, jobInstanceSqlMapDao);
+        service = new ElasticAgentPluginService(pluginManager, registry, agentService, environmentConfigService,
+                createAgentQueue, serverPingQueue, goConfigService, timeProvider, serverHealthService, elasticAgentMetadataStore,
+                clusterProfilesService, jobInstanceSqlMapDao, scheduleService, consoleService);
         when(goConfigService.serverConfig()).thenReturn(GoConfigMother.configWithAutoRegisterKey(autoRegisterKey).server());
     }
 
@@ -169,7 +182,7 @@ class ElasticAgentPluginServiceTest {
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
         when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
-        service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1, plan2));
+        service.createAgentsFor(asList(plan1), asList(plan1, plan2));
 
         verify(createAgentQueue).post(createAgentMessageArgumentCaptor.capture(), ttl.capture());
         CreateAgentMessage createAgentMessage = createAgentMessageArgumentCaptor.getValue();
@@ -191,7 +204,7 @@ class ElasticAgentPluginServiceTest {
         ArgumentCaptor<CreateAgentMessage> createAgentMessageArgumentCaptor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
         when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
-        service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1, plan2));
+        service.createAgentsFor(asList(plan1), asList(plan1, plan2));
 
         verify(createAgentQueue).post(createAgentMessageArgumentCaptor.capture(), ttl.capture());
         assertThat(ttl.getValue()).isEqualTo(10000L);
@@ -206,8 +219,8 @@ class ElasticAgentPluginServiceTest {
         when(clusterProfilesService.findProfile(plan1.getElasticProfile().getClusterProfileId())).thenReturn(clusterProfile);
         ArgumentCaptor<CreateAgentMessage> captor = ArgumentCaptor.forClass(CreateAgentMessage.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
-        service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
-        service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1));//invoke create again
+        service.createAgentsFor(new ArrayList<>(), asList(plan1));
+        service.createAgentsFor(asList(plan1), asList(plan1));//invoke create again
 
         verify(createAgentQueue, times(2)).post(captor.capture(), ttl.capture());
         verifyNoMoreInteractions(createAgentQueue);
@@ -222,7 +235,7 @@ class ElasticAgentPluginServiceTest {
     void shouldReportMissingElasticPlugin() {
         JobPlan plan1 = plan(1, "missing");
         ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
-        service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
+        service.createAgentsFor(new ArrayList<>(), asList(plan1));
 
         verify(serverHealthService).update(captorForHealthState.capture());
         verifyZeroInteractions(createAgentQueue);
@@ -242,7 +255,7 @@ class ElasticAgentPluginServiceTest {
         ArgumentCaptor<HealthStateScope> captor = ArgumentCaptor.forClass(HealthStateScope.class);
         ArgumentCaptor<Long> ttl = ArgumentCaptor.forClass(Long.class);
 
-        service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
+        service.createAgentsFor(new ArrayList<>(), asList(plan1));
 
         verify(createAgentQueue, times(1)).post(any(), ttl.capture());
         verify(serverHealthService).removeByScope(captor.capture());
@@ -254,8 +267,8 @@ class ElasticAgentPluginServiceTest {
     void shouldRetryCreateAgentForJobForWhichAssociatedPluginIsMissing() {
         when(goConfigService.elasticJobStarvationThreshold()).thenReturn(0L);
         JobPlan plan1 = plan(1, "missing");
-        service.createAgentsFor(new ArrayList<>(), Arrays.asList(plan1));
-        service.createAgentsFor(Arrays.asList(plan1), Arrays.asList(plan1));//invoke create again
+        service.createAgentsFor(new ArrayList<>(), asList(plan1));
+        service.createAgentsFor(asList(plan1), asList(plan1));//invoke create again
 
         verifyZeroInteractions(createAgentQueue);
         ArgumentCaptor<ServerHealthState> captorForHealthState = ArgumentCaptor.forClass(ServerHealthState.class);
@@ -327,7 +340,7 @@ class ElasticAgentPluginServiceTest {
         allClusterProfiles.add(cluster2);
 
         when(clusterProfilesService.getPluginProfiles()).thenReturn(allClusterProfiles);
-        when(registry.getPluginStatusReport("cd.go.example.plugin", Arrays.asList(cluster1.getConfigurationAsMap(true)))).thenReturn("<div>This is a plugin status report snippet.</div>");
+        when(registry.getPluginStatusReport("cd.go.example.plugin", asList(cluster1.getConfigurationAsMap(true)))).thenReturn("<div>This is a plugin status report snippet.</div>");
 
         final String pluginStatusReport = service.getPluginStatusReport("cd.go.example.plugin");
 
@@ -484,10 +497,40 @@ class ElasticAgentPluginServiceTest {
         }
     }
 
+    @Nested
+    class RescheduleTheJobs {
+        // See the issue #6328 for more details
+        @Test
+        void shouldRescheduleTheJobNotHavingClusterProfile() throws IOException, IllegalArtifactLocationException {
+            JobPlan jobPlan = planWithoutClusterProfile(1);
+            jobPlan.setClusterProfile(null);
+
+            when(goConfigService.elasticJobStarvationThreshold()).thenReturn(10000L);
+
+            when(environmentConfigService.envForPipeline("pipeline-2")).thenReturn("env-2");
+            service.createAgentsFor(emptyList(), asList(jobPlan));
+
+            verifyZeroInteractions(createAgentQueue);
+            verify(scheduleService).cancelJob(jobPlan.getIdentifier());
+            verify(consoleService).appendToConsoleLog(jobPlan.getIdentifier(), "\n" +
+                    "This job was cancelled by GoCD. The version of your GoCD server requires elastic profiles to be associated with a cluster(required from Version 19.3.0). This job is configured to run on an Elastic Agent, but the associated elastic profile does not have information about the cluster.  \n" +
+                    "\n" +
+                    "The possible reason for the missing cluster information on the elastic profile could be, an upgrade of the GoCD server to a version >= 19.3.0 before the completion of the job.\n" +
+                    "\n" +
+                    "A re-run of this job should fix this issue.");
+        }
+    }
+
     private JobPlan plan(int jobId, String pluginId) {
         ClusterProfile clusterProfile = new ClusterProfile("clusterProfileId", pluginId);
         ElasticProfile elasticProfile = new ElasticProfile("id", "clusterProfileId");
         JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
         return new DefaultJobPlan(null, new ArrayList<>(), null, jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, clusterProfile);
+    }
+
+    private JobPlan planWithoutClusterProfile(int jobId) {
+        ElasticProfile elasticProfile = new ElasticProfile("id", "clusterProfileId");
+        JobIdentifier identifier = new JobIdentifier("pipeline-" + jobId, 1, "1", "stage", "1", "job");
+        return new DefaultJobPlan(null, new ArrayList<>(), null, jobId, identifier, null, new EnvironmentVariables(), new EnvironmentVariables(), elasticProfile, null);
     }
 }

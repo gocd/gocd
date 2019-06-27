@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.*
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException
+import com.thoughtworks.go.config.remote.EphemeralConfigOrigin
 import com.thoughtworks.go.config.remote.PartialConfig
 import com.thoughtworks.go.plugin.access.configrepo.InvalidPartialConfigException
 import com.thoughtworks.go.server.service.ConfigRepoService
@@ -120,6 +121,19 @@ class ConfigRepoOperationsControllerV1Test implements SecurityServiceTrait, Cont
         assertThatResponse().
           isNotFound().
           hasJsonMessage(EntityType.ConfigRepo.notFoundMessage(REPO_ID))
+      }
+
+      @Test
+      void "sets ad-hoc config origin on resultant partial config"() {
+        def plugin = mock(ConfigRepoPlugin.class)
+        def partialConfig = mock(PartialConfig.class)
+
+        when(plugin.parseContent(any() as Map<String, String>, any() as PartialConfigLoadContext)).thenReturn(partialConfig)
+        when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(plugin)
+
+        postWithApiHeader(controller.controllerPath("$PREFLIGHT_PATH?pluginId=$PLUGIN_ID"), [:])
+
+        verify(partialConfig).setOrigins(any(EphemeralConfigOrigin))
       }
 
       @Test

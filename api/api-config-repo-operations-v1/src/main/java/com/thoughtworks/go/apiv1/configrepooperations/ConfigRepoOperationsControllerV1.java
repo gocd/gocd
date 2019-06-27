@@ -27,7 +27,9 @@ import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.materials.git.GitMaterialConfig;
+import com.thoughtworks.go.config.remote.ConfigOrigin;
 import com.thoughtworks.go.config.remote.ConfigRepoConfig;
+import com.thoughtworks.go.config.remote.EphemeralConfigOrigin;
 import com.thoughtworks.go.config.remote.PartialConfig;
 import com.thoughtworks.go.domain.config.Configuration;
 import com.thoughtworks.go.domain.materials.MaterialConfig;
@@ -54,12 +56,12 @@ import java.util.Map;
 
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.OPERATIONS_BASE;
 import static com.thoughtworks.go.spark.Routes.ConfigRepos.PREFLIGHT_PATH;
+import static java.lang.String.format;
 import static spark.Spark.*;
 
 @Component
 public class ConfigRepoOperationsControllerV1 extends ApiController implements SparkSpringController {
     private static final UuidGenerator UUID = new UuidGenerator();
-    private static final GoConfigCloner CLONER = new GoConfigCloner();
 
     private final ApiAuthenticationHelper authenticationHelper;
     private final GoConfigPluginService pluginService;
@@ -123,7 +125,8 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
                 result.update(Collections.singletonList("No file content provided; check to make sure you POST the form data as `files[]=`"), false);
             } else {
                 PartialConfig partialConfig = plugin.parseContent(contents, context);
-                CruiseConfig config = partialConfigService.merge(partialConfig, context.configMaterial().getFingerprint(), CLONER.deepClone(gcs.getConfigForEditing()));
+                partialConfig.setOrigins(adHocConfigOrigin(repo));
+                CruiseConfig config = partialConfigService.merge(partialConfig, context.configMaterial().getFingerprint(), gcs.clonedConfigForEdit());
 
                 gcs.validateCruiseConfig(config);
                 result.update(Collections.emptyList(), true);
@@ -139,6 +142,10 @@ public class ConfigRepoOperationsControllerV1 extends ApiController implements S
         }
 
         return writerForTopLevelObject(req, res, w -> PreflightResultRepresenter.toJSON(w, result));
+    }
+
+    private ConfigOrigin adHocConfigOrigin(ConfigRepoConfig repo) {
+        return new EphemeralConfigOrigin(format("preflighted <%s>", null == repo ? "NEW REPO" : repo.getId()));
     }
 
     private PartialConfigLoadContext configContext(ConfigRepoConfig repo) {

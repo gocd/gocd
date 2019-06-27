@@ -5,9 +5,10 @@
         </div>
         <div class="form_item checkbox_row define_or_template">
             <label>Configuration Type</label>
-            <%= p_f.radio_button com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE, com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_STAGES, :id => "pipeline_configurationType_stages", :title => 'Define Stages' %>
+            <% checked_templates = use_template?(params) %>
+            <%= p_f.radio_button com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE, com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_STAGES, :id => "pipeline_configurationType_stages", :title => 'Define Stages', :checked => !checked_templates %>
             <%= label_tag("pipeline_configurationType_stages", 'Define Stages') -%>
-            <%= p_f.radio_button com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE, com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_TEMPLATE, :id => "pipeline_configurationType_template", :title => 'Use Template' %>
+            <%= p_f.radio_button com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE, com.thoughtworks.go.config.PipelineConfig::CONFIGURATION_TYPE_TEMPLATE, :id => "pipeline_configurationType_template", :title => 'Use Template', :checked => checked_templates %>
             <%= label_tag("pipeline_configurationType_template", 'Use Template') -%>
         </div>
 

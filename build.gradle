@@ -32,7 +32,7 @@ buildscript {
   }
 
   dependencies {
-    classpath 'org.owasp:dependency-check-gradle:4.0.2'
+    classpath 'org.owasp:dependency-check-gradle:5.0.0'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.21.0'
     classpath 'gradle.plugin.com.hierynomus.gradle.plugins:license-gradle-plugin:0.15.0'
     classpath 'com.github.jk1:gradle-license-report:1.7'
@@ -250,10 +250,8 @@ dependencyCheck {
       baseUrl = "https://nvd.nist.gov/feeds"
     }
 
-    url20Modified = "${baseUrl}/xml/cve/2.0/nvdcve-2.0-modified.xml.gz"
-    url20Base = "${baseUrl}/xml/cve/2.0/nvdcve-2.0-%d.xml.gz"
-    url12Modified = "${baseUrl}/xml/cve/1.2/nvdcve-modified.xml.gz"
-    url12Base = "${baseUrl}/xml/cve/1.2/nvdcve-%d.xml.gz"
+    urlModified = "${baseUrl}/json/cve/1.0/nvdcve-1.0-modified.json.gz"
+    urlBase = "${baseUrl}/json/cve/1.0/nvdcve-1.0-%d.json.gz"
   }
 }
 

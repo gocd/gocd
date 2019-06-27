@@ -22,5 +22,9 @@ module Admin
       job_configs = JobConfigs.new([JobConfig.new(CaseInsensitiveString.new("defaultJob"), ResourceConfigs.new, ArtifactConfigs.new, com.thoughtworks.go.config.Tasks.new([AntTask.new].to_java(Task)))].to_java(JobConfig))
       StageConfig.new(CaseInsensitiveString.new("defaultStage"), job_configs)
     end
+
+    def use_template?(params)
+      "configurationType_template" == params.try(:[], :pipeline_group).try(:[], :pipeline).try(:[], :configurationType)
+    end
   end
 end

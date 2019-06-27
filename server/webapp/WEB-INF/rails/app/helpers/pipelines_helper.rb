@@ -73,10 +73,6 @@ module PipelinesHelper
     end
   end
 
-  def use_template?(params)
-    "configurationType_template" == params.try(:[], :pipeline_group).try(:[], :pipeline).try(:[], :configurationType)
-  end
-
   def pipeline_instance_identifier(pim)
     "#{pim.getName()}_#{pim.getCounter()}"
   end

@@ -53,6 +53,7 @@ module Admin
         include ::ConfigUpdate::CheckCanCreatePipeline
         include ::ConfigUpdate::CruiseConfigNode
         include ::ConfigUpdate::LoadConfig
+        include ::Admin::PipelinesHelper
 
         def initialize params, user, security_service, pipeline, package_definition_service, pluggable_task_service
           super(params, user, security_service)

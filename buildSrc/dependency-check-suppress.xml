@@ -105,4 +105,14 @@
     <cpe>cpe:/a:scms_project:scms</cpe>
   </suppress>
 
+  <suppress>
+    <notes><![CDATA[
+   file name: jackson-databind-2.9.9.jar
+
+   This only applies if we're using `enableDefaultTyping`
+   ]]></notes>
+    <gav>com.fasterxml.jackson.core:jackson-databind:2.9.9</gav>
+    <cve>CVE-2019-12814</cve>
+  </suppress>
+
 </suppressions>

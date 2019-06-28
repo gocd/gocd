@@ -268,8 +268,10 @@ dependencies {
     exclude(module: 'servlet-api')
   }
   compile(group: 'org.apache.activemq', name: 'activemq-core', version: '5.5.0') {
-    exclude(module: 'spring-context')
-    exclude(module: 'org.osgi.core')
+    exclude(group: 'org.springframework', module: 'spring-context')
+    exclude(group: 'org.osgi', module: 'org.osgi.core')
+    // jasypt is typically used to encrypt/decrypt stuff, which we don't need
+    exclude(group: 'org.jasypt', module: 'jasypt')
   }
 
   compile group: 'org.jruby', name: 'jruby-complete', version: project.versions.jruby
@@ -888,7 +890,6 @@ task verifyWar(type: VerifyJarTask) {
         "jackson-annotations-${project.versions.jackson}.jar",
         "jackson-core-${project.versions.jackson}.jar",
         "jackson-databind-${project.versions.jackson}.jar",
-        "jasypt-1.7.jar",
         "JavaEWAH-1.1.6.jar",
         "javassist-${project.versions.javaAssist}.jar",
         "javasysmon-0.3.6.jar",

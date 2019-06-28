@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2019 ThoughtWorks, Inc.
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.2.xsd">
+  <suppress>
+    <notes><![CDATA[
+   file name: jruby-rack-1.1.21.jar
+   CVE-2010-1330 requires JRuby upto and including 1.4.0
+   CVE-2011-4838 requires JRuby upto and including 1.6.5
+   ]]></notes>
+    <gav>org.jruby.rack:jruby-rack:1.1.21</gav>
+    <cve>CVE-2010-1330</cve>
+    <cve>CVE-2011-4838</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+   file name: api-scms-v1.jar (project :api:api-scms-v1)
+   ]]></notes>
+    <sha1>05aac153a024b559e3056be75c1f1ae46af6313c</sha1>
+    <cpe>cpe:/a:scms_project:scms</cpe>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+   file name: activemq-core-5.5.0.jar
+   file name: kahadb-5.5.0.jar
+   file name: activeio-core-3.1.2.jar
+   We do not expose activemq to external connections
+   We do not expose the demo app
+   We do not expose any admin console
+   We do not expose any interface for external services to inject or process messages
+   We do not allow AMQ to authenticate via LDAP
+   ]]></notes>
+    <gav regex="true">^(org\.apache\.activemq:activemq-core:5\.5\.0)|(org\.apache\.activemq:kahadb:5\.5\.0)|(org\.apache\.activemq:activeio-core:3\.1\.2)|(org\.apache\.activemq\.protobuf:activemq-protobuf:1\.1)$</gav>
+<!--    <gav regex="true">-->
+<!--      ^org\.apache\.activemq:((activemq-core:5\.5\.0)|(kahadb:5\.5\.0)|(activeio-core:3\.1\.2)|(activemq-protobuf:1\.1))$-->
+<!--    </gav>-->
+    <cve>CVE-2011-4905</cve>
+    <cve>CVE-2012-5784</cve>
+    <cve>CVE-2012-6092</cve>
+    <cve>CVE-2012-6551</cve>
+    <cve>CVE-2013-1879</cve>
+    <cve>CVE-2013-1880</cve>
+    <cve>CVE-2013-3060</cve>
+    <cve>CVE-2014-3576</cve>
+    <cve>CVE-2014-3600</cve>
+    <cve>CVE-2014-8110</cve>
+    <cve>CVE-2015-1830</cve>
+    <cve>CVE-2015-5254</cve>
+    <cve>CVE-2015-6524</cve>
+    <cve>CVE-2016-0734</cve>
+    <cve>CVE-2016-0782</cve>
+    <cve>CVE-2016-3088</cve>
+    <cve>CVE-2014-3612</cve>
+    <cve>CVE-2018-11775</cve>
+    <cve>CVE-2018-8006</cve>
+    <cve>CVE-2019-0222</cve>
+    <cve>CVE-2016-6810</cve>
+    <cve>CVE-2010-0684</cve>
+    <cve>CVE-2010-1244</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+   file name: spring-security-web-4.2.13.RELEASE.jar
+   file name: spring-security-config-4.2.13.RELEASE.jar
+   file name: spring-security-core-4.2.13.RELEASE.jar
+   This one only affects spring-security 5.0.5
+   ]]></notes>
+    <gav regex="true">^org\.springframework\.security:(spring-security-web|spring-security-config|spring-security-core):4\.2\.13\.RELEASE$</gav>
+    <cve>CVE-2018-1258</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+   file name: jruby-complete-9.2.0.0.jar/META-INF/jruby.home/lib/ruby/stdlib/rdoc/generator/template/darkfish/js/jquery.js
+   this is a file used by rdoc used in the final generated rdoc, which we do not use in dev or prod
+   ]]></notes>
+    <!-- this is the sha1 of the jquery.js file, not of jruby jar -->
+    <sha1>71cce71820cc47b3bd1098618d248325fcf24ddb</sha1>
+    <cve>CVE-2015-9251</cve>
+    <cve>CVE-2012-6708</cve>
+    <cve>CVE-2019-11358</cve>
+  </suppress>
+
+  <suppress>
+    <notes><![CDATA[
+   file name: api-scms-v1.jar (project :api:api-scms-v1)
+   ]]></notes>
+    <cpe>cpe:/a:scms_project:scms</cpe>
+  </suppress>
+
+</suppressions>

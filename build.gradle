@@ -254,6 +254,8 @@ dependencyCheck {
     urlModified = "${baseUrl}/json/cve/1.0/nvdcve-1.0-modified.json.gz"
     urlBase = "${baseUrl}/json/cve/1.0/nvdcve-1.0-%d.json.gz"
   }
+
+  suppressionFile = rootProject.file('buildSrc/dependency-check-suppress.xml').toPath().toString()
 }
 
 allprojects {

@@ -50,6 +50,8 @@ Function "BeforeUpgrade"
 FunctionEnd
 
 Function "AfterUpgrade"
+  CopyFiles "$INSTDIR\config\wrapper-properties.conf" "$INSTDIR\wrapper-config\wrapper-properties.conf"
+  Delete "$INSTDIR\config\wrapper-properties.conf"
   Call InstallService
   Call StartServiceIfRunningBeforeUpgrade
 FunctionEnd

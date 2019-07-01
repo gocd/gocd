@@ -10,7 +10,7 @@
 
 # Issues, feedback?
 
-Please make sure to log them at https://github.com/gocd/${repoName}.
+Please make sure to log them at https://github.com/gocd/gocd.
 
 # Usage
 

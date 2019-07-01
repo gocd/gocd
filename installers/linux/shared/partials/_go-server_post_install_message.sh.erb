@@ -21,7 +21,7 @@
     if [ -f "/etc/init.d/go-server" ]; then
       echo "Once that is done start the GoCD Server with '/etc/init.d/go-server start'"
     elif [ -f "/etc/systemd/system/go-server.service" ]; then
-      echo "Once that is done start the GoCD Server with 'systemctl start go-server.service'"
+      echo "Once that is done start the GoCD Server with 'systemctl start go-server'"
     elif [ -f "/etc/init/go-server.conf" ]; then
       echo "Once that is done start the GoCD Server with 'start go-server'"
     fi

@@ -148,7 +148,8 @@ class BuildDockerImageTask extends DefaultTask {
       additionalFiles: additionalFiles,
       imageName      : dockerImageName,
       copyrightYear  : project.copyrightYear,
-      useFromArtifact: !project.hasProperty('dockerGitPush')
+      useFromArtifact: !project.hasProperty('dockerGitPush'),
+      repoName       : getGitHubRepoName()
     ]
 
     project.mkdir(project.buildDir)

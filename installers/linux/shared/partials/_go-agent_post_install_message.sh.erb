@@ -23,7 +23,7 @@
     if [ -f "/etc/init.d/go-agent" ]; then
       echo "Once that is done start the GoCD Agent with '/etc/init.d/go-agent start'"
     elif [ -f "/etc/systemd/system/go-agent.service" ]; then
-      echo "Once that is done start the GoCD Agent with 'systemctl start go-agent.service'"
+      echo "Once that is done start the GoCD Agent with 'systemctl start go-agent'"
     elif [ -f "/etc/init/go-agent.conf" ]; then
       echo "Once that is done start the GoCD Agent with 'start go-agent'"
     fi

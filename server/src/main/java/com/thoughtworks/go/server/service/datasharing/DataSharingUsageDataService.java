@@ -22,9 +22,11 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.JobStateTransition;
+import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.domain.UsageStatistics;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,13 +40,18 @@ public class DataSharingUsageDataService {
     private final GoConfigService goConfigService;
     private final JobInstanceSqlMapDao jobInstanceSqlMapDao;
     private final DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService;
+    private final GoCache goCache;
+    public static String ADD_PIPELINE_CTA = "add-pipeline-cta";
+    public static String SAVE_AND_RUN_CTA = "save-and-run-cta";
+
 
     @Autowired
     public DataSharingUsageDataService(GoConfigService goConfigService, JobInstanceSqlMapDao jobInstanceSqlMapDao,
-                                       DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService) {
+                                       DataSharingUsageStatisticsReportingService dataSharingUsageStatisticsReportingService, GoCache goCache) {
         this.goConfigService = goConfigService;
         this.jobInstanceSqlMapDao = jobInstanceSqlMapDao;
         this.dataSharingUsageStatisticsReportingService = dataSharingUsageStatisticsReportingService;
+        this.goCache = goCache;
     }
 
     public UsageStatistics get() {
@@ -84,6 +91,9 @@ public class DataSharingUsageDataService {
                 .oldestPipelineExecutionTime(oldestPipelineExecutionTime)
                 .serverId(serverId)
                 .gocdVersion(CurrentGoCDVersion.getInstance().fullVersion())
+                .testDrive(Toggles.isToggleOn(Toggles.TEST_DRIVE))
+                .addCTA(goCache.getOrDefault(ADD_PIPELINE_CTA, false))
+                .saveAndRunCTA(goCache.getOrDefault(SAVE_AND_RUN_CTA, false))
                 .build();
     }
 

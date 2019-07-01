@@ -21,6 +21,7 @@ import com.thoughtworks.go.http.mocks.HttpRequestBuilder
 import com.thoughtworks.go.http.mocks.MockHttpServletRequest
 import com.thoughtworks.go.http.mocks.MockHttpServletResponse
 import com.thoughtworks.go.http.mocks.MockHttpSession
+import com.thoughtworks.go.server.cache.GoCache
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.newsecurity.models.AnonymousCredential
 import com.thoughtworks.go.server.newsecurity.models.AuthenticationToken
@@ -48,6 +49,7 @@ trait ControllerTrait<T extends SparkController> {
   MockHttpServletResponse response
   RequestContext requestContext = new TestRequestContext()
   StubTemplateEngine templateEngine = new StubTemplateEngine()
+  GoCache goCache = mock(GoCache.class)
   MockHttpSession session = new MockHttpSession()
   HttpRequestBuilder httpRequestBuilder = new HttpRequestBuilder().withSession(session)
   Part part = mock(Part)

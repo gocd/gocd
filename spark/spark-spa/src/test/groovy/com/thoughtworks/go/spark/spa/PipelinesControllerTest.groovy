@@ -52,6 +52,6 @@ class PipelinesControllerTest implements ControllerTrait<PipelinesController>, S
 
   @Override
   PipelinesController createControllerInstance() {
-    return new PipelinesController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+    return new PipelinesController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine, goCache)
   }
 }

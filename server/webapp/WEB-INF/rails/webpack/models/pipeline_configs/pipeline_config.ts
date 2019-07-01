@@ -51,18 +51,15 @@ export class PipelineConfig extends ValidatableMixin {
     this.validateMutualExclusivityOf("template", "stages", { message: "Pipeline stages must not be defined when using a pipeline template" });
   }
 
-  create() {
+  create(pause: boolean) {
     return ApiRequestBuilder.POST(SparkRoutes.pipelineConfigCreatePath(), ApiVersion.v8, {
-      payload: this.toApiPayload()
+      payload: this.toApiPayload(),
+      headers: {"X-pause-pipeline": pause.toString()}
     });
   }
 
   run() {
     return ApiRequestBuilder.POST(SparkRoutes.pipelineTriggerPath(this.name()), ApiVersion.v1);
-  }
-
-  pause() {
-    return ApiRequestBuilder.POST(SparkRoutes.pipelinePausePath(this.name()), ApiVersion.v1);
   }
 
   toApiPayload(): any {

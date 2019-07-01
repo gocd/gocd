@@ -40,6 +40,8 @@ import com.thoughtworks.go.server.service.PipelinePauseChecker
 import com.thoughtworks.go.server.service.PipelinePauseService
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult
 import com.thoughtworks.go.server.service.result.ServerHealthStateOperationResult
+import com.thoughtworks.go.server.service.support.toggle.FeatureToggleService
+import com.thoughtworks.go.server.service.support.toggle.Toggles
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -60,10 +62,14 @@ import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class PipelineConfigControllerV8Test implements SecurityServiceTrait, ControllerTrait<PipelineConfigControllerV8> {
+  @Mock
+  private FeatureToggleService featureToggleService;
 
   @BeforeEach
   void setUp() {
     initMocks(this)
+    Toggles.initializeWith(featureToggleService);
+    when(featureToggleService.isToggleOn(Toggles.TEST_DRIVE)).thenReturn(false)
   }
 
   @Mock
@@ -83,7 +89,7 @@ class PipelineConfigControllerV8Test implements SecurityServiceTrait, Controller
 
   @Override
   PipelineConfigControllerV8 createControllerInstance() {
-    return new PipelineConfigControllerV8(pipelineConfigService, pipelinePauseService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService)
+    return new PipelineConfigControllerV8(pipelineConfigService, pipelinePauseService, new ApiAuthenticationHelper(securityService, goConfigService), entityHashingService, passwordDeserializer, goConfigService, goCache)
   }
 
   @Nested

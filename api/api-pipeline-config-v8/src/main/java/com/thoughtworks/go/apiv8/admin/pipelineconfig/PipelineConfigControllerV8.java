@@ -29,6 +29,7 @@ import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
+import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.newsecurity.utils.SessionUtils;
 import com.thoughtworks.go.server.service.EntityHashingService;
@@ -36,6 +37,7 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.server.service.PipelinePauseService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +50,7 @@ import java.io.IOException;
 import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
+import static com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService.SAVE_AND_RUN_CTA;
 import static java.lang.String.format;
 import static spark.Spark.*;
 
@@ -59,9 +62,10 @@ public class PipelineConfigControllerV8 extends ApiController implements SparkSp
     private final EntityHashingService entityHashingService;
     private final PasswordDeserializer passwordDeserializer;
     private GoConfigService goConfigService;
+    private GoCache goCache;
 
     @Autowired
-    public PipelineConfigControllerV8(PipelineConfigService pipelineConfigService, PipelinePauseService pipelinePauseService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService) {
+    public PipelineConfigControllerV8(PipelineConfigService pipelineConfigService, PipelinePauseService pipelinePauseService, ApiAuthenticationHelper apiAuthenticationHelper, EntityHashingService entityHashingService, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService, GoCache goCache) {
         super(ApiVersion.v8);
         this.pipelineConfigService = pipelineConfigService;
         this.pipelinePauseService = pipelinePauseService;
@@ -69,6 +73,7 @@ public class PipelineConfigControllerV8 extends ApiController implements SparkSp
         this.entityHashingService = entityHashingService;
         this.passwordDeserializer = passwordDeserializer;
         this.goConfigService = goConfigService;
+        this.goCache = goCache;
     }
 
     @Override
@@ -150,6 +155,8 @@ public class PipelineConfigControllerV8 extends ApiController implements SparkSp
         if (shouldPausePipeline(req)) {
             String pauseCause = getUserSpecifiedOrDefaultPauseCause(req);
             pipelinePauseService.pause(pipelineConfigFromRequest.name().toString(), pauseCause, userName);
+        } else if (Toggles.isToggleOn(Toggles.TEST_DRIVE)){
+            goCache.put(SAVE_AND_RUN_CTA, true);
         }
 
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);

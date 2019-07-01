@@ -96,6 +96,9 @@ class UsageStatisticsControllerV3Test implements SecurityServiceTrait, Controlle
           .jobCount(15l)
           .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
           .gocdVersion("18.7.0")
+          .saveAndRunCTA(false)
+          .addCTA(false)
+          .testDrive(false)
           .build()
 
         when(dataSharingService.get()).thenReturn(metrics)
@@ -213,6 +216,9 @@ class UsageStatisticsControllerV3Test implements SecurityServiceTrait, Controlle
           .jobCount(15l)
           .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
           .gocdVersion("18.7.0")
+          .testDrive(false)
+          .addCTA(false)
+          .saveAndRunCTA(false)
           .build()
 
         File masterPublicKey = new File(getClass().getClassLoader().getResource("master-public.pem").getFile())

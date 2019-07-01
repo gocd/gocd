@@ -72,12 +72,10 @@ export class PipelineActions extends MithrilViewComponent<Attrs> {
     this.clearError();
 
     if (pipelineConfig.isValid()) {
-      pipelineConfig.create().then((response) => {
+      pipelineConfig.create(shouldPause).then((response) => {
         response.do(() => {
           if (shouldPause) {
-            pipelineConfig.pause().then(() => {
-              this.location.go(Routes.pipelineEditPath("pipelines", pipelineConfig.name(), "general"));
-            });
+            this.location.go(Routes.pipelineEditPath("pipelines", pipelineConfig.name(), "general"));
           } else  {
             pipelineConfig.run().then(() => {
               this.location.go(`/go/pipelines?new_pipeline_name=${pipelineConfig.name()}`);

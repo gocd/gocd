@@ -73,6 +73,14 @@ const ToggleConsentWidget = {
           This helps decide which plugins to put more effort into and improve.
         </div>
         <div class="consent-for">
+          <span class="key">Test drive instance (test_drive_instance):</span>
+            Whether or not this GoCD server is a test drive instance.
+        </div>
+        <div class="consent-for">
+          <span class="key">Test drive metrics (test_drive_metrics):</span>
+            These metrics are only collected for GoCD test drive instances.
+        </div>
+        <div class="consent-for">
           <span class="key">GoCD version (gocd_version):</span>
             This is the version of GoCD the server is on.
         </div>

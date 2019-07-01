@@ -9,7 +9,7 @@
         <div class="form_item_block">
             <%= scope[:form].label com.thoughtworks.go.config.PipelineConfigs::GROUP, 'Pipeline Group Name' -%>
             <% if is_user_a_group_admin? %>
-                <%= scope[:form].select com.thoughtworks.go.config.PipelineConfigs::GROUP, @groups_list, {:selected => @group_name} %>
+                <%= scope[:form].select com.thoughtworks.go.config.PipelineConfigs::GROUP, @groups_list, {:selected => @group_name}, {:id => 'pipeline_group_name_text_field'} %>
             <% else %>
                 <%= scope[:form].text_field com.thoughtworks.go.config.PipelineConfigs::GROUP, :value => @group_name, :class => "required pattern_match", :id => 'pipeline_group_name_text_field' -%>
             <% end %>

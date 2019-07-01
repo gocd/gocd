@@ -43,7 +43,7 @@ describe("AddPipeline: TemplateEditor", () => {
     expect(isUsingTemplate()).toBeTruthy();
     const flash = helper.byTestId("flash-message-warning");
     expect(flash).toBeTruthy();
-    expect(helper.text("code", flash)).toBe("There are no pipeline templates configured. Add one via the templates page.");
+    expect(helper.text("code", flash)).toBe("There are no templates configured or you are unauthorized to view the existing templates. Add one via the templates page.");
   });
 
   it("should show dropdown of templates when defined", () => {
@@ -59,6 +59,20 @@ describe("AddPipeline: TemplateEditor", () => {
     helper.click(helper.byTestId("switch-paddle"));
     expect(isUsingTemplate()).toBe(false);
     expect(config.template() === undefined).toBeTruthy();
+  });
+
+  it("should not display dropdown and should display flash when cache fails to populate", () => {
+    helper.unmount();
+    helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new FailedTestCache()}/>);
+    helper.click(helper.byTestId("switch-paddle"));
+    expect(isUsingTemplate()).toBeTruthy();
+
+    const flash = helper.byTestId("flash-message-warning");
+    expect(flash).toBeTruthy();
+    expect(helper.text("code", flash)).toBe("There are no templates configured or you are unauthorized to view the existing templates. Add one via the templates page.");
+
+    const dropdown = helper.byTestId("form-field-input-template");
+    expect(dropdown).not.toExist();
   });
 });
 
@@ -84,4 +98,17 @@ class EmptyTestCache implements TemplateCache<Option> {
   templates() { return []; }
   failureReason() { return undefined; }
   failed() { return false; }
+}
+
+class FailedTestCache implements TemplateCache<Option> {
+  ready() { return true; }
+  prime(onSuccess: () => void, onError?: () => void) { if (onError) {
+    onError();
+  }}
+  // tslint:disable-next-line
+  invalidate() {}
+  contents() { return []; }
+  templates() { return []; }
+  failureReason() { return "Unauthorized to perform this action"; }
+  failed() { return true; }
 }

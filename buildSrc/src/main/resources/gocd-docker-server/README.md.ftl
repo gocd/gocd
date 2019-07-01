@@ -2,6 +2,10 @@
 
 An ${distro.name()} based docker image for [GoCD server](https://www.gocd.org).
 
+# Issues, feedback?
+
+Please make sure to log them at https://github.com/gocd/gocd.
+
 # Usage
 
 Start the container with this:

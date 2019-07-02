@@ -32,7 +32,7 @@ public class DevelopmentAgent {
         new ProcessRunner().command("curl", "http://localhost:8153/go/admin/tfs-impl.jar", "--fail", "--silent", "--output", "tfs-impl.jar").failOnError(false).run();
         new SystemEnvironment().set(SystemEnvironment.PLUGIN_ACTIVATOR_JAR_PATH, "go-plugin-activator.jar");
         assertActivationJarPresent();
-        AgentMain.main("-serverUrl", "https://localhost:8154/go");
+        AgentMain.main("-serverUrl", "http://localhost:8153/go");
     }
 
     private static void assertActivationJarPresent() {

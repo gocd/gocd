@@ -33,7 +33,7 @@ public class AgentBootstrapperArgs {
     public static String SSL_VERIFICATION_MODE = "sslVerificationMode";
     public static String ROOT_CERT_FILE = "rootCertFile";
 
-    @Parameter(names = "-serverUrl", description = "The GoCD server URL. Must begin with `https://`, and end with `/go`", required = true, validateWith = ServerUrlValidator.class)
+    @Parameter(names = "-serverUrl", description = "The GoCD server URL. Example: http://gocd.example.com:8153/go", required = true, validateWith = ServerUrlValidator.class)
     private URL serverUrl;
 
     @Parameter(names = "-rootCertFile", description = "The root certificate from the certificate chain of the GoCD server (in PEM format)", validateWith = CertificateFileValidator.class)

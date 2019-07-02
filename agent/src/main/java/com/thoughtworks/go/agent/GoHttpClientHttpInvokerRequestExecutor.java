@@ -45,12 +45,14 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
 
     private final GoAgentServerHttpClient goAgentServerHttpClient;
     private final SystemEnvironment environment;
+    private final boolean useTokenAuth;
     private DefaultAgentRegistry defaultAgentRegistry;
 
     public GoHttpClientHttpInvokerRequestExecutor(GoAgentServerHttpClient goAgentServerHttpClient, SystemEnvironment environment, DefaultAgentRegistry defaultAgentRegistry) {
         this.goAgentServerHttpClient = goAgentServerHttpClient;
         this.environment = environment;
         this.defaultAgentRegistry = defaultAgentRegistry;
+        this.useTokenAuth = Boolean.valueOf(System.getenv().getOrDefault("GO_USE_TOKEN_AUTH", "true"));
     }
 
     @Override
@@ -63,14 +65,14 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
 
         BasicHttpContext context = null;
 
-        if (useMutualTLS() && config.getServiceUrl().startsWith("https://")) {
+        if (postMethod.getURI().getScheme().equals("http") || useTokenAuth) {
+            postMethod.setHeader("X-Agent-GUID", defaultAgentRegistry.uuid());
+            postMethod.setHeader("Authorization", defaultAgentRegistry.token());
+        } else {
             if (environment.useSslContext()) {
                 context = new BasicHttpContext();
                 context.setAttribute(HttpClientContext.USER_TOKEN, goAgentServerHttpClient.principal());
             }
-        } else {
-            postMethod.setHeader("X-Agent-GUID", defaultAgentRegistry.uuid());
-            postMethod.setHeader("Authorization", defaultAgentRegistry.token());
         }
 
         try (CloseableHttpResponse response = goAgentServerHttpClient.execute(postMethod, context)) {
@@ -78,10 +80,6 @@ public class GoHttpClientHttpInvokerRequestExecutor extends AbstractHttpInvokerR
             InputStream responseBody = getResponseBody(response);
             return readRemoteInvocationResult(responseBody, config.getCodebaseUrl());
         }
-    }
-
-    private boolean useMutualTLS() {
-        return !"true".equalsIgnoreCase(System.getenv("GO_USE_TOKEN_AUTH"));
     }
 
     private InputStream getResponseBody(HttpResponse httpResponse) throws IOException {

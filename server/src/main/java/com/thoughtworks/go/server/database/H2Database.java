@@ -238,21 +238,12 @@ public class H2Database implements Database {
 
             @Override
             public String retrievePipelineTimeline() {
-                if ("true".equalsIgnoreCase(System.getProperty("go.enable.pipeline.timeline.cast"))) {
-                    return "SELECT CAST(p.name AS VARCHAR), p.id AS p_id, p.counter, m.modifiedtime, "
-                            + " (SELECT CAST(materials.fingerprint AS VARCHAR) FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.folder, pmr.toRevisionId AS mod_id, pmr.Id as pmrid "
-                            + "FROM pipelines p, pipelinematerialrevisions pmr, modifications m "
-                            + "WHERE p.id = pmr.pipelineid "
-                            + "AND pmr.torevisionid = m.id "
-                            + "AND p.id > ?";
-                } else {
-                    return "SELECT p.name, p.id AS p_id, p.counter, m.modifiedtime, "
-                            + " (SELECT materials.fingerprint FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.folder, pmr.toRevisionId AS mod_id, pmr.Id as pmrid "
-                            + "FROM pipelines p, pipelinematerialrevisions pmr, modifications m "
-                            + "WHERE p.id = pmr.pipelineid "
-                            + "AND pmr.torevisionid = m.id "
-                            + "AND p.id > ?";
-                }
+                return "SELECT p.name, p.id AS p_id, p.counter, m.modifiedtime, "
+                        + " (SELECT materials.fingerprint FROM materials WHERE id = m.materialId), naturalOrder, m.revision, pmr.folder, pmr.toRevisionId AS mod_id, pmr.Id as pmrid "
+                        + "FROM pipelines p, pipelinematerialrevisions pmr, modifications m "
+                        + "WHERE p.id = pmr.pipelineid "
+                        + "AND pmr.torevisionid = m.id "
+                        + "AND p.id > ?";
             }
         };
     }

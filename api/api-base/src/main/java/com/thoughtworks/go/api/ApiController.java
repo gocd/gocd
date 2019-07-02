@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.api;
 
+import com.google.common.collect.Sets;
 import com.google.gson.reflect.TypeToken;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.MessageJson;
@@ -22,6 +23,7 @@ import com.thoughtworks.go.server.util.RequestUtils;
 import com.thoughtworks.go.spark.SparkController;
 import org.springframework.util.InvalidMimeTypeException;
 import org.springframework.util.MimeType;
+import spark.Filter;
 import spark.Request;
 import spark.Response;
 
@@ -106,4 +108,11 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         return map;
     }
 
+    protected static Filter onlyOn(Filter filter, String... allowedMethods) {
+        return (request, response) -> {
+            if (Sets.newHashSet(allowedMethods).contains(request.requestMethod())) {
+                filter.handle(request, response);
+            }
+        };
+    }
 }

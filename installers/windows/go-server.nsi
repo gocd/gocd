@@ -50,17 +50,8 @@ Function "BeforeUpgrade"
 FunctionEnd
 
 Function "AfterUpgrade"
-  Call copyOldWrapperPropertiesOrCreateDefault
   Call InstallService
   Call StartServiceIfRunningBeforeUpgrade
-FunctionEnd
-
-
-Function "copyOldWrapperPropertiesOrCreateDefault"
-  IfFileExists "$INSTDIR\config\wrapper-properties.conf" file_found
-  file_found:
-    CopyFiles "$INSTDIR\config\wrapper-properties.conf" "$INSTDIR\wrapper-config\wrapper-properties.conf"
-    Delete "$INSTDIR\config\wrapper-properties.conf"
 FunctionEnd
 
 Function "PostInstall"

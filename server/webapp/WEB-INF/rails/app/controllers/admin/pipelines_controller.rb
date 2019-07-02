@@ -53,6 +53,7 @@ module Admin
         include ::ConfigUpdate::CheckCanCreatePipeline
         include ::ConfigUpdate::CruiseConfigNode
         include ::ConfigUpdate::LoadConfig
+        include ::Admin::PipelinesHelper
 
         def initialize params, user, security_service, pipeline, package_definition_service, pluggable_task_service
           super(params, user, security_service)
@@ -66,11 +67,14 @@ module Admin
         end
 
         def update(cruise_config)
-          if(!@pipeline.hasTemplate())
+          if !use_template?(params)
             task = @pipeline.getFirstStageConfig().getJobs().first().getTasks().first()
             @pluggable_task_service.validate(task) if task.instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask
             @pluggable_task_service.validate(task.cancelTask()) if (!task.cancelTask().nil?) && (task.cancelTask().instance_of? com.thoughtworks.go.config.pluggabletask.PluggableTask)
+          elsif !@pipeline.hasTemplate()
+            @pipeline.addError(PipelineConfig::TEMPLATE_NAME, "Template name must be specified.")
           end
+
           if @pipeline.material_configs.size() > 0 && @pipeline.material_configs.get(0).type == PackageMaterialConfig::TYPE
             handle_package_material_creation_or_association(cruise_config)
           end
@@ -99,11 +103,15 @@ module Admin
         assert_load(:task_view_models, task_view_service.getTaskViewModels()) if !@update_result.isSuccessful()
         assert_load(:pipeline, @subject)
 
-        if !@update_result.isSuccessful() && !@pipeline.hasTemplate()
+        if !@update_result.isSuccessful() && !use_template?(params)
           task = @pipeline.getFirstStageConfig().getJobs().first().getTasks().first()
           task_view_model = task_view_service.getViewModel(task, 'new')
           task_view_model1 = task_view_service.getModelOfType(@task_view_models, task.getTaskType())
           task_view_model1.setModel(task_view_model.getModel())
+        end
+
+        if use_template?(params) && !@pipeline.hasTemplate()
+          @pipeline.addError(PipelineConfig::TEMPLATE_NAME, "Template name must be specified.")
         end
 
         group = save_action.group
@@ -297,4 +305,3 @@ module Admin
 
   end
 end
-

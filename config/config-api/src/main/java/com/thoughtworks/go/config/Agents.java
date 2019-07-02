@@ -23,8 +23,6 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 
-@ConfigTag("agents")
-@ConfigCollection(AgentConfig.class)
 public class Agents extends ArrayList<AgentConfig> implements Validatable {
     private ConfigErrors errors = new ConfigErrors();
     private String elasticAgentId = "elasticAgentId";

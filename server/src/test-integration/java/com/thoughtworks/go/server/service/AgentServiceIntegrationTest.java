@@ -137,7 +137,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldAddEnvironmentsToMultipleAgents() throws Exception {
+    public void shouldAddEnvironmentsToMultipleAgents() {
         createEnvironment("uat", "prod");
 
         createEnabledAgent(UUID);
@@ -153,7 +153,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotFailTryingToAddAnAgentThatsAlreadyPresentInEnvironment() throws Exception {
+    public void shouldNotFailTryingToAddAnAgentThatsAlreadyPresentInEnvironment() {
         createEnvironment("uat");
 
         createEnabledAgent(UUID);
@@ -170,7 +170,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveEnvironmentsFromMultipleAgents() throws Exception {
+    public void shouldRemoveEnvironmentsFromMultipleAgents() {
         createEnvironment("uat", "prod");
 
         AgentConfig enabledAgent1 = createEnabledAgent(UUID);
@@ -190,7 +190,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotChangeEnvironmentsOtherThanTheOneRemoveIsRequestedFor() throws Exception {
+    public void shouldNotChangeEnvironmentsOtherThanTheOneRemoveIsRequestedFor() {
         createEnvironment("uat", "prod");
 
         AgentConfig enabledAgent = createEnabledAgent(UUID);
@@ -207,7 +207,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldRespondToAgentEnvironmentModificationRequestWith406WhenErrors() throws Exception {
+    public void shouldRespondToAgentEnvironmentModificationRequestWith406WhenErrors() {
 
         createEnabledAgent(UUID);
 
@@ -233,7 +233,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotAllowUpdatingEnvironmentsWhenNotAdmin() throws IOException {
+    public void shouldNotAllowUpdatingEnvironmentsWhenNotAdmin() {
         CONFIG_HELPER.enableSecurity();
         CONFIG_HELPER.addAdmins("admin1");
 
@@ -452,27 +452,6 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldDenyAgentFromPendingList() {
-        AgentInstance pending = AgentInstanceMother.pending();
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux"));
-
-        String uuid = pending.getUuid();
-
-        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(uuid), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
-
-        assertThatAgentIsDisabled(operationResult, uuid);
-
-        AgentInstances agents = agentService.agentInstances();
-
-        assertThat(agents.size(), is(1));
-        assertThat(agents.size(), is(1));
-        assertThat(agents.findAgent(uuid).isDisabled(), is(true));
-        assertThat(agentService.findAgentAndRefreshStatus(uuid).isDisabled(), is(true));
-        assertThat(agentService.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Disabled));
-    }
-
-    @Test
     public void shouldDenyApprovedAgent() {
         AgentConfig agentConfig = new AgentConfig(UUID, "agentName", "127.0.0.9", "cookie");
         agentDao.saveOrUpdate(agentConfig);
@@ -660,7 +639,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturn403WhenAUnauthorizedUserTriesToEnable() throws IOException {
+    public void shouldReturn403WhenAUnauthorizedUserTriesToEnable() {
         String agentId = "agent-id";
         CONFIG_HELPER.enableSecurity();
         CONFIG_HELPER.addAdmins("admin1");
@@ -714,7 +693,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldLoadAgentsByApprovalStatus() throws Exception {
+    public void shouldLoadAgentsByApprovalStatus() {
         AgentConfig deniedAgent1 = new AgentConfig("uuid1", "deniedAgent1", "127.0.0.1", "cookie1");
         deniedAgent1.disable();
 
@@ -765,7 +744,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void enabledAgents_shouldNotIncludePendingAgents() throws Exception {
+    public void enabledAgents_shouldNotIncludePendingAgents() {
         AgentInstance idle = AgentInstanceMother.updateUuid(AgentInstanceMother.idle(new Date(), "CCeDev01"), UUID);
         AgentInstance pending = AgentInstanceMother.pending();
         AgentInstance building = AgentInstanceMother.building();
@@ -784,7 +763,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturn403WhenAUnauthorizedUserTriesToDelete() throws IOException {
+    public void shouldReturn403WhenAUnauthorizedUserTriesToDelete() {
         CONFIG_HELPER.enableSecurity();
         HttpOperationResult operationResult = new HttpOperationResult();
         CONFIG_HELPER.addAdmins("admin1");
@@ -794,7 +773,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteOnlyDisabledAgentGivenUUID() throws Exception {
+    public void shouldDeleteOnlyDisabledAgentGivenUUID() {
         AgentConfig disabledAgent = createDisabledAndIdleAgent(UUID);
         AgentConfig enabledAgent = createEnabledAgent(UUID2);
 
@@ -818,7 +797,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNOTDeleteDisabledAgentThatIsBuildingGivenUUID() throws Exception {
+    public void shouldNOTDeleteDisabledAgentThatIsBuildingGivenUUID() {
         AgentConfig disabledButBuildingAgent = createDisabledAgent(UUID);
 
         goConfigDao.load();
@@ -836,7 +815,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldReturn403WhenAUnauthorizedUserTriesToDeleteAgents() throws IOException {
+    public void shouldReturn403WhenAUnauthorizedUserTriesToDeleteAgents() {
         CONFIG_HELPER.enableSecurity();
         HttpOperationResult operationResult = new HttpOperationResult();
         CONFIG_HELPER.addAdmins("admin1");
@@ -855,7 +834,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldDeleteAgentsGivenListOfUUIDs() throws Exception {
+    public void shouldDeleteAgentsGivenListOfUUIDs() {
         AgentConfig disabledAgent1 = createDisabledAndIdleAgent(UUID);
         AgentConfig disabledAgent2 = createDisabledAndIdleAgent(UUID2);
 
@@ -873,7 +852,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNOTDeleteAnyAgentIfAtLeastOneOfTheRequestedAgentIsNotDisabled() throws Exception {
+    public void shouldNOTDeleteAnyAgentIfAtLeastOneOfTheRequestedAgentIsNotDisabled() {
         AgentConfig disabledAgent = createDisabledAndIdleAgent(UUID);
         AgentConfig enabledAgent = createEnabledAgent(UUID2);
 
@@ -890,7 +869,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void updateAgentAttributesShouldUpdateAnAgentHostname() throws Exception {
+    public void updateAgentAttributesShouldUpdateAnAgentHostname() {
         createDisabledAndIdleAgent(UUID);
 
         goConfigDao.load();
@@ -910,7 +889,7 @@ public class AgentServiceIntegrationTest {
 
 
     @Test
-    public void updateAgentAttributesShouldUpdateAnAgentResources() throws Exception {
+    public void updateAgentAttributesShouldUpdateAnAgentResources() {
         createDisabledAndIdleAgent(UUID);
 
         goConfigDao.load();
@@ -930,7 +909,7 @@ public class AgentServiceIntegrationTest {
 
 
     @Test
-    public void updateAgentAttributesShouldUpdateAnAgentEnvironments() throws Exception {
+    public void updateAgentAttributesShouldUpdateAnAgentEnvironments() {
         createEnvironment("a", "b", "c", "d", "e");
         createEnabledAgent(UUID);
 
@@ -956,7 +935,7 @@ public class AgentServiceIntegrationTest {
 
 
     @Test
-    public void updateAgentAttributesShouldUpdateAnAgentEnableState() throws Exception {
+    public void updateAgentAttributesShouldUpdateAnAgentEnableState() {
         createDisabledAndIdleAgent(UUID);
 
         goConfigDao.load();
@@ -975,7 +954,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void updateAgentAttributesShouldUpdateAnAgentDisableState() throws Exception {
+    public void updateAgentAttributesShouldUpdateAnAgentDisableState() {
         createEnabledAgent(UUID);
 
         goConfigDao.load();
@@ -994,7 +973,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void updateAgentAttributesShouldNotUpdateAgentEnableStateIfTristateIsNotDefined() throws Exception {
+    public void updateAgentAttributesShouldNotUpdateAgentEnableStateIfTristateIsNotDefined() {
         createEnabledAgent("enabled");
         createDisabledAgent("disabled");
 
@@ -1043,7 +1022,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotUpdateAgentAttributesHostnameOrEnvironmentsIfNoneAreSpecified() throws Exception {
+    public void shouldNotUpdateAgentAttributesHostnameOrEnvironmentsIfNoneAreSpecified() {
         createEnvironment("a", "b");
         AgentConfig agent = createDisabledAndIdleAgent(UUID);
         String originalHostname = agent.getHostname();
@@ -1090,7 +1069,7 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNOTDeleteAgentsIfAtLeastOneAgentIsBuildingGivenListOfUUIDs() throws Exception {
+    public void shouldNOTDeleteAgentsIfAtLeastOneAgentIsBuildingGivenListOfUUIDs() {
         AgentConfig disabledButBuildingAgent = createDisabledAgent(UUID);
         AgentConfig disabledAgent1 = createDisabledAndIdleAgent(UUID2);
 
@@ -1107,7 +1086,7 @@ public class AgentServiceIntegrationTest {
         assertThat(agentService.agentInstances().size(), is(2));
     }
 
-    private void createEnvironment(String... environmentNames) throws Exception {
+    private void createEnvironment(String... environmentNames) {
         CONFIG_HELPER.addEnvironments(environmentNames);
         goConfigService.forceNotifyListeners();
     }

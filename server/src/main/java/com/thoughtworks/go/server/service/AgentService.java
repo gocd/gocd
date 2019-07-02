@@ -200,7 +200,7 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
 
             if (agentConfig.hasErrors()) {
                 result.unprocessibleEntity("Updating agent failed:", "", HealthStateType.general(HealthStateScope.GLOBAL));
-            }else{
+            } else {
                 result.ok(String.format("Updated agent with uuid %s.", agentConfig.getUuid()));
             }
         } catch (Exception e) {
@@ -455,7 +455,7 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
 
     public boolean hasAgent(String uuid) {
         AgentInstance agentInstance = agentInstances.findAgent(uuid);
-        return agentInstance != null && agentInstance.isRegistered();
+        return !agentInstance.isNullAgent() && agentInstance.isRegistered();
     }
 
     public AgentConfig agentByUuid(String agentUuid) {
@@ -485,6 +485,16 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
         if (!agentConfig.hasErrors()) {
             agentDao.saveOrUpdate(agentConfig);
         }
+    }
+
+    public Set<ResourceConfig> getAllResources() {
+        Set<ResourceConfig> resourceConfigSet = new HashSet<>();
+        agents().forEach(agentConfig -> resourceConfigSet.addAll(agentConfig.getResources()));
+        return resourceConfigSet;
+    }
+
+    public List<String> getResourceList() {
+        return getAllResources().stream().map(resourceConfig -> resourceConfig.getName()).collect(Collectors.toList());
     }
 
     @Override

@@ -36,7 +36,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
 
     private SystemEnvironment systemEnvironment;
-    private Map<String, AgentInstance> agentInstances = new ConcurrentHashMap<>();
+    private Map<String, AgentInstance> agentInstanceMap = new ConcurrentHashMap<>();
     private AgentStatusChangeListener agentStatusChangeListener;
 
     public AgentInstances(AgentStatusChangeListener agentStatusChangeListener) {
@@ -44,16 +44,16 @@ public class AgentInstances implements Iterable<AgentInstance> {
         this.systemEnvironment = new SystemEnvironment();
     }
 
-    public AgentInstances(SystemEnvironment systemEnvironment, AgentStatusChangeListener agentStatusChangeListener, AgentInstance... agentInstances) {
+    public AgentInstances(SystemEnvironment systemEnvironment, AgentStatusChangeListener agentStatusChangeListener, AgentInstance... agentInstanceMap) {
         this(agentStatusChangeListener);
         this.systemEnvironment = systemEnvironment;
-        for (AgentInstance agentInstance : agentInstances) {
+        for (AgentInstance agentInstance : agentInstanceMap) {
             this.add(agentInstance);
         }
     }
 
     public void add(AgentInstance agent) {
-        agentInstances.put(agent.agentConfig().getUuid(), agent);
+        agentInstanceMap.put(agent.agentConfig().getUuid(), agent);
     }
 
     public void updateAgentAboutCancelledBuild(String agentUuid, boolean isCancelled) {
@@ -74,19 +74,26 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstance loadAgentInstance(String uuid) {
-        AgentInstance agentInstance = agentInstances.get(uuid);
+        if (StringUtils.isBlank(uuid)) {
+            return new NullAgentInstance(uuid);
+        }
+        AgentInstance agentInstance = agentInstanceMap.get(uuid);
         return agentInstance == null ? new NullAgentInstance(uuid) : agentInstance;
     }
 
     public void removeAgent(String uuid) {
-        agentInstances.remove(uuid);
+        agentInstanceMap.remove(uuid);
     }
 
     public void clearAll() {
-        agentInstances.clear();
+        agentInstanceMap.clear();
     }
 
-    public AgentInstances allAgents() {
+    public Collection<AgentInstance> values() {
+        return agentInstanceMap.values();
+    }
+
+    public AgentInstances sort() {
         AgentInstances agents = new AgentInstances(agentStatusChangeListener);
         for (AgentInstance agent : currentInstances()) {
             agents.add(agent);
@@ -97,7 +104,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     public AgentInstances findRegisteredAgents() {
         this.refresh();
         AgentInstances registered = new AgentInstances(agentStatusChangeListener);
-        synchronized (agentInstances) {
+        synchronized (agentInstanceMap) {
             for (AgentInstance agentInstance : this) {
                 if (agentInstance.getStatus().isRegistered()) {
                     registered.add(agentInstance);
@@ -133,7 +140,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public boolean isEmpty() {
-        return agentInstances.isEmpty();
+        return agentInstanceMap.isEmpty();
     }
 
     public AgentInstance findFirstByHostname(String hostname) {
@@ -146,7 +153,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public Integer size() {
-        return agentInstances.size();
+        return agentInstanceMap.size();
 
     }
 
@@ -168,30 +175,30 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     private Collection<AgentInstance> currentInstances() {
-        return new TreeSet<>(agentInstances.values());
+        return new TreeSet<>(agentInstanceMap.values());
     }
 
     public void sync(Agents agentsFromConfig) {
         for (AgentConfig agentInConfig : agentsFromConfig) {
             String uuid = agentInConfig.getUuid();
-            if (agentInstances.containsKey(uuid)) {
-                agentInstances.get(uuid).syncConfig(agentInConfig);
+            if (agentInstanceMap.containsKey(uuid)) {
+                agentInstanceMap.get(uuid).syncConfig(agentInConfig);
             } else {
-                agentInstances.put(uuid, AgentInstance.createFromConfig(agentInConfig, new SystemEnvironment(), agentStatusChangeListener));
+                agentInstanceMap.put(uuid, AgentInstance.createFromConfig(agentInConfig, new SystemEnvironment(), agentStatusChangeListener));
             }
         }
 
-        synchronized (agentInstances) {
+        synchronized (agentInstanceMap) {
             List<String> uuids = new ArrayList<>();
-            for (String uuid : agentInstances.keySet()) {
-                AgentInstance instance = agentInstances.get(uuid);
+            for (String uuid : agentInstanceMap.keySet()) {
+                AgentInstance instance = agentInstanceMap.get(uuid);
                 if (!agentsFromConfig.hasAgent(uuid) && !(instance.getStatus() == AgentStatus.Pending)) {
                     uuids.add(uuid);
                 }
             }
 
             for (String uuid : uuids) {
-                agentInstances.remove(uuid);
+                agentInstanceMap.remove(uuid);
             }
         }
     }
@@ -242,7 +249,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     public LinkedMultiValueMap<String, ElasticAgentMetadata> allElasticAgentsGroupedByPluginId() {
         LinkedMultiValueMap<String, ElasticAgentMetadata> map = new LinkedMultiValueMap<>();
 
-        for (Map.Entry<String, AgentInstance> entry : agentInstances.entrySet()) {
+        for (Map.Entry<String, AgentInstance> entry : agentInstanceMap.entrySet()) {
             AgentInstance agentInstance = entry.getValue();
             if (agentInstance.isElastic()) {
                 ElasticAgentMetadata metadata = agentInstance.elasticAgentMetadata();
@@ -254,7 +261,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public AgentInstance findElasticAgent(final String elasticAgentId, final String elasticPluginId) {
-        Collection<AgentInstance> values = agentInstances.values().stream().filter(agentInstance -> {
+        Collection<AgentInstance> values = agentInstanceMap.values().stream().filter(agentInstance -> {
             if (!agentInstance.isElastic()) {
                 return false;
             }

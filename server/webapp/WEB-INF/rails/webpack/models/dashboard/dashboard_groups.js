@@ -21,11 +21,11 @@ const Routes = require("gen/js-routes");
 class Group {
 
   /* eslint-disable camelcase */
-  constructor({name, can_administer, pipelines, has_defined_pipelines}) {
+  constructor({name, can_administer, pipelines, has_defined_structures}) {
     this.name             = name;
     this.canAdminister    = can_administer;
     this.pipelines        = pipelines;
-    this.definesPipelines = has_defined_pipelines;
+    this.definesPipelines = has_defined_structures;
   }
   /* eslint-enable camelcase */
 
@@ -97,7 +97,7 @@ class PipelineGroup extends Group {
   subset(pipelines) {
     return new PipelineGroup({
       name: this.name, pipelines,
-      can_administer: this.canAdminister, has_defined_pipelines: this.definesPipelines // eslint-disable-line camelcase
+      can_administer: this.canAdminister, has_defined_structures: this.definesPipelines // eslint-disable-line camelcase
     });
   }
 
@@ -160,7 +160,7 @@ class Environment extends Group {
   subset(pipelines) {
     return new Environment({
       name: this.name, pipelines,
-      can_administer: this.canAdminister, has_defined_pipelines: this.definesPipelines // eslint-disable-line camelcase
+      can_administer: this.canAdminister, has_defined_structures: this.definesPipelines // eslint-disable-line camelcase
     });
   }
 

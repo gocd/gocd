@@ -20,8 +20,8 @@
   <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-cleanup_temp_files_from_previous_version.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
 <% end -%>
 
-    if [ -e /etc/init.d/go-agent ]; then
-      mv /etc/init.d/go-agent /etc/init.d/go-agent-back
+    if [ -e /etc/init.d/<%= name %> ]; then
+      mv /etc/init.d/<%= name %> /etc/init.d/<%= name %>-back
     fi
 
     /usr/share/<%= name %>/bin/<%= name %> install 2>&1 || true
@@ -31,6 +31,6 @@
         /usr/share/<%= name %>/bin/<%= name %> start
     fi
 
-    if [ -e /etc/init.d/go-agent-back ]; then
-      mv /etc/init.d/go-agent-back /etc/init.d/go-agent
+    if [ -e /etc/init.d/<%= name %>-back ]; then
+      mv /etc/init.d/<%= name %>-back /etc/init.d/<%= name %>
     fi

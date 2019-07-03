@@ -16,6 +16,7 @@
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {FlashProvider} from "views/components/flash_message";
 
 export interface SaveOperation {
   onSuccessfulSave: (msg: m.Children) => void;
@@ -42,14 +43,18 @@ export interface AddOperation<T> {
   onAdd: (e: MouseEvent) => void;
 }
 
-export interface RequiresPluginInfos {
-  pluginInfos: Stream<Array<PluginInfo<any>>>;
-}
-
 export interface EnableOperation<T> {
   onEnable: (obj: T, e: MouseEvent) => void;
 }
 
 export interface DisableOperation<T> {
   onDisable: (obj: T, e: MouseEvent) => void;
+}
+
+export interface RequiresPluginInfos {
+  pluginInfos: Stream<Array<PluginInfo<any>>>;
+}
+
+export interface FlashContainer {
+  flash: FlashProvider;
 }

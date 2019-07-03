@@ -14,78 +14,126 @@
  * limitations under the License.
  */
 
+import {ApiResult} from "helpers/api_request_builder";
 import * as _ from "lodash";
-import {ConfigRepo, humanizedMaterialAttributeName} from "models/config_repos/types";
+import * as m from "mithril";
+import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
+import {AbstractObjCache, ObjectCache, rejectAsString} from "models/base/cache";
+import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
+import {DefinedStructures} from "models/config_repos/defined_structures";
+import {ConfigRepo} from "models/config_repos/types";
 import {EventAware} from "models/mixins/event_aware";
-import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
-import {DeleteOperation, EditOperation, RefreshOperation} from "views/pages/page_operations";
+import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
+import {EditConfigRepoModal} from "views/pages/config_repos/modals";
+import {FlashContainer, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 
-interface GenericOperations<T> extends EditOperation<T>, DeleteOperation<T>, RefreshOperation<T> {}
+interface PageResources extends SaveOperation, RequiresPluginInfos, FlashContainer {}
 
-export interface Operations extends GenericOperations<ConfigRepo> {}
+class CRResultCache extends AbstractObjCache<DefinedStructures> {
+  private repoId: string;
+  private etag: Stream<string> = stream();
 
-export interface CRVMAware {
-  vm: CRWidgetVM;
+  constructor(repoId: string) {
+    super();
+    this.repoId = repoId;
+  }
+
+  doFetch(resolve: (data: DefinedStructures) => void, reject: (reason: string) => void) {
+    DefinedStructures.fetch(this.repoId, this.etag()).then((result) => {
+      if (304 === result.getStatusCode()) {
+        resolve(this.contents()); // no change
+        return;
+      }
+
+      if (result.getEtag()) {
+        this.etag(result.getEtag()!);
+      }
+
+      result.do((resp) => {
+        resolve(DefinedStructures.fromJSON(JSON.parse(resp.body)));
+      }, (error) => {
+        reject(error.message);
+      });
+    }).catch(rejectAsString(reject));
+  }
+
+  empty() {
+    // don't dump contents, just force a fresh set of data
+    // this.etag = stream();
+  }
 }
 
-export class CRWidgetVM implements EventAware {
+// a subset of Event
+interface Propagable {
+  stopPropagation: () => void;
+}
+
+export class ConfigRepoVM {
   repo: ConfigRepo;
+  results: ObjectCache<DefinedStructures>;
+  reparseRepo: (e: Propagable) => Promise<void>;
+  showEditModal: (e: Propagable) => void;
+  showDeleteModal: (e: Propagable) => void;
 
-  onEdit: (e: MouseEvent) => void;
-  onDelete: (e: MouseEvent) => void;
-  onRefresh: (e: MouseEvent) => void;
+  constructor(repo: ConfigRepo, page: PageResources, results?: ObjectCache<DefinedStructures>) {
+    const cache = results || new CRResultCache(repo.id());
 
-  constructor(repo: ConfigRepo, ops: Operations) {
-    const onRefresh = ops.onRefresh.bind(null, repo);
-    this.repo = repo;
-    this.onRefresh = (e: MouseEvent) => {
-      onRefresh(e);
-      this.notify("refresh");
-    };
-    this.onEdit = ops.onEdit.bind(null, repo);
-    this.onDelete = ops.onDelete.bind(null, repo);
-
-    Object.assign(CRWidgetVM.prototype, EventAware.prototype);
+    Object.assign(ConfigRepoVM.prototype, EventAware.prototype);
     EventAware.call(this);
-  }
 
-  allAttributes(): Map<string, string> {
-    const initial            = new Map([["Type", this.repo.material().type()]]);
-    const filteredAttributes = _.reduce(this.repo.material().attributes(),
-      this.resolveKeyValueForAttribute,
-      initial);
-    return _.reduce(this.repo.configuration(),
-      (accumulator, value) => this.resolveKeyValueForAttribute(accumulator, value.value, value.key),
-      filteredAttributes
-    );
-  }
+    this.repo = repo;
+    this.results = cache;
 
-  findPluginWithId(infos: Array<PluginInfo<any>>, pluginId: string): PluginInfo<any> | undefined {
-    return _.find(infos, {id: pluginId});
-  }
+    this.on("expand", () => cache.prime(m.redraw));
+    this.on("refresh", () => cache.invalidate());
 
-  private resolveKeyValueForAttribute(accumulator: Map<string, string>, value: any, key: string) {
-    if (key.startsWith("__") || key === "autoUpdate") {
-      return accumulator;
-    }
+    this.reparseRepo = (e) => {
+      e.stopPropagation();
+      page.flash.clear();
 
-    let renderedValue = value;
+      const repoId = this.repo.id();
 
-    const renderedKey = humanizedMaterialAttributeName(key);
+      return ConfigReposCRUD.triggerUpdate(repoId).then((result: ApiResult<any>) => {
+        result.do(() => {
+          page.flash.success(`An update was scheduled for '${repoId}' config repository.`);
+          this.notify("refresh");
+        }, (err) => {
+          page.flash.alert(`Unable to schedule an update for '${repoId}' config repository. ${err.message}`);
+        });
+      });
+    };
 
-    // test for value being a stream
-    if (_.isFunction(value)) {
-      value = value();
-    }
+    this.showEditModal = (e) => {
+      e.stopPropagation();
+      page.flash.clear();
 
-    // test for value being an EncryptedPassword
-    if (value && value.valueForDisplay) {
-      renderedValue = value.valueForDisplay();
-    }
-    accumulator.set(renderedKey, _.isFunction(renderedValue) ? renderedValue() : renderedValue);
-    return accumulator;
+      new EditConfigRepoModal(this.repo.id(),
+                              page.onSuccessfulSave,
+                              page.onError,
+                              page.pluginInfos).render();
+    };
+
+    this.showDeleteModal = (e) => {
+      e.stopPropagation();
+      page.flash.clear();
+
+      const message = ["Are you sure you want to delete the config repository ", m("strong", this.repo.id), "?"];
+      const modal   = new DeleteConfirmModal(message, () => {
+        ConfigReposCRUD.delete(this.repo).then((resp) => {
+          resp.do(
+            (resp) => page.onSuccessfulSave(resp.body.message),
+            (err) => page.onError(err.message));
+        }).then(modal.close.bind(modal));
+      });
+      modal.render();
+    };
   }
 }
 
 // tslint:disable-next-line
-export interface CRWidgetVM extends EventAware {}
+export interface ConfigRepoVM extends EventAware {}
+
+export interface CRVMAware {
+  vm: ConfigRepoVM;
+}

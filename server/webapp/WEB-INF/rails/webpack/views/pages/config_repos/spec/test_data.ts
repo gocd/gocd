@@ -14,11 +14,45 @@
  * limitations under the License.
  */
 
+import {ObjectCache} from "models/base/cache";
+import {DefinedStructures} from "models/config_repos/defined_structures";
 import {ConfigRepo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import * as uuid from "uuid/v4";
 
-export function createConfigRepoParsedWithError(overrides?: any) {
+class MockCache implements ObjectCache<DefinedStructures> {
+  ready: () => boolean;
+  contents: () => DefinedStructures;
+  failureReason: () => string | undefined;
+  prime: (onSuccess: () => void, onError?: () => void) => void = jasmine.createSpy("cache.prime");
+  invalidate: () => void = jasmine.createSpy("cache.invalidate");
+
+  constructor(options: MockedResultsData) {
+    this.failureReason = () => options.failureReason;
+    this.contents = () => ("content" in options) ? options.content! : emptyTree();
+    this.ready = () => ("ready" in options) ? !!options.ready : true;
+  }
+
+  failed(): boolean {
+    return !!this.failureReason();
+  }
+}
+
+export interface MockedResultsData {
+  content?: DefinedStructures;
+  failureReason?: string;
+  ready?: boolean;
+}
+
+export function emptyTree() {
+  return new DefinedStructures([], []);
+}
+
+export function mockResultsCache(options: MockedResultsData) {
+  return new MockCache(options);
+}
+
+export function createConfigRepoParsedWithError(overrides?: any): ConfigRepo {
   const parameters = {
     id: uuid(),
     repoId: uuid(),
@@ -69,7 +103,7 @@ export function createConfigRepoParsedWithError(overrides?: any) {
   });
 }
 
-export function createConfigRepoParsed(overrides?: any) {
+export function createConfigRepoParsed(overrides?: any): ConfigRepo {
   const parameters = {
     id: uuid(),
     repoId: uuid(),
@@ -119,7 +153,7 @@ export function createConfigRepoParsed(overrides?: any) {
   });
 }
 
-export function createConfigRepoWithError(id?: string, repoId?: string) {
+export function createConfigRepoWithError(id?: string, repoId?: string): ConfigRepo {
   id = id || uuid();
   return ConfigRepo.fromJSON({
                                material: {

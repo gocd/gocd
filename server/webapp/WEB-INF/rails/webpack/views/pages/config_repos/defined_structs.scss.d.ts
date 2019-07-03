@@ -6,6 +6,8 @@ export const treeChild: string;
 export const treeChildren: string;
 export const treeChildrenLabel: string;
 export const loading: string;
+export const spin: string;
+export const rotate: string;
 export const group: string;
 export const groupDatum: string;
 export const environment: string;

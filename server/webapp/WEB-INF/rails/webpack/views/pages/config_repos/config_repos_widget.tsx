@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import {MithrilComponent, MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
+import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
-import {ConfigRepo, humanizedMaterialAttributeName, ParseInfo} from "models/config_repos/types";
+import {ConfigRepo, ParseInfo} from "models/config_repos/types";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {Code} from "views/components/code";
 import {CollapsiblePanel} from "views/components/collapsible_panel";
@@ -25,47 +27,34 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import {HeaderIcon} from "views/components/header_icon";
 import {Delete, Edit, IconGroup, Refresh} from "views/components/icons";
 import {KeyValuePair} from "views/components/key_value_pair";
-import {Spinner} from "views/components/spinner";
 import {RequiresPluginInfos} from "views/pages/page_operations";
+import {allAttributes, resolveHumanReadableAttributes} from "./config_repo_attribute_helper";
 import {CRResult} from "./config_repo_result";
-import {CRVMAware, CRWidgetVM, Operations} from "./config_repo_view_model";
+import {ConfigRepoVM, CRVMAware} from "./config_repo_view_model";
 import * as styles from "./index.scss";
 
-export interface SearchOperation<T> {
-  initialObjects: Stream<T[]>;
-  searchText: Stream<string>;
-  filteredObjects: () => Stream<T[]>;
+interface CollectionAttrs extends RequiresPluginInfos {
+  models: Stream<ConfigRepoVM[]>;
 }
 
-interface CollectionAttrs extends Operations, RequiresPluginInfos {
-  objects: Stream<ConfigRepo[]>;
+interface SingleAttrs extends CRVMAware {
+  pluginInfo?: PluginInfo<any>;
 }
 
-interface SingleAttrs extends Operations, RequiresPluginInfos {
-  repo: ConfigRepo;
-}
-
-interface HeaderWidgetAttrs extends RequiresPluginInfos {
-  repo: ConfigRepo;
-}
-
-function findPluginWithId(infos: Array<PluginInfo<any>>, pluginId: string) {
-  return _.find(infos, {id: pluginId});
-}
-
-class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
+class HeaderWidget extends MithrilViewComponent<SingleAttrs> {
   private static readonly MAX_COMMIT_MSG_LENGTH: number            = 84;
   private static readonly MAX_USERNAME_AND_REVISION_LENGTH: number = 40;
 
-  view(vnode: m.Vnode<HeaderWidgetAttrs>): m.Children | void | null {
-    const materialUrl = vnode.attrs.repo.material().materialUrl();
+  view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
+    const repo = vnode.attrs.vm.repo;
+    const materialUrl = repo.material().materialUrl();
     return [
-      this.pluginIcon(vnode),
+      this.pluginIcon(vnode.attrs.pluginInfo),
       <div class={styles.headerTitle}>
-        <h4 className={styles.headerTitleText}>{vnode.attrs.repo.id()}</h4>
-        <span className={styles.headerTitleUrl}>{materialUrl}</span>
+        <h4 class={styles.headerTitleText}>{repo.id()}</h4>
+        <span class={styles.headerTitleUrl}>{materialUrl}</span>
       </div>,
-      <div>{this.latestCommitDetails(vnode.attrs.repo.lastParse())}</div>
+      <div>{this.latestCommitDetails(repo.lastParse())}</div>
     ];
   }
 
@@ -83,11 +72,11 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 
       parseStatus = (
         <div class={styles.commitInfo}>
-          <span className={styles.comment}>
+          <span class={styles.comment}>
           {comment}
           </span>
           <div class={styles.committerInfo}>
-            <span className={styles.committer}>{username}</span> | {revision}</div>
+            <span class={styles.committer}>{username}</span> | {revision}</div>
         </div>
       );
     }
@@ -95,8 +84,7 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
     return parseStatus;
   }
 
-  private pluginIcon(vnode: m.Vnode<HeaderWidgetAttrs>) {
-    const pluginInfo = findPluginWithId(vnode.attrs.pluginInfos(), vnode.attrs.repo.pluginId());
+  private pluginIcon(pluginInfo?: PluginInfo<any>) {
     if (pluginInfo && pluginInfo.imageUrl) {
       return <HeaderIcon name="Plugin Icon" imageUrl={pluginInfo.imageUrl}/>;
     } else {
@@ -107,36 +95,35 @@ class HeaderWidget extends MithrilViewComponent<HeaderWidgetAttrs> {
 
 interface SectionHeaderAttrs {
   title: m.Children;
-  image: m.Children;
+  image?: m.Children;
   titleTestId?: string;
 }
 
 class SectionHeader extends MithrilViewComponent<SectionHeaderAttrs> {
   view(vnode: m.Vnode<SectionHeaderAttrs>) {
-    return <h3 className={styles.sectionHeader} data-test-id={vnode.attrs.titleTestId}>
+    return <h3 class={styles.sectionHeader} data-test-id={vnode.attrs.titleTestId}>
       {vnode.attrs.image}
       <span class={styles.sectionHeaderTitle}>{vnode.attrs.title}</span>
     </h3>;
   }
 }
 
-interface ActionsAttrs {
+interface ActionsAttrs extends CRVMAware {
   inProgress: boolean;
-  vm: CRWidgetVM;
 }
 
 class CRPanelActions extends MithrilViewComponent<ActionsAttrs> {
   view(vnode: m.Vnode<ActionsAttrs>): m.Children {
     const vm = vnode.attrs.vm;
     const statusIcon = vnode.attrs.inProgress ?
-      <span className={styles.configRepoUpdateInProgress} data-test-id="repo-update-in-progress-icon"/> : null;
+      <span class={styles.configRepoUpdateInProgress} data-test-id="repo-update-in-progress-icon"/> : null;
 
     return [
       statusIcon,
       <IconGroup>
-        <Refresh data-test-id="config-repo-refresh" onclick={vm.onRefresh}/>
-        <Edit data-test-id="config-repo-edit" onclick={vm.onEdit}/>
-        <Delete data-test-id="config-repo-delete" onclick={vm.onDelete}/>
+        <Refresh data-test-id="config-repo-refresh" onclick={vm.reparseRepo}/>
+        <Edit data-test-id="config-repo-edit" onclick={vm.showEditModal}/>
+        <Delete data-test-id="config-repo-delete" onclick={vm.showDeleteModal}/>
       </IconGroup>];
   }
 }
@@ -152,7 +139,7 @@ class MaybeWarning extends MithrilViewComponent<WarningAttrs> {
     const pluginInfo = vnode.attrs.pluginInfo;
 
     if (!pluginInfo) {
-      return <div className={styles.errorMessage}>
+      return <div class={styles.errorMessage}>
         <FlashMessage type={MessageType.alert} message="This plugin is missing."/>
       </div>;
     } else {
@@ -168,34 +155,42 @@ class MaybeWarning extends MithrilViewComponent<WarningAttrs> {
   }
 }
 
-class ConfigRepoWidget extends MithrilComponent<SingleAttrs, CRVMAware> {
-  oninit(vnode: m.Vnode<SingleAttrs, CRVMAware>) {
-    vnode.state.vm = new CRWidgetVM(vnode.attrs.repo, vnode.attrs);
-  }
+class ConfigRepoWidget extends MithrilComponent<SingleAttrs> {
+  expanded: Stream<boolean> = stream();
 
-  view(vnode: m.Vnode<SingleAttrs, CRVMAware>): m.Children | void | null {
-    const vm = vnode.state.vm;
-    const repo = vnode.attrs.repo;
+  view(vnode: m.Vnode<SingleAttrs>): m.Children | void | null {
+    const vm = vnode.attrs.vm;
+    const repo = vm.repo;
+    const pluginInfo = vnode.attrs.pluginInfo;
     const parseInfo = repo.lastParse();
-    const pluginInfo = vm.findPluginWithId(vnode.attrs.pluginInfos(), repo.pluginId());
     const maybeWarning = <MaybeWarning parseInfo={parseInfo} pluginInfo={pluginInfo}/>;
     const configRepoHasErrors = !pluginInfo || _.isEmpty(parseInfo) || !!parseInfo!.error();
 
     return (
       <CollapsiblePanel error={configRepoHasErrors}
-                        header={<HeaderWidget repo={repo} pluginInfos={vnode.attrs.pluginInfos}/>}
+                        header={<HeaderWidget {...vnode.attrs} />}
                         dataTestId={"config-repo-details-panel"}
-                        actions={<CRPanelActions inProgress={repo.materialUpdateInProgress()} vm={vnode.state.vm}/>}
+                        actions={<CRPanelActions inProgress={repo.materialUpdateInProgress()} vm={vm}/>}
+                        vm={this}
                         expanded={configRepoHasErrors} onexpand={() => vm.notify("expand")}>
         {maybeWarning}
-        <CRResult repo={repo.id()} vm={vm}/>
 
+        {this.renderedConfigs(parseInfo, vm)}
         {this.latestModificationDetails(parseInfo)}
         {this.lastGoodModificationDetails(parseInfo)}
         {this.configRepoMetaConfigDetails(repo.id(), repo.pluginId())}
-        {this.materialConfigDetails(vm.allAttributes())}
+        {this.materialConfigDetails(repo)}
       </CollapsiblePanel>
     );
+  }
+
+  private renderedConfigs(parseInfo: ParseInfo | null, vm: ConfigRepoVM): m.Children {
+    if (parseInfo) {
+      if (this.expanded()) {
+        vm.notify("expand");
+      }
+      return <CRResult vm={vm} />;
+    }
   }
 
   private lastGoodModificationDetails(parseInfo: ParseInfo | null): m.Children {
@@ -205,19 +200,19 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs, CRVMAware> {
     }
 
     if (parseInfo && parseInfo.goodModification) {
-      const attrs     = this.resolveHumanReadableAttributes(parseInfo.goodModification);
-      const checkIcon = <span className={styles.goodModificationIcon}
+      const attrs     = resolveHumanReadableAttributes(parseInfo.goodModification);
+      const checkIcon = <span class={styles.goodModificationIcon}
                               title={`Last parsed with revision ${parseInfo.goodModification.revision}`}/>;
       return <div data-test-id="config-repo-good-modification-panel">
-        <SectionHeader title={"Last known good commit currently being used"} image={checkIcon}/>
-        <div className={styles.configRepoProperties}><KeyValuePair data={attrs}/></div>
+        <SectionHeader title="Last known good commit currently being used" image={checkIcon}/>
+        <div class={styles.configRepoProperties}><KeyValuePair data={attrs}/></div>
       </div>;
     }
   }
 
   private latestModificationDetails(parseInfo: ParseInfo | null): m.Children {
     if (parseInfo && parseInfo.latestParsedModification) {
-      const attrs    = this.resolveHumanReadableAttributes(parseInfo.latestParsedModification);
+      const attrs    = resolveHumanReadableAttributes(parseInfo.latestParsedModification);
       let statusIcon = styles.goodModificationIcon;
 
       if (parseInfo.error()) {
@@ -227,7 +222,7 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs, CRVMAware> {
 
       return <div data-test-id="config-repo-latest-modification-panel">
         <SectionHeader title={"Latest commit in the repository"}
-                       image={<span className={statusIcon}
+                       image={<span class={statusIcon}
                                     title={`Last parsed with revision ${parseInfo.latestParsedModification.revision}`}/>}/>
         <div class={styles.configRepoProperties}><KeyValuePair data={attrs}/></div>
       </div>;
@@ -236,59 +231,38 @@ class ConfigRepoWidget extends MithrilComponent<SingleAttrs, CRVMAware> {
 
   private configRepoMetaConfigDetails(id: string, pluginId: string) {
     return <div data-test-id="config-repo-plugin-panel">
-      <SectionHeader title={"Config Repository Configurations"} image={undefined}/>
-      <div className={styles.configRepoProperties}>
+      <SectionHeader title="Config Repository Configurations"/>
+      <div class={styles.configRepoProperties}>
         <KeyValuePair data={new Map([["Id", id], ["Plugin Id", pluginId]])}/>
       </div>
     </div>;
   }
 
-  private materialConfigDetails(allAttributes: Map<string, m.Children>) {
+  private materialConfigDetails(repo: ConfigRepo) {
     return <div data-test-id="config-repo-material-panel">
-      <SectionHeader title={"Material"} image={undefined}/>
-      <div className={styles.configRepoProperties}><KeyValuePair data={allAttributes}/></div>
+      <SectionHeader title="Material"/>
+      <div class={styles.configRepoProperties}><KeyValuePair data={allAttributes(repo)}/></div>
     </div>;
-  }
-
-  private resolveHumanReadableAttributes(obj: object) {
-    const attrs  = new Map();
-    const keys   = Object.keys(obj).map(humanizedMaterialAttributeName);
-    const values = Object.values(obj);
-
-    keys.forEach((key, index) => attrs.set(key, values[index]));
-    return attrs;
   }
 }
 
 export class ConfigReposWidget extends MithrilViewComponent<CollectionAttrs> {
   view(vnode: m.Vnode<CollectionAttrs>): m.Children | void | null {
-    if (!vnode.attrs.objects()) {
-      return <Spinner/>;
-    }
+    const models = (vnode.attrs.models());
 
-    const configRepos = (vnode.attrs.objects() as ConfigRepo[]);
-    if (configRepos.length === 0) {
+    if (!models.length) {
       return (
         <FlashMessage type={MessageType.info}>
           There are no config repositories setup. Click the "Add" button to add one.
         </FlashMessage>);
     }
 
-    return (
-      <div>
-        {configRepos.map((configRepo) => {
-
-          return (
-            <ConfigRepoWidget key={configRepo.id()}
-                              repo={configRepo}
-                              pluginInfos={vnode.attrs.pluginInfos}
-                              onEdit={(configRepo, e) => vnode.attrs.onEdit(configRepo, e)}
-                              onRefresh={(configRepo, e) => vnode.attrs.onRefresh(configRepo, e)}
-                              onDelete={(configRepo, e) => vnode.attrs.onDelete(configRepo, e)}
-            />
-          );
-        })}
-      </div>
-    );
+    return <div>
+      {models.map((vm) => {
+        const repo = vm.repo;
+        const pluginInfo = _.find(vnode.attrs.pluginInfos(), {id: repo.pluginId()});
+        return <ConfigRepoWidget key={repo.id()} vm={vm} pluginInfo={pluginInfo}/>;
+      })}
+    </div>;
   }
 }

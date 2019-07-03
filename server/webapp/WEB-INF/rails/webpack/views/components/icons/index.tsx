@@ -19,10 +19,8 @@ import * as m from "mithril";
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import * as styles from "./index.scss";
-
-const classnames = bind(styles);
 
 export interface Attrs extends HTMLAttributes {
   onclick?: (e: MouseEvent) => void;
@@ -46,7 +44,7 @@ class Icon extends MithrilViewComponent<Attrs> {
         <i title={this.title}
            data-test-id={`${this.title}-icon`}
            data-test-disabled-element={vnode.attrs.disabled}
-           className={classnames(this.name, {disabled: vnode.attrs.disabled})}
+           class={classnames(this.name, {disabled: vnode.attrs.disabled})}
            {...vnode.attrs}/>
       );
     }
@@ -54,9 +52,9 @@ class Icon extends MithrilViewComponent<Attrs> {
     return (
       <button title={this.title}
               data-test-disabled-element={vnode.attrs.disabled}
-              className={(classnames(styles.btnIcon, {disabled: vnode.attrs.disabled}))}
+              class={(classnames(styles.btnIcon, {disabled: vnode.attrs.disabled}))}
               {...vnode.attrs}>
-        <i className={classnames(this.name)}/>
+        <i class={classnames(this.name)}/>
       </button>
     );
   }
@@ -155,7 +153,7 @@ export class QuestionCircle extends Icon {
 export class IconGroup extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     return (
-      <div className={styles.iconGroup} aria-label="actions">
+      <div class={styles.iconGroup} aria-label="actions">
         {vnode.children}
       </div>
     );

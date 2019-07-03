@@ -1454,6 +1454,54 @@ public class GoConfigMigrationIntegrationTest {
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 
+    @Test
+    public void shouldMigrate_allowOnlyKnownUsersToLogin_attributeFromSecurityToAuthConfig_Migration124To125() throws Exception {
+        String originalConfig = "<server artifactsdir=\"artifacts\" agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" commandRepositoryLocation=\"default\" serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
+                "<security allowOnlyKnownUsersToLogin=\"true\" >\n" +
+                "      <authConfigs>\n" +
+                "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
+                "          <property>\n" +
+                "            <key>PasswordFilePath</key>\n" +
+                "            <value>config/password.properties</value>\n" +
+                "          </property>\n" +
+                "        </authConfig>\n" +
+                "      </authConfigs>\n" +
+                "    </security>\n" +
+                "  </server>\n";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"124\">" + originalConfig + "</cruise>";
+
+        final String migratedXml = migrateXmlString(configXml, 124, 125);
+
+        XmlAssert.assertThat(migratedXml).nodesByXPath("//security").doNotHaveAttribute("allowOnlyKnownUsersToLogin");
+        XmlAssert.assertThat(migratedXml).nodesByXPath("//authConfig").haveAttribute("allowOnlyKnownUsersToLogin", "true");
+    }
+
+    @Test
+    public void shouldDefine_allowOnlyKnownUsersToLogin_attributeOnAuthConfigAttributeDoesNotExistOnSecurity_Migration124To125() throws Exception {
+        String originalConfig = "<server artifactsdir=\"artifacts\" agentAutoRegisterKey=\"323040d4-f2e4-4b8a-8394-7a2d122054d1\" webhookSecret=\"3d5cd2f5-7fe7-43c0-ba34-7e01678ba8b6\" commandRepositoryLocation=\"default\" serverId=\"60f5f682-5248-4ba9-bb35-72c92841bd75\" tokenGenerationKey=\"8c3c8dc9-08bf-4cd7-ac80-cecb3e7ae86c\">" +
+                "<security>\n" +
+                "      <authConfigs>\n" +
+                "        <authConfig id=\"9cad79b0-4d9e-4a62-829c-eb4d9488062f\" pluginId=\"cd.go.authentication.passwordfile\">\n" +
+                "          <property>\n" +
+                "            <key>PasswordFilePath</key>\n" +
+                "            <value>config/password.properties</value>\n" +
+                "          </property>\n" +
+                "        </authConfig>\n" +
+                "      </authConfigs>\n" +
+                "    </security>\n" +
+                "  </server>\n";
+
+        String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"124\">" + originalConfig + "</cruise>";
+
+        final String migratedXml = migrateXmlString(configXml, 124, 125);
+
+        XmlAssert.assertThat(migratedXml).nodesByXPath("//security").doNotHaveAttribute("allowOnlyKnownUsersToLogin");
+        XmlAssert.assertThat(migratedXml).nodesByXPath("//authConfig").haveAttribute("allowOnlyKnownUsersToLogin", "false");
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertThat(actual.replaceAll("\\r", "").trim()).isEqualTo(expected.replaceAll("\\r", "").trim());
     }

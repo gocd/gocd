@@ -13,38 +13,57 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+
+import classnames from "classnames";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import * as styles from "./index.scss";
 
-const classnames = bind(styles);
+// for now, just allow the state to be manipulated; however,
+// it may be desirable in the future to add the ability to fire
+// event handlers. Currently, this is handled in other ways but
+// this can be added when necessary.
+export interface CollapsibleStateModel {
+  expanded: Stream<boolean>;
+}
 
-type AttributeType = m.Children;
-
-export interface Attrs<Header, Actions> {
+interface Attrs {
   dataTestId?: string;
-  actions?: AttributeType | AttributeType[];
-  header: AttributeType | string;
+  actions?: m.Children;
+  header: m.Children;
   error?: boolean;
   warning?: boolean;
+
+  // this property is a bit misleading. it only controls
+  // the initial state, but after init(), the expand/collapse
+  // is only controllable from user interaction. a redraw()
+  // with `expanded = false` does nothing.
   expanded?: boolean;
+
+  // allows us to programmatically inspect the state and control
+  // the state from outside
+  vm?: CollapsibleStateModel;
+
   onexpand?: () => void;
   oncollapse?: () => void;
 }
 
-export interface State {
+interface State extends CollapsibleStateModel {
   toggle: () => void;
-  expanded: Stream<boolean>;
+  fireEvents: () => void;
 }
 
-export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<Header, Actions>, State> {
-  oninit(this: State, vnode: m.Vnode<Attrs<Header, Actions>, State>) {
-    vnode.state.expanded = stream(vnode.attrs.expanded || false);
-    vnode.state.toggle   = () => {
-      vnode.state.expanded(!vnode.state.expanded());
+export class CollapsiblePanel extends MithrilComponent<Attrs, State> {
+  oninit(vnode: m.Vnode<Attrs, State>) {
+    const vm = vnode.attrs.vm;
+    vnode.state.expanded = vm ? vm.expanded : stream();
+
+    const initial = !!(void 0 === vnode.attrs.expanded ? (vm && vm.expanded()) : vnode.attrs.expanded);
+    vnode.state.expanded(initial);
+
+    vnode.state.fireEvents = () => {
       if (vnode.state.expanded()) {
         if ("function" === typeof vnode.attrs.onexpand) {
           vnode.attrs.onexpand();
@@ -55,9 +74,16 @@ export class CollapsiblePanel<Header, Actions> extends MithrilComponent<Attrs<He
         }
       }
     };
+
+    vnode.state.toggle = () => {
+      vnode.state.expanded(!vnode.state.expanded());
+      vnode.state.fireEvents();
+    };
+
+    vnode.state.fireEvents();
   }
 
-  view(vnode: m.Vnode<Attrs<Header, Actions>, State>) {
+  view(vnode: m.Vnode<Attrs, State>) {
     const collapsibleClasses = classnames({
       [styles.expanded]: vnode.state.expanded(),
       [styles.error]: vnode.attrs.error,

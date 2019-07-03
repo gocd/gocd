@@ -52,12 +52,12 @@ export class ConfigReposPage extends Page<null, State> {
 
     this.fetchData(vnode);
 
-    vnode.state.onError = (msg: m.Children) => {
-      this.flashMessage.setMessage(MessageType.alert, msg);
+    vnode.state.onError = (msg) => {
+      this.flashMessage.alert(msg);
     };
 
-    vnode.state.onSuccessfulSave = (msg: m.Children) => {
-      this.flashMessage.setMessage(MessageType.success, msg);
+    vnode.state.onSuccessfulSave = (msg) => {
+      this.flashMessage.success(msg);
       this.fetchData(vnode);
     };
 

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as Icons from "../icons";
 import * as styles from "./index.scss";
 
-const classnames = bind(styles);
+type callback = () => void;
 
 export enum MessageType {
   info,
@@ -63,7 +63,7 @@ export class FlashMessage extends MithrilComponent<Attrs, State> {
     let closeButton: m.Children;
     if (isDismissible) {
       closeButton = (
-        <button className={classnames(styles.closeCallout)}>
+        <button class={styles.closeCallout}>
           <Icons.Close iconOnly={true} onclick={vnode.state.onDismiss}/>
         </button>
       );
@@ -79,7 +79,7 @@ export class FlashMessage extends MithrilComponent<Attrs, State> {
     const dataTestId = vnode.attrs.dataTestId ? vnode.attrs.dataTestId : `flash-message-${typeElement}`;
 
     return (
-      <div data-test-id={dataTestId} className={classnames(styles.callout, style)}>
+      <div data-test-id={dataTestId} class={classnames(styles.callout, style)}>
         {message}
         {vnode.children}
         {closeButton}
@@ -88,7 +88,15 @@ export class FlashMessage extends MithrilComponent<Attrs, State> {
   }
 }
 
-export class FlashMessageModel {
+export interface FlashProvider {
+  clear: () => void;
+
+  // add more as needed
+  success: (message: m.Children, onTimeout?: callback) => void;
+  alert: (message: m.Children, onTimeout?: callback) => void;
+}
+
+export class FlashMessageModel implements FlashProvider {
   protected _type: MessageType;
   protected _message?: m.Children;
 
@@ -109,6 +117,14 @@ export class FlashMessageModel {
     return this._message;
   }
 
+  success(message: m.Children) {
+    this.setMessage(MessageType.success, message);
+  }
+
+  alert(message: m.Children) {
+    this.setMessage(MessageType.alert, message);
+  }
+
   setMessage(type: MessageType, message: m.Children) {
     this._type    = type;
     this._message = message;
@@ -119,7 +135,7 @@ export class FlashMessageModel {
   }
 }
 
-export class FlashMessageModelWithTimeout extends FlashMessageModel {
+export class FlashMessageModelWithTimeout extends FlashMessageModel implements FlashProvider {
   private readonly interval: number;
   private timeoutID?: number;
 
@@ -133,7 +149,15 @@ export class FlashMessageModelWithTimeout extends FlashMessageModel {
     this.clearTimeout();
   }
 
-  setMessage(type: MessageType, message: m.Children, timeoutCallback?: () => void) {
+  success(message: m.Children, onTimeout?: callback) {
+    this.setMessage(MessageType.success, message, onTimeout);
+  }
+
+  alert(message: m.Children, onTimeout?: callback) {
+    this.setMessage(MessageType.alert, message, onTimeout);
+  }
+
+  setMessage(type: MessageType, message: m.Children, timeoutCallback?: callback) {
     this.clear();
     super.setMessage(type, message);
     this.timeoutID = window.setTimeout(() => {
@@ -146,7 +170,7 @@ export class FlashMessageModelWithTimeout extends FlashMessageModel {
   }
 
   private clearTimeout() {
-    if (this.timeoutID) {
+    if ("number" === typeof this.timeoutID) {
       window.clearTimeout(this.timeoutID);
     }
   }

@@ -452,6 +452,27 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
+    public void shouldDenyAgentFromPendingList() {
+        AgentInstance pending = AgentInstanceMother.pending();
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
+
+        String uuid = pending.getUuid();
+
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(uuid), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.FALSE);
+
+        assertThatAgentIsDisabled(operationResult, uuid);
+
+        AgentInstances agents = agentService.agentInstances();
+
+        assertThat(agents.size(), is(1));
+        assertThat(agents.size(), is(1));
+        assertThat(agents.findAgent(uuid).isDisabled(), is(true));
+        assertThat(agentService.findAgentAndRefreshStatus(uuid).isDisabled(), is(true));
+        assertThat(agentService.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Disabled));
+    }
+
+    @Test
     public void shouldDenyApprovedAgent() {
         AgentConfig agentConfig = new AgentConfig(UUID, "agentName", "127.0.0.9", "cookie");
         agentDao.saveOrUpdate(agentConfig);

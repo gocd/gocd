@@ -214,7 +214,7 @@ public class AgentDao extends HibernateDaoSupport {
     public void bulkUpdateAttributes(final List<String> uuids, final List<String> resourcesToAdd, final List<String> resourcesToRemove, final List<String> environmentsToAdd, final List<String> environmentsToRemove, final TriState enable, AgentInstances agentInstances) {
         List<AgentConfig> agents = agentsByUUIds(uuids);
         // Add all pending agents to the list of agents
-        if (enable.isTrue()) {
+        if (enable.isTrue() || enable.isFalse()) {
             List<AgentConfig> pendingAgentConfigs = agentInstances.findPendingAgents(uuids);
             for (AgentConfig agentConfig : pendingAgentConfigs) {
                 updateAgentObject(agentConfig);

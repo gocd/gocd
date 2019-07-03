@@ -633,28 +633,40 @@ public class MergePipelineConfigs implements PipelineConfigs {
 
     @Override
     public boolean hasViewPermission(CaseInsensitiveString username, UserRoleMatcher userRoleMatcher) {
-        return this.getAuthorizationPart().hasViewPermission(username,userRoleMatcher);
+        return this.getAuthorizationPart().hasViewPermission(username, userRoleMatcher);
     }
 
     @Override
     public boolean hasViewPermissionDefined() {
         PipelineConfigs authPart = this.getAuthorizationPartOrNull();
-        if(authPart == null)
-            return  false;
+        if (authPart == null)
+            return false;
         return authPart.hasViewPermissionDefined();
     }
 
     @Override
     public boolean hasOperationPermissionDefined() {
         PipelineConfigs authPart = this.getAuthorizationPartOrNull();
-        if(authPart == null)
-            return  false;
+        if (authPart == null)
+            return false;
         return authPart.hasOperationPermissionDefined();
     }
 
     @Override
     public boolean hasOperatePermission(CaseInsensitiveString username, UserRoleMatcher userRoleMatcher) {
-        return this.getAuthorizationPart().hasOperatePermission(username,userRoleMatcher);
+        return this.getAuthorizationPart().hasOperatePermission(username, userRoleMatcher);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MergePipelineConfigs that = (MergePipelineConfigs) o;
+        return Objects.equals(parts, that.parts);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(parts);
+    }
 }

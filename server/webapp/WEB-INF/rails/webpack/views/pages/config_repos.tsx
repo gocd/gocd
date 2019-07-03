@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 import {AjaxPoller} from "helpers/ajax_poller";
 import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {ConfigReposCRUD} from "models/config_repos/config_repos_crud";
 import {ConfigRepo} from "models/config_repos/types";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
@@ -39,6 +41,7 @@ interface State extends AddOperation<ConfigRepo>, SaveOperation, Operations, Sea
 }
 
 export class ConfigReposPage extends Page<null, State> {
+  etag: Stream<string> = stream();
   oninit(vnode: m.Vnode<null, State>) {
     vnode.state.pluginInfos     = stream();
     vnode.state.initialObjects  = stream();
@@ -152,7 +155,7 @@ export class ConfigReposPage extends Page<null, State> {
     state.initialObjects([]);
     this.pageState = PageState.LOADING;
 
-    return Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all()]).then((args) => {
+    return Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all(this.etag())]).then((args) => {
       const pluginInfosResponse: ApiResult<Array<PluginInfo<any>>> = args[0];
       pluginInfosResponse.do(
         (successResponse) => {
@@ -170,7 +173,7 @@ export class ConfigReposPage extends Page<null, State> {
   }
 
   refreshConfigRepos(vnode: m.Vnode<null, State>) {
-    return ConfigReposCRUD.all().then((response) => this.onConfigReposAPIResponse(response, vnode));
+    return ConfigReposCRUD.all(this.etag()).then((response) => this.onConfigReposAPIResponse(response, vnode));
   }
 
   pageName(): string {
@@ -178,6 +181,14 @@ export class ConfigReposPage extends Page<null, State> {
   }
 
   private onConfigReposAPIResponse(apiResponse: ApiResult<ConfigRepo[]>, vnode: m.Vnode<null, State>) {
+    if (304 === apiResponse.getStatusCode()) {
+      return;
+    }
+
+    if (apiResponse.getEtag()) {
+      this.etag(apiResponse.getEtag()!);
+    }
+
     apiResponse.do(
       (successResponse) => {
         this.pageState = PageState.OK;

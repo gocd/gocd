@@ -142,6 +142,15 @@ public class ConfigReposInternalControllerV2 extends ApiController implements Sp
     String definedConfigs(Request req, Response res) {
         ConfigRepoConfig repo = repoFromRequest(req);
         PartialConfig def = service.partialConfigDefinedBy(repo);
+
+        final String etag = etagFor(def);
+
+        setEtagHeader(res, etag);
+
+        if (fresh(req, etag)) {
+            return notModified(res);
+        }
+
         return jsonizeAsTopLevelObject(req, (w) -> PartialConfigRepresenter.toJSON(w, def));
     }
 

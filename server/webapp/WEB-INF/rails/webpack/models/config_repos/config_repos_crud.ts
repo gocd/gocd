@@ -29,8 +29,8 @@ export function configRepoToSnakeCaseJSON(o: ConfigRepo) {
 export class ConfigReposCRUD {
   private static API_VERSION_HEADER = ApiVersion.v2;
 
-  static all() {
-    return ApiRequestBuilder.GET(SparkRoutes.apiConfigReposInternalPath(), this.API_VERSION_HEADER)
+  static all(etag?: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.apiConfigReposInternalPath(), this.API_VERSION_HEADER, { etag })
                             .then((result: ApiResult<string>) => {
                               return result.map((body) => {
                                 return ConfigRepos.fromJSON(JSON.parse(body) as ConfigReposJSON);

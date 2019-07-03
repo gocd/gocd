@@ -72,6 +72,7 @@ public class SpaControllers implements SparkSpringController {
         sparkControllers.add(new ElasticProfilesController(authenticationHelper, templateEngineFactory.create(ElasticProfilesController.class, componentTemplate)));
         sparkControllers.add(new BackupsController(authenticationHelper, templateEngineFactory.create(BackupsController.class, componentTemplate), backupService));
         sparkControllers.add(new PipelinesController(authenticationHelper, templateEngineFactory.create(PipelinesController.class, componentTemplate)));
+        sparkControllers.add(new PipelinesAsCodeController(authenticationHelper, templateEngineFactory.create(PipelinesAsCodeController.class, componentTemplate)));
         sparkControllers.add(new SecretConfigsController(authenticationHelper, featureToggleService, templateEngineFactory.create(SecretConfigsController.class, componentTemplate)));
     }
 

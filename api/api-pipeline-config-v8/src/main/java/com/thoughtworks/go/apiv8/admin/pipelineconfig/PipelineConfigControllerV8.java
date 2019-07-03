@@ -125,12 +125,12 @@ public class PipelineConfigControllerV8 extends ApiController implements SparkSp
         return handleCreateOrUpdateResponse(req, res, pipelineConfigFromRequest, result);
     }
 
-    private boolean shouldPausePipeline(Request req){
+    private boolean shouldPausePipeline(Request req) {
         String pausePipelineHeader = req.headers("X-pause-pipeline");
         return Boolean.valueOf(pausePipelineHeader);
     }
 
-    private String getUserSpecifiedOrDefaultPauseCause(Request req){
+    private String getUserSpecifiedOrDefaultPauseCause(Request req) {
         String pauseCauseHeaderVal = req.headers("X-pause-cause");
         return (StringUtils.isBlank(pauseCauseHeaderVal)
                 ? "No pause cause was specified when pipeline was created via API"
@@ -147,7 +147,7 @@ public class PipelineConfigControllerV8 extends ApiController implements SparkSp
         Username userName = SessionUtils.currentUsername();
         pipelineConfigService.createPipelineConfig(userName, pipelineConfigFromRequest, result, group);
 
-        if(shouldPausePipeline(req)){
+        if (shouldPausePipeline(req)) {
             String pauseCause = getUserSpecifiedOrDefaultPauseCause(req);
             pipelinePauseService.pause(pipelineConfigFromRequest.name().toString(), pauseCause, userName);
         }

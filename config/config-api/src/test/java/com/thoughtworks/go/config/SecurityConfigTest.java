@@ -117,18 +117,6 @@ public class SecurityConfigTest {
         }
     }
 
-    @Test
-    public void testEqualsAndHashCode() {
-        SecurityConfig one = new SecurityConfig(null, true);
-        SecurityConfig two = new SecurityConfig(null, false);
-        SecurityConfig three = new SecurityConfig(null, true);
-
-        assertThat(one, is(three));
-        assertThat(one, not(is(two)));
-        assertThat(one.hashCode(), is(three.hashCode()));
-        assertThat(one.hashCode(), not(is(two.hashCode())));
-    }
-
     private void assertUserRoles(SecurityConfig securityConfig, String username, Role... roles) {
         assertThat(securityConfig.memberRoleFor(new CaseInsensitiveString(username)), is(Arrays.asList(roles)));
     }

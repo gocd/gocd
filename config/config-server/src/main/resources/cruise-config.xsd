@@ -374,7 +374,7 @@
     </xsd:sequence>
     <xsd:attribute type="nameType" name="pluginId" use="required"/>
     <xsd:attribute type="nameType" name="id" use="required"/>
-    <xsd:attribute name="allowOnlyKnownUsersToLogin" type="xsd:boolean" use="required"/>
+    <xsd:attribute name="allowOnlyKnownUsersToLogin" type="xsd:boolean" use="optional"/>
   </xsd:complexType>
   <xsd:simpleType name="emailType">
     <xsd:restriction base="xsd:string">

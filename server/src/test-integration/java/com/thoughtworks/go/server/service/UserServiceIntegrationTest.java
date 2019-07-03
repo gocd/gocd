@@ -125,7 +125,9 @@ public class UserServiceIntegrationTest {
     @Test
     public void addUserIfDoesNotExist_shouldAddUserIfDoesNotExist() {
         assertThat(userDao.findUser("new_user"), isANullUser());
-        userService.addUserIfDoesNotExist(new User("new_user"));
+        SecurityAuthConfig authConfig = new SecurityAuthConfig();
+        authConfig.setAllowOnlyKnownUsersToLogin(false);
+        userService.addUserIfDoesNotExist(new User("new_user"), authConfig);
         User loadedUser = userDao.findUser("new_user");
         assertThat(loadedUser, is(new User("new_user", "new_user", "")));
         assertThat(loadedUser, not(isANullUser()));
@@ -135,12 +137,16 @@ public class UserServiceIntegrationTest {
     public void addUserIfDoesNotExist_shouldNotAddUserIfExists() {
         User user = new User("old_user");
         addUser(user);
-        userService.addUserIfDoesNotExist(user);
+        SecurityAuthConfig authConfig = new SecurityAuthConfig();
+        authConfig.setAllowOnlyKnownUsersToLogin(false);
+        userService.addUserIfDoesNotExist(user, authConfig);
     }
 
     @Test
     public void addUserIfDoesNotExist_shouldNotAddUserIfAnonymous() {
-        userService.addUserIfDoesNotExist(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())));
+        SecurityAuthConfig authConfig = new SecurityAuthConfig();
+        authConfig.setAllowOnlyKnownUsersToLogin(false);
+        userService.addUserIfDoesNotExist(new User(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), authConfig);
         assertThat(userDao.findUser(CaseInsensitiveString.str(Username.ANONYMOUS.getUsername())), isANullUser());
         assertThat(userDao.findUser(Username.ANONYMOUS.getDisplayName()), isANullUser());
     }

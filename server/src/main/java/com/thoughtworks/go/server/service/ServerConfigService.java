@@ -64,7 +64,7 @@ public class ServerConfigService implements BaseUrlProvider {
 
         if (result.isSuccessful()) {
             try {
-                ConfigSaveState configSaveState = goConfigService.updateServerConfig(mailHost, shouldAllowAutoLogin, md5, artifactsDir, purgeStart,
+                ConfigSaveState configSaveState = goConfigService.updateServerConfig(mailHost, md5, artifactsDir, purgeStart,
                         purgeUpto, jobTimeout, siteUrl,
                         secureSiteUrl, taskRepositoryLocation);
                 if (ConfigSaveState.MERGED.equals(configSaveState)) {

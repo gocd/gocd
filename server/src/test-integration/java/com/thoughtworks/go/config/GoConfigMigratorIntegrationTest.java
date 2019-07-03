@@ -1109,7 +1109,7 @@ public class GoConfigMigratorIntegrationTest {
         assertThat(cruiseConfig.server().getWebhookSecret()).isEqualTo("5f8b5eac-1148-4145-aa01-7b2934b6e1ab");
         assertThat(cruiseConfig.server().getCommandRepositoryLocation()).isEqualTo("default");
         assertThat(cruiseConfig.server().artifactsDir()).isEqualTo("artifactsDir");
-        Assertions.assertThat(cruiseConfig.server().security()).isEqualTo(new SecurityConfig(true));
+        Assertions.assertThat(cruiseConfig.server().security()).isEqualTo(new SecurityConfig());
         assertThat(cruiseConfig.getSCMs()).hasSize(1);
     }
 

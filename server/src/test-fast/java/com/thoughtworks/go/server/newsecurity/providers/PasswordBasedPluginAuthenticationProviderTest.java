@@ -76,7 +76,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
         pluginRoleService = mock(PluginRoleService.class);
         clock = new TestingClock();
 
-        securityConfig = new SecurityConfig(true);
+        securityConfig = new SecurityConfig();
         when(goConfigService.security()).thenReturn(securityConfig);
 
         provider = new PasswordBasedPluginAuthenticationProvider(authorizationExtension, authorityGranter, goConfigService, pluginRoleService, userService, clock);
@@ -234,12 +234,13 @@ class PasswordBasedPluginAuthenticationProviderTest {
         void shouldErrorOutWhenAutoRegistrationOfNewUserIsDisabledByAdmin() {
             addPluginSupportingPasswordBasedAuthentication(PLUGIN_ID_2);
 
-            securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", PLUGIN_ID_2));
+            SecurityAuthConfig githubSecurityAuthconfig = new SecurityAuthConfig("github", PLUGIN_ID_2);
+            securityConfig.securityAuthConfigs().add(githubSecurityAuthconfig);
             securityConfig.addRole(new PluginRoleConfig("admin", "github", ConfigurationPropertyMother.create("foo")));
 
             AuthenticationResponse response = new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList());
 
-            doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any());
+            doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any(), eq(githubSecurityAuthconfig));
             when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(PLUGIN_ID_2), securityConfig.getPluginRoles(PLUGIN_ID_2))).thenReturn(response);
 
             thrown.expect(OnlyKnownUsersAllowedException.class);
@@ -363,7 +364,8 @@ class PasswordBasedPluginAuthenticationProviderTest {
         void shouldErrorOutWhenAutoRegistrationOfNewUserIsDisabledByAdmin() {
             addPluginSupportingPasswordBasedAuthentication(PLUGIN_ID_2);
 
-            securityConfig.securityAuthConfigs().add(new SecurityAuthConfig("github", PLUGIN_ID_2));
+            SecurityAuthConfig githubSecurityAuthconfig = new SecurityAuthConfig("github", PLUGIN_ID_2);
+            securityConfig.securityAuthConfigs().add(githubSecurityAuthconfig);
             securityConfig.addRole(new PluginRoleConfig("admin", "github", ConfigurationPropertyMother.create("foo")));
 
             GoUserPrinciple principal = new GoUserPrinciple(USERNAME, "Display");
@@ -371,7 +373,7 @@ class PasswordBasedPluginAuthenticationProviderTest {
 
             AuthenticationResponse response = new AuthenticationResponse(new User(USERNAME, "display-name", "test@test.com"), Collections.emptyList());
 
-            doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any());
+            doThrow(new OnlyKnownUsersAllowedException(USERNAME, "Please ask the administrator to add you to GoCD.")).when(userService).addUserIfDoesNotExist(any(), any());
             when(authorizationExtension.authenticateUser(PLUGIN_ID_2, USERNAME, PASSWORD, securityConfig.securityAuthConfigs().findByPluginId(PLUGIN_ID_2), securityConfig.getPluginRoles(PLUGIN_ID_2))).thenReturn(response);
 
             thrown.expect(OnlyKnownUsersAllowedException.class);

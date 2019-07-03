@@ -36,7 +36,7 @@ public class ServerConfigServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         MailHost mailHost = new MailHost(new GoCipher());
 
-        when(goConfigService.updateServerConfig(mailHost, true, "md5", null, null, null, null, "http://site", "https://site", "location")).thenReturn(
+        when(goConfigService.updateServerConfig(mailHost, "md5", null, null, null, null, "http://site", "https://site", "location")).thenReturn(
                 ConfigSaveState.MERGED);
         serverConfigService.updateServerConfig(mailHost, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
 
@@ -51,7 +51,7 @@ public class ServerConfigServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         MailHost mailHost = new MailHost(new GoCipher());
 
-        when(goConfigService.updateServerConfig(mailHost, true, "md5", null, null, null, null, "http://site", "https://site", "location")).thenReturn(
+        when(goConfigService.updateServerConfig(mailHost, "md5", null, null, null, null, "http://site", "https://site", "location")).thenReturn(
                 ConfigSaveState.UPDATED);
         serverConfigService.updateServerConfig(mailHost, null, null, null, null, true, "http://site", "https://site", "location", result, "md5");
 

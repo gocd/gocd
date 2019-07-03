@@ -135,7 +135,7 @@ public class ServerConfigServiceIntegrationTest {
         configHelper.turnOnSecurity();
         configHelper.addRole(role);
 
-        SecurityConfig securityConfig = createSecurity(role, null, false);
+        SecurityConfig securityConfig = createSecurity(role, null);
         securityConfig.securityAuthConfigs().addAll(goConfigService.serverConfig().security().securityAuthConfigs());
 
         MailHost mailHost = new MailHost("boo", 1, "username", "password", true, true, "from@from.com", "admin@admin.com");
@@ -149,13 +149,12 @@ public class ServerConfigServiceIntegrationTest {
         assertThat(result.isSuccessful(), is(true));
     }
 
-    private SecurityConfig createSecurity(Role role, SecurityAuthConfig securityAuthConfig, boolean allowOnlyKnownUsersToLogin) {
+    private SecurityConfig createSecurity(Role role, SecurityAuthConfig securityAuthConfig) {
         SecurityConfig securityConfig = new SecurityConfig();
         securityConfig.addRole(role);
         if (securityAuthConfig != null) {
             securityConfig.securityAuthConfigs().add(securityAuthConfig);
         }
-        securityConfig.modifyAllowOnlyKnownUsers(allowOnlyKnownUsersToLogin);
         return securityConfig;
     }
 

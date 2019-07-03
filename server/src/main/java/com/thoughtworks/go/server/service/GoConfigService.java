@@ -419,7 +419,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
     }
 
     public ConfigSaveState updateServerConfig(final MailHost mailHost,
-                                              final boolean shouldAllowAutoLogin,
                                               final String md5,
                                               final String artifactsDir,
                                               final Double purgeStart,
@@ -432,7 +431,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         result.add(updateConfig(
                 new GoConfigDao.NoOverwriteCompositeConfigCommand(md5,
                         goConfigDao.mailHostUpdater(mailHost),
-                        securityUpdater(shouldAllowAutoLogin),
                         serverConfigUpdater(artifactsDir, purgeStart, purgeUpto, jobTimeout, siteUrl, secureSiteUrl, taskRepositoryLocation))));
         //should not reach here with empty result
         return result.get(0);
@@ -453,14 +451,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
             server.setSiteUrl(siteUrl);
             server.setSecureSiteUrl(secureSiteUrl);
             server.setCommandRepositoryLocation(taskRepositoryLocation);
-            return cruiseConfig;
-        };
-    }
-
-    private UpdateConfigCommand securityUpdater(final boolean shouldAllowAutoLogin) {
-        return cruiseConfig -> {
-            SecurityConfig securityConfig = cruiseConfig.server().security();
-            securityConfig.modifyAllowOnlyKnownUsers(!shouldAllowAutoLogin);
             return cruiseConfig;
         };
     }
@@ -891,10 +881,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
 
     public boolean hasEnvironmentNamed(final CaseInsensitiveString environmentName) {
         return getCurrentConfig().getEnvironments().hasEnvironmentNamed(environmentName);
-    }
-
-    public boolean isOnlyKnownUserAllowedToLogin() {
-        return serverConfig().security().isAllowOnlyKnownUsersToLogin();
     }
 
     public boolean shouldFetchMaterials(String pipelineName, String stageName) {

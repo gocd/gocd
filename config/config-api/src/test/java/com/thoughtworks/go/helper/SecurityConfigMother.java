@@ -22,7 +22,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 public class SecurityConfigMother {
 
     public static SecurityConfig securityConfigWith(String passwordFilePath) {
-        final SecurityConfig securityConfig = new SecurityConfig(true);
+        final SecurityConfig securityConfig = new SecurityConfig();
         final SecurityAuthConfig passwordFile = new SecurityAuthConfig("file", "cd.go.authentication.passwordfile", create("PasswordFilePath", false, passwordFilePath));
         securityConfig.securityAuthConfigs().add(passwordFile);
         return securityConfig;

@@ -25,7 +25,7 @@ import java.util.Collection;
 @ConfigCollection(value = ConfigurationProperty.class)
 public class SecurityAuthConfig extends PluginProfile {
     @ConfigAttribute(value = "allowOnlyKnownUsersToLogin", optional = true)
-    protected Boolean allowOnlyKnownUsersToLogin;
+    protected Boolean allowOnlyKnownUsersToLogin = false;
 
     public SecurityAuthConfig() {
         super();
@@ -37,6 +37,15 @@ public class SecurityAuthConfig extends PluginProfile {
 
     public SecurityAuthConfig(String id, String pluginId, Collection<ConfigurationProperty> configProperties) {
         this(id, pluginId, configProperties.toArray(new ConfigurationProperty[0]));
+    }
+
+    public SecurityAuthConfig(String id, String pluginId, boolean allowOnlyKnownUsersToLogin, ConfigurationProperty... props) {
+        super(id, pluginId, props);
+        this.allowOnlyKnownUsersToLogin = allowOnlyKnownUsersToLogin;
+    }
+
+    public SecurityAuthConfig(String id, String pluginId, boolean allowOnlyKnownUsersToLogin, Collection<ConfigurationProperty> configProperties) {
+        this(id, pluginId, allowOnlyKnownUsersToLogin, configProperties.toArray(new ConfigurationProperty[0]));
     }
 
     @Override
@@ -68,5 +77,13 @@ public class SecurityAuthConfig extends PluginProfile {
 
     private AuthorizationMetadataStore metadataStore() {
         return AuthorizationMetadataStore.instance();
+    }
+
+    public Boolean getAllowOnlyKnownUsersToLogin() {
+        return allowOnlyKnownUsersToLogin;
+    }
+
+    public void setAllowOnlyKnownUsersToLogin(Boolean allowOnlyKnownUsersToLogin) {
+        this.allowOnlyKnownUsersToLogin = allowOnlyKnownUsersToLogin;
     }
 }

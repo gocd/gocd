@@ -208,7 +208,7 @@ public abstract class CruiseConfigTestBase {
         CruiseConfig cruiseConfig = createCruiseConfig(pipelineConfigs);
 
         cruiseConfig.addTemplate(template);
-        SecurityConfig securityConfig = new SecurityConfig(false);
+        SecurityConfig securityConfig = new SecurityConfig();
         securityConfig.adminsConfig().add(new AdminUser(new CaseInsensitiveString("root")));
         cruiseConfig.server().useSecurity(securityConfig);
 

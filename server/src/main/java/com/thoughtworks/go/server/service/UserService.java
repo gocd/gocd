@@ -403,10 +403,10 @@ public class UserService {
         public abstract Comparator<UserModel> forColumn(SortableColumn column);
     }
 
-    public void addUserIfDoesNotExist(User user) {
+    public void addUserIfDoesNotExist(User user, SecurityAuthConfig authConfig) {
         synchronized (enableUserMutex) {
             if (!(user.isAnonymous() || userExists(user))) {
-                assertUnknownUsersAreAllowedToLogin(user.getUsername());
+                assertUnknownUsersAreAllowedToLogin(user.getUsername(), authConfig);
 
                 userDao.saveOrUpdate(user);
             }
@@ -419,8 +419,8 @@ public class UserService {
         }
     }
 
-    private void assertUnknownUsersAreAllowedToLogin(Username username) {
-        if (goConfigService.isOnlyKnownUserAllowedToLogin()) {
+    private void assertUnknownUsersAreAllowedToLogin(Username username, SecurityAuthConfig authConfig) {
+        if (authConfig.getAllowOnlyKnownUsersToLogin()) {
             throw new OnlyKnownUsersAllowedException(username.getUsername().toString(), "Please ask the administrator to add you to GoCD.");
         }
     }

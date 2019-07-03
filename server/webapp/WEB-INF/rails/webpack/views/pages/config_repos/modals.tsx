@@ -373,6 +373,10 @@ export class NewConfigRepoModal extends ConfigRepoModal {
                                                (errorResponse) => this.handleError(result, errorResponse)));
   }
 
+  oncreate(vnode: m.VnodeDOM<any, {}>) {
+    vnode.dom.querySelector("select")!.focus();
+  }
+
   private onSuccess() {
     this.onSuccessfulSave(<span>The config repository <em>{this.repo().id}</em> was created successfully!</span>);
     this.close();

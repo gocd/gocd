@@ -1,7 +1,7 @@
 <div id="select_template_container">
   <%= error_message_on(scope[:pipeline], com.thoughtworks.go.config.PipelineConfig::TEMPLATE_NAME, :css_class => "error") %>
   <%- if scope[:template_list].size() == 0 %>
-      <div class="<%= scope[:pipeline].errors().on(com.thoughtworks.go.config.PipelineConfig::TEMPLATE_NAME).nil? ? "information" : "warnings" %>">There are no templates configured</div>
+      <div class="<%= scope[:pipeline].errors().on(com.thoughtworks.go.config.PipelineConfig::TEMPLATE_NAME).nil? ? "information" : "warnings" %>">There are no templates configured or you are unauthorized to view the existing templates. Add one via the <%= link_to "templates page", templates_path %>.</div>
   <% else %>
       <div class="fieldset">
         <div class="form_item">

@@ -1076,6 +1076,7 @@ task newApi {
     String newProjectName = "api-${apiName}-${project.apiVersion}"
     String oldProjectName = "api-${apiName}-v${project.apiVersion.replaceFirst('v', '').toInteger() - 1}"
     File oldModuleDir = file("api/${oldProjectName}")
+    project.delete(oldModuleDir)
     if (oldModuleDir.exists()) {
       throw new GradleException("Please use `upgradeApi` task instead of `newApi`")
     }
@@ -1084,6 +1085,7 @@ task newApi {
     String testPackage = "${moduleDir}/src/test/groovy/com/thoughtworks/go/api${project.apiVersion}/${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
     String packageName = "com.thoughtworks.go.api${project.apiVersion}.${apiName.replaceAll(~/[^a-zA-Z]/, '')}"
     String entityClassName = toCamelCase(apiName)
+    String entityVariableName = entityClassName.uncapitalize()
     String controllerClassName = "${entityClassName}Controller${project.apiVersion.capitalize()}"
 
     project.delete(moduleDir)
@@ -1153,21 +1155,23 @@ task newApi {
           import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
           import com.thoughtworks.go.config.exceptions.EntityType;
           import com.thoughtworks.go.config.exceptions.HttpException;
+          import com.thoughtworks.go.server.service.EntityHashingService;
           import com.thoughtworks.go.spark.spring.SparkSpringController;
           import org.springframework.beans.factory.annotation.Autowired;
           import org.springframework.stereotype.Component;
           import spark.Request;
+          import spark.Response;
 
+          import java.io.IOException;
           import java.util.function.Consumer;
 
           import static spark.Spark.*;
 
           @Component
-          public class ${controllerClassName} extends ApiController implements SparkSpringController, CrudController<${
-          entityClassName
-        }> {
+          public class ${controllerClassName} extends ApiController implements SparkSpringController, CrudController<${entityClassName}> {
 
               private final ApiAuthenticationHelper apiAuthenticationHelper;
+              private final EntityHashingService entityHashingService
 
               @Autowired
               public ${controllerClassName}(ApiAuthenticationHelper apiAuthenticationHelper) {
@@ -1177,7 +1181,7 @@ task newApi {
 
               @Override
               public String controllerBasePath() {
-                  return null; // to be implemented
+                  return Routes.${entityClassName}.BASE;
               }
 
               @Override
@@ -1188,37 +1192,47 @@ task newApi {
                       // uncomment the line below to set the content type on nested routes
                       // before("/*", mimeType, this::setContentType);
 
+                      // uncomment for the `index` action
+                      // get("", mimeType, this::index);
+
                       // change the line below to enable appropriate security
-                      before("", this.mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
+                      before("", mimeType, this.apiAuthenticationHelper::checkAdminUserAnd403);
                       // to be implemented
 
                       exception(HttpException.class, this::httpException);
                   });
               }
+              
+              // public String index(Request request, Response response) throws IOException {
+              //    ${entityClassName} ${entityVariableName} = fetchEntityFromConfig(request.params(":id"));
+              //    return writerForTopLevelObject(request, response, outputWriter -> ${entityClassName}sRepresenter.toJSON(outputWriter, ${entityVariableName}));
+              // }
+
 
               @Override
               public String etagFor(${entityClassName} entityFromServer) {
-                  return null;
+                  return entityHashingService.md5ForEntity(entityFromServer);
               }
 
               @Override
               public EntityType getEntityType() {
-                  return null;
+                  return EntityType.${entityClassName};
               }
 
               @Override
               public ${entityClassName} doFetchEntityFromConfig(String name) {
-                  return null;
+                  return someService.getEntity(name);
               }
 
               @Override
               public ${entityClassName} buildEntityFromRequestBody(Request req) {
-                  return null;
+                JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(req.body());
+                return ${entityClassName}Representer.fromJSON(jsonReader);
               }
 
               @Override
-              public Consumer<OutputWriter> jsonWriter(${entityClassName} configurationProperties) {
-                  return null;
+              public Consumer<OutputWriter> jsonWriter(${entityClassName} ${entityVariableName}) {
+                  return outputWriter -> ${entityClassName}Representer.toJSON(outputWriter, ${entityVariableName});
               }
           }
         """

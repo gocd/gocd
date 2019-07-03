@@ -89,8 +89,12 @@ export abstract class AbstractObjCache<T> implements ObjectCache<T> {
   }
 
   invalidate() {
-    this.data = stream();
+    this.empty();
     this.primed = false;
+  }
+
+  protected empty() {
+    this.data = stream();
   }
 
   private busy(): boolean {

@@ -43,6 +43,8 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
 
     this.cache.prime(() => {
       this.templates(this.cache.templates());
+    }, () => {
+      this.templates([]);
     });
   }
 
@@ -66,7 +68,7 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
       if (!this.templates().length) {
         return <FlashMessage type={errors.hasErrors("template") ? MessageType.alert : MessageType.warning}>
           <code>
-            There are no pipeline templates configured.
+            There are no templates configured or you are unauthorized to view the existing templates.
             Add one via the <a href="/go/admin/templates" title="Pipeline Templates">templates page</a>.
           </code>
         </FlashMessage>;
@@ -82,7 +84,7 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
     const target = event.target as HTMLInputElement;
     if (target.checked) {
       pipelineConfig.stages().clear();
-      if (this.templates().length !== 0) {
+      if (this.templates() && this.templates().length !== 0) {
         pipelineConfig.template(this.templates()[0].id);
       }
     } else {

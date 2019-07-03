@@ -67,7 +67,7 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
   @Nested
   class Index {
     @Nested
-    class Security implements SecurityTestTrait, AdminUserSecurity {
+    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
@@ -81,15 +81,15 @@ class PipelineGroupsControllerV1Test implements SecurityServiceTrait, Controller
     }
 
     @Nested
-    class AsAdmin {
+    class AsGroupAdmin {
       @BeforeEach
       void setUp() {
         enableSecurity()
-        loginAsAdmin()
+        loginAsGroupAdmin()
       }
 
       @Test
-      void 'should list all pipeline groups'() {
+      void 'should list pipeline groups'() {
         def configs = new BasicPipelineConfigs(PipelineConfigMother.pipelineConfig('pipeline1'))
         configs.setGroup("group")
         def expectedPipelineGroups = new PipelineGroups([configs])

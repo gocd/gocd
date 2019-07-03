@@ -17,7 +17,6 @@
 package com.thoughtworks.go.apiv4.admin.templateconfig;
 
 
-import com.google.common.collect.Sets;
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
@@ -40,7 +39,6 @@ import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import spark.Filter;
 import spark.Request;
 import spark.Response;
 
@@ -118,14 +116,6 @@ public class TemplateConfigControllerV4 extends ApiController implements SparkSp
 
             exception(HttpException.class, this::httpException);
         });
-    }
-
-    public static Filter onlyOn(Filter filter, String... allowedMethods) {
-        return (request, response) -> {
-            if (Sets.newHashSet(allowedMethods).contains(request.requestMethod())) {
-                filter.handle(request, response);
-            }
-        };
     }
 
     public String index(Request req, Response res) throws IOException {

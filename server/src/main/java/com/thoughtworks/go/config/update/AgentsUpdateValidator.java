@@ -44,8 +44,8 @@ public class AgentsUpdateValidator {
     private final Username username;
     private final LocalizedOperationResult result;
     private final List<String> uuids;
-    private final List<String> environmentsToAdd;
-    private final List<String> environmentsToRemove;
+    private final List<String> envListToAdd;
+    private final List<String> envListToRemove;
     private final TriState state;
     private final List<String> resourcesToAdd;
     private final List<String> resourcesToRemove;
@@ -53,15 +53,15 @@ public class AgentsUpdateValidator {
     public Agents agents;
 
     public AgentsUpdateValidator(AgentInstances agentInstances, Username username, LocalizedOperationResult result,
-                                 List<String> uuids, List<String> environmentsToAdd, List<String> environmentsToRemove,
+                                 List<String> uuids, List<String> envListToAdd, List<String> envListToRemove,
                                  TriState state, List<String> resourcesToAdd, List<String> resourcesToRemove,
                                  GoConfigService goConfigService) {
         this.agentInstances = agentInstances;
         this.username = username;
         this.result = result;
         this.uuids = uuids;
-        this.environmentsToAdd = environmentsToAdd;
-        this.environmentsToRemove = environmentsToRemove;
+        this.envListToAdd = envListToAdd;
+        this.envListToRemove = envListToRemove;
         this.state = state;
         this.resourcesToAdd = resourcesToAdd;
         this.resourcesToRemove = resourcesToRemove;
@@ -82,21 +82,14 @@ public class AgentsUpdateValidator {
     }
 
     public void validate() throws Exception {
-        Set<CaseInsensitiveString> allEnvironmentNames = new HashSet<>(goConfigService.getEnvironments().names());
-
-        // validate all inputs
-        validatePresenceOfEnvironments(allEnvironmentNames, environmentsToAdd);
-        validatePresenceOfEnvironments(allEnvironmentNames, environmentsToRemove);
-
-        validatePresenceOfAgentUuidsInConfig();
-        checkIfResourcesAreBeingUpdatedOnElasticAgents();
-        validateResources(resourcesToAdd);
-
-        List<AgentConfig> pendingAgents = findPendingAgents();
-        validateOperationOnPendingAgents(pendingAgents);
+        bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML();
+        bombWhenAgentsDoesNotExist();
+        bombWhenElasticAgentResourcesAreUpdated();
+        bombWhenResourceNamesToAddAreInvalid();
+        bombWhenAnyOperationOnPendingAgents();
     }
 
-    private void validateResources(List<String> resourcesToAdd) {
+    private void bombWhenResourceNamesToAddAreInvalid() {
         ResourceConfigs resourceConfigs = new ResourceConfigs(StringUtils.join(resourcesToAdd, ","));
         resourceConfigs.validate(null);
         if(!resourceConfigs.errors().isEmpty()){
@@ -104,7 +97,7 @@ public class AgentsUpdateValidator {
         }
     }
 
-    private void validatePresenceOfAgentUuidsInConfig() {
+    private void bombWhenAgentsDoesNotExist() {
         List<String> unknownUUIDs = new ArrayList<>();
 
         for (String uuid : uuids) {
@@ -118,12 +111,19 @@ public class AgentsUpdateValidator {
         }
     }
 
-    private void validatePresenceOfEnvironments(Set<CaseInsensitiveString> allEnvironmentNames, List<String> environmentsToOperate) {
-        for (String environment : environmentsToOperate) {
-            CaseInsensitiveString environmentName = new CaseInsensitiveString(environment);
-            if (!allEnvironmentNames.contains(environmentName)) {
-                result.badRequest(EntityType.Environment.notFoundMessage(environmentName));
-                throw new RecordNotFoundException(EntityType.Environment, environmentName);
+    private void bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML() {
+        Set<CaseInsensitiveString> existingEnvSet = new HashSet<>(goConfigService.getEnvironments().names());
+
+        bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML(existingEnvSet, envListToAdd);
+        bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML(existingEnvSet, envListToRemove);
+    }
+
+    private void bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML(Set<CaseInsensitiveString> existingEnvSet, List<String> envsToValidate) {
+        for (String env : envsToValidate) {
+            CaseInsensitiveString envName = new CaseInsensitiveString(env);
+            if (!existingEnvSet.contains(envName)) {
+                result.badRequest(EntityType.Environment.notFoundMessage(envName));
+                throw new RecordNotFoundException(EntityType.Environment, envName);
             }
         }
     }
@@ -137,8 +137,8 @@ public class AgentsUpdateValidator {
     }
 
     private boolean isAnyOperationPerformedOnAgents() {
-        return !resourcesToAdd.isEmpty() || !resourcesToRemove.isEmpty() || !environmentsToAdd.isEmpty()
-                || !environmentsToRemove.isEmpty() || state.isTrue() || state.isFalse();
+        return !resourcesToAdd.isEmpty() || !resourcesToRemove.isEmpty() || !envListToAdd.isEmpty()
+                || !envListToRemove.isEmpty() || state.isTrue() || state.isFalse();
     }
 
 
@@ -153,7 +153,8 @@ public class AgentsUpdateValidator {
         return pendingAgents;
     }
 
-    private void validateOperationOnPendingAgents(List<AgentConfig> pendingAgents) throws InvalidPendingAgentOperationException {
+    private void bombWhenAnyOperationOnPendingAgents() throws InvalidPendingAgentOperationException {
+        List<AgentConfig> pendingAgents = findPendingAgents();
         if (pendingAgents.isEmpty()) {
             return;
         }
@@ -173,7 +174,7 @@ public class AgentsUpdateValidator {
         return pendingAgentUuids;
     }
 
-    private void checkIfResourcesAreBeingUpdatedOnElasticAgents() throws ElasticAgentsResourceUpdateException {
+    private void bombWhenElasticAgentResourcesAreUpdated() throws ElasticAgentsResourceUpdateException {
         if (resourcesToAdd.isEmpty() && resourcesToRemove.isEmpty()) {
             return;
         }

@@ -15,8 +15,14 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.BasicCruiseConfig;
-import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
+import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
+import com.thoughtworks.go.domain.AgentInstance;
+import com.thoughtworks.go.domain.NullAgentInstance;
+import com.thoughtworks.go.helper.AgentInstanceMother;
+import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
@@ -24,20 +30,27 @@ import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.TriState;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
+import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
+import static java.lang.String.format;
 import static junit.framework.TestCase.assertFalse;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,7 +69,7 @@ public class AgentsUpdateValidatorTest {
     private List<String> resourcesToRemove;
     private TriState triState;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         result = new HttpLocalizedOperationResult();
         currentUser = new Username(new CaseInsensitiveString("user"));
@@ -74,38 +87,128 @@ public class AgentsUpdateValidatorTest {
         when(goConfigService.getEnvironments()).thenReturn(cruiseConfig.getEnvironments());
     }
 
+    @Nested
+    class CanContinue {
+        @Test
+        public void shouldAllowAdministratorToPerformAnyOperationOnAgents() {
+            when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
+            assertTrue(newAgentsUpdateValidator().canContinue());
+        }
 
-    @Rule
-    public ExpectedException exception = ExpectedException.none();
+        @Test
+        public void shouldSignalBadRequestWhenNoOpIsPerformedOnAgents() {
+            triState = TriState.UNSET;
+            AgentsUpdateValidator command = newAgentsUpdateValidator();
 
-    @Test
-    public void shouldReturnTrueIfAnyOperationPerformedOnAgent() throws Exception {
-        AgentsUpdateValidator command = newAgentsEntityConfigUpdateCommand();
+            when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
+            assertFalse(command.canContinue());
+            HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+            expectedResult.badRequest("No Operation performed on agents.");
+            assertThat(result).isEqualTo(expectedResult);
+        }
 
-        when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
-        assertTrue(command.canContinue());
+        @Test
+        public void shouldThrow403WhenNonAdminUserIsUpdatingAgents() {
+            AgentsUpdateValidator command = newAgentsUpdateValidator();
+            when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
+            assertFalse(command.canContinue());
+            HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
+            expectedResult.forbidden(forbiddenToEdit(), forbidden());
+            assertThat(result).isEqualTo(expectedResult);
+        }
     }
 
-    @Test
-    public void shouldReturnFalseIfNoOperationPerformedOnAgents() throws Exception {
-        triState = TriState.UNSET;
-        AgentsUpdateValidator command = newAgentsEntityConfigUpdateCommand();
+    @Nested
+    class Validations {
+        @Test
+        public void shouldThrowExceptionWhenOpsArePerformedOnPendingAgents() {
+            triState = TriState.UNSET;
+            AgentInstance pendingAgent = AgentInstanceMother.pending();
+            uuids.add(pendingAgent.getUuid());
+            when(agentInstances.findPendingAgents(uuids)).thenReturn(Arrays.asList(pendingAgent.agentConfig()));
+            when(agentInstances.findAgent(pendingAgent.getUuid())).thenReturn(pendingAgent);
 
-        when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
-        assertFalse(command.canContinue());
-        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.badRequest("No Operation performed on agents.");
-        assertThat(result, is(expectedResult));
-    }
+            assertThrows(InvalidPendingAgentOperationException.class, () -> newAgentsUpdateValidator().validate());
+        }
 
-    @Test
-    public void shouldReturnFalseIfUserUnauthorizedToUpdateTheAgents() throws Exception {
-        AgentsUpdateValidator command = newAgentsEntityConfigUpdateCommand();
-        when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
-        assertFalse(command.canContinue());
-        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.forbidden(forbiddenToEdit(), forbidden());
-        assertThat(result, is(expectedResult));
+
+        @Test
+        public void shouldPassValidationWhenEnvironmentsToBeAddedRemovedExistsInConfigXML() throws Exception {
+            environmentsToAdd.add("prod");
+            environmentsToRemove.add("dev");
+
+            AgentInstance agentInstance = AgentInstanceMother.disabled();
+            AgentConfig agentConfig = agentInstance.agentConfig();
+
+            uuids.add(agentConfig.getUuid());
+
+            when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
+
+            EnvironmentsConfig envsConfig = new EnvironmentsConfig();
+            envsConfig.add(new BasicEnvironmentConfig(str("dev")));
+            envsConfig.add(new BasicEnvironmentConfig(str("prod")));
+
+            when(goConfigService.getEnvironments()).thenReturn(envsConfig);
+            newAgentsUpdateValidator().validate();
+        }
+
+
+        @Test
+        public void shouldThrowExceptionWhenEnvironemntsToBeAddedRemovedDoesNotExistInConfigXML() {
+            environmentsToAdd.add("prod");
+            environmentsToRemove.add("dev");
+
+            AgentInstance agentInstance = AgentInstanceMother.disabled();
+            AgentConfig agentConfig = agentInstance.agentConfig();
+
+            uuids.add(agentConfig.getUuid());
+
+            when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
+
+            EnvironmentsConfig envsConfig = new EnvironmentsConfig();
+            envsConfig.add(new BasicEnvironmentConfig(str("dev")));
+
+            when(goConfigService.getEnvironments()).thenReturn(envsConfig);
+            RecordNotFoundException rnfe = assertThrows(RecordNotFoundException.class, () -> newAgentsUpdateValidator().validate());
+            assertEquals(rnfe.getMessage(), "Environment with name \'prod\' was not found!");
+        }
+
+        @Test
+        public void shouldThrowExceptionWhenResourceNamesToAddAreInvalid() {
+            resourcesToAdd.add("fire!fox");
+
+            AgentInstance disabledAgentInstance = AgentInstanceMother.disabled();
+            AgentConfig disabledAgent = disabledAgentInstance.agentConfig();
+            disabledAgent.addResourceConfig(new ResourceConfig("linux"));
+
+            when(agentInstances.findAgent(disabledAgent.getUuid())).thenReturn(disabledAgentInstance);
+
+            uuids.add(disabledAgent.getUuid());
+            assertThrows(IllegalArgumentException.class, () -> newAgentsUpdateValidator().validate());
+            assertTrue(result.message().contains("Resource name 'fire!fox' is not valid"));
+        }
+
+        @Test
+        public void shouldThrowExceptionWhenAgentsToBeUpdatedDoesNotExist() {
+            String nonExistingUuid = "non-existing-uuid";
+            uuids.add(nonExistingUuid);
+            when(agentInstances.findAgent(nonExistingUuid)).thenReturn(new NullAgentInstance(nonExistingUuid));
+
+            assertThrows(RecordNotFoundException.class, () -> newAgentsUpdateValidator().validate());
+            assertTrue(result.message().equals(format("Agents with uuids '%s' were not found!", nonExistingUuid)));
+        }
+
+        @Test
+        public void shouldThrowExceptionWhenElasticAgentResourcesAreBeingUpdated() {
+            resourcesToAdd.add("Linux");
+            AgentConfig elasticAgent = AgentMother.elasticAgent();
+            uuids.add(elasticAgent.getUuid());
+            when(agentInstances.findAgent(elasticAgent.getUuid()))
+                               .thenReturn(AgentInstance.createFromConfig(elasticAgent, null, null));
+            assertThrows(ElasticAgentsResourceUpdateException.class, () -> newAgentsUpdateValidator().validate());
+            String errMsg = "Resources on elastic agents with uuids [" + elasticAgent.getUuid() + "] can not be updated.";
+            assertTrue(result.message().contains(errMsg));
+        }
     }
 
     //TODO Vrushali/Saurabh: Incorporate this test in Agent DB related tests.
@@ -262,8 +365,8 @@ public class AgentsUpdateValidatorTest {
 //        assertThat(agentConfig.isEnabled(), is(true));
 //    }
 
-    private AgentsUpdateValidator newAgentsEntityConfigUpdateCommand() {
+    private AgentsUpdateValidator newAgentsUpdateValidator() {
         return new AgentsUpdateValidator(agentInstances, currentUser, result, uuids, environmentsToAdd, environmentsToRemove,
-                                         triState, resourcesToAdd, resourcesToRemove, goConfigService);
+                triState, resourcesToAdd, resourcesToRemove, goConfigService);
     }
 }

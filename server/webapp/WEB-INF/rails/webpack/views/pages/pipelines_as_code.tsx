@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-import Page from "helpers/spa_base";
-import {PipelineCreatePage} from "views/pages/pipelines";
+import * as m from "mithril";
+import {Page, PageState} from "views/pages/page";
 
-export class PipelineCreateSPA extends Page {
-  constructor() {
-    super(PipelineCreatePage);
+export class PipelinesAsCodeCreatePage extends Page {
+  oninit(vnode: m.Vnode) {
+    this.pageState = PageState.OK;
   }
-}
 
-// tslint:disable-next-line
-new PipelineCreateSPA();
+  pageName() {
+    return "Add a New Pipeline as Code";
+  }
+
+  componentToDisplay(vnode: m.Vnode) {
+    return "content goes here.";
+  }
+
+  fetchData() { return new Promise(() => null); }
+}

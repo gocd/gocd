@@ -16,7 +16,6 @@
 
 package com.thoughtworks.go.spark.spa;
 
-import com.thoughtworks.go.spark.Routes;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
 import spark.ModelAndView;
@@ -26,6 +25,8 @@ import spark.TemplateEngine;
 
 import java.util.HashMap;
 
+import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_BASE;
+import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_CREATE;
 import static spark.Spark.*;
 
 public class PipelinesController implements SparkController {
@@ -39,18 +40,18 @@ public class PipelinesController implements SparkController {
 
     @Override
     public String controllerBasePath() {
-        return Routes.PipelineConfig.SPA_CREATE;
+        return SPA_BASE;
     }
 
     @Override
     public void setupRoutes() {
         path(controllerBasePath(), () -> {
-            before("", authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
-            get("", this::index, engine);
+            before(SPA_CREATE, authenticationHelper::checkAdminUserOrGroupAdminUserAnd403);
+            get(SPA_CREATE, this::create, engine);
         });
     }
 
-    public ModelAndView index(Request req, Response res) {
+    public ModelAndView create(Request req, Response res) {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Create a pipeline");
         }};

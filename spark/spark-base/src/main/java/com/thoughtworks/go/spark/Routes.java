@@ -352,7 +352,9 @@ public class Routes {
     }
 
     public static class PipelineConfig {
-        public static final String SPA_CREATE = "/admin/pipelines/create";
+        public static final String SPA_CREATE = "/create";
+        public static final String SPA_AS_CODE = "/as-code";
+        public static final String SPA_BASE = "/admin/pipelines";
         public static final String BASE = "/api/admin/pipelines";
         public static final String NAME = "/:pipeline_name";
         public static final String DOC = apiDocsUrl("#pipeline-config");

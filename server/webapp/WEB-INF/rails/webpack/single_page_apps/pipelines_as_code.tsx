@@ -15,13 +15,13 @@
  */
 
 import Page from "helpers/spa_base";
-import {PipelineCreatePage} from "views/pages/pipelines";
+import {PipelinesAsCodeCreatePage} from "views/pages/pipelines_as_code";
 
-export class PipelineCreateSPA extends Page {
+export class PipelineAsCodeSPA extends Page {
   constructor() {
-    super(PipelineCreatePage);
+    super(PipelinesAsCodeCreatePage);
   }
 }
 
 // tslint:disable-next-line
-new PipelineCreateSPA();
+new PipelineAsCodeSPA();

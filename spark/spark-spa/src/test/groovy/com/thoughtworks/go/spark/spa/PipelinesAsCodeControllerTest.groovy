@@ -16,31 +16,31 @@
 
 package com.thoughtworks.go.spark.spa
 
+import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
-import com.thoughtworks.go.spark.GroupAdminUserSecurity
 import com.thoughtworks.go.spark.SecurityServiceTrait
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 
-import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_CREATE
+import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_AS_CODE
 import static org.mockito.MockitoAnnotations.initMocks
 
-class PipelinesControllerTest implements ControllerTrait<PipelinesController>, SecurityServiceTrait {
+class PipelinesAsCodeControllerTest implements ControllerTrait<PipelinesAsCodeController>, SecurityServiceTrait {
 
   @Nested
-  class Create {
+  class AsCode {
     @Nested
-    class Security implements SecurityTestTrait, GroupAdminUserSecurity {
+    class Security implements SecurityTestTrait, AdminUserSecurity {
 
       @Override
       String getControllerMethodUnderTest() {
-        return "create"
+        return "asCode"
       }
 
       @Override
       void makeHttpCall() {
-        get(controller.controllerPath(SPA_CREATE))
+        get(controller.controllerPath(SPA_AS_CODE))
       }
     }
   }
@@ -51,7 +51,7 @@ class PipelinesControllerTest implements ControllerTrait<PipelinesController>, S
   }
 
   @Override
-  PipelinesController createControllerInstance() {
-    return new PipelinesController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
+  PipelinesAsCodeController createControllerInstance() {
+    return new PipelinesAsCodeController(new SPAAuthenticationHelper(securityService, goConfigService), templateEngine)
   }
 }

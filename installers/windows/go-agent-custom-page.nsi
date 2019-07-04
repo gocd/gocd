@@ -10,8 +10,8 @@ Function "ConfigureGetServerUrlPage"
     ${LogText} "Detected (legacy) GO_SERVER_URL environment variable, will use that variable, and not prompt the Server URL"
     Abort
     Return
-  ${ElseIf} ${FileExists} "$INSTDIR\config\wrapper-properties.conf"
-    ${LogText} "$INSTDIR\config\wrapper-properties.conf already exists, not prompting user for Server URL"
+  ${ElseIf} ${FileExists} "$INSTDIR\wrapper-config\wrapper-properties.conf"
+    ${LogText} "$INSTDIR\wrapper-config\wrapper-properties.conf already exists, not prompting user for Server URL"
     Abort
     Return
   ${EndIf}

@@ -18,4 +18,11 @@
 
     echo "Installation of GoCD server completed."
     echo "Please edit /usr/share/go-server/wrapper-config/wrapper-properties.conf to add or override environment variables."
-    echo "Once that is done, start the GoCD server with '/etc/init.d/go-server start'"
+    if [ -f "/etc/init.d/go-server" ]; then
+      echo "Once that is done start the GoCD Server with '/etc/init.d/go-server start'"
+    elif [ -f "/etc/systemd/system/go-server.service" ]; then
+      echo "Once that is done start the GoCD Server with 'systemctl start go-server'"
+    elif [ -f "/etc/init/go-server.conf" ]; then
+      echo "Once that is done start the GoCD Server with 'start go-server'"
+    fi
+

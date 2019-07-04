@@ -161,18 +161,29 @@ Section "Install"
     ${LogText} "Performing an upgrade"
     Call BeforeUpgrade
     File /r ${GOCD_ICON}
-    File /r ${INSTALLER_CONTENTS}\*.*
+    File /r /x "wrapper-properties.conf" ${INSTALLER_CONTENTS}\*.*
+
+    ; Copy over existing wrapper-properties.conf (from a previous install of GoCD < 19.6)
+    Call CopyOldWrapperPropertiesBeforeGoCD19_5
+
     Call AfterUpgrade
   ${Else}
     ${LogText} "Performing a fresh install"
     File /r ${GOCD_ICON}
-    File /r ${INSTALLER_CONTENTS}\*.*
+    File /r /x "wrapper-properties.conf" ${INSTALLER_CONTENTS}\*.*
     Call PostInstall
   ${EndIf}
 
   Call SetupRegistryKeys
   Call SetupUninstaller
 SectionEnd
+
+Function "CopyOldWrapperPropertiesBeforeGoCD19_5"
+  ${If} ${FileExists} "$INSTDIR\config\wrapper-properties.conf"
+    CopyFiles "$INSTDIR\config\wrapper-properties.conf" "$INSTDIR\wrapper-config\wrapper-properties.conf"
+    Delete "$INSTDIR\config\wrapper-properties.conf"
+  ${EndIf}
+FunctionEnd
 
 Function "SetupUninstaller"
   WriteUninstaller "uninstall.exe"

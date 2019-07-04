@@ -83,7 +83,8 @@ def configureWindowsFilesystem(Task windowsInstallerTask, InstallerType installe
 
         // include the wrapper.conf, but replace the java command
         from(genericZipTree) {
-          include "${installerType.baseName}-${project.goVersion}/wrapper-config/*"
+          include "${installerType.baseName}-${project.goVersion}/wrapper-config/wrapper.conf"
+          include "${installerType.baseName}-${project.goVersion}/wrapper-config/wrapper-properties.conf.example"
           filter { String eachLine ->
             if (eachLine == 'wrapper.java.command=java') {
               eachLine = 'wrapper.java.command=jre/bin/java'

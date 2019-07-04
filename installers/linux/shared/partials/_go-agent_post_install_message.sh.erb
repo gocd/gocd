@@ -20,4 +20,10 @@
     echo "Now please edit /usr/share/go-agent/wrapper-config/wrapper-properties.conf and set the server to the url address of your GoCD Server (https://example.com:8154/go)."
     echo "To ensure full end-to-end transport security between the agent and server"
     echo "see https://docs.gocd.org/current/installation/ssl_tls/end_to_end_transport_security.html"
-    echo "Once that is done start the GoCD Agent with '/etc/init.d/go-agent start'"
+    if [ -f "/etc/init.d/go-agent" ]; then
+      echo "Once that is done start the GoCD Agent with '/etc/init.d/go-agent start'"
+    elif [ -f "/etc/systemd/system/go-agent.service" ]; then
+      echo "Once that is done start the GoCD Agent with 'systemctl start go-agent'"
+    elif [ -f "/etc/init/go-agent.conf" ]; then
+      echo "Once that is done start the GoCD Agent with 'start go-agent'"
+    fi

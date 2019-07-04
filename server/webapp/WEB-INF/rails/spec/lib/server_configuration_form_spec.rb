@@ -18,6 +18,9 @@ require 'rails_helper'
 
 describe ServerConfigurationForm do
 
+  # todo: GaneshSPatil did this. These specs and rails based server configuration page needs to be removed.
+  before { skip("Server Configuration page will be removed...") }
+
   describe "allow_auto_login" do
     it "should default it to true when a new instance is created without a value being provided for it" do
       form = ServerConfigurationForm.new({})

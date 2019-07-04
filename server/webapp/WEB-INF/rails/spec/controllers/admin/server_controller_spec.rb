@@ -20,6 +20,9 @@ describe Admin::ServerController do
   include MockRegistryModule
   include ExtraSpecAssertions
 
+  # todo: GaneshSPatil did this. These specs and rails based server configuration page needs to be removed.
+  before { skip("Server Configuration page will be removed...") }
+
   before do
     allow(controller).to receive(:set_current_user)
   end

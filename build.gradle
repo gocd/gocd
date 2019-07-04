@@ -1326,7 +1326,7 @@ task upgradeApi {
         segments.replaceAll({ String eachSegment ->
           if (eachSegment == "apiv${currentMaxApiVersion}") {
             return "apiv${apiVersion}"
-          } else if (eachSegment.endsWith("${oldControllerClassSuffix}.java")) {
+          } else if (eachSegment.contains("${oldControllerClassSuffix}")) {
             return eachSegment.replace(oldControllerClassSuffix, newControllerClassSuffix)
           } else {
             return eachSegment

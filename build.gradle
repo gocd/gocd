@@ -229,6 +229,7 @@ rootProject.ext.versions = [
   velocityToolsView   : '1.4',
   xmlunitassertj      : '2.6.3',
   xmlUnitMatchers     : '2.6.3',
+  spring4jUnit5Extension: '1.5.0',
   seleniumDrivers     : [
     chromedriver  : '2.41',
     geckodriver   : '0.21.0',

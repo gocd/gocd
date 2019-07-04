@@ -40,12 +40,14 @@ import com.thoughtworks.go.service.ConfigRepository;
 import com.thoughtworks.go.util.*;
 import org.hamcrest.Description;
 import org.hamcrest.TypeSafeMatcher;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
@@ -59,12 +61,12 @@ import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:testPropertyConfigurer.xml",
-        "classpath:WEB-INF/spring-all-servlet.xml",
+        "classpath:WEB-INF/spring-all-servlet.xml"
 })
 
 //TODO: Vrushali and Viraj need to fix this
@@ -95,7 +97,7 @@ public class AgentServiceIntegrationTest {
     private static final String UUID2 = "uuid2";
     private static final Username USERNAME = new Username(new CaseInsensitiveString("admin"));
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
         CONFIG_HELPER.onSetUp();
@@ -107,7 +109,7 @@ public class AgentServiceIntegrationTest {
         environmentConfigService.initialize();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         new SystemEnvironment().setProperty("agent.connection.timeout", "300");
         CONFIG_HELPER.usingCruiseConfigDao(goConfigDao);
@@ -122,28 +124,34 @@ public class AgentServiceIntegrationTest {
                 new UuidGenerator(), serverHealthService, agentStatusChangeNotifier(), goConfigService);
     }
 
-    @Test
-    public void shouldAddResourcesWhileBulkUpdatingAgents() {
-        createEnabledAgent(UUID);
-        createEnabledAgent(UUID2);
+    @Nested
+    @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
+                                       "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
+    class Resources {
 
-        List<String> uuids = Arrays.asList(UUID, UUID2);
-        List<String> resourcesToAdd = Arrays.asList("resource1", "resource2");
-        List<String> resourcesToRemove = Collections.emptyList();
-        List<String> emptyEnvs = Collections.emptyList();
+        @Test
+        public void shouldAddResourcesWhileBulkUpdatingAgents() {
+            createEnabledAgent(UUID);
+            createEnabledAgent(UUID2);
 
-        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, uuids, resourcesToAdd, resourcesToRemove, emptyEnvs, emptyEnvs, TriState.TRUE);
-        assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
+            List<String> uuids = Arrays.asList(UUID, UUID2);
+            List<String> resourcesToAdd = Arrays.asList("resource1", "resource2");
+            List<String> resourcesToRemove = Collections.emptyList();
+            List<String> emptyEnvs = Collections.emptyList();
 
-        ResourceConfigs uuidResources = agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs();
-        assertThat(uuidResources, hasItem(new ResourceConfig("resource1")));
-        assertThat(uuidResources, hasItem(new ResourceConfig("resource2")));
+            HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+            agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, uuids, resourcesToAdd, resourcesToRemove, emptyEnvs, emptyEnvs, TriState.TRUE);
+            assertThat(operationResult.httpCode(), is(200));
+            assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
 
-        ResourceConfigs uuid2Resources = agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs();
-        assertThat(uuid2Resources, hasItem(new ResourceConfig("resource1")));
-        assertThat(uuid2Resources, hasItem(new ResourceConfig("resource2")));
+            ResourceConfigs uuidResources = agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs();
+            assertThat(uuidResources, hasItem(new ResourceConfig("resource1")));
+            assertThat(uuidResources, hasItem(new ResourceConfig("resource2")));
+
+            ResourceConfigs uuid2Resources = agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs();
+            assertThat(uuid2Resources, hasItem(new ResourceConfig("resource1")));
+            assertThat(uuid2Resources, hasItem(new ResourceConfig("resource2")));
+        }
     }
 
     @Test

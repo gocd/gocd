@@ -132,4 +132,8 @@ public class GoDashboardPipeline {
     public Integer getdisplayOrderWeight() {
         return displayOrderWeight;
     }
+
+    public ConfigOrigin getOrigin() {
+        return origin;
+    }
 }

@@ -241,9 +241,10 @@ body {
 
 .dashboard {
   .tooltip {
-    left:  -100%;
-    top:   90%;
-    width: 10rem;
+    left:      -100%;
+    top:       90%;
+    width:     10rem;
+    word-wrap: break-word;
 
     &::before {
       left: 35%;

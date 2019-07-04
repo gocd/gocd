@@ -44,6 +44,10 @@ export const Pipeline = function (info) {
 
   this.isDefinedInConfigRepo = () => info.from_config_repo;
 
+  this.getConfigRepoId = () => info.config_repo_id;
+
+  this.getConfigRepoMaterialUrl = () => info.config_repo_material_url;
+
   this.canOperate = info.can_operate;
 
   this.trackingTool = info.tracking_tool;
@@ -124,7 +128,7 @@ export const Pipeline = function (info) {
 
   this.getSettingsDisabledTooltipText = () => {
     if (self.isDefinedInConfigRepo()) {
-      return TooltipText.CONFIG_REPO_PIPELINE;
+      return `${TooltipText.CONFIG_REPO_PIPELINE}: ${self.getConfigRepoId()} with material url: ${self.getConfigRepoMaterialUrl()}`;
     }
     return TooltipText.NO_EDIT_PERMISSION;
   };
@@ -134,7 +138,7 @@ export const Pipeline = function (info) {
     PIPELINE_PAUSED:         "Cannot trigger pipeline - Pipeline is currently paused.",
     PIPELINE_LOCKED:         "Cannot trigger pipeline - Pipeline is currently locked.",
     FIRST_STAGE_IN_PROGRESS: "Cannot trigger pipeline - First stage is still in progress.",
-    CONFIG_REPO_PIPELINE:    "Cannot edit pipeline defined in config repository.",
+    CONFIG_REPO_PIPELINE:    "Cannot edit pipeline defined in config repository",
     NO_EDIT_PERMISSION:      "You do not have permission to edit the pipeline.",
     NO_UNLOCK_PERMISSION:    "You do not have permission to unlock the pipeline.",
     NO_PAUSE_PERMISSION:     "You do not have permission to pause the pipeline.",

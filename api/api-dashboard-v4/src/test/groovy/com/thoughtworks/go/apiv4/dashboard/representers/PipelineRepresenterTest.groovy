@@ -117,6 +117,22 @@ class PipelineRepresenterTest {
     ])
   }
 
+  @Test
+  void 'should render config repo details if the pipeline is defined using config repo'() {
+    def counter = mock(Counter.class)
+    when(counter.getNext()).thenReturn(1l)
+    def permissions = new Permissions(NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE, NoOne.INSTANCE)
+    def origin = new RepoConfigOrigin(new ConfigRepoConfig(MaterialConfigsMother.gitMaterialConfig(), "plugin", "repo1"), "rev1")
+    def pipeline = new GoDashboardPipeline(pipeline_model('pipeline_name', 'p1l1', false, true, null), permissions, "grp", null, counter, origin, 0)
+    def username = new Username(new CaseInsensitiveString(SecureRandom.hex()))
+
+    def json = toObject({ PipelineRepresenter.toJSON(it, pipeline, username) })
+
+    json.remove("_links")
+    json.remove("_embedded")
+    assertThatJson(json).isEqualTo(pipelines_hash())
+  }
+
   @Nested
   class Authorization {
 
@@ -191,8 +207,9 @@ class PipelineRepresenterTest {
       can_administer        : false,
       can_unlock            : false,
       can_pause             : false,
-      from_config_repo      : true
+      from_config_repo      : true,
+      config_repo_id          : 'repo1',
+      config_repo_material_url: 'http://user:******@funk.com/blank'
     ]
   }
-
 }

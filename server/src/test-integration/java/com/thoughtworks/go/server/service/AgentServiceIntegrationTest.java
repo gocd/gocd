@@ -21,6 +21,7 @@ import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.helper.AgentInstanceMother;
+import com.thoughtworks.go.helper.EnvironmentConfigMother;
 import com.thoughtworks.go.listener.AgentStatusChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
@@ -44,8 +45,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.ContextConfiguration;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -117,27 +118,36 @@ public class AgentServiceIntegrationTest {
     }
 
     private AgentService getAgentService(AgentInstances agentInstances) {
-        return new AgentService(new SystemEnvironment(), agentInstances, environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, agentStatusChangeNotifier(), goConfigService);
+        return new AgentService(new SystemEnvironment(), agentInstances, securityService, agentDao,
+                new UuidGenerator(), serverHealthService, agentStatusChangeNotifier(), goConfigService);
     }
 
     @Test
-    public void shouldAddResourcesToMultipleAgents() {
+    public void shouldAddResourcesWhileBulkUpdatingAgents() {
         createEnabledAgent(UUID);
         createEnabledAgent(UUID2);
 
-        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Arrays.asList("old-resource", "new-resource"), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
+        List<String> uuids = Arrays.asList(UUID, UUID2);
+        List<String> resourcesToAdd = Arrays.asList("resource1", "resource2");
+        List<String> resourcesToRemove = Collections.emptyList();
+        List<String> emptyEnvs = Collections.emptyList();
 
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, uuids, resourcesToAdd, resourcesToRemove, emptyEnvs, emptyEnvs, TriState.TRUE);
         assertThat(operationResult.httpCode(), is(200));
         assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("old-resource")));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("new-resource")));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("old-resource")));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("new-resource")));
+
+        ResourceConfigs uuidResources = agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs();
+        assertThat(uuidResources, hasItem(new ResourceConfig("resource1")));
+        assertThat(uuidResources, hasItem(new ResourceConfig("resource2")));
+
+        ResourceConfigs uuid2Resources = agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs();
+        assertThat(uuid2Resources, hasItem(new ResourceConfig("resource1")));
+        assertThat(uuid2Resources, hasItem(new ResourceConfig("resource2")));
     }
 
     @Test
-    public void shouldAddEnvironmentsToMultipleAgents() {
+    public void shouldAddEnvironmentsWhileBulkUpdatingAgents() {
         createEnvironment("uat", "prod");
 
         createEnabledAgent(UUID);
@@ -153,15 +163,16 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldNotFailTryingToAddAnAgentThatsAlreadyPresentInEnvironment() {
+    public void shouldNotFailWhenAddingAgentEnvironmentAssociationThatAlreadyExists() {
         createEnvironment("uat");
 
         createEnabledAgent(UUID);
         createEnabledAgent(UUID2);
 
-        CONFIG_HELPER.addAgentToEnvironment("uat", UUID);
-
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Collections.emptyList(), Collections.emptyList(), Arrays.asList("uat"), Collections.emptyList(), TriState.TRUE);
+
+        operationResult = new HttpLocalizedOperationResult();
         agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Collections.emptyList(), Collections.emptyList(), Arrays.asList("uat"), Collections.emptyList(), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(200));
@@ -170,14 +181,15 @@ public class AgentServiceIntegrationTest {
     }
 
     @Test
-    public void shouldRemoveEnvironmentsFromMultipleAgents() {
+    public void shouldRemoveEnvironmentsWhileBulkUpdatingAgents() {
         createEnvironment("uat", "prod");
 
         AgentConfig enabledAgent1 = createEnabledAgent(UUID);
         enabledAgent1.setEnvironments("uat");
         agentDao.saveOrUpdate(enabledAgent1);
+
         AgentConfig enabledAgent2 = createEnabledAgent(UUID2);
-        enabledAgent2.setEnvironments("prod");
+        enabledAgent2.setEnvironments("uat,prod");
         agentDao.saveOrUpdate(enabledAgent2);
 
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
@@ -185,30 +197,41 @@ public class AgentServiceIntegrationTest {
 
         assertThat(operationResult.httpCode(), is(200));
         assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
+
+        assertThat(environmentConfigService.environmentsFor(UUID), not(containsSet("uat")));
+
         assertThat(environmentConfigService.environmentsFor(UUID2), not(containsSet("uat")));
         assertThat(environmentConfigService.environmentsFor(UUID2), containsSet("prod"));
     }
 
     @Test
-    public void shouldNotChangeEnvironmentsOtherThanTheOneRemoveIsRequestedFor() {
-        createEnvironment("uat", "prod");
+    public void shouldOnlyAddRemoveAgentEnvironmentAssociationThatAreRequested() {
+        createEnvironment("uat", "prod", "perf", "test", "dev");
 
-        AgentConfig enabledAgent = createEnabledAgent(UUID);
-        enabledAgent.setEnvironments("uat,prod");
-        agentDao.saveOrUpdate(enabledAgent);
+        AgentConfig agent1 = createEnabledAgent(UUID);
+        agent1.setEnvironments("uat,prod");
+        agentDao.saveOrUpdate(agent1);
+
+        AgentConfig agent2 = createEnabledAgent(UUID2);
+        agent2.setEnvironments("prod,uat,perf");
+        agentDao.saveOrUpdate(agent2);
 
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList("uat"), TriState.TRUE);
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Collections.emptyList(), Collections.emptyList(), Arrays.asList("dev", "test", "perf"), Arrays.asList("uat", "prod"), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(200));
-        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid]."));
-        assertThat(environmentConfigService.environmentsFor(UUID), not(containsSet("uat")));
-        assertThat(environmentConfigService.environmentsFor(UUID), containsSet("prod"));
+        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
+
+        String[] expectedEnvs = new String[]{"perf", "dev", "test"};
+        assertThat(environmentConfigService.environmentsFor(UUID).size(), is(3));
+        assertThat(environmentConfigService.environmentsFor(UUID), containsSet(expectedEnvs));
+
+        assertThat(environmentConfigService.environmentsFor(UUID2).size(), is(3));
+        assertThat(environmentConfigService.environmentsFor(UUID2), containsSet(expectedEnvs));
     }
 
     @Test
-    public void shouldRespondToAgentEnvironmentModificationRequestWith406WhenErrors() {
-
+    public void shouldThrow400ErrorWhenNonExistingEnvironmentIsAssociatedWithAgent() {
         createEnabledAgent(UUID);
 
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
@@ -235,47 +258,48 @@ public class AgentServiceIntegrationTest {
     @Test
     public void shouldNotAllowUpdatingEnvironmentsWhenNotAdmin() {
         CONFIG_HELPER.enableSecurity();
-        CONFIG_HELPER.addAdmins("admin1");
+        CONFIG_HELPER.addAdmins("adminUser");
 
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Arrays.asList("uat"), TriState.TRUE);
+        List<String> emptyList = Collections.emptyList();
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), emptyList, emptyList, emptyList, Arrays.asList("uat"), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(403));
         assertThat(operationResult.message(), is("Unauthorized to edit."));
     }
 
     @Test
-    public void shouldRemoveResourcesFromMultipleAgents() {
+    public void shouldAddRemoveResourcesWhileBuikUpdatingAgents() {
         createEnabledAgent(UUID);
         createEnabledAgent(UUID2);
 
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Arrays.asList("resource-2"), Arrays.asList("resource-1"), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
+        String resource1 = "resource1";
+        String resource2 = "resource2";
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID, UUID2), Arrays.asList(resource1), Arrays.asList(resource2), Collections.emptyList(), Collections.emptyList(), TriState.TRUE);
 
         assertThat(operationResult.httpCode(), is(200));
         assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("resource-2")));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(), not(hasItem(new ResourceConfig("resource-1"))));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig("resource-2")));
-        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(), not(hasItem(new ResourceConfig("resource-1"))));
 
+        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig(resource1)));
+        assertThat(agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs(), not(hasItem(new ResourceConfig(resource2))));
+
+        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(), hasItem(new ResourceConfig(resource1)));
+        assertThat(agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs(), not(hasItem(new ResourceConfig(resource2))));
     }
 
     @Test
-    public void shouldFindAnAgentForAGivenUUID() {
-        AgentConfig enabledAgent = createEnabledAgent(UUID);
-        enabledAgent.setEnvironments("foo");
-        agentDao.saveOrUpdate(enabledAgent);
-        createEnabledAgent(UUID2);
-        BasicEnvironmentConfig foo = new BasicEnvironmentConfig(new CaseInsensitiveString("foo"));
-        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        environmentConfigService.createEnvironment(foo, Username.ANONYMOUS, result);
-
-        assertThat(result.isSuccessful(), is(true));
+    public void shouldFindAgentViewModelForAnExistingAgent() {
+        AgentConfig agent = createEnabledAgent(UUID);
+        String env = "prod";
+        agent.setEnvironments(env);
+        agentDao.saveOrUpdate(agent);
 
         AgentViewModel actual = agentService.findAgentViewModel(UUID);
-
-        assertThat(actual, is(new AgentViewModel(agentService.findAgentAndRefreshStatus(UUID), "foo")));
+        assertThat(actual.getUuid(), is(UUID));
+        HashSet<String> envSet = new HashSet<>();
+        envSet.add(env);
+        assertThat(actual.getEnvironments(), is(envSet));
     }
 
     @Test
@@ -340,7 +364,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
         ((AgentRuntimeInfo) ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
         EmailSender mailSender = mock(EmailSender.class);
-        AgentService agentService = new AgentService(new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender, agentStatusChangeNotifier(), goConfigService);
+        AgentService agentService = new AgentService(new SystemEnvironment(), securityService, agentDao, new UuidGenerator(), serverHealthService, agentStatusChangeNotifier(), goConfigService);
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 
@@ -359,7 +383,7 @@ public class AgentServiceIntegrationTest {
         AgentInstance instance = AgentInstanceMother.idle(date, "CCeDev01");
         ((AgentRuntimeInfo) ReflectionUtil.getField(instance, "agentRuntimeInfo")).setOperatingSystem("Minix");
         EmailSender mailSender = mock(EmailSender.class);
-        AgentService agentService = new AgentService(new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender, agentStatusChangeNotifier(), goConfigService);
+        AgentService agentService = new AgentService(new SystemEnvironment(), securityService, agentDao, new UuidGenerator(), serverHealthService, agentStatusChangeNotifier(), goConfigService);
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 
@@ -392,7 +416,7 @@ public class AgentServiceIntegrationTest {
         EmailSender mailSender = mock(EmailSender.class);
 
         agentDao.associateCookie(instance.getAgentIdentifier(), "rotten-cookie");
-        AgentService agentService = new AgentService(new SystemEnvironment(), environmentConfigService, securityService, agentDao, new UuidGenerator(), serverHealthService, mailSender, agentStatusChangeNotifier(), goConfigService);
+        AgentService agentService = new AgentService(new SystemEnvironment(), securityService, agentDao, new UuidGenerator(), serverHealthService, agentStatusChangeNotifier(), goConfigService);
         AgentInstances agentInstances = (AgentInstances) ReflectionUtil.getField(agentService, "agentInstances");
         agentInstances.add(instance);
 
@@ -1189,14 +1213,11 @@ public class AgentServiceIntegrationTest {
     }
 
     private class MockAgentStatusChangeNotifier extends AgentStatusChangeNotifier {
-
         public MockAgentStatusChangeNotifier() {
             super(null, null);
         }
 
         @Override
-        public void onAgentStatusChange(AgentInstance agentInstance) {
-
-        }
+        public void onAgentStatusChange(AgentInstance agentInstance) {}
     }
 }

@@ -141,7 +141,7 @@ public class AgentConfigServiceIntegrationTest {
 //    }
 //
 //    @Test
-//    public void shouldEnableMultipleAgents() {
+//    public void shouldBeAbleToEnabledMultipleAgents() {
 //        AgentConfig agentConfig1 = new AgentConfig(UUID.randomUUID().toString(), "remote-host1", "50.40.30.21", "cookie1");
 //        AgentConfig agentConfig2 = new AgentConfig(UUID.randomUUID().toString(), "remote-host2", "50.40.30.22", "cookie2");
 //        agentConfig1.disable();

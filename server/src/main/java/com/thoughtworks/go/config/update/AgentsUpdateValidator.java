@@ -28,6 +28,7 @@ import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
+import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang3.StringUtils;
 
@@ -38,6 +39,7 @@ import java.util.Set;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
+import static com.thoughtworks.go.serverhealth.HealthStateType.notFound;
 
 public class AgentsUpdateValidator {
     private AgentInstances agentInstances;
@@ -106,7 +108,7 @@ public class AgentsUpdateValidator {
             }
         }
         if (!unknownUUIDs.isEmpty()) {
-            result.badRequest(EntityType.Agent.notFoundMessage(unknownUUIDs));
+            result.notFound(EntityType.Agent.notFoundMessage(unknownUUIDs), notFound());
             throw new RecordNotFoundException(EntityType.Agent, unknownUUIDs);
         }
     }

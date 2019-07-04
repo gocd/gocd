@@ -169,7 +169,7 @@ describe("Dashboard", () => {
     it("should return pipeline config repo tooltip text for config repo pipelines", () => {
       pipelineJson   = pipelineJsonFor(defaultPauseInfo, true, true, true);
       const pipeline = new Pipeline(pipelineJson);
-      expect(pipeline.getSettingsDisabledTooltipText()).toEqual("Cannot edit pipeline defined in config repository.");
+      expect(pipeline.getSettingsDisabledTooltipText()).toEqual("Cannot edit pipeline defined in config repository: sample_config_repo with material url: https://foo:1234/go");
     });
 
     it("should return no permission tooltip text as default", () => {
@@ -300,35 +300,37 @@ describe("Dashboard", () => {
 
   const pipelineJsonFor = (pauseInfo, canPause = true, canOperate = true, fromConfigRepo = false) => {
     return {
-      "_links":                 {
-        "self":                 {
+      "_links":                   {
+        "self": {
           "href": "http://localhost:8153/go/api/pipelines/up42/history"
         },
-        "doc":                  {
+        "doc":  {
           "href": "https://api.go.cd/current/#pipelines"
         }
       },
-      "name":                   "up42",
-      "last_updated_timestamp": 1510299695473,
-      "locked":                 false,
-      "can_unlock":             true,
-      "pause_info":             pauseInfo,
-      "can_administer":         true,
-      "can_operate":            canOperate,
-      "can_pause":              canPause,
-      "from_config_repo":       fromConfigRepo,
-      "tracking_tool":          {
+      "name":                     "up42",
+      "last_updated_timestamp":   1510299695473,
+      "locked":                   false,
+      "can_unlock":               true,
+      "pause_info":               pauseInfo,
+      "can_administer":           true,
+      "can_operate":              canOperate,
+      "can_pause":                canPause,
+      "from_config_repo":         fromConfigRepo,
+      "config_repo_id":           "sample_config_repo",
+      "config_repo_material_url": "https://foo:1234/go",
+      "tracking_tool":            {
         "regex": "#(\\d+)",
         "link":  "http://example.com/${ID}/"
       },
-      "_embedded":              {
+      "_embedded":                {
         "instances": [
           {
             "_links":       {
-              "self":            {
+              "self": {
                 "href": "http://localhost:8153/go/api/pipelines/up42/instance/1"
               },
-              "doc":             {
+              "doc":  {
                 "href": "https://api.go.cd/current/#get-pipeline-instance"
               }
             },

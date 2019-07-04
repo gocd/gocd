@@ -20,6 +20,7 @@ import com.thoughtworks.go.api.base.OutputLinkWriter;
 import com.thoughtworks.go.api.base.OutputListWriter;
 import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.config.TrackingTool;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
 import com.thoughtworks.go.domain.PipelinePauseInfo;
 import com.thoughtworks.go.presentation.pipelinehistory.EmptyPipelineInstanceModel;
 import com.thoughtworks.go.server.dashboard.GoDashboardPipeline;
@@ -34,6 +35,7 @@ public class PipelineRepresenter {
     public static void toJSON(OutputWriter jsonOutputWriter, GoDashboardPipeline model, Username username) {
         String usernameString = username.getUsername().toString();
 
+        boolean isConfiguredFromConfigRepo = !model.isLocal();
         jsonOutputWriter
                 .addLinks(linksWriter -> addLinks(linksWriter, model))
                 .add("name", model.name().toString())
@@ -44,7 +46,14 @@ public class PipelineRepresenter {
                 .add("can_administer", model.canBeAdministeredBy(usernameString))
                 .add("can_unlock", model.canBeOperatedBy(usernameString))
                 .add("can_pause", model.canBeOperatedBy(usernameString))
-                .add("from_config_repo", !model.isLocal());
+                .add("from_config_repo", isConfiguredFromConfigRepo);
+
+        if (isConfiguredFromConfigRepo) {
+            RepoConfigOrigin configRepo = (RepoConfigOrigin) model.getOrigin();
+            jsonOutputWriter
+                    .add("config_repo_id", configRepo.getConfigRepo().getId())
+                    .add("config_repo_material_url", configRepo.getMaterial().getUriForDisplay());
+        }
 
         if (model.getTrackingTool().isPresent()) {
             TrackingTool trackingTool = model.getTrackingTool().get();

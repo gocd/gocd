@@ -4428,7 +4428,7 @@ public class MagicalGoConfigXmlLoaderTest {
                         "   <deny action=\"refer\" type=\"*\">up43</deny>  \n" +
                         "  </rules>\n" +
                         " </secretConfig>\n" +
-                        "</secretConfigs>", 124);
+                        "</secretConfigs>", CONFIG_SCHEMA_VERSION);
 
         CruiseConfig config = xmlLoader.loadConfigHolder(content).config;
 

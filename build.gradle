@@ -1337,7 +1337,7 @@ task upgradeApi {
       includeEmptyDirs = false
     }
 
-    addPackageToSpringClasspathScanning(newPackagePrefix)
+    addPackageToSpringClasspathScanning("$newPackagePrefix.${apiName.replaceAll(~/[^a-zA-Z]/, '')}")
     addProjectToSettingsGradle(newProjectName, it)
     addProjectToGitIgnore(newProjectName)
   }

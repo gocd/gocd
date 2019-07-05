@@ -94,9 +94,8 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands() {
       return [
         'yum update -y',
-        'yum install -y mercurial subversion openssh-clients bash unzip curl',
         "yum install --assumeyes centos-release-scl",
-        "yum install --assumeyes rh-git29",
+        'yum install --assumeyes rh-git29 mercurial subversion openssh-clients bash unzip curl procps sysvinit-tools coreutils',
         "cp /opt/rh/rh-git29/enable /etc/profile.d/rh-git29.sh",
         "yum clean all"
       ]
@@ -124,7 +123,7 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands() {
       return [
         'yum update -y',
-        'yum install -y git mercurial subversion openssh-clients bash unzip curl',
+        'yum install -y git mercurial subversion openssh-clients bash unzip curl sysvinit-tools coreutils',
         'yum clean all'
       ]
     }

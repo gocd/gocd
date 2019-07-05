@@ -68,6 +68,10 @@ enum OsType {
 
       // for `pidof`
       fpmArgs += ['--depends', 'sysvinit-tools']
+
+      // for `ps`
+      fpmArgs += ['--depends', 'procps']
+
       fpmArgs += ['--rpm-defattrfile', '0444']
       fpmArgs += ['--rpm-defattrdir', '0755']
 

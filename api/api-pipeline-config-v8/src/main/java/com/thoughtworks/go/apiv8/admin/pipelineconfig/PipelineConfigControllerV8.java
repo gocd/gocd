@@ -23,7 +23,7 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
-import com.thoughtworks.go.apiv8.admin.pipelineconfig.representers.PipelineConfigRepresenter;
+import com.thoughtworks.go.apiv8.admin.shared.representers.PipelineConfigRepresenter;
 import com.thoughtworks.go.apiv8.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;

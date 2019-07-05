@@ -33,7 +33,6 @@ class BuildDockerImageTask extends DefaultTask {
   Distro distro
   DistroVersion distroVersion
   String tiniVersion
-  String gosuVersion
   File artifactZip
   ImageType imageType
   File outputDir

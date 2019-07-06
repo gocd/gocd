@@ -38,56 +38,8 @@ subprojects {
   def distroVersionOnProject = project.name.replaceFirst("${distro.name()}-", "")
   DistroVersion distroVersion = distro.getVersion(distroVersionOnProject)
 
-  task verifyDockerImage {
-    doFirst {
-      println(["docker", "load", "--input", "${docker.imageTarFile}.gz"].join(" "))
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "load", "--input", "${docker.imageTarFile}.gz"]
-      }
-
-      // test image
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "run", "--rm", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
-        standardOutput = System.out
-        errorOutput = System.err
-      }
-
-      Thread.sleep(10000)
-
-      def process = ["docker", "exec", docker.dockerImageName, "ps", "aux"].execute()
-      process.waitFor()
-
-      def processList = process.text
-
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "stop", docker.dockerImageName]
-        standardOutput = System.out
-        errorOutput = System.err
-      }
-
-      Thread.sleep(10000)
-
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "rmi", docker.imageNameWithTag]
-        standardOutput = System.out
-        errorOutput = System.err
-      }
-
-      def expectedString = "lib/go.jar"
-
-      if (!processList.contains(expectedString)) {
-        throw new GradleException("Expected process output to contain ${expectedString}, but was: ${processList}".toString())
-      }
-    }
-  }
-
   project.tasks.create("docker", BuildDockerImageTask.class) { BuildDockerImageTask task ->
     assemble.dependsOn(task)
-    finalizedBy(verifyDockerImage)
 
     if (project.hasProperty('dockerBuildLocalZip')) {
       task.dependsOn ':installers:serverGenericZip'
@@ -134,6 +86,36 @@ subprojects {
 
         file.bytes = BuildDockerImageTask.class.getResource("/gocd-docker-server/${eachFile}").bytes
         file.setExecutable(true, false)
+      }
+    }
+
+    task.verifyHelper = {
+      // test image
+      project.exec {
+        workingDir = project.rootProject.projectDir
+        commandLine = ["docker", "run", "--rm", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
+        standardOutput = System.out
+        errorOutput = System.err
+      }
+
+      Thread.sleep(10000)
+
+      def process = ["docker", "exec", docker.dockerImageName, "ps", "aux"].execute()
+      process.waitFor()
+
+      def processList = process.text
+
+      project.exec {
+        workingDir = project.rootProject.projectDir
+        commandLine = ["docker", "stop", docker.dockerImageName]
+        standardOutput = System.out
+        errorOutput = System.err
+      }
+
+      def expectedString = "lib/go.jar"
+
+      if (!processList.contains(expectedString)) {
+        throw new GradleException("Expected process output to contain ${expectedString}, but was: ${processList}".toString())
       }
     }
   }

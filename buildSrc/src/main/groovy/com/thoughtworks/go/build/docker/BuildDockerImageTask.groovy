@@ -37,6 +37,7 @@ class BuildDockerImageTask extends DefaultTask {
   ImageType imageType
   File outputDir
   Closure templateHelper
+  Closure verifyHelper
 
   BuildDockerImageTask() {
     outputs.cacheIf { false }
@@ -66,6 +67,14 @@ class BuildDockerImageTask extends DefaultTask {
     if (!project.hasProperty('skipDockerBuild')) {
       // build image
       executeInGitRepo("docker", "build", "--pull", ".", "--tag", imageNameWithTag)
+
+      // verify image
+      if (verifyHelper != null) {
+        verifyHelper.call()
+      }
+
+      // give docker some some to stop the container (from the verify helper)
+      Thread.sleep(10000)
 
       // export to tar
       project.mkdir(imageTarFile.parentFile)

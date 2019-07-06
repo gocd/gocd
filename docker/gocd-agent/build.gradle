@@ -38,56 +38,8 @@ subprojects {
   def distroVersionOnProject = project.name.replaceFirst("${distro.name()}-", "")
   DistroVersion distroVersion = distro.getVersion(distroVersionOnProject)
 
-  task verifyDockerImage {
-    doFirst {
-      println(["docker", "load", "--input", "${docker.imageTarFile}.gz"].join(" "))
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "load", "--input", "${docker.imageTarFile}.gz"]
-      }
-
-      // test image
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "run", "--rm", "-e", "GO_SERVER_URL=https://localhost:8154/go", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
-        standardOutput = System.out
-        errorOutput = System.err
-      }
-
-      Thread.sleep(5000)
-
-      def process = ["docker", "exec", docker.dockerImageName, "ps", "aux"].execute()
-      process.waitFor()
-
-      def processList = process.text
-
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "stop", docker.dockerImageName]
-        standardOutput = System.out
-        errorOutput = System.err
-      }
-
-      Thread.sleep(5000)
-      
-      project.exec {
-        workingDir = project.rootProject.projectDir
-        commandLine = ["docker", "rmi", docker.imageNameWithTag]
-        standardOutput = System.out
-        errorOutput = System.err
-      }
-
-      def expectedString = "lib/agent-bootstrapper.jar -serverUrl https://localhost:8154/go"
-
-      if (!processList.contains(expectedString)) {
-        throw new GradleException("Expected process output to contain ${expectedString}, but was: ${processList}".toString())
-      }
-    }
-  }
-
   task docker(type: BuildDockerImageTask) { BuildDockerImageTask task ->
     assemble.dependsOn(task)
-    finalizedBy(verifyDockerImage)
 
     if (project.hasProperty('dockerBuildLocalZip')) {
       task.dependsOn ':installers:agentGenericZip'
@@ -140,6 +92,36 @@ subprojects {
         def file = project.file("${task.gitRepoDirectory}/run-docker-daemon.sh")
         file.bytes = BuildDockerImageTask.class.getResource("/gocd-docker-agent/run-docker-daemon.sh").bytes
         file.setExecutable(true, false)
+      }
+    }
+
+    task.verifyHelper = {
+      // test image
+      project.exec {
+        workingDir = project.rootProject.projectDir
+        commandLine = ["docker", "run", "--rm", "-e", "GO_SERVER_URL=https://localhost:8154/go", "-d", "--name", docker.dockerImageName, docker.imageNameWithTag]
+        standardOutput = System.out
+        errorOutput = System.err
+      }
+
+      Thread.sleep(5000)
+
+      def process = ["docker", "exec", docker.dockerImageName, "ps", "aux"].execute()
+      process.waitFor()
+
+      def processList = process.text
+
+      project.exec {
+        workingDir = project.rootProject.projectDir
+        commandLine = ["docker", "stop", docker.dockerImageName]
+        standardOutput = System.out
+        errorOutput = System.err
+      }
+
+      def expectedString = "lib/agent-bootstrapper.jar -serverUrl https://localhost:8154/go"
+
+      if (!processList.contains(expectedString)) {
+        throw new GradleException("Expected process output to contain ${expectedString}, but was: ${processList}".toString())
       }
     }
   }

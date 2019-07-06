@@ -151,9 +151,9 @@ public class AgentDao extends HibernateDaoSupport {
         });
     }
 
-    public void saveOrUpdate(AgentConfig agentConfig) {
-        final String key = agentCacheKey(agentConfig.getUuid());
-        updateAgentObject(agentConfig);
+    public void saveOrUpdate(AgentConfig agent) {
+        final String key = agentCacheKey(agent.getUuid());
+        updateAgentObject(agent);
         synchronized (key) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
@@ -162,10 +162,10 @@ public class AgentDao extends HibernateDaoSupport {
                         @Override
                         public void afterCommit() {
                             cache.remove(key);
-                            notifyAgentEntityChangeListeners(agentConfig);
+                            notifyAgentEntityChangeListeners(agent);
                         }
                     });
-                    sessionFactory.getCurrentSession().saveOrUpdate(agentConfig);
+                    sessionFactory.getCurrentSession().saveOrUpdate(agent);
                 }
             });
         }

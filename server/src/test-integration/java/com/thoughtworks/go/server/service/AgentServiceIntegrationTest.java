@@ -55,6 +55,7 @@ import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -153,7 +154,6 @@ public class AgentServiceIntegrationTest {
             AgentConfig disabledAgent1 = createAnIdleAgentAndDisableIt(UUID);
             AgentConfig disabledAgent2 = createAnIdleAgentAndDisableIt(UUID2);
 
-            goConfigDao.load();
             assertThat(agentService.agentInstances().size(), is(2));
 
             HttpOperationResult operationResult = new HttpOperationResult();
@@ -170,7 +170,6 @@ public class AgentServiceIntegrationTest {
         public void shouldNotBeAbleToDeleteADisabledAgentWhoseRuntimeStatusIsBuilding() {
             AgentConfig disabledButBuildingAgent = createDisabledAgentWithBuildingRuntimeStatus(UUID);
 
-            goConfigDao.load();
             assertThat(agentService.agentInstances().size(), is(1));
 
             HttpOperationResult operationResult = new HttpOperationResult();
@@ -203,7 +202,6 @@ public class AgentServiceIntegrationTest {
             AgentConfig disabledAgent = createAnIdleAgentAndDisableIt(UUID);
             AgentConfig enabledAgent = createEnabledAgent(UUID2);
 
-            goConfigDao.load();
             assertThat(agentService.agentInstances().size(), is(2));
 
             HttpOperationResult operationResult = new HttpOperationResult();
@@ -576,12 +574,9 @@ public class AgentServiceIntegrationTest {
             AgentIdentifier identifier = instance.agentConfig().getAgentIdentifier();
             agentDao.associateCookie(identifier, "new_cookie");
             AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "old_cookie", false);
-            try {
-                agentService.updateRuntimeInfo(runtimeInfo);
-                fail("agent with bad cookie should not be able to update runtime info");
-            } catch (AgentWithDuplicateUUIDException e) {
-                assertThat(e.getMessage(), is(format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString())));
-            }
+
+            AgentWithDuplicateUUIDException e = assertThrows(AgentWithDuplicateUUIDException.class, () -> agentService.updateRuntimeInfo(runtimeInfo));
+            assertEquals(e.getMessage(), format("Agent [%s] has invalid cookie", runtimeInfo.agentInfoDebugString()));
 
             agents = agentService.findRegisteredAgents();
             assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
@@ -618,8 +613,6 @@ public class AgentServiceIntegrationTest {
             String headCommitBeforeUpdate = configRepository.getCurrentRevCommit().name();
             createAnIdleAgentAndDisableIt(UUID);
             createEnvironment("a", "b");
-
-            goConfigDao.load();
 
             assertThat(agentService.agentInstances().size(), is(1));
             assertThat(getFirstAgent().getHostname(), is(not("some-hostname")));
@@ -661,8 +654,6 @@ public class AgentServiceIntegrationTest {
 
             HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
             agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, Arrays.asList(UUID), Collections.emptyList(), Collections.emptyList(), Arrays.asList("a", "b"), Collections.emptyList(), TriState.TRUE);
-
-            goConfigDao.load();
 
             assertThat(agentService.agentInstances().size(), is(1));
 

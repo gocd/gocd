@@ -95,7 +95,9 @@ class MaterialEditWidget extends MithrilViewComponent<EditableMaterial> {
                   {vnode.children}
                 </Form>
               </FormBody>
-              <TestConnection material={vnode.attrs.repo.material()}/>
+              <div class={styles.materialTestConnectionWrapper}>
+                <TestConnection material={vnode.attrs.repo.material()}/>
+              </div>
             </div>
             <div class={styles.pluginFilePatternConfigWrapper}>
               <FormBody>

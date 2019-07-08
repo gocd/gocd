@@ -19,7 +19,7 @@
 @import "../../components/forms/autocomplete";
 @import "../../components/buttons/index";
 
-$diagram-width: 485px;
+$diagram-width: 420px;
 $diagram-caption-width: 300px;
 $error-container-width: 450px;
 
@@ -59,8 +59,8 @@ $error-container-width: 450px;
 }
 
 .section-heading {
-  font-size: 30px;
-  font-weight: 500;
+  font-size: 24px;
+  font-weight: 600;
 
   margin: 0;
   padding: 0;
@@ -77,7 +77,7 @@ $error-container-width: 450px;
 .section-note {
   display: inline-block;
   font-size: 12px;
-  margin: 5px 0 15px;
+  margin: 5px 0 20px;
 
   .attention {
     color: $go-danger;
@@ -153,10 +153,9 @@ $error-container-width: 450px;
   display: block;
   width: 100%;
 
-  margin: 0;
-  padding: 5px 0;
-  border-bottom: 1px solid darken($line-color, 20%);;
-  border-top: 1px solid darken($line-color, 20%);;
+  margin: 5px 0 0;
+  padding: 15px 0 5px;
+  border-top: 1px solid $line-color;
 
   .approval-type-selectors .approval-type-selector {
     margin: 0 5px;
@@ -191,11 +190,12 @@ $error-container-width: 450px;
   }
 
   .summary {
-    @include icon-before($type: $fa-var-play, $color: lighten($text-color, 30%), $size: 16px, $line-height: 25px, $margin: 0 5px);
+    @include icon-before($type: $fa-var-chevron-right, $color: $text-color, $size: 16px, $line-height: 25px, $margin: 0 5px);
 
     line-height: 25px;
     cursor: pointer;
     outline: none;
+    font-weight: 600;
   }
 
   .details {
@@ -235,13 +235,6 @@ $error-container-width: 450px;
   cursor: pointer;
 }
 
-$btn-finish: #6eb642;
-
-.btn-primary:hover {
-  background-color: $btn-finish;
-  border-color: $btn-finish;
-}
-
 .btn-secondary {
   @include button($background-color: $white);
 
@@ -249,9 +242,9 @@ $btn-finish: #6eb642;
   border: 1px solid $btn-primary;
 
   &:hover {
-    color: $btn-finish;
-    background-color: $white;
-    border-color: $btn-finish;
+    color: $white;
+    background-color: darken($btn-primary, 10%);
+    border-color: darken($btn-primary, 10%);
   }
 }
 

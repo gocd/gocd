@@ -7,6 +7,7 @@ export const pluginFilePatternConfigWrapper: string;
 export const configRepoUpdateInProgress: string;
 export const rotate: string;
 export const materialConfigWrapper: string;
+export const materialTestConnectionWrapper: string;
 export const headerTitle: string;
 export const headerTitleText: string;
 export const headerTitleUrl: string;

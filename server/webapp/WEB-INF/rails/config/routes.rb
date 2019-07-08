@@ -263,17 +263,6 @@ Rails.application.routes.draw do
     end
   end
 
-  scope :api, as: :apiv4, format: false do
-    api_version(:module => 'ApiV4', header: {name: 'Accept', value: 'application/vnd.go.cd.v4+json'}) do
-
-      namespace :admin do
-        resources :plugin_info, controller: :plugin_infos, param: :id, only: [:index, :show], constraints: {id: PLUGIN_ID_FORMAT}
-      end
-
-      match '*url', via: :all, to: 'errors#not_found'
-    end
-  end
-
   namespace :admin do
     get 'status_reports/:plugin_id' => 'status_reports#plugin_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :status_report
     get 'status_reports/:plugin_id/agent/:elastic_agent_id' => 'status_reports#agent_status', constraints: {plugin_id: PLUGIN_ID_FORMAT}, format: false, as: :agent_status_report

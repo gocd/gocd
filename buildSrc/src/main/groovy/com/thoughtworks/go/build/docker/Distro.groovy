@@ -123,7 +123,7 @@ enum Distro implements DistroBehavior {
     List<String> getInstallPrerequisitesCommands() {
       return [
         'yum update -y',
-        'yum install -y git mercurial subversion openssh-clients bash unzip curl sysvinit-tools coreutils',
+        'yum install -y git mercurial subversion openssh-clients bash unzip curl procps-ng coreutils',
         'yum clean all'
       ]
     }

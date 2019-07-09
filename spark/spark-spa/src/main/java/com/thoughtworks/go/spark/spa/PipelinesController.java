@@ -16,6 +16,8 @@
 
 package com.thoughtworks.go.spark.spa;
 
+import com.thoughtworks.go.server.cache.GoCache;
+import com.thoughtworks.go.server.service.support.toggle.Toggles;
 import com.thoughtworks.go.spark.SparkController;
 import com.thoughtworks.go.spark.spring.SPAAuthenticationHelper;
 import spark.ModelAndView;
@@ -27,15 +29,18 @@ import java.util.HashMap;
 
 import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_BASE;
 import static com.thoughtworks.go.spark.Routes.PipelineConfig.SPA_CREATE;
+import static com.thoughtworks.go.server.service.datasharing.DataSharingUsageDataService.ADD_PIPELINE_CTA;
 import static spark.Spark.*;
 
 public class PipelinesController implements SparkController {
     private SPAAuthenticationHelper authenticationHelper;
     private TemplateEngine engine;
+    private GoCache goCache;
 
-    public PipelinesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine) {
+    public PipelinesController(SPAAuthenticationHelper authenticationHelper, TemplateEngine engine, GoCache goCache) {
         this.authenticationHelper = authenticationHelper;
         this.engine = engine;
+        this.goCache = goCache;
     }
 
     @Override
@@ -55,6 +60,10 @@ public class PipelinesController implements SparkController {
         HashMap<Object, Object> object = new HashMap<Object, Object>() {{
             put("viewTitle", "Create a pipeline");
         }};
+
+        if(Toggles.isToggleOn(Toggles.TEST_DRIVE)) {
+            goCache.put(ADD_PIPELINE_CTA, true);
+        }
 
         return new ModelAndView(object, null);
     }

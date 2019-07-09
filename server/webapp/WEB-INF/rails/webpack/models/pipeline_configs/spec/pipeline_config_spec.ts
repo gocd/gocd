@@ -123,7 +123,7 @@ describe("PipelineConfig model", () => {
       const config = new PipelineConfig("name", defaultMaterials, defaultStages);
       stubPipelineCreateSuccess(config);
 
-      config.create().then((response) => {
+      config.create(false).then((response) => {
         expect(response.getStatusCode()).toBe(200);
         expect(() => response.getOrThrow()).not.toThrow();
         expect(JSON.parse(response.getOrThrow())).toEqual(config.toApiPayload());
@@ -145,20 +145,6 @@ describe("PipelineConfig model", () => {
       });
     });
   });
-
-  it("pause()", (done) => {
-    jasmine.Ajax.withMock(() => {
-      const config = new PipelineConfig("name", defaultMaterials, defaultStages);
-      stubPipelinePause(config.name());
-
-      config.pause().then((response) => {
-        expect(response.getStatusCode()).toBe(202);
-        expect(() => response.getOrThrow()).not.toThrow();
-        expect(JSON.parse(response.getOrThrow())).toEqual({message: `Pipeline '${config.name()}' paused successfully.`});
-        done();
-      });
-    });
-  });
 });
 
 function stubPipelineCreateSuccess(config: PipelineConfig) {
@@ -175,16 +161,6 @@ function stubPipelineCreateSuccess(config: PipelineConfig) {
 function stubPipelineTrigger(name: string) {
   jasmine.Ajax.stubRequest(SparkRoutes.pipelineTriggerPath(name), undefined, "POST").andReturn({
     responseText:    JSON.stringify({message: `Request to schedule pipeline '${name}' accepted successfully.`}),
-    status:          202,
-    responseHeaders: {
-      'Content-Type': 'application/vnd.go.cd.v1+json'
-    }
-  });
-}
-
-function stubPipelinePause(name: string) {
-  jasmine.Ajax.stubRequest(SparkRoutes.pipelinePausePath(name), undefined, "POST").andReturn({
-    responseText:    JSON.stringify({message: `Pipeline '${name}' paused successfully.`}),
     status:          202,
     responseHeaders: {
       'Content-Type': 'application/vnd.go.cd.v1+json'

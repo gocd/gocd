@@ -26,6 +26,9 @@ public class UsageStatistics {
     private final long oldestPipelineExecutionTime;
     private final String serverId;
     private final String gocdVersion;
+    private Boolean addCTA;
+    private Boolean saveAndRunCTA;
+    private Boolean testDrive;
 
     private UsageStatistics(Builder builder) {
         this.pipelineCount = builder.pipelineCount;
@@ -36,10 +39,17 @@ public class UsageStatistics {
         this.configRepoPipelineCount = builder.configRepoPipelineCount;
         this.jobCount = builder.jobCount;
         this.elasticAgentPluginToJobCount = builder.elasticAgentPluginToJobCount;
+        this.addCTA = builder.addCTA;
+        this.saveAndRunCTA = builder.saveAndRunCTA;
+        this.testDrive = builder.testDrive;
     }
 
     public static Builder newUsageStatistics() {
         return new Builder();
+    }
+
+    public Boolean testDrive() {
+        return testDrive;
     }
 
     public String serverId() {
@@ -70,6 +80,14 @@ public class UsageStatistics {
         return jobCount;
     }
 
+    public Boolean addCTA() {
+        return addCTA;
+    }
+
+    public Boolean saveAndRunCTA() {
+        return saveAndRunCTA;
+    }
+
     public Map<String, Long> elasticAgentPluginToJobCount() {
         return elasticAgentPluginToJobCount;
     }
@@ -83,12 +101,30 @@ public class UsageStatistics {
         private long configRepoPipelineCount;
         private long jobCount;
         private Map<String, Long> elasticAgentPluginToJobCount;
+        private Boolean addCTA;
+        private Boolean saveAndRunCTA;
+        private Boolean testDrive;
 
         private Builder() {
         }
 
         public UsageStatistics build() {
             return new UsageStatistics(this);
+        }
+
+        public Builder addCTA(Boolean addCTA) {
+            this.addCTA = addCTA;
+            return this;
+        }
+
+        public Builder testDrive(Boolean testDrive) {
+            this.testDrive = testDrive;
+            return this;
+        }
+
+        public Builder saveAndRunCTA(Boolean saveAndRunCTA) {
+            this.saveAndRunCTA = saveAndRunCTA;
+            return this;
         }
 
         public Builder pipelineCount(long pipelineCount) {

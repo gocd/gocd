@@ -111,7 +111,7 @@ describe("Data Sharing Settings Widget", () => {
   });
 
   it('should show the consent for collected metrics list', () => {
-    expect(helper.find('.consent-for-wrapper .consent-for')).toHaveLength(8);
+    expect(helper.find('.consent-for-wrapper .consent-for')).toHaveLength(10);
     const consentFor = helper.find('.consent-for-wrapper .consent-for');
 
     const pipelineConsentKey         = 'Number of pipelines (pipeline_count)';
@@ -128,6 +128,12 @@ describe("Data Sharing Settings Widget", () => {
 
     const elasticAgentJobConsentKey         = 'Number of elastic agent jobs (job_count and elastic_agent_job_count) [Added in GoCD v18.8.0]';
     const elasticAgentJobConsentDescription = 'These counts provides a measure of usefulness of elastic agent plugins. We’ve recently spent effort on elastic agents plugins (for Kubernetes, Docker, etc). This helps decide which plugins to put more effort into and improve.';
+
+    const testDriveConsentKey         = "Test drive instance (test_drive_instance)";
+    const testDriveConsentDescription = "Whether or not this GoCD server is a test drive instance";
+
+    const testDriveMetricsConsentKey         = "Test drive metrics (test_drive_metrics)";
+    const testDriveMetricsConsentDescription = "These metrics are only collected for GoCD test drive instances";
 
     const gocdVersionConsentKey         = "GoCD version (gocd_version)";
     const gocdVersionConsentDescription = "This is the version of GoCD the server is on.";
@@ -153,14 +159,20 @@ describe("Data Sharing Settings Widget", () => {
     expect($(consentFor.get(4))).toContainText(elasticAgentJobConsentKey);
     expect($(consentFor.get(4))).toContainText(elasticAgentJobConsentDescription);
 
-    expect($(consentFor.get(5))).toContainText(gocdVersionConsentKey);
-    expect($(consentFor.get(5))).toContainText(gocdVersionConsentDescription);
+    expect($(consentFor.get(5))).toContainText(testDriveConsentKey);
+    expect($(consentFor.get(5))).toContainText(testDriveConsentDescription);
 
-    expect($(consentFor.get(6))).toContainText(serverIdConsentKey);
-    expect($(consentFor.get(6))).toContainText(serverIdConsentDescription);
+    expect($(consentFor.get(6))).toContainText(testDriveMetricsConsentKey);
+    expect($(consentFor.get(6))).toContainText(testDriveMetricsConsentDescription);
 
-    expect($(consentFor.get(7))).toContainText(messageVersionConsentKey);
-    expect($(consentFor.get(7))).toContainText(messageVersionConsentDescription);
+    expect($(consentFor.get(7))).toContainText(gocdVersionConsentKey);
+    expect($(consentFor.get(7))).toContainText(gocdVersionConsentDescription);
+
+    expect($(consentFor.get(8))).toContainText(serverIdConsentKey);
+    expect($(consentFor.get(8))).toContainText(serverIdConsentDescription);
+
+    expect($(consentFor.get(9))).toContainText(messageVersionConsentKey);
+    expect($(consentFor.get(9))).toContainText(messageVersionConsentDescription);
   });
 
   it('should show what data will be sent when GoCD data sharing is allowed', () => {

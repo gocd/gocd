@@ -17,6 +17,11 @@
       "value": false
     },
     {
+      "key": "test_drive",
+      "description": "test drive instance.",
+      "value": false
+    },
+    {
       "key": "add_pipeline_button_styling",
       "description": "Makes the add pipeline buttons for pipeline groups on dashboard styled like a primary button.",
       "value": false

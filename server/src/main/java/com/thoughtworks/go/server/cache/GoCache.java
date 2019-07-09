@@ -182,6 +182,14 @@ public class GoCache {
         return get(compositeKey(key, subKey));
     }
 
+    public <T> T getOrDefault(String key, T def) {
+        if(isKeyInCache(key)) {
+            return (T) get(key);
+        }
+
+        return def;
+    }
+
     public void put(String key, String subKey, Object value) {
         KeyList subKeys;
         synchronized (key.intern()) {

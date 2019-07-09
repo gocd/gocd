@@ -19,7 +19,7 @@ import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.server.domain.UsageStatistics;
 
 public class UsageStatisticsRepresenter {
-    private static final int MESSAGE_SCHEMA_VERSION = 2;
+    private static final int MESSAGE_SCHEMA_VERSION = 3;
 
     public static void toJSON(OutputWriter outputWriter, UsageStatistics usageStatistics) {
         outputWriter
@@ -39,6 +39,11 @@ public class UsageStatisticsRepresenter {
                                         c.add("job_count", jobCount);
                                     });
                                 });
+                            })
+                            .add("test_drive_instance", usageStatistics.testDrive())
+                            .addChild("test_drive_metrics", testDriveWriter -> {
+                               testDriveWriter.add("add_pipeline_cta", usageStatistics.addCTA());
+                               testDriveWriter.add("save_and_run_cta", usageStatistics.saveAndRunCTA());
                             })
                             .add("gocd_version", usageStatistics.gocdVersion());
                 });

@@ -34,12 +34,15 @@ class UsageStatisticsRepresenterTest {
       .jobCount(15l)
       .elasticAgentPluginToJobCount([ecs: 10L, docker: 5L])
       .gocdVersion("18.7.0")
+      .testDrive(false)
+      .addCTA(false)
+      .saveAndRunCTA(false)
       .build()
 
     def actualJson = toObjectString({ UsageStatisticsRepresenter.toJSON(it, usageStatistics) })
     def expectedJson = [
       "server_id"      : "server-id",
-      "message_version": 2,
+      "message_version": 3,
       "data"           : [
         pipeline_count                : 100,
         config_repo_pipeline_count    : 25,
@@ -56,6 +59,11 @@ class UsageStatisticsRepresenterTest {
           ]
         ],
         oldest_pipeline_execution_time: 1527244129553,
+        test_drive_instance           : false,
+        test_drive_metrics            : [
+          add_pipeline_cta: false,
+          save_and_run_cta: false
+        ],
         gocd_version                  : "18.7.0"
       ]
     ]

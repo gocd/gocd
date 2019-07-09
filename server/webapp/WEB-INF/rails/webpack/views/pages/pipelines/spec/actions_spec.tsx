@@ -161,16 +161,12 @@ describe("AddPipeline: Actions Section", () => {
 
   it("Save and Edit goes saves and enters edit page", (done) => {
     config.isValid = jasmine.createSpy("isValid").and.returnValue(true);
-    config.create = jasmine.createSpy("create").and.
-      returnValue(createSuccessResp(config).catch(done.fail));
+    const createPromise = createSuccessResp(config).catch(done.fail);
+    config.create = jasmine.createSpy("create").and.returnValue(createPromise);
 
-    const pausePromise = pauseSuccessResp(config).catch(done.fail);
-    config.pause = jasmine.createSpy("pause").and.returnValue(pausePromise);
-
-    pausePromise.finally(() => {
+    createPromise.finally(() => {
       expect(config.isValid).toHaveBeenCalled();
       expect(config.create).toHaveBeenCalled();
-      expect(config.pause).toHaveBeenCalled();
 
       setTimeout(() => { // allow the outer promise.then() wrapping pausePromise to finish
         expect(loc.urls.length).toBe(1);
@@ -220,11 +216,5 @@ function createFailedRespWithUnboundErrors(config: PipelineConfig): Promise<ApiR
 function runSuccessResp(config: PipelineConfig): Promise<ApiResult<string>> {
   return new Promise<ApiResult<string>>((resolve) => {
     resolve(ApiResult.success(JSON.stringify({message: `Request to schedule pipeline ${config.name()} accepted`}), 202, null));
-  });
-}
-
-function pauseSuccessResp(config: PipelineConfig): Promise<ApiResult<string>> {
-  return new Promise<ApiResult<string>>((resolve) => {
-    resolve(ApiResult.success(JSON.stringify({message: `Pipeline '${config.name()}' paused successfully.`}), 202, null));
   });
 }

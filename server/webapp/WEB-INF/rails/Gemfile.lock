@@ -224,7 +224,7 @@ GEM
     websocket-extensions (0.1.3)
     xpath (2.1.0)
       nokogiri (~> 1.3)
-    yard (0.9.16)
+    yard (0.9.20)
 
 PLATFORMS
   java

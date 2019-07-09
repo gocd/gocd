@@ -31,7 +31,8 @@ import static org.junit.Assert.fail;
 
 public class AgentsViewModelTest {
 
-    @Test public void shouldSortByStatusAsc() {
+    @Test
+    public void shouldSortByStatusAsc() {
         AgentsViewModel instances = agentsViewModel();
         instances.sortBy(AgentViewModel.STATUS_COMPARATOR, SortOrder.ASC);
         for (int i = 1; i < instances.size(); i++) {
@@ -39,7 +40,8 @@ public class AgentsViewModelTest {
         }
     }
 
-    @Test public void shouldSortByStatusDesc() {
+    @Test
+    public void shouldSortByStatusDesc() {
         AgentsViewModel instances = agentsViewModel();
         instances.sortBy(AgentViewModel.STATUS_COMPARATOR, SortOrder.DESC);
 
@@ -166,11 +168,11 @@ public class AgentsViewModelTest {
         AgentsViewModel agents = new AgentsViewModel();
         AgentInstance idle = AgentInstanceMother.idle(new Date(), "CCeDev01");
         AgentInstanceMother.updateOS(idle, "macos");
-        idle.getResourceConfigs().add(new ResourceConfig("foo"));
-        idle.getResourceConfigs().add(new ResourceConfig("bar"));
+        idle.agentConfig().addResourceConfig(new ResourceConfig("foo"));
+        idle.agentConfig().addResourceConfig(new ResourceConfig("bar"));
         agents.add(new AgentViewModel(idle, "uat"));
         AgentInstance building = AgentInstanceMother.building();
-        building.getResourceConfigs().add(new ResourceConfig("goofooboo"));
+        building.agentConfig().addResourceConfig(new ResourceConfig("goofooboo"));
         agents.add(new AgentViewModel(building, "dev", "uat"));
         agents.add(new AgentViewModel(AgentInstanceMother.pending()));
         agents.add(new AgentViewModel(AgentInstanceMother.disabled(), "prod"));

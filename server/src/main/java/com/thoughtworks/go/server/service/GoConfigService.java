@@ -209,7 +209,6 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return getCurrentConfig().agents();
     }
 
-    @Deprecated()
     public CruiseConfig currentCruiseConfig() {
         return getCurrentConfig();
     }
@@ -218,17 +217,14 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return cruiseConfig().getEnvironments();
     }
 
-    @Deprecated()
     public CruiseConfig getCurrentConfig() {
         return cruiseConfig();
     }
 
-    @Deprecated()
     public CruiseConfig getConfigForEditing() {
         return goConfigDao.loadForEditing();
     }
 
-    @Deprecated()
     public CruiseConfig getMergedConfigForEditing() {
         return goConfigDao.loadMergedForEditing();
     }

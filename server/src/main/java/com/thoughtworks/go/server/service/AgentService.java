@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
 
@@ -270,9 +271,9 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
                 List<String> uuidsOfAgentsInDatabase = allAgents.stream().map(agent -> agent.getUuid()).collect(Collectors.toList());
                 List<String> nonExistentAgentIds = uuids.stream().filter(uuid -> !uuidsOfAgentsInDatabase.contains(uuid)).collect(Collectors.toList());
                 //TODO : Revisit this for checking whether to throw this error
-//                if (nonExistentAgentIds != null) {
-//                    bomb("Unable to delete agent; Agent [" + uuid + "] not found.");
-//                }
+                if (!nonExistentAgentIds.isEmpty()) {
+                    bomb("Unable to delete agent; Agent [" + nonExistentAgentIds + "] not found.");
+                }
             }
             agentDao.bulkSoftDelete(uuids);
             operationResult.ok(String.format("Deleted %s agent(s).", agents.size()));

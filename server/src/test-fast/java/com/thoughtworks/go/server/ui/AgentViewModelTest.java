@@ -35,7 +35,8 @@ import static org.mockito.Mockito.mock;
 
 public class AgentViewModelTest {
 
-    @Test public void shouldSortAgentInstanceWithDifferentStatusCorrectly(){
+    @Test
+    public void shouldSortAgentInstanceWithDifferentStatusCorrectly() {
         AgentViewModel agentBuilding = new AgentViewModel(building());
         AgentViewModel agentCancelled = new AgentViewModel(cancelled());
         AgentViewModel agentIdle = new AgentViewModel(idle(new Date(), "CCeDev01"));
@@ -45,7 +46,8 @@ public class AgentViewModelTest {
         assertThat(sorted.get(2), is(agentIdle));
     }
 
-    @Test public void shouldSortAgentInstanceWithDifferentHostnameCorrectly(){
+    @Test
+    public void shouldSortAgentInstanceWithDifferentHostnameCorrectly() {
         AgentViewModel agentA = new AgentViewModel(updateHostname(pending(), "A"));
         AgentViewModel agentB = new AgentViewModel(updateHostname(pending(), "B"));
         AgentViewModel agentLowerA = new AgentViewModel(updateHostname(pending(), "a"));
@@ -55,7 +57,8 @@ public class AgentViewModelTest {
         assertThat(sorted.get(2), is(agentB));
     }
 
-    @Test public void shouldSortAgentInstanceWithDifferentLocationCorrectly(){
+    @Test
+    public void shouldSortAgentInstanceWithDifferentLocationCorrectly() {
         AgentViewModel agentInLib = new AgentViewModel(updateLocation(pending(), "/var/lib"));
         AgentViewModel agentInBin = new AgentViewModel(updateLocation(pending(), "/usr/bin"));
         AgentViewModel agentInUpcaseBin = new AgentViewModel(updateLocation(pending(), "/Usr/bin"));
@@ -65,7 +68,8 @@ public class AgentViewModelTest {
         assertThat(sorted.get(2), is(agentInLib));
     }
 
-    @Test public void shouldSortAgentInstanceWithDifferentIpAddressesCorrectly(){
+    @Test
+    public void shouldSortAgentInstanceWithDifferentIpAddressesCorrectly() {
         AgentViewModel agent20 = new AgentViewModel(updateIpAddress(AgentInstanceMother.disabled(), "10.12.34.20"));
         AgentViewModel agent3 = new AgentViewModel(updateIpAddress(AgentInstanceMother.disabled(), "10.12.34.3"));
         AgentViewModel agent2_12_30 = new AgentViewModel(updateIpAddress(AgentInstanceMother.disabled(), "10.2.12.30"));
@@ -106,7 +110,8 @@ public class AgentViewModelTest {
         }
     }
 
-    @Test public void shouldSortAgentInstanceWithDifferentResourcesCorrectly(){
+    @Test
+    public void shouldSortAgentInstanceWithDifferentResourcesCorrectly() {
         AgentViewModel agentA = new AgentViewModel(updateResources(AgentInstanceMother.building(), "a"));
         AgentViewModel agentB = new AgentViewModel(updateResources(pending(), "b"));
         AgentViewModel agentUpperB = new AgentViewModel(updateResources(pending(), "B"));
@@ -116,25 +121,27 @@ public class AgentViewModelTest {
         assertThat(sorted.get(2), is(agentB));
     }
 
-    @Test public void shouldSortAgentInstanceWithDifferentResourcesCorrectlyForMultipleResources(){
+    @Test
+    public void shouldSortAgentInstanceWithDifferentResourcesCorrectlyForMultipleResources() {
         AgentViewModel agentA = new AgentViewModel(updateResources(AgentInstanceMother.building(), "foo,bar"));
         AgentViewModel agentB = new AgentViewModel(updateResources(pending(), "blah,dfg"));
         AgentViewModel agentC = new AgentViewModel(updateResources(pending(), "goo,zoo"));
-        List<AgentViewModel> sorted = sort(AgentViewModel.RESOURCES_COMPARATOR, agentC,agentA, agentB);
+        List<AgentViewModel> sorted = sort(AgentViewModel.RESOURCES_COMPARATOR, agentC, agentA, agentB);
         assertThat(sorted.get(0), is(agentA));
         assertThat(sorted.get(1), is(agentB));
         assertThat(sorted.get(2), is(agentC));
     }
 
 
-    @Test public void shouldSortAgentInstanceWithDifferentEnvironments(){
+    @Test
+    public void shouldSortAgentInstanceWithDifferentEnvironments() {
         AgentViewModel agentA = new AgentViewModel(AgentInstanceMother.building(), "foo", "bar");
         AgentViewModel agentB = new AgentViewModel(AgentInstanceMother.building(), "blah", "dfg");
         AgentViewModel agentC = new AgentViewModel(AgentInstanceMother.building(), "goo", "zoo");
         AgentViewModel agentD = new AgentViewModel(AgentInstanceMother.building());
         AgentViewModel agentE = new AgentViewModel(AgentInstanceMother.building(), "foo", "Baz");
 
-        List<AgentViewModel> sorted = sort(AgentViewModel.ENVIRONMENTS_COMPARATOR, agentC,agentA, agentB, agentD, agentE);
+        List<AgentViewModel> sorted = sort(AgentViewModel.ENVIRONMENTS_COMPARATOR, agentC, agentA, agentB, agentD, agentE);
         assertThat(sorted.get(0), is(agentD));
         assertThat(sorted.get(1), is(agentA));
         assertThat(sorted.get(2), is(agentE));
@@ -143,7 +150,8 @@ public class AgentViewModelTest {
     }
 
 
-    @Test public void shouldSortAgentOnOperatingSystem(){
+    @Test
+    public void shouldSortAgentOnOperatingSystem() {
         AgentViewModel linux = new AgentViewModel(updateOS(AgentInstanceMother.building(), "LINUX"));
         AgentViewModel lowercaseLinux = new AgentViewModel(updateOS(AgentInstanceMother.building(), "linux"));
         AgentViewModel sun = new AgentViewModel(updateOS(AgentInstanceMother.building(), "SUN_OS"));
@@ -169,19 +177,17 @@ public class AgentViewModelTest {
     }
 
     @Test
-    public void shouldMapErrors(){
+    public void shouldMapErrors() {
         ResourceConfig resourceConfig1 = new ResourceConfig("foo");
         ResourceConfig resourceConfig2 = new ResourceConfig("bar");
         AgentConfig agentConfig = new AgentConfig("uuid", "host", "IP", new ResourceConfigs(resourceConfig1, resourceConfig2));
         agentConfig.addError(AgentConfig.IP_ADDRESS, "bad ip");
-        resourceConfig1.addError(ResourceConfig.NAME, "bad name for resource1");
-        resourceConfig2.addError(ResourceConfig.NAME, "bad name for resource2");
+        agentConfig.addError(ResourceConfig.NAME, "bad name for resource2");
+        agentConfig.addError(ResourceConfig.NAME, "bad name for resource1");
         AgentViewModel model = new AgentViewModel(AgentInstance.createFromConfig(agentConfig, mock(SystemEnvironment.class), null));
         assertThat(model.errors().isEmpty(), is(false));
         assertThat(model.errors().on(AgentConfig.IP_ADDRESS), is("bad ip"));
 
-
-        //TODO Vrushali/Saurabh: Incorporate this test in Agent DB related tests.
         assertThat(model.errors().getAllOn(ResourceConfig.NAME).contains("bad name for resource1"), is(true));
         assertThat(model.errors().getAllOn(ResourceConfig.NAME).contains("bad name for resource2"), is(true));
     }

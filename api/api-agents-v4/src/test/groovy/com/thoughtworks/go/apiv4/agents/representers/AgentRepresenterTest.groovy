@@ -166,8 +166,8 @@ class AgentRepresenterTest {
       def expectedErrors = [
         ip_address: ["'IP' is an invalid IP address."],
         resources : [
-          $/Resource name 'foo%' is not valid. Valid names much match '^[-\w\s|.]*$'/$,
-          $/Resource name 'bar$' is not valid. Valid names much match '^[-\w\s|.]*$'/$
+          $/Resource name 'bar$' is not valid. Valid names much match '^[-\w\s|.]*$'/$,
+          $/Resource name 'foo%' is not valid. Valid names much match '^[-\w\s|.]*$'/$
         ]
       ]
 

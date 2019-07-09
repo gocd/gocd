@@ -147,6 +147,7 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldFilterWhenAgentIsNotInAnEnvironment() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
+        environmentConfigService.syncAssociatedAgentsFromDB();
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), "no-env-uuid");
 
@@ -157,6 +158,7 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldFilterWhenAgentIsInTheSameEnvironment() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
+        environmentConfigService.syncAssociatedAgentsFromDB();
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), "uat-agent");
 
@@ -167,6 +169,7 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldFilterWhenAgentIsInMultipleEnvironments() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
+        environmentConfigService.syncAssociatedAgentsFromDB();
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "uat", "prod"), EnvironmentConfigMother.OMNIPRESENT_AGENT);
 
@@ -178,6 +181,7 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldFilterWhenAgentIsInAnotherEnvironment() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
+        environmentConfigService.syncAssociatedAgentsFromDB();
 
         List<JobPlan> filtered = environmentConfigService.filterJobsByAgent(jobs("no-env", "prod"), "uat-agent");
 
@@ -195,6 +199,7 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldFindAgentsForPipelineUnderEnvironment() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
+        environmentConfigService.syncAssociatedAgentsFromDB();
         AgentConfig agentUnderEnv = new AgentConfig("uat-agent", "localhost", "127.0.0.1");
         AgentConfig omnipresentAgent = new AgentConfig(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2");
 
@@ -209,6 +214,7 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldFindAgentsForPipelineUnderNoEnvironment() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
+        environmentConfigService.syncAssociatedAgentsFromDB();
         AgentConfig noEnvAgent = new AgentConfig("no-env-agent", "localhost", "127.0.0.1");
 
         Agents agents = new Agents();
@@ -293,6 +299,7 @@ class EnvironmentConfigServiceTest {
     @Test
     void shouldReturnEnvironmentsForAnAgent() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
+        environmentConfigService.syncAssociatedAgentsFromDB();
         Set<String> envForUat = environmentConfigService.environmentsFor("uat-agent");
         assertThat(envForUat.size()).isEqualTo(1);
         assertThat(envForUat).contains("uat");
@@ -309,6 +316,7 @@ class EnvironmentConfigServiceTest {
     void shouldReturnEnvironmentConfigsForAnAgent() {
         EnvironmentsConfig environmentConfigs = environments("uat", "prod");
         environmentConfigService.syncEnvironmentsFromConfig(environmentConfigs);
+        environmentConfigService.syncAssociatedAgentsFromDB();
         Set<EnvironmentConfig> envForUat = environmentConfigService.environmentConfigsFor("uat-agent");
         assertThat(envForUat.size()).isEqualTo(1);
         assertThat(envForUat).contains(environmentConfigs.named(new CaseInsensitiveString("uat")));
@@ -555,20 +563,20 @@ class EnvironmentConfigServiceTest {
         @Test
         void shouldSyncEnvironmentsFromAgentAssociationInDB1() {
             shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
-                "dev", "uuid1",
-                "test", "uuid2",
-                "stage", "uuid1",
-                "prod", "uuid2"
+                    "dev", "uuid1",
+                    "test", "uuid2",
+                    "stage", "uuid1",
+                    "prod", "uuid2"
             ));
         }
 
         @Test
         void shouldSyncEnvironmentsFromAgentAssociationInDB2() {
             shouldSyncEnvironmentsFromAgentAssociationInDB(ImmutableMap.of(
-                "dev", "uuid2",
-                "test", "uuid2",
-                "stage", "uuid1",
-                "prod", "uuid1"
+                    "dev", "uuid2",
+                    "test", "uuid2",
+                    "stage", "uuid1",
+                    "prod", "uuid1"
             ));
         }
 
@@ -612,7 +620,7 @@ class EnvironmentConfigServiceTest {
             assertThatAgentAndEnvsAssociationsAreInSync(uuid1, uuid2);
         }
 
-        private EnvironmentsConfig createEnvironments(Map<String, String> envNameToAgentMap){
+        private EnvironmentsConfig createEnvironments(Map<String, String> envNameToAgentMap) {
             EnvironmentsConfig environments = new EnvironmentsConfig();
             envNameToAgentMap.keySet().forEach(envName -> {
                 BasicEnvironmentConfig env = env(envName, null, null, Arrays.asList(envNameToAgentMap.get(envName)));
@@ -622,7 +630,7 @@ class EnvironmentConfigServiceTest {
             return environments;
         }
 
-        private void initializeAgents(){
+        private void initializeAgents() {
             AgentConfig agentConf1 = new AgentConfig("uuid1");
             agentConf1.setEnvironments("dev,test");
             AgentConfig agentConf2 = new AgentConfig("uuid2");
@@ -663,19 +671,19 @@ class EnvironmentConfigServiceTest {
     private static BasicEnvironmentConfig env(String name, List<String> selectedPipelines, List<Map<String, String>> environmentVariables, List<String> selectedAgents) {
         BasicEnvironmentConfig config = new BasicEnvironmentConfig(new CaseInsensitiveString(name));
 
-        if(selectedPipelines != null) {
+        if (selectedPipelines != null) {
             for (String selectedPipeline : selectedPipelines) {
                 config.addPipeline(new CaseInsensitiveString(selectedPipeline));
             }
         }
 
-        if(selectedAgents != null) {
+        if (selectedAgents != null) {
             for (String selectedAgent : selectedAgents) {
                 config.addAgent(selectedAgent);
             }
         }
 
-        if(environmentVariables != null) {
+        if (environmentVariables != null) {
             for (Map<String, String> environmentVariable : environmentVariables) {
                 config.getVariables().add(environmentVariable.get("name"), environmentVariable.get("value"));
             }

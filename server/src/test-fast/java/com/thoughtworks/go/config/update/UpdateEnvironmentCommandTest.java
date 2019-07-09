@@ -77,18 +77,6 @@ public class UpdateEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldValidateInvalidAgentUUID() throws Exception {
-        newEnvironmentConfig.addAgent("Invalid-agent-uuid");
-        UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);
-        command.update(cruiseConfig);
-        HttpLocalizedOperationResult expectResult = new HttpLocalizedOperationResult();
-        expectResult.unprocessableEntity(actionFailed + " Environment 'Test' has an invalid agent uuid 'Invalid-agent-uuid'");
-
-        assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(result, is(expectResult));
-    }
-
-    @Test
     public void shouldValidateInvalidPipelines() throws Exception {
         newEnvironmentConfig.addPipeline(new CaseInsensitiveString("Invalid-pipeline-name"));
         UpdateEnvironmentCommand command = new UpdateEnvironmentCommand(goConfigService, oldEnvironmentConfig.name().toString(), newEnvironmentConfig, currentUser, actionFailed, md5, entityHashingService, result);

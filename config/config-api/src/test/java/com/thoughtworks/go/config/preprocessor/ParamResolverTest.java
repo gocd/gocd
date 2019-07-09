@@ -313,7 +313,6 @@ public class ParamResolverTest {
                 BasicCruiseConfig.class, "serverConfig",
                 BasicCruiseConfig.class, "templatesConfig",
                 BasicCruiseConfig.class, "environments",
-                BasicCruiseConfig.class, "agents",
                 BasicPipelineConfigs.class, "authorization",
                 PipelineConfig.class, "name",
                 PipelineConfig.class, "params",

@@ -116,8 +116,6 @@ class EnvironmentRepresenterTest {
     def object = EnvironmentRepresenter.fromJSON(jsonReader)
 
     EnvironmentConfig expectedObject = new BasicEnvironmentConfig(new CaseInsensitiveString("env1"))
-    expectedObject.addAgent("agent1")
-    expectedObject.addAgent("agent2")
     expectedObject.addEnvironmentVariable("JAVA_HOME", "/bin/java")
     expectedObject.addPipeline(new CaseInsensitiveString("Pipeline1"))
     expectedObject.addPipeline(new CaseInsensitiveString("Pipeline2"))
@@ -147,36 +145,6 @@ class EnvironmentRepresenterTest {
         ],
         "self": [
           "href": "http://test.host/go/api/admin/environments/env1"
-        ]
-      ],
-      "agents"               : [
-        [
-          "_links": [
-            "doc" : [
-              "href": apiDocsUrl("#agents")
-            ],
-            "find": [
-              "href": "/api/agents/:uuid"
-            ],
-            "self": [
-              "href": "http://test.host/go/api/agents/agent1"
-            ]
-          ],
-          "uuid"  : "agent1"
-        ],
-        [
-          "_links": [
-            "doc" : [
-              "href": apiDocsUrl("#agents")
-            ],
-            "find": [
-              "href": "/api/agents/:uuid"
-            ],
-            "self": [
-              "href": "http://test.host/go/api/agents/agent2"
-            ]
-          ],
-          "uuid"  : "agent2"
         ]
       ],
       "environment_variables": [

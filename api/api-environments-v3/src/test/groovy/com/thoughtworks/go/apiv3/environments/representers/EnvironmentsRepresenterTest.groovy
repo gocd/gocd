@@ -60,36 +60,6 @@ class EnvironmentsRepresenterTest {
                 "href": "http://test.host/go/api/admin/environments/env1"
               ]
             ],
-            "agents"               : [
-              [
-                "_links": [
-                  "doc" : [
-                    "href": apiDocsUrl("#agents")
-                  ],
-                  "find": [
-                    "href": "/api/agents/:uuid"
-                  ],
-                  "self": [
-                    "href": "http://test.host/go/api/agents/agent1"
-                  ]
-                ],
-                "uuid"  : "agent1"
-              ],
-              [
-                "_links": [
-                  "doc" : [
-                    "href": apiDocsUrl("#agents")
-                  ],
-                  "find": [
-                    "href": "/api/agents/:uuid"
-                  ],
-                  "self": [
-                    "href": "http://test.host/go/api/agents/agent2"
-                  ]
-                ],
-                "uuid"  : "agent2"
-              ]
-            ],
             "environment_variables": [
               [
                 "name"  : "JAVA_HOME",
@@ -141,7 +111,6 @@ class EnvironmentsRepresenterTest {
                 "href": "http://test.host/go/api/admin/environments/env2"
               ]
             ],
-            "agents"               : [],
             "environment_variables": [
               [
                 "name"  : "GROOVY_HOME",

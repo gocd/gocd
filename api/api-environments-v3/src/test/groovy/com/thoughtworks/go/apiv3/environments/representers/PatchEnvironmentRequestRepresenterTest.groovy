@@ -34,10 +34,6 @@ class PatchEnvironmentRequestRepresenterTest {
         "add"   : ["up42"],
         "remove": ["sample"]
       ],
-      "agents"               : [
-        "add"   : ["12345678-e2f6-4c78-123456789012", "12345678-e2f6-4c78-123456789013"],
-        "remove": ["87654321-e2f6-4c78-123456789012"]
-      ],
       "environment_variables": [
         "add"   : [
           [
@@ -64,8 +60,6 @@ class PatchEnvironmentRequestRepresenterTest {
 
     assertThat(patchEnvironmentRequest.getPipelineToAdd().size(), is(1))
     assertThat(patchEnvironmentRequest.getPipelineToRemove().size(), is(1))
-    assertThat(patchEnvironmentRequest.getAgentsToAdd().size(), is(2))
-    assertThat(patchEnvironmentRequest.getAgentsToRemove().size(), is(1))
     assertThat(patchEnvironmentRequest.getEnvironmentVariablesToAdd().size(), is(3))
     assertThat(patchEnvironmentRequest.getEnvironmentVariablesToRemove().size(), is(1))
 

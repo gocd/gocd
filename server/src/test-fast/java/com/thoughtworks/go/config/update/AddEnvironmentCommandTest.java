@@ -63,18 +63,6 @@ public class AddEnvironmentCommandTest {
     }
 
     @Test
-    public void shouldValidateInvalidAgentUUID() throws Exception {
-        environmentConfig.addAgent("Invalid-agent-uuid");
-        AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);
-        command.update(cruiseConfig);
-        HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
-        expectedResult.unprocessableEntity("Could not add environment Dev Environment 'Dev' has an invalid agent uuid 'Invalid-agent-uuid'");
-
-        assertThat(command.isValid(cruiseConfig), is(false));
-        assertThat(result, is(expectedResult));
-    }
-
-    @Test
     public void shouldValidateInvalidPipelineName() throws Exception {
         environmentConfig.addPipeline(new CaseInsensitiveString("Invalid-pipeline-name"));
         AddEnvironmentCommand command = new AddEnvironmentCommand(goConfigService, environmentConfig, currentUser, actionFailed, result);

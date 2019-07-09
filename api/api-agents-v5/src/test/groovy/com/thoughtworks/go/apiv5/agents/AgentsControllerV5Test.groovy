@@ -21,6 +21,7 @@ import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.EnvironmentConfig
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.NullAgentInstance
+import com.thoughtworks.go.server.domain.AgentInstances
 import com.thoughtworks.go.server.domain.Username
 import com.thoughtworks.go.server.service.AgentService
 import com.thoughtworks.go.server.service.EnvironmentConfigService
@@ -48,8 +49,7 @@ import static java.util.Arrays.asList
 import static java.util.Collections.singleton
 import static java.util.stream.Collectors.toSet
 import static org.mockito.ArgumentMatchers.*
-import static org.mockito.Mockito.doAnswer
-import static org.mockito.Mockito.when
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<AgentsControllerV5> {
@@ -86,11 +86,17 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
 
     @Test
     void "should return a list of agents"() {
-      when(agentService.agentEnvironmentConfigsMap()).thenReturn(new HashMap<AgentInstance, Collection<EnvironmentConfig>>() {
-        {
-          put(idle(), asList(environment("env1"), environment("env2")))
-        }
-      })
+      def instances = mock(AgentInstances.class)
+      def collection = new ArrayList<AgentInstance>()
+      def instance = idle()
+      collection.add(instance)
+      when(agentService.agentInstances()).thenReturn(instances)
+      when(instances.values()).thenReturn(collection)
+
+      def environmentConfigs = new HashSet<EnvironmentConfig>()
+      environmentConfigs.add(environment("env1"))
+      environmentConfigs.add(environment("env2"))
+      when(environmentConfigService.environmentConfigsFor(instance.getUuid())).thenReturn(environmentConfigs)
 
       getWithApiHeader(controller.controllerPath())
 

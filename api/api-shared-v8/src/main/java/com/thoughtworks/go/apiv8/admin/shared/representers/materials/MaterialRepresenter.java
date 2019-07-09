@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-apply plugin: 'jacoco'
-apply plugin: 'groovy'
+package com.thoughtworks.go.apiv8.admin.shared.representers.materials;
 
-dependencies {
-  compile project(':api:api-base')
-  compile project(':api:api-shared-v8')
+import com.thoughtworks.go.api.base.OutputWriter;
+import com.thoughtworks.go.api.representers.JsonReader;
+import com.thoughtworks.go.apiv8.admin.shared.representers.stages.ConfigHelperOptions;
+import com.thoughtworks.go.domain.materials.MaterialConfig;
 
-  testCompile project(path: ':api:api-base', configuration: 'testOutput')
+public interface MaterialRepresenter<T extends MaterialConfig> {
+    void toJSON(OutputWriter jsonWriter, T gitMaterialConfig);
 
-  testImplementation group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: project.versions.junit5
-  testRuntimeOnly group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: project.versions.junit5
+    T fromJSON(JsonReader jsonReader, ConfigHelperOptions configHelperOptions);
 }

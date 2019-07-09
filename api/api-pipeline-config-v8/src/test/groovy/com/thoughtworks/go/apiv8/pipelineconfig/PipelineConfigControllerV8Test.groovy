@@ -19,7 +19,7 @@ package com.thoughtworks.go.apiv8.pipelineconfig
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.apiv8.admin.pipelineconfig.PipelineConfigControllerV8
-import com.thoughtworks.go.apiv8.admin.pipelineconfig.representers.PipelineConfigRepresenter
+import com.thoughtworks.go.apiv8.admin.shared.representers.PipelineConfigRepresenter
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.exceptions.EntityType
 import com.thoughtworks.go.config.materials.PackageMaterialConfig
@@ -28,7 +28,6 @@ import com.thoughtworks.go.config.materials.PluggableSCMMaterialConfig
 import com.thoughtworks.go.config.remote.ConfigRepoConfig
 import com.thoughtworks.go.config.remote.FileConfigOrigin
 import com.thoughtworks.go.config.remote.RepoConfigOrigin
-import com.thoughtworks.go.domain.PipelinePauseInfo
 import com.thoughtworks.go.domain.packagerepository.PackageRepositoryMother
 import com.thoughtworks.go.domain.scm.SCMMother
 import com.thoughtworks.go.helper.GoConfigMother

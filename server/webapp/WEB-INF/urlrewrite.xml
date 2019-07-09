@@ -637,6 +637,12 @@
   </rule>
 
   <rule>
+    <name>Internal Pipelines as Code Supporting API</name>
+    <from>^/api/admin/internal/pac/(preview)/([^/]+)(/?)$</from>
+    <to last="true">/spark/api/admin/internal/pac/${escape:$1}/${escape:$2}</to>
+  </rule>
+
+  <rule>
     <name>Default dashboard, based on toggle</name>
     <from>^/pipelines(/?)$</from>
     <to last="true">/spark/dashboard</to>

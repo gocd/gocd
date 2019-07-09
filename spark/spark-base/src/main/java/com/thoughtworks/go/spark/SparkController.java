@@ -36,24 +36,14 @@ public interface SparkController {
         }
     }
 
-    default String controllerPath(Map<String, String> params) {
+    default String controllerPath(Map<String, String> params, Object... paths) {
+        String path = controllerPath(paths);
+
         if (params == null || params.isEmpty()) {
-            return controllerBasePath();
+            return path;
         } else {
             List<BasicNameValuePair> queryParams = params.entrySet().stream().map(entry -> new BasicNameValuePair(entry.getKey(), entry.getValue())).collect(Collectors.toList());
-            return controllerBasePath() + '?' + URLEncodedUtils.format(queryParams, "utf-8");
-        }
-    }
-
-    default String controllerPathWithParams(Map<String, String> params) {
-        if (params == null || params.isEmpty()) {
-            return controllerBasePath();
-        } else {
-            String path = controllerBasePath();
-            for (Map.Entry<String, String> param : params.entrySet()) {
-                path = path.replaceAll(param.getKey(), param.getValue());
-            }
-            return path;
+            return path + '?' + URLEncodedUtils.format(queryParams, "utf-8");
         }
     }
 

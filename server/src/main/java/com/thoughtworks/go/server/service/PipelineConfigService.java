@@ -42,7 +42,6 @@ import static com.thoughtworks.go.config.CaseInsensitiveString.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
 import static com.thoughtworks.go.i18n.LocalizedMessage.saveFailedWithReason;
 
-
 /**
  * @understands providing services around a pipeline configuration
  */
@@ -162,9 +161,13 @@ public class PipelineConfigService {
     }
 
     public void createPipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result, final String groupName) {
-        validatePluggableTasks(pipelineConfig);
-        CreatePipelineConfigCommand createPipelineConfigCommand = new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName, externalArtifactsService);
+        CreatePipelineConfigCommand createPipelineConfigCommand = createPipelineConfigCommand(currentUser, pipelineConfig, result, groupName);
         update(currentUser, pipelineConfig, result, createPipelineConfigCommand);
+    }
+
+    public CreatePipelineConfigCommand createPipelineConfigCommand(Username currentUser, PipelineConfig pipelineConfig, LocalizedOperationResult result, String groupName) {
+        validatePluggableTasks(pipelineConfig);
+        return new CreatePipelineConfigCommand(goConfigService, pipelineConfig, currentUser, result, groupName, externalArtifactsService);
     }
 
     public void deletePipelineConfig(final Username currentUser, final PipelineConfig pipelineConfig, final LocalizedOperationResult result) {

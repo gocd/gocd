@@ -18,25 +18,34 @@ package com.thoughtworks.go.apiv1.pipelinesascodemisc;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
+import com.thoughtworks.go.api.base.OutputWriter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
 import com.thoughtworks.go.api.util.HaltApiResponses;
+import com.thoughtworks.go.api.util.MessageJson;
 import com.thoughtworks.go.apiv8.admin.shared.representers.PipelineConfigRepresenter;
 import com.thoughtworks.go.apiv8.admin.shared.representers.stages.ConfigHelperOptions;
 import com.thoughtworks.go.config.ConfigRepoPlugin;
+import com.thoughtworks.go.config.CruiseConfig;
 import com.thoughtworks.go.config.GoConfigPluginService;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.exceptions.HttpException;
 import com.thoughtworks.go.config.materials.PasswordDeserializer;
+import com.thoughtworks.go.config.update.CreatePipelineConfigCommand;
 import com.thoughtworks.go.plugin.access.configrepo.ExportedConfig;
 import com.thoughtworks.go.server.service.GoConfigService;
+import com.thoughtworks.go.server.service.PipelineConfigService;
 import com.thoughtworks.go.spark.spring.SparkSpringController;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import spark.HaltException;
 import spark.Request;
 import spark.Response;
+
+import java.util.function.Consumer;
 
 import static com.thoughtworks.go.api.util.HaltApiResponses.haltBecauseOfReason;
 import static com.thoughtworks.go.spark.Routes.PaC.BASE_INTERNAL_API;
@@ -51,14 +60,21 @@ public class PipelinesAsCodeMiscControllerV1 extends ApiController implements Sp
     private final PasswordDeserializer passwordDeserializer;
     private final GoConfigService goConfigService;
     private final GoConfigPluginService pluginService;
+    private final PipelineConfigService pipelineService;
 
     @Autowired
-    public PipelinesAsCodeMiscControllerV1(ApiAuthenticationHelper apiAuthenticationHelper, PasswordDeserializer passwordDeserializer, GoConfigService goConfigService, GoConfigPluginService pluginService) {
+    public PipelinesAsCodeMiscControllerV1(
+            ApiAuthenticationHelper apiAuthenticationHelper,
+            PasswordDeserializer passwordDeserializer,
+            GoConfigService goConfigService,
+            GoConfigPluginService pluginService,
+            PipelineConfigService pipelineService) {
         super(ApiVersion.v1);
         this.apiAuthenticationHelper = apiAuthenticationHelper;
         this.passwordDeserializer = passwordDeserializer;
         this.goConfigService = goConfigService;
         this.pluginService = pluginService;
+        this.pipelineService = pipelineService;
     }
 
     @Override
@@ -96,6 +112,13 @@ public class PipelinesAsCodeMiscControllerV1 extends ApiController implements Sp
 
         PipelineConfig pipeline = PipelineConfigRepresenter.fromJSON(jsonReader, options);
 
+        if ("true".equalsIgnoreCase(req.queryParams("validate"))) {
+            if (!performFullValidate(pipeline, groupName)) {
+                res.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
+                return MessageJson.create(format("Please fix the validation errors for pipeline %s.", pipeline.name()), jsonWriter(pipeline));
+            }
+        }
+
         ConfigRepoPlugin repoPlugin = plugin(pluginId);
         String etag = repoPlugin.etagForExport(pipeline, groupName);
 
@@ -113,11 +136,28 @@ public class PipelinesAsCodeMiscControllerV1 extends ApiController implements Sp
 
     }
 
+    private boolean performFullValidate(final PipelineConfig pipeline, final String group) throws HaltException {
+        CreatePipelineConfigCommand create = pipelineService.createPipelineConfigCommand(currentUsername(), pipeline, null, group);
+        CruiseConfig config;
+
+        try {
+            config = goConfigService.preprocessedCruiseConfigForPipelineUpdate(create);
+        } catch (Exception e) {
+            throw HaltApiResponses.haltBecauseOfReason(e.getMessage());
+        }
+
+        return create.isValid(config);
+    }
+
     /**
      * @throws spark.HaltException when "name" is missing from JSON body
      */
     private void validateNamePresent(JsonReader jsonReader) {
         jsonReader.getString("name");
+    }
+
+    private Consumer<OutputWriter> jsonWriter(PipelineConfig pipelineConfig) {
+        return writer -> PipelineConfigRepresenter.toJSON(writer, pipelineConfig);
     }
 
     private ConfigRepoPlugin plugin(String pluginId) {

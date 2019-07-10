@@ -19,9 +19,12 @@ package com.thoughtworks.go.apiv1.pipelinesascodemisc
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.ConfigRepoPlugin
+import com.thoughtworks.go.config.CruiseConfig
 import com.thoughtworks.go.config.GoConfigPluginService
 import com.thoughtworks.go.config.PipelineConfig
 import com.thoughtworks.go.config.materials.PasswordDeserializer
+import com.thoughtworks.go.config.update.CreatePipelineConfigCommand
+import com.thoughtworks.go.server.service.PipelineConfigService
 import com.thoughtworks.go.spark.AdminUserSecurity
 import com.thoughtworks.go.spark.ControllerTrait
 import com.thoughtworks.go.spark.SecurityServiceTrait
@@ -29,18 +32,19 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.Mock
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
 
 import static com.thoughtworks.go.plugin.access.configrepo.ExportedConfig.from
-import static org.mockito.ArgumentMatchers.any
-import static org.mockito.ArgumentMatchers.eq
-import static org.mockito.Mockito.when
+import static org.mockito.ArgumentMatchers.*
+import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
 class PipelinesAsCodeMiscControllerV1Test implements SecurityServiceTrait, ControllerTrait<PipelinesAsCodeMiscControllerV1> {
 
-  public static final String PLUGIN_ID = "test.config.plugin"
-  public static final String GROUP_NAME = "test-group"
-  public static final String PIPELINE_NAME = "test-pipeline"
+  private static final String PLUGIN_ID = "test.config.plugin"
+  private static final String GROUP_NAME = "test-group"
+  private static final String PIPELINE_NAME = "test-pipeline"
 
   @Mock
   GoConfigPluginService pluginService
@@ -51,6 +55,9 @@ class PipelinesAsCodeMiscControllerV1Test implements SecurityServiceTrait, Contr
   @Mock
   ConfigRepoPlugin configRepoPlugin
 
+  @Mock
+  PipelineConfigService pipelineService
+
   @BeforeEach
   void setUp() {
     initMocks(this)
@@ -58,7 +65,7 @@ class PipelinesAsCodeMiscControllerV1Test implements SecurityServiceTrait, Contr
 
   @Override
   PipelinesAsCodeMiscControllerV1 createControllerInstance() {
-    new PipelinesAsCodeMiscControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), passwordDeserializer, goConfigService, pluginService)
+    new PipelinesAsCodeMiscControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), passwordDeserializer, goConfigService, pluginService, pipelineService)
   }
 
   @Nested
@@ -155,6 +162,71 @@ class PipelinesAsCodeMiscControllerV1Test implements SecurityServiceTrait, Contr
           .hasBody("")
           .isNotModified()
           .hasContentType(controller.mimeType)
+      }
+
+      @Test
+      void "validates ad-hoc pipeline config when ?validate=true"() {
+        CreatePipelineConfigCommand cmd = mock(CreatePipelineConfigCommand)
+        CruiseConfig config = mock(CruiseConfig)
+        PipelineConfig pipeline = null;
+
+        when(pluginService.isConfigRepoPlugin(PLUGIN_ID)).thenReturn(true)
+        when(pluginService.supportsPipelineExport(PLUGIN_ID)).thenReturn(true)
+        when(pluginService.partialConfigProviderFor(PLUGIN_ID)).thenReturn(configRepoPlugin)
+        when(pipelineService.createPipelineConfigCommand(eq(currentUsername()), any(PipelineConfig), isNull(), eq(GROUP_NAME))).thenAnswer(new Answer<Object>() {
+          @Override
+          Object answer(InvocationOnMock invocation) throws Throwable {
+            pipeline = invocation.getArgument(1, PipelineConfig)
+            return cmd
+          }
+        })
+
+        when(goConfigService.preprocessedCruiseConfigForPipelineUpdate(cmd)).thenReturn(config)
+        when(cmd.isValid(config)).thenAnswer(new Answer<Object>() {
+          @Override
+          Object answer(InvocationOnMock invocation) throws Throwable {
+            if (null == pipeline) {
+              throw new IllegalStateException("Expected pipeline config to be set in this test")
+            }
+
+            pipeline.addError("name", "That's an uncreative name")
+            return false
+          }
+        })
+
+        postWithApiHeader(controller.controllerPath([group: GROUP_NAME, validate: "true"], "preview", PLUGIN_ID), [:], [
+          name: PIPELINE_NAME
+        ])
+
+        verify(goConfigService, times(1)).preprocessedCruiseConfigForPipelineUpdate(cmd)
+        verify(cmd, times(1)).isValid(config)
+
+        String errorMessage = "Please fix the validation errors for pipeline $PIPELINE_NAME."
+
+        assertThatResponse().
+          isUnprocessableEntity().
+          hasContentType(controller.mimeType).
+          hasJsonBody([
+            message: errorMessage,
+            data   : [
+              errors               : [
+                name: ["That's an uncreative name"]
+              ],
+              label_template       : '${COUNT}',
+              lock_behavior        : "none",
+              name                 : PIPELINE_NAME,
+              template             : null,
+              origin               : [
+                type: "gocd"
+              ],
+              parameters           : [],
+              environment_variables: [],
+              materials            : [],
+              stages               : null,
+              tracking_tool        : null,
+              timer                : null
+            ]
+          ])
       }
     }
 

@@ -423,7 +423,7 @@ export class Material {
         } else if (_.isObject(value)) {
           map.set(key, JSON.stringify(value));
         } else {
-          map.set(key, value ? value.toString() : null);
+          map.set(key, value ? value!.toString() : null);
         }
       }
     });

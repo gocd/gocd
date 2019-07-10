@@ -132,10 +132,10 @@
     "@types/minimatch" "*"
     "@types/node" "*"
 
-"@types/jasmine-ajax@^3.1.39":
-  version "3.1.39"
-  resolved "https://registry.yarnpkg.com/@types/jasmine-ajax/-/jasmine-ajax-3.1.39.tgz#5ac6945c540c0c12cd6f8f71625a08c29910499a"
-  integrity sha512-pDUAnGbFgQDwPQH0yBrY4lXv8XvAPI0Y/mtI3BnczClnts7nQFfQeF3dBqstK9XV9XaOPaB3stp7y15FEmqRbA==
+"@types/jasmine-ajax@^3.1.40":
+  version "3.1.40"
+  resolved "https://registry.yarnpkg.com/@types/jasmine-ajax/-/jasmine-ajax-3.1.40.tgz#55f390ef67a8165adbb40d864f9131325d2b027d"
+  integrity sha512-xWwmlzejV46HZhXokaHujmh7i9lxktk9XdIsP8luSnxGHnMUIrUo4SbSCNZXe9UdfVxocs9l31EUcSRGwmR6Iw==
 
 "@types/jasmine-jquery@^1.5.33":
   version "1.5.33"
@@ -145,10 +145,15 @@
     "@types/jasmine" "*"
     "@types/jquery" "*"
 
-"@types/jasmine@*", "@types/jasmine@^2.8.11":
+"@types/jasmine@*":
   version "2.8.11"
   resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-2.8.11.tgz#0b5eba9e02616736b1a189112eacc163c3773b7b"
   integrity sha512-ITPYT5rkV9S0BcucyBwXIUzqzSODVhvAzhOGV0bwZMuqWJeU0Kfdd6IJeJjGI8Gob+lDyAtKaWUfhG6QXJIPRg==
+
+"@types/jasmine@^3.3.13":
+  version "3.3.13"
+  resolved "https://registry.yarnpkg.com/@types/jasmine/-/jasmine-3.3.13.tgz#d5daabb0af47bcddee40597acf6e804433bab439"
+  integrity sha512-iczmLoIiVymaD1TIr2UctxjFkNEslVE/QtNAUmpDsD71cZfZBAsPCUv1Y+8AwsfA8bLx2ccr7d95T9w/UAirlQ==
 
 "@types/jquery@*":
   version "3.3.21"
@@ -157,10 +162,10 @@
   dependencies:
     "@types/sizzle" "*"
 
-"@types/lodash@^4.14.119":
-  version "4.14.119"
-  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.119.tgz#be847e5f4bc3e35e46d041c394ead8b603ad8b39"
-  integrity sha512-Z3TNyBL8Vd/M9D9Ms2S3LmFq2sSMzahodD6rCS9V2N44HUMINb75jNkSuwAx7eo2ufqTdfOdtGQpNbieUjPQmw==
+"@types/lodash@^4.14.136":
+  version "4.14.136"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.136.tgz#413e85089046b865d960c9ff1d400e04c31ab60f"
+  integrity sha512-0GJhzBdvsW2RUccNHOBkabI8HZVdOXmXbXhuKlDEd5Vv12P7oAVGfomGp3Ne21o5D/qu1WmthlNKFaoZJJeErA==
 
 "@types/minimatch@*":
   version "3.0.3"
@@ -172,10 +177,15 @@
   resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-1.1.16.tgz#97647157a4d6dacee8fc86414578c56723dfd715"
   integrity sha512-+HlRvSpKwXP8RXh1hrIcgSHQ/Fh+5O9nYfG7fgNN7PGr2K03G+hLoiA+HXzmUJCsQfPEuNiBQ+TwRl6n7kerSw==
 
-"@types/node@*", "@types/node@^10.12.9":
+"@types/node@*":
   version "10.12.9"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-10.12.9.tgz#a07bfa74331471e1dc22a47eb72026843f7b95c8"
   integrity sha512-eajkMXG812/w3w4a1OcBlaTwsFPO5F7fJ/amy+tieQxEMWBlbV1JGSjkFM+zkHNf81Cad+dfIRA+IBkvmvdAeA==
+
+"@types/node@^12.6.2":
+  version "12.6.2"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.6.2.tgz#a5ccec6abb6060d5f20d256fb03ed743e9774999"
+  integrity sha512-gojym4tX0FWeV2gsW4Xmzo5wxGjXGm550oVUII7f7G5o4BV6c7DBdiG1RRQd+y1bvqRyYtPfMK85UM95vsapqQ==
 
 "@types/sizzle@*":
   version "2.3.2"
@@ -7512,10 +7522,10 @@ shelljs@^0.6.0:
   resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.6.1.tgz#ec6211bed1920442088fe0f70b2837232ed2c8a8"
   integrity sha1-7GIRvtGSBEIIj+D3Cyg3Iy7SyKg=
 
-shellwords-ts@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/shellwords-ts/-/shellwords-ts-2.0.1.tgz#a1f94dc9ca431e745542c81d466ec949f5d32e93"
-  integrity sha512-4hn7mS6hrX81Xzbl/Hlf3OIZhfWydNTiT1Bez73saNdLEPBXwyuP8lAE2aracFog0KdeDn0TEkNT/GHLplFtog==
+shellwords-ts@^2.0.2:
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/shellwords-ts/-/shellwords-ts-2.0.2.tgz#343da3d88b5a92a12f66749e76ca7e6d884d55ba"
+  integrity sha512-XbjjC+3uJGwxYCcp0zQLLpf/X2PV50BAuk4abGmrkftgjxP6BDm29gPDiMu37FZU8vXyz40r6QiCUdga0OJW/w==
 
 shellwords@^0.1.1:
   version "0.1.1"
@@ -8636,7 +8646,7 @@ uuid@^3.0.1, uuid@^3.1.0:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.2.1.tgz#12c528bb9d58d0b9265d9a2f6f0fe8be17ff1f14"
   integrity sha512-jZnMwlb9Iku/O3smGWvZhauCf6cvvpKi4BKRiliS3cxnI+Gz9j5MEpTz2UFuXiKPJocb7gnsLHwiS05ige5BEA==
 
-uuid@^3.2.1, uuid@^3.3.2:
+uuid@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.3.2.tgz#1b4af4955eb3077c501c23872fc6513811587131"
   integrity sha512-yXJmeNaw3DnnKAOKJE51sL/ZaYfWJRl1pK9dr19YFCu0ObS231AB1/LbqTKRAQ5kw8A90rA6fr4riOUpTZvQZA==

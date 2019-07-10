@@ -126,29 +126,6 @@ $error-container-width: 450px;
   }
 }
 
-.autocomplete-pane {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-
-  width: 400px;
-  background: $white;
-
-  li, .autocomplete-item {
-    margin: 0;
-    padding: 3px 5px;
-    border-bottom: 1px solid $line-color;
-
-    &:nth-of-type(2n) {
-      background: $primary-bg;
-    }
-
-    &:hover {
-      background-color: $secondary-bg;
-    }
-  }
-}
-
 .advanced-settings {
   display: block;
   width: 100%;

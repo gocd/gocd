@@ -28,10 +28,10 @@ export class SystemNotificationWidget extends MithrilViewComponent<Attrs> {
     const notification = vnode.attrs.notification;
 
     return (
-      <p class={style.notification_item} data-test-id="notification-item">
+      <p class={style.notificationItem} data-test-id="notification-item">
         {notification.message} <a href={notification.link} target="_blank">{notification.linkText}</a>
         <span onclick={vnode.attrs.markAsRead.bind(vnode.attrs, notification)}
-              data-test-id="notification-item_close" class={style.notification_close}>X</span>
+              data-test-id="notification-item_close" class={style.notificationClose}>X</span>
       </p>
     );
   }

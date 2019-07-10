@@ -51,8 +51,8 @@ export class UsersPage extends Page<null, State> {
     vnode.state.roles          = stream(new Roles());
     vnode.state.rolesSelection = stream(new Map<GoCDRole, TriStateCheckbox>());
 
-    vnode.state.showFilters   = stream(false);
-    vnode.state.showRoles     = stream(false);
+    vnode.state.showFilters   = stream(false as boolean);
+    vnode.state.showRoles     = stream(false as boolean);
     vnode.state.roleNameToAdd = stream();
 
     vnode.state.initializeRolesDropdownAttrs = () => {

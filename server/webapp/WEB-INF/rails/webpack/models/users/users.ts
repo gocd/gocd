@@ -55,7 +55,7 @@ export interface UserJSON {
 }
 
 export class User {
-  checked: Stream<boolean> = stream(false);
+  checked: Stream<boolean> = stream(false as boolean);
   loginName: Stream<string>;
   isAdmin: Stream<boolean>;
   displayName: Stream<string>;

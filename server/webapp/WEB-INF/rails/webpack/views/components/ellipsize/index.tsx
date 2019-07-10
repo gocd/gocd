@@ -39,7 +39,7 @@ export class Ellipsize extends MithrilComponent<Attrs, State> {
   private static readonly DEFAULT_SIZE: number = 40;
 
   oninit(vnode: m.Vnode<Attrs, State>): any {
-    vnode.state.expanded = stream(false);
+    vnode.state.expanded = stream(false as boolean);
 
     vnode.state.setExpandedTo = (state: boolean) => {
       vnode.state.expanded(state);

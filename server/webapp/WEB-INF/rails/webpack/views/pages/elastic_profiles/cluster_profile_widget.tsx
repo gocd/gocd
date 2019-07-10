@@ -72,7 +72,7 @@ class ClusterProfileHeaderWidget extends MithrilComponent<HeaderAttrs> {
 
 export class ClusterProfileWidget extends MithrilComponent<ClusterProfileWidgetAttrs, State> {
   oninit(vnode: m.Vnode<ClusterProfileWidgetAttrs, State>) {
-    vnode.state.clusterProfileDetailsExpanded = stream(false);
+    vnode.state.clusterProfileDetailsExpanded = stream(false as boolean);
   }
 
   view(vnode: m.Vnode<ClusterProfileWidgetAttrs, State>) {

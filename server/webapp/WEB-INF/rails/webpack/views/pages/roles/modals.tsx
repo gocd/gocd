@@ -151,7 +151,7 @@ export class NewRoleModal extends BaseRoleModal {
 
 abstract class ModalWithFetch extends BaseRoleModal {
   protected etag: Stream<string>     = stream();
-  protected isStale: Stream<boolean> = stream(true);
+  protected isStale: Stream<boolean> = stream(true as boolean);
 
   constructor(role: GoCDRole | PluginRole,
               pluginInfos: Array<PluginInfo<Extension>>,

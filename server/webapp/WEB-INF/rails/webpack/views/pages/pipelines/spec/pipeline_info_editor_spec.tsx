@@ -29,7 +29,7 @@ describe("AddPipeline: PipelineInfoEditor", () => {
 
   beforeEach(() => {
     config = new PipelineConfig("", [], []);
-    helper.mount(() => <PipelineInfoEditor pipelineConfig={config} cache={new TestCache()} isUsingTemplate={stream(false)} templatesCache={new EmptyTemplatesTestCache()}/>);
+    helper.mount(() => <PipelineInfoEditor pipelineConfig={config} cache={new TestCache()} isUsingTemplate={stream(false as boolean)} templatesCache={new EmptyTemplatesTestCache()}/>);
   });
 
   afterEach(helper.unmount.bind(helper));

@@ -21,10 +21,10 @@ import {User, Users} from "models/users/users";
 
 export class UserFilters {
   searchText: Stream<string>                                             = stream("");
-  superAdmins: Stream<boolean>                                           = stream(false);
-  normalUsers: Stream<boolean>                                           = stream(false);
-  enabledUsers: Stream<boolean>                                          = stream(false);
-  disabledUsers: Stream<boolean>                                         = stream(false);
+  superAdmins: Stream<boolean>                                           = stream(false as boolean);
+  normalUsers: Stream<boolean>                                           = stream(false as boolean);
+  enabledUsers: Stream<boolean>                                          = stream(false as boolean);
+  disabledUsers: Stream<boolean>                                         = stream(false as boolean);
   private readonly __selectedRoles: Stream<Map<string, Stream<boolean>>> = stream(new Map());
 
   resetFilters() {
@@ -74,7 +74,7 @@ export class UserFilters {
 
   roleSelectionFor(roleName: string) {
     if (!this.__selectedRoles().has(roleName)) {
-      this.__selectedRoles().set(roleName, stream(false));
+      this.__selectedRoles().set(roleName, stream(false as boolean));
     }
 
     return this.__selectedRoles().get(roleName) as Stream<boolean>;

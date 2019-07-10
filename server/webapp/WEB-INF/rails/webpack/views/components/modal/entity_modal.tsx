@@ -36,7 +36,7 @@ export abstract class EntityModal<T extends ValidatableMixin> extends Modal {
   protected readonly pluginInfos: Array<PluginInfo<Extension>>;
   protected readonly errorMessage: Stream<string> = stream();
   protected readonly onSuccessfulSave: (msg: m.Children) => any;
-  protected readonly isStale: Stream<boolean>     = stream(true);
+  protected readonly isStale: Stream<boolean>     = stream(true as boolean);
   protected readonly etag: Stream<string>         = stream();
 
   constructor(entity: T,

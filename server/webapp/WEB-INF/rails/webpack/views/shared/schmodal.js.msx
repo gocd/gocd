@@ -46,7 +46,7 @@ const Footer = {
       const c = $.extend({}, BUTTON_DEFAULTS, opts);
 
       _.each(["text", "title", "disabled", "tooltipText"], (attr) => {
-        if (c.hasOwnProperty(attr)) { c[attr] = val(c[attr]); }
+        if (c.hasOwnProperty(attr)) { c[attr] = val(c[attr]); } // eslint-disable-line no-prototype-builtins
       });
 
       const text = c.text;

@@ -17,7 +17,6 @@
 // utils
 import * as _ from "lodash";
 import * as m from "mithril";
-import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {Page, PageState} from "views/pages/page";
 
@@ -51,7 +50,7 @@ export class PipelineCreatePage extends Page {
   private job: Job = new Job("", [], []);
   private stage: Stage = new Stage("", [this.job]);
   private model: PipelineConfig = new PipelineConfig("", [this.material], []);
-  private isUsingTemplate: Stream<boolean> = stream(false);
+  private isUsingTemplate = stream(false);
 
   pageName(): string {
     return "Add a New Pipeline";

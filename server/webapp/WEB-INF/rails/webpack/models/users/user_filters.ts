@@ -19,12 +19,14 @@ import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
 import {User, Users} from "models/users/users";
 
+const flag: (val?: boolean) => Stream<boolean> = stream;
+
 export class UserFilters {
   searchText: Stream<string>                                             = stream("");
-  superAdmins: Stream<boolean>                                           = stream(false);
-  normalUsers: Stream<boolean>                                           = stream(false);
-  enabledUsers: Stream<boolean>                                          = stream(false);
-  disabledUsers: Stream<boolean>                                         = stream(false);
+  superAdmins                                                            = stream(false);
+  normalUsers                                                            = stream(false);
+  enabledUsers                                                           = stream(false);
+  disabledUsers                                                          = stream(false);
   private readonly __selectedRoles: Stream<Map<string, Stream<boolean>>> = stream(new Map());
 
   resetFilters() {
@@ -74,10 +76,10 @@ export class UserFilters {
 
   roleSelectionFor(roleName: string) {
     if (!this.__selectedRoles().has(roleName)) {
-      this.__selectedRoles().set(roleName, stream(false));
+      this.__selectedRoles().set(roleName, flag(false));
     }
 
-    return this.__selectedRoles().get(roleName) as Stream<boolean>;
+    return this.__selectedRoles().get(roleName)!;
   }
 
   filtersCount() {

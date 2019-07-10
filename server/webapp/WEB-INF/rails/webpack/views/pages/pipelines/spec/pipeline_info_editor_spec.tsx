@@ -16,6 +16,7 @@
 
 import * as m from "mithril";
 import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {PipelineGroupCache} from "models/pipeline_configs/pipeline_groups_cache";
 import {TemplateCache} from "models/pipeline_configs/templates_cache";
@@ -23,13 +24,15 @@ import {Option} from "views/components/forms/input_fields";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {PipelineInfoEditor} from "../pipeline_info_editor";
 
+const flag: (val?: boolean) => Stream<boolean> = stream;
+
 describe("AddPipeline: PipelineInfoEditor", () => {
   const helper = new TestHelper();
   let config: PipelineConfig;
 
   beforeEach(() => {
     config = new PipelineConfig("", [], []);
-    helper.mount(() => <PipelineInfoEditor pipelineConfig={config} cache={new TestCache()} isUsingTemplate={stream(false)} templatesCache={new EmptyTemplatesTestCache()}/>);
+    helper.mount(() => <PipelineInfoEditor pipelineConfig={config} cache={new TestCache()} isUsingTemplate={flag(false)} templatesCache={new EmptyTemplatesTestCache()}/>);
   });
 
   afterEach(helper.unmount.bind(helper));

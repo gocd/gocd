@@ -41,6 +41,8 @@ interface State extends UserActionsState, AddOperation<Users>, UsersWidgetState 
   initialUsers: Stream<Users>;
 }
 
+const flag: (val?: boolean) => Stream<boolean> = stream;
+
 export class UsersPage extends Page<null, State> {
   oninit(vnode: m.Vnode<null, State>) {
     super.oninit(vnode);
@@ -51,8 +53,8 @@ export class UsersPage extends Page<null, State> {
     vnode.state.roles          = stream(new Roles());
     vnode.state.rolesSelection = stream(new Map<GoCDRole, TriStateCheckbox>());
 
-    vnode.state.showFilters   = stream(false);
-    vnode.state.showRoles     = stream(false);
+    vnode.state.showFilters   = flag(false);
+    vnode.state.showRoles     = flag(false);
     vnode.state.roleNameToAdd = stream();
 
     vnode.state.initializeRolesDropdownAttrs = () => {

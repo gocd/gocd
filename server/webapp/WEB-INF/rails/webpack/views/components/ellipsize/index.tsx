@@ -35,11 +35,13 @@ interface State {
   setExpandedTo: (state: boolean, e: MouseEvent) => void;
 }
 
+const flag: (val?: boolean) => Stream<boolean> = stream;
+
 export class Ellipsize extends MithrilComponent<Attrs, State> {
   private static readonly DEFAULT_SIZE: number = 40;
 
   oninit(vnode: m.Vnode<Attrs, State>): any {
-    vnode.state.expanded = stream(false as boolean);
+    vnode.state.expanded = flag(false);
 
     vnode.state.setExpandedTo = (state: boolean) => {
       vnode.state.expanded(state);

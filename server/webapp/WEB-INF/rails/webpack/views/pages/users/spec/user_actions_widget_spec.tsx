@@ -25,6 +25,8 @@ import {User, Users} from "models/users/users";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {State as UserActionsState, UsersActionsWidget} from "views/pages/users/user_actions_widget";
 
+const flag: (val?: boolean) => Stream<boolean> = stream;
+
 describe("User Actions Widget", () => {
   let attrs: UserActionsState;
   let users: Stream<Users>;
@@ -37,8 +39,8 @@ describe("User Actions Widget", () => {
       roles: stream(new Roles()),
       userFilters: stream(new UserFilters()),
       initializeRolesDropdownAttrs: _.noop,
-      showRoles: stream(false as boolean),
-      showFilters: stream(false as boolean),
+      showRoles: flag(false),
+      showFilters: flag(false),
       rolesSelection: stream(new Map<GoCDRole, TriStateCheckbox>()),
       onEnable: _.noop,
       onDisable: _.noop,

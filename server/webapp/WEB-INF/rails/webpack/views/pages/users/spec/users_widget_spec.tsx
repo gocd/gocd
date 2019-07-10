@@ -17,6 +17,7 @@
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
 import {GoCDRole, Roles} from "models/roles/roles";
 import {TriStateCheckbox} from "models/tri_state_checkbox";
 import {UserFilters} from "models/users/user_filters";
@@ -24,6 +25,8 @@ import {User, Users} from "models/users/users";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {UserViewHelper} from "views/pages/users/user_view_helper";
 import {Attrs, UsersWidget} from "views/pages/users/users_widget";
+
+const flag: (val?: boolean) => Stream<boolean> = stream;
 
 describe("UsersWidget", () => {
   const helper = new TestHelper();
@@ -38,8 +41,8 @@ describe("UsersWidget", () => {
       roles: stream(new Roles()),
       userFilters: stream(new UserFilters()),
       initializeRolesDropdownAttrs: _.noop,
-      showRoles: stream(false as boolean),
-      showFilters: stream(false as boolean),
+      showRoles: flag(false),
+      showFilters: flag(false),
       rolesSelection: stream(new Map<GoCDRole, TriStateCheckbox>()),
       onEnable: _.noop,
       onDisable: _.noop,

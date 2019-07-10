@@ -318,7 +318,7 @@ const f = {
       const disabled = vnode.attrs.disabled;
       const args = _.assign(vnode.attrs);
 
-      if (args.hasOwnProperty("disabled")) { delete args.disabled; }
+      if (args.hasOwnProperty("disabled")) { delete args.disabled; } // eslint-disable-line no-prototype-builtins
 
       const tooltipText = args.tooltipText;
 

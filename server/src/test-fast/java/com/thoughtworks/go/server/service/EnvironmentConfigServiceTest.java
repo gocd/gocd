@@ -59,7 +59,7 @@ class EnvironmentConfigServiceTest {
         transactionTemplate = mock(TransactionTemplate.class);
 
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
-        environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService, agentService, transactionTemplate);
+        environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService, agentService);
 
         AgentConfig agentUat = new AgentConfig("uat-agent", "host1", "127.0.0.1", "cookie1");
         agentUat.setEnvironments("uat");

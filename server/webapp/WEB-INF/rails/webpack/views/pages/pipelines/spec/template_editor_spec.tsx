@@ -29,7 +29,7 @@ describe("AddPipeline: TemplateEditor", () => {
   let config: PipelineConfig;
 
   beforeEach(() => {
-    config = new PipelineConfig("", [], []);
+    config = new PipelineConfig("", [], []).withGroup("foo");
     helper.mount(() => <TemplateEditor pipelineConfig={config} isUsingTemplate={isUsingTemplate} cache={new EmptyTestCache()}/>);
   });
 

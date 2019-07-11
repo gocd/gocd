@@ -31,7 +31,7 @@ describe("AddPipeline: PipelineInfoEditor", () => {
   let config: PipelineConfig;
 
   beforeEach(() => {
-    config = new PipelineConfig("", [], []);
+    config = new PipelineConfig("", [], []).withGroup("foo");
     helper.mount(() => <PipelineInfoEditor pipelineConfig={config} cache={new TestCache()} isUsingTemplate={flag(false)} templatesCache={new EmptyTemplatesTestCache()}/>);
   });
 

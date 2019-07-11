@@ -27,17 +27,17 @@ describe("PipelineConfig model", () => {
   const defaultStages = [new Stage("stage1", [new Job("job1", [new ExecTask("echo", [])], [])])];
 
   it("should include a name", () => {
-    let pip = new PipelineConfig("name", defaultMaterials, defaultStages);
+    let pip = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
     expect(pip.isValid()).toBe(true);
     expect(pip.errors().count()).toBe(0);
 
-    pip = new PipelineConfig("", defaultMaterials, defaultStages);
+    pip = new PipelineConfig("", defaultMaterials, defaultStages).withGroup("foo");
     expect(pip.isValid()).toBe(false);
     expect(pip.errors().count()).toBe(1);
   });
 
   it("validate name format", () => {
-    const pip = new PipelineConfig("my awesome pipeline that has a terrible name", defaultMaterials, defaultStages);
+    const pip = new PipelineConfig("my awesome pipeline that has a terrible name", defaultMaterials, defaultStages).withGroup("foo");
     expect(pip.isValid()).toBe(false);
     expect(pip.errors().count()).toBe(1);
     expect(pip.errors().keys()).toEqual(["name"]);
@@ -45,7 +45,7 @@ describe("PipelineConfig model", () => {
   });
 
   it("should validate mutual exclusivity of template and stages", () => {
-    const pip = new PipelineConfig("name", defaultMaterials, defaultStages);
+    const pip = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
     expect(pip.isValid()).toBe(true);
 
     pip.template("wubba_lubba_dub_dub");
@@ -57,11 +57,11 @@ describe("PipelineConfig model", () => {
   });
 
   it("should include a material", () => {
-    let pip = new PipelineConfig("name", defaultMaterials, defaultStages);
+    let pip = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
     expect(pip.isValid()).toBe(true);
     expect(pip.errors().count()).toBe(0);
 
-    pip = new PipelineConfig("name", [], defaultStages);
+    pip = new PipelineConfig("name", [], defaultStages).withGroup("foo");
     expect(pip.isValid()).toBe(false);
     expect(pip.errors().count()).toBe(1);
   });
@@ -80,7 +80,7 @@ describe("PipelineConfig model", () => {
             new ExecTask("id", ["apache"])
           ])
         ]), new Stage("oink", [])
-      ]);
+      ]).withGroup("foo");
 
     const unmatched = pip.consumeErrorsResponse({
       errors: { name: ["this name is fugly"] },
@@ -120,7 +120,7 @@ describe("PipelineConfig model", () => {
 
   it("create()", (done) => {
     jasmine.Ajax.withMock(() => {
-      const config = new PipelineConfig("name", defaultMaterials, defaultStages);
+      const config = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
       stubPipelineCreateSuccess(config);
 
       config.create(false).then((response) => {
@@ -134,7 +134,7 @@ describe("PipelineConfig model", () => {
 
   it("run()", (done) => {
     jasmine.Ajax.withMock(() => {
-      const config = new PipelineConfig("name", defaultMaterials, defaultStages);
+      const config = new PipelineConfig("name", defaultMaterials, defaultStages).withGroup("foo");
       stubPipelineTrigger(config.name());
 
       config.run().then((response) => {

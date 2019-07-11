@@ -49,7 +49,7 @@ describe("AddPipeline: Actions Section", () => {
 
   beforeEach(() => {
     loc.reset();
-    config = new PipelineConfig("hello", [new Material("git", new GitMaterialAttributes())], []);
+    config = new PipelineConfig("hello", [new Material("git", new GitMaterialAttributes())], []).withGroup("foo");
     helper.mount(() => {
       return <PipelineActions pipelineConfig={config} loc={loc}/>;
     });

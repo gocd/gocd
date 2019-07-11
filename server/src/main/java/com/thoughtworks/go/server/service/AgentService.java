@@ -322,12 +322,6 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
 
     public Registration requestRegistration(Username username, AgentRuntimeInfo agentRuntimeInfo) {
         LOGGER.debug("Agent is requesting registration {}", agentRuntimeInfo);
-        AgentConfig agentConfigForValidation = agentRuntimeInfo.agent();
-        agentConfigForValidation.validate(null);
-        if (agentConfigForValidation.hasErrors()) {
-            List<ConfigErrors> errors = ErrorCollector.getAllErrors(agentConfigForValidation);
-            throw new GoConfigInvalidException(null, new AllConfigErrors(errors));
-        }
         AgentInstance agentInstance = agentInstances.register(agentRuntimeInfo);
         Registration registration = agentInstance.assignCertification();
         if (agentInstance.isRegistered()) {
@@ -531,5 +525,9 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
 
     public void registerAgentChangeListeners(AgentChangeListener listener) {
         listeners.add(listener);
+    }
+
+    public void validate(AgentConfig agentConfig) {
+        agentConfig.validate(null);
     }
 }

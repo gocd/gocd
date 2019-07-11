@@ -238,6 +238,12 @@ public class AgentRegistrationController {
             }
 
             AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
+            HttpOperationResult result = new HttpOperationResult();
+            agentService.validate(agentConfig);
+            if (agentConfig.hasErrors()) {
+                List<ConfigErrors> errors = ErrorCollector.getAllErrors(agentConfig);
+                throw new GoConfigInvalidException(null, new AllConfigErrors(errors));
+            }
 
             if (partialElasticAgentAutoregistrationInfo(elasticAgentId, elasticPluginId)) {
                 String message = "Elastic agents must submit both elasticAgentId and elasticPluginId.";
@@ -260,7 +266,6 @@ public class AgentRegistrationController {
 
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !agentService.hasAgent(uuid)) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
-                HttpOperationResult result = new HttpOperationResult();
                 agentService.register(agentConfig, agentAutoRegisterResources, agentAutoRegisterEnvironments, result);
                 if (agentConfig.hasErrors()) {
                     List<ConfigErrors> errors = ErrorCollector.getAllErrors(agentConfig);

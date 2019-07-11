@@ -19,12 +19,15 @@ import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
+import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.persistence.AgentDao;
+import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.server.service.result.HttpOperationResult;
 import com.thoughtworks.go.server.ui.AgentViewModel;
 import com.thoughtworks.go.server.ui.AgentsViewModel;
@@ -35,15 +38,19 @@ import com.thoughtworks.go.serverhealth.ServerHealthService;
 import com.thoughtworks.go.serverhealth.ServerHealthState;
 import com.thoughtworks.go.util.LogFixture;
 import com.thoughtworks.go.util.SystemEnvironment;
+import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.utils.Timeout;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.List;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
@@ -59,17 +66,19 @@ public class AgentServiceTest {
     private ServerHealthService serverHealthService;
     AgentConfig agentConfig;
     private GoConfigService goConfigService;
+    private SecurityService securityService;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         agentInstances = mock(AgentInstances.class);
+        securityService = mock(SecurityService.class);
         agentConfig = new AgentConfig("uuid", "host", "192.168.1.1");
         when(agentInstances.findAgentAndRefreshStatus("uuid")).thenReturn(AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), null));
         agentDao = mock(AgentDao.class);
         goConfigService = mock(GoConfigService.class);
         uuidGenerator = mock(UuidGenerator.class);
-        agentService = new AgentService(new SystemEnvironment(), agentInstances, mock(EnvironmentConfigService.class),
-                mock(SecurityService.class), agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null, goConfigService);
+        agentService = new AgentService(new SystemEnvironment(), agentInstances,
+                securityService, agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null, goConfigService);
         agentIdentifier = agentConfig.getAgentIdentifier();
         when(agentDao.cookieFor(agentIdentifier)).thenReturn("cookie");
     }
@@ -134,17 +143,16 @@ public class AgentServiceTest {
     public void shouldUnderstandFilteringAgentListBasedOnUuid() {
         AgentInstance instance1 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux"), new SystemEnvironment(), null);
         AgentInstance instance3 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux"), new SystemEnvironment(), null);
-        when(agentInstances.filter(Arrays.asList("uuid-1", "uuid-3"))).thenReturn(Arrays.asList(instance1, instance3));
+        when(agentInstances.filter(asList("uuid-1", "uuid-3"))).thenReturn(asList(instance1, instance3));
         AgentsViewModel agents = agentService.filter(Arrays.asList("uuid-1", "uuid-3"));
         AgentViewModel view1 = new AgentViewModel(instance1);
         AgentViewModel view2 = new AgentViewModel(instance3);
         assertThat(agents, is(new AgentsViewModel(view1, view2)));
-        verify(agentInstances).filter(Arrays.asList("uuid-1", "uuid-3"));
+        verify(agentInstances).filter(asList("uuid-1", "uuid-3"));
     }
 
     @Test
     public void shouldFailWhenDeleteIsNotSuccessful() {
-        SecurityService securityService = mock(SecurityService.class);
         AgentInstance agentInstance = mock(AgentInstance.class);
         String uuid = "1234";
         Username username = new Username(new CaseInsensitiveString("test"));
@@ -156,12 +164,55 @@ public class AgentServiceTest {
 
         when(agentInstances.findAgentAndRefreshStatus(uuid)).thenReturn(agentInstance);
 
-        AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances, mock(EnvironmentConfigService.class),
+        AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
                 securityService, agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null, goConfigService);
 
-        agentService.deleteAgents(username, operationResult, Arrays.asList(uuid));
+        agentService.deleteAgents(username, operationResult, asList(uuid));
 
         verify(operationResult).internalServerError(any(String.class), any(HealthStateType.class));
+    }
+
+    @Test
+    public void shouldUpdateAttributesForTheAgent() {
+        AgentInstance agentInstance = mock(AgentInstance.class);
+        List<String> uuids = singletonList("uuid");
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        Username username = new Username(new CaseInsensitiveString("test"));
+
+        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+        when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
+        when(agentInstances.findAgent("uuid")).thenReturn(agentInstance);
+
+        agentService.bulkUpdateAgentAttributes(username, operationResult, uuids, emptyList(), emptyList(), emptyList(), emptyList(), TriState.TRUE);
+
+        verify(agentDao).bulkUpdateAttributes(uuids, emptyList(), emptyList(), emptyList(), emptyList(), TriState.TRUE, agentInstances);
+        assertThat(operationResult.isSuccessful(), is(true));
+        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid]."));
+    }
+
+    @Test
+    public void shouldEnableMultipleAgents() {
+        Username username = new Username(new CaseInsensitiveString("test"));
+        AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie", false);
+        AgentInstance pending = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
+
+        AgentConfig agentConfig = new AgentConfig("UUID2", "remote-host", "50.40.30.20");
+        agentConfig.disable();
+        AgentInstance fromConfigFile = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), null);
+
+        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+        when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
+        when(agentInstances.findAgent("uuid")).thenReturn(pending);
+        when(agentInstances.findAgent("UUID2")).thenReturn(fromConfigFile);
+
+        List<String> uuids = asList(pending.getUuid(), fromConfigFile.getUuid());
+        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        agentService.bulkUpdateAgentAttributes(username, operationResult, uuids, emptyList(), emptyList(), emptyList(), emptyList(), TriState.TRUE);
+
+        verify(agentDao).bulkUpdateAttributes(uuids, emptyList(), emptyList(), emptyList(), emptyList(), TriState.TRUE, agentInstances);
+        assertThat(operationResult.isSuccessful(), is(true));
+        assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, UUID2]."));
+
     }
 
 }

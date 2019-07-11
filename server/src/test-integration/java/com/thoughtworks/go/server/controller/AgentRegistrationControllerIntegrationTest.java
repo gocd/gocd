@@ -28,7 +28,10 @@ import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +39,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.crypto.Mac;
@@ -50,12 +54,12 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 import static org.springframework.http.HttpStatus.*;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
         "classpath:WEB-INF/applicationContext-global.xml",
         "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
         "classpath:testPropertyConfigurer.xml",
-        "classpath:WEB-INF/spring-all-servlet.xml",
+        "classpath:WEB-INF/spring-all-servlet.xml"
 })
 
 public class AgentRegistrationControllerIntegrationTest {
@@ -71,12 +75,12 @@ public class AgentRegistrationControllerIntegrationTest {
     static final Cloner CLONER = new Cloner();
     private Properties original;
 
-    @Before
+    @BeforeEach
     public void before() {
         original = CLONER.deepClone(System.getProperties());
     }
 
-    @After
+    @AfterEach
     public void after() {
         System.setProperties(original);
     }

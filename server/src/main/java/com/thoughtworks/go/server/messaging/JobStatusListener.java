@@ -17,9 +17,12 @@
 package com.thoughtworks.go.server.messaging;
 
 import com.thoughtworks.go.domain.JobInstance;
+import com.thoughtworks.go.domain.JobResult;
+import com.thoughtworks.go.domain.JobState;
 import com.thoughtworks.go.domain.Stage;
 import com.thoughtworks.go.server.dao.JobInstanceSqlMapDao;
 import com.thoughtworks.go.server.service.ElasticAgentPluginService;
+import com.thoughtworks.go.server.service.JobInstanceService;
 import com.thoughtworks.go.server.service.StageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -29,6 +32,7 @@ import static java.util.Optional.ofNullable;
 @Component
 public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
     private final JobStatusTopic jobStatusTopic;
+    private JobInstanceService jobInstanceService;
     private StageService stageService;
     private final StageStatusTopic stageStatusTopic;
     private final ElasticAgentPluginService elasticAgentPluginService;
@@ -39,12 +43,14 @@ public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
                              StageService stageService,
                              StageStatusTopic stageStatusTopic,
                              ElasticAgentPluginService elasticAgentPluginService,
-                             JobInstanceSqlMapDao jobInstanceSqlMapDao) {
+                             JobInstanceSqlMapDao jobInstanceSqlMapDao,
+                             JobInstanceService jobInstanceService) {
         this.jobStatusTopic = jobStatusTopic;
         this.stageService = stageService;
         this.stageStatusTopic = stageStatusTopic;
         this.elasticAgentPluginService = elasticAgentPluginService;
         this.jobInstanceSqlMapDao = jobInstanceSqlMapDao;
+        this.jobInstanceService = jobInstanceService;
     }
 
     public void init() {
@@ -53,6 +59,11 @@ public class JobStatusListener implements GoMessageListener<JobStatusMessage> {
 
     public void onMessage(final JobStatusMessage message) {
         if (message.getJobState().isCompleted()) {
+            JobInstance jobInstance = jobInstanceService.buildByIdWithTransitions(message.getJobIdentifier().getBuildId());
+            if (jobInstance.getState() == JobState.Rescheduled) {
+                return;
+            }
+
             final Stage stage = stageService.findStageWithIdentifier(message.getStageIdentifier());
             if (stage.isCompleted()) {
                 //post a stage status change message to send email notification about stage completion

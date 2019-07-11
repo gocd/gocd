@@ -23,6 +23,7 @@ import com.thoughtworks.go.server.messaging.PluginAwareMessage;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 public class CreateAgentMessage implements PluginAwareMessage {
     private final String autoregisterKey;
@@ -75,5 +76,23 @@ public class CreateAgentMessage implements PluginAwareMessage {
 
     public Map<String, String> getClusterProfileConfiguration() {
         return clusterProfile;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CreateAgentMessage that = (CreateAgentMessage) o;
+        return Objects.equals(autoregisterKey, that.autoregisterKey) &&
+                Objects.equals(environment, that.environment) &&
+                Objects.equals(configuration, that.configuration) &&
+                Objects.equals(clusterProfile, that.clusterProfile) &&
+                Objects.equals(jobIdentifier, that.jobIdentifier) &&
+                Objects.equals(pluginId, that.pluginId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(autoregisterKey, environment, configuration, clusterProfile, jobIdentifier, pluginId);
     }
 }

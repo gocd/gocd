@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 import * as m from "mithril";
+import {PluginInfoQuery} from "models/shared/plugin_infos_new/plugin_info_crud";
 
 export default class {
 
@@ -94,11 +95,11 @@ export default class {
     const params: any = {};
 
     if (viewName) {
-      Object.assign(params, { viewName });
+      Object.assign(params, {viewName});
     }
 
     if ("boolean" === typeof allowEmpty) {
-      Object.assign(params, { allowEmpty });
+      Object.assign(params, {allowEmpty});
     }
 
     return Object.keys(params).length ?
@@ -298,5 +299,10 @@ export default class {
 
   static apiEnvironmentPath() {
     return "/go/api/admin/environments";
+  }
+
+  static apiPluginInfoPath(query: PluginInfoQuery) {
+    const queryString = m.buildQueryString(query);
+    return `/go/api/admin/plugin_info?${queryString}`;
   }
 }

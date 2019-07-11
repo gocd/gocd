@@ -35,7 +35,7 @@
     success: function (message) {
       clear(flash()).appendChild(c("p", {class: "success"}, message));
     }
-  }
+  };
 
   function PluginInfos() {
     var plugins = [];
@@ -44,7 +44,7 @@
 
     this.init = function init() {
       new XhrPromise({
-        url: Routes.apiv4AdminPluginInfoIndexPath() + "?type=configrepo",
+        url: "/go/api/admin/plugin_info?type=configrepo",
         type: "GET",
         responseType: "json",
         headers: {

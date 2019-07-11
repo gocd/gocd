@@ -16,13 +16,14 @@
 const _                               = require('lodash');
 const Stream                          = require('mithril/stream');
 const Mixins                          = require('models/mixins/model_mixins');
-const Routes                          = require('gen/js-routes');
 const CrudMixins                      = require('models/mixins/crud_mixins');
 const PluggableInstanceSettings       = require('models/shared/plugin_infos/pluggable_instance_settings');
 const AuthorizationPluginCapabilities = require('models/shared/plugin_infos/authorization_plugin_capabilities');
 const ElasticPluginCapabilities       = require('models/shared/plugin_infos/elastic_plugin_capabilities');
 const AnalyticsPluginCapabilities     = require('models/shared/plugin_infos/analytics_plugin_capabilities');
 const About                           = require('models/shared/plugin_infos/about');
+
+import SparkRoutes from "helpers/spark_routes";
 
 const PluginInfos = function (data) {
   Mixins.HasMany.call(this, {
@@ -55,7 +56,7 @@ PluginInfos.API_VERSION = 'v5';
 
 CrudMixins.Index({
   type:     PluginInfos,
-  indexUrl: Routes.apiv4AdminPluginInfoIndexPath(),
+  indexUrl: SparkRoutes.apiPluginInfoPath({}),
   version:  PluginInfos.API_VERSION,
   dataPath: '_embedded.plugin_info'
 });

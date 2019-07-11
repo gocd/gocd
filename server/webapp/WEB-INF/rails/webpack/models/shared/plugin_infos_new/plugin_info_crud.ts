@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import * as Routes from "gen/ts-routes";
+
 import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import SparkRoutes from "helpers/spark_routes";
 import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
 import {Extension} from "models/shared/plugin_infos_new/extensions";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
@@ -28,7 +29,7 @@ export class PluginInfoCRUD {
   private static API_VERSION_HEADER = ApiVersion.v6;
 
   static all(options: PluginInfoQuery): Promise<ApiResult<Array<PluginInfo<Extension>>>> {
-    return ApiRequestBuilder.GET(Routes.apiv4AdminPluginInfoIndexPath(options), this.API_VERSION_HEADER)
+    return ApiRequestBuilder.GET(SparkRoutes.apiPluginInfoPath(options), this.API_VERSION_HEADER)
       .then((result: ApiResult<string>) => {
         return result.map((str) => {
           const data = JSON.parse(str);

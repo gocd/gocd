@@ -238,7 +238,7 @@ class FormResetButton extends MithrilViewComponent<FormResetButtonAttrs> {
   }
 }
 
-type EventName = "oninput" | "onchange";
+type EventName = "oninput" | "onclick";
 
 function bindingAttributes<T>(attrs: BindingsAttr<T> & ReadonlyAttr,
                               eventName: EventName,
@@ -478,7 +478,7 @@ export class CheckboxField extends FormField<boolean> {
     return (
       <input type="checkbox"
              {...this.defaultAttributes(vnode.attrs)}
-             {...this.bindingAttributes(vnode.attrs, "onchange", "checked")}
+             {...this.bindingAttributes(vnode.attrs, "onclick", "checked")}
              className={classnames(styles.formCheckInput)}/>);
   }
 }
@@ -502,7 +502,7 @@ export class TriStateCheckboxField extends FormField<TriStateCheckbox> {
     return (
       <input type="checkbox"
              {...this.defaultAttributes(vnode.attrs)}
-             {...this.bindingAttributes(vnode.attrs, "onchange", "checked")}
+             {...this.bindingAttributes(vnode.attrs, "onclick", "checked")}
              className={classnames(styles.formCheckInput)}/>);
   }
 

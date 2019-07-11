@@ -15,9 +15,12 @@
  */
 package com.thoughtworks.go.server.dao;
 
+import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.PipelineConfig;
 import com.thoughtworks.go.config.StageConfig;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.materials.MaterialConfigs;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterial;
 import com.thoughtworks.go.domain.*;
@@ -65,10 +68,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.thoughtworks.go.domain.JobResult.Failed;
 import static com.thoughtworks.go.domain.PersistentObject.NOT_PERSISTED;
@@ -583,6 +583,11 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
 
     public Pipeline schedulePipeline(PipelineConfig pipelineConfig, BuildCause buildCause, String approvedBy, final Clock clock) {
         Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(approvedBy), md5, clock);
+        return scheduleJobInstancesAndSavePipeline(pipeline);
+    }
+
+    public Pipeline schedulePipeline(PipelineConfig pipelineConfig, BuildCause buildCause, String approvedBy, final Clock clock, Map<String, ElasticProfile> profiles, Map<String, ClusterProfile> clusterProfiles) {
+        Pipeline pipeline = instanceFactory.createPipelineInstance(pipelineConfig, buildCause, new DefaultSchedulingContext(approvedBy, new Agents(), profiles, clusterProfiles), md5, clock);
         return scheduleJobInstancesAndSavePipeline(pipeline);
     }
 

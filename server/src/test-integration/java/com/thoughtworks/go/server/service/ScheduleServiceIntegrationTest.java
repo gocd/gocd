@@ -16,6 +16,8 @@
 package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.elastic.ClusterProfile;
+import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.domain.activity.AgentAssignment;
 import com.thoughtworks.go.domain.buildcause.BuildCause;
@@ -23,6 +25,10 @@ import com.thoughtworks.go.domain.materials.svn.Subversion;
 import com.thoughtworks.go.domain.materials.svn.SvnCommand;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
 import com.thoughtworks.go.helper.*;
+import com.thoughtworks.go.plugin.access.elastic.ElasticAgentPluginRegistry;
+import com.thoughtworks.go.remote.AgentIdentifier;
+import com.thoughtworks.go.remote.work.BuildWork;
+import com.thoughtworks.go.remote.work.Work;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.server.dao.JobInstanceDao;
@@ -32,6 +38,8 @@ import com.thoughtworks.go.server.domain.StageStatusListener;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.messaging.JobStatusListener;
 import com.thoughtworks.go.server.messaging.JobStatusMessage;
+import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentMessage;
+import com.thoughtworks.go.server.messaging.elasticagents.CreateAgentQueueHandler;
 import com.thoughtworks.go.server.persistence.MaterialRepository;
 import com.thoughtworks.go.server.scheduling.ScheduleHelper;
 import com.thoughtworks.go.server.scheduling.ScheduleOptions;
@@ -52,16 +60,14 @@ import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 
 import static com.thoughtworks.go.helper.ModificationsMother.forceBuild;
 import static com.thoughtworks.go.helper.ModificationsMother.modifySomeFiles;
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
@@ -109,6 +115,12 @@ public class ScheduleServiceIntegrationTest {
     private PipelinePauseService pipelinePauseService;
     @Autowired
     private JobStatusListener jobStatusListener;
+    @Autowired
+    private BuildAssignmentService buildAssignmentService;
+    @Autowired
+    private AgentService agentService;
+    @Autowired
+    private ElasticAgentPluginService elasticAgentPluginService;
 
     private PipelineConfig mingleConfig;
     @Autowired
@@ -457,6 +469,103 @@ public class ScheduleServiceIntegrationTest {
         scheduleService.rescheduleJob(pipeline.getFirstStage().getFirstJob());
         int scheduledJobsCountAfterSecondReschedule = jobInstanceDao.orderedScheduledBuilds().size();
         assertThat(scheduledJobsCountOriginal, is(scheduledJobsCountAfterSecondReschedule));
+    }
+
+    @Test
+    //This test is written to verify fix for github issue https://github.com/gocd/gocd/issues/6615
+    public void shouldSendCreateAgentRequestToPluginForTheJobRequiringElasticAgentWhichHasBeenRescheduled() throws Exception {
+        String pluginId = "ecs";
+        ClusterProfile clusterProfile = new ClusterProfile("cluster_profile", pluginId);
+        ElasticProfile elasticAgentProfile = new ElasticProfile("elastic_agent_profile", "cluster_profile");
+
+        //Mock elastic agent extension
+        ElasticAgentPluginRegistry elasticAgentPluginRegistry = mock(ElasticAgentPluginRegistry.class);
+        when(elasticAgentPluginRegistry.shouldAssignWork(any(), any(), any(), any(), any(), any())).thenReturn(true);
+        when(elasticAgentPluginRegistry.has(any())).thenReturn(true);
+        elasticAgentPluginService.setElasticAgentPluginRegistry(elasticAgentPluginRegistry);
+
+        //Mock CreateAgentQueueHandler to verify create agent call was sent to the plugin
+        CreateAgentQueueHandler createAgentQueueHandler = mock(CreateAgentQueueHandler.class);
+        elasticAgentPluginService.setCreateAgentQueue(createAgentQueueHandler);
+
+        //add a cluster profile and elastic agent profile to the config.
+        GoConfigDao goConfigDao = configHelper.getGoConfigDao();
+        goConfigDao.loadForEditing().getElasticConfig().getClusterProfiles().add(clusterProfile);
+        goConfigDao.loadForEditing().getElasticConfig().getProfiles().add(elasticAgentProfile);
+
+        //create 2 elastic agents for ecs plugin
+        AgentConfig agentConfig = AgentMother.elasticAgent();
+        agentConfig.setElasticAgentId("elastic-agent-id-1");
+        agentConfig.setElasticPluginId(pluginId);
+        AgentConfig agentConfig2 = AgentMother.elasticAgent();
+        agentConfig2.setElasticAgentId("elastic-agent-id-2");
+        agentConfig2.setElasticPluginId(pluginId);
+        configHelper.addAgent(agentConfig);
+        configHelper.addAgent(agentConfig2);
+
+        //define a job in the config requiring elastic agent
+        PipelineConfig pipelineToBeAdded = PipelineConfigMother.createPipelineConfigWithStages(UUID.randomUUID().toString(), "s1");
+        pipelineToBeAdded.first().getJobs().first().setElasticProfileId("elastic_agent_profile");
+        PipelineConfig pipelineConfig = configHelper.addPipeline(pipelineToBeAdded);
+
+        //trigger the pipeline
+        Pipeline pipeline = dbHelper.schedulePipeline(pipelineConfig, forceBuild(pipelineConfig), "Bob", new TimeProvider(), Collections.singletonMap("elastic_agent_profile", elasticAgentProfile), Collections.singletonMap("cluster_profile", clusterProfile));
+
+        buildAssignmentService.onTimer();
+
+        //verify no agents are building
+        AgentInstance agent1 = agentService.findAgent(agentConfig.getUuid());
+        assertFalse(agent1.isBuilding());
+        AgentInstance agent2 = agentService.findAgent(agentConfig2.getUuid());
+        assertFalse(agent2.isBuilding());
+
+        //assign the current job to elastic agent 1
+        Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
+        assertThat(work, instanceOf(BuildWork.class));
+        assertTrue(agent1.isBuilding());
+
+        //reschedule the job
+        scheduleService.rescheduleJob(pipeline.getFirstStage().getFirstJob());
+
+        //when the job is rescheduled, the current job instance is marked as rescheduled and a job with new build id is created for it.
+
+        long existingRescheduledBuildId = pipeline.getFirstStage().getFirstJob().getId();
+        //newly scheduled build will have the next counter.
+        long newlyScheduledBuildId = pipeline.getFirstStage().getFirstJob().getId() + 1;
+
+        //existing job instance, which is rescheduled
+        JobInstance existingRescheduledInstance = jobInstanceService.buildById(existingRescheduledBuildId);
+
+        //newly created job instance
+        JobInstance newlyScheduledInstance = jobInstanceService.buildById(newlyScheduledBuildId);
+
+        assertThat(existingRescheduledInstance.getState(), is(JobState.Rescheduled));
+        assertThat(newlyScheduledInstance.getState(), is(JobState.Scheduled));
+
+        //verify the newly created instance's job plan include elastic profile and cluster profile
+        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getClusterProfile(), is(clusterProfile));
+        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getElasticProfile(), is(elasticAgentProfile));
+
+        JobPlan jobPlanOfRescheduledInstance = jobInstanceDao.loadPlan(existingRescheduledBuildId);
+
+        //invoke jobStatusListener to simulate first agent reporting job completed scenario
+        jobStatusListener.onMessage(new JobStatusMessage(jobPlanOfRescheduledInstance.getIdentifier(), JobState.Completed, jobPlanOfRescheduledInstance.getAgentUuid()));
+
+        //verify the newly created instance's job plan include elastic profile and cluster profile even after the first agent reports job completion
+        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getClusterProfile(), is(clusterProfile));
+        assertThat(jobInstanceDao.loadPlan(newlyScheduledBuildId).getElasticProfile(), is(elasticAgentProfile));
+
+        elasticAgentPluginService.createAgentsFor(Collections.emptyList(), Collections.singletonList(jobInstanceDao.loadPlan(newlyScheduledBuildId)));
+
+        //verify create agent request was sent to the plugin
+        CreateAgentMessage message = new CreateAgentMessage(configHelper.getCachedGoConfig().loadForEditing().server().getAgentAutoRegisterKey(), null, elasticAgentProfile, clusterProfile, jobPlanOfRescheduledInstance.getIdentifier());
+        verify(createAgentQueueHandler, times(1)).post(message, 110000L);
+    }
+
+    private AgentIdentifier agent(AgentConfig agentConfig) {
+        agentService.sync(new Agents(agentConfig));
+        agentService.approve(agentConfig.getUuid());
+        return agentService.findAgent(agentConfig.getUuid()).getAgentIdentifier();
     }
 
     private Pipeline runAndPass(PipelineConfig pipelineConfig, int counter) {

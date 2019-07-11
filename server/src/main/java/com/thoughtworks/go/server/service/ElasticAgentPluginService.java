@@ -64,10 +64,10 @@ public class ElasticAgentPluginService {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticAgentPluginService.class);
 
     private final PluginManager pluginManager;
-    private final ElasticAgentPluginRegistry elasticAgentPluginRegistry;
+    private ElasticAgentPluginRegistry elasticAgentPluginRegistry;
     private final AgentService agentService;
     private final EnvironmentConfigService environmentConfigService;
-    private final CreateAgentQueueHandler createAgentQueue;
+    private CreateAgentQueueHandler createAgentQueue;
     private final ServerPingQueueHandler serverPingQueue;
     private final GoConfigService goConfigService;
     private final TimeProvider timeProvider;
@@ -82,7 +82,8 @@ public class ElasticAgentPluginService {
     private final ElasticAgentMetadataStore elasticAgentMetadataStore;
     private ClusterProfilesService clusterProfilesService;
 
-    //    for test only
+    @Deprecated
+    // for test only
     public void setElasticPluginHeartBeatInterval(long elasticPluginHeartBeatInterval) {
         this.elasticPluginHeartBeatInterval = elasticPluginHeartBeatInterval;
     }
@@ -144,6 +145,18 @@ public class ElasticAgentPluginService {
                 LOGGER.warn(description);
             }
         }
+    }
+
+    @Deprecated
+    // for test only
+    public void setElasticAgentPluginRegistry(ElasticAgentPluginRegistry elasticAgentPluginRegistry) {
+        this.elasticAgentPluginRegistry = elasticAgentPluginRegistry;
+    }
+
+    @Deprecated
+    // for test only
+    public void setCreateAgentQueue(CreateAgentQueueHandler createAgentQueue) {
+        this.createAgentQueue = createAgentQueue;
     }
 
     private HealthStateScope scope(String pluginId) {

@@ -113,10 +113,10 @@
   resolved "https://registry.yarnpkg.com/@types/awesomplete/-/awesomplete-1.1.9.tgz#48d6fefd9904ca5f504e0c71d6576d8c3a98f5f4"
   integrity sha512-O/hAPz2AZc2moetIpd5tmVnwiATx2MpuVnuetqkkGatOv0gUGJyKdD0H8EuZLqbHtc7H/HFgUBjkWBivMt8zwA==
 
-"@types/classnames@^2.2.6":
-  version "2.2.6"
-  resolved "https://registry.yarnpkg.com/@types/classnames/-/classnames-2.2.6.tgz#dbe8a666156d556ed018e15a4c65f08937c3f628"
-  integrity sha512-XHcYvVdbtAxVstjKxuULYqYaWIzHR15yr1pZj4fnGChuBVJlIAp9StJna0ZJNSgxPh4Nac2FL4JM3M11Tm6fqQ==
+"@types/classnames@^2.2.9":
+  version "2.2.9"
+  resolved "https://registry.yarnpkg.com/@types/classnames/-/classnames-2.2.9.tgz#d868b6febb02666330410fe7f58f3c4b8258be7b"
+  integrity sha512-MNl+rT5UmZeilaPxAVs6YaPC2m6aA8rofviZbhbxpPpl61uKodfdQVsBtgJGTqGizEf02oW3tsVe7FYB8kK14A==
 
 "@types/events@*":
   version "3.0.0"

@@ -26,20 +26,15 @@ import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.GoConfigMother;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
-import com.thoughtworks.go.server.service.EnvironmentConfigService;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
 import com.thoughtworks.go.util.TriState;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
@@ -48,9 +43,7 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.lang.String.format;
 import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -60,7 +53,6 @@ public class AgentsUpdateValidatorTest {
     private Username currentUser;
     private BasicCruiseConfig cruiseConfig;
     private GoConfigService goConfigService;
-    private EnvironmentConfigService environmentConfigService;
     private AgentInstances agentInstances;
     private List<String> uuids;
     private List<String> environmentsToAdd;
@@ -75,7 +67,6 @@ public class AgentsUpdateValidatorTest {
         currentUser = new Username(new CaseInsensitiveString("user"));
         cruiseConfig = GoConfigMother.defaultCruiseConfig();
         goConfigService = mock(GoConfigService.class);
-        environmentConfigService = mock(EnvironmentConfigService.class);
         agentInstances = mock(AgentInstances.class);
 
         uuids = new ArrayList<>();
@@ -262,7 +253,9 @@ public class AgentsUpdateValidatorTest {
 //    }
 
     private AgentsUpdateValidator newAgentsUpdateValidator() {
-        return new AgentsUpdateValidator(agentInstances, currentUser, result, uuids, environmentsToAdd, environmentsToRemove,
-                triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
+        environmentsToAdd.forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
+        return new AgentsUpdateValidator(agentInstances, currentUser, result, uuids, envsConfig, environmentsToRemove,
+                                         triState, resourcesToAdd, resourcesToRemove, goConfigService);
     }
 }

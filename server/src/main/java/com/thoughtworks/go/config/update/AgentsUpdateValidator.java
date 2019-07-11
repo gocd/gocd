@@ -15,10 +15,7 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.AgentConfig;
-import com.thoughtworks.go.config.Agents;
-import com.thoughtworks.go.config.CaseInsensitiveString;
-import com.thoughtworks.go.config.ResourceConfigs;
+import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
@@ -32,10 +29,8 @@ import com.thoughtworks.go.serverhealth.HealthStateType;
 import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
@@ -46,7 +41,7 @@ public class AgentsUpdateValidator {
     private final Username username;
     private final LocalizedOperationResult result;
     private final List<String> uuids;
-    private final List<String> envListToAdd;
+    private EnvironmentsConfig envsConfig;
     private final List<String> envListToRemove;
     private final TriState state;
     private final List<String> resourcesToAdd;
@@ -55,14 +50,14 @@ public class AgentsUpdateValidator {
     public Agents agents;
 
     public AgentsUpdateValidator(AgentInstances agentInstances, Username username, LocalizedOperationResult result,
-                                 List<String> uuids, List<String> envListToAdd, List<String> envListToRemove,
+                                 List<String> uuids, EnvironmentsConfig envsConfig, List<String> envListToRemove,
                                  TriState state, List<String> resourcesToAdd, List<String> resourcesToRemove,
                                  GoConfigService goConfigService) {
         this.agentInstances = agentInstances;
         this.username = username;
         this.result = result;
         this.uuids = uuids;
-        this.envListToAdd = envListToAdd;
+        this.envsConfig = envsConfig;
         this.envListToRemove = envListToRemove;
         this.state = state;
         this.resourcesToAdd = resourcesToAdd;
@@ -116,6 +111,7 @@ public class AgentsUpdateValidator {
     private void bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML() {
         Set<CaseInsensitiveString> existingEnvSet = new HashSet<>(goConfigService.getEnvironments().names());
 
+        List<String> envListToAdd = envsConfig.stream().map(envConfig -> envConfig.name().toString()).collect(Collectors.toList());
         bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML(existingEnvSet, envListToAdd);
         bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML(existingEnvSet, envListToRemove);
     }
@@ -139,10 +135,10 @@ public class AgentsUpdateValidator {
     }
 
     private boolean isAnyOperationPerformedOnAgents() {
-        return !resourcesToAdd.isEmpty() || !resourcesToRemove.isEmpty() || !envListToAdd.isEmpty()
-                || !envListToRemove.isEmpty() || state.isTrue() || state.isFalse();
+        return !resourcesToAdd.isEmpty() || !resourcesToRemove.isEmpty()
+                                         || envsConfig.size() > 0 || !envListToRemove.isEmpty()
+                                         || state.isTrue() || state.isFalse();
     }
-
 
     private List<AgentConfig> findPendingAgents() {
         List<AgentConfig> pendingAgents = new ArrayList<>();

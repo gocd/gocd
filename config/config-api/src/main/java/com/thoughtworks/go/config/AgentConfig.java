@@ -109,8 +109,8 @@ public class AgentConfig extends PersistentObject implements Validatable {
         setResources(new ResourceConfigs(remove(getResourceConfigs().getCommaSeparatedResourceNames(), resourcesToRemove)));
     }
 
-    public void removeEnvironments(List<String> environmentsToRemove) {
-        this.setEnvironments(remove(this.getEnvironments(), environmentsToRemove));
+    public void removeEnvironments(List<String> envsToRemove) {
+        this.setEnvironments(remove(this.getEnvironments(), envsToRemove));
     }
 
     @Override
@@ -315,12 +315,16 @@ public class AgentConfig extends PersistentObject implements Validatable {
         return (this.environments == null ? new ArrayList<>() : Arrays.asList(this.environments.split(",")));
     }
 
-    public void setEnvironments(String environments) {
-        this.environments = environments;
+    public void setEnvironments(String envs) {
+        this.environments = envs;
     }
 
-    public void addEnvironments(List<String> environmentsToAdd) {
-        this.setEnvironments(append(this.getEnvironments(), environmentsToAdd));
+    public void addEnvironments(List<String> envsToAdd) {
+        this.setEnvironments(append(this.getEnvironments(), envsToAdd));
+    }
+
+    public void addEnvironment(String env){
+        this.addEnvironments(Arrays.asList(env));
     }
 
     public ResourceConfigs getResources() {

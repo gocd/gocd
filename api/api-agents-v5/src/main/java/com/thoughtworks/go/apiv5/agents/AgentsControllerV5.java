@@ -32,6 +32,10 @@ import com.thoughtworks.go.apiv5.agents.representers.AgentBulkUpdateRequestRepre
 import com.thoughtworks.go.apiv5.agents.representers.AgentRepresenter;
 import com.thoughtworks.go.apiv5.agents.representers.AgentUpdateRequestRepresenter;
 import com.thoughtworks.go.apiv5.agents.representers.AgentsRepresenter;
+import com.thoughtworks.go.config.BasicEnvironmentConfig;
+import com.thoughtworks.go.config.CaseInsensitiveString;
+import com.thoughtworks.go.config.EnvironmentConfig;
+import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.NullAgentInstance;
@@ -48,9 +52,7 @@ import spark.Request;
 import spark.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static java.util.Collections.singletonList;
@@ -95,8 +97,13 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
     }
 
     public String index(Request request, Response response) throws IOException {
+        Map<AgentInstance, Collection<EnvironmentConfig>> agentToEnvConfigsMap = new HashMap<>();
+        agentService.agentInstances().values().forEach(agentInstance -> {
+            Set<EnvironmentConfig> environmentConfigs = environmentConfigService.environmentConfigsFor(agentInstance.getUuid());
+            agentToEnvConfigsMap.put(agentInstance,environmentConfigs);
+        });
         return writerForTopLevelObject(request, response,
-                outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentService.agentEnvironmentConfigsMap(), securityService, currentUsername()));
+                outputWriter -> AgentsRepresenter.toJSON(outputWriter, agentToEnvConfigsMap, securityService, currentUsername()));
     }
 
     public String show(Request request, Response response) throws IOException {
@@ -124,20 +131,24 @@ public class AgentsControllerV5 extends ApiController implements SparkSpringCont
     }
 
     public String bulkUpdate(Request request, Response response) throws IOException {
-        final AgentBulkUpdateRequest bulkUpdateRequest = AgentBulkUpdateRequestRepresenter.fromJSON(request.body());
+        final AgentBulkUpdateRequest req = AgentBulkUpdateRequestRepresenter.fromJSON(request.body());
 
         final HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        agentService.bulkUpdateAgentAttributes(currentUsername(),
-                result,
-                bulkUpdateRequest.getUuids(),
-                bulkUpdateRequest.getOperations().getResources().toAdd(),
-                bulkUpdateRequest.getOperations().getResources().toRemove(),
-                bulkUpdateRequest.getOperations().getEnvironments().toAdd(),
-                bulkUpdateRequest.getOperations().getEnvironments().toRemove(),
-                bulkUpdateRequest.getAgentConfigState()
-        );
+
+        EnvironmentsConfig envsConfig = createEnvironmentsConfigFrom(req.getOperations().getEnvironments().toAdd());
+        agentService.bulkUpdateAgentAttributes(currentUsername(), result, req.getUuids(), req.getOperations().getResources().toAdd(),
+                                               req.getOperations().getResources().toRemove(), envsConfig,
+                                               req.getOperations().getEnvironments().toRemove(), req.getAgentConfigState());
 
         return renderHTTPOperationResult(result, request, response);
+    }
+
+    private EnvironmentsConfig createEnvironmentsConfigFrom(List<String> envList) {
+        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
+        if(envList != null){
+            envList.forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
+        }
+        return envsConfig;
     }
 
     public String deleteAgent(Request request, Response response) throws IOException {

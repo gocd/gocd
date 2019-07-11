@@ -43,7 +43,10 @@ import com.thoughtworks.go.utils.Timeout;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
@@ -68,6 +71,9 @@ public class AgentServiceTest {
     private GoConfigService goConfigService;
     private SecurityService securityService;
 
+    private List<String> emptyStrList = Collections.emptyList();
+    private EnvironmentsConfig emptyEnvsConfig = new EnvironmentsConfig();
+
     @BeforeEach
     public void setUp() {
         agentInstances = mock(AgentInstances.class);
@@ -84,7 +90,7 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldUpdateStatus() throws Exception {
+    public void shouldUpdateStatus() {
         AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "pavanIsGreat");
         when(agentDao.cookieFor(runtimeInfo.getIdentifier())).thenReturn("pavanIsGreat");
         agentService.updateRuntimeInfo(runtimeInfo);
@@ -92,7 +98,7 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateStatus() throws Exception {
+    public void shouldThrowExceptionWhenAgentWithNoCookieTriesToUpdateStatus() {
         AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null);
 
         try (LogFixture logFixture = logFixtureFor(AgentService.class, Level.DEBUG)) {
@@ -109,7 +115,7 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() throws Exception {
+    public void shouldThrowExceptionWhenADuplicateAgentTriesToUpdateStatus() {
         AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null);
         runtimeInfo.setCookie("invalid_cookie");
         AgentInstance original = AgentInstance.createFromLiveAgent(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), null), new SystemEnvironment(), null);
@@ -133,7 +139,7 @@ public class AgentServiceTest {
     }
 
     @Test
-    public void shouldAssociateCookieForAnAgent() throws Exception {
+    public void shouldAssociateCookieForAnAgent() {
         when(uuidGenerator.randomUuid()).thenReturn("foo");
         assertThat(agentService.assignCookie(agentIdentifier), is("foo"));
         verify(agentDao).associateCookie(eq(agentIdentifier), any(String.class));
@@ -183,9 +189,9 @@ public class AgentServiceTest {
         when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());
         when(agentInstances.findAgent("uuid")).thenReturn(agentInstance);
 
-        agentService.bulkUpdateAgentAttributes(username, operationResult, uuids, emptyList(), emptyList(), emptyList(), emptyList(), TriState.TRUE);
+        agentService.bulkUpdateAgentAttributes(username, operationResult, uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE);
 
-        verify(agentDao).bulkUpdateAttributes(uuids, emptyList(), emptyList(), emptyList(), emptyList(), TriState.TRUE, agentInstances);
+        verify(agentDao).bulkUpdateAttributes(any(List.class), any(Map.class), eq(TriState.TRUE));
         assertThat(operationResult.isSuccessful(), is(true));
         assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid]."));
     }
@@ -207,9 +213,9 @@ public class AgentServiceTest {
 
         List<String> uuids = asList(pending.getUuid(), fromConfigFile.getUuid());
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        agentService.bulkUpdateAgentAttributes(username, operationResult, uuids, emptyList(), emptyList(), emptyList(), emptyList(), TriState.TRUE);
+        agentService.bulkUpdateAgentAttributes(username, operationResult, uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE);
 
-        verify(agentDao).bulkUpdateAttributes(uuids, emptyList(), emptyList(), emptyList(), emptyList(), TriState.TRUE, agentInstances);
+        verify(agentDao).bulkUpdateAttributes(any(List.class), any(Map.class), eq(TriState.TRUE));
         assertThat(operationResult.isSuccessful(), is(true));
         assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, UUID2]."));
 

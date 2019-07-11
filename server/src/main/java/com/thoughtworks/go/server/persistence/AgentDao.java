@@ -16,6 +16,8 @@
 package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.domain.AgentConfigStatus;
+import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
@@ -34,10 +36,8 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @understands persisting and retrieving agent uuid-cookie mapping
@@ -211,43 +211,69 @@ public class AgentDao extends HibernateDaoSupport {
         }
     }
 
-    public void bulkUpdateAttributes(final List<String> uuids, final List<String> resourcesToAdd, final List<String> resourcesToRemove, final List<String> environmentsToAdd, final List<String> environmentsToRemove, final TriState enable, AgentInstances agentInstances) {
-        List<AgentConfig> agents = agentsByUUIds(uuids);
-        // Add all pending agents to the list of agents
+    public void bulkUpdateAttributes(List<AgentConfig> agents, Map<String, AgentConfigStatus> agentToStatusMap, TriState enable) {
         if (enable.isTrue() || enable.isFalse()) {
-            List<AgentConfig> pendingAgentConfigs = agentInstances.findPendingAgents(uuids);
-            for (AgentConfig agentConfig : pendingAgentConfigs) {
-                updateAgentObject(agentConfig);
-                if (agentConfig.getCookie() == null) {
-                    String cookie = uuidGenerator.randomUuid();
-                    agentConfig.setCookie(cookie);
-                }
-                agents.add(agentConfig);
-            }
+            agents.stream()
+                  .filter(agent -> agentToStatusMap.get(agent.getUuid()) == AgentConfigStatus.Pending)
+                  .forEach(agent -> {
+                        updateAgentObject(agent);
+                        if (agent.getCookie() == null) {
+                            String cookie = uuidGenerator.randomUuid();
+                            agent.setCookie(cookie);
+                        }
+                });
         }
 
-        synchronized (uuids) {
+        synchronized (agents) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    for (AgentConfig agent : agents) {
-                        agent.addResources(resourcesToAdd);
-                        agent.removeResources(resourcesToRemove);
-                        agent.addEnvironments(environmentsToAdd);
-                        agent.removeEnvironments(environmentsToRemove);
-                        if (enable.isTrue()) {
-                            agent.setDisabled(false);
-                        } else if (enable.isFalse()) {
-                            agent.setDisabled(true);
-                        }
-                        sessionFactory.getCurrentSession().saveOrUpdate(AgentConfig.class.getName(), agent);
-                    }
-
+                    agents.forEach(agentConfig -> sessionFactory.getCurrentSession().saveOrUpdate(AgentConfig.class.getName(), agentConfig));
+                    List<String> uuids = agents.stream().map(agentInstance -> agentInstance.getUuid()).collect(Collectors.toList());
                     registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(synchronizationManager, uuids);
                 }
             });
         }
     }
+
+//    public void bulkUpdateAttributes(List<String> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove,
+//                                     List<String> envsToAdd, List<String> envsToRemove, TriState enable, AgentInstances agentInstances) {
+//        List<AgentConfig> agents = agentsByUUIds(uuids);
+//        // Add all pending agents to the list of agents
+//        if (enable.isTrue() || enable.isFalse()) {
+//            List<AgentConfig> pendingAgentConfigs = agentInstances.findPendingAgents(uuids);
+//            for (AgentConfig agentConfig : pendingAgentConfigs) {
+//                updateAgentObject(agentConfig);
+//                if (agentConfig.getCookie() == null) {
+//                    String cookie = uuidGenerator.randomUuid();
+//                    agentConfig.setCookie(cookie);
+//                }
+//                agents.add(agentConfig);
+//            }
+//        }
+//
+//        synchronized (uuids) {
+//            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
+//                @Override
+//                protected void doInTransactionWithoutResult(TransactionStatus status) {
+//                    for (AgentConfig agent : agents) {
+//                        agent.addResources(resourcesToAdd);
+//                        agent.removeResources(resourcesToRemove);
+//                        agent.addEnvironments(envsToAdd);
+//                        agent.removeEnvironments(envsToRemove);
+//                        if (enable.isTrue()) {
+//                            agent.setDisabled(false);
+//                        } else if (enable.isFalse()) {
+//                            agent.setDisabled(true);
+//                        }
+//                        sessionFactory.getCurrentSession().saveOrUpdate(AgentConfig.class.getName(), agent);
+//                    }
+//
+//                    registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(synchronizationManager, uuids);
+//                }
+//            });
+//        }
+//    }
 
     public void bulkSoftDelete(List<String> uuids) {
         synchronized (uuids) {

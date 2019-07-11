@@ -63,7 +63,6 @@ import static java.lang.String.format;
 public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
     private final SystemEnvironment systemEnvironment;
     private final SecurityService securityService;
-    private final EnvironmentConfigService environmentConfigService;
     private final UuidGenerator uuidGenerator;
     private final ServerHealthService serverHealthService;
     private AgentStatusChangeNotifier agentStatusChangeNotifier;
@@ -72,23 +71,23 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
 
     private AgentInstances agentInstances;
 
-    private List<AgentChangeListener> listeners = new ArrayList<>();
+    private Set<AgentChangeListener<AgentConfig>> listeners = new HashSet<>();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentService.class);
 
     @Autowired
-    public AgentService(SystemEnvironment systemEnvironment, final EnvironmentConfigService environmentConfigService,
+    public AgentService(SystemEnvironment systemEnvironment,
                         SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator, ServerHealthService serverHealthService,
-                        final EmailSender emailSender, AgentStatusChangeNotifier agentStatusChangeNotifier, GoConfigService goConfigService) {
-        this(systemEnvironment, null, environmentConfigService, securityService, agentDao, uuidGenerator, serverHealthService,
+                        AgentStatusChangeNotifier agentStatusChangeNotifier, GoConfigService goConfigService) {
+        this(systemEnvironment, null, securityService, agentDao, uuidGenerator, serverHealthService,
                 agentStatusChangeNotifier, goConfigService);
         this.agentInstances = new AgentInstances(agentStatusChangeNotifier);
     }
 
     AgentService(SystemEnvironment systemEnvironment, AgentInstances agentInstances,
-                 EnvironmentConfigService environmentConfigService, SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator,
+                 SecurityService securityService, AgentDao agentDao, UuidGenerator uuidGenerator,
                  ServerHealthService serverHealthService, AgentStatusChangeNotifier agentStatusChangeNotifier, GoConfigService goConfigService) {
         this.systemEnvironment = systemEnvironment;
-        this.environmentConfigService = environmentConfigService;
         this.securityService = securityService;
         this.agentInstances = agentInstances;
         this.agentDao = agentDao;
@@ -215,16 +214,50 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
         return null;
     }
 
+//    public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids,
+//                                          List<String> resourcesToAdd, List<String> resourcesToRemove,
+//                                          List<String> environmentsToAdd, List<String> environmentsToRemove,
+//                                          TriState enable) {
+//        AgentsUpdateValidator agentsUpdateValidator = new AgentsUpdateValidator(agentInstances,
+//                username, result, uuids, environmentsToAdd, environmentsToRemove, enable, resourcesToAdd, resourcesToRemove, goConfigService);
+//        try {
+//            if (agentsUpdateValidator.canContinue()) {
+//                agentsUpdateValidator.validate();
+//                agentDao.bulkUpdateAttributes(uuids, resourcesToAdd, resourcesToRemove, environmentsToAdd, environmentsToRemove, enable, agentInstances);
+//                result.setMessage("Updated agent(s) with uuid(s): [" + StringUtils.join(uuids, ", ") + "].");
+//            }
+//        } catch (Exception e) {
+//            LOGGER.error("There was an error bulk updating agents", e);
+//            if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
+//                result.unprocessableEntity(entityConfigValidationFailed(Agents.class.getAnnotation(ConfigTag.class).value(), StringUtils.join(uuids, ","), e.getMessage()));
+//            } else if (!result.hasMessage()) {
+//                result.internalServerError("Server error occured. Check log for details.");
+//            }
+//        }
+//    }
+
     public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids,
                                           List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                          List<String> environmentsToAdd, List<String> environmentsToRemove,
-                                          TriState enable) {
-        AgentsUpdateValidator agentsUpdateValidator = new AgentsUpdateValidator(agentInstances,
-                username, result, uuids, environmentsToAdd, environmentsToRemove, enable, resourcesToAdd, resourcesToRemove, goConfigService);
+                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState enable) {
+        AgentsUpdateValidator validator
+                = new AgentsUpdateValidator(agentInstances, username, result, uuids, envsToAdd, envsToRemove,
+                                            enable, resourcesToAdd, resourcesToRemove, goConfigService);
         try {
-            if (agentsUpdateValidator.canContinue()) {
-                agentsUpdateValidator.validate();
-                agentDao.bulkUpdateAttributes(uuids, resourcesToAdd, resourcesToRemove, environmentsToAdd, environmentsToRemove, enable, agentInstances);
+            if (validator.canContinue()) {
+                validator.validate();
+
+                List<AgentConfig> agents = this.agentDao.agentsByUUIds(uuids);
+                if( enable.isTrue() || enable.isFalse() ){
+                    List<AgentConfig> pendingAgents = agentInstances.findPendingAgents(uuids);
+                    pendingAgents.forEach(agent -> agents.add(agent));
+                }
+
+                agents.forEach(agent -> {
+                    addRemoveEnvsAndResources(agent, envsToAdd, envsToRemove, resourcesToAdd, resourcesToRemove);
+                    enableDisableAgent(enable, agent);
+                });
+
+                agentDao.bulkUpdateAttributes(agents, createAgentToStatusMap(agents), enable);
                 result.setMessage("Updated agent(s) with uuid(s): [" + StringUtils.join(uuids, ", ") + "].");
             }
         } catch (Exception e) {
@@ -235,6 +268,50 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
                 result.internalServerError("Server error occured. Check log for details.");
             }
         }
+    }
+
+    private HashMap<String, AgentConfigStatus> createAgentToStatusMap(List<AgentConfig> agents) {
+        HashMap<String, AgentConfigStatus> agentToStatusMap = new HashMap<>();
+
+        agents.forEach(agent -> {
+            AgentInstance agentInstance = agentInstances.findAgent(agent.getUuid());
+            AgentConfigStatus agentConfigStatus = agentInstance.getStatus().getConfigStatus();
+            agentToStatusMap.put(agent.getUuid(), agentConfigStatus);
+        });
+
+        return agentToStatusMap;
+    }
+
+    private void enableDisableAgent(TriState enable, AgentConfig agent) {
+        if (enable.isTrue()) {
+            agent.setDisabled(false);
+        } else if (enable.isFalse()) {
+            agent.setDisabled(true);
+        }
+    }
+
+    private void addThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(EnvironmentsConfig envsToAdd, AgentConfig agent) {
+        envsToAdd.forEach(env -> {
+            String uuid = agent.getUuid();
+            if (environmentContainsAgentRemotely(env, uuid)) {
+                LOGGER.debug("Not adding Agent %s to Environment %s. It is associated from a Config Repo", uuid, env);
+            } else {
+                String envName = env.name().toString();
+                agent.addEnvironment(envName);
+            }
+        });
+    }
+
+    private boolean environmentContainsAgentRemotely(EnvironmentConfig envConfig, String uuid) {
+        return envConfig.containsAgentRemotely(uuid);
+    }
+
+    private void addRemoveEnvsAndResources(AgentConfig agent, EnvironmentsConfig envsToAdd, List<String> envsToRemove,
+                                           List<String> resourcesToAdd, List<String> resourcesToRemove) {
+        addThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(envsToAdd, agent);
+        agent.removeEnvironments(envsToRemove);
+        agent.addResources(resourcesToAdd);
+        agent.removeResources(resourcesToRemove);
     }
 
     private boolean populateAgentInstancesForUUIDs(OperationResult operationResult, List<String> uuids, List<AgentInstance> agents) {
@@ -500,7 +577,17 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
 
     @Override
     public void bulkEntitiesChanged(List<AgentConfig> agentConfigs) {
-        agentConfigs.stream().forEach(this::entityChanged);
+        agentConfigs.forEach(this::entityChanged);
+    }
+
+    @Override
+    public void bulkEntitiesDeleted(List<String> deletedUuids) {
+        deletedUuids.forEach(this::entityDeleted);
+    }
+
+    private void entityDeleted(String uuid) {
+        notifyAgentDeleteListener(uuid);
+        this.agentInstances.removeAgent(uuid);
     }
 
     @Override
@@ -520,7 +607,14 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
 
     private void notifyAgentChangeListener(AgentConfig oldAgent, AgentConfig newAgent) {
         AgentChangedEvent event = new AgentChangedEvent(oldAgent, newAgent);
-        listeners.stream().forEach(listener -> listener.agentChanged(event));
+        listeners.forEach(listener -> listener.agentChanged(event));
+    }
+
+    private void notifyAgentDeleteListener(String uuid) {
+        listeners.forEach(listener -> {
+            AgentInstance agent = agentInstances.findAgent(uuid);
+            listener.agentDeleted(agent.agentConfig());
+        });
     }
 
     public void registerAgentChangeListeners(AgentChangeListener listener) {

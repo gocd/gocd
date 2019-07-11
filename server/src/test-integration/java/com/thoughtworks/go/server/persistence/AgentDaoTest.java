@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
+import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
@@ -38,6 +39,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
@@ -243,14 +245,23 @@ public class AgentDaoTest {
         agentDao.saveOrUpdate(agentConfig2);
         agentDao.saveOrUpdate(agentConfig3);
 
-        agentDao.bulkUpdateAttributes(
-                Arrays.asList(agentConfig1.getUuid(), agentConfig3.getUuid()),
-                Arrays.asList("resource3", "resource4"),
-                Arrays.asList("resource1", "resource2"),
-                Arrays.asList("env2", "env4"),
-                Arrays.asList("env1", "env3"),
-                TriState.UNSET,
-                new AgentInstances(new SystemEnvironment(), null, agentInstance1, agentInstance2, agentInstance3));
+        HashMap<String, AgentConfigStatus> agentToStatusMap = new HashMap<>();
+        agentToStatusMap.put(agentConfig1.getUuid(), agentInstance1.getStatus().getConfigStatus());
+        agentToStatusMap.put(agentConfig3.getUuid(), agentInstance3.getStatus().getConfigStatus());
+
+        agentConfig1.addResources(Arrays.asList("resource3", "resource4"));
+        agentConfig3.addResources(Arrays.asList("resource3", "resource4"));
+
+        agentConfig1.removeResources(Arrays.asList("resource1", "resource2"));
+        agentConfig3.removeResources(Arrays.asList("resource1", "resource2"));
+
+        agentConfig1.addEnvironments(Arrays.asList("env2", "env4"));
+        agentConfig3.addEnvironments(Arrays.asList("env2", "env4"));
+
+        agentConfig1.removeEnvironments(Arrays.asList("env1", "env3"));
+        agentConfig3.removeEnvironments(Arrays.asList("env1", "env3"));
+
+        agentDao.bulkUpdateAttributes(Arrays.asList(agentConfig1, agentConfig3), agentToStatusMap, TriState.UNSET);
 
         assertThat(agentDao.agentByUuid(agentConfig1.getUuid()).getResources().resourceNames(), is(Arrays.asList("resource3", "resource4")));
         assertThat(agentDao.agentByUuid(agentConfig2.getUuid()).getResources().resourceNames(), is(Arrays.asList("resource1")));

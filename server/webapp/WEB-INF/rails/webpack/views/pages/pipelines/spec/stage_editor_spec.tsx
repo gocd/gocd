@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-import {asSelector} from "helpers/css_proxies";
 import * as m from "mithril";
 import {Stage} from "models/pipeline_configs/stage";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as css from "../components.scss";
 import {StageEditor} from "../stage_editor";
 
 describe("AddPipeline: StageEditor", () => {
-  const sel = asSelector<typeof css>(css);
   const helper = new TestHelper();
   let stage: Stage;
 
@@ -39,8 +36,7 @@ describe("AddPipeline: StageEditor", () => {
 
     expect(helper.byTestId("form-field-input-stage-name")).toBeTruthy();
 
-    expect(helper.q(sel.switchLabelText)).toBeTruthy();
-    expect(helper.byTestId("switch-label")).toBeTruthy();
+    expect(helper.byTestId("switch-label")).toBeInDOM();
     expect(helper.byTestId("switch-label").textContent!.startsWith("Automatically run this stage on upstream changes")).toBe(true);
     expect(helper.byTestId("switch-paddle")).toBeTruthy();
     expect(helper.byTestId("switch-checkbox")).toBeTruthy();

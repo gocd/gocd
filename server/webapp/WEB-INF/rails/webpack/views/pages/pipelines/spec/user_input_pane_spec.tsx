@@ -17,8 +17,8 @@
 import {asSelector} from "helpers/css_proxies";
 import * as m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as css from "../components.scss";
 import {UserInputPane} from "../user_input_pane";
+import * as css from "../user_input_pane.scss";
 
 describe("AddPipeline: UserInputPane", () => {
   const sel = asSelector<typeof css>(css);

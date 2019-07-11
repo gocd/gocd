@@ -14,12 +14,9 @@
  * limitations under the License.
  */
 
-import {bind} from "classnames/bind";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import * as styles from "./components.scss";
-
-const cls = bind(styles);
+import * as css from "./concept_diagram.scss";
 
 interface Attrs {
   image: string;
@@ -27,7 +24,7 @@ interface Attrs {
 
 export class ConceptDiagram extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>): m.Children | void | null {
-    return <figure className={cls(styles.conceptDiagram)}>
+    return <figure class={css.conceptDiagram}>
       <object type="image/svg+xml" data={vnode.attrs.image} />
       <figcaption>
         {vnode.children}

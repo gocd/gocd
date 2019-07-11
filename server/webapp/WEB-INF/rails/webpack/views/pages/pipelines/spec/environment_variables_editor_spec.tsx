@@ -21,8 +21,8 @@ import * as stream from "mithril/stream";
 import {Stream} from "mithril/stream";
 import {EnvironmentVariableConfig} from "models/pipeline_configs/environment_variable_config";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as css from "../components.scss";
 import {EnvironmentVariablesEditor} from "../environment_variables_editor";
+import * as css from "../environment_variables_editor.scss";
 
 describe("EnvironmentVariablesEditor", () => {
   const helper = new TestHelper();

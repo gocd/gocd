@@ -21,9 +21,10 @@ import * as m from "mithril";
 import {ExecTask, Task} from "models/pipeline_configs/task";
 import Shellwords from "shellwords-ts";
 import {BaseAttrs, FormField, RequiredFieldAttr} from "views/components/forms/input_fields";
-import * as css from "./components.scss";
+import * as css from "./task_terminal.scss";
 
 const sel = asSelector<typeof css>(css);
+const CLICKABLE_SELECTORS = `button,a,input[type="button"],input[type="button"],input[type="submit"],input[type="reset"],input[type="radio"],input[type="checkbox"]`;
 
 interface Attrs {
   tasks: (newValue?: Task[]) => Task[];
@@ -75,7 +76,7 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
       self.saveCommand(EDITOR, true);
 
       // allow click through for button actions
-      if (isMouseEvent(e) && isHtmlElement(e.relatedTarget) && e.relatedTarget.closest(sel.button)) {
+      if (isMouseEvent(e) && isHtmlElement(e.relatedTarget) && e.relatedTarget.closest(CLICKABLE_SELECTORS)) {
         e.relatedTarget.click();
       }
     });

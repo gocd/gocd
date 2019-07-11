@@ -15,23 +15,19 @@
  */
 
 import * as Awesomplete from "awesomplete";
-import {MithrilViewComponent} from "jsx/mithril-component";
+import {RestyleAttrs, RestyleViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {TextField, TextFieldAttrs} from "views/components/forms/input_fields";
 import * as defaultStyles from "./autocomplete.scss";
 
+type Styles = typeof defaultStyles;
+
 type SuggestionWriter = (data: Awesomplete.Suggestion[]) => void;
 
 const AWESOMPLETE_KEYS = ["list", "minChars", "maxItems", "autoFirst", "data", "filter", "sort", "item", "replace"];
 
-interface Attrs {
-  // allows us to override stylesheet with anything that defines, imports,
-  // or extends the classes defined in autocomplete.scss
-  //
-  // TODO: perhaps change input_fields.tsx to accept a similar property
-  // to allow customization of styles and pass this through.
-  css?: typeof defaultStyles;
+interface Attrs extends RestyleAttrs<Styles> {
   provider: SuggestionProvider;
   autoEvaluate?: boolean;
 }
@@ -77,10 +73,11 @@ export abstract class SuggestionProvider {
   abstract getData(): Promise<Awesomplete.Suggestion[]>;
 }
 
-export class AutocompleteField extends MithrilViewComponent<AutoCompAttrs> {
-  ensureInited(vnode: m.VnodeDOM<AutoCompAttrs, State>): void {
-    const css     = vnode.attrs.css || defaultStyles;
+export class AutocompleteField extends RestyleViewComponent<Styles, AutoCompAttrs> {
+  css: Styles = defaultStyles;
 
+  ensureInited(vnode: m.VnodeDOM<AutoCompAttrs, State>): void {
+    const css = this.css;
     vnode.dom.classList.add(css.awesomplete);
 
     if (!vnode.state._asm && vnode.dom) {

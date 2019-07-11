@@ -21,7 +21,7 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import * as Buttons from "views/components/buttons";
-import * as css from "./components.scss";
+import * as css from "./actions.scss";
 
 const sel = asSelector<typeof css>(css);
 

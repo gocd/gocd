@@ -14,20 +14,26 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as css from "./user_input_pane.scss";
+@import "../../global/common";
 
-interface Attrs {
-  heading: string;
-}
+$diagram-width: 420px;
+$diagram-caption-width: 300px;
 
-export class UserInputPane extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    return <section class={css.userInput}>
-      <h3 class={css.sectionHeading}>{vnode.attrs.heading}</h3>
-      <p class={css.sectionNote}><span class={css.attention}>*</span> denotes a required field</p>
-      {vnode.children}
-    </section>;
+.concept-diagram {
+  width: $diagram-width;
+  margin: 0;
+  padding: 0;
+
+  flex: 0 0 auto;
+
+  object {
+    background-color: $white;
+  }
+
+  figcaption {
+    font-size: 16px;
+    text-align: center;
+    width: $diagram-caption-width;
+    margin: 10px auto 0;
   }
 }

@@ -22,8 +22,8 @@ import {Stream} from "mithril/stream";
 import {ExecTask, Task} from "models/pipeline_configs/task";
 import * as events from "simulate-event";
 import {TestHelper} from "views/pages/spec/test_helper";
-import * as css from "../components.scss";
 import {TaskTerminalField} from "../task_editor";
+import * as css from "../task_terminal.scss";
 
 describe("AddPipeline: TaskTerminalField", () => {
   const helper = new TestHelper();

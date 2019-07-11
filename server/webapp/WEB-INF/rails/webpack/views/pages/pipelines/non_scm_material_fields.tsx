@@ -24,7 +24,6 @@ import {DependencyMaterialAttributes, Material, MaterialAttributes} from "models
 import {AutocompleteField, SuggestionProvider} from "views/components/forms/autocomplete";
 import {Option, SelectField, SelectFieldOptions, TextField} from "views/components/forms/input_fields";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
-import * as css from "./components.scss";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
@@ -88,7 +87,7 @@ export class DependencyFields extends MithrilComponent<Attrs, State> {
     const mat = vnode.attrs.material.attributes() as DependencyMaterialAttributes;
 
     return [
-      <AutocompleteField label="Upstream Pipeline" property={mat.pipeline} errorText={this.errs(mat, "pipeline")} required={true} maxItems={25} css={css} provider={vnode.state.provider}/>,
+      <AutocompleteField label="Upstream Pipeline" property={mat.pipeline} errorText={this.errs(mat, "pipeline")} required={true} maxItems={25} provider={vnode.state.provider}/>,
       <SelectField label="Upstream Stage" property={mat.stage} errorText={this.errs(mat, "stage")} required={true}>
         <SelectFieldOptions selected={mat.stage()} items={vnode.state.stages()}/>
       </SelectField>,

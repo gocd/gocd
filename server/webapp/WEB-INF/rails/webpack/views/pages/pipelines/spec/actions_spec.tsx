@@ -22,7 +22,7 @@ import {GitMaterialAttributes, Material} from "models/materials/types";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {LocationHandler, PipelineActions} from "../actions";
-import * as css from "../components.scss";
+import * as css from "../actions.scss";
 
 class TestLocationHandler implements LocationHandler {
   urls: string[] = [];

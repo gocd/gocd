@@ -14,20 +14,30 @@
  * limitations under the License.
  */
 
-import {MithrilViewComponent} from "jsx/mithril-component";
-import * as m from "mithril";
-import * as css from "./user_input_pane.scss";
+.env-vars {
+  table {
+    border: none;
 
-interface Attrs {
-  heading: string;
-}
+    thead {
+      background: unset;
+      border: none;
+    }
 
-export class UserInputPane extends MithrilViewComponent<Attrs> {
-  view(vnode: m.Vnode<Attrs>) {
-    return <section class={css.userInput}>
-      <h3 class={css.sectionHeading}>{vnode.attrs.heading}</h3>
-      <p class={css.sectionNote}><span class={css.attention}>*</span> denotes a required field</p>
-      {vnode.children}
-    </section>;
+    tr {
+      border: none;
+
+      td {
+        border: none;
+        vertical-align: top;
+
+        input[type="text"] { // sass-lint:disable-line no-qualifying-elements
+          width: 240px;
+        }
+
+        div {
+          margin: 0;
+        }
+      }
+    }
   }
 }

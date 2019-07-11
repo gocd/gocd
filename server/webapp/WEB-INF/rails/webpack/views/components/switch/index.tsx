@@ -17,11 +17,10 @@ import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
 
-import {bind} from "classnames/bind";
+import classnames from "classnames";
 import * as styles from "./index.scss";
 
-const uuid4      = require("uuid/v4");
-const classnames = bind(styles);
+const uuid4 = require("uuid/v4");
 
 export interface Attrs {
   inProgress?: boolean;
@@ -35,18 +34,17 @@ export interface Attrs {
 export class SwitchBtn extends MithrilViewComponent<Attrs> {
   view(vnode: m.Vnode<Attrs>) {
     const isSmall    = vnode.attrs.small;
-    const classNames = classnames({[styles.switchSmall]: isSmall}, styles.switchBtn);
     const switchId   = `switch-${uuid4()}`;
     let label        = null;
     if (vnode.attrs.label) {
-      label = <label for={switchId} className={classnames({[styles.disabled]: vnode.attrs.disabled}, styles.switchLabel)}
+      label = <label for={switchId} class={classnames({[styles.disabled]: vnode.attrs.disabled}, styles.switchLabel)}
                      data-test-id="switch-label">
         {vnode.attrs.label}
       </label>;
     }
 
     return (
-      <div className={classNames} data-test-id="switch-wrapper">
+      <div class={classnames({[styles.switchSmall]: isSmall}, styles.switchBtn)} data-test-id="switch-wrapper">
         {label}
         <input id={switchId} type="checkbox"
                {...vnode.attrs}
@@ -59,9 +57,9 @@ export class SwitchBtn extends MithrilViewComponent<Attrs> {
                  const target = e.target as HTMLInputElement;
                  vnode.attrs.field(target.checked);
                }}
-               className={styles.switchInput}
+               class={styles.switchInput}
                data-test-id="switch-checkbox"/>
-        <label for={switchId} className={classnames({
+        <label for={switchId} class={classnames({
                                                       [styles.inProgress]: vnode.attrs.field() && vnode.attrs.inProgress,
                                                       [styles.isSuccess]: vnode.attrs.field() && !vnode.attrs.inProgress,
                                                       [styles.disabled]: vnode.attrs.disabled

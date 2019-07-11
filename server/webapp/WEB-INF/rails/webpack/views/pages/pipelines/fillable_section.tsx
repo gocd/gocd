@@ -16,7 +16,7 @@
 
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as m from "mithril";
-import * as css from "./components.scss";
+import * as css from "./fillable_section.scss";
 
 export class FillableSection extends MithrilViewComponent {
   view(vnode: m.Vnode): m.Children | void | null {

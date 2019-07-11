@@ -24,7 +24,7 @@ import {DefaultTemplatesCache, TemplateCache} from "models/pipeline_configs/temp
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Option, SelectField, SelectFieldOptions} from "views/components/forms/input_fields";
 import {SwitchBtn} from "views/components/switch/index";
-import * as css from "./components.scss";
+import * as css from "./template_editor.scss";
 
 interface Attrs {
   pipelineConfig: PipelineConfig;
@@ -52,7 +52,7 @@ export class TemplateEditor extends MithrilViewComponent<Attrs> {
     const errors = vnode.attrs.pipelineConfig.errors();
     return <div class={classnames({[css.errorText]: errors.hasErrors("template")})}>
       <SwitchBtn small={true}
-        label={<div class={css.switchLabelText}>Use Template:</div>}
+        label="Use Template:"
         field={vnode.attrs.isUsingTemplate}
         onclick={this.toggleTemplate.bind(this, vnode.attrs.pipelineConfig)}
       />

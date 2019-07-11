@@ -23,7 +23,6 @@ import {SwitchBtn} from "views/components/switch/index";
 import {TooltipSize} from "views/components/tooltip";
 import * as Tooltip from "views/components/tooltip";
 import {AdvancedSettings} from "views/pages/pipelines/advanced_settings";
-import * as css from "./components.scss";
 import {IDENTIFIER_FORMAT_HELP_MESSAGE} from "./messages";
 
 interface Attrs {
@@ -37,9 +36,9 @@ export class StageEditor extends MithrilViewComponent<Attrs> {
     return <FormBody>
       <Form last={true} compactForm={true}>
         <TextField label="Stage Name" helpText={IDENTIFIER_FORMAT_HELP_MESSAGE} placeholder="e.g., Test-and-Report" property={stage.name} errorText={stage.errors().errorsForDisplay("name")} required={true}/>
-        <AdvancedSettings>
 
-          <SwitchBtn label={<div class={css.switchLabelText}>
+        <AdvancedSettings>
+          <SwitchBtn label={<div>
             Automatically run this stage on upstream changes
             <Tooltip.Help size={TooltipSize.medium} content="Enabling this means that this stage will automatically run when code is updated or its preceding or upstream stage passes. Disabling this means you must trigger this stage manually."/>
           </div>} field={stage.approval().state} small={true}/>

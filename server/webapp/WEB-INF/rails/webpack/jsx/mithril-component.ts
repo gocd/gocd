@@ -45,9 +45,7 @@ export abstract class RestyleViewComponent<S, Attrs extends RestyleAttrs<S>> ext
   abstract css: S;
 
   oninit(vnode: m.Vnode<Attrs, {}>) {
-    if (vnode.attrs.css) {
-      this.css = vnode.attrs.css;
-    }
+    adoptStylesheet(this, vnode);
   }
 }
 
@@ -55,9 +53,17 @@ export abstract class RestyleComponent<S, Attrs extends RestyleAttrs<S>, State= 
   abstract css: S;
 
   oninit(vnode: m.Vnode<Attrs, State>) {
-    if (vnode.attrs.css) {
-      this.css = vnode.attrs.css;
-    }
+    adoptStylesheet(this, vnode);
+  }
+}
+
+interface Restylable<T> {
+  css: T;
+}
+
+function adoptStylesheet<T, U extends RestyleAttrs<T>>(receiver: Restylable<T>, vnode: m.Vnode<U>) {
+  if (vnode.attrs.css) {
+    receiver.css = vnode.attrs.css;
   }
 }
 

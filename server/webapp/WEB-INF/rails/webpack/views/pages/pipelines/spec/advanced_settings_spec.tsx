@@ -18,7 +18,7 @@ import {asSelector} from "helpers/css_proxies";
 import * as m from "mithril";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {AdvancedSettings} from "../advanced_settings";
-import * as css from "../components.scss";
+import * as css from "../advanced_settings.scss";
 
 describe("AddPipeline: AdvancedSettings", () => {
   const sel = asSelector<typeof css>(css);

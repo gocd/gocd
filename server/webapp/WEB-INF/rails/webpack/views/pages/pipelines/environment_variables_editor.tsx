@@ -24,7 +24,7 @@ import * as Buttons from "views/components/buttons";
 import {Form, FormBody} from "views/components/forms/form";
 import {SimplePasswordField, TextField} from "views/components/forms/input_fields";
 import {Table} from "views/components/table";
-import * as css from "./components.scss";
+import * as css from "./environment_variables_editor.scss";
 
 interface Attrs {
   variables: Stream<EnvironmentVariableConfig[]>;

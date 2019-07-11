@@ -12,10 +12,9 @@
             "> 0.5%",
             "last 2 versions",
             "Firefox ESR",
-            "not IE 10",
-            "not IE_Mob 10",
-            "not BlackBerry 10",
-            "not BlackBerry 7"
+            "not IE > 0",
+            "not IE_Mob > 0",
+            "not BlackBerry > 0",
             // see http://browserl.ist/?q=defaults and https://github.com/ai/browserslist#queries
           ]
         }

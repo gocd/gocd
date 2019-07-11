@@ -658,4 +658,9 @@ public class Routes {
     public class ServerInfo {
         public static final String SPA_BASE = "/about";
     }
+
+    public static class BackupConfig {
+        public static final String BASE = "/api/config/backup";
+        public static final String DOC = apiDocsUrl("#backup-config");
+    }
 }

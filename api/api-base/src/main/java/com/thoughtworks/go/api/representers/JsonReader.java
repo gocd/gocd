@@ -131,16 +131,19 @@ public class JsonReader {
         return jsonObject.has(property) && !(jsonObject.get(property) instanceof JsonNull);
     }
 
-    public void readStringIfPresent(String key, Consumer<String> setterMethod) {
+    public JsonReader readStringIfPresent(String key, Consumer<String> setterMethod) {
         optString(key).ifPresent(setterMethod);
+        return this;
     }
 
-    public void readCaseInsensitiveStringIfPresent(String key, Consumer<CaseInsensitiveString> setterMethod) {
+    public JsonReader readCaseInsensitiveStringIfPresent(String key, Consumer<CaseInsensitiveString> setterMethod) {
         optCaseInsensitiveString(key).ifPresent(setterMethod);
+        return this;
     }
 
-    public void readArrayIfPresent(String key, Consumer<JsonArray> setterMethod) {
+    public JsonReader readArrayIfPresent(String key, Consumer<JsonArray> setterMethod) {
         optJsonArray(key).ifPresent(setterMethod);
+        return this;
     }
 
     public Optional<List<String>> readStringArrayIfPresent(String property) {
@@ -163,7 +166,8 @@ public class JsonReader {
         return jsonObject.has(property) && (jsonObject.get(property) instanceof JsonArray);
     }
 
-    public void readBooleanIfPresent(String key, Consumer<Boolean> consumer) {
+    public JsonReader readBooleanIfPresent(String key, Consumer<Boolean> consumer) {
         optBoolean(key).ifPresent(consumer);
+        return this;
     }
 }

@@ -33,6 +33,8 @@ dependencies {
   compile group: 'org.apache.felix', name: 'org.apache.felix.framework', version: project.versions.felix
   compileOnly group: 'com.google.guava', name: 'guava', version: project.versions.guava
   compileOnly(group: 'org.bouncycastle', name: 'bcprov-jdk15on', version: project.versions.bouncyCastle)
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
+  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: project.versions.lombok
 
   testCompile project(':test:test-utils')
   testCompile group: 'jaxen', name: 'jaxen', version: '1.1.6'

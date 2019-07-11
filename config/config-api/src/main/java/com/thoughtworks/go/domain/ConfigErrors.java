@@ -18,9 +18,17 @@ package com.thoughtworks.go.domain;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ConfigErrors extends HashMap<String, List<String>> implements Serializable {
+
+    public boolean present() {
+        return !isEmpty();
+    }
+
     public void add(String fieldName, String msg) {
         List<String> msgList = get(fieldName);
         if (msgList == null) {
@@ -74,7 +82,7 @@ public class ConfigErrors extends HashMap<String, List<String>> implements Seria
         }
     }
 
-    public String asString(){
+    public String asString() {
         return StringUtils.join(this.getAll(), ", ");
     }
 }

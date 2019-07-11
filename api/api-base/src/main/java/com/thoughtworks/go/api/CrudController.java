@@ -43,17 +43,31 @@ public interface CrudController<Entity> extends ControllerMethods {
         return !Objects.equals(etagFromClient, etagFromServer);
     }
 
-    default Entity fetchEntityFromConfig(String name) {
-        Entity entity = doFetchEntityFromConfig(name);
+    default Entity fetchEntityFromConfig(String nameOrId) {
+        Entity entity = doFetchEntityFromConfig(nameOrId);
         if (entity == null) {
-            throw new RecordNotFoundException(getEntityType(), name);
+            throw new RecordNotFoundException(getEntityType(), nameOrId);
         }
         return entity;
     }
 
+    default Entity fetchEntityFromConfig() {
+        Entity entity = doFetchEntityFromConfig();
+        if (entity == null) {
+            throw new RecordNotFoundException(getEntityType());
+        }
+        return entity;
+    }
+
+    default Entity doFetchEntityFromConfig() {
+        throw new UnsupportedOperationException("Subclasses must implement");
+    }
+
     EntityType getEntityType();
 
-    Entity doFetchEntityFromConfig(String name);
+    default Entity doFetchEntityFromConfig(String name) {
+        throw new UnsupportedOperationException("Subclasses must implement");
+    }
 
     Entity buildEntityFromRequestBody(Request req);
 

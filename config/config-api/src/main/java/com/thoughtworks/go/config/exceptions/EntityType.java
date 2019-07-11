@@ -43,8 +43,8 @@ public enum EntityType {
     SCM("SCM", id),
     ClusterProfile("cluster profile", id),
     Backup("backup", id),
-    SecretConfig("secret config", id)
-    ;
+    SecretConfig("secret config", id),
+    BackupConfig("backup config", none);
 
     private final String entityType;
     private final NameOrId nameOrId;
@@ -54,10 +54,13 @@ public enum EntityType {
         this.nameOrId = nameOrId;
     }
 
+    public String deleteSuccessful() {
+        return format("%s was deleted successfully!", StringUtils.capitalize(this.entityType));
+    }
+
     public String deleteSuccessful(String id) {
         return format("%s %s '%s' was deleted successfully!", StringUtils.capitalize(this.entityType), this.nameOrId.descriptor, id);
     }
-
 
     public String deleteSuccessful(List<?> ids) {
         return format("%ss %ss '%s' were deleted successfully!", StringUtils.capitalize(this.entityType), this.nameOrId.descriptor, StringUtils.join(ids, ", "));
@@ -86,9 +89,12 @@ public enum EntityType {
                 errors);
     }
 
-
     public String entityConfigValidationFailed(CaseInsensitiveString id, String errors) {
         return entityConfigValidationFailed(id.toString(), errors);
+    }
+
+    public String notFoundMessage() {
+        return format("%s was not found!", StringUtils.capitalize(this.entityType));
     }
 
     public String notFoundMessage(String id) {
@@ -169,5 +175,9 @@ public enum EntityType {
 
     public String idCannotBeBlank() {
         return StringUtils.capitalize(this.entityType) + " " + nameOrId.descriptor + " cannot be blank.";
+    }
+
+    public String forbiddenToDelete(CaseInsensitiveString username) {
+        return format("User '%s' does not have permission to delete %s", username, entityType.toLowerCase());
     }
 }

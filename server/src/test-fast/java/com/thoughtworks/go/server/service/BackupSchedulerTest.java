@@ -65,7 +65,8 @@ class BackupSchedulerTest {
     @Test
     void initialize_shouldRegisterJobsWithSchedulerAndAsAListenerOnConfigService() throws SchedulerException {
         ServerConfig serverConfig = new ServerConfig();
-        BackupConfig backupConfig = new BackupConfig("0 0 12 * * ?", null, false, false);
+        BackupConfig backupConfig = new BackupConfig()
+                .setSchedule("0 0 12 * * ?");
         serverConfig.setBackupConfig(backupConfig);
 
         BasicCruiseConfig newCruiseConfig = new BasicCruiseConfig();
@@ -87,7 +88,8 @@ class BackupSchedulerTest {
     @Test
     void shouldUpdateServerHealthStatusWhenCronSpecCantBeParsed() {
         ServerConfig serverConfig = new ServerConfig();
-        BackupConfig backupConfig = new BackupConfig("bad cron", null, false, false);
+        BackupConfig backupConfig = new BackupConfig()
+                .setSchedule("bad cron");
         serverConfig.setBackupConfig(backupConfig);
 
         BasicCruiseConfig newCruiseConfig = new BasicCruiseConfig();
@@ -105,7 +107,8 @@ class BackupSchedulerTest {
     @Test
     void shouldUpdateServerHealthStatusWhenJobCannotBeScheduledWithScheduler() throws SchedulerException {
         ServerConfig serverConfig = new ServerConfig();
-        BackupConfig backupConfig = new BackupConfig("0 0 12 * * ?", null, false, false);
+        BackupConfig backupConfig = new BackupConfig()
+                .setSchedule("0 0 12 * * ?");
         serverConfig.setBackupConfig(backupConfig);
 
         BasicCruiseConfig newCruiseConfig = new BasicCruiseConfig();
@@ -125,7 +128,8 @@ class BackupSchedulerTest {
     @Test
     void shouldRescheduleTimerTriggerWhenBackupConfigChangesOnFullConfigSave() throws SchedulerException {
         ServerConfig serverConfig = new ServerConfig();
-        BackupConfig backupConfig = new BackupConfig("0 0 12 * * ?", null, false, false);
+        BackupConfig backupConfig = new BackupConfig()
+                .setSchedule("0 0 12 * * ?");
         serverConfig.setBackupConfig(backupConfig);
 
         BasicCruiseConfig newCruiseConfig = new BasicCruiseConfig();
@@ -134,7 +138,8 @@ class BackupSchedulerTest {
 
         backupScheduler.initialize();
 
-        serverConfig.setBackupConfig(new BackupConfig("0 0 13 * * ?", null, false, false));
+        serverConfig.setBackupConfig(new BackupConfig()
+                .setSchedule("0 0 13 * * ?"));
         backupScheduler.onConfigChange(newCruiseConfig);
 
         CronTrigger trigger = (CronTrigger) scheduler.getTrigger(TriggerKey.triggerKey(BACKUP_SCHEDULER_TIMER_NAME, BACKUP_SCHEDULER_TIMER_GROUP));
@@ -144,7 +149,8 @@ class BackupSchedulerTest {
     @Test
     void shouldRescheduleTimerTriggerWhenBackupConfigChangesOnEntityUpdate() throws SchedulerException {
         ServerConfig serverConfig = new ServerConfig();
-        BackupConfig backupConfig = new BackupConfig("0 0 12 * * ?", null, false, false);
+        BackupConfig backupConfig = new BackupConfig()
+                .setSchedule("0 0 12 * * ?");
         serverConfig.setBackupConfig(backupConfig);
 
         BasicCruiseConfig newCruiseConfig = new BasicCruiseConfig();
@@ -153,7 +159,8 @@ class BackupSchedulerTest {
 
         backupScheduler.initialize();
 
-        backupScheduler.onEntityConfigChange(new BackupConfig("0 0 13 * * ?", null, false, false));
+        backupScheduler.onEntityConfigChange(new BackupConfig()
+                .setSchedule("0 0 13 * * ?"));
 
         CronTrigger trigger = (CronTrigger) scheduler.getTrigger(TriggerKey.triggerKey(BACKUP_SCHEDULER_TIMER_NAME, BACKUP_SCHEDULER_TIMER_GROUP));
         assertThat(trigger.getCronExpression()).isEqualTo("0 0 13 * * ?");

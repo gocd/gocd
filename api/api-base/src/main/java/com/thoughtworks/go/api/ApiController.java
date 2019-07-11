@@ -62,6 +62,12 @@ public abstract class ApiController implements ControllerMethods, SparkControlle
         return MessageJson.create(message);
     }
 
+    protected String renderMessage(Response res, int statusCode, String message) {
+        res.status(statusCode);
+        res.body(messageJson(message));
+        return NOTHING;
+    }
+
     protected void verifyContentType(Request request, Response response) throws IOException {
         if (!UPDATE_HTTP_METHODS.contains(request.requestMethod().toUpperCase())) {
             return;

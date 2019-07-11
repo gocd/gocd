@@ -204,7 +204,7 @@ public class BackupServiceIntegrationTest {
     public void shouldSendEmailToAdminAfterTakingBackup() {
         GoConfigService configService = mock(GoConfigService.class);
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setBackupConfig(new BackupConfig(null, null, true, true));
+        serverConfig.setBackupConfig(new BackupConfig().setEmailOnSuccess(true).setEmailOnFailure(true));
         when(configService.serverConfig()).thenReturn(serverConfig);
         GoMailSender goMailSender = mock(GoMailSender.class);
         when(configService.getMailSender()).thenReturn(goMailSender);
@@ -230,7 +230,7 @@ public class BackupServiceIntegrationTest {
     public void shouldNotSendEmailToAdminAfterTakingBackupIfEmailConfigIsNotSet() {
         GoConfigService configService = mock(GoConfigService.class);
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setBackupConfig(new BackupConfig(null, null, false, false));
+        serverConfig.setBackupConfig(new BackupConfig());
         when(configService.serverConfig()).thenReturn(serverConfig);
         GoMailSender goMailSender = mock(GoMailSender.class);
         when(configService.getMailSender()).thenReturn(goMailSender);
@@ -252,7 +252,7 @@ public class BackupServiceIntegrationTest {
     public void shouldSendEmailToAdminWhenTheBackupFails() throws Exception {
         GoConfigService configService = mock(GoConfigService.class);
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setBackupConfig(new BackupConfig(null, null, false, true));
+        serverConfig.setBackupConfig(new BackupConfig().setEmailOnFailure(true));
         when(configService.serverConfig()).thenReturn(serverConfig);
         when(configService.adminEmail()).thenReturn("mail@admin.com");
 
@@ -285,7 +285,7 @@ public class BackupServiceIntegrationTest {
     public void shouldNotSendEmailToAdminWhenTheBackupFailsAndEmailConfigIsNotSet() throws Exception {
         GoConfigService configService = mock(GoConfigService.class);
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setBackupConfig(new BackupConfig(null, null, false, false));
+        serverConfig.setBackupConfig(new BackupConfig());
         when(configService.serverConfig()).thenReturn(serverConfig);
         when(configService.adminEmail()).thenReturn("mail@admin.com");
 
@@ -405,7 +405,7 @@ public class BackupServiceIntegrationTest {
         final Semaphore waitForBackupToComplete = new Semaphore(1);
         GoConfigService configService = mock(GoConfigService.class);
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setBackupConfig(new BackupConfig(null, "jcmd", false, false));
+        serverConfig.setBackupConfig(new BackupConfig().setSchedule(null).setPostBackupScript("jcmd"));
         when(configService.serverConfig()).thenReturn(serverConfig);
         GoMailSender goMailSender = mock(GoMailSender.class);
         when(configService.getMailSender()).thenReturn(goMailSender);
@@ -432,7 +432,7 @@ public class BackupServiceIntegrationTest {
     public void shouldExecutePostBackupScriptAndReturnResultOnFailure() {
         GoConfigService configService = mock(GoConfigService.class);
         ServerConfig serverConfig = new ServerConfig();
-        serverConfig.setBackupConfig(new BackupConfig(null, "non-existant", false, false));
+        serverConfig.setBackupConfig(new BackupConfig().setSchedule(null).setPostBackupScript("non-existant"));
         when(configService.serverConfig()).thenReturn(serverConfig);
         GoMailSender goMailSender = mock(GoMailSender.class);
         when(configService.getMailSender()).thenReturn(goMailSender);

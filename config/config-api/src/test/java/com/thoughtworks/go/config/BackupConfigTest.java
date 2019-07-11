@@ -23,14 +23,18 @@ class BackupConfigTest {
 
     @Test
     void shouldValidateIfEverythingIsGood() {
-        BackupConfig backupConfig = new BackupConfig("0 0 12 * * ?", "/bin/true", false, false);
+        BackupConfig backupConfig = new BackupConfig()
+                .setSchedule("0 0 12 * * ?")
+                .setPostBackupScript("/bin/true");
         backupConfig.validate(null);
         assertThat(backupConfig.errors()).isEmpty();
     }
 
     @Test
     void shouldValidateCronTimer() {
-        BackupConfig backupConfig = new BackupConfig("bad expression", "/usr/local/bin/post-backup", false, false);
+        BackupConfig backupConfig = new BackupConfig()
+                .setSchedule("bad expression")
+                .setPostBackupScript("/usr/local/bin/post-backup");
         backupConfig.validate(null);
         assertThat(backupConfig.errors())
                 .hasSize(1);

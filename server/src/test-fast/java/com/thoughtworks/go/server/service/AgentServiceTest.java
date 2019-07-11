@@ -23,6 +23,7 @@ import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
+import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;

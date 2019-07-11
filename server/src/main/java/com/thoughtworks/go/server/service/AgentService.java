@@ -17,6 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
+import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.AgentsUpdateValidator;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -54,6 +55,7 @@ import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
+import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
@@ -239,15 +241,14 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
     public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids,
                                           List<String> resourcesToAdd, List<String> resourcesToRemove,
                                           EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState enable) {
-        AgentsUpdateValidator validator
-                = new AgentsUpdateValidator(agentInstances, username, result, uuids, envsToAdd, envsToRemove,
-                                            enable, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, username, result, uuids, envsToAdd, envsToRemove,
+                enable, resourcesToAdd, resourcesToRemove, goConfigService);
         try {
             if (validator.canContinue()) {
                 validator.validate();
 
                 List<AgentConfig> agents = this.agentDao.agentsByUUIds(uuids);
-                if( enable.isTrue() || enable.isFalse() ){
+                if (enable.isTrue() || enable.isFalse()) {
                     List<AgentConfig> pendingAgents = agentInstances.findPendingAgents(uuids);
                     pendingAgents.forEach(agent -> agents.add(agent));
                 }

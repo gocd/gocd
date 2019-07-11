@@ -103,7 +103,7 @@ public class AgentsUpdateValidator {
             }
         }
         if (!unknownUUIDs.isEmpty()) {
-            result.notFound(EntityType.Agent.notFoundMessage(unknownUUIDs), notFound());
+            result.badRequest(EntityType.Agent.notFoundMessage(unknownUUIDs));
             throw new RecordNotFoundException(EntityType.Agent, unknownUUIDs);
         }
     }

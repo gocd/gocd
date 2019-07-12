@@ -36,6 +36,7 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
   private testConnectionMessage: m.Child | undefined;
   private testConnectionButtonIcon: string | undefined;
   private testConnectionButtonText: string = "Test Connection";
+  private busy = false;
 
   private success?: (...args: any[]) => any;
   private failure?: ((err: ErrorResponse) => any);
@@ -48,7 +49,7 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
 
     return <div className={styles.testConnectionButtonWrapper}>
       <Buttons.Secondary data-test-id="test-connection-button"
-                         onclick={() => this.testConnection(vnode.attrs.material, vnode.attrs.group)}>
+                         onclick={() => this.testConnection(vnode.attrs.material, vnode.attrs.group)} disabled={this.busy}>
         <span className={this.testConnectionButtonIcon} data-test-id="test-connection-icon"/>
         {this.testConnectionButtonText}
       </Buttons.Secondary>
@@ -57,6 +58,8 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
   }
 
   private testConnection(material: Material, pipelineGroup?: string) {
+    if (this.busy) { return; }
+
     this.testConnectionInProgress();
 
     material.checkConnection(pipelineGroup).then((result: ApiResult<any>) => {
@@ -93,9 +96,11 @@ export class TestConnection extends MithrilViewComponent<Attrs> {
     this.testConnectionButtonIcon = styles.testConnectionInProgress;
     this.testConnectionButtonText = "Testing Connection...";
     this.testConnectionMessage    = undefined;
+    this.busy = true;
   }
 
   private testConnectionComplete() {
     this.testConnectionButtonText = "Test Connection";
+    this.busy = false;
   }
 }

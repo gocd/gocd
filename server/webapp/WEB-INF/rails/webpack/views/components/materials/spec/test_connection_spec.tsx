@@ -17,7 +17,6 @@
 import SparkRoutes from "helpers/spark_routes";
 import * as m from "mithril";
 import {GitMaterialAttributes, Material} from "models/materials/types";
-import * as simulateEvent from "simulate-event";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {TestConnection} from "../test_connection";
 import * as styles from "../test_connection.scss";
@@ -45,15 +44,18 @@ describe("Materials: TestConnection", () => {
         });
 
       helper.mount(() => <TestConnection material={validMaterial} complete={() => {
+        expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
+
         setTimeout(() => { // make this async so as to allow mithril to update the dom
-          expect(find(helper, "test-connection-icon")).toHaveClass(styles.testConnectionSuccess);
-          expect(find(helper, "flash-message-success").querySelector("p")).toContainText("Connection OK");
+          expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(false); // enabled on complete
+          expect(helper.byTestId("test-connection-icon")).toHaveClass(styles.testConnectionSuccess);
+          expect(helper.byTestId("flash-message-success").querySelector("p")).toContainText("Connection OK");
           done();
         }, 0);
       }}/>);
 
-      expect(find(helper, 'test-connection-button')).toBeVisible();
-      simulateEvent.simulate(find(helper, "test-connection-button"), "click");
+      expect(helper.byTestId('test-connection-button')).toBeVisible();
+      helper.clickByDataTestId("test-connection-button");
       expect(jasmine.Ajax.requests.count()).toEqual(1);
     });
   });
@@ -73,22 +75,21 @@ describe("Materials: TestConnection", () => {
         });
 
       helper.mount(() => <TestConnection material={invalidMaterial} complete={() => {
+        expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(true); // disabled while connection is in progress
+
         setTimeout(() => { // make this async so as to allow mithril to update the dom
-          expect(find(helper, "test-connection-icon")).toHaveClass(styles.testConnectionFailure);
-          expect(find(helper, "flash-message-alert").querySelector("pre")).toContainText("Error while parsing material URL");
+          expect(helper.byTestId("test-connection-button").matches("[disabled]")).toBe(false); // enabled on complete
+          expect(helper.byTestId("test-connection-icon")).toHaveClass(styles.testConnectionFailure);
+          expect(helper.byTestId("flash-message-alert").querySelector("pre")).toContainText("Error while parsing material URL");
           done();
         }, 0);
       }}/>);
 
-      expect(find(helper, 'test-connection-button')).toBeVisible();
-      simulateEvent.simulate(find(helper, "test-connection-button") as Element, "click");
+      expect(helper.byTestId('test-connection-button')).toBeVisible();
+      helper.clickByDataTestId("test-connection-button");
       expect(jasmine.Ajax.requests.count()).toEqual(1);
     });
   });
-
-  function find(helper: TestHelper, id: string): Element {
-    return helper.findByDataTestId(id)[0];
-  }
 
   function payload(material: Material): string {
     return JSON.stringify(material.toApiPayload());

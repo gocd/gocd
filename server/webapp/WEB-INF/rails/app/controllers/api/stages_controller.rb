@@ -50,25 +50,6 @@ class Api::StagesController < Api::ApiController
     render_localized_operation_result result
   end
 
-  def history
-    pipeline_name = params[:pipeline_name]
-    stage_name = params[:stage_name]
-    offset = params[:offset].to_i
-    page_size = 10
-    stage_instance_count = stage_service.getCount(pipeline_name, stage_name)
-    result = HttpOperationResult.new
-
-    pagination = Pagination.pageStartingAt(offset, stage_instance_count, page_size)
-    stage_history = stage_service.findDetailedStageHistoryByOffset(pipeline_name, stage_name, pagination, CaseInsensitiveString.str(current_user.getUsername()), result)
-
-    if result.canContinue()
-      stage_history_api_model = StageHistoryAPIModel.new(pagination, stage_history)
-      render json: stage_history_api_model
-    else
-      render_error_response(result.detailedMessage(), result.httpCode(), true)
-    end
-  end
-
   private
   def render_not_found()
     render plain: "Not Found!", status: 404

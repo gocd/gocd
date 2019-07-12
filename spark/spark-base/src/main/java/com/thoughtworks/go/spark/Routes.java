@@ -368,6 +368,11 @@ public class Routes {
         }
     }
 
+    public static class PaC {
+        public static final String BASE_INTERNAL_API = "/api/admin/internal/pac";
+        public static final String PREVIEW = "/preview/:plugin_id";
+    }
+
     public static class PipelineTemplateConfig {
         public static final String BASE = "/api/admin/templates";
         public static final String NAME = "/:template_name";

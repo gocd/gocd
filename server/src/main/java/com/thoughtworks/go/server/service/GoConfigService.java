@@ -967,6 +967,15 @@ public class GoConfigService implements Initializer, CruiseConfigProvider {
         return cloner.deepClone(getConfigForEditing());
     }
 
+    public CruiseConfig preprocessedCruiseConfigForPipelineUpdate(PipelineConfigCommand command) throws Exception {
+        CruiseConfig config = clonedConfigForEdit();
+        command.update(config);
+        config.setPartials(cachedGoPartials.lastValidPartials());
+        MagicalGoConfigXmlLoader.preprocess(config);
+        command.encrypt(config);
+        return config;
+    }
+
     public ConfigForEdit<PipelineConfigs> loadGroupForEditing(String groupName,
                                                               Username username,
                                                               HttpLocalizedOperationResult result) {

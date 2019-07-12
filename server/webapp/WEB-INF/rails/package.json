@@ -21,7 +21,7 @@
     "angular": "file:node-vendor/angular",
     "awesomplete": "^1.1.4",
     "babel-polyfill": "^6.26.0",
-    "bourbon": "^5.1.0",
+    "bourbon": "^6.0.0",
     "classnames": "^2.2.6",
     "clipboard-polyfill": "^2.8.1",
     "filesize": "^4.1.2",

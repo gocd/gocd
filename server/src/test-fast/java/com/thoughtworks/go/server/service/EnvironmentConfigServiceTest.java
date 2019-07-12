@@ -49,14 +49,12 @@ class EnvironmentConfigServiceTest {
     private EnvironmentConfigService environmentConfigService;
     private SecurityService securityService;
     private AgentService agentService;
-    private TransactionTemplate transactionTemplate;
 
     @BeforeEach
     void setUp() throws Exception {
         mockGoConfigService = mock(GoConfigService.class);
         securityService = mock(SecurityService.class);
         agentService = mock(AgentService.class);
-        transactionTemplate = mock(TransactionTemplate.class);
 
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
         environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService, agentService);

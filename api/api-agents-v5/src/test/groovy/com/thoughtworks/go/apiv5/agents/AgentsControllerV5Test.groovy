@@ -19,6 +19,7 @@ package com.thoughtworks.go.apiv5.agents
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
 import com.thoughtworks.go.config.EnvironmentConfig
+import com.thoughtworks.go.config.EnvironmentsConfig
 import com.thoughtworks.go.domain.AgentInstance
 import com.thoughtworks.go.domain.NullAgentInstance
 import com.thoughtworks.go.server.domain.AgentInstances
@@ -417,7 +418,7 @@ class AgentsControllerV5Test implements SecurityServiceTrait, ControllerTrait<Ag
         any() as List<String>,
         any() as List<String>,
         any() as List<String>,
-        any() as List<String>,
+        any() as EnvironmentsConfig,
         any() as List<String>,
         any() as TriState
       )

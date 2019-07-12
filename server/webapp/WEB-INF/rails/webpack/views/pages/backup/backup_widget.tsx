@@ -23,7 +23,7 @@ import {FlashMessage, MessageType} from "views/components/flash_message";
 import * as styles from "./index.scss";
 import {ProgressIndicator} from "./progress_indicator";
 
-interface Attrs {
+export interface Attrs {
   lastBackupTime: Date | null | undefined;
   lastBackupUser: string | null | undefined;
   availableDiskSpace: string;
@@ -82,19 +82,19 @@ export class BackupWidget extends MithrilComponent<Attrs> {
       <h3 class={styles.helpHeading}>On performing a backup, GoCD will create a backup of:</h3>
       <ul class={styles.helpItem}>
         <li>
-          <strong>Configuration</strong> - An archive named config-dir.zip containing XML configuration, Jetty server
+          <strong>Configuration</strong> - An archive named <code>config-dir.zip</code> containing XML configuration, Jetty server
           configuration, keystores and other GoCD internal configurations.
         </li>
         <li>
-          <strong>Database</strong> - The database is archived to a file which could be used to restore GoCD's database.
+          <strong>Database</strong> - The database is archived to a file named <code>db.zip</code> which is used to restore GoCD's database.
         </li>
         <li>
-          <strong>Configuration History</strong> - An archive named config-repo.zip containing a Git repository of the
+          <strong>Configuration History</strong> - An archive named <code>config-repo.zip</code> containing a Git repository of the
           XML configuration file.
         </li>
         <li>
-          <strong>Go Version</strong> - A flat file named version.txt containing the version of GoCD that the backup was
-          taken against.
+          <strong>GoCD Version</strong> - A flat file named <code>version.txt</code> containing the version of GoCD that the backup was
+          taken with.
         </li>
       </ul>
     </div>;

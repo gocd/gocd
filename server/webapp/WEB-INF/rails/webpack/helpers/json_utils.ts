@@ -26,4 +26,11 @@ export default class JsonUtils {
     return JSON.stringify(o, s.snakeCaser);
   }
 
+  static toCamelCasedObject(o: object): any {
+    return JSON.parse(this.toCamelCasedJSON(o));
+  }
+
+  static toCamelCasedJSON(o: object): string {
+    return JSON.stringify(o, s.camelCaser);
+  }
 }

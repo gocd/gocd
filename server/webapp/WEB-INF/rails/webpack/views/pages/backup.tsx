@@ -17,24 +17,23 @@
 import {SuccessResponse} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
 import * as m from "mithril";
+import * as stream from "mithril/stream";
+import {Stream} from "mithril/stream";
+import {BackupConfigCrud} from "models/backup_config/backup_config_crud";
+import {BackupConfig} from "models/backup_config/types";
 import {ServerBackupAPI} from "models/backups/server_backup_api";
-import {BackupProgressStatus, BackupStatus, ServerBackup} from "models/backups/types";
-import {BackupWidget} from "views/pages/backup/backup_widget";
+import {BackupStatus, ServerBackup} from "models/backups/types";
+import {ButtonIcon} from "views/components/buttons";
+import * as Buttons from "views/components/buttons";
+import {HeaderPanel} from "views/components/header_panel";
+import {BackupConfigModal} from "views/pages/backup/backup_config_modal";
+import {Attrs, BackupWidget} from "views/pages/backup/backup_widget";
 import {ToggleConfirmModal} from "views/pages/maintenance_mode/confirm_modal";
 import {Page} from "./page";
 
-interface State {
-  lastBackupTime: Date | null | undefined;
-  lastBackupUser: string | null | undefined;
-  backupLocation: string;
-  message: string;
-  availableDiskSpace: string;
-  backupStatus: BackupStatus;
-  backupProgressStatus?: BackupProgressStatus;
+interface State extends Attrs {
   backupInProgress: boolean;
   backupFailed: boolean;
-  displayProgressIndicator: boolean;
-  onPerformBackup: () => void;
 }
 
 const DEFAULT_POLLING_INTERVAL_MILLIS = 5000;
@@ -65,6 +64,15 @@ export class BackupPage extends Page<null, State> {
 
   pageName() {
     return "Backup";
+  }
+
+  headerPanel(vnode: m.Vnode<null, State>): any {
+    return <HeaderPanel title={this.pageName()} buttons={
+      <Buttons.Primary data-test-id="configure-backup" icon={ButtonIcon.GEAR}
+                       onclick={BackupPage.openBackupSettings.bind(this)}>
+        Configure Backup Settings
+      </Buttons.Primary>
+    }/>;
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>) {
@@ -103,6 +111,49 @@ export class BackupPage extends Page<null, State> {
                           .then((result) => {
                             result.do(onSuccess, onError);
                           });
+  }
+
+  private static openBackupSettings() {
+    const backupConfig = stream(new BackupConfig());
+    const isLoading    = stream(true);
+
+    const isSaving                     = stream(false);
+    const errorMessage: Stream<string> = stream();
+
+    const onsave = (modal: BackupConfigModal) => {
+      isSaving(true);
+      BackupConfigCrud.createOrUpdate(backupConfig()).then((result) => {
+        isSaving(false);
+        result.do(
+          (successResponse) => {
+            modal.close();
+          },
+          (errorResponse) => {
+            if (result.getStatusCode() === 422 && errorResponse.body) {
+              backupConfig(BackupConfig.fromJSON(JSON.parse(errorResponse.body).data));
+            } else {
+              errorMessage(errorResponse.message);
+            }
+          }
+        );
+      });
+    };
+
+    const modal = new BackupConfigModal(backupConfig, isLoading, errorMessage, isSaving, onsave);
+
+    BackupConfigCrud.get().then((result) => {
+      isLoading(false);
+      result.do(
+        (successResponse) => {
+          backupConfig(successResponse.body);
+          errorMessage(undefined as any as string);
+        },
+        (errorResponse) => {
+          errorMessage(errorResponse.message);
+        });
+    });
+
+    modal.render();
   }
 
   private onError(vnode: m.Vnode<null, State>) {

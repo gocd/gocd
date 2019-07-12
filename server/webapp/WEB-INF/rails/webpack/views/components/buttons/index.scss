@@ -87,6 +87,23 @@
   }
 }
 
+.icon-gear {
+  @include icon-before($type: $fa-var-cog);
+
+  &:before {
+    margin: 5px 10px 5px -5px;
+  }
+}
+
+.icon-spinner {
+  @include icon-before($type: $fa-var-spinner);
+
+  &:before {
+    animation: spin 1500ms linear infinite;
+    margin: 5px 10px 5px -5px;
+  }
+}
+
 .icon-doc {
   @include icon-before($type: $fa-var-file);
   margin-right: 10px;
@@ -145,5 +162,14 @@
     .btn-dropdown {
       border-radius: 0 $global-border-radius $global-border-radius 0;
     }
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }

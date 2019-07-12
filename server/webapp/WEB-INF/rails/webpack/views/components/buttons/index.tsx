@@ -26,6 +26,8 @@ export enum ButtonIcon {
   REMOVE,
   DOC,
   FILTER,
+  GEAR,
+  SPINNER
 }
 
 export type Alignment = "right" | "left";
@@ -100,6 +102,10 @@ abstract class Button extends RestyleViewComponent<Styles, Attrs> {
         return css.iconFilter;
       case ButtonIcon.REMOVE:
         return css.iconRemove;
+      case ButtonIcon.GEAR:
+        return css.iconGear;
+      case ButtonIcon.SPINNER:
+        return css.iconSpinner;
     }
     return "";
   }

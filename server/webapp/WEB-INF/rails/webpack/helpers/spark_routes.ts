@@ -305,4 +305,8 @@ export default class {
     const queryString = m.buildQueryString(query);
     return `/go/api/admin/plugin_info?${queryString}`;
   }
+
+  static backupConfigPath() {
+    return "/go/api/config/backup";
+  }
 }

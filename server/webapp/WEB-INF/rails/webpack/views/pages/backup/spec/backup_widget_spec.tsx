@@ -44,9 +44,9 @@ describe("Backup Widget", () => {
     expect(helper.findByClass(styles.backupHelp)).toContainText("On performing a backup, GoCD will create a backup of:");
     expect(helper.findByClass(styles.backupHelp))
       .toContainText(
-        "Go Version - A flat file named version.txt containing the version of GoCD that the backup was taken against.");
+        "GoCD Version - A flat file named version.txt containing the version of GoCD that the backup was taken with.");
     expect(helper.findByClass(styles.backupHelp))
-      .toContainText("Database - The database is archived to a file which could be used to restore GoCD's database.");
+      .toContainText("Database - The database is archived to a file named db.zip which is used to restore GoCD's database.");
     expect(helper.findByClass(styles.backupConfigHelp))
       .toContainText("Backups are stored in /path/to/backup/directory");
   });

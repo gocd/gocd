@@ -43,7 +43,7 @@ interface ErrorTextAttr {
 }
 
 interface HelpTextAttr {
-  helpText?: string;
+  helpText?: m.Children;
 }
 
 interface PlaceholderAttr {
@@ -316,6 +316,7 @@ export abstract class FormField<T, V = {}> extends MithrilViewComponent<BaseAttr
 }
 
 export type TextFieldAttrs = BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr;
+
 export class TextField extends FormField<string, RequiredFieldAttr & PlaceholderAttr> {
 
   renderInputField(vnode: m.Vnode<TextFieldAttrs>) {

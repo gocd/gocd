@@ -52,7 +52,7 @@
     "@types/node": "^12.6.3",
     "@types/underscore.string": "^0.0.38",
     "@types/uuid": "^3.4.5",
-    "add-matchers": "^0.5.0",
+    "add-matchers": "^0.6.2",
     "awesome-typescript-loader": "^5.2.1",
     "babel-core": "^6.26.3",
     "babel-eslint": "^8.2.5",

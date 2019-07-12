@@ -18,7 +18,7 @@
 
 import * as _ from "lodash";
 
-const addMatchers = require("add-matchers");
+import {addMatchers} from "add-matchers";
 
 addMatchers({
   toContainHeaderCells: (headers: string[], table: HTMLTableElement) => {

@@ -410,10 +410,10 @@ acorn@^6.0.7, acorn@^6.2.0:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-6.2.0.tgz#67f0da2fc339d6cfb5d6fb244fd449f33cd8bbe3"
   integrity sha512-8oe72N3WPMjA+2zVG71Ia0nXZ8DpQH+QyyHO+p06jT8eg8FGG3FbcUIi8KziHlAfheJQZeoqbvq1mQSQHXKYLw==
 
-add-matchers@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/add-matchers/-/add-matchers-0.5.0.tgz#502190e4750cd5721618393268b61a157366e765"
-  integrity sha1-UCGQ5HUM1XIWGDkyaLYaFXNm52U=
+add-matchers@^0.6.2:
+  version "0.6.2"
+  resolved "https://registry.yarnpkg.com/add-matchers/-/add-matchers-0.6.2.tgz#faeb2fa9380228c1b0da5f21a655c69304dd2011"
+  integrity sha512-hVO2wodMei9RF00qe+506MoeJ/NEOdCMEkSJ12+fC3hx/5Z4zmhNiP92nJEF6XhmXokeB0hOtuQrjHCx2vmXrQ==
 
 after@0.8.2:
   version "0.8.2"

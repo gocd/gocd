@@ -33,7 +33,7 @@ describe("ConfigRepoVM", () => {
     expect(vm.results.prime).toHaveBeenCalled();
   });
 
-  it("invalidates and updates data on refresh event", () => {
+  it("invalidates data on refresh event", () => {
     const vm = createVm();
 
     expect(vm.results.invalidate).not.toHaveBeenCalled();
@@ -43,7 +43,7 @@ describe("ConfigRepoVM", () => {
     expect(vm.results.invalidate).toHaveBeenCalled();
   });
 
-  it("reparseRepo() triggers reparse update invalidates the results cache", (done) => {
+  it("reparseRepo() triggers a reparse on configRepo and invalidates the results cache", (done) => {
     jasmine.Ajax.withMock(() => {
       jasmine.Ajax.stubRequest(SparkRoutes.configRepoTriggerUpdatePath("my-repo"), undefined, 'POST').andReturn({
         responseText:    JSON.stringify({message: `OK`}),

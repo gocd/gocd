@@ -60,7 +60,7 @@ class CRResultCache extends AbstractObjCache<DefinedStructures> {
 
   empty() {
     // don't dump contents, just force a fresh set of data
-    // this.etag = stream();
+    this.etag = stream();
   }
 }
 

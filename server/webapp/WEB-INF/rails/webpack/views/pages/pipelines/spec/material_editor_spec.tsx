@@ -27,7 +27,7 @@ describe("AddPipeline: Material Editor", () => {
     material = new Material();
 
     helper.mount(() => {
-      return <MaterialEditor material={material} group={"default"}/>;
+      return <MaterialEditor material={material}/>;
     });
   });
 

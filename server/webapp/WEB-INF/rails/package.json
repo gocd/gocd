@@ -33,7 +33,7 @@
     "lru_map": "^0.3.3",
     "mithril": "^1.1.6",
     "moment": "^2.24.0",
-    "moment-duration-format": "^2.2.1",
+    "moment-duration-format": "^2.3.2",
     "normalize-scss": "^7.0.1",
     "opensans": "file:vendor/assets/fonts/opensans",
     "shellwords-ts": "^2.0.2",

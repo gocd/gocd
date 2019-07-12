@@ -15,7 +15,7 @@
  */
 
 import {AjaxPoller} from "helpers/ajax_poller";
-import {ApiResult, ErrorResponse, SuccessResponse} from "helpers/api_request_builder";
+import {ApiResult} from "helpers/api_request_builder";
 import * as _ from "lodash";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
@@ -29,26 +29,32 @@ import * as Buttons from "views/components/buttons";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {SearchField} from "views/components/forms/input_fields";
 import {HeaderPanel} from "views/components/header_panel";
-import {DeleteConfirmModal} from "views/components/modal/delete_confirm_modal";
-import {Operations} from "views/pages/config_repos/config_repo_view_model";
-import {ConfigReposWidget, SearchOperation} from "views/pages/config_repos/config_repos_widget";
-import {EditConfigRepoModal, NewConfigRepoModal} from "views/pages/config_repos/modals";
+import {ConfigRepoVM} from "views/pages/config_repos/config_repo_view_model";
+import {ConfigReposWidget} from "views/pages/config_repos/config_repos_widget";
+import {NewConfigRepoModal} from "views/pages/config_repos/modals";
 import {Page, PageState} from "views/pages/page";
-import {AddOperation, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
+import {AddOperation, FlashContainer, RequiresPluginInfos, SaveOperation} from "views/pages/page_operations";
 import * as styles from "./config_repos/index.scss";
 
-interface State extends AddOperation<ConfigRepo>, SaveOperation, Operations, SearchOperation<ConfigRepo>, RequiresPluginInfos {
+interface SearchOperation {
+  unfilteredModels: Stream<ConfigRepoVM[]>;
+  filteredModels:   Stream<ConfigRepoVM[]>;
+  searchText:       Stream<string>;
 }
+
+interface State extends AddOperation<ConfigRepo>, SaveOperation, SearchOperation, RequiresPluginInfos, FlashContainer {}
 
 export class ConfigReposPage extends Page<null, State> {
   etag: Stream<string> = stream();
   oninit(vnode: m.Vnode<null, State>) {
-    vnode.state.pluginInfos     = stream();
-    vnode.state.initialObjects  = stream();
-    vnode.state.searchText      = stream();
-    vnode.state.filteredObjects = () => {
-      return stream(vnode.state.initialObjects().filter((o) => o.matches(vnode.state.searchText())));
-    };
+    vnode.state.pluginInfos       = stream();
+    vnode.state.unfilteredModels  = stream();
+    vnode.state.searchText        = stream();
+    vnode.state.flash             = this.flashMessage;
+    vnode.state.filteredModels    = stream.combine<ConfigRepoVM[]>(
+      (collection: Stream<ConfigRepoVM[]>) => _.filter(collection(), (vm) => vm.repo.matches(vnode.state.searchText())),
+      [vnode.state.unfilteredModels]
+    );
 
     this.fetchData(vnode);
 
@@ -67,74 +73,19 @@ export class ConfigReposPage extends Page<null, State> {
       new NewConfigRepoModal(vnode.state.onSuccessfulSave, vnode.state.onError, vnode.state.pluginInfos).render();
     };
 
-    vnode.state.onRefresh = (repo: ConfigRepo, e: MouseEvent) => {
-      e.stopPropagation();
-      this.flashMessage.clear();
-
-      ConfigReposCRUD.triggerUpdate(repo.id()).then((result: ApiResult<any>) => {
-        result.do(() => {
-          this.flashMessage.setMessage(MessageType.success,
-                                       `An update was scheduled for '${repo.id()}' config repository.`);
-        }, (err: ErrorResponse) => {
-          try {
-            if (err.message) {
-              this.flashMessage.setMessage(MessageType.alert,
-                                           `Unable to schedule an update for '${repo.id()}' config repository. ${err.message}`);
-            } else {
-              this.flashMessage.setMessage(MessageType.alert,
-                                           `Unable to schedule an update for '${repo.id()}' config repository. ${err.message}`);
-            }
-          } catch (e) {
-            this.flashMessage.setMessage(MessageType.alert,
-                                         `Unable to schedule an update for '${repo.id()}' config repository. ${err.message}`);
-          }
-        });
-      });
-
-    };
-
-    vnode.state.onEdit = (repo: ConfigRepo, e: MouseEvent) => {
-      e.stopPropagation();
-      this.flashMessage.clear();
-      new EditConfigRepoModal(repo.id(),
-                              vnode.state.onSuccessfulSave,
-                              vnode.state.onError,
-                              vnode.state.pluginInfos).render();
-    };
-
-    vnode.state.onDelete = (repo: ConfigRepo, e: MouseEvent) => {
-      e.stopPropagation();
-      this.flashMessage.clear();
-
-      const message = <span>Are you sure you want to delete the config repository <strong>{repo.id}</strong>?</span>;
-      const modal   = new DeleteConfirmModal(message, () => {
-        ConfigReposCRUD
-          .delete(repo)
-          .then((resp) => {
-            resp.do(
-              (successResponse: SuccessResponse<any>) => vnode.state.onSuccessfulSave(successResponse.body.message),
-              (errorResponse: ErrorResponse) => vnode.state.onError(errorResponse.message));
-          })
-          .then(modal.close.bind(modal));
-      });
-      modal.render();
-    };
     new AjaxPoller({repeaterFn: this.refreshConfigRepos.bind(this, vnode), initialIntervalSeconds: 10}).start();
   }
 
   componentToDisplay(vnode: m.Vnode<null, State>): m.Children {
-    if (vnode.state.searchText() && _.isEmpty(vnode.state.filteredObjects()())) {
+    if (vnode.state.searchText() && _.isEmpty(vnode.state.filteredModels())) {
       return <div><FlashMessage type={MessageType.info}>No Results</FlashMessage>
       </div>;
     }
 
     return <div>
       <FlashMessage type={this.flashMessage.type} message={this.flashMessage.message}/>
-      <ConfigReposWidget objects={vnode.state.filteredObjects()}
+      <ConfigReposWidget models={vnode.state.filteredModels}
                          pluginInfos={vnode.state.pluginInfos}
-                         onRefresh={vnode.state.onRefresh.bind(vnode.state)}
-                         onEdit={vnode.state.onEdit.bind(vnode.state)}
-                         onDelete={vnode.state.onDelete.bind(vnode.state)}
       />
     </div>;
   }
@@ -152,7 +103,7 @@ export class ConfigReposPage extends Page<null, State> {
 
   fetchData(vnode: m.Vnode<null, State>) {
     const state = vnode.state;
-    state.initialObjects([]);
+    state.unfilteredModels([]);
     this.pageState = PageState.LOADING;
 
     return Promise.all([PluginInfoCRUD.all({type: ExtensionType.CONFIG_REPO}), ConfigReposCRUD.all(this.etag())]).then((args) => {
@@ -192,7 +143,8 @@ export class ConfigReposPage extends Page<null, State> {
     apiResponse.do(
       (successResponse) => {
         this.pageState = PageState.OK;
-        vnode.state.initialObjects(successResponse.body);
+        const models = _.map(successResponse.body, (repo) => new ConfigRepoVM(repo, vnode.state));
+        vnode.state.unfilteredModels(models);
       },
       (errorResponse) => {
         vnode.state.onError(errorResponse.message);

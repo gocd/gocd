@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import {ApiRequestBuilder, ApiResult, ApiVersion} from "helpers/api_request_builder";
+import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
 import SparkRoutes from "helpers/spark_routes";
 import * as _ from "lodash";
 import {Stream} from "mithril/stream";
@@ -49,17 +49,8 @@ export class DefinedStructures implements NamedTree {
     );
   }
 
-  static fetch(repoId: string): Promise<DefinedStructures> {
-    return new Promise<DefinedStructures>((resolve, reject) => {
-      ApiRequestBuilder.GET(SparkRoutes.configRepoDefinedConfigsPath(repoId), ApiVersion.v2).
-        then((result: ApiResult<string>) => {
-          result.do((resp) => {
-            resolve(DefinedStructures.fromJSON(JSON.parse(resp.body)));
-          }, (error) => {
-            reject(error);
-          });
-        }).catch(reject);
-    });
+  static fetch(repoId: string, etag?: string) {
+    return ApiRequestBuilder.GET(SparkRoutes.configRepoDefinedConfigsPath(repoId), ApiVersion.v2, { etag });
   }
 
   name(): string {

@@ -20,13 +20,11 @@ import VMRoutes from "helpers/vm_routes";
 import {MithrilComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
-import {AbstractObjCache, ObjectCache, rejectAsString} from "models/base/cache";
+import {ObjectCache} from "models/base/cache";
 import {treeMap} from "models/base/traversable";
-import {DefinedEnvironment, DefinedGroup, DefinedPipeline, DefinedStructures, NamedTree} from "models/config_repos/defined_pipelines";
-import {EventAware} from "models/mixins/event_aware";
+import {DefinedEnvironment, DefinedGroup, DefinedPipeline, DefinedStructures, NamedTree} from "models/config_repos/defined_structures";
 import {FlashMessage, MessageType} from "views/components/flash_message";
 import {Tree} from "views/components/hierarchy/tree";
-import {Spinner} from "views/components/icons/index";
 import * as css from "./defined_structs.scss";
 
 // @ts-ignore
@@ -34,48 +32,31 @@ import * as Routes from "gen/js-routes";
 
 type Styles = typeof css;
 
+interface CacheProvider {
+  results: ObjectCache<DefinedStructures>;
+}
+
 interface Attrs {
-  repo: string;
-  vm: EventAware;
-  cache?: ObjectCache<DefinedStructures>;
+  vm: CacheProvider;
 }
 
-interface State {
-  cache: ObjectCache<DefinedStructures>;
-}
+export class CRResult extends MithrilComponent<Attrs> {
+  view(vnode: m.Vnode<Attrs>): m.Children {
+    const vm = vnode.attrs.vm;
 
-export class CRResultCache extends AbstractObjCache<DefinedStructures> {
-  private repoId: string;
-
-  constructor(repoId: string) {
-    super();
-    this.repoId = repoId;
-  }
-
-  doFetch(resolve: (data: DefinedStructures) => void, reject: (reason: string) => void) {
-    DefinedStructures.fetch(this.repoId).then(resolve).catch(rejectAsString(reject));
-  }
-}
-
-export class CRResult extends MithrilComponent<Attrs, State> {
-  oninit(vnode: m.Vnode<Attrs, State>) {
-    const cache = vnode.attrs.cache || new CRResultCache(vnode.attrs.repo);
-    vnode.attrs.vm.on("expand", () => {
-      cache.prime(m.redraw);
-    });
-    vnode.attrs.vm.on("refresh", () => { cache.invalidate(); cache.prime(m.redraw); });
-    vnode.state.cache = cache;
-  }
-
-  view(vnode: m.Vnode<Attrs, State>): m.Children {
-    if (vnode.state.cache.failed()) {
+    if (vm.results.failed()) {
       return <FlashMessage type={MessageType.alert}>
-        Failed to load pipelines defined in this repository: {vnode.state.cache.failureReason()}
+        Failed to load pipelines defined in this repository: {vm.results.failureReason()}
       </FlashMessage>;
     }
 
-    if (vnode.state.cache.ready()) {
-      const root = vnode.state.cache.contents();
+    // Prefer to keep showing stale contents between invalidation and refresh to avoid flickering
+    // between loading message and updated structure. This implies that the user only sees the
+    // loading message briefly (on reasonably fast latencies, just a flicker) upon first load.
+    // Maybe we'll add a spinner off to the side if we feel it's necessary, but flickering between
+    // this and the loading message feels wrong from a usability standpoint, IMO.
+    if (vm.results.ready() || vm.results.contents()) {
+      const root = vm.results.contents();
 
       if (!root.children.length) {
         return <FlashMessage type={MessageType.alert} message="This repository does not define any pipelines or environments."/>;
@@ -84,7 +65,7 @@ export class CRResult extends MithrilComponent<Attrs, State> {
       return treeMap<NamedTree, m.Vnode>(root, tree);
     }
 
-    return <div class={css.loading}><Spinner iconOnly={true}/> Loading pipelines defined by repository&hellip;</div>;
+    return <div class={css.loading}><i class={css.spin}/>Loading pipelines defined by repository&hellip;</div>;
   }
 }
 

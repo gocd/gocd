@@ -17,12 +17,13 @@
 import {asSelector} from "helpers/css_proxies";
 import * as m from "mithril";
 import {ObjectCache} from "models/base/cache";
-import {DefinedStructures} from "models/config_repos/defined_pipelines";
+import {DefinedStructures} from "models/config_repos/defined_structures";
 import {EventAware} from "models/mixins/event_aware";
 import * as flashCss from "views/components/flash_message/index.scss";
 import {TestHelper} from "views/pages/spec/test_helper";
 import {CRResult} from "../config_repo_result";
 import * as css from "../defined_structs.scss";
+import {emptyTree, mockResultsCache} from "./test_data";
 
 describe("<CRResult/>", () => {
   const sel = asSelector<typeof css>(css);
@@ -32,7 +33,7 @@ describe("<CRResult/>", () => {
 
   it("displays error message when content cannot be loaded", () => {
     const fl = asSelector<typeof flashCss>(flashCss);
-    helper.mount(() => <CRResult cache={new MockCache({failureReason: "outta cache."})} repo="my-repo" vm={new EventAware()}/>);
+    helper.mount(() => <CRResult vm={new MockVm({failureReason: "outta cache."})}/>);
 
     expect(helper.q(sel.tree)).not.toBeInDOM();
     expect(helper.q(sel.treeDatum)).not.toBeInDOM();
@@ -43,7 +44,7 @@ describe("<CRResult/>", () => {
 
   it("displays error message when contents are empty", () => {
     const fl = asSelector<typeof flashCss>(flashCss);
-    helper.mount(() => <CRResult cache={new MockCache({content: void 0})} repo="my-repo" vm={new EventAware()}/>);
+    helper.mount(() => <CRResult vm={new MockVm({content: emptyTree()})}/>);
 
     expect(helper.q(sel.tree)).not.toBeInDOM();
     expect(helper.q(sel.treeDatum)).not.toBeInDOM();
@@ -53,7 +54,7 @@ describe("<CRResult/>", () => {
   });
 
   it("displays loading message when data has not been fetched", () => {
-    helper.mount(() => <CRResult cache={new MockCache({ready: false})} repo="my-repo" vm={new EventAware()}/>);
+    helper.mount(() => <CRResult vm={new MockVm({ready: false, content: void 0})}/>);
 
     expect(helper.q(sel.tree)).not.toBeInDOM();
     expect(helper.q(sel.treeDatum)).not.toBeInDOM();
@@ -62,7 +63,7 @@ describe("<CRResult/>", () => {
   });
 
   it("renders the defined pipelines tree", () => {
-    helper.mount(() => <CRResult cache={new MockCache({content: testData()})} repo="my-repo" vm={new EventAware()}/>);
+    helper.mount(() => <CRResult vm={new MockVm({content: testData()})}/>);
 
     expect(helper.q(sel.tree)).toBeInDOM();
     expect(helper.q(sel.loading)).not.toBeInDOM();
@@ -77,32 +78,6 @@ describe("<CRResult/>", () => {
       "pipeline-3",
       "pipeline-4",
     ]);
-  });
-
-  it("fetches data on the expand event", () => {
-    const cache = new MockCache({ready: false});
-    const vm = new EventAware();
-    helper.mount(() => <CRResult cache={cache} repo="my-repo" vm={vm}/>);
-
-    expect(cache.prime).not.toHaveBeenCalled();
-
-    vm.notify("expand");
-
-    expect(cache.prime).toHaveBeenCalled();
-  });
-
-  it("invalidates and updates data on refresh event", () => {
-    const cache = new MockCache({});
-    const vm = new EventAware();
-    helper.mount(() => <CRResult cache={cache} repo="my-repo" vm={vm}/>);
-
-    expect(cache.invalidate).not.toHaveBeenCalled();
-    expect(cache.prime).not.toHaveBeenCalled();
-
-    vm.notify("refresh");
-
-    expect(cache.invalidate).toHaveBeenCalled();
-    expect(cache.prime).toHaveBeenCalled();
   });
 });
 
@@ -126,24 +101,15 @@ function testData(): DefinedStructures {
   });
 }
 
-class MockCache implements ObjectCache<DefinedStructures> {
-  ready: () => boolean;
-  contents: () => DefinedStructures;
-  failureReason: () => string | undefined;
-  prime: (onSuccess: () => void, onError?: () => void) => void = jasmine.createSpy();
-  invalidate: () => void = jasmine.createSpy();
+class MockVm extends EventAware {
+  results: ObjectCache<DefinedStructures>;
 
   constructor(options: {
     content?: DefinedStructures,
     failureReason?: string,
     ready?: boolean
   }) {
-    this.failureReason = () => options.failureReason;
-    this.contents = () => options.content || new DefinedStructures([], []);
-    this.ready = () => void 0 === options.ready ? true : options.ready;
-  }
-
-  failed(): boolean {
-    return !!this.failureReason();
+    super();
+    this.results = mockResultsCache(options);
   }
 }

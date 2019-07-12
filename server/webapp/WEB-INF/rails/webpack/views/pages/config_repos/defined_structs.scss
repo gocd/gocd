@@ -25,7 +25,7 @@ $stage-color:          #4ad9d9;
 $fg-color:             #023550;
 $label-color-group:    #dee;
 $label-color-pipeline: #ede7f3;
-$label-color-env:    #ffe099;
+$label-color-env:      #ffe099;
 
 @mixin type-label {
   display:          inline-block;
@@ -38,7 +38,25 @@ $label-color-env:    #ffe099;
 }
 
 .loading {
-  padding: 5px 10px;
+  padding: 10px 0;
+  font-size: 18px;
+}
+
+.spin {
+  @include icon-before($type: $fa-var-spinner, $margin: 0);
+  display:      inline-block;
+  margin-right: 10px;
+  animation: rotate 1s linear infinite;
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+
+    to {
+      transform: rotate(359deg);
+    }
+  }
 }
 
 .group {

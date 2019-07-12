@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelinesascodemisc;
+package com.thoughtworks.go.apiv1.pipelinesascodeinternal;
 
 import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
@@ -54,7 +54,7 @@ import static java.lang.String.format;
 import static spark.Spark.*;
 
 @Component
-public class PipelinesAsCodeMiscControllerV1 extends ApiController implements SparkSpringController {
+public class PipelinesAsCodeInternalControllerV1 extends ApiController implements SparkSpringController {
 
     private final ApiAuthenticationHelper apiAuthenticationHelper;
     private final PasswordDeserializer passwordDeserializer;
@@ -63,7 +63,7 @@ public class PipelinesAsCodeMiscControllerV1 extends ApiController implements Sp
     private final PipelineConfigService pipelineService;
 
     @Autowired
-    public PipelinesAsCodeMiscControllerV1(
+    public PipelinesAsCodeInternalControllerV1(
             ApiAuthenticationHelper apiAuthenticationHelper,
             PasswordDeserializer passwordDeserializer,
             GoConfigService goConfigService,
@@ -112,11 +112,9 @@ public class PipelinesAsCodeMiscControllerV1 extends ApiController implements Sp
 
         PipelineConfig pipeline = PipelineConfigRepresenter.fromJSON(jsonReader, options);
 
-        if ("true".equalsIgnoreCase(req.queryParams("validate"))) {
-            if (!performFullValidate(pipeline, groupName)) {
-                res.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
-                return MessageJson.create(format("Please fix the validation errors for pipeline %s.", pipeline.name()), jsonWriter(pipeline));
-            }
+        if (requiresFullValidation(req) && !isValidPipelineConfig(pipeline, groupName)) {
+            res.status(HttpStatus.UNPROCESSABLE_ENTITY.value());
+            return MessageJson.create(format("Please fix the validation errors for pipeline %s.", pipeline.name()), jsonWriter(pipeline));
         }
 
         ConfigRepoPlugin repoPlugin = plugin(pluginId);
@@ -136,7 +134,11 @@ public class PipelinesAsCodeMiscControllerV1 extends ApiController implements Sp
 
     }
 
-    private boolean performFullValidate(final PipelineConfig pipeline, final String group) throws HaltException {
+    private boolean requiresFullValidation(Request req) {
+        return "true".equalsIgnoreCase(req.queryParams("validate"));
+    }
+
+    private boolean isValidPipelineConfig(final PipelineConfig pipeline, final String group) throws HaltException {
         CreatePipelineConfigCommand create = pipelineService.createPipelineConfigCommand(currentUsername(), pipeline, null, group);
         CruiseConfig config;
 

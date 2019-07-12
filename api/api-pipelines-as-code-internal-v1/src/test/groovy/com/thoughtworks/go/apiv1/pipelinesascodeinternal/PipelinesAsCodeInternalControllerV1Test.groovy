@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.thoughtworks.go.apiv1.pipelinesascodemisc
+package com.thoughtworks.go.apiv1.pipelinesascodeinternal
 
 import com.thoughtworks.go.api.SecurityTestTrait
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper
@@ -40,7 +40,7 @@ import static org.mockito.ArgumentMatchers.*
 import static org.mockito.Mockito.*
 import static org.mockito.MockitoAnnotations.initMocks
 
-class PipelinesAsCodeMiscControllerV1Test implements SecurityServiceTrait, ControllerTrait<PipelinesAsCodeMiscControllerV1> {
+class PipelinesAsCodeInternalControllerV1Test implements SecurityServiceTrait, ControllerTrait<PipelinesAsCodeInternalControllerV1> {
 
   private static final String PLUGIN_ID = "test.config.plugin"
   private static final String GROUP_NAME = "test-group"
@@ -64,8 +64,8 @@ class PipelinesAsCodeMiscControllerV1Test implements SecurityServiceTrait, Contr
   }
 
   @Override
-  PipelinesAsCodeMiscControllerV1 createControllerInstance() {
-    new PipelinesAsCodeMiscControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), passwordDeserializer, goConfigService, pluginService, pipelineService)
+  PipelinesAsCodeInternalControllerV1 createControllerInstance() {
+    new PipelinesAsCodeInternalControllerV1(new ApiAuthenticationHelper(securityService, goConfigService), passwordDeserializer, goConfigService, pluginService, pipelineService)
   }
 
   @Nested

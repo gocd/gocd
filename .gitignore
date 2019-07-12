@@ -414,7 +414,7 @@ api/api-backup-config-v1/out/
 api/api-backup-config-v1/target/
 api/api-backup-config-v1/logs/
 api/api-backup-config-v1/config/
-api/api-pipelines-as-code-misc-v1/out/
-api/api-pipelines-as-code-misc-v1/target/
-api/api-pipelines-as-code-misc-v1/logs/
-api/api-pipelines-as-code-misc-v1/config/
+api/api-pipelines-as-code-internal-v1/out/
+api/api-pipelines-as-code-internal-v1/target/
+api/api-pipelines-as-code-internal-v1/logs/
+api/api-pipelines-as-code-internal-v1/config/

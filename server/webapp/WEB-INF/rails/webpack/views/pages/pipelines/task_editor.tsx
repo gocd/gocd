@@ -242,5 +242,5 @@ function isHtmlElement(el: any): el is HTMLElement {
 }
 
 function isMouseEvent(e: Event): e is MouseEvent {
-  return !!(e as MouseEvent).relatedTarget;
+  return e instanceof MouseEvent;
 }

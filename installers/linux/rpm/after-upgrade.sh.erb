@@ -20,8 +20,9 @@
   <%= ERB.new(File.read(File.join(install_scripts_dir, 'shared', 'partials', "_#{name}-cleanup_temp_files_from_previous_version.sh.erb")), nil, '-', "_#{SecureRandom.hex}").result(binding) %>
 <% end -%>
 
+    # Backup the existing go-{server,agent} installation from `/etc/init.d/<%= name %>` to `/etc/init.d/<%= name %>-old`
     if [ -e /etc/init.d/<%= name %> ]; then
-      mv /etc/init.d/<%= name %> /etc/init.d/<%= name %>-back
+      mv /etc/init.d/<%= name %> /etc/init.d/<%= name %>-old
     fi
 
     /usr/share/<%= name %>/bin/<%= name %> install 2>&1 || true
@@ -31,6 +32,15 @@
         /usr/share/<%= name %>/bin/<%= name %> start
     fi
 
-    if [ -e /etc/init.d/<%= name %>-back ]; then
-      mv /etc/init.d/<%= name %>-back /etc/init.d/<%= name %>
+    # If the newer installation of go-{server,agent} (using tanuki script) is done using `/etc/init.d/`,
+    # then, backup the new installation from `/etc/init.d/<%= name %>` to `/etc/init.d/<%= name %>-new`
+    # If the copy of the `/etc/init.d/<%= name %>` is not taken, it would be cleared by the `before-remove` script of older installer.
+    if [ -e /etc/init.d/<%= name %> ]; then
+      mv  /etc/init.d/<%= name %> /etc/init.d/<%= name %>-new
+    fi
+
+    # Now, restore `/etc/init.d/<%= name %>-old` back to to `/etc/init.d/<%= name %>`, so that, when the `before-remove` script
+    # is invoked to remove the older installation, it will remove the old go-{server,agent}
+    if [ -e /etc/init.d/<%= name %>-old ]; then
+      mv /etc/init.d/<%= name %>-old /etc/init.d/<%= name %>
     fi

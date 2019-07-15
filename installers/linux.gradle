@@ -356,6 +356,7 @@ def configureLinuxPackage(DefaultTask packageTask, InstallerType installerType, 
         cmd += ['--after-upgrade', project.file("linux/${osType}/after-upgrade.sh.erb")]
         cmd += ['--after-install', project.file("linux/${osType}/after-install.sh.erb")]
         cmd += ['--before-remove', project.file("linux/${osType}/before-remove.sh.erb")]
+        cmd += ['--rpm-posttrans', project.file("linux/rpm/post-tran.sh.erb")]
         cmd += ['--template-value', "install_scripts_dir=${project.file('linux')}"]
         cmd += ['--template-scripts']
 

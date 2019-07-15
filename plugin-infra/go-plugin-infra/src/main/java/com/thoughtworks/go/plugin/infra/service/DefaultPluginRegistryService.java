@@ -16,6 +16,7 @@
 package com.thoughtworks.go.plugin.infra.service;
 
 import java.util.List;
+import java.util.Map;
 
 import com.thoughtworks.go.plugin.infra.plugininfo.PluginRegistry;
 import com.thoughtworks.go.plugin.internal.api.PluginRegistryService;
@@ -53,5 +54,10 @@ public class DefaultPluginRegistryService implements PluginRegistryService {
     @Override
     public String pluginIDFor(String bundleSymbolicName, String extensionClassCannonicalName) {
         return pluginRegistry.pluginIDFor(bundleSymbolicName, extensionClassCannonicalName);
+    }
+
+    @Override
+    public List<String> extensionClassesInBundle(String bundleSymbolicName) {
+        return pluginRegistry.extensionClassesIn(bundleSymbolicName);
     }
 }

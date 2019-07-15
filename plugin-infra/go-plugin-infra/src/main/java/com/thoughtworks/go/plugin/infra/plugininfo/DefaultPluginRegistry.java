@@ -21,9 +21,9 @@ import org.springframework.stereotype.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 @Component
 public class DefaultPluginRegistry implements PluginRegistry {
@@ -122,5 +122,14 @@ public class DefaultPluginRegistry implements PluginRegistry {
                 pluginDescriptor -> pluginDescriptor.extensionClasses().contains(extensionClassCannonicalName));
 
         return descriptorWithExtension == null ? null : descriptorWithExtension.id();
+    }
+
+    @Override
+    public List<String> extensionClassesIn(String bundleSymbolicName) {
+        final GoPluginBundleDescriptor bundleDescriptor = getBundleDescriptor(bundleSymbolicName);
+        return bundleDescriptor.descriptors()
+                .stream()
+                .flatMap(descriptor -> descriptor.extensionClasses().stream())
+                .collect(Collectors.toList());
     }
 }

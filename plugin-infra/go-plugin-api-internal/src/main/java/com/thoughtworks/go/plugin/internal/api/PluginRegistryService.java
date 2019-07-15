@@ -25,4 +25,6 @@ public interface PluginRegistryService {
     String getPluginIDOfFirstPluginInBundle(String bundleSymbolicName);
 
     String pluginIDFor(String bundleSymbolicName, String extensionClassCannonicalName);
+
+    List<String> extensionClassesInBundle(String bundleSymbolicName);
 }

@@ -44,7 +44,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
     private List<UnloadMethodInvoker> unloadMethodInvokers = new ArrayList<>();
     private PluginRegistryService pluginRegistryService;
     private static String bundleSymbolicName;
-    private static String pluginId;
+    private static String pluginId; /* Used through reflection (see Logger class). */
     private static PluginContext DUMMY_PLUGIN_CONTEXT = new PluginContext() {
     };
 
@@ -59,7 +59,7 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         LoggingService loggingService = bundleContext.getService(bundleContext.getServiceReference(LoggingService.class));
         Logger.initialize(loggingService);
 
-        getImplementersAndRegister(bundleContext, bundle);
+        getImplementersAndRegister(bundleContext, bundle, pluginRegistryService.extensionClassesInBundle(bundleSymbolicName));
 
         reportErrorsToHealthService();
     }
@@ -95,9 +95,15 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         }
     }
 
-    void getImplementersAndRegister(BundleContext bundleContext, Bundle bundle) throws ClassNotFoundException {
+    void getImplementersAndRegister(BundleContext bundleContext, Bundle bundle, List<String> declaredExtensionClasses) {
+        List<Class> candidateGoExtensionClasses = getCandidateGoExtensionClasses(bundle, declaredExtensionClasses);
+
+        if (!errors.isEmpty()) {
+            return;
+        }
+
         List<HashMap<Class, List<Object>>> toRegister = new ArrayList<>();
-        for (Class candidateGoExtensionClass : getCandidateGoExtensionClasses(bundle)) {
+        for (Class candidateGoExtensionClass : candidateGoExtensionClasses) {
             HashMap<Class, List<Object>> interfaceToImplementations = getAllInterfaceToImplementationsMap(candidateGoExtensionClass);
             if (!interfaceToImplementations.isEmpty()) {
                 toRegister.add(interfaceToImplementations);
@@ -272,7 +278,29 @@ public class DefaultGoPluginActivator implements GoPluginActivator {
         return method.getAnnotation(annotation) != null;
     }
 
-    private List<Class> getCandidateGoExtensionClasses(Bundle bundle) throws ClassNotFoundException {
+    private List<Class> getCandidateGoExtensionClasses(Bundle bundle, List<String> declaredExtensionClasses) {
+        if (declaredExtensionClasses.isEmpty()) {
+            return allPossibleCandidateClassesInBundle(bundle);
+        } else {
+            return classesForAllDeclaredExtensions(declaredExtensionClasses);
+        }
+    }
+
+    private List<Class> classesForAllDeclaredExtensions(List<String> declaredExtensionClasses) {
+        List<Class> results = new ArrayList<>();
+
+        for (String extensionClass : declaredExtensionClasses) {
+            try {
+                results.add(Class.forName(extensionClass));
+            } catch (ClassNotFoundException e) {
+                errors.add("Extension class declared in plugin bundle is not found: " + extensionClass);
+            }
+        }
+
+        return results;
+    }
+
+    private List<Class> allPossibleCandidateClassesInBundle(Bundle bundle) {
         List<Class> candidateClasses = new ArrayList<>();
         Enumeration<URL> entries = bundle.findEntries("/", "*.class", true);
 

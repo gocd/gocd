@@ -20,7 +20,6 @@ import com.thoughtworks.go.api.ApiController;
 import com.thoughtworks.go.api.ApiVersion;
 import com.thoughtworks.go.api.CrudController;
 import com.thoughtworks.go.api.base.OutputWriter;
-import com.thoughtworks.go.api.representers.EnvironmentVariableRepresenter;
 import com.thoughtworks.go.api.representers.JsonReader;
 import com.thoughtworks.go.api.spring.ApiAuthenticationHelper;
 import com.thoughtworks.go.api.util.GsonTransformer;
@@ -54,6 +53,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import static com.thoughtworks.go.api.representers.EnvironmentVariableRepresenter.toJSONArray;
 import static com.thoughtworks.go.api.util.HaltApiResponses.*;
 import static java.lang.String.format;
 import static spark.Spark.*;
@@ -163,39 +163,34 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
     }
 
     public String partialUpdate(Request request, Response response) {
-        String environmentName = request.params("name");
         JsonReader jsonReader = GsonTransformer.getInstance().jsonReaderFrom(request.body());
-        PatchEnvironmentRequest patchRequest = PatchEnvironmentRequestRepresenter.fromJSON(jsonReader);
-        HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
+        PatchEnvironmentRequest req = PatchEnvironmentRequestRepresenter.fromJSON(jsonReader);
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+
+        String environmentName = request.params("name");
         EnvironmentConfig environmentConfig = fetchEntityFromConfig(environmentName);
 
-        Optional<EnvironmentVariableConfig> errorInParsingEnvVarToAdd = patchRequest.getEnvironmentVariablesToAdd().stream().filter(envVar -> !envVar.errors().isEmpty()).findFirst();
+        Optional<EnvironmentVariableConfig> parsingErrors = req.getEnvironmentVariablesToAdd().stream()
+                                                                                              .filter(envVar -> !envVar.errors().isEmpty())
+                                                                                              .findFirst();
 
-        if (errorInParsingEnvVarToAdd.isPresent()) {
-            EnvironmentVariablesConfig configs = new EnvironmentVariablesConfig(patchRequest.getEnvironmentVariablesToAdd());
-            String errorMessage = MessageJson.create("Error parsing patch request", writer -> {
-                EnvironmentVariableRepresenter.toJSONArray(writer, "environment_variables", configs);
-            });
+        if (parsingErrors.isPresent()) {
+            EnvironmentVariablesConfig configs = new EnvironmentVariablesConfig(req.getEnvironmentVariablesToAdd());
+            String errorMessage = MessageJson.create("Error parsing patch request",
+                                                      writer -> toJSONArray(writer, "environment_variables", configs));
             response.status(422);
             return errorMessage;
         }
 
         List<String> dummyAgentList = new ArrayList<>();
-        environmentConfigService.patchEnvironment(environmentConfig,
-                patchRequest.getPipelineToAdd(),
-                patchRequest.getPipelineToRemove(),
-                dummyAgentList,
-                dummyAgentList,
-                patchRequest.getEnvironmentVariablesToAdd(),
-                patchRequest.getEnvironmentVariablesToRemove(),
-                currentUsername(),
-                operationResult
-        );
+        environmentConfigService.patchEnvironment(environmentConfig, req.getPipelineToAdd(), req.getPipelineToRemove(),
+                                                  dummyAgentList, dummyAgentList, req.getEnvironmentVariablesToAdd(),
+                                                  req.getEnvironmentVariablesToRemove(), currentUsername(), result);
 
         EnvironmentConfig updateConfigElement = fetchEntityFromConfig(environmentName);
 
         setEtagHeader(updateConfigElement, response);
-        return handleCreateOrUpdateResponse(request, response, updateConfigElement, operationResult);
+        return handleCreateOrUpdateResponse(request, response, updateConfigElement, result);
     }
 
     public String remove(Request request, Response response) {
@@ -238,9 +233,9 @@ public class EnvironmentsControllerV3 extends ApiController implements SparkSpri
 
     private void haltIfEntityWithSameNameExists(EnvironmentConfig environmentConfig) {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-        ConfigElementForEdit<EnvironmentConfig> existingEnvironmentConfig = environmentConfigService.getMergedEnvironmentforDisplay(environmentConfig.name().toString(), result);
-
-        if (existingEnvironmentConfig == null) {
+        ConfigElementForEdit<EnvironmentConfig> existingEnvConfig
+                = environmentConfigService.getMergedEnvironmentforDisplay(environmentConfig.name().toString(), result);
+        if (existingEnvConfig == null) {
             return;
         }
 

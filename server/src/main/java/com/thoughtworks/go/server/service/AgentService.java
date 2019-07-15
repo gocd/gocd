@@ -17,7 +17,6 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
-import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.config.update.AgentsUpdateValidator;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.listener.AgentChangeListener;
@@ -55,7 +54,6 @@ import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.CurrentGoCDVersion.docsUrl;
 import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFailed;
-import static com.thoughtworks.go.i18n.LocalizedMessage.resourceNotFound;
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 import static com.thoughtworks.go.util.ExceptionUtils.bombIfNull;
 import static java.lang.String.format;
@@ -73,7 +71,7 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
 
     private AgentInstances agentInstances;
 
-    private Set<AgentChangeListener<AgentConfig>> listeners = new HashSet<>();
+    private Set<AgentChangeListener> listeners = new HashSet<>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AgentService.class);
 
@@ -113,8 +111,7 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
     }
 
     public Agents agents() {
-        List<AgentConfig> agentConfigs = agentInstances.values().stream().map(agentInstance -> agentInstance.agentConfig()).collect(Collectors.toList());
-        return new Agents(agentConfigs);
+        return agentInstances.values().stream().map(AgentInstance::agentConfig).collect(Collectors.toCollection(Agents::new));
     }
 
     public Map<AgentInstance, Collection<String>> agentsToEnvNameMap() {
@@ -156,17 +153,17 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
         return false;
     }
 
-    private boolean hasOperatePermission(Username username, OperationResult operationResult) {
+    private boolean doesNotHaveOperatePermission(Username username, OperationResult operationResult) {
         if (!securityService.hasOperatePermissionForAgents(username)) {
             String message = "Unauthorized to operate on agent";
             operationResult.forbidden(message, message, HealthStateType.general(HealthStateScope.GLOBAL));
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 
     public AgentInstance updateAgentAttributes(Username username, HttpOperationResult result, String uuid, String newHostname, String resources, String environments, TriState enable) {
-        if (!hasOperatePermission(username, result)) {
+        if (doesNotHaveOperatePermission(username, result)) {
             return null;
         }
 
@@ -210,10 +207,7 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
             return null;
         }
 
-        if (agentConfig != null) {
-            return AgentInstance.createFromConfig(agentConfig, systemEnvironment, agentStatusChangeNotifier);
-        }
-        return null;
+        return AgentInstance.createFromConfig(agentConfig, systemEnvironment, agentStatusChangeNotifier);
     }
 
 //    public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids,
@@ -250,7 +244,7 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
                 List<AgentConfig> agents = this.agentDao.agentsByUUIds(uuids);
                 if (enable.isTrue() || enable.isFalse()) {
                     List<AgentConfig> pendingAgents = agentInstances.findPendingAgents(uuids);
-                    pendingAgents.forEach(agent -> agents.add(agent));
+                    agents.addAll(pendingAgents);
                 }
 
                 agents.forEach(agent -> {
@@ -327,7 +321,7 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
     }
 
     public void deleteAgents(Username username, HttpOperationResult operationResult, List<String> uuids) {
-        if (!hasOperatePermission(username, operationResult)) {
+        if (doesNotHaveOperatePermission(username, operationResult)) {
             return;
         }
         List<AgentInstance> agents = new ArrayList<>();
@@ -346,7 +340,7 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
         try {
             List<AgentConfig> allAgents = filterAgents(uuids);
             if (allAgents.size() != uuids.size()) {
-                List<String> uuidsOfAgentsInDatabase = allAgents.stream().map(agent -> agent.getUuid()).collect(Collectors.toList());
+                List<String> uuidsOfAgentsInDatabase = allAgents.stream().map(AgentConfig::getUuid).collect(Collectors.toList());
                 List<String> nonExistentAgentIds = uuids.stream().filter(uuid -> !uuidsOfAgentsInDatabase.contains(uuid)).collect(Collectors.toList());
                 //TODO : Revisit this for checking whether to throw this error
                 if (!nonExistentAgentIds.isEmpty()) {
@@ -573,7 +567,7 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
     }
 
     public List<String> getResourceList() {
-        return getAllResources().stream().map(resourceConfig -> resourceConfig.getName()).collect(Collectors.toList());
+        return getAllResources().stream().map(ResourceConfig::getName).collect(Collectors.toList());
     }
 
     @Override

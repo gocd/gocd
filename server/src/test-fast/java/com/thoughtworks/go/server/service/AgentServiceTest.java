@@ -22,8 +22,6 @@ import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
-import com.thoughtworks.go.domain.AgentStatus;
-import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
@@ -45,20 +43,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
 
 public class AgentServiceTest {
@@ -68,7 +64,7 @@ public class AgentServiceTest {
     private AgentIdentifier agentIdentifier;
     private UuidGenerator uuidGenerator;
     private ServerHealthService serverHealthService;
-    AgentConfig agentConfig;
+    private AgentConfig agentConfig;
     private GoConfigService goConfigService;
     private SecurityService securityService;
 
@@ -174,7 +170,7 @@ public class AgentServiceTest {
         AgentService agentService = new AgentService(new SystemEnvironment(), agentInstances,
                 securityService, agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null, goConfigService);
 
-        agentService.deleteAgents(username, operationResult, asList(uuid));
+        agentService.deleteAgents(username, operationResult, singletonList(uuid));
 
         verify(operationResult).internalServerError(any(String.class), any(HealthStateType.class));
     }
@@ -192,7 +188,7 @@ public class AgentServiceTest {
 
         agentService.bulkUpdateAgentAttributes(username, operationResult, uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE);
 
-        verify(agentDao).bulkUpdateAttributes(any(List.class), any(Map.class), eq(TriState.TRUE));
+        verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.TRUE));
         assertThat(operationResult.isSuccessful(), is(true));
         assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid]."));
     }
@@ -216,7 +212,7 @@ public class AgentServiceTest {
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
         agentService.bulkUpdateAgentAttributes(username, operationResult, uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE);
 
-        verify(agentDao).bulkUpdateAttributes(any(List.class), any(Map.class), eq(TriState.TRUE));
+        verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.TRUE));
         assertThat(operationResult.isSuccessful(), is(true));
         assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, UUID2]."));
 

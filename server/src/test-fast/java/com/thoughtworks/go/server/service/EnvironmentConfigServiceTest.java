@@ -27,7 +27,6 @@ import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -40,6 +39,7 @@ import static com.thoughtworks.go.helper.EnvironmentConfigMother.environment;
 import static com.thoughtworks.go.helper.EnvironmentConfigMother.environments;
 import static com.thoughtworks.go.helper.PipelineConfigMother.pipelineConfig;
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.Mockito.*;
@@ -118,7 +118,7 @@ class EnvironmentConfigServiceTest {
         BasicCruiseConfig cruiseConfig = new BasicCruiseConfig();
         BasicEnvironmentConfig env = (BasicEnvironmentConfig) environmentConfigService.named(uat).getLocal();
         cruiseConfig.addEnvironment(env);
-        List<BasicEnvironmentConfig> expectedToEdit = Arrays.asList(new Cloner().deepClone(env));
+        List<BasicEnvironmentConfig> expectedToEdit = singletonList(new Cloner().deepClone(env));
 
         when(mockGoConfigService.getConfigForEditing()).thenReturn(cruiseConfig);
 
@@ -138,7 +138,7 @@ class EnvironmentConfigServiceTest {
         environmentConfigService.syncEnvironmentsFromConfig(environments);
         when(mockGoConfigService.getMergedConfigForEditing()).thenReturn(config);
 
-        assertThat(environmentConfigService.getAllMergedEnvironments()).isEqualTo(asList(env));
+        assertThat(environmentConfigService.getAllMergedEnvironments()).isEqualTo(singletonList(env));
         assertThat(result.isSuccessful()).isTrue();
     }
 
@@ -348,7 +348,7 @@ class EnvironmentConfigServiceTest {
         String environmentName = "foo-environment";
         when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(false);
 
-        environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), new ArrayList<>(), Arrays.asList(new String[]{"agent-guid-1"})), user, result);
+        environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), new ArrayList<>(), singletonList("agent-guid-1")), user, result);
 
         assertThat(result.isSuccessful()).isTrue();
         BasicEnvironmentConfig envConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
@@ -363,9 +363,8 @@ class EnvironmentConfigServiceTest {
         when(securityService.isUserAdmin(user)).thenReturn(true);
         String environmentName = "foo-environment";
         when(mockGoConfigService.hasEnvironmentNamed(new CaseInsensitiveString(environmentName))).thenReturn(false);
-        List<Map<String, String>> environmentVariables = new ArrayList<>();
-        environmentVariables.addAll(Arrays.asList(envVar("SHELL", "/bin/zsh"), envVar("HOME", "/home/cruise")));
-        environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), environmentVariables, selectedAgents), user, result);
+        List<Map<String, String>> envVariables = new ArrayList<>(Arrays.asList(envVar("SHELL", "/bin/zsh"), envVar("HOME", "/home/cruise")));
+        environmentConfigService.createEnvironment(env(environmentName, new ArrayList<>(), envVariables, selectedAgents), user, result);
 
         assertThat(result.isSuccessful()).isTrue();
         BasicEnvironmentConfig expectedConfig = new BasicEnvironmentConfig(new CaseInsensitiveString(environmentName));
@@ -450,7 +449,7 @@ class EnvironmentConfigServiceTest {
 
 
         assertThat(pipelines.size()).isEqualTo(1);
-        assertThat(pipelines).isEqualTo(asList(new EnvironmentPipelineModel("foo", "foo-env")));
+        assertThat(pipelines).isEqualTo(singletonList(new EnvironmentPipelineModel("foo", "foo-env")));
     }
 
     @Test
@@ -621,7 +620,7 @@ class EnvironmentConfigServiceTest {
         private EnvironmentsConfig createEnvironments(Map<String, String> envNameToAgentMap) {
             EnvironmentsConfig environments = new EnvironmentsConfig();
             envNameToAgentMap.keySet().forEach(envName -> {
-                BasicEnvironmentConfig env = env(envName, null, null, Arrays.asList(envNameToAgentMap.get(envName)));
+                BasicEnvironmentConfig env = env(envName, null, null, singletonList(envNameToAgentMap.get(envName)));
                 environments.add(env);
             });
 

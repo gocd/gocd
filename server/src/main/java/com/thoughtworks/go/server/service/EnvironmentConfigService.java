@@ -26,18 +26,18 @@ import com.thoughtworks.go.config.update.AddEnvironmentCommand;
 import com.thoughtworks.go.config.update.DeleteEnvironmentCommand;
 import com.thoughtworks.go.config.update.PatchEnvironmentCommand;
 import com.thoughtworks.go.config.update.UpdateEnvironmentCommand;
-import com.thoughtworks.go.domain.*;
+import com.thoughtworks.go.domain.ConfigElementForEdit;
+import com.thoughtworks.go.domain.EnvironmentPipelineMatcher;
+import com.thoughtworks.go.domain.EnvironmentPipelineMatchers;
+import com.thoughtworks.go.domain.JobPlan;
 import com.thoughtworks.go.i18n.LocalizedMessage;
 import com.thoughtworks.go.listener.ConfigChangedListener;
 import com.thoughtworks.go.listener.EntityConfigChangedListener;
 import com.thoughtworks.go.presentation.environment.EnvironmentPipelineModel;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.result.HttpLocalizedOperationResult;
-import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.ui.EnvironmentViewModel;
 import com.thoughtworks.go.util.command.EnvironmentVariableContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -50,7 +50,7 @@ import static com.thoughtworks.go.i18n.LocalizedMessage.entityConfigValidationFa
  * @understands grouping of agents and pipelines within an environment
  */
 @Service
-public class EnvironmentConfigService implements ConfigChangedListener, AgentChangeListener<AgentConfig> {
+public class EnvironmentConfigService implements ConfigChangedListener, AgentChangeListener {
     public final GoConfigService goConfigService;
     private final SecurityService securityService;
     private EntityHashingService entityHashingService;
@@ -141,9 +141,7 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     }
 
     public Set<EnvironmentConfig> getEnvironments() {
-        Set<EnvironmentConfig> environmentConfigs = new HashSet<>();
-        environmentConfigs.addAll(environments);
-        return environmentConfigs;
+        return new HashSet<>(environments);
     }
 
     public Set<String> environmentsFor(String uuid) {

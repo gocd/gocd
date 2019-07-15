@@ -37,6 +37,8 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Collections.emptyList;
+
 /**
  * @understands persisting and retrieving agent uuid-cookie mapping
  */
@@ -125,8 +127,8 @@ public class AgentDao extends HibernateDaoSupport {
             query.setCacheable(true);
             try {
                 return query.list();
-            } catch (Exception e) {
-                return Collections.emptyList();
+            }catch (Exception e){
+                return emptyList();
             }
         }));
     }
@@ -227,51 +229,12 @@ public class AgentDao extends HibernateDaoSupport {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     agents.forEach(agentConfig -> sessionFactory.getCurrentSession().saveOrUpdate(AgentConfig.class.getName(), agentConfig));
-                    List<String> uuids = agents.stream().map(agentInstance -> agentInstance.getUuid()).collect(Collectors.toList());
+                    List<String> uuids = agents.stream().map(AgentConfig::getUuid).collect(Collectors.toList());
                     registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(synchronizationManager, uuids);
                 }
             });
         }
     }
-
-//    public void bulkUpdateAttributes(List<String> uuids, List<String> resourcesToAdd, List<String> resourcesToRemove,
-//                                     List<String> envsToAdd, List<String> envsToRemove, TriState enable, AgentInstances agentInstances) {
-//        List<AgentConfig> agents = agentsByUUIds(uuids);
-//        // Add all pending agents to the list of agents
-//        if (enable.isTrue() || enable.isFalse()) {
-//            List<AgentConfig> pendingAgentConfigs = agentInstances.findPendingAgents(uuids);
-//            for (AgentConfig agentConfig : pendingAgentConfigs) {
-//                updateAgentObject(agentConfig);
-//                if (agentConfig.getCookie() == null) {
-//                    String cookie = uuidGenerator.randomUuid();
-//                    agentConfig.setCookie(cookie);
-//                }
-//                agents.add(agentConfig);
-//            }
-//        }
-//
-//        synchronized (uuids) {
-//            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-//                @Override
-//                protected void doInTransactionWithoutResult(TransactionStatus status) {
-//                    for (AgentConfig agent : agents) {
-//                        agent.addResources(resourcesToAdd);
-//                        agent.removeResources(resourcesToRemove);
-//                        agent.addEnvironments(envsToAdd);
-//                        agent.removeEnvironments(envsToRemove);
-//                        if (enable.isTrue()) {
-//                            agent.setDisabled(false);
-//                        } else if (enable.isFalse()) {
-//                            agent.setDisabled(true);
-//                        }
-//                        sessionFactory.getCurrentSession().saveOrUpdate(AgentConfig.class.getName(), agent);
-//                    }
-//
-//                    registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(synchronizationManager, uuids);
-//                }
-//            });
-//        }
-//    }
 
     public void bulkSoftDelete(List<String> uuids) {
         synchronized (uuids) {
@@ -284,7 +247,7 @@ public class AgentDao extends HibernateDaoSupport {
                     query.setParameterList("uuids", uuids);
                     query.executeUpdate();
 
-                    registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(synchronizationManager, uuids);
+                    registerCommitCallbackToClearCacheAndNotifyBulkDeleteListeners(synchronizationManager, uuids);
                 }
             });
         }
@@ -298,11 +261,31 @@ public class AgentDao extends HibernateDaoSupport {
     }
 
 
+    private synchronized void clearCacheAndNotifyDeleteListeners(List<String> uuids) {
+        for (String uuid : uuids) {
+            cache.remove(agentCacheKey(uuid));
+        }
+        notifyBulkAgentEntityDeleteListeners(uuids);
+    }
+
+    private void notifyBulkAgentEntityDeleteListeners(List<String> uuids) {
+        agentEntityChangeListenerSet.forEach(listener -> listener.bulkEntitiesDeleted(uuids));
+    }
+
     private void registerCommitCallbackToClearCacheAndNotifyBulkChangeListeners(TransactionSynchronizationManager synchronizationManager, List<String> uuids) {
         synchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
             @Override
             public void afterCommit() {
                 clearCacheAndNotifyListeners(uuids);
+            }
+        });
+    }
+
+    private void registerCommitCallbackToClearCacheAndNotifyBulkDeleteListeners(TransactionSynchronizationManager synchronizationManager, List<String> uuids) {
+        synchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+            @Override
+            public void afterCommit() {
+                clearCacheAndNotifyDeleteListeners(uuids);
             }
         });
     }

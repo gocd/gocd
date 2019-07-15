@@ -28,6 +28,7 @@ import java.util.*;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
 import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 /**
@@ -217,7 +218,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
         if (cachedIsFromLocalHost == null) {
             cachedIsFromLocalHost = SystemUtil.isLocalhost(ipaddress);
         }
-        return cachedIsFromLocalHost.booleanValue();
+        return cachedIsFromLocalHost;
     }
 
     public boolean isElastic() {
@@ -322,8 +323,8 @@ public class AgentConfig extends PersistentObject implements Validatable {
         this.setEnvironments(append(this.getEnvironments(), envsToAdd));
     }
 
-    public void addEnvironment(String env) {
-        this.addEnvironments(Arrays.asList(env));
+    public void addEnvironment(String env){
+        this.addEnvironments(singletonList(env));
     }
 
     public ResourceConfigs getResources() {

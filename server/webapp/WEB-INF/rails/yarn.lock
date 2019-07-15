@@ -177,10 +177,10 @@
   resolved "https://registry.yarnpkg.com/@types/mithril/-/mithril-1.1.16.tgz#97647157a4d6dacee8fc86414578c56723dfd715"
   integrity sha512-+HlRvSpKwXP8RXh1hrIcgSHQ/Fh+5O9nYfG7fgNN7PGr2K03G+hLoiA+HXzmUJCsQfPEuNiBQ+TwRl6n7kerSw==
 
-"@types/node@*", "@types/node@^12.6.2":
-  version "12.6.2"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.6.2.tgz#a5ccec6abb6060d5f20d256fb03ed743e9774999"
-  integrity sha512-gojym4tX0FWeV2gsW4Xmzo5wxGjXGm550oVUII7f7G5o4BV6c7DBdiG1RRQd+y1bvqRyYtPfMK85UM95vsapqQ==
+"@types/node@*", "@types/node@^12.6.3":
+  version "12.6.3"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.6.3.tgz#44d507c5634f85e7164707ca36bba21b5213d487"
+  integrity sha512-7TEYTQT1/6PP53NftXXabIZDaZfaoBdeBm8Md/i7zsWRoBe0YwOXguyK8vhHs8ehgB/w9U4K/6EWuTyp0W6nIA==
 
 "@types/sizzle@*":
   version "2.3.2"
@@ -3110,7 +3110,7 @@ eslint-visitor-keys@^1.0.0:
 
 eslint@^2.7.0:
   version "2.13.1"
-  resolved "http://registry.npmjs.org/eslint/-/eslint-2.13.1.tgz#e4cc8fa0f009fb829aaae23855a29360be1f6c11"
+  resolved "https://registry.npmjs.org/eslint/-/eslint-2.13.1.tgz#e4cc8fa0f009fb829aaae23855a29360be1f6c11"
   integrity sha1-5MyPoPAJ+4KaquI4VaKTYL4fbBE=
   dependencies:
     chalk "^1.1.3"
@@ -4222,7 +4222,7 @@ html-minifier@^3.2.3:
 
 html-webpack-plugin@^3.2.0:
   version "3.2.0"
-  resolved "http://registry.npmjs.org/html-webpack-plugin/-/html-webpack-plugin-3.2.0.tgz#b01abbd723acaaa7b37b6af4492ebda03d9dd37b"
+  resolved "https://registry.npmjs.org/html-webpack-plugin/-/html-webpack-plugin-3.2.0.tgz#b01abbd723acaaa7b37b6af4492ebda03d9dd37b"
   integrity sha1-sBq71yOsqqeze2r0SS69oD2d03s=
   dependencies:
     html-minifier "^3.2.3"
@@ -4454,7 +4454,7 @@ ini@^1.3.4, ini@^1.3.5, ini@~1.3.0:
 
 inquirer@^0.12.0:
   version "0.12.0"
-  resolved "http://registry.npmjs.org/inquirer/-/inquirer-0.12.0.tgz#1ef2bfd63504df0bc75785fff8c2c41df12f077e"
+  resolved "https://registry.npmjs.org/inquirer/-/inquirer-0.12.0.tgz#1ef2bfd63504df0bc75785fff8c2c41df12f077e"
   integrity sha1-HvK/1jUE3wvHV4X/+MLEHfEvB34=
   dependencies:
     ansi-escapes "^1.1.0"
@@ -5614,7 +5614,7 @@ minimist@0.0.8, minimist@~0.0.1:
 
 minimist@1.1.x:
   version "1.1.3"
-  resolved "http://registry.npmjs.org/minimist/-/minimist-1.1.3.tgz#3bedfd91a92d39016fcfaa1c681e8faa1a1efda8"
+  resolved "https://registry.npmjs.org/minimist/-/minimist-1.1.3.tgz#3bedfd91a92d39016fcfaa1c681e8faa1a1efda8"
   integrity sha1-O+39kaktOQFvz6ocaB6Pqhoe/ag=
 
 minimist@^0.1.0:
@@ -6164,7 +6164,7 @@ once@^1.3.0, once@^1.3.1, once@^1.4.0:
 
 onetime@^1.0.0:
   version "1.1.0"
-  resolved "http://registry.npmjs.org/onetime/-/onetime-1.1.0.tgz#a1f7838f8314c516f05ecefcbc4ccfe04b4ed789"
+  resolved "https://registry.npmjs.org/onetime/-/onetime-1.1.0.tgz#a1f7838f8314c516f05ecefcbc4ccfe04b4ed789"
   integrity sha1-ofeDj4MUxRbwXs78vEzP4EtO14k=
 
 onetime@^2.0.0:
@@ -7522,7 +7522,7 @@ slash@^1.0.0:
 
 slice-ansi@0.0.4:
   version "0.0.4"
-  resolved "http://registry.npmjs.org/slice-ansi/-/slice-ansi-0.0.4.tgz#edbf8903f66f7ce2f8eafd6ceed65e264c831b35"
+  resolved "https://registry.npmjs.org/slice-ansi/-/slice-ansi-0.0.4.tgz#edbf8903f66f7ce2f8eafd6ceed65e264c831b35"
   integrity sha1-7b+JA/ZvfOL46v1s7tZeJkyDGzU=
 
 slice-ansi@^2.1.0:
@@ -8067,7 +8067,7 @@ synchronize@^2.0.0:
 
 table@^3.7.8:
   version "3.8.3"
-  resolved "http://registry.npmjs.org/table/-/table-3.8.3.tgz#2bbc542f0fda9861a755d3947fefd8b3f513855f"
+  resolved "https://registry.npmjs.org/table/-/table-3.8.3.tgz#2bbc542f0fda9861a755d3947fefd8b3f513855f"
   integrity sha1-K7xULw/amGGnVdOUf+/Ys/UThV8=
   dependencies:
     ajv "^4.7.0"

@@ -43,6 +43,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.hibernate.Cache;
+import org.hibernate.SessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -66,6 +68,7 @@ import static com.thoughtworks.go.domain.packagerepository.ConfigurationProperty
 import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Arrays.asList;
+import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -99,6 +102,8 @@ public class GoConfigMigratorIntegrationTest {
     private ConfigElementImplementationRegistry registry;
     @Autowired
     private GoFileConfigDataSource goFileConfigDataSource;
+    @Autowired
+    private SessionFactory sessionFactory;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Rule
@@ -126,7 +131,6 @@ public class GoConfigMigratorIntegrationTest {
                 exceptions.add(e);
             }
         });
-
     }
 
     @After
@@ -152,7 +156,7 @@ public class GoConfigMigratorIntegrationTest {
 
     @Test
     public void shouldValidateCruiseConfigFileIrrespectiveOfUpgrade() {
-        String configString = ConfigFileFixture.    configWithEnvironments("<environments>"
+        String configString = ConfigFileFixture.configWithEnvironments("<environments>"
                 + "  <environment name='foo'>"
                 + "<pipelines>"
                 + " <pipeline name='does_not_exist'/>"
@@ -1337,10 +1341,8 @@ public class GoConfigMigratorIntegrationTest {
     public void shouldMigrateAgentsOutOfXMLAndIntoDB() throws Exception {
         String configContent = "" +
                 "  <environments>\n" +
-                "\n" +
                 "    <environment name=\"bar\">\n" +
                 "    </environment>\n" +
-                "\n" +
                 "    <environment name=\"baz\">\n" +
                 "      <agents>\n" +
                 "        <physical uuid=\"elastic-one\" />\n" +
@@ -1356,14 +1358,14 @@ public class GoConfigMigratorIntegrationTest {
                 "    </environment>\n" +
                 "  </environments>" +
                 "  <agents>" +
-                "    <agent uuid='one' hostname='one-host' ipaddress='127.0.0.1'/>" +
-                "    <agent uuid='two' hostname='two-host' ipaddress='127.0.0.2'/>" +
-                "    <agent uuid='elastic-one' hostname='one-elastic-host' ipaddress='172.10.20.30' elasticAgentId='docker.foo1' elasticPluginId='docker'/>" +
-                "    <agent uuid='elastic-two' hostname='two-elastic-host' ipaddress='172.10.20.31' elasticAgentId='docker.foo2' elasticPluginId='docker'/>" +
+                "    <agent uuid='" + randomUUID().toString() + "' hostname='one-host' ipaddress='127.0.0.1'/>" +
+                "    <agent uuid='" + randomUUID().toString() + "' hostname='two-host' ipaddress='127.0.0.2'/>" +
+                "    <agent uuid='elastic-" + randomUUID().toString() + "' hostname='one-elastic-host' ipaddress='172.10.20.30' elasticAgentId='docker.foo1' elasticPluginId='docker'/>" +
+                "    <agent uuid='elastic-" + randomUUID().toString() + "' hostname='two-elastic-host' ipaddress='172.10.20.31' elasticAgentId='docker.foo2' elasticPluginId='docker'/>" +
                 "  </agents>";
 
         String configXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-                + "<cruise schemaVersion=\"120\">\n"
+                + "<cruise schemaVersion=\"124\">\n"
                 + configContent
                 + "</cruise>";
 
@@ -1372,6 +1374,11 @@ public class GoConfigMigratorIntegrationTest {
         String newConfigFile = FileUtils.readFileToString(configFile, UTF_8);
 
         System.out.println("newConfigFile = " + newConfigFile);
+        // clearing out the hibernate cache so that the service fetches from the DB
+        Cache cache = sessionFactory.getCache();
+        if (cache != null) {
+            cache.evictDefaultQueryRegion();
+        }
         int newAgentCountInDb = agentDao.allAgents().size();
         assertThat(newAgentCountInDb).isEqualTo(initialAgentCountInDb + 4);
 

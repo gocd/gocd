@@ -23,7 +23,6 @@ import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
-import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.util.SystemEnvironment;
 import com.thoughtworks.go.util.TriState;
 import org.hibernate.HibernateException;
@@ -80,7 +79,7 @@ public class AgentDaoTest {
     }
 
     @Test
-    public void shouldGetAgentByUUID(){
+    public void shouldGetAgentByUUID() {
         AgentConfig agentConfig = new AgentConfig("uuid", "localhost", "127.0.0.1", "cookie");
         agentDao.saveOrUpdate(agentConfig);
 
@@ -90,7 +89,7 @@ public class AgentDaoTest {
 
     @Test
     public void shouldAssociateCookieWithAnAgent() {
-        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
+        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid1");
         DatabaseEntityChangeListener<AgentConfig> mockListener = mock(DatabaseEntityChangeListener.class);
         agentDao.registerListener(mockListener);
         agentDao.associateCookie(agentIdentifier, "cookie");
@@ -100,7 +99,7 @@ public class AgentDaoTest {
 
     @Test
     public void shouldReturnNullIfNoCookieIsAssociatedWithAnAgent() {
-        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
+        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid1");
         assertThat(agentDao.cookieFor(agentIdentifier), is(nullValue()));
     }
 
@@ -123,13 +122,13 @@ public class AgentDaoTest {
     @Test
     public void shouldNotClearCacheAndCallListenersIfTransactionFails() {
         HibernateTemplate originalTemplate = agentDao.getHibernateTemplate();
-        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
+        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid1");
         agentDao.associateCookie(agentIdentifier, "cookie");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
         hibernateTemplate.execute(new HibernateCallback() {
             @Override
             public Object doInHibernate(Session session) throws HibernateException {
-                AgentConfig agent = (AgentConfig) session.createQuery("from AgentConfig where uuid = 'uuid'").uniqueResult();
+                AgentConfig agent = (AgentConfig) session.createQuery("from AgentConfig where uuid = 'uuid1'").uniqueResult();
                 agent.setFieldValues("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
                 session.update(agent);
                 return null;
@@ -171,7 +170,7 @@ public class AgentDaoTest {
     }
 
     @Test
-    public void shouldReturnSameCacheKeyForDifferentStringsHoldingSameValue(){
+    public void shouldReturnSameCacheKeyForDifferentStringsHoldingSameValue() {
         String uuid1 = "uuid";
         String uuid2 = new String("uuid");
         String uuid3 = String.valueOf("uuid");
@@ -298,11 +297,11 @@ public class AgentDaoTest {
 
     @Test
     public void shouldCacheCookieForAgent() {
-        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid");
+        AgentIdentifier agentIdentifier = new AgentIdentifier("host", "127.0.0.1", "uuid2");
         agentDao.associateCookie(agentIdentifier, "cookie");
         assertThat(agentDao.cookieFor(agentIdentifier), is("cookie"));
         hibernateTemplate.execute(session -> {
-            AgentConfig agent = (AgentConfig) session.createQuery("from AgentConfig where uuid = 'uuid'").uniqueResult();
+            AgentConfig agent = (AgentConfig) session.createQuery("from AgentConfig where uuid = 'uuid2'").uniqueResult();
             agent.setFieldValues("updated_cookie", agentIdentifier.getHostName(), agentIdentifier.getIpAddress());
             session.update(agent);
             return null;

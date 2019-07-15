@@ -75,7 +75,7 @@ public class AgentXmlToDBMigration {
         if (dataSource == null) {
             return;
         }
-
+        System.out.println("AgentXmlToDBMigration.endTransaction");
         try (Connection connection = dataSource.getConnection()) {
             connection.setAutoCommit(false);
 

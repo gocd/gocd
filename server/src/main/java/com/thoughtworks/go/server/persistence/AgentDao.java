@@ -17,11 +17,9 @@ package com.thoughtworks.go.server.persistence;
 
 import com.thoughtworks.go.config.AgentConfig;
 import com.thoughtworks.go.domain.AgentConfigStatus;
-import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.listener.DatabaseEntityChangeListener;
 import com.thoughtworks.go.remote.AgentIdentifier;
 import com.thoughtworks.go.server.cache.GoCache;
-import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.transaction.TransactionSynchronizationManager;
 import com.thoughtworks.go.server.transaction.TransactionTemplate;
 import com.thoughtworks.go.server.util.UuidGenerator;
@@ -127,7 +125,7 @@ public class AgentDao extends HibernateDaoSupport {
             query.setCacheable(true);
             try {
                 return query.list();
-            }catch (Exception e){
+            } catch (Exception e) {
                 return Collections.emptyList();
             }
         }));
@@ -214,14 +212,14 @@ public class AgentDao extends HibernateDaoSupport {
     public void bulkUpdateAttributes(List<AgentConfig> agents, Map<String, AgentConfigStatus> agentToStatusMap, TriState enable) {
         if (enable.isTrue() || enable.isFalse()) {
             agents.stream()
-                  .filter(agent -> agentToStatusMap.get(agent.getUuid()) == AgentConfigStatus.Pending)
-                  .forEach(agent -> {
+                    .filter(agent -> agentToStatusMap.get(agent.getUuid()) == AgentConfigStatus.Pending)
+                    .forEach(agent -> {
                         updateAgentObject(agent);
                         if (agent.getCookie() == null) {
                             String cookie = uuidGenerator.randomUuid();
                             agent.setCookie(cookie);
                         }
-                });
+                    });
         }
 
         synchronized (agents) {

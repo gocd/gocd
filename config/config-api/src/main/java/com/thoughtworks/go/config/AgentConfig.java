@@ -20,14 +20,13 @@ import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.IpAddress;
 import com.thoughtworks.go.domain.PersistentObject;
 import com.thoughtworks.go.remote.AgentIdentifier;
-import com.thoughtworks.go.util.CommaSeparatedString;
 import com.thoughtworks.go.util.SystemUtil;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
 
-import static com.thoughtworks.go.util.CommaSeparatedString.*;
 import static com.thoughtworks.go.util.CommaSeparatedString.append;
+import static com.thoughtworks.go.util.CommaSeparatedString.remove;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
@@ -128,8 +127,8 @@ public class AgentConfig extends PersistentObject implements Validatable {
             errors.add("elasticAgentId", "Elastic agents cannot have resources.");
         } else {
             resourceConfigs.validate(null);
-            if(!resourceConfigs.errors().isEmpty()){
-                errors.add("resources", resourceConfigs.errors().toString());
+            if (!resourceConfigs.errors().isEmpty()) {
+                errors.addAll(resourceConfigs.errors());
             }
         }
     }
@@ -323,7 +322,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
         this.setEnvironments(append(this.getEnvironments(), envsToAdd));
     }
 
-    public void addEnvironment(String env){
+    public void addEnvironment(String env) {
         this.addEnvironments(Arrays.asList(env));
     }
 
@@ -345,5 +344,9 @@ public class AgentConfig extends PersistentObject implements Validatable {
 
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
+    }
+
+    public String getHostnameForDisplay() {
+        return this.hostname;
     }
 }

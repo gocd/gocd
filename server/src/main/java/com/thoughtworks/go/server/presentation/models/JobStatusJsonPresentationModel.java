@@ -59,7 +59,7 @@ public class JobStatusJsonPresentationModel {
 
     public Map toJsonHash() {
         Map<String, Object> jsonParams = new LinkedHashMap<>();
-        jsonParams.put("agent", agent.getHostname());
+        jsonParams.put("agent", agent.getHostnameForDisplay());
         jsonParams.put("agent_ip", agent.getIpaddress());
         jsonParams.put("agent_uuid", agent.getUuid());
         jsonParams.put("build_scheduled_date", getScheduledTime());

@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
@@ -198,8 +199,8 @@ public class DefaultPluginRegistryTest {
         GoPluginBundleDescriptor descriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("id1", null, null, true));
         registry.loadPlugin(descriptor);
 
-        GoPluginBundleDescriptor secondPluginBundleLocation = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("iD1", null, null, true));
-        registry.loadPlugin(secondPluginBundleLocation);
+        GoPluginBundleDescriptor secondPluginBundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("iD1", null, null, true));
+        registry.loadPlugin(secondPluginBundleDescriptor);
     }
 
     @Test
@@ -247,5 +248,28 @@ public class DefaultPluginRegistryTest {
 
         assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.ExtensionClass1"), is("plugin.1"));
         assertThat(registry.pluginIDFor(bundleDescriptor.bundleSymbolicName(), "com.path.to.DOES_NOT_EXIST"), is("plugin.1"));
+    }
+
+    @Test
+    public void shouldProvideAllRegisteredExtensionsAcrossPluginsInABundle() {
+        final GoPluginDescriptor pluginDescriptor1 = GoPluginDescriptor.usingId("plugin.1", null, null, false);
+        pluginDescriptor1.addExtensionClasses(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2"));
+
+        final GoPluginDescriptor pluginDescriptor2 = GoPluginDescriptor.usingId("plugin.2", null, null, false);
+        pluginDescriptor2.addExtensionClasses(singletonList("com.path.to.ExtensionClass3"));
+
+        final GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(pluginDescriptor1, pluginDescriptor2);
+
+        registry.loadPlugin(bundleDescriptor);
+
+        assertThat(registry.extensionClassesIn(bundleDescriptor.bundleSymbolicName()), is(asList("com.path.to.ExtensionClass1", "com.path.to.ExtensionClass2", "com.path.to.ExtensionClass3")));
+    }
+
+    @Test
+    public void shouldSayThatALegacyPluginHasNoExtensionClassesInTheWholeBundle() {
+        GoPluginBundleDescriptor bundleDescriptor = new GoPluginBundleDescriptor(GoPluginDescriptor.usingId("iD1", null, null, true));
+        registry.loadPlugin(bundleDescriptor);
+
+        assertThat(registry.extensionClassesIn(bundleDescriptor.bundleSymbolicName()), is(emptyList()));
     }
 }

@@ -46,10 +46,13 @@ import org.osgi.framework.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.zip.ZipInputStream;
 
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
@@ -91,7 +94,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
+        assertThat(descriptor.getStatus().getMessages(), contains("Class [DummyTestPluginWithNonPublicDefaultConstructor] is annotated with @Extension but cannot be constructed. Make sure it and all of its parent classes have a default constructor."));
     }
 
     @Test
@@ -111,7 +114,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
+        assertThat(descriptor.getStatus().getMessages(), contains(NO_EXT_ERR_MSG));
     }
 
     @Test
@@ -125,7 +128,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
+        assertThat(descriptor.getStatus().getMessages(), contains(NO_EXT_ERR_MSG));
     }
 
     @Test
@@ -146,7 +149,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
+        assertThat(descriptor.getStatus().getMessages(), contains(NO_EXT_ERR_MSG));
     }
 
     @Test
@@ -155,8 +158,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
-
+        assertThat(descriptor.getStatus().getMessages(), contains("Class [AbstractTestPlugin] is annotated with @Extension but is abstract."));
     }
 
     @Test
@@ -165,7 +167,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
+        assertThat(descriptor.getStatus().getMessages(), contains("Class [DummyTestPluginWhichIsNotPublic] is annotated with @Extension but is not public."));
 
     }
 
@@ -175,7 +177,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
+        assertThat(descriptor.getStatus().getMessages(), contains("Class [TestGoPluginExtensionInterface] is annotated with @Extension but is abstract."));
 
     }
 
@@ -298,7 +300,7 @@ public class DefaultGoPluginActivatorIntegrationTest {
 
         GoPluginDescriptor descriptor = registry.getPlugin(GO_TEST_DUMMY_SYMBOLIC_NAME);
         assertThat(descriptor.isInvalid(), is(true));
-        assertThat(descriptor.getStatus().getMessages().contains(NO_EXT_ERR_MSG), is(true));
+        assertThat(descriptor.getStatus().getMessages(), contains("Class [DummyInnerClassWithExtension] is annotated with @Extension but cannot be constructed. Make sure it and all of its parent classes have a default constructor."));
     }
 
     @Test
@@ -401,6 +403,11 @@ public class DefaultGoPluginActivatorIntegrationTest {
     private class StubOfDefaultPluginRegistry extends DefaultPluginRegistry {
         void fakeRegistrationOfPlugin(GoPluginDescriptor pluginDescriptor) {
             idToDescriptorMap.putIfAbsent(pluginDescriptor.id().toLowerCase(), pluginDescriptor);
+        }
+
+        @Override
+        public List<String> extensionClassesIn(String bundleSymbolicName) {
+            return new ArrayList<>();
         }
     }
 }

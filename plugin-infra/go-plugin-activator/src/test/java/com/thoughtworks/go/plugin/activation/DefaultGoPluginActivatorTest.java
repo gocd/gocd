@@ -19,7 +19,6 @@ import com.thoughtworks.go.plugin.api.GoApplicationAccessor;
 import com.thoughtworks.go.plugin.api.GoPlugin;
 import com.thoughtworks.go.plugin.api.GoPluginIdentifier;
 import com.thoughtworks.go.plugin.api.annotation.Extension;
-import com.thoughtworks.go.plugin.api.exceptions.UnhandledRequestTypeException;
 import com.thoughtworks.go.plugin.api.logging.Logger;
 import com.thoughtworks.go.plugin.api.request.GoPluginApiRequest;
 import com.thoughtworks.go.plugin.api.response.GoPluginApiResponse;
@@ -38,18 +37,13 @@ import org.osgi.framework.ServiceReference;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
-import static org.hamcrest.Matchers.instanceOf;
+import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.initMocks;
 
@@ -98,7 +92,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        verifyErrorsReported("Class [SomeClass] could not be loaded. Message: [Ouch! Failed].", NO_EXT_ERR_MSG);
+        verifyErrorsReported("Class [SomeClass] could not be loaded. Message: [Ouch! Failed].");
     }
 
     @Test
@@ -108,8 +102,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        verifyErrorsReported("Class [SomeClass] could not be loaded. Message: [Ouch! Failed].", "Class [SomeOtherClass] could not be loaded. Message: [Ouch! Failed]."
-                , NO_EXT_ERR_MSG);
+        verifyErrorsReported("Class [SomeClass] could not be loaded. Message: [Ouch! Failed].", "Class [SomeOtherClass] could not be loaded. Message: [Ouch! Failed].");
     }
 
     @Test
@@ -119,7 +112,7 @@ public class DefaultGoPluginActivatorTest {
 
         activator.start(context);
 
-        verifyErrorsReported("Class [NonPublicGoExtensionClass] is annotated with @Extension but is not public.", NO_EXT_ERR_MSG);
+        verifyErrorsReported("Class [NonPublicGoExtensionClass] is annotated with @Extension but is not public.");
     }
 
     @Test
@@ -135,11 +128,12 @@ public class DefaultGoPluginActivatorTest {
     @Test
     public void shouldReportAClassWhichIsAnnotatedAsAnExtensionIfItIsAbstract() throws Exception {
         setupClassesInBundle("PublicAbstractGoExtensionClass.class");
+        when(pluginRegistryService.extensionClassesInBundle(any())).thenReturn(new ArrayList<>());
         when(bundle.loadClass(contains("PublicAbstractGoExtensionClass"))).thenReturn((Class) PublicAbstractGoExtensionClass.class);
 
         activator.start(context);
 
-        verifyErrorsReported("Class [PublicAbstractGoExtensionClass] is annotated with @Extension but is abstract.", NO_EXT_ERR_MSG);
+        verifyErrorsReported("Class [PublicAbstractGoExtensionClass] is annotated with @Extension but is abstract.");
     }
 
     @Test
@@ -150,7 +144,7 @@ public class DefaultGoPluginActivatorTest {
         activator.start(context);
 
         verifyErrorsReported("Class [PublicGoExtensionClassWhichDoesNotHaveADefaultConstructor] is annotated with @Extension but cannot be constructed. "
-                + "Make sure it and all of its parent classes have a default constructor.", NO_EXT_ERR_MSG);
+                + "Make sure it and all of its parent classes have a default constructor.");
     }
 
     @Test
@@ -385,17 +379,49 @@ public class DefaultGoPluginActivatorTest {
         verify(context, times(0)).registerService(eq(GoPlugin.class), any(GoPlugin.class), any());
     }
 
+    @Test
+    public void shouldLoadOnlyRegisteredExtensionClassesWhenAMultiPluginBundleIsUsed() throws Exception {
+        setupClassesInBundle("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class", "PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class");
+        when(bundle.loadClass("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier")).thenReturn((Class) PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class);
+        when(bundle.loadClass("PublicGoExtensionClassWhichWillAlsoLoadSuccessfully")).thenReturn((Class) PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class);
+
+        when(pluginRegistryService.pluginIDFor(SYMBOLIC_NAME, PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class.getCanonicalName())).thenReturn("plugin_id_1");
+        when(pluginRegistryService.extensionClassesInBundle(SYMBOLIC_NAME)).thenReturn(singletonList(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class.getCanonicalName()));
+
+        activator.start(context);
+
+        assertThat(activator.hasErrors(), is(false));
+        verify(context, times(1)).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), any());
+        verify(context, never()).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillAlsoLoadSuccessfully.class), any());
+        verify(bundle, never()).loadClass("PublicGoExtensionClassWhichWillAlsoLoadSuccessfully");
+    }
+
+    @Test
+    public void shouldReportErrorsIfARegisteredExtensionClassCannotBeFound() throws Exception {
+        setupClassesInBundle("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class");
+        when(bundle.loadClass("PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier")).thenReturn((Class) PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class);
+
+        when(pluginRegistryService.extensionClassesInBundle(SYMBOLIC_NAME)).thenReturn(singletonList("com.some.InvalidClass"));
+
+        activator.start(context);
+
+        assertThat(activator.hasErrors(), is(true));
+        verify(context, never()).registerService(eq(GoPlugin.class), any(PublicGoExtensionClassWhichWillLoadSuccessfullyAndProvideAValidIdentifier.class), any());
+        verify(pluginRegistryService).reportErrorAndInvalidate(SYMBOLIC_NAME, singletonList("Extension class declared in plugin bundle is not found: com.some.InvalidClass"));
+    }
+
     private void verifyThatOneOfTheErrorMessagesIsPresent(String expectedErrorMessage1, String expectedErrorMessage2) {
         ArgumentCaptor<List> captor = ArgumentCaptor.forClass(List.class);
         verify(pluginRegistryService).getPluginIDOfFirstPluginInBundle(SYMBOLIC_NAME);
         verify(pluginRegistryService).reportErrorAndInvalidate(eq(PLUGIN_ID), captor.capture());
+        verify(pluginRegistryService).extensionClassesInBundle(SYMBOLIC_NAME);
         verifyNoMoreInteractions(pluginRegistryService);
 
         String actualErrorMessage = (String) captor.getValue().get(0);
         assertTrue(expectedErrorMessage1.equals(actualErrorMessage) || expectedErrorMessage2.equals(actualErrorMessage));
     }
 
-    private void setupClassesInBundle(String... classes) throws MalformedURLException, ClassNotFoundException {
+    private void setupClassesInBundle(String... classes) throws MalformedURLException {
         Hashtable<URL, String> classFileEntries = new Hashtable<>();
         for (String aClass : classes) {
             classFileEntries.put(new URL("file:///" + aClass), "");
@@ -406,6 +432,7 @@ public class DefaultGoPluginActivatorTest {
     private void verifyErrorsReported(String... errors) {
         verify(pluginRegistryService).getPluginIDOfFirstPluginInBundle(SYMBOLIC_NAME);
         verify(pluginRegistryService).reportErrorAndInvalidate(PLUGIN_ID, asList(errors));
+        verify(pluginRegistryService).extensionClassesInBundle(SYMBOLIC_NAME);
         verifyNoMoreInteractions(pluginRegistryService);
     }
 
@@ -435,7 +462,7 @@ public class DefaultGoPluginActivatorTest {
         }
 
         @Override
-        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
             return null;
         }
 
@@ -456,7 +483,7 @@ public class DefaultGoPluginActivatorTest {
         }
 
         @Override
-        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) throws UnhandledRequestTypeException {
+        public GoPluginApiResponse handle(GoPluginApiRequest requestMessage) {
             return null;
         }
 

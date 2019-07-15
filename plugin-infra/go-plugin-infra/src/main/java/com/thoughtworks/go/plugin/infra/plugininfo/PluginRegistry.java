@@ -16,7 +16,6 @@
 package com.thoughtworks.go.plugin.infra.plugininfo;
 
 import java.util.List;
-import java.util.Map;
 
 public interface PluginRegistry {
     List<GoPluginDescriptor> plugins();
@@ -30,4 +29,6 @@ public interface PluginRegistry {
     GoPluginBundleDescriptor getBundleDescriptor(String bundleSymbolicName);
 
     String pluginIDFor(String bundleSymbolicName, String extensionClassCannonicalName);
+
+    List<String> extensionClassesIn(String bundleSymbolicName);
 }

@@ -621,6 +621,8 @@ test {
 }
 
 test { Test thisTask ->
+  // because the rails codebase is part of the test sourcetree
+  dependsOn licenseTest
   doFirst {
     def files = project.files([])
     project.sourceSets[thisTask.name].java.srcDirs.each { srcDir ->

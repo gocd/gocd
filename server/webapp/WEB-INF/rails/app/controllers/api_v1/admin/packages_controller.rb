@@ -25,7 +25,7 @@ module ApiV1
       def index
         packages = package_definition_service.getPackages
         json = ApiV1::Config::PackagesRepresenter.new(packages).to_hash(url_builder: self)
-        render DEFAULT_FORMAT => json if(stale?(strong_etag: etag_for(packages)))
+        render DEFAULT_FORMAT => json if(stale?(strong_etag: etag_for(com.thoughtworks.go.domain.packagerepository.Packages.new packages)))
       end
 
       def show

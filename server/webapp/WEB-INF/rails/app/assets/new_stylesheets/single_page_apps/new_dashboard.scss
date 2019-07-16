@@ -521,8 +521,7 @@ body {
 
     &.failing {
       @extend %building;
-
-      background: $failed;
+      background: $failed image_url('failing.gif') repeat-x 50% 50%;
 
       > span {
         background-color: $failed;

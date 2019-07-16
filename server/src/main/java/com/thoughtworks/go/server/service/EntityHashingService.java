@@ -36,6 +36,8 @@ import com.thoughtworks.go.server.cache.GoCache;
 import com.thoughtworks.go.server.domain.DataSharingSettings;
 import com.thoughtworks.go.server.domain.PluginSettings;
 import com.thoughtworks.go.server.initializers.Initializer;
+import com.thoughtworks.go.server.service.lookups.CommandSnippet;
+import com.thoughtworks.go.server.service.lookups.CommandSnippets;
 import com.thoughtworks.go.util.CachedDigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,6 +146,20 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
     public String md5ForEntity(ClusterProfile profile) {
         String cacheKey = cacheKey(profile, profile.getId());
         return getDomainEntityMd5FromCache(profile, cacheKey);
+    }
+
+    public String md5ForEntity(CommandSnippet commandSnippet) {
+        String cacheKey = cacheKey(commandSnippet, commandSnippet.getName());
+        return getDbEntityMd5FromCache(cacheKey, commandSnippet);
+    }
+
+    public String md5ForEntity(CommandSnippets commandSnippets) {
+        List<String> md5s = new ArrayList<>();
+        for (CommandSnippet commandSnippet : commandSnippets.getSnippets()) {
+            md5s.add(md5ForEntity(commandSnippet));
+        }
+
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
     }
 
     public String md5ForEntity(SecurityAuthConfig config) {

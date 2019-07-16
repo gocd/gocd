@@ -101,6 +101,10 @@ public class CommandSnippets {
         return snippetsSortedByName;
     }
 
+    public List<CommandSnippet> getSnippets() {
+        return snippets;
+    }
+
     @Override
     public String toString() {
         return "CommandSnippets{snippets=" + snippets + '}';

@@ -24,7 +24,7 @@ module ApiV1
           command_snippets = command_repository_service.lookupCommand(params[:prefix])
 
           json = CommandSnippetsRepresenter.new(command_snippets.to_a).to_hash(url_builder: self, prefix: params[:prefix])
-          render DEFAULT_FORMAT => json if (stale?(strong_etag: etag_for(command_snippets)))
+          render DEFAULT_FORMAT => json if (stale?(strong_etag: etag_for(com.thoughtworks.go.server.service.lookups.CommandSnippets.new command_snippets)))
         end
       end
     end

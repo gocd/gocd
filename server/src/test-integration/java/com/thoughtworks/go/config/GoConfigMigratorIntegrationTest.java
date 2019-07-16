@@ -22,6 +22,7 @@ import com.thoughtworks.go.config.elastic.ElasticProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfiles;
 import com.thoughtworks.go.config.materials.dependency.DependencyMaterialConfig;
 import com.thoughtworks.go.config.materials.mercurial.HgMaterialConfig;
+import com.thoughtworks.go.server.dao.DatabaseAccessHelper;
 import com.thoughtworks.go.config.pluggabletask.PluggableTask;
 import com.thoughtworks.go.config.registry.ConfigElementImplementationRegistry;
 import com.thoughtworks.go.config.validation.GoConfigValidity;
@@ -104,6 +105,8 @@ public class GoConfigMigratorIntegrationTest {
     private GoFileConfigDataSource goFileConfigDataSource;
     @Autowired
     private SessionFactory sessionFactory;
+    @Autowired
+    private DatabaseAccessHelper dbHelper;
     @Rule
     public final TemporaryFolder temporaryFolder = new TemporaryFolder();
     @Rule
@@ -114,6 +117,7 @@ public class GoConfigMigratorIntegrationTest {
 
     @Before
     public void setUp() throws Exception {
+        dbHelper.onSetUp();
         File file = temporaryFolder.newFolder();
         configFile = new File(file, "cruise-config.xml");
         new SystemEnvironment().setProperty(SystemEnvironment.CONFIG_FILE_PROPERTY, configFile.getAbsolutePath());
@@ -135,6 +139,7 @@ public class GoConfigMigratorIntegrationTest {
 
     @After
     public void tearDown() throws Exception {
+        dbHelper.onTearDown();
         GoConfigFileHelper.clearConfigVersions();
         configFile.delete();
         serverHealthService.removeAllLogs();
@@ -1373,7 +1378,6 @@ public class GoConfigMigratorIntegrationTest {
         CruiseConfig migratedConfig = migrateConfigAndLoadTheNewConfig(configXml);
         String newConfigFile = FileUtils.readFileToString(configFile, UTF_8);
 
-        System.out.println("newConfigFile = " + newConfigFile);
         // clearing out the hibernate cache so that the service fetches from the DB
         Cache cache = sessionFactory.getCache();
         if (cache != null) {

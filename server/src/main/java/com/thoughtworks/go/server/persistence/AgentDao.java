@@ -127,7 +127,7 @@ public class AgentDao extends HibernateDaoSupport {
             query.setCacheable(true);
             try {
                 return query.list();
-            }catch (Exception e){
+            } catch (Exception e) {
                 return emptyList();
             }
         }));

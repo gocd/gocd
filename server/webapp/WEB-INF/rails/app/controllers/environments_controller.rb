@@ -58,17 +58,46 @@ class EnvironmentsController < ApplicationController
   end
 
   def update
-    @environment = environment_config_service.getEnvironmentForEdit(params[:name])
-    @environment.setConfigAttributes(params[:environment])
+    environment_attributes = params[:environment]
+    original_agents = @environment.agents
+    environment_config_name = params[:name]
+    @environment = environment_config_service.getEnvironmentForEdit(environment_config_name)
+    @environment.setConfigAttributes(environment_attributes)
     if @environment.name().blank?
       render_error_response 'Environment name is required', 400, true
       return
     end
 
     result = HttpLocalizedOperationResult.new
-    environment_config_service.updateEnvironment(params[:name], @environment, current_user, params[:cruise_config_md5], result)
+    if environment_attributes.key?(EnvironmentConfig.AGENTS_FIELD)
+      uuids = environment_attributes
+                .fetch(EnvironmentConfig.AGENTS_FIELD)
+                .map {|agent_uuid| agent_uuid.fetch('uuid')}
 
-    message = result.message()
+      message = "Updated environment '#{environment_config_name}'."
+      if uuids.empty? && original_agents.empty?
+        return render :plain => message, :location => url_options_with_flash(message, {:action => :index, :class => 'success', :only_path => true})
+      end
+
+      environment_configs_to_add = EnvironmentsConfig.new
+      environment_configs_to_remove = []
+      if uuids.empty?
+        uuids = original_agents.map(&:uuid)
+        environment_configs_to_remove.push(environment_config_name)
+      else
+        environment_configs_to_add.add(@environment)
+      end
+      agent_service.bulkUpdateAgentAttributes(current_user, result, uuids, [], [], environment_configs_to_add, environment_configs_to_remove, TriState.TRUE)
+      if !result.isSuccessful()
+        message = result.message()
+      end
+    end
+    environment_attributes.delete(EnvironmentConfig.AGENTS_FIELD)
+    if environment_attributes.length > 0
+      environment_config_service.updateEnvironment(environment_config_name, @environment, current_user, params[:cruise_config_md5], result)
+      message = result.message()
+    end
+
     if result.isSuccessful()
       render :plain => message, :location => url_options_with_flash(message, {:action => :index, :class => 'success', :only_path => true})
     else
@@ -77,15 +106,15 @@ class EnvironmentsController < ApplicationController
   end
 
   def edit_pipelines
-    render layout:false
+    render layout: false
   end
 
   def edit_agents
-    render layout:false
+    render layout: false
   end
 
   def edit_variables
-    render layout:false
+    render layout: false
   end
 
   private
@@ -128,7 +157,7 @@ class EnvironmentsController < ApplicationController
 
     @unavailable_pipelines = []
     @available_pipelines = []
-    @remote_pipelines = environment_config_service.getAllRemotePipelinesForUserInEnvironment(current_user,@environment)
+    @remote_pipelines = environment_config_service.getAllRemotePipelinesForUserInEnvironment(current_user, @environment)
 
     pipelines.each do |pipeline|
       collection = pipeline.isAssociatedWithEnvironmentOtherThan(@environment && @environment.name().to_s) ? @unavailable_pipelines : @available_pipelines
@@ -139,7 +168,7 @@ class EnvironmentsController < ApplicationController
     @agents.sortBy(AgentViewModel.HOSTNAME_COMPARATOR, SortOrder::ASC)
   end
 
-    def set_tab_name
-       @current_tab_name = "environments"
-    end
+  def set_tab_name
+    @current_tab_name = "environments"
+  end
 end

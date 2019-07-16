@@ -29,10 +29,10 @@ describe EnvironmentsController do
     end
 
     it "should set current tab" do
-         user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
-         allow(controller).to receive(:current_user).and_return(user)
-         get :index
-         expect(assigns[:current_tab_name]).to eq("environments")
+      user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
+      allow(controller).to receive(:current_user).and_return(user)
+      get :index
+      expect(assigns[:current_tab_name]).to eq("environments")
     end
 
     it "should show add environment only if the user is a Go admin" do
@@ -72,8 +72,8 @@ describe EnvironmentsController do
     end
 
     it "should match /update" do
-      expect(:put => "/admin/environments/foo").to route_to({:no_layout=>true, :controller => "environments", :action => 'update', :name => 'foo'})
-      expect(:put => "/admin/environments/foo.bar.baz").to route_to({:no_layout=>true, :controller => "environments", :action => 'update', :name => 'foo.bar.baz'})
+      expect(:put => "/admin/environments/foo").to route_to({:no_layout => true, :controller => "environments", :action => 'update', :name => 'foo'})
+      expect(:put => "/admin/environments/foo.bar.baz").to route_to({:no_layout => true, :controller => "environments", :action => 'update', :name => 'foo.bar.baz'})
     end
 
     it "should match /edit/pipelines" do
@@ -98,7 +98,7 @@ describe EnvironmentsController do
       result = ""
       @env_name = @pipelines = @agents = @user = @environment_variables = ""
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(user).and_return([EnvironmentPipelineModel.new("foo", nil), EnvironmentPipelineModel.new("bar", nil)])
-      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything,anything).and_return([])
+      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
 
       expect(@environment_config_service).to receive(:createEnvironment) do |environment_config, user, operation_result|
         @env_name = environment_config.name()
@@ -108,7 +108,7 @@ describe EnvironmentsController do
         result = operation_result
       end
 
-      post :create, params:{:no_layout => true, :environment => {:name => environment_name, :variables => [{"name" => "SHELL", "valueForDisplay" => "/bin/zsh"}]}}
+      post :create, params: {:no_layout => true, :environment => {:name => environment_name, :variables => [{"name" => "SHELL", "valueForDisplay" => "/bin/zsh"}]}}
 
       expect(@env_name).to eq(CaseInsensitiveString.new(environment_name))
       expect(@environment_variables).to eq([{"name" => "SHELL", "value" => "/bin/zsh"}])
@@ -125,7 +125,7 @@ describe EnvironmentsController do
       environment_name = "foo-environment"
       createEnvironmentCalled = false
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(user).and_return([EnvironmentPipelineModel.new("foo", nil), EnvironmentPipelineModel.new("bar", nil)])
-      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything,anything).and_return([])
+      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
       expect(@environment_config_service).to receive(:createEnvironment) do |env_config, user, result|
         expect(env_config.name()).to eq(CaseInsensitiveString.new(environment_name))
         expect(env_config.getPipelineNames().to_a).to eq([CaseInsensitiveString.new("first_pipeline"), CaseInsensitiveString.new("second_pipeline")])
@@ -134,7 +134,7 @@ describe EnvironmentsController do
         createEnvironmentCalled = true
       end
 
-      post :create, params:{:no_layout => true, :environment => {:name => environment_name, :pipelines => [{:name => "first_pipeline"}, {:name => "second_pipeline"}], :agents => [{:uuid => "agent_1_uuid"}]}}
+      post :create, params: {:no_layout => true, :environment => {:name => environment_name, :pipelines => [{:name => "first_pipeline"}, {:name => "second_pipeline"}], :agents => [{:uuid => "agent_1_uuid"}]}}
 
       expect(response.status).to eq(302)
       flash_guid = $1 if response.location =~ /environments\?.*?fm=(.+)/
@@ -162,7 +162,7 @@ describe EnvironmentsController do
       pipelines = [EnvironmentPipelineModel.new("first", nil)]
       allow(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(current_user).and_return(pipelines)
       allow(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
-      allow(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything,anything).and_return([])
+      allow(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
       allow(@environment_config_service).to receive(:isEnvironmentFeatureEnabled).and_return(true)
     end
 
@@ -179,14 +179,14 @@ describe EnvironmentsController do
         result.conflict('Failed to add environment.')
       end
 
-      post :create, params:{:no_layout => true, :environment => {:name => environment_name, :pipelines => []}}
+      post :create, params: {:no_layout => true, :environment => {:name => environment_name, :pipelines => []}}
 
       expect(response.body).to match(/Failed to add environment./)
       expect(response.status).to eq(409)
     end
 
     it "should return error message if environment name is blank" do
-      post :create, params:{:no_layout => true, :environment => {:pipelines => []}}
+      post :create, params: {:no_layout => true, :environment => {:pipelines => []}}
 
       expect(response.status).to eq(400)
       expect(response.body).to match(/Environment name is required/)
@@ -198,7 +198,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(current_user).and_return([EnvironmentPipelineModel.new("first", nil)])
 
 
-      post :create, params:{:no_layout => true, :environment => {'pipelines' => [{'name' => "first"}]}}
+      post :create, params: {:no_layout => true, :environment => {'pipelines' => [{'name' => "first"}]}}
 
       expect(response.status).to eq(400)
       expect(response.body).to have_selector("input[type='checkbox'][name='environment[pipelines][][name]'][id='pipeline_first'][checked='checked']")
@@ -213,6 +213,7 @@ describe EnvironmentsController do
       allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
       allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double('environment_config_service', :isEnvironmentFeatureEnabled => true))
       allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
+      allow(controller).to receive(:agent_service).and_return(@agent_service = double(AgentService))
       @user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       allow(controller).to receive(:current_user).and_return(@user)
       allow(@security_service).to receive(:canViewAdminPage).with(@user).and_return(true)
@@ -227,30 +228,35 @@ describe EnvironmentsController do
 
     it "should return error message and the response status code of the passed in result" do
       result = HttpLocalizedOperationResult.new()
-      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment, "md5"))
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).and_return(@environment)
+      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
-      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
+      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user, @environment).and_return([])
 
-      expect(@environment_config_service).to receive(:updateEnvironment).with(anything,anything,anything,'md5',result) do |old_config, new_config, user, md5, result|
-        result.badRequest("Failed to update environment 'foo-environment'")
+      expect(@agent_service).to receive(:bulkUpdateAgentAttributes).with(anything, result, ['uuid-1'], [], [], anything, [], anything) do
+        result.badRequest("Failed to update Agents [uuid-1]")
+      end
+      expect(@environment_config_service).to receive(:updateEnvironment).with(@environment_name, @environment, @user, md5, anything) do |old_config, new_config, user, md5, result1|
+        result1.badRequest("Failed to update environment 'foo-environment'")
       end
 
-      put :update, params:{:no_layout => true,
-          :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
-          :name => @environment_name, :cruise_config_md5 => md5}
+      put :update, params: {:no_layout => true,
+                            :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'valueForDisplay' => "var_value"}]},
+                            :name => @environment_name, :cruise_config_md5 => md5}
 
       expect(response.status).to eq(400)
       expect(response.body).to match(/Failed to update environment 'foo-environment'/)
     end
 
     it "should return error message if environment name is blank" do
-      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment, "md5"))
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).with(@environment_name).and_return(@environment)
+      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
-      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
+      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user, @environment).and_return([])
 
-      put :update, params:{:no_layout => true, :environment => {:name => ""}, :name => @environment_name, :cruise_config_md5 => md5}
+      put :update, params: {:no_layout => true, :environment => {:name => ""}, :name => @environment_name, :cruise_config_md5 => md5}
 
       expect(response.status).to eq(400)
       expect(response.body).to match(/Environment name is required/)
@@ -263,9 +269,9 @@ describe EnvironmentsController do
         result.unprocessableEntity("Failed to update environment 'foo-environment'")
       end
 
-      put :update, params:{:no_layout => true,
-          :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
-          :name => @environment_name, :cruise_config_md5 => md5}
+      put :update, params: {:no_layout => true,
+                            :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'valueForDisplay' => "var_value"}]},
+                            :name => @environment_name, :cruise_config_md5 => md5}
 
       expect(response.status).to eq(422)
       expect(response.body).to match(/Failed to update environment 'foo-environment'/)
@@ -273,17 +279,22 @@ describe EnvironmentsController do
 
     it "should successfully update environment" do
       result = HttpLocalizedOperationResult.new()
-      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment, "md5"))
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).and_return(@environment)
+      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
-      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user,@environment).and_return([])
-      expect(@environment_config_service).to receive(:updateEnvironment).with(anything,anything,anything,'md5',result) do |old_config, new_config, user, md5, result|
-        result.setMessage("Updated environment 'foo_env'.")
+      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user, @environment).and_return([])
+
+      expect(@agent_service).to receive(:bulkUpdateAgentAttributes).with(anything, result, ['uuid-1'], [], [], anything, [], anything) do
+        result.badRequest("Updated agent(s) with uuid(s): [uuid-1]")
+      end
+      expect(@environment_config_service).to receive(:updateEnvironment).with(@environment_name, @environment, @user, 'md5', anything) do |old_config, new_config, user, md5, result1|
+        result1.setMessage("Updated environment 'foo_env'.")
       end
 
-      put :update, params:{:no_layout => true,
-          :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
-          :name => @environment_name, :cruise_config_md5 => md5}
+      put :update, params: {:no_layout => true,
+                            :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'valueForDisplay' => "var_value"}]},
+                            :name => @environment_name, :cruise_config_md5 => md5}
 
       expect(response).to be_success
       expect(response.location).to match(/^\/admin\/environments\?.*?fm=/)
@@ -299,6 +310,7 @@ describe EnvironmentsController do
       @entity_hashing_service = double("Entity Hashing Service")
       allow(controller).to receive(:entity_hashing_service).and_return(@entity_hashing_service)
       allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double('environment_config_service', :isEnvironmentFeatureEnabled => true))
+      allow(controller).to receive(:agent_service).and_return(@agent_service = double(AgentService))
       allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
     end
 
@@ -308,18 +320,21 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(anything, anything).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(BasicEnvironmentConfig.new(), "md5"))
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
+      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new("foo_env"))
+      allow(@environment_config_service).to receive(:getEnvironmentForEdit).with("foo_env").and_return(environment_config)
 
-      allow(@environment_config_service).to receive(:getEnvironmentForEdit).with("foo_env").and_return(BasicEnvironmentConfig.new(CaseInsensitiveString.new("foo_env")))
-
-      expect(@environment_config_service).to receive(:updateEnvironment).with(anything, anything, anything, 'md5', result) do |old_config, new_config, user, md5, result|
-        result.setMessage("some message")
+      expect(@agent_service).to receive(:bulkUpdateAgentAttributes).with(anything, result, ['uuid-1'], [], [], anything, [], anything) do
+        result.badRequest("Updated agent(s) with uuid(s): [uuid-1].")
+      end
+      expect(@environment_config_service).to receive(:updateEnvironment).with("foo_env", environment_config, anything, 'md5', anything) do |old_config, new_config, user, md5, result1|
+        result1.setMessage("some message")
       end
 
 
-      put :update, params:{:no_layout => true,
-          :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'value' => "var_value"}]},
-          :name => "foo_env", :cruise_config_md5 => 'md5'}
-
+      put :update, params: {:no_layout => true,
+                            :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'valueForDisplay' => "var_value"}]},
+                            :name => "foo_env", :cruise_config_md5 => 'md5'}
       expect(response).to be_success
       expect(response.location).to match(/^\/admin\/environments\?.*?fm=/)
       flash_guid = $1 if response.location =~ /environments\?.*?fm=(.+)/
@@ -360,10 +375,10 @@ describe EnvironmentsController do
     end
 
     it "should load existing variables for environment variables edit" do
-      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment, "md5"))
       expect(@environment_config_service).to receive(:getEnvironmentForEdit).with(@environment_name).and_return(@environment)
 
-      get :edit_variables, params:{:name => "foo-environment", :no_layout => true}
+      get :edit_variables, params: {:name => "foo-environment", :no_layout => true}
 
       expect(assigns[:environment]).to_not be_nil
       expect(response.body).to have_selector("form input[type='text'][name='environment[variables][][name]'][value='name_foo']")
@@ -382,13 +397,13 @@ describe EnvironmentsController do
       @config_helper.addPipelineToEnvironment("another_env", "bar")
 
       @config_helper.addPipelineWithGroup("baz-group", "baz", "dev", ["unit"].to_java(:string))
-      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment,"md5"))
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(@environment_name, an_instance_of(HttpLocalizedOperationResult)).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(@environment, "md5"))
       expect(@environment_config_service).to receive(:getEnvironmentForEdit).with(@environment_name).and_return(@environment)
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(user).and_return([EnvironmentPipelineModel.new("foo", @environment_name), EnvironmentPipelineModel.new("bar", "another_env"), EnvironmentPipelineModel.new("baz", nil)])
-      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything,anything).and_return([])
+      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
       expect(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
 
-      get :edit_pipelines, params:{:name => "foo-environment", :no_layout => true}
+      get :edit_pipelines, params: {:name => "foo-environment", :no_layout => true}
 
       expect(assigns[:environment]).to_not be_nil
 
@@ -402,7 +417,7 @@ describe EnvironmentsController do
         result.badRequest("Environment 'some-non-existent-environment' not found.\n")
       end
 
-      get :edit_agents, params:{:name => "some-non-existent-environment", :no_layout => true}
+      get :edit_agents, params: {:name => "some-non-existent-environment", :no_layout => true}
 
       expect(assigns[:environment]).to be_nil
 
@@ -414,7 +429,7 @@ describe EnvironmentsController do
         result.badRequest("Environment 'some-non-existent-environment' not found.\n")
       end
 
-      get :edit_pipelines, params:{:name => "some-non-existent-environment", :no_layout => true}
+      get :edit_pipelines, params: {:name => "some-non-existent-environment", :no_layout => true}
 
       expect(assigns[:environment]).to be_nil
 
@@ -426,7 +441,7 @@ describe EnvironmentsController do
         result.badRequest("Environment 'some-non-existent-environment' not found.\n")
       end
 
-      get :edit_variables, params:{:name => "some-non-existent-environment", :no_layout => true}
+      get :edit_variables, params: {:name => "some-non-existent-environment", :no_layout => true}
 
       expect(assigns[:environment]).to be_nil
 

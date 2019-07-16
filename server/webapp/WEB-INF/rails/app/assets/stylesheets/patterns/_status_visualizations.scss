@@ -47,11 +47,21 @@
 }
 
 .Failing {
-  background-image: image_url('g9/backgrounds/bg_status_diagonal.png');
-  background-repeat: repeat-x;
-  background-color: #FA2D2D;
-  background-position: bottom left;
+  background: #f77e7f image_url('failing.gif') repeat-x 50% 50%;
 }
+
+.stage_bar.Failing {
+  background: #f77e7f image_url('failing.svg') repeat-x 50% 50%;
+  background-size: 20%;
+}
+
+.vsm-entity {
+  .stage_bar.Failing,
+  .stage_bar.Building{
+    background-size: auto;
+  }
+}
+
 .Unknown{
   background: image_url('g9/backgrounds/bg_state_unknown.png') no-repeat right;
 }

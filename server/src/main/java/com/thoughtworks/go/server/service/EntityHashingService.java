@@ -27,6 +27,7 @@ import com.thoughtworks.go.domain.UsageStatisticsReporting;
 import com.thoughtworks.go.domain.packagerepository.PackageDefinition;
 import com.thoughtworks.go.domain.packagerepository.PackageRepositories;
 import com.thoughtworks.go.domain.packagerepository.PackageRepository;
+import com.thoughtworks.go.domain.packagerepository.Packages;
 import com.thoughtworks.go.domain.scm.SCM;
 import com.thoughtworks.go.domain.scm.SCMs;
 import com.thoughtworks.go.listener.ConfigChangedListener;
@@ -190,12 +191,11 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
-    public String md5ForEntity(List<PackageDefinition> config) {
+    public String md5ForEntity(Packages config) {
         List<String> md5s = new ArrayList<>();
         for (PackageDefinition packageDefinition : config) {
             md5s.add(md5ForEntity(packageDefinition));
         }
-
         return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
     }
 

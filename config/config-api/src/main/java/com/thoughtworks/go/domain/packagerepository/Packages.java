@@ -24,12 +24,16 @@ import com.thoughtworks.go.domain.ConfigErrors;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.function.Predicate;
+import java.util.List;
 
 @ConfigTag("packages")
 @ConfigCollection(value = PackageDefinition.class)
 public class Packages extends BaseCollection<PackageDefinition> implements Validatable {
     public Packages() {
+    }
+
+    public Packages(List<PackageDefinition> packageDefinitions) {
+        Collections.addAll(packageDefinitions);
     }
 
     public Packages(PackageDefinition... packageDefinitions) {

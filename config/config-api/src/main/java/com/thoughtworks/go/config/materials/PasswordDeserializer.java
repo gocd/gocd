@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.config.materials;
 
+import com.thoughtworks.go.config.Validatable;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
 import org.springframework.stereotype.Component;
@@ -31,23 +32,23 @@ public class PasswordDeserializer {
         this.goCipher = new GoCipher();
     }
 
-    public String deserialize(String password, String encryptedPassword, AbstractMaterialConfig materialConfig) {
+    public String deserialize(String password, String encryptedPassword, Validatable config) {
         if (isNotBlank(password) && isNotBlank(encryptedPassword)) {
-            materialConfig.addError(PASSWORD, "You may only specify `password` or `encrypted_password`, not both!");
-            materialConfig.addError(ScmMaterialConfig.ENCRYPTED_PASSWORD, "You may only specify `password` or `encrypted_password`, not both!");
+            config.addError(PASSWORD, "You may only specify `password` or `encrypted_password`, not both!");
+            config.addError(ScmMaterialConfig.ENCRYPTED_PASSWORD, "You may only specify `password` or `encrypted_password`, not both!");
         }
 
         if (isNotBlank(password)) {
             try {
                 return goCipher.encrypt(password);
             } catch (CryptoException e) {
-                materialConfig.addError(PASSWORD, "Could not encrypt the password. This usually happens when the cipher text is invalid");
+                config.addError(PASSWORD, "Could not encrypt the password. This usually happens when the cipher text is invalid");
             }
         } else if (isNotBlank(encryptedPassword)) {
             try {
                 goCipher.decrypt(encryptedPassword);
             } catch (Exception e) {
-                materialConfig.addError(ENCRYPTED_PASSWORD, "Encrypted value for password is invalid. This usually happens when the cipher text is invalid.");
+                config.addError(ENCRYPTED_PASSWORD, "Encrypted value for password is invalid. This usually happens when the cipher text is invalid.");
             }
 
             return goCipher.maybeReEncryptForPostConstructWithoutExceptions(encryptedPassword);

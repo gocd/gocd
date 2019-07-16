@@ -18,6 +18,9 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.security.CryptoException;
 import com.thoughtworks.go.security.GoCipher;
+import lombok.*;
+import lombok.experimental.Accessors;
+import lombok.experimental.Tolerate;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -25,24 +28,41 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static java.lang.String.format;
 import static java.lang.String.valueOf;
 import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
+@Getter
+@Setter
+@EqualsAndHashCode
+@Accessors(chain = true)
+@AllArgsConstructor(access = AccessLevel.NONE)
 @ConfigTag("mailhost")
 public class MailHost implements Validatable, PasswordEncrypter {
-    @ConfigAttribute(value = "hostname", optional = false) private String hostName;
-    @ConfigAttribute(value = "port", optional = false) private int port;
-    @ConfigAttribute(value = "username", optional = true, allowNull = true) private String username;
-    @ConfigAttribute(value = "password", optional = true, allowNull = true) private String password;
-    @ConfigAttribute(value = "encryptedPassword", optional = true, allowNull = true) private String encryptedPassword = null;
-    @ConfigAttribute(value = "tls", optional = false) private Boolean tls;
-    @ConfigAttribute(value = "from", optional = false) private String from;
-    @ConfigAttribute(value = "admin", optional = false) private String adminMail;
+    @ConfigAttribute(value = "hostname", optional = false)
+    private String hostName;
+    @ConfigAttribute(value = "port", optional = false)
+    private int port;
+    @ConfigAttribute(value = "username", optional = true, allowNull = true)
+    private String username;
+    @EqualsAndHashCode.Exclude
+    @ConfigAttribute(value = "password", optional = true, allowNull = true)
+    private String password;
+    @EqualsAndHashCode.Exclude
+    @ConfigAttribute(value = "encryptedPassword", optional = true, allowNull = true)
+    private String encryptedPassword = null;
+    @ConfigAttribute(value = "tls", optional = false)
+    private Boolean tls;
+    @ConfigAttribute(value = "from", optional = false)
+    private String from;
+    @ConfigAttribute(value = "admin", optional = false)
+    private String adminMail;
 
+    @EqualsAndHashCode.Exclude
     private final ConfigErrors configErrors = new ConfigErrors();
+    @EqualsAndHashCode.Exclude
     private final GoCipher goCipher;
+    @EqualsAndHashCode.Exclude
     private boolean passwordChanged = false;
 
 
@@ -74,7 +94,12 @@ public class MailHost implements Validatable, PasswordEncrypter {
         this.goCipher = goCipher;
     }
 
+    public MailHost() {
+        this(new GoCipher());
+    }
+
     public void validate(ValidationContext validationContext) {
+
     }
 
     public ConfigErrors errors() {
@@ -83,54 +108,6 @@ public class MailHost implements Validatable, PasswordEncrypter {
 
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
-    }
-
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        MailHost mailHost = (MailHost) o;
-
-        if (port != mailHost.port) {
-            return false;
-        }
-        if (tls != mailHost.tls) {
-            return false;
-        }
-        if (getAdminMail() != null ? !getAdminMail().equals(
-                mailHost.getAdminMail()) : mailHost.getAdminMail() != null) {
-            return false;
-        }
-        if (getFrom() != null ? !getFrom().equals(mailHost.getFrom()) : mailHost.getFrom() != null) {
-            return false;
-        }
-        if (hostName != null ? !hostName.equals(mailHost.hostName) : mailHost.hostName != null) {
-            return false;
-        }
-        if (username != null ? !username.equals(mailHost.username) : mailHost.username != null) {
-            return false;
-        }
-
-        return true;
-    }
-
-    public int hashCode() {
-        int result;
-        result = (hostName != null ? hostName.hashCode() : 0);
-        result = 31 * result + port;
-        result = 31 * result + (username != null ? username.hashCode() : 0);
-        result = 31 * result + (Boolean.TRUE.equals(tls) ? 1 : 0);
-        result = 31 * result + (getFrom() != null ? getFrom().hashCode() : 0);
-        result = 31 * result + (getAdminMail() != null ? getAdminMail().hashCode() : 0);
-        return result;
-    }
-
-    public String toString() {
-        return format("MailHost[%s, %s, %s, %s, %s, %s, %s]", hostName, port, username, password, encryptedPassword, tls, getFrom(), getAdminMail());
     }
 
     public Map json() {
@@ -145,37 +122,15 @@ public class MailHost implements Validatable, PasswordEncrypter {
         return model;
     }
 
-    public String getFrom() {
-        return from;
-    }
 
-    public String getAdminMail() {
-        return adminMail;
-    }
-
-    public String getHostName() {
-        return hostName;
-    }
-
+    @Tolerate
+    @Deprecated // use `getUsername()` instead
     public String getUserName() {
-        return username;
+        return getUsername();
     }
 
     public String getPassword() {
         return getCurrentPassword();
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public Boolean getTls() {
-        return tls;
-    }
-
-    @Deprecated // Only for test
-    public void setAdminMail(String adminMail) {
-        this.adminMail = adminMail;
     }
 
     @PostConstruct
@@ -189,7 +144,7 @@ public class MailHost implements Validatable, PasswordEncrypter {
         }
     }
 
-    private void setEncryptedPassword(String encryptedPassword) {
+    public void setEncryptedPassword(String encryptedPassword) {
         this.encryptedPassword = encryptedPassword;
     }
 

@@ -165,6 +165,15 @@ public class EntityHashingService implements ConfigChangedListener, Initializer 
         return getDomainEntityMd5FromCache(config, cacheKey);
     }
 
+    public String md5ForEntity(List<PackageDefinition> config) {
+        List<String> md5s = new ArrayList<>();
+        for (PackageDefinition packageDefinition : config) {
+            md5s.add(md5ForEntity(packageDefinition));
+        }
+
+        return CachedDigestUtils.md5Hex(StringUtils.join(md5s, "/"));
+    }
+
     public String md5ForEntity(PluginSettings pluginSettings) {
         String cacheKey = cacheKey(pluginSettings, pluginSettings.getPluginId());
         return getFromCache(cacheKey, () -> String.valueOf(pluginSettings.hashCode()));

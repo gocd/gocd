@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.materials.ScmMaterial;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.remote.work.BuildAssignment;
@@ -84,6 +85,10 @@ public class SecretParamResolver {
         return (secretConfigId, secretParamsToResolve) -> {
             Map<String, List<SecretParam>> secretParamMap = secretParamsToResolve.stream().collect(groupingBy(SecretParam::getKey, Collectors.toList()));
             final SecretConfig secretConfig = goConfigService.cruiseConfig().getSecretConfigs().find(secretConfigId);
+
+            if (secretConfig == null) {
+                throw SecretResolutionFailureException.withInvalidSecretConfigId(secretConfigId);
+            }
 
             LOGGER.debug("Resolving secret params '{}' using secret config '{}'", secretParamMap.keySet(), secretConfig.getId());
             List<Secret> resolvedSecrets = secretsExtension.lookupSecrets(secretConfig.getPluginId(), secretConfig, secretParamMap.keySet());

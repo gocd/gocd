@@ -33,6 +33,10 @@ public class SecretResolutionFailureException extends RuntimeException {
         return new SecretResolutionFailureException(format("Expected plugin to resolve secret param(s) `%s` using secret config `%s` but plugin sent additional secret param(s) `%s`.", csv(secretsToResolve), secretConfigId, csv(unwantedSecrets)));
     }
 
+    public static SecretResolutionFailureException withInvalidSecretConfigId(String secretConfigId) {
+        return new SecretResolutionFailureException(format("Cannot resolve secrets, the secret param is configured with secret config id: `%s` which is invalid. ", secretConfigId));
+    }
+
     private static String csv(Set<String> secretsToResolve) {
         return String.join(", ", secretsToResolve);
     }

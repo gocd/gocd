@@ -26,6 +26,7 @@ import com.thoughtworks.go.domain.builder.CommandBuilder;
 import com.thoughtworks.go.domain.builder.NullBuilder;
 import com.thoughtworks.go.domain.materials.Modification;
 import com.thoughtworks.go.helper.GoConfigMother;
+import com.thoughtworks.go.plugin.access.exceptions.SecretResolutionFailureException;
 import com.thoughtworks.go.plugin.access.secrets.SecretsExtension;
 import com.thoughtworks.go.plugin.domain.secrets.Secret;
 import com.thoughtworks.go.remote.work.BuildAssignment;
@@ -234,6 +235,21 @@ class SecretParamResolverTest {
         assertThat(allSecretParams).hasSize(2);
         assertThat(allSecretParams.get(0).getValue()).isEqualTo("some-username");
         assertThat(allSecretParams.get(1).getValue()).isEqualTo("some-username");
+    }
+
+    @Test
+    void shouldErrorOutIfSecretParamIsConfiguredWithAnInvalidSecretConfigId() {
+        final SecretParams secretParams = new SecretParams(
+                new SecretParam("invalid_secret_id", "username")
+        );
+
+        final SecretConfig fileBasedSecretConfig = new SecretConfig("valid_secret_config_id", "cd.go.file");
+        when(goConfigService.cruiseConfig()).thenReturn(GoConfigMother.configWithSecretConfig(fileBasedSecretConfig));
+
+        assertThatCode(() -> secretParamResolver.resolve(secretParams))
+                .isInstanceOf(SecretResolutionFailureException.class);
+
+        verifyZeroInteractions(secretsExtension);
     }
 
     private JobPlan defaultJobPlan(EnvironmentVariables variables, EnvironmentVariables triggerVariables) {

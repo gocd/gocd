@@ -24,12 +24,8 @@ import lombok.experimental.Tolerate;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static com.thoughtworks.go.util.ExceptionUtils.bomb;
-import static java.lang.String.valueOf;
-import static org.apache.commons.lang3.StringUtils.defaultString;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 @Getter
@@ -109,19 +105,6 @@ public class MailHost implements Validatable, PasswordEncrypter {
     public void addError(String fieldName, String message) {
         configErrors.add(fieldName, message);
     }
-
-    public Map json() {
-        Map<String, Object> model = new LinkedHashMap<>();
-        model.put("hostName", defaultString(hostName));
-        model.put("port", port == 0 ? "" : valueOf(port));
-        model.put("username", defaultString(username));
-        model.put("password", defaultString(getPassword()));
-        model.put("tls", tls == null ? "false" : tls.toString());
-        model.put("from", defaultString(getFrom()));
-        model.put("adminMail", defaultString(getAdminMail()));
-        return model;
-    }
-
 
     @Tolerate
     @Deprecated // use `getUsername()` instead

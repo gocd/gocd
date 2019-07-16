@@ -132,7 +132,7 @@ describe("TableComponent", () => {
       const spy = jasmine.createSpy();
       helper.mount(() => <Table headers={headers} data={testdata()} draggable={true} dragHandler={spy}/>);
 
-      if (!(/(Chrome|Opera)/i.test(navigator.userAgent))) {
+      if (/(MSIE|Trident|Edge|Safari)/i.test(navigator.userAgent)) {
         return;
       }
 

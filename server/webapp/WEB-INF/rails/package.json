@@ -74,7 +74,7 @@
     "jasmine-ajax": "^4.0.0",
     "jasmine-core": "^3.4.0",
     "jasmine-jquery": "^2.1.1",
-    "karma": "^4.1.0",
+    "karma": "^4.2.0",
     "karma-chrome-launcher": "^2.2.0",
     "karma-edge-launcher": "https://github.com/karma-runner/karma-edge-launcher.git#f2bf198c02753f732dd1a2ac530981b7897d52d8",
     "karma-firefox-launcher": "^1.1.0",

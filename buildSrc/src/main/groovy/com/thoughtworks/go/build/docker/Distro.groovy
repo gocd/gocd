@@ -43,7 +43,7 @@ enum Distro implements DistroBehavior {
       return [
         'apk --no-cache upgrade',
         // procps is needed for tanuki wrapper shell script
-        'apk add --no-cache nss git mercurial subversion openssh-client bash curl procps'
+        'apk add --no-cache nss git mercurial subversion openssh-client bash curl procps cyrus-sasl cyrus-sasl-plain'
       ]
     }
 

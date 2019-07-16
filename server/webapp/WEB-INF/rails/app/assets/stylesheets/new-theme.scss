@@ -2704,9 +2704,13 @@ button.check_connection + .connection_test_message pre {
 }
 
 .Building, .building-stage {
-  height:     12px;
-  position:   relative;
-  background: transparent image_url('building.svg') repeat-x 50% 50%;
+  position:        relative;
+  background:      $building image_url('building.gif') repeat-x 50% 50%;
+}
+
+.stage_bar.Building {
+  background:      $building image_url('building.svg') repeat-x 50% 50%;
+  background-size: 20%;
 }
 
 @keyframes move {

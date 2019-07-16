@@ -48,7 +48,7 @@
     "@types/jasmine-ajax": "^3.1.40",
     "@types/jasmine-jquery": "^1.5.33",
     "@types/lodash": "^4.14.136",
-    "@types/mithril": "^1.1.16",
+    "@types/mithril": "^1.1.17",
     "@types/node": "^12.6.3",
     "@types/underscore.string": "^0.0.38",
     "@types/uuid": "^3.4.5",

@@ -187,7 +187,7 @@ public class SystemEnvironment implements Serializable, ConfigDirProvider {
     public static GoSystemProperty<String> GO_UPDATE_SERVER_URL = new GoStringSystemProperty("go.update.server.url", "https://update.gocd.org/channels/supported/latest.json");
     public static GoSystemProperty<Boolean> GO_CHECK_UPDATES = new GoBooleanSystemProperty("go.check.updates", true);
 
-    public static GoSystemProperty<String> GO_DATA_SHARING_POST_USAGE_DATA_SERVER_URL = new GoStringSystemProperty("go.datasharing.server.url", "https://datasharing.gocd.org/v2/usagedata");
+    public static GoSystemProperty<String> GO_DATA_SHARING_POST_USAGE_DATA_SERVER_URL = new GoStringSystemProperty("go.datasharing.server.url", "https://datasharing.gocd.org/v3/usagedata");
     public static GoSystemProperty<String> GO_DATA_SHARING_GET_ENCRYPTION_KEYS_URL = new GoStringSystemProperty("go.datasharing.get.encryption.keys.url", "https://datasharing.gocd.org/encryption_keys");
 
     public static GoSystemProperty<Integer> GO_ELASTIC_PLUGIN_CREATE_AGENT_THREADS = new GoIntSystemProperty("go.elasticplugin.createagent.threads", 5);

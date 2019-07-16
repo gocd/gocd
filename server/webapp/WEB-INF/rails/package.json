@@ -55,7 +55,7 @@
     "add-matchers": "^0.6.2",
     "awesome-typescript-loader": "^5.2.1",
     "babel-core": "^6.26.3",
-    "babel-eslint": "^8.2.5",
+    "babel-eslint": "^10.0.2",
     "babel-loader": "^7.1.5",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "babel-plugin-transform-es2015-destructuring": "^6.23.0",

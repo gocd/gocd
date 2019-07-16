@@ -46,11 +46,7 @@ public class DeleteBackupConfigCommand implements EntityConfigUpdateCommand<Back
 
     @Override
     public boolean canContinue(CruiseConfig cruiseConfig) {
-        return doesBackupConfigExist(cruiseConfig);
-    }
-
-    private boolean doesBackupConfigExist(CruiseConfig cruiseConfig) {
-        return cruiseConfig.server().getBackupConfig() != null;
+        return true;
     }
 
 }

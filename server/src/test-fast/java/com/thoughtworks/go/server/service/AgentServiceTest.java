@@ -18,6 +18,7 @@ package com.thoughtworks.go.server.service;
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.CurrentGoCDVersion;
 import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -42,6 +43,7 @@ import com.thoughtworks.go.utils.Timeout;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -49,10 +51,12 @@ import static com.thoughtworks.go.util.LogFixture.logFixtureFor;
 import static com.thoughtworks.go.util.SystemUtil.currentWorkingDirectory;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.*;
@@ -109,6 +113,94 @@ public class AgentServiceTest {
             }
         }
 
+    }
+
+    @Test
+    public void shouldUpdateAgentsAssociationWithSpecifiedEnv() {
+        AgentInstance agentInstance = mock(AgentInstance.class);
+        Username username = new Username(new CaseInsensitiveString("test"));
+        String uuid = "uuid";
+        AgentConfig agentConfigForUUID1 = mock(AgentConfig.class);
+
+        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+        when(agentDao.agentByUuid(uuid)).thenReturn(agentConfig);
+        when(agentDao.agentByUuid("uuid1")).thenReturn(agentConfigForUUID1);
+        when(agentConfigForUUID1.getEnvironments()).thenReturn("test");
+
+        agentConfig.setEnvironments("test");
+        EnvironmentsConfig envConfigs = new EnvironmentsConfig();
+        BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+        testEnv.addAgent("uuid1");
+        testEnv.addAgent("uuid2");
+        envConfigs.add(testEnv);
+
+        when(goConfigService.getEnvironments()).thenReturn(envConfigs);
+        when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+        when(agentInstances.findAgent("uuid2")).thenReturn(mock(AgentInstance.class));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        agentService.updateAgentsAssociationWithSpecifiedEnv(username, testEnv, asList(uuid, "uuid2"), result);
+
+        verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.UNSET));
+        assertTrue(result.isSuccessful());
+        assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
+    }
+
+    @Test
+    public void shouldAddAgentsAssociationToTheSpecifiedEnv() {
+        AgentInstance agentInstance = mock(AgentInstance.class);
+        Username username = new Username(new CaseInsensitiveString("test"));
+        String uuid = "uuid";
+        AgentConfig agentConfigForUUID1 = mock(AgentConfig.class);
+
+        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+        when(agentDao.agentByUuid(uuid)).thenReturn(agentConfig);
+        when(agentDao.agentByUuid("uuid1")).thenReturn(agentConfigForUUID1);
+
+        EnvironmentsConfig envConfigs = new EnvironmentsConfig();
+        BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+        envConfigs.add(testEnv);
+
+        when(goConfigService.getEnvironments()).thenReturn(envConfigs);
+        when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+        when(agentInstances.findAgent("uuid1")).thenReturn(mock(AgentInstance.class));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        agentService.updateAgentsAssociationWithSpecifiedEnv(username, testEnv, asList(uuid, "uuid1"), result);
+
+        verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.UNSET));
+        assertTrue(result.isSuccessful());
+        assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid1]."));
+    }
+
+    @Test
+    public void shouldRemoveAgentsAssociationFromTheSpecifiedEnv() {
+        AgentInstance agentInstance = mock(AgentInstance.class);
+        Username username = new Username(new CaseInsensitiveString("test"));
+        String uuid = "uuid";
+        AgentConfig agentConfigForUUID1 = mock(AgentConfig.class);
+
+        when(agentConfigForUUID1.getEnvironments()).thenReturn("test");
+        agentConfig.setEnvironments("test");
+
+        when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
+        when(agentDao.agentByUuid(uuid)).thenReturn(agentConfig);
+        when(agentDao.agentByUuid("uuid1")).thenReturn(agentConfigForUUID1);
+
+        EnvironmentsConfig envConfigs = new EnvironmentsConfig();
+        BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
+        envConfigs.add(testEnv);
+
+        when(goConfigService.getEnvironments()).thenReturn(envConfigs);
+        when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
+        when(agentInstances.findAgent("uuid1")).thenReturn(mock(AgentInstance.class));
+
+        HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+        agentService.updateAgentsAssociationWithSpecifiedEnv(username, testEnv, emptyList(), result);
+
+        verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.UNSET));
+        assertTrue(result.isSuccessful());
+        assertThat(result.message(), is("Updated agent(s) with uuid(s): []."));
     }
 
     @Test

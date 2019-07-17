@@ -234,7 +234,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user, @environment).and_return([])
 
-      expect(@agent_service).to receive(:bulkUpdateAgentAttributes).with(anything, result, ['uuid-1'], [], [], anything, [], anything) do
+      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(@user, @environment, ['uuid-1'], result) do
         result.badRequest("Failed to update Agents [uuid-1]")
       end
       expect(@environment_config_service).to receive(:updateEnvironment).with(@environment_name, @environment, @user, md5, anything) do |old_config, new_config, user, md5, result1|
@@ -285,7 +285,7 @@ describe EnvironmentsController do
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(@user).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(@user, @environment).and_return([])
 
-      expect(@agent_service).to receive(:bulkUpdateAgentAttributes).with(anything, result, ['uuid-1'], [], [], anything, [], anything) do
+      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(@user, @environment, ['uuid-1'], result) do
         result.badRequest("Updated agent(s) with uuid(s): [uuid-1]")
       end
       expect(@environment_config_service).to receive(:updateEnvironment).with(@environment_name, @environment, @user, 'md5', anything) do |old_config, new_config, user, md5, result1|
@@ -312,28 +312,26 @@ describe EnvironmentsController do
       allow(controller).to receive(:environment_config_service).and_return(@environment_config_service = double('environment_config_service', :isEnvironmentFeatureEnabled => true))
       allow(controller).to receive(:agent_service).and_return(@agent_service = double(AgentService))
       allow(controller).to receive(:security_service).and_return(@security_service = double(SecurityService))
+      @user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
+      allow(controller).to receive(:current_user).and_return(@user)
     end
 
     it "should show that modified environment is merged with latest configuration" do
       allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('md5')
-      result = HttpLocalizedOperationResult.new()
-      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(anything, anything).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(BasicEnvironmentConfig.new(), "md5"))
+      config_new = BasicEnvironmentConfig.new()
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(anything, anything).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(config_new, "md5"))
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
       allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
       environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new("foo_env"))
       allow(@environment_config_service).to receive(:getEnvironmentForEdit).with("foo_env").and_return(environment_config)
 
-      expect(@agent_service).to receive(:bulkUpdateAgentAttributes).with(anything, result, ['uuid-1'], [], [], anything, [], anything) do
-        result.badRequest("Updated agent(s) with uuid(s): [uuid-1].")
-      end
       expect(@environment_config_service).to receive(:updateEnvironment).with("foo_env", environment_config, anything, 'md5', anything) do |old_config, new_config, user, md5, result1|
         result1.setMessage("some message")
       end
 
-
       put :update, params: {:no_layout => true,
-                            :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'valueForDisplay' => "var_value"}]},
+                            :environment => {'name' => 'foo_env', 'pipelines' => [{'name' => 'bar'}], 'variables' => [{'name' => "var_name", 'valueForDisplay' => "var_value"}]},
                             :name => "foo_env", :cruise_config_md5 => 'md5'}
       expect(response).to be_success
       expect(response.location).to match(/^\/admin\/environments\?.*?fm=/)
@@ -342,6 +340,72 @@ describe EnvironmentsController do
       assert_flash_message_and_class(flash, "some message", "success")
       expect(response.body).to eq("some message")
     end
+
+    it "should add agents to specified environment" do
+      allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('md5')
+      result = HttpLocalizedOperationResult.new()
+      config_new = BasicEnvironmentConfig.new()
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(anything, anything).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(config_new, "md5"))
+      expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
+      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
+      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new("foo_env"))
+      allow(@environment_config_service).to receive(:getEnvironmentForEdit).with("foo_env").and_return(environment_config)
+
+      env_agent_conf_1 = EnvironmentAgentConfig.new('uuid-1')
+      env_agent_conf_2 = EnvironmentAgentConfig.new('uuid-2')
+      env_agents_conf = EnvironmentAgentsConfig.new()
+      env_agents_conf.add(env_agent_conf_1)
+      env_agents_conf.add(env_agent_conf_2)
+      config_new.setAgents(env_agents_conf)
+
+      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(@user, config_new, ['uuid-1', 'uuid-3'], anything) do
+        result.setMessage("Updated agent(s) with uuid(s): [uuid-1, 'uuid-3'].")
+      end
+
+      put :update, params: {:no_layout => true, :environment => {'agents' => [{'uuid' => "uuid-1"}, {'uuid' => "uuid-3"}], 'name' => 'foo_env'},
+                            :name => "foo_env", :cruise_config_md5 => 'md5'}
+      expect(response).to be_success
+      expect(response.location).to match(/^\/admin\/environments\?.*?fm=/)
+      flash_guid = $1 if response.location =~ /environments\?.*?fm=(.+)/
+      flash = controller.flash_message_service.get(flash_guid)
+      assert_flash_message_and_class(flash, "Updated environment 'foo_env'.", "success")
+      expect(response.body).to eq("Updated environment 'foo_env'.")
+    end
+
+    it "should remove agents from specified environment" do
+      allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('md5')
+      result = HttpLocalizedOperationResult.new()
+      config_new = BasicEnvironmentConfig.new()
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(anything, anything).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(config_new, "md5"))
+      expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
+      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
+      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new("foo_env"))
+      allow(@environment_config_service).to receive(:getEnvironmentForEdit).with("foo_env").and_return(environment_config)
+
+      env_agent_conf_1 = EnvironmentAgentConfig.new('uuid-1')
+      env_agent_conf_2 = EnvironmentAgentConfig.new('uuid-2')
+      env_agents_conf = EnvironmentAgentsConfig.new()
+      env_agents_conf.add(env_agent_conf_1)
+      env_agents_conf.add(env_agent_conf_2)
+      config_new.setAgents(env_agents_conf)
+
+      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(@user, config_new, ["uuid-1"], anything) do
+        result.setMessage("Updated agent(s) with uuid(s): [uuid-1, 'uuid-2'].")
+      end
+
+      put :update, params: {:no_layout => true, :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env'},
+                            :name => "foo_env", :cruise_config_md5 => 'md5'}
+      puts "response: #{response.body}"
+      expect(response).to be_success
+      expect(response.location).to match(/^\/admin\/environments\?.*?fm=/)
+      flash_guid = $1 if response.location =~ /environments\?.*?fm=(.+)/
+      flash = controller.flash_message_service.get(flash_guid)
+      assert_flash_message_and_class(flash, "Updated environment 'foo_env'.", "success")
+      expect(response.body).to eq("Updated environment 'foo_env'.")
+    end
+
   end
 
   describe "edit" do

@@ -52,6 +52,8 @@ module JavaSpecImports
   java_import com.thoughtworks.go.config.materials.AbstractMaterial unless defined? AbstractMaterial
   java_import com.thoughtworks.go.config.materials.AbstractMaterialConfig unless defined? AbstractMaterialConfig
   java_import com.thoughtworks.go.config.EnvironmentVariableConfig unless defined? EnvironmentVariableConfig
+  java_import com.thoughtworks.go.config.EnvironmentAgentConfig unless defined? EnvironmentAgentConfig
+  java_import com.thoughtworks.go.config.EnvironmentAgentsConfig unless defined? EnvironmentAgentsConfig
   java_import com.thoughtworks.go.config.EncryptedVariableValueConfig unless defined? EncryptedVariableValueConfig
   java_import com.thoughtworks.go.config.VariableValueConfig unless defined? VariableValueConfig
   java_import com.thoughtworks.go.presentation.pipelinehistory.StageHistoryEntry unless defined? StageHistoryEntry

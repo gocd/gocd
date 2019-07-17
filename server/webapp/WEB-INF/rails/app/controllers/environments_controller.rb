@@ -59,6 +59,7 @@ class EnvironmentsController < ApplicationController
 
   def update
     environment_attributes = params[:environment]
+    original_env_config = @environment;
     original_agents = @environment.agents
     environment_config_name = params[:name]
     @environment = environment_config_service.getEnvironmentForEdit(environment_config_name)
@@ -67,33 +68,25 @@ class EnvironmentsController < ApplicationController
       render_error_response 'Environment name is required', 400, true
       return
     end
-
     result = HttpLocalizedOperationResult.new
     if environment_attributes.key?(EnvironmentConfig.AGENTS_FIELD)
-      uuids = environment_attributes
-                .fetch(EnvironmentConfig.AGENTS_FIELD)
-                .map {|agent_uuid| agent_uuid.fetch('uuid')}
+      finalUUIDsToAssociate = environment_attributes.fetch(EnvironmentConfig.AGENTS_FIELD)
+                                                    .map {|agent_uuid| agent_uuid.fetch('uuid')}
 
       message = "Updated environment '#{environment_config_name}'."
-      if uuids.empty? && original_agents.empty?
+      if finalUUIDsToAssociate.empty? && original_agents.empty?
         return render :plain => message, :location => url_options_with_flash(message, {:action => :index, :class => 'success', :only_path => true})
       end
 
-      environment_configs_to_add = EnvironmentsConfig.new
-      environment_configs_to_remove = []
-      if uuids.empty?
-        uuids = original_agents.map(&:uuid)
-        environment_configs_to_remove.push(environment_config_name)
-      else
-        environment_configs_to_add.add(@environment)
-      end
-      agent_service.bulkUpdateAgentAttributes(current_user, result, uuids, [], [], environment_configs_to_add, environment_configs_to_remove, TriState.TRUE)
+      agent_service.updateAgentsAssociationWithSpecifiedEnv(current_user, original_env_config, finalUUIDsToAssociate, result)
       if !result.isSuccessful()
         message = result.message()
+        return render_error_response message, result.httpCode(), true
       end
     end
+
     environment_attributes.delete(EnvironmentConfig.AGENTS_FIELD)
-    if environment_attributes.length > 0
+    if environment_attributes.length > 1
       environment_config_service.updateEnvironment(environment_config_name, @environment, current_user, params[:cruise_config_md5], result)
       message = result.message()
     end

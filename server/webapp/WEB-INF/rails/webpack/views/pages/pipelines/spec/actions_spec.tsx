@@ -181,7 +181,7 @@ describe("AddPipeline: Actions Section", () => {
 
 function createSuccessResp(config: PipelineConfig): Promise<ApiResult<string>> {
   return new Promise<ApiResult<string>>((resolve) => {
-    resolve(ApiResult.success(JSON.stringify(config.toApiPayload()), 200, null));
+    resolve(ApiResult.success(JSON.stringify(config.toApiPayload()), 200, new Map()));
   });
 }
 
@@ -195,7 +195,7 @@ function createFailedResp(config: PipelineConfig): Promise<ApiResult<string>> {
         ],
         stages: []
       }
-    }), "uh-oh!", 422));
+    }), "uh-oh!", 422, new Map()));
   });
 }
 
@@ -209,12 +209,12 @@ function createFailedRespWithUnboundErrors(config: PipelineConfig): Promise<ApiR
         ],
         stages: []
       }
-    }), "uh-oh!", 422));
+    }), "uh-oh!", 422, new Map()));
   });
 }
 
 function runSuccessResp(config: PipelineConfig): Promise<ApiResult<string>> {
   return new Promise<ApiResult<string>>((resolve) => {
-    resolve(ApiResult.success(JSON.stringify({message: `Request to schedule pipeline ${config.name()} accepted`}), 202, null));
+    resolve(ApiResult.success(JSON.stringify({message: `Request to schedule pipeline ${config.name()} accepted`}), 202, new Map()));
   });
 }

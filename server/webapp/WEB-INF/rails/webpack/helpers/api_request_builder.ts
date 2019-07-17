@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import {CaseInsensitiveMap} from "helpers/collections";
 import * as _ from "lodash";
 import * as m from "mithril";
 import {Stream} from "mithril/stream";
@@ -36,39 +37,33 @@ export interface ErrorResponse {
 export class ApiResult<T> {
   private readonly successResponse?: SuccessResponse<T>;
   private readonly errorResponse?: ErrorResponse;
-  private readonly statusCode?: number;
-  private readonly etag: string | null;
-  private readonly redirectUrl: string | null;
-  private readonly retryAfter: number | null;
+  private readonly statusCode: number;
+  private readonly headers: Map<string, string>;
 
-  private constructor(successResponse?: SuccessResponse<T>,
-                      errorResponse?: ErrorResponse,
-                      statusCode?: number,
-                      etag?: string | null,
-                      redirectUrl?: string | null,
-                      retryAfter?: number | null) {
+  private constructor(successResponse: SuccessResponse<T> | undefined,
+                      errorResponse: ErrorResponse | undefined,
+                      statusCode: number,
+                      headers: Map<string, string>) {
     this.successResponse = successResponse;
     this.errorResponse   = errorResponse;
     this.statusCode      = statusCode;
-    this.etag            = etag ? etag : null;
-    this.redirectUrl     = redirectUrl ? redirectUrl : null;
-    this.retryAfter     = retryAfter ? retryAfter : null;
+    this.headers         = headers;
   }
 
   static from(xhr: XMLHttpRequest) {
     return this.parseResponse(xhr);
   }
 
-  static success(body: string, statusCode: number, etag: string | null) {
-    return new ApiResult<string>({body}, undefined, statusCode, etag);
+  static success(body: string, statusCode: number, headers: Map<string, string>) {
+    return new ApiResult<string>({body}, undefined, statusCode, headers);
   }
 
-  static accepted(body: string, statusCode: number, location: string | null, retryAfter: string | null) {
-    return new ApiResult<string>({body}, undefined, statusCode, null, location, Number(retryAfter));
+  static accepted(body: string, statusCode: number, headers: Map<string, string>) {
+    return new ApiResult<string>({body}, undefined, statusCode, headers);
   }
 
-  static error(body: string, message: string, statusCode?: number) {
-    return new ApiResult<string>(undefined, {body, message}, statusCode);
+  static error(body: string, message: string, statusCode: number, headers: Map<string, string>) {
+    return new ApiResult<string>(undefined, {body, message}, statusCode, headers);
   }
 
   getStatusCode(): number {
@@ -78,24 +73,28 @@ export class ApiResult<T> {
     return -1;
   }
 
+  header(name: string) {
+    return this.headers.get(name);
+  }
+
   getEtag(): string | null {
-    return this.etag;
+    return this.header("etag") || null;
   }
 
   getRedirectUrl(): string {
-    return this.redirectUrl || '';
+    return this.header("Location") || "";
   }
 
   getRetryAfterIntervalInMillis(): number {
-    return this.retryAfter ? this.retryAfter * 1000 : 0;
+    return Number(this.header("retry-after") || 0) * 1000;
   }
 
   map<U>(func: (x: T) => U): ApiResult<U> {
     if (this.successResponse) {
       const transformedBody = func(this.successResponse.body);
-      return new ApiResult<U>({body: transformedBody}, this.errorResponse, this.statusCode, this.etag);
+      return new ApiResult<U>({body: transformedBody}, this.errorResponse, this.statusCode, this.headers);
     } else {
-      return new ApiResult<U>(this.successResponse, this.errorResponse, this.statusCode, this.etag);
+      return new ApiResult<U>(this.successResponse, this.errorResponse, this.statusCode, this.headers);
     }
   }
 
@@ -126,29 +125,42 @@ export class ApiResult<T> {
   }
 
   private static parseResponse(xhr: XMLHttpRequest): ApiResult<string> {
+    const headers = allHeaders(xhr);
+
     switch (xhr.status) {
       case 200:
       case 201:
-        return ApiResult.success(xhr.responseText, xhr.status, xhr.getResponseHeader("etag"));
+        return ApiResult.success(xhr.responseText, xhr.status, headers);
       case 202:
-        return ApiResult.accepted(xhr.responseText, xhr.status, xhr.getResponseHeader("Location"), xhr.getResponseHeader("retry-after"));
+        return ApiResult.accepted(xhr.responseText, xhr.status, headers);
       case 422:
-        return ApiResult.error(xhr.responseText, this.parseMessage(xhr), xhr.status);
       case 503:
-        return ApiResult.error(xhr.responseText, this.parseMessage(xhr), xhr.status);
+        return ApiResult.error(xhr.responseText, parseMessage(xhr), xhr.status, headers);
     }
 
     return ApiResult.error(xhr.responseText,
                            `There was an unknown error performing the operation. Possible reason (${xhr.statusText})`,
-                           xhr.status);
+                           xhr.status, headers);
+  }
+}
+
+function allHeaders(xhr: XMLHttpRequest): Map<string, string> {
+  const payload = xhr.getAllResponseHeaders();
+  const headers = new CaseInsensitiveMap<string>();
+
+  for (const line of payload.trim().split(/[\r\n]+/)) {
+    const parts = line.split(": ");
+    headers.set(parts.shift()!, parts.join(": "));
   }
 
-  private static parseMessage(xhr: XMLHttpRequest) {
-    if (xhr.response.data && xhr.response.data.message) {
-      return xhr.response.data.message;
-    }
-    return `There was an unknown error performing the operation. Possible reason (${xhr.statusText})`;
+  return headers;
+}
+
+function parseMessage(xhr: XMLHttpRequest) {
+  if (xhr.response.data && xhr.response.data.message) {
+    return xhr.response.data.message;
   }
+  return `There was an unknown error performing the operation. Possible reason (${xhr.statusText})`;
 }
 
 interface Headers {
@@ -211,9 +223,9 @@ export class ApiRequestBuilder {
     }).catch((reason) => {
       const unknownError = "There was an unknown error performing the operation.";
       try {
-        return ApiResult.error(reason.responseText, JSON.parse(reason.message).message || unknownError, reason.status);
+        return ApiResult.error(reason.responseText, JSON.parse(reason.message).message || unknownError, reason.status, new Map());
       } catch {
-        return ApiResult.error(reason.responseText, unknownError, reason.status);
+        return ApiResult.error(reason.responseText, unknownError, reason.status, new Map());
       }
     });
   }

@@ -42,7 +42,9 @@ import com.thoughtworks.go.util.TriState;
 import com.thoughtworks.go.utils.Timeout;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +58,7 @@ import static java.util.Collections.singletonList;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -168,7 +171,15 @@ public class AgentServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         agentService.updateAgentsAssociationWithSpecifiedEnv(username, testEnv, asList(uuid, "uuid1"), result);
 
-        verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.UNSET));
+        ArgumentCaptor<List<AgentConfig>> argument = ArgumentCaptor.forClass(List.class);
+
+        List<AgentConfig> agents = asList(agentConfigForUUID1, agentConfig);
+
+        verify(agentDao).bulkUpdateAttributes(argument.capture(), anyMap(), eq(TriState.UNSET));
+        assertEquals(agents.size(), argument.getValue().size());
+        assertTrue(argument.getValue().contains(agents.get(0)));
+        assertTrue(argument.getValue().contains(agents.get(1)));
+
         assertTrue(result.isSuccessful());
         assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid1]."));
     }
@@ -190,6 +201,8 @@ public class AgentServiceTest {
         EnvironmentsConfig envConfigs = new EnvironmentsConfig();
         BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
         envConfigs.add(testEnv);
+        testEnv.addAgent(uuid);
+        testEnv.addAgent("uuid1");
 
         when(goConfigService.getEnvironments()).thenReturn(envConfigs);
         when(agentInstances.findAgent(uuid)).thenReturn(agentInstance);
@@ -198,7 +211,15 @@ public class AgentServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         agentService.updateAgentsAssociationWithSpecifiedEnv(username, testEnv, emptyList(), result);
 
-        verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.UNSET));
+        List<AgentConfig> agents = asList(agentConfigForUUID1, agentConfig);
+
+        ArgumentCaptor<List<AgentConfig>> argument = ArgumentCaptor.forClass(List.class);
+
+        verify(agentDao).bulkUpdateAttributes(argument.capture(), anyMap(), eq(TriState.UNSET));
+        assertEquals(agents.size(), argument.getValue().size());
+        assertTrue(argument.getValue().contains(agents.get(0)));
+        assertTrue(argument.getValue().contains(agents.get(1)));
+
         assertTrue(result.isSuccessful());
         assertThat(result.message(), is("Updated agent(s) with uuid(s): []."));
     }

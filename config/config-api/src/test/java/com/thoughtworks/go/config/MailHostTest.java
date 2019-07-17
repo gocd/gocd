@@ -20,9 +20,9 @@ import com.thoughtworks.go.security.GoCipher;
 import com.thoughtworks.go.util.ReflectionUtil;
 import org.junit.Test;
 
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import java.util.Collections;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,8 +35,8 @@ public class MailHostTest {
 
         MailHost mailHost = new MailHost("hostname", 42, "username", "password", null, true, true, "from", "mail@admin.com", mockGoCipher);
 
-        assertThat(ReflectionUtil.getField(mailHost, "password"), is("password"));
-        assertThat(mailHost.getEncryptedPassword(), is("encrypted"));
+        assertThat(ReflectionUtil.getField(mailHost, "password")).isEqualTo("password");
+        assertThat(mailHost.getEncryptedPassword()).isEqualTo("encrypted");
     }
 
     @Test
@@ -49,7 +49,7 @@ public class MailHostTest {
         ReflectionUtil.setField(mailHost, "encryptedPassword", "encrypted");
         mailHost.ensureEncrypted();
 
-        assertThat(mailHost.getPassword(), is("password"));
+        assertThat(mailHost.getPassword()).isEqualTo("password");
     }
 
     @Test
@@ -57,26 +57,52 @@ public class MailHostTest {
         MailHost mailHost1 = new MailHost("blah", 42, "blah", "password-1", true, true, "from", "to");
         MailHost mailHost2 = new MailHost("blah", 42, "blah", "password-2", true, true, "from", "to");
         MailHost mailHost3 = new MailHost("blah", 42, "blah", "password-2", false, true, "from", "to");
-        assertThat(mailHost1, is(mailHost2));
-        assertThat(mailHost1.hashCode(), is(mailHost2.hashCode()));
-        assertThat(mailHost2, is(mailHost3));
-        assertThat(mailHost2.hashCode(), is(mailHost3.hashCode()));
+        assertThat(mailHost1).isEqualTo(mailHost2);
+        assertThat(mailHost1.hashCode()).isEqualTo(mailHost2.hashCode());
+        assertThat(mailHost2).isEqualTo(mailHost3);
+        assertThat(mailHost2.hashCode()).isEqualTo(mailHost3.hashCode());
     }
 
     @Test
     public void shouldReturnNullIfPasswordIsNotSetAndEncryptedPasswordIsEmpty() {
         MailHost mailHost = new MailHost("blah", 42, "blah", "", "", false, true, "from", "to", null);
         mailHost.ensureEncrypted();
-        assertThat(mailHost.getCurrentPassword(), is(nullValue()));
+        assertThat(mailHost.getCurrentPassword()).isNull();
         mailHost = new MailHost("blah", 42, "blah", "", null, false, true, "from", "to", null);
         mailHost.ensureEncrypted();
-        assertThat(mailHost.getCurrentPassword(), is(nullValue()));
+        assertThat(mailHost.getCurrentPassword()).isNull();
     }
 
     @Test
     public void shouldNullifyPasswordIfBlank() {
         MailHost mailHost = new MailHost("blah", 42, "", "", "", false, true, "from", "to", null);
         mailHost.ensureEncrypted();
-        assertThat(mailHost.getUserName(), is(nullValue()));
+        assertThat(mailHost.getUsername()).isNull();
+    }
+
+    @Test
+    public void shouldValidateBlanks() {
+        MailHost mailHost = new MailHost();
+        mailHost.validate(null);
+
+        assertThat(mailHost.errors())
+                .hasSize(4)
+                .containsEntry("hostname", Collections.singletonList("Hostname must not be blank."))
+                .containsEntry("port", Collections.singletonList("Port must be a positive number."))
+                .containsEntry("sender_email", Collections.singletonList("Sender email must not be blank."))
+                .containsEntry("admin_email", Collections.singletonList("Admin email must not be blank."))
+        ;
+    }
+
+    @Test
+    public void shouldValidateBadEmailAddresses() {
+        MailHost mailHost = new MailHost().setAdminMail("x").setFrom("y").setPort(25).setHostName("foo");
+        mailHost.validate(null);
+
+        assertThat(mailHost.errors())
+                .hasSize(2)
+                .containsEntry("admin_email", Collections.singletonList("Does not look like a valid email address."))
+                .containsEntry("sender_email", Collections.singletonList("Does not look like a valid email address."))
+        ;
     }
 }

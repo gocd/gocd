@@ -149,6 +149,12 @@ public class Routes {
         }
     }
 
+    public static class MailServer {
+        public static final String BASE = "/api/config/mailserver";
+        public static final String TEST_EMAIL = "/test";
+        public static final String DOC = apiDocsUrl("#mailserver-config");
+    }
+
     public static class MaterialModifications {
         public static final String BASE = "/api/materials/:fingerprint/modifications";
         public static final String OFFSET = "/:offset";

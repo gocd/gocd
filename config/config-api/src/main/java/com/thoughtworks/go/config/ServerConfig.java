@@ -18,7 +18,6 @@ package com.thoughtworks.go.config;
 import com.thoughtworks.go.config.preprocessor.SkipParameterResolution;
 import com.thoughtworks.go.domain.ConfigErrors;
 import com.thoughtworks.go.domain.ServerSiteUrlConfig;
-import com.thoughtworks.go.security.GoCipher;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
@@ -53,7 +52,7 @@ public class ServerConfig implements Validatable {
     @ConfigSubtag
     private SecurityConfig securityConfig = new SecurityConfig();
     @ConfigSubtag
-    private MailHost mailHost = new MailHost(new GoCipher());
+    private MailHost mailHost;
     @ConfigSubtag
     private BackupConfig backupConfig;
 
@@ -152,8 +151,18 @@ public class ServerConfig implements Validatable {
         return mailHost;
     }
 
+    @Deprecated
     public void updateMailHost(MailHost mailHost) {
-        this.mailHost.updateWithNew(mailHost);
+        // remove mailhost if default value
+        if (mailHost != null && mailHost.equals(new MailHost())) {
+            this.mailHost = null;
+            return;
+        }
+        if (this.mailHost == null) {
+            this.mailHost = mailHost;
+        } else {
+            this.mailHost.updateWithNew(mailHost);
+        }
     }
 
     public void updateArtifactRoot(String path) {
@@ -241,11 +250,6 @@ public class ServerConfig implements Validatable {
         this.artifactsDir = artifactsDir;
     }
 
-    /**
-     * only used for test
-     *
-     * @deprecated
-     */
     public void setMailHost(MailHost mailHost) {
         this.mailHost = mailHost;
     }

@@ -50,6 +50,7 @@ public class ServerConfigService implements BaseUrlProvider {
         this.userService = userService;
     }
 
+    @Deprecated // used by rails
     public void updateServerConfig(MailHost mailHost, String artifactsDir,
                                    Double purgeStart, Double purgeUpto, String jobTimeout, boolean shouldAllowAutoLogin, String siteUrl, String secureSiteUrl,
                                    String taskRepositoryLocation, final HttpLocalizedOperationResult result, final String md5) {

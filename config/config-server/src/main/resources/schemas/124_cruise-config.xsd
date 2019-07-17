@@ -89,7 +89,7 @@
           </xsd:unique>
         </xsd:element>
       </xsd:sequence>
-      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="125"/>
+      <xsd:attribute name="schemaVersion" type="xsd:int" use="required" fixed="124"/>
     </xsd:complexType>
     <xsd:unique name="uniquePipelines">
       <xsd:selector xpath="pipelines"/>
@@ -306,7 +306,7 @@
     <xsd:attribute name="username" type="xsd:string"/>
     <xsd:attribute name="password" type="xsd:string"/>
     <xsd:attribute name="encryptedPassword" type="xsd:string"/>
-    <xsd:attribute name="tls" type="xsd:boolean" use="optional"/>
+    <xsd:attribute name="tls" type="xsd:boolean" use="required"/>
     <xsd:attribute name="from" type="emailType" use="required"/>
     <xsd:attribute name="admin" type="emailType" use="required"/>
   </xsd:complexType>

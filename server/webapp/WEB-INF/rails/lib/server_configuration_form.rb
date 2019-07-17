@@ -41,7 +41,7 @@ class ServerConfigurationForm
   end
 
   def self.from_server_config(server_config)
-    security_config, mail_host = server_config.security(),server_config.mailHost()
+    security_config, mail_host = server_config.security(), (server_config.mailHost() || MailHost.new)
     auto_login = security_config.isAllowOnlyKnownUsersToLogin() ? "false" : "true"
 
     allow_auto_login = {:allow_auto_login => auto_login}

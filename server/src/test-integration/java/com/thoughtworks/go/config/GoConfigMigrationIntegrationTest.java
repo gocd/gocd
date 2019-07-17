@@ -1454,6 +1454,50 @@ public class GoConfigMigrationIntegrationTest {
         XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
     }
 
+    @Test
+    public void migration125_shouldRemoveTlsAttributeFromMailHostWhenItIsSetToFalse() throws Exception {
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"124\">" +
+                        "  <server>" +
+                        "    <mailhost hostname='smtp.example.com' port='25' tls='false' from='alice@example.com' admin='bob@example.com' />" +
+                        "  </server>" +
+                        "</cruise>";
+
+        String expectedConfig =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"125\">" +
+                        "  <server>" +
+                        "    <mailhost hostname='smtp.example.com' port='25' from='alice@example.com' admin='bob@example.com' />" +
+                        "  </server>" +
+                        "</cruise>";
+
+        final String migratedXml = migrateXmlString(configXml, 124, 125);
+        XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
+    }
+
+    @Test
+    public void migration125_shouldRetainTlsAttributeFromMailHostWhenItIsSetToTrue() throws Exception {
+        String configXml =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"124\">" +
+                        "  <server>" +
+                        "    <mailhost hostname='smtp.example.com' port='25' tls='true' from='alice@example.com' admin='bob@example.com' />" +
+                        "  </server>" +
+                        "</cruise>";
+
+        String expectedConfig =
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                        "<cruise schemaVersion=\"125\">" +
+                        "  <server>" +
+                        "    <mailhost hostname='smtp.example.com' port='25' tls='true' from='alice@example.com' admin='bob@example.com' />" +
+                        "  </server>" +
+                        "</cruise>";
+
+        final String migratedXml = migrateXmlString(configXml, 124, 125);
+        XmlAssert.assertThat(migratedXml).and(expectedConfig).areIdentical();
+    }
+
     private void assertStringsIgnoringCarriageReturnAreEqual(String expected, String actual) {
         assertThat(actual.replaceAll("\\r", "").trim()).isEqualTo(expected.replaceAll("\\r", "").trim());
     }

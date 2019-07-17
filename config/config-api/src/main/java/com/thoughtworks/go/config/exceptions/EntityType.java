@@ -44,7 +44,8 @@ public enum EntityType {
     ClusterProfile("cluster profile", id),
     Backup("backup", id),
     SecretConfig("secret config", id),
-    BackupConfig("backup config", none);
+    BackupConfig("backup config", none),
+    SMTP("SMTP config", none);
 
     private final String entityType;
     private final NameOrId nameOrId;

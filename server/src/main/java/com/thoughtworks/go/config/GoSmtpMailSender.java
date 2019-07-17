@@ -202,11 +202,11 @@ public class GoSmtpMailSender implements GoMailSender {
         GoSmtpMailSender sender = new GoSmtpMailSender();
         sender.setHost(mailHost.getHostName());
         sender.setPort(mailHost.getPort());
-        sender.setUsername(mailHost.getUserName());
+        sender.setUsername(mailHost.getUsername());
         sender.setPassword(mailHost.getCurrentPassword());
         sender.setAdministratorEmail(mailHost.getAdminMail());
         sender.setFrom(mailHost.getFrom());
-        sender.setTls(mailHost.getTls());
+        sender.setTls(mailHost.isTls());
         return new BackgroundMailSender(sender);
     }
 }

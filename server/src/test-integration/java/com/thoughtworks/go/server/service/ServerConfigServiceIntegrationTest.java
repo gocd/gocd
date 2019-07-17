@@ -75,14 +75,14 @@ public class ServerConfigServiceIntegrationTest {
     }
 
     @Test
-    public void shouldUpdateServerConfigWithoutValidatingMailHostWhenMailhostisEmpty() {
+    public void shouldNotUpdateMailHostWhenMailhostisEmpty() {
         MailHost mailHost = new MailHost(new GoCipher());
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
 
         serverConfigService.updateServerConfig(mailHost, "artifacts", null, null, "42", true, "http://site_url", "https://secure_site_url", "default", result,
                 goConfigDao.md5OfConfigFile());
 
-        assertThat(goConfigService.getMailHost(), is(mailHost));
+        assertThat(goConfigService.getMailHost(), is(nullValue()));
         assertThat(result.isSuccessful(), is(true));
     }
 
@@ -195,7 +195,7 @@ public class ServerConfigServiceIntegrationTest {
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Invalid hostname. A valid hostname can only contain letters (A-z) digits (0-9) hyphens (-) dots (.) and underscores (_)."));
-        assertThat(goConfigService.getMailHost(), is(new MailHost(new GoCipher())));
+        assertThat(goConfigService.getMailHost(), is(nullValue()));
     }
 
     @Test
@@ -207,7 +207,7 @@ public class ServerConfigServiceIntegrationTest {
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Invalid port."));
-        assertThat(goConfigService.getMailHost(), is(new MailHost(new GoCipher())));
+        assertThat(goConfigService.getMailHost(), is(nullValue()));
     }
 
     @Test
@@ -220,7 +220,7 @@ public class ServerConfigServiceIntegrationTest {
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("From address is not a valid email address."));
-        assertThat(goConfigService.getMailHost(), is(new MailHost(new GoCipher())));
+        assertThat(goConfigService.getMailHost(), is(nullValue()));
     }
 
     @Test
@@ -233,7 +233,7 @@ public class ServerConfigServiceIntegrationTest {
 
         assertThat(result.isSuccessful(), is(false));
         assertThat(result.message(), is("Admin address is not a valid email address."));
-        assertThat(goConfigService.getMailHost(), is(new MailHost(new GoCipher())));
+        assertThat(goConfigService.getMailHost(), is(nullValue()));
     }
 
     @Test

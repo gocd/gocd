@@ -88,6 +88,10 @@ public abstract class HaltApiMessages {
         return format("Could not read property '%s' as a Boolean in json `%s` ", property, jsonObject);
     }
 
+    public static String propertyIsNotAJsonInt(String property, JsonObject jsonObject) {
+        return format("Could not read property '%s' as an Integer in json `%s` ", property, jsonObject);
+    }
+
     public static String missingJsonProperty(String property, JsonObject jsonObject) {
         return format("Json `%s` does not contain property '%s'", jsonObject, property);
     }

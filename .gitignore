@@ -412,3 +412,7 @@ api/api-pipelines-as-code-internal-v1/out/
 api/api-pipelines-as-code-internal-v1/target/
 api/api-pipelines-as-code-internal-v1/logs/
 api/api-pipelines-as-code-internal-v1/config/
+api/api-mail-server-v1/out/
+api/api-mail-server-v1/target/
+api/api-mail-server-v1/logs/
+api/api-mail-server-v1/config/

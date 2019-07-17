@@ -48,6 +48,11 @@ public class JsonReader {
                 .orElseThrow(() -> haltBecauseMissingJsonProperty(property, jsonObject));
     }
 
+    public Integer getInt(String property) {
+        return optInt(property)
+                .orElseThrow(() -> haltBecauseMissingJsonProperty(property, jsonObject));
+    }
+
     public boolean getBooleanOrDefault(String property, boolean defaultValue) {
         return optBoolean(property).orElse(defaultValue);
     }
@@ -111,6 +116,17 @@ public class JsonReader {
         return Optional.empty();
     }
 
+    public Optional<Integer> optInt(String property) {
+        if (jsonObject.has(property)) {
+            try {
+                return Optional.of(jsonObject.getAsJsonPrimitive(property).getAsInt());
+            } catch (Exception e) {
+                throw haltBecausePropertyIsNotAJsonInt(property, jsonObject);
+            }
+        }
+        return Optional.empty();
+    }
+
     public Optional<JsonReader> optJsonObject(String property) {
         if (hasJsonObject(property)) {
             try {
@@ -133,6 +149,11 @@ public class JsonReader {
 
     public JsonReader readStringIfPresent(String key, Consumer<String> setterMethod) {
         optString(key).ifPresent(setterMethod);
+        return this;
+    }
+
+    public JsonReader readIntIfPresent(String key, Consumer<Integer> setterMethod) {
+        optInt(key).ifPresent(setterMethod);
         return this;
     }
 

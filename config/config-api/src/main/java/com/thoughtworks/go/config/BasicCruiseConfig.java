@@ -997,7 +997,11 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public String adminEmail() {
-        return server().mailHost().getAdminMail();
+        if (isSmtpEnabled()) {
+            return server().mailHost().getAdminMail();
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -1019,7 +1023,7 @@ public class BasicCruiseConfig implements CruiseConfig {
 
     @Override
     public boolean isMailHostConfigured() {
-        return !new MailHost(new GoCipher()).equals(mailHost());
+        return !(new MailHost(new GoCipher()).equals(mailHost()) || mailHost() == null);
     }
 
     @Override

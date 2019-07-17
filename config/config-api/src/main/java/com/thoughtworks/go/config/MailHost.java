@@ -35,6 +35,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @AllArgsConstructor(access = AccessLevel.NONE)
 @ConfigTag("mailhost")
 public class MailHost implements Validatable, PasswordEncrypter {
+    public static final String DOES_NOT_LOOK_LIKE_A_VALID_EMAIL_ADDRESS = "Does not look like a valid email address.";
     @ConfigAttribute(value = "hostname", optional = false)
     private String hostName;
     @ConfigAttribute(value = "port", optional = false)
@@ -47,8 +48,8 @@ public class MailHost implements Validatable, PasswordEncrypter {
     @EqualsAndHashCode.Exclude
     @ConfigAttribute(value = "encryptedPassword", optional = true, allowNull = true)
     private String encryptedPassword = null;
-    @ConfigAttribute(value = "tls", optional = false)
-    private Boolean tls;
+    @ConfigAttribute(value = "tls", optional = true)
+    private boolean tls;
     @ConfigAttribute(value = "from", optional = false)
     private String from;
     @ConfigAttribute(value = "admin", optional = false)
@@ -68,6 +69,7 @@ public class MailHost implements Validatable, PasswordEncrypter {
 
     public MailHost(String hostName, int port, String username, String password, String encryptedPassword, boolean passwordChanged, boolean tls, String from, String adminMail, GoCipher goCipher) {
         this(goCipher);
+
         this.hostName = hostName;
         this.port = port;
         this.username = username;
@@ -95,7 +97,25 @@ public class MailHost implements Validatable, PasswordEncrypter {
     }
 
     public void validate(ValidationContext validationContext) {
+        if (isBlank(hostName)) {
+            errors().add("hostname", "Hostname must not be blank.");
+        }
 
+        if (port <= 0) {
+            errors().add("port", "Port must be a positive number.");
+        }
+
+        if (isBlank(from)) {
+            errors().add("sender_email", "Sender email must not be blank.");
+        } else if (!from.matches(".*@.*")) {
+            errors().add("sender_email", DOES_NOT_LOOK_LIKE_A_VALID_EMAIL_ADDRESS);
+        }
+
+        if (isBlank(adminMail)) {
+            errors().add("admin_email", "Admin email must not be blank.");
+        } else if (!adminMail.matches(".*@.*")) {
+            errors().add("admin_email", DOES_NOT_LOOK_LIKE_A_VALID_EMAIL_ADDRESS);
+        }
     }
 
     public ConfigErrors errors() {
@@ -114,6 +134,12 @@ public class MailHost implements Validatable, PasswordEncrypter {
 
     public String getPassword() {
         return getCurrentPassword();
+    }
+
+    @Tolerate
+    @Deprecated // use `isTls()` instead, left here for rails
+    public boolean getTls() {
+        return isTls();
     }
 
     @PostConstruct

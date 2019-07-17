@@ -24,6 +24,12 @@
 
 <urlrewrite>
   <rule>
+    <name>Mailhost API</name>
+    <from>^/api/config/mailserver(/?)$</from>
+    <to last="true">/spark/api/config/mailserver</to>
+  </rule>
+
+  <rule>
     <name>Backup Config API</name>
     <from>^/api/config/backup$</from>
     <to last="true">/spark/api/config/backup</to>

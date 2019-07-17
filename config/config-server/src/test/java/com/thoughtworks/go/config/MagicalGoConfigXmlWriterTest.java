@@ -351,7 +351,7 @@ public class MagicalGoConfigXmlWriterTest {
         mailHost.ensureEncrypted();
         String s = xmlWriter.toXmlPartial(mailHost);
         assertThat(s, is(
-                "<mailhost hostname=\"hostname\" port=\"24\" tls=\"false\" "
+                "<mailhost hostname=\"hostname\" port=\"24\" "
                         + "from=\"from@te.com\" admin=\"to@te.com\" />"));
     }
 
@@ -384,7 +384,7 @@ public class MagicalGoConfigXmlWriterTest {
         assertThat(output.toString().replaceAll("\\s+", " "), containsString(
                 "<svn url=\"svnurl\" username=\"foo\" encryptedPassword=\"" + new GoCipher().encrypt("password") + "\" />"));
         assertThat(output.toString().replaceAll("\\s+", " "), containsString(
-                "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" encryptedPassword=\"" + new GoCipher().encrypt("password") + "\" tls=\"false\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"));
+                "<mailhost hostname=\"10.18.3.171\" port=\"25\" username=\"cruise2\" encryptedPassword=\"" + new GoCipher().encrypt("password") + "\" from=\"cruise2@cruise.com\" admin=\"ps@somewhere.com\" />"));
     }
 
     @Test

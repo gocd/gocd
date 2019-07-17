@@ -56,6 +56,42 @@ class JsonReaderTest {
   }
 
   @Nested
+  class Integer {
+    @Test
+    void 'should read valid value'() {
+      def reader = GsonTransformer.instance.jsonReaderFrom(["foo": 2])
+      assertThat(reader.getInt("foo")).isEqualTo(2)
+    }
+
+    @Test
+    void 'should read valid value from string'() {
+      def reader = GsonTransformer.instance.jsonReaderFrom(["foo": "2"])
+      assertThat(reader.getInt("foo")).isEqualTo(2)
+    }
+
+    @Test
+    void 'should read optional value when present'() {
+      def reader = GsonTransformer.instance.jsonReaderFrom(["foo": 2])
+      assertThat(reader.optInt("foo").get()).isEqualTo(2)
+    }
+
+    @Test
+    void 'should read optional value when absent'() {
+      def reader = GsonTransformer.instance.jsonReaderFrom(["xyz": 2])
+      assertThat(reader.optInt("foo").isPresent()).isFalse()
+    }
+
+    @Test
+    void 'should blow up if reading wrong type'() {
+      def reader = GsonTransformer.instance.jsonReaderFrom(["foo": ["bar": "baz"]])
+      assertThatExceptionOfType(HaltException.class)
+        .isThrownBy({ reader.getInt("foo") })
+      assertThatExceptionOfType(HaltException.class)
+        .isThrownBy({ reader.optInt("foo") })
+    }
+  }
+
+  @Nested
   class JsonArray {
 
     @Test
@@ -132,14 +168,14 @@ class JsonReaderTest {
       def reader = GsonTransformer.instance.jsonReaderFrom([:])
 
       assertThatExceptionOfType(HaltException.class)
-        .isThrownBy({reader.getBoolean("foo")})
+        .isThrownBy({ reader.getBoolean("foo") })
     }
 
     @Test
     void 'should retrieve default if value is not present'() {
       def reader = GsonTransformer.instance.jsonReaderFrom([
-        "existing-property1" : true,
-        "existing-property2" : false,
+        "existing-property1": true,
+        "existing-property2": false,
       ])
 
       assertThat(reader.getBooleanOrDefault("existing-property1", false)).isTrue()

@@ -46,13 +46,31 @@ class EnvironmentsController < ApplicationController
   end
 
   def create
+    original_env_config = @environment;
     @environment.setConfigAttributes(params[:environment])
     if @environment.name().blank?
       render_environment_create_error_with_message(@environment, 'Environment name is required', 400)
       return
     end
 
-    environment_config_service.createEnvironment(@environment, current_user, @result = HttpLocalizedOperationResult.new)
+    env_agents_config = @environment.getAgents()
+    selectedUUIDs = env_agents_config.getUuids()
+
+    @result = HttpLocalizedOperationResult.new
+    environment_config_service.createEnvironment(@environment, current_user, @result)
+
+    if @result.isSuccessful() && !selectedUUIDs.empty?
+      # Environment is created successfully in config XML. Now let's associate that env with agents in DB."
+      @result = HttpLocalizedOperationResult.new
+      agent_service.updateAgentsAssociationWithSpecifiedEnv(current_user, original_env_config, selectedUUIDs, @result)
+    end
+
+    if !@result.isSuccessful()
+      # Error while associating that env with agents in DB. So rolling back (deleting environment from) config XML
+      @result = HttpLocalizedOperationResult.new
+      environment_config_service.deleteEnvironment(@environment, current_user, @result)
+    end
+
     render_environment_create_error_result(@environment)
     redirect_with_flash("Added environment '#{@environment.name()}'", :action => :index, :class => 'success') if @result.isSuccessful()
   end

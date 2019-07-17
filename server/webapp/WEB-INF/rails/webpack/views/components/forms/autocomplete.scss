@@ -15,7 +15,7 @@
  */
 
 @import "../../global/common.scss";
-@import "./_awesomplete-import.scss";
+@import "~awesomplete/awesomplete"; // don't add the `.css` extension!! See https://github.com/sass/node-sass/issues/2362#issuecomment-388634848
 
 .awesomplete > ul > li {
   color: $black;

@@ -258,11 +258,8 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
             return;
         }
 
-        EnvironmentAgentsConfig agentsAssociatedWithEnv = envConfig.getAgents();
-        List<String> uuidsAssociatedWithEnv = getAssociatedUUIDs(agentsAssociatedWithEnv);
-
-        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-        envsConfig.add(envConfig);
+        List<String> uuidsAssociatedWithEnv = getAssociatedUUIDs(envConfig.getAgents());
+        EnvironmentsConfig envsConfig = getEnvironmentsConfigFrom(envConfig);
         AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, username, result, uuidsToAssociateWithEnv,
                                                                     envsConfig, emptyList(), TriState.TRUE,
                                                                     emptyList(), emptyList(), goConfigService);
@@ -270,47 +267,66 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
             if (validator.canContinue()) {
                 validator.validate();
 
-                List<String> agentsToRemoveEnvFrom = uuidsAssociatedWithEnv.stream()
-                                                                           .filter(uuid -> !uuidsToAssociateWithEnv.contains(uuid))
-                                                                           .collect(Collectors.toList());
-
-                List<String> agentsToAddEnvTo = uuidsToAssociateWithEnv.stream()
-                                                                       .filter(uuid -> !uuidsAssociatedWithEnv.contains(uuid))
-                                                                       .collect(Collectors.toList());
+                List<String> uuidsToRemoveEnvFrom = getUUIDsToRemoveEnvFrom(uuidsToAssociateWithEnv, uuidsAssociatedWithEnv);
+                List<String> uuidsToAddEnvTo = getUUIDsToAddEnvTo(uuidsToAssociateWithEnv, uuidsAssociatedWithEnv);
 
                 String env = envConfig.name().toString();
-
-                List<AgentConfig> agentConfigs = new ArrayList<>();
-                agentConfigs.addAll(agentsToRemoveEnvFrom.stream().map(uuid -> {
-                    AgentConfig agentConfig = agentDao.agentByUuid(uuid);
-                    String finalEnvs = remove(agentConfig.getEnvironments(), singletonList(env));
-                    agentConfig.setEnvironments(finalEnvs);
-                    return agentConfig;
-                }).collect(Collectors.toList()));
-
-                agentConfigs.addAll(agentsToAddEnvTo.stream().map(uuid -> {
-                    AgentConfig agentConfig = agentDao.agentByUuid(uuid);
-                    String finalEnvs = append(agentConfig.getEnvironments(), singletonList(env));
-                    agentConfig.setEnvironments(finalEnvs);
-                    return agentConfig;
-                }).collect(Collectors.toList()));
+                List<AgentConfig> agentConfigsToRemoveEnvFromList = getAgentConfigsToRemoveEnvFromList(uuidsToRemoveEnvFrom, env);
+                List<AgentConfig> agentConfigs = new ArrayList<>(agentConfigsToRemoveEnvFromList);
+                List<AgentConfig> agentConfigsToAddEnvToList = getAgentConfigsToAddEnvToList(uuidsToAddEnvTo, env);
+                agentConfigs.addAll(agentConfigsToAddEnvToList);
 
                 if(agentConfigs.isEmpty()){
                     return;
                 }
 
                 agentDao.bulkUpdateAttributes(agentConfigs, emptyMap(), TriState.UNSET);
-
                 result.setMessage("Updated agent(s) with uuid(s): [" + join(uuidsToAssociateWithEnv, ", ") + "].");
             }
         } catch (Exception e){
             LOGGER.error("There was an error bulk updating agents", e);
-            if (e instanceof GoConfigInvalidException && !result.hasMessage()) {
-                result.unprocessableEntity(entityConfigValidationFailed(Agents.class.getAnnotation(ConfigTag.class).value(), join(uuidsToAssociateWithEnv, ","), e.getMessage()));
-            } else if (!result.hasMessage()) {
+            if (!result.hasMessage()) {
                 result.internalServerError("Server error occured. Check log for details.");
             }
         }
+    }
+
+    private List<String> getUUIDsToAddEnvTo(List<String> uuidsToAssociateWithEnv, List<String> uuidsAssociatedWithEnv) {
+        return uuidsToAssociateWithEnv.stream().filter(uuid -> !uuidsAssociatedWithEnv.contains(uuid))
+                                               .collect(Collectors.toList());
+    }
+
+    private List<String> getUUIDsToRemoveEnvFrom(List<String> uuidsToAssociateWithEnv, List<String> uuidsAssociatedWithEnv) {
+        return uuidsAssociatedWithEnv.stream().filter(uuid -> !uuidsToAssociateWithEnv.contains(uuid))
+                                              .collect(Collectors.toList());
+    }
+
+    private EnvironmentsConfig getEnvironmentsConfigFrom(EnvironmentConfig envConfig) {
+        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
+        envsConfig.add(envConfig);
+        return envsConfig;
+    }
+
+    private List<AgentConfig> getAgentConfigsToAddEnvToList(List<String> agentsToAddEnvTo, String env) {
+        return agentsToAddEnvTo.stream()
+                               .map(uuid -> {
+                                    AgentConfig agent = agentDao.agentByUuid(uuid);
+                                    String envsToSet = append(agent.getEnvironments(), singletonList(env));
+                                    agent.setEnvironments(envsToSet);
+                                    return agent;
+                               })
+                               .collect(Collectors.toList());
+    }
+
+    private List<AgentConfig> getAgentConfigsToRemoveEnvFromList(List<String> agentsToRemoveEnvFrom, String env) {
+        return agentsToRemoveEnvFrom.stream()
+                                    .map(uuid -> {
+                                        AgentConfig agent = agentDao.agentByUuid(uuid);
+                                        String envsToSet = remove(agent.getEnvironments(), singletonList(env));
+                                        agent.setEnvironments(envsToSet);
+                                        return agent;
+                                    })
+                                    .collect(Collectors.toList());
     }
 
     private void addEnvToAgent(String env, String uuid) {

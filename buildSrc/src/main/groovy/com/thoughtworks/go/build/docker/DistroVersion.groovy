@@ -21,6 +21,7 @@ class DistroVersion implements Serializable {
   String releaseName
   Date eolDate
   boolean continueToBuild
+  List<String> installPrerequisitesCommands = []
 
   boolean isAboutToEol() {
     return eolDate.before(new Date() + 95)

@@ -23,11 +23,14 @@ enum Distro implements DistroBehavior {
   alpine{
     @Override
     List<DistroVersion> getSupportedVersions() {
+      def installSasl_Pre_3_9 = ['apk add --no-cache cyrus-sasl']
+      def installSasl_Post_3_9 = ['apk add --no-cache cyrus-sasl cyrus-sasl-plain']
+
       return [
-        new DistroVersion(version: '3.7', releaseName: '3.7', eolDate: parseDate('2019-11-01')),
-        new DistroVersion(version: '3.8', releaseName: '3.8', eolDate: parseDate('2020-05-01')),
-        new DistroVersion(version: '3.9', releaseName: '3.9', eolDate: parseDate('2021-01-01')),
-        new DistroVersion(version: '3.10', releaseName: '3.10', eolDate: parseDate('2022-06-01'))
+        new DistroVersion(version: '3.7', releaseName: '3.7', eolDate: parseDate('2019-11-01'), installPrerequisitesCommands: installSasl_Pre_3_9),
+        new DistroVersion(version: '3.8', releaseName: '3.8', eolDate: parseDate('2020-05-01'), installPrerequisitesCommands: installSasl_Pre_3_9),
+        new DistroVersion(version: '3.9', releaseName: '3.9', eolDate: parseDate('2021-01-01'), installPrerequisitesCommands: installSasl_Post_3_9),
+        new DistroVersion(version: '3.10', releaseName: '3.10', eolDate: parseDate('2022-06-01'), installPrerequisitesCommands: installSasl_Post_3_9)
       ]
     }
 
@@ -43,7 +46,7 @@ enum Distro implements DistroBehavior {
       return [
         'apk --no-cache upgrade',
         // procps is needed for tanuki wrapper shell script
-        'apk add --no-cache nss git mercurial subversion openssh-client bash curl procps cyrus-sasl cyrus-sasl-plain'
+        'apk add --no-cache nss git mercurial subversion openssh-client bash curl procps'
       ]
     }
 
@@ -183,7 +186,7 @@ enum Distro implements DistroBehavior {
     @Override
     List<DistroVersion> getSupportedVersions() {
       return [
-        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'))
+        new DistroVersion(version: 'dind', releaseName: 'dind', eolDate: parseDate('2099-01-01'), installPrerequisitesCommands: ['apk add --no-cache cyrus-sasl cyrus-sasl-plain'])
       ]
     }
 

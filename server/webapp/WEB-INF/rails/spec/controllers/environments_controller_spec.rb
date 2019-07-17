@@ -303,6 +303,33 @@ describe EnvironmentsController do
       assert_flash_message_and_class(flash, "Updated environment 'foo_env'.", "success")
       expect(response.body).to eq("Updated environment 'foo_env'.")
     end
+
+    it "should return an error when agent update fails" do
+      allow(@entity_hashing_service).to receive(:md5ForEntity).and_return('md5')
+      config_new = BasicEnvironmentConfig.new()
+      expect(@environment_config_service).to receive(:getMergedEnvironmentforDisplay).with(anything, anything).and_return(com.thoughtworks.go.domain.ConfigElementForEdit.new(config_new, "md5"))
+      expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(any_args).and_return([])
+      expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
+      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
+      environment_config = BasicEnvironmentConfig.new(CaseInsensitiveString.new("foo_env"))
+      allow(@environment_config_service).to receive(:getEnvironmentForEdit).with("foo_env").and_return(environment_config)
+
+      env_agent_conf_1 = EnvironmentAgentConfig.new('uuid-1')
+      env_agents_conf = EnvironmentAgentsConfig.new()
+      env_agents_conf.add(env_agent_conf_1)
+      config_new.setAgents(env_agents_conf)
+
+      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv).with(@user, config_new, ["uuid-1"], anything) do |username, env_config, agents, result|
+        puts '\n\nSetting bad request on result object\n\n'
+        result.badRequest("Request is bad!")
+      end
+
+      put :update, params: {:no_layout => true, :environment => {'agents' => [{'uuid' => "uuid-1"}], 'name' => 'foo_env'},
+                            :name => "foo_env", :cruise_config_md5 => 'md5'}
+      puts "Response : #{response}"
+      expect(response.status).to eq(400)
+      expect(response.body).to match('Request is bad!')
+    end
   end
 
   describe "update environment showing success messages" do

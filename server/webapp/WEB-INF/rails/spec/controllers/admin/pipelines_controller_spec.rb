@@ -732,7 +732,7 @@ describe Admin::PipelinesController do
       @pipeline = PipelineConfigMother.pipelineConfig("foo.bar")
       @cruise_config.addPipeline("group1", @pipeline)
       expect(@go_config_service).to receive(:getConfigForEditing).and_return(@cruise_config)
-      expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["group1", "group2"])
+      expect(@security_service).to receive(:modifiableGroupsForUser).with(@user).and_return(["dev", "group1", "Docs", "group2", "ApiDocs", "api"])
       allow(@go_config_service).to receive(:registry)
     end
 
@@ -744,8 +744,8 @@ describe Admin::PipelinesController do
         expect(assigns[:pipeline]).to eq(clonedPipeline)
         expect(assigns[:pipeline_group]).to eq(BasicPipelineConfigs.new([clonedPipeline].to_java(PipelineConfig)))
         expect(assigns[:group_name]).to eq("group1")
-        expect(assigns[:groups_list]).to eq(["group1", "group2"])
-        expect(assigns[:groups_json]).to eq([{"group" => "group1"}, {"group" => "group2"}].to_json)
+        expect(assigns[:groups_list]).to eq(["api", "ApiDocs", "dev", "Docs", "group1", "group2"])
+        expect(assigns[:groups_json]).to eq([{"group" => "api"}, {"group" => "ApiDocs"}, {"group" => "dev"}, {"group" => "Docs"}, {"group" => "group1"}, {"group" => "group2"}].to_json)
         assert_template layout: false
       end
     end

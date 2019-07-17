@@ -101,7 +101,8 @@ If you run several agents container, you will need to overwrite the `VOLUME_DIR`
 </#if>
 
 # Running GoCD Containers as Non Root
-Starting from GoCD release `v19.6.0`, GoCD containers run as non-root user, by default. The Dockerized GoCD application will run as `go:root` (`uid:1000`, `gid:0`) user instead of running as `root:root` (`uid:0`, `gid:0`). For more information, checkout [Running Dockerized GoCD Containers as Non Root](https://www.gocd.org/2019/06/25/GoCD-non-root-containers/) blog post.
+
+With release `v19.6.0`, GoCD containers will as non-root user, by default. The Dockerized GoCD application will run with user `go` (uid: `1000`) and group `root` (gid: `0`) instead of running as user `root` (uid: `0`) and group `root` (gid: `0`). For more information, checkout [Running Dockerized GoCD Containers as Non Root](https://www.gocd.org/2019/06/25/GoCD-non-root-containers/) blog post.
 
 # Troubleshooting
 

@@ -147,7 +147,7 @@ docker inspect --format='{{(index (index .NetworkSettings.Ports "8154/tcp") 0).H
 
 # Running GoCD Containers as Non Root
 
-With release `v19.6.0`, GoCD containers will as non-root user, by default. The Dockerized GoCD application will run with user `go` (uid: `1000`) and group `root` (gid: `0`) instead of running as user `root` (uid: `0`) and group `root` (gid: `0`). For more information, checkout [Running Dockerized GoCD Containers as Non Root](https://www.gocd.org/2019/06/25/GoCD-non-root-containers/) blog post.
+With release `v19.6.0`, GoCD containers will run as non-root user, by default. The Dockerized GoCD application will run with user `go` (uid: `1000`) and group `root` (gid: `0`) instead of running as user `root` (uid: `0`) and group `root` (gid: `0`). For more information, checkout [Running Dockerized GoCD Containers as Non Root](https://www.gocd.org/2019/06/25/GoCD-non-root-containers/) blog post.
 
 # Troubleshooting
 

@@ -112,11 +112,6 @@ With release `v19.6.0`, GoCD containers will run as non-root user, by default. T
 - Check the STDOUT to see if there is any output that indicates failures `docker logs CONTAINER_ID`
 - Check the agent logs `docker exec -it CONTAINER_ID /bin/bash`, then run `less /godata/logs/*.log` inside the container.
 
-# Bugs with Docker Agent Images 17.3.0
-
-* Anyone using our docker agent image as the base image for your customized image, and writing to `/home/go` as part of your Dockerfile, these changes in `/home/go` don't persist while you start the container with your custom image.
- A fix has been applied [here](https://github.com/gocd/docker-gocd-agent/commit/27b8772) and will be available for subsequent releases of the docker images.
-
 # License
 
 ```plain

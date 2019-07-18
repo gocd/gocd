@@ -109,7 +109,7 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
         agentDao.registerListener(this);
     }
 
-    private void sync() {
+    public void sync() {
         agentInstances.sync(new Agents(agentDao.allAgents()));
     }
 

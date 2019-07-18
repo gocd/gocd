@@ -500,8 +500,8 @@ public class ScheduleServiceIntegrationTest {
         AgentConfig agentConfig2 = AgentMother.elasticAgent();
         agentConfig2.setElasticAgentId("elastic-agent-id-2");
         agentConfig2.setElasticPluginId(pluginId);
-        configHelper.addAgent(agentConfig);
-        configHelper.addAgent(agentConfig2);
+        dbHelper.addAgent(agentConfig);
+        dbHelper.addAgent(agentConfig2);
 
         //define a job in the config requiring elastic agent
         PipelineConfig pipelineToBeAdded = PipelineConfigMother.createPipelineConfigWithStages(UUID.randomUUID().toString(), "s1");
@@ -582,7 +582,7 @@ public class ScheduleServiceIntegrationTest {
     }
 
     private AgentIdentifier agent(AgentConfig agentConfig) {
-        agentService.sync(new Agents(agentConfig));
+        agentService.sync();
         agentService.approve(agentConfig.getUuid());
         return agentService.findAgent(agentConfig.getUuid()).getAgentIdentifier();
     }

@@ -28,6 +28,7 @@ import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -42,7 +43,8 @@ import static java.util.Collections.emptyList;
 /**
  * @understands persisting and retrieving agent uuid-cookie mapping
  */
-@Service
+@SuppressWarnings({"ALL"})
+@Component
 public class AgentDao extends HibernateDaoSupport {
     private final GoCache cache;
     private final TransactionTemplate transactionTemplate;

@@ -55,8 +55,8 @@ const encryptedPasswordValue = stream(new EncryptedValue({cipherText: "AES:junk:
 
 const triStateCheckbox = stream(new TriStateCheckbox());
 
-const switchStream = stream(false);
-const reallyLongText                = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+const switchStream   = stream(false);
+const reallyLongText = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
 
 export class KitchenSink extends MithrilViewComponent<null> {
   provider: DynamicSuggestionProvider = new DynamicSuggestionProvider(type);
@@ -223,38 +223,12 @@ export class KitchenSink extends MithrilViewComponent<null> {
 
         <h3>Forms</h3>
         <Form>
-          <TextField required={true}
-                     helpText="Enter your username here"
-                     label="Username"
-                     placeholder="username"
-                     property={formValue}/>
-          <TextField required={true}
-                     helpText="Enter your username here"
-                     placeholder="username"
-                     label="Username"
-                     property={formValue}/>
-          <TextField required={true}
-                     errorText="This field must be present"
-                     helpText="Lorem ipsum is the dummy text used by the print and typesetting industry"
-                     label="Lorem ipsum"
-                     property={formValue}/>
-          <CheckboxField required={true}
-                         errorText={!checkboxField() ? "You must get some icecream" : undefined}
-                         helpText="Do you want ice cream?"
-                         label="Do you want ice cream?"
-                         property={checkboxField}/>
+          {this.formFields()}
+        </Form>
 
-          <TriStateCheckboxField
-            label="Tri state checkbox"
-            property={triStateCheckbox}
-            helpText={`Tristate state is: ${triStateCheckbox().state()}`}/>
-
-          <PasswordField label="Editable password field"
-                         placeholder="password"
-                         property={passwordValue}/>
-          <PasswordField label="Locked password field"
-                         placeholder="password"
-                         property={encryptedPasswordValue}/>
+        <h3>Compact form</h3>
+        <Form compactForm={true}>
+          {this.formFields()}
         </Form>
 
         <QuickAddField property={formValue} buttonDisableReason={"Add text to enable quick add"}/>
@@ -300,6 +274,46 @@ export class KitchenSink extends MithrilViewComponent<null> {
     }
     this.provider.setType(type);
     this.provider.update();
+  }
+
+  private formFields() {
+    return [
+      <TextField required={true}
+                 helpText="Enter your username here"
+                 label="Username"
+                 placeholder="username"
+                 property={formValue}/>,
+      <TextField required={true}
+                 helpText="Enter your username here"
+                 placeholder="username"
+                 label="Username"
+                 property={formValue}/>,
+      <TextField required={true}
+                 errorText="This field must be present"
+                 helpText="Lorem ipsum is the dummy text used by the print and typesetting industry"
+                 label="Lorem ipsum"
+                 property={formValue}/>,
+      <CheckboxField required={true}
+                     errorText={!checkboxField() ? "You must get some icecream" : undefined}
+                     helpText="Do you want ice cream?"
+                     label="Do you want ice cream?"
+                     property={checkboxField}/>,
+
+      <TriStateCheckboxField
+        label="Tri state checkbox"
+        property={triStateCheckbox}
+        helpText={`Tristate state is: ${triStateCheckbox().state()}`}/>,
+
+      <PasswordField label="Editable password field"
+                     placeholder="password"
+                     property={passwordValue}
+                     helpText={"Lorem ipsum dolor sit amet, consectetur adipiscing."}/>,
+
+      <PasswordField label="Locked password field"
+                     placeholder="password"
+                     property={encryptedPasswordValue}
+                     helpText={"Lorem ipsum dolor sit amet, consectetur adipiscing."}/>,
+    ];
   }
 
   private createModal(size: Size) {

@@ -235,6 +235,10 @@ input[type="checkbox"].form-control { //sass-lint:disable-line no-qualifying-ele
   .form-check {
     margin-bottom: 0;
   }
+
+  .form-help {
+    display: block;
+  }
 }
 
 .input-small {

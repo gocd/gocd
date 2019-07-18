@@ -56,19 +56,21 @@ class EnvironmentsController < ApplicationController
     env_agents_config = @environment.getAgents()
     selectedUUIDs = env_agents_config.getUuids()
 
-    @result = HttpLocalizedOperationResult.new
-    environment_config_service.createEnvironment(@environment, current_user, @result)
+    result1 = HttpLocalizedOperationResult.new
+    result2 = HttpLocalizedOperationResult.new
 
-    if @result.isSuccessful() && !selectedUUIDs.empty?
+    environment_config_service.createEnvironment(@environment, current_user, result1)
+    @result = result1
+    if result1.isSuccessful() && !selectedUUIDs.empty?
       # Environment is created successfully in config XML. Now let's associate that env with agents in DB."
-      @result = HttpLocalizedOperationResult.new
-      agent_service.updateAgentsAssociationWithSpecifiedEnv(current_user, original_env_config, selectedUUIDs, @result)
+      agent_service.updateAgentsAssociationWithSpecifiedEnv(current_user, original_env_config, selectedUUIDs, result2)
+      @result = result2
     end
 
-    if !@result.isSuccessful()
+    if result1.isSuccessful() && !result2.isSuccessful()
       # Error while associating that env with agents in DB. So rolling back (deleting environment from) config XML
-      @result = HttpLocalizedOperationResult.new
-      environment_config_service.deleteEnvironment(@environment, current_user, @result)
+      result3 = HttpLocalizedOperationResult.new
+      environment_config_service.deleteEnvironment(@environment, current_user, result3)
     end
 
     render_environment_create_error_result(@environment)

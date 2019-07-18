@@ -120,18 +120,29 @@ describe EnvironmentsController do
     end
 
     it "should create a new environment with pipeline selections" do
+      allow(controller).to receive(:agent_service).and_return(@agent_service = double(AgentService))
       user = com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo'))
       allow(controller).to receive(:current_user).and_return(user)
       environment_name = "foo-environment"
-      createEnvironmentCalled = false
+      create_environment_called = false
       expect(@environment_config_service).to receive(:getAllLocalPipelinesForUser).with(user).and_return([EnvironmentPipelineModel.new("foo", nil), EnvironmentPipelineModel.new("bar", nil)])
       expect(@environment_config_service).to receive(:getAllRemotePipelinesForUserInEnvironment).with(anything, anything).and_return([])
+      allow(@agent_service).to receive(:registeredAgents).and_return(AgentsViewModel.new)
       expect(@environment_config_service).to receive(:createEnvironment) do |env_config, user, result|
         expect(env_config.name()).to eq(CaseInsensitiveString.new(environment_name))
         expect(env_config.getPipelineNames().to_a).to eq([CaseInsensitiveString.new("first_pipeline"), CaseInsensitiveString.new("second_pipeline")])
         expect(env_config.getAgents().map(&:getUuid)).to eq(["agent_1_uuid"])
-        expect(user).to eq(com.thoughtworks.go.server.domain.Username.new(CaseInsensitiveString.new('user_foo')))
-        createEnvironmentCalled = true
+        expect(user).to eq(user)
+        create_environment_called = true
+      end
+
+      expect(@agent_service).to receive(:updateAgentsAssociationWithSpecifiedEnv) do |user, env_config, uuids, result|
+        expect(user).to eq(user)
+        expect(env_config.name()).to eq(CaseInsensitiveString.new(environment_name))
+        expect(env_config.getAgents().map(&:getUuid)).to eq(["agent_1_uuid"])
+        expect(uuids).to include('agent_1_uuid')
+
+        result.setMessage('Agents updated uuid(s): [agent_1_uuid].')
       end
 
       post :create, params: {:no_layout => true, :environment => {:name => environment_name, :pipelines => [{:name => "first_pipeline"}, {:name => "second_pipeline"}], :agents => [{:uuid => "agent_1_uuid"}]}}
@@ -139,7 +150,7 @@ describe EnvironmentsController do
       expect(response.status).to eq(302)
       flash_guid = $1 if response.location =~ /environments\?.*?fm=(.+)/
       assert_flash_message_and_class(controller.flash_message_service.get(flash_guid), "Added environment 'foo-environment'", "success")
-      expect(createEnvironmentCalled).to eq(true)
+      expect(create_environment_called).to eq(true)
     end
   end
 

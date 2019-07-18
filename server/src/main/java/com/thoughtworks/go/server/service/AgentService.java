@@ -281,7 +281,9 @@ public class AgentService implements DatabaseEntityChangeListener<AgentConfig> {
                 }
 
                 agentDao.bulkUpdateAttributes(agentConfigs, emptyMap(), TriState.UNSET);
-                result.setMessage("Updated agent(s) with uuid(s): [" + join(uuidsToAssociateWithEnv, ", ") + "].");
+                String message = "Updated agent(s) with uuid(s): [" + join(uuidsToAssociateWithEnv, ", ") + "].";
+                result.setMessage(message);
+                LOGGER.debug(message);
             }
         } catch (Exception e){
             LOGGER.error("There was an error bulk updating agents", e);

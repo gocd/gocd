@@ -16,7 +16,8 @@
 import * as _ from "lodash";
 import {Stream} from "mithril/stream";
 import * as stream from "mithril/stream";
-import * as s from "underscore.string";
+
+const s = require("helpers/string-plus");
 
 interface ClearTextData {
   clearText?: string;
@@ -115,4 +116,17 @@ export class EncryptedValue {
     }
   }
 
+}
+
+export interface PasswordLike {
+  cipherText?: string;
+  plainText?: string;
+}
+
+export function plainOrCipherValue(passwordLike: PasswordLike): EncryptedValue {
+  if (passwordLike.cipherText) {
+    return new EncryptedValue({cipherText: s.defaultToIfBlank(passwordLike.cipherText, "")});
+  } else {
+    return new EncryptedValue({clearText: s.defaultToIfBlank(passwordLike.plainText, "")});
+  }
 }

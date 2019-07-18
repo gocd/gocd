@@ -20,9 +20,8 @@ import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors, ErrorsJSON} from "models/mixins/errors";
 import {applyMixins} from "models/mixins/mixins";
 import {ValidatableMixin} from "models/mixins/new_validatable_mixin";
-import {EncryptedValue} from "views/components/forms/encrypted_value";
+import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 
-const s             = require("helpers/string-plus");
 const TimeFormatter = require("helpers/time_formatter");
 
 export interface MaterialJSON {
@@ -200,19 +199,6 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
 }
 
 applyMixins(GitMaterialAttributes, ValidatableMixin);
-
-interface PasswordLike {
-  cipherText: string;
-  plainText: string;
-}
-
-function plainOrCipherValue(passwordLike: PasswordLike) {
-  if (passwordLike.cipherText) {
-    return new EncryptedValue({cipherText: s.defaultToIfBlank(passwordLike.cipherText, "")});
-  } else {
-    return new EncryptedValue({clearText: s.defaultToIfBlank(passwordLike.plainText, "")});
-  }
-}
 
 export class SvnMaterialAttributes extends ScmMaterialAttributes {
   checkExternals: Stream<boolean>;

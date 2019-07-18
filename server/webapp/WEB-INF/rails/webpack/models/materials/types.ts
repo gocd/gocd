@@ -34,9 +34,8 @@ import {ErrorMessages} from "models/mixins/error_messages";
 import {Errors} from "models/mixins/errors";
 import {ErrorsConsumer} from "models/mixins/errors_consumer";
 import {ValidatableMixin, Validator} from "models/mixins/new_validatable_mixin";
-import {EncryptedValue} from "views/components/forms/encrypted_value";
+import {EncryptedValue, plainOrCipherValue} from "views/components/forms/encrypted_value";
 
-const s        = require("helpers/string-plus");
 const urlParse = require("url-parse");
 
 //tslint:disable-next-line
@@ -265,19 +264,6 @@ export class GitMaterialAttributes extends ScmMaterialAttributes {
     }
     attrs.errors(new Errors(json.errors));
     return attrs;
-  }
-}
-
-interface PasswordLike {
-  cipherText?: string;
-  plainText?: string;
-}
-
-function plainOrCipherValue(passwordLike: PasswordLike) {
-  if (passwordLike.cipherText) {
-    return new EncryptedValue({cipherText: s.defaultToIfBlank(passwordLike.cipherText, "")});
-  } else {
-    return new EncryptedValue({clearText: s.defaultToIfBlank(passwordLike.plainText, "")});
   }
 }
 

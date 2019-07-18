@@ -69,11 +69,11 @@ RUN \
 <#list distro.createUserAndGroupCommands as command>
   ${command} && \
 </#list>
-<#list distro.installPrerequisitesCommands as command>
-  ${command} && \
-</#list>
 <#list distroVersion.installPrerequisitesCommands as command>
     ${command} && \
+</#list>
+<#list distro.installPrerequisitesCommands as command>
+  ${command} && \
 </#list>
 <#list distro.getInstallJavaCommands(project) as command>
   ${command} && \

@@ -89,7 +89,7 @@ class EnvironmentsController < ApplicationController
     result = HttpLocalizedOperationResult.new
     if environment_attributes.key?(EnvironmentConfig.AGENTS_FIELD)
       finalUUIDsToAssociate = environment_attributes.fetch(EnvironmentConfig.AGENTS_FIELD)
-                                                    .map {|agent_uuid| agent_uuid.fetch('uuid')}
+                                .map {|agent_uuid| agent_uuid.fetch('uuid')}
 
       message = "Updated environment '#{environment_config_name}'."
       if finalUUIDsToAssociate.empty? && original_agents.empty?
@@ -104,7 +104,7 @@ class EnvironmentsController < ApplicationController
     end
 
     environment_attributes.delete(EnvironmentConfig.AGENTS_FIELD)
-    if environment_attributes.length > 1
+    if environment_attributes.key?(EnvironmentConfig.PIPELINES_FIELD) || environment_attributes.key?(EnvironmentConfig.VARIABLES_FIELD)
       environment_config_service.updateEnvironment(environment_config_name, @environment, current_user, params[:cruise_config_md5], result)
       message = result.message()
     end

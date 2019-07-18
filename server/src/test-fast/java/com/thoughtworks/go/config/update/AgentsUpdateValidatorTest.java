@@ -202,56 +202,6 @@ public class AgentsUpdateValidatorTest {
         }
     }
 
-    //TODO Vrushali/Saurabh: Incorporate this test in Agent DB related tests.
-//    @Test
-//    public void shouldDoNothingWhenTryingToAddAgentToEnvironmentAlreadyAssociatedInConfigRepo() throws Exception {
-//        environmentsToAdd.add("prod");
-//        BasicEnvironmentConfig environmentConfig = new BasicEnvironmentConfig(str("prod"));
-//        environmentConfig.setOrigins(new RepoConfigOrigin());
-//
-//        AgentInstance agentInstance = AgentInstanceMother.disabled();
-//        AgentConfig agentConfig = agentInstance.agentConfig();
-//
-//        cruiseConfig.addEnvironment("prod");
-//        cruiseConfig.agents().add(agentConfig);
-//
-//        uuids.add(agentConfig.getUuid());
-//        environmentConfig.addAgent(agentConfig.getUuid());
-//
-//        assertThat(cruiseConfig.getEnvironments().find(new CaseInsensitiveString("prod")).getAgents().getUuids(), is(emptyList()));
-//
-//        when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
-//        when(environmentConfigService.getEnvironmentConfig("prod"))
-//                .thenReturn(environmentConfig);
-//
-//        AgentsUpdateValidator command = newAgentsEntityConfigUpdateCommand();
-//        command.update(cruiseConfig);
-//
-//        assertThat(cruiseConfig.getEnvironments().find(new CaseInsensitiveString("prod")).getAgents().getUuids(), is(emptyList()));
-//    }
-
-//    @Test
-//    public void shouldUpdateConfigStateOfAgents() throws Exception {
-//
-//        AgentInstance agentInstance = AgentInstanceMother.disabled();
-//        AgentConfig agentConfig = agentInstance.agentConfig();
-//        agentConfig.disable();
-//
-//        cruiseConfig.agents().add(agentConfig);
-//
-//        assertThat(agentConfig.isEnabled(), is(false));
-//
-//        triState = TriState.TRUE;
-//        uuids.add(agentConfig.getUuid());
-//
-//        when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
-//
-//        AgentsUpdateValidator command = newAgentsEntityConfigUpdateCommand();
-//        command.update(cruiseConfig);
-//
-//        assertThat(agentConfig.isEnabled(), is(true));
-//    }
-
     private AgentsUpdateValidator newAgentsUpdateValidator() {
         EnvironmentsConfig envsConfig = new EnvironmentsConfig();
         environmentsToAdd.forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));

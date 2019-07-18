@@ -860,10 +860,9 @@ public class GoConfigFileHelper {
         writeConfigFile(config);
     }
 
-    public void addAgentToEnvironment(String env, String uuid) {
-        CruiseConfig config = loadForEdit();
-        config.getEnvironments().addAgentsToEnvironment(env, uuid);
-        writeConfigFile(config);
+    public EnvironmentConfig getEnvironment(String env){
+        CruiseConfig config = load();
+        return config.getEnvironments().find(new CaseInsensitiveString(env));
     }
 
     public void addPipelineToEnvironment(String env, String pipelineName) {

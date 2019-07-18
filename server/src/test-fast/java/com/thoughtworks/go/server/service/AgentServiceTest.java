@@ -326,7 +326,6 @@ public class AgentServiceTest {
         verify(agentDao).bulkUpdateAttributes(anyList(), anyMap(), eq(TriState.TRUE));
         assertThat(operationResult.isSuccessful(), is(true));
         assertThat(operationResult.message(), is("Updated agent(s) with uuid(s): [uuid, UUID2]."));
-
     }
 
 }

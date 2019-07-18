@@ -17,6 +17,8 @@ package com.thoughtworks.go.server.service;
 
 import com.thoughtworks.go.config.*;
 import com.thoughtworks.go.config.exceptions.EntityType;
+import com.thoughtworks.go.config.remote.RepoConfigOrigin;
+import com.thoughtworks.go.config.update.AgentsUpdateValidator;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
@@ -68,7 +70,6 @@ import static org.mockito.Mockito.*;
         "classpath:WEB-INF/spring-all-servlet.xml"
 })
 
-//TODO: Vrushali and Viraj need to fix this
 public class AgentServiceIntegrationTest {
     @Autowired
     private GoConfigDao goConfigDao;
@@ -1150,6 +1151,32 @@ public class AgentServiceIntegrationTest {
     @ContextConfiguration(locations = {"classpath:WEB-INF/applicationContext-global.xml", "classpath:WEB-INF/applicationContext-dataLocalAccess.xml",
             "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
     class Environments {
+        @Test
+        public void shouldDoNothingWhenTryingToAddAgentToEnvironmentAlreadyAssociatedInConfigRepo() throws Exception {
+            // Step 1 : create and add en environment in Config XML
+            String prodEnv = "prod";
+            createEnvironment(prodEnv);
+            createEnabledAgent(UUID);
+
+            // Step 2 : create agent and associate it in memory with environment
+            EnvironmentConfig envConfig = CONFIG_HELPER.getEnvironment(prodEnv);
+            envConfig.setOrigins(new RepoConfigOrigin());
+            envConfig.addAgent(UUID);
+
+            // Step 3 : Try to store agent-environment associations in DB
+            List<String> emptyList = emptyStrList;
+            HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
+            EnvironmentsConfig envsConfig = new EnvironmentsConfig();
+            envsConfig.add(envConfig);
+            agentService.bulkUpdateAgentAttributes(USERNAME, result, singletonList(UUID), emptyList, emptyList,
+                                                   envsConfig, emptyList, TriState.UNSET);
+
+            // Step 4 : Assert that association was not stored because the association exists in config repo
+            AgentInstance agentInstance = agentService.findAgent(UUID);
+            Agent agent = agentInstance.getAgent();
+            assertTrue(agent.getEnvironmentsAsList().isEmpty());
+        }
+
         @Test
         public void shouldBeAbleToUpdateEnvironmentsUsingUpdateAgentAttrsCall() {
             createEnvironment("a", "b", "c", "d", "e");

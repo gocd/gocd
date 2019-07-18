@@ -434,7 +434,7 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
             if (allAgents.size() != uuids.size()) {
                 List<String> uuidsOfAgentsInDatabase = allAgents.stream().map(Agent::getUuid).collect(Collectors.toList());
                 List<String> nonExistentAgentIds = uuids.stream().filter(uuid -> !uuidsOfAgentsInDatabase.contains(uuid)).collect(Collectors.toList());
-                //TODO : Revisit this for checking whether to throw this error
+
                 if (!nonExistentAgentIds.isEmpty()) {
                     bomb("Unable to delete agent; Agent [" + nonExistentAgentIds + "] not found.");
                 }

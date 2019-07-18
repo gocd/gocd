@@ -24,8 +24,9 @@ import static com.thoughtworks.go.util.GoConstants.CONFIG_SCHEMA_VERSION;
 
 public final class ConfigFileFixture {
 
-    public static final String WITH_3_AGENT_CONFIG =
-            "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
+    public static final String BASIC_CONFIG =
+            "<cruise schemaVersion=\""
+                    + CONFIG_SCHEMA_VERSION + "\">\n"
                     + "<server artifactsdir='artifactsDir' />"
                     + "<pipelines>\n"
                     + "<pipeline name='pipeline1'>\n"
@@ -149,33 +150,7 @@ public final class ConfigFileFixture {
                 + "</cruise>";
     }
 
-    public static final String WITH_MULTIPLE_LOCAL_AGENT_CONFIG =
-            "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
-                    + "<server artifactsdir='artifactsDir' />"
-                    + "<pipelines>\n"
-                    + "<pipeline name='pipeline1'>\n"
-                    + "    <materials>\n"
-                    + "      <svn url =\"svnurl\"/>"
-                    + "    </materials>\n"
-                    + "  <stage name='mingle'>\n"
-                    + "    <jobs>\n"
-                    + "      <job name='cardlist' />\n"
-                    + "      <job name='bluemonkeybutt'>\n"
-                    + "        <artifacts>\n"
-                    + "          <artifact src='from' dest='to' type=\"test\"/>\n"
-                    + "        </artifacts>\n"
-                    + "      </job>\n"
-                    + "    </jobs>\n"
-                    + "  </stage>\n"
-                    + "</pipeline>\n"
-                    + "</pipelines>\n"
-                    + "    <agents>\n"
-                    + "        <agent uuid='1' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "        <agent uuid='2' hostname='test1.com' ipaddress='192.168.0.1' />\n"
-                    + "    </agents>\n"
-                    + "</cruise>";
-
-    public static final String CONFIG_WITH_ANT_BUILDER =
+   public static final String CONFIG_WITH_ANT_BUILDER =
             "<cruise schemaVersion='" + CONFIG_SCHEMA_VERSION + "'>\n"
                     + "<server artifactsdir='artifactsDir' />"
                     + "<pipelines>\n"

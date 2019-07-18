@@ -20,7 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
@@ -56,8 +56,8 @@ public class TriStateSelectionTest {
     @Test
     public void shouldHaveActionAddIfAllAgentsHaveThatResource() {
         resourceConfigs.add(new ResourceConfig("all"));
-        agents.add(new AgentConfig("uuid1", "host1", "127.0.0.1", new ResourceConfigs("all")));
-        agents.add(new AgentConfig("uuid2", "host2", "127.0.0.2", new ResourceConfigs("all")));
+        agents.add(new Agent("uuid1", "host1", "127.0.0.1", new ResourceConfigs("all")));
+        agents.add(new Agent("uuid2", "host2", "127.0.0.2", new ResourceConfigs("all")));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("all", TriStateSelection.Action.add)));
@@ -66,8 +66,8 @@ public class TriStateSelectionTest {
     @Test
     public void shouldBeNoChangeIfAllAgentsHaveThatResource() {
         resourceConfigs.add(new ResourceConfig("some"));
-        agents.add(new AgentConfig("uuid1", "host1", "127.0.0.1", new ResourceConfigs("some")));
-        agents.add(new AgentConfig("uuid2", "host2", "127.0.0.2", new ResourceConfigs()));
+        agents.add(new Agent("uuid1", "host1", "127.0.0.1", new ResourceConfigs("some")));
+        agents.add(new Agent("uuid2", "host2", "127.0.0.2", new ResourceConfigs()));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("some", TriStateSelection.Action.nochange)));
@@ -76,8 +76,8 @@ public class TriStateSelectionTest {
     @Test
     public void shouldHaveActionRemoveIfNoAgentsHaveResource() {
         resourceConfigs.add(new ResourceConfig("none"));
-        agents.add(new AgentConfig("uuid1", "host1", "127.0.0.1", new ResourceConfigs("one")));
-        agents.add(new AgentConfig("uuid2", "host2", "127.0.0.2", new ResourceConfigs("two")));
+        agents.add(new Agent("uuid1", "host1", "127.0.0.1", new ResourceConfigs("one")));
+        agents.add(new Agent("uuid2", "host2", "127.0.0.2", new ResourceConfigs("two")));
 
         List<TriStateSelection> selections = TriStateSelection.forAgentsResources(resourceConfigs, agents);
         assertThat(selections, hasItem(new TriStateSelection("none", TriStateSelection.Action.remove)));

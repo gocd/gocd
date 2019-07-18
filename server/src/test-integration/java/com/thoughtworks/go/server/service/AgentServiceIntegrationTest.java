@@ -132,8 +132,8 @@ public class AgentServiceIntegrationTest {
     class DeleteAgents {
         @Test
         public void onlyDisabledAgentsShouldBeAllowedToBeDeleted() {
-            AgentConfig disabledAgent = createAnIdleAgentAndDisableIt(UUID);
-            AgentConfig enabledAgent = createEnabledAgent(UUID2);
+            Agent disabledAgent = createAnIdleAgentAndDisableIt(UUID);
+            Agent enabledAgent = createEnabledAgent(UUID2);
 
             assertThat(agentService.agentInstances().size(), is(2));
 
@@ -155,8 +155,8 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldDeleteAgentsOnlyWhenAllRequestedAgentsAreDisabled() {
-            AgentConfig disabledAgent1 = createAnIdleAgentAndDisableIt(UUID);
-            AgentConfig disabledAgent2 = createAnIdleAgentAndDisableIt(UUID2);
+            Agent disabledAgent1 = createAnIdleAgentAndDisableIt(UUID);
+            Agent disabledAgent2 = createAnIdleAgentAndDisableIt(UUID2);
 
             assertThat(agentService.agentInstances().size(), is(2));
 
@@ -172,7 +172,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldNotBeAbleToDeleteADisabledAgentWhoseRuntimeStatusIsBuilding() {
-            AgentConfig disabledButBuildingAgent = createDisabledAgentWithBuildingRuntimeStatus(UUID);
+            Agent disabledButBuildingAgent = createDisabledAgentWithBuildingRuntimeStatus(UUID);
 
             assertThat(agentService.agentInstances().size(), is(1));
 
@@ -189,7 +189,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldFindAgentViewModelForAnExistingAgent() {
-            AgentConfig agent = createEnabledAgent(UUID);
+            Agent agent = createEnabledAgent(UUID);
             String env = "prod";
             agent.setEnvironments(env);
             agentDao.saveOrUpdate(agent);
@@ -203,8 +203,8 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldNotDeleteAnyAgentWhenOneOfTheRequestedAgentIsNotDisabled() {
-            AgentConfig disabledAgent = createAnIdleAgentAndDisableIt(UUID);
-            AgentConfig enabledAgent = createEnabledAgent(UUID2);
+            Agent disabledAgent = createAnIdleAgentAndDisableIt(UUID);
+            Agent enabledAgent = createEnabledAgent(UUID2);
 
             assertThat(agentService.agentInstances().size(), is(2));
 
@@ -266,7 +266,7 @@ public class AgentServiceIntegrationTest {
         @Test
         public void shouldBeAbleToDisableAPendingAgent() {
             String agentId = DatabaseAccessHelper.AGENT_UUID;
-            AgentConfig agent = new AgentConfig(agentId, "agentName", "50.40.30.9");
+            Agent agent = new Agent(agentId, "agentName", "50.40.30.9");
             AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
             agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
             agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
@@ -281,7 +281,7 @@ public class AgentServiceIntegrationTest {
         @Test
         public void shouldBeAbleToEnableAPendingAgent() {
             String agentId = DatabaseAccessHelper.AGENT_UUID;
-            AgentConfig agent = new AgentConfig(agentId, "agentName", "50.40.30.9");
+            Agent agent = new Agent(agentId, "agentName", "50.40.30.9");
             AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
             agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
             agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
@@ -295,10 +295,10 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldDenyAgentFromPendingList() {
-            AgentInstance pending = AgentInstanceMother.pending();
-            agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
+            AgentInstance pendingAgentInstance = AgentInstanceMother.pending();
+            agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pendingAgentInstance.getAgent(), false, "var/lib", 0L, "linux", false));
 
-            String uuid = pending.getUuid();
+            String uuid = pendingAgentInstance.getUuid();
 
             HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
             agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(uuid), emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.FALSE);
@@ -317,7 +317,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldNotAllowAnyUpdateOperationOnPendingAgentsIfConfigStateIsNotProvided() {
-            AgentRuntimeInfo pendingAgent = AgentRuntimeInfo.fromServer(new AgentConfig(UUID, "CCeDev03", "10.18.5.3", new ResourceConfigs(new ResourceConfig("db"), new ResourceConfig("web"))), false, "/var/lib", 0L, "linux", false);
+            AgentRuntimeInfo pendingAgent = AgentRuntimeInfo.fromServer(new Agent(UUID, "CCeDev03", "10.18.5.3", new ResourceConfigs(new ResourceConfig("db"), new ResourceConfig("web"))), false, "/var/lib", 0L, "linux", false);
             agentService.requestRegistration(Username.ANONYMOUS, pendingAgent);
             assertThat(agentService.findAgent(UUID).isRegistered(), is(false));
 
@@ -345,10 +345,10 @@ public class AgentServiceIntegrationTest {
     class EnableDisableAgents {
         @Test
         public void shouldBeAbleToDisableAgent() {
-            AgentConfig agent = new AgentConfig(UUID, "agentName", "127.0.0.9", "cookie");
+            Agent agent = new Agent(UUID, "agentName", "127.0.0.9", "cookie");
             agentDao.saveOrUpdate(agent);
 
-            AgentConfig agentInDB = agentDao.agentByUuid(UUID);
+            Agent agentInDB = agentDao.agentByUuid(UUID);
             assertThat(agentInDB.isDisabled(), is(false));
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
@@ -379,7 +379,7 @@ public class AgentServiceIntegrationTest {
         public void shouldBeAbleToDisableBuildingAgent() {
             String agentName = "agentName";
             String agentId = DatabaseAccessHelper.AGENT_UUID;
-            AgentConfig agent = new AgentConfig(agentId, agentName, "127.0.0.9");
+            Agent agent = new Agent(agentId, agentName, "127.0.0.9");
             requestRegistrationAndApproveAgent(agent);
 
             AgentIdentifier agentIdentifier = agent.getAgentIdentifier();
@@ -398,8 +398,8 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldDisableCorrectAgentWhenTwoOnSameBox() {
-            AgentConfig agent1 = new AgentConfig(UUID, "agentName", "127.0.0.9", "cookie");
-            AgentConfig agent2 = new AgentConfig(UUID2, "agentName", "127.0.0.9", "cookie2");
+            Agent agent1 = new Agent(UUID, "agentName", "127.0.0.9", "cookie");
+            Agent agent2 = new Agent(UUID2, "agentName", "127.0.0.9", "cookie2");
 
             agentDao.saveOrUpdate(agent1);
             agentDao.saveOrUpdate(agent2);
@@ -418,7 +418,7 @@ public class AgentServiceIntegrationTest {
         @Test
         public void shouldBeAbleToEnableADisabledAgent() {
             String agentId = DatabaseAccessHelper.AGENT_UUID;
-            AgentConfig agent = new AgentConfig(agentId, "agentName", "127.0.0.9");
+            Agent agent = new Agent(agentId, "agentName", "127.0.0.9");
             requestRegistrationAndApproveAgent(agent);
             disableAgent(agent);
 
@@ -432,8 +432,8 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldBeAbleToEnabledMultipleAgents() {
-            AgentConfig agent1 = createDisabledAgentWithBuildingRuntimeStatus(UUID);
-            AgentConfig agent2 = createDisabledAgentWithBuildingRuntimeStatus(UUID2);
+            Agent agent1 = createDisabledAgentWithBuildingRuntimeStatus(UUID);
+            Agent agent2 = createDisabledAgentWithBuildingRuntimeStatus(UUID2);
 
             HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
             agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(UUID, UUID2), emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE);
@@ -446,16 +446,16 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldBeAbleToDisableMultipleAgents() {
-            AgentConfig agentConfig1 = createEnabledAgent(UUID);
-            AgentConfig agentConfig2 = createEnabledAgent(UUID2);
+            Agent agent1 = createEnabledAgent(UUID);
+            Agent agent2 = createEnabledAgent(UUID2);
 
             HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
             agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(UUID, UUID2), emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.FALSE);
 
             assertThat(operationResult.httpCode(), is(200));
             assertThat(operationResult.message(), containsString("Updated agent(s) with uuid(s): [uuid, uuid2]."));
-            assertThat(isDisabled(agentConfig1), is(true));
-            assertThat(isDisabled(agentConfig2), is(true));
+            assertThat(isDisabled(agent1), is(true));
+            assertThat(isDisabled(agent2), is(true));
         }
 
         @Test
@@ -475,8 +475,8 @@ public class AgentServiceIntegrationTest {
         public void shouldReturn200WhenAnAlreadyEnableAgentIsEnabled() {
             String agentName = "agentName";
             String agentId = DatabaseAccessHelper.AGENT_UUID;
-            AgentConfig agentConfig = new AgentConfig(agentId, agentName, "127.0.0.9");
-            requestRegistrationAndApproveAgent(agentConfig);
+            Agent agent = new Agent(agentId, agentName, "127.0.0.9");
+            requestRegistrationAndApproveAgent(agent);
 
             HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
             agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(agentId), emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE);
@@ -489,9 +489,9 @@ public class AgentServiceIntegrationTest {
         public void shouldReturn200OnTryingToDisableADisabledAgent() {
             String agentName = "agentName";
             String agentId = DatabaseAccessHelper.AGENT_UUID;
-            AgentConfig agentConfig = new AgentConfig(agentId, agentName, "127.0.0.9");
-            requestRegistrationAndApproveAgent(agentConfig);
-            disableAgent(agentConfig);
+            Agent agent = new Agent(agentId, agentName, "127.0.0.9");
+            requestRegistrationAndApproveAgent(agent);
+            disableAgent(agent);
 
             HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
             agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(agentId), emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.FALSE);
@@ -506,8 +506,8 @@ public class AgentServiceIntegrationTest {
             createDisabledAgentWithBuildingRuntimeStatus("disabled");
 
             assertThat(agentService.agentInstances().size(), is(2));
-            assertThat(agentService.findAgentAndRefreshStatus("enabled").agentConfig().isDisabled(), is(false));
-            assertThat(agentService.findAgentAndRefreshStatus("disabled").agentConfig().isDisabled(), is(true));
+            assertThat(agentService.findAgentAndRefreshStatus("enabled").getAgent().isDisabled(), is(false));
+            assertThat(agentService.findAgentAndRefreshStatus("disabled").getAgent().isDisabled(), is(true));
 
             HttpOperationResult operationResult = new HttpOperationResult();
             agentService.updateAgentAttributes(USERNAME, operationResult, "enabled", "new.enabled.hostname", "linux,java", null, TriState.UNSET);
@@ -516,51 +516,51 @@ public class AgentServiceIntegrationTest {
             assertThat(operationResult.httpCode(), is(200));
 
             assertThat(agentService.agentInstances().size(), is(2));
-            assertThat(agentService.findAgentAndRefreshStatus("enabled").agentConfig().isDisabled(), is(false));
-            assertThat(agentService.findAgentAndRefreshStatus("disabled").agentConfig().isDisabled(), is(true));
+            assertThat(agentService.findAgentAndRefreshStatus("enabled").getAgent().isDisabled(), is(false));
+            assertThat(agentService.findAgentAndRefreshStatus("disabled").getAgent().isDisabled(), is(true));
         }
 
         @Test
         public void shouldAllowEnablingThePendingAndDisabledAgentsTogether() {
-            AgentRuntimeInfo pendingAgent = AgentRuntimeInfo.fromServer(new AgentConfig(UUID, "CCeDev03", "10.18.5.3", new ResourceConfigs(new ResourceConfig("db"), new ResourceConfig("web"))), false, "/var/lib", 0L, "linux", false);
-            AgentConfig agentConfig = new AgentConfig(UUID2, "remote-host1", "50.40.30.21");
+            AgentRuntimeInfo pendingAgent = AgentRuntimeInfo.fromServer(new Agent(UUID, "CCeDev03", "10.18.5.3", new ResourceConfigs(new ResourceConfig("db"), new ResourceConfig("web"))), false, "/var/lib", 0L, "linux", false);
+            Agent agent = new Agent(UUID2, "remote-host1", "50.40.30.21");
 
             agentService.requestRegistration(Username.ANONYMOUS, pendingAgent);
-            agentService.register(agentConfig, null, null, new HttpOperationResult());
-            agentService.disableAgents(agentConfig.getUuid());
+            agentService.register(agent, null, null, new HttpOperationResult());
+            agentService.disableAgents(agent.getUuid());
 
             assertThat(agentService.findAgent(UUID).isRegistered(), is(false));
-            assertThat(agentService.findAgent(agentConfig.getUuid()).isDisabled(), is(true));
+            assertThat(agentService.findAgent(agent.getUuid()).isDisabled(), is(true));
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            List<String> uuids = asList(UUID, agentConfig.getUuid());
+            List<String> uuids = asList(UUID, agent.getUuid());
 
             agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE);
 
             assertTrue(result.isSuccessful());
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [" + StringUtils.join(uuids, ", ") + "]."));
             assertThat(agentService.agents().getAgentByUuid(UUID).isEnabled(), is(true));
-            assertThat(agentService.agents().getAgentByUuid(agentConfig.getUuid()).isEnabled(), is(true));
+            assertThat(agentService.agents().getAgentByUuid(agent.getUuid()).isEnabled(), is(true));
         }
 
         @Test
         public void shouldNotDisableAgentsWhenInvalidAgentUUIDIsProvided() {
-            AgentConfig agentConfig1 = new AgentConfig(UUID, "remote-host1", "50.40.30.21");
-            AgentConfig agentConfig2 = new AgentConfig(UUID2, "remote-host2", "50.40.30.22");
+            Agent agent = new Agent(UUID, "remote-host1", "50.40.30.21");
+            Agent agent1 = new Agent(UUID2, "remote-host2", "50.40.30.22");
 
-            agentService.register(agentConfig1, null, null, new HttpOperationResult());
-            agentService.register(agentConfig2, null, null, new HttpOperationResult());
+            agentService.register(agent, null, null, new HttpOperationResult());
+            agentService.register(agent1, null, null, new HttpOperationResult());
 
-            assertFalse(agentService.findAgent(agentConfig1.getUuid()).isDisabled());
-            assertFalse(agentService.findAgent(agentConfig2.getUuid()).isDisabled());
+            assertFalse(agentService.findAgent(agent.getUuid()).isDisabled());
+            assertFalse(agentService.findAgent(agent1.getUuid()).isDisabled());
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            List<String> uuids = asList(agentConfig1.getUuid(), agentConfig2.getUuid(), "invalid-uuid");
+            List<String> uuids = asList(agent.getUuid(), agent1.getUuid(), "invalid-uuid");
 
             agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.FALSE);
 
-            assertFalse(agentService.findAgent(agentConfig1.getUuid()).isDisabled());
-            assertFalse(agentService.findAgent(agentConfig2.getUuid()).isDisabled());
+            assertFalse(agentService.findAgent(agent.getUuid()).isDisabled());
+            assertFalse(agentService.findAgent(agent1.getUuid()).isDisabled());
 
             assertFalse(result.isSuccessful());
             assertThat(result.httpCode(), is(400));
@@ -569,22 +569,22 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldNotEnableAgentsWhenInvalidAgentUUIDIsProvided() {
-            AgentConfig agentConfig1 = new AgentConfig(UUID, "remote-host1", "50.40.30.21");
-            AgentConfig agentConfig2 = new AgentConfig(UUID2, "remote-host2", "50.40.30.22");
+            Agent agent = new Agent(UUID, "remote-host1", "50.40.30.21");
+            Agent agent1 = new Agent(UUID2, "remote-host2", "50.40.30.22");
 
-            agentService.register(agentConfig1, null, null, new HttpOperationResult());
-            agentService.register(agentConfig2, null, null, new HttpOperationResult());
+            agentService.register(agent, null, null, new HttpOperationResult());
+            agentService.register(agent1, null, null, new HttpOperationResult());
 
-            assertFalse(agentService.findAgent(agentConfig1.getUuid()).isDisabled());
-            assertFalse(agentService.findAgent(agentConfig2.getUuid()).isDisabled());
+            assertFalse(agentService.findAgent(agent.getUuid()).isDisabled());
+            assertFalse(agentService.findAgent(agent1.getUuid()).isDisabled());
 
             HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
-            List<String> uuids = asList(agentConfig1.getUuid(), agentConfig2.getUuid(), "invalid-uuid");
+            List<String> uuids = asList(agent.getUuid(), agent1.getUuid(), "invalid-uuid");
 
             agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.TRUE);
 
-            assertFalse(agentService.findAgent(agentConfig1.getUuid()).isDisabled());
-            assertFalse(agentService.findAgent(agentConfig2.getUuid()).isDisabled());
+            assertFalse(agentService.findAgent(agent.getUuid()).isDisabled());
+            assertFalse(agentService.findAgent(agent1.getUuid()).isDisabled());
 
             assertFalse(result.isSuccessful());
             assertThat(result.httpCode(), is(400));
@@ -665,7 +665,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldThrow422WhenUpdatingAgentWithInvalidInputs() {
-            AgentConfig agent = createAnIdleAgentAndDisableIt(UUID);
+            Agent agent = createAnIdleAgentAndDisableIt(UUID);
             String originalHostname = agent.getHostname();
             List<String> originalResourceNames = agent.getResourceConfigs().resourceNames();
 
@@ -677,7 +677,7 @@ public class AgentServiceIntegrationTest {
 
             assertThat(operationResult.httpCode(), is(422));
             assertThat(operationResult.message(), is("Updating agent failed:"));
-            assertThat(agentInstance.agentConfig().errors().on(JobConfig.RESOURCES), is("Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$'"));
+            assertThat(agentInstance.getAgent().errors().on(JobConfig.RESOURCES), is("Resource name 'lin!ux' is not valid. Valid names much match '^[-\\w\\s|.]*$'"));
 
             assertThat(agentService.agentInstances().size(), is(1));
             assertThat(getFirstAgent().getHostname(), is(originalHostname));
@@ -690,10 +690,10 @@ public class AgentServiceIntegrationTest {
             AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), instance));
             AgentInstances agents = agentService.findRegisteredAgents();
 
-            String uuid = instance.agentConfig().getUuid();
+            String uuid = instance.getAgent().getUuid();
             assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
 
-            AgentIdentifier identifier = instance.agentConfig().getAgentIdentifier();
+            AgentIdentifier identifier = instance.getAgent().getAgentIdentifier();
             agentDao.associateCookie(identifier, "new_cookie");
             AgentRuntimeInfo runtimeInfo = new AgentRuntimeInfo(identifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), "old_cookie", false);
 
@@ -702,7 +702,7 @@ public class AgentServiceIntegrationTest {
 
             agents = agentService.findRegisteredAgents();
             assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
-            AgentIdentifier agentIdentifier = instance.agentConfig().getAgentIdentifier();
+            AgentIdentifier agentIdentifier = instance.getAgent().getAgentIdentifier();
             String cookie = agentService.assignCookie(agentIdentifier);
             agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false));
         }
@@ -759,9 +759,9 @@ public class AgentServiceIntegrationTest {
             AgentService agentService = getAgentService(new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), instance));
             AgentInstances agents = agentService.findRegisteredAgents();
 
-            String uuid = instance.agentConfig().getUuid();
+            String uuid = instance.getAgent().getUuid();
             assertThat(agents.findAgentAndRefreshStatus(uuid).getStatus(), is(AgentStatus.Building));
-            AgentIdentifier agentIdentifier = instance.agentConfig().getAgentIdentifier();
+            AgentIdentifier agentIdentifier = instance.getAgent().getAgentIdentifier();
             String cookie = agentService.assignCookie(agentIdentifier);
             agentService.updateRuntimeInfo(new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie, false));
             agents = agentService.findRegisteredAgents();
@@ -771,7 +771,7 @@ public class AgentServiceIntegrationTest {
         @Test
         public void shouldUpdateOnlyThoseAgentsAttributeThatAreSpecified() {
             createEnvironment("a", "b");
-            AgentConfig agent = createAnIdleAgentAndDisableIt(UUID);
+            Agent agent = createAnIdleAgentAndDisableIt(UUID);
             String originalHostname = agent.getHostname();
 
             HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
@@ -863,7 +863,7 @@ public class AgentServiceIntegrationTest {
 
             AgentInstances agents = agentService.findRegisteredAgents();
             assertThat(agents.size(), is(1));
-            AgentInstance agentInstance = agents.findAgentAndRefreshStatus(instance.agentConfig().getUuid());
+            AgentInstance agentInstance = agents.findAgentAndRefreshStatus(instance.getAgent().getUuid());
             assertThat(agentInstance.getStatus(), is(AgentStatus.LostContact));
         }
 
@@ -906,7 +906,7 @@ public class AgentServiceIntegrationTest {
 
             AgentInstances agents = agentService.findRegisteredAgents();
             assertThat(agents.size(), is(1));
-            AgentInstance agentInstance = agents.findAgentAndRefreshStatus(instance.agentConfig().getUuid());
+            AgentInstance agentInstance = agents.findAgentAndRefreshStatus(instance.getAgent().getUuid());
             assertThat(agentInstance.getStatus(), is(AgentStatus.LostContact));
             String body = String.format("The email has been sent out automatically by the Go server at (%s) to Go administrators.\n"
                     + "\n"
@@ -963,11 +963,11 @@ public class AgentServiceIntegrationTest {
             assertThat(result.httpCode(), is(200));
             assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
 
-            ResourceConfigs uuidResources = agentService.findAgentAndRefreshStatus(UUID).agentConfig().getResourceConfigs();
+            ResourceConfigs uuidResources = agentService.findAgentAndRefreshStatus(UUID).getAgent().getResourceConfigs();
             assertThat(uuidResources, hasItem(new ResourceConfig("resource1")));
             assertThat(uuidResources, hasItem(new ResourceConfig("resource2")));
 
-            ResourceConfigs uuid2Resources = agentService.findAgentAndRefreshStatus(UUID2).agentConfig().getResourceConfigs();
+            ResourceConfigs uuid2Resources = agentService.findAgentAndRefreshStatus(UUID2).getAgent().getResourceConfigs();
             assertThat(uuid2Resources, hasItem(new ResourceConfig("resource1")));
             assertThat(uuid2Resources, hasItem(new ResourceConfig("resource2")));
         }
@@ -989,7 +989,7 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldNotUpdateResourcesOnElasticAgents() {
-            AgentConfig elasticAgent = AgentMother.elasticAgent();
+            Agent elasticAgent = AgentMother.elasticAgent();
 
             agentService.register(elasticAgent, null, null, new HttpOperationResult());
 
@@ -1009,12 +1009,12 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldRemoveResourcesFromTheSpecifiedAgents() {
-            AgentConfig agentConfig1 = new AgentConfig(UUID, "remote-host1", "50.40.30.21");
-            AgentConfig agentConfig2 = new AgentConfig(UUID2, "remote-host1", "50.40.30.22");
+            Agent agent = new Agent(UUID, "remote-host1", "50.40.30.21");
+            Agent agent1 = new Agent(UUID2, "remote-host1", "50.40.30.22");
 
             HttpOperationResult operationResult = new HttpOperationResult();
-            agentService.register(agentConfig1, "resource1,resource2", null, operationResult);
-            agentService.register(agentConfig2, "resource2", null, operationResult);
+            agentService.register(agent, "resource1,resource2", null, operationResult);
+            agentService.register(agent1, "resource2", null, operationResult);
 
             List<String> uuids = asList(UUID, UUID2);
             List<String> resourcesToRemove = singletonList("resource2");
@@ -1043,39 +1043,39 @@ public class AgentServiceIntegrationTest {
             String nonLoopbackIp = SystemUtil.getFirstLocalNonLoopbackIpAddress();
             InetAddress inetAddress = InetAddress.getByName(nonLoopbackIp);
             assertThat(SystemUtil.isLocalIpAddress(nonLoopbackIp), is(true));
-            AgentConfig agentConfig = new AgentConfig("uuid", inetAddress.getHostName(), nonLoopbackIp);
-            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux", false);
+            Agent agent = new Agent("uuid", inetAddress.getHostName(), nonLoopbackIp);
+            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agent, false, "/var/lib", 0L, "linux", false);
             agentService.requestRegistration(new Username("bob"), agentRuntimeInfo);
 
             AgentInstance agentInstance = agentService.findRegisteredAgents().findAgentAndRefreshStatus("uuid");
 
-            assertThat(agentInstance.agentConfig().getIpaddress(), is(nonLoopbackIp));
+            assertThat(agentInstance.getAgent().getIpaddress(), is(nonLoopbackIp));
             assertThat(agentInstance.getStatus(), is(AgentStatus.Idle));
         }
 
         @Test
         public void shouldBeAbleToRegisterAgent() {
             AgentInstance pendingAgentInstance = AgentInstanceMother.pending();
-            AgentConfig pendingAgent = pendingAgentInstance.agentConfig();
+            Agent pendingAgent = pendingAgentInstance.getAgent();
 
             agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pendingAgent, false, "var/lib", 0L, "linux", false));
             String uuid = pendingAgentInstance.getUuid();
             agentService.approve(uuid);
 
             assertThat(agentService.findRegisteredAgents().size(), is(1));
-            assertThat(agentService.findAgentAndRefreshStatus(uuid).agentConfig().isDisabled(), is(false));
+            assertThat(agentService.findAgentAndRefreshStatus(uuid).getAgent().isDisabled(), is(false));
             assertThat(agentDao.agentByUuid(uuid).isDisabled(), is(false));
         }
 
         @Test
         public void shouldRegisterAgentOnlyOnce() {
-            AgentInstance pending = AgentInstanceMother.pending();
-            agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), false, "var/lib", 0L, "linux", false));
+            AgentInstance pendingAgentInstance = AgentInstanceMother.pending();
+            agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pendingAgentInstance.getAgent(), false, "var/lib", 0L, "linux", false));
 
-            agentService.approve(pending.getUuid());
+            agentService.approve(pendingAgentInstance.getUuid());
 
-            agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), true, "var/lib", 0L, "linux", false));
-            agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending.agentConfig(), true, "var/lib", 0L, "linux", false));
+            agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pendingAgentInstance.getAgent(), true, "var/lib", 0L, "linux", false));
+            agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pendingAgentInstance.getAgent(), true, "var/lib", 0L, "linux", false));
             assertThat(agentService.findRegisteredAgents().size(), is(1));
         }
 
@@ -1091,32 +1091,32 @@ public class AgentServiceIntegrationTest {
 
         @Test
         public void shouldLoadAgentsByApprovalStatus() {
-            AgentConfig disabledAgent1 = new AgentConfig("uuid1", "disabledAgent1", "127.0.0.1", "cookie1");
+            Agent disabledAgent1 = new Agent("uuid1", "disabledAgent1", "127.0.0.1", "cookie1");
             disabledAgent1.disable();
             agentDao.saveOrUpdate(disabledAgent1);
 
-            AgentConfig disabledAgent2 = new AgentConfig("uuid2", "disabledAgent2", "127.0.0.2", "cookie2");
+            Agent disabledAgent2 = new Agent("uuid2", "disabledAgent2", "127.0.0.2", "cookie2");
             disabledAgent2.disable();
             agentDao.saveOrUpdate(disabledAgent2);
 
-            agentDao.saveOrUpdate(new AgentConfig("uuid3", "approvedAgent1", "127.0.0.3", "cookie3"));
+            agentDao.saveOrUpdate(new Agent("uuid3", "approvedAgent1", "127.0.0.3", "cookie3"));
 
             AgentInstances approvedAgents = agentService.findEnabledAgents();
             assertThat(approvedAgents.size(), is(1));
-            assertThat(approvedAgents.findAgentAndRefreshStatus("uuid3").agentConfig().getHostname(), is("approvedAgent1"));
+            assertThat(approvedAgents.findAgentAndRefreshStatus("uuid3").getAgent().getHostname(), is("approvedAgent1"));
 
             AgentInstances deniedAgents = agentService.findDisabledAgents();
             assertThat(deniedAgents.size(), is(2));
-            assertThat(deniedAgents.findAgentAndRefreshStatus("uuid1").agentConfig().getHostname(), is("disabledAgent1"));
-            assertThat(deniedAgents.findAgentAndRefreshStatus("uuid2").agentConfig().getHostname(), is("disabledAgent2"));
+            assertThat(deniedAgents.findAgentAndRefreshStatus("uuid1").getAgent().getHostname(), is("disabledAgent1"));
+            assertThat(deniedAgents.findAgentAndRefreshStatus("uuid2").getAgent().getHostname(), is("disabledAgent2"));
         }
 
         @Test
         public void shouldUpdateAgentApprovalStatusByUuid() {
-            AgentConfig agentConfig = new AgentConfig(UUID, "test", "127.0.0.1", new ResourceConfigs("java"));
-            agentService.register(agentConfig, null, null, new HttpOperationResult());
+            Agent agent = new Agent(UUID, "test", "127.0.0.1", new ResourceConfigs("java"));
+            agentService.register(agent, null, null, new HttpOperationResult());
 
-            agentService.updateAgentApprovalStatus(agentConfig.getUuid(), Boolean.TRUE, Username.ANONYMOUS);
+            agentService.updateAgentApprovalStatus(agent.getUuid(), Boolean.TRUE, Username.ANONYMOUS);
 
             assertThat(agentService.findAgent(UUID).getStatus(), is(AgentStatus.Disabled));
         }
@@ -1129,20 +1129,20 @@ public class AgentServiceIntegrationTest {
     class LoadingAgents {
         @Test
         public void shouldLoadAllAgents() {
-            AgentInstance idle = AgentInstanceMother.idle(new Date(), "CCeDev01");
-            AgentInstance pending = AgentInstanceMother.pending();
-            AgentInstance building = AgentInstanceMother.building();
-            AgentInstance denied = AgentInstanceMother.disabled();
+            AgentInstance idleAgentInstance = AgentInstanceMother.idle(new Date(), "CCeDev01");
+            AgentInstance pendingAgentInstance = AgentInstanceMother.pending();
+            AgentInstance buildingAgentInstance = AgentInstanceMother.building();
+            AgentInstance deniedAgentInstance = AgentInstanceMother.disabled();
 
-            AgentInstances agentInstances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), idle, pending, building, denied);
+            AgentInstances agentInstances = new AgentInstances(new SystemEnvironment(), agentStatusChangeListener(), idleAgentInstance, pendingAgentInstance, buildingAgentInstance, deniedAgentInstance);
             AgentService agentService = getAgentService(agentInstances);
 
             assertThat(agentService.agentInstances().size(), is(4));
 
-            assertThat(agentService.findAgentAndRefreshStatus(idle.agentConfig().getUuid()), is(idle));
-            assertThat(agentService.findAgentAndRefreshStatus(pending.agentConfig().getUuid()), is(pending));
-            assertThat(agentService.findAgentAndRefreshStatus(building.agentConfig().getUuid()), is(building));
-            assertThat(agentService.findAgentAndRefreshStatus(denied.agentConfig().getUuid()), is(denied));
+            assertThat(agentService.findAgentAndRefreshStatus(idleAgentInstance.getAgent().getUuid()), is(idleAgentInstance));
+            assertThat(agentService.findAgentAndRefreshStatus(pendingAgentInstance.getAgent().getUuid()), is(pendingAgentInstance));
+            assertThat(agentService.findAgentAndRefreshStatus(buildingAgentInstance.getAgent().getUuid()), is(buildingAgentInstance));
+            assertThat(agentService.findAgentAndRefreshStatus(deniedAgentInstance.getAgent().getUuid()), is(deniedAgentInstance));
         }
     }
 
@@ -1292,11 +1292,11 @@ public class AgentServiceIntegrationTest {
         public void shouldBeAbleToRemoveAgentsEnvironments() {
             createEnvironment("uat", "prod");
 
-            AgentConfig enabledAgent1 = createEnabledAgent(UUID);
+            Agent enabledAgent1 = createEnabledAgent(UUID);
             enabledAgent1.setEnvironments("uat");
             agentDao.saveOrUpdate(enabledAgent1);
 
-            AgentConfig enabledAgent2 = createEnabledAgent(UUID2);
+            Agent enabledAgent2 = createEnabledAgent(UUID2);
             enabledAgent2.setEnvironments("uat,prod");
             agentDao.saveOrUpdate(enabledAgent2);
 
@@ -1316,11 +1316,11 @@ public class AgentServiceIntegrationTest {
         public void shouldOnlyAddRemoveAgentsEnvironmentThatAreRequested() {
             createEnvironment("uat", "prod", "perf", "test", "dev");
 
-            AgentConfig agent1 = createEnabledAgent(UUID);
+            Agent agent1 = createEnabledAgent(UUID);
             agent1.setEnvironments("uat,prod");
             agentDao.saveOrUpdate(agent1);
 
-            AgentConfig agent2 = createEnabledAgent(UUID2);
+            Agent agent2 = createEnabledAgent(UUID2);
             agent2.setEnvironments("prod,uat,perf");
             agentDao.saveOrUpdate(agent2);
 
@@ -1414,50 +1414,50 @@ public class AgentServiceIntegrationTest {
         goConfigService.forceNotifyListeners();
     }
 
-    private AgentConfig createEnabledAgent(String uuid) {
-        AgentConfig agentConfig = new AgentConfig(uuid, "agentName", "127.0.0.9", uuid);
-        requestRegistrationAndApproveAgent(agentConfig);
-        return agentConfig;
+    private Agent createEnabledAgent(String uuid) {
+        Agent agent = new Agent(uuid, "agentName", "127.0.0.9", uuid);
+        requestRegistrationAndApproveAgent(agent);
+        return agent;
     }
 
-    private void disableAgent(AgentConfig agentConfig) {
-        AgentIdentifier agentIdentifier = agentConfig.getAgentIdentifier();
+    private void disableAgent(Agent agent) {
+        AgentIdentifier agentIdentifier = agent.getAgentIdentifier();
         String cookie = agentService.assignCookie(agentIdentifier);
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentIdentifier, AgentRuntimeStatus.Idle, currentWorkingDirectory(), cookie);
         agentRuntimeInfo.busy(new AgentBuildingInfo("path", "buildLocator"));
         agentService.updateRuntimeInfo(agentRuntimeInfo);
 
         HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, singletonList(agentConfig.getUuid()), emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.FALSE);
+        agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, singletonList(agent.getUuid()), emptyStrList, emptyStrList, emptyEnvsConfig, emptyStrList, TriState.FALSE);
 
-        assertThat(isDisabled(agentConfig), is(true));
+        assertThat(isDisabled(agent), is(true));
     }
 
     private void disableAgent() {
-        AgentConfig pending = new AgentConfig("uuid1", "agent1", "192.168.0.1");
+        Agent pending = new Agent("uuid1", "agent1", "192.168.0.1");
         agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(pending, false, "/var/lib", 0L, "linux"));
         agentService.approve("uuid1");
         agentService.updateAgentApprovalStatus("uuid1", true, Username.ANONYMOUS);
     }
 
-    private boolean isDisabled(AgentConfig agentConfig) {
-        return agentService.findAgentAndRefreshStatus(agentConfig.getUuid()).isDisabled();
+    private boolean isDisabled(Agent agent) {
+        return agentService.findAgentAndRefreshStatus(agent.getUuid()).isDisabled();
     }
 
-    public void requestRegistrationAndApproveAgent(AgentConfig agentConfig) {
-        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(agentConfig, false, "/var/lib", 0L, "linux"));
-        agentService.approve(agentConfig.getUuid());
+    public void requestRegistrationAndApproveAgent(Agent agent) {
+        agentService.requestRegistration(new Username("bob"), AgentRuntimeInfo.fromServer(agent, false, "/var/lib", 0L, "linux"));
+        agentService.approve(agent.getUuid());
     }
 
-    private AgentConfig createDisabledAgentWithBuildingRuntimeStatus(String uuid) {
-        AgentConfig agentConfig = new AgentConfig(uuid, "agentName", "127.0.0.9");
-        requestRegistrationAndApproveAgent(agentConfig);
-        disableAgent(agentConfig);
-        return agentConfig;
+    private Agent createDisabledAgentWithBuildingRuntimeStatus(String uuid) {
+        Agent agent = new Agent(uuid, "agentName", "127.0.0.9");
+        requestRegistrationAndApproveAgent(agent);
+        disableAgent(agent);
+        return agent;
     }
 
-    private AgentConfig createAnIdleAgentAndDisableIt(String uuid) {
-        AgentConfig agent = new AgentConfig(uuid, "agentName", "127.0.0.9");
+    private Agent createAnIdleAgentAndDisableIt(String uuid) {
+        Agent agent = new Agent(uuid, "agentName", "127.0.0.9");
         requestRegistrationAndApproveAgent(agent);
 
         // Make an agent idle
@@ -1472,7 +1472,7 @@ public class AgentServiceIntegrationTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         agentService.bulkUpdateAgentAttributes(USERNAME, result, asList(agent.getUuid()), emptyStrList,
                 emptyStrList, emptyEnvsConfig, emptyStrList, TriState.FALSE);
-        AgentConfig updatedAgent = agentService.agentByUuid(agent.getUuid());
+        Agent updatedAgent = agentService.agentByUuid(agent.getUuid());
         assertThat(isDisabled(updatedAgent), is(true));
 
         return updatedAgent;

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
@@ -77,7 +77,7 @@ public class JobPresentationServiceTest {
         String deletedAgentUuid = "deleted_agent";
         JobInstance jobWithDeletedAgent = assignedWithAgentId("dev", deletedAgentUuid);
         when(agentService.findAgentAndRefreshStatus(deletedAgentUuid)).thenReturn(null);
-        AgentConfig agentFromDb = new AgentConfig(deletedAgentUuid,"hostname", "1.2.3.4", "cookie");
+        Agent agentFromDb = new Agent(deletedAgentUuid,"hostname", "1.2.3.4", "cookie");
         when(agentService.findAgentObjectByUuid(deletedAgentUuid)).thenReturn(agentFromDb);
         List<JobInstanceModel> models = new JobPresentationService(jobDurationStrategy, agentService).jobInstanceModelFor(new JobInstances(jobWithDeletedAgent));
         assertThat(models.size(), is(1));

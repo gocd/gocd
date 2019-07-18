@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.ui;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.JobInstanceMother;
@@ -118,7 +118,7 @@ public class JobInstanceModelTest {
 
     @Test
     public void shouldReturnFalseForLiveAgentIfAgentInfoIsConstructedFromDb() {
-        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, new AgentConfig("uuid", "hostname", "ip", "cookie"));
+        JobInstanceModel instance = new JobInstanceModel(JobInstanceMother.building("cruise"), JobDurationStrategy.ALWAYS_ZERO, new Agent("uuid", "hostname", "ip", "cookie"));
         assertThat(instance.hasLiveAgent(), is(false));
     }
 }

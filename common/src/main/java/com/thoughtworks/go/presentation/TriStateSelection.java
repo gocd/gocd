@@ -58,9 +58,9 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
     }
 
     public static List<TriStateSelection> forAgentsResources(Set<ResourceConfig> resourceConfigs, Agents agents) {
-        return convert(resourceConfigs, agents, new Assigner<ResourceConfig, AgentConfig>() {
+        return convert(resourceConfigs, agents, new Assigner<ResourceConfig, Agent>() {
             @Override
-            public boolean shouldAssociate(AgentConfig agent, ResourceConfig resourceConfig) {
+            public boolean shouldAssociate(Agent agent, ResourceConfig resourceConfig) {
                 return agent.getResourceConfigs().contains(resourceConfig);
             }
 
@@ -70,7 +70,7 @@ public class TriStateSelection implements Comparable<TriStateSelection> {
             }
 
             @Override
-            public boolean shouldEnable(AgentConfig agent, ResourceConfig resourceConfig) {
+            public boolean shouldEnable(Agent agent, ResourceConfig resourceConfig) {
                 return true;
             }
         });

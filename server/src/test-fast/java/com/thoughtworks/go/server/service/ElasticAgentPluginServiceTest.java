@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.PluginProfiles;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ClusterProfiles;
@@ -462,18 +462,18 @@ class ElasticAgentPluginServiceTest {
             String elasticAgentId = "i-123456";
             String elasticPluginId = "com.example.aws";
 
-            AgentInstance agent = AgentInstanceMother.idle();
-            AgentConfig agentConfig = new AgentConfig(agent.getUuid(), agent.getHostname(), agent.getIpAddress());
-            agentConfig.setElasticAgentId(elasticAgentId);
-            agentConfig.setElasticPluginId(elasticPluginId);
-            agent.syncConfig(agentConfig);
+            AgentInstance agentInstance = AgentInstanceMother.idle();
+            Agent agent = new Agent(agentInstance.getUuid(), agentInstance.getHostname(), agentInstance.getIpAddress());
+            agent.setElasticAgentId(elasticAgentId);
+            agent.setElasticPluginId(elasticPluginId);
+            agentInstance.syncConfig(agent);
 
             JobInstance up42_job = JobInstanceMother.completed("up42_job");
-            up42_job.setAgentUuid(agent.getUuid());
+            up42_job.setAgentUuid(agentInstance.getUuid());
             DefaultJobPlan plan = new DefaultJobPlan(null, new ArrayList<>(), new ArrayList<>(), -1, null, null, null, new EnvironmentVariables(), elasticProfile, clusterProfile);
             up42_job.setPlan(plan);
 
-            when(agentService.findAgent(agent.getUuid())).thenReturn(agent);
+            when(agentService.findAgent(agentInstance.getUuid())).thenReturn(agentInstance);
             when(clusterProfilesService.findProfile("clusterId")).thenReturn(clusterProfile);
             Map<String, String> elasticProfileConfiguration = elasticProfile.getConfigurationAsMap(true);
             Map<String, String> clusterProfileConfiguration = clusterProfile.getConfigurationAsMap(true);

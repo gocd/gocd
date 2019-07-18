@@ -140,9 +140,9 @@ public class BasicEnvironmentConfig implements EnvironmentConfig {
 
     @Override
     public void addAgentIfNew(String uuid) {
-        EnvironmentAgentConfig agentConfig = new EnvironmentAgentConfig(uuid);
-        if (!agents.contains(agentConfig)) {
-            agents.add(agentConfig);
+        EnvironmentAgentConfig envAgentConfig = new EnvironmentAgentConfig(uuid);
+        if (!agents.contains(envAgentConfig)) {
+            agents.add(envAgentConfig);
         }
     }
 

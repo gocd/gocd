@@ -25,7 +25,7 @@ module JavaImports
   java_import com.thoughtworks.go.config.TimerConfig unless defined? TimerConfig
   java_import com.thoughtworks.go.config.MagicalGoConfigXmlLoader unless defined? MagicalGoConfigXmlLoader
   java_import com.thoughtworks.go.config.MailHost unless defined? MailHost
-  java_import com.thoughtworks.go.config.AgentConfig unless defined? AgentConfig
+  java_import com.thoughtworks.go.config.Agent unless defined? Agent
   java_import com.thoughtworks.go.config.Approval unless defined? Approval
   java_import com.thoughtworks.go.config.ArtifactConfigs unless defined? ArtifactConfigs
   java_import com.thoughtworks.go.config.BuildArtifactConfig unless defined? BuildArtifactConfig

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.domain;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentStatus;
@@ -53,7 +53,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public void add(AgentInstance agent) {
-        agentInstanceMap.put(agent.agentConfig().getUuid(), agent);
+        agentInstanceMap.put(agent.getAgent().getUuid(), agent);
     }
 
     public void updateAgentAboutCancelledBuild(String agentUuid, boolean isCancelled) {
@@ -145,7 +145,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
 
     public AgentInstance findFirstByHostname(String hostname) {
         for (AgentInstance agentInstance : currentInstances()) {
-            if (agentInstance.agentConfig().getHostname().equals(hostname)) {
+            if (agentInstance.getAgent().getHostname().equals(hostname)) {
                 return agentInstance;
             }
         }
@@ -162,7 +162,7 @@ public class AgentInstances implements Iterable<AgentInstance> {
             instance.refresh();
         }
         for (AgentInstance agentInstance : agentsToRemove()) {
-            removeAgent(agentInstance.agentConfig().getUuid());
+            removeAgent(agentInstance.getAgent().getUuid());
         }
     }
 
@@ -179,12 +179,12 @@ public class AgentInstances implements Iterable<AgentInstance> {
     }
 
     public void sync(Agents agentsFromConfig) {
-        for (AgentConfig agentInConfig : agentsFromConfig) {
-            String uuid = agentInConfig.getUuid();
+        for (Agent agent : agentsFromConfig) {
+            String uuid = agent.getUuid();
             if (agentInstanceMap.containsKey(uuid)) {
-                agentInstanceMap.get(uuid).syncConfig(agentInConfig);
+                agentInstanceMap.get(uuid).syncConfig(agent);
             } else {
-                agentInstanceMap.put(uuid, AgentInstance.createFromConfig(agentInConfig, new SystemEnvironment(), agentStatusChangeListener));
+                agentInstanceMap.put(uuid, AgentInstance.createFromAgent(agent, new SystemEnvironment(), agentStatusChangeListener));
             }
         }
 
@@ -283,12 +283,12 @@ public class AgentInstances implements Iterable<AgentInstance> {
         return values.iterator().next();
     }
 
-    public List<AgentConfig> findPendingAgents(List<String> uuids) {
-        List<AgentConfig> pendingAgents = new ArrayList<>();
+    public List<Agent> findPendingAgents(List<String> uuids) {
+        List<Agent> pendingAgents = new ArrayList<>();
         for (String uuid : uuids) {
-            AgentInstance agent = this.findAgent(uuid);
-            if (agent.isPending()) {
-                pendingAgents.add(agent.agentConfig().deepClone());
+            AgentInstance agentInstance = this.findAgent(uuid);
+            if (agentInstance.isPending()) {
+                pendingAgents.add(agentInstance.getAgent().deepClone());
             }
         }
         return pendingAgents;

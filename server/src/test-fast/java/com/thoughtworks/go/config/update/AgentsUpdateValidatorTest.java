@@ -116,7 +116,7 @@ public class AgentsUpdateValidatorTest {
             triState = TriState.UNSET;
             AgentInstance pendingAgent = AgentInstanceMother.pending();
             uuids.add(pendingAgent.getUuid());
-            when(agentInstances.findPendingAgents(uuids)).thenReturn(Arrays.asList(pendingAgent.agentConfig()));
+            when(agentInstances.findPendingAgents(uuids)).thenReturn(Arrays.asList(pendingAgent.getAgent()));
             when(agentInstances.findAgent(pendingAgent.getUuid())).thenReturn(pendingAgent);
 
             assertThrows(InvalidPendingAgentOperationException.class, () -> newAgentsUpdateValidator().validate());
@@ -129,11 +129,11 @@ public class AgentsUpdateValidatorTest {
             environmentsToRemove.add("dev");
 
             AgentInstance agentInstance = AgentInstanceMother.disabled();
-            AgentConfig agentConfig = agentInstance.agentConfig();
+            Agent agent = agentInstance.getAgent();
 
-            uuids.add(agentConfig.getUuid());
+            uuids.add(agent.getUuid());
 
-            when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
+            when(agentInstances.findAgent(agent.getUuid())).thenReturn(agentInstance);
 
             EnvironmentsConfig envsConfig = new EnvironmentsConfig();
             envsConfig.add(new BasicEnvironmentConfig(str("dev")));
@@ -150,11 +150,11 @@ public class AgentsUpdateValidatorTest {
             environmentsToRemove.add("dev");
 
             AgentInstance agentInstance = AgentInstanceMother.disabled();
-            AgentConfig agentConfig = agentInstance.agentConfig();
+            Agent agent = agentInstance.getAgent();
 
-            uuids.add(agentConfig.getUuid());
+            uuids.add(agent.getUuid());
 
-            when(agentInstances.findAgent(agentConfig.getUuid())).thenReturn(agentInstance);
+            when(agentInstances.findAgent(agent.getUuid())).thenReturn(agentInstance);
 
             EnvironmentsConfig envsConfig = new EnvironmentsConfig();
             envsConfig.add(new BasicEnvironmentConfig(str("dev")));
@@ -169,7 +169,7 @@ public class AgentsUpdateValidatorTest {
             resourcesToAdd.add("fire!fox");
 
             AgentInstance disabledAgentInstance = AgentInstanceMother.disabled();
-            AgentConfig disabledAgent = disabledAgentInstance.agentConfig();
+            Agent disabledAgent = disabledAgentInstance.getAgent();
             disabledAgent.addResourceConfig(new ResourceConfig("linux"));
 
             when(agentInstances.findAgent(disabledAgent.getUuid())).thenReturn(disabledAgentInstance);
@@ -192,10 +192,10 @@ public class AgentsUpdateValidatorTest {
         @Test
         public void shouldThrowExceptionWhenElasticAgentResourcesAreBeingUpdated() {
             resourcesToAdd.add("Linux");
-            AgentConfig elasticAgent = AgentMother.elasticAgent();
+            Agent elasticAgent = AgentMother.elasticAgent();
             uuids.add(elasticAgent.getUuid());
             when(agentInstances.findAgent(elasticAgent.getUuid()))
-                               .thenReturn(AgentInstance.createFromConfig(elasticAgent, null, null));
+                               .thenReturn(AgentInstance.createFromAgent(elasticAgent, null, null));
             assertThrows(ElasticAgentsResourceUpdateException.class, () -> newAgentsUpdateValidator().validate());
             String errMsg = "Resources on elastic agents with uuids [" + elasticAgent.getUuid() + "] can not be updated.";
             assertTrue(result.message().contains(errMsg));

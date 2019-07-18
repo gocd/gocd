@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.ui;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.domain.AgentInstance;
@@ -180,13 +180,13 @@ public class AgentViewModelTest {
     public void shouldMapErrors() {
         ResourceConfig resourceConfig1 = new ResourceConfig("foo");
         ResourceConfig resourceConfig2 = new ResourceConfig("bar");
-        AgentConfig agentConfig = new AgentConfig("uuid", "host", "IP", new ResourceConfigs(resourceConfig1, resourceConfig2));
-        agentConfig.addError(AgentConfig.IP_ADDRESS, "bad ip");
-        agentConfig.addError(ResourceConfig.NAME, "bad name for resource2");
-        agentConfig.addError(ResourceConfig.NAME, "bad name for resource1");
-        AgentViewModel model = new AgentViewModel(AgentInstance.createFromConfig(agentConfig, mock(SystemEnvironment.class), null));
+        Agent agent = new Agent("uuid", "host", "IP", new ResourceConfigs(resourceConfig1, resourceConfig2));
+        agent.addError(Agent.IP_ADDRESS, "bad ip");
+        agent.addError(ResourceConfig.NAME, "bad name for resource2");
+        agent.addError(ResourceConfig.NAME, "bad name for resource1");
+        AgentViewModel model = new AgentViewModel(AgentInstance.createFromAgent(agent, mock(SystemEnvironment.class), null));
         assertThat(model.errors().isEmpty(), is(false));
-        assertThat(model.errors().on(AgentConfig.IP_ADDRESS), is("bad ip"));
+        assertThat(model.errors().on(Agent.IP_ADDRESS), is("bad ip"));
 
         assertThat(model.errors().getAllOn(ResourceConfig.NAME).contains("bad name for resource1"), is(true));
         assertThat(model.errors().getAllOn(ResourceConfig.NAME).contains("bad name for resource2"), is(true));

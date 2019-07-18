@@ -59,11 +59,11 @@ class EnvironmentConfigServiceTest {
         EntityHashingService entityHashingService = mock(EntityHashingService.class);
         environmentConfigService = new EnvironmentConfigService(mockGoConfigService, securityService, entityHashingService, agentService);
 
-        AgentConfig agentUat = new AgentConfig("uat-agent", "host1", "127.0.0.1", "cookie1");
+        Agent agentUat = new Agent("uat-agent", "host1", "127.0.0.1", "cookie1");
         agentUat.setEnvironments("uat");
-        AgentConfig agentProd = new AgentConfig("prod-agent", "host2", "127.0.0.1", "cookie2");
+        Agent agentProd = new Agent("prod-agent", "host2", "127.0.0.1", "cookie2");
         agentProd.setEnvironments("prod");
-        AgentConfig omnipresentAgent = new AgentConfig(OMNIPRESENT_AGENT, "host3", "127.0.0.1", "cookie3");
+        Agent omnipresentAgent = new Agent(OMNIPRESENT_AGENT, "host3", "127.0.0.1", "cookie3");
         omnipresentAgent.setEnvironments("uat,prod");
         when(agentService.agents()).thenReturn(new Agents(agentUat, agentProd, omnipresentAgent));
     }
@@ -198,8 +198,8 @@ class EnvironmentConfigServiceTest {
     void shouldFindAgentsForPipelineUnderEnvironment() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
         environmentConfigService.syncAssociatedAgentsFromDB();
-        AgentConfig agentUnderEnv = new AgentConfig("uat-agent", "localhost", "127.0.0.1");
-        AgentConfig omnipresentAgent = new AgentConfig(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2");
+        Agent agentUnderEnv = new Agent("uat-agent", "localhost", "127.0.0.1");
+        Agent omnipresentAgent = new Agent(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2");
 
         Mockito.when(agentService.agentByUuid("uat-agent")).thenReturn(agentUnderEnv);
         Mockito.when(agentService.agentByUuid(EnvironmentConfigMother.OMNIPRESENT_AGENT)).thenReturn(omnipresentAgent);
@@ -213,11 +213,11 @@ class EnvironmentConfigServiceTest {
     void shouldFindAgentsForPipelineUnderNoEnvironment() {
         environmentConfigService.syncEnvironmentsFromConfig(environments("uat", "prod"));
         environmentConfigService.syncAssociatedAgentsFromDB();
-        AgentConfig noEnvAgent = new AgentConfig("no-env-agent", "localhost", "127.0.0.1");
+        Agent noEnvAgent = new Agent("no-env-agent", "localhost", "127.0.0.1");
 
         Agents agents = new Agents();
         agents.add(noEnvAgent);
-        agents.add(new AgentConfig(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2"));
+        agents.add(new Agent(EnvironmentConfigMother.OMNIPRESENT_AGENT, "localhost", "127.0.0.2"));
         Mockito.when(agentService.agents()).thenReturn(agents);
 
 
@@ -628,9 +628,9 @@ class EnvironmentConfigServiceTest {
         }
 
         private void initializeAgents() {
-            AgentConfig agentConf1 = new AgentConfig("uuid1");
+            Agent agentConf1 = new Agent("uuid1");
             agentConf1.setEnvironments("dev,test");
-            AgentConfig agentConf2 = new AgentConfig("uuid2");
+            Agent agentConf2 = new Agent("uuid2");
             agentConf2.setEnvironments("stage,prod");
 
             Agents agents = new Agents(agentConf1, agentConf2);

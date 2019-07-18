@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
 import com.thoughtworks.go.domain.JobState;
@@ -34,11 +34,11 @@ import static java.lang.String.valueOf;
 
 
 public class JobStatusJsonPresentationModel {
-    private AgentConfig agent;
+    private Agent agent;
     private final JobInstance instance;
     private DurationBean durationBean;
 
-    public JobStatusJsonPresentationModel(JobInstance instance, AgentConfig agent, DurationBean durationBean) {
+    public JobStatusJsonPresentationModel(JobInstance instance, Agent agent, DurationBean durationBean) {
         this.instance = instance;
 
         if (null == instance.getAgentUuid()) {
@@ -46,7 +46,7 @@ public class JobStatusJsonPresentationModel {
         }
 
         if (null == agent) {
-            agent = AgentConfig.blankAgent(instance.getAgentUuid());
+            agent = Agent.blankAgent(instance.getAgentUuid());
         }
 
         this.agent = agent;

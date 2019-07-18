@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.SecurityConfig;
 import com.thoughtworks.go.config.ServerConfig;
 import com.thoughtworks.go.config.UpdateConfigCommand;
@@ -100,7 +100,7 @@ public class AgentRegistrationControllerTest {
 
         controller.agentRequest("blahAgent-host", "blahAgent-uuid", "blah-location", "34567", "osx", "", "", "", "", "", "", token("blahAgent-uuid", serverConfig.getTokenGenerationKey()), request);
 
-        verify(agentService).requestRegistration(new Username("some-agent-login-name"), AgentRuntimeInfo.fromServer(new AgentConfig("blahAgent-uuid", "blahAgent-host", request.getRemoteAddr()), false, "blah-location", 34567L, "osx"));
+        verify(agentService).requestRegistration(new Username("some-agent-login-name"), AgentRuntimeInfo.fromServer(new Agent("blahAgent-uuid", "blahAgent-host", request.getRemoteAddr()), false, "blah-location", 34567L, "osx"));
     }
 
     @Test
@@ -115,8 +115,8 @@ public class AgentRegistrationControllerTest {
 
         controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "", "", "", token, request);
 
-        verify(agentService).requestRegistration(new Username("some-agent-login-name"), AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx"));
-        verify(agentService).register(any(AgentConfig.class), eq(""), eq(""), any(HttpOperationResult.class));
+        verify(agentService).requestRegistration(new Username("some-agent-login-name"), AgentRuntimeInfo.fromServer(new Agent(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx"));
+        verify(agentService).register(any(Agent.class), eq(""), eq(""), any(HttpOperationResult.class));
     }
 
     @Test
@@ -130,8 +130,8 @@ public class AgentRegistrationControllerTest {
         controller.agentRequest("host", uuid, "location", "233232", "osx", "someKey", "", "", "autoregister-hostname", "", "", token(uuid, serverConfig.getTokenGenerationKey()), request);
 
         verify(agentService).requestRegistration(new Username("some-agent-login-name"), AgentRuntimeInfo.fromServer(
-                new AgentConfig(uuid, "autoregister-hostname", request.getRemoteAddr()), false, "location", 233232L, "osx"));
-        verify(agentService).register(any(AgentConfig.class), eq(""), eq(""), any(HttpOperationResult.class));
+                new Agent(uuid, "autoregister-hostname", request.getRemoteAddr()), false, "location", 233232L, "osx"));
+        verify(agentService).register(any(Agent.class), eq(""), eq(""), any(HttpOperationResult.class));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class AgentRegistrationControllerTest {
         when(agentService.agentUsername(uuid, request.getRemoteAddr(), "host")).thenReturn(new Username("some-agent-login-name"));
         controller.agentRequest("host", uuid, "location", "233232", "osx", "", "", "", "", "", "", token(uuid, serverConfig.getTokenGenerationKey()), request);
 
-        verify(agentService).requestRegistration(new Username("some-agent-login-name"), AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx"));
+        verify(agentService).requestRegistration(new Username("some-agent-login-name"), AgentRuntimeInfo.fromServer(new Agent(uuid, "host", request.getRemoteAddr()), false, "location", 233232L, "osx"));
         verify(goConfigService, never()).updateConfig(any(UpdateConfigCommand.class));
     }
 

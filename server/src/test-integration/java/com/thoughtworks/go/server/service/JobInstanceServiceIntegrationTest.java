@@ -203,7 +203,7 @@ public class JobInstanceServiceIntegrationTest {
         jobConfig.setRunOnAllAgents(true);
         String uuid1 = UUID.randomUUID().toString();
         String uuid2 = UUID.randomUUID().toString();
-        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents(new AgentConfig(uuid1), new AgentConfig(uuid2)));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents(new Agent(uuid1), new Agent(uuid2)));
         Stage stage = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5-test", new TimeProvider());
 
         for (JobInstance instance : stage.getJobInstances()) {
@@ -248,7 +248,7 @@ public class JobInstanceServiceIntegrationTest {
         jobConfig.addResourceConfig("non-existent");
         String uuid1 = UUID.randomUUID().toString();
         String uuid2 = UUID.randomUUID().toString();
-        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents(new AgentConfig(uuid1), new AgentConfig(uuid2)));
+        DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("anyone", new Agents(new Agent(uuid1), new Agent(uuid2)));
 
         try {
             instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5-test", new TimeProvider());

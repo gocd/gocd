@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
@@ -162,7 +162,7 @@ public class JobController {
         String pipelineName = current.getIdentifier().getPipelineName();
         String stageName = current.getIdentifier().getStageName();
         JobInstances recent25 = jobInstanceService.latestCompletedJobs(pipelineName, stageName, current.getName());
-        AgentConfig agentConfig = agentService.agentByUuid(current.getAgentUuid());
+        Agent agent = agentService.agentByUuid(current.getAgentUuid());
         Pipeline pipelineWithOneBuild = pipelineService.wrapBuildDetails(current);
         Tabs customizedTabs = goConfigService.getCustomizedTabs(pipelineWithOneBuild.getName(),
                 pipelineWithOneBuild.getFirstStage().getName(), current.getName());
@@ -170,7 +170,7 @@ public class JobController {
                 new CaseInsensitiveString(pipelineWithOneBuild.getName())).trackingTool();
         Properties properties = propertiesService.getPropertiesForJob(current.getId());
         Stage stage = stageService.getStageByBuild(current);
-        return new JobDetailPresentationModel(current, recent25, agentConfig, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, properties, stage);
+        return new JobDetailPresentationModel(current, recent25, agent, pipelineWithOneBuild, customizedTabs, trackingTool, artifactService, properties, stage);
     }
 
     private boolean isValidCounter(String pipelineCounter) {
@@ -209,11 +209,11 @@ public class JobController {
         final ElasticAgentPluginInfo pluginInfo = elasticAgentMetadataStore.getPluginInfo(pluginId);
 
         if (pluginInfo != null && pluginInfo.getCapabilities().supportsAgentStatusReport()) {
-            final AgentConfig agentConfig = agentService.agentByUuid(jobInstance.getAgentUuid());
+            final Agent agent = agentService.agentByUuid(jobInstance.getAgentUuid());
 
-            if (agentConfig != null && agentConfig.isElastic()) {
-                data.put("elasticAgentPluginId", agentConfig.getElasticPluginId());
-                data.put("elasticAgentId", agentConfig.getElasticAgentId());
+            if (agent != null && agent.isElastic()) {
+                data.put("elasticAgentPluginId", agent.getElasticPluginId());
+                data.put("elasticAgentId", agent.getElasticAgentId());
                 return;
             }
 

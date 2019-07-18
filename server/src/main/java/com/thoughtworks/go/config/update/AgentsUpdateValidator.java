@@ -141,19 +141,19 @@ public class AgentsUpdateValidator {
                                          || state.isTrue() || state.isFalse();
     }
 
-    private List<AgentConfig> findPendingAgents() {
-        List<AgentConfig> pendingAgents = new ArrayList<>();
+    private List<Agent> findPendingAgents() {
+        List<Agent> pendingAgents = new ArrayList<>();
         for (String uuid : uuids) {
             AgentInstance agent = agentInstances.findAgent(uuid);
             if (agent.isPending()) {
-                pendingAgents.add(agent.agentConfig().deepClone());
+                pendingAgents.add(agent.getAgent().deepClone());
             }
         }
         return pendingAgents;
     }
 
     private void bombWhenAnyOperationOnPendingAgents() throws InvalidPendingAgentOperationException {
-        List<AgentConfig> pendingAgents = findPendingAgents();
+        List<Agent> pendingAgents = findPendingAgents();
         if (pendingAgents.isEmpty()) {
             return;
         }
@@ -165,9 +165,9 @@ public class AgentsUpdateValidator {
         }
     }
 
-    private List<String> getPendingAgentUuids(List<AgentConfig> pendingAgents) {
+    private List<String> getPendingAgentUuids(List<Agent> pendingAgents) {
         List<String> pendingAgentUuids = new ArrayList<>();
-        for (AgentConfig pendingAgent : pendingAgents) {
+        for (Agent pendingAgent : pendingAgents) {
             pendingAgentUuids.add(pendingAgent.getUuid());
         }
         return pendingAgentUuids;

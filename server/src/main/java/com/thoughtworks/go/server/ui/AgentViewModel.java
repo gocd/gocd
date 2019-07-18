@@ -181,7 +181,7 @@ public class AgentViewModel implements Comparable<AgentViewModel>{
 
     public ConfigErrors errors() {
         ConfigErrors configErrors = new ConfigErrors();
-        configErrors.addAll(agentInstance.agentConfig().errors());
+        configErrors.addAll(agentInstance.getAgent().errors());
         for (ResourceConfig resourceConfig : agentInstance.getResourceConfigs()) {
             configErrors.addAll(resourceConfig.errors());
         }

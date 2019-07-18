@@ -166,14 +166,15 @@ public class AgentsViewModelTest {
 
     private AgentsViewModel agentsViewModel() {
         AgentsViewModel agents = new AgentsViewModel();
-        AgentInstance idle = AgentInstanceMother.idle(new Date(), "CCeDev01");
-        AgentInstanceMother.updateOS(idle, "macos");
-        idle.agentConfig().addResourceConfig(new ResourceConfig("foo"));
-        idle.agentConfig().addResourceConfig(new ResourceConfig("bar"));
-        agents.add(new AgentViewModel(idle, "uat"));
-        AgentInstance building = AgentInstanceMother.building();
-        building.agentConfig().addResourceConfig(new ResourceConfig("goofooboo"));
-        agents.add(new AgentViewModel(building, "dev", "uat"));
+        AgentInstance idleAgentInstance = AgentInstanceMother.idle(new Date(), "CCeDev01");
+        AgentInstanceMother.updateOS(idleAgentInstance, "macos");
+        idleAgentInstance.getAgent().addResourceConfig(new ResourceConfig("foo"));
+        idleAgentInstance.getAgent().addResourceConfig(new ResourceConfig("bar"));
+        agents.add(new AgentViewModel(idleAgentInstance, "uat"));
+
+        AgentInstance buildingAgentInstance = AgentInstanceMother.building();
+        buildingAgentInstance.getAgent().addResourceConfig(new ResourceConfig("goofooboo"));
+        agents.add(new AgentViewModel(buildingAgentInstance, "dev", "uat"));
         agents.add(new AgentViewModel(AgentInstanceMother.pending()));
         agents.add(new AgentViewModel(AgentInstanceMother.disabled(), "prod"));
         return agents;

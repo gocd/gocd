@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.config.PipelineConfig;
@@ -90,7 +90,7 @@ public class StageIntegrationTest {
         svnRepo = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
         CONFIG_HELPER.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");
         mingle = CONFIG_HELPER.addStageToPipeline(PIPELINE_NAME, FT_STAGE, "bar");
-        agentService.saveOrUpdate(new AgentConfig(AGENT_UUID, HOSTNAME, "127.0.0.1", "cookie1"));
+        agentService.saveOrUpdate(new Agent(AGENT_UUID, HOSTNAME, "127.0.0.1", "cookie1"));
     }
 
     @After

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.controller;
 
 import com.rits.cloning.Cloner;
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.security.RegistrationJSONizer;
@@ -26,13 +26,10 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.util.UuidGenerator;
 import com.thoughtworks.go.util.SystemEnvironment;
 import org.hamcrest.Matchers;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,7 +37,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -91,9 +87,9 @@ public class AgentRegistrationControllerIntegrationTest {
         String uuid = UUID.randomUUID().toString();
         MockHttpServletRequest request = new MockHttpServletRequest();
         final ResponseEntity responseEntity = controller.agentRequest("hostname", uuid, "sandbox", "100", null, null, null, null, null, null, null, false, token(uuid, goConfigService.serverConfig().getTokenGenerationKey()), request);
-        AgentConfig agentConfig = agentService.agentByUuid(uuid);
+        Agent agent = agentService.agentByUuid(uuid);
 
-        assertThat(agentConfig.getHostname(), is("hostname"));
+        assertThat(agent.getHostname(), is("hostname"));
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getHeaders().getContentType(), is(MediaType.APPLICATION_JSON));
         assertTrue(RegistrationJSONizer.fromJson(responseEntity.getBody().toString()).isValid());
@@ -118,9 +114,9 @@ public class AgentRegistrationControllerIntegrationTest {
                 "elastic-plugin-id",
                 token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
                 request);
-        AgentConfig agentConfig = agentService.agentByUuid(uuid);
+        Agent agent = agentService.agentByUuid(uuid);
 
-        assertTrue(agentConfig.isElastic());
+        assertTrue(agent.isElastic());
         assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
         assertThat(responseEntity.getHeaders().getContentType(), is(MediaType.APPLICATION_JSON));
         assertTrue(RegistrationJSONizer.fromJson(responseEntity.getBody().toString()).isValid());
@@ -146,8 +142,8 @@ public class AgentRegistrationControllerIntegrationTest {
                 "elastic-plugin-id",
                 token(uuid, goConfigService.serverConfig().getTokenGenerationKey()),
                 request);
-        AgentConfig agentConfig = agentService.agentByUuid(uuid);
-        assertTrue(agentConfig.isElastic());
+        Agent agent = agentService.agentByUuid(uuid);
+        assertTrue(agent.isElastic());
 
         final ResponseEntity responseEntity = controller.agentRequest("elastic-agent-hostname",
                 uuid,
@@ -221,7 +217,7 @@ public class AgentRegistrationControllerIntegrationTest {
     public void shouldRejectGenerateTokenRequestIfAgentIsInPendingState() throws Exception {
         System.setProperty(SystemEnvironment.AUTO_REGISTER_LOCAL_AGENT_ENABLED.propertyName(), "false");
         final String uuid = UUID.randomUUID().toString();
-        final AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig(uuid, "hostname", "127.0.01"), false, "sandbox", 0l, "linux");
+        final AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(new Agent(uuid, "hostname", "127.0.01"), false, "sandbox", 0l, "linux");
         agentService.requestRegistration(agentService.agentUsername(uuid, "127.0.0.1", "hostname"), agentRuntimeInfo);
         final AgentInstance agentInstance = agentService.findAgent(uuid);
         assertTrue(agentInstance.isPending());
@@ -236,7 +232,7 @@ public class AgentRegistrationControllerIntegrationTest {
     public void shouldRejectGenerateTokenRequestIfAgentIsInConfig() throws Exception {
         System.setProperty(SystemEnvironment.AUTO_REGISTER_LOCAL_AGENT_ENABLED.propertyName(), "false");
         final String uuid = UUID.randomUUID().toString();
-        agentService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()));
+        agentService.saveOrUpdate(new Agent(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()));
         assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
 
         final ResponseEntity responseEntity = controller.getToken(uuid);
@@ -269,7 +265,7 @@ public class AgentRegistrationControllerIntegrationTest {
     @Test
     public void shouldReIssueCertificateIfRegisteredAgentAsksForRegistrationWithoutAutoRegisterKeys() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        agentService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()));
+        agentService.saveOrUpdate(new Agent(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()));
         assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
 
         MockHttpServletRequest request = new MockHttpServletRequest();
@@ -285,7 +281,7 @@ public class AgentRegistrationControllerIntegrationTest {
     @Test
     public void shouldReIssueCertificateIfRegisteredAgentAsksForRegistrationWithAutoRegisterKeys() throws Exception {
         String uuid = UUID.randomUUID().toString();
-        agentService.saveOrUpdate(new AgentConfig(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()));
+        agentService.saveOrUpdate(new Agent(uuid, "hostname", "127.0.01", uuidGenerator.randomUuid()));
         assertTrue(agentService.findAgent(uuid).getAgentConfigStatus().equals(AgentConfigStatus.Enabled));
 
         MockHttpServletRequest request = new MockHttpServletRequest();

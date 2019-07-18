@@ -28,15 +28,15 @@ public class AgentsTest {
     @Test
     public void shouldFindAgentByUuid() {
         Agents agents = new Agents();
-        agents.add(new AgentConfig("1", "localhost", "2"));
+        agents.add(new Agent("1", "localhost", "2"));
         assertThat(agents.getAgentByUuid("1").getHostname(), is("localhost"));
     }
 
     @Test
     public void shouldGiveAListOfUuids() throws Exception {
         Agents agents = new Agents();
-        agents.add(new AgentConfig("1", "localhost", "2"));
-        AgentConfig denied = new AgentConfig("2", "localhost", "2");
+        agents.add(new Agent("1", "localhost", "2"));
+        Agent denied = new Agent("2", "localhost", "2");
         denied.setDisabled(true);
         agents.add(denied);
 
@@ -51,11 +51,11 @@ public class AgentsTest {
     public void shouldValidateDuplicateElasticAgentId() throws Exception {
         Agents agents = new Agents();
 
-        AgentConfig elasticAgent1 = new AgentConfig("1", "localhost", "1");
+        Agent elasticAgent1 = new Agent("1", "localhost", "1");
         elasticAgent1.setElasticAgentId("elastic-agent-id");
         elasticAgent1.setElasticPluginId("awesome-elastic-agent");
 
-        AgentConfig elasticAgent2 = new AgentConfig("2", "localhost", "2");
+        Agent elasticAgent2 = new Agent("2", "localhost", "2");
         elasticAgent2.setElasticAgentId("elastic-agent-id");
         elasticAgent2.setElasticPluginId("awesome-elastic-agent");
 

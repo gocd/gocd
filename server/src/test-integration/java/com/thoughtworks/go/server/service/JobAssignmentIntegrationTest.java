@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -125,17 +125,17 @@ public class JobAssignmentIntegrationTest {
     }
 
     private AgentInstance setupRemoteAgent() {
-        AgentConfig agentConfig = AgentMother.remoteAgent();
-        agentService.saveOrUpdate(agentConfig);
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, systemEnvironment, agentStatusChangeListener());
+        Agent agent = AgentMother.remoteAgent();
+        agentService.saveOrUpdate(agent);
+        AgentInstance instance = AgentInstance.createFromAgent(agent, systemEnvironment, agentStatusChangeListener());
         instance.enable();
         return instance;
     }
 
     private AgentInstance setupLocalAgent() throws UnknownHostException {
-        AgentConfig agentConfig = AgentMother.localAgent();
-        agentService.saveOrUpdate(agentConfig);
-        return AgentInstance.createFromConfig(agentConfig, systemEnvironment, agentStatusChangeListener());
+        Agent agent = AgentMother.localAgent();
+        agentService.saveOrUpdate(agent);
+        return AgentInstance.createFromAgent(agent, systemEnvironment, agentStatusChangeListener());
     }
 
     private AgentStatusChangeListener agentStatusChangeListener() {

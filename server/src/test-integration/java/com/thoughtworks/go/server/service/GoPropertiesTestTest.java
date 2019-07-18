@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.fixture.PipelineWithTwoStages;
@@ -72,7 +72,7 @@ public class GoPropertiesTestTest {
         configHelper.onSetUp();
         fixture = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         fixture.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
-        agentService.saveOrUpdate(new AgentConfig(AGENT_UUID, HOSTNAME, "127.0.0.1", "cookie"));
+        agentService.saveOrUpdate(new Agent(AGENT_UUID, HOSTNAME, "127.0.0.1", "cookie"));
     }
 
     @After

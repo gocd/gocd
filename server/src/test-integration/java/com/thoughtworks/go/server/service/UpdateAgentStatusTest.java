@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import ch.qos.logback.classic.Level;
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.JobIdentifier;
@@ -82,7 +82,7 @@ public class UpdateAgentStatusTest {
         preCondition = new PipelineWithTwoStages(materialRepository, transactionTemplate, temporaryFolder);
         preCondition.usingConfigHelper(configHelper).usingDbHelper(dbHelper).onSetUp();
         agentService.clearAll();
-        agentService.saveOrUpdate(new AgentConfig(agentId, "CCEDev01", "10.81.2.1", "cookie"));
+        agentService.saveOrUpdate(new Agent(agentId, "CCEDev01", "10.81.2.1", "cookie"));
     }
 
     @After

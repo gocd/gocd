@@ -374,9 +374,9 @@ public class InstanceFactoryTest {
         JobConfig javaConfig = stageConfig.getJobs().getJob(new CaseInsensitiveString("java"));
         javaConfig.setRunInstanceCount(2);
 
-        AgentConfig agent1 = new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar")));
-        AgentConfig agent2 = new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar")));
-        AgentConfig agent3 = new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar")));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar")));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")));
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         Stage stageInstance = instanceFactory.createStageInstance(stageConfig, schedulingContext, "md5", clock);
@@ -478,8 +478,8 @@ public class InstanceFactoryTest {
     @Test
     public void shouldCreateAJobForEachAgentIfRunOnAllAgentsIsTrue() throws Exception {
         Agents agents = new Agents();
-        agents.add(new AgentConfig("uuid1"));
-        agents.add(new AgentConfig("uuid2"));
+        agents.add(new Agent("uuid1"));
+        agents.add(new Agent("uuid2"));
 
         JobConfig jobConfig = new JobConfig("foo");
         jobConfig.setRunOnAllAgents(true);
@@ -554,9 +554,9 @@ public class InstanceFactoryTest {
         railsConfig.addResourceConfig("foobar");
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
+                new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
+                new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
+                new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
@@ -583,9 +583,9 @@ public class InstanceFactoryTest {
         railsConfig.addResourceConfig("foobar");
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
+                new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
+                new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
+                new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
@@ -621,9 +621,9 @@ public class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
         Stage newStage = instanceFactory.createStageForRerunOfJobs(stage, a("rails"), new DefaultSchedulingContext("loser", new Agents(
-                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent"))))), stageConfig, new TimeProvider(), "md5");
+                new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
+                new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
+                new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent"))))), stageConfig, new TimeProvider(), "md5");
 
         assertThat(newStage.getJobInstances().size(), is(3));
 
@@ -650,9 +650,9 @@ public class InstanceFactoryTest {
         railsConfig.addResourceConfig("foobar");
 
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(
-                new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
-                new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
-                new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
+                new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar"))),
+                new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar"))),
+                new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")))));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));
         JobInstances jobs = instanceFactory.createJobInstance(new CaseInsensitiveString("dev"), railsConfig, schedulingContext, new TimeProvider(), jobNameGenerator);
@@ -681,9 +681,9 @@ public class InstanceFactoryTest {
         railsConfig.setRunOnAllAgents(true);
         railsConfig.addResourceConfig("foobar");
 
-        AgentConfig agent1 = new AgentConfig("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar")));
-        AgentConfig agent2 = new AgentConfig("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar")));
-        AgentConfig agent3 = new AgentConfig("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")));
+        Agent agent1 = new Agent("abcd1234", "host", "127.0.0.2", new ResourceConfigs(new ResourceConfig("foobar")));
+        Agent agent2 = new Agent("1234abcd", "ghost", "192.168.1.2", new ResourceConfigs(new ResourceConfig("baz"), new ResourceConfig("foobar")));
+        Agent agent3 = new Agent("7890abdc", "lost", "10.4.3.55", new ResourceConfigs(new ResourceConfig("crapyagent")));
         DefaultSchedulingContext schedulingContext = new DefaultSchedulingContext("loser", new Agents(agent1, agent2, agent3));
 
         RunOnAllAgents.CounterBasedJobNameGenerator jobNameGenerator = new RunOnAllAgents.CounterBasedJobNameGenerator(CaseInsensitiveString.str(railsConfig.name()));

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
 import com.thoughtworks.go.config.elastic.ElasticProfile;
@@ -98,7 +98,7 @@ public class JobControllerTest {
 
         when(jobInstanceService.buildByIdWithTransitions(job.getId())).thenReturn(job);
         when(jobInstanceDao.mostRecentJobWithTransitions(job.getIdentifier())).thenReturn(newJob);
-        when(agentService.findAgentObjectByUuid(newJob.getAgentUuid())).thenReturn(AgentConfig.blankAgent(newJob.getAgentUuid()));
+        when(agentService.findAgentObjectByUuid(newJob.getAgentUuid())).thenReturn(Agent.blankAgent(newJob.getAgentUuid()));
         when(stageService.getBuildDuration(pipelineName, stageName, newJob)).thenReturn(new DurationBean(newJob.getId(), 5l));
 
         ModelAndView modelAndView = jobController.handleRequest(pipelineName, stageName, job.getId(), response);

@@ -36,11 +36,11 @@ import static org.mockito.Mockito.mock;
 public class AgentInstanceMother {
 
     public static AgentInstance local(SystemEnvironment systemEnvironment) {
-        return AgentInstance.createFromConfig(new AgentConfig("uuid-local", "localhost", "127.0.0.1"), systemEnvironment, null);
+        return AgentInstance.createFromAgent(new Agent("uuid-local", "localhost", "127.0.0.1"), systemEnvironment, null);
     }
 
     public static AgentInstance localInstance(SystemEnvironment systemEnvironment, String uuid, String hostname) {
-        return AgentInstance.createFromConfig(new AgentConfig(uuid, hostname, "127.0.0.1"), systemEnvironment, null);
+        return AgentInstance.createFromAgent(new Agent(uuid, hostname, "127.0.0.1"), systemEnvironment, null);
     }
 
     public static AgentInstance idle() {
@@ -49,16 +49,16 @@ public class AgentInstanceMother {
 
     public static AgentInstance idleWith(String uuid) {
         final AgentInstance agentInstance = idle();
-        agentInstance.syncConfig(new AgentConfig(uuid, agentInstance.getHostname(), agentInstance.getIpAddress()));
+        agentInstance.syncConfig(new Agent(uuid, agentInstance.getHostname(), agentInstance.getIpAddress()));
         return agentInstance;
     }
 
     public static AgentInstance idleWith(String uuid, String hostname, String ipAddress, String location, long space, String os, List<String> resources) {
 
-        AgentConfig agentConfig = new AgentConfig(uuid, hostname, ipAddress);
-        agentConfig.setResourceConfigs(new ResourceConfigs(resources.stream().map(ResourceConfig::new).collect(Collectors.toList())));
+        Agent agent = new Agent(uuid, hostname, ipAddress);
+        agent.setResourceConfigs(new ResourceConfigs(resources.stream().map(ResourceConfig::new).collect(Collectors.toList())));
 
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, location, "cookie");
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, location, "cookie");
         agentRuntimeInfo.idle();
         agentRuntimeInfo.setUsableSpace(space);
         agentRuntimeInfo.setOperatingSystem(os);
@@ -66,13 +66,13 @@ public class AgentInstanceMother {
         AgentInstance agentInstance = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
         agentInstance.idle();
         agentInstance.update(agentRuntimeInfo);
-        agentInstance.syncConfig(agentConfig);
+        agentInstance.syncConfig(agent);
 
         return agentInstance;
     }
 
     public static AgentInstance idle(final Date lastHeardAt, final String hostname, SystemEnvironment systemEnvironment) {
-        AgentConfig idleAgentConfig = new AgentConfig("uuid2", hostname, "10.18.5.1");
+        Agent idleAgentConfig = new Agent("uuid2", hostname, "10.18.5.1");
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(idleAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         agentRuntimeInfo.setLocation("/var/lib/foo");
         agentRuntimeInfo.idle();
@@ -98,16 +98,16 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance building(String buildLocator, SystemEnvironment systemEnvironment) {
-        AgentConfig buildingAgentConfig = new AgentConfig("uuid3", "CCeDev01", "10.18.5.1", new ResourceConfigs("java"));
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
+        Agent buildingAgentConfig = new Agent("uuid3", "CCeDev01", "10.18.5.1", new ResourceConfigs("java"));
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(buildingAgentConfig.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false);
         agentRuntimeInfo.busy(new AgentBuildingInfo("pipeline", buildLocator));
-        AgentInstance building = AgentInstance.createFromConfig(buildingAgentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
+        AgentInstance building = AgentInstance.createFromAgent(buildingAgentConfig, systemEnvironment, mock(AgentStatusChangeListener.class));
         building.update(agentRuntimeInfo);
         return building;
     }
 
     public static AgentInstance pending(SystemEnvironment systemEnvironment) {
-        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromServer(new AgentConfig("uuid4", "CCeDev03", "10.18.5.3", new ResourceConfigs(new ResourceConfig("db"), new ResourceConfig("web"))), false,
+        AgentRuntimeInfo runtimeInfo = AgentRuntimeInfo.fromServer(new Agent("uuid4", "CCeDev03", "10.18.5.3", new ResourceConfigs(new ResourceConfig("db"), new ResourceConfig("web"))), false,
                 "/var/lib", 0L, "linux");
         AgentInstance pending = AgentInstance.createFromLiveAgent(runtimeInfo, systemEnvironment, mock(AgentStatusChangeListener.class));
         pending.pending();
@@ -126,13 +126,13 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance updateUuid(AgentInstance agent, String uuid) {
-        agent.syncConfig(new AgentConfig(uuid, agent.getHostname(), agent.getIpAddress()));
+        agent.syncConfig(new Agent(uuid, agent.getHostname(), agent.getIpAddress()));
         return agent;
     }
 
 
     public static AgentInstance updateResources(AgentInstance agentInstance, String resources) {
-        agentInstance.agentConfig().setResourceConfigs(new ResourceConfigs(resources));
+        agentInstance.getAgent().setResourceConfigs(new ResourceConfigs(resources));
         return agentInstance;
     }
 
@@ -141,8 +141,8 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance updateUsableSpace(AgentInstance agentInstance, Long freespace) {
-        AgentConfig agentConfig = agentInstance.agentConfig();
-        agentInstance.update(AgentRuntimeInfo.fromServer(agentConfig, true, agentInstance.getLocation(), freespace, "linux"));
+        Agent agent = agentInstance.getAgent();
+        agentInstance.update(AgentRuntimeInfo.fromServer(agent, true, agentInstance.getLocation(), freespace, "linux"));
         return agentInstance;
     }
 
@@ -151,50 +151,50 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance updateOS(AgentInstance agentInstance, String operatingSystem) {
-        AgentConfig agentConfig = agentInstance.agentConfig();
-        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, true, agentInstance.getLocation(), agentInstance.getUsableSpace(), operatingSystem);
+        Agent agent = agentInstance.getAgent();
+        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.fromServer(agent, true, agentInstance.getLocation(), agentInstance.getUsableSpace(), operatingSystem);
         newRuntimeInfo.setStatus(agentInstance.getStatus());
         agentInstance.update(newRuntimeInfo);
         return agentInstance;
     }
 
     public static AgentInstance updateIpAddress(AgentInstance agentInstance, String ip) {
-        agentInstance.agentConfig().setIpaddress(ip);
+        agentInstance.getAgent().setIpaddress(ip);
         return agentInstance;
     }
 
 
     public static AgentInstance updateLocation(AgentInstance agentInstance, String location) {
-        AgentConfig agentConfig = agentInstance.agentConfig();
-        agentInstance.update(AgentRuntimeInfo.fromServer(agentConfig, true, location, agentInstance.getUsableSpace(), "linux"));
+        Agent agent = agentInstance.getAgent();
+        agentInstance.update(AgentRuntimeInfo.fromServer(agent, true, location, agentInstance.getUsableSpace(), "linux"));
         return agentInstance;
     }
 
     public static AgentInstance updateHostname(AgentInstance agentInstance, String hostname) {
-        AgentConfig original = agentInstance.agentConfig();
-        agentInstance.syncConfig(new AgentConfig(original.getUuid(), hostname, original.getIpaddress(), original.getResourceConfigs()));
+        Agent original = agentInstance.getAgent();
+        agentInstance.syncConfig(new Agent(original.getUuid(), hostname, original.getIpaddress(), original.getResourceConfigs()));
         return agentInstance;
     }
 
     public static AgentInstance updateElasticAgentId(AgentInstance agentInstance, String elasticAgentId) {
-        AgentConfig agentConfig = agentInstance.agentConfig();
-        agentConfig.setElasticAgentId(elasticAgentId);
+        Agent agent = agentInstance.getAgent();
+        agent.setElasticAgentId(elasticAgentId);
 
-        agentInstance.syncConfig(agentConfig);
+        agentInstance.syncConfig(agent);
         return agentInstance;
     }
 
     public static AgentInstance updateElasticPluginId(AgentInstance agentInstance, String elasticPluginId) {
-        AgentConfig agentConfig = agentInstance.agentConfig();
-        agentConfig.setElasticPluginId(elasticPluginId);
+        Agent agent = agentInstance.getAgent();
+        agent.setElasticPluginId(elasticPluginId);
 
-        agentInstance.syncConfig(agentConfig);
+        agentInstance.syncConfig(agent);
         return agentInstance;
     }
 
     public static AgentInstance updateRuntimeStatus(AgentInstance agentInstance, AgentRuntimeStatus status) {
-        AgentConfig agentConfig = agentInstance.agentConfig();
-        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, true, agentInstance.getLocation(), agentInstance.getUsableSpace(), "linux");
+        Agent agent = agentInstance.getAgent();
+        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.fromServer(agent, true, agentInstance.getLocation(), agentInstance.getUsableSpace(), "linux");
         newRuntimeInfo.setRuntimeStatus(status);
         agentInstance.update(newRuntimeInfo);
         return agentInstance;
@@ -205,7 +205,7 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance disabled(String ip, SystemEnvironment systemEnvironment) {
-        AgentInstance denied = AgentInstance.createFromConfig(new AgentConfig("uuid5", "CCeDev04", ip), systemEnvironment,
+        AgentInstance denied = AgentInstance.createFromAgent(new Agent("uuid5", "CCeDev04", ip), systemEnvironment,
                 mock(AgentStatusChangeListener.class));
         denied.enable();
         denied.deny();
@@ -231,9 +231,9 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance missing() {
-        AgentConfig agentConfig = new AgentConfig("1234", "localhost", "192.168.0.1");
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
-        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.initialState(agentConfig);
+        Agent agent = new Agent("1234", "localhost", "192.168.0.1");
+        AgentInstance instance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
+        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.initialState(agent);
         newRuntimeInfo.setStatus(AgentStatus.Missing);
         instance.update(newRuntimeInfo);
         return instance;
@@ -244,9 +244,9 @@ public class AgentInstanceMother {
     }
 
     public static AgentInstance lostContact(String buildLocator) {
-        AgentConfig agentConfig = new AgentConfig("1234", "localhost", "192.168.0.1");
-        AgentInstance instance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
-        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.initialState(agentConfig);
+        Agent agent = new Agent("1234", "localhost", "192.168.0.1");
+        AgentInstance instance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
+        AgentRuntimeInfo newRuntimeInfo = AgentRuntimeInfo.initialState(agent);
         newRuntimeInfo.setStatus(AgentStatus.LostContact);
         newRuntimeInfo.setUsableSpace(1000L);
         newRuntimeInfo.setBuildingInfo(new AgentBuildingInfo("buildInfo", buildLocator));
@@ -262,8 +262,8 @@ public class AgentInstanceMother {
     public static AgentInstance agentWithConfigErrors() {
         ResourceConfig resourceConfig1 = new ResourceConfig("foo%");
         ResourceConfig resourceConfig2 = new ResourceConfig("bar$");
-        AgentConfig agentConfig = new AgentConfig("uuid", "host", "IP", new ResourceConfigs(resourceConfig1, resourceConfig2));
-        agentConfig.validate(null);
-        return AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
+        Agent agent = new Agent("uuid", "host", "IP", new ResourceConfigs(resourceConfig1, resourceConfig2));
+        agent.validate(null);
+        return AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
     }
 }

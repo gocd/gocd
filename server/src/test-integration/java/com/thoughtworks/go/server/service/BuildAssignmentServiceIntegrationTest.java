@@ -203,7 +203,7 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldNotAssignWorkToDeniedAgent() throws Exception {
-        AgentConfig deniedAgentConfig = AgentMother.localAgent();
+        Agent deniedAgentConfig = AgentMother.localAgent();
         deniedAgentConfig.disable();
 
         Work assignedWork = buildAssignmentService.assignWorkToAgent(agent(deniedAgentConfig));
@@ -239,18 +239,18 @@ public class BuildAssignmentServiceIntegrationTest {
 
     @Test
     public void shouldUpdateNumberOfActiveRemoteAgentsAfterAssigned() {
-        AgentConfig agentConfig = AgentMother.remoteAgent();
-        agentService.saveOrUpdate(agentConfig);
+        Agent agent = AgentMother.remoteAgent();
+        agentService.saveOrUpdate(agent);
 
         fixture.createPipelineWithFirstStageScheduled();
         buildAssignmentService.onTimer();
 
-        AgentInstance agent = agentService.findAgent(agentConfig.getUuid());
-        assertFalse(agent.isBuilding());
+        AgentInstance agentInstance = agentService.findAgent(agent.getUuid());
+        assertFalse(agentInstance.isBuilding());
 
-        Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
+        Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
         assertThat(work, instanceOf(BuildWork.class));
-        assertTrue(agent.isBuilding());
+        assertTrue(agentInstance.isBuilding());
     }
 
     @Test
@@ -355,10 +355,10 @@ public class BuildAssignmentServiceIntegrationTest {
 
         configHelper.removePipeline(fixture.pipelineName);
 
-        AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResourceConfig(new ResourceConfig("some-other-resource"));
+        Agent agent = AgentMother.localAgent();
+        agent.addResourceConfig(new ResourceConfig("some-other-resource"));
 
-        assertThat(buildAssignmentService.assignWorkToAgent(agent(agentConfig)), Matchers.is(BuildAssignmentService.NO_WORK));
+        assertThat(buildAssignmentService.assignWorkToAgent(agent(agent)), Matchers.is(BuildAssignmentService.NO_WORK));
         Pipeline pipeline = pipelineDao.mostRecentPipeline(fixture.pipelineName);
         JobInstance job = pipeline.getFirstStage().getJobInstances().first();
         assertThat(job.getState(), is(JobState.Completed));
@@ -401,9 +401,9 @@ public class BuildAssignmentServiceIntegrationTest {
 
         Thread assigner = new Thread(() -> {
             try {
-                final AgentConfig agentConfig = AgentMother.localAgentWithResources("some-other-resource");
+                final Agent agent = AgentMother.localAgentWithResources("some-other-resource");
 
-                buildAssignmentServiceUnderTest.assignWorkToAgent(agent(agentConfig));
+                buildAssignmentServiceUnderTest.assignWorkToAgent(agent(agent));
             } catch (Throwable e) {
                 e.printStackTrace();
                 fromThread[0] = e;
@@ -439,11 +439,11 @@ public class BuildAssignmentServiceIntegrationTest {
                 systemEnvironment, secretParamResolver, jobStatusTopic, consoleService);
         buildAssignmentService.onTimer();
 
-        AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResourceConfig(new ResourceConfig("some-other-resource"));
+        Agent agent = AgentMother.localAgent();
+        agent.addResourceConfig(new ResourceConfig("some-other-resource"));
 
         try {
-            buildAssignmentService.assignWorkToAgent(agent(agentConfig));
+            buildAssignmentService.assignWorkToAgent(agent(agent));
             fail("should have thrown RecordNotFoundException");
         } catch (RecordNotFoundException e) {
             // ok
@@ -565,9 +565,9 @@ public class BuildAssignmentServiceIntegrationTest {
         dbHelper.savePipelineWithStagesAndMaterials(downestInstance);
 
         buildAssignmentService.onTimer();
-        AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResourceConfig(new ResourceConfig("fetcher"));
-        BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(agentConfig));
+        Agent agent = AgentMother.localAgent();
+        agent.addResourceConfig(new ResourceConfig("fetcher"));
+        BuildWork work = (BuildWork) buildAssignmentService.assignWorkToAgent(agent(agent));
 
         List<Builder> builders = work.getAssignment().getBuilders();
         FetchArtifactBuilder fooZipFetch = (FetchArtifactBuilder) builders.get(0);
@@ -588,9 +588,9 @@ public class BuildAssignmentServiceIntegrationTest {
     }
 
 
-    private AgentIdentifier agent(AgentConfig agentConfig) {
-        agentService.saveOrUpdate(agentConfig);
-        return agentService.findAgent(agentConfig.getUuid()).getAgentIdentifier();
+    private AgentIdentifier agent(Agent agent) {
+        agentService.saveOrUpdate(agent);
+        return agentService.findAgent(agent.getUuid()).getAgentIdentifier();
     }
 
     @Test
@@ -617,10 +617,10 @@ public class BuildAssignmentServiceIntegrationTest {
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
-        AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResourceConfig(new ResourceConfig("some-other-resource"));
+        Agent agent = AgentMother.localAgent();
+        agent.addResourceConfig(new ResourceConfig("some-other-resource"));
 
-        Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
+        Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
         assertThat(work, is(BuildAssignmentService.NO_WORK));
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
@@ -637,11 +637,11 @@ public class BuildAssignmentServiceIntegrationTest {
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
-        AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResourceConfig(new ResourceConfig("some-resource"));
+        Agent agent = AgentMother.localAgent();
+        agent.addResourceConfig(new ResourceConfig("some-resource"));
 
         buildAssignmentService.onTimer();
-        Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
+        Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
         assertThat(work, is(not(BuildAssignmentService.NO_WORK)));
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
@@ -651,7 +651,7 @@ public class BuildAssignmentServiceIntegrationTest {
         assertThat(loadedPlan.getResources().toResourceConfigs(), is(jobConfig.resourceConfigs()));
 
         assertThat(job.getState(), is(JobState.Assigned));
-        assertThat(job.getAgentUuid(), is(agentConfig.getUuid()));
+        assertThat(job.getAgentUuid(), is(agent.getUuid()));
     }
 
     @Test
@@ -663,11 +663,11 @@ public class BuildAssignmentServiceIntegrationTest {
 
         scheduleHelper.schedule(evolveConfig, modifySomeFiles(evolveConfig), DEFAULT_APPROVED_BY);
 
-        AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResourceConfig(new ResourceConfig("some-resource"));
+        Agent agent = AgentMother.localAgent();
+        agent.addResourceConfig(new ResourceConfig("some-resource"));
 
         buildAssignmentService.onTimer();
-        Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
+        Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
         assertThat(work, is(BuildAssignmentService.NO_WORK));
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
@@ -689,9 +689,9 @@ public class BuildAssignmentServiceIntegrationTest {
 
         buildAssignmentService.onTimer();
 
-        AgentConfig agentConfig = AgentMother.localAgent();
-        agentConfig.addResourceConfig(new ResourceConfig("some-resource"));
-        Work work = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
+        Agent agent = AgentMother.localAgent();
+        agent.addResourceConfig(new ResourceConfig("some-resource"));
+        Work work = buildAssignmentService.assignWorkToAgent(agent(agent));
         assertThat(work, is(not(BuildAssignmentService.NO_WORK)));
 
         Pipeline pipeline = pipelineDao.mostRecentPipeline(CaseInsensitiveString.str(evolveConfig.name()));
@@ -711,7 +711,7 @@ public class BuildAssignmentServiceIntegrationTest {
         assertThat(noResourcesWork, is(BuildAssignmentService.NO_WORK));
 
         buildAssignmentService.onTimer();
-        Work correctAgentWork = buildAssignmentService.assignWorkToAgent(agent(agentConfig));
+        Work correctAgentWork = buildAssignmentService.assignWorkToAgent(agent(agent));
         assertThat(correctAgentWork, is(not(BuildAssignmentService.NO_WORK)));
 
     }

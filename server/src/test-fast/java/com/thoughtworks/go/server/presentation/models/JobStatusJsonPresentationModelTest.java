@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.presentation.models;
 
 import com.google.gson.Gson;
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.JobIdentifier;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobResult;
@@ -43,7 +43,7 @@ public class JobStatusJsonPresentationModelTest {
         instance.setId(12);
         instance.setAgentUuid("1234");
 
-        final AgentConfig agent = new AgentConfig("1234","localhost", "1234", "cookie");
+        final Agent agent = new Agent("1234","localhost", "1234", "cookie");
 
         JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance,
                 agent, mock(DurationBean.class));
@@ -72,7 +72,7 @@ public class JobStatusJsonPresentationModelTest {
     @Test public void shouldShowElapsedAndRemainingTimeForIncompleteBuild() throws Exception {
         JobInstance instance = building("test", new DateTime().minusSeconds(5).toDate());
 
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(AgentConfig.class),
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class),
                 new DurationBean(instance.getId(), 10L));
         Map json = presenter.toJsonHash();
 
@@ -91,7 +91,7 @@ public class JobStatusJsonPresentationModelTest {
 
         // "Not assigned" should depend on whether or not the JobInstance has an agentUuid, regardless of
         // the Agent object passed to the presenter, as this is the canonical definition of job assignment
-        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(AgentConfig.class), mock(DurationBean.class));
+        JobStatusJsonPresentationModel presenter = new JobStatusJsonPresentationModel(instance, mock(Agent.class), mock(DurationBean.class));
 
         assertThatJson(new Gson().toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n  \"agent\": \"Not yet assigned\"\n}");
     }
@@ -103,7 +103,7 @@ public class JobStatusJsonPresentationModelTest {
 
         JobStatusJsonPresentationModel presenter =
                 new JobStatusJsonPresentationModel(instance,
-                        new AgentConfig("1234","localhost", "address", "cookie"), mock(DurationBean.class));
+                        new Agent("1234","localhost", "address", "cookie"), mock(DurationBean.class));
         assertThatJson(new Gson().toJson(presenter.toJsonHash())).when(IGNORING_EXTRA_FIELDS).isEqualTo("{\n" +
                 "  \"agent\": \"localhost\"\n" +
                 "}");

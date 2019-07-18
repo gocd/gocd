@@ -34,7 +34,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 /**
  * @understands the current persistent information related to an Agent
  */
-public class AgentConfig extends PersistentObject implements Validatable {
+public class Agent extends PersistentObject implements Validatable {
     private String hostname;
     private String ipaddress;
     private String uuid;
@@ -51,11 +51,11 @@ public class AgentConfig extends PersistentObject implements Validatable {
     public static final String IP_ADDRESS = "ipAddress";
     public static final String UUID = "uuid";
 
-    public AgentConfig() {
+    public Agent() {
     }
 
-    public static AgentConfig newInstanceFrom(AgentConfig original) {
-        AgentConfig copy = new AgentConfig(original.getUuid(), original.getHostname(), original.getIpaddress(), original.getCookie());
+    public static Agent newInstanceFrom(Agent original) {
+        Agent copy = new Agent(original.getUuid(), original.getHostname(), original.getIpaddress(), original.getCookie());
 
         copy.setDisabled(original.isDisabled());
         copy.setElasticAgentId(original.getElasticAgentId());
@@ -71,28 +71,28 @@ public class AgentConfig extends PersistentObject implements Validatable {
         return copy;
     }
 
-    public AgentConfig(String uuid) {
+    public Agent(String uuid) {
         this(uuid, "", "");
     }
 
-    public AgentConfig(String uuid, String hostname, String ipaddress) {
+    public Agent(String uuid, String hostname, String ipaddress) {
         this(uuid, hostname, ipaddress, new ResourceConfigs());
     }
 
-    public AgentConfig(String uuid, String hostname, String ipaddress, ResourceConfigs resourceConfigs) {
+    public Agent(String uuid, String hostname, String ipaddress, ResourceConfigs resourceConfigs) {
         this.hostname = hostname;
         this.ipaddress = ipaddress;
         this.uuid = uuid;
         this.resources = StringUtils.join(resourceConfigs.resourceNames(), ",");
     }
 
-    public AgentConfig(String uuid, String hostname, String ipaddress, String cookie) {
+    public Agent(String uuid, String hostname, String ipaddress, String cookie) {
         this(uuid, hostname, ipaddress);
         this.cookie = cookie;
     }
 
-    public static AgentConfig blankAgent(String uuid) {
-        return new AgentConfig(uuid, "Unknown", "Unknown", "Unknown");
+    public static Agent blankAgent(String uuid) {
+        return new Agent(uuid, "Unknown", "Unknown", "Unknown");
     }
 
     public void setFieldValues(String cookie, String hostname, String ipaddress) {
@@ -210,7 +210,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
         return false;
     }
 
-    public AgentConfig deepClone() {
+    public Agent deepClone() {
         return new Cloner().deepClone(this);
     }
 
@@ -242,7 +242,7 @@ public class AgentConfig extends PersistentObject implements Validatable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        AgentConfig that = (AgentConfig) o;
+        Agent that = (Agent) o;
         return disabled == that.disabled &&
                 Objects.equals(hostname, that.hostname) &&
                 Objects.equals(ipaddress, that.ipaddress) &&

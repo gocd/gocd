@@ -17,7 +17,7 @@ package com.thoughtworks.go.server.service;
 
 import ch.qos.logback.classic.Level;
 import com.thoughtworks.go.CurrentGoCDVersion;
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.BasicEnvironmentConfig;
 import com.thoughtworks.go.config.CaseInsensitiveString;
 import com.thoughtworks.go.config.EnvironmentsConfig;
@@ -69,7 +69,7 @@ public class AgentServiceTest {
     private AgentIdentifier agentIdentifier;
     private UuidGenerator uuidGenerator;
     private ServerHealthService serverHealthService;
-    private AgentConfig agentConfig;
+    private Agent agent;
     private GoConfigService goConfigService;
     private SecurityService securityService;
 
@@ -80,14 +80,14 @@ public class AgentServiceTest {
     public void setUp() {
         agentInstances = mock(AgentInstances.class);
         securityService = mock(SecurityService.class);
-        agentConfig = new AgentConfig("uuid", "host", "192.168.1.1");
-        when(agentInstances.findAgentAndRefreshStatus("uuid")).thenReturn(AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), null));
+        agent = new Agent("uuid", "host", "192.168.1.1");
+        when(agentInstances.findAgentAndRefreshStatus("uuid")).thenReturn(AgentInstance.createFromAgent(agent, new SystemEnvironment(), null));
         agentDao = mock(AgentDao.class);
         goConfigService = mock(GoConfigService.class);
         uuidGenerator = mock(UuidGenerator.class);
         agentService = new AgentService(new SystemEnvironment(), agentInstances,
                 securityService, agentDao, uuidGenerator, serverHealthService = mock(ServerHealthService.class), null, goConfigService);
-        agentIdentifier = agentConfig.getAgentIdentifier();
+        agentIdentifier = agent.getAgentIdentifier();
         when(agentDao.cookieFor(agentIdentifier)).thenReturn("cookie");
     }
 
@@ -121,14 +121,14 @@ public class AgentServiceTest {
         AgentInstance agentInstance = mock(AgentInstance.class);
         Username username = new Username(new CaseInsensitiveString("test"));
         String uuid = "uuid";
-        AgentConfig agentConfigForUUID1 = mock(AgentConfig.class);
+        Agent agentConfigForUUID1 = mock(Agent.class);
 
         when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-        when(agentDao.agentByUuid(uuid)).thenReturn(agentConfig);
+        when(agentDao.agentByUuid(uuid)).thenReturn(agent);
         when(agentDao.agentByUuid("uuid1")).thenReturn(agentConfigForUUID1);
         when(agentConfigForUUID1.getEnvironments()).thenReturn("test");
 
-        agentConfig.setEnvironments("test");
+        agent.setEnvironments("test");
         EnvironmentsConfig envConfigs = new EnvironmentsConfig();
         BasicEnvironmentConfig testEnv = new BasicEnvironmentConfig(new CaseInsensitiveString("test"));
         testEnv.addAgent("uuid1");
@@ -152,10 +152,10 @@ public class AgentServiceTest {
         AgentInstance agentInstance = mock(AgentInstance.class);
         Username username = new Username(new CaseInsensitiveString("test"));
         String uuid = "uuid";
-        AgentConfig agentConfigForUUID1 = mock(AgentConfig.class);
+        Agent agentConfigForUUID1 = mock(Agent.class);
 
         when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-        when(agentDao.agentByUuid(uuid)).thenReturn(agentConfig);
+        when(agentDao.agentByUuid(uuid)).thenReturn(agent);
         when(agentDao.agentByUuid("uuid1")).thenReturn(agentConfigForUUID1);
 
         EnvironmentsConfig envConfigs = new EnvironmentsConfig();
@@ -169,9 +169,9 @@ public class AgentServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         agentService.updateAgentsAssociationWithSpecifiedEnv(username, testEnv, asList(uuid, "uuid1"), result);
 
-        ArgumentCaptor<List<AgentConfig>> argument = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
-        List<AgentConfig> agents = asList(agentConfigForUUID1, agentConfig);
+        List<Agent> agents = asList(agentConfigForUUID1, agent);
 
         verify(agentDao).bulkUpdateAttributes(argument.capture(), anyMap(), eq(TriState.UNSET));
         assertEquals(agents.size(), argument.getValue().size());
@@ -187,13 +187,13 @@ public class AgentServiceTest {
         AgentInstance agentInstance = mock(AgentInstance.class);
         Username username = new Username(new CaseInsensitiveString("test"));
         String uuid = "uuid";
-        AgentConfig agentConfigForUUID1 = mock(AgentConfig.class);
+        Agent agentConfigForUUID1 = mock(Agent.class);
 
         when(agentConfigForUUID1.getEnvironments()).thenReturn("test");
-        agentConfig.setEnvironments("test");
+        agent.setEnvironments("test");
 
         when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
-        when(agentDao.agentByUuid(uuid)).thenReturn(agentConfig);
+        when(agentDao.agentByUuid(uuid)).thenReturn(agent);
         when(agentDao.agentByUuid("uuid1")).thenReturn(agentConfigForUUID1);
 
         EnvironmentsConfig envConfigs = new EnvironmentsConfig();
@@ -209,9 +209,9 @@ public class AgentServiceTest {
         HttpLocalizedOperationResult result = new HttpLocalizedOperationResult();
         agentService.updateAgentsAssociationWithSpecifiedEnv(username, testEnv, emptyList(), result);
 
-        List<AgentConfig> agents = asList(agentConfigForUUID1, agentConfig);
+        List<Agent> agents = asList(agentConfigForUUID1, agent);
 
-        ArgumentCaptor<List<AgentConfig>> argument = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<List<Agent>> argument = ArgumentCaptor.forClass(List.class);
 
         verify(agentDao).bulkUpdateAttributes(argument.capture(), anyMap(), eq(TriState.UNSET));
         assertEquals(agents.size(), argument.getValue().size());
@@ -255,8 +255,8 @@ public class AgentServiceTest {
 
     @Test
     public void shouldUnderstandFilteringAgentListBasedOnUuid() {
-        AgentInstance instance1 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux"), new SystemEnvironment(), null);
-        AgentInstance instance3 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new AgentConfig("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux"), new SystemEnvironment(), null);
+        AgentInstance instance1 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new Agent("uuid-1", "host-1", "192.168.1.2"), true, "/foo/bar", 100l, "linux"), new SystemEnvironment(), null);
+        AgentInstance instance3 = AgentInstance.createFromLiveAgent(AgentRuntimeInfo.fromServer(new Agent("uuid-3", "host-3", "192.168.1.4"), true, "/baz/quux", 300l, "linux"), new SystemEnvironment(), null);
         when(agentInstances.filter(asList("uuid-1", "uuid-3"))).thenReturn(asList(instance1, instance3));
         AgentsViewModel agents = agentService.filter(Arrays.asList("uuid-1", "uuid-3"));
         AgentViewModel view1 = new AgentViewModel(instance1);
@@ -310,9 +310,9 @@ public class AgentServiceTest {
         AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromAgent(agentIdentifier, AgentRuntimeStatus.Unknown, "cookie", false);
         AgentInstance pending = AgentInstance.createFromLiveAgent(agentRuntimeInfo, new SystemEnvironment(), null);
 
-        AgentConfig agentConfig = new AgentConfig("UUID2", "remote-host", "50.40.30.20");
-        agentConfig.disable();
-        AgentInstance fromConfigFile = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), null);
+        Agent agent = new Agent("UUID2", "remote-host", "50.40.30.20");
+        agent.disable();
+        AgentInstance fromConfigFile = AgentInstance.createFromAgent(agent, new SystemEnvironment(), null);
 
         when(goConfigService.isAdministrator(username.getUsername())).thenReturn(true);
         when(goConfigService.getEnvironments()).thenReturn(new EnvironmentsConfig());

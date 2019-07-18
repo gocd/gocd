@@ -23,7 +23,7 @@ import java.util.*;
 
 import static java.util.Arrays.asList;
 
-public class Agents extends ArrayList<AgentConfig> implements Validatable {
+public class Agents extends ArrayList<Agent> implements Validatable {
     private ConfigErrors errors = new ConfigErrors();
     private String elasticAgentId = "elasticAgentId";
 
@@ -31,24 +31,24 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
         super();
     }
 
-    public Agents(List<AgentConfig> agentConfigs) {
+    public Agents(List<Agent> agentConfigs) {
         if (agentConfigs != null) {
             this.addAll(agentConfigs);
         }
     }
 
-    public Agents(AgentConfig... agentConfigs) {
+    public Agents(Agent... agentConfigs) {
         this.addAll(asList(agentConfigs));
     }
 
-    public Agents(Collection<AgentConfig> agentConfigs) {
+    public Agents(Collection<Agent> agentConfigs) {
         this.addAll(agentConfigs);
     }
 
-    public AgentConfig getAgentByUuid(String uuid) {
-        for (AgentConfig agentConfig : this) {
-            if (StringUtils.equals(agentConfig.getUuid(), uuid)) {
-                return agentConfig;
+    public Agent getAgentByUuid(String uuid) {
+        for (Agent agent : this) {
+            if (StringUtils.equals(agent.getUuid(), uuid)) {
+                return agent;
             }
         }
         return NullAgent.createNullAgent(uuid);
@@ -59,7 +59,7 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
     }
 
     @Override
-    public boolean add(AgentConfig newAgentConfig) {
+    public boolean add(Agent newAgentConfig) {
         if (contains(newAgentConfig)) {
             throw new IllegalArgumentException("Agent with same UUID already exists: " + newAgentConfig);
         }
@@ -68,8 +68,8 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
 
     public Set<String> acceptedUuids() {
         HashSet<String> uuids = new HashSet<>();
-        for (AgentConfig agentConfig : this) {
-            uuids.add(agentConfig.getUuid());
+        for (Agent agent : this) {
+            uuids.add(agent.getUuid());
         }
         return uuids;
     }
@@ -85,29 +85,29 @@ public class Agents extends ArrayList<AgentConfig> implements Validatable {
     @Override
     public void validate(ValidationContext validationContext) {
         boolean validity = validateDuplicateElasticAgentIds();
-        for (AgentConfig agentConfig : this) {
-            agentConfig.validate(validationContext);
-            validity = !agentConfig.hasErrors() && validity;
+        for (Agent agent : this) {
+            agent.validate(validationContext);
+            validity = !agent.hasErrors() && validity;
         }
     }
 
     private boolean validateDuplicateElasticAgentIds() {
         HashMap<String, String> elasticAgentIdToUUIDMap = new HashMap<>();
-        for (AgentConfig agentConfig : this) {
+        for (Agent agent : this) {
 
-            if (!agentConfig.isElastic()) {
+            if (!agent.isElastic()) {
                 continue;
             }
 
-            if (elasticAgentIdToUUIDMap.containsKey(agentConfig.getElasticAgentId())) {
-                AgentConfig duplicatedAgentConfig = this.getAgentByUuid(elasticAgentIdToUUIDMap.get(agentConfig.getElasticAgentId()));
-                String error = String.format("Duplicate ElasticAgentId found for agents [%s, %s]", duplicatedAgentConfig.getUuid(), agentConfig.getUuid());
-                agentConfig.addError(elasticAgentId, error);
+            if (elasticAgentIdToUUIDMap.containsKey(agent.getElasticAgentId())) {
+                Agent duplicatedAgentConfig = this.getAgentByUuid(elasticAgentIdToUUIDMap.get(agent.getElasticAgentId()));
+                String error = String.format("Duplicate ElasticAgentId found for agents [%s, %s]", duplicatedAgentConfig.getUuid(), agent.getUuid());
+                agent.addError(elasticAgentId, error);
                 duplicatedAgentConfig.addError("elasticAgentId", error);
                 return false;
             }
 
-            elasticAgentIdToUUIDMap.put(agentConfig.getElasticAgentId(), agentConfig.getUuid());
+            elasticAgentIdToUUIDMap.put(agent.getElasticAgentId(), agent.getUuid());
         }
 
         return true;

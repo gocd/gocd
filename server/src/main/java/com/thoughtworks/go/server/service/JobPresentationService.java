@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.JobInstance;
 import com.thoughtworks.go.domain.JobInstances;
@@ -48,7 +48,7 @@ public class JobPresentationService {
             if (null != agentInstance && !agentInstance.isNullAgent()) {
                 model = new JobInstanceModel(jobInstance, jobDurationStrategy, agentInstance);
             } else if (jobInstance.getAgentUuid() != null) {
-                AgentConfig agent = agentService.findAgentObjectByUuid(jobInstance.getAgentUuid());
+                Agent agent = agentService.findAgentObjectByUuid(jobInstance.getAgentUuid());
                 model = new JobInstanceModel(jobInstance, jobDurationStrategy, agent);
             } else {
                 model = new JobInstanceModel(jobInstance, jobDurationStrategy);

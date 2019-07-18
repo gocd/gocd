@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.ConfigSaveValidationContext;
 import com.thoughtworks.go.config.ResourceConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
@@ -28,13 +28,13 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.*;
 
-public class AgentConfigTest {
+public class AgentTest {
 
     @Nested
     class IPAddress{
         @Test
         public void agentWithNoIpAddressShouldBeValid() {
-            AgentConfig agent = new AgentConfig("uuid", null, null);
+            Agent agent = new Agent("uuid", null, null);
 
             agent.validate(null);
             assertFalse(agent.hasErrors());
@@ -55,34 +55,34 @@ public class AgentConfigTest {
 
         @Test
         public void shouldFailValidationIfIPAddressIsInvalid1() {
-            AgentConfig agentConfig = new AgentConfig("uuid", "host", "blahinvalid");
-            agentConfig.validate(ConfigSaveValidationContext.forChain(agentConfig));
-            assertThat(agentConfig.errors().on(AgentConfig.IP_ADDRESS), is("'blahinvalid' is an invalid IP address."));
+            Agent agent = new Agent("uuid", "host", "blahinvalid");
+            agent.validate(ConfigSaveValidationContext.forChain(agent));
+            assertThat(agent.errors().on(Agent.IP_ADDRESS), is("'blahinvalid' is an invalid IP address."));
 
-            agentConfig = new AgentConfig("uuid", "host", "blah.invalid");
-            agentConfig.validate(ConfigSaveValidationContext.forChain(agentConfig));
-            assertThat(agentConfig.errors().on(AgentConfig.IP_ADDRESS), is("'blah.invalid' is an invalid IP address."));
+            agent = new Agent("uuid", "host", "blah.invalid");
+            agent.validate(ConfigSaveValidationContext.forChain(agent));
+            assertThat(agent.errors().on(Agent.IP_ADDRESS), is("'blah.invalid' is an invalid IP address."));
         }
 
         @Test
         public void shouldFailValidationIfIPAddressIsInvalid2() {
-            AgentConfig agentConfig = new AgentConfig("uuid", "host", "399.0.0.1");
-            agentConfig.validate(ConfigSaveValidationContext.forChain(agentConfig));
-            assertThat(agentConfig.errors().on(AgentConfig.IP_ADDRESS), is("'399.0.0.1' is an invalid IP address."));
+            Agent agent = new Agent("uuid", "host", "399.0.0.1");
+            agent.validate(ConfigSaveValidationContext.forChain(agent));
+            assertThat(agent.errors().on(Agent.IP_ADDRESS), is("'399.0.0.1' is an invalid IP address."));
         }
 
         @Test
         public void shouldInvalidateEmptyIpAddress() {
-            AgentConfig agentConfig = new AgentConfig("uuid", "host", "");
-            agentConfig.validate(ConfigSaveValidationContext.forChain(agentConfig));
-            assertThat(agentConfig.errors().on(AgentConfig.IP_ADDRESS), is("IpAddress cannot be empty if it is present."));
+            Agent agent = new Agent("uuid", "host", "");
+            agent.validate(ConfigSaveValidationContext.forChain(agent));
+            assertThat(agent.errors().on(Agent.IP_ADDRESS), is("IpAddress cannot be empty if it is present."));
         }
 
         private void shouldBeValid(String ipAddress) {
-            AgentConfig agentConfig = new AgentConfig();
-            agentConfig.setIpaddress(ipAddress);
-            agentConfig.validate(ConfigSaveValidationContext.forChain(agentConfig));
-            assertThat(agentConfig.errors().on(AgentConfig.IP_ADDRESS), is(nullValue()));
+            Agent agent = new Agent();
+            agent.setIpaddress(ipAddress);
+            agent.validate(ConfigSaveValidationContext.forChain(agent));
+            assertThat(agent.errors().on(Agent.IP_ADDRESS), is(nullValue()));
         }
     }
 
@@ -90,7 +90,7 @@ public class AgentConfigTest {
     class Resources{
         @Test
         void shouldAddResourcesToExistingResources() {
-            AgentConfig agent = new AgentConfig("uuid", "cookie", "host", "127.0.0.1");
+            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
             agent.setResources(new ResourceConfigs("resource1"));
 
             agent.addResources(Arrays.asList("resource2", "resource3"));
@@ -101,7 +101,7 @@ public class AgentConfigTest {
 
         @Test
         void shouldAddResourcesToIfThereAreNoExistingResources() {
-            AgentConfig agent = new AgentConfig("uuid", "cookie", "host", "127.0.0.1");
+            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
             agent.addResources(Arrays.asList("resource2", "resource3"));
 
@@ -111,7 +111,7 @@ public class AgentConfigTest {
 
         @Test
         void shouldRemoveResourcesFromExistingResources() {
-            AgentConfig agent = new AgentConfig("uuid", "cookie", "host", "127.0.0.1");
+            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
             agent.setResources(new ResourceConfigs("resource1,resource2,resource3"));
 
             agent.removeResources(Arrays.asList("resource2"));
@@ -122,7 +122,7 @@ public class AgentConfigTest {
 
         @Test
         void shouldNotRemoveResourcesIfDoNotExist() {
-            AgentConfig agent = new AgentConfig("uuid", "cookie", "host", "127.0.0.1");
+            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
             agent.removeResources(Arrays.asList("resource2"));
 
@@ -131,23 +131,23 @@ public class AgentConfigTest {
 
         @Test
         public void shouldAllowResourcesOnNonElasticAgents() {
-            AgentConfig agentConfig = new AgentConfig("uuid", "hostname", "10.10.10.10");
+            Agent agent = new Agent("uuid", "hostname", "10.10.10.10");
 
-            agentConfig.addResourceConfig(new ResourceConfig("foo"));
-            agentConfig.validate(null);
-            assertThat(agentConfig.errors().isEmpty(), is(true));
+            agent.addResourceConfig(new ResourceConfig("foo"));
+            agent.validate(null);
+            assertThat(agent.errors().isEmpty(), is(true));
         }
 
         @Test
         public void shouldNotAllowResourcesElasticAgents() {
-            AgentConfig agentConfig = new AgentConfig("uuid", "hostname", "10.10.10.10");
-            agentConfig.setElasticPluginId("com.example.foo");
-            agentConfig.setElasticAgentId("foobar");
-            agentConfig.addResourceConfig(new ResourceConfig("foo"));
-            agentConfig.validate(null);
+            Agent agent = new Agent("uuid", "hostname", "10.10.10.10");
+            agent.setElasticPluginId("com.example.foo");
+            agent.setElasticAgentId("foobar");
+            agent.addResourceConfig(new ResourceConfig("foo"));
+            agent.validate(null);
 
-            assertEquals(1, agentConfig.errors().size());
-            assertThat(agentConfig.errors().on("elasticAgentId"), is("Elastic agents cannot have resources."));
+            assertEquals(1, agent.errors().size());
+            assertThat(agent.errors().on("elasticAgentId"), is("Elastic agents cannot have resources."));
         }
     }
 
@@ -155,19 +155,19 @@ public class AgentConfigTest {
     class UUID{
         @Test
         public void shouldPassValidationWhenUUidIsAvailable() {
-            AgentConfig agentConfig = new AgentConfig("uuid");
-            agentConfig.validate(ConfigSaveValidationContext.forChain(agentConfig));
-            assertThat(agentConfig.errors().on(AgentConfig.UUID), is(nullValue()));
+            Agent agent = new Agent("uuid");
+            agent.validate(ConfigSaveValidationContext.forChain(agent));
+            assertThat(agent.errors().on(Agent.UUID), is(nullValue()));
         }
 
         @Test
         public void shouldFailValidationWhenUUidIsBlank() {
-            AgentConfig agentConfig = new AgentConfig("");
-            agentConfig.validate(ConfigSaveValidationContext.forChain(agentConfig));
-            assertThat(agentConfig.errors().on(AgentConfig.UUID), is("UUID cannot be empty"));
-            agentConfig = new AgentConfig(null);
-            agentConfig.validate(ConfigSaveValidationContext.forChain(agentConfig));
-            assertThat(agentConfig.errors().on(AgentConfig.UUID), is("UUID cannot be empty"));
+            Agent agent = new Agent("");
+            agent.validate(ConfigSaveValidationContext.forChain(agent));
+            assertThat(agent.errors().on(Agent.UUID), is("UUID cannot be empty"));
+            agent = new Agent(null);
+            agent.validate(ConfigSaveValidationContext.forChain(agent));
+            assertThat(agent.errors().on(Agent.UUID), is("UUID cannot be empty"));
         }
     }
 
@@ -175,7 +175,7 @@ public class AgentConfigTest {
     class Environments {
         @Test
         void shouldAddEnvironmentsToExistingEnvironments() {
-            AgentConfig agent = new AgentConfig("uuid", "cookie", "host", "127.0.0.1");
+            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
             agent.setEnvironments("env1,env2");
 
             agent.addEnvironments(Arrays.asList("env2", "env3"));
@@ -185,7 +185,7 @@ public class AgentConfigTest {
 
         @Test
         void shouldAddEnvironmentsIfNoExistingEnvironments() {
-            AgentConfig agent = new AgentConfig("uuid", "cookie", "host", "127.0.0.1");
+            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
             agent.addEnvironments(Arrays.asList("env2", "env3"));
 
@@ -194,7 +194,7 @@ public class AgentConfigTest {
 
         @Test
         void shouldRemoveEnvironmentsFromExistingEnvironments() {
-            AgentConfig agent = new AgentConfig("uuid", "cookie", "host", "127.0.0.1");
+            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
             agent.setEnvironments("env1,env2");
 
             agent.removeEnvironments(Arrays.asList("env1", "env3"));
@@ -204,7 +204,7 @@ public class AgentConfigTest {
 
         @Test
         void shouldNotRemoveEnvironmentsIfEnvironmentsDoNotExist() {
-            AgentConfig agent = new AgentConfig("uuid", "cookie", "host", "127.0.0.1");
+            Agent agent = new Agent("uuid", "cookie", "host", "127.0.0.1");
 
             agent.removeEnvironments(Arrays.asList("env1", "env3"));
 

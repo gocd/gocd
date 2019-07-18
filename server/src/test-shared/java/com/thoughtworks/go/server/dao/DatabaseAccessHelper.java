@@ -642,7 +642,7 @@ public class DatabaseAccessHelper extends HibernateDaoSupport {
         return revision;
     }
 
-    public void addAgent(AgentConfig agent){
+    public void addAgent(Agent agent){
         if(agent != null){
             agentDao.saveOrUpdate(agent);
         }

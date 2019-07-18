@@ -61,7 +61,7 @@ public class DataSharingUsageDataService {
         CruiseConfig config = goConfigService.getCurrentConfig();
         JobStateTransition jobStateTransition = jobInstanceSqlMapDao.oldestBuild();
         long oldestPipelineExecutionTime = jobStateTransition == null ? 0l : jobStateTransition.getStateChangeTime().getTime();
-        long nonElasticAgentCount = agentService.agents().parallelStream().filter(agentConfig -> !agentConfig.isElastic()).count();
+        long nonElasticAgentCount = agentService.agents().parallelStream().filter(agent -> !agent.isElastic()).count();
         List<PipelineConfig> pipelineConfigs = config.getAllPipelineConfigs();
         long pipelineCount = pipelineConfigs.size();
         long configRepoPipelineCount = pipelineConfigs.stream().filter(PipelineConfig::isConfigDefinedRemotely).count();

@@ -263,7 +263,7 @@ class ServerMaintenanceModeControllerV1Test implements SecurityServiceTrait, Con
 
         def buildingAgent1 = AgentInstanceMother.building(job1Identifier.buildLocator())
         def buildingAgent2 = AgentInstanceMother.building(job3Identifier.buildLocator())
-        buildingAgent2.agentConfig().setUuid("agent-2")
+        buildingAgent2.getAgent().setUuid("agent-2")
 
         def dashboardPipelinesMap = new HashMap<>()
         dashboardPipelinesMap.put("up42", getRunningPipeline("up42"))

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.annotations.Expose;
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.domain.AgentStatus;
 import com.thoughtworks.go.domain.DiskSpace;
@@ -63,27 +63,27 @@ public class AgentRuntimeInfo implements Serializable {
         return new AgentRuntimeInfo(identifier, runtimeStatus, currentWorkingDirectory, null).refreshOperatingSystem().refreshUsableSpace();
     }
 
-    public static AgentRuntimeInfo fromServer(AgentConfig agentConfig, boolean registeredAlready, String location,
-                                              Long usablespace, String operatingSystem) {
+    public static AgentRuntimeInfo fromServer(Agent agent, boolean registeredAlready, String location,
+                                              Long usablespace, String operatingSystem ) {
 
         if (StringUtils.isEmpty(location)) {
             throw new RuntimeException("Agent should not register without installation path.");
         }
         AgentStatus status = AgentStatus.Pending;
-        if (SystemUtil.isLocalIpAddress(agentConfig.getIpaddress()) || registeredAlready) {
+        if (SystemUtil.isLocalIpAddress(agent.getIpaddress()) || registeredAlready) {
             status = AgentStatus.Idle;
         }
 
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), status.getRuntimeStatus(), location, null);
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), status.getRuntimeStatus(), location, null);
         agentRuntimeInfo.setUsableSpace(usablespace);
         agentRuntimeInfo.operatingSystemName = operatingSystem;
         return agentRuntimeInfo;
     }
 
-    public static AgentRuntimeInfo initialState(AgentConfig agentConfig) {
-        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agentConfig.getAgentIdentifier(), AgentStatus.fromRuntime(AgentRuntimeStatus.Missing).getRuntimeStatus(), "", null);
-        if (agentConfig.isElastic()) {
-            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agentConfig.getElasticAgentId(), agentConfig.getElasticPluginId());
+    public static AgentRuntimeInfo initialState(Agent agent) {
+        AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentStatus.fromRuntime(AgentRuntimeStatus.Missing).getRuntimeStatus(), "", null);
+        if (agent.isElastic()) {
+            agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, agent.getElasticAgentId(), agent.getElasticPluginId());
         }
         return agentRuntimeInfo;
     }
@@ -152,8 +152,8 @@ public class AgentRuntimeInfo implements Serializable {
         return identifier.getUuid();
     }
 
-    public AgentConfig agent() {
-        return new AgentConfig(getUUId(), identifier.getHostName(), identifier.getIpAddress());
+    public Agent agent() {
+        return new Agent(getUUId(), identifier.getHostName(), identifier.getIpAddress());
     }
 
     public String getIpAdress() {

@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.messaging.notifications;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.helper.AgentInstanceMother;
@@ -58,11 +58,11 @@ public class AgentStatusChangeNotifierTest {
     @Test
     public void shouldNotifyIfAgentIsElastic() throws Exception {
         ElasticAgentRuntimeInfo agentRuntimeInfo = new ElasticAgentRuntimeInfo(new AgentIdentifier("localhost", "127.0.0.1", "uuid"), AgentRuntimeStatus.Idle, "/foo/one", null, "42", "go.cd.elastic-agent-plugin.docker");
-        AgentConfig agentConfig = new AgentConfig();
-        agentConfig.setElasticAgentId("42");
-        agentConfig.setElasticPluginId("go.cd.elastic-agent-plugin.docker");
-        agentConfig.setIpaddress("127.0.0.1");
-        AgentInstance agentInstance = AgentInstance.createFromConfig(agentConfig, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
+        Agent agent = new Agent();
+        agent.setElasticAgentId("42");
+        agent.setElasticPluginId("go.cd.elastic-agent-plugin.docker");
+        agent.setIpaddress("127.0.0.1");
+        AgentInstance agentInstance = AgentInstance.createFromAgent(agent, new SystemEnvironment(), mock(AgentStatusChangeListener.class));
         agentInstance.update(agentRuntimeInfo);
 
         when(notificationPluginRegistry.isAnyPluginInterestedIn("agent-status")).thenReturn(true);

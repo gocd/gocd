@@ -178,11 +178,11 @@ public class PipelineScheduleServiceTest {
     @Test
     public void shouldScheduleJobForAllAgentsWhenToBeRunOnAllAgents() throws Exception {
         configHelper.addEnvironments("dev");
-        AgentConfig agentConfigWithUuid1 = new AgentConfig("uuid1", "localhost", "127.0.0.1", "cookie1");
+        Agent agentConfigWithUuid1 = new Agent("uuid1", "localhost", "127.0.0.1", "cookie1");
         agentConfigWithUuid1.setEnvironments("dev");
         agentService.saveOrUpdate(agentConfigWithUuid1);
-        agentService.saveOrUpdate(new AgentConfig("uuid2", "localhost", "127.0.0.1", "cookie2"));
-        agentService.saveOrUpdate(new AgentConfig("uuid3", "localhost", "127.0.0.1", "cookie3"));
+        agentService.saveOrUpdate(new Agent("uuid2", "localhost", "127.0.0.1", "cookie2"));
+        agentService.saveOrUpdate(new Agent("uuid3", "localhost", "127.0.0.1", "cookie3"));
         configHelper.setRunOnAllAgents(CaseInsensitiveString.str(evolveConfig.name()), STAGE_NAME, "unit", true);
 
         Material stubMaterial = new TestingMaterial();

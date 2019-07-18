@@ -15,6 +15,7 @@
  */
 package com.thoughtworks.go.server.controller;
 
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.GoConfigDao;
 import com.thoughtworks.go.domain.*;
 import com.thoughtworks.go.helper.StubMultipartHttpServletRequest;

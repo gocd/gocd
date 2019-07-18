@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.service.plugins.processor.elasticagent.v1;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentConfigStatus;
 import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
@@ -72,7 +72,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
     @Test
     public void shouldProcessDisableAgentRequest() {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(new AgentConfig("uuid"), null, null);
+        AgentInstance agentInstance = AgentInstance.createFromAgent(new Agent("uuid"), null, null);
 
         when(request.api()).thenReturn(REQUEST_DISABLE_AGENTS);
         when(request.requestBody()).thenReturn("[{\"agent_id\":\"foo\"}]");
@@ -98,7 +98,7 @@ public class ElasticAgentRequestProcessorV1Test {
 
     @Test
     public void shouldProcessDeleteAgentRequest() {
-        AgentInstance agentInstance = AgentInstance.createFromConfig(new AgentConfig("uuid"), null, null);
+        AgentInstance agentInstance = AgentInstance.createFromAgent(new Agent("uuid"), null, null);
 
         when(request.api()).thenReturn(REQUEST_DELETE_AGENTS);
         when(request.requestBody()).thenReturn("[{\"agent_id\":\"foo\"}]");

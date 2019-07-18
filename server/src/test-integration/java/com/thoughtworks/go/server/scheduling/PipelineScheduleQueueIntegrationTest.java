@@ -375,13 +375,13 @@ public class PipelineScheduleQueueIntegrationTest {
         BuildCause cause = modifySomeFiles(pipelineConfig, ModificationsMother.nextRevision());
         saveRev(cause);
 
-        AgentConfig agentConfigWithUuid1 = new AgentConfig("uuid1", "localhost", "127.0.0.1", "cookie1");
+        Agent agentConfigWithUuid1 = new Agent("uuid1", "localhost", "127.0.0.1", "cookie1");
         configFileEditor.addEnvironments(Arrays.asList("env"));
         agentConfigWithUuid1.setEnvironments("env");
         agentService.saveOrUpdate(agentConfigWithUuid1);
-        AgentConfig agentConfigWithUuid2 = new AgentConfig("uuid2", "localhost", "127.0.0.1", "cookie2");
+        Agent agentConfigWithUuid2 = new Agent("uuid2", "localhost", "127.0.0.1", "cookie2");
         agentService.saveOrUpdate(agentConfigWithUuid2);
-        AgentConfig agentConfigWithUuid3 = new AgentConfig("uuid3", "localhost", "127.0.0.1", "cookie3");
+        Agent agentConfigWithUuid3 = new Agent("uuid3", "localhost", "127.0.0.1", "cookie3");
         agentService.saveOrUpdate(agentConfigWithUuid3);
         configFileEditor.addPipeline(CaseInsensitiveString.str(pipelineConfig.name()), CaseInsensitiveString.str(stage.name()));
 

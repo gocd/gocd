@@ -136,7 +136,7 @@ public class BuildRepositoryServiceIntegrationTest {
         svnRepo = new SvnCommand(null, svnTestRepo.projectRepositoryUrl());
         config.addPipeline(PIPELINE_NAME, DEV_STAGE, svnRepo, "foo");
         mingle = config.addStageToPipeline(PIPELINE_NAME, FT_STAGE, "bar");
-        agentService.saveOrUpdate(new AgentConfig(AGENT_UUID, HOSTNAME, "127.0.0.1", "cookie"));
+        agentService.saveOrUpdate(new Agent(AGENT_UUID, HOSTNAME, "127.0.0.1", "cookie"));
         pipeline = dbHelper.newPipelineWithAllStagesPassed(mingle);
         goCache.clear();
     }

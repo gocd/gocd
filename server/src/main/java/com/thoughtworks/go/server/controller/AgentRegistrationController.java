@@ -16,7 +16,7 @@
 
 package com.thoughtworks.go.server.controller;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.ErrorCollector;
 import com.thoughtworks.go.config.exceptions.GoConfigInvalidException;
 import com.thoughtworks.go.domain.*;
@@ -237,11 +237,11 @@ public class AgentRegistrationController {
                 }
             }
 
-            AgentConfig agentConfig = new AgentConfig(uuid, preferredHostname, ipAddress);
+            Agent agent = new Agent(uuid, preferredHostname, ipAddress);
             HttpOperationResult result = new HttpOperationResult();
-            agentService.validate(agentConfig);
-            if (agentConfig.hasErrors()) {
-                List<ConfigErrors> errors = ErrorCollector.getAllErrors(agentConfig);
+            agentService.validate(agent);
+            if (agent.hasErrors()) {
+                List<ConfigErrors> errors = ErrorCollector.getAllErrors(agent);
                 throw new GoConfigInvalidException(null, new AllConfigErrors(errors));
             }
 
@@ -260,15 +260,15 @@ public class AgentRegistrationController {
             }
 
             if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
-                agentConfig.setElasticAgentId(elasticAgentId);
-                agentConfig.setElasticPluginId(elasticPluginId);
+                agent.setElasticAgentId(elasticAgentId);
+                agent.setElasticPluginId(elasticPluginId);
             }
 
             if (goConfigService.serverConfig().shouldAutoRegisterAgentWith(agentAutoRegisterKey) && !agentService.hasAgent(uuid)) {
                 LOG.info("[Agent Auto Registration] Auto registering agent with uuid {} ", uuid);
-                agentService.register(agentConfig, agentAutoRegisterResources, agentAutoRegisterEnvironments, result);
-                if (agentConfig.hasErrors()) {
-                    List<ConfigErrors> errors = ErrorCollector.getAllErrors(agentConfig);
+                agentService.register(agent, agentAutoRegisterResources, agentAutoRegisterEnvironments, result);
+                if (agent.hasErrors()) {
+                    List<ConfigErrors> errors = ErrorCollector.getAllErrors(agent);
 
                     ConfigErrors e = new ConfigErrors();
                     e.add("resultMessage", result.detailedMessage());
@@ -281,7 +281,7 @@ public class AgentRegistrationController {
             boolean registeredAlready = agentService.hasAgent(uuid);
             long usableSpace = Long.parseLong(usablespaceAsString);
 
-            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agentConfig, registeredAlready, location, usableSpace, operatingSystem);
+            AgentRuntimeInfo agentRuntimeInfo = AgentRuntimeInfo.fromServer(agent, registeredAlready, location, usableSpace, operatingSystem);
 
             if (elasticAgentAutoregistrationInfoPresent(elasticAgentId, elasticPluginId)) {
                 agentRuntimeInfo = ElasticAgentRuntimeInfo.fromServer(agentRuntimeInfo, elasticAgentId, elasticPluginId);

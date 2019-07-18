@@ -33,32 +33,32 @@ public class DefaultSchedulingContextTest {
     }
 
     @Test public void shouldFindAllAgentsIfNoResourcesAreSpecified() throws Exception {
-        AgentConfig linux = agent("uuid1", "linux");
-        AgentConfig windows = agent("uuid2", "windows");
+        Agent linux = agent("uuid1", "linux");
+        Agent windows = agent("uuid2", "windows");
         Agents matchingAgents = new Agents(linux, windows);
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", matchingAgents);
         assertThat(context.findAgentsMatching(new ResourceConfigs()), is(matchingAgents));
     }
 
     @Test public void shouldOnlyFindAgentsThatMatchResourcesSpecified() throws Exception {
-        AgentConfig linux = agent("uuid1", "linux");
-        AgentConfig windows = agent("uuid2", "windows");
+        Agent linux = agent("uuid1", "linux");
+        Agent windows = agent("uuid2", "windows");
         Agents matchingAgents = new Agents(linux, windows);
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", matchingAgents);
         assertThat(context.findAgentsMatching(resources("linux")), is(new Agents(linux)));
     }
 
     @Test public void shouldFindNoAgentsIfNoneMatch() throws Exception {
-        AgentConfig linux = agent("uuid1", "linux");
-        AgentConfig windows = agent("uuid2", "windows");
+        Agent linux = agent("uuid1", "linux");
+        Agent windows = agent("uuid2", "windows");
         Agents matchingAgents = new Agents(linux, windows);
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", matchingAgents);
         assertThat(context.findAgentsMatching(resources("macosx")), is(new Agents()));
     }
 
     @Test public void shouldNotMatchDeniedAgents() throws Exception {
-        AgentConfig linux = agent("uuid1", "linux");
-        AgentConfig windows = agent("uuid2", "windows");
+        Agent linux = agent("uuid1", "linux");
+        Agent windows = agent("uuid2", "windows");
         windows.disable();
         Agents matchingAgents = new Agents(linux, windows);
         DefaultSchedulingContext context = new DefaultSchedulingContext("approved", matchingAgents);
@@ -94,8 +94,8 @@ public class DefaultSchedulingContextTest {
 
 	@Test
 	public void shouldCreatePermittedAgentContextCorrectly() throws Exception {
-		AgentConfig linux = agent("uuid1", "linux");
-		AgentConfig windows = agent("uuid2", "windows");
+		Agent linux = agent("uuid1", "linux");
+		Agent windows = agent("uuid2", "windows");
 		windows.disable();
 		Agents matchingAgents = new Agents(linux, windows);
 
@@ -131,8 +131,8 @@ public class DefaultSchedulingContextTest {
 
 	@Test
 	public void shouldCreateRerunSchedulingContextCorrectly() throws Exception {
-		AgentConfig linux = agent("uuid1", "linux");
-		AgentConfig windows = agent("uuid2", "windows");
+		Agent linux = agent("uuid1", "linux");
+		Agent windows = agent("uuid2", "windows");
 		windows.disable();
 		Agents matchingAgents = new Agents(linux, windows);
 
@@ -164,8 +164,8 @@ public class DefaultSchedulingContextTest {
 		assertThat(environmentVariablesUsed, hasItem(new EnvironmentVariableConfig("stageVar", "stageVal")));
 	}
 
-    private AgentConfig agent(String uuid, String... names) {
-        return new AgentConfig(uuid, "localhost", "127.0.0.1", resources(names));
+    private Agent agent(String uuid, String... names) {
+        return new Agent(uuid, "localhost", "127.0.0.1", resources(names));
     }
 
 	public static ResourceConfigs resources(String... names) {

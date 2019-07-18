@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.server.presentation.models;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Tabs;
 import com.thoughtworks.go.config.TrackingTool;
 import com.thoughtworks.go.domain.*;
@@ -47,7 +47,7 @@ public class JobDetailPresentationModel {
     private final TrackingTool trackingTool;
     private final ArtifactsService artifactsService;
     private final Properties properties;
-    protected final AgentConfig buildingAgentConfig;
+    protected final Agent buildingAgentConfig;
     private JobIdentifier jobIdentifier;
     private Pipeline pipeline;
     private final Tabs customizedTabs;
@@ -55,7 +55,7 @@ public class JobDetailPresentationModel {
     private Stage stage;
 
     public JobDetailPresentationModel(JobInstance job, JobInstances recent25,
-                                      AgentConfig buildingAgentConfig, Pipeline pipeline, Tabs customizedTabs,
+                                      Agent buildingAgentConfig, Pipeline pipeline, Tabs customizedTabs,
                                       TrackingTool trackingTool, ArtifactsService artifactsService,
                                       Properties properties, Stage stage) {
         this.pipeline = pipeline;

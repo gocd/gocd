@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.domain;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.EnvironmentVariablesConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.elastic.ClusterProfile;
@@ -29,7 +29,7 @@ import java.util.Collection;
 public interface SchedulingContext {
     String getApprovedBy();
 
-    Collection<AgentConfig> findAgentsMatching(ResourceConfigs resourceConfigs);
+    Collection<Agent> findAgentsMatching(ResourceConfigs resourceConfigs);
 
     EnvironmentVariablesConfig getEnvironmentVariablesConfig();
 

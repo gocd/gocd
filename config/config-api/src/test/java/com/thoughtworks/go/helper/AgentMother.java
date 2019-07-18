@@ -15,7 +15,7 @@
  */
 package com.thoughtworks.go.helper;
 
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.ResourceConfig;
 
 import java.net.InetAddress;
@@ -26,50 +26,50 @@ import static com.thoughtworks.go.util.ExceptionUtils.bomb;
 
 public class AgentMother {
 
-    public static AgentConfig elasticAgent() {
-        AgentConfig agentConfig = new AgentConfig(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "127.0.0.1", UUID.randomUUID().toString());
-        agentConfig.setElasticAgentId(UUID.randomUUID().toString());
-        agentConfig.setElasticPluginId(UUID.randomUUID().toString());
-        return agentConfig;
+    public static Agent elasticAgent() {
+        Agent agent = new Agent(UUID.randomUUID().toString(), UUID.randomUUID().toString(), "127.0.0.1", UUID.randomUUID().toString());
+        agent.setElasticAgentId(UUID.randomUUID().toString());
+        agent.setElasticPluginId(UUID.randomUUID().toString());
+        return agent;
     }
 
-    public static AgentConfig localhost() {
-        return new AgentConfig("1234", "localhost", "10.10.1.1", UUID.randomUUID().toString());
+    public static Agent localhost() {
+        return new Agent("1234", "localhost", "10.10.1.1", UUID.randomUUID().toString());
     }
 
-    public static AgentConfig approvedAgent() {
-        return new AgentConfig("uuid", "approvedAgent", "192.168.0.1", UUID.randomUUID().toString());
+    public static Agent approvedAgent() {
+        return new Agent("uuid", "approvedAgent", "192.168.0.1", UUID.randomUUID().toString());
     }
 
-    public static AgentConfig approvedLocalAgent() throws UnknownHostException {
+    public static Agent approvedLocalAgent() throws UnknownHostException {
         InetAddress localHost = InetAddress.getLocalHost();
-        return new AgentConfig("uuid", localHost.getHostName(), localHost.getHostAddress(), UUID.randomUUID().toString());
+        return new Agent("uuid", localHost.getHostName(), localHost.getHostAddress(), UUID.randomUUID().toString());
     }
 
-    public static AgentConfig deniedAgent() {
-        AgentConfig agentConfig = new AgentConfig("uuid", "deniedAgent", "192.168.0.1", UUID.randomUUID().toString());
-        agentConfig.disable();
-        return agentConfig;
+    public static Agent deniedAgent() {
+        Agent agent = new Agent("uuid", "deniedAgent", "192.168.0.1", UUID.randomUUID().toString());
+        agent.disable();
+        return agent;
     }
 
-    public static AgentConfig localAgent() {
+    public static Agent localAgent() {
         try {
             InetAddress localHost = InetAddress.getLocalHost();
-            return new AgentConfig("uuid-local" + UUID.randomUUID(), localHost.getHostName(), localHost.getHostAddress(), UUID.randomUUID().toString());
+            return new Agent("uuid-local" + UUID.randomUUID(), localHost.getHostName(), localHost.getHostAddress(), UUID.randomUUID().toString());
         } catch (UnknownHostException e) {
             throw bomb(e);
         }
     }
 
-    public static AgentConfig remoteAgent() {
-        return new AgentConfig("uuid-remote-" + UUID.randomUUID(), "remoteAgent", "254.254.254.254", UUID.randomUUID().toString());
+    public static Agent remoteAgent() {
+        return new Agent("uuid-remote-" + UUID.randomUUID(), "remoteAgent", "254.254.254.254", UUID.randomUUID().toString());
     }
 
-    public static AgentConfig localAgentWithResources(String... resources) {
-        AgentConfig agentConfig = localAgent();
+    public static Agent localAgentWithResources(String... resources) {
+        Agent agent = localAgent();
         for (String resource : resources) {
-            agentConfig.addResourceConfig(new ResourceConfig(resource));
+            agent.addResourceConfig(new ResourceConfig(resource));
         }
-        return agentConfig;
+        return agent;
     }
 }

@@ -16,7 +16,7 @@
 package com.thoughtworks.go.server.service;
 
 import com.google.gson.annotations.Expose;
-import com.thoughtworks.go.config.AgentConfig;
+import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.domain.AgentRuntimeStatus;
 import com.thoughtworks.go.remote.AgentIdentifier;
 
@@ -57,11 +57,11 @@ public class ElasticAgentRuntimeInfo extends AgentRuntimeInfo implements Seriali
     }
 
     @Override
-    public AgentConfig agent() {
-        AgentConfig agentConfig = super.agent();
-        agentConfig.setElasticAgentId(elasticAgentId);
-        agentConfig.setElasticPluginId(elasticPluginId);
-        return agentConfig;
+    public Agent agent() {
+        Agent agent = super.agent();
+        agent.setElasticAgentId(elasticAgentId);
+        agent.setElasticPluginId(elasticPluginId);
+        return agent;
     }
 
     @Override

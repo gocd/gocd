@@ -54,7 +54,7 @@ public class PatchEnvironmentCommandTest {
     private ArrayList<String> envVarsToRemove;
 
     private PipelineConfig pipelineConfig;
-    private AgentConfig agentConfig;
+    private Agent agent;
 
 
     @Mock
@@ -84,7 +84,7 @@ public class PatchEnvironmentCommandTest {
         pipelineConfig.setName(pipelineName);
         cruiseConfig.addPipeline("First-Group", pipelineConfig);
 
-        agentConfig = new AgentConfig("uuid-1");
+        agent = new Agent("uuid-1");
         //cruiseConfig.agents().add(agentConfig);
 
         actionFailed = "Failed to update environment '" + environmentConfig.name() + "'.";
@@ -92,21 +92,21 @@ public class PatchEnvironmentCommandTest {
 
     @Test
     public void shouldAllowAddingAgentsToTheSpecifiedEnvironment() throws Exception {
-        agentsToAdd.add(agentConfig.getUuid());
+        agentsToAdd.add(agent.getUuid());
         PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
-        assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agentConfig.getUuid()));
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agent.getUuid()));
         command.update(cruiseConfig);
-        assertTrue(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agentConfig.getUuid()));
+        assertTrue(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agent.getUuid()));
     }
 
     @Test
     public void shouldAllowRemovingAgentsFromTheSpecifiedEnvironment() throws Exception {
-        environmentConfig.addAgent(agentConfig.getUuid());
-        agentsToRemove.add(agentConfig.getUuid());
+        environmentConfig.addAgent(agent.getUuid());
+        agentsToRemove.add(agent.getUuid());
         PatchEnvironmentCommand command = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, currentUser, actionFailed, result);
-        assertTrue(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agentConfig.getUuid()));
+        assertTrue(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agent.getUuid()));
         command.update(cruiseConfig);
-        assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agentConfig.getUuid()));
+        assertFalse(cruiseConfig.getEnvironments().find(environmentName).hasAgent(agent.getUuid()));
     }
 
     @Test

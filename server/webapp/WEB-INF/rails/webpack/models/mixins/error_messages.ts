@@ -29,6 +29,10 @@ export namespace ErrorMessages {
     return `${humanize(attribute).replace(/\bxpath\b/i, "XPath").replace(/\burl\b/i, "URL")} must be present`;
   }
 
+  export function mustBePresentIf(attribute: string, condition: string) {
+    return `${humanize(attribute).replace(/\bxpath\b/i, "XPath").replace(/\burl\b/i, "URL")} must be present if ${condition}`;
+  }
+
   export function mustBeAUrl(attribute: string) {
     return `${humanize(attribute)} must be a valid http(s) url`;
   }

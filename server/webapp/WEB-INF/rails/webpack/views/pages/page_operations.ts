@@ -18,6 +18,13 @@ import {Stream} from "mithril/stream";
 import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
 import {FlashProvider} from "views/components/flash_message";
 
+export enum OperationState {
+  UNKNOWN,
+  STARTED,
+  IN_PROGRESS,
+  DONE
+}
+
 export interface SaveOperation {
   onSuccessfulSave: (msg: m.Children) => void;
   onError: (msg: m.Children) => void;

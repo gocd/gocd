@@ -316,4 +316,8 @@ export default class {
     }
     return `/go/api/admin/plugin_settings`;
   }
+
+  static mailServerConfigPath() {
+    return "/go/api/config/mailserver";
+  }
 }

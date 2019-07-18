@@ -314,6 +314,7 @@ export abstract class FormField<T, V = {}> extends MithrilViewComponent<BaseAttr
 }
 
 export type TextFieldAttrs = BaseAttrs<string> & RequiredFieldAttr & PlaceholderAttr;
+export type NumberFieldAttrs = BaseAttrs<number> & RequiredFieldAttr & PlaceholderAttr;
 
 export class TextField extends FormField<string, RequiredFieldAttr & PlaceholderAttr> {
 
@@ -328,6 +329,28 @@ export class TextField extends FormField<string, RequiredFieldAttr & Placeholder
   }
 
   protected defaultAttributes(attrs: TextFieldAttrs) {
+    const defaultAttributes = super.defaultAttributes(attrs);
+    if (!_.isEmpty(attrs.placeholder)) {
+      defaultAttributes.placeholder = attrs.placeholder as string;
+    }
+
+    return _.assign(defaultAttributes, textInputFieldDefaultAttrs);
+  }
+}
+
+export class NumberField extends FormField<number, RequiredFieldAttr & PlaceholderAttr> {
+
+  renderInputField(vnode: m.Vnode<NumberFieldAttrs>) {
+    return (
+      <input type="number"
+             className={classnames(styles.formControl)}
+             {...this.defaultAttributes(vnode.attrs)}
+             {...this.bindingAttributes(vnode.attrs, "oninput", "value")}
+      />
+    );
+  }
+
+  protected defaultAttributes(attrs: NumberFieldAttrs) {
     const defaultAttributes = super.defaultAttributes(attrs);
     if (!_.isEmpty(attrs.placeholder)) {
       defaultAttributes.placeholder = attrs.placeholder as string;

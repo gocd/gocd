@@ -674,4 +674,8 @@ public class Routes {
         public static final String BASE = "/api/config/backup";
         public static final String DOC = apiDocsUrl("#backup-config");
     }
+
+	public class MailServerPage {
+        public static final String SPA_BASE = "/admin/mail_server";
+    }
 }

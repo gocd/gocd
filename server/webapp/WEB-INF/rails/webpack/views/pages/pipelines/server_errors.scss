@@ -15,34 +15,25 @@
  */
 
 @import "../../global/common";
-@import "fillable_section";
-@import "../../components/buttons/index";
 
-.actions {
-  @extend .fillable;
+$error-container-width: 450px;
 
-  .save-btns {
-    white-space: nowrap;
+.error-response {
+  margin-right: 2ex;
+  margin-top: 7px;
+  color: $go-danger;
+  display: inline-block;
+  max-width: $error-container-width;
+  white-space: normal;
+  float: left;
+
+  &:empty {
+    margin-right: 0;
+  }
+
+  ol {
+    float: left;
+    max-width: inherit;
   }
 }
 
-.btn-secondary {
-  @include button($background-color: $white);
-
-  color: $btn-primary;
-  border: 1px solid $btn-primary;
-
-  &:hover {
-    color: $white;
-    background-color: darken($btn-primary, 10%);
-    border-color: darken($btn-primary, 10%);
-  }
-}
-
-.btn-cancel {
-  border: 1px solid $btn-reset;
-  &:hover {
-    background-color: $btn-reset;
-    color: $white;
-  }
-}

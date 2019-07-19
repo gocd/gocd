@@ -354,7 +354,11 @@ export class NewConfigRepoModal extends ConfigRepoModal {
               onError: (msg: (m.Children)) => any,
               pluginInfos: Stream<Array<PluginInfo<any>>>) {
     super(onSuccessfulSave, onError, pluginInfos);
-    this.repo(new ConfigRepo(undefined, pluginInfos()[0].id, new Material("git", new GitMaterialAttributes())));
+
+    // prefer the YAML plugin and fallback to the first plugin when not present
+    const defaultPlugin = pluginInfos().find((p) => ConfigRepo.YAML_PLUGIN_ID === p.id) || pluginInfos()[0];
+
+    this.repo(new ConfigRepo(undefined, defaultPlugin.id, new Material("git", new GitMaterialAttributes())));
     this.isNew = true;
   }
 

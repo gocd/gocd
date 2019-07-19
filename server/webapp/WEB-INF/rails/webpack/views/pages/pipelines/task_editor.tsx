@@ -15,6 +15,7 @@
  */
 
 import {asSelector} from "helpers/css_proxies";
+import {el, empty, isHtmlElement, replaceWith} from "helpers/dom";
 import {MithrilViewComponent} from "jsx/mithril-component";
 import * as _ from "lodash";
 import * as m from "mithril";
@@ -116,7 +117,7 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
     this.saveCommand(editEl);
 
     editEl.textContent = TaskEditor.readTaskText(el);
-    replaceElement(el, editEl).focus();
+    replaceWith(el, editEl).focus();
   }
 
   saveCommand(el: HTMLElement, moveToBottom?: boolean) {
@@ -135,10 +136,10 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
   }
 
   private static toTaskEl(parsed: ParsedCommand): HTMLElement {
-    return newEl("pre", {class: css.task}, [
-      newEl("span", {"class": css.cmd, "data-cmd": JSON.stringify(parsed.cmd)}, parsed.rawCmd),
+    return el("pre", {class: css.task}, [
+      el("span", {"class": css.cmd, "data-cmd": JSON.stringify(parsed.cmd)}, parsed.rawCmd),
       "" === parsed.rawArgs ? "" : " ",
-      newEl("span", {"class": css.args, "data-args": JSON.stringify(parsed.args)}, parsed.rawArgs)
+      el("span", {"class": css.args, "data-args": JSON.stringify(parsed.args)}, parsed.rawArgs)
     ]);
   }
 
@@ -183,62 +184,6 @@ export class TaskEditor extends MithrilViewComponent<Attrs> {
   private writeTasksToModel(tasks: NodeListOf<Element>) {
     this.model!(_.map(tasks, TaskEditor.toTask));
   }
-}
-
-type Child = string | Node;
-function newEl(tag: string, options: any, children: Child | Child[]): HTMLElement {
-  const el = document.createElement(tag);
-
-  for (const key of Object.keys(options)) {
-    el.setAttribute(key, options[key]);
-  }
-
-  if (children instanceof Array) {
-    for (const child of children) {
-      appendTo(el, asNode(child));
-    }
-  } else {
-    appendTo(el, asNode(children));
-  }
-  return el;
-}
-
-function appendTo(el: Node, child?: Node) {
-  if (child) { el.appendChild(child); }
-}
-
-function asNode(subj: Child): Node | undefined {
-  if ("string" === typeof subj) {
-    if ("" === subj) { return undefined; }
-    return document.createTextNode(subj);
-  }
-
-  if (subj instanceof Node) {
-    return subj;
-  }
-
-  throw new TypeError(`Expected ${subj} to be either a string or Node`);
-}
-
-function replaceElement(src: HTMLElement, dst: HTMLElement): HTMLElement {
-  if (src.parentElement) {
-    src.parentElement.insertBefore(dst, src);
-    src.parentElement.removeChild(src);
-  } else {
-    src.remove();
-  }
-  return dst;
-}
-
-function empty(el: HTMLElement): HTMLElement {
-  while (el.firstChild) {
-    el.removeChild(el.firstChild);
-  }
-  return el;
-}
-
-function isHtmlElement(el: any): el is HTMLElement {
-  return !!(el as HTMLElement).classList;
 }
 
 function isMouseEvent(e: Event): e is MouseEvent {

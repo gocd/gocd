@@ -221,8 +221,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids,
                                           List<String> resourcesToAdd, List<String> resourcesToRemove,
                                           EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState enable) {
-        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, username, result, uuids, envsToAdd, envsToRemove,
-                enable, resourcesToAdd, resourcesToRemove, goConfigService);
+        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, username, result, uuids, enable,
+                                                                    resourcesToAdd, resourcesToRemove, goConfigService);
         try {
             if (validator.canContinue()) {
                 validator.validate();
@@ -258,10 +258,8 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
 
         List<String> uuidsAssociatedWithEnv = getAssociatedUUIDs(envConfig.getAgents());
-        EnvironmentsConfig envsConfig = getEnvironmentsConfigFrom(envConfig);
         AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, username, result, uuidsToAssociateWithEnv,
-                                                                    envsConfig, emptyList(), TriState.TRUE,
-                                                                    emptyList(), emptyList(), goConfigService);
+                                                                    TriState.TRUE, emptyList(), emptyList(), goConfigService);
         try {
             if (validator.canContinue()) {
                 validator.validate();
@@ -302,12 +300,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                                               .collect(Collectors.toList());
     }
 
-    private EnvironmentsConfig getEnvironmentsConfigFrom(EnvironmentConfig envConfig) {
-        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-        envsConfig.add(envConfig);
-        return envsConfig;
-    }
-
     private List<Agent> getAgentsToAddEnvToList(List<String> agentsToAddEnvTo, String env) {
         return agentsToAddEnvTo.stream()
                                .map(uuid -> {
@@ -328,18 +320,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                                         return agent;
                                     })
                                     .collect(Collectors.toList());
-    }
-
-    private void addEnvToAgent(String env, String uuid) {
-        Agent agent = agentDao.agentByUuid(uuid);
-        String finalEnvs = append(agent.getEnvironments(), singletonList(env));
-        saveAgentEnvironments(agent, finalEnvs);
-    }
-
-    private void removeEnvFromAgent(String env, String uuid) {
-        Agent agent = agentDao.agentByUuid(uuid);
-        String finalEnvs = remove(agent.getEnvironments(), singletonList(env));
-        saveAgentEnvironments(agent, finalEnvs);
     }
 
     private void saveAgentEnvironments(Agent agent, String envs){

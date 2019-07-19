@@ -15,7 +15,9 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.*;
+import com.thoughtworks.go.config.Agent;
+import com.thoughtworks.go.config.Agents;
+import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
@@ -29,10 +31,7 @@ import com.thoughtworks.go.util.TriState;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
@@ -42,8 +41,6 @@ public class AgentsUpdateValidator {
     private final Username username;
     private final LocalizedOperationResult result;
     private final List<String> uuids;
-    private EnvironmentsConfig envsConfig;
-    private final List<String> envListToRemove;
     private final TriState state;
     private final List<String> resourcesToAdd;
     private final List<String> resourcesToRemove;
@@ -51,15 +48,12 @@ public class AgentsUpdateValidator {
     public Agents agents;
 
     public AgentsUpdateValidator(AgentInstances agentInstances, Username username, LocalizedOperationResult result,
-                                 List<String> uuids, EnvironmentsConfig envsConfig, List<String> envListToRemove,
-                                 TriState state, List<String> resourcesToAdd, List<String> resourcesToRemove,
+                                 List<String> uuids, TriState state, List<String> resourcesToAdd, List<String> resourcesToRemove,
                                  GoConfigService goConfigService) {
         this.agentInstances = agentInstances;
         this.username = username;
         this.result = result;
         this.uuids = uuids;
-        this.envsConfig = envsConfig;
-        this.envListToRemove = envListToRemove;
         this.state = state;
         this.resourcesToAdd = resourcesToAdd;
         this.resourcesToRemove = resourcesToRemove;
@@ -80,7 +74,6 @@ public class AgentsUpdateValidator {
     }
 
     public void validate() throws Exception {
-        bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML();
         bombWhenAgentsDoesNotExist();
         bombWhenElasticAgentResourcesAreUpdated();
         bombWhenResourceNamesToAddAreInvalid();
@@ -109,24 +102,6 @@ public class AgentsUpdateValidator {
         }
     }
 
-    private void bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML() {
-        Set<CaseInsensitiveString> existingEnvSet = new HashSet<>(goConfigService.getEnvironments().names());
-
-        List<String> envListToAdd = envsConfig.stream().map(envConfig -> envConfig.name().toString()).collect(Collectors.toList());
-        bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML(existingEnvSet, envListToAdd);
-        bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML(existingEnvSet, envListToRemove);
-    }
-
-    private void bombWhenEnvironmentsToAddAndRemoveDoesNotExistInConfigXML(Set<CaseInsensitiveString> existingEnvSet, List<String> envsToValidate) {
-        for (String env : envsToValidate) {
-            CaseInsensitiveString envName = new CaseInsensitiveString(env);
-            if (!existingEnvSet.contains(envName)) {
-                result.badRequest(EntityType.Environment.notFoundMessage(envName));
-                throw new RecordNotFoundException(EntityType.Environment, envName);
-            }
-        }
-    }
-
     private boolean isAuthorized() {
         if (goConfigService.isAdministrator(username.getUsername())) {
             return true;
@@ -137,7 +112,6 @@ public class AgentsUpdateValidator {
 
     private boolean isAnyOperationPerformedOnAgents() {
         return !resourcesToAdd.isEmpty() || !resourcesToRemove.isEmpty()
-                                         || envsConfig.size() > 0 || !envListToRemove.isEmpty()
                                          || state.isTrue() || state.isFalse();
     }
 

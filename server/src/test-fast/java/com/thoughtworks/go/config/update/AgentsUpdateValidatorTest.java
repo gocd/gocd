@@ -89,10 +89,10 @@ public class AgentsUpdateValidatorTest {
         @Test
         public void shouldSignalBadRequestWhenNoOpIsPerformedOnAgents() {
             triState = TriState.UNSET;
-            AgentsUpdateValidator command = newAgentsUpdateValidator();
+            AgentsUpdateValidator validator = newAgentsUpdateValidator();
 
             when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(true);
-            assertFalse(command.canContinue());
+            assertFalse(validator.canContinue());
             HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
             expectedResult.badRequest("No Operation performed on agents.");
             assertThat(result).isEqualTo(expectedResult);
@@ -100,9 +100,9 @@ public class AgentsUpdateValidatorTest {
 
         @Test
         public void shouldThrow403WhenNonAdminUserIsUpdatingAgents() {
-            AgentsUpdateValidator command = newAgentsUpdateValidator();
+            AgentsUpdateValidator validator = newAgentsUpdateValidator();
             when(goConfigService.isAdministrator(currentUser.getUsername())).thenReturn(false);
-            assertFalse(command.canContinue());
+            assertFalse(validator.canContinue());
             HttpLocalizedOperationResult expectedResult = new HttpLocalizedOperationResult();
             expectedResult.forbidden(forbiddenToEdit(), forbidden());
             assertThat(result).isEqualTo(expectedResult);
@@ -122,7 +122,6 @@ public class AgentsUpdateValidatorTest {
             assertThrows(InvalidPendingAgentOperationException.class, () -> newAgentsUpdateValidator().validate());
         }
 
-
         @Test
         public void shouldPassValidationWhenEnvironmentsToBeAddedRemovedExistsInConfigXML() throws Exception {
             environmentsToAdd.add("prod");
@@ -141,27 +140,6 @@ public class AgentsUpdateValidatorTest {
 
             when(goConfigService.getEnvironments()).thenReturn(envsConfig);
             newAgentsUpdateValidator().validate();
-        }
-
-
-        @Test
-        public void shouldThrowExceptionWhenEnvironemntsToBeAddedRemovedDoesNotExistInConfigXML() {
-            environmentsToAdd.add("prod");
-            environmentsToRemove.add("dev");
-
-            AgentInstance agentInstance = AgentInstanceMother.disabled();
-            Agent agent = agentInstance.getAgent();
-
-            uuids.add(agent.getUuid());
-
-            when(agentInstances.findAgent(agent.getUuid())).thenReturn(agentInstance);
-
-            EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-            envsConfig.add(new BasicEnvironmentConfig(str("dev")));
-
-            when(goConfigService.getEnvironments()).thenReturn(envsConfig);
-            RecordNotFoundException rnfe = assertThrows(RecordNotFoundException.class, () -> newAgentsUpdateValidator().validate());
-            assertEquals(rnfe.getMessage(), "Environment with name \'prod\' was not found!");
         }
 
         @Test
@@ -203,9 +181,7 @@ public class AgentsUpdateValidatorTest {
     }
 
     private AgentsUpdateValidator newAgentsUpdateValidator() {
-        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-        environmentsToAdd.forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
-        return new AgentsUpdateValidator(agentInstances, currentUser, result, uuids, envsConfig, environmentsToRemove,
-                                         triState, resourcesToAdd, resourcesToRemove, goConfigService);
+        return new AgentsUpdateValidator(agentInstances, currentUser, result, uuids, triState,
+                                         resourcesToAdd, resourcesToRemove, goConfigService);
     }
 }

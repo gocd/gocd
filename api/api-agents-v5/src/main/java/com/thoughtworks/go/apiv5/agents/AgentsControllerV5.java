@@ -58,6 +58,7 @@ import java.util.function.Consumer;
 import static java.util.Collections.singletonList;
 import static spark.Spark.*;
 
+@SuppressWarnings("ALL")
 @Component
 public class AgentsControllerV5 extends ApiController implements SparkSpringController, CrudController<AgentInstance> {
     private final AgentService agentService;

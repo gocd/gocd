@@ -115,21 +115,23 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
     }
 
     public Agents agentsForPipeline(final CaseInsensitiveString pipelineName) {
-        Agents configs = new Agents();
+        Agents agents = new Agents();
+
         if (environments.isPipelineAssociatedWithAnyEnvironment(pipelineName)) {
-            EnvironmentConfig forPipeline = environments.findEnvironmentForPipeline(pipelineName);
-            for (EnvironmentAgentConfig environmentAgentConfig : forPipeline.getAgents()) {
-                configs.add(agentService.agentByUuid(environmentAgentConfig.getUuid()));
+            EnvironmentConfig pipelineEnvConfig = environments.findEnvironmentForPipeline(pipelineName);
+            for (EnvironmentAgentConfig envAgentConfig : pipelineEnvConfig.getAgents()) {
+                agents.add(agentService.agentByUuid(envAgentConfig.getUuid()));
             }
 
         } else {
             for (Agent agent : agentService.agents()) {
                 if (!environments.isAgentUnderEnvironment(agent.getUuid())) {
-                    configs.add(agent);
+                    agents.add(agent);
                 }
             }
         }
-        return configs;
+
+        return agents;
     }
 
     public List<CaseInsensitiveString> pipelinesFor(final CaseInsensitiveString environmentName) {
@@ -148,28 +150,32 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return environments.environmentsForAgent(uuid);
     }
 
-    public Set<EnvironmentConfig> environmentConfigsFor(String agentUuid) {
-        return environments.environmentConfigsForAgent(agentUuid);
+    public Set<EnvironmentConfig> environmentConfigsFor(String uuid) {
+        return environments.environmentConfigsForAgent(uuid);
     }
 
-    public EnvironmentConfig named(String environmentName) {
-        return environments.named(new CaseInsensitiveString(environmentName));
+    public EnvironmentConfig named(String envName) {
+        return environments.named(new CaseInsensitiveString(envName));
     }
 
-    public EnvironmentConfig getEnvironmentConfig(String environmentName) {
-        return environments.named(new CaseInsensitiveString(environmentName));
+    public EnvironmentConfig getEnvironmentConfig(String envName) {
+        return environments.named(new CaseInsensitiveString(envName));
     }
 
-    public EnvironmentConfig getEnvironmentForEdit(String environmentName) {
-        return cloner.deepClone(goConfigService.getConfigForEditing().getEnvironments().find(new CaseInsensitiveString(environmentName)));
+    public EnvironmentConfig getEnvironmentForEdit(String envName) {
+        return cloner.deepClone(goConfigService.getConfigForEditing().getEnvironments().find(new CaseInsensitiveString(envName)));
     }
 
     public List<EnvironmentConfig> getAllLocalEnvironments() {
-        return environmentNames().stream().map(environmentName -> EnvironmentConfigService.this.getEnvironmentForEdit(environmentName.toString())).collect(Collectors.toList());
+        return environmentNames().stream()
+                                 .map(environmentName -> EnvironmentConfigService.this.getEnvironmentForEdit(environmentName.toString()))
+                                 .collect(Collectors.toList());
     }
 
     public List<EnvironmentConfig> getAllMergedEnvironments() {
-        return environmentNames().stream().map(environmentName -> EnvironmentConfigService.this.getMergedEnvironmentforDisplay(environmentName.toString(), new HttpLocalizedOperationResult()).getConfigElement()).collect(Collectors.toList());
+        return environmentNames().stream()
+                                 .map(env -> EnvironmentConfigService.this.getMergedEnvironmentforDisplay(env.toString(), new HttpLocalizedOperationResult()).getConfigElement())
+                                 .collect(Collectors.toList());
     }
 
     public List<EnvironmentViewModel> listAllMergedEnvironments() {
@@ -181,22 +187,22 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return environmentViewModels;
     }
 
-    public ConfigElementForEdit<EnvironmentConfig> getMergedEnvironmentforDisplay(String environmentName, HttpLocalizedOperationResult result) {
-        ConfigElementForEdit<EnvironmentConfig> edit = null;
+    public ConfigElementForEdit<EnvironmentConfig> getMergedEnvironmentforDisplay(String envName, HttpLocalizedOperationResult result) {
+        ConfigElementForEdit<EnvironmentConfig> configElmForEdit = null;
         try {
-            CruiseConfig config = goConfigService.getMergedConfigForEditing();
-            EnvironmentConfig env = environments.named(new CaseInsensitiveString(environmentName));
-            edit = new ConfigElementForEdit<>(cloner.deepClone(env), config.getMd5());
+            CruiseConfig cruiseConfig = goConfigService.getMergedConfigForEditing();
+            EnvironmentConfig envConfig = environments.named(new CaseInsensitiveString(envName));
+            configElmForEdit = new ConfigElementForEdit<>(cloner.deepClone(envConfig), cruiseConfig.getMd5());
         } catch (RecordNotFoundException e) {
-            result.badRequest(EntityType.Environment.notFoundMessage(environmentName));
+            result.badRequest(EntityType.Environment.notFoundMessage(envName));
         }
-        return edit;
+        return configElmForEdit;
     }
 
-    public void createEnvironment(final BasicEnvironmentConfig environmentConfig, final Username user, final HttpLocalizedOperationResult result) {
-        String actionFailed = "Failed to add environment '" + environmentConfig.name() + "'.";
-        AddEnvironmentCommand addEnvironmentCommand = new AddEnvironmentCommand(goConfigService, environmentConfig, user, actionFailed, result);
-        update(addEnvironmentCommand, environmentConfig, user, result, actionFailed);
+    public void createEnvironment(final BasicEnvironmentConfig envConfig, final Username user, final HttpLocalizedOperationResult result) {
+        String actionFailed = "Failed to add environment '" + envConfig.name() + "'.";
+        AddEnvironmentCommand addEnvCmd = new AddEnvironmentCommand(goConfigService, envConfig, user, actionFailed, result);
+        update(addEnvCmd, envConfig, user, result, actionFailed);
     }
 
     public List<EnvironmentPipelineModel> getAllLocalPipelinesForUser(Username user) {
@@ -204,12 +210,12 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return getAllPipelinesForUser(user, pipelineConfigs);
     }
 
-    public List<EnvironmentPipelineModel> getAllRemotePipelinesForUserInEnvironment(Username user, EnvironmentConfig environment) {
+    public List<EnvironmentPipelineModel> getAllRemotePipelinesForUserInEnvironment(Username user, EnvironmentConfig envConfig) {
         List<EnvironmentPipelineModel> pipelines = new ArrayList<>();
-        for (EnvironmentPipelineConfig pipelineConfig : environment.getRemotePipelines()) {
+        for (EnvironmentPipelineConfig pipelineConfig : envConfig.getRemotePipelines()) {
             String pipelineName = CaseInsensitiveString.str(pipelineConfig.getName());
             if (securityService.hasViewPermissionForPipeline(user, pipelineName)) {
-                pipelines.add(new EnvironmentPipelineModel(pipelineName, CaseInsensitiveString.str(environment.name())));
+                pipelines.add(new EnvironmentPipelineModel(pipelineName, CaseInsensitiveString.str(envConfig.name())));
             }
         }
         Collections.sort(pipelines);
@@ -233,36 +239,40 @@ public class EnvironmentConfigService implements ConfigChangedListener, AgentCha
         return pipelines;
     }
 
-    public void updateEnvironment(final String oldEnvName, final EnvironmentConfig env, final Username username, String md5, final HttpLocalizedOperationResult result) {
+    public void updateEnvironment(final String oldEnvName, final EnvironmentConfig envConfig, final Username username,
+                                  String md5, final HttpLocalizedOperationResult result) {
         String failureMsg = "Failed to update environment '" + oldEnvName + "'.";
-        UpdateEnvironmentCommand updateEnvCmd = new UpdateEnvironmentCommand(goConfigService, oldEnvName, env, username, failureMsg, md5, entityHashingService, result);
-        update(updateEnvCmd, env, username, result, failureMsg);
+        UpdateEnvironmentCommand updateEnvCmd = new UpdateEnvironmentCommand(goConfigService, oldEnvName, envConfig, username, failureMsg, md5, entityHashingService, result);
+        update(updateEnvCmd, envConfig, username, result, failureMsg);
 
         if (result.isSuccessful()) {
             result.setMessage("Updated environment '" + oldEnvName + "'.");
         }
     }
 
-    public void patchEnvironment(final EnvironmentConfig environmentConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove, List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd, List<String> envVarsToRemove, final Username username, final HttpLocalizedOperationResult result) {
-        String actionFailed = "Failed to update environment '" + environmentConfig.name() + "'.";
-        PatchEnvironmentCommand patchEnvironmentCommand = new PatchEnvironmentCommand(goConfigService, environmentConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, username, actionFailed, result);
-        update(patchEnvironmentCommand, environmentConfig, username, result, actionFailed);
+    public void patchEnvironment(final EnvironmentConfig envConfig, List<String> pipelinesToAdd, List<String> pipelinesToRemove,
+                                 List<String> agentsToAdd, List<String> agentsToRemove, List<EnvironmentVariableConfig> envVarsToAdd,
+                                 List<String> envVarsToRemove, final Username username, final HttpLocalizedOperationResult result) {
+        String failedActionErrMsg = "Failed to update environment '" + envConfig.name() + "'.";
+        PatchEnvironmentCommand patchEnvCmd = new PatchEnvironmentCommand(goConfigService, envConfig, pipelinesToAdd, pipelinesToRemove, agentsToAdd, agentsToRemove, envVarsToAdd, envVarsToRemove, username, failedActionErrMsg, result);
+        update(patchEnvCmd, envConfig, username, result, failedActionErrMsg);
         if (result.isSuccessful()) {
-            result.setMessage("Updated environment '" + environmentConfig.name() + "'.");
+            result.setMessage("Updated environment '" + envConfig.name() + "'.");
         }
     }
 
-    public void deleteEnvironment(final EnvironmentConfig environmentConfig, final Username username, final HttpLocalizedOperationResult result) {
-        String environmentName = environmentConfig.name().toString();
-        String actionFailed = "Failed to delete environment '" + environmentConfig.name() + "'.";
-        DeleteEnvironmentCommand deleteEnvironmentCommand = new DeleteEnvironmentCommand(goConfigService, environmentConfig, username, actionFailed, result);
-        update(deleteEnvironmentCommand, environmentConfig, username, result, actionFailed);
+    public void deleteEnvironment(final EnvironmentConfig envConfig, final Username username, final HttpLocalizedOperationResult result) {
+        String environmentName = envConfig.name().toString();
+        String actionFailed = "Failed to delete environment '" + envConfig.name() + "'.";
+        DeleteEnvironmentCommand deleteEnvironmentCommand = new DeleteEnvironmentCommand(goConfigService, envConfig, username, actionFailed, result);
+        update(deleteEnvironmentCommand, envConfig, username, result, actionFailed);
         if (result.isSuccessful()) {
             result.setMessage(EntityType.Environment.deleteSuccessful(environmentName));
         }
     }
 
-    private void update(EntityConfigUpdateCommand updateEnvCmd, EnvironmentConfig config, Username currentUser, HttpLocalizedOperationResult result, String actionFailed) {
+    private void update(EntityConfigUpdateCommand updateEnvCmd, EnvironmentConfig config, Username currentUser,
+                        HttpLocalizedOperationResult result, String actionFailed) {
         try {
             goConfigService.updateConfig(updateEnvCmd, currentUser);
         } catch (Exception e) {

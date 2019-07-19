@@ -17,6 +17,7 @@ package com.thoughtworks.go.config.update;
 
 import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Agents;
+import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
 import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateException;
 import com.thoughtworks.go.config.exceptions.EntityType;
@@ -44,12 +45,12 @@ public class AgentsUpdateValidator {
     private final TriState state;
     private final List<String> resourcesToAdd;
     private final List<String> resourcesToRemove;
+    private final EnvironmentsConfig envsToAdd;
+    private final List<String> envsToRemove;
     private GoConfigService goConfigService;
     public Agents agents;
 
-    public AgentsUpdateValidator(AgentInstances agentInstances, Username username, LocalizedOperationResult result,
-                                 List<String> uuids, TriState state, List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                 GoConfigService goConfigService) {
+    public AgentsUpdateValidator(AgentInstances agentInstances, Username username, LocalizedOperationResult result, List<String> uuids, TriState state, EnvironmentsConfig envsToAdd, List<String> envsToRemove, List<String> resourcesToAdd, List<String> resourcesToRemove, GoConfigService goConfigService) {
         this.agentInstances = agentInstances;
         this.username = username;
         this.result = result;
@@ -57,6 +58,8 @@ public class AgentsUpdateValidator {
         this.state = state;
         this.resourcesToAdd = resourcesToAdd;
         this.resourcesToRemove = resourcesToRemove;
+        this.envsToAdd = envsToAdd;
+        this.envsToRemove = envsToRemove;
         this.goConfigService = goConfigService;
     }
 
@@ -83,8 +86,9 @@ public class AgentsUpdateValidator {
     private void bombWhenResourceNamesToAddAreInvalid() {
         ResourceConfigs resourceConfigs = new ResourceConfigs(StringUtils.join(resourcesToAdd, ","));
         resourceConfigs.validate(null);
-        if(!resourceConfigs.errors().isEmpty()){
-            throw new IllegalArgumentException("Validations failed for bulk update of agents. Error(s): " + resourceConfigs.errors());
+        if (!resourceConfigs.errors().isEmpty()) {
+            result.unprocessableEntity("Validations failed for bulk update of agents. Error(s): " + resourceConfigs.errors());
+            throw new IllegalArgumentException(resourceConfigs.errors().toString());
         }
     }
 
@@ -111,8 +115,7 @@ public class AgentsUpdateValidator {
     }
 
     private boolean isAnyOperationPerformedOnAgents() {
-        return !resourcesToAdd.isEmpty() || !resourcesToRemove.isEmpty()
-                                         || state.isTrue() || state.isFalse();
+        return !resourcesToAdd.isEmpty() || !resourcesToRemove.isEmpty() || !envsToAdd.isEmpty() || !envsToRemove.isEmpty() || state.isTrue() || state.isFalse();
     }
 
     private List<Agent> findPendingAgents() {

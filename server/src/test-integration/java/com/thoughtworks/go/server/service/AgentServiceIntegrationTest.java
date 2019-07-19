@@ -609,18 +609,6 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldThrow400ErrorWhenNonExistingEnvironmentIsAddedToAgent() {
-            createEnabledAgent(UUID);
-
-            HttpLocalizedOperationResult operationResult = new HttpLocalizedOperationResult();
-            agentService.bulkUpdateAgentAttributes(USERNAME, operationResult, asList(UUID), emptyStrList, emptyStrList,
-                    createEnvironmentsConfigWith("unknown_env"), emptyStrList, TriState.TRUE);
-
-            assertThat(operationResult.httpCode(), is(400));
-            assertThat(operationResult.message(), containsString("Environment with name 'unknown_env' was not found!"));
-        }
-
-        @Test
         public void shouldReturn403WhenUnauthorizedUserTriesToDeleteAgent() {
             CONFIG_HELPER.enableSecurity();
             HttpOperationResult operationResult = new HttpOperationResult();
@@ -1152,7 +1140,7 @@ public class AgentServiceIntegrationTest {
             "classpath:testPropertyConfigurer.xml", "classpath:WEB-INF/spring-all-servlet.xml"})
     class Environments {
         @Test
-        public void shouldDoNothingWhenTryingToAddAgentToEnvironmentAlreadyAssociatedInConfigRepo() throws Exception {
+        public void shouldDoNothingWhenTryingToAddAgentToEnvironmentAlreadyAssociatedInConfigRepo() {
             // Step 1 : create and add en environment in Config XML
             String prodEnv = "prod";
             createEnvironment(prodEnv);
@@ -1219,7 +1207,6 @@ public class AgentServiceIntegrationTest {
             assertThat(environmentConfigService.environmentsFor(UUID2), containsSet("uat", "prod"));
         }
 
-
         @Test
         public void shouldAddEnvToSpecifiedAgents() {
             createEnvironment("uat");
@@ -1261,7 +1248,6 @@ public class AgentServiceIntegrationTest {
             assertThat(environmentConfigService.environmentsFor(UUID), containsSet());
             assertThat(environmentConfigService.environmentsFor(UUID2), containsSet());
         }
-
 
         @Test
         public void shouldAddRemoveEnvFromSpecifiedAgents() {
@@ -1395,7 +1381,7 @@ public class AgentServiceIntegrationTest {
         }
 
         @Test
-        public void shouldNotAddAgentToNonExistingEnvironment() {
+        public void shouldBeAbleToAddAgentToNonExistingEnvironment() {
             createEnabledAgent(UUID);
             createEnabledAgent(UUID2);
 
@@ -1404,13 +1390,13 @@ public class AgentServiceIntegrationTest {
 
             agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, emptyStrList, emptyStrList, createEnvironmentsConfigWith("non-existent-env"), emptyStrList, TriState.TRUE);
 
-            assertFalse(result.isSuccessful());
-            assertThat(result.httpCode(), is(400));
-            assertThat(result.message(), is(EntityType.Environment.notFoundMessage("non-existent-env")));
+            assertTrue(result.isSuccessful());
+            assertThat(result.httpCode(), is(200));
+            assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
         }
 
         @Test
-        public void shouldNotRemoveAgentFromNonExistingEnvironment() {
+        public void shouldBeAbleToRemoveAgentFromNonExistingEnvironment() {
             createEnabledAgent(UUID);
             createEnabledAgent(UUID2);
 
@@ -1419,9 +1405,9 @@ public class AgentServiceIntegrationTest {
 
             agentService.bulkUpdateAgentAttributes(Username.ANONYMOUS, result, uuids, emptyStrList, emptyStrList, emptyEnvsConfig, singletonList("non-existent-env"), TriState.TRUE);
 
-            assertFalse(result.isSuccessful());
-            assertThat(result.httpCode(), is(400));
-            assertThat(result.message(), is(EntityType.Environment.notFoundMessage("non-existent-env")));
+            assertTrue(result.isSuccessful());
+            assertThat(result.httpCode(), is(200));
+            assertThat(result.message(), is("Updated agent(s) with uuid(s): [uuid, uuid2]."));
         }
     }
 

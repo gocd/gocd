@@ -43,7 +43,8 @@ import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.lang.String.format;
 import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -123,7 +124,7 @@ public class AgentsUpdateValidatorTest {
         }
 
         @Test
-        public void shouldPassValidationWhenEnvironmentsToBeAddedRemovedExistsInConfigXML() throws Exception {
+        public void shouldPassValidationWhenEnvironmentsToBeAddedRemovedDoesNotExistsInConfigXML() throws Exception {
             environmentsToAdd.add("prod");
             environmentsToRemove.add("dev");
 
@@ -134,11 +135,6 @@ public class AgentsUpdateValidatorTest {
 
             when(agentInstances.findAgent(agent.getUuid())).thenReturn(agentInstance);
 
-            EnvironmentsConfig envsConfig = new EnvironmentsConfig();
-            envsConfig.add(new BasicEnvironmentConfig(str("dev")));
-            envsConfig.add(new BasicEnvironmentConfig(str("prod")));
-
-            when(goConfigService.getEnvironments()).thenReturn(envsConfig);
             newAgentsUpdateValidator().validate();
         }
 
@@ -173,7 +169,7 @@ public class AgentsUpdateValidatorTest {
             Agent elasticAgent = AgentMother.elasticAgent();
             uuids.add(elasticAgent.getUuid());
             when(agentInstances.findAgent(elasticAgent.getUuid()))
-                               .thenReturn(AgentInstance.createFromAgent(elasticAgent, null, null));
+                    .thenReturn(AgentInstance.createFromAgent(elasticAgent, null, null));
             assertThrows(ElasticAgentsResourceUpdateException.class, () -> newAgentsUpdateValidator().validate());
             String errMsg = "Resources on elastic agents with uuids [" + elasticAgent.getUuid() + "] can not be updated.";
             assertTrue(result.message().contains(errMsg));
@@ -181,7 +177,9 @@ public class AgentsUpdateValidatorTest {
     }
 
     private AgentsUpdateValidator newAgentsUpdateValidator() {
-        return new AgentsUpdateValidator(agentInstances, currentUser, result, uuids, triState,
-                                         resourcesToAdd, resourcesToRemove, goConfigService);
+        EnvironmentsConfig envsConfig = new EnvironmentsConfig();
+        environmentsToAdd.forEach(env -> envsConfig.add(new BasicEnvironmentConfig(new CaseInsensitiveString(env))));
+        return new AgentsUpdateValidator(agentInstances, currentUser, result, uuids, triState, envsConfig, environmentsToRemove,
+                resourcesToAdd, resourcesToRemove, goConfigService);
     }
 }

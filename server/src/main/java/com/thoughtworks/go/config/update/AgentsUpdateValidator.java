@@ -15,7 +15,6 @@
  */
 package com.thoughtworks.go.config.update;
 
-import com.thoughtworks.go.config.Agent;
 import com.thoughtworks.go.config.Agents;
 import com.thoughtworks.go.config.EnvironmentsConfig;
 import com.thoughtworks.go.config.ResourceConfigs;
@@ -23,19 +22,19 @@ import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateExceptio
 import com.thoughtworks.go.config.exceptions.EntityType;
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
-import com.thoughtworks.go.domain.AgentInstance;
 import com.thoughtworks.go.server.domain.AgentInstances;
 import com.thoughtworks.go.server.domain.Username;
 import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.TriState;
-import org.apache.commons.lang3.StringUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
+import static java.lang.String.format;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.lang3.StringUtils.join;
 
 public class AgentsUpdateValidator {
     private AgentInstances agentInstances;
@@ -50,7 +49,9 @@ public class AgentsUpdateValidator {
     private GoConfigService goConfigService;
     public Agents agents;
 
-    public AgentsUpdateValidator(AgentInstances agentInstances, Username username, LocalizedOperationResult result, List<String> uuids, TriState state, EnvironmentsConfig envsToAdd, List<String> envsToRemove, List<String> resourcesToAdd, List<String> resourcesToRemove, GoConfigService goConfigService) {
+    public AgentsUpdateValidator(AgentInstances agentInstances, Username username, LocalizedOperationResult result,
+                                 List<String> uuids, TriState state, EnvironmentsConfig envsToAdd, List<String> envsToRemove,
+                                 List<String> resourcesToAdd, List<String> resourcesToRemove, GoConfigService goConfigService) {
         this.agentInstances = agentInstances;
         this.username = username;
         this.result = result;
@@ -84,8 +85,10 @@ public class AgentsUpdateValidator {
     }
 
     private void bombWhenResourceNamesToAddAreInvalid() {
-        ResourceConfigs resourceConfigs = new ResourceConfigs(StringUtils.join(resourcesToAdd, ","));
+        ResourceConfigs resourceConfigs = new ResourceConfigs(join(resourcesToAdd, ","));
+
         resourceConfigs.validate(null);
+
         if (!resourceConfigs.errors().isEmpty()) {
             result.unprocessableEntity("Validations failed for bulk update of agents. Error(s): " + resourceConfigs.errors());
             throw new IllegalArgumentException(resourceConfigs.errors().toString());
@@ -93,16 +96,11 @@ public class AgentsUpdateValidator {
     }
 
     private void bombWhenAgentsDoesNotExist() {
-        List<String> unknownUUIDs = new ArrayList<>();
+        List<String> notFoundUUIDs = agentInstances.findNullAgentUUIDs(uuids);
 
-        for (String uuid : uuids) {
-            if (agentInstances.findAgent(uuid).isNullAgent()) {
-                unknownUUIDs.add(uuid);
-            }
-        }
-        if (!unknownUUIDs.isEmpty()) {
-            result.badRequest(EntityType.Agent.notFoundMessage(unknownUUIDs));
-            throw new RecordNotFoundException(EntityType.Agent, unknownUUIDs);
+        if(!isEmpty(notFoundUUIDs)){
+            result.badRequest(EntityType.Agent.notFoundMessage(notFoundUUIDs));
+            throw new RecordNotFoundException(EntityType.Agent, notFoundUUIDs);
         }
     }
 
@@ -115,62 +113,44 @@ public class AgentsUpdateValidator {
     }
 
     private boolean isAnyOperationPerformedOnAgents() {
-        return !resourcesToAdd.isEmpty() || !resourcesToRemove.isEmpty() || !envsToAdd.isEmpty() || !envsToRemove.isEmpty() || state.isTrue() || state.isFalse();
-    }
-
-    private List<Agent> findPendingAgents() {
-        List<Agent> pendingAgents = new ArrayList<>();
-        for (String uuid : uuids) {
-            AgentInstance agent = agentInstances.findAgent(uuid);
-            if (agent.isPending()) {
-                pendingAgents.add(agent.getAgent().deepClone());
-            }
-        }
-        return pendingAgents;
+        return !resourcesToAdd.isEmpty()
+                    || !resourcesToRemove.isEmpty()
+                    || !envsToAdd.isEmpty() || !envsToRemove.isEmpty()
+                    || state.isTrue() || state.isFalse();
     }
 
     private void bombWhenAnyOperationOnPendingAgents() throws InvalidPendingAgentOperationException {
-        List<Agent> pendingAgents = findPendingAgents();
-        if (pendingAgents.isEmpty()) {
+        List<String> pendingAgentUUIDs = agentInstances.findPendingAgentUUIDs(uuids);
+
+        if(isEmpty(pendingAgentUUIDs)){
             return;
         }
 
-        List<String> pendingAgentUuids = getPendingAgentUuids(pendingAgents);
         if (!(state.isTrue() || state.isFalse())) {
-            result.badRequest("Pending agents [" + StringUtils.join(pendingAgentUuids, ", ") + "] must be explicitly enabled or disabled when performing any operations on them.");
-            throw new InvalidPendingAgentOperationException(pendingAgentUuids);
+            result.badRequest(format("Pending agents [%s] must be explicitly enabled or disabled when performing any operations on them.",
+                                     join(pendingAgentUUIDs, ", ")));
+            throw new InvalidPendingAgentOperationException(pendingAgentUUIDs);
         }
-    }
-
-    private List<String> getPendingAgentUuids(List<Agent> pendingAgents) {
-        List<String> pendingAgentUuids = new ArrayList<>();
-        for (Agent pendingAgent : pendingAgents) {
-            pendingAgentUuids.add(pendingAgent.getUuid());
-        }
-        return pendingAgentUuids;
     }
 
     private void bombWhenElasticAgentResourcesAreUpdated() throws ElasticAgentsResourceUpdateException {
-        if (resourcesToAdd.isEmpty() && resourcesToRemove.isEmpty()) {
+        if(resourcesAreNotUpdated()){
             return;
         }
 
-        List<String> elasticAgentUUIDs = findAllElasticAgentUuids(uuids);
-        if (elasticAgentUUIDs.isEmpty()) {
+        List<String> elasticAgentUUIDs = agentInstances.findElasticAgentUUIDs(uuids);
+        if(isEmpty(elasticAgentUUIDs)){
             return;
         }
 
-        result.badRequest("Resources on elastic agents with uuids [" + StringUtils.join(elasticAgentUUIDs, ", ") + "] can not be updated.");
+        result.badRequest(format("Resources on elastic agents with uuids [%s] can not be updated.", join(elasticAgentUUIDs, ", ")));
         throw new ElasticAgentsResourceUpdateException(elasticAgentUUIDs);
     }
 
-    private List<String> findAllElasticAgentUuids(List<String> uuids) {
-        ArrayList<String> elasticAgentUUIDs = new ArrayList<>();
-        for (String uuid : uuids) {
-            if (agentInstances.findAgent(uuid).isElastic()) {
-                elasticAgentUUIDs.add(uuid);
-            }
+    private boolean resourcesAreNotUpdated() {
+        if(resourcesToAdd.isEmpty() && resourcesToRemove.isEmpty()){
+            return true;
         }
-        return elasticAgentUUIDs;
+        return false;
     }
 }

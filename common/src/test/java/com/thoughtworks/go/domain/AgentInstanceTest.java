@@ -92,7 +92,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldKeepStatusAsCancelled() throws Exception {
+    public void shouldKeepStatusAsCancelled() {
         AgentInstance buildingAgentInstance = AgentInstanceMother.building("buildLocator");
         buildingAgentInstance.cancel();
 
@@ -102,7 +102,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotifyAgentChangeListenerOnUpdate() throws Exception {
+    public void shouldNotifyAgentChangeListenerOnUpdate() {
         AgentInstance idleAgent = AgentInstance.createFromAgent(agent("abc"), new SystemEnvironment(), agentStatusChangeListener);
 
         idleAgent.update(buildingRuntimeInfo());
@@ -111,7 +111,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotifyAgentChangeListenerOnAgentBuilding() throws Exception {
+    public void shouldNotifyAgentChangeListenerOnAgentBuilding() {
         AgentInstance idleAgent = AgentInstance.createFromAgent(agent("abc"), new SystemEnvironment(), agentStatusChangeListener);
 
         idleAgent.building(new AgentBuildingInfo("running pipeline/stage/build", "buildLocator"));
@@ -120,7 +120,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotifyAgentChangeListenerOnCancel() throws Exception {
+    public void shouldNotifyAgentChangeListenerOnCancel() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent("abc"), new SystemEnvironment(), agentStatusChangeListener);
 
         agentInstance.cancel();
@@ -129,7 +129,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotifyAgentChangeListenerOnRefreshAndMarkedMissing() throws Exception {
+    public void shouldNotifyAgentChangeListenerOnRefreshAndMarkedMissing() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent("abc"), new SystemEnvironment(), agentStatusChangeListener);
 
         agentInstance.idle();
@@ -140,7 +140,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotifyAgentChangeListenerOnRefreshAndMarkedLostContact() throws Exception {
+    public void shouldNotifyAgentChangeListenerOnRefreshAndMarkedLostContact() {
         AgentInstance instance = AgentInstance.createFromAgent(agent, new SystemEnvironment() {
             @Override
             public int getAgentConnectionTimeout() {
@@ -157,7 +157,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotifyAgentChangeListenerOnEnablingAgent() throws Exception {
+    public void shouldNotifyAgentChangeListenerOnEnablingAgent() {
         AgentInstance instance = AgentInstanceMother.disabled();
 
         AgentInstance disabledAgent = new AgentInstance(instance.agent, instance.getType(), systemEnvironment, agentStatusChangeListener);
@@ -168,7 +168,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotifyAgentChangeListenerOnDisablingAgent() throws Exception {
+    public void shouldNotifyAgentChangeListenerOnDisablingAgent() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent("abc"), new SystemEnvironment(), agentStatusChangeListener);
 
         agentInstance.deny();
@@ -177,7 +177,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotifyAgentChangeListenerOnConfigSync() throws Exception {
+    public void shouldNotifyAgentChangeListenerOnConfigSync() {
         AgentInstance instance = AgentInstanceMother.disabled();
 
         AgentInstance agentInstance = new AgentInstance(instance.agent, instance.getType(), systemEnvironment, agentStatusChangeListener);
@@ -188,7 +188,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldUpdateAgentBackToIdleAfterCancelledTaskFinishes() throws Exception {
+    public void shouldUpdateAgentBackToIdleAfterCancelledTaskFinishes() {
         AgentInstance cancelledAgentInstance = AgentInstanceMother.cancelled();
 
         AgentRuntimeInfo fromAgent = new AgentRuntimeInfo(cancelledAgentInstance.getAgent().getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
@@ -199,7 +199,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldUpdateTheInstallLocation() throws Exception {
+    public void shouldUpdateTheInstallLocation() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         String installPath = "/var/lib/GoServer";
         AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
@@ -210,7 +210,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldUpdateTheUsableSpace() throws Exception {
+    public void shouldUpdateTheUsableSpace() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
 
         AgentRuntimeInfo newRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
@@ -242,7 +242,7 @@ public class AgentInstanceTest {
 
 
     @Test
-    public void shouldInitializeTheLastHeardTimeWhenFirstPing() throws Exception {
+    public void shouldInitializeTheLastHeardTimeWhenFirstPing() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         Date time = agentInstance.getLastHeardTime();
         assertThat(time, is(nullValue()));
@@ -263,7 +263,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldUpdateSupportBuildCommandProtocolFlag() throws Exception {
+    public void shouldUpdateSupportBuildCommandProtocolFlag() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         assertThat(agentInstance.getSupportsBuildCommandProtocol(), is(false));
         agentInstance.update(new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie", false));
@@ -275,7 +275,7 @@ public class AgentInstanceTest {
 
 
     @Test
-    public void shouldUpdateIPForPhysicalMachineWhenUpChanged() throws Exception {
+    public void shouldUpdateIPForPhysicalMachineWhenUpChanged() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.update(new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie"));
 
@@ -283,7 +283,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldCleanBuildingInfoWhenAgentIsIdle() throws Exception {
+    public void shouldCleanBuildingInfoWhenAgentIsIdle() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.update(buildingRuntimeInfo());
 
@@ -298,7 +298,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldUpdateBuildingInfoWhenAgentIsBuilding() throws Exception {
+    public void shouldUpdateBuildingInfoWhenAgentIsBuilding() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo agentRuntimeInfo = new AgentRuntimeInfo(agent.getAgentIdentifier(), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         AgentBuildingInfo buildingInfo = new AgentBuildingInfo("running pipeline/stage/build", "buildLocator");
@@ -308,7 +308,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldUpdateBuildingInfoWhenAgentIsBuildingWhenCancelled() throws Exception {
+    public void shouldUpdateBuildingInfoWhenAgentIsBuildingWhenCancelled() {
         AgentInstance agentInstance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         agentInstance.update(buildingRuntimeInfo());
 
@@ -334,20 +334,20 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldChangeIpWhenSameAgentIpChanged() throws Exception {
+    public void shouldChangeIpWhenSameAgentIpChanged() {
         AgentInstance instance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo info = new AgentRuntimeInfo(new AgentIdentifier("ccedev01", "10.18.7.52", "uuid"), AgentRuntimeStatus.Idle, currentWorkingDirectory(), "cookie");
         assertThat(instance.isIpChangeRequired(info.getIpAdress()), is(true));
     }
 
     @Test
-    public void shouldNotChangeIpWhenIpNotChanged() throws Exception {
+    public void shouldNotChangeIpWhenIpNotChanged() {
         AgentInstance instance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         assertThat(instance.isIpChangeRequired(DEFAULT_IP_ADDRESS), is(false));
     }
 
     @Test
-    public void shouldDefaultToMissingStatusWhenSyncAnApprovedAgent() throws Exception {
+    public void shouldDefaultToMissingStatusWhenSyncAnApprovedAgent() {
         AgentInstance instance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         instance.syncConfig(agent);
         assertThat(instance.getStatus(), is(AgentStatus.Missing));
@@ -362,7 +362,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void deniedAgentshouldBeRegistered() throws Exception {
+    public void deniedAgentshouldBeRegistered() {
         agent.disable();
         AgentInstance instance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
 
@@ -370,7 +370,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldBeRegisteredForIdleAgent() throws Exception {
+    public void shouldBeRegisteredForIdleAgent() {
         AgentInstance instance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         instance.update(idleRuntimeInfo());
         assertThat(instance.isRegistered(), is(true));
@@ -410,7 +410,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldRefreshDisabledAgent() throws Exception {
+    public void shouldRefreshDisabledAgent() {
         agent.disable();
         AgentInstance instance = AgentInstance.createFromAgent(agent, new SystemEnvironment() {
             @Override
@@ -437,7 +437,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldBeLiveStatus() throws Exception {
+    public void shouldBeLiveStatus() {
         AgentInstance instance = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         instance.update(idleRuntimeInfo());
         instance.refresh();
@@ -454,7 +454,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldKeepOriginalStatusWhenAgentIsNotDenied() throws Exception {
+    public void shouldKeepOriginalStatusWhenAgentIsNotDenied() {
         AgentInstance original = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(buildingRuntimeInfo(agent));
 
@@ -463,7 +463,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldDenyAgentWhenAgentIsDeniedInConfigFile() throws Exception {
+    public void shouldDenyAgentWhenAgentIsDeniedInConfigFile() {
         AgentInstance original = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(buildingRuntimeInfo());
 
@@ -475,7 +475,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldDenyAgentWhenItIsNotBuilding() throws Exception {
+    public void shouldDenyAgentWhenItIsNotBuilding() {
         AgentInstance original = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         original.update(idleRuntimeInfo());
 
@@ -485,7 +485,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenAgentHasEnoughSpace() throws Exception {
+    public void shouldReturnFalseWhenAgentHasEnoughSpace() {
         AgentInstance original = AgentInstance.createFromAgent(agent, new SystemEnvironment() {
             @Override
             public long getAgentSizeLimit() {
@@ -501,7 +501,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenFreeDiskOnAgentIsLow() throws Exception {
+    public void shouldReturnTrueWhenFreeDiskOnAgentIsLow() {
         AgentInstance original = AgentInstance.createFromAgent(agent, new SystemEnvironment() {
             @Override
             public long getAgentSizeLimit() {
@@ -517,7 +517,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldBeAbleToDenyAgentWhenItIsBuilding() throws Exception {
+    public void shouldBeAbleToDenyAgentWhenItIsBuilding() {
         AgentInstance original = AgentInstance.createFromAgent(agent, systemEnvironment, mock(AgentStatusChangeListener.class));
         AgentRuntimeInfo runtimeInfo = buildingRuntimeInfo();
         original.update(runtimeInfo);
@@ -529,7 +529,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldOrderByHostname() throws Exception {
+    public void shouldOrderByHostname() {
         AgentInstance agentA = new AgentInstance(new Agent("UUID", "A", "127.0.0.1"), LOCAL, systemEnvironment, null);
         AgentInstance agentB = new AgentInstance(new Agent("UUID", "B", "127.0.0.2"), LOCAL, systemEnvironment, null);
 
@@ -539,7 +539,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotBeEqualIfUuidIsNotEqual() throws Exception {
+    public void shouldNotBeEqualIfUuidIsNotEqual() {
         AgentInstance agentA = new AgentInstance(new Agent("UUID", "A", "127.0.0.1"), LOCAL, systemEnvironment, null);
         AgentInstance copyOfAgentA = new AgentInstance(new Agent("UUID", "A", "127.0.0.1"),
                 LOCAL, systemEnvironment, null);
@@ -564,7 +564,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldReturnNullWhenNoMatchingJobs() throws Exception {
+    public void shouldReturnNullWhenNoMatchingJobs() {
         AgentInstance agentInstance = new AgentInstance(agent("linux, mercurial"), LOCAL, systemEnvironment, null);
 
         JobPlan matchingJob = agentInstance.firstMatching(new ArrayList<>());
@@ -572,7 +572,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldReturnFirstMatchingJobPlan() throws Exception {
+    public void shouldReturnFirstMatchingJobPlan() {
         AgentInstance agentInstance = new AgentInstance(agent("linux, mercurial"), LOCAL, systemEnvironment, null);
 
         List<JobPlan> plans = jobPlans("linux, svn", "linux, mercurial");
@@ -581,7 +581,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldReturnAJobPlanWithMatchingUuidSet() throws Exception {
+    public void shouldReturnAJobPlanWithMatchingUuidSet() {
         Agent agent = agent("linux, mercurial");
         AgentInstance agentInstance = new AgentInstance(agent, LOCAL, systemEnvironment, null);
 
@@ -593,7 +593,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldNotReturnAJobWithMismatchedUuid() throws Exception {
+    public void shouldNotReturnAJobWithMismatchedUuid() {
         Agent agent = agent("linux, mercurial");
         AgentInstance agentInstance = new AgentInstance(agent, LOCAL, systemEnvironment, null);
 
@@ -630,7 +630,7 @@ public class AgentInstanceTest {
     }
 
     @Test
-    public void shouldReturnFreeDiskSpace() throws Exception {
+    public void shouldReturnFreeDiskSpace() {
         assertThat(AgentInstanceMother.updateRuntimeStatus(AgentInstanceMother.updateUsableSpace(AgentInstanceMother.idle(new Date(), "CCeDev01"), 1024L), AgentRuntimeStatus.Missing).freeDiskSpace(), is(DiskSpace.unknownDiskSpace()));
         assertThat(AgentInstanceMother.updateRuntimeStatus(AgentInstanceMother.updateUsableSpace(AgentInstanceMother.idle(new Date(), "CCeDev01"), 1024L), AgentRuntimeStatus.LostContact).freeDiskSpace(), is(DiskSpace.unknownDiskSpace()));
         assertThat(AgentInstanceMother.updateRuntimeStatus(AgentInstanceMother.updateUsableSpace(AgentInstanceMother.idle(new Date(), "CCeDev01"), 1024L), AgentRuntimeStatus.Idle).freeDiskSpace(), is(new DiskSpace(1024L)));

@@ -432,10 +432,11 @@ public class AgentInstance implements Comparable<AgentInstance> {
         return result;
     }
 
-    public void checkForRemoval(List<AgentInstance> agentsToRemove) {
+    public boolean canRemove() {
         if (agentConfigStatus == AgentConfigStatus.Pending && isTimeout(lastHeardTime)) {
-            agentsToRemove.add(this);
+            return true;
         }
+        return false;
     }
 
     public String getOperatingSystem() {

@@ -20,7 +20,6 @@ import com.thoughtworks.go.config.exceptions.ElasticAgentsResourceUpdateExceptio
 import com.thoughtworks.go.config.exceptions.InvalidPendingAgentOperationException;
 import com.thoughtworks.go.config.exceptions.RecordNotFoundException;
 import com.thoughtworks.go.domain.AgentInstance;
-import com.thoughtworks.go.domain.NullAgentInstance;
 import com.thoughtworks.go.helper.AgentInstanceMother;
 import com.thoughtworks.go.helper.AgentMother;
 import com.thoughtworks.go.helper.GoConfigMother;
@@ -34,13 +33,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static com.thoughtworks.go.domain.config.CaseInsensitiveStringMother.str;
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static junit.framework.TestCase.assertFalse;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -117,8 +116,8 @@ public class AgentsUpdateValidatorTest {
             triState = TriState.UNSET;
             AgentInstance pendingAgent = AgentInstanceMother.pending();
             uuids.add(pendingAgent.getUuid());
-            when(agentInstances.findPendingAgents(uuids)).thenReturn(Arrays.asList(pendingAgent.getAgent()));
-            when(agentInstances.findAgent(pendingAgent.getUuid())).thenReturn(pendingAgent);
+
+            when(agentInstances.findPendingAgentUUIDs(uuids)).thenReturn(singletonList(pendingAgent.getUuid()));
 
             assertThrows(InvalidPendingAgentOperationException.class, () -> newAgentsUpdateValidator().validate());
         }
@@ -131,9 +130,11 @@ public class AgentsUpdateValidatorTest {
             AgentInstance agentInstance = AgentInstanceMother.disabled();
             Agent agent = agentInstance.getAgent();
 
-            uuids.add(agent.getUuid());
+            String uuid = agent.getUuid();
+            uuids.add(uuid);
 
-            when(agentInstances.findAgent(agent.getUuid())).thenReturn(agentInstance);
+            when(agentInstances.findPendingAgentUUIDs(uuids)).thenReturn(emptyList());
+            when(agentInstances.findNullAgentUUIDs(uuids)).thenReturn(emptyList());
 
             newAgentsUpdateValidator().validate();
         }
@@ -157,7 +158,8 @@ public class AgentsUpdateValidatorTest {
         public void shouldThrowExceptionWhenAgentsToBeUpdatedDoesNotExist() {
             String nonExistingUuid = "non-existing-uuid";
             uuids.add(nonExistingUuid);
-            when(agentInstances.findAgent(nonExistingUuid)).thenReturn(new NullAgentInstance(nonExistingUuid));
+
+            when(agentInstances.findNullAgentUUIDs(uuids)).thenReturn(singletonList(nonExistingUuid));
 
             assertThrows(RecordNotFoundException.class, () -> newAgentsUpdateValidator().validate());
             assertTrue(result.message().equals(format("Agents with uuids '%s' were not found!", nonExistingUuid)));
@@ -168,8 +170,9 @@ public class AgentsUpdateValidatorTest {
             resourcesToAdd.add("Linux");
             Agent elasticAgent = AgentMother.elasticAgent();
             uuids.add(elasticAgent.getUuid());
-            when(agentInstances.findAgent(elasticAgent.getUuid()))
-                    .thenReturn(AgentInstance.createFromAgent(elasticAgent, null, null));
+
+            when(agentInstances.findElasticAgentUUIDs(uuids)).thenReturn(singletonList(elasticAgent.getUuid()));
+
             assertThrows(ElasticAgentsResourceUpdateException.class, () -> newAgentsUpdateValidator().validate());
             String errMsg = "Resources on elastic agents with uuids [" + elasticAgent.getUuid() + "] can not be updated.";
             assertTrue(result.message().contains(errMsg));

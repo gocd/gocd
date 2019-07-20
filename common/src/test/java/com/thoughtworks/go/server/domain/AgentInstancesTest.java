@@ -110,7 +110,7 @@ public class AgentInstancesTest {
     }
 
     @Test
-    public void shouldFindAgentsByItHostName() throws Exception {
+    public void shouldFindAgentsByItHostName() {
         AgentInstance idle = AgentInstanceMother.idle(new Date(), "ghost-name");
         AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, idle, AgentInstanceMother.building());
 
@@ -119,7 +119,7 @@ public class AgentInstancesTest {
     }
 
     @Test
-    public void shouldReturnNullAgentsWhenHostNameIsNotFound() throws Exception {
+    public void shouldReturnNullAgentsWhenHostNameIsNotFound() {
         AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, AgentInstanceMother.building());
         agentInstances.add(idle);
         agentInstances.add(building);
@@ -129,7 +129,7 @@ public class AgentInstancesTest {
     }
 
     @Test
-    public void shouldReturnFirstMatchedAgentsWhenHostNameHasMoreThanOneMatch() throws Exception {
+    public void shouldReturnFirstMatchedAgentsWhenHostNameHasMoreThanOneMatch() {
         AgentInstance agent = AgentInstance.createFromAgent(new Agent("uuid20", "CCeDev01", "10.18.5.20"), systemEnvironment, null);
         AgentInstance duplicatedAgent = AgentInstance.createFromAgent(new Agent("uuid21", "CCeDev01", "10.18.5.20"), systemEnvironment, null);
         AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, agent, duplicatedAgent);
@@ -139,7 +139,7 @@ public class AgentInstancesTest {
     }
 
     @Test
-    public void shouldAddAgentIntoMemoryAfterAgentIsManuallyAddedInConfigFile() throws Exception {
+    public void shouldAddAgentIntoMemoryAfterAgentIsManuallyAddedInConfigFile() {
         AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
         Agent agent = new Agent("uuid20", "CCeDev01", "10.18.5.20");
         agentInstances.sync(new Agents(agent));
@@ -149,7 +149,7 @@ public class AgentInstancesTest {
     }
 
     @Test
-    public void shouldRemoveAgentWhenAgentIsRemovedFromConfigFile() throws Exception {
+    public void shouldRemoveAgentWhenAgentIsRemovedFromConfigFile() {
         AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, idle, building);
 
         Agents oneAgentIsRemoved = new Agents(new Agent("uuid2", "CCeDev01", "10.18.5.1"));
@@ -161,7 +161,7 @@ public class AgentInstancesTest {
     }
 
     @Test
-    public void shouldSyncAgent() throws Exception {
+    public void shouldSyncAgent() {
         AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, AgentInstanceMother.building(), idle);
 
         Agent agent = new Agent("uuid2", "CCeDev01", "10.18.5.1");
@@ -174,7 +174,7 @@ public class AgentInstancesTest {
     }
 
     @Test
-    public void shouldNotRemovePendingAgentDuringSync() throws Exception {
+    public void shouldNotRemovePendingAgentDuringSync() {
         AgentInstances agentInstances = new AgentInstances(systemEnvironment, agentStatusChangeListener, AgentInstanceMother.building());
         agentInstances.add(pending);
         Agents agents = new Agents();
@@ -211,7 +211,7 @@ public class AgentInstancesTest {
     }
 
     @Test
-    public void shouldSupportConcurrentOperations() throws Exception {
+    public void shouldSupportConcurrentOperations() {
         final AgentInstances agentInstances = new AgentInstances(mock(AgentStatusChangeListener.class));
 
         // register 100 agents

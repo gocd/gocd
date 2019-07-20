@@ -16,28 +16,28 @@
 
 package com.thoughtworks.go.util;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.springframework.util.CollectionUtils.isEmpty;
+
 public class CommaSeparatedString {
     public static String append(String origCommaSeparatedStr, List<String> entriesToAdd){
-        if(CollectionUtils.isEmpty(entriesToAdd)){
+        if(isEmpty(entriesToAdd)){
             return origCommaSeparatedStr;
         }
 
-        LinkedHashSet<String> entrySet = new LinkedHashSet<>();
-
-        if (!StringUtils.isBlank(origCommaSeparatedStr)) {
-            entrySet.addAll(Arrays.asList(origCommaSeparatedStr.split(",")));
+        LinkedHashSet<String> uniqEntries = new LinkedHashSet<>();
+        if (isNotBlank(origCommaSeparatedStr)) {
+            uniqEntries.addAll(asList(origCommaSeparatedStr.split(",")));
         }
-        entrySet.addAll(entriesToAdd);
+        uniqEntries.addAll(entriesToAdd);
 
-        List<String> entryList = entrySet.stream().filter(entry -> !entry.isEmpty()).collect(Collectors.toList());
+        List<String> entryList = uniqEntries.stream().filter(entry -> !entry.isEmpty()).collect(Collectors.toList());
 
         if(entryList.isEmpty()){
             return null;
@@ -46,16 +46,21 @@ public class CommaSeparatedString {
     }
 
     public static String remove(String origCommaSeparatedStr, List<String> entriesToRemove){
-        if (!StringUtils.isBlank(origCommaSeparatedStr)) {
+        if(isEmpty(entriesToRemove)){
+            return origCommaSeparatedStr;
+        }
+
+        if (isNotBlank(origCommaSeparatedStr)) {
             List<String> finalEntryList = Arrays.stream(origCommaSeparatedStr.split(","))
-                    .filter(entry -> !entriesToRemove.contains(entry))
-                    .collect(Collectors.toList());
+                                                .filter(entry -> !entriesToRemove.contains(entry))
+                                                .collect(Collectors.toList());
             if (finalEntryList.isEmpty()) {
                 return null;
             } else {
                 return String.join(",", finalEntryList);
             }
         }
+
         return origCommaSeparatedStr;
     }
 }

@@ -220,25 +220,27 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
 
     public void bulkUpdateAgentAttributes(Username username, LocalizedOperationResult result, List<String> uuids,
                                           List<String> resourcesToAdd, List<String> resourcesToRemove,
-                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState enable) {
-        AgentsUpdateValidator validator = new AgentsUpdateValidator(agentInstances, username, result, uuids, enable, envsToAdd, envsToRemove,
-                resourcesToAdd, resourcesToRemove, goConfigService);
+                                          EnvironmentsConfig envsToAdd, List<String> envsToRemove, TriState state) {
+
+
+        AgentsUpdateValidator validator
+                = new AgentsUpdateValidator(agentInstances, username, result, uuids, state, envsToAdd,
+                                            envsToRemove, resourcesToAdd, resourcesToRemove, goConfigService);
         try {
             if (validator.canContinue()) {
                 validator.validate();
 
                 List<Agent> agents = this.agentDao.agentsByUUIds(uuids);
-                if (enable.isTrue() || enable.isFalse()) {
-                    List<Agent> pendingAgents = agentInstances.findPendingAgents(uuids);
-                    agents.addAll(pendingAgents);
+                if (state.isTrue() || state.isFalse()) {
+                    agents.addAll(agentInstances.findPendingAgents(uuids));
                 }
 
                 agents.forEach(agent -> {
                     addRemoveEnvsAndResources(agent, envsToAdd, envsToRemove, resourcesToAdd, resourcesToRemove);
-                    enableDisableAgent(enable, agent);
+                    enableDisableAgent(state, agent);
                 });
 
-                agentDao.bulkUpdateAttributes(agents, createAgentToStatusMap(agents), enable);
+                agentDao.bulkUpdateAttributes(agents, createAgentToStatusMap(agents), state);
                 result.setMessage("Updated agent(s) with uuid(s): [" + join(uuids, ", ") + "].");
             }
         } catch (Exception e) {
@@ -288,6 +290,10 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
         }
     }
 
+    private List<String> actualOrEmptyList(List<String> actualList){
+        return actualList == null ? emptyList() : actualList;
+    }
+
     private List<String> getUUIDsToAddEnvTo(List<String> uuidsToAssociateWithEnv, List<String> uuidsAssociatedWithEnv) {
         return uuidsToAssociateWithEnv.stream().filter(uuid -> !uuidsAssociatedWithEnv.contains(uuid))
                 .collect(Collectors.toList());
@@ -318,11 +324,6 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
                     return agent;
                 })
                 .collect(Collectors.toList());
-    }
-
-    private void saveAgentEnvironments(Agent agent, String envs) {
-        agent.setEnvironments(envs);
-        agentDao.saveOrUpdate(agent);
     }
 
     private List<String> getAssociatedUUIDs(EnvironmentAgentsConfig asssociatedAgents) {
@@ -356,15 +357,17 @@ public class AgentService implements DatabaseEntityChangeListener<Agent> {
     }
 
     private void addThoseEnvsThatAreNotAssociatedWithTheAgentFromConfigRepo(EnvironmentsConfig envsToAdd, Agent agent) {
-        String uuid = agent.getUuid();
-        envsToAdd.forEach(env -> {
-            if (environmentContainsAgentRemotely(env, uuid)) {
-                LOGGER.debug("Not adding Agent %s to Environment %s. It is associated from a Config Repo", uuid, env);
-            } else {
-                String envName = env.name().toString();
-                agent.addEnvironment(envName);
-            }
-        });
+        if(envsToAdd != null) {
+            String uuid = agent.getUuid();
+            envsToAdd.forEach(env -> {
+                if (environmentContainsAgentRemotely(env, uuid)) {
+                    LOGGER.debug("Not adding Agent %s to Environment %s. It is associated from a Config Repo", uuid, env);
+                } else {
+                    String envName = env.name().toString();
+                    agent.addEnvironment(envName);
+                }
+            });
+        }
     }
 
     private boolean environmentContainsAgentRemotely(EnvironmentConfig envConfig, String uuid) {

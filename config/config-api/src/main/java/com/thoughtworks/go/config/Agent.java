@@ -102,11 +102,13 @@ public class Agent extends PersistentObject implements Validatable {
     }
 
     public void addResources(List<String> resourcesToAdd) {
-        setResources(new ResourceConfigs(append(getResourceConfigs().getCommaSeparatedResourceNames(), resourcesToAdd)));
+        String commaSeparatedResourceNames = getResourceConfigs().getCommaSeparatedResourceNames();
+        setResources(new ResourceConfigs(append(commaSeparatedResourceNames, resourcesToAdd)));
     }
 
     public void removeResources(List<String> resourcesToRemove) {
-        setResources(new ResourceConfigs(remove(getResourceConfigs().getCommaSeparatedResourceNames(), resourcesToRemove)));
+        String commaSeparatedResourceNames = getResourceConfigs().getCommaSeparatedResourceNames();
+        setResources(new ResourceConfigs(remove(commaSeparatedResourceNames, resourcesToRemove)));
     }
 
     public void removeEnvironments(List<String> envsToRemove) {

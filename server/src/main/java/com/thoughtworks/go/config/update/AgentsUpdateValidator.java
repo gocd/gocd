@@ -28,11 +28,13 @@ import com.thoughtworks.go.server.service.GoConfigService;
 import com.thoughtworks.go.server.service.result.LocalizedOperationResult;
 import com.thoughtworks.go.util.TriState;
 
+import java.util.Collections;
 import java.util.List;
 
 import static com.thoughtworks.go.i18n.LocalizedMessage.forbiddenToEdit;
 import static com.thoughtworks.go.serverhealth.HealthStateType.forbidden;
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.join;
 
@@ -57,11 +59,18 @@ public class AgentsUpdateValidator {
         this.result = result;
         this.uuids = uuids;
         this.state = state;
-        this.resourcesToAdd = resourcesToAdd;
-        this.resourcesToRemove = resourcesToRemove;
-        this.envsToAdd = envsToAdd;
-        this.envsToRemove = envsToRemove;
+
+        this.resourcesToAdd = actualOrEmptyList(resourcesToAdd);
+        this.resourcesToRemove = actualOrEmptyList(resourcesToRemove);
+
+        this.envsToAdd = (envsToAdd == null ? new EnvironmentsConfig() : envsToAdd);
+        this.envsToRemove = actualOrEmptyList(envsToRemove);
+
         this.goConfigService = goConfigService;
+    }
+
+    private List<String> actualOrEmptyList(List<String> list){
+        return (list == null ? emptyList() : list);
     }
 
     public boolean canContinue() {
@@ -85,7 +94,7 @@ public class AgentsUpdateValidator {
     }
 
     private void bombWhenResourceNamesToAddAreInvalid() {
-        ResourceConfigs resourceConfigs = new ResourceConfigs(join(resourcesToAdd, ","));
+        ResourceConfigs resourceConfigs = new ResourceConfigs(commaSeparate(resourcesToAdd));
 
         resourceConfigs.validate(null);
 
@@ -128,7 +137,7 @@ public class AgentsUpdateValidator {
 
         if (!(state.isTrue() || state.isFalse())) {
             result.badRequest(format("Pending agents [%s] must be explicitly enabled or disabled when performing any operations on them.",
-                                     join(pendingAgentUUIDs, ", ")));
+                                     commaSeparate(pendingAgentUUIDs)));
             throw new InvalidPendingAgentOperationException(pendingAgentUUIDs);
         }
     }
@@ -143,14 +152,15 @@ public class AgentsUpdateValidator {
             return;
         }
 
-        result.badRequest(format("Resources on elastic agents with uuids [%s] can not be updated.", join(elasticAgentUUIDs, ", ")));
+        result.badRequest(format("Resources on elastic agents with uuids [%s] can not be updated.", commaSeparate(elasticAgentUUIDs)));
         throw new ElasticAgentsResourceUpdateException(elasticAgentUUIDs);
     }
 
     private boolean resourcesAreNotUpdated() {
-        if(resourcesToAdd.isEmpty() && resourcesToRemove.isEmpty()){
-            return true;
-        }
-        return false;
+        return resourcesToAdd.isEmpty() && resourcesToRemove.isEmpty();
+    }
+
+    private String commaSeparate(List<String> listOfStrs){
+        return join(listOfStrs, ", ");
     }
 }

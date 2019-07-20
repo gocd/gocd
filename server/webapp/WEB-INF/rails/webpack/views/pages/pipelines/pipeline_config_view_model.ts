@@ -15,8 +15,11 @@
  */
 
 // utils
+import {ApiRequestBuilder, ApiVersion} from "helpers/api_request_builder";
+import SparkRoutes from "helpers/spark_routes";
 import * as m from "mithril";
 import * as stream from "mithril/stream";
+import * as s from "underscore.string";
 
 // models and such
 import {ConfigRepo} from "models/config_repos/types";
@@ -25,6 +28,11 @@ import {Job} from "models/pipeline_configs/job";
 import {NameableSet} from "models/pipeline_configs/nameable_set";
 import {PipelineConfig} from "models/pipeline_configs/pipeline_config";
 import {Stage} from "models/pipeline_configs/stage";
+import {ExtensionType} from "models/shared/plugin_infos_new/extension_type";
+import {ConfigRepoSettings} from "models/shared/plugin_infos_new/extensions";
+import {PluginInfo} from "models/shared/plugin_infos_new/plugin_info";
+import {PluginInfosCache} from "models/shared/plugin_infos_new/plugin_infos_cache";
+import {Option} from "views/components/forms/input_fields";
 
 export class PipelineConfigVM {
   pluginId = stream(ConfigRepo.YAML_PLUGIN_ID);
@@ -33,6 +41,8 @@ export class PipelineConfigVM {
   stage: Stage = new Stage("", [this.job]);
   pipeline: PipelineConfig = new PipelineConfig("", [this.material], []);
   isUsingTemplate = stream(false);
+
+  private pluginCache = new PluginInfosCache<ConfigRepoSettings, Option>(ExtensionType.CONFIG_REPO, toOption, onlyExportPlugins);
 
   whenTemplateAbsent(fn: () => m.Children) {
     const { pipeline, stage, isUsingTemplate } = this;
@@ -44,8 +54,47 @@ export class PipelineConfigVM {
       return fn();
     }
   }
+
+  exportPlugins() {
+    this.pluginCache.prime(m.redraw);
+    return this.pluginCache.contents();
+  }
+
+  preview(pluginId: string, validate?: boolean) {
+    const {group, pipeline} = this.pipeline.toApiPayload();
+
+    if (!validate) {
+      if (s.isBlank(pipeline.name)) {
+        pipeline.name = "** UNNAMED PIPELINE **";
+      }
+
+      for (let i = pipeline.stages.length - 1; i >= 0; i--) {
+        const stage = pipeline.stages[i];
+        if (stage && s.isBlank(stage.name)) {
+          stage.name = `** UNNAMED STAGE ${i + 1} **`;
+        }
+
+        for (let k = stage.jobs.length; k >= 0; k--) {
+          const job = stage.jobs[k];
+          if (job && s.isBlank(job.name)) {
+            job.name = `** UNNAMED JOB ${k + 1} **`;
+          }
+        }
+      }
+    }
+
+    return ApiRequestBuilder.POST(SparkRoutes.pacPreview(pluginId, group, validate), ApiVersion.v1, { payload: pipeline });
+  }
 }
 
 export interface PipelineConfigVMAware {
   vm: PipelineConfigVM;
+}
+
+function toOption(plugin: PluginInfo<ConfigRepoSettings>): Option {
+  return { id: plugin.id, text: plugin.about.name };
+}
+
+function onlyExportPlugins(plugin: PluginInfo<ConfigRepoSettings>): boolean {
+  return "active" === plugin.status.state && plugin.extensions.some((ext) => ext.capabilities.supportsPipelineExport);
 }
